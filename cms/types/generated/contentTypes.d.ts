@@ -557,6 +557,46 @@ export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
+  collectionName: 'homepages'
+  info: {
+    description: 'Homepage single type with dynamic content blocks'
+    displayName: 'Homepage'
+    pluralName: 'homepages'
+    singularName: 'homepage'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.cards-grid',
+        'blocks.card-links-grid',
+        'blocks.carousel',
+        'blocks.cta-banner'
+      ]
+    >
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.Required
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::homepage.homepage'
+    > &
+      Schema.Attribute.Private
+    publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiMediaPageMediaPage extends Struct.SingleTypeSchema {
   collectionName: 'media_pages'
   info: {
@@ -1151,6 +1191,7 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::financial-services-page.financial-services-page': ApiFinancialServicesPageFinancialServicesPage
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
+      'api::homepage.homepage': ApiHomepageHomepage
       'api::media-page.media-page': ApiMediaPageMediaPage
       'api::navigation.navigation': ApiNavigationNavigation
       'api::news-event.news-event': ApiNewsEventNewsEvent

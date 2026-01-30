@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_blocks_carousel_items",
+  "info": {
+    "displayName": "Carousel Item",
+    "icon": "quote-right",
+    "description": "Single carousel slide with quote and attribution"
+  },
+  "options": {},
+  "attributes": {
+    "quote": {
+      "type": "text",
+      "required": true
+    },
+    "author": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "organization": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

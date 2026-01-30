@@ -1,5 +1,135 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
+export interface BlocksCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cards'
+  info: {
+    description: 'Single card with title, description, and optional link'
+    displayName: 'Card'
+    icon: 'dashboard'
+  }
+  attributes: {
+    description: Schema.Attribute.Text
+    icon: Schema.Attribute.String
+    link: Schema.Attribute.String
+    linkText: Schema.Attribute.String
+    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    title: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
+export interface BlocksCardLink extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_card_links'
+  info: {
+    description: 'Simple link card with title and arrow'
+    displayName: 'Card Link'
+    icon: 'link'
+  }
+  attributes: {
+    description: Schema.Attribute.Text
+    href: Schema.Attribute.String & Schema.Attribute.Required
+    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    title: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
+export interface BlocksCardLinksGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_card_links_grids'
+  info: {
+    description: 'Grid of clickable card links'
+    displayName: 'Card Links Grid'
+    icon: 'th-large'
+  }
+  attributes: {
+    cards: Schema.Attribute.Component<'blocks.card-link', true>
+    columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
+      Schema.Attribute.DefaultTo<'3'>
+    heading: Schema.Attribute.String
+    subheading: Schema.Attribute.Text
+  }
+}
+
+export interface BlocksCardsGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cards_grids'
+  info: {
+    description: 'Grid of cards with title and description'
+    displayName: 'Cards Grid'
+    icon: 'apps'
+  }
+  attributes: {
+    cards: Schema.Attribute.Component<'blocks.card', true>
+    columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
+      Schema.Attribute.DefaultTo<'3'>
+    heading: Schema.Attribute.String
+    subheading: Schema.Attribute.Text
+  }
+}
+
+export interface BlocksCarousel extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_carousels'
+  info: {
+    description: 'Carousel/slider for testimonials or featured content'
+    displayName: 'Carousel'
+    icon: 'images'
+  }
+  attributes: {
+    autoplay: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
+    heading: Schema.Attribute.String
+    interval: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<5000>
+    items: Schema.Attribute.Component<'blocks.carousel-item', true>
+  }
+}
+
+export interface BlocksCarouselItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_carousel_items'
+  info: {
+    description: 'Single carousel slide with quote and attribution'
+    displayName: 'Carousel Item'
+    icon: 'quote-right'
+  }
+  attributes: {
+    author: Schema.Attribute.String
+    image: Schema.Attribute.Media<'images'>
+    organization: Schema.Attribute.String
+    quote: Schema.Attribute.Text & Schema.Attribute.Required
+    role: Schema.Attribute.String
+  }
+}
+
+export interface BlocksCtaBanner extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cta_banners'
+  info: {
+    description: 'Call-to-action banner with heading, text and buttons'
+    displayName: 'CTA Banner'
+    icon: 'bullhorn'
+  }
+  attributes: {
+    backgroundColor: Schema.Attribute.Enumeration<
+      ['primary', 'secondary', 'light', 'dark']
+    > &
+      Schema.Attribute.DefaultTo<'primary'>
+    heading: Schema.Attribute.String & Schema.Attribute.Required
+    primaryButtonLink: Schema.Attribute.String
+    primaryButtonText: Schema.Attribute.String
+    secondaryButtonLink: Schema.Attribute.String
+    secondaryButtonText: Schema.Attribute.String
+    text: Schema.Attribute.Text
+  }
+}
+
+export interface BlocksParagraph extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_paragraphs'
+  info: {
+    description: 'Rich text content block'
+    displayName: 'Paragraph'
+    icon: 'align-left'
+  }
+  attributes: {
+    alignment: Schema.Attribute.Enumeration<['left', 'center', 'right']> &
+      Schema.Attribute.DefaultTo<'left'>
+    content: Schema.Attribute.RichText & Schema.Attribute.Required
+  }
+}
+
 export interface NavigationMenuGroup extends Struct.ComponentSchema {
   collectionName: 'components_navigation_menu_groups'
   info: {
@@ -43,6 +173,22 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedHero extends Struct.ComponentSchema {
+  collectionName: 'components_shared_heroes'
+  info: {
+    description: 'Hero section with title, description and CTAs'
+    displayName: 'Hero'
+    icon: 'star'
+  }
+  attributes: {
+    backgroundImage: Schema.Attribute.Media<'images'>
+    description: Schema.Attribute.Text
+    primaryCta: Schema.Attribute.Component<'shared.cta-link', false>
+    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true>
+    title: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface SharedHeroSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_hero_sections'
   info: {
@@ -67,14 +213,47 @@ export interface SharedSection extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedSeo extends Struct.ComponentSchema {
+  collectionName: 'components_shared_seos'
+  info: {
+    description: 'SEO metadata for pages'
+    displayName: 'SEO'
+    icon: 'search'
+  }
+  attributes: {
+    canonicalUrl: Schema.Attribute.String
+    keywords: Schema.Attribute.Text
+    metaDescription: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160
+      }>
+    metaImage: Schema.Attribute.Media<'images'>
+    metaTitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60
+      }>
+  }
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blocks.card': BlocksCard
+      'blocks.card-link': BlocksCardLink
+      'blocks.card-links-grid': BlocksCardLinksGrid
+      'blocks.cards-grid': BlocksCardsGrid
+      'blocks.carousel': BlocksCarousel
+      'blocks.carousel-item': BlocksCarouselItem
+      'blocks.cta-banner': BlocksCtaBanner
+      'blocks.paragraph': BlocksParagraph
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
       'shared.cta-link': SharedCtaLink
+      'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
       'shared.section': SharedSection
+      'shared.seo': SharedSeo
     }
   }
 }

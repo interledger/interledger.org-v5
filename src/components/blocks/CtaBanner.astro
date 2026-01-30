@@ -1,0 +1,156 @@
+---
+interface Props {
+  heading: string
+  text?: string
+  primaryButtonText?: string
+  primaryButtonLink?: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
+  backgroundColor?: 'primary' | 'secondary' | 'light' | 'dark'
+}
+
+const {
+  heading,
+  text,
+  primaryButtonText,
+  primaryButtonLink,
+  secondaryButtonText,
+  secondaryButtonLink,
+  backgroundColor = 'primary'
+} = Astro.props
+---
+
+<section class={`cta-banner cta-banner--${backgroundColor}`}>
+  <div class="cta-banner__content">
+    <h2 class="cta-banner__heading">{heading}</h2>
+    {text && <p class="cta-banner__text">{text}</p>}
+    {(primaryButtonText || secondaryButtonText) && (
+      <div class="cta-banner__buttons">
+        {primaryButtonText && primaryButtonLink && (
+          <a href={primaryButtonLink} class="cta-banner__btn cta-banner__btn--primary">
+            {primaryButtonText}
+          </a>
+        )}
+        {secondaryButtonText && secondaryButtonLink && (
+          <a href={secondaryButtonLink} class="cta-banner__btn cta-banner__btn--secondary">
+            {secondaryButtonText}
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .cta-banner {
+    padding: var(--space-xl) var(--space-m);
+    text-align: center;
+  }
+
+  .cta-banner--primary {
+    background: linear-gradient(to right, #007777, #69bcc3);
+    background: linear-gradient(
+      to right,
+      oklch(51.54% 0.088 194.77),
+      oklch(74.53% 0.082 202.65)
+    );
+    color: white;
+  }
+
+  .cta-banner--secondary {
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-text);
+  }
+
+  .cta-banner--light {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-text);
+  }
+
+  .cta-banner--dark {
+    background: var(--sl-color-black);
+    color: white;
+  }
+
+  .cta-banner__content {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .cta-banner__heading {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-block-end: var(--space-s);
+  }
+
+  .cta-banner--primary .cta-banner__heading {
+    color: white;
+  }
+
+  .cta-banner--secondary .cta-banner__heading,
+  .cta-banner--light .cta-banner__heading {
+    color: var(--color-primary);
+  }
+
+  .cta-banner__text {
+    font-size: 1.125rem;
+    margin-block-end: var(--space-m);
+    opacity: 0.9;
+  }
+
+  .cta-banner__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-s);
+  }
+
+  .cta-banner__btn {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-m);
+    border-radius: 10em;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 200ms ease-in-out;
+  }
+
+  .cta-banner--primary .cta-banner__btn--primary {
+    background: white;
+    color: var(--color-primary);
+  }
+
+  .cta-banner--primary .cta-banner__btn--primary:hover {
+    opacity: 0.9;
+  }
+
+  .cta-banner--primary .cta-banner__btn--secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+
+  .cta-banner--primary .cta-banner__btn--secondary:hover {
+    background: white;
+    color: var(--color-primary);
+  }
+
+  .cta-banner--secondary .cta-banner__btn--primary,
+  .cta-banner--light .cta-banner__btn--primary,
+  .cta-banner--dark .cta-banner__btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .cta-banner--secondary .cta-banner__btn--secondary,
+  .cta-banner--light .cta-banner__btn--secondary {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .cta-banner--dark .cta-banner__btn--secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+</style>

@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_blocks_cards_grids",
+  "info": {
+    "displayName": "Cards Grid",
+    "icon": "apps",
+    "description": "Grid of cards with title and description"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subheading": {
+      "type": "text"
+    },
+    "cards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.card"
+    },
+    "columns": {
+      "type": "enumeration",
+      "enum": ["2", "3", "4"],
+      "default": "3"
+    }
+  }
+}

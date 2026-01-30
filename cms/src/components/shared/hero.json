@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_shared_heroes",
+  "info": {
+    "displayName": "Hero",
+    "icon": "star",
+    "description": "Hero section with title, description and CTAs"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "backgroundImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "primaryCta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta-link"
+    },
+    "secondaryCtas": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.cta-link"
+    }
+  }
+}

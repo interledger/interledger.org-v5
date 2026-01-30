@@ -1,0 +1,72 @@
+---
+import MarkdownIt from 'markdown-it'
+
+interface Props {
+  content: string
+  alignment?: 'left' | 'center' | 'right'
+}
+
+const { content, alignment = 'left' } = Astro.props
+
+// Convert markdown to HTML
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+})
+const htmlContent = md.render(content || '')
+---
+
+<div class={`paragraph paragraph--${alignment}`} set:html={htmlContent} />
+
+<style>
+  .paragraph {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .paragraph--center {
+    text-align: center;
+  }
+
+  .paragraph--right {
+    text-align: right;
+  }
+
+  .paragraph :global(p) {
+    margin-block-end: var(--space-s);
+    line-height: 1.6;
+  }
+
+  .paragraph :global(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .paragraph :global(a:hover) {
+    text-decoration: none;
+  }
+
+  .paragraph :global(h2) {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-block: var(--space-l) var(--space-s);
+    color: var(--color-primary);
+  }
+
+  .paragraph :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-block: var(--space-m) var(--space-xs);
+  }
+
+  .paragraph :global(ul),
+  .paragraph :global(ol) {
+    margin-block-end: var(--space-s);
+    padding-inline-start: var(--space-m);
+  }
+
+  .paragraph :global(li) {
+    margin-block-end: var(--space-xs);
+  }
+</style>

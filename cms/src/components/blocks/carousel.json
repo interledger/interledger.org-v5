@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_blocks_carousels",
+  "info": {
+    "displayName": "Carousel",
+    "icon": "images",
+    "description": "Carousel/slider for testimonials or featured content"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.carousel-item"
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": true
+    },
+    "interval": {
+      "type": "integer",
+      "default": 5000
+    }
+  }
+}

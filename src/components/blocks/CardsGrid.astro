@@ -1,0 +1,130 @@
+---
+interface Card {
+  title: string
+  description?: string
+  link?: string
+  linkText?: string
+  icon?: string
+  openInNewTab?: boolean
+}
+
+interface Props {
+  heading?: string
+  subheading?: string
+  cards: Card[]
+  columns?: '2' | '3' | '4'
+}
+
+const { heading, subheading, cards, columns = '3' } = Astro.props
+---
+
+<div class="cards-grid-wrapper">
+  {heading && (
+    <div class="cards-grid__header">
+      <h2 class="cards-grid__heading">{heading}</h2>
+      {subheading && <p class="cards-grid__subheading">{subheading}</p>}
+    </div>
+  )}
+  <div class={`cards-grid cards-grid--${columns}`}>
+    {cards.map((card) => (
+      <article class="card">
+        {card.icon && <div class="card__icon" set:html={card.icon} />}
+        <h3 class="card__title">{card.title}</h3>
+        {card.description && <p class="card__description">{card.description}</p>}
+        {card.link && (
+          <a
+            href={card.link}
+            class="card__link"
+            {...(card.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            {card.linkText || 'Learn more'} →
+          </a>
+        )}
+      </article>
+    ))}
+  </div>
+</div>
+
+<style>
+  .cards-grid-wrapper {
+    max-width: 1200px;
+    margin-inline: auto;
+  }
+
+  .cards-grid__header {
+    text-align: center;
+    margin-block-end: var(--space-l);
+  }
+
+  .cards-grid__heading {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-block-end: var(--space-xs);
+  }
+
+  .cards-grid__subheading {
+    font-size: 1.125rem;
+    color: var(--sl-color-gray-2);
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  .cards-grid {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .cards-grid--2 {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .cards-grid--3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .cards-grid--4 {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: var(--space-m);
+    border: 1px solid var(--sl-color-gray-5);
+    transition: box-shadow 200ms ease-in-out;
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card__icon {
+    width: 48px;
+    height: 48px;
+    margin-block-end: var(--space-s);
+  }
+
+  .card__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-block-end: var(--space-xs);
+    color: var(--color-primary);
+  }
+
+  .card__description {
+    color: var(--sl-color-gray-2);
+    line-height: 1.5;
+    margin-block-end: var(--space-s);
+  }
+
+  .card__link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .card__link:hover {
+    text-decoration: underline;
+  }
+</style>

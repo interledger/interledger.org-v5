@@ -10,6 +10,7 @@
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
     "sync:nav": "npx tsx scripts/sync-navigation.ts",
+    "sync:homepage": "npx tsx scripts/sync-homepage.ts",
     "import:nav": "npx tsx scripts/import-navigation.ts",
     "import:pages": "npx tsx scripts/import-pages.ts"
   },

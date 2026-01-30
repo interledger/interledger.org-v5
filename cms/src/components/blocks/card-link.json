@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blocks_card_links",
+  "info": {
+    "displayName": "Card Link",
+    "icon": "link",
+    "description": "Simple link card with title and arrow"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    },
+    "openInNewTab": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
