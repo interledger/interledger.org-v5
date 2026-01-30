@@ -6,8 +6,24 @@
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
-import { writeFileSync, mkdirSync } from 'fs'
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
+
+// Load .env file
+const envPath = join(process.cwd(), '.env')
+if (existsSync(envPath)) {
+  const envContent = readFileSync(envPath, 'utf-8')
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim()
+    if (trimmed && !trimmed.startsWith('#')) {
+      const [key, ...valueParts] = trimmed.split('=')
+      const value = valueParts.join('=').replace(/^["']|["']$/g, '')
+      if (key && !process.env[key]) {
+        process.env[key] = value
+      }
+    }
+  }
+}
 
 interface CtaLink {
   text: string
