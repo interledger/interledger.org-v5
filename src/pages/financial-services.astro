@@ -1,0 +1,534 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const defaultInfoItems = [
+  {
+    title: 'Who is eligible to apply?',
+    content:
+      '<ul><li>Registered corporations</li><li>Non-government entities, institutions, collectives</li><li>Nonprofits</li></ul><p><strong>Focus areas:</strong></p><ul><li><strong>Becoming a financial node</strong> within the Interledger Network</li><li><strong>Expanding payment options</strong> on an existing web-based platform</li></ul>',
+    order: 0
+  },
+  {
+    title: 'How long do funded projects need to run?',
+    content: '<p>Projects must run for 12 months.</p>',
+    order: 1
+  },
+  {
+    title: 'How can the funds be used?',
+    content:
+      '<p>For projects that establish a new node on the Interledger Network or expand payment options for web-based platforms, funds can support:</p><ul><li>Technical development & integration</li><li>Platform expansion & user adoption</li><li>Advancing financial inclusion through open payments</li></ul>',
+    order: 2
+  },
+  {
+    title: 'Where can I get more information?',
+    content:
+      '<ul><li>Need specific details? Submit a <a href="#">Grant Inquiry Request Form</a> for personalized support.</li><li>Contact Us: <a href="mailto:programteam@interledger.org">programteam@interledger.org</a></li><li>Join our <a href="#">Slack channel</a> (<strong>#cfp-financial-services</strong>)</li><li>Sign up for the <a href="#">ILF Newsletter</a></li></ul>',
+    order: 3
+  }
+]
+
+const defaultContent = {
+  heroTitle: 'Unlock payment potential',
+  heroDescription:
+    "We're building a global, open payments network designed to empower financial service providers.",
+  programOverview:
+    'We are building a global, open payments network designed to empower financial service providers, fintech innovators, and businesses to create an inclusive financial ecosystem. By building on Interledger, organizations are unlocking the potential of frictionless, global transactions, enabling micropayments, cross-currency interoperability, and seamless financial access for everyone—regardless of identity, geography, or income.',
+  applicationNotice:
+    'The 2025 application window has closed, stay tuned for new opportunities in 2026.',
+  ctaTitle: 'Stay Connected',
+  ctaDescription:
+    'You can email our Programs team with any questions, join our mailing list to get all grant opportunities into your inbox, and/or join our community space to interact with ongoing projects and our growing community.',
+  ctaEmailLabel: 'Contact Us',
+  ctaSubscribeLabel: 'Subscribe for Updates'
+}
+
+const defaultGrants = [
+  {
+    name: 'Interledger | Enabled',
+    amount: 'Up to $250,000 USD',
+    description:
+      '<p>Designed for <strong>digital financial service providers</strong>—including digital wallets, mobile money providers, banks, savings co-ops, and neo-banks—this track helps integrate Rafiki into existing financial infrastructures, establishing new financial nodes on the Interledger Network.</p>',
+    order: 0
+  },
+  {
+    name: 'Interledger | Unlocked',
+    amount: 'Up to $150,000 USD',
+    description:
+      '<p>For <strong>web-based platforms</strong> (e.g., e-commerce sites, donation platforms) that want to expand payment options for users by integrating Open Payments APIs into their systems.</p>',
+    order: 1
+  }
+]
+
+const [pageContentEntry] = await getCollection('financial-services')
+const grantTracks = await getCollection('grant-tracks')
+
+const pageContent = { ...defaultContent, ...(pageContentEntry?.data || {}) }
+const grants =
+  grantTracks.length > 0
+    ? grantTracks
+        .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+        .map((entry) => ({
+          ...entry.data,
+          description: entry.data.description || entry.body || ''
+        }))
+    : defaultGrants
+const infoItems = pageContentEntry?.data?.faqItems?.length
+  ? [...(pageContentEntry.data.faqItems || [])].sort(
+      (a, b) => (a.order ?? 0) - (b.order ?? 0)
+    )
+  : defaultInfoItems
+---
+
+<BaseLayout title="Financial Services - Interledger Foundation">
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="content-wrapper hero__inner">
+        <div class="hero__text">
+          <h1 class="hero__heading">{pageContent.heroTitle}</h1>
+          <p class="hero__subtitle">{pageContent.heroDescription}</p>
+        </div>
+        <div class="hero__art" aria-hidden="true">
+          <div class="hero__orb hero__orb--large"></div>
+          <div class="hero__orb hero__orb--small"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Program Overview Section -->
+    <section class="program-overview">
+      <div class="content-wrapper">
+        <h2 class="section-title">Program Overview</h2>
+        <p class="overview-text">
+          {pageContent.programOverview || defaultContent.programOverview}
+        </p>
+        <div class="notice-box">
+          <p>
+            <strong
+              >{
+                pageContent.applicationNotice ||
+                  defaultContent.applicationNotice
+              }</strong
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="content-wrapper">
+        <hr />
+      </div>
+    </div>
+
+    <!-- Grant Tracks Section -->
+    <section class="grants-section">
+      <div class="content-wrapper">
+        <h2 class="section-title">Grant Tracks</h2>
+        <div class="grants-list">
+          {
+            grants.map((grant: any) => (
+              <article class="grant-item">
+                <h3 class="grant-item__title">
+                  {grant.name}{' '}
+                  <em class="grant-item__amount">({grant.amount})</em>
+                </h3>
+                <div class="grant-item__content" set:html={grant.description} />
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="content-wrapper">
+        <hr />
+      </div>
+    </div>
+
+    <!-- What You Need to Know Section (FAQ Accordion) -->
+    <section class="faq-section">
+      <div class="content-wrapper">
+        <h2 class="section-title">What You Need to Know</h2>
+        <div class="faq-list">
+          {
+            infoItems.map((item: any, index: number) => (
+              <details class="faq-item" open={index === infoItems.length - 1}>
+                <summary class="faq-item__question">
+                  <h3>{item.title}</h3>
+                  <span class="faq-item__icon" aria-hidden="true" />
+                </summary>
+                <div class="faq-item__answer" set:html={item.content} />
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="content-wrapper">
+        <hr />
+      </div>
+    </div>
+
+    <!-- Stay Connected Section -->
+    <section class="cta-section">
+      <div class="content-wrapper">
+        <h2 class="section-title">{pageContent.ctaTitle}</h2>
+        <p class="cta-text">
+          {pageContent.ctaDescription || defaultContent.ctaDescription}
+        </p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    padding-block-end: var(--space-xl);
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+      to right,
+      oklch(51.54% 0.088 194.77),
+      oklch(74.53% 0.082 202.65)
+    );
+    color: var(--color-white);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse at 20% 30%,
+        rgba(255, 255, 255, 0.18),
+        transparent 45%
+      ),
+      radial-gradient(ellipse at 70% 70%, rgba(0, 0, 0, 0.15), transparent 45%);
+    pointer-events: none;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-xl);
+    align-items: center;
+    padding-block: var(--space-xl);
+  }
+
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    max-width: 640px;
+  }
+
+  .hero__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+
+  .hero__heading {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    line-height: 1.05;
+    margin: 0;
+    text-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  .hero__subtitle {
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0;
+  }
+
+  .hero__art {
+    position: relative;
+    min-height: 260px;
+  }
+
+  .hero__orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(0px);
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.8),
+      transparent 55%
+    );
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+  }
+
+  .hero__orb--large {
+    inset: 0;
+    background:
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.8),
+        transparent 60%
+      ),
+      radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.15), transparent 60%);
+  }
+
+  .hero__orb--small {
+    width: 160px;
+    height: 160px;
+    right: 12%;
+    top: 12%;
+    background: radial-gradient(
+      circle at 40% 40%,
+      rgba(255, 255, 255, 0.7),
+      transparent 60%
+    );
+    opacity: 0.8;
+  }
+
+  /* Section Title (Red/Orange accent like reference) */
+  .section-title {
+    color: #b33a2b;
+    font-size: var(--step-3);
+    font-weight: 400;
+    font-style: italic;
+    margin-block-end: var(--space-m);
+  }
+
+  /* Program Overview */
+  .program-overview {
+    padding-block: var(--space-xl);
+  }
+
+  .overview-text {
+    font-size: var(--step-0);
+    line-height: 1.8;
+    margin-block-end: var(--space-l);
+  }
+
+  .notice-box {
+    background-color: rgba(179, 58, 43, 0.06);
+    border-left: 4px solid #b33a2b;
+    padding: var(--space-m) var(--space-l);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  .notice-box p {
+    margin: 0;
+    color: #222;
+    font-style: italic;
+  }
+
+  /* Divider */
+  .divider {
+    padding-block: var(--space-s);
+  }
+
+  .divider hr {
+    border: none;
+    border-top: 1px solid #ddd;
+  }
+
+  /* Grant Tracks Section */
+  .grants-section {
+    padding-block: var(--space-xl);
+  }
+
+  .grants-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .grant-item {
+  }
+
+  .grant-item__title {
+    font-size: var(--step-2);
+    font-weight: 600;
+    margin-block-end: var(--space-s);
+    color: var(--color-black);
+  }
+
+  .grant-item__amount {
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .grant-item__content {
+    font-size: var(--step-0);
+    line-height: 1.7;
+  }
+
+  .grant-item__content :global(p) {
+    margin-block-end: var(--space-s);
+  }
+
+  .grant-item__content :global(p:last-child) {
+    margin-block-end: 0;
+  }
+
+  .grant-item__content :global(strong) {
+    color: inherit;
+    font-weight: 700;
+  }
+
+  /* FAQ Section */
+  .faq-section {
+    padding-block: var(--space-xl);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid #ddd;
+  }
+
+  .faq-item:first-child {
+    border-top: 1px solid #ddd;
+  }
+
+  .faq-item__question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-m) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item__question h3 {
+    font-size: var(--step-1);
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-black);
+    transition: color 0.2s ease;
+  }
+
+  .faq-item__question:hover h3 {
+    color: var(--color-primary);
+  }
+
+  .faq-item__icon {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-left: var(--space-m);
+  }
+
+  .faq-item__icon::before,
+  .faq-item__icon::after {
+    content: '';
+    position: absolute;
+    background-color: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item__icon::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    transform: translateY(-50%);
+  }
+
+  .faq-item__icon::after {
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+
+  .faq-item[open] .faq-item__icon::after {
+    transform: translateX(-50%) rotate(90deg);
+  }
+
+  .faq-item__answer {
+    padding-block-end: var(--space-l);
+    font-size: var(--step-0);
+    line-height: 1.7;
+  }
+
+  .faq-item__answer :global(p) {
+    margin-block-end: var(--space-s);
+  }
+
+  .faq-item__answer :global(ul) {
+    margin-block: var(--space-s);
+    padding-inline-start: var(--space-m);
+  }
+
+  .faq-item__answer :global(li) {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .faq-item__answer :global(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .faq-item__answer :global(a:hover) {
+    text-decoration-thickness: 2px;
+  }
+
+  .faq-item__answer :global(strong) {
+    color: inherit;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding-block: var(--space-xl);
+  }
+
+  .cta-text {
+    font-size: var(--step-0);
+    line-height: 1.8;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 799px) {
+    .hero {
+      min-height: 60vh;
+      padding: var(--space-l);
+    }
+
+    .hero__title-light,
+    .hero__title-bold {
+      font-size: clamp(2.5rem, 10vw, 4rem);
+    }
+  }
+
+  @media screen and (min-width: 800px) {
+    .hero {
+      padding-inline: 10%;
+    }
+  }
+</style>

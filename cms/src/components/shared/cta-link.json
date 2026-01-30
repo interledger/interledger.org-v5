@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_shared_cta_links",
+  "info": {
+    "displayName": "Call-to-action Link"
+  },
+  "options": {},
+  "attributes": {
+    "link": {
+      "type": "string",
+      "required": true
+    },
+    "analytics_event_label": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "style": {
+      "type": "enumeration",
+      "default": "primary",
+      "enum": ["primary", "secondary"]
+    },
+    "external": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "config": {}
+}

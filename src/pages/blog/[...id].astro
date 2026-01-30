@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content'
+import CommunityLinks from '../../components/blog/CommunityLinks.astro'
+import BlogLayout from '../../layouts/BlogLayout.astro'
+
+export const prerender = true
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog')
+  return blogEntries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+---
+
+<BlogLayout frontmatter={entry.data}>
+  <Content />
+  <CommunityLinks />
+</BlogLayout>

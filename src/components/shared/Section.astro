@@ -1,0 +1,67 @@
+---
+const { title, content } = Astro.props
+// Helper: render children text
+const renderChildren = (children = []) => {
+  return children.map((node) => {
+    if (node.type === 'link' && node.type === 'text') return ''
+
+    if (node.type === 'link') {
+      const { url, children: linkChildren } = node
+      return `<a href="${url}">${renderChildren(linkChildren)}</a>`
+    }
+
+    const { text, bold, italic, underline, strikethrough, code } = node
+    let result = text
+
+    if (underline) result = `<u>${result}</u>`
+    if (italic) result = `<em>${result}</em>`
+    if (bold) result = `<strong>${result}</strong>`
+    if (strikethrough) result = `<s>${result}</s>`
+    if (code) result = `<code>${result}</code>`
+
+    return result
+  })
+}
+---
+
+<section>
+  <div class="content-wrapper">
+    <h2>{title}</h2>
+    {
+      content.map((block) => {
+        switch (block.type) {
+          case 'paragraph':
+            return <p set:html={renderChildren(block.children)} />
+          case 'list': {
+            const isOrdered = block.format === 'ordered'
+            const ListTag = isOrdered ? 'ol' : 'ul'
+            return (
+              <ListTag>
+                {block.children.map((item) => (
+                  <li set:html={renderChildren(item.children)} />
+                ))}
+              </ListTag>
+            )
+          }
+          default:
+            return null
+        }
+      })
+    }
+  </div>
+</section>
+<style>
+  h2 {
+    margin-block-end: var(--space-xs);
+  }
+
+  p,
+  ul,
+  ol {
+    margin-block-end: var(--space-2xs);
+  }
+
+  li {
+    margin-block-end: var(--space-3xs);
+  }
+</style>
