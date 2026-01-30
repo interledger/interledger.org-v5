@@ -81,12 +81,33 @@ const eventsCollection = defineCollection({
   })
 })
 
+const pagesCollection = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    sections: z.array(z.object({
+      title: z.string(),
+      content: z.string(),
+      ctas: z.array(z.object({
+        label: z.string(),
+        href: z.string()
+      })).optional()
+    })).optional()
+  })
+})
+
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   blog: blogCollection,
   press: pressCollection,
   events: eventsCollection,
+  pages: pagesCollection,
   'grant-tracks': grantTrackCollection,
   'financial-services': financialServicesPageCollection
 }

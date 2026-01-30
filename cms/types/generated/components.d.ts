@@ -1,5 +1,33 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
+export interface NavigationMenuGroup extends Struct.ComponentSchema {
+  collectionName: 'components_navigation_menu_groups'
+  info: {
+    description: 'A dropdown menu group with child items'
+    displayName: 'Menu Group'
+    icon: 'layer'
+  }
+  attributes: {
+    href: Schema.Attribute.String
+    items: Schema.Attribute.Component<'navigation.menu-item', true>
+    label: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
+export interface NavigationMenuItem extends Struct.ComponentSchema {
+  collectionName: 'components_navigation_menu_items'
+  info: {
+    description: 'A navigation menu item'
+    displayName: 'Menu Item'
+    icon: 'link'
+  }
+  attributes: {
+    href: Schema.Attribute.String
+    label: Schema.Attribute.String & Schema.Attribute.Required
+    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+  }
+}
+
 export interface SharedCtaLink extends Struct.ComponentSchema {
   collectionName: 'components_shared_cta_links'
   info: {
@@ -42,6 +70,8 @@ export interface SharedSection extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'navigation.menu-group': NavigationMenuGroup
+      'navigation.menu-item': NavigationMenuItem
       'shared.cta-link': SharedCtaLink
       'shared.hero-section': SharedHeroSection
       'shared.section': SharedSection

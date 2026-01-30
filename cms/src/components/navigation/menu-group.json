@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_navigation_menu_groups",
+  "info": {
+    "displayName": "Menu Group",
+    "icon": "layer",
+    "description": "A dropdown menu group with child items"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string"
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-item"
+    }
+  }
+}

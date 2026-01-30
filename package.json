@@ -8,7 +8,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
-    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 ."
+    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
+    "sync:nav": "npx tsx scripts/sync-navigation.ts",
+    "import:nav": "npx tsx scripts/import-navigation.ts",
+    "import:pages": "npx tsx scripts/import-pages.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
@@ -18,6 +21,7 @@
     "@interledger/docs-design-system": "^0.10.1",
     "@types/showdown": "^2.0.6",
     "astro": "^5.16.0",
+    "gray-matter": "^4.0.3",
     "html-to-text": "^9.0.5",
     "markdown-it": "^14.1.0",
     "node-html-parser": "^7.0.1",

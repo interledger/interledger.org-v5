@@ -4,7 +4,8 @@
   "info": {
     "singularName": "page",
     "pluralName": "pages",
-    "displayName": "Page"
+    "displayName": "Page",
+    "description": "Website pages with MDX content"
   },
   "options": {
     "draftAndPublish": true
@@ -23,14 +24,18 @@
     "description": {
       "type": "text"
     },
-    "hero": {
-      "type": "component",
-      "component": "shared.hero-section",
-      "repeatable": false
+    "mdxContent": {
+      "type": "text",
+      "required": true
     },
-    "dynamic": {
-      "type": "dynamiczone",
-      "components": ["shared.section", "shared.cta-link"]
+    "heroTitle": {
+      "type": "string"
+    },
+    "heroDescription": {
+      "type": "text"
+    },
+    "sections": {
+      "type": "json"
     }
   }
 }

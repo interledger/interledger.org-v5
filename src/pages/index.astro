@@ -1,166 +1,58 @@
 ---
-import ExternalIcon from '../../public/img/icon-external.svg'
-import LinkArrow from '../../public/img/icon-link-arrow.svg'
-import InterledgerIcon from '../components/logos/InterledgerIcon.astro'
-import OpenPaymentsIcon from '../components/logos/OpenPaymentsIcon.astro'
-import RafikiIcon from '../components/logos/RafikiIcon.astro'
+import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import LinkArrow from '../../public/img/icon-link-arrow.svg'
+
+const pages = await getCollection('pages')
+const homePage = pages.find((page) => page.data.slug === 'home')
+
+if (!homePage) {
+  throw new Error('Homepage not found in pages collection')
+}
+
+const { Content } = await render(homePage)
+const { title, heroTitle, heroDescription } = homePage.data
 ---
 
-<BaseLayout title="Developers">
+<BaseLayout title={title}>
   <main>
     <section class="hero">
       <div class="content-wrapper">
         <div class="text-wrapper">
           <h1 class="hero__heading heading--2">
-            Interledger Developers Portal
+            {heroTitle}
           </h1>
           <p class="hero__txt">
-            Help shape the future of interoperable payments and enable seamless
-            exchange of value across payment networks.
+            {heroDescription}
           </p>
           <div class="hero__cta">
             <a
               class="btn hero__btn"
-              href="/get-involved"
-              data-umami-event="Devs page link - Get involved"
-              ><span>Get involved</span> <LinkArrow /></a
+              href="/open-standards"
+              data-umami-event="Home - Understand Interledger"
+              ><span>Understand Interledger</span> <LinkArrow /></a
             >
             <a
-              href="https://github.com/interledger"
-              target="_blank"
-              rel="noopener noreferrer"
-              ><span>Contribute on Github</span>
-              <ExternalIcon class="external" />
-            </a>
+              class="btn hero__btn-secondary"
+              href="/developers"
+              data-umami-event="Home - Build with Interledger"
+              ><span>Build with Interledger</span> <LinkArrow /></a
+            >
+            <a
+              class="btn hero__btn-secondary"
+              href="/join-network"
+              data-umami-event="Home - Connect to network"
+              ><span>Connect to the network</span> <LinkArrow /></a
+            >
           </div>
         </div>
-        <div class="image-wrapper">
-          <img
-            src="/img/devs.svg"
-            alt="Illustration of developers working at a table"
-            class="hero__img"
-          />
-        </div>
       </div>
     </section>
 
-    <section>
+    <section class="content-section">
       <div class="content-wrapper">
-        <p class="heading--5">
-          We welcome contributions to our open-source repositories on GitHub. If
-          you find them valuable, please give us a star. Your support makes a
-          difference!
-        </p>
-      </div>
-    </section>
-
-    <section>
-      <div class="content-wrapper cards">
-        <div class="card">
-          <h2 class="heading--6">
-            <a
-              href="https://github.com/interledger/open-payments"
-              data-umami-event="Devs page link - GitHub"
-              target="_blank"
-              rel="noopener noreferrer"
-              ><OpenPaymentsIcon />
-              Open Payments Repo
-              <ExternalIcon class="external" />
-            </a>
-          </h2>
-          <p>
-            Open Payments is an open API standard that can be implemented by
-            account servicing entities to facilitate interoperability in the
-            setup and completion of payments for different use cases.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2 class="heading--6">
-            <a
-              href="https://github.com/interledger/rafiki"
-              data-umami-event="Devs page link - Rafiki"
-              target="_blank"
-              rel="noopener noreferrer"
-              ><RafikiIcon />
-              Rafiki Repo
-              <ExternalIcon class="external" />
-            </a>
-          </h2>
-          <p>
-            Rafiki is open source software that provides an efficient solution
-            for an Account Servicing Entity to enable Interledger functionality
-            on its users' accounts.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2 class="heading--6">
-            <a
-              href="https://github.com/interledger/rfcs"
-              data-umami-event="Devs page link - RFCs"
-              target="_blank"
-              rel="noopener noreferrer"
-              ><InterledgerIcon />
-              Specifications Repo
-              <ExternalIcon class="external" />
-            </a>
-          </h2>
-          <p>
-            The <a
-              href="/rfcs/interledger-protocol/"
-              data-umami-event="Devs page link - Read specs"
-              >Interledger Protocol (ILP)</a
-            > is an open, neutral protocol for transferring money based on TCP/IP,
-            designed for sending packets of money across different accounting ledgers.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2 class="heading--6">
-            <a
-              href="https://github.com/interledger/testnet"
-              data-umami-event="Devs page link - Testnet"
-              target="_blank"
-              rel="noopener noreferrer"
-              ><InterledgerIcon />
-              Test Network Repo
-              <ExternalIcon class="external" />
-            </a>
-          </h2>
-          <p>
-            The Test Network (Testnet) is an open Interledger network working
-            with test money designed for account servicing entities to test
-            their Interledger integration.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2 class="heading--6">
-            <a
-              href="/hacktoberfest"
-              data-umami-event="Devs page link - Hacktoberfest"
-              ><InterledgerIcon /> Hacktoberfest</a
-            >
-          </h2>
-          <p>
-            Join us this October to collaborate on our open source projects.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2 class="heading--6">Engineering Blog</h2>
-          <p>
-            Our team shares their thoughts and experiences on Interledger and
-            the work that we are doing.
-          </p>
-          <a
-            class="btn card__btn"
-            href="/blog"
-            data-umami-event="Devs page link - Blog"
-            >Read our blog<LinkArrow /></a
-          >
+        <div class="mdx-content">
+          <Content />
         </div>
       </div>
     </section>
@@ -179,6 +71,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
   section:last-child {
     padding-block-end: var(--space-l);
   }
+
   .hero {
     background-repeat: no-repeat;
     background-size: cover;
@@ -189,20 +82,22 @@ import BaseLayout from '../layouts/BaseLayout.astro'
       oklch(51.54% 0.088 194.77),
       oklch(74.53% 0.082 202.65)
     );
-    min-height: 60vh;
-    padding-block: var(--space-m);
+    min-height: 50vh;
+    padding-block: var(--space-xl);
     color: var(--color-white);
     display: flex;
     align-items: center;
   }
 
   .content-wrapper {
-    display: flex;
-    gap: var(--space-m);
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--space-m);
+    width: 100%;
   }
 
   .text-wrapper {
-    flex: 3;
+    max-width: 800px;
   }
 
   .btn {
@@ -230,7 +125,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
     transition: text-decoration-color ease-in-out 200ms;
   }
 
-  a:hover {
+  .hero a:hover {
     color: var(--color-white);
   }
 
@@ -238,35 +133,26 @@ import BaseLayout from '../layouts/BaseLayout.astro'
     text-decoration-color: inherit;
   }
 
-  .external {
-    height: 0.75em;
-    width: 0.75em;
-    display: inline-block;
-    margin-inline: var(--space-3xs);
-  }
-
   .hero__heading {
     color: var(--color-white);
-    max-width: 10em;
+    max-width: 14em;
     line-height: 1.2;
     font-weight: 600;
     margin-block-end: var(--space-xs);
+    font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
   .hero__txt {
-    margin-block-end: var(--space-s);
+    margin-block-end: var(--space-m);
+    font-size: 1.25rem;
+    max-width: 600px;
   }
 
   .hero__cta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space-s);
-  }
-
-  @media screen and (max-width: 420px) {
-    .hero__cta {
-      flex-direction: column;
-    }
   }
 
   .hero__btn {
@@ -284,89 +170,86 @@ import BaseLayout from '../layouts/BaseLayout.astro'
     color: var(--color-primary);
   }
 
-  .image-wrapper {
-    flex: 0 1 auto;
-    max-width: 28rem;
+  .hero__btn-secondary {
+    background-color: transparent;
+    border: 2px solid var(--color-white);
+    color: var(--color-white);
+    padding: var(--space-xs) var(--space-s);
   }
 
-  @media screen and (max-width: 799px) {
-    .hero {
-      padding-block: var(--space-xl);
-    }
-
-    .hero .content-wrapper {
-      flex-direction: column;
-      align-items: center;
-    }
-  }
-
-  @media screen and (min-width: 800px) {
-    .hero {
-      min-height: 70vh;
-    }
-
-    .image-wrapper {
-      align-self: end;
-    }
-  }
-
-  .cards {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .card {
-    border-radius: var(--border-radius);
-    margin-inline: auto;
-    box-shadow: var(--box-shadow);
-    padding: var(--space-s) var(--space-s);
+  .hero__btn-secondary:hover {
     background-color: var(--color-white);
-    width: 100%;
-  }
-
-  @media screen and (min-width: 800px) {
-    .card {
-      flex: 1 1 calc(50% - var(--space-m));
-    }
-  }
-
-  .card h2 {
-    font-weight: 600;
-  }
-
-  .card h2 a {
-    display: flex;
-    gap: var(--space-2xs);
-    align-items: center;
-  }
-
-  .card h2 a .external {
-    margin-inline: 0;
-  }
-
-  .card h2,
-  .card p {
-    margin-block-end: var(--space-3xs);
-  }
-
-  .card h2 svg {
-    width: 1em;
-  }
-
-  .card a:not(.card__btn) {
-    text-decoration: none;
     color: var(--color-primary);
   }
 
-  .card a:hover {
+  @media screen and (max-width: 600px) {
+    .hero__cta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .content-section {
+    padding-block: var(--space-xl);
+  }
+
+  .mdx-content {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .mdx-content :global(h2) {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-block: var(--space-l) var(--space-s);
+    color: var(--color-primary);
+  }
+
+  .mdx-content :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-block: var(--space-m) var(--space-xs);
+  }
+
+  .mdx-content :global(p) {
+    margin-block-end: var(--space-s);
+    line-height: 1.6;
+  }
+
+  .mdx-content :global(ul) {
+    margin-block-end: var(--space-s);
+    padding-inline-start: var(--space-m);
+  }
+
+  .mdx-content :global(li) {
+    margin-block-end: var(--space-xs);
+  }
+
+  .mdx-content :global(a) {
+    color: var(--color-primary);
     text-decoration: underline;
   }
 
-  .card__btn {
-    font-size: smaller;
+  .mdx-content :global(a:hover) {
+    text-decoration: none;
+  }
+
+  .mdx-content :global(.cta-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    margin-block: var(--space-m);
+  }
+
+  .mdx-content :global(.cta-group a) {
     background-color: var(--color-primary);
     color: var(--color-white);
-    margin-block-start: var(--space-xs);
-    padding: var(--space-2xs) var(--space-xs);
+    padding: var(--space-xs) var(--space-s);
+    border-radius: 10em;
+    text-decoration: none;
+  }
+
+  .mdx-content :global(.cta-group a:hover) {
+    opacity: 0.9;
   }
 </style>

@@ -595,6 +595,36 @@ export interface ApiMediaPageMediaPage extends Struct.SingleTypeSchema {
   }
 }
 
+export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
+  collectionName: 'navigations'
+  info: {
+    description: 'Main site navigation menu'
+    displayName: 'Navigation'
+    pluralName: 'navigations'
+    singularName: 'navigation'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::navigation.navigation'
+    > &
+      Schema.Attribute.Private
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiNewsEventNewsEvent extends Struct.CollectionTypeSchema {
   collectionName: 'news_events'
   info: {
@@ -636,6 +666,7 @@ export interface ApiNewsEventNewsEvent extends Struct.CollectionTypeSchema {
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages'
   info: {
+    description: 'Website pages with MDX content'
     displayName: 'Page'
     pluralName: 'pages'
     singularName: 'page'
@@ -648,12 +679,14 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
     description: Schema.Attribute.Text
-    dynamic: Schema.Attribute.DynamicZone<['shared.section', 'shared.cta-link']>
-    hero: Schema.Attribute.Component<'shared.hero-section', false>
+    heroDescription: Schema.Attribute.Text
+    heroTitle: Schema.Attribute.String
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
       Schema.Attribute.Private
+    mdxContent: Schema.Attribute.Text & Schema.Attribute.Required
     publishedAt: Schema.Attribute.DateTime
+    sections: Schema.Attribute.JSON
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
     title: Schema.Attribute.String & Schema.Attribute.Required
     updatedAt: Schema.Attribute.DateTime
@@ -1119,6 +1152,7 @@ declare module '@strapi/strapi' {
       'api::financial-services-page.financial-services-page': ApiFinancialServicesPageFinancialServicesPage
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::media-page.media-page': ApiMediaPageMediaPage
+      'api::navigation.navigation': ApiNavigationNavigation
       'api::news-event.news-event': ApiNewsEventNewsEvent
       'api::page.page': ApiPagePage
       'api::press-item.press-item': ApiPressItemPressItem

@@ -1,5 +1,23 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
+import navigation from '../../config/navigation.json'
+
+interface MenuItem {
+  label: string
+  href?: string
+  openInNewTab?: boolean
+}
+
+interface MenuGroup {
+  label: string
+  href?: string
+  items?: MenuItem[]
+}
+
+const { mainMenu, ctaButton } = navigation as {
+  mainMenu: MenuGroup[]
+  ctaButton?: MenuItem
+}
 ---
 
 <header class="site-header" role="banner">
@@ -26,72 +44,42 @@ import FoundationLogo from '../logos/FoundationLogo.astro'
       id="siteNavLinks"
     >
       <ul class="site-nav__links menu--level-1" id="siteNavMenu">
-        <li class="menu-item has-submenu menu-item--level-1">
-          <button aria-expanded="false" data-umami-event="Site Nav - Foundation"
-            >Foundation</button
-          >
-          <ul class="menu--level-2">
-            <li class="menu-item menu-item--level-2">
-              <a href="/press" data-umami-event="Site Nav - Press">Media</a>
-            </li>
-          </ul>
-        </li>
-        <li class="menu-item has-submenu menu-item--level-1">
-          <button aria-expanded="false" data-umami-event="Site Nav - Technology"
-            >Technology</button
-          >
-          <ul class="menu--level-2">
-            <li class="menu-item menu-item--level-2">
-              <a href="/" data-umami-event="Site Nav - Developers Portal"
-                >Developers Portal</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li class="menu-item has-submenu menu-item--level-1">
-          <button aria-expanded="false" data-umami-event="Site Nav - Grants"
-            >Grants</button
-          >
-          <ul class="menu--level-2">
-            <li class="menu-item menu-item--level-2">
-              <a
-                href="/financial-services"
-                data-umami-event="Site Nav - Financial Services"
-                >Financial Services</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li class="menu-item has-submenu menu-item--level-1">
-          <button
-            aria-expanded="false"
-            data-umami-event="Site Nav - Content hub">Content hub</button
-          >
-          <ul class="menu--level-2">
-            <li class="menu-item menu-item--level-2">
-              <a href="/blog" data-umami-event="Site Nav - Engineering Blog"
-                >Blog</a
-              >
-            </li>
-          </ul>
-        </li>
-        <li class="menu-item has-submenu menu-item--level-1">
-          <button
-            aria-expanded="false"
-            data-umami-event="Site Nav - Participate">Participate</button
-          >
-          <ul class="menu--level-2">
-            <li class="menu-item menu-item--level-2">
-              <a href="/events" data-umami-event="Site Nav - Events">Events</a>
-            </li>
-          </ul>
-        </li>
+        {mainMenu.map((group) => (
+          <li class="menu-item has-submenu menu-item--level-1">
+            <button
+              aria-expanded="false"
+              data-umami-event={`Site Nav - ${group.label}`}
+            >
+              {group.label}
+            </button>
+            {group.items && group.items.length > 0 && (
+              <ul class="menu--level-2">
+                {group.items.map((item) => (
+                  <li class="menu-item menu-item--level-2">
+                    <a
+                      href={item.href || '#'}
+                      data-umami-event={`Site Nav - ${item.label}`}
+                      {...(item.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
       </ul>
-      <a
-        class="switch-link"
-        href="/summit"
-        data-umami-event="Site Nav - Summit Link">Interledger Summit</a
-      >
+      {ctaButton && (
+        <a
+          class="switch-link"
+          href={ctaButton.href || '#'}
+          data-umami-event={`Site Nav - ${ctaButton.label}`}
+          {...(ctaButton.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          {ctaButton.label}
+        </a>
+      )}
     </div>
     <button
       type="button"

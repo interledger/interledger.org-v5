@@ -14,82 +14,100 @@ async function getPageFromStrapi(slug, preview) {
   const base = import.meta.env.STRAPI_URL
 
   if (!token || !base) {
-    throw new Error(`Missing Strapi config: token=${!!token}, url=${!!base}`)
+    console.log('Missing Strapi config, skipping Strapi fetch')
+    return null
   }
 
-  const query =
-    '&populate[hero][populate][hero_call_to_action]=true' +
-    '&populate[dynamic]=true'
-
-  const fetch_url = preview
-    ? `${base}/api/pages?filters[slug]=${slug}&status=draft` + query
-    : `${base}/api/pages?filters[slug]=${slug}` + query
+  // Try simple query first (for our simplified schema)
+  const simpleQuery = preview
+    ? `${base}/api/pages?filters[slug][$eq]=${slug}&status=draft`
+    : `${base}/api/pages?filters[slug][$eq]=${slug}`
 
   try {
-    const response = await fetch(fetch_url, {
+    const response = await fetch(simpleQuery, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
     if (!response.ok) {
-      throw new Error(`Strapi API error: ${response.status}`)
+      console.log(`Strapi API returned ${response.status} for slug: ${slug}`)
+      return null
     }
     const data = await response.json()
-    return data.data[0]
+    return data.data?.[0] || null
   } catch (error) {
     console.error('Strapi fetch failed:', error)
-    throw error
+    return null
   }
 }
 
 const data = await getPageFromStrapi(slug, preview)
-console.log(data)
+
+// Format slug for display (e.g., "about-us" -> "About Us")
+const pageTitle = slug
+  .split(/[-/]/)
+  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ')
 ---
 
-<BaseLayout title={data?.title ?? null} description={data?.description ?? null}>
-  {
-    data && (
-      <main>
-        {data.hero && (
-          <HeroSection
-            title={data.hero.hero_title ?? 'title'}
-            content={data.hero.hero_content ?? 'content'}
-            ctas={data.hero.hero_call_to_action ?? []}
-          />
-        )}
-        {data.dynamic && (
-          <section>
-            <div class="content-wrapper">
-              {data.dynamic.map((component) => {
-                switch (component.__component) {
-                  case 'shared.cta-link':
-                    return (
-                      <Link
-                        href={component.link}
-                        style={component.style}
-                        umami={component.analytics_event_label}
-                        external={component.external}
-                        text={component.text}
-                      />
-                    )
-                  case 'shared.section':
-                    return (
-                      <Section
-                        title={component.title}
-                        content={component.content}
-                      />
-                    )
-                  default:
-                    return null
-                }
-              })}
-            </div>
-          </section>
-        )}
-      </main>
-    )
-  }
+<BaseLayout title={data?.title ?? pageTitle} description={data?.description ?? null}>
+  <main>
+    {/* If no data from Strapi, show coming soon page */}
+    {!data && (
+      <section class="coming-soon">
+        <div class="content-wrapper">
+          <h1>{pageTitle}</h1>
+          <p>This page is coming soon.</p>
+          <a href="/" class="back-link">← Back to home</a>
+        </div>
+      </section>
+    )}
+    {/* Support both old schema (hero component) and new schema (heroTitle field) */}
+    {data && (data.hero || data.heroTitle) && (
+      <HeroSection
+        title={data.hero?.hero_title ?? data.heroTitle ?? 'title'}
+        content={data.hero?.hero_content ?? data.heroDescription ?? ''}
+        ctas={data.hero?.hero_call_to_action ?? []}
+      />
+    )}
+    {/* Old dynamic components schema */}
+    {data && data.dynamic && (
+      <section>
+        <div class="content-wrapper">
+          {data.dynamic.map((component) => {
+            switch (component.__component) {
+              case 'shared.cta-link':
+                return (
+                  <Link
+                    href={component.link}
+                    style={component.style}
+                    umami={component.analytics_event_label}
+                    external={component.external}
+                    text={component.text}
+                  />
+                )
+              case 'shared.section':
+                return (
+                  <Section
+                    title={component.title}
+                    content={component.content}
+                  />
+                )
+              default:
+                return null
+            }
+          })}
+        </div>
+      </section>
+    )}
+    {/* New mdxContent schema */}
+    {data && data.mdxContent && (
+      <section class="content-section">
+        <div class="content-wrapper mdx-content" set:html={data.mdxContent} />
+      </section>
+    )}
+  </main>
 </BaseLayout>
 
 <style>
@@ -109,5 +127,66 @@ console.log(data)
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
+  }
+
+  .content-section {
+    padding-block: var(--space-xl);
+  }
+
+  .mdx-content {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .mdx-content :global(h2) {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-block: var(--space-l) var(--space-s);
+    color: var(--color-primary);
+  }
+
+  .mdx-content :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-block: var(--space-m) var(--space-xs);
+  }
+
+  .mdx-content :global(p) {
+    margin-block-end: var(--space-s);
+    line-height: 1.6;
+  }
+
+  .mdx-content :global(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .coming-soon {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .coming-soon h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-block-end: var(--space-s);
+  }
+
+  .coming-soon p {
+    color: var(--sl-color-gray-2);
+    margin-block-end: var(--space-m);
+  }
+
+  .back-link {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .back-link:hover {
+    text-decoration: none;
   }
 </style>
