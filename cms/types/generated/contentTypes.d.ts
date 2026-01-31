@@ -557,84 +557,6 @@ export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
-  collectionName: 'homepages'
-  info: {
-    description: 'Homepage single type with dynamic content blocks'
-    displayName: 'Homepage'
-    pluralName: 'homepages'
-    singularName: 'homepage'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    content: Schema.Attribute.DynamicZone<
-      [
-        'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner'
-      ]
-    >
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    hero: Schema.Attribute.Component<'shared.hero', false> &
-      Schema.Attribute.Required
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::homepage.homepage'
-    > &
-      Schema.Attribute.Private
-    publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiMediaPageMediaPage extends Struct.SingleTypeSchema {
-  collectionName: 'media_pages'
-  info: {
-    displayName: 'Media Page'
-    pluralName: 'media-pages'
-    singularName: 'media-page'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    dynamic: Schema.Attribute.DynamicZone<['shared.section', 'shared.cta-link']>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::media-page.media-page'
-    > &
-      Schema.Attribute.Private
-    media_content: Schema.Attribute.RichText &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      >
-    media_cta: Schema.Attribute.Component<'shared.cta-link', false>
-    media_hero: Schema.Attribute.Component<'shared.hero-section', false>
-    publishedAt: Schema.Attribute.DateTime
-    title: Schema.Attribute.String
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
   collectionName: 'navigations'
   info: {
@@ -706,7 +628,7 @@ export interface ApiNewsEventNewsEvent extends Struct.CollectionTypeSchema {
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages'
   info: {
-    description: 'Website pages with MDX content'
+    description: 'Website pages with dynamic content blocks'
     displayName: 'Page'
     pluralName: 'pages'
     singularName: 'page'
@@ -714,21 +636,37 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: true
   }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
   attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.cards-grid',
+        'blocks.card-links-grid',
+        'blocks.carousel',
+        'blocks.cta-banner'
+      ]
+    >
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text
-    heroDescription: Schema.Attribute.Text
-    heroTitle: Schema.Attribute.String
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
-      Schema.Attribute.Private
-    mdxContent: Schema.Attribute.Text & Schema.Attribute.Required
+    hero: Schema.Attribute.Component<'shared.hero', false>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>
     publishedAt: Schema.Attribute.DateTime
-    sections: Schema.Attribute.JSON
+    seo: Schema.Attribute.Component<'shared.seo', false>
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
-    title: Schema.Attribute.String & Schema.Attribute.Required
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1191,8 +1129,6 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::financial-services-page.financial-services-page': ApiFinancialServicesPageFinancialServicesPage
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
-      'api::homepage.homepage': ApiHomepageHomepage
-      'api::media-page.media-page': ApiMediaPageMediaPage
       'api::navigation.navigation': ApiNavigationNavigation
       'api::news-event.news-event': ApiNewsEventNewsEvent
       'api::page.page': ApiPagePage

@@ -1,15 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Link from '../components/shared/Link.astro'
-import HeroSection from '../components/shared/HeroSection.astro'
-import Section from '../components/shared/Section.astro'
+import DynamicZone from '../components/blocks/DynamicZone.astro'
+import LinkArrow from '../../public/img/icon-link-arrow.svg'
 
 export const prerender = false
 let slug = Astro.originPathname
 slug = slug.replace(/^\/|\/$/g, '')
 const preview = Astro.url.searchParams.get('preview') ?? false
 
-async function getPageFromStrapi(slug, preview) {
+async function getPageFromStrapi(slug: string, preview: boolean | string) {
   const token = import.meta.env.STRAPI_PREVIEW_TOKEN
   const base = import.meta.env.STRAPI_URL
 
@@ -18,13 +17,12 @@ async function getPageFromStrapi(slug, preview) {
     return null
   }
 
-  // Try simple query first (for our simplified schema)
-  const simpleQuery = preview
-    ? `${base}/api/pages?filters[slug][$eq]=${slug}&status=draft`
-    : `${base}/api/pages?filters[slug][$eq]=${slug}`
+  const query = preview
+    ? `${base}/api/pages?filters[slug][$eq]=${slug}&status=draft&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
+    : `${base}/api/pages?filters[slug][$eq]=${slug}&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
 
   try {
-    const response = await fetch(simpleQuery, {
+    const response = await fetch(query, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -49,9 +47,14 @@ const pageTitle = slug
   .split(/[-/]/)
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ')
+
+const title = data?.seo?.metaTitle || data?.title || pageTitle
+const description = data?.seo?.metaDescription || null
+const hero = data?.hero
+const dynamicContent = data?.content || []
 ---
 
-<BaseLayout title={data?.title ?? pageTitle} description={data?.description ?? null}>
+<BaseLayout title={title} description={description}>
   <main>
     {/* If no data from Strapi, show coming soon page */}
     {!data && (
@@ -63,48 +66,47 @@ const pageTitle = slug
         </div>
       </section>
     )}
-    {/* Support both old schema (hero component) and new schema (heroTitle field) */}
-    {data && (data.hero || data.heroTitle) && (
-      <HeroSection
-        title={data.hero?.hero_title ?? data.heroTitle ?? 'title'}
-        content={data.hero?.hero_content ?? data.heroDescription ?? ''}
-        ctas={data.hero?.hero_call_to_action ?? []}
-      />
-    )}
-    {/* Old dynamic components schema */}
-    {data && data.dynamic && (
-      <section>
+
+    {/* Hero section */}
+    {data && hero && (
+      <section class="hero">
         <div class="content-wrapper">
-          {data.dynamic.map((component) => {
-            switch (component.__component) {
-              case 'shared.cta-link':
-                return (
-                  <Link
-                    href={component.link}
-                    style={component.style}
-                    umami={component.analytics_event_label}
-                    external={component.external}
-                    text={component.text}
-                  />
-                )
-              case 'shared.section':
-                return (
-                  <Section
-                    title={component.title}
-                    content={component.content}
-                  />
-                )
-              default:
-                return null
-            }
-          })}
+          <div class="text-wrapper">
+            <h1 class="hero__heading">{hero.title}</h1>
+            {hero.description && <p class="hero__txt">{hero.description}</p>}
+            {(hero.primaryCta || hero.secondaryCtas?.length > 0) && (
+              <div class="hero__cta">
+                {hero.primaryCta && (
+                  <a
+                    class="btn hero__btn"
+                    href={hero.primaryCta.link}
+                    {...(hero.primaryCta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    <span>{hero.primaryCta.text}</span> <LinkArrow />
+                  </a>
+                )}
+                {hero.secondaryCtas?.map((cta: { link: string; text: string; external?: boolean }) => (
+                  <a
+                    class="btn hero__btn-secondary"
+                    href={cta.link}
+                    {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    <span>{cta.text}</span> <LinkArrow />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     )}
-    {/* New mdxContent schema */}
-    {data && data.mdxContent && (
+
+    {/* Dynamic content blocks */}
+    {data && dynamicContent.length > 0 && (
       <section class="content-section">
-        <div class="content-wrapper mdx-content" set:html={data.mdxContent} />
+        <div class="content-wrapper">
+          <DynamicZone blocks={dynamicContent} />
+        </div>
       </section>
     )}
   </main>
@@ -123,42 +125,92 @@ const pageTitle = slug
     padding-block-end: var(--space-l);
   }
 
-  .content-wrapper {
+  .hero {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom right;
+    background-image: linear-gradient(to right, #007777, #69bcc3);
+    background-image: linear-gradient(
+      to right,
+      oklch(51.54% 0.088 194.77),
+      oklch(74.53% 0.082 202.65)
+    );
+    min-height: 40vh;
+    padding-block: var(--space-xl);
+    color: var(--color-white);
     display: flex;
-    flex-direction: column;
-    gap: var(--space-m);
+    align-items: center;
+  }
+
+  .content-wrapper {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--space-m);
+    width: 100%;
+  }
+
+  .text-wrapper {
+    max-width: 800px;
+  }
+
+  .hero__heading {
+    color: var(--color-white);
+    max-width: 14em;
+    line-height: 1.2;
+    font-weight: 600;
+    margin-block-end: var(--space-xs);
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+
+  .hero__txt {
+    margin-block-end: var(--space-m);
+    font-size: 1.125rem;
+    max-width: 600px;
+  }
+
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .btn {
+    border-radius: 10em;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    text-decoration: none;
+  }
+
+  .btn svg {
+    width: 0.6em;
+  }
+
+  .hero__btn {
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  .hero__btn:hover {
+    opacity: 0.9;
+  }
+
+  .hero__btn-secondary {
+    background-color: transparent;
+    border: 2px solid var(--color-white);
+    color: var(--color-white);
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  .hero__btn-secondary:hover {
+    background-color: var(--color-white);
+    color: var(--color-primary);
   }
 
   .content-section {
     padding-block: var(--space-xl);
-  }
-
-  .mdx-content {
-    max-width: 800px;
-    margin-inline: auto;
-  }
-
-  .mdx-content :global(h2) {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-block: var(--space-l) var(--space-s);
-    color: var(--color-primary);
-  }
-
-  .mdx-content :global(h3) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-block: var(--space-m) var(--space-xs);
-  }
-
-  .mdx-content :global(p) {
-    margin-block-end: var(--space-s);
-    line-height: 1.6;
-  }
-
-  .mdx-content :global(a) {
-    color: var(--color-primary);
-    text-decoration: underline;
   }
 
   .coming-soon {
@@ -188,5 +240,12 @@ const pageTitle = slug
 
   .back-link:hover {
     text-decoration: none;
+  }
+
+  @media screen and (max-width: 600px) {
+    .hero__cta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

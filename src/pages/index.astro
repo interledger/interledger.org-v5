@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import DynamicZone from '../components/blocks/DynamicZone.astro'
 import LinkArrow from '../../public/img/icon-link-arrow.svg'
 
-// Try to fetch from Strapi Homepage single type
+// Try to fetch homepage from Strapi Pages collection (slug: "home")
 async function getHomepageFromStrapi() {
   const token = import.meta.env.STRAPI_PREVIEW_TOKEN
   const base = import.meta.env.STRAPI_URL
@@ -15,7 +15,7 @@ async function getHomepageFromStrapi() {
 
   try {
     const response = await fetch(
-      `${base}/api/homepage?populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`,
+      `${base}/api/pages?filters[slug][$eq]=home&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -24,13 +24,13 @@ async function getHomepageFromStrapi() {
       }
     )
     if (!response.ok) {
-      console.log(`Strapi Homepage API returned ${response.status}`)
+      console.log(`Strapi Pages API returned ${response.status}`)
       return null
     }
     const data = await response.json()
-    return data.data || null
+    return data.data?.[0] || null
   } catch (error) {
-    console.error('Strapi Homepage fetch failed:', error)
+    console.error('Strapi homepage fetch failed:', error)
     return null
   }
 }

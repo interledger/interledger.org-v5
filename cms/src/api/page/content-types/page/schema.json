@@ -5,37 +5,50 @@
     "singularName": "page",
     "pluralName": "pages",
     "displayName": "Page",
-    "description": "Website pages with MDX content"
+    "description": "Website pages with dynamic content blocks"
   },
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "title": {
       "type": "string",
-      "required": true
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "slug": {
       "type": "uid",
       "targetField": "title",
       "required": true
     },
-    "description": {
-      "type": "text"
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
     },
-    "mdxContent": {
-      "type": "text",
-      "required": true
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero"
     },
-    "heroTitle": {
-      "type": "string"
-    },
-    "heroDescription": {
-      "type": "text"
-    },
-    "sections": {
-      "type": "json"
+    "content": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.paragraph",
+        "blocks.cards-grid",
+        "blocks.card-links-grid",
+        "blocks.carousel",
+        "blocks.cta-banner"
+      ]
     }
   }
 }

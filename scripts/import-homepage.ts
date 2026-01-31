@@ -1,8 +1,9 @@
 /**
- * Import Homepage MDX to Strapi
+ * Import Homepage MDX to Strapi Pages collection
  *
  * Usage: npx tsx scripts/import-homepage.ts
  *
+ * Creates or updates a page with slug "home" in Strapi Pages collection
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -266,7 +267,7 @@ function buildStrapiPayload(frontmatter: HomepageFrontmatter, content: string) {
   return payload
 }
 
-async function importHomepage(payload: Record<string, unknown>) {
+async function findOrCreateHomepage(payload: Record<string, unknown>) {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
@@ -274,23 +275,66 @@ async function importHomepage(payload: Record<string, unknown>) {
     throw new Error('STRAPI_PREVIEW_TOKEN is required')
   }
 
-  const url = `${baseUrl}/api/homepage`
-
-  const res = await fetch(url, {
-    method: 'PUT',
+  // First, check if a page with slug "home" exists
+  const checkUrl = `${baseUrl}/api/pages?filters[slug][$eq]=home`
+  const checkRes = await fetch(checkUrl, {
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ data: payload })
+    }
   })
 
-  if (!res.ok) {
-    const error = await res.text()
-    throw new Error(`Failed to import homepage: ${res.status} - ${error}`)
+  if (!checkRes.ok) {
+    const error = await checkRes.text()
+    throw new Error(`Failed to check for existing homepage: ${checkRes.status} - ${error}`)
   }
 
-  return res.json()
+  const checkData = await checkRes.json()
+  const existingPage = checkData.data?.[0]
+
+  // Add title and slug to payload
+  const fullPayload = {
+    ...payload,
+    title: 'Home',
+    slug: 'home'
+  }
+
+  if (existingPage) {
+    // Update existing page
+    const updateUrl = `${baseUrl}/api/pages/${existingPage.documentId}`
+    const res = await fetch(updateUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ data: fullPayload })
+    })
+
+    if (!res.ok) {
+      const error = await res.text()
+      throw new Error(`Failed to update homepage: ${res.status} - ${error}`)
+    }
+
+    return res.json()
+  } else {
+    // Create new page
+    const createUrl = `${baseUrl}/api/pages`
+    const res = await fetch(createUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ data: fullPayload })
+    })
+
+    if (!res.ok) {
+      const error = await res.text()
+      throw new Error(`Failed to create homepage: ${res.status} - ${error}`)
+    }
+
+    return res.json()
+  }
 }
 
 async function main() {
@@ -312,10 +356,10 @@ async function main() {
   console.log('Building Strapi payload...')
   const payload = buildStrapiPayload(frontmatter, content)
 
-  console.log('Importing to Strapi...')
+  console.log('Importing to Strapi Pages collection...')
   try {
-    await importHomepage(payload)
-    console.log('Homepage imported successfully!')
+    await findOrCreateHomepage(payload)
+    console.log('Homepage imported successfully to Pages collection!')
   } catch (error) {
     console.error('Error importing homepage:', error)
     process.exit(1)

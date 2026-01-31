@@ -1,8 +1,9 @@
 /**
- * Sync Homepage from Strapi to local MDX file
+ * Sync Homepage from Strapi Pages collection to local MDX file
  *
  * Usage: npx tsx scripts/sync-homepage.ts
  *
+ * Fetches the page with slug "home" from Strapi Pages collection
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -61,7 +62,8 @@ async function fetchHomepage(): Promise<Homepage | null> {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
-  const url = `${baseUrl}/api/homepage?populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
+  // Fetch from Pages collection with slug "home"
+  const url = `${baseUrl}/api/pages?filters[slug][$eq]=home&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
@@ -75,14 +77,14 @@ async function fetchHomepage(): Promise<Homepage | null> {
 
   if (!res.ok) {
     if (res.status === 404) {
-      console.log('Homepage not found in Strapi')
+      console.log('Homepage not found in Strapi Pages collection')
       return null
     }
     throw new Error(`Failed to fetch homepage: ${res.status}`)
   }
 
   const json = await res.json()
-  return json.data
+  return json.data?.[0] || null
 }
 
 function blockToMdx(block: Block): string {
