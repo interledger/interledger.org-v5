@@ -18,6 +18,11 @@ const { mainMenu, ctaButton } = navigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
+
+// Determine current language from URL path
+const currentPath = Astro.url.pathname
+const isSpanish = currentPath.startsWith('/es')
+const currentLang = isSpanish ? 'es' : 'en-gb'
 ---
 
 <header class="site-header" role="banner">
@@ -44,50 +49,76 @@ const { mainMenu, ctaButton } = navigation as {
       id="siteNavLinks"
     >
       <ul class="site-nav__links menu--level-1" id="siteNavMenu">
-        {
-          mainMenu.map((group) => (
-            <li class="menu-item has-submenu menu-item--level-1">
-              <button
-                aria-expanded="false"
-                data-umami-event={`Site Nav - ${group.label}`}
-              >
-                {group.label}
-              </button>
-              {group.items && group.items.length > 0 && (
-                <ul class="menu--level-2">
-                  {group.items.map((item) => (
-                    <li class="menu-item menu-item--level-2">
-                      <a
-                        href={item.href || '#'}
-                        data-umami-event={`Site Nav - ${item.label}`}
-                        {...(item.openInNewTab
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))
-        }
+        {mainMenu.map((group) => (
+          <li class="menu-item has-submenu menu-item--level-1">
+            <button
+              aria-expanded="false"
+              data-umami-event={`Site Nav - ${group.label}`}
+            >
+              {group.label}
+            </button>
+            {group.items && group.items.length > 0 && (
+              <ul class="menu--level-2">
+                {group.items.map((item) => (
+                  <li class="menu-item menu-item--level-2">
+                    <a
+                      href={item.href || '#'}
+                      data-umami-event={`Site Nav - ${item.label}`}
+                      {...(item.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
       </ul>
-      {
-        ctaButton && (
+      <div class="site-nav-right">
+        {ctaButton && (
           <a
             class="switch-link"
             href={ctaButton.href || '#'}
             data-umami-event={`Site Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
+            {...(ctaButton.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           >
             {ctaButton.label}
           </a>
-        )
-      }
+        )}
+        <ul class="links language-switcher">
+          <li
+            data-drupal-link-system-path="&lt;front&gt;"
+            class={currentLang === 'en-gb' ? 'is-active' : ''}
+            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+          >
+            <a
+              href="/"
+              class={`language-link ${currentLang === 'en-gb' ? 'is-active' : ''}`}
+              hreflang="en-gb"
+              data-drupal-link-system-path="&lt;front&gt;"
+              aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+            >
+              EN
+            </a>
+          </li>
+          <li
+            data-drupal-link-system-path="&lt;front&gt;"
+            class={currentLang === 'es' ? 'is-active' : ''}
+            aria-current={currentLang === 'es' ? 'page' : undefined}
+          >
+            <a
+              href="/es"
+              class={`language-link ${currentLang === 'es' ? 'is-active' : ''}`}
+              hreflang="es"
+              data-drupal-link-system-path="&lt;front&gt;"
+              aria-current={currentLang === 'es' ? 'page' : undefined}
+            >
+              ES
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
     <button
       type="button"
@@ -178,10 +209,15 @@ const { mainMenu, ctaButton } = navigation as {
     color: currentColor;
   }
 
-  .switch-link {
-    align-self: center;
-    justify-self: end;
+  .site-nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
     grid-area: site;
+    justify-self: end;
+  }
+
+  .switch-link {
     padding-block: var(--space-s);
     text-decoration: none;
   }
@@ -189,6 +225,47 @@ const { mainMenu, ctaButton } = navigation as {
   a.switch-link:hover {
     text-decoration: underline;
     color: currentColor;
+  }
+
+  .language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .language-switcher li {
+    display: flex;
+    align-items: center;
+  }
+
+  .language-switcher li:not(:last-child)::after {
+    content: '|';
+    color: var(--color-primary);
+    margin-inline: var(--space-2xs);
+  }
+
+  .language-switcher .language-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    padding: var(--space-s) var(--space-2xs);
+    display: block;
+  }
+
+  .language-switcher .language-link.is-active {
+    text-decoration: underline;
+    text-decoration-color: var(--color-primary);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .language-switcher .language-link:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-primary);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .external {
@@ -239,6 +316,18 @@ const { mainMenu, ctaButton } = navigation as {
     .site-links-wrapper a,
     .site-nav__links button {
       padding-inline: var(--space-s);
+    }
+
+    .site-nav-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-xs);
+      padding-inline: var(--space-s);
+    }
+
+    .language-switcher {
+      padding-inline-start: 0;
     }
 
     button[aria-expanded='false'] + .menu--level-2 {
@@ -340,6 +429,7 @@ const { mainMenu, ctaButton } = navigation as {
       display: flex;
       align-items: center;
     }
+
 
     .has-submenu {
       position: relative;
