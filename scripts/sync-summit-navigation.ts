@@ -1,8 +1,8 @@
 /**
  * Sync summit navigation from Strapi to local JSON config
- * 
+ *
  * Usage: npx tsx scripts/sync-summit-navigation.ts
- * 
+ *
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -47,17 +47,17 @@ async function fetchSummitNavigation(): Promise<SummitNavigation> {
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
   const url = `${baseUrl}/api/summit-navigation?populate[mainMenu][populate]=items&populate[ctaButton]=true`
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   }
-  
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
   const res = await fetch(url, { headers })
-  
+
   if (!res.ok) {
     throw new Error(`Failed to fetch summit navigation: ${res.status}`)
   }
@@ -78,7 +78,7 @@ function transformSummitNavigation(data: any): SummitNavigation {
   }))
 
   const result: SummitNavigation = { mainMenu }
-  
+
   if (data.ctaButton) {
     result.ctaButton = {
       label: data.ctaButton.label,
@@ -92,14 +92,14 @@ function transformSummitNavigation(data: any): SummitNavigation {
 
 async function main() {
   console.log('Fetching summit navigation from Strapi...')
-  
+
   try {
     const data = await fetchSummitNavigation()
     const navigation = transformSummitNavigation(data)
-    
+
     const outputPath = join(process.cwd(), 'src/config/summit-navigation.json')
     writeFileSync(outputPath, JSON.stringify(navigation, null, 2))
-    
+
     console.log(`Summit navigation synced to ${outputPath}`)
   } catch (error) {
     console.error('Error syncing summit navigation:', error)

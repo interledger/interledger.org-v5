@@ -1,8 +1,8 @@
 /**
  * Import summit navigation from local JSON config to Strapi
- * 
+ *
  * Usage: npx tsx scripts/import-summit-navigation.ts
- * 
+ *
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -48,7 +48,9 @@ async function importSummitNavigation() {
 
   // Read local summit navigation config
   const configPath = join(process.cwd(), 'src/config/summit-navigation.json')
-  const navigation: SummitNavigation = JSON.parse(readFileSync(configPath, 'utf-8'))
+  const navigation: SummitNavigation = JSON.parse(
+    readFileSync(configPath, 'utf-8')
+  )
 
   // Transform to Strapi format
   const strapiData = {
@@ -62,11 +64,13 @@ async function importSummitNavigation() {
           openInNewTab: item.openInNewTab || false
         }))
       })),
-      ctaButton: navigation.ctaButton ? {
-        label: navigation.ctaButton.label,
-        href: navigation.ctaButton.href || null,
-        openInNewTab: navigation.ctaButton.openInNewTab || false
-      } : null
+      ctaButton: navigation.ctaButton
+        ? {
+            label: navigation.ctaButton.label,
+            href: navigation.ctaButton.href || null,
+            openInNewTab: navigation.ctaButton.openInNewTab || false
+          }
+        : null
     }
   }
 
@@ -90,7 +94,9 @@ async function importSummitNavigation() {
 
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(`Failed to import summit navigation: ${res.status} - ${text}`)
+    throw new Error(
+      `Failed to import summit navigation: ${res.status} - ${text}`
+    )
   }
 
   const result = await res.json()
@@ -100,7 +106,7 @@ async function importSummitNavigation() {
 
 async function main() {
   console.log('Importing summit navigation to Strapi...')
-  
+
   try {
     await importSummitNavigation()
   } catch (error) {

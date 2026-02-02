@@ -49,59 +49,67 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       id="summitNavLinks"
     >
       <ul class="summit-nav__links menu--level-1" id="summitNavMenu">
-        {mainMenu.map((group) => (
-          group.href ? (
-            <li class="menu-item menu-item--level-1">
-              <a
-                href={group.href}
-                data-umami-event={`Summit Nav - ${group.label}`}
-              >
-                {group.label}
-              </a>
-            </li>
-          ) : (
-            <li class="menu-item has-submenu menu-item--level-1">
-              <button
-                aria-expanded="false"
-                data-umami-event={`Summit Nav - ${group.label}`}
-              >
-                {group.label}
-              </button>
-              {group.items && group.items.length > 0 && (
-                <ul class="menu--level-2">
-                  {group.items.map((item) => (
-                    <li class="menu-item menu-item--level-2">
-                      <a
-                        href={item.href || '#'}
-                        data-umami-event={`Summit Nav - ${item.label}`}
-                        {...(item.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
+        {
+          mainMenu.map((group) =>
+            group.href ? (
+              <li class="menu-item menu-item--level-1">
+                <a
+                  href={group.href}
+                  data-umami-event={`Summit Nav - ${group.label}`}
+                >
+                  {group.label}
+                </a>
+              </li>
+            ) : (
+              <li class="menu-item has-submenu menu-item--level-1">
+                <button
+                  aria-expanded="false"
+                  data-umami-event={`Summit Nav - ${group.label}`}
+                >
+                  {group.label}
+                </button>
+                {group.items && group.items.length > 0 && (
+                  <ul class="menu--level-2">
+                    {group.items.map((item) => (
+                      <li class="menu-item menu-item--level-2">
+                        <a
+                          href={item.href || '#'}
+                          data-umami-event={`Summit Nav - ${item.label}`}
+                          {...(item.openInNewTab
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )
           )
-        ))}
+        }
       </ul>
       <div class="summit-nav-right">
-        {ctaButton && (
-          <a
-            class="summit-cta-link"
-            href={ctaButton.href || '#'}
-            data-umami-event={`Summit Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-          >
-            {ctaButton.label}
-          </a>
-        )}
+        {
+          ctaButton && (
+            <a
+              class="summit-cta-link"
+              href={ctaButton.href || '#'}
+              data-umami-event={`Summit Nav - ${ctaButton.label}`}
+              {...(ctaButton.openInNewTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {ctaButton.label}
+            </a>
+          )
+        }
         <span class="foundation-text">Interledger Foundation</span>
         <span class="nav-separator"></span>
         <ul class="links language-switcher">
           <li
-            data-drupal-link-system-path="&lt;front&gt;"
+            data-drupal-link-system-path="<front>"
             class={currentLang === 'en-gb' ? 'is-active' : ''}
             aria-current={currentLang === 'en-gb' ? 'page' : undefined}
           >
@@ -109,14 +117,14 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
               href="/summit"
               class={`language-link ${currentLang === 'en-gb' ? 'is-active' : ''}`}
               hreflang="en-gb"
-              data-drupal-link-system-path="&lt;front&gt;"
+              data-drupal-link-system-path="<front>"
               aria-current={currentLang === 'en-gb' ? 'page' : undefined}
             >
               EN
             </a>
           </li>
           <li
-            data-drupal-link-system-path="&lt;front&gt;"
+            data-drupal-link-system-path="<front>"
             class={currentLang === 'es' ? 'is-active' : ''}
             aria-current={currentLang === 'es' ? 'page' : undefined}
           >
@@ -124,7 +132,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
               href="/es/summit"
               class={`language-link ${currentLang === 'es' ? 'is-active' : ''}`}
               hreflang="es"
-              data-drupal-link-system-path="&lt;front&gt;"
+              data-drupal-link-system-path="<front>"
               aria-current={currentLang === 'es' ? 'page' : undefined}
             >
               ES
@@ -246,7 +254,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
 
   .summit-nav__links .menu-item--level-1 > a.is-active,
   .summit-nav__links .menu-item--level-2 > a.is-active,
-  .summit-nav__links .menu-item--level-1 > a[aria-current="page"],
+  .summit-nav__links .menu-item--level-1 > a[aria-current='page'],
   .summit-nav__links .menu-item--level-1:has(.is-active) > button {
     text-decoration: underline;
     text-decoration-color: var(--color-text);
@@ -580,7 +588,9 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
   }
 
   // Summit sub-navigation toggle
-  const summitNav = document.querySelector('.summit-nav__links') as HTMLInputElement
+  const summitNav = document.querySelector(
+    '.summit-nav__links'
+  ) as HTMLInputElement
 
   if (document.contains(summitNav)) {
     const submenuButtons = summitNav.querySelectorAll('.has-submenu > button')
@@ -645,20 +655,23 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
   // Mark active navigation links
   const currentPath = window.location.pathname
   const navLinks = document.querySelectorAll('.summit-nav__links a')
-  
+
   navLinks.forEach((link) => {
     if (link instanceof HTMLAnchorElement) {
       const linkPath = link.pathname
       // Remove trailing slashes for comparison
       const normalizedCurrentPath = currentPath.replace(/\/$/, '')
       const normalizedLinkPath = linkPath.replace(/\/$/, '')
-      
+
       // Check for exact match or if current path starts with link path (for subpages)
-      if (normalizedCurrentPath === normalizedLinkPath || 
-          (normalizedLinkPath !== '/summit' && normalizedCurrentPath.startsWith(normalizedLinkPath))) {
+      if (
+        normalizedCurrentPath === normalizedLinkPath ||
+        (normalizedLinkPath !== '/summit' &&
+          normalizedCurrentPath.startsWith(normalizedLinkPath))
+      ) {
         link.classList.add('is-active')
         link.setAttribute('aria-current', 'page')
-        
+
         // If it's a submenu item, also mark the parent button
         const parentMenu = link.closest('.menu-item--level-1')
         const parentButton = parentMenu?.querySelector('button')

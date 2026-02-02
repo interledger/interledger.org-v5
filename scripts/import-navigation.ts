@@ -1,12 +1,12 @@
 /**
  * Import navigation from local JSON config to Strapi
  * Handles both regular navigation and summit navigation
- * 
- * Usage: 
+ *
+ * Usage:
  *   npx tsx scripts/import-navigation.ts [--summit]
  *   or
  *   npx tsx scripts/import-navigation.ts --all
- * 
+ *
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -50,7 +50,8 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
-  const typesToImport: ('regular' | 'summit')[] = type === 'all' ? ['regular', 'summit'] : [type]
+  const typesToImport: ('regular' | 'summit')[] =
+    type === 'all' ? ['regular', 'summit'] : [type]
 
   for (const navType of typesToImport) {
     const isSummit = navType === 'summit'
@@ -132,7 +133,9 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
 
     if (!res.ok) {
       const text = await res.text()
-      throw new Error(`Failed to import ${displayName}: ${res.status} - ${text}`)
+      throw new Error(
+        `Failed to import ${displayName}: ${res.status} - ${text}`
+      )
     }
 
     const result = await res.json()

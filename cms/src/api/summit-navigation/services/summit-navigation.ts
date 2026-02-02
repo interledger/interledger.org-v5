@@ -4,4 +4,6 @@
 
 import { factories } from '@strapi/strapi'
 
-export default factories.createCoreService('api::summit-navigation.summit-navigation')
+export default factories.createCoreService(
+  'api::summit-navigation.summit-navigation'
+)
