@@ -53,6 +53,25 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
   const typesToImport: ('regular' | 'summit')[] =
     type === 'all' ? ['regular', 'summit'] : [type]
 
+  interface StrapiMenuItemData {
+    label: string
+    href?: string | null
+    openInNewTab?: boolean
+  }
+
+  interface StrapiMenuGroupData {
+    label: string
+    href?: string | null
+    items?: StrapiMenuItemData[]
+  }
+
+  interface StrapiNavigationPayload {
+    data: {
+      mainMenu: StrapiMenuGroupData[]
+      ctaButton?: StrapiMenuItemData | null
+    }
+  }
+
   for (const navType of typesToImport) {
     const isSummit = navType === 'summit'
     const configPath = join(
@@ -72,18 +91,18 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
     const navigation: Navigation = JSON.parse(readFileSync(configPath, 'utf-8'))
 
     // Transform to Strapi format
-    const strapiData: any = {
+    const strapiData: StrapiNavigationPayload = {
       data: {
-        mainMenu: navigation.mainMenu.map((group) => {
-          const groupData: any = {
+        mainMenu: navigation.mainMenu.map((group): StrapiMenuGroupData => {
+          const groupData: StrapiMenuGroupData = {
             label: group.label
           }
           if (group.href) {
             groupData.href = group.href
           }
           if (group.items && group.items.length > 0) {
-            groupData.items = group.items.map((item) => {
-              const itemData: any = {
+            groupData.items = group.items.map((item): StrapiMenuItemData => {
+              const itemData: StrapiMenuItemData = {
                 label: item.label
               }
               if (item.href) {
@@ -101,7 +120,7 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
     }
 
     if (navigation.ctaButton) {
-      const ctaData: any = {
+      const ctaData: StrapiMenuItemData = {
         label: navigation.ctaButton.label
       }
       if (navigation.ctaButton.href) {

@@ -42,7 +42,24 @@ interface SummitNavigation {
   ctaButton?: MenuItem
 }
 
-async function fetchSummitNavigation(): Promise<SummitNavigation> {
+interface StrapiMenuItem {
+  label: string
+  href?: string
+  openInNewTab?: boolean
+}
+
+interface StrapiMenuGroup {
+  label: string
+  href?: string
+  items?: StrapiMenuItem[]
+}
+
+interface StrapiSummitNavigationData {
+  mainMenu?: StrapiMenuGroup[]
+  ctaButton?: StrapiMenuItem
+}
+
+async function fetchSummitNavigation(): Promise<StrapiSummitNavigationData> {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
@@ -63,14 +80,16 @@ async function fetchSummitNavigation(): Promise<SummitNavigation> {
   }
 
   const json = await res.json()
-  return json.data
+  return json.data as StrapiSummitNavigationData
 }
 
-function transformSummitNavigation(data: any): SummitNavigation {
-  const mainMenu = (data.mainMenu || []).map((group: any) => ({
+function transformSummitNavigation(
+  data: StrapiSummitNavigationData
+): SummitNavigation {
+  const mainMenu = (data.mainMenu || []).map((group: StrapiMenuGroup) => ({
     label: group.label,
     ...(group.href && { href: group.href }),
-    items: (group.items || []).map((item: any) => ({
+    items: (group.items || []).map((item: StrapiMenuItem) => ({
       label: item.label,
       ...(item.href && { href: item.href }),
       ...(item.openInNewTab && { openInNewTab: true })
@@ -94,8 +113,8 @@ async function main() {
   console.log('Fetching summit navigation from Strapi...')
 
   try {
-    const data = await fetchSummitNavigation()
-    const navigation = transformSummitNavigation(data)
+    const strapiData = await fetchSummitNavigation()
+    const navigation = transformSummitNavigation(strapiData)
 
     const outputPath = join(process.cwd(), 'src/config/summit-navigation.json')
     writeFileSync(outputPath, JSON.stringify(navigation, null, 2))
