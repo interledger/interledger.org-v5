@@ -183,7 +183,6 @@ export interface SharedHero extends Struct.ComponentSchema {
   attributes: {
     backgroundImage: Schema.Attribute.Media<'images'>
     description: Schema.Attribute.Text
-    primaryCta: Schema.Attribute.Component<'shared.cta-link', false>
     secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true>
     title: Schema.Attribute.String & Schema.Attribute.Required
   }

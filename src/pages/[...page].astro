@@ -74,20 +74,11 @@ const dynamicContent = data?.content || []
           <div class="text-wrapper">
             <h1 class="hero__heading">{hero.title}</h1>
             {hero.description && <p class="hero__txt">{hero.description}</p>}
-            {(hero.primaryCta || hero.secondaryCtas?.length > 0) && (
+            {hero.secondaryCtas?.length > 0 && (
               <div class="hero__cta">
-                {hero.primaryCta && (
+                {hero.secondaryCtas.map((cta: { link: string; text: string; external?: boolean }, index: number) => (
                   <a
-                    class="btn hero__btn"
-                    href={hero.primaryCta.link}
-                    {...(hero.primaryCta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    <span>{hero.primaryCta.text}</span> <LinkArrow />
-                  </a>
-                )}
-                {hero.secondaryCtas?.map((cta: { link: string; text: string; external?: boolean }) => (
-                  <a
-                    class="btn hero__btn-secondary"
+                    class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
                     href={cta.link}
                     {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >

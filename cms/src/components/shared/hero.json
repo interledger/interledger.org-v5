@@ -19,11 +19,6 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
-    "primaryCta": {
-      "type": "component",
-      "repeatable": false,
-      "component": "shared.cta-link"
-    },
     "secondaryCtas": {
       "type": "component",
       "repeatable": true,
