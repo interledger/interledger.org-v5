@@ -49,46 +49,54 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       id="siteNavLinks"
     >
       <ul class="site-nav__links menu--level-1" id="siteNavMenu">
-        {mainMenu.map((group) => (
-          <li class="menu-item has-submenu menu-item--level-1">
-            <button
-              aria-expanded="false"
-              data-umami-event={`Site Nav - ${group.label}`}
-            >
-              {group.label}
-            </button>
-            {group.items && group.items.length > 0 && (
-              <ul class="menu--level-2">
-                {group.items.map((item) => (
-                  <li class="menu-item menu-item--level-2">
-                    <a
-                      href={item.href || '#'}
-                      data-umami-event={`Site Nav - ${item.label}`}
-                      {...(item.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
+        {
+          mainMenu.map((group) => (
+            <li class="menu-item has-submenu menu-item--level-1">
+              <button
+                aria-expanded="false"
+                data-umami-event={`Site Nav - ${group.label}`}
+              >
+                {group.label}
+              </button>
+              {group.items && group.items.length > 0 && (
+                <ul class="menu--level-2">
+                  {group.items.map((item) => (
+                    <li class="menu-item menu-item--level-2">
+                      <a
+                        href={item.href || '#'}
+                        data-umami-event={`Site Nav - ${item.label}`}
+                        {...(item.openInNewTab
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
       </ul>
       <div class="site-nav-right">
-        {ctaButton && (
-          <a
-            class="switch-link"
-            href={ctaButton.href || '#'}
-            data-umami-event={`Site Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-          >
-            {ctaButton.label}
-          </a>
-        )}
+        {
+          ctaButton && (
+            <a
+              class="switch-link"
+              href={ctaButton.href || '#'}
+              data-umami-event={`Site Nav - ${ctaButton.label}`}
+              {...(ctaButton.openInNewTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {ctaButton.label}
+            </a>
+          )
+        }
         <ul class="links language-switcher">
           <li
-            data-drupal-link-system-path="&lt;front&gt;"
+            data-drupal-link-system-path="<front>"
             class={currentLang === 'en-gb' ? 'is-active' : ''}
             aria-current={currentLang === 'en-gb' ? 'page' : undefined}
           >
@@ -96,14 +104,14 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
               href="/"
               class={`language-link ${currentLang === 'en-gb' ? 'is-active' : ''}`}
               hreflang="en-gb"
-              data-drupal-link-system-path="&lt;front&gt;"
+              data-drupal-link-system-path="<front>"
               aria-current={currentLang === 'en-gb' ? 'page' : undefined}
             >
               EN
             </a>
           </li>
           <li
-            data-drupal-link-system-path="&lt;front&gt;"
+            data-drupal-link-system-path="<front>"
             class={currentLang === 'es' ? 'is-active' : ''}
             aria-current={currentLang === 'es' ? 'page' : undefined}
           >
@@ -111,7 +119,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
               href="/es"
               class={`language-link ${currentLang === 'es' ? 'is-active' : ''}`}
               hreflang="es"
-              data-drupal-link-system-path="&lt;front&gt;"
+              data-drupal-link-system-path="<front>"
               aria-current={currentLang === 'es' ? 'page' : undefined}
             >
               ES
@@ -429,7 +437,6 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       display: flex;
       align-items: center;
     }
-
 
     .has-submenu {
       position: relative;
