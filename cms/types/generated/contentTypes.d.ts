@@ -482,49 +482,6 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiFinancialServicesPageFinancialServicesPage
-  extends Struct.SingleTypeSchema {
-  collectionName: 'financial_services_page'
-  info: {
-    description: 'Manage the Financial Services landing page content'
-    displayName: 'Financial Services Page'
-    pluralName: 'financial-services-pages'
-    singularName: 'financial-services-page'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    applicationNotice: Schema.Attribute.Text
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    ctaDescription: Schema.Attribute.Text
-    ctaEmailLabel: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'Contact Us'>
-    ctaSubscribeLabel: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'Subscribe for Updates'>
-    ctaTitle: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'Ready to Apply?'>
-    faqItems: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<[]>
-    heroDescription: Schema.Attribute.Text & Schema.Attribute.Required
-    heroTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'Unlock payment potential'>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::financial-services-page.financial-services-page'
-    > &
-      Schema.Attribute.Private
-    programOverview: Schema.Attribute.Text & Schema.Attribute.Required
-    publishedAt: Schema.Attribute.DateTime
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
   collectionName: 'grant_tracks'
   info: {
@@ -1127,7 +1084,6 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
-      'api::financial-services-page.financial-services-page': ApiFinancialServicesPageFinancialServicesPage
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::navigation.navigation': ApiNavigationNavigation
       'api::news-event.news-event': ApiNewsEventNewsEvent

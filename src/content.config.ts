@@ -46,32 +46,6 @@ const grantTrackCollection = defineCollection({
   })
 })
 
-const financialServicesPageCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/financial-services'
-  }),
-  schema: z.object({
-    heroTitle: z.string(),
-    heroDescription: z.string(),
-    programOverview: z.string().optional(),
-    applicationNotice: z.string().optional(),
-    ctaTitle: z.string(),
-    ctaDescription: z.string().optional(),
-    ctaEmailLabel: z.string(),
-    ctaSubscribeLabel: z.string(),
-    faqItems: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          order: z.number().optional()
-        })
-      )
-      .optional()
-  })
-})
-
 const eventsCollection = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/events' }),
   schema: z.object({
@@ -108,6 +82,5 @@ export const collections = {
   press: pressCollection,
   events: eventsCollection,
   pages: pagesCollection,
-  'grant-tracks': grantTrackCollection,
-  'financial-services': financialServicesPageCollection
+  'grant-tracks': grantTrackCollection
 }

@@ -84,19 +84,6 @@ async function configureFieldLabels(strapi: any) {
       createdAt: 'Created At',
       updatedAt: 'Updated At',
       publishedAt: 'Published At'
-    },
-    'api::financial-services-page.financial-services-page': {
-      heroTitle: 'Hero Title',
-      heroDescription: 'Hero Description',
-      programOverview: 'Program Overview',
-      applicationNotice: 'Application Notice',
-      ctaTitle: 'CTA Title',
-      ctaDescription: 'CTA Description',
-      ctaEmailLabel: 'Email Button Label',
-      ctaSubscribeLabel: 'Subscribe Button Label',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
     }
   }
 
