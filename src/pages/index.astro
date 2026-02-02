@@ -39,7 +39,11 @@ const strapiData = await getHomepageFromStrapi()
 
 // Fallback to MDX content if Strapi not available
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
-let mdxData: { title?: string; heroTitle?: string; heroDescription?: string } | null = null
+let mdxData: {
+  title?: string
+  heroTitle?: string
+  heroDescription?: string
+} | null = null
 
 if (!strapiData) {
   const pages = await getCollection('pages')
@@ -53,9 +57,11 @@ if (!strapiData) {
 }
 
 // Use Strapi data if available, otherwise fall back to MDX
-const title = strapiData?.seo?.metaTitle || mdxData?.title || 'Interledger Foundation'
+const title =
+  strapiData?.seo?.metaTitle || mdxData?.title || 'Interledger Foundation'
 const heroTitle = strapiData?.hero?.title || mdxData?.heroTitle || 'Interledger'
-const heroDescription = strapiData?.hero?.description || mdxData?.heroDescription || ''
+const heroDescription =
+  strapiData?.hero?.description || mdxData?.heroDescription || ''
 const heroCtas = strapiData?.hero?.secondaryCtas || []
 const dynamicContent = strapiData?.content || []
 const hasStrapiContent = strapiData && dynamicContent.length > 0
@@ -72,43 +78,63 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
           <p class="hero__txt">
             {heroDescription}
           </p>
-          {heroCtas.length > 0 && (
-            <div class="hero__cta">
-              {heroCtas.map((cta: { link: string; text: string; analytics_event_label?: string; external?: boolean }, index: number) => (
-                <a
-                  class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
-                  href={cta.link}
-                  data-umami-event={cta.analytics_event_label || `Home - ${cta.text}`}
-                  {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                >
-                  <span>{cta.text}</span> <LinkArrow />
-                </a>
-              ))}
-            </div>
-          )}
+          {
+            heroCtas.length > 0 && (
+              <div class="hero__cta">
+                {heroCtas.map(
+                  (
+                    cta: {
+                      link: string
+                      text: string
+                      analytics_event_label?: string
+                      external?: boolean
+                    },
+                    index: number
+                  ) => (
+                    <a
+                      class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
+                      href={cta.link}
+                      data-umami-event={
+                        cta.analytics_event_label || `Home - ${cta.text}`
+                      }
+                      {...(cta.external
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                    >
+                      <span>{cta.text}</span> <LinkArrow />
+                    </a>
+                  )
+                )}
+              </div>
+            )
+          }
         </div>
       </div>
     </section>
 
     {/* Strapi dynamic content blocks */}
-    {hasStrapiContent && (
-      <section class="content-section">
-        <div class="content-wrapper">
-          <DynamicZone blocks={dynamicContent} />
-        </div>
-      </section>
-    )}
+    {
+      hasStrapiContent && (
+        <section class="content-section">
+          <div class="content-wrapper">
+            <DynamicZone blocks={dynamicContent} />
+          </div>
+        </section>
+      )
+    }
 
     {/* Fallback MDX content */}
-    {!hasStrapiContent && MdxContent && (
-      <section class="content-section">
-        <div class="content-wrapper">
-          <div class="mdx-content">
-            <MdxContent />
+    {
+      !hasStrapiContent && MdxContent && (
+        <section class="content-section">
+          <div class="content-wrapper">
+            <div class="mdx-content">
+              <MdxContent />
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
   </main>
 </BaseLayout>
 

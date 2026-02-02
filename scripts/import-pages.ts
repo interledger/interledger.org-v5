@@ -1,13 +1,13 @@
 /**
  * Import pages from local MDX files to Strapi
- * 
+ *
  * Usage: npx tsx scripts/import-pages.ts
- * 
+ *
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs'
-import { join, basename } from 'path'
+import { join } from 'path'
 import matter from 'gray-matter'
 
 // Load .env file
@@ -34,10 +34,14 @@ interface PageFrontmatter {
   heroDescription?: string
 }
 
-async function importPage(baseUrl: string, headers: Record<string, string>, page: {
-  frontmatter: PageFrontmatter
-  content: string
-}) {
+async function importPage(
+  baseUrl: string,
+  headers: Record<string, string>,
+  page: {
+    frontmatter: PageFrontmatter
+    content: string
+  }
+) {
   // Check if page exists by slug
   const searchUrl = `${baseUrl}/api/pages?filters[slug][$eq]=${page.frontmatter.slug}`
   const searchRes = await fetch(searchUrl, { headers })
@@ -78,7 +82,9 @@ async function importPage(baseUrl: string, headers: Record<string, string>, page
 
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(`Failed to import page ${page.frontmatter.slug}: ${res.status} - ${text}`)
+    throw new Error(
+      `Failed to import page ${page.frontmatter.slug}: ${res.status} - ${text}`
+    )
   }
 
   return res.json()
@@ -97,10 +103,12 @@ async function main() {
   }
 
   const pagesDir = join(process.cwd(), 'src/content/pages')
-  
+
   let files: string[]
   try {
-    files = readdirSync(pagesDir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'))
+    files = readdirSync(pagesDir).filter(
+      (f) => f.endsWith('.mdx') || f.endsWith('.md')
+    )
   } catch {
     console.log('No pages directory found at src/content/pages')
     return

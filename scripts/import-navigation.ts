@@ -1,8 +1,8 @@
 /**
  * Import navigation from local JSON config to Strapi
- * 
+ *
  * Usage: npx tsx scripts/import-navigation.ts
- * 
+ *
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -62,11 +62,13 @@ async function importNavigation() {
           openInNewTab: item.openInNewTab || false
         }))
       })),
-      ctaButton: navigation.ctaButton ? {
-        label: navigation.ctaButton.label,
-        href: navigation.ctaButton.href || null,
-        openInNewTab: navigation.ctaButton.openInNewTab || false
-      } : null
+      ctaButton: navigation.ctaButton
+        ? {
+            label: navigation.ctaButton.label,
+            href: navigation.ctaButton.href || null,
+            openInNewTab: navigation.ctaButton.openInNewTab || false
+          }
+        : null
     }
   }
 
@@ -100,7 +102,7 @@ async function importNavigation() {
 
 async function main() {
   console.log('Importing navigation to Strapi...')
-  
+
   try {
     await importNavigation()
   } catch (error) {

@@ -57,49 +57,64 @@ const dynamicContent = data?.content || []
 <BaseLayout title={title} description={description}>
   <main>
     {/* If no data from Strapi, show coming soon page */}
-    {!data && (
-      <section class="coming-soon">
-        <div class="content-wrapper">
-          <h1>{pageTitle}</h1>
-          <p>This page is coming soon.</p>
-          <a href="/" class="back-link">← Back to home</a>
-        </div>
-      </section>
-    )}
+    {
+      !data && (
+        <section class="coming-soon">
+          <div class="content-wrapper">
+            <h1>{pageTitle}</h1>
+            <p>This page is coming soon.</p>
+            <a href="/" class="back-link">
+              ← Back to home
+            </a>
+          </div>
+        </section>
+      )
+    }
 
     {/* Hero section */}
-    {data && hero && (
-      <section class="hero">
-        <div class="content-wrapper">
-          <div class="text-wrapper">
-            <h1 class="hero__heading">{hero.title}</h1>
-            {hero.description && <p class="hero__txt">{hero.description}</p>}
-            {hero.secondaryCtas?.length > 0 && (
-              <div class="hero__cta">
-                {hero.secondaryCtas.map((cta: { link: string; text: string; external?: boolean }, index: number) => (
-                  <a
-                    class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
-                    href={cta.link}
-                    {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    <span>{cta.text}</span> <LinkArrow />
-                  </a>
-                ))}
-              </div>
-            )}
+    {
+      data && hero && (
+        <section class="hero">
+          <div class="content-wrapper">
+            <div class="text-wrapper">
+              <h1 class="hero__heading">{hero.title}</h1>
+              {hero.description && <p class="hero__txt">{hero.description}</p>}
+              {hero.secondaryCtas?.length > 0 && (
+                <div class="hero__cta">
+                  {hero.secondaryCtas.map(
+                    (
+                      cta: { link: string; text: string; external?: boolean },
+                      index: number
+                    ) => (
+                      <a
+                        class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
+                        href={cta.link}
+                        {...(cta.external
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
+                      >
+                        <span>{cta.text}</span> <LinkArrow />
+                      </a>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
 
     {/* Dynamic content blocks */}
-    {data && dynamicContent.length > 0 && (
-      <section class="content-section">
-        <div class="content-wrapper">
-          <DynamicZone blocks={dynamicContent} />
-        </div>
-      </section>
-    )}
+    {
+      data && dynamicContent.length > 0 && (
+        <section class="content-section">
+          <div class="content-wrapper">
+            <DynamicZone blocks={dynamicContent} />
+          </div>
+        </section>
+      )
+    }
   </main>
 </BaseLayout>
 

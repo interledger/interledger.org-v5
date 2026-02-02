@@ -23,51 +23,75 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
 
 <div class="carousel-wrapper">
   {heading && <h2 class="carousel__heading">{heading}</h2>}
-  <div class="carousel" id={carouselId} data-autoplay={autoplay} data-interval={interval}>
+  <div
+    class="carousel"
+    id={carouselId}
+    data-autoplay={autoplay}
+    data-interval={interval}
+  >
     <div class="carousel__track">
-      {items.map((item, index) => (
-        <div class={`carousel__slide ${index === 0 ? 'active' : ''}`} data-index={index}>
-          <blockquote class="carousel__quote">
-            <p>"{item.quote}"</p>
-            {(item.author || item.organization) && (
-              <footer class="carousel__attribution">
-                {item.image && (
-                  <img
-                    src={item.image.url}
-                    alt={item.image.alternativeText || item.author || ''}
-                    class="carousel__image"
-                  />
-                )}
-                <div class="carousel__author-info">
-                  {item.author && <cite class="carousel__author">{item.author}</cite>}
-                  {item.role && <span class="carousel__role">{item.role}</span>}
-                  {item.organization && <span class="carousel__org">{item.organization}</span>}
-                </div>
-              </footer>
-            )}
-          </blockquote>
-        </div>
-      ))}
+      {
+        items.map((item, index) => (
+          <div
+            class={`carousel__slide ${index === 0 ? 'active' : ''}`}
+            data-index={index}
+          >
+            <blockquote class="carousel__quote">
+              <p>"{item.quote}"</p>
+              {(item.author || item.organization) && (
+                <footer class="carousel__attribution">
+                  {item.image && (
+                    <img
+                      src={item.image.url}
+                      alt={item.image.alternativeText || item.author || ''}
+                      class="carousel__image"
+                    />
+                  )}
+                  <div class="carousel__author-info">
+                    {item.author && (
+                      <cite class="carousel__author">{item.author}</cite>
+                    )}
+                    {item.role && (
+                      <span class="carousel__role">{item.role}</span>
+                    )}
+                    {item.organization && (
+                      <span class="carousel__org">{item.organization}</span>
+                    )}
+                  </div>
+                </footer>
+              )}
+            </blockquote>
+          </div>
+        ))
+      }
     </div>
-    {items.length > 1 && (
-      <div class="carousel__controls">
-        <button class="carousel__btn carousel__btn--prev" aria-label="Previous slide">
-          ←
-        </button>
-        <div class="carousel__dots">
-          {items.map((_, index) => (
-            <button
-              class={`carousel__dot ${index === 0 ? 'active' : ''}`}
-              aria-label={`Go to slide ${index + 1}`}
-              data-index={index}
-            />
-          ))}
+    {
+      items.length > 1 && (
+        <div class="carousel__controls">
+          <button
+            class="carousel__btn carousel__btn--prev"
+            aria-label="Previous slide"
+          >
+            ←
+          </button>
+          <div class="carousel__dots">
+            {items.map((_, index) => (
+              <button
+                class={`carousel__dot ${index === 0 ? 'active' : ''}`}
+                aria-label={`Go to slide ${index + 1}`}
+                data-index={index}
+              />
+            ))}
+          </div>
+          <button
+            class="carousel__btn carousel__btn--next"
+            aria-label="Next slide"
+          >
+            →
+          </button>
         </div>
-        <button class="carousel__btn carousel__btn--next" aria-label="Next slide">
-          →
-        </button>
-      </div>
-    )}
+      )
+    }
   </div>
 </div>
 

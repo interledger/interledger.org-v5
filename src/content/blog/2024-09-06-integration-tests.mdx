@@ -1,6 +1,6 @@
 ---
-title: "Leveling Up Rafiki Testing: Shifting from Manual to Automated"
-description: "How we automated our manual payment flow tests."
+title: 'Leveling Up Rafiki Testing: Shifting from Manual to Automated'
+description: 'How we automated our manual payment flow tests.'
 date: 2024-09-06
 slug: integration-tests
 ---
@@ -15,24 +15,17 @@ One such instance of these payment flows is our ["Open Payments" example](https:
 
 ## Our Testing Philosophy
 
-
-
 At Interledger, we believe in maintaining a balanced approach to testing that upholds both thoroughness and agility. As Rafiki transitions from Alpha to Beta, our focus remains on safeguarding our core business logic while quickly adapting to changes. To this end, the new integration tests focus on high-impact scenarios and critical edge cases, while existing unit tests offer more comprehensive coverage of individual components. The integration tests will run in our continuous integration (CI) pipeline on Github, as our unit tests do now. This approach allows us to rigorously validate our system while preserving the flexibility needed for rapid development. As Rafiki continues to mature, we will iterate and refine our testing strategies.
 
 ### Testing Requirements
-
-
 
 Before diving into the implementation details, let’s outline our requirements for the new tests:
 
 - **Automation and CI Integration**: The tests should automate our Bruno example flows and run in our CI pipeline.
 
-
 - **MASE Implementation**: The tests need to implement two MASEs to complete the payment flows and validate the received webhook events.
 
-
 - **Backend and Auth Services**: The tests should run against our fully operational backend and auth services to ensure proper integration and functionality.
-
 
 - **Efficiency**: The tests should be mindful of speed, avoiding any unnecessary delays while ensuring comprehensive coverage.
 
@@ -40,47 +33,33 @@ Before diving into the implementation details, let’s outline our requirements 
 
 - **Rafiki Admin:** Testing for our Rafiki Admin frontend is still to come and will be addressed in a separate test suite.
 
-
 - **Non-Functional Requirements:** While performance, security, and other non-functional aspects are not the focus of these integration tests, they are being addressed through other ongoing initiatives. We are in the process of adding tracing and [performance tests](https://github.com/interledger/rafiki/tree/main/test/performance) with [k6](https://k6.io/), and we are conducting external security audits to ensure robust protection across our systems.
 
 ## Solution overview
-
-
 
 After evaluating several options, we decided to run our services in Docker with a [Jest](https://jestjs.io/) test runner and MASE on the host machine. [A shell script](https://github.com/interledger/rafiki/blob/main/test/integration/scripts/run-tests.sh) launches the Docker environment, runs the tests, then spins down the environment.
 
 ### Alternatives Considered
 
-
-
 Before arriving at this solution we considered a few variations:
 
 - **Bruno CLI and existing local environment**: Given that we wanted to automate our manual tests consisting of Bruno requests, the first option we explored was simply using the [Bruno CLI](https://docs.usebruno.com/bru-cli/overview) to run our existing example flows. However, our “Open Payments” flow requires a short UI interaction on the MASE which would have been difficult to mock from a Bruno request. Additionally, we would not have access to the webhooks and it would generally limit our testing capabilities. Reusing the same Docker environment would also prevent us from configuring the test and local environments independently.
 
-
 - **Testcontainers**: We considered using [Testcontainers](https://testcontainers.com/) in our Jest tests instead of launching native Docker containers from a shell script. While Testcontainers is a powerful tool for managing Docker containers in code, we do not currently need to set up and tear down the environment between tests because our tests do not require a fresh state. However, if we extend our tests and find they cause side effects between tests, we could utilize Testcontainers to rebuild the environment, ensuring proper isolation. Additionally, managing containers outside of Jest allows us to maintain a more persistent environment that is not tied to the lifecycle of the tests. This flexibility makes it easier to reuse the environment for additional testing purposes. In the event that we need to leverage the power of Testcontainers in the future we can [leverage our existing Docker Compose files](https://node.testcontainers.org/features/compose/) to transition.
-
 
 - **Dockerizing Test Runner**: We also considered putting the tests in a Docker image and running them inside the Docker network instead of from the host machine. This would solve [some networking issues](#url-handling) but introduces additional complexity with creating a new Docker image for the tests and retrieving test exit codes and displaying test output. Additionally, running tests in Docker would require a full environment restart for each test run, making the development process more cumbersome.
 
 ### Key Benefits
 
-
-
 - **Efficiency**: We spin up containers once and run all tests. Starting and stopping the Docker environment consumes a significant amount of time compared to the actual test execution, so avoiding unnecessary restarts keeps the tests fast.
-
 
 - **Ease of Configuration**: Keeping the test and local development environments separate makes them independently configurable.
 
-
 - **Flexibility**: Running tests from the host machine and directly managing the Docker environment outside of our test runner makes the test environment more flexible. We can develop new tests or change existing tests and rerun without restarting the containers. Additionally, we can reuse the environment for other ad-hoc development or testing purposes.
-
 
 - **Comprehensive Testing Capabilities**: A full Jest test suite with an independent test environment and MASEs ensures complete access to all necessary components for making detailed assertions and manipulating flows.
 
 ### Implementation Details
-
-
 
 Let's take a closer look at the structure of our test code and the key components involved.
 
@@ -96,12 +75,9 @@ The environment and tests are launched from a shell script that does the followi
 
 - Starts the test environment consisting of our two Rafiki instances from our Docker Compose files.
 
-
 - Maps hosts to our host machine’s hosts file.
 
-
 - Runs the Jest test suite against our Rafiki instances in Docker and saves the test exit code.
-
 
 - Tears down the Docker environment and returns the test exit code.
 
@@ -110,16 +86,11 @@ The environment and tests are launched from a shell script that does the followi
 Using Jest as our testing framework, we structured our test code around a few key components:
 
 1. **Mock Account Servicing Entity (MASE)**
-
-
    - **Integration Server**: Includes all endpoints needed for integrating Account Servicing Entities with Rafiki. This includes the [rates endpoint](https://rafiki.dev/integration/requirements/exchange-rates) for supplying currency exchange rates and an endpoint for handling Rafiki’s [webhook events](https://rafiki.dev/integration/requirements/webhook-events/) throughout the payment lifecycle, such as depositing liquidity on `outgoing_payment.created`.
-
 
    - **Open Payments Client**: Communicates with our Open Payments API to perform the payment flows. This API is a reference implementation of the [Open Payments standard](https://rafiki.dev/overview/concepts/open-payments) that enables third parties to directly access users’ accounts.
 
-
    - **Admin (GraphQL) Client**: Communicates with our GraphQL admin API to set up tests and complete some of the flows, such as “Peer-to-Peer” payments.
-
 
    - **Account Provider**: A simple accounting service to handle basic accounting functions and facilitate payment flows.
 
@@ -135,9 +106,7 @@ We run this flow with the following variations:
 
 - With continuation via polling
 
-
 - With continuation via finish method
-
 
 - Without explicit quote step
 
@@ -149,7 +118,6 @@ We run this flow with the following variations:
 
 - Single currency
 
-
 - Cross currency
 
 To ensure functionality of these critical payment flows as our codebase evolves, we've integrated these tests into a GitHub Action. [This action](https://github.com/interledger/rafiki/blob/main/.github/workflows/node-build.yml) runs automatically against all pull requests, safeguarding our main branch from potential regressions.
@@ -160,28 +128,19 @@ Running tests from the host machine against services in Docker posed a problem w
 
 This sequence diagram illustrates how a request from the host machine resolves using the mapped hostnames.
 
-
-
 ## Conclusion
-
-
 
 Manually validating payment flows with series of Bruno requests against our local environment was tedious and error-prone, leading to less thorough testing and a slow developer experience. By automating these tests and integrating them into our CI pipeline, we have significantly sped up our development workflow and ensured the integrity of our payment flows across all code changes.
 
 ### Further Development Ideas
 
-
-
 Testing is an evolving process with constant opportunities for improvement. Further areas of enhancement could include:
 
 - Expanding tests to cover more variations, such as a cross-currency variation of “Open Payments” and failure scenarios.
 
-
 - Incorporating real GraphQL authentication instead of bypassing it.
 
-
 - Extend test environment to use either [TigerBeetle](https://tigerbeetle.com/) or Postgres accounting services (currently only uses Postgres).
-
 
 - In the future, if we require more programmatic control over the container lifecycle, we can leverage Testcontainers with our existing Docker Compose files.
 

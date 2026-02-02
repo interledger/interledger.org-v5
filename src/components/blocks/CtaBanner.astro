@@ -24,20 +24,28 @@ const {
   <div class="cta-banner__content">
     <h2 class="cta-banner__heading">{heading}</h2>
     {text && <p class="cta-banner__text">{text}</p>}
-    {(primaryButtonText || secondaryButtonText) && (
-      <div class="cta-banner__buttons">
-        {primaryButtonText && primaryButtonLink && (
-          <a href={primaryButtonLink} class="cta-banner__btn cta-banner__btn--primary">
-            {primaryButtonText}
-          </a>
-        )}
-        {secondaryButtonText && secondaryButtonLink && (
-          <a href={secondaryButtonLink} class="cta-banner__btn cta-banner__btn--secondary">
-            {secondaryButtonText}
-          </a>
-        )}
-      </div>
-    )}
+    {
+      (primaryButtonText || secondaryButtonText) && (
+        <div class="cta-banner__buttons">
+          {primaryButtonText && primaryButtonLink && (
+            <a
+              href={primaryButtonLink}
+              class="cta-banner__btn cta-banner__btn--primary"
+            >
+              {primaryButtonText}
+            </a>
+          )}
+          {secondaryButtonText && secondaryButtonLink && (
+            <a
+              href={secondaryButtonLink}
+              class="cta-banner__btn cta-banner__btn--secondary"
+            >
+              {secondaryButtonText}
+            </a>
+          )}
+        </div>
+      )
+    }
   </div>
 </section>
 

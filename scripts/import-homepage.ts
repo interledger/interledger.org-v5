@@ -48,8 +48,18 @@ interface StrapiBlock {
   [key: string]: unknown
 }
 
-function parseCardsFromMarkdown(content: string): Array<{ title: string; description?: string; link?: string; linkText?: string }> {
-  const cards: Array<{ title: string; description?: string; link?: string; linkText?: string }> = []
+function parseCardsFromMarkdown(content: string): Array<{
+  title: string
+  description?: string
+  link?: string
+  linkText?: string
+}> {
+  const cards: Array<{
+    title: string
+    description?: string
+    link?: string
+    linkText?: string
+  }> = []
 
   // Split by ### headings
   const cardSections = content.split(/(?=###\s)/)
@@ -81,11 +91,15 @@ function parseCardsFromMarkdown(content: string): Array<{ title: string; descrip
   return cards
 }
 
-function parseCardLinksFromMarkdown(content: string): Array<{ title: string; description?: string; href: string }> {
+function parseCardLinksFromMarkdown(
+  content: string
+): Array<{ title: string; description?: string; href: string }> {
   const cards: Array<{ title: string; description?: string; href: string }> = []
 
   // Match markdown links: - [Title](url) or - [Title](url) - description
-  const linkMatches = content.matchAll(/[-*]\s*\[(.+?)\]\((.+?)\)(?:\s*[-–]\s*(.+))?/g)
+  const linkMatches = content.matchAll(
+    /[-*]\s*\[(.+?)\]\((.+?)\)(?:\s*[-–]\s*(.+))?/g
+  )
 
   for (const match of linkMatches) {
     cards.push({
@@ -102,7 +116,8 @@ function parseContentToBlocks(content: string): StrapiBlock[] {
   const blocks: StrapiBlock[] = []
 
   // Match div blocks and plain text separately
-  const divPattern = /<div class=["'](cards-grid|card-links|cta-banner|carousel)["']>([\s\S]*?)<\/div>/g
+  const divPattern =
+    /<div class=["'](cards-grid|card-links|cta-banner|carousel)["']>([\s\S]*?)<\/div>/g
   let lastIndex = 0
   let match
 
@@ -171,12 +186,17 @@ function parseContentToBlocks(content: string): StrapiBlock[] {
 
       case 'carousel': {
         // Parse blockquotes as carousel items
-        const items: Array<{ quote: string; author?: string; role?: string; organization?: string }> = []
+        const items: Array<{
+          quote: string
+          author?: string
+          role?: string
+          organization?: string
+        }> = []
         const quoteBlocks = innerContent.split(/\n\n+/)
 
         for (const block of quoteBlocks) {
           if (block.startsWith('>')) {
-            const lines = block.split('\n').map(l => l.replace(/^>\s*/, ''))
+            const lines = block.split('\n').map((l) => l.replace(/^>\s*/, ''))
             const quote = lines[0] || ''
             const attribution = lines[1]?.replace(/^—\s*/, '')
 
@@ -232,8 +252,12 @@ function buildStrapiPayload(frontmatter: HomepageFrontmatter, content: string) {
 
   // Add hero CTAs
   if (frontmatter.heroCtas && frontmatter.heroCtas.length > 0) {
-    const primaryCta = frontmatter.heroCtas.find(cta => cta.style === 'primary')
-    const secondaryCtas = frontmatter.heroCtas.filter(cta => cta.style !== 'primary')
+    const primaryCta = frontmatter.heroCtas.find(
+      (cta) => cta.style === 'primary'
+    )
+    const secondaryCtas = frontmatter.heroCtas.filter(
+      (cta) => cta.style !== 'primary'
+    )
 
     if (primaryCta) {
       payload.hero = {
@@ -249,7 +273,7 @@ function buildStrapiPayload(frontmatter: HomepageFrontmatter, content: string) {
     if (secondaryCtas.length > 0) {
       payload.hero = {
         ...(payload.hero as object),
-        secondaryCtas: secondaryCtas.map(cta => ({
+        secondaryCtas: secondaryCtas.map((cta) => ({
           text: cta.text,
           link: cta.link,
           external: cta.external || false
@@ -285,7 +309,9 @@ async function findOrCreateHomepage(payload: Record<string, unknown>) {
 
   if (!checkRes.ok) {
     const error = await checkRes.text()
-    throw new Error(`Failed to check for existing homepage: ${checkRes.status} - ${error}`)
+    throw new Error(
+      `Failed to check for existing homepage: ${checkRes.status} - ${error}`
+    )
   }
 
   const checkData = await checkRes.json()

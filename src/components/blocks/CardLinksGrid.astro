@@ -17,26 +17,34 @@ const { heading, subheading, cards, columns = '3' } = Astro.props
 ---
 
 <div class="card-links-wrapper">
-  {heading && (
-    <div class="card-links__header">
-      <h2 class="card-links__heading">{heading}</h2>
-      {subheading && <p class="card-links__subheading">{subheading}</p>}
-    </div>
-  )}
+  {
+    heading && (
+      <div class="card-links__header">
+        <h2 class="card-links__heading">{heading}</h2>
+        {subheading && <p class="card-links__subheading">{subheading}</p>}
+      </div>
+    )
+  }
   <div class={`card-links card-links--${columns}`}>
-    {cards.map((card) => (
-      <a
-        href={card.href}
-        class="card-link"
-        {...(card.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      >
-        <span class="card-link__content">
-          <span class="card-link__title">{card.title}</span>
-          {card.description && <span class="card-link__description">{card.description}</span>}
-        </span>
-        <span class="card-link__arrow">→</span>
-      </a>
-    ))}
+    {
+      cards.map((card) => (
+        <a
+          href={card.href}
+          class="card-link"
+          {...(card.openInNewTab
+            ? { target: '_blank', rel: 'noopener noreferrer' }
+            : {})}
+        >
+          <span class="card-link__content">
+            <span class="card-link__title">{card.title}</span>
+            {card.description && (
+              <span class="card-link__description">{card.description}</span>
+            )}
+          </span>
+          <span class="card-link__arrow">→</span>
+        </a>
+      ))
+    }
   </div>
 </div>
 

@@ -95,7 +95,13 @@ function blockToMdx(block: Block): string {
       return block.content as string
 
     case 'blocks.cards-grid': {
-      const cards = (block.cards as Array<{ title: string; description?: string; link?: string; linkText?: string }>) || []
+      const cards =
+        (block.cards as Array<{
+          title: string
+          description?: string
+          link?: string
+          linkText?: string
+        }>) || []
       let mdx = ''
       if (block.heading) mdx += `## ${block.heading}\n\n`
       if (block.subheading) mdx += `${block.subheading}\n\n`
@@ -103,14 +109,20 @@ function blockToMdx(block: Block): string {
       for (const card of cards) {
         mdx += `### ${card.title}\n\n`
         if (card.description) mdx += `${card.description}\n\n`
-        if (card.link) mdx += `[${card.linkText || 'Learn more'}](${card.link})\n\n`
+        if (card.link)
+          mdx += `[${card.linkText || 'Learn more'}](${card.link})\n\n`
       }
       mdx += '</div>\n'
       return mdx
     }
 
     case 'blocks.card-links-grid': {
-      const cards = (block.cards as Array<{ title: string; description?: string; href: string }>) || []
+      const cards =
+        (block.cards as Array<{
+          title: string
+          description?: string
+          href: string
+        }>) || []
       let mdx = ''
       if (block.heading) mdx += `## ${block.heading}\n\n`
       if (block.subheading) mdx += `${block.subheading}\n\n`
@@ -139,7 +151,13 @@ function blockToMdx(block: Block): string {
     }
 
     case 'blocks.carousel': {
-      const items = (block.items as Array<{ quote: string; author?: string; role?: string; organization?: string }>) || []
+      const items =
+        (block.items as Array<{
+          quote: string
+          author?: string
+          role?: string
+          organization?: string
+        }>) || []
       let mdx = ''
       if (block.heading) mdx += `## ${block.heading}\n\n`
       mdx += '<div class="carousel">\n\n'
@@ -172,13 +190,21 @@ function homepageToMdx(homepage: Homepage): string {
   }
 
   // Add hero CTAs to frontmatter
-  if (homepage.hero.primaryCta || (homepage.hero.secondaryCtas && homepage.hero.secondaryCtas.length > 0)) {
+  if (
+    homepage.hero.primaryCta ||
+    (homepage.hero.secondaryCtas && homepage.hero.secondaryCtas.length > 0)
+  ) {
     const ctas: CtaLink[] = []
     if (homepage.hero.primaryCta) {
       ctas.push({ ...homepage.hero.primaryCta, style: 'primary' })
     }
     if (homepage.hero.secondaryCtas) {
-      ctas.push(...homepage.hero.secondaryCtas.map((cta) => ({ ...cta, style: 'secondary' })))
+      ctas.push(
+        ...homepage.hero.secondaryCtas.map((cta) => ({
+          ...cta,
+          style: 'secondary'
+        }))
+      )
     }
     frontmatter.heroCtas = ctas
   }
@@ -194,7 +220,8 @@ function homepageToMdx(homepage: Homepage): string {
       for (const item of value) {
         mdx += `  - text: "${(item as CtaLink).text}"\n`
         mdx += `    link: "${(item as CtaLink).link}"\n`
-        if ((item as CtaLink).style) mdx += `    style: "${(item as CtaLink).style}"\n`
+        if ((item as CtaLink).style)
+          mdx += `    style: "${(item as CtaLink).style}"\n`
         if ((item as CtaLink).external) mdx += `    external: true\n`
       }
     } else {
