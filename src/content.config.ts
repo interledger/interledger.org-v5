@@ -1,6 +1,4 @@
 import { defineCollection, z } from 'astro:content'
-import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
-import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 
 const blogCollection = defineCollection({
@@ -83,12 +81,32 @@ const pagesCollection = defineCollection({
   })
 })
 
+const summitPagesCollection = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/summit-pages' }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    gradient: z.string().optional(),
+    sections: z.array(z.object({
+      title: z.string(),
+      content: z.string(),
+      ctas: z.array(z.object({
+        label: z.string(),
+        href: z.string()
+      })).optional()
+    })).optional()
+  })
+})
+
 export const collections = {
-  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
-  i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   blog: blogCollection,
   press: pressCollection,
   events: eventsCollection,
   pages: pagesCollection,
+  'summit-pages': summitPagesCollection,
   'grant-tracks': grantTrackCollection
 }

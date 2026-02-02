@@ -1,0 +1,671 @@
+---
+import FoundationLogo from '../logos/FoundationLogo.astro'
+import summitNavigation from '../../config/summit-navigation.json'
+
+interface MenuItem {
+  label: string
+  href?: string
+  openInNewTab?: boolean
+}
+
+interface MenuGroup {
+  label: string
+  href?: string
+  items?: MenuItem[]
+}
+
+const { mainMenu, ctaButton } = summitNavigation as {
+  mainMenu: MenuGroup[]
+  ctaButton?: MenuItem
+}
+
+// Determine current language from URL path
+const currentPath = Astro.url.pathname
+const isSpanish = currentPath.startsWith('/es')
+const currentLang = isSpanish ? 'es' : 'en-gb'
+---
+
+<header class="summit-header" role="banner">
+  <nav
+    class="summit-nav"
+    role="navigation"
+    aria-labelledby="block-summit-navigation-menu"
+    id="block-summit-navigation"
+  >
+    <h2 class="visually-hidden" id="block-summit-navigation-menu">
+      Summit navigation
+    </h2>
+    <a
+      href="/summit"
+      class="summit-logo"
+      aria-label="Interledger Summit"
+      data-umami-event="Summit Nav - Logo"
+    >
+      <FoundationLogo />
+    </a>
+    <div
+      class="summit-links-wrapper offscreen"
+      data-nav-wrapper
+      id="summitNavLinks"
+    >
+      <ul class="summit-nav__links menu--level-1" id="summitNavMenu">
+        {mainMenu.map((group) => (
+          group.href ? (
+            <li class="menu-item menu-item--level-1">
+              <a
+                href={group.href}
+                data-umami-event={`Summit Nav - ${group.label}`}
+              >
+                {group.label}
+              </a>
+            </li>
+          ) : (
+            <li class="menu-item has-submenu menu-item--level-1">
+              <button
+                aria-expanded="false"
+                data-umami-event={`Summit Nav - ${group.label}`}
+              >
+                {group.label}
+              </button>
+              {group.items && group.items.length > 0 && (
+                <ul class="menu--level-2">
+                  {group.items.map((item) => (
+                    <li class="menu-item menu-item--level-2">
+                      <a
+                        href={item.href || '#'}
+                        data-umami-event={`Summit Nav - ${item.label}`}
+                        {...(item.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          )
+        ))}
+      </ul>
+      <div class="summit-nav-right">
+        {ctaButton && (
+          <a
+            class="summit-cta-link"
+            href={ctaButton.href || '#'}
+            data-umami-event={`Summit Nav - ${ctaButton.label}`}
+            {...(ctaButton.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )}
+        <span class="foundation-text">Interledger Foundation</span>
+        <span class="nav-separator"></span>
+        <ul class="links language-switcher">
+          <li
+            data-drupal-link-system-path="&lt;front&gt;"
+            class={currentLang === 'en-gb' ? 'is-active' : ''}
+            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+          >
+            <a
+              href="/summit"
+              class={`language-link ${currentLang === 'en-gb' ? 'is-active' : ''}`}
+              hreflang="en-gb"
+              data-drupal-link-system-path="&lt;front&gt;"
+              aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+            >
+              EN
+            </a>
+          </li>
+          <li
+            data-drupal-link-system-path="&lt;front&gt;"
+            class={currentLang === 'es' ? 'is-active' : ''}
+            aria-current={currentLang === 'es' ? 'page' : undefined}
+          >
+            <a
+              href="/es/summit"
+              class={`language-link ${currentLang === 'es' ? 'is-active' : ''}`}
+              hreflang="es"
+              data-drupal-link-system-path="&lt;front&gt;"
+              aria-current={currentLang === 'es' ? 'page' : undefined}
+            >
+              ES
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="summit-nav__toggle"
+      aria-controls="summitNavMenu"
+      aria-label="Toggle Menu"
+      title="Toggle Menu"
+      id="summitNavToggle"
+    >
+      <div id="summitMenuIcon" class="menu-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </button>
+  </nav>
+</header>
+
+<style>
+  .summit-header {
+    background-color: #000;
+    padding: 0 var(--space-m);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    width: 100%;
+  }
+
+  .summit-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .summit-nav ul {
+    list-style: none;
+    padding-inline-start: 0;
+    justify-content: center;
+  }
+
+  .summit-nav a,
+  .summit-nav__links button {
+    display: block;
+    color: currentColor;
+    transition: text-decoration 200ms ease-in-out;
+    white-space: nowrap;
+  }
+
+  .summit-nav__links button {
+    padding: var(--space-s) var(--space-2xs);
+    border: none;
+    background-color: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 0.875rem;
+    transition: color 200ms ease-in-out;
+  }
+
+  .summit-logo {
+    width: 11em;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-decoration: none;
+  }
+
+  :global(.summit-logo .logo-text) {
+    fill: var(--color-text);
+  }
+
+  .summit-nav__links .has-submenu > button::after {
+    content: url(/public/img/arrow-menu.svg);
+    display: inline-block;
+    width: 9px;
+    margin-left: 0.5rem;
+    transition: transform 0.5s ease-in-out;
+    filter: invert(1);
+    @media (prefers-reduced-motion) {
+      transition: transform 0s;
+    }
+  }
+
+  .summit-nav__links .has-submenu > button[aria-expanded='true']::after,
+  .summit-nav__links .has-submenu > button:hover::after,
+  .summit-nav__links .has-submenu:has(a:hover) > button::after {
+    transform: translateY(30%) rotate(180deg);
+  }
+
+  .summit-nav__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .summit-nav__links a {
+    text-decoration: none;
+    padding: var(--space-s) var(--space-2xs);
+    color: var(--color-text);
+    font-weight: 400;
+    font-size: 0.875rem;
+    transition: color 200ms ease-in-out;
+  }
+
+  .summit-nav__links a:hover,
+  .summit-nav__links button:hover {
+    color: hsla(26, 100%, 76%, 1);
+  }
+
+  .summit-nav__links .menu-item--level-1 > a.is-active,
+  .summit-nav__links .menu-item--level-2 > a.is-active,
+  .summit-nav__links .menu-item--level-1 > a[aria-current="page"],
+  .summit-nav__links .menu-item--level-1:has(.is-active) > button {
+    text-decoration: underline;
+    text-decoration-color: var(--color-text);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+
+  .summit-nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    justify-content: flex-end;
+  }
+
+  .foundation-text {
+    color: var(--color-text);
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .nav-separator {
+    width: 1px;
+    height: 1.5em;
+    background-color: var(--color-text);
+    opacity: 0.6;
+  }
+
+  .summit-cta-link {
+    padding-block: var(--space-s);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  a.summit-cta-link:hover {
+    text-decoration: underline;
+    color: currentColor;
+  }
+
+  .language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .language-switcher li {
+    display: flex;
+    align-items: center;
+  }
+
+  .language-switcher li:not(:last-child)::after {
+    content: '|';
+    color: hsl(180, 50%, 60%);
+    margin-inline: var(--space-2xs);
+    opacity: 0.8;
+  }
+
+  .language-switcher .language-link {
+    color: hsl(180, 50%, 60%);
+    text-decoration: none;
+    padding: var(--space-s) var(--space-2xs);
+    display: block;
+    transition: color 200ms ease-in-out;
+  }
+
+  .language-switcher .language-link.is-active {
+    text-decoration: underline;
+    text-decoration-color: hsl(180, 50%, 60%);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    color: hsl(180, 50%, 60%);
+  }
+
+  .language-switcher .language-link:hover {
+    text-decoration: underline;
+    text-decoration-color: hsl(180, 50%, 60%);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    color: hsl(180, 50%, 65%);
+  }
+
+  @media screen and (max-width: 479px) {
+    .summit-links-wrapper {
+      width: 100%;
+    }
+  }
+
+  @media screen and (min-width: 480px) and (max-width: 1059px) {
+    .summit-links-wrapper {
+      width: max-content;
+    }
+  }
+
+  @media screen and (max-width: 1059px) {
+    .summit-nav {
+      height: var(--site-header-height);
+    }
+
+    .summit-links-wrapper {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.95);
+      top: var(--site-header-height);
+      right: 0;
+      transition: transform 300ms ease-in-out;
+      border-block-start: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .summit-links-wrapper.offscreen {
+      transform: translateX(100%);
+    }
+
+    .summit-links-wrapper a,
+    .summit-nav__links button {
+      padding-inline: var(--space-s);
+    }
+
+    button[aria-expanded='false'] + .menu--level-2 {
+      display: none;
+    }
+
+    button[aria-expanded='true'] + .menu--level-2 {
+      display: block;
+    }
+
+    .summit-nav-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-xs);
+      padding-inline: var(--space-s);
+    }
+
+    .foundation-text {
+      display: none;
+    }
+
+    .nav-separator {
+      display: none;
+    }
+
+    .language-switcher {
+      padding-inline-start: 0;
+    }
+
+    .summit-nav__toggle {
+      border: 0;
+      background: initial;
+      padding: var(--space-xs) 0;
+      color: var(--color-text);
+    }
+
+    .menu-icon {
+      position: relative;
+      transform: rotate(0deg);
+      transition: 0.5s ease-in-out;
+      cursor: pointer;
+      height: 1em;
+      width: 1.5em;
+    }
+
+    .menu-icon span {
+      display: block;
+      position: absolute;
+      height: 4px;
+      width: 100%;
+      background: currentColor;
+      border-radius: 4px;
+      opacity: 1;
+      left: 0;
+      transform: rotate(0deg);
+      transition: 0.25s ease-in-out;
+    }
+
+    .menu-icon span:nth-child(1) {
+      top: 0;
+    }
+
+    .menu-icon span:nth-child(2),
+    .menu-icon span:nth-child(3) {
+      top: 50%;
+    }
+
+    .menu-icon span:nth-child(4) {
+      top: 100%;
+    }
+
+    .menu-icon.open span:nth-child(1),
+    .menu-icon.open span:nth-child(4) {
+      top: 50%;
+      width: 0%;
+      left: 50%;
+    }
+
+    .menu-icon.open span:nth-child(2) {
+      transform: rotate(45deg);
+    }
+
+    .menu-icon.open span:nth-child(3) {
+      transform: rotate(-45deg);
+    }
+
+    ul.menu--level-2 {
+      padding-inline-start: var(--space-m);
+    }
+  }
+
+  @media screen and (min-width: 1060px) {
+    .summit-nav {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: 'logo links right';
+      gap: var(--space-l);
+      align-items: center;
+    }
+
+    .summit-logo {
+      grid-area: logo;
+      z-index: 1;
+    }
+
+    .summit-links-wrapper {
+      grid-area: links;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .summit-nav__links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .summit-nav__links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+    }
+
+    .summit-nav-right {
+      grid-area: right;
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+
+    .has-submenu {
+      position: relative;
+    }
+
+    .summit-nav .menu--level-2 {
+      background-color: rgba(0, 0, 0, 0.95);
+      position: absolute;
+      border-inline-start: 2px solid rgba(255, 255, 255, 0.2);
+      transition: opacity 150ms ease-in;
+    }
+
+    .summit-nav .menu--level-2 a {
+      padding: var(--space-2xs);
+    }
+
+    .has-submenu > button[aria-expanded='false'] + ul {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .has-submenu > button[aria-expanded='true'] + ul,
+    .menu-item--level-1:hover > .menu--level-2,
+    .menu--level-2:hover {
+      visibility: visible;
+      opacity: 1;
+      width: max-content;
+      min-width: 100%;
+      left: 0;
+      top: calc(1.4em + var(--space-s) * 2);
+      box-shadow:
+        2px 3px 6px -3px hsla(0, 0%, 0%, 0.3),
+        -2px 3px 6px -3px hsla(0, 0%, 0%, 0.3);
+    }
+
+    .summit-nav__toggle {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const summitLinksWrapper = document.getElementById('summitNavLinks')
+  const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
+  wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
+
+  const summitNavToggle = document.getElementById('summitNavToggle')
+  const summitMenuIcon = document.getElementById('summitMenuIcon')
+
+  if (document.contains(summitNavToggle)) {
+    summitNavToggle?.addEventListener('click', handleMobileNavToggle, false)
+  }
+
+  function handleMobileNavToggle() {
+    summitLinksWrapper?.classList.toggle('offscreen')
+    if (summitLinksWrapper?.getAttribute('class')?.includes('offscreen')) {
+      summitMenuIcon?.classList.remove('open')
+    } else {
+      summitMenuIcon?.classList.add('open')
+    }
+  }
+
+  function handleNavDisplayStyles(event: MediaQueryListEvent) {
+    if (event.matches) {
+      summitLinksWrapper?.classList.remove('offscreen')
+    } else {
+      if (summitLinksWrapper) {
+        flashPrevention(summitLinksWrapper)
+      }
+      summitLinksWrapper?.classList.add('offscreen')
+    }
+  }
+
+  function flashPrevention(element: Element) {
+    element.setAttribute('style', 'display:none')
+    setTimeout(() => {
+      element.removeAttribute('style')
+    }, 10)
+  }
+
+  // Summit sub-navigation toggle
+  const summitNav = document.querySelector('.summit-nav__links') as HTMLInputElement
+
+  if (document.contains(summitNav)) {
+    const submenuButtons = summitNav.querySelectorAll('.has-submenu > button')
+
+    submenuButtons.forEach((submenuButton) => {
+      submenuButton.setAttribute('aria-expanded', 'false')
+
+      submenuButton.addEventListener('click', function (event) {
+        const clickedSubmenuButton = event.target
+        const allSubmenuButtons = Array.from(submenuButtons)
+        const notClickedSubmenuButtons = allSubmenuButtons.filter(
+          function (otherSubmenuButton) {
+            return otherSubmenuButton !== clickedSubmenuButton
+          }
+        )
+        notClickedSubmenuButtons.forEach((button) => {
+          button.setAttribute('aria-expanded', 'false')
+        })
+        if (clickedSubmenuButton instanceof HTMLElement) {
+          if (clickedSubmenuButton?.getAttribute('aria-expanded') === 'true') {
+            clickedSubmenuButton?.setAttribute('aria-expanded', 'false')
+          } else {
+            clickedSubmenuButton?.setAttribute('aria-expanded', 'true')
+          }
+        }
+      })
+    })
+
+    summitNav?.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        resetSubMenus()
+      }
+    })
+
+    document.addEventListener('click', function (event) {
+      if (isClickOutside(event, submenuButtons)) {
+        resetSubMenus()
+      }
+    })
+
+    function resetSubMenus() {
+      submenuButtons.forEach((submenuButton) => {
+        submenuButton.setAttribute('aria-expanded', 'false')
+      })
+    }
+  }
+
+  function isClickOutside(
+    event: MouseEvent,
+    nodeList: NodeListOf<Element>
+  ): boolean {
+    let clickedInsideTarget = false
+    const eventTarget = event.target as Element
+    Array.from(nodeList).forEach(function (element) {
+      if (element.contains(eventTarget)) {
+        clickedInsideTarget = true
+      }
+    })
+    return !clickedInsideTarget
+  }
+
+  // Mark active navigation links
+  const currentPath = window.location.pathname
+  const navLinks = document.querySelectorAll('.summit-nav__links a')
+  
+  navLinks.forEach((link) => {
+    if (link instanceof HTMLAnchorElement) {
+      const linkPath = link.pathname
+      // Remove trailing slashes for comparison
+      const normalizedCurrentPath = currentPath.replace(/\/$/, '')
+      const normalizedLinkPath = linkPath.replace(/\/$/, '')
+      
+      // Check for exact match or if current path starts with link path (for subpages)
+      if (normalizedCurrentPath === normalizedLinkPath || 
+          (normalizedLinkPath !== '/summit' && normalizedCurrentPath.startsWith(normalizedLinkPath))) {
+        link.classList.add('is-active')
+        link.setAttribute('aria-current', 'page')
+        
+        // If it's a submenu item, also mark the parent button
+        const parentMenu = link.closest('.menu-item--level-1')
+        const parentButton = parentMenu?.querySelector('button')
+        if (parentButton) {
+          parentButton.classList.add('is-active')
+        }
+      }
+    }
+  })
+</script>

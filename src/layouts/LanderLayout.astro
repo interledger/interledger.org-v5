@@ -1,6 +1,6 @@
 ---
-import Footer from '../components/pages/Footer.astro'
-import LanderHeader from '../components/pages/LanderHeader.astro'
+import SummitFooter from '../components/pages/SummitFooter.astro'
+import SummitHeader from '../components/pages/SummitHeader.astro'
 import '../styles/pages.css'
 
 interface Props {
@@ -37,9 +37,9 @@ const { title, description, gradient = 'option1' } = Astro.props
   </head>
 
   <body style=`--gradient:var(--${gradient})`>
-    <LanderHeader />
+    <SummitHeader />
     <slot />
-    <Footer />
+    <SummitFooter />
   </body>
 </html>
 

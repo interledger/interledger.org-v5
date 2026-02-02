@@ -1,8 +1,12 @@
 /**
  * Import navigation from local JSON config to Strapi
- *
- * Usage: npx tsx scripts/import-navigation.ts
- *
+ * Handles both regular navigation and summit navigation
+ * 
+ * Usage: 
+ *   npx tsx scripts/import-navigation.ts [--summit]
+ *   or
+ *   npx tsx scripts/import-navigation.ts --all
+ * 
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -42,69 +46,113 @@ interface Navigation {
   ctaButton?: MenuItem
 }
 
-async function importNavigation() {
+async function importNavigation(type: 'regular' | 'summit' | 'all') {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
-  // Read local navigation config
-  const configPath = join(process.cwd(), 'src/config/navigation.json')
-  const navigation: Navigation = JSON.parse(readFileSync(configPath, 'utf-8'))
+  const typesToImport: ('regular' | 'summit')[] = type === 'all' ? ['regular', 'summit'] : [type]
 
-  // Transform to Strapi format
-  const strapiData = {
-    data: {
-      mainMenu: navigation.mainMenu.map((group) => ({
-        label: group.label,
-        href: group.href || null,
-        items: (group.items || []).map((item) => ({
-          label: item.label,
-          href: item.href || null,
-          openInNewTab: item.openInNewTab || false
-        }))
-      })),
-      ctaButton: navigation.ctaButton
-        ? {
-            label: navigation.ctaButton.label,
-            href: navigation.ctaButton.href || null,
-            openInNewTab: navigation.ctaButton.openInNewTab || false
-          }
-        : null
+  for (const navType of typesToImport) {
+    const isSummit = navType === 'summit'
+    const configPath = join(
+      process.cwd(),
+      `src/config/${isSummit ? 'summit-' : ''}navigation.json`
+    )
+    const apiPath = isSummit ? 'summit-navigation' : 'navigation'
+    const displayName = isSummit ? 'summit navigation' : 'navigation'
+
+    console.log(`\nImporting ${displayName}...`)
+
+    if (!existsSync(configPath)) {
+      console.warn(`  Config file not found: ${configPath}`)
+      continue
     }
+
+    const navigation: Navigation = JSON.parse(readFileSync(configPath, 'utf-8'))
+
+    // Transform to Strapi format
+    const strapiData: any = {
+      data: {
+        mainMenu: navigation.mainMenu.map((group) => {
+          const groupData: any = {
+            label: group.label
+          }
+          if (group.href) {
+            groupData.href = group.href
+          }
+          if (group.items && group.items.length > 0) {
+            groupData.items = group.items.map((item) => {
+              const itemData: any = {
+                label: item.label
+              }
+              if (item.href) {
+                itemData.href = item.href
+              }
+              if (item.openInNewTab) {
+                itemData.openInNewTab = true
+              }
+              return itemData
+            })
+          }
+          return groupData
+        })
+      }
+    }
+
+    if (navigation.ctaButton) {
+      const ctaData: any = {
+        label: navigation.ctaButton.label
+      }
+      if (navigation.ctaButton.href) {
+        ctaData.href = navigation.ctaButton.href
+      }
+      if (navigation.ctaButton.openInNewTab) {
+        ctaData.openInNewTab = true
+      }
+      strapiData.data.ctaButton = ctaData
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    // Single types in Strapi v5 use document API endpoint
+    const url = `${baseUrl}/api/${apiPath}?publicationState=preview`
+    console.log(`  Updating ${displayName} (single type uses PUT)...`)
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(strapiData)
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Failed to import ${displayName}: ${res.status} - ${text}`)
+    }
+
+    const result = await res.json()
+    console.log(`  ${displayName} imported successfully!`)
+    console.log(`  Document ID: ${result.data.documentId}`)
   }
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  // Single types in Strapi always use PUT (create or update)
-  const url = `${baseUrl}/api/navigation`
-  console.log('Updating navigation (single type uses PUT)...')
-
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify(strapiData)
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Failed to import navigation: ${res.status} - ${text}`)
-  }
-
-  const result = await res.json()
-  console.log('Navigation imported successfully!')
-  console.log(`Document ID: ${result.data.documentId}`)
 }
 
 async function main() {
-  console.log('Importing navigation to Strapi...')
+  const args = process.argv.slice(2)
+  let type: 'regular' | 'summit' | 'all' = 'regular'
+
+  if (args.includes('--summit')) {
+    type = 'summit'
+  } else if (args.includes('--all')) {
+    type = 'all'
+  }
 
   try {
-    await importNavigation()
+    await importNavigation(type)
   } catch (error) {
     console.error('Error importing navigation:', error)
     process.exit(1)

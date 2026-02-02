@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_blocks_image_rows",
+  "info": {
+    "displayName": "Image Row",
+    "icon": "picture",
+    "description": "Image with text content, image can be positioned left or right"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "imagePosition": {
+      "type": "enumeration",
+      "enum": ["left", "right"],
+      "default": "right"
+    },
+    "attribution": {
+      "type": "string"
+    }
+  }
+}
