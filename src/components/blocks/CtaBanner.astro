@@ -32,6 +32,23 @@ const headingClasses = {
   light: 'text-primary-fallback',
   dark: 'text-white'
 }
+
+const baseButtonClasses =
+  'inline-block rounded-pill py-space-xs px-space-m font-medium no-underline transition-all duration-200'
+
+const primaryButtonClasses = {
+  primary: `${baseButtonClasses} bg-white text-primary hover:opacity-90`,
+  secondary: `${baseButtonClasses} bg-primary text-white`,
+  light: `${baseButtonClasses} bg-primary text-white`,
+  dark: `${baseButtonClasses} bg-primary text-white`
+}
+
+const secondaryButtonClasses = {
+  primary: `${baseButtonClasses} bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary`,
+  secondary: `${baseButtonClasses} bg-transparent border-2 border-primary text-primary`,
+  light: `${baseButtonClasses} bg-transparent border-2 border-primary text-primary`,
+  dark: `${baseButtonClasses} bg-transparent border-2 border-white text-white`
+}
 ---
 
 <section class={`py-space-xl px-space-m text-center ${bgClasses[backgroundColor]}`}>
@@ -46,7 +63,7 @@ const headingClasses = {
           {primaryButtonText && primaryButtonLink && (
             <a
               href={primaryButtonLink}
-              class={`cta-btn cta-btn--primary cta-btn--${backgroundColor}`}
+              class={primaryButtonClasses[backgroundColor]}
             >
               {primaryButtonText}
             </a>
@@ -54,7 +71,7 @@ const headingClasses = {
           {secondaryButtonText && secondaryButtonLink && (
             <a
               href={secondaryButtonLink}
-              class={`cta-btn cta-btn--secondary cta-btn--${backgroundColor}`}
+              class={secondaryButtonClasses[backgroundColor]}
             >
               {secondaryButtonText}
             </a>
@@ -64,50 +81,3 @@ const headingClasses = {
     }
   </div>
 </section>
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  .cta-btn {
-    @apply inline-block py-space-xs px-space-m rounded-pill no-underline font-medium transition-all duration-200;
-  }
-
-  /* Primary background buttons */
-  .cta-btn--primary.cta-btn--primary {
-    @apply bg-white;
-    color: var(--color-primary);
-  }
-
-  .cta-btn--primary.cta-btn--primary:hover {
-    @apply opacity-90;
-  }
-
-  .cta-btn--secondary.cta-btn--primary {
-    @apply bg-transparent border-2 border-white text-white;
-  }
-
-  .cta-btn--secondary.cta-btn--primary:hover {
-    @apply bg-white;
-    color: var(--color-primary);
-  }
-
-  /* Secondary/Light background buttons */
-  .cta-btn--primary.cta-btn--secondary,
-  .cta-btn--primary.cta-btn--light,
-  .cta-btn--primary.cta-btn--dark {
-    @apply text-white;
-    background: var(--color-primary);
-  }
-
-  .cta-btn--secondary.cta-btn--secondary,
-  .cta-btn--secondary.cta-btn--light {
-    @apply bg-transparent border-2;
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-
-  /* Dark background secondary button */
-  .cta-btn--secondary.cta-btn--dark {
-    @apply bg-transparent border-2 border-white text-white;
-  }
-</style>

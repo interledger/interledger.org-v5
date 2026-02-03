@@ -14,10 +14,10 @@ const esEntries = await getCollection('blog', ({ data }) => {
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
   ogImageUrl={new URL('/img/blog/og-image.png', Astro.site).href}
 >
-  <main>
-    <div class="content-wrapper">
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
       <ol
-        class="breadcrumbs"
+        class="flex list-none ps-0 text-step--1 font-bold pt-space-l [&_a]:text-primary [&_a]:no-underline"
         itemscope
         itemtype="https://schema.org/BreadcrumbList"
       >
@@ -35,6 +35,7 @@ const esEntries = await getCollection('blog', ({ data }) => {
           itemprop="itemListElement"
           itemscope
           itemtype="https://schema.org/ListItem"
+          class="before:content-['>'] before:inline-flex before:ms-space-3xs"
         >
           <a
             itemprop="item"
@@ -46,32 +47,35 @@ const esEntries = await getCollection('blog', ({ data }) => {
           <meta itemprop="position" content="2" />
         </li>
       </ol>
-      <header>
+      <header class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start">
         <h1>Blog de Ingeniería</h1>
-        <a class="cta__blog" href="/blog">
-          <p>Check out Foundation updates</p>
+        <a class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline" href="/blog">
+          <p class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current">
+            Check out Foundation updates
+          </p>
           <img
             src="/img/ernie-purple.svg"
             alt="Ernie holding an envelope"
             aria-hidden="true"
+            class="w-[4em]"
           />
         </a>
       </header>
-      <ol class="postlist">
+      <ol class="list-none p-0">
         {
           esEntries.map((blogPostEntry) => {
             const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
             return (
-              <li class="postlist-item">
+              <li class="mb-space-s flex flex-col">
                 <time
-                  class="postlist-date"
+                  class="text-step--1"
                   datetime={blogPostEntry.data.date.toISOString()}
                 >
                   {blogPostEntry.data.date.toDateString()}
                 </time>
                 <a
                   href={`/blog/${blogPostEntry.id}`}
-                  class="postlist-link heading--6"
+                  class="font-semibold text-primary no-underline underline-offset-4 decoration-transparent transition-[text-decoration-color,color] duration-300 hover:decoration-current"
                 >
                   {blogPostEntry.data.title}
                 </a>
@@ -88,112 +92,3 @@ const esEntries = await getCollection('blog', ({ data }) => {
     </div>
   </main>
 </BaseLayout>
-
-<style>
-  main {
-    padding-block-start: var(--space-m);
-    padding-block-end: var(--space-xl);
-  }
-
-  .breadcrumbs {
-    list-style: none;
-    display: flex;
-    padding-inline-start: 0;
-    font-size: var(--step--1);
-    font-weight: 700;
-    padding-block-start: var(--space-l);
-  }
-
-  .breadcrumbs a {
-    color: var(--color-primary);
-    text-decoration: none;
-  }
-
-  .breadcrumbs li:not(:first-child)::before {
-    content: '>';
-    display: inline-flex;
-    margin-inline-start: var(--space-3xs);
-  }
-
-  ol {
-    padding: 0;
-  }
-
-  header {
-    padding-block-start: var(--space-s);
-    padding-block-end: var(--space-m);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-xs);
-  }
-
-  @media screen and (max-width: 730px) {
-    header {
-      flex-direction: column;
-      align-items: start;
-    }
-  }
-
-  .cta__blog {
-    display: flex;
-    align-items: center;
-    gap: var(--space-s);
-    padding: var(--space-3xs) var(--space-2xs);
-    background-color: white;
-    box-shadow: var(--box-shadow);
-    border-radius: var(--border-radius);
-    font-size: var(--step--1);
-    background-image: var(--color-white);
-    text-decoration: none;
-  }
-
-  .cta__blog p {
-    flex: none;
-    text-decoration-color: transparent;
-    text-decoration-line: underline;
-    transition: text-decoration-color 300ms ease-in-out;
-  }
-
-  .cta__blog:hover {
-    color: inherit;
-  }
-
-  .cta__blog:hover p {
-    color: currentColor;
-    text-decoration-color: currentColor;
-    text-decoration-line: underline;
-  }
-
-  .cta__blog img {
-    width: 4em;
-  }
-
-  .post-metadata,
-  .links-nextprev,
-  .postlist {
-    list-style: none;
-  }
-
-  .postlist-item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--space-s);
-  }
-
-  .postlist-date {
-    font-size: var(--step--1);
-  }
-
-  .postlist-link {
-    font-weight: 600;
-    text-decoration-color: transparent;
-    transition:
-      text-decoration 300ms ease-in-out,
-      color 300ms ease-in-out;
-  }
-
-  .postlist-link:hover {
-    text-decoration-color: currentColor;
-  }
-</style>

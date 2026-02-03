@@ -43,7 +43,7 @@ const gridClass =
   <div class={`grid gap-space-m ${gridClass}`}>
     {
       cards.map((card) => (
-        <article class="card">
+        <article class="rounded-card border border-gray-200 bg-white p-space-m transition-shadow duration-200 hover:shadow-card">
           {card.icon && (
             <div class="w-12 h-12 mb-space-s" set:html={card.icon} />
           )}
@@ -69,15 +69,3 @@ const gridClass =
     }
   </div>
 </div>
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  .card {
-    @apply bg-white rounded-card p-space-m border border-gray-200 transition-shadow duration-200;
-  }
-
-  .card:hover {
-    @apply shadow-card;
-  }
-</style>

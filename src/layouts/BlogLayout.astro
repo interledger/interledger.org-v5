@@ -22,11 +22,10 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     <article
       itemscope
       itemtype="http://schema.org/Article"
-      class="content-wrapper flex-1"
-      style="--max-content-width: 960px"
+      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s [&_ol]:mb-space-s [&_ul]:mb-space-s [&_figure]:mb-space-s [&_hr]:mb-space-s [&_h2]:mb-space-xs [&_h3]:mb-space-xs [&_h4]:mb-space-xs [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto"
     >
       <ol
-        class="breadcrumbs flex list-none ps-0 text-step--1 font-bold pt-space-l"
+        class="flex list-none ps-0 text-step--1 font-bold pt-space-l"
         itemscope
         itemtype="https://schema.org/BreadcrumbList"
       >
@@ -78,7 +77,10 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       </time>
       {
         frontmatter.external_url ? (
-          <div class="note" set:html={rawHTMLString} />
+          <div
+            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
+            set:html={rawHTMLString}
+          />
         ) : (
           ''
         )
@@ -87,114 +89,3 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     </article>
   </main>
 </BaseLayout>
-
-<style>
-
-  @reference "../styles/tailwind.css";
-  .note {
-    @apply px-space-xs py-space-xs shadow rounded italic mb-space-s text-step--1 max-w-max relative;
-  }
-
-  .note::before {
-    @apply absolute w-full h-full top-0 left-0 -z-10 rounded;
-    background-color: var(--color-primary);
-    opacity: 0.25;
-    content: '';
-  }
-
-  /* Article content styling for markdown - requires :global() */
-  article :global(p),
-  article :global(ol),
-  article :global(ul),
-  article :global(figure),
-  article :global(hr) {
-    @apply mb-space-s;
-  }
-
-  article :global(h2),
-  article :global(h3),
-  article :global(h4) {
-    @apply mb-space-xs;
-  }
-
-  article :global(a) {
-    color: var(--color-primary);
-    @apply no-underline;
-  }
-
-  article :global(a:hover) {
-    @apply underline;
-  }
-
-  article :global(figcaption) {
-    @apply text-step--1 italic;
-  }
-
-  article :global(table) {
-    @apply table w-full border-collapse rounded shadow mb-space-m;
-  }
-
-  article :global(th) {
-    @apply text-left;
-  }
-
-  article :global(th),
-  article :global(td) {
-    @apply py-space-3xs px-space-2xs;
-  }
-
-  article :global(thead tr:first-of-type th:first-of-type) {
-    @apply rounded-ss;
-  }
-
-  article :global(thead tr:first-of-type th:last-of-type) {
-    @apply rounded-se;
-  }
-
-  article :global(thead tr) {
-    background-color: var(--color-table-stripe);
-  }
-
-  article :global(thead + tbody tr:nth-child(2n)) {
-    background-color: var(--color-table-stripe);
-  }
-
-  article :global(tbody tr:first-of-type th:first-child),
-  article :global(tbody tr:first-of-type td:first-child) {
-    @apply rounded-ss;
-  }
-
-  article :global(tbody tr:first-of-type th:last-child),
-  article :global(tbody tr:first-of-type td:last-child) {
-    @apply rounded-se;
-  }
-
-  article :global(tbody tr:last-of-type th:first-child),
-  article :global(tbody tr:last-of-type td:first-child) {
-    @apply rounded-es;
-  }
-
-  article :global(tbody tr:last-of-type th:last-child),
-  article :global(tbody tr:last-of-type td:last-child) {
-    @apply rounded-ee;
-  }
-
-  article :global(.expressive-code) {
-    @apply mb-space-s;
-  }
-
-  article :global(:not(pre) > code) {
-    background-color: var(--color-bg-inline-code);
-    @apply rounded text-step--1;
-    padding: 0.125rem 0.375rem;
-    overflow-wrap: anywhere;
-  }
-
-  article :global(ul li) {
-    @apply mb-space-2xs;
-  }
-
-  article :global(img) {
-    @apply block mx-auto;
-  }
-</style>

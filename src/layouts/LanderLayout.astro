@@ -37,65 +37,13 @@ const { title, description, gradient = 'option1' } = Astro.props
   </head>
 
   <body
-    class="flex flex-col min-h-full min-w-[360px] text-white text-step-0 font-titillium bg-no-repeat bg-fixed overflow-x-hidden"
+    class="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat font-titillium text-step-0 text-white"
     style={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
   >
     <LanderHeader />
-    <slot />
+    <div class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]">
+      <slot />
+    </div>
     <Footer />
   </body>
 </html>
-
-<style is:global>
-
-  @reference "../styles/tailwind.css";
-  main {
-    @apply flex-1 text-step-0;
-  }
-
-  section {
-    @apply w-full py-space-m;
-  }
-
-  .content-wrapper {
-    @apply max-w-content mx-auto px-space-m;
-    min-width: 360px;
-  }
-
-  .heading--1,
-  h1 {
-    @apply text-step-4;
-  }
-
-  .heading--2,
-  h2 {
-    @apply text-step-2;
-  }
-
-  .heading--3,
-  h3 {
-    @apply text-step-1;
-  }
-
-  .heading--4,
-  h4 {
-    @apply text-step-0;
-  }
-
-  a {
-    @apply text-current transition-colors duration-slow;
-  }
-
-  a:hover {
-    color: hsla(26, 100%, 76%, 1);
-  }
-
-  /* Dark mode gradient options */
-  :root {
-    --option1: linear-gradient(
-      to bottom,
-      hsla(162, 86%, 12%, 1),
-      hsla(176, 100%, 30%, 1)
-    );
-  }
-</style>

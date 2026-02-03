@@ -5,65 +5,23 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from './logos/DevelopersLogo.astro'
 ---
 
-<div class="header sl-flex gap-[var(--sl-nav-gap)] items-center h-full">
+<div class="flex h-full items-center gap-[var(--sl-nav-gap)] border-t-2 border-primary shadow-primary [&_site-search>button[data-open-modal]]:w-auto">
   <a href="/" class="flex items-center gap-space-xs">
-    <DevelopersLogo class="w-[9.5em] flex-none" />
+    <DevelopersLogo class="w-[9.5em] flex-none text-primary dark:text-[var(--sl-color-text-accent)]" />
   </a>
-  <a href="/" class="home-link overflower">
+  <a href="/" class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-primary no-underline hover:underline dark:text-[var(--sl-color-text-accent)]">
     <span
-      class="overflower-short"
+      class="block w-0 flex-auto overflow-hidden text-ellipsis text-right"
       aria-hidden="true"
       title="Interledger Foundation"
     >
       ILF
     </span>
-    <span class="overflower-long"> Interledger Foundation </span>
+    <span class="inline flex-[0_1_100%]"> Interledger Foundation </span>
   </a>
   <Search />
-  <div class="sl-hidden md:sl-flex items-center gap-space-s">
+  <div class="hidden items-center gap-space-s md:flex">
     <SocialIcons />
     <ThemeSelect />
   </div>
 </div>
-
-<style>
-
-  @reference "../styles/tailwind.css";
-  :global(header) {
-    border-block-start: 2px solid var(--color-primary-fallback);
-    border-block-start: 2px solid var(--color-primary);
-    box-shadow: 0px 0px 12px -4px var(--color-primary-fallback);
-    box-shadow: 0px 0px 12px -4px var(--color-primary);
-  }
-
-  .overflower {
-    @apply inline-flex flex-wrap overflow-hidden max-w-full whitespace-nowrap ml-auto h-[1.5em];
-  }
-
-  .overflower-short {
-    @apply block overflow-hidden flex-auto w-0 text-ellipsis text-right;
-  }
-
-  .overflower-long {
-    @apply inline;
-    flex: 0 1 100%;
-  }
-
-  .home-link {
-    color: var(--color-primary-fallback);
-    color: var(--color-primary);
-    @apply no-underline;
-  }
-
-  :global([data-theme='dark']) .home-link {
-    color: var(--sl-color-text-accent);
-  }
-
-  .home-link:hover {
-    @apply underline;
-  }
-
-  :global(site-search > button[data-open-modal]) {
-    width: auto;
-  }
-</style>

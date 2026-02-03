@@ -14,22 +14,22 @@ const { src, alt, hasBorder = true } = Astro.props
     href={src}
     target="_blank"
     rel="noopener noreferrer"
-    class="external-link"
+    class="mb-space-s mt-space-3xs inline-flex items-center gap-space-3xs whitespace-nowrap text-step--1"
   >
     View full image
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 18 18"
+      class="h-3 w-3 text-[hsl(221,8%,56%)]"
+      fill="none"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
+      />
+    </svg>
   </a>
 </div>
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  .external-link {
-    @apply whitespace-nowrap inline-flex gap-space-3xs mt-space-3xs mb-space-s text-step--1;
-  }
-
-  .external-link::after {
-    content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="hsl(221,8%,56%)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"/></svg>');
-    height: 0.75em;
-    width: 0.75em;
-  }
-</style>

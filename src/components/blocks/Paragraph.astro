@@ -25,41 +25,6 @@ const alignmentClass =
 ---
 
 <div
-  class={`paragraph max-w-narrow mx-auto ${alignmentClass}`}
+  class={`mx-auto max-w-narrow ${alignmentClass} [&_p]:mb-space-s [&_p]:leading-relaxed [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_ul]:mb-space-s [&_ul]:ps-space-m [&_ol]:mb-space-s [&_ol]:ps-space-m [&_li]:mb-space-xs`}
   set:html={htmlContent}
 />
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  .paragraph :global(p) {
-    @apply mb-space-s leading-relaxed;
-  }
-
-  .paragraph :global(a) {
-    color: var(--color-primary);
-    @apply underline;
-  }
-
-  .paragraph :global(a:hover) {
-    @apply no-underline;
-  }
-
-  .paragraph :global(h2) {
-    @apply text-[1.75rem] font-semibold my-space-l mb-space-s;
-    color: var(--color-primary);
-  }
-
-  .paragraph :global(h3) {
-    @apply text-[1.25rem] font-semibold my-space-m mb-space-xs;
-  }
-
-  .paragraph :global(ul),
-  .paragraph :global(ol) {
-    @apply mb-space-s ps-space-m;
-  }
-
-  .paragraph :global(li) {
-    @apply mb-space-xs;
-  }
-</style>

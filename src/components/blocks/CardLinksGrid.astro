@@ -43,7 +43,7 @@ const gridClass =
       cards.map((card) => (
         <a
           href={card.href}
-          class="card-link"
+          class="group flex items-center justify-between rounded-card border border-gray-200 bg-white p-space-m text-inherit no-underline transition-all duration-200 hover:border-primary hover:shadow-card"
           {...(card.openInNewTab
             ? { target: '_blank', rel: 'noopener noreferrer' }
             : {})}
@@ -56,30 +56,11 @@ const gridClass =
               <span class="text-sm text-gray">{card.description}</span>
             )}
           </span>
-          <span class="card-link__arrow">&rarr;</span>
+          <span class="text-2xl text-primary-fallback transition-transform duration-200 group-hover:translate-x-1">
+            &rarr;
+          </span>
         </a>
       ))
     }
   </div>
 </div>
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  .card-link {
-    @apply flex items-center justify-between bg-white rounded-card p-space-m border border-gray-200 no-underline text-inherit transition-all duration-200;
-  }
-
-  .card-link:hover {
-    @apply shadow-card;
-    border-color: var(--color-primary);
-  }
-
-  .card-link__arrow {
-    @apply text-2xl text-primary-fallback transition-transform duration-200;
-  }
-
-  .card-link:hover .card-link__arrow {
-    @apply translate-x-1;
-  }
-</style>

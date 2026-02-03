@@ -5,41 +5,20 @@ import DevelopersLogo from '../logos/DevelopersLogo.astro'
 <header class="bg-[var(--color-bg)] px-space-m py-space-2xs">
   <div class="flex justify-between items-center max-w-[95rem] mx-auto gap-space-s">
     <a href="/" class="flex items-center gap-space-xs flex-none">
-      <DevelopersLogo class="w-[7em] flex-none" />
+      <DevelopersLogo class="w-[7em] flex-none text-[var(--color-text)]" />
     </a>
-    <a href="/" class="home-link overflower">
+    <a href="/" class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-step--1">
       <span
-        class="overflower-short"
+        class="block w-0 flex-auto overflow-hidden text-ellipsis text-right"
         aria-hidden="true"
         title="Interledger Foundation"
       >
         ILF
       </span>
-      <span class="overflower-long"> Interledger Foundation </span>
+      <span class="inline flex-[0_1_100%]"> Interledger Foundation </span>
     </a>
     <a href="https://github.com/interledger" class="h-[1.25em] w-[1.25em]">
       <img src="/img/lander/icon-github.svg" alt="Interledger Github" class="h-full w-full" />
     </a>
   </div>
 </header>
-
-<style>
-
-  @reference "../../styles/tailwind.css";
-  :global(.logo-text) {
-    fill: var(--color-text);
-  }
-
-  .overflower {
-    @apply inline-flex flex-wrap overflow-hidden max-w-full whitespace-nowrap ml-auto h-[1.5em] text-step--1;
-  }
-
-  .overflower-short {
-    @apply block overflow-hidden flex-auto w-0 text-ellipsis text-right;
-  }
-
-  .overflower-long {
-    @apply inline;
-    flex: 0 1 100%;
-  }
-</style>

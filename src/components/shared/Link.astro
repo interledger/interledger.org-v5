@@ -4,7 +4,10 @@ const { href, style, umami, external, text } = Astro.props
 
 <a
   href={href ?? ''}
-  class={style === 'secondary' ? 'btn-secondary' : 'btn-primary'}
+  class={style === 'secondary'
+    ? 'inline-block w-fit rounded-button bg-white/70 text-primary transition-colors hover:bg-white/90'
+    : 'inline-block w-fit rounded-button bg-primary text-white transition-colors hover:bg-primary-hover'}
+  style={`padding: clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem) clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem);`}
   data-umami-event={umami ?? ''}
   {...external && {
     target: '_blank',
