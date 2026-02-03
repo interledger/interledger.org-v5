@@ -1,9 +1,9 @@
 /**
- * Sync Homepage from Strapi Pages collection to local MDX file
+ * Export pages from Strapi Pages collection to local MDX files
  *
- * Usage: npx tsx scripts/sync-homepage.ts
+ * Usage: npx tsx scripts/export-pages.ts
  *
- * Fetches the page with slug "home" from Strapi Pages collection
+ * Fetches all pages from Strapi Pages collection and writes them to src/content/pages/
  * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
  */
 
@@ -52,18 +52,23 @@ interface Block {
   [key: string]: unknown
 }
 
-interface Homepage {
+interface Page {
+  slug: string
+  title: string
+  description?: string
   seo?: Seo
-  hero: Hero
+  hero?: Hero
+  heroTitle?: string
+  heroDescription?: string
   content?: Block[]
+  mdxContent?: string
 }
 
-async function fetchHomepage(): Promise<Homepage | null> {
+async function fetchAllPages(): Promise<Page[]> {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
-  // Fetch from Pages collection with slug "home"
-  const url = `${baseUrl}/api/pages?filters[slug][$eq]=home&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
+  const url = `${baseUrl}/api/pages?populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
@@ -76,15 +81,11 @@ async function fetchHomepage(): Promise<Homepage | null> {
   const res = await fetch(url, { headers })
 
   if (!res.ok) {
-    if (res.status === 404) {
-      console.log('Homepage not found in Strapi Pages collection')
-      return null
-    }
-    throw new Error(`Failed to fetch homepage: ${res.status}`)
+    throw new Error(`Failed to fetch pages: ${res.status}`)
   }
 
   const json = await res.json()
-  return json.data?.[0] || null
+  return json.data || []
 }
 
 function blockToMdx(block: Block): string {
@@ -181,32 +182,46 @@ function blockToMdx(block: Block): string {
   }
 }
 
-function homepageToMdx(homepage: Homepage): string {
+function pageToMdx(page: Page): string {
   const frontmatter: Record<string, unknown> = {
-    slug: 'home',
-    title: homepage.seo?.metaTitle || homepage.hero.title,
-    heroTitle: homepage.hero.title,
-    heroDescription: homepage.hero.description || ''
+    slug: page.slug,
+    title: page.seo?.metaTitle || page.title
   }
 
-  // Add hero CTAs to frontmatter
-  if (
-    homepage.hero.primaryCta ||
-    (homepage.hero.secondaryCtas && homepage.hero.secondaryCtas.length > 0)
-  ) {
-    const ctas: CtaLink[] = []
-    if (homepage.hero.primaryCta) {
-      ctas.push({ ...homepage.hero.primaryCta, style: 'primary' })
+  // Add hero fields if present
+  if (page.hero) {
+    frontmatter.heroTitle = page.hero.title
+    if (page.hero.description) {
+      frontmatter.heroDescription = page.hero.description
     }
-    if (homepage.hero.secondaryCtas) {
-      ctas.push(
-        ...homepage.hero.secondaryCtas.map((cta) => ({
-          ...cta,
-          style: 'secondary'
-        }))
-      )
+
+    // Add hero CTAs to frontmatter
+    if (
+      page.hero.primaryCta ||
+      (page.hero.secondaryCtas && page.hero.secondaryCtas.length > 0)
+    ) {
+      const ctas: CtaLink[] = []
+      if (page.hero.primaryCta) {
+        ctas.push({ ...page.hero.primaryCta, style: 'primary' })
+      }
+      if (page.hero.secondaryCtas) {
+        ctas.push(
+          ...page.hero.secondaryCtas.map((cta) => ({
+            ...cta,
+            style: 'secondary'
+          }))
+        )
+      }
+      frontmatter.heroCtas = ctas
     }
-    frontmatter.heroCtas = ctas
+  } else {
+    // Fallback to flat hero fields
+    if (page.heroTitle) frontmatter.heroTitle = page.heroTitle
+    if (page.heroDescription) frontmatter.heroDescription = page.heroDescription
+  }
+
+  if (page.description) {
+    frontmatter.description = page.description
   }
 
   // Build MDX content
@@ -230,37 +245,48 @@ function homepageToMdx(homepage: Homepage): string {
   }
   mdx += '---\n\n'
 
-  // Add content blocks
-  if (homepage.content && homepage.content.length > 0) {
-    for (const block of homepage.content) {
+  // Add content blocks if present
+  if (page.content && page.content.length > 0) {
+    for (const block of page.content) {
       mdx += blockToMdx(block)
       mdx += '\n'
     }
+  } else if (page.mdxContent) {
+    // Fallback to raw mdxContent if no structured blocks
+    mdx += page.mdxContent
   }
 
   return mdx
 }
 
 async function main() {
-  console.log('Fetching homepage from Strapi...')
+  console.log('Fetching pages from Strapi...')
 
   try {
-    const homepage = await fetchHomepage()
+    const pages = await fetchAllPages()
 
-    if (!homepage) {
-      console.log('No homepage data to sync')
+    if (pages.length === 0) {
+      console.log('No pages found in Strapi')
       return
     }
 
-    const mdxContent = homepageToMdx(homepage)
+    console.log(`Found ${pages.length} page(s) to export\n`)
 
-    const outputPath = join(process.cwd(), 'src/content/pages/home.mdx')
-    mkdirSync(dirname(outputPath), { recursive: true })
-    writeFileSync(outputPath, mdxContent)
+    const outputDir = join(process.cwd(), 'src/content/pages')
+    mkdirSync(outputDir, { recursive: true })
 
-    console.log(`Homepage synced to ${outputPath}`)
+    for (const page of pages) {
+      const mdxContent = pageToMdx(page)
+      const filename = page.slug === 'home' ? 'home.mdx' : `${page.slug}.mdx`
+      const outputPath = join(outputDir, filename)
+
+      writeFileSync(outputPath, mdxContent)
+      console.log(`  ✓ ${filename}`)
+    }
+
+    console.log('\nPages export complete!')
   } catch (error) {
-    console.error('Error syncing homepage:', error)
+    console.error('Error exporting pages:', error)
     process.exit(1)
   }
 }

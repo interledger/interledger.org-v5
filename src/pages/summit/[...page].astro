@@ -1,5 +1,5 @@
 ---
-import LanderLayout from '../../layouts/LanderLayout.astro'
+import SummitLayout from '../../layouts/SummitLayout.astro'
 import DynamicZone from '../../components/blocks/DynamicZone.astro'
 import LinkArrow from '../../../public/img/icon-link-arrow.svg'
 
@@ -57,7 +57,7 @@ const dynamicContent = data?.content || []
 const gradient = data?.gradient || 'option1'
 ---
 
-<LanderLayout title={title} description={description} gradient={gradient}>
+<SummitLayout title={title} description={description} gradient={gradient}>
   <main class="pb-space-l">
     {/* If no data from Strapi, show coming soon page */}
     {
@@ -128,4 +128,4 @@ const gradient = data?.gradient || 'option1'
       )
     }
   </main>
-</LanderLayout>
+</SummitLayout>
