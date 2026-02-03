@@ -2,10 +2,10 @@
 import DevelopersLogo from '../logos/DevelopersLogo.astro'
 ---
 
-<header>
-  <div class="header">
-    <a href="/" class="site-title">
-      <DevelopersLogo />
+<header class="bg-[var(--color-bg)] px-space-m py-space-2xs">
+  <div class="flex justify-between items-center max-w-[95rem] mx-auto gap-space-s">
+    <a href="/" class="flex items-center gap-space-xs flex-none">
+      <DevelopersLogo class="w-[7em] flex-none" />
     </a>
     <a href="/" class="home-link overflower">
       <span
@@ -17,70 +17,29 @@ import DevelopersLogo from '../logos/DevelopersLogo.astro'
       </span>
       <span class="overflower-long"> Interledger Foundation </span>
     </a>
-    <a href="https://github.com/interledger" class="icon--github">
-      <img src="/img/lander/icon-github.svg" alt="Interledger Github" />
+    <a href="https://github.com/interledger" class="h-[1.25em] w-[1.25em]">
+      <img src="/img/lander/icon-github.svg" alt="Interledger Github" class="h-full w-full" />
     </a>
   </div>
 </header>
 
 <style>
-  header {
-    background-color: var(--color-bg);
-    padding: var(--space-2xs) var(--space-m);
-  }
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 95rem;
-    margin-inline: auto;
-    gap: var(--space-s);
-  }
-
+  @reference "../../styles/tailwind.css";
   :global(.logo-text) {
     fill: var(--color-text);
   }
 
-  .site-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    flex: none;
-  }
-
-  .site-title svg {
-    width: 7em;
-    flex: none;
-  }
-
   .overflower {
-    display: inline-flex;
-    flex-wrap: wrap;
-    overflow: hidden;
-    max-width: 100%;
-    white-space: nowrap;
-    margin-inline-start: auto;
-    height: 1.5em;
-    font-size: var(--step--1);
+    @apply inline-flex flex-wrap overflow-hidden max-w-full whitespace-nowrap ml-auto h-[1.5em] text-step--1;
   }
 
   .overflower-short {
-    display: block;
-    overflow: hidden;
-    flex: 1 1 auto;
-    width: 0;
-    text-overflow: ellipsis;
-    text-align: right;
+    @apply block overflow-hidden flex-auto w-0 text-ellipsis text-right;
   }
 
   .overflower-long {
-    display: inline;
+    @apply inline;
     flex: 0 1 100%;
-  }
-
-  .icon--github img {
-    height: 1.25em;
-    width: 1.25em;
   }
 </style>

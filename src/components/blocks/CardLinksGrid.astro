@@ -14,18 +14,31 @@ interface Props {
 }
 
 const { heading, subheading, cards, columns = '3' } = Astro.props
+
+const gridClass =
+  columns === '2'
+    ? 'grid-cols-[repeat(auto-fit,minmax(280px,1fr))]'
+    : columns === '4'
+      ? 'grid-cols-[repeat(auto-fit,minmax(220px,1fr))]'
+      : 'grid-cols-[repeat(auto-fit,minmax(250px,1fr))]'
 ---
 
-<div class="card-links-wrapper">
+<div class="max-w-wide mx-auto">
   {
     heading && (
-      <div class="card-links__header">
-        <h2 class="card-links__heading">{heading}</h2>
-        {subheading && <p class="card-links__subheading">{subheading}</p>}
+      <div class="text-center mb-space-l">
+        <h2 class="text-[2rem] font-semibold text-primary-fallback mb-space-xs">
+          {heading}
+        </h2>
+        {subheading && (
+          <p class="text-[1.125rem] text-gray max-w-[600px] mx-auto">
+            {subheading}
+          </p>
+        )}
       </div>
     )
   }
-  <div class={`card-links card-links--${columns}`}>
+  <div class={`grid gap-space-m ${gridClass}`}>
     {
       cards.map((card) => (
         <a
@@ -35,13 +48,15 @@ const { heading, subheading, cards, columns = '3' } = Astro.props
             ? { target: '_blank', rel: 'noopener noreferrer' }
             : {})}
         >
-          <span class="card-link__content">
-            <span class="card-link__title">{card.title}</span>
+          <span class="flex flex-col gap-space-2xs">
+            <span class="text-[1.125rem] font-semibold text-primary-fallback">
+              {card.title}
+            </span>
             {card.description && (
-              <span class="card-link__description">{card.description}</span>
+              <span class="text-sm text-gray">{card.description}</span>
             )}
           </span>
-          <span class="card-link__arrow">→</span>
+          <span class="card-link__arrow">&rarr;</span>
         </a>
       ))
     }
@@ -49,89 +64,22 @@ const { heading, subheading, cards, columns = '3' } = Astro.props
 </div>
 
 <style>
-  .card-links-wrapper {
-    max-width: 1200px;
-    margin-inline: auto;
-  }
 
-  .card-links__header {
-    text-align: center;
-    margin-block-end: var(--space-l);
-  }
-
-  .card-links__heading {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    margin-block-end: var(--space-xs);
-  }
-
-  .card-links__subheading {
-    font-size: 1.125rem;
-    color: var(--sl-color-gray-2);
-    max-width: 600px;
-    margin-inline: auto;
-  }
-
-  .card-links {
-    display: grid;
-    gap: var(--space-m);
-  }
-
-  .card-links--2 {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-
-  .card-links--3 {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-
-  .card-links--4 {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-
+  @reference "../../styles/tailwind.css";
   .card-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: white;
-    border-radius: 8px;
-    padding: var(--space-m);
-    border: 1px solid var(--sl-color-gray-5);
-    text-decoration: none;
-    color: inherit;
-    transition: all 200ms ease-in-out;
+    @apply flex items-center justify-between bg-white rounded-card p-space-m border border-gray-200 no-underline text-inherit transition-all duration-200;
   }
 
   .card-link:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    @apply shadow-card;
     border-color: var(--color-primary);
   }
 
-  .card-link__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-  }
-
-  .card-link__title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-primary);
-  }
-
-  .card-link__description {
-    font-size: 0.875rem;
-    color: var(--sl-color-gray-2);
-  }
-
   .card-link__arrow {
-    font-size: 1.5rem;
-    color: var(--color-primary);
-    transition: transform 200ms ease-in-out;
+    @apply text-2xl text-primary-fallback transition-transform duration-200;
   }
 
   .card-link:hover .card-link__arrow {
-    transform: translateX(4px);
+    @apply translate-x-1;
   }
 </style>

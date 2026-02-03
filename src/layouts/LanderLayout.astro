@@ -1,7 +1,7 @@
 ---
 import Footer from '../components/pages/Footer.astro'
 import LanderHeader from '../components/pages/LanderHeader.astro'
-import '../styles/pages.css'
+import '../styles/tailwind.css'
 
 interface Props {
   title: string
@@ -36,7 +36,10 @@ const { title, description, gradient = 'option1' } = Astro.props
       data-domains="interledger.org"></script>
   </head>
 
-  <body style=`--gradient:var(--${gradient})`>
+  <body
+    class="flex flex-col min-h-full min-w-[360px] text-white text-step-0 font-titillium bg-no-repeat bg-fixed overflow-x-hidden"
+    style={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+  >
     <LanderHeader />
     <slot />
     <Footer />
@@ -44,77 +47,55 @@ const { title, description, gradient = 'option1' } = Astro.props
 </html>
 
 <style is:global>
-  html {
-    box-sizing: border-box;
-    height: 100%;
-  }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    min-width: 360px;
-    color: var(--color-text);
-    font-size: var(--step-0);
-    font-family: 'Titillium', Arial, sans-serif;
-    background-image: var(--gradient);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    overflow-x: hidden;
-  }
-
+  @reference "../styles/tailwind.css";
   main {
-    flex: 1;
-    font-size: var(--step-0);
+    @apply flex-1 text-step-0;
   }
 
   section {
-    width: 100%;
-    padding-block: var(--space-m);
+    @apply w-full py-space-m;
   }
 
   .content-wrapper {
-    max-width: var(--max-content-width);
+    @apply max-w-content mx-auto px-space-m;
     min-width: 360px;
-    margin: auto;
-    padding-inline: var(--space-m);
   }
 
   .heading--1,
   h1 {
-    font-size: var(--step-4);
+    @apply text-step-4;
   }
 
   .heading--2,
   h2 {
-    font-size: var(--step-2);
+    @apply text-step-2;
   }
 
   .heading--3,
   h3 {
-    font-size: var(--step-1);
+    @apply text-step-1;
   }
 
   .heading--4,
   h4 {
-    font-size: var(--step-0);
+    @apply text-step-0;
   }
 
   a {
-    color: currentColor;
-    transition: color 300ms ease-in-out;
+    @apply text-current transition-colors duration-slow;
   }
 
   a:hover {
     color: hsla(26, 100%, 76%, 1);
   }
 
-  .visually-hidden {
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
+  /* Dark mode gradient options */
+  :root {
+    --option1: linear-gradient(
+      to bottom,
+      hsla(162, 86%, 12%, 1),
+      hsla(176, 100%, 30%, 1)
+    );
   }
 </style>

@@ -15,58 +15,51 @@ const md = new MarkdownIt({
   typographer: true
 })
 const htmlContent = md.render(content || '')
+
+const alignmentClass =
+  alignment === 'center'
+    ? 'text-center'
+    : alignment === 'right'
+      ? 'text-right'
+      : ''
 ---
 
-<div class={`paragraph paragraph--${alignment}`} set:html={htmlContent} />
+<div
+  class={`paragraph max-w-narrow mx-auto ${alignmentClass}`}
+  set:html={htmlContent}
+/>
 
 <style>
-  .paragraph {
-    max-width: 800px;
-    margin-inline: auto;
-  }
 
-  .paragraph--center {
-    text-align: center;
-  }
-
-  .paragraph--right {
-    text-align: right;
-  }
-
+  @reference "../../styles/tailwind.css";
   .paragraph :global(p) {
-    margin-block-end: var(--space-s);
-    line-height: 1.6;
+    @apply mb-space-s leading-relaxed;
   }
 
   .paragraph :global(a) {
     color: var(--color-primary);
-    text-decoration: underline;
+    @apply underline;
   }
 
   .paragraph :global(a:hover) {
-    text-decoration: none;
+    @apply no-underline;
   }
 
   .paragraph :global(h2) {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-block: var(--space-l) var(--space-s);
+    @apply text-[1.75rem] font-semibold my-space-l mb-space-s;
     color: var(--color-primary);
   }
 
   .paragraph :global(h3) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-block: var(--space-m) var(--space-xs);
+    @apply text-[1.25rem] font-semibold my-space-m mb-space-xs;
   }
 
   .paragraph :global(ul),
   .paragraph :global(ol) {
-    margin-block-end: var(--space-s);
-    padding-inline-start: var(--space-m);
+    @apply mb-space-s ps-space-m;
   }
 
   .paragraph :global(li) {
-    margin-block-end: var(--space-xs);
+    @apply mb-space-xs;
   }
 </style>

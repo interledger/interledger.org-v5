@@ -16,35 +16,52 @@ interface Props {
 }
 
 const { heading, subheading, cards, columns = '3' } = Astro.props
+
+const gridClass =
+  columns === '2'
+    ? 'grid-cols-[repeat(auto-fit,minmax(280px,1fr))]'
+    : columns === '4'
+      ? 'grid-cols-[repeat(auto-fit,minmax(220px,1fr))]'
+      : 'grid-cols-[repeat(auto-fit,minmax(250px,1fr))]'
 ---
 
-<div class="cards-grid-wrapper">
+<div class="max-w-wide mx-auto">
   {
     heading && (
-      <div class="cards-grid__header">
-        <h2 class="cards-grid__heading">{heading}</h2>
-        {subheading && <p class="cards-grid__subheading">{subheading}</p>}
+      <div class="text-center mb-space-l">
+        <h2 class="text-[2rem] font-semibold text-primary-fallback mb-space-xs">
+          {heading}
+        </h2>
+        {subheading && (
+          <p class="text-[1.125rem] text-gray max-w-[600px] mx-auto">
+            {subheading}
+          </p>
+        )}
       </div>
     )
   }
-  <div class={`cards-grid cards-grid--${columns}`}>
+  <div class={`grid gap-space-m ${gridClass}`}>
     {
       cards.map((card) => (
         <article class="card">
-          {card.icon && <div class="card__icon" set:html={card.icon} />}
-          <h3 class="card__title">{card.title}</h3>
+          {card.icon && (
+            <div class="w-12 h-12 mb-space-s" set:html={card.icon} />
+          )}
+          <h3 class="text-[1.25rem] font-semibold mb-space-xs text-primary-fallback">
+            {card.title}
+          </h3>
           {card.description && (
-            <p class="card__description">{card.description}</p>
+            <p class="text-gray leading-normal mb-space-s">{card.description}</p>
           )}
           {card.link && (
             <a
               href={card.link}
-              class="card__link"
+              class="text-primary-fallback no-underline font-medium hover:underline"
               {...(card.openInNewTab
                 ? { target: '_blank', rel: 'noopener noreferrer' }
                 : {})}
             >
-              {card.linkText || 'Learn more'} →
+              {card.linkText || 'Learn more'} &rarr;
             </a>
           )}
         </article>
@@ -54,85 +71,13 @@ const { heading, subheading, cards, columns = '3' } = Astro.props
 </div>
 
 <style>
-  .cards-grid-wrapper {
-    max-width: 1200px;
-    margin-inline: auto;
-  }
 
-  .cards-grid__header {
-    text-align: center;
-    margin-block-end: var(--space-l);
-  }
-
-  .cards-grid__heading {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    margin-block-end: var(--space-xs);
-  }
-
-  .cards-grid__subheading {
-    font-size: 1.125rem;
-    color: var(--sl-color-gray-2);
-    max-width: 600px;
-    margin-inline: auto;
-  }
-
-  .cards-grid {
-    display: grid;
-    gap: var(--space-m);
-  }
-
-  .cards-grid--2 {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-
-  .cards-grid--3 {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-
-  .cards-grid--4 {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-
+  @reference "../../styles/tailwind.css";
   .card {
-    background: white;
-    border-radius: 8px;
-    padding: var(--space-m);
-    border: 1px solid var(--sl-color-gray-5);
-    transition: box-shadow 200ms ease-in-out;
+    @apply bg-white rounded-card p-space-m border border-gray-200 transition-shadow duration-200;
   }
 
   .card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .card__icon {
-    width: 48px;
-    height: 48px;
-    margin-block-end: var(--space-s);
-  }
-
-  .card__title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-block-end: var(--space-xs);
-    color: var(--color-primary);
-  }
-
-  .card__description {
-    color: var(--sl-color-gray-2);
-    line-height: 1.5;
-    margin-block-end: var(--space-s);
-  }
-
-  .card__link {
-    color: var(--color-primary);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .card__link:hover {
-    text-decoration: underline;
+    @apply shadow-card;
   }
 </style>

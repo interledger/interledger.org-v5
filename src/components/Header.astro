@@ -5,9 +5,9 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from './logos/DevelopersLogo.astro'
 ---
 
-<div class="header sl-flex">
-  <a href="/" class="site-title">
-    <DevelopersLogo />
+<div class="header sl-flex gap-[var(--sl-nav-gap)] items-center h-full">
+  <a href="/" class="flex items-center gap-space-xs">
+    <DevelopersLogo class="w-[9.5em] flex-none" />
   </a>
   <a href="/" class="home-link overflower">
     <span
@@ -20,13 +20,15 @@ import DevelopersLogo from './logos/DevelopersLogo.astro'
     <span class="overflower-long"> Interledger Foundation </span>
   </a>
   <Search />
-  <div class="sl-hidden md:sl-flex secondary-wrap">
+  <div class="sl-hidden md:sl-flex items-center gap-space-s">
     <SocialIcons />
     <ThemeSelect />
   </div>
 </div>
 
 <style>
+
+  @reference "../styles/tailwind.css";
   :global(header) {
     border-block-start: 2px solid var(--color-primary-fallback);
     border-block-start: 2px solid var(--color-primary);
@@ -34,51 +36,23 @@ import DevelopersLogo from './logos/DevelopersLogo.astro'
     box-shadow: 0px 0px 12px -4px var(--color-primary);
   }
 
-  .header {
-    gap: var(--sl-nav-gap);
-    align-items: center;
-    height: 100%;
-  }
-
-  .site-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-  }
-
-  .site-title svg {
-    width: 9.5em;
-    flex: none;
-  }
-
   .overflower {
-    display: inline-flex;
-    flex-wrap: wrap;
-    overflow: hidden;
-    max-width: 100%;
-    white-space: nowrap;
-    margin-inline-start: auto;
-    height: 1.5em;
+    @apply inline-flex flex-wrap overflow-hidden max-w-full whitespace-nowrap ml-auto h-[1.5em];
   }
 
   .overflower-short {
-    display: block;
-    overflow: hidden;
-    flex: 1 1 auto;
-    width: 0;
-    text-overflow: ellipsis;
-    text-align: right;
+    @apply block overflow-hidden flex-auto w-0 text-ellipsis text-right;
   }
 
   .overflower-long {
-    display: inline;
+    @apply inline;
     flex: 0 1 100%;
   }
 
   .home-link {
     color: var(--color-primary-fallback);
     color: var(--color-primary);
-    text-decoration: none;
+    @apply no-underline;
   }
 
   :global([data-theme='dark']) .home-link {
@@ -86,12 +60,7 @@ import DevelopersLogo from './logos/DevelopersLogo.astro'
   }
 
   .home-link:hover {
-    text-decoration: underline;
-  }
-
-  .secondary-wrap {
-    align-items: center;
-    gap: var(--space-s);
+    @apply underline;
   }
 
   :global(site-search > button[data-open-modal]) {

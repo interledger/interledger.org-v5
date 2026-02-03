@@ -2,12 +2,12 @@
 const currentYear = new Date().getFullYear()
 ---
 
-<footer class="site-footer" role="contentinfo">
-  <div class="connect-wrapper">
+<footer class="py-space-m mx-space-m text-center border-t border-black" role="contentinfo">
+  <div class="md:flex md:gap-space-xl md:justify-center">
     <div class="mailing-list">
-      <h3>Join our mailing list</h3>
+      <h3 class="text-current mb-space-2xs md:text-left">Join our mailing list</h3>
       <a
-        class="button subscribe-btn"
+        class="subscribe-btn"
         href="/subscribe"
         data-umami-event="Footer link - Subscribe"
       >
@@ -15,13 +15,14 @@ const currentYear = new Date().getFullYear()
       </a>
     </div>
     <div class="social-links">
-      <h3>Connect with us</h3>
-      <ul>
-        <li>
+      <h3 class="mb-space-2xs md:text-left">Connect with us</h3>
+      <ul class="flex flex-wrap gap-space-s mb-space-s justify-center list-none p-0">
+        <li class="flex-none">
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
             aria-label="Interledger's Youtube channel"
             data-umami-event="Footer - Youtube"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 122 86"
               ><title>Youtube</title><path
@@ -30,11 +31,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://interledger.social/about"
             aria-label="Interledger's Mastadon instance"
             data-umami-event="Footer - Mastadon"
+            class="social-icon"
           >
             <svg role="img" fill="none" viewBox="0 0 217 232"
               ><title>Mastadon</title><path
@@ -45,11 +47,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://x.com/interledger"
             aria-label="Interledger's X.com account"
             data-umami-event="Footer - X"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 1200 1227"
               ><title>X.com</title><path
@@ -58,11 +61,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://github.com/interledger"
             aria-label="Interledger's GitHub account"
             data-umami-event="Footer - GitHub"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 34.875 34.004"
               ><title>GitHub</title><path
@@ -71,11 +75,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://www.instagram.com/interledgerfoundation/"
             aria-label="Interledger's Instagram account"
             data-umami-event="Footer - Instagram"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 360 360"
               ><title>Instagram</title><path
@@ -87,11 +92,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://www.linkedin.com/company/interledger-foundation/"
             aria-label="Interledger's LinkedIn account"
             data-umami-event="Footer - LinkedIn"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 35.378 35.377"
               ><title>LinkedIn</title><path
@@ -100,11 +106,12 @@ const currentYear = new Date().getFullYear()
             >
           </a>
         </li>
-        <li>
+        <li class="flex-none">
           <a
             href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
             aria-label="Interledger Community Slack"
             data-umami-event="Footer - Slack"
+            class="social-icon"
           >
             <svg role="img" viewBox="0 0 35.377 35.377"
               ><title>Slack</title><path
@@ -116,142 +123,58 @@ const currentYear = new Date().getFullYear()
       </ul>
     </div>
   </div>
-  <p>&copy; 2020–{currentYear}, Interledger Foundation. All rights reserved.</p>
-  <ul class="footer-links">
-    <li>
+  <p class="mb-space-3xs">&copy; 2020–{currentYear}, Interledger Foundation. All rights reserved.</p>
+  <ul class="footer-links flex list-none justify-center p-0 max-xs:block">
+    <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline first:before:content-none">
       <a
         href="https://www.iubenda.com/terms-and-conditions/88624819"
-        data-umami-event="Footer - T&C">Terms & conditions</a
+        data-umami-event="Footer - T&C"
+        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >
+        Terms & conditions
+      </a>
     </li>
-    <li>
+    <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline">
       <a
         href="https://www.iubenda.com/privacy-policy/88624819"
-        data-umami-event="Footer - Privacy">Privacy policy</a
+        data-umami-event="Footer - Privacy"
+        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >
+        Privacy policy
+      </a>
     </li>
-    <li>
-      <a href="/contact" data-umami-event="Footer - Contact">Contact us</a>
+    <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline">
+      <a
+        href="/contact"
+        data-umami-event="Footer - Contact"
+        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
+      >
+        Contact us
+      </a>
     </li>
   </ul>
 </footer>
 
 <style>
-  .site-footer {
-    padding: var(--space-m) 0;
-    margin-inline: var(--space-m);
-    text-align: center;
-    border-block-start: 1px solid var(--color-black);
-  }
 
-  @media screen and (min-width: 780px) {
-    .connect-wrapper {
-      display: flex;
-      gap: var(--space-xl);
-      justify-content: center;
-    }
-
-    .site-footer h3 {
-      text-align: left;
-    }
-  }
-
-  .site-footer ul {
-    display: flex;
-    list-style: none;
-    justify-content: center;
-    padding: 0;
-  }
-
-  .site-footer h3 {
-    color: currentColor;
-    margin-block-end: var(--space-2xs);
-  }
-
-  .social-links h3 {
-    margin-block-end: var(--space-2xs);
-  }
-
-  .social-links ul {
-    gap: var(--space-s);
-    margin-block-end: var(--space-s);
-    flex-wrap: wrap;
-  }
-
-  .social-links li {
-    flex: none;
-  }
-
-  .social-links svg {
-    height: 2em;
-    width: 2em;
-    transition: transform 200ms ease-in-out;
-  }
-
-  .social-links a:hover svg {
-    transform: scale(1.15);
-  }
-
-  .site-footer p {
-    margin-block-end: var(--space-3xs);
-  }
-
-  .site-footer .subscribe-btn {
-    display: flex;
-    margin-block-end: var(--space-s);
-    justify-content: center;
-    align-items: center;
-    margin-block-end: var(--space-s);
-    box-shadow: none;
-    border: 1px solid var(--color-gray);
-    max-width: 10em;
-    margin-inline: auto;
+  @reference "../../styles/tailwind.css";
+  .subscribe-btn {
+    @apply flex mb-space-s justify-center items-center border border-gray rounded max-w-[10em] mx-auto no-underline transition-transform duration-200 text-step--1 cursor-pointer;
     background-color: var(--color-gray);
     color: var(--color-white);
-    border-radius: var(--border-radius);
     padding-inline: var(--space-xs);
     padding-block: var(--space-3xs);
-    font-size: var(--step--1);
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 200ms ease-in-out;
   }
 
-  .site-footer .subscribe-btn:hover {
-    transform: scale(1.15);
+  .subscribe-btn:hover {
+    @apply scale-[1.15];
   }
 
-  .mailing-list h3 {
-    margin-block-end: var(--space-2xs);
+  .social-icon svg {
+    @apply h-8 w-8 transition-transform duration-200;
   }
 
-  .footer-links a {
-    padding: 0 var(--space-s);
-    white-space: nowrap;
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-  }
-
-  .footer-links a:hover {
-    text-decoration-style: solid;
-    color: var(--color-black);
-  }
-
-  @media screen and (max-width: 479px) {
-    ul.footer-links {
-      display: initial;
-    }
-
-    .footer-links li {
-      margin-block-end: var(--space-2xs);
-    }
-  }
-
-  @media screen and (min-width: 480px) {
-    .footer-links li:not(:first-of-type)::before {
-      content: '|';
-      display: inline;
-    }
+  .social-icon:hover svg {
+    @apply scale-[1.15];
   }
 </style>

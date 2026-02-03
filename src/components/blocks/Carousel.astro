@@ -21,41 +21,43 @@ const { heading, items, autoplay = true, interval = 5000 } = Astro.props
 const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
 ---
 
-<div class="carousel-wrapper">
-  {heading && <h2 class="carousel__heading">{heading}</h2>}
+<div class="max-w-[900px] mx-auto p-space-l">
+  {heading && <h2 class="text-[2rem] font-semibold text-primary-fallback text-center mb-space-l">{heading}</h2>}
   <div
-    class="carousel"
+    class="carousel relative"
     id={carouselId}
     data-autoplay={autoplay}
     data-interval={interval}
   >
-    <div class="carousel__track">
+    <div class="relative overflow-hidden">
       {
         items.map((item, index) => (
           <div
             class={`carousel__slide ${index === 0 ? 'active' : ''}`}
             data-index={index}
           >
-            <blockquote class="carousel__quote">
-              <p>"{item.quote}"</p>
+            <blockquote class="text-center m-0">
+              <p class="text-2xl italic leading-relaxed mb-space-m">"{item.quote}"</p>
               {(item.author || item.organization) && (
-                <footer class="carousel__attribution">
+                <footer class="flex items-center justify-center gap-space-s">
                   {item.image && (
                     <img
                       src={item.image.url}
                       alt={item.image.alternativeText || item.author || ''}
-                      class="carousel__image"
+                      class="w-[60px] h-[60px] rounded-full object-cover"
                     />
                   )}
-                  <div class="carousel__author-info">
+                  <div class="flex flex-col text-left">
                     {item.author && (
-                      <cite class="carousel__author">{item.author}</cite>
+                      <cite class="not-italic font-semibold text-primary-fallback">
+                        {item.author}
+                      </cite>
                     )}
                     {item.role && (
-                      <span class="carousel__role">{item.role}</span>
+                      <span class="text-sm text-gray">{item.role}</span>
                     )}
                     {item.organization && (
-                      <span class="carousel__org">{item.organization}</span>
+                      <span class="text-sm text-gray">{item.organization}</span>
                     )}
                   </div>
                 </footer>
@@ -67,14 +69,14 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
     </div>
     {
       items.length > 1 && (
-        <div class="carousel__controls">
+        <div class="flex items-center justify-center gap-space-m mt-space-l">
           <button
-            class="carousel__btn carousel__btn--prev"
+            class="carousel__btn"
             aria-label="Previous slide"
           >
-            ←
+            &larr;
           </button>
-          <div class="carousel__dots">
+          <div class="flex gap-space-xs">
             {items.map((_, index) => (
               <button
                 class={`carousel__dot ${index === 0 ? 'active' : ''}`}
@@ -84,10 +86,10 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
             ))}
           </div>
           <button
-            class="carousel__btn carousel__btn--next"
+            class="carousel__btn"
             aria-label="Next slide"
           >
-            →
+            &rarr;
           </button>
         </div>
       )
@@ -96,36 +98,15 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
 </div>
 
 <style>
-  .carousel-wrapper {
-    max-width: 900px;
-    margin-inline: auto;
-    padding: var(--space-l);
-  }
 
-  .carousel__heading {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    text-align: center;
-    margin-block-end: var(--space-l);
-  }
-
-  .carousel {
-    position: relative;
-  }
-
-  .carousel__track {
-    position: relative;
-    overflow: hidden;
-  }
-
+  @reference "../../styles/tailwind.css";
   .carousel__slide {
-    display: none;
+    @apply hidden;
     animation: fadeIn 500ms ease-in-out;
   }
 
   .carousel__slide.active {
-    display: block;
+    @apply block;
   }
 
   @keyframes fadeIn {
@@ -137,89 +118,21 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
     }
   }
 
-  .carousel__quote {
-    text-align: center;
-    margin: 0;
-  }
-
-  .carousel__quote p {
-    font-size: 1.5rem;
-    font-style: italic;
-    line-height: 1.6;
-    color: var(--sl-color-text);
-    margin-block-end: var(--space-m);
-  }
-
-  .carousel__attribution {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-s);
-  }
-
-  .carousel__image {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .carousel__author-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-
-  .carousel__author {
-    font-style: normal;
-    font-weight: 600;
-    color: var(--color-primary);
-  }
-
-  .carousel__role,
-  .carousel__org {
-    font-size: 0.875rem;
-    color: var(--sl-color-gray-2);
-  }
-
-  .carousel__controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-m);
-    margin-block-start: var(--space-l);
-  }
-
   .carousel__btn {
-    background: var(--sl-color-bg-nav);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: all 200ms ease-in-out;
+    @apply rounded-full w-10 h-10 text-xl cursor-pointer transition-all duration-200 border;
+    background: var(--sl-color-bg-nav, #f5f5f5);
+    border-color: var(--sl-color-gray-5, #ddd);
   }
 
   .carousel__btn:hover {
+    @apply text-white;
     background: var(--color-primary);
-    color: white;
     border-color: var(--color-primary);
   }
 
-  .carousel__dots {
-    display: flex;
-    gap: var(--space-xs);
-  }
-
   .carousel__dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--sl-color-gray-5);
-    border: none;
-    cursor: pointer;
-    transition: background 200ms ease-in-out;
+    @apply w-[10px] h-[10px] rounded-full border-none cursor-pointer transition-colors duration-200;
+    background: var(--sl-color-gray-5, #ddd);
   }
 
   .carousel__dot.active,
@@ -232,8 +145,9 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
   document.querySelectorAll('.carousel').forEach((carousel) => {
     const slides = carousel.querySelectorAll('.carousel__slide')
     const dots = carousel.querySelectorAll('.carousel__dot')
-    const prevBtn = carousel.querySelector('.carousel__btn--prev')
-    const nextBtn = carousel.querySelector('.carousel__btn--next')
+    const buttons = carousel.querySelectorAll('.carousel__btn')
+    const prevBtn = buttons[0]
+    const nextBtn = buttons[1]
     const autoplay = carousel.dataset.autoplay === 'true'
     const interval = parseInt(carousel.dataset.interval || '5000')
 

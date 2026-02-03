@@ -1,0 +1,177 @@
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font face declarations from pages.css */
+@font-face {
+  font-family: 'Titillium';
+  src: url('/fonts/titilliumweb-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium';
+  src: url('/fonts/titilliumweb-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium';
+  src: url('/fonts/titilliumweb-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium';
+  src: url('/fonts/titilliumweb-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Titillium';
+  src: url('/fonts/titilliumweb-extralight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Base layer customizations */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    height: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    font-family: 'Titillium', Arial, sans-serif;
+    overflow-x: clip;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* Preserve CSS custom properties for compatibility */
+  :root {
+    --color-primary-fallback: #007777;
+    --color-primary: oklch(51.54% 0.088 194.77);
+    --color-primary-bg-fallback: rgba(7, 121, 114, 0.1);
+    --color-primary-bg: oklch(51.95% 0.089 187.7 / 0.1);
+    --border-radius: 6px;
+    --max-content-width: 1160px;
+    --site-header-height: 4.375rem;
+    --box-shadow: 0px 1px 1px hsla(0, 0%, 0%, 0.06),
+      0px 2px 2px hsla(0, 0%, 0%, 0.06);
+    --color-white: #fff;
+    --color-black: #000;
+    --color-gray: #444;
+    --color-frost: rgba(255, 255, 255, 0.5);
+    --color-header-bg: var(--color-white);
+    --color-header-accent: #eee;
+    --color-table-stripe: #f6f7f9;
+    --color-bg-inline-code: #edeef3;
+  }
+
+  [data-theme='dark'] {
+    --color-bg: var(--color-black);
+    --color-text: var(--color-white);
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  /* Content wrapper utility */
+  .content-wrapper {
+    @apply max-w-content mx-auto;
+    min-width: 360px;
+  }
+
+  @media screen and (max-width: 1324px) {
+    .content-wrapper {
+      padding-inline: 5%;
+    }
+  }
+
+  /* Visually hidden utility */
+  .visually-hidden {
+    @apply absolute overflow-hidden whitespace-nowrap;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+  }
+
+  /* Heading utilities */
+  .heading--1 {
+    @apply text-step-6;
+  }
+  .heading--2 {
+    @apply text-step-5;
+  }
+  .heading--3 {
+    @apply text-step-4;
+  }
+  .heading--4 {
+    @apply text-step-3;
+  }
+  .heading--5 {
+    @apply text-step-2;
+  }
+  .heading--6 {
+    @apply text-step-1;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply inline-block w-fit no-underline text-white transition-colors;
+    padding: clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem)
+      clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem);
+    border-radius: 1rem;
+    background-color: #007777;
+  }
+  .btn-primary:hover {
+    @apply text-white;
+    background-color: #0c9b9b;
+  }
+
+  .btn-secondary {
+    @apply inline-block w-fit no-underline transition-colors;
+    padding: clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem)
+      clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem);
+    border-radius: 1rem;
+    background-color: rgba(255, 255, 255, 0.725);
+    color: #007777;
+  }
+  .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+}
