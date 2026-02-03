@@ -29,9 +29,6 @@ if (existsSync(envPath)) {
 interface PageFrontmatter {
   title: string
   slug: string
-  description?: string
-  heroTitle?: string
-  heroDescription?: string
 }
 
 async function importPage(
@@ -50,11 +47,7 @@ async function importPage(
   const strapiData = {
     data: {
       title: page.frontmatter.title,
-      slug: page.frontmatter.slug,
-      description: page.frontmatter.description || null,
-      heroTitle: page.frontmatter.heroTitle || null,
-      heroDescription: page.frontmatter.heroDescription || null,
-      mdxContent: page.content
+      slug: page.frontmatter.slug
     }
   }
 
@@ -62,8 +55,8 @@ async function importPage(
   let method: string
 
   if (searchData.data && searchData.data.length > 0) {
-    // Update existing
-    const existingId = searchData.data[0].id
+    // Update existing (Strapi v5 uses documentId)
+    const existingId = searchData.data[0].documentId
     url = `${baseUrl}/api/pages/${existingId}`
     method = 'PUT'
     console.log(`Updating page: ${page.frontmatter.slug}`)

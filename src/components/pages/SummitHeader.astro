@@ -25,9 +25,12 @@ const isSpanish = currentPath.startsWith('/es')
 const currentLang = isSpanish ? 'es' : 'en-gb'
 ---
 
-<header class="sticky top-0 z-[2] w-full bg-black px-space-m" role="banner">
+<header
+  class="bg-black px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white"
+  role="banner"
+>
   <nav
-    class="relative flex items-center justify-between max-[1059px]:h-[var(--site-header-height)] min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-l"
+    class="flex items-center justify-between xl:grid xl:grid-cols-[auto_1fr_auto] xl:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-summit-navigation-menu"
     id="block-summit-navigation"
@@ -38,127 +41,128 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
     </h2>
     <a
       href="/summit"
-      class="flex w-[11em] flex-none flex-col gap-1 no-underline min-[1060px]:z-[1]"
+      class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
       aria-label="Interledger Summit"
       data-umami-event="Summit Nav - Logo"
     >
       <FoundationLogo class="text-white" />
     </a>
     <div
-      class="max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black/95 max-[1059px]:border-t max-[1059px]:border-white/20 max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:flex min-[1060px]:w-full min-[1060px]:items-center min-[1060px]:justify-center data-[offscreen=true]:max-[1059px]:translate-x-full"
+      class="xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full"
       data-nav-wrapper
       data-offscreen="true"
       id="summitNavLinks"
     >
       <ul
-        class="flex list-none items-center gap-space-s justify-center ps-0"
+        class="list-none ps-0 justify-center xl:flex xl:items-center"
         id="summitNavMenu"
         data-nav-list
       >
         {
-          mainMenu.map((group) =>
-            group.href ? (
-              <li data-menu-level="1">
+          mainMenu.map((group) => (
+            <li class="group min-[1060px]:relative" data-menu-level="1">
+              {group.href ? (
                 <a
                   href={group.href}
                   data-umami-event={`Summit Nav - ${group.label}`}
-                  class="block whitespace-nowrap px-space-2xs py-space-s text-[0.875rem] text-[var(--color-text)] no-underline transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
+                  class="block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                 >
                   {group.label}
                 </a>
-              </li>
-            ) : (
-              <li class="group min-[1060px]:relative" data-menu-level="1">
-                <button
-                  aria-expanded="false"
-                  data-umami-event={`Summit Nav - ${group.label}`}
-                  class="peer block whitespace-nowrap px-space-2xs py-space-s text-[0.875rem] font-normal text-[var(--color-text)] transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] after:content-[url('/img/arrow-menu.svg')] after:ml-2 after:inline-block after:w-[9px] after:filter after:invert after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
-                  data-submenu-button
-                  data-open="false"
-                >
-                  {group.label}
-                </button>
-                {group.items && group.items.length > 0 && (
-                  <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black/95 min-[1060px]:border-l-2 min-[1060px]:border-white/20 min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
-                    {group.items.map((item) => (
-                      <li data-menu-level="2">
-                        <a
-                          href={item.href || '#'}
-                          data-umami-event={`Summit Nav - ${item.label}`}
-                          class="block whitespace-nowrap px-space-2xs py-space-2xs text-[0.875rem] text-[var(--color-text)] no-underline transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
-                          {...(item.openInNewTab
-                            ? { target: '_blank', rel: 'noopener noreferrer' }
-                            : {})}
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            )
-          )
+              ) : (
+                <>
+                  <button
+                    aria-expanded="false"
+                    data-umami-event={`Summit Nav - ${group.label}`}
+                    class="peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                    data-submenu-button
+                    data-open="false"
+                  >
+                    {group.label}
+                  </button>
+                  {group.items && group.items.length > 0 && (
+                    <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
+                      {group.items.map((item) => (
+                        <li data-menu-level="2">
+                          <a
+                            href={item.href || '#'}
+                            data-umami-event={`Summit Nav - ${item.label}`}
+                            class="block no-underline text-[var(--color-text)] hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                            {...(item.openInNewTab
+                              ? { target: '_blank', rel: 'noopener noreferrer' }
+                              : {})}
+                          >
+                            {item.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+            </li>
+          ))
         }
       </ul>
-      <div class="flex items-center justify-end gap-space-s max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:gap-space-xs max-[1059px]:px-space-s min-[1060px]:ml-auto">
-        {
-          ctaButton && (
-            <a
-              class="py-space-s text-[var(--color-text)] no-underline hover:underline"
-              href={ctaButton.href || '#'}
-              data-umami-event={`Summit Nav - ${ctaButton.label}`}
-              {...(ctaButton.openInNewTab
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
-            >
-              {ctaButton.label}
-            </a>
-          )
-        }
-        <span class="whitespace-nowrap text-[var(--color-text)] max-[1059px]:hidden">
-          Interledger Foundation
-        </span>
-        <span class="h-[1.5em] w-px bg-[var(--color-text)] opacity-60 max-[1059px]:hidden"></span>
-        <ul class="flex items-center p-0 list-none max-[1059px]:ps-0">
-          <li
+    </div>
+    <div class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s">
+      {
+        ctaButton && (
+          <a
+            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
+            href={ctaButton.href || '#'}
+            data-umami-event={`Summit Nav - ${ctaButton.label}`}
+            {...(ctaButton.openInNewTab
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )
+      }
+      <span class="self-center py-space-s whitespace-nowrap max-[1059px]:hidden">
+        Interledger Foundation
+      </span>
+      <ul class="flex items-center p-0 list-none">
+        <li
+          hreflang="en-gb"
+          data-drupal-link-system-path="<front>"
+          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+        >
+          <a
+            href="/summit"
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            hreflang="en-gb"
             data-drupal-link-system-path="<front>"
-            class="flex items-center after:mx-space-2xs after:opacity-80 after:text-[hsl(180,50%,60%)] after:content-['|'] last:after:content-none"
             aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+            data-active={currentLang === 'en-gb' ? 'true' : 'false'}
           >
-            <a
-              href="/summit"
-              class="block px-space-2xs py-space-s text-[hsl(180,50%,60%)] no-underline transition-colors duration-200 hover:text-[hsl(180,50%,65%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,50%,60%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-              hreflang="en-gb"
-              data-drupal-link-system-path="<front>"
-              aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-              data-active={currentLang === 'en-gb' ? 'true' : 'false'}
-            >
-              EN
-            </a>
-          </li>
-          <li
+            EN
+          </a>
+        </li>
+        <li
+          hreflang="es"
+          data-drupal-link-system-path="<front>"
+          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          aria-current={currentLang === 'es' ? 'page' : undefined}
+        >
+          <a
+            href="/es/summit"
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            hreflang="es"
             data-drupal-link-system-path="<front>"
-            class="flex items-center after:mx-space-2xs after:opacity-80 after:text-[hsl(180,50%,60%)] after:content-['|'] last:after:content-none"
             aria-current={currentLang === 'es' ? 'page' : undefined}
+            data-active={currentLang === 'es' ? 'true' : 'false'}
           >
-            <a
-              href="/es/summit"
-              class="block px-space-2xs py-space-s text-[hsl(180,50%,60%)] no-underline transition-colors duration-200 hover:text-[hsl(180,50%,65%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,50%,60%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-              hreflang="es"
-              data-drupal-link-system-path="<front>"
-              aria-current={currentLang === 'es' ? 'page' : undefined}
-              data-active={currentLang === 'es' ? 'true' : 'false'}
-            >
-              ES
-            </a>
-          </li>
-        </ul>
-      </div>
+            ES
+          </a>
+        </li>
+      </ul>
     </div>
     <button
       type="button"
-      class="min-[1060px]:hidden border-0 bg-transparent py-space-xs text-[var(--color-text)]"
+      class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
       aria-controls="summitNavMenu"
       aria-label="Toggle Menu"
       title="Toggle Menu"
@@ -180,7 +184,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
 </header>
 
 <script>
-  const summitLinksWrapper = document.getElementById('summitNavLinks')
+  const summitLinksWrapper = document.querySelector('[data-nav-wrapper]')
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
@@ -235,7 +239,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
   const summitNav = document.querySelector('[data-nav-list]') as HTMLInputElement
 
   if (document.contains(summitNav)) {
-    const submenuButtons = summitNav.querySelectorAll('[data-submenu-button]')
+    const submenuButtons = document.querySelectorAll('[data-submenu-button]')
 
     submenuButtons.forEach((submenuButton) => {
       submenuButton.setAttribute('aria-expanded', 'false')

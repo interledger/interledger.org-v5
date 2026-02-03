@@ -55,7 +55,6 @@ interface Block {
 interface Page {
   slug: string
   title: string
-  description?: string
   seo?: Seo
   hero?: Hero
   heroTitle?: string
@@ -218,10 +217,6 @@ function pageToMdx(page: Page): string {
     // Fallback to flat hero fields
     if (page.heroTitle) frontmatter.heroTitle = page.heroTitle
     if (page.heroDescription) frontmatter.heroDescription = page.heroDescription
-  }
-
-  if (page.description) {
-    frontmatter.description = page.description
   }
 
   // Build MDX content
