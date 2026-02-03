@@ -25,7 +25,7 @@ const componentMap: Record<string, typeof Paragraph> = {
 }
 ---
 
-<div class="dynamic-zone">
+<div class="flex flex-col gap-space-xl">
   {
     blocks.map((block) => {
       const Component = componentMap[block.__component]
@@ -34,22 +34,10 @@ const componentMap: Record<string, typeof Paragraph> = {
         return null
       }
       return (
-        <div class="dynamic-zone__block">
+        <div class="w-full">
           <Component {...block} />
         </div>
       )
     })
   }
 </div>
-
-<style>
-  .dynamic-zone {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xl);
-  }
-
-  .dynamic-zone__block {
-    width: 100%;
-  }
-</style>

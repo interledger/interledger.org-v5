@@ -68,19 +68,19 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
 ---
 
 <BaseLayout title={title}>
-  <main>
-    <section class="hero">
-      <div class="content-wrapper">
-        <div class="text-wrapper">
-          <h1 class="hero__heading heading--2">
+  <main class="pb-space-l">
+    <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[50vh] py-space-xl text-white flex items-center">
+      <div class="mx-auto w-full max-w-wide px-space-m">
+        <div class="max-w-narrow">
+          <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3.5rem)]">
             {heroTitle}
           </h1>
-          <p class="hero__txt">
+          <p class="mb-space-m text-[1.25rem] max-w-[600px]">
             {heroDescription}
           </p>
           {
             heroCtas.length > 0 && (
-              <div class="hero__cta">
+              <div class="flex flex-wrap items-center gap-space-s max-[600px]:flex-col max-[600px]:items-start">
                 {heroCtas.map(
                   (
                     cta: {
@@ -92,7 +92,7 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
                     index: number
                   ) => (
                     <a
-                      class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
+                      class={`group inline-flex items-center gap-space-2xs rounded-pill no-underline cursor-pointer ${index === 0 ? 'bg-white text-primary px-space-s py-space-xs hover:text-primary' : 'bg-transparent border-2 border-white text-white px-space-s py-space-xs hover:bg-white hover:text-primary'}`}
                       href={cta.link}
                       data-umami-event={
                         cta.analytics_event_label || `Home - ${cta.text}`
@@ -101,7 +101,10 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
                     >
-                      <span>{cta.text}</span> <LinkArrow />
+                      <span class="underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 group-hover:decoration-current">
+                        {cta.text}
+                      </span>{' '}
+                      <LinkArrow />
                     </a>
                   )
                 )}
@@ -115,8 +118,8 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
     {/* Strapi dynamic content blocks */}
     {
       hasStrapiContent && (
-        <section class="content-section">
-          <div class="content-wrapper">
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
             <DynamicZone blocks={dynamicContent} />
           </div>
         </section>
@@ -126,9 +129,9 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
     {/* Fallback MDX content */}
     {
       !hasStrapiContent && MdxContent && (
-        <section class="content-section">
-          <div class="content-wrapper">
-            <div class="mdx-content">
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+            <div class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline [&_.cta-group]:my-space-m [&_.cta-group]:flex [&_.cta-group]:flex-wrap [&_.cta-group]:gap-space-s [&_.cta-group_a]:rounded-pill [&_.cta-group_a]:bg-primary [&_.cta-group_a]:px-space-s [&_.cta-group_a]:py-space-xs [&_.cta-group_a]:text-white [&_.cta-group_a]:no-underline [&_.cta-group_a:hover]:opacity-90">
               <MdxContent />
             </div>
           </div>
@@ -137,198 +140,3 @@ const hasStrapiContent = strapiData && dynamicContent.length > 0
     }
   </main>
 </BaseLayout>
-
-<style>
-  main {
-    padding-block-end: var(--space-l);
-  }
-
-  section {
-    padding-block-start: var(--space-l);
-  }
-
-  section:last-child {
-    padding-block-end: var(--space-l);
-  }
-
-  .hero {
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: bottom right;
-    background-image: linear-gradient(to right, #007777, #69bcc3);
-    background-image: linear-gradient(
-      to right,
-      oklch(51.54% 0.088 194.77),
-      oklch(74.53% 0.082 202.65)
-    );
-    min-height: 50vh;
-    padding-block: var(--space-xl);
-    color: var(--color-white);
-    display: flex;
-    align-items: center;
-  }
-
-  .content-wrapper {
-    max-width: 1200px;
-    margin-inline: auto;
-    padding-inline: var(--space-m);
-    width: 100%;
-  }
-
-  .text-wrapper {
-    max-width: 800px;
-  }
-
-  .btn {
-    border-radius: 10em;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    text-decoration: none;
-  }
-
-  .btn svg {
-    width: 0.6em;
-  }
-
-  a {
-    text-underline-offset: 4px;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  a span {
-    text-decoration-line: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 4px;
-    transition: text-decoration-color ease-in-out 200ms;
-  }
-
-  .hero a:hover {
-    color: var(--color-white);
-  }
-
-  a:hover span {
-    text-decoration-color: inherit;
-  }
-
-  .hero__heading {
-    color: var(--color-white);
-    max-width: 14em;
-    line-height: 1.2;
-    font-weight: 600;
-    margin-block-end: var(--space-xs);
-    font-size: clamp(2rem, 5vw, 3.5rem);
-  }
-
-  .hero__txt {
-    margin-block-end: var(--space-m);
-    font-size: 1.25rem;
-    max-width: 600px;
-  }
-
-  .hero__cta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-s);
-  }
-
-  .hero__btn {
-    background-color: var(--color-white);
-    color: var(--color-primary);
-    padding: var(--space-xs) var(--space-s);
-  }
-
-  .hero__btn span {
-    text-decoration-line: underline;
-    text-decoration-color: transparent;
-  }
-
-  .hero__btn:hover {
-    color: var(--color-primary);
-  }
-
-  .hero__btn-secondary {
-    background-color: transparent;
-    border: 2px solid var(--color-white);
-    color: var(--color-white);
-    padding: var(--space-xs) var(--space-s);
-  }
-
-  .hero__btn-secondary:hover {
-    background-color: var(--color-white);
-    color: var(--color-primary);
-  }
-
-  @media screen and (max-width: 600px) {
-    .hero__cta {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-
-  .content-section {
-    padding-block: var(--space-xl);
-  }
-
-  .mdx-content {
-    max-width: 800px;
-    margin-inline: auto;
-  }
-
-  .mdx-content :global(h2) {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-block: var(--space-l) var(--space-s);
-    color: var(--color-primary);
-  }
-
-  .mdx-content :global(h3) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-block: var(--space-m) var(--space-xs);
-  }
-
-  .mdx-content :global(p) {
-    margin-block-end: var(--space-s);
-    line-height: 1.6;
-  }
-
-  .mdx-content :global(ul) {
-    margin-block-end: var(--space-s);
-    padding-inline-start: var(--space-m);
-  }
-
-  .mdx-content :global(li) {
-    margin-block-end: var(--space-xs);
-  }
-
-  .mdx-content :global(a) {
-    color: var(--color-primary);
-    text-decoration: underline;
-  }
-
-  .mdx-content :global(a:hover) {
-    text-decoration: none;
-  }
-
-  .mdx-content :global(.cta-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-s);
-    margin-block: var(--space-m);
-  }
-
-  .mdx-content :global(.cta-group a) {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: var(--space-xs) var(--space-s);
-    border-radius: 10em;
-    text-decoration: none;
-  }
-
-  .mdx-content :global(.cta-group a:hover) {
-    opacity: 0.9;
-  }
-</style>

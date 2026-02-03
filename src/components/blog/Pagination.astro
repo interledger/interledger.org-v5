@@ -4,24 +4,24 @@ const { length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } = Astro.props
 const paginationList = Array.from({ length }, (_, i) => i + 1)
 ---
 
-<nav aria-label="Blog pages" class="pagination">
+<nav aria-label="Blog pages" class="flex justify-center my-space-m">
   {
     firstUrl ? (
-      <a href={`${firstUrl}`} class="pagination__link">
+      <a href={`${firstUrl}`} class="px-space-s py-space-xs">
         &#171;
       </a>
     ) : (
-      <span class="pagination__link disabled">&#171;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#171;</span>
     )
   }
 
   {
     prevUrl ? (
-      <a href={`${prevUrl}`} class="pagination__link">
+      <a href={`${prevUrl}`} class="px-space-s py-space-xs">
         &#8249;
       </a>
     ) : (
-      <span class="pagination__link disabled">&#8249;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#8249;</span>
     )
   }
 
@@ -29,7 +29,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
     paginationList.map((num) => (
       <a
         href={`/blog${num == 1 ? '' : '/' + num}`}
-        class={`pagination__link ${currentPage == num ? 'disabled active' : ''}`}
+        class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
       >
         {num}
       </a>
@@ -38,9 +38,9 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
 
   {
     !nextUrl ? (
-      <span class="pagination__link disabled">&#8250;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#8250;</span>
     ) : (
-      <a href={`${nextUrl}`} class="pagination__link">
+      <a href={`${nextUrl}`} class="px-space-s py-space-xs">
         &#8250;
       </a>
     )
@@ -48,32 +48,11 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
 
   {
     lastUrl ? (
-      <a href={`${lastUrl}`} class="pagination__link">
+      <a href={`${lastUrl}`} class="px-space-s py-space-xs">
         &#187;
       </a>
     ) : (
-      <span class="pagination__link disabled">&#187;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#187;</span>
     )
   }
 </nav>
-
-<style>
-  .pagination {
-    display: flex;
-    justify-content: center;
-    margin-block: var(--space-m);
-  }
-
-  .pagination__link {
-    padding: var(--space-xs) var(--space-s);
-  }
-
-  .active {
-    color: var(--color-primary);
-  }
-
-  .disabled:not(.active) {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-</style>

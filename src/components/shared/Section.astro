@@ -25,20 +25,20 @@ const renderChildren = (children = []) => {
 ---
 
 <section>
-  <div class="content-wrapper">
-    <h2>{title}</h2>
+  <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+    <h2 class="mb-space-xs">{title}</h2>
     {
       content.map((block) => {
         switch (block.type) {
           case 'paragraph':
-            return <p set:html={renderChildren(block.children)} />
+            return <p class="mb-space-2xs" set:html={renderChildren(block.children)} />
           case 'list': {
             const isOrdered = block.format === 'ordered'
             const ListTag = isOrdered ? 'ol' : 'ul'
             return (
-              <ListTag>
+              <ListTag class="mb-space-2xs">
                 {block.children.map((item) => (
-                  <li set:html={renderChildren(item.children)} />
+                  <li class="mb-space-3xs" set:html={renderChildren(item.children)} />
                 ))}
               </ListTag>
             )
@@ -50,18 +50,3 @@ const renderChildren = (children = []) => {
     }
   </div>
 </section>
-<style>
-  h2 {
-    margin-block-end: var(--space-xs);
-  }
-
-  p,
-  ul,
-  ol {
-    margin-block-end: var(--space-2xs);
-  }
-
-  li {
-    margin-block-end: var(--space-3xs);
-  }
-</style>

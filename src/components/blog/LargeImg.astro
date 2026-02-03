@@ -2,40 +2,34 @@
 const { src, alt, hasBorder = true } = Astro.props
 ---
 
-<div>
+<div class="text-right">
   {
     hasBorder ? (
-      <img src={src} alt={alt} class="border" />
+      <img src={src} alt={alt} class="rounded shadow border-2 border-primary-bg" />
     ) : (
       <img src={src} alt={alt} />
     )
   }
-  <a href={src} target="_blank" rel="noopener noreferrer"> View full image </a>
+  <a
+    href={src}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="mb-space-s mt-space-3xs inline-flex items-center gap-space-3xs whitespace-nowrap text-step--1"
+  >
+    View full image
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 18 18"
+      class="h-3 w-3 text-[hsl(221,8%,56%)]"
+      fill="none"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
+      />
+    </svg>
+  </a>
 </div>
-
-<style>
-  div {
-    text-align: right;
-  }
-
-  .border {
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    border: 2px solid var(--color-accent-transparent);
-  }
-
-  a {
-    white-space: nowrap;
-    display: inline-flex;
-    gap: var(--space-3xs);
-    margin-block-start: var(--space-3xs);
-    margin-block-end: var(--space-s);
-    font-size: var(--step--1);
-  }
-
-  a::after {
-    content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="hsl(221,8%,56%)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"/></svg>');
-    height: 0.75em;
-    width: 0.75em;
-  }
-</style>
