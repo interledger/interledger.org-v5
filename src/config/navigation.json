@@ -1,7 +1,7 @@
 {
   "mainMenu": [
     {
-      "label": "Foundation sarah",
+      "label": "Foundation",
       "items": [
         {
           "label": "About Us",
@@ -47,14 +47,6 @@
         {
           "label": "Developers",
           "href": "/developers"
-        },
-        {
-          "label": "Grants for Web",
-          "href": "/grants-for-web"
-        },
-        {
-          "label": "Interledger 2026",
-          "href": "/interledger-2026"
         }
       ]
     },
