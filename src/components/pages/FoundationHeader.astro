@@ -30,7 +30,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
   role="banner"
 >
   <nav
-    class="site-nav flex items-center justify-between xl:grid xl:grid-cols-[auto_1fr_1fr] xl:gap-space-s"
+    class="site-nav flex items-center justify-between xl:grid xl:grid-cols-[auto_1fr_auto] xl:gap-space-s"
     role="navigation"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
@@ -40,18 +40,18 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
     </h2>
     <a
       href="/"
-      class="w-[11em] flex-none xl:z-[1]"
+      class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
       aria-label="Interledger Foundation"
       data-umami-event="Site Nav - Logo"
     >
       <FoundationLogo />
     </a>
     <div
-      class="site-links-wrapper offscreen"
+      class="site-links-wrapper offscreen xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center xl:relative xl:transform-none xl:top-0 xl:right-0 xl:bg-transparent xl:border-0"
       data-nav-wrapper
       id="siteNavLinks"
     >
-      <ul class="site-nav__links menu--level-1 list-none ps-0 justify-center" id="siteNavMenu">
+      <ul class="site-nav__links menu--level-1 list-none ps-0 justify-center xl:flex xl:items-center" id="siteNavMenu">
         {
           mainMenu.map((group) => (
             <li class="menu-item has-submenu menu-item--level-1">
@@ -84,44 +84,21 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
           ))
         }
       </ul>
-      {
-        ctaButton && (
-          <a
-            class="switch-link self-center justify-self-end no-underline py-space-s hover:underline"
-            href={ctaButton.href || '#'}
-            data-umami-event={`Site Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            <a
-              href="/"
-              class={`language-link ${currentLang === 'en-gb' ? 'is-active' : ''}`}
-              hreflang="en-gb"
-              data-drupal-link-system-path="<front>"
-              aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-            >
-              EN
-            </a>
-          </li>
-          <li
-            data-drupal-link-system-path="<front>"
-            class={currentLang === 'es' ? 'is-active' : ''}
-            aria-current={currentLang === 'es' ? 'page' : undefined}
-          >
-            <a
-              href="/es"
-              class={`language-link ${currentLang === 'es' ? 'is-active' : ''}`}
-              hreflang="es"
-              data-drupal-link-system-path="<front>"
-              aria-current={currentLang === 'es' ? 'page' : undefined}
-            >
-              ES
-            </a>
-          </li>
-        </ul>
-      </div>
     </div>
+    {
+      ctaButton && (
+        <a
+          class="switch-link self-center no-underline py-space-s hover:underline xl:col-start-3 xl:col-end-4"
+          href={ctaButton.href || '#'}
+          data-umami-event={`Site Nav - ${ctaButton.label}`}
+          {...(ctaButton.openInNewTab
+            ? { target: '_blank', rel: 'noopener noreferrer' }
+            : {})}
+        >
+          {ctaButton.label}
+        </a>
+      )
+    }
     <button
       type="button"
       class="site-nav__toggle xl:hidden border-0 bg-transparent py-space-xs"
@@ -274,20 +251,8 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
 
   /* Desktop navigation (min-width: 1060px) */
   @media screen and (min-width: 1060px) {
-    .site-links-wrapper {
-      grid-area: 1 / 1 / 2 / 4;
-      @apply grid gap-space-s;
-      grid-template-columns: minmax(10em, 1fr) 1fr 1fr;
-      grid-template-areas: '. menu site';
-    }
-
-    .switch-link {
-      grid-area: site;
-    }
-
-    .site-nav__links {
-      grid-area: menu;
-      @apply flex items-center;
+    .site-links-wrapper.offscreen {
+      transform: none !important;
     }
 
     .has-submenu {
@@ -306,6 +271,8 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       @apply invisible opacity-0;
     }
 
+    /* Show dropdown on hover - higher specificity to override hidden state */
+    .has-submenu:hover > button[aria-expanded='false'] + ul,
     .has-submenu > button[aria-expanded='true'] + ul,
     .menu-item--level-1:hover > .menu--level-2,
     .menu--level-2:hover {

@@ -1,7 +1,6 @@
-/* Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4 import */
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
 
 /* Font face declarations from pages.css */
 @font-face {
