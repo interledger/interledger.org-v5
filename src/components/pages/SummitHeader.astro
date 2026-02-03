@@ -26,7 +26,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
 ---
 
 <header
-  class="bg-black px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white"
+  class="bg-black px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white text-[1rem]"
   role="banner"
 >
   <nav
@@ -65,7 +65,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                 <a
                   href={group.href}
                   data-umami-event={`Summit Nav - ${group.label}`}
-                  class="block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                  class="block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-200 hover:bg-white/10 max-[1059px]:px-space-s data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                 >
                   {group.label}
                 </a>
@@ -74,7 +74,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                   <button
                     aria-expanded="false"
                     data-umami-event={`Summit Nav - ${group.label}`}
-                    class="peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                    class="peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-white/10 max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:filter after:invert after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                     data-submenu-button
                     data-open="false"
                   >
@@ -87,7 +87,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                           <a
                             href={item.href || '#'}
                             data-umami-event={`Summit Nav - ${item.label}`}
-                            class="block no-underline text-[var(--color-text)] hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                            class="block no-underline text-white hover:bg-white/10 max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                             {...(item.openInNewTab
                               ? { target: '_blank', rel: 'noopener noreferrer' }
                               : {})}
@@ -109,7 +109,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       {
         ctaButton && (
           <a
-            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
+            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-white/10"
             href={ctaButton.href || '#'}
             data-umami-event={`Summit Nav - ${ctaButton.label}`}
             {...(ctaButton.openInNewTab
@@ -120,9 +120,13 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
           </a>
         )
       }
-      <span class="self-center py-space-s whitespace-nowrap max-[1059px]:hidden">
+      <a
+        href="/"
+        class="self-center py-space-s whitespace-nowrap no-underline hover:underline max-[1059px]:hover:bg-white/10 max-[1059px]:hidden"
+        data-umami-event="Summit Nav - Interledger Foundation"
+      >
         Interledger Foundation
-      </span>
+      </a>
       <ul class="flex items-center p-0 list-none">
         <li
           hreflang="en-gb"
