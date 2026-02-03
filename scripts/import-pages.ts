@@ -34,13 +34,14 @@ interface PageFrontmatter {
 async function importPage(
   baseUrl: string,
   headers: Record<string, string>,
+  endpoint: string,
   page: {
     frontmatter: PageFrontmatter
     content: string
   }
 ) {
   // Check if page exists by slug
-  const searchUrl = `${baseUrl}/api/pages?filters[slug][$eq]=${page.frontmatter.slug}`
+  const searchUrl = `${baseUrl}/api/${endpoint}?filters[slug][$eq]=${page.frontmatter.slug}`
   const searchRes = await fetch(searchUrl, { headers })
   const searchData = await searchRes.json()
 
@@ -57,14 +58,14 @@ async function importPage(
   if (searchData.data && searchData.data.length > 0) {
     // Update existing (Strapi v5 uses documentId)
     const existingId = searchData.data[0].documentId
-    url = `${baseUrl}/api/pages/${existingId}`
+    url = `${baseUrl}/api/${endpoint}/${existingId}`
     method = 'PUT'
-    console.log(`Updating page: ${page.frontmatter.slug}`)
+    console.log(`Updating ${endpoint}: ${page.frontmatter.slug}`)
   } else {
     // Create new
-    url = `${baseUrl}/api/pages`
+    url = `${baseUrl}/api/${endpoint}`
     method = 'POST'
-    console.log(`Creating page: ${page.frontmatter.slug}`)
+    console.log(`Creating ${endpoint}: ${page.frontmatter.slug}`)
   }
 
   const res = await fetch(url, {
@@ -76,7 +77,7 @@ async function importPage(
   if (!res.ok) {
     const text = await res.text()
     throw new Error(
-      `Failed to import page ${page.frontmatter.slug}: ${res.status} - ${text}`
+      `Failed to import ${endpoint} ${page.frontmatter.slug}: ${res.status} - ${text}`
     )
   }
 
@@ -95,33 +96,44 @@ async function main() {
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const pagesDir = join(process.cwd(), 'src/content/pages')
+  const collections = [
+    { dir: 'src/content/pages', endpoint: 'pages', label: 'page(s)' },
+    {
+      dir: 'src/content/summit-pages',
+      endpoint: 'summit-pages',
+      label: 'summit page(s)'
+    }
+  ]
 
-  let files: string[]
-  try {
-    files = readdirSync(pagesDir).filter(
-      (f) => f.endsWith('.mdx') || f.endsWith('.md')
-    )
-  } catch {
-    console.log('No pages directory found at src/content/pages')
-    return
-  }
+  for (const collection of collections) {
+    const pagesDir = join(process.cwd(), collection.dir)
 
-  console.log(`Found ${files.length} page(s) to import...\n`)
-
-  for (const file of files) {
-    const filePath = join(pagesDir, file)
-    const fileContent = readFileSync(filePath, 'utf-8')
-    const { data: frontmatter, content } = matter(fileContent)
-
+    let files: string[]
     try {
-      await importPage(baseUrl, headers, {
-        frontmatter: frontmatter as PageFrontmatter,
-        content
-      })
-      console.log(`  ✓ ${file}`)
-    } catch (error) {
-      console.error(`  ✗ ${file}: ${error}`)
+      files = readdirSync(pagesDir).filter(
+        (f) => f.endsWith('.mdx') || f.endsWith('.md')
+      )
+    } catch {
+      console.log(`No pages directory found at ${collection.dir}`)
+      continue
+    }
+
+    console.log(`Found ${files.length} ${collection.label} to import...\n`)
+
+    for (const file of files) {
+      const filePath = join(pagesDir, file)
+      const fileContent = readFileSync(filePath, 'utf-8')
+      const { data: frontmatter, content } = matter(fileContent)
+
+      try {
+        await importPage(baseUrl, headers, collection.endpoint, {
+          frontmatter: frontmatter as PageFrontmatter,
+          content
+        })
+        console.log(`  ✓ ${file}`)
+      } catch (error) {
+        console.error(`  ✗ ${file}: ${error}`)
+      }
     }
   }
 

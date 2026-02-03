@@ -55,19 +55,21 @@ interface Block {
 interface Page {
   slug: string
   title: string
+  description?: string
   seo?: Seo
   hero?: Hero
   heroTitle?: string
   heroDescription?: string
+  gradient?: string
   content?: Block[]
   mdxContent?: string
 }
 
-async function fetchAllPages(): Promise<Page[]> {
+async function fetchAllPages(endpoint: string): Promise<Page[]> {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_PREVIEW_TOKEN
 
-  const url = `${baseUrl}/api/pages?populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
+  const url = `${baseUrl}/api/${endpoint}?populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
@@ -80,7 +82,7 @@ async function fetchAllPages(): Promise<Page[]> {
   const res = await fetch(url, { headers })
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch pages: ${res.status}`)
+    throw new Error(`Failed to fetch ${endpoint}: ${res.status}`)
   }
 
   const json = await res.json()
@@ -187,6 +189,14 @@ function pageToMdx(page: Page): string {
     title: page.seo?.metaTitle || page.title
   }
 
+  if (page.description || page.seo?.metaDescription) {
+    frontmatter.description = page.description || page.seo?.metaDescription
+  }
+
+  if (page.gradient) {
+    frontmatter.gradient = page.gradient
+  }
+
   // Add hero fields if present
   if (page.hero) {
     frontmatter.heroTitle = page.hero.title
@@ -258,25 +268,39 @@ async function main() {
   console.log('Fetching pages from Strapi...')
 
   try {
-    const pages = await fetchAllPages()
+    const collections = [
+      { endpoint: 'pages', dir: 'src/content/pages', label: 'page(s)' },
+      {
+        endpoint: 'summit-pages',
+        dir: 'src/content/summit-pages',
+        label: 'summit page(s)'
+      }
+    ]
 
-    if (pages.length === 0) {
-      console.log('No pages found in Strapi')
-      return
-    }
+    for (const collection of collections) {
+      const pages = await fetchAllPages(collection.endpoint)
 
-    console.log(`Found ${pages.length} page(s) to export\n`)
+      if (pages.length === 0) {
+        console.log(`No ${collection.label} found in Strapi`)
+        continue
+      }
 
-    const outputDir = join(process.cwd(), 'src/content/pages')
-    mkdirSync(outputDir, { recursive: true })
+      console.log(`Found ${pages.length} ${collection.label} to export\n`)
 
-    for (const page of pages) {
-      const mdxContent = pageToMdx(page)
-      const filename = page.slug === 'home' ? 'home.mdx' : `${page.slug}.mdx`
-      const outputPath = join(outputDir, filename)
+      const outputDir = join(process.cwd(), collection.dir)
+      mkdirSync(outputDir, { recursive: true })
 
-      writeFileSync(outputPath, mdxContent)
-      console.log(`  ✓ ${filename}`)
+      for (const page of pages) {
+        const mdxContent = pageToMdx(page)
+        const filename =
+          collection.endpoint === 'pages' && page.slug === 'home'
+            ? 'home.mdx'
+            : `${page.slug}.mdx`
+        const outputPath = join(outputDir, filename)
+
+        writeFileSync(outputPath, mdxContent)
+        console.log(`  ✓ ${filename}`)
+      }
     }
 
     console.log('\nPages export complete!')
