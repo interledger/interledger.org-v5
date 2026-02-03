@@ -1,7 +1,7 @@
 ---
-import SummitFooter from '../components/pages/SummitFooter.astro'
-import SummitHeader from '../components/pages/SummitHeader.astro'
-import '../styles/pages.css'
+import Footer from '../components/pages/Footer.astro'
+import LanderHeader from '../components/pages/LanderHeader.astro'
+import '../styles/tailwind.css'
 
 interface Props {
   title: string
@@ -36,85 +36,14 @@ const { title, description, gradient = 'option1' } = Astro.props
       data-domains="interledger.org"></script>
   </head>
 
-  <body style=`--gradient:var(--${gradient})`>
-    <SummitHeader />
-    <slot />
-    <SummitFooter />
+  <body
+    class="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat font-titillium text-step-0 text-white"
+    style={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+  >
+    <LanderHeader />
+    <div class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]">
+      <slot />
+    </div>
+    <Footer />
   </body>
 </html>
-
-<style is:global>
-  html {
-    box-sizing: border-box;
-    height: 100%;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    min-width: 360px;
-    color: var(--color-text);
-    font-size: var(--step-0);
-    font-family: 'Titillium', Arial, sans-serif;
-    background-image: var(--gradient);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    overflow-x: hidden;
-  }
-
-  main {
-    flex: 1;
-    font-size: var(--step-0);
-  }
-
-  section {
-    width: 100%;
-    padding-block: var(--space-m);
-  }
-
-  .content-wrapper {
-    max-width: var(--max-content-width);
-    min-width: 360px;
-    margin: auto;
-    padding-inline: var(--space-m);
-  }
-
-  .heading--1,
-  h1 {
-    font-size: var(--step-4);
-  }
-
-  .heading--2,
-  h2 {
-    font-size: var(--step-2);
-  }
-
-  .heading--3,
-  h3 {
-    font-size: var(--step-1);
-  }
-
-  .heading--4,
-  h4 {
-    font-size: var(--step-0);
-  }
-
-  a {
-    color: currentColor;
-    transition: color 300ms ease-in-out;
-  }
-
-  a:hover {
-    color: hsla(26, 100%, 76%, 1);
-  }
-
-  .visually-hidden {
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-  }
-</style>
