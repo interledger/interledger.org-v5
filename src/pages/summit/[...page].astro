@@ -58,15 +58,15 @@ const gradient = data?.gradient || 'option1'
 ---
 
 <LanderLayout title={title} description={description} gradient={gradient}>
-  <main>
+  <main class="pb-space-l">
     {/* If no data from Strapi, show coming soon page */}
     {
       !data && (
-        <section class="coming-soon">
-          <div class="content-wrapper">
-            <h1>{pageTitle}</h1>
-            <p>This page is coming soon.</p>
-            <a href="/" class="back-link">
+        <section class="min-h-[50vh] flex items-center justify-center text-center">
+          <div class="mx-auto w-full max-w-wide px-space-m">
+            <h1 class="text-2xl font-semibold mb-space-s">{pageTitle}</h1>
+            <p class="mb-space-m">This page is coming soon.</p>
+            <a href="/" class="underline hover:no-underline">
               ← Back to home
             </a>
           </div>
@@ -77,26 +77,35 @@ const gradient = data?.gradient || 'option1'
     {/* Hero section */}
     {
       data && hero && (
-        <section class="hero">
-          <div class="content-wrapper">
-            <div class="text-wrapper">
-              <h1 class="hero__heading">{hero.title}</h1>
-              {hero.description && <p class="hero__txt">{hero.description}</p>}
+        <section class="min-h-[40vh] py-space-xl flex items-center">
+          <div class="mx-auto w-full max-w-wide px-space-m">
+            <div class="max-w-narrow">
+              <h1 class="max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+                {hero.title}
+              </h1>
+              {hero.description && (
+                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                  {hero.description}
+                </p>
+              )}
               {hero.secondaryCtas?.length > 0 && (
-                <div class="hero__cta">
+                <div class="flex flex-wrap items-center gap-space-s max-[600px]:flex-col max-[600px]:items-start">
                   {hero.secondaryCtas.map(
                     (
                       cta: { link: string; text: string; external?: boolean },
                       index: number
                     ) => (
                       <a
-                        class={`btn ${index === 0 ? 'hero__btn' : 'hero__btn-secondary'}`}
+                        class={`group inline-flex items-center gap-space-2xs rounded-pill no-underline cursor-pointer ${index === 0 ? 'bg-white text-black px-space-s py-space-xs hover:opacity-90' : 'bg-transparent border-2 border-white text-white px-space-s py-space-xs hover:bg-white hover:text-black'}`}
                         href={cta.link}
                         {...(cta.external
                           ? { target: '_blank', rel: 'noopener noreferrer' }
                           : {})}
                       >
-                        <span>{cta.text}</span> <LinkArrow />
+                        <span class="underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 group-hover:decoration-current">
+                          {cta.text}
+                        </span>{' '}
+                        <LinkArrow />
                       </a>
                     )
                   )}
@@ -111,8 +120,8 @@ const gradient = data?.gradient || 'option1'
     {/* Dynamic content blocks */}
     {
       data && dynamicContent.length > 0 && (
-        <section class="content-section">
-          <div class="content-wrapper">
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
             <DynamicZone blocks={dynamicContent} />
           </div>
         </section>
@@ -120,127 +129,3 @@ const gradient = data?.gradient || 'option1'
     }
   </main>
 </LanderLayout>
-
-<style>
-  main {
-    padding-block-end: var(--space-l);
-  }
-
-  section {
-    padding-block-start: var(--space-l);
-  }
-
-  section:last-child {
-    padding-block-end: var(--space-l);
-  }
-
-  .hero {
-    min-height: 40vh;
-    padding-block: var(--space-xl);
-    display: flex;
-    align-items: center;
-  }
-
-  .content-wrapper {
-    max-width: 1200px;
-    margin-inline: auto;
-    padding-inline: var(--space-m);
-    width: 100%;
-  }
-
-  .text-wrapper {
-    max-width: 800px;
-  }
-
-  .hero__heading {
-    max-width: 14em;
-    line-height: 1.2;
-    font-weight: 600;
-    margin-block-end: var(--space-xs);
-    font-size: clamp(2rem, 5vw, 3rem);
-  }
-
-  .hero__txt {
-    margin-block-end: var(--space-m);
-    font-size: 1.125rem;
-    max-width: 600px;
-  }
-
-  .hero__cta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-s);
-  }
-
-  .btn {
-    border-radius: 10em;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    text-decoration: none;
-  }
-
-  .btn svg {
-    width: 0.6em;
-  }
-
-  .hero__btn {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    padding: var(--space-xs) var(--space-s);
-  }
-
-  .hero__btn:hover {
-    opacity: 0.9;
-  }
-
-  .hero__btn-secondary {
-    background-color: transparent;
-    border: 2px solid var(--color-white);
-    color: var(--color-white);
-    padding: var(--space-xs) var(--space-s);
-  }
-
-  .hero__btn-secondary:hover {
-    background-color: var(--color-white);
-    color: var(--color-black);
-  }
-
-  .content-section {
-    padding-block: var(--space-xl);
-  }
-
-  .coming-soon {
-    min-height: 50vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .coming-soon h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-block-end: var(--space-s);
-  }
-
-  .coming-soon p {
-    margin-block-end: var(--space-m);
-  }
-
-  .back-link {
-    text-decoration: underline;
-  }
-
-  .back-link:hover {
-    text-decoration: none;
-  }
-
-  @media screen and (max-width: 600px) {
-    .hero__cta {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-</style>
