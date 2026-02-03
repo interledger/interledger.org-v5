@@ -116,6 +116,23 @@ export interface BlocksCtaBanner extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksImageRow extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_image_rows'
+  info: {
+    description: 'Image with text content, image can be positioned left or right'
+    displayName: 'Image Row'
+    icon: 'picture'
+  }
+  attributes: {
+    attribution: Schema.Attribute.String
+    content: Schema.Attribute.RichText & Schema.Attribute.Required
+    heading: Schema.Attribute.String & Schema.Attribute.Required
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
+    imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
+      Schema.Attribute.DefaultTo<'right'>
+  }
+}
+
 export interface BlocksParagraph extends Struct.ComponentSchema {
   collectionName: 'components_blocks_paragraphs'
   info: {
@@ -245,6 +262,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-item': BlocksCarouselItem
       'blocks.cta-banner': BlocksCtaBanner
+      'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem

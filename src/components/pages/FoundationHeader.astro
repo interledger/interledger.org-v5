@@ -93,20 +93,58 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
         }
       </ul>
     </div>
-    {
-      ctaButton && (
-        <a
-          class="self-center no-underline py-space-s hover:underline xl:col-start-3 xl:col-end-4 max-[1059px]:hover:bg-gray-header"
-          href={ctaButton.href || '#'}
-          data-umami-event={`Site Nav - ${ctaButton.label}`}
-          {...(ctaButton.openInNewTab
-            ? { target: '_blank', rel: 'noopener noreferrer' }
-            : {})}
+    <div class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s">
+      {
+        ctaButton && (
+          <a
+            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
+            href={ctaButton.href || '#'}
+            data-umami-event={`Site Nav - ${ctaButton.label}`}
+            {...(ctaButton.openInNewTab
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )
+      }
+      <ul class="flex items-center p-0 list-none">
+        <li
+          hreflang="en-gb"
+          data-drupal-link-system-path="<front>"
+          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          aria-current={currentLang === 'en-gb' ? 'page' : undefined}
         >
-          {ctaButton.label}
-        </a>
-      )
-    }
+          <a
+            href="/"
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            hreflang="en-gb"
+            data-drupal-link-system-path="<front>"
+            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+            data-active={currentLang === 'en-gb' ? 'true' : 'false'}
+          >
+            EN
+          </a>
+        </li>
+        <li
+          hreflang="es"
+          data-drupal-link-system-path="<front>"
+          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          aria-current={currentLang === 'es' ? 'page' : undefined}
+        >
+          <a
+            href="/es"
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            hreflang="es"
+            data-drupal-link-system-path="<front>"
+            aria-current={currentLang === 'es' ? 'page' : undefined}
+            data-active={currentLang === 'es' ? 'true' : 'false'}
+          >
+            ES
+          </a>
+        </li>
+      </ul>
+    </div>
     <button
       type="button"
       class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
