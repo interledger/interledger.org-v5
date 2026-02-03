@@ -1,0 +1,333 @@
+---
+import FoundationLogo from '../logos/FoundationLogo.astro'
+import summitNavigation from '../../config/summit-navigation.json'
+
+interface MenuItem {
+  label: string
+  href?: string
+  openInNewTab?: boolean
+}
+
+interface MenuGroup {
+  label: string
+  href?: string
+  items?: MenuItem[]
+}
+
+const { mainMenu, ctaButton } = summitNavigation as {
+  mainMenu: MenuGroup[]
+  ctaButton?: MenuItem
+}
+
+// Determine current language from URL path
+const currentPath = Astro.url.pathname
+const isSpanish = currentPath.startsWith('/es')
+const currentLang = isSpanish ? 'es' : 'en-gb'
+---
+
+<header class="sticky top-0 z-[2] w-full bg-black px-space-m" role="banner">
+  <nav
+    class="relative flex items-center justify-between max-[1059px]:h-[var(--site-header-height)] min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-l"
+    role="navigation"
+    aria-labelledby="block-summit-navigation-menu"
+    id="block-summit-navigation"
+    data-nav
+  >
+    <h2 class="sr-only" id="block-summit-navigation-menu">
+      Summit navigation
+    </h2>
+    <a
+      href="/summit"
+      class="flex w-[11em] flex-none flex-col gap-1 no-underline min-[1060px]:z-[1]"
+      aria-label="Interledger Summit"
+      data-umami-event="Summit Nav - Logo"
+    >
+      <FoundationLogo class="text-white" />
+    </a>
+    <div
+      class="max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black/95 max-[1059px]:border-t max-[1059px]:border-white/20 max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:flex min-[1060px]:w-full min-[1060px]:items-center min-[1060px]:justify-center data-[offscreen=true]:max-[1059px]:translate-x-full"
+      data-nav-wrapper
+      data-offscreen="true"
+      id="summitNavLinks"
+    >
+      <ul
+        class="flex list-none items-center gap-space-s justify-center ps-0"
+        id="summitNavMenu"
+        data-nav-list
+      >
+        {
+          mainMenu.map((group) =>
+            group.href ? (
+              <li data-menu-level="1">
+                <a
+                  href={group.href}
+                  data-umami-event={`Summit Nav - ${group.label}`}
+                  class="block whitespace-nowrap px-space-2xs py-space-s text-[0.875rem] text-[var(--color-text)] no-underline transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
+                >
+                  {group.label}
+                </a>
+              </li>
+            ) : (
+              <li class="group min-[1060px]:relative" data-menu-level="1">
+                <button
+                  aria-expanded="false"
+                  data-umami-event={`Summit Nav - ${group.label}`}
+                  class="peer block whitespace-nowrap px-space-2xs py-space-s text-[0.875rem] font-normal text-[var(--color-text)] transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] after:content-[url('/img/arrow-menu.svg')] after:ml-2 after:inline-block after:w-[9px] after:filter after:invert after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
+                  data-submenu-button
+                  data-open="false"
+                >
+                  {group.label}
+                </button>
+                {group.items && group.items.length > 0 && (
+                  <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black/95 min-[1060px]:border-l-2 min-[1060px]:border-white/20 min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
+                    {group.items.map((item) => (
+                      <li data-menu-level="2">
+                        <a
+                          href={item.href || '#'}
+                          data-umami-event={`Summit Nav - ${item.label}`}
+                          class="block whitespace-nowrap px-space-2xs py-space-2xs text-[0.875rem] text-[var(--color-text)] no-underline transition-colors duration-200 hover:text-[hsla(26,100%,76%,1)] data-[active=true]:underline data-[active=true]:decoration-white data-[active=true]:decoration-[1px] data-[active=true]:underline-offset-[6px]"
+                          {...(item.openInNewTab
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )
+          )
+        }
+      </ul>
+      <div class="flex items-center justify-end gap-space-s max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:gap-space-xs max-[1059px]:px-space-s min-[1060px]:ml-auto">
+        {
+          ctaButton && (
+            <a
+              class="py-space-s text-[var(--color-text)] no-underline hover:underline"
+              href={ctaButton.href || '#'}
+              data-umami-event={`Summit Nav - ${ctaButton.label}`}
+              {...(ctaButton.openInNewTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {ctaButton.label}
+            </a>
+          )
+        }
+        <span class="whitespace-nowrap text-[var(--color-text)] max-[1059px]:hidden">
+          Interledger Foundation
+        </span>
+        <span class="h-[1.5em] w-px bg-[var(--color-text)] opacity-60 max-[1059px]:hidden"></span>
+        <ul class="flex items-center p-0 list-none max-[1059px]:ps-0">
+          <li
+            data-drupal-link-system-path="<front>"
+            class="flex items-center after:mx-space-2xs after:opacity-80 after:text-[hsl(180,50%,60%)] after:content-['|'] last:after:content-none"
+            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+          >
+            <a
+              href="/summit"
+              class="block px-space-2xs py-space-s text-[hsl(180,50%,60%)] no-underline transition-colors duration-200 hover:text-[hsl(180,50%,65%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,50%,60%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+              hreflang="en-gb"
+              data-drupal-link-system-path="<front>"
+              aria-current={currentLang === 'en-gb' ? 'page' : undefined}
+              data-active={currentLang === 'en-gb' ? 'true' : 'false'}
+            >
+              EN
+            </a>
+          </li>
+          <li
+            data-drupal-link-system-path="<front>"
+            class="flex items-center after:mx-space-2xs after:opacity-80 after:text-[hsl(180,50%,60%)] after:content-['|'] last:after:content-none"
+            aria-current={currentLang === 'es' ? 'page' : undefined}
+          >
+            <a
+              href="/es/summit"
+              class="block px-space-2xs py-space-s text-[hsl(180,50%,60%)] no-underline transition-colors duration-200 hover:text-[hsl(180,50%,65%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,50%,60%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+              hreflang="es"
+              data-drupal-link-system-path="<front>"
+              aria-current={currentLang === 'es' ? 'page' : undefined}
+              data-active={currentLang === 'es' ? 'true' : 'false'}
+            >
+              ES
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="min-[1060px]:hidden border-0 bg-transparent py-space-xs text-[var(--color-text)]"
+      aria-controls="summitNavMenu"
+      aria-label="Toggle Menu"
+      title="Toggle Menu"
+      id="summitNavToggle"
+      data-nav-toggle
+    >
+      <div
+        id="summitMenuIcon"
+        class="group relative h-[1em] w-[1.5em] cursor-pointer transition-[transform] duration-500 ease-in-out"
+        data-open="false"
+      >
+        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
+        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"></span>
+        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"></span>
+        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
+      </div>
+    </button>
+  </nav>
+</header>
+
+<script>
+  const summitLinksWrapper = document.getElementById('summitNavLinks')
+  const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
+  wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
+
+  const summitNavToggle = document.querySelector('[data-nav-toggle]')
+  const summitMenuIcon = document.getElementById('summitMenuIcon')
+
+  if (document.contains(summitNavToggle)) {
+    summitNavToggle?.addEventListener('click', handleMobileNavToggle, false)
+  }
+
+  function setOffscreenState(isOffscreen: boolean) {
+    if (summitLinksWrapper instanceof HTMLElement) {
+      summitLinksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
+    }
+  }
+
+  function setMenuIconOpenState(isOpen: boolean) {
+    if (summitMenuIcon instanceof HTMLElement) {
+      summitMenuIcon.dataset.open = isOpen ? 'true' : 'false'
+    }
+  }
+
+  function handleMobileNavToggle() {
+    const isCurrentlyOffscreen =
+      summitLinksWrapper instanceof HTMLElement &&
+      summitLinksWrapper.dataset.offscreen === 'true'
+    setOffscreenState(!isCurrentlyOffscreen)
+    setMenuIconOpenState(isCurrentlyOffscreen)
+  }
+
+  function handleNavDisplayStyles(event: MediaQueryListEvent) {
+    if (event.matches) {
+      setOffscreenState(false)
+      setMenuIconOpenState(false)
+    } else {
+      if (summitLinksWrapper) {
+        flashPrevention(summitLinksWrapper)
+      }
+      setOffscreenState(true)
+      setMenuIconOpenState(false)
+    }
+  }
+
+  function flashPrevention(element: Element) {
+    element.setAttribute('style', 'display:none')
+    setTimeout(() => {
+      element.removeAttribute('style')
+    }, 10)
+  }
+
+  // Summit sub-navigation toggle
+  const summitNav = document.querySelector('[data-nav-list]') as HTMLInputElement
+
+  if (document.contains(summitNav)) {
+    const submenuButtons = summitNav.querySelectorAll('[data-submenu-button]')
+
+    submenuButtons.forEach((submenuButton) => {
+      submenuButton.setAttribute('aria-expanded', 'false')
+      submenuButton.setAttribute('data-open', 'false')
+
+      submenuButton.addEventListener('click', function (event) {
+        const clickedSubmenuButton = event.target
+        const allSubmenuButtons = Array.from(submenuButtons)
+        const notClickedSubmenuButtons = allSubmenuButtons.filter(
+          function (otherSubmenuButton) {
+            return otherSubmenuButton !== clickedSubmenuButton
+          }
+        )
+        notClickedSubmenuButtons.forEach((button) => {
+          button.setAttribute('aria-expanded', 'false')
+          button.setAttribute('data-open', 'false')
+        })
+        if (clickedSubmenuButton instanceof HTMLElement) {
+          const isOpen =
+            clickedSubmenuButton?.getAttribute('aria-expanded') === 'true'
+          if (isOpen) {
+            clickedSubmenuButton?.setAttribute('aria-expanded', 'false')
+            clickedSubmenuButton?.setAttribute('data-open', 'false')
+          } else {
+            clickedSubmenuButton?.setAttribute('aria-expanded', 'true')
+            clickedSubmenuButton?.setAttribute('data-open', 'true')
+          }
+        }
+      })
+    })
+
+    summitNav?.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        resetSubMenus()
+      }
+    })
+
+    document.addEventListener('click', function (event) {
+      if (isClickOutside(event, submenuButtons)) {
+        resetSubMenus()
+      }
+    })
+
+    function resetSubMenus() {
+      submenuButtons.forEach((submenuButton) => {
+        submenuButton.setAttribute('aria-expanded', 'false')
+        submenuButton.setAttribute('data-open', 'false')
+      })
+    }
+  }
+
+  function isClickOutside(
+    event: MouseEvent,
+    nodeList: NodeListOf<Element>
+  ): boolean {
+    let clickedInsideTarget = false
+    const eventTarget = event.target as Element
+    Array.from(nodeList).forEach(function (element) {
+      if (element.contains(eventTarget)) {
+        clickedInsideTarget = true
+      }
+    })
+    return !clickedInsideTarget
+  }
+
+  // Mark active navigation links
+  const currentPath = window.location.pathname
+  const navLinks = document.querySelectorAll('[data-nav-list] a')
+
+  navLinks.forEach((link) => {
+    if (link instanceof HTMLAnchorElement) {
+      const linkPath = link.pathname
+      // Remove trailing slashes for comparison
+      const normalizedCurrentPath = currentPath.replace(/\/$/, '')
+      const normalizedLinkPath = linkPath.replace(/\/$/, '')
+
+      // Check for exact match or if current path starts with link path (for subpages)
+      if (
+        normalizedCurrentPath === normalizedLinkPath ||
+        (normalizedLinkPath !== '/summit' &&
+          normalizedCurrentPath.startsWith(normalizedLinkPath))
+      ) {
+        link.setAttribute('data-active', 'true')
+        link.setAttribute('aria-current', 'page')
+
+        // If it's a submenu item, also mark the parent button
+        const parentMenu = link.closest("[data-menu-level='1']")
+        const parentButton = parentMenu?.querySelector('button')
+        if (parentButton) {
+          parentButton.setAttribute('data-active', 'true')
+        }
+      }
+    }
+  })
+</script>

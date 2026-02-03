@@ -9,11 +9,14 @@
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
-    "sync:nav": "npx tsx scripts/sync-navigation.ts",
-    "sync:homepage": "npx tsx scripts/sync-homepage.ts",
+    "export:nav": "npx tsx scripts/sync-navigation.ts",
+    "export:summit-nav": "npx tsx scripts/sync-summit-navigation.ts",
+    "export:homepage": "npx tsx scripts/sync-homepage.ts",
+    "export:all": "npm run export:nav && npm run export:summit-nav && npm run export:homepage",
     "import:nav": "npx tsx scripts/import-navigation.ts",
     "import:homepage": "npx tsx scripts/import-homepage.ts",
-    "import:pages": "npx tsx scripts/import-pages.ts"
+    "import:pages": "npx tsx scripts/import-pages.ts",
+    "import:all": "npm run import:nav -- --all && npm run import:homepage && npm run import:pages"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",

@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "summit_navigations",
+  "info": {
+    "singularName": "summit-navigation",
+    "pluralName": "summit-navigations",
+    "displayName": "Summit Navigation",
+    "description": "Summit pages navigation menu"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "mainMenu": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-group"
+    },
+    "ctaButton": {
+      "type": "component",
+      "repeatable": false,
+      "component": "navigation.menu-item"
+    }
+  }
+}

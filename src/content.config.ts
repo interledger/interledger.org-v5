@@ -81,10 +81,43 @@ const pagesCollection = defineCollection({
   })
 })
 
+const summitPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/summit-pages'
+  }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    gradient: z.string().optional(),
+    sections: z
+      .array(
+        z.object({
+          title: z.string(),
+          content: z.string(),
+          ctas: z
+            .array(
+              z.object({
+                label: z.string(),
+                href: z.string()
+              })
+            )
+            .optional()
+        })
+      )
+      .optional()
+  })
+})
+
 export const collections = {
   blog: blogCollection,
   press: pressCollection,
   events: eventsCollection,
   pages: pagesCollection,
+  'summit-pages': summitPagesCollection,
   'grant-tracks': grantTrackCollection
 }
