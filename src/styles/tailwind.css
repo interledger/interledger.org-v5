@@ -105,6 +105,22 @@
     --color-bg: var(--color-black);
     --color-text: var(--color-white);
   }
+
+  main {
+    @apply flex-1 text-step-0;
+  }
+
+  strong {
+    color: var(--color-primary);
+  }
+
+  a {
+    @apply text-current transition-colors duration-slow;
+  }
+
+  a:hover {
+    color: var(--color-primary);
+  }
 }
 
 /* Component layer for reusable patterns */

@@ -87,46 +87,9 @@ const {
       data-domains="interledger.org"></script>
   </head>
 
-  <body class="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip">
+  <body class="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden">
     <FoundationHeader />
     <slot />
     <FoundationFooter />
   </body>
 </html>
-
-<style is:global>
-
-  @reference "../styles/tailwind.css";
-  /* Background swirl - keep as scoped due to pseudo-element complexity */
-  body::before {
-    @apply fixed w-full h-full top-0 left-0 -z-10;
-    background-image: url(/img/bg-swirl.svg);
-    background-repeat: repeat;
-    background-size: 150%;
-    filter: blur(150px) opacity(0.25);
-    transform: translate3d(0, 0, 0);
-    content: '';
-  }
-
-  @media screen and (max-width: 430px) {
-    body::before {
-      content: initial;
-    }
-  }
-
-  main {
-    @apply flex-1 text-step-0;
-  }
-
-  strong {
-    color: var(--color-primary);
-  }
-
-  a {
-    @apply text-current transition-colors duration-slow;
-  }
-
-  a:hover {
-    color: var(--color-primary);
-  }
-</style>
