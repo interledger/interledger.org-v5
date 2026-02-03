@@ -40,14 +40,16 @@ const gridClass =
       </div>
     )
   }
-  <div class={`grid gap-space-m ${gridClass}`}>
+  <div
+    class={`grid gap-space-l mx-auto ${gridClass}`}
+  >
     {
       cards.map((card) => (
-        <article class="rounded-card border border-gray-200 bg-white p-space-m transition-shadow duration-200 hover:shadow-card">
+        <article class="rounded-card border border-gray-200 bg-white p-space-l text-black shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-shadow duration-200 hover:shadow-card">
           {card.icon && (
             <div class="w-12 h-12 mb-space-s" set:html={card.icon} />
           )}
-          <h3 class="text-[1.25rem] font-semibold mb-space-xs text-primary-fallback">
+          <h3 class="text-[1.5rem] font-normal leading-snug mb-space-xs text-black">
             {card.title}
           </h3>
           {card.description && (
