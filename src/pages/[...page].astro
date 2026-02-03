@@ -1,128 +1,75 @@
 ---
+import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import DynamicZone from '../components/blocks/DynamicZone.astro'
-import LinkArrow from '../../public/img/icon-link-arrow.svg'
 
 export const prerender = false
-let slug = Astro.originPathname
-slug = slug.replace(/^\/|\/$/g, '')
-const preview = Astro.url.searchParams.get('preview') ?? false
+const slug = Astro.originPathname.replace(/^\/|\/$/g, '')
 
-async function getPageFromStrapi(slug: string, preview: boolean | string) {
-  const token = import.meta.env.STRAPI_PREVIEW_TOKEN
-  const base = import.meta.env.STRAPI_URL
+const pages = await getCollection('pages')
+const mdxPage = pages.find((page) => page.data.slug === slug)
+let MdxContent: typeof import('astro').AstroComponentFactory | null = null
+let mdxData: (typeof mdxPage)['data'] | null = null
 
-  if (!token || !base) {
-    console.log('Missing Strapi config, skipping Strapi fetch')
-    return null
-  }
-
-  const query = preview
-    ? `${base}/api/pages?filters[slug][$eq]=${slug}&status=draft&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
-    : `${base}/api/pages?filters[slug][$eq]=${slug}&populate[hero][populate]=*&populate[content][populate]=*&populate[seo][populate]=*`
-
-  try {
-    const response = await fetch(query, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    if (!response.ok) {
-      console.log(`Strapi API returned ${response.status} for slug: ${slug}`)
-      return null
-    }
-    const data = await response.json()
-    return data.data?.[0] || null
-  } catch (error) {
-    console.error('Strapi fetch failed:', error)
-    return null
-  }
+if (mdxPage) {
+  const { Content } = await render(mdxPage)
+  MdxContent = Content
+  mdxData = mdxPage.data
 }
 
-const data = await getPageFromStrapi(slug, preview)
-
-// Format slug for display (e.g., "about-us" -> "About Us")
 const pageTitle = slug
   .split(/[-/]/)
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ')
 
-const title = data?.seo?.metaTitle || data?.title || pageTitle
-const description = data?.seo?.metaDescription || null
-const hero = data?.hero
-const dynamicContent = data?.content || []
+const title = mdxData?.title || pageTitle
+const description = mdxData?.description || null
+const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
+const mdxHeroDescription = mdxData?.heroDescription || ''
+
+const isNotFound = !MdxContent
+if (isNotFound) Astro.response.status = 404
 ---
 
 <BaseLayout title={title} description={description}>
   <main class="pb-space-l">
-    {/* If no data from Strapi, show coming soon page */}
-    {
-      !data && (
-        <section class="min-h-[50vh] flex items-center justify-center text-center">
-          <div class="mx-auto w-full max-w-wide px-space-m">
-            <h1 class="text-2xl font-semibold text-primary mb-space-s">{pageTitle}</h1>
-            <p class="text-[var(--sl-color-gray-2)] mb-space-m">This page is coming soon.</p>
-            <a href="/" class="text-primary underline hover:no-underline">
-              ← Back to home
-            </a>
-          </div>
-        </section>
-      )
-    }
-
-    {/* Hero section */}
-    {
-      data && hero && (
-        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
-          <div class="mx-auto w-full max-w-wide px-space-m">
-            <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
-                {hero.title}
-              </h1>
-              {hero.description && (
-                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
-                  {hero.description}
-                </p>
-              )}
-              {hero.secondaryCtas?.length > 0 && (
-                <div class="flex flex-wrap items-center gap-space-s max-[600px]:flex-col max-[600px]:items-start">
-                  {hero.secondaryCtas.map(
-                    (
-                      cta: { link: string; text: string; external?: boolean },
-                      index: number
-                    ) => (
-                      <a
-                        class={`group inline-flex items-center gap-space-2xs rounded-pill no-underline cursor-pointer ${index === 0 ? 'bg-white text-primary px-space-s py-space-xs hover:opacity-90' : 'bg-transparent border-2 border-white text-white px-space-s py-space-xs hover:bg-white hover:text-primary'}`}
-                        href={cta.link}
-                        {...(cta.external
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                      >
-                        <span class="underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 group-hover:decoration-current">
-                          {cta.text}
-                        </span>{' '}
-                        <LinkArrow />
-                      </a>
-                    )
-                  )}
-                </div>
-              )}
+    {isNotFound ? (
+      <section class="min-h-[50vh] flex items-center justify-center text-center">
+        <div class="mx-auto w-full max-w-wide px-space-m">
+          <h1 class="text-2xl font-semibold text-primary mb-space-s">404</h1>
+          <p class="text-[var(--sl-color-gray-2)] mb-space-m">
+            The page you requested could not be found.
+          </p>
+          <a href="/" class="text-primary underline hover:no-underline">
+            ← Back to home
+          </a>
+        </div>
+      </section>
+    ) : (
+      <>
+        {mdxHeroTitle && (
+          <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+            <div class="mx-auto w-full max-w-wide px-space-m">
+              <div class="max-w-narrow">
+                <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+                  {mdxHeroTitle}
+                </h1>
+                {mdxHeroDescription && (
+                  <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                    {mdxHeroDescription}
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+            <div class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline">
+              <MdxContent />
             </div>
           </div>
         </section>
-      )
-    }
-
-    {/* Dynamic content blocks */}
-    {
-      data && dynamicContent.length > 0 && (
-        <section class="py-space-xl">
-          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-            <DynamicZone blocks={dynamicContent} />
-          </div>
-        </section>
-      )
-    }
+      </>
+    )}
   </main>
 </BaseLayout>
