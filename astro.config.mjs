@@ -10,9 +10,7 @@ export default defineConfig({
     default: true
   },
   adapter: netlify(),
-  integrations: [
-    mdx()
-  ],
+  integrations: [mdx()],
   redirects: {
     '/hacktoberfest': 'https://interledger.org/hacktoberfest',
     '/hacktoberfest-2023': 'https://interledger.org/hacktoberfest'
