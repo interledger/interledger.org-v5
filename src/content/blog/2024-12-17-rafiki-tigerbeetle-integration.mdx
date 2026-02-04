@@ -1,15 +1,15 @@
 ---
 title: "Balancing the Ledger: Rafiki's TigerBeetle Integration"
-description: 'How TigerBeetle Supercharges Rafiki’s Financial Core.'
+description: "How TigerBeetle Supercharges Rafiki’s Financial Core."
 date: 2024-12-17
 slug: rafiki-tigerbeetle-integration
 ---
 
-[Rafiki](https://rafiki.dev/) is an open-source platform that enables Account Servicing Entities (ASEs) like banks and digital wallet providers to integrate [Interledger Protocol](/developers/get-started) (ILP) functionality into their systems.A critical component of Rafiki’s architecture is its accounting database, which manages financial transactions and account balances. To enhance performance and reliability, Rafiki offers the option to use TigerBeetle, a specialized financial accounting database, as its accounting backend.
-
-![Tigerbeetle + Rafiki](/developers/img/blog/2024-12-17/tigerbeetle.png)
+[Rafiki](https://rafiki.dev/) is an open-source platform that enables Account Servicing Entities (ASEs) like banks and digital wallet providers to integrate [Interledger Protocol](/developers/get-started) (ILP) functionality into their systems.A critical component of Rafiki’s architecture is its accounting database, which manages financial transactions and account balances. To enhance performance and reliability, Rafiki offers the option to use TigerBeetle, a specialized financial accounting database, as its accounting backend.![Tigerbeetle + Rafiki](/developers/img/blog/2024-12-17/tigerbeetle.png)
 
 ## What is TigerBeetle?
+
+
 
 [TigerBeetle](https://tigerbeetle.com/) is a financial accounting database designed for mission-critical safety and performance, aiming to power the future of financial services. It provides high-throughput transaction processing and ensures data integrity, making it well-suited for handling complex financial operations.
 
@@ -24,6 +24,8 @@ Integrating TigerBeetle into Rafiki brings several advantages:
 
 ## How Does Rafiki Utilize TigerBeetle?
 
+
+
 In Rafiki, the backend service is responsible for handling business logic and external communications, including managing accounts and tracking liquidity.
 
 For the accounting database, Rafiki provides the option to use TigerBeetle instead of PostgreSQL.
@@ -36,6 +38,8 @@ Therefore, both databases operate in tandem within Rafiki’s infrastructure.
 
 ## Double-Entry Accounting: The Backbone of Financial Systems
 
+
+
 At the heart of any financial system lies the principle of **double-entry accounting**.
 
 This system, which dates back to the 15th century, ensures financial accuracy by recording every transaction as two corresponding entries: a **debit** in one account and a **credit** in another.
@@ -43,6 +47,8 @@ This system, which dates back to the 15th century, ensures financial accuracy by
 The total debits and credits always balance, providing a clear view of financial transactions and reducing the risk of errors or fraud.
 
 ### How Double-Entry Accounting Works
+
+
 
 In double-entry accounting:
 
@@ -60,6 +66,8 @@ This systematic approach ensures that the books are always balanced, providing t
 
 ### Why Double-Entry Accounting Matters in Rafiki and TigerBeetle
 
+
+
 Both Rafiki and TigerBeetle embrace double-entry accounting as a fundamental concept, ensuring that all financial transactions are meticulously tracked and balanced.
 
 Here’s how it applies to their integration:
@@ -72,6 +80,8 @@ Here’s how it applies to their integration:
 
 ### Enhanced Features with TigerBeetle
 
+
+
 TigerBeetle elevates double-entry accounting by embedding these principles directly into its architecture:
 
 - **Atomic Transactions:** TigerBeetle ensures that transactions are either fully completed or not executed at all, preventing partial updates that could lead to discrepancies.
@@ -79,6 +89,8 @@ TigerBeetle elevates double-entry accounting by embedding these principles direc
 - **Performance and Consistency:** By using double-entry accounting, TigerBeetle can process an exceptionally high volume of transactions per second while ensuring financial accuracy.
 
 ### Real-World Example
+
+
 
 Thanks to double-entry accounting, both sides of the transaction are recorded in balance, providing a clear audit trail for reconciliation and compliance.
 
@@ -118,6 +130,8 @@ Rafiki documentation has more [accounting explanations](https://rafiki.dev/overv
 
 ## Implementing TigerBeetle in Rafiki
 
+
+
 To deploy Rafiki with TigerBeetle, you can use Docker Compose or Helm with Kubernetes.
 
 [Rafiki documentation](https://rafiki.dev/) provides example configurations for these deployment methods, including how to set up TigerBeetle as the accounting database.
@@ -127,6 +141,8 @@ For instance, when using Helm, you can specify the TigerBeetle version by adjust
 During the deployment process, it’s crucial to ensure that the environment variables are correctly set, especially when preparing for a production environment.
 
 ## Conclusion
+
+
 
 The integration of TigerBeetle into Rafiki significantly enhances the platform’s capacity to process financial transactions with exceptional performance and reliability.
 

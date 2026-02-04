@@ -1,6 +1,6 @@
 ---
-title: 'Where did rafiki.money go?'
-description: 'Or “The need for rebranding when something confuses people.”'
+title: "Where did rafiki.money go?"
+description: "Or “The need for rebranding when something confuses people.”"
 date: 2024-10-11
 slug: where-did-rafiki-money-go
 ---
@@ -25,11 +25,15 @@ In order to help differentiate Rafiki from rafiki.money we have begun discussing
 
 ## Introducing wallet.interledger-test.dev and boutique.interledger-test.dev
 
+
+
 We sensed that the name rafiki.money was contributing to the confusion, so we decided to change the domain name to interledger-test.dev. You can still enjoy the same fantastic Rafiki playground, Test Wallet, at _wallet.interledger-test.dev_ and our new boutique can be found at _boutique.interledger-test.dev_.
 
 ![Old to new URL mapping](/developers/img/blog/2024-10-11/url-change.png)
 
 ## New design
+
+
 
 For the new design, we wanted to distinguish the look and feel of Testnet from any of the other Interledger projects. By going with a more angular and flat style, reminiscent of 8-bit or pixel-based visuals, we are hoping to express the idea that Test Network showcases products or nodes that are not fully evolved yet.
 
@@ -41,11 +45,15 @@ We were also able to account for designing the interactions, like hover states, 
 
 ## Challenges we faced, interesting stuff we used
 
+
+
 One of the more personal challenges we faced was coming to terms with letting go of the old colorful design, which we had grown fond of and associated closely with rafiki.money and rafiki.boutique. The color scheme was too similar to Interledgers look and feel. Our aim with the new design was to entirely separate Test Wallet from the idea of Rafiki. This led to the introduction of the two new color schemes for light and dark mode. We were pleased to see that the images remained in the design, but with different color variations.
 
 Have you seen anything like the new design before? We kind of love it!
 
 ## Tailwind CSS
+
+
 
 Now, let’s go into details on the more techy side of the design.
 
@@ -69,6 +77,8 @@ Seriously, if you haven’t tried it yet, you should!
 
 ## One more major change for Test Wallet: GateHub Sandbox integration
 
+
+
 We mentioned briefly above that we integrated the GateHub Sandbox into Test Wallet. This is a big change, as we were previously using a payments and KYC API called [Rapyd](https://www.rapyd.net/). The problem with Rapyd was that we had some limitations when multiple people were using Test Wallet at the same time, as it has a rate limit. And you know we like to organize hackathons, so we always had to use workarounds to solve this problem.
 
 In order to have many people using Test Wallet at the same time, with a much higher limitation of transactions per minute, we decided with our partner, [GateHub](https://gatehub.net/) from Ljubljana, Slovenia, that we should integrate their backend API services to handle KYC, for depositing and withdrawing play money. For our long term goals, integrating the GateHub Sandbox API is a much better solution.
@@ -78,6 +88,8 @@ The integration was a collaborative effort between the teams at the Interledger 
 Our initial aim was to retain all active users with registered emails on rafiki.money; however, the new GateHub integration requires existing users to complete the KYC process again and recreate their wallets along with their respective payment pointers. Due to these changes, we now require all users to have a strong password, again standard protocol for security reasons. Therefore, those who registered with rafiki.money are kindly asked to register again and create a strong password. _As a result, previous wallets, [payment pointers](https://rafiki.dev/resources/glossary/#payment-pointer), and play money will not be accessible anymore_.
 
 ## Final Words
+
+
 
 We truly hope you enjoy this new design as much as we do! We look forward to your [feedback and opinion](https://github.com/interledger/testnet/discussions)! Don’t be shy!
 
