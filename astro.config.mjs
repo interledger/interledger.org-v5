@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  output: 'server',
+  output: 'static',
   prerender: {
     default: true
   },
