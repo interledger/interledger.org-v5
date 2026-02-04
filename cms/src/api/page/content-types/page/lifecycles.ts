@@ -129,6 +129,15 @@ interface Page {
 
 interface Event {
   result?: Page
+  params?: {
+    where?: {
+      id?: number
+      documentId?: string
+      locale?: string
+    }
+    data?: Record<string, unknown>
+    locale?: string
+  }
 }
 
 function escapeQuotes(value: string): string {
@@ -488,32 +497,21 @@ async function deleteMDXFile(page: Page): Promise<string | null> {
  */
 async function fetchFullPage(documentId: string, locale: string): Promise<Page | null> {
   try {
+    // For dynamic zones, we must use '*' to populate all nested content
+    // Strapi v5 doesn't allow specific field targeting in polymorphic structures
     const page = await strapi.documents('api::page.page').findOne({
       documentId,
       locale,
       populate: {
         hero: {
-          populate: {
-            backgroundImage: true,
-            secondaryCtas: true
-          }
+          populate: '*'
         },
         seo: {
-          populate: {
-            metaImage: true
-          }
+          populate: '*'
         },
+        // Dynamic zones require '*' for nested population
         content: {
-          populate: {
-            cards: true,
-            links: true,
-            items: {
-              populate: {
-                image: true
-              }
-            },
-            images: true
-          }
+          populate: '*'
         }
       }
     })
@@ -524,49 +522,118 @@ async function fetchFullPage(documentId: string, locale: string): Promise<Page |
   }
 }
 
+/**
+ * Gets the locale from the event, checking multiple sources
+ */
+function getLocaleFromEvent(event: Event): string {
+  // Debug: log the entire event structure to find where locale is
+  console.log('🔍 EVENT DEBUG:')
+  console.log('  result.locale:', event.result?.locale)
+  console.log('  params:', JSON.stringify(event.params, null, 2))
+
+  // Try to get locale from various sources in order of reliability
+  const locale = event.result?.locale
+    || event.params?.locale
+    || event.params?.where?.locale
+    || (event.params?.data as any)?.locale
+    || 'en'
+
+  console.log(`📍 Page lifecycle - detected locale: ${locale}`)
+  return locale
+}
+
 export default {
   async afterCreate(event: Event) {
     const { result } = event
-    if (result && result.publishedAt) {
-      const locale = result.locale || 'en'
-      // Fetch full page with components populated
-      const fullPage = await fetchFullPage(result.documentId, locale)
-      if (fullPage) {
-        const filepath = await writeMDXFile(fullPage)
-        await gitCommitAndPush(filepath, `page: add "${result.title}" (${locale})`)
-      }
+    if (!result) return
+
+    const eventLocale = getLocaleFromEvent(event)
+
+    // Only export published pages
+    if (!result.publishedAt) {
+      console.log(`⏭️  Skipping unpublished page create: ${result.slug}`)
+      return
     }
+
+    // Fetch full page to get confirmed locale and components
+    const fullPage = await fetchFullPage(result.documentId, eventLocale)
+    if (!fullPage) {
+      console.log(`⚠️  Could not fetch page for create`)
+      return
+    }
+
+    // Use locale from fetched page (most reliable)
+    const confirmedLocale = fullPage.locale || eventLocale
+    console.log(`📝 Creating page MDX: ${result.slug} (confirmed: ${confirmedLocale})`)
+
+    const filepath = await writeMDXFile(fullPage)
+    await gitCommitAndPush(filepath, `page: add "${result.title}" (${confirmedLocale})`)
   },
 
   async afterUpdate(event: Event) {
     const { result } = event
-    if (result) {
-      const locale = result.locale || 'en'
+    if (!result) return
 
-      if (result.publishedAt) {
-        // Fetch full page with components populated
-        const fullPage = await fetchFullPage(result.documentId, locale)
-        if (fullPage) {
-          const filepath = await writeMDXFile(fullPage)
-          await gitCommitAndPush(filepath, `page: update "${result.title}" (${locale})`)
-        }
+    const eventLocale = getLocaleFromEvent(event)
+
+    // Fetch full page to get CONFIRMED locale (most reliable source)
+    const fullPage = await fetchFullPage(result.documentId, eventLocale)
+
+    if (!fullPage) {
+      console.log(`⚠️  Could not fetch page ${result.documentId} - skipping MDX operation`)
+      // IMPORTANT: Don't delete anything if we can't confirm the locale
+      return
+    }
+
+    // Use the locale from the fetched page - this is the source of truth
+    const confirmedLocale = fullPage.locale || 'en'
+    console.log(`📝 Updating page: ${result.slug} (confirmed: ${confirmedLocale}), published: ${!!result.publishedAt}`)
+
+    if (result.publishedAt) {
+      // Export the MDX
+      const filepath = await writeMDXFile(fullPage)
+      await gitCommitAndPush(filepath, `page: update "${result.title}" (${confirmedLocale})`)
+    } else {
+      // Page is unpublished - only delete if we have confirmed locale
+      const outputDir = getOutputDir(confirmedLocale)
+      const filename = `${result.slug}.mdx`
+      const filepath = path.join(outputDir, filename)
+
+      console.log(`🔍 Checking for file to delete: ${filepath}`)
+
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+        console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
+        await gitCommitAndPush(filepath, `page: unpublish "${result.title}" (${confirmedLocale})`)
       } else {
-        const filepath = await deleteMDXFile(result)
-        if (filepath) {
-          await gitCommitAndPush(filepath, `page: unpublish "${result.title}" (${locale})`)
-        }
+        console.log(`⏭️  No MDX file exists at ${filepath} - nothing to delete`)
       }
     }
   },
 
   async afterDelete(event: Event) {
     const { result } = event
-    if (result) {
-      const filepath = await deleteMDXFile(result)
-      const locale = result.locale || 'en'
-      if (filepath) {
-        await gitCommitAndPush(filepath, `page: delete "${result.title}" (${locale})`)
-      }
+    if (!result) return
+
+    // For delete, we can't fetch the page anymore
+    // Only proceed if we have a locale from the event
+    const eventLocale = getLocaleFromEvent(event)
+
+    // SAFETY: If locale defaulted to 'en' but we're not sure, log a warning
+    if (eventLocale === 'en' && !event.result?.locale && !event.params?.locale) {
+      console.log(`⚠️  Delete: locale uncertain, defaulting to 'en' for ${result.slug}`)
+    }
+
+    console.log(`🗑️  Deleting page: ${result.slug} (${eventLocale})`)
+
+    const outputDir = getOutputDir(eventLocale)
+    const filename = `${result.slug}.mdx`
+    const filepath = path.join(outputDir, filename)
+
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath)
+      console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
+      await gitCommitAndPush(filepath, `page: delete "${result.title}" (${eventLocale})`)
     }
   }
 }

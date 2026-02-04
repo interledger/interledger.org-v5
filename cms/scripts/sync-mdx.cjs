@@ -46,8 +46,16 @@ const CONTENT_TYPES = {
     dir: path.join(projectRoot, 'src/content/events'),
     apiId: 'news-events',
     pattern: /^(.+)\.mdx$/
+  },
+  pages: {
+    dir: path.join(projectRoot, 'src/content/pages'),
+    apiId: 'pages',
+    pattern: /^(.+)\.mdx$/
   }
 };
+
+// Fields that should be parsed as numbers
+const NUMERIC_FIELDS = ['order'];
 
 // Parse MDX frontmatter
 function parseMDX(filepath) {
@@ -68,8 +76,11 @@ function parseMDX(filepath) {
       // Remove quotes
       value = value.replace(/^["']|["']$/g, '');
 
-      // Parse numbers
-      if (/^\d+$/.test(value)) value = parseInt(value);
+      // Only parse as number for specific fields (order, etc.)
+      // Keep everything else as string to avoid issues with values like "2026"
+      if (NUMERIC_FIELDS.includes(key) && /^\d+$/.test(value)) {
+        value = parseInt(value);
+      }
 
       frontmatter[key] = value;
     }
@@ -400,6 +411,19 @@ async function syncContentType(contentType) {
           content: markdownToHTML(englishMdx.content),
           publishedAt: new Date().toISOString()
         };
+      } else if (contentType === 'pages') {
+        englishData = {
+          title: englishMdx.frontmatter.title,
+          slug: englishMdx.slug,
+          publishedAt: new Date().toISOString()
+        };
+        // Add hero component if present in frontmatter
+        if (englishMdx.frontmatter.heroTitle || englishMdx.frontmatter.heroDescription) {
+          englishData.hero = {
+            title: englishMdx.frontmatter.heroTitle || englishMdx.frontmatter.title,
+            description: englishMdx.frontmatter.heroDescription || ''
+          };
+        }
       }
 
       // Create or update English post
@@ -530,6 +554,19 @@ async function syncContentType(contentType) {
                 content: markdownToHTML(localeMdx.content),
                 publishedAt: new Date().toISOString()
               };
+            } else if (contentType === 'pages') {
+              localeData = {
+                title: localeMdx.frontmatter.title,
+                slug: localeMdx.slug,
+                publishedAt: new Date().toISOString()
+              };
+              // Add hero component if present in frontmatter
+              if (localeMdx.frontmatter.heroTitle || localeMdx.frontmatter.heroDescription) {
+                localeData.hero = {
+                  title: localeMdx.frontmatter.heroTitle || localeMdx.frontmatter.title,
+                  description: localeMdx.frontmatter.heroDescription || ''
+                };
+              }
             }
 
             // Check if localization already exists (try both normalized and full locale)
@@ -627,6 +664,19 @@ async function syncContentType(contentType) {
               content: markdownToHTML(localeMdx.content),
               publishedAt: new Date().toISOString()
             };
+          } else if (contentType === 'pages') {
+            localeData = {
+              title: localeMdx.frontmatter.title,
+              slug: localeMdx.slug,
+              publishedAt: new Date().toISOString()
+            };
+            // Add hero component if present in frontmatter
+            if (localeMdx.frontmatter.heroTitle || localeMdx.frontmatter.heroDescription) {
+              localeData.hero = {
+                title: localeMdx.frontmatter.heroTitle || localeMdx.frontmatter.title,
+                description: localeMdx.frontmatter.heroDescription || ''
+              };
+            }
           }
 
           // Check if localization already exists (try both normalized and full locale)
