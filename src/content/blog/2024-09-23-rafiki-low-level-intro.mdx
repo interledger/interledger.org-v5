@@ -1,6 +1,6 @@
 ---
-title: 'Breaking Down Rafiki: What Makes Our Friend Tick'
-description: 'A low-level introduction to the software packages that comprise Rafiki.'
+title: "Breaking Down Rafiki: What Makes Our Friend Tick"
+description: "A low-level introduction to the software packages that comprise Rafiki."
 date: 2024-09-23
 slug: rafiki-low-level-intro
 ---
@@ -9,6 +9,8 @@ import LargeImg from '/src/components/blog/LargeImg.astro'
 
 ## Introduction
 
+
+
 It has been said that the Interledger Foundation upholds open technology as one of its core values. It has also been said that [Rafiki](https://github.com/interledger/rafiki), a white-label application that enables Interledger usage, upholds this value by being open-source and allowing anyone to contribute.
 
 It has _not_ been said, however, how one comes to intimately understand Rafiki. It's not impossible, to be sure, but the Interledger endeavor has been around for long enough that a write-up at a lower level is warranted.
@@ -16,6 +18,8 @@ It has _not_ been said, however, how one comes to intimately understand Rafiki. 
 So, what makes Rafiki tick? What do we see when we venture beyond _what_ Rafiki does and into _how_ it does those things?
 
 ### Disclaimer
+
+
 
 This article assumes the reader has high-level knowledge of the following concepts:
 
@@ -26,6 +30,8 @@ This article assumes the reader has high-level knowledge of the following concep
 This article also assumes that its readers already have high-level knowledge of [Rafiki](https://rafiki.dev/overview/overview/) itself, and that they understand on that level how it accomplishes being an Interledger node and an Open Payments server.
 
 ## Components
+
+
 
 Rafiki is comprised primarily of three packages:
 
@@ -46,6 +52,8 @@ Rafiki also maintains a few other utility packages:
 All of these packages are managed together as a monorepo using [pnpm](https://pnpm.io/motivation).
 
 ### The `backend` and `auth` stacks
+
+
 
 Both the `backend` and `auth` packages are largely built in the same way. They both leverage the same three Node.js frameworks:
 
@@ -68,6 +76,8 @@ Finally, [ObjectionJS](https://vincit.github.io/objection.js/) is used as an ORM
 Familiarity with these frameworks will be valuable in understanding how Rafiki works, and with understanding the rest of this post.
 
 ### The Rafiki Backend
+
+
 
 As mentioned before, the Rafiki `backend` manages Open Payments resources. These resources are managed by services attached to an inversion-of-control (IoC) container via dependency injection with AdonisJS, as also mentioned previously. To see this in action, the [`/src/index.ts`](https://github.com/interledger/rafiki/blob/main/packages/backend/src/index.ts) is the best place to look. Take this example of how the service for handling incoming payment routes gets injected into the IoC container:
 
@@ -204,6 +214,8 @@ In order fulfill the payments described in Open Payments resources and maintain 
 
 ### The Rafiki Authorization Server
 
+
+
 The Authorization Server on Rafiki is structured similarly to the backend, in that it injects services into an IoC container which are retrieved by routes on Koa server to perform the business logic.
 
 [index.ts](https://github.com/interledger/rafiki/blob/main/packages/auth/src/index.ts)
@@ -307,6 +319,8 @@ Like the `backend`, the `auth` server also extends a GraphQL API to perform admi
 
 ### The Rafiki Admin Frontend
 
+
+
 The Rafiki Admin `frontend` has a React-based (specifically [Remix](https://remix.run/docs/en/main)) frontend with server-side rendering that consumes the GraphQL API extended by the `backend` server.
 
 In general, the [name of a file](https://github.com/interledger/rafiki/tree/main/packages/frontend/app/routes) dictates how the app constructs its routes. For example, the file [assets.create.tsx](https://github.com/interledger/rafiki/blob/main/packages/frontend/app/routes/assets.create.tsx) is expressed as `/assets/create` in the frontend app. Path parameters are denoted by a `$` sign, so the file [assets.$assetId.tsx](https://github.com/interledger/rafiki/blob/main/packages/frontend/app/routes/assets.%24assetId.tsx) might be expressed as `/assets/1234-1234-12345678`, where the `$assetId` portion of the file name stands in for an identifier in the final route.
@@ -316,6 +330,8 @@ In general, the [name of a file](https://github.com/interledger/rafiki/tree/main
 Pages on the frontend acquire data to populate the view and send data in requests using [_loaders_](https://remix.run/docs/en/main/route/loader) and [_actions_](https://remix.run/docs/en/main/route/action). The [page for an invidivdual asset](https://github.com/interledger/rafiki/blob/main/packages/frontend/app/routes/assets.%24assetId.tsx) is an example of a file containing this `loader` and `action` pattern.
 
 ## Seeing Rafiki In Action
+
+
 
 If Docker is installed, the whole environment can be started locally with a single command:
 
@@ -338,6 +354,8 @@ These Mock ASEs have [pages that display information for individual accounts](ht
 The flow for creating an outgoing payment can also be demoed with a combination of Bruno API calls and the Mock ASE consent screen.
 
 ## Conclusion
+
+
 
 With any luck, this article should bridge the gap between loftier concepts like Open Payments and the code that implements it. The files showcased in this article generally serve as good starting points for figuring out how the rest of a given package works, and the patterns that are used throughout them.
 

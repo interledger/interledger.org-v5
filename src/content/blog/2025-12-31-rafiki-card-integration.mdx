@@ -1,6 +1,6 @@
 ---
-title: 'From Tap to Packet: Exploring Card Payments on Interledger'
-description: 'A Journey from POS Onboarding to Transaction Processing.'
+title: "From Tap to Packet: Exploring Card Payments on Interledger"
+description: "A Journey from POS Onboarding to Transaction Processing."
 date: 2025-12-31
 slug: rafiki-card-integration
 ---
@@ -12,6 +12,8 @@ Card payments are the backbone of global commerce-trusted, regulated, and deeply
 [Rafiki](https://rafiki.dev/) is an open-source platform that enables Account Servicing Entities (ASEs) like banks and digital wallet providers to integrate [Interledger Protocol](/developers/get-started) (ILP) functionality into their systems.
 
 ## Table of Contents
+
+
 
 1. [Card Payments Using Rafiki and ILP](#card-payments-using-rafiki-and-ilp)
 
@@ -33,6 +35,8 @@ Card payments are the backbone of global commerce-trusted, regulated, and deeply
 
 ## Card Payments Using Rafiki and ILP
 
+
+
 At a high level, an ILP card transaction involves:
 
 1. Card (ICC) - EMV-compliant card with an [Open Payments](https://openpayments.dev/) enabled wallet address
@@ -47,6 +51,8 @@ At a high level, an ILP card transaction involves:
 
 ## Exploring a Path from EMV Cards to Interledger
 
+
+
 Card payments are everywhere. They are trusted, heavily regulated, and backed by decades of operational experience. At the same time, they are often locked into closed networks and bespoke integrations.
 
 What we have been exploring is a simple question:
@@ -56,6 +62,8 @@ _What if card payments could naturally flow into Interledger without breaking EM
 This post is a walkthrough of that exploration - not a final specification, but a journey through the design decisions, trade-offs, and the emerging shape of an ILP-enabled card flow built around Rafiki, existing EMV kernels, and a small set of new supporting services.
 
 ## Starting Point: Should you build a Kernel?
+
+
 
 In the world of card payments, a **kernel** is the core software component within a POS terminal that manages the complex interaction between the payment card (the chip) and the terminal. It handles the EMV protocol logic, data-exchange, and cryptographic processing required to authorize a transaction.
 
@@ -121,11 +129,15 @@ That framing shaped everything that followed.
 
 ## 'Hello World' for POS (Point of Sale): How Does a POS device become "Known"?
 
+
+
 Before a POS can send payments into Interledger, it needs an identity. Not only a "vague" merchant identity, but a cryptographically verifiable device identity.
 
 This led us to the first building block: POS onboarding.
 
 ### POS Onboarding as a Trust Ceremony
+
+
 
 Rather than treating onboarding as a provisioning script, we started thinking of it as a ceremony:
 
@@ -164,6 +176,8 @@ The rough onboarding flow regarding keys looks like this:
 This turned out to be a crucial foundation, not just for transactions, but for everything else.
 
 ### Then Reality Kicks In: Keys Don't Live Forever
+
+
 
 Once we started thinking seriously about certification (for example, MPOC), a practical requirement surfaced very quickly: _Encryption keys must be rotated regularly (at least monthly)!_ This is where things get interesting.
 
@@ -233,6 +247,8 @@ At this point, the architecture started to feel "right".
 
 ## Cards Enter the Picture
 
+
+
 With POS EMV kernel, onboarding and key rotation in place, cards themselves become almost... boring. And that is a good thing!
 
 Card personalization follows standard EMV practice:
@@ -254,6 +270,8 @@ From an ILP perspective, the card is simply:
 No special casing. No new assumptions.
 
 ## The Transaction Moment
+
+
 
 When a card is presented, everything up to this point has been preparation.
 
@@ -290,6 +308,8 @@ All sensitive operations happen:
 NB: Nothing ILP-specific leaks into this phase, by design.
 
 ### Crossing the Boundary: From EMV to ILP
+
+
 
 Once the kernel has done its job, the POS shifts context. Now it is no longer "doing EMV", it is requesting a payment.
 
@@ -339,6 +359,8 @@ All the complexity stays on the backend, where it belongs.
 
 ### What We Learned Along the Way
 
+
+
 A few themes kept repeating during this exploration:
 
 - Do not fight EMV, work with it
@@ -353,6 +375,8 @@ A few themes kept repeating during this exploration:
 
 ## Conclusion, Where This Leaves Us
 
+
+
 What is emerging is not a replacement for card payments, but an extension of them.
 
 - Cards remain cards.
@@ -365,11 +389,15 @@ Interledger simply becomes the connective tissue that lets value move beyond tra
 
 ## What is next for ILF and Cards?
 
+
+
 - Further development of the Card applet for `C2` kernel support
 
 - Further development of the Rafiki APIs to support the new POS/Card services
 
 - New Merchant-API service to support ASEs with regards to:
+
+
   - Merchant onboarding
 
   - Terminal configuration and onboarding
@@ -380,6 +408,8 @@ Interledger simply becomes the connective tissue that lets value move beyond tra
 
 ## References
 
+
+
 - _ADPU:_ https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit
 
 - _EMV C2 Specification:_ https://www.emvco.com/specifications/?search_bar_keywords=c-2
@@ -389,6 +419,8 @@ Interledger simply becomes the connective tissue that lets value move beyond tra
 - _EMV C8 Specification:_ https://www.emvco.com/specifications/?search_bar_keywords=c-8
 
 ## Glossary of Terms
+
+
 
 | Term | Description |
 

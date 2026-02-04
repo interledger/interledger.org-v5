@@ -21,7 +21,11 @@ The remaining six vulnerabilities were addressed as follows:
 
 ## Admin APIs
 
+
+
 ### HMAC signing
+
+
 
 While the assessment mentioned adding a security mechanism to our GraphQL Admin APIs in both the backend and auth packages as part of the report, this was a known priority even before the audit.
 
@@ -29,9 +33,13 @@ Although these APIs should not be exposed to the wider internet in a Rafiki depl
 
 ### Disabling GraphQL Introspection Query
 
+
+
 The assessment outlined a few recommendations against common GraphQL attacks, one of which was the disabling of the introspection query in production. Introspection can provide access into the whole structure of a GraphQL schema (types, queries, mutations, deprecated fields) which is useful during development, but can provide a lot of knowledge to bad actors looking to exploit the API. Based on the recommendation, we turned off introspection in production.
 
 ### Preventing Denial of Service GraphQL Attacks
+
+
 
 Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circular relationships between the models. As a result, bad actors can create requests containing circular queries, causing nested fields to be resolved recursively:
 
@@ -148,13 +156,19 @@ We ended up [using](https://github.com/interledger/rafiki/pull/2537) a library c
 
 ## Rafiki Admin UI (frontend package)
 
+
+
 As part of the Rafiki software stack, we also publish a frontend package. This is a Remix application that enables managing a Rafiki instance using a web-interface. There are few common vulnerabilities that are common across web applications. One of them is clickjacking: a bad actor embeds a legitimate site in an iframe, and then uses several techniques to trick users into entering information meant for the original site in order to gather (or "highjack") clicks and keystrokes ultimately performing unintended actions on behalf of the user, such as submitting forms, making transactions, or altering account settings. In order to prevent this, the testers recommended adding an `X-Frame-Options` header in the responses from the web application. In the `X-Frame-Options` header, we now return the value of `SAMEORIGIN`, which allows framing only by pages with the same domain as in the response itself, preventing bad actors from framing the Rafiki Admin UI on malicious sites.
 
 ## Library vulnerabilities
 
+
+
 Given we use a lot of different published libraries in Rafiki, we are vulnerable to security exploits found in them, and of course, their dependencies. During the assessment, the testers used the code scanning tool Snyk to find several vulnerable dependencies in the Rafiki repository. Even though we have renovate-bot to automatically open PRs to manage any outdated libraries, it wasn’t directly incorporated into our continuous integration (CI) pipeline. After the assessment, we added a few code scanners into our CI workflow: Trivy and Grype. Both of these tools have large databases of known exploits for libraries (similar to Snyk), and with each commit into a PR, Trivy and Gripe scan the build (and potentially, the to-be-published Docker image) for high-risk vulnerabilities and indicates it in the PR. This allows us to be more proactive in fixing these issues, instead of relying on less regular merges of dependency updates with renovate-bot.
 
 ## ILP & STREAM
+
+
 
 Rafiki runs an ILP connector (using [STREAM](https://interledger.org/developers/rfcs/stream-protocol/) as the transport protocol) as part of its software. This is how two peered Rafiki instances interact and make payments between one another.
 

@@ -2,73 +2,33 @@
 const currentYear = new Date().getFullYear()
 ---
 
-<footer>
-  <ul>
+<footer class="text-center py-space-2xs px-space-xs text-step--1 bg-black/15 flex flex-col gap-4 justify-center items-center xs:flex-row xs:justify-between">
+  <ul class="list-none flex gap-6 justify-center p-0 mt-space-2xs xs:mt-0">
     <li>
-      <a href="https://interledger.social/@Interledger"
-        ><img src="/img/lander/icon-fediverse.svg" alt="Mastadon" /></a
-      >
+      <a href="https://interledger.social/@Interledger">
+        <img src="/img/lander/icon-fediverse.svg" alt="Mastadon" class="w-6 h-6" />
+      </a>
     </li>
     <li>
-      <a href="https://twitter.com/interledger"
-        ><img src="/img/lander/icon-twitter.svg" alt="Twitter" /></a
-      >
+      <a href="https://twitter.com/interledger">
+        <img src="/img/lander/icon-twitter.svg" alt="Twitter" class="w-6 h-6" />
+      </a>
     </li>
     <li>
-      <a
-        href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-        ><img src="/img/lander/icon-slack.svg" alt="Slack" /></a
-      >
+      <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack">
+        <img src="/img/lander/icon-slack.svg" alt="Slack" class="w-6 h-6" />
+      </a>
     </li>
     <li>
-      <a href="https://github.com/interledger"
-        ><img src="/img/lander/icon-github.svg" alt="Github" /></a
-      >
+      <a href="https://github.com/interledger">
+        <img src="/img/lander/icon-github.svg" alt="Github" class="w-6 h-6" />
+      </a>
     </li>
     <li>
-      <a href="https://www.linkedin.com/company/interledger-foundation/"
-        ><img src="/img/lander/icon-linkedin.svg" alt="Linkedin" /></a
-      >
+      <a href="https://www.linkedin.com/company/interledger-foundation/">
+        <img src="/img/lander/icon-linkedin.svg" alt="Linkedin" class="w-6 h-6" />
+      </a>
     </li>
   </ul>
   <p>&copy; 2020–{currentYear}, Interledger Foundation</p>
 </footer>
-
-<style>
-  footer {
-    text-align: center;
-    padding: var(--space-2xs) var(--space-xs);
-    font-size: var(--step--1);
-    background-color: hsla(0, 0%, 0%, 15%);
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    justify-content: center;
-    align-items: center;
-  }
-
-  ul {
-    list-style: none;
-    display: flex;
-    gap: 1.5em;
-    justify-content: center;
-    padding: 0;
-    margin-block-start: var(--space-2xs);
-  }
-
-  @media screen and (min-width: 480px) {
-    footer {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-
-    ul {
-      margin-block-start: 0;
-    }
-  }
-
-  img {
-    width: 1.5em;
-    height: 1.5em;
-  }
-</style>

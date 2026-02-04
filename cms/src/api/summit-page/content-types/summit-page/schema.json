@@ -1,0 +1,59 @@
+{
+  "kind": "collectionType",
+  "collectionName": "summit_pages",
+  "info": {
+    "singularName": "summit-page",
+    "pluralName": "summit-pages",
+    "displayName": "Summit Page",
+    "description": "Summit pages with dark theme and dynamic content blocks"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "gradient": {
+      "type": "string",
+      "default": "option1"
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero"
+    },
+    "content": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.paragraph",
+        "blocks.cards-grid",
+        "blocks.card-links-grid",
+        "blocks.carousel",
+        "blocks.cta-banner",
+        "blocks.image-row"
+      ]
+    }
+  }
+}

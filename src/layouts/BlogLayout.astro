@@ -18,14 +18,14 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     ? new URL(frontmatter.ogImageUrl, Astro.site).href
     : new URL('/img/blog/og-image.png', Astro.site).href}
 >
-  <main>
+  <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article
       itemscope
       itemtype="http://schema.org/Article"
-      class="content-wrapper"
+      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s [&_ol]:mb-space-s [&_ul]:mb-space-s [&_figure]:mb-space-s [&_hr]:mb-space-s [&_h2]:mb-space-xs [&_h3]:mb-space-xs [&_h4]:mb-space-xs [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto"
     >
       <ol
-        class="breadcrumbs"
+        class="flex list-none ps-0 text-step--1 font-bold pt-space-l"
         itemscope
         itemtype="https://schema.org/BreadcrumbList"
       >
@@ -43,6 +43,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           itemprop="itemListElement"
           itemscope
           itemtype="https://schema.org/ListItem"
+          class="before:content-['>'] before:inline-flex before:ms-space-3xs"
         >
           <a
             itemprop="item"
@@ -68,11 +69,18 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           }
         </li>
       </ol>
-      <h1>{frontmatter.title}</h1>
-      <time datetime={isoDate} itemprop="datePublished">{longDate}</time>
+      <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
+        {frontmatter.title}
+      </h1>
+      <time datetime={isoDate} itemprop="datePublished" class="block mb-space-3xs text-step--1">
+        {longDate}
+      </time>
       {
         frontmatter.external_url ? (
-          <div class="note" set:html={rawHTMLString} />
+          <div
+            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
+            set:html={rawHTMLString}
+          />
         ) : (
           ''
         )
@@ -81,172 +89,3 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     </article>
   </main>
 </BaseLayout>
-
-<style>
-  main {
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding-block-start: var(--space-m);
-    padding-block-end: var(--space-xl);
-  }
-
-  .breadcrumbs {
-    list-style: none;
-    display: flex;
-    padding-inline-start: 0;
-    font-size: var(--step--1);
-    font-weight: 700;
-    padding-block-start: var(--space-l);
-  }
-
-  .breadcrumbs li:not(:first-child)::before {
-    content: '>';
-    display: inline-flex;
-    margin-inline-start: var(--space-3xs);
-  }
-
-  article {
-    --max-content-width: 960px;
-    flex: 1;
-  }
-
-  time {
-    margin-bottom: var(--space-3xs);
-    display: block;
-    font-size: var(--step--1);
-  }
-
-  h1 {
-    color: var(--color-primary);
-    font-size: var(--step-4);
-    line-height: 1.2;
-    margin-block-end: var(--space-2xs);
-  }
-
-  .note {
-    padding: var(--space-xs);
-    box-shadow: var(--box-shadow);
-    font-style: italic;
-    border-radius: var(--border-radius);
-    margin-block-end: var(--space-s);
-    font-size: var(--step--1);
-    max-width: max-content;
-    position: relative;
-  }
-
-  .note::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    border-radius: var(--border-radius);
-    background-color: var(--color-primary);
-    opacity: 0.25;
-  }
-
-  article :global(p),
-  article :global(ol),
-  article :global(ul),
-  article :global(figure),
-  article :global(hr) {
-    margin-block-end: var(--space-s);
-  }
-
-  article :global(h2),
-  article :global(h3),
-  article :global(h4) {
-    margin-block-end: var(--space-xs);
-  }
-
-  article :global(a) {
-    color: var(--color-primary);
-    text-decoration: none;
-  }
-
-  article :global(a:hover) {
-    text-decoration: underline;
-  }
-
-  article :global(figcaption) {
-    font-size: var(--step--1);
-    font-style: italic;
-  }
-
-  article :global(table) {
-    display: table;
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    margin-block-end: var(--space-m);
-  }
-
-  article :global(th) {
-    text-align: left;
-  }
-
-  article :global(th, td) {
-    padding: var(--space-3xs) var(--space-2xs);
-  }
-
-  article :global(thead tr:first-of-type th:first-of-type) {
-    border-start-start-radius: var(--border-radius);
-  }
-
-  article :global(thead tr:first-of-type th:last-of-type) {
-    border-start-end-radius: var(--border-radius);
-  }
-
-  article :global(thead tr) {
-    background-color: var(--color-table-stripe);
-  }
-
-  article :global(thead + tbody tr:nth-child(2n)) {
-    background-color: var(--color-table-stripe);
-  }
-
-  article :global(tbody tr:first-of-type th:first-child),
-  article :global(tbody tr:first-of-type td:first-child) {
-    border-start-start-radius: var(--border-radius);
-  }
-
-  article :global(tbody tr:first-of-type th:last-child),
-  article :global(tbody tr:first-of-type td:last-child) {
-    border-start-end-radius: var(--border-radius);
-  }
-
-  article :global(tbody tr:last-of-type th:first-child),
-  article :global(tbody tr:last-of-type td:first-child) {
-    border-end-start-radius: var(--border-radius);
-  }
-
-  article :global(tbody tr:last-of-type th:last-child),
-  article :global(tbody tr:last-of-type td:last-child) {
-    border-end-end-radius: var(--border-radius);
-  }
-
-  article :global(.expressive-code) {
-    margin-block-end: var(--space-s);
-  }
-
-  article :global(:not(pre) > code) {
-    background-color: var(--color-bg-inline-code);
-    border-radius: var(--border-radius);
-    font-size: var(--step--1);
-    padding: 0.125rem 0.375rem;
-    overflow-wrap: anywhere;
-  }
-
-  article :global(ul li) {
-    margin-block-end: var(--space-2xs);
-  }
-
-  article :global(img) {
-    display: block;
-    margin-inline: auto;
-  }
-</style>

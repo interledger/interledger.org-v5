@@ -5,12 +5,13 @@ import LanderLayout from '../layouts/LanderLayout.astro'
 ---
 
 <LanderLayout title="Interledger Summit Hackthon 2023">
-  <main>
+  <main class="min-[850px]:grid min-[850px]:grid-cols-[max-content_1fr] min-[850px]:grid-rows-[auto_auto] min-[850px]:[grid-template-areas:'hero_hero'_'sidebar_content']">
     <button
       id="toggleNav"
-      class="toggle-nav"
+      class="fixed top-[4em] right-0 inline-block border-0 bg-black/50 px-space-2xs text-step-0 text-[var(--color-text)] cursor-pointer opacity-75 rounded-l transition-opacity duration-300 hover:opacity-100 min-[850px]:hidden"
       aria-expanded="false"
       aria-controls="mobileNav"
+      data-toc-toggle
     >
       <svg fill="none" viewBox="0 0 64 40"
         ><path
@@ -21,7 +22,13 @@ import LanderLayout from '../layouts/LanderLayout.astro'
       >
       <span>ToC</span>
     </button>
-    <aside id="mobileNav" aria-hidden="true" aria-labelledby="toggleNav">
+    <aside
+      id="mobileNav"
+      aria-hidden="true"
+      aria-labelledby="toggleNav"
+      class="h-full max-h-screen overflow-y-auto p-space-xs text-step--1 transition-transform duration-300 max-[849px]:fixed max-[849px]:top-0 max-[849px]:z-[1] max-[849px]:h-full max-[849px]:-translate-x-full max-[849px]:bg-black/75 min-[850px]:sticky min-[850px]:top-0 min-[850px]:self-start min-[850px]:bg-[hsla(162,86%,12%,1)] data-[visible=true]:max-[849px]:translate-x-0 [&_ul]:list-none [&_li]:mb-space-3xs [&_ul>li>ul]:mt-space-3xs [&_a]:no-underline [&_nav>ul]:ps-0"
+      data-visible="false"
+    >
       <nav>
         <ul>
           <li>
@@ -81,27 +88,27 @@ import LanderLayout from '../layouts/LanderLayout.astro'
       </nav>
     </aside>
 
-    <Section class="padding--large hero align--center">
+    <Section class="bg-[hsla(162,86%,12%,1)] py-space-3xl text-center min-[850px]:[grid-area:hero]">
       <header>
-        <div class="summit-logo">
-          <AnimatedSummitLogo class="summit-logo__animate" />
+        <div class="mb-space-m flex justify-center gap-4">
+          <AnimatedSummitLogo class="max-w-[5em] flex-none" />
           <img
             src="/img/lander/summit-text.svg"
             alt="Interledger Summit"
-            class="summit-logo__text"
+            class="max-w-[10em]"
           />
         </div>
-        <h1>Hackathon resources</h1>
+        <h1 class="leading-[1.1]">Hackathon resources</h1>
       </header>
     </Section>
 
-    <div class="content">
+    <div class="min-[850px]:[grid-area:content] [&_h2]:mb-space-s [&_h3]:mb-space-s [&_p]:mb-space-xs [&_ul]:mb-space-xs [&_ol]:mb-space-xs">
       <Section>
         <h2 id="open-payments">Open Payments</h2>
         <img
           src="/img/lander/logo-opp.svg"
           alt="Open Payments"
-          class="opp-logo"
+          class="max-w-[18em] mb-space-s"
         />
 
         <h3 id="opp-challenge">Challenge</h3>
@@ -183,7 +190,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
         <img
           src="/img/lander/logo-opp-snippets.svg"
           alt="Open Payments SDK Snippets"
-          class="opp-snippets"
+          class="max-w-[15em] mb-space-s"
         />
         <p>
           Our collection of VS Code snippets for the Open Payments Node SDK
@@ -200,7 +207,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
         <img
           src="/img/lander/logo-webm.svg"
           alt="Web Monetization"
-          class="webm-logo"
+          class="max-w-[16em] mb-space-s"
         />
 
         <h3 id="webm-challenge">Challenge</h3>
@@ -290,7 +297,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
         <img
           src="/img/lander/logo-interledger.svg"
           alt="Interledger testnet wallet"
-          class="interledger-logo"
+          class="max-w-[12em] mb-space-s"
         />
 
         <h3 id="ilp-challenge">Challenge</h3>
@@ -409,7 +416,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
         <img
           src="/img/lander/logo-testnet.svg"
           alt="Interledger testnet wallet"
-          class="testnet-logo"
+          class="max-w-[10em] my-space-s"
         />
         <p>
           Hackathon participants will be organized into groups and notified
@@ -493,7 +500,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
         <img
           src="/img/lander/logo-tigerbeetle.svg"
           alt="TigerBeetle"
-          class="tigerbeetle-logo"
+          class="max-w-[12em] mb-space-s"
         />
 
         <h3 id="tb-challenge">Challenge</h3>
@@ -520,185 +527,16 @@ import LanderLayout from '../layouts/LanderLayout.astro'
   </main>
 </LanderLayout>
 
-<style>
-  @media screen and (min-width: 850px) {
-    main {
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      grid-template-rows: auto auto;
-      grid-template-areas: 'hero hero' 'sidebar content';
-    }
-
-    .hero {
-      grid-area: hero;
-    }
-    .content {
-      grid-area: content;
-    }
-
-    aside {
-      grid-area: sidebar;
-      position: sticky;
-      top: 0;
-      align-self: start;
-      overflow-y: auto;
-      max-height: 100vh;
-      background-color: hsla(162, 86%, 12%, 1);
-    }
-
-    .toggle-nav {
-      display: none;
-    }
-  }
-
-  @media screen and (max-width: 849px) {
-    .toggle-nav {
-      position: fixed;
-      top: 4em;
-      right: 0;
-      display: inline-block;
-      border: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: var(--space-2xs);
-      font-size: var(--step-0);
-      color: var(--color-text);
-      cursor: pointer;
-      opacity: 0.75;
-      border-end-start-radius: var(--border-radius);
-      border-start-start-radius: var(--border-radius);
-      transition: opacity 300ms ease-in-out;
-    }
-
-    .toggle-nav:hover {
-      opacity: 1;
-    }
-
-    aside {
-      background-color: rgba(0, 0, 0, 0.75);
-      transform: translateX(-100%);
-      position: fixed;
-      top: 0;
-      height: 100%;
-      z-index: 1;
-    }
-
-    aside.visible {
-      transform: translateX(0);
-    }
-  }
-  aside {
-    padding: var(--space-xs);
-    font-size: var(--step--1);
-    overflow-y: auto;
-    max-height: 100vh;
-    transition: transform 300ms ease-in-out;
-    height: 100%;
-  }
-
-  aside ul {
-    list-style: none;
-  }
-
-  aside li {
-    margin-block-end: var(--space-3xs);
-  }
-
-  aside li ul {
-    margin-block-start: var(--space-3xs);
-  }
-
-  aside a {
-    text-decoration: none;
-  }
-
-  aside nav > ul {
-    padding-inline-start: 0;
-  }
-
-  .hero {
-    background-color: hsla(162, 86%, 12%, 1);
-  }
-
-  .summit-logo {
-    display: flex;
-    gap: 1em;
-    justify-content: center;
-    margin-block-end: var(--space-m);
-  }
-
-  .summit-logo__animate {
-    flex: none;
-    max-width: 5em;
-  }
-
-  .summit-logo__text {
-    max-width: 10em;
-  }
-
-  h1 {
-    line-height: 1.1;
-  }
-
-  .testnet-logo {
-    max-width: 10em;
-    margin-block: var(--space-s);
-  }
-
-  .opp-snippets {
-    max-width: 15em;
-    margin-block-end: var(--space-s);
-  }
-
-  .opp-logo {
-    max-width: 18em;
-    margin-block-end: var(--space-s);
-  }
-
-  .webm-logo {
-    max-width: 16em;
-    margin-block-end: var(--space-s);
-  }
-
-  .interledger-logo {
-    max-width: 12em;
-    margin-block-end: var(--space-s);
-  }
-
-  .tigerbeetle-logo {
-    max-width: 12em;
-    margin-block-end: var(--space-s);
-  }
-
-  .padding--large {
-    padding-block: var(--space-3xl);
-  }
-
-  .align--center {
-    text-align: center;
-  }
-
-  h2,
-  h3 {
-    margin-block-end: var(--space-s);
-  }
-
-  p,
-  .content ul,
-  ol {
-    margin-block-end: var(--space-xs);
-  }
-</style>
-
 <script>
   const sidebar = document.getElementById('mobileNav')
   const toggle = document.getElementById('toggleNav')
   const show = () => {
-    sidebar?.classList.toggle('visible')
+    sidebar?.setAttribute('data-visible', 'true')
     toggle?.setAttribute('aria-expanded', 'true')
     sidebar?.setAttribute('aria-hidden', 'false')
   }
   const hide = () => {
-    sidebar?.classList.remove('visible')
+    sidebar?.setAttribute('data-visible', 'false')
     toggle?.setAttribute('aria-expanded', 'false')
     sidebar?.setAttribute('aria-hidden', 'true')
   }

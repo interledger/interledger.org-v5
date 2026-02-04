@@ -1,6 +1,6 @@
 ---
-title: 'Leveling Up Rafiki Testing: Shifting from Manual to Automated'
-description: 'How we automated our manual payment flow tests.'
+title: "Leveling Up Rafiki Testing: Shifting from Manual to Automated"
+description: "How we automated our manual payment flow tests."
 date: 2024-09-06
 slug: integration-tests
 ---
@@ -15,9 +15,13 @@ One such instance of these payment flows is our ["Open Payments" example](https:
 
 ## Our Testing Philosophy
 
+
+
 At Interledger, we believe in maintaining a balanced approach to testing that upholds both thoroughness and agility. As Rafiki transitions from Alpha to Beta, our focus remains on safeguarding our core business logic while quickly adapting to changes. To this end, the new integration tests focus on high-impact scenarios and critical edge cases, while existing unit tests offer more comprehensive coverage of individual components. The integration tests will run in our continuous integration (CI) pipeline on Github, as our unit tests do now. This approach allows us to rigorously validate our system while preserving the flexibility needed for rapid development. As Rafiki continues to mature, we will iterate and refine our testing strategies.
 
 ### Testing Requirements
+
+
 
 Before diving into the implementation details, let’s outline our requirements for the new tests:
 
@@ -37,9 +41,13 @@ Before diving into the implementation details, let’s outline our requirements 
 
 ## Solution overview
 
+
+
 After evaluating several options, we decided to run our services in Docker with a [Jest](https://jestjs.io/) test runner and MASE on the host machine. [A shell script](https://github.com/interledger/rafiki/blob/main/test/integration/scripts/run-tests.sh) launches the Docker environment, runs the tests, then spins down the environment.
 
 ### Alternatives Considered
+
+
 
 Before arriving at this solution we considered a few variations:
 
@@ -51,6 +59,8 @@ Before arriving at this solution we considered a few variations:
 
 ### Key Benefits
 
+
+
 - **Efficiency**: We spin up containers once and run all tests. Starting and stopping the Docker environment consumes a significant amount of time compared to the actual test execution, so avoiding unnecessary restarts keeps the tests fast.
 
 - **Ease of Configuration**: Keeping the test and local development environments separate makes them independently configurable.
@@ -60,6 +70,8 @@ Before arriving at this solution we considered a few variations:
 - **Comprehensive Testing Capabilities**: A full Jest test suite with an independent test environment and MASEs ensures complete access to all necessary components for making detailed assertions and manipulating flows.
 
 ### Implementation Details
+
+
 
 Let's take a closer look at the structure of our test code and the key components involved.
 
@@ -86,6 +98,8 @@ The environment and tests are launched from a shell script that does the followi
 Using Jest as our testing framework, we structured our test code around a few key components:
 
 1. **Mock Account Servicing Entity (MASE)**
+
+
    - **Integration Server**: Includes all endpoints needed for integrating Account Servicing Entities with Rafiki. This includes the [rates endpoint](https://rafiki.dev/integration/requirements/exchange-rates) for supplying currency exchange rates and an endpoint for handling Rafiki’s [webhook events](https://rafiki.dev/integration/requirements/webhook-events/) throughout the payment lifecycle, such as depositing liquidity on `outgoing_payment.created`.
 
    - **Open Payments Client**: Communicates with our Open Payments API to perform the payment flows. This API is a reference implementation of the [Open Payments standard](https://rafiki.dev/overview/concepts/open-payments) that enables third parties to directly access users’ accounts.
@@ -130,9 +144,13 @@ This sequence diagram illustrates how a request from the host machine resolves u
 
 ## Conclusion
 
+
+
 Manually validating payment flows with series of Bruno requests against our local environment was tedious and error-prone, leading to less thorough testing and a slow developer experience. By automating these tests and integrating them into our CI pipeline, we have significantly sped up our development workflow and ensured the integrity of our payment flows across all code changes.
 
 ### Further Development Ideas
+
+
 
 Testing is an evolving process with constant opportunities for improvement. Further areas of enhancement could include:
 

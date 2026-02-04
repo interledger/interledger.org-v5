@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content'
+import SummitLayout from '../../layouts/SummitLayout.astro'
+
+export const prerender = false
+const slug = Astro.originPathname.replace(/^\/summit\/|\/$/g, '')
+
+const pages = await getCollection('summit-pages')
+const mdxPage = pages.find((page) => page.data.slug === slug)
+let MdxContent: typeof import('astro').AstroComponentFactory | null = null
+let mdxData: (typeof mdxPage)['data'] | null = null
+
+if (mdxPage) {
+  const { Content } = await render(mdxPage)
+  MdxContent = Content
+  mdxData = mdxPage.data
+}
+
+const pageTitle = slug
+  .split(/[-/]/)
+  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ')
+
+const title = mdxData?.title || pageTitle
+const description = mdxData?.description || null
+const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
+const mdxHeroDescription = mdxData?.heroDescription || ''
+const gradient = mdxData?.gradient || 'option1'
+
+const isNotFound = !MdxContent
+if (isNotFound) Astro.response.status = 404
+---
+
+<SummitLayout title={title} description={description} gradient={gradient}>
+  <main class="pb-space-l">
+    {isNotFound ? (
+      <section class="min-h-[50vh] flex items-center justify-center text-center">
+        <div class="mx-auto w-full max-w-wide px-space-m">
+          <h1 class="text-2xl font-semibold mb-space-s text-white">404</h1>
+          <p class="mb-space-m text-white/80">
+            The page you requested could not be found.
+          </p>
+          <a href="/" class="text-white underline hover:no-underline">
+            ← Back to home
+          </a>
+        </div>
+      </section>
+    ) : (
+      <>
+        {mdxHeroTitle && (
+          <section class="min-h-[40vh] py-space-xl flex items-center text-white">
+            <div class="mx-auto w-full max-w-wide px-space-m">
+              <div class="max-w-narrow">
+                <h1 class="max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+                  {mdxHeroTitle}
+                </h1>
+                {mdxHeroDescription && (
+                  <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                    {mdxHeroDescription}
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+            <div class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:underline [&_a:hover]:no-underline">
+              <MdxContent />
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+  </main>
+</SummitLayout>
