@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content'
 import type { GetStaticPaths, Page } from 'astro'
-import Pagination from '../../components/blog/Pagination.astro'
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import { createExcerpt } from '../../utils/create-excerpt'
+import Pagination from '../../../components/blog/Pagination.astro'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { createExcerpt } from '../../../utils/create-excerpt'
 
 type Props = {
   page: Page
@@ -12,7 +12,7 @@ type Props = {
 export const prerender = true
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const blogEntries = (await getCollection('foundation-blog')).sort(
+  const blogEntries = (await getCollection('engineering-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
   )
   return paginate(blogEntries, { pageSize: 10 })
