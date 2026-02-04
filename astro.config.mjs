@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 const isDev = process.env.ASTRO_MODE === 'dev' || process.env.NODE_ENV === 'development'
 
 // https://astro.build/config
+// TODO: temporary fix for local env to run
 export default defineConfig(async () => {
   const adapter = isDev ? undefined : (await import('@astrojs/netlify')).default
 
