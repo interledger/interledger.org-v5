@@ -11,11 +11,7 @@
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
     "export:nav": "npx tsx scripts/export-navigation.ts",
     "export:summit-nav": "npx tsx scripts/export-summit-navigation.ts",
-    "export:pages": "npx tsx scripts/export-pages.ts",
-    "export:all": "npm run export:nav && npm run export:summit-nav && npm run export:pages",
-    "import:nav": "npx tsx scripts/import-navigation.ts --all",
-    "import:pages": "npx tsx scripts/import-pages.ts",
-    "import:all": "npm run import:nav -- --all && npm run import:pages"
+    "import:nav": "npx tsx scripts/import-navigation.ts --all"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
