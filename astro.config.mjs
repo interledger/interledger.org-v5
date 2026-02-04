@@ -1,11 +1,13 @@
 import { defineConfig } from 'astro/config'
-import netlify from '@astrojs/netlify'
+// TODO uncomment Netlify
+// import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
+  // TODO Translation work goes here
   // i18n: {
   //   locales: ['es', 'en'],
   //   defaultLocale: 'en',
@@ -21,7 +23,7 @@ export default defineConfig({
   prerender: {
     default: true
   },
-  adapter: netlify(),
+  // adapter: netlify(),
   integrations: [
     mdx()
   ],
