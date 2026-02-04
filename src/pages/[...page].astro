@@ -5,7 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 export const prerender = false
 const slug = Astro.originPathname.replace(/^\/|\/$/g, '')
 
-const pages = await getCollection('pages')
+const pages = await getCollection('foundation-pages')
 const mdxPage = pages.find((page) => page.data.slug === slug)
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null
