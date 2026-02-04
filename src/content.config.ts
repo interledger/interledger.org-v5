@@ -3,6 +3,28 @@ import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 
+const CTA = z.object({
+  label: z.string(),
+  href: z.string()
+})
+
+const Section = z.object({
+  title: z.string(),
+  content: z.string(),
+  ctas: z.array(CTA).optional()
+})
+
+const pageSchema = z.object({
+    title: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    sections: z.array(Section).optional(),
+    gradient: z.string().optional()
+  })
+
 const engBlogCollection = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/developers/blog' }),
   schema: z.object({
@@ -59,58 +81,12 @@ const grantPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: './src/content/grants'
   }),
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          ctas: z
-            .array(
-              z.object({
-                label: z.string(),
-                href: z.string()
-              })
-            )
-            .optional()
-        })
-      )
-      .optional()
-  })
+  schema: pageSchema
 })
 
 const foundationPagesCollection = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/foundation-pages' }),
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          ctas: z
-            .array(
-              z.object({
-                label: z.string(),
-                href: z.string()
-              })
-            )
-            .optional()
-        })
-      )
-      .optional()
-  })
+  schema: pageSchema
 })
 
 const summitPagesCollection = defineCollection({
@@ -118,31 +94,7 @@ const summitPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: './src/content/summit'
   }),
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    gradient: z.string().optional(),
-    sections: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          ctas: z
-            .array(
-              z.object({
-                label: z.string(),
-                href: z.string()
-              })
-            )
-            .optional()
-        })
-      )
-      .optional()
-  })
+  schema: pageSchema
 })
 
 const hackathonPagesCollection = defineCollection({
@@ -150,63 +102,15 @@ const hackathonPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: './src/content/summit/hackathon'
   }),
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    gradient: z.string().optional(),
-    sections: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          ctas: z
-            .array(
-              z.object({
-                label: z.string(),
-                href: z.string()
-              })
-            )
-            .optional()
-        })
-      )
-      .optional()
-  })
+  schema: pageSchema
 })
 
 const hackathonResourcePagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/summit/hackathon'
+    base: './src/content/summit/hackathon/resources'
   }),
-  schema: z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    gradient: z.string().optional(),
-    sections: z
-      .array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          ctas: z
-            .array(
-              z.object({
-                label: z.string(),
-                href: z.string()
-              })
-            )
-            .optional()
-        })
-      )
-      .optional()
-  })
+  schema: pageSchema
 })
 
 export const collections = {
