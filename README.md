@@ -106,8 +106,8 @@ flowchart
 
 ```bash
 cd cms
-npm install
-npm run develop
+bun install
+bun run develop
 ```
 
 Admin panel: <http://localhost:1337/admin>
