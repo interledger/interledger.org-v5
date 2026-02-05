@@ -22,7 +22,7 @@ export default [
       origin: [
         'http://localhost:1103',
         'http://127.0.0.1:1103',
-        // 'https://deploy-preview-175--developers-preview.netlify.app'
+        'https://deploy-preview-175--developers-preview.netlify.app'
       ]
     }
   },

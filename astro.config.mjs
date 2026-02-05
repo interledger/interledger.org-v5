@@ -2,8 +2,7 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightFullViewMode from 'starlight-fullview-mode'
-// TODO uncomment Netlify
-// import netlify from '@astrojs/netlify'
+import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -26,7 +25,7 @@ export default defineConfig({
   prerender: {
     default: true
   },
-  // adapter: netlify(),
+  adapter: netlify(),
   integrations: [
     starlight({
       title: 'Interledger',
