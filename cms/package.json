@@ -10,6 +10,8 @@
     "strapi": "strapi",
     "sync:mdx": "bun scripts/sync-mdx.cjs",
     "sync:mdx:dry-run": "bun scripts/sync-mdx.cjs --dry-run",
+    "sync:navigation": "bun scripts/sync-navigation.cjs",
+    "sync:navigation:dry-run": "bun scripts/sync-navigation.cjs --dry-run",
     "test:scripts": "bun test"
   },
   "strapi": {
