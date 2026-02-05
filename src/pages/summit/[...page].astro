@@ -2,8 +2,21 @@
 import { getCollection, render } from 'astro:content'
 import SummitLayout from '../../layouts/SummitLayout.astro'
 
-export const prerender = false
-const slug = Astro.originPathname.replace(/^\/summit\/|\/$/g, '')
+export const prerender = true
+
+export async function getStaticPaths() {
+  const pages = await getCollection('summit-pages')
+  return pages.map((page) => ({
+    params: {
+      page: page.data.slug
+    }
+  }))
+}
+
+const slugParam = Astro.params.page
+const slug = Array.isArray(slugParam)
+  ? slugParam.join('/')
+  : slugParam ?? ''
 
 const pages = await getCollection('summit-pages')
 const mdxPage = pages.find((page) => page.data.slug === slug)
