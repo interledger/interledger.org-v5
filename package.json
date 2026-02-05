@@ -7,6 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "check": "astro check",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}'",
     "lint": "eslint --max-warnings=9999 ."
@@ -35,12 +38,14 @@
     "@eslint/js": "^9.39.1",
     "@typescript-eslint/parser": "^8.48.0",
     "astro-eslint-parser": "^1.2.2",
+    "@playwright/test": "^1.55.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.5.0",
     "globals": "^16.5.0",
     "prettier": "3.6.2",
     "prettier-plugin-astro": "0.14.1",
+    "vitest": "^2.1.9",
     "typescript-eslint": "^8.48.0"
   }
 }
