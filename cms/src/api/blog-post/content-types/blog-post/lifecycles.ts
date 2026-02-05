@@ -6,7 +6,13 @@
 import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
-import { type MediaFile, escapeQuotes, getImageUrl, htmlToMarkdown } from '../../../../utils/mdx'
+import {
+  type MediaFile,
+  escapeQuotes,
+  getImageUrl,
+  htmlToMarkdown,
+  LOCALES
+} from '../../../../utils/mdx'
 
 interface BlogPost {
   id: number
@@ -20,6 +26,7 @@ interface BlogPost {
   lang?: string
   ogImageUrl?: string
   publishedAt?: string
+  locale?: string
 }
 
 interface Event {
@@ -39,8 +46,9 @@ function generateFilename(post: BlogPost): string {
   return `${prefix}${post.slug}.mdx`
 }
 
-function generateMDX(post: BlogPost): string {
+function generateMDX(post: BlogPost, locale: string): string {
   const imageUrl = getImageUrl(post.featuredImage)
+  const langValue = post.lang || locale
 
   const frontmatterLines = [
     `title: "${escapeQuotes(post.title)}"`,
@@ -50,9 +58,14 @@ function generateMDX(post: BlogPost): string {
       : undefined,
     `date: ${formatDate(post.date)}`,
     `slug: ${post.slug}`,
-    post.lang ? `lang: "${escapeQuotes(post.lang)}"` : undefined,
+    `lang: "${escapeQuotes(langValue)}"`,
     imageUrl ? `image: "${escapeQuotes(imageUrl)}"` : undefined
   ].filter(Boolean) as string[]
+
+  if (locale !== 'en') {
+    frontmatterLines.push(`locale: "${escapeQuotes(locale)}"`)
+    frontmatterLines.push(`contentId: "${escapeQuotes(post.documentId)}"`)
+  }
 
   const frontmatter = frontmatterLines.join('\n')
   const content = post.content ? htmlToMarkdown(post.content) : ''
@@ -60,13 +73,17 @@ function generateMDX(post: BlogPost): string {
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
 
-function getOutputDir(): string {
-  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-  return path.resolve(process.cwd(), outputPath)
+function getOutputDir(locale: string): string {
+  if (locale === 'en') {
+    const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
+    return path.resolve(process.cwd(), outputPath)
+  }
+
+  return path.resolve(process.cwd(), `../src/content/${locale}/blog`)
 }
 
-async function writeMDXFile(post: BlogPost): Promise<string> {
-  const baseDir = getOutputDir()
+async function writeMDXFile(post: BlogPost, locale: string): Promise<string> {
+  const baseDir = getOutputDir(locale)
 
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true })
@@ -74,15 +91,19 @@ async function writeMDXFile(post: BlogPost): Promise<string> {
 
   const filename = generateFilename(post)
   const filepath = path.join(baseDir, filename)
-  fs.writeFileSync(filepath, generateMDX(post), 'utf-8')
+  fs.writeFileSync(filepath, generateMDX(post, locale), 'utf-8')
   console.log(`✅ Generated blog post MDX: ${filepath}`)
   return filepath
 }
 
-async function fetchPublishedPost(documentId: string): Promise<BlogPost | null> {
+async function fetchPublishedPost(
+  documentId: string,
+  locale: string
+): Promise<BlogPost | null> {
   try {
     const post = await strapi.documents('api::blog-post.blog-post').findOne({
       documentId,
+      locale,
       status: 'published',
       populate: {
         featuredImage: true
@@ -100,36 +121,51 @@ export default {
     const { result } = event
     if (!result) return
 
-    console.log(`📝 Creating blog post MDX: ${result.slug}`)
-    const post = await fetchPublishedPost(result.documentId)
-    if (!post) {
-      console.log(`⏭️  No published version for blog post ${result.documentId}`)
-      return
+    console.log(`📝 Creating blog post MDX for all locales: ${result.slug}`)
+    const filepaths: string[] = []
+
+    for (const locale of LOCALES) {
+      const post = await fetchPublishedPost(result.documentId, locale)
+      if (!post) {
+        console.log(`⏭️  No published ${locale} blog post for ${result.documentId}`)
+        continue
+      }
+      const filepath = await writeMDXFile(post, locale)
+      filepaths.push(filepath)
     }
 
-    const filepath = await writeMDXFile(post)
-    await gitCommitAndPush(filepath, `blog: add "${post.title}"`)
+    if (filepaths.length > 0) {
+      await gitCommitAndPush(filepaths, `blog: add "${result.title}"`)
+    }
   },
 
   async afterUpdate(event: Event) {
     const { result } = event
     if (!result) return
 
-    console.log(`📝 Updating blog post MDX: ${result.slug}`)
-    const post = await fetchPublishedPost(result.documentId)
+    console.log(`📝 Updating blog post MDX for all locales: ${result.slug}`)
+    const filepaths: string[] = []
+    const deletedPaths: string[] = []
 
-    if (post) {
-      const filepath = await writeMDXFile(post)
-      await gitCommitAndPush(filepath, `blog: update "${post.title}"`)
-    } else {
-      // No published version -- clean up MDX if it exists on disk
-      const baseDir = getOutputDir()
-      const filepath = path.join(baseDir, generateFilename(result))
-      if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath)
-        console.log(`🗑️  Deleted unpublished blog post MDX: ${filepath}`)
-        await gitCommitAndPush(filepath, `blog: unpublish "${result.title}"`)
+    for (const locale of LOCALES) {
+      const post = await fetchPublishedPost(result.documentId, locale)
+      if (post) {
+        const filepath = await writeMDXFile(post, locale)
+        filepaths.push(filepath)
+      } else {
+        const baseDir = getOutputDir(locale)
+        const filepath = path.join(baseDir, generateFilename(result))
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath)
+          console.log(`🗑️  Deleted unpublished ${locale} blog post MDX: ${filepath}`)
+          deletedPaths.push(filepath)
+        }
       }
+    }
+
+    const allPaths = [...filepaths, ...deletedPaths]
+    if (allPaths.length > 0) {
+      await gitCommitAndPush(allPaths, `blog: update "${result.title}"`)
     }
   },
 
@@ -137,14 +173,22 @@ export default {
     const { result } = event
     if (!result) return
 
-    console.log(`🗑️  Deleting blog post MDX: ${result.slug}`)
-    const baseDir = getOutputDir()
-    const filepath = path.join(baseDir, generateFilename(result))
+    console.log(`🗑️  Deleting blog post MDX for all locales: ${result.slug}`)
+    const deletedPaths: string[] = []
 
-    if (fs.existsSync(filepath)) {
-      fs.unlinkSync(filepath)
-      console.log(`🗑️  Deleted blog post MDX: ${filepath}`)
-      await gitCommitAndPush(filepath, `blog: delete "${result.title}"`)
+    for (const locale of LOCALES) {
+      const baseDir = getOutputDir(locale)
+      const filepath = path.join(baseDir, generateFilename(result))
+
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+        console.log(`🗑️  Deleted ${locale} blog post MDX: ${filepath}`)
+        deletedPaths.push(filepath)
+      }
+    }
+
+    if (deletedPaths.length > 0) {
+      await gitCommitAndPush(deletedPaths, `blog: delete "${result.title}"`)
     }
   }
 }
