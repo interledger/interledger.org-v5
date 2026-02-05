@@ -25,11 +25,11 @@ async function fetchTags() {
   }
 }
 
-function escapeQuotes(value: string) {
+function escapeQuotes(value) {
   return value.replace(/"/g, '\\"')
 }
 
-function formatDate(dateString: string) {
+function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
   if (isNaN(date.getTime())) return dateString
@@ -48,7 +48,7 @@ function generateFilename(post) {
   return `${prefix}${slug}.mdx`
 }
 
-async function htmlToMarkdown(html: string) {
+async function htmlToMarkdown(html) {
   if (!html) return ''
 
   // Replace drupal-media tags first (async)
@@ -137,7 +137,7 @@ async function fetchMedia(mediaAPILink, type) {
   try {
     const mediaResponse = await fetch(mediaAPILink)
     if (!mediaResponse.ok) {
-      throw new Error(`Response status: ${response.status}`)
+      throw new Error(`Response status: ${mediaResponse.status}`)
     }
     const mediaResult = await mediaResponse.json()
     const mediaName = mediaResult.data.attributes.name
@@ -212,18 +212,20 @@ async function generateMDXContent(post) {
   const tagNames = tagIds.map(
     (id) => articleTags.find((tag) => tag.id === id)?.name
   )
-  const frontmatterTags = `tags:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
+  const frontmatterTags = tagNames.length === 0
+    ? 'tags: []'
+    : `tags:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
 
   const frontmatterLines = [
     `title: "${escapeQuotes(post.attributes.title)}"`,
     `description: "${escapeQuotes(post.attributes.body?.summary ?? '')}"`,
     `date: ${formatDate(post.attributes.created)}`,
     `slug: ${post.attributes.path.alias.replace('/news/', '')}`,
+    `pillar: "${post.attributes.field_pillar ?? 'tech'}"`,
     featureImage?.url ? `featureImage: "${featureImage.url}"` : undefined,
     `featureImageAlt: "${featureImage?.alt ?? undefined}"`,
-    `pillar: "${post.attributes.field_pillar ?? ''}"`,
     thumbnail?.url ? `thumbnailImage: "${thumbnail.url}"` : undefined,
-    `thumbnailAlt: "${thumbnail?.alt ?? undefined}"`,
+    `thumbnailImageAlt: "${thumbnail?.alt ?? undefined}"`,
     post.attributes.field_byline
       ? `authors:\n  - ${post.attributes.field_byline}`
       : undefined,

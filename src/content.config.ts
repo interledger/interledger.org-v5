@@ -71,9 +71,9 @@ const foundationBlogCollection = defineCollection({
         'Interledger Technology',
         'Thought Leadership',
         // Please add a matching translation in i18n/ui.ts for any new tag
-      ])
+      ]).optional()
     ),
-    authors: z.array(z.string()),
+    authors: z.array(z.string()).optional(),
     author_urls: z.array(z.string()).optional()
   })
 })
