@@ -7,11 +7,11 @@ function escapeForShell(str: string): string {
 }
 
 /**
- * Pulls latest changes, stages the filepath, commits, and pushes.
+ * Pulls latest changes, stages the filepath(s), commits, and pushes.
  * Resolves even on failure so Strapi saves content.
  */
 export async function gitCommitAndPush(
-  filepath: string,
+  filepath: string | string[],
   message: string
 ): Promise<void> {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
@@ -21,11 +21,11 @@ export async function gitCommitAndPush(
 
   const projectRoot = path.resolve(process.cwd(), '..') // repo root above /cms
   const safeMessage = escapeForShell(message)
-  const safeFilepath = escapeForShell(filepath)
+  const filepaths = Array.isArray(filepath) ? filepath : [filepath]
 
   // Always include public/uploads if it exists so media changes are committed
   const uploadsDir = path.join(projectRoot, 'public', 'uploads')
-  const addPaths = [safeFilepath]
+  const addPaths = filepaths.map((fp) => escapeForShell(fp))
   if (fs.existsSync(uploadsDir)) {
     const uploadsRelative = escapeForShell(
       path.relative(projectRoot, uploadsDir)
