@@ -13,7 +13,7 @@ function buildEntryData(contentType, mdx) {
     };
   }
 
-  if (contentType === 'pages') {
+  if (contentType === 'pages' || contentType === 'summitPages') {
     const data = {
       title: mdx.frontmatter.title,
       slug: mdx.slug,
@@ -25,6 +25,10 @@ function buildEntryData(contentType, mdx) {
         title: mdx.frontmatter.heroTitle || mdx.frontmatter.title,
         description: mdx.frontmatter.heroDescription || ''
       };
+    }
+
+    if (contentType === 'summitPages' && mdx.frontmatter.gradient) {
+      data.gradient = mdx.frontmatter.gradient;
     }
 
     return data;
