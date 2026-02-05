@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { escapeQuotes, htmlToMarkdown } from '../../../../utils/mdx'
 
 interface GrantTrack {
   id: number
@@ -14,24 +15,6 @@ interface Event {
   result?: GrantTrack
 }
 
-function htmlToMarkdown(html: string): string {
-  if (!html) return ''
-
-  return html
-    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
-    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
-    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
-    .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
-    .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-    .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
-    .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-    .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
-    .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .trim()
-}
-
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -40,8 +23,13 @@ function slugify(value: string): string {
     .replace(/(^-|-$)+/g, '')
 }
 
-function escapeQuotes(value: string): string {
-  return value.replace(/"/g, '\\"')
+function getOutputDir(): string {
+  const outputPath = process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
+  return path.resolve(process.cwd(), outputPath)
+}
+
+function generateFilename(grant: GrantTrack): string {
+  return `${slugify(grant.name)}-${grant.id}.mdx`
 }
 
 function generateMDX(grant: GrantTrack): string {
@@ -58,32 +46,24 @@ function generateMDX(grant: GrantTrack): string {
 }
 
 async function writeMDXFile(grant: GrantTrack): Promise<void> {
-  const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  const baseDir = getOutputDir()
 
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true })
   }
 
-  const filename = `${slugify(grant.name)}-${grant.id}.mdx`
-  const filepath = path.join(baseDir, filename)
-  const mdxContent = generateMDX(grant)
-
-  fs.writeFileSync(filepath, mdxContent, 'utf-8')
-  console.log(`✅ Generated Grant Track MDX file: ${filepath}`)
+  const filepath = path.join(baseDir, generateFilename(grant))
+  fs.writeFileSync(filepath, generateMDX(grant), 'utf-8')
+  console.log(`✅ Generated grant track MDX: ${filepath}`)
 }
 
 async function deleteMDXFile(grant: GrantTrack): Promise<void> {
-  const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-  const filename = `${slugify(grant.name)}-${grant.id}.mdx`
-  const filepath = path.join(baseDir, filename)
+  const baseDir = getOutputDir()
+  const filepath = path.join(baseDir, generateFilename(grant))
 
   if (fs.existsSync(filepath)) {
     fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted Grant Track MDX file: ${filepath}`)
+    console.log(`🗑️  Deleted grant track MDX: ${filepath}`)
   }
 }
 
