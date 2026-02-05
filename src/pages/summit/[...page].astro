@@ -32,7 +32,7 @@ if (isNotFound) Astro.response.status = 404
 ---
 
 <SummitLayout title={title} description={description} gradient={gradient}>
-  <main class="pb-space-l">
+  <main class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/themes/interledger/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0">
     {isNotFound ? (
       <section class="min-h-[50vh] flex items-center justify-center text-center">
         <div class="mx-auto w-full max-w-wide px-space-m">
