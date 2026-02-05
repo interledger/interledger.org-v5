@@ -1,7 +1,12 @@
 const { scanMDXFiles } = require('./scan');
 const { markdownToHTML } = require('./markdown');
 
-function buildEntryData(contentType, mdx) {
+function getEntryField(entry, key) {
+  if (!entry) return null;
+  return entry[key] ?? entry.attributes?.[key] ?? null;
+}
+
+function buildEntryData(contentType, mdx, existingEntry = null) {
   if (contentType === 'blog') {
     return {
       title: mdx.frontmatter.title,
@@ -25,10 +30,37 @@ function buildEntryData(contentType, mdx) {
         title: mdx.frontmatter.heroTitle || mdx.frontmatter.title,
         description: mdx.frontmatter.heroDescription || ''
       };
+    } else {
+      const existingHero = getEntryField(existingEntry, 'hero');
+      if (existingHero) {
+        data.hero = existingHero;
+      }
     }
 
-    if (contentType === 'summitPages' && mdx.frontmatter.gradient) {
-      data.gradient = mdx.frontmatter.gradient;
+    const mdxBody = (mdx.content || '').trim();
+    if (mdxBody.length > 0) {
+      data.content = [
+        {
+          __component: 'blocks.paragraph',
+          content: markdownToHTML(mdx.content)
+        }
+      ];
+    } else {
+      const existingContent = getEntryField(existingEntry, 'content');
+      if (existingContent) {
+        data.content = existingContent;
+      }
+    }
+
+    if (contentType === 'summitPages') {
+      if (mdx.frontmatter.gradient) {
+        data.gradient = mdx.frontmatter.gradient;
+      } else {
+        const existingGradient = getEntryField(existingEntry, 'gradient');
+        if (existingGradient) {
+          data.gradient = existingGradient;
+        }
+      }
     }
 
     return data;
@@ -66,14 +98,13 @@ async function syncContentType(contentType, ctx) {
     processedSlugs.get(locale).add(englishMdx.slug);
 
     try {
-      const englishData = buildEntryData(contentType, englishMdx);
-
       let englishEntry;
       const existing = await ctx.strapi.findBySlug(
         config.apiId,
         englishMdx.slug,
         'en'
       );
+      const englishData = buildEntryData(contentType, englishMdx, existing);
 
       if (existing) {
         if (ctx.DRY_RUN) {
@@ -180,8 +211,6 @@ async function syncContentType(contentType, ctx) {
           );
 
           try {
-            const localeData = buildEntryData(contentType, localeMdx);
-
             let existingLocale = await ctx.strapi.findBySlug(
               config.apiId,
               localeMdx.slug,
@@ -194,6 +223,12 @@ async function syncContentType(contentType, ctx) {
                 localeCode
               );
             }
+
+            const localeData = buildEntryData(
+              contentType,
+              localeMdx,
+              existingLocale
+            );
 
             if (existingLocale) {
               if (ctx.DRY_RUN) {
@@ -288,8 +323,6 @@ async function syncContentType(contentType, ctx) {
         processedSlugs.get(localeForPath).add(localeMdx.slug);
 
         try {
-          const localeData = buildEntryData(contentType, localeMdx);
-
           let existingLocale = await ctx.strapi.findBySlug(
             config.apiId,
             localeMdx.slug,
@@ -302,6 +335,12 @@ async function syncContentType(contentType, ctx) {
               localeCode
             );
           }
+
+          const localeData = buildEntryData(
+            contentType,
+            localeMdx,
+            existingLocale
+          );
 
           if (existingLocale) {
             if (ctx.DRY_RUN) {
