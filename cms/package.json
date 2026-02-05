@@ -9,7 +9,8 @@
     "build": "strapi build",
     "strapi": "strapi",
     "sync:mdx": "bun scripts/sync-mdx.cjs",
-    "sync:mdx:dry-run": "bun scripts/sync-mdx.cjs --dry-run"
+    "sync:mdx:dry-run": "bun scripts/sync-mdx.cjs --dry-run",
+    "test:scripts": "bun test"
   },
   "strapi": {
     "uuid": "d5c8f4e2-9a1b-4c3d-8e7f-6a5b4c3d2e1f"
