@@ -477,31 +477,18 @@ async function writeMDXFile(page: Page): Promise<string> {
   return filepath
 }
 
-async function deleteMDXFile(page: Page): Promise<string | null> {
-  const locale = page.locale || 'en'
-  const outputDir = getOutputDir(locale)
-  const filename = generateFilename(page)
-  const filepath = path.join(outputDir, filename)
-
-  if (fs.existsSync(filepath)) {
-    fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-    return filepath
-  }
-
-  return null
-}
 
 /**
  * Fetches the full page data with all components populated
  */
 async function fetchFullPage(documentId: string, locale: string): Promise<Page | null> {
   try {
-    // For dynamic zones, we must use '*' to populate all nested content
-    // Strapi v5 doesn't allow specific field targeting in polymorphic structures
+    // Strapi v5 document service defaults to 'draft' status.
+    // We must explicitly request 'published' to get the published version.
     const page = await strapi.documents('api::page.page').findOne({
       documentId,
       locale,
+      status: 'published',
       populate: {
         hero: {
           populate: '*'
@@ -509,7 +496,6 @@ async function fetchFullPage(documentId: string, locale: string): Promise<Page |
         seo: {
           populate: '*'
         },
-        // Dynamic zones require '*' for nested population
         content: {
           populate: '*'
         }
@@ -522,24 +508,35 @@ async function fetchFullPage(documentId: string, locale: string): Promise<Page |
   }
 }
 
+
 /**
- * Gets the locale from the event, checking multiple sources
+ * All locales to export MDX for.
+ * When any locale is saved, all locales are re-exported.
  */
-function getLocaleFromEvent(event: Event): string {
-  // Debug: log the entire event structure to find where locale is
-  console.log('🔍 EVENT DEBUG:')
-  console.log('  result.locale:', event.result?.locale)
-  console.log('  params:', JSON.stringify(event.params, null, 2))
+const LOCALES = ['en', 'es']
 
-  // Try to get locale from various sources in order of reliability
-  const locale = event.result?.locale
-    || event.params?.locale
-    || event.params?.where?.locale
-    || (event.params?.data as any)?.locale
-    || 'en'
+/**
+ * Fetches and writes MDX for all locales of a page.
+ * Returns the list of filepaths written.
+ */
+async function exportAllLocales(documentId: string): Promise<string[]> {
+  const filepaths: string[] = []
 
-  console.log(`📍 Page lifecycle - detected locale: ${locale}`)
-  return locale
+  for (const locale of LOCALES) {
+    try {
+      const page = await fetchFullPage(documentId, locale)
+      if (!page) {
+        console.log(`⏭️  No published ${locale} version for ${documentId}`)
+        continue
+      }
+      const filepath = await writeMDXFile(page)
+      filepaths.push(filepath)
+    } catch (error) {
+      console.error(`⚠️  Failed to export ${locale} for ${documentId}:`, error)
+    }
+  }
+
+  return filepaths
 }
 
 export default {
@@ -547,67 +544,37 @@ export default {
     const { result } = event
     if (!result) return
 
-    const eventLocale = getLocaleFromEvent(event)
+    console.log(`📝 Creating page MDX for all locales: ${result.slug}`)
+    const filepaths = await exportAllLocales(result.documentId)
 
-    // Only export published pages
-    if (!result.publishedAt) {
-      console.log(`⏭️  Skipping unpublished page create: ${result.slug}`)
-      return
+    if (filepaths.length > 0) {
+      await gitCommitAndPush(filepaths, `page: add "${result.title}"`)
     }
-
-    // Fetch full page to get confirmed locale and components
-    const fullPage = await fetchFullPage(result.documentId, eventLocale)
-    if (!fullPage) {
-      console.log(`⚠️  Could not fetch page for create`)
-      return
-    }
-
-    // Use locale from fetched page (most reliable)
-    const confirmedLocale = fullPage.locale || eventLocale
-    console.log(`📝 Creating page MDX: ${result.slug} (confirmed: ${confirmedLocale})`)
-
-    const filepath = await writeMDXFile(fullPage)
-    await gitCommitAndPush(filepath, `page: add "${result.title}" (${confirmedLocale})`)
   },
 
   async afterUpdate(event: Event) {
     const { result } = event
     if (!result) return
 
-    const eventLocale = getLocaleFromEvent(event)
+    console.log(`📝 Updating page MDX for all locales: ${result.slug}`)
+    const filepaths = await exportAllLocales(result.documentId)
 
-    // Fetch full page to get CONFIRMED locale (most reliable source)
-    const fullPage = await fetchFullPage(result.documentId, eventLocale)
-
-    if (!fullPage) {
-      console.log(`⚠️  Could not fetch page ${result.documentId} - skipping MDX operation`)
-      // IMPORTANT: Don't delete anything if we can't confirm the locale
-      return
+    // Clean up MDX for any locale that is no longer published
+    const deletedPaths: string[] = []
+    for (const locale of LOCALES) {
+      const outputDir = getOutputDir(locale)
+      const filepath = path.join(outputDir, `${result.slug}.mdx`)
+      // If exportAllLocales didn't write this file but it exists on disk, remove it
+      if (!filepaths.includes(filepath) && fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+        console.log(`🗑️  Deleted unpublished ${locale} MDX: ${filepath}`)
+        deletedPaths.push(filepath)
+      }
     }
 
-    // Use the locale from the fetched page - this is the source of truth
-    const confirmedLocale = fullPage.locale || 'en'
-    console.log(`📝 Updating page: ${result.slug} (confirmed: ${confirmedLocale}), published: ${!!result.publishedAt}`)
-
-    if (result.publishedAt) {
-      // Export the MDX
-      const filepath = await writeMDXFile(fullPage)
-      await gitCommitAndPush(filepath, `page: update "${result.title}" (${confirmedLocale})`)
-    } else {
-      // Page is unpublished - only delete if we have confirmed locale
-      const outputDir = getOutputDir(confirmedLocale)
-      const filename = `${result.slug}.mdx`
-      const filepath = path.join(outputDir, filename)
-
-      console.log(`🔍 Checking for file to delete: ${filepath}`)
-
-      if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath)
-        console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-        await gitCommitAndPush(filepath, `page: unpublish "${result.title}" (${confirmedLocale})`)
-      } else {
-        console.log(`⏭️  No MDX file exists at ${filepath} - nothing to delete`)
-      }
+    const allPaths = [...filepaths, ...deletedPaths]
+    if (allPaths.length > 0) {
+      await gitCommitAndPush(allPaths, `page: update "${result.title}"`)
     }
   },
 
@@ -615,25 +582,23 @@ export default {
     const { result } = event
     if (!result) return
 
-    // For delete, we can't fetch the page anymore
-    // Only proceed if we have a locale from the event
-    const eventLocale = getLocaleFromEvent(event)
+    console.log(`🗑️  Deleting page MDX for all locales: ${result.slug}`)
 
-    // SAFETY: If locale defaulted to 'en' but we're not sure, log a warning
-    if (eventLocale === 'en' && !event.result?.locale && !event.params?.locale) {
-      console.log(`⚠️  Delete: locale uncertain, defaulting to 'en' for ${result.slug}`)
+    const deletedPaths: string[] = []
+    for (const locale of LOCALES) {
+      const outputDir = getOutputDir(locale)
+      const filename = `${result.slug}.mdx`
+      const filepath = path.join(outputDir, filename)
+
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+        console.log(`🗑️  Deleted ${locale} MDX: ${filepath}`)
+        deletedPaths.push(filepath)
+      }
     }
 
-    console.log(`🗑️  Deleting page: ${result.slug} (${eventLocale})`)
-
-    const outputDir = getOutputDir(eventLocale)
-    const filename = `${result.slug}.mdx`
-    const filepath = path.join(outputDir, filename)
-
-    if (fs.existsSync(filepath)) {
-      fs.unlinkSync(filepath)
-      console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-      await gitCommitAndPush(filepath, `page: delete "${result.title}" (${eventLocale})`)
+    if (deletedPaths.length > 0) {
+      await gitCommitAndPush(deletedPaths, `page: delete "${result.title}"`)
     }
   }
 }
