@@ -46,7 +46,7 @@ let mdxData: {
 } | null = null
 
 if (!strapiData) {
-  const pages = await getCollection('pages')
+  const pages = await getCollection('foundation-pages')
   const homePage = pages.find((page) => page.data.slug === 'home')
 
   if (homePage) {
