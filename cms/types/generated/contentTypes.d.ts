@@ -616,16 +616,37 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.carousel',
         'blocks.cta-banner'
       ]
-    >
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    hero: Schema.Attribute.Component<'shared.hero', false>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>
     publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false>
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    slug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -696,20 +717,47 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-banner',
         'blocks.image-row'
       ]
-    >
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    gradient: Schema.Attribute.String & Schema.Attribute.DefaultTo<'option1'>
-    hero: Schema.Attribute.Component<'shared.hero', false>
+    gradient: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'option1'>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::summit-page.summit-page'
     >
     publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false>
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    slug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
