@@ -59,7 +59,7 @@ function generateMDX(grant: GrantTrack): string {
 
 async function writeMDXFile(grant: GrantTrack): Promise<void> {
   const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grant-tracks'
+    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
   const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
 
   if (!fs.existsSync(baseDir)) {
@@ -76,7 +76,7 @@ async function writeMDXFile(grant: GrantTrack): Promise<void> {
 
 async function deleteMDXFile(grant: GrantTrack): Promise<void> {
   const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grant-tracks'
+    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
   const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
   const filename = `${slugify(grant.name)}-${grant.id}.mdx`
   const filepath = path.join(baseDir, filename)
