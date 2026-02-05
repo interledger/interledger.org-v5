@@ -1,7 +1,8 @@
 export type LanguageKey = 'en' | 'es'
+type LanguageUi = Record<LanguageKey, Record<string, string>>
+// TODO remove
 // export type NavigationItemKey = keyof typeof navigationItems
 // type LanguageRoutes = Record<LanguageKey, Record<string, string>>
-type LanguageUi = Record<LanguageKey, Record<string, string>>
 // type NavigationLink = {
 //   [K in LanguageKey]: {
 //     href: string
