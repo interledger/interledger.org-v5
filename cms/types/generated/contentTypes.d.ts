@@ -544,44 +544,6 @@ export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
   }
 }
 
-export interface ApiNewsEventNewsEvent extends Struct.CollectionTypeSchema {
-  collectionName: 'news_events'
-  info: {
-    description: 'Events content that syncs to MDX'
-    displayName: 'Event'
-    pluralName: 'news-events'
-    singularName: 'news-event'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      >
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::news-event.news-event'
-    > &
-      Schema.Attribute.Private
-    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
-    title: Schema.Attribute.String & Schema.Attribute.Required
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages'
   info: {
@@ -623,60 +585,6 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         i18n: {
           localized: true
         }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiPressItemPressItem extends Struct.CollectionTypeSchema {
-  collectionName: 'press_items'
-  info: {
-    description: 'Press releases and media mentions'
-    displayName: 'Press Item'
-    pluralName: 'press-items'
-    singularName: 'press-item'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    category: Schema.Attribute.Enumeration<
-      ['press-release', 'media-mention', 'announcement']
-    > &
-      Schema.Attribute.DefaultTo<'media-mention'>
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.CustomField<'plugin::ckeditor.CKEditor'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    description: Schema.Attribute.Text & Schema.Attribute.Required
-    externalUrl: Schema.Attribute.String
-    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::press-item.press-item'
-    > &
-      Schema.Attribute.Private
-    publication: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255
-      }>
-    publicationLogo: Schema.Attribute.String
-    publishDate: Schema.Attribute.Date & Schema.Attribute.Required
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255
       }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1170,9 +1078,7 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::navigation.navigation': ApiNavigationNavigation
-      'api::news-event.news-event': ApiNewsEventNewsEvent
       'api::page.page': ApiPagePage
-      'api::press-item.press-item': ApiPressItemPressItem
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease
