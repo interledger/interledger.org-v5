@@ -1,9 +1,7 @@
 ---
-import { defaultLang } from '../i18n/ui'
-import { useTranslatedPath } from '../i18n/utils'
-const { lang, className } = Astro.props
+import { translatePath } from '../i18n/utils'
+const { currentLang, className } = Astro.props
 const path = Astro.url.pathname
-const translatePath = useTranslatedPath(defaultLang, lang)
 ---
 
 <div
@@ -13,14 +11,14 @@ const translatePath = useTranslatedPath(defaultLang, lang)
   <!-- Dropdown version for 800px-1160px -->
   <select class="language-select" aria-label="Select language">
     <option
-      value={lang === 'en' ? path : translatePath(path, 'en')}
-      selected={lang === 'en'}
+      value={currentLang === 'en' ? path : translatePath(path, 'en')}
+      selected={currentLang === 'en'}
     >
       EN
     </option>
     <option
-      value={lang === 'es' ? path : translatePath(path, 'es')}
-      selected={lang === 'es'}
+      value={currentLang === 'es' ? path : translatePath(path, 'es')}
+      selected={currentLang === 'es'}
     >
       ES
     </option>
@@ -41,27 +39,27 @@ const translatePath = useTranslatedPath(defaultLang, lang)
   <!-- List version for other viewport sizes -->
   <ul class="links">
     <li
-      class:list={[lang === 'en' && 'is-active']}
-      aria-current={lang === 'en' ? 'page' : undefined}
+      class:list={[currentLang === 'en' && 'is-active']}
+      aria-current={currentLang === 'en' ? 'page' : undefined}
     >
       <a
-        href={lang === 'en' ? path : translatePath(path, 'en')}
-        class:list={['language-link', lang === 'en' && 'is-active']}
+        href={currentLang === 'en' ? path : translatePath(path, 'en')}
+        class:list={['language-link', currentLang === 'en' && 'is-active']}
         hreflang="en-gb"
-        aria-current={lang === 'en' ? 'page' : undefined}
+        aria-current={currentLang === 'en' ? 'page' : undefined}
       >
         EN
       </a>
     </li>
     <li
-      class:list={[lang === 'es' && 'is-active']}
-      aria-current={lang === 'es' ? 'page' : undefined}
+      class:list={[currentLang === 'es' && 'is-active']}
+      aria-current={currentLang === 'es' ? 'page' : undefined}
     >
       <a
-        href={lang === 'es' ? path : translatePath(path, 'es')}
-        class:list={['language-link', lang === 'es' && 'is-active']}
+        href={currentLang === 'es' ? path : translatePath(path, 'es')}
+        class:list={['language-link', currentLang === 'es' && 'is-active']}
         hreflang="es"
-        aria-current={lang === 'es' ? 'page' : undefined}
+        aria-current={currentLang === 'es' ? 'page' : undefined}
       >
         ES
       </a>
@@ -93,7 +91,7 @@ const translatePath = useTranslatedPath(defaultLang, lang)
     position: relative;
   }
 
-  /* Dropdown select styling - hidden by default, shown between 800px-1160px */
+  /* Dropdown select styling - hidden by default, shown on docs pages between 800px-1160px */
   .language-select {
     display: none;
     appearance: none;

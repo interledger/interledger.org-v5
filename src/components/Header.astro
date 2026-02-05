@@ -5,7 +5,7 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from './logos/DevelopersLogo.astro'
 import LanguagePicker from './LanguagePicker.astro'
 
-const lang = Astro.currentLocale
+const currrentLang = Astro.currentLocale
 ---
 
 <div class="flex h-full items-center gap-[var(--sl-nav-gap)] border-t-2 border-primary shadow-primary [&_site-search>button[data-open-modal]]:w-auto">
@@ -26,6 +26,6 @@ const lang = Astro.currentLocale
   <div class="hidden items-center gap-space-s md:flex">
     <SocialIcons />
     <ThemeSelect />
-    <LanguagePicker lang={lang} />
+    <LanguagePicker lang={currrentLang} />
   </div>
 </div>

@@ -12,7 +12,7 @@ export default defineConfig({
   i18n: {
     locales: ['es', 'en'],
     defaultLocale: 'en',
-    routing: {
+    routing: { // TODO we may need to set this to manual to handle routing based on content ID and not path
       prefixDefaultLocale: false,
       fallbackType: 'rewrite'
     },

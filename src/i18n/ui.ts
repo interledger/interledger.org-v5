@@ -1,4 +1,6 @@
-export type LanguageKey = 'en' | 'es'
+import { i18n } from "astro:config/client";
+
+export type LanguageKey = 'en' | 'es' // can we use toPaths(i18n!.locales);?
 type LanguageUi = Record<LanguageKey, Record<string, string>>
 // TODO remove
 // export type NavigationItemKey = keyof typeof navigationItems
@@ -15,18 +17,9 @@ export const languages: Record<LanguageKey, string> = {
   es: 'Español'
 }
 
-export const defaultLang: LanguageKey = i18n.defaultLocale
+export const defaultLang = i18n!.defaultLocale
 
 // TODO we can't have a manual system like this going forward
-// export const routes: LanguageRoutes = {
-//   en: {
-//     'interledger-universe': 'interledger-universe'
-//   },
-//   es: {
-//     'interledger-universe': 'el-universo-interledger'
-//   }
-// }
-
 // export const navigationItems = {
 //   ilf: {
 //     en: { href: '/' },
