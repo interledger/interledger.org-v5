@@ -1,0 +1,43 @@
+---
+/**
+ * Ambassadors Grid Block for Dynamic Zones
+ * Renders the ambassadors selected by content authors in Strapi
+ */
+
+import AmbassadorGrid from '../ambassadors/AmbassadorGrid.astro'
+
+interface AmbassadorFromStrapi {
+  name: string
+  slug: string
+  description: string
+  photo?: { url: string } | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+  order?: number
+}
+
+interface Props {
+  heading?: string
+  ambassadors?: AmbassadorFromStrapi[]
+}
+
+const { heading, ambassadors: strapiAmbassadors = [] } = Astro.props
+
+// Transform Strapi ambassador data to the format expected by AmbassadorGrid
+const ambassadors = strapiAmbassadors.map((amb) => ({
+  name: amb.name,
+  slug: amb.slug,
+  description: amb.description,
+  photo: amb.photo?.url || null,
+  photoAlt: amb.name,
+  linkedinUrl: amb.linkedinUrl,
+  grantReportUrl: amb.grantReportUrl,
+  order: amb.order || 0
+}))
+---
+
+{ambassadors.length > 0 ? (
+  <AmbassadorGrid ambassadors={ambassadors} heading={heading} />
+) : (
+  <p class="text-gray">No ambassadors selected for this grid.</p>
+)}

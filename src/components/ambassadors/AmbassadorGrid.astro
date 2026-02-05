@@ -1,0 +1,67 @@
+---
+/**
+ * Ambassador Grid component
+ * - Single column on mobile
+ * - Side-by-side (photo + text) at 600px+
+ * - 2-column grid at 1140px+
+ *
+ * Renders only the ambassadors passed to it - does NOT auto-fetch.
+ * Usage: <AmbassadorGrid ambassadors={data} heading="Optional Heading" />
+ */
+
+import Ambassador from './Ambassador.astro'
+
+interface AmbassadorData {
+  name: string
+  slug: string
+  description: string
+  photo?: string | null
+  photoAlt?: string | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+  order?: number
+}
+
+interface Props {
+  ambassadors: AmbassadorData[]
+  heading?: string
+}
+
+const { ambassadors, heading } = Astro.props
+
+// Sort by order field, then by name as fallback
+const sortedAmbassadors = [...ambassadors].sort((a, b) => {
+  const orderDiff = (a.order || 0) - (b.order || 0)
+  if (orderDiff !== 0) return orderDiff
+  return a.name.localeCompare(b.name)
+})
+---
+
+<div class="ambassadors-section">
+  {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
+  <div
+    class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start"
+  >
+    {
+      sortedAmbassadors.map((ambassador) => (
+        <Ambassador
+          name={ambassador.name}
+          description={ambassador.description}
+          photo={ambassador.photo || undefined}
+          photoAlt={ambassador.photoAlt || ambassador.name}
+          linkedinUrl={ambassador.linkedinUrl || undefined}
+          grantReportUrl={ambassador.grantReportUrl || undefined}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  /* Additional styles for non-last ambassadors in mobile view */
+  @media screen and (max-width: 1139px) {
+    .ambassadors-wrapper > :global(article:not(:last-of-type)) {
+      margin-block-end: var(--space-s, 1.125rem);
+    }
+  }
+</style>

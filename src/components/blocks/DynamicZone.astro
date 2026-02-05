@@ -4,6 +4,8 @@ import CardsGrid from './CardsGrid.astro'
 import CardLinksGrid from './CardLinksGrid.astro'
 import Carousel from './Carousel.astro'
 import CtaBanner from './CtaBanner.astro'
+import AmbassadorBlock from './AmbassadorBlock.astro'
+import AmbassadorsGridBlock from './AmbassadorsGridBlock.astro'
 
 interface Block {
   __component: string
@@ -21,7 +23,9 @@ const componentMap: Record<string, typeof Paragraph> = {
   'blocks.cards-grid': CardsGrid,
   'blocks.card-links-grid': CardLinksGrid,
   'blocks.carousel': Carousel,
-  'blocks.cta-banner': CtaBanner
+  'blocks.cta-banner': CtaBanner,
+  'blocks.ambassador': AmbassadorBlock,
+  'blocks.ambassadors-grid': AmbassadorsGridBlock
 }
 ---
 

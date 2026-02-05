@@ -113,8 +113,28 @@ const hackathonResourcePagesCollection = defineCollection({
   schema: pageSchema
 })
 
+const ambassadorSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  descriptionPlainText: z.string().optional(),
+  photo: z.string().nullable().optional(),
+  photoAlt: z.string().nullable().optional(),
+  linkedinUrl: z.string().nullable().optional(),
+  grantReportUrl: z.string().nullable().optional(),
+  order: z.number().default(0)
+})
+
+const ambassadorCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.json',
+    base: './src/content/ambassadors'
+  }),
+  schema: ambassadorSchema
+})
+
 export const collections = {
-  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }), // TODO: check base now since docs loader may have wrong path
+  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   'engineering-blog': engBlogCollection,
   'foundation-blog': foundationBlogCollection,
@@ -122,5 +142,6 @@ export const collections = {
   'summit-pages': summitPagesCollection,
   'hackathon-pages': hackathonPagesCollection,
   'hackathon-resource-pages': hackathonResourcePagesCollection,
-  'grant-pages': grantPagesCollection
+  'grant-pages': grantPagesCollection,
+  'ambassadors': ambassadorCollection
 }
