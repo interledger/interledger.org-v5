@@ -1,8 +1,8 @@
 /**
  * Lifecycle callbacks for page
  * Generates MDX files for pages with locale support
- * - English pages go to src/content/pages/
- * - Localized pages go to src/content/{locale}/pages/
+ * - English pages go to src/content/foundation-pages/
+ * - Localized pages go to src/content/{locale}/foundation-pages/
  * Then commits and pushes to trigger Netlify preview builds
  */
 
@@ -437,8 +437,8 @@ function generateMDX(page: Page): string {
 
 /**
  * Gets the output directory for a page based on locale
- * - English: src/content/pages/
- * - Other locales: src/content/{locale}/pages/
+ * - English: src/content/foundation-pages/
+ * - Other locales: src/content/{locale}/foundation-pages/
  */
 function getOutputDir(locale: string): string {
   // Resolve from dist/src/api/page/content-types/page/ up to cms root then project root
@@ -447,12 +447,12 @@ function getOutputDir(locale: string): string {
   const projectRoot = path.resolve(__dirname, '../../../../../../..')
 
   if (locale === 'en') {
-    const outputPath = process.env.PAGES_MDX_OUTPUT_PATH || 'src/content/pages'
+    const outputPath = process.env.PAGES_MDX_OUTPUT_PATH || 'src/content/foundation-pages'
     return path.join(projectRoot, outputPath)
   }
 
-  // For other locales, use src/content/{locale}/pages/
-  return path.join(projectRoot, 'src/content', locale, 'pages')
+  // For other locales, use src/content/{locale}/foundation-pages/
+  return path.join(projectRoot, 'src/content', locale, 'foundation-pages')
 }
 
 function generateFilename(page: Page): string {
