@@ -7,11 +7,11 @@
 Before running the CMS for the first time, you need to generate secure secrets. Run this command from the `cms` directory:
 
 ```bash
-node -e "console.log('APP_KEYS=' + Array(4).fill(0).map(() => require('crypto').randomBytes(16).toString('base64')).join(','))"
-node -e "console.log('API_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
-node -e "console.log('ADMIN_JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
-node -e "console.log('TRANSFER_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
-node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
+bun -e "console.log('APP_KEYS=' + Array(4).fill(0).map(() => require('crypto').randomBytes(16).toString('base64')).join(','))"
+bun -e "console.log('API_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
+bun -e "console.log('ADMIN_JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
+bun -e "console.log('TRANSFER_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
+bun -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
 ```
 
 Copy the output and replace the values in your `.env` file.
@@ -19,13 +19,13 @@ Copy the output and replace the values in your `.env` file.
 ### 2. Install Dependencies
 
 ```bash
-npm install
+bun install
 ```
 
 ### 3. Start the CMS
 
 ```bash
-npm run develop
+bun run develop
 ```
 
 ### 4. Create Admin User
@@ -105,7 +105,7 @@ PORT=1338
 
 ### Can't Access Admin Panel
 
-1. Make sure the CMS is running (`npm run develop`)
+1. Make sure the CMS is running (`bun run develop`)
 2. Check that nothing else is using port 1337
 3. Try accessing http://127.0.0.1:1337/admin instead
 
