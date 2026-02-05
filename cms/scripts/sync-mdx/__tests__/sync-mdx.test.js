@@ -6,6 +6,7 @@ const os = require('os');
 const { parseMDX } = require('../mdx');
 const { markdownToHTML } = require('../markdown');
 const { scanMDXFiles } = require('../scan');
+const { buildEntryData, syncContentType } = require('../sync');
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -79,5 +80,187 @@ describe('scanMDXFiles', () => {
     expect(spanish.slug).toBe('hola');
     expect(spanish.isLocalization).toBe(true);
     expect(spanish.localizes).toBe('hello');
+  });
+});
+
+describe('buildEntryData', () => {
+  it('builds paragraph content for pages from MDX body', () => {
+    const mdx = {
+      frontmatter: { title: 'Hello' },
+      slug: 'hello',
+      content: '# Hi there'
+    };
+    const data = buildEntryData('pages', mdx);
+    expect(Array.isArray(data.content)).toBe(true);
+    expect(data.content[0].__component).toBe('blocks.paragraph');
+    expect(data.content[0].content).toContain('<h1>Hi there</h1>');
+  });
+
+  it('preserves existing content when MDX body is empty', () => {
+    const mdx = {
+      frontmatter: { title: 'Hello' },
+      slug: 'hello',
+      content: '   '
+    };
+    const existingEntry = {
+      attributes: {
+        content: [{ __component: 'blocks.paragraph', content: '<p>Keep</p>' }]
+      }
+    };
+    const data = buildEntryData('pages', mdx, existingEntry);
+    expect(data.content).toEqual(existingEntry.attributes.content);
+  });
+
+  it('preserves hero and gradient when not provided', () => {
+    const mdx = {
+      frontmatter: { title: 'Summit' },
+      slug: 'summit',
+      content: 'Body'
+    };
+    const existingEntry = {
+      attributes: {
+        hero: { title: 'Existing', description: 'Keep' },
+        gradient: 'option2'
+      }
+    };
+    const data = buildEntryData('summitPages', mdx, existingEntry);
+    expect(data.hero).toEqual(existingEntry.attributes.hero);
+    expect(data.gradient).toBe('option2');
+  });
+});
+
+describe('syncContentType', () => {
+  it('creates localization for summit pages using contentId slug match', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+    const esSummitDir = path.join(contentRoot, 'es', 'summit');
+
+    writeFile(
+      path.join(summitDir, 'code-of-conduct.mdx'),
+      ['---', 'title: "Code of Conduct"', '---', '', 'Body'].join('\n')
+    );
+
+    writeFile(
+      path.join(esSummitDir, 'codigo-de-conducta.mdx'),
+      [
+        '---',
+        'title: "Código de conducta"',
+        'locale: "es"',
+        'contentId: "code-of-conduct"',
+        '---',
+        '',
+        'Contenido'
+      ].join('\n')
+    );
+
+    const existingEntry = {
+      documentId: 'doc-1',
+      slug: 'code-of-conduct',
+      locale: 'en'
+    };
+
+    const calls = {
+      createLocalization: 0,
+      updateLocalization: 0,
+      updateEntry: 0,
+      createEntry: 0,
+      deleteEntry: 0,
+      findBySlug: []
+    };
+
+    const strapi = {
+      getAllEntries: async () => [existingEntry],
+      findBySlug: async (apiId, slug, locale) => {
+        calls.findBySlug.push({ apiId, slug, locale });
+        if (locale === 'en' && slug === 'code-of-conduct') return existingEntry;
+        return null;
+      },
+      createLocalization: async () => {
+        calls.createLocalization++;
+      },
+      updateLocalization: async () => {
+        calls.updateLocalization++;
+      },
+      updateEntry: async () => {
+        calls.updateEntry++;
+        return { data: existingEntry };
+      },
+      createEntry: async () => {
+        calls.createEntry++;
+        return { data: { documentId: 'doc-1', slug: 'code-of-conduct' } };
+      },
+      deleteEntry: async () => {
+        calls.deleteEntry++;
+      }
+    };
+
+    const contentTypes = {
+      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summitPages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    expect(calls.createLocalization).toBe(1);
+    expect(calls.updateLocalization).toBe(0);
+  });
+
+  it('does not call mutating Strapi methods in dry-run', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+
+    writeFile(
+      path.join(summitDir, 'code-of-conduct.mdx'),
+      ['---', 'title: "Code of Conduct"', '---', '', 'Body'].join('\n')
+    );
+
+    const calls = {
+      createLocalization: 0,
+      updateLocalization: 0,
+      updateEntry: 0,
+      createEntry: 0,
+      deleteEntry: 0
+    };
+
+    const strapi = {
+      getAllEntries: async () => [],
+      findBySlug: async () => null,
+      createLocalization: async () => {
+        calls.createLocalization++;
+      },
+      updateLocalization: async () => {
+        calls.updateLocalization++;
+      },
+      updateEntry: async () => {
+        calls.updateEntry++;
+      },
+      createEntry: async () => {
+        calls.createEntry++;
+      },
+      deleteEntry: async () => {
+        calls.deleteEntry++;
+      }
+    };
+
+    const contentTypes = {
+      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summitPages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: true
+    });
+
+    expect(calls.createEntry).toBe(0);
+    expect(calls.updateEntry).toBe(0);
+    expect(calls.createLocalization).toBe(0);
+    expect(calls.updateLocalization).toBe(0);
+    expect(calls.deleteEntry).toBe(0);
   });
 });

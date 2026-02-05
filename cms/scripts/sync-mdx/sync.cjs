@@ -462,6 +462,8 @@ async function syncAll(ctx) {
 }
 
 module.exports = {
+  buildEntryData,
+  getEntryField,
   syncContentType,
   syncAll
 };
