@@ -14,6 +14,11 @@ function buildContentTypes(projectRoot) {
       dir: path.join(projectRoot, 'src/content/pages'),
       apiId: 'pages',
       pattern: /^(.+)\.mdx$/
+    },
+    summitPages: {
+      dir: path.join(projectRoot, 'src/content/summit'),
+      apiId: 'summit-pages',
+      pattern: /^(.+)\.mdx$/
     }
   };
 }
