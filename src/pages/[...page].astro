@@ -2,8 +2,21 @@
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-export const prerender = false
-const slug = Astro.originPathname.replace(/^\/|\/$/g, '')
+export const prerender = true
+
+export async function getStaticPaths() {
+  const pages = await getCollection('foundation-pages')
+  return pages
+    .filter((page) => page.data.slug !== 'home')
+    .map((page) => ({
+      params: {
+        page: page.data.slug
+      }
+    }))
+}
+
+const slugParam = Astro.params.page
+const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 
 const pages = await getCollection('foundation-pages')
 const mdxPage = pages.find((page) => page.data.slug === slug)
