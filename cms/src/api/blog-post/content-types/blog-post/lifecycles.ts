@@ -25,6 +25,7 @@ interface MediaFile {
 
 interface BlogPost {
   id: number
+  documentId: string
   title: string
   description: string
   slug: string
@@ -132,10 +133,13 @@ function generateMDX(post: BlogPost): string {
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
 
-async function writeMDXFile(post: BlogPost): Promise<void> {
+function getOutputDir(): string {
   const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-  // Resolve from dist/src/api/blog-post/content-types/blog-post/ up to cms root then project root
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  return path.resolve(__dirname, '../../../../../../', outputPath)
+}
+
+async function writeMDXFile(post: BlogPost): Promise<string> {
+  const baseDir = getOutputDir()
 
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true })
@@ -147,49 +151,63 @@ async function writeMDXFile(post: BlogPost): Promise<void> {
 
   fs.writeFileSync(filepath, mdxContent, 'utf-8')
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
+  return filepath
 }
 
-async function deleteMDXFile(post: BlogPost): Promise<void> {
-  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-  // Resolve from dist/src/api/blog-post/content-types/blog-post/ up to cms root then project root
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-  const filename = generateFilename(post)
-  const filepath = path.join(baseDir, filename)
-
-  if (fs.existsSync(filepath)) {
-    fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted Blog Post MDX file: ${filepath}`)
+/**
+ * Fetches the published version of a blog post.
+ * Strapi v5 document service defaults to 'draft' status,
+ * so we must explicitly request 'published'.
+ */
+async function fetchPublishedPost(documentId: string): Promise<BlogPost | null> {
+  try {
+    const post = await strapi.documents('api::blog-post.blog-post').findOne({
+      documentId,
+      status: 'published',
+      populate: {
+        featuredImage: true
+      }
+    })
+    return post as BlogPost | null
+  } catch (error) {
+    console.error(`Failed to fetch blog post ${documentId}:`, error)
+    return null
   }
 }
 
 export default {
   async afterCreate(event: Event) {
     const { result } = event
-    if (result && result.publishedAt) {
-      await writeMDXFile(result)
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
-      await gitCommitAndPush(filepath, `blog: add "${result.title}"`)
+    if (!result) return
+
+    console.log(`📝 Creating blog post MDX: ${result.slug}`)
+    const post = await fetchPublishedPost(result.documentId)
+    if (!post) {
+      console.log(`⏭️  No published version for blog post ${result.documentId}`)
+      return
     }
+
+    const filepath = await writeMDXFile(post)
+    await gitCommitAndPush(filepath, `blog: add "${post.title}"`)
   },
 
   async afterUpdate(event: Event) {
     const { result } = event
-    if (result) {
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
+    if (!result) return
 
-      if (result.publishedAt) {
-        await writeMDXFile(result)
-        await gitCommitAndPush(filepath, `blog: update "${result.title}"`)
-      } else {
-        await deleteMDXFile(result)
+    console.log(`📝 Updating blog post MDX: ${result.slug}`)
+    const post = await fetchPublishedPost(result.documentId)
+
+    if (post) {
+      const filepath = await writeMDXFile(post)
+      await gitCommitAndPush(filepath, `blog: update "${post.title}"`)
+    } else {
+      // No published version -- clean up MDX if it exists on disk
+      const baseDir = getOutputDir()
+      const filepath = path.join(baseDir, generateFilename(result))
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+        console.log(`🗑️  Deleted unpublished blog post MDX: ${filepath}`)
         await gitCommitAndPush(filepath, `blog: unpublish "${result.title}"`)
       }
     }
@@ -197,13 +215,15 @@ export default {
 
   async afterDelete(event: Event) {
     const { result } = event
-    if (result) {
-      await deleteMDXFile(result)
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
+    if (!result) return
+
+    console.log(`🗑️  Deleting blog post MDX: ${result.slug}`)
+    const baseDir = getOutputDir()
+    const filepath = path.join(baseDir, generateFilename(result))
+
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath)
+      console.log(`🗑️  Deleted Blog Post MDX file: ${filepath}`)
       await gitCommitAndPush(filepath, `blog: delete "${result.title}"`)
     }
   }
