@@ -42,11 +42,6 @@ const CONTENT_TYPES = {
     apiId: 'blog-posts',
     pattern: /^(\d{4}-\d{2}-\d{2})-(.+)\.mdx$/
   },
-  events: {
-    dir: path.join(projectRoot, 'src/content/events'),
-    apiId: 'news-events',
-    pattern: /^(.+)\.mdx$/
-  },
   pages: {
     dir: path.join(projectRoot, 'src/content/pages'),
     apiId: 'pages',
@@ -145,13 +140,13 @@ function scanMDXFiles(contentType) {
     const localeDirs = fs.readdirSync(contentDir, { withFileTypes: true });
     
     for (const localeDir of localeDirs) {
-      // Skip if not a directory or if it's the base blog/events directory
+      // Skip if not a directory or if it's the base content directory
       if (!localeDir.isDirectory()) continue;
       if (localeDir.name === path.basename(baseDir)) continue;
       
       const localeBlogDir = path.join(contentDir, localeDir.name, path.basename(baseDir));
       
-      // Check if this locale directory has a blog/events subdirectory
+      // Check if this locale directory has a matching subdirectory
       if (fs.existsSync(localeBlogDir)) {
         const files = fs.readdirSync(localeBlogDir);
         
@@ -403,14 +398,6 @@ async function syncContentType(contentType) {
           content: markdownToHTML(englishMdx.content),
           publishedAt: new Date().toISOString()
         };
-      } else if (contentType === 'events') {
-        englishData = {
-          title: englishMdx.frontmatter.title,
-          slug: englishMdx.slug,
-          order: englishMdx.frontmatter.order || 0,
-          content: markdownToHTML(englishMdx.content),
-          publishedAt: new Date().toISOString()
-        };
       } else if (contentType === 'pages') {
         englishData = {
           title: englishMdx.frontmatter.title,
@@ -546,14 +533,6 @@ async function syncContentType(contentType) {
                 content: markdownToHTML(localeMdx.content),
                 publishedAt: new Date().toISOString()
               };
-            } else if (contentType === 'events') {
-              localeData = {
-                title: localeMdx.frontmatter.title,
-                slug: localeMdx.slug,
-                order: localeMdx.frontmatter.order || 0,
-                content: markdownToHTML(localeMdx.content),
-                publishedAt: new Date().toISOString()
-              };
             } else if (contentType === 'pages') {
               localeData = {
                 title: localeMdx.frontmatter.title,
@@ -653,14 +632,6 @@ async function syncContentType(contentType) {
               description: localeMdx.frontmatter.description,
               slug: localeMdx.slug,
               date: localeMdx.frontmatter.date,
-              content: markdownToHTML(localeMdx.content),
-              publishedAt: new Date().toISOString()
-            };
-          } else if (contentType === 'events') {
-            localeData = {
-              title: localeMdx.frontmatter.title,
-              slug: localeMdx.slug,
-              order: localeMdx.frontmatter.order || 0,
               content: markdownToHTML(localeMdx.content),
               publishedAt: new Date().toISOString()
             };
