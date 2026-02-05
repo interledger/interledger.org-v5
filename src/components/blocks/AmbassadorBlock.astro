@@ -1,0 +1,41 @@
+---
+/**
+ * Single Ambassador Block for Dynamic Zones
+ * Displays a specific ambassador from the collection
+ */
+
+import Ambassador from '../ambassadors/Ambassador.astro'
+
+interface AmbassadorData {
+  name: string
+  slug: string
+  description: string
+  photo?: { url: string; alternativeText?: string } | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+}
+
+interface Props {
+  ambassador?: AmbassadorData
+  showLinks?: boolean
+}
+
+const { ambassador, showLinks = true } = Astro.props
+
+// Handle case where ambassador relation isn't populated
+if (!ambassador) {
+  return null
+}
+
+const photoUrl = ambassador.photo?.url
+const photoAlt = ambassador.photo?.alternativeText || ambassador.name
+---
+
+<Ambassador
+  name={ambassador.name}
+  description={ambassador.description}
+  photo={photoUrl}
+  photoAlt={photoAlt}
+  linkedinUrl={showLinks ? ambassador.linkedinUrl : undefined}
+  grantReportUrl={showLinks ? ambassador.grantReportUrl : undefined}
+/>
