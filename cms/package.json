@@ -8,8 +8,8 @@
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi",
-    "sync:mdx": "node scripts/sync-mdx.cjs",
-    "sync:mdx:dry-run": "node scripts/sync-mdx.cjs --dry-run"
+    "sync:mdx": "bun scripts/sync-mdx.cjs",
+    "sync:mdx:dry-run": "bun scripts/sync-mdx.cjs --dry-run"
   },
   "strapi": {
     "uuid": "d5c8f4e2-9a1b-4c3d-8e7f-6a5b4c3d2e1f"
@@ -31,7 +31,7 @@
   },
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
-    "npm": ">=6.0.0"
+    "bun": ">=1.0.0"
   },
   "overrides": {
     "esbuild": "0.20.2"

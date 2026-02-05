@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * MDX to Strapi Sync Script
@@ -9,8 +9,8 @@
  * - Deletes Strapi entries when MDX files are removed
  *
  * Usage:
- *   node scripts/sync-mdx.cjs --dry-run    # Preview changes
- *   node scripts/sync-mdx.cjs              # Actually sync
+ *   bun scripts/sync-mdx.cjs --dry-run    # Preview changes
+ *   bun scripts/sync-mdx.cjs              # Actually sync
  */
 
 const fs = require('fs');

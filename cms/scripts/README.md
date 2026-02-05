@@ -39,27 +39,27 @@ STRAPI_API_TOKEN=your-token-here
 
 ```bash
 cd cms
-npm run sync:mdx:dry-run  # Preview changes
-npm run sync:mdx          # Actually sync
+bun run sync:mdx:dry-run  # Preview changes
+bun run sync:mdx          # Actually sync
 ```
 
 ### From project root
 
 ```bash
-npm run sync:mdx:dry-run  # Preview changes
-npm run sync:mdx          # Actually sync
+bun run sync:mdx:dry-run  # Preview changes
+bun run sync:mdx          # Actually sync
 ```
 
 ### Direct execution
 
 ```bash
 # From project root
-node cms/scripts/sync-mdx.cjs --dry-run
-node cms/scripts/sync-mdx.cjs
+bun cms/scripts/sync-mdx.cjs --dry-run
+bun cms/scripts/sync-mdx.cjs
 
 # From cms directory
-node scripts/sync-mdx.cjs --dry-run
-node scripts/sync-mdx.cjs
+bun scripts/sync-mdx.cjs --dry-run
+bun scripts/sync-mdx.cjs
 ```
 
 ## GitHub Actions
@@ -101,5 +101,5 @@ Your API token doesn't have sufficient permissions. Make sure:
 The script requires dotenv to load environment variables:
 
 ```bash
-npm install dotenv
+bun add dotenv
 ```
