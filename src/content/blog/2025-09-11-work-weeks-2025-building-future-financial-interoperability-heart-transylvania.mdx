@@ -21,7 +21,7 @@ To appreciate the magic of this gathering, let’s first explore the foundationa
 
 ## Interledger Foundation
 
-At its core, Interledger is about one simple idea:
+At its core, Interledger is about one simple idea:<br />
 ***Sending money should be as easy as sending an email.***
 
 This vision is championed by the Interledger Foundation (ILF), which stewards the ILP ecosystem and its surrounding protocols. ILF works to empower communities globally with open financial infrastructure, and our work weeks are living proof of that commitment.
@@ -29,8 +29,8 @@ This vision is championed by the Interledger Foundation (ILF), which stewards th
 
 - **Interledger Protocol (ILP)**: Much like how the Internet routes packets of data between networks, ILP routes packets of value across different financial systems: Fiat, crypto, mobile money, or anything that carries value. Its architecture is layered, modular, and open. [Get started](/developers/get-started/) here!
 - **ILP Addresses**: These addresses define how value flows across the ILP network, like a routing map.
-- **Payment Pointers **([Wallet Addresses](https://openpayments.dev/concepts/wallet-addresses/)): Just as URLs simplify IP addresses, Payment Pointers make ILP addresses human-readable. For instance:
-*$ilp.interledger-test.dev/alice* 
+- **Payment Pointers** ([Wallet Addresses](https://openpayments.dev/concepts/wallet-addresses/)): Just as URLs simplify IP addresses, Payment Pointers make ILP addresses human-readable. For instance:<br />
+*$ilp.interledger-test.dev/alice* <br />
 This simple notation makes ILP more accessible and usable in real-world applications.
 - **Open Payments API**: A standardized API enabling third-party access to digital financial accounts. Whether it's recurring e-commerce payments or peer-to-peer transfers, [Open Payments](https://openpayments.dev/) allows seamless authorization and transaction initiation.
 - **Web Monetization**: A proposed W3C standard built on ILP. [Web Monetization](https://webmonetization.org/) enables real-time micropayments to web creators without the friction of ads or subscriptions. It's an elegant application layer of the ILP stack.
@@ -123,7 +123,7 @@ Building on last year’s work week, when we introduced observability and charac
 
 ![A member of the Rafiki team presenting performance graphics.](/img/foundation-blog/ilf-workweek-p6.jpg)
 
-**The goal is to increase the horizontal scalability. **
+**The goal is to increase the horizontal scalability.**
 
 Small performance increases are possible using known techniques, such as caching (or, as a last resort, faster machines). Horizontal scalability, however, is not possible with the current DB-centric worker approach and requires a system redesign. Our goal was to find a design capable of maintaining acceptable response times over increasing levels of demand by distributing its load across an increasing number of inexpensive instances.
 
