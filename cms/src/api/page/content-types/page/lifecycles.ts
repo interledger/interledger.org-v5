@@ -113,7 +113,33 @@ interface ImageRow {
   images?: MediaFile[]
 }
 
-type ContentBlock = CardsGrid | CardLinksGrid | Carousel | CtaBanner | Paragraph | ImageRow
+interface AmbassadorRef {
+  id?: number
+  documentId?: string
+  slug: string
+  name: string
+  description?: string
+  photo?: MediaFile | null
+  photoAlt?: string | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+  order?: number
+}
+
+interface AmbassadorBlock {
+  __component: 'blocks.ambassador'
+  id: number
+  ambassador?: AmbassadorRef
+}
+
+interface AmbassadorsGridBlock {
+  __component: 'blocks.ambassadors-grid'
+  id: number
+  heading?: string
+  ambassadors?: AmbassadorRef[]
+}
+
+type ContentBlock = CardsGrid | CardLinksGrid | Carousel | CtaBanner | Paragraph | ImageRow | AmbassadorBlock | AmbassadorsGridBlock
 
 interface Page {
   id: number
@@ -341,6 +367,47 @@ function serializeImageRow(block: ImageRow): string {
 }
 
 /**
+ * Serializes a single ambassador block to MDX
+ */
+function serializeAmbassador(block: AmbassadorBlock): string {
+  if (!block.ambassador) return ''
+
+  const amb = block.ambassador
+  return `<AmbassadorCard
+  name="${escapeQuotes(amb.name)}"
+  slug="${escapeQuotes(amb.slug)}"
+  description="${escapeQuotes(amb.description || '')}"
+  photo="${amb.photo?.url ? escapeQuotes(getImageUrl(amb.photo) || '') : ''}"
+  photoAlt="${escapeQuotes(amb.photoAlt || '')}"
+  linkedinUrl="${escapeQuotes(amb.linkedinUrl || '')}"
+  grantReportUrl="${escapeQuotes(amb.grantReportUrl || '')}"
+/>`
+}
+
+/**
+ * Serializes an ambassadors-grid block to MDX
+ */
+function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
+  const lines: string[] = []
+
+  if (block.heading) {
+    lines.push(`## ${block.heading}`)
+    lines.push('')
+  }
+
+  // Extract slugs from the ambassadors relation
+  const slugs = (block.ambassadors || [])
+    .filter(amb => amb?.slug)
+    .map(amb => `"${escapeQuotes(amb.slug)}"`)
+
+  if (slugs.length > 0) {
+    lines.push(`<AmbassadorGrid slugs={[${slugs.join(',')}]} />`)
+  }
+
+  return lines.join('\n')
+}
+
+/**
  * Serializes the content dynamic zone to MDX
  */
 function serializeContent(content: ContentBlock[] | undefined): string {
@@ -367,6 +434,12 @@ function serializeContent(content: ContentBlock[] | undefined): string {
         break
       case 'blocks.image-row':
         blocks.push(serializeImageRow(block as ImageRow))
+        break
+      case 'blocks.ambassador':
+        blocks.push(serializeAmbassador(block as AmbassadorBlock))
+        break
+      case 'blocks.ambassadors-grid':
+        blocks.push(serializeAmbassadorsGrid(block as AmbassadorsGridBlock))
         break
       default:
         console.warn(`Unknown block component: ${(block as any).__component}`)
@@ -432,7 +505,21 @@ function generateMDX(page: Page): string {
   const frontmatter = frontmatterLines.join('\n')
   const content = serializeContent(page.content)
 
-  return `---\n${frontmatter}\n---\n\n${content}\n`
+  // Check if we need to add imports for ambassador components
+  const imports: string[] = []
+  const hasAmbassadorCard = page.content?.some(block => block.__component === 'blocks.ambassador')
+  const hasAmbassadorGrid = page.content?.some(block => block.__component === 'blocks.ambassadors-grid')
+
+  if (hasAmbassadorCard) {
+    imports.push('import AmbassadorCard from "../../components/ambassadors/AmbassadorCard.astro"')
+  }
+  if (hasAmbassadorGrid) {
+    imports.push('import AmbassadorGrid from "../../components/ambassadors/AmbassadorGrid.astro"')
+  }
+
+  const importBlock = imports.length > 0 ? imports.join('\n') + '\n\n' : ''
+
+  return `---\n${frontmatter}\n---\n\n${importBlock}${content}\n`
 }
 
 /**
