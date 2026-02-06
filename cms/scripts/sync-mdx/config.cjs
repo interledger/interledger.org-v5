@@ -11,7 +11,7 @@ function buildContentTypes(projectRoot) {
       pattern: /^(\d{4}-\d{2}-\d{2})-(.+)\.mdx$/
     },
     pages: {
-      dir: path.join(projectRoot, 'src/content/pages'),
+      dir: path.join(projectRoot, 'src/content/foundation-pages'),
       apiId: 'pages',
       pattern: /^(.+)\.mdx$/
     },
