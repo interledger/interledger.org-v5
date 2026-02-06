@@ -46,21 +46,23 @@ interface Event {
 function markdownToHtml(markdown: string): string {
   if (!markdown) return ''
 
-  return markdown
-    // Bold: **text** or __text__
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/__([^_]+)__/g, '<strong>$1</strong>')
-    // Italic: *text* or _text_
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/_([^_]+)_/g, '<em>$1</em>')
-    // Links: [text](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    // Line breaks
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>')
-    // Wrap in paragraph if not already
-    .replace(/^(?!<p>)/, '<p>')
-    .replace(/(?!<\/p>)$/, '</p>')
+  return (
+    markdown
+      // Bold: **text** or __text__
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+      // Italic: *text* or _text_
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>')
+      // Links: [text](url)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+      // Line breaks
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      // Wrap in paragraph if not already
+      .replace(/^(?!<p>)/, '<p>')
+      .replace(/(?!<\/p>)$/, '</p>')
+  )
 }
 
 /**
@@ -69,18 +71,20 @@ function markdownToHtml(markdown: string): string {
 function toPlainText(text: string): string {
   if (!text) return ''
 
-  return text
-    // Remove markdown bold/italic
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/__([^_]+)__/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/_([^_]+)_/g, '$1')
-    // Remove markdown links, keep text
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Remove HTML tags
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .trim()
+  return (
+    text
+      // Remove markdown bold/italic
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/__([^_]+)__/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
+      // Remove markdown links, keep text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // Remove HTML tags
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/gi, ' ')
+      .trim()
+  )
 }
 
 /**
