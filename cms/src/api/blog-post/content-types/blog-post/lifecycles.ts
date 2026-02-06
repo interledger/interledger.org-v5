@@ -11,7 +11,8 @@ import {
   escapeQuotes,
   getImageUrl,
   htmlToMarkdown,
-  LOCALES
+  LOCALES,
+  getPreservedFields
 } from '../../../../utils/mdx'
 
 interface BlogPost {
@@ -46,7 +47,11 @@ function generateFilename(post: BlogPost): string {
   return `${prefix}${post.slug}.mdx`
 }
 
-function generateMDX(post: BlogPost, locale: string): string {
+function generateMDX(
+  post: BlogPost,
+  locale: string,
+  preservedFields: Record<string, string> = {}
+): string {
   const imageUrl = getImageUrl(post.featuredImage)
   const langValue = post.lang || locale
 
@@ -62,9 +67,16 @@ function generateMDX(post: BlogPost, locale: string): string {
     imageUrl ? `image: "${escapeQuotes(imageUrl)}"` : undefined
   ].filter(Boolean) as string[]
 
+  // Always include contentId for locale linking (Strapi documentId)
+  frontmatterLines.push(`contentId: "${escapeQuotes(post.documentId)}"`)
+
+  // Include preserved fields (like localizes) that exist in MDX but not in Strapi
+  for (const [key, value] of Object.entries(preservedFields)) {
+    frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
+  }
+
   if (locale !== 'en') {
     frontmatterLines.push(`locale: "${escapeQuotes(locale)}"`)
-    frontmatterLines.push(`contentId: "${escapeQuotes(post.documentId)}"`)
   }
 
   const frontmatter = frontmatterLines.join('\n')
@@ -91,7 +103,10 @@ async function writeMDXFile(post: BlogPost, locale: string): Promise<string> {
 
   const filename = generateFilename(post)
   const filepath = path.join(baseDir, filename)
-  fs.writeFileSync(filepath, generateMDX(post, locale), 'utf-8')
+
+  // Preserve fields that exist in MDX but not in Strapi
+  const preservedFields = getPreservedFields(filepath)
+  fs.writeFileSync(filepath, generateMDX(post, locale, preservedFields), 'utf-8')
   console.log(`✅ Generated blog post MDX: ${filepath}`)
   return filepath
 }

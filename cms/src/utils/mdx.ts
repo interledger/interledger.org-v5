@@ -3,6 +3,8 @@
  * Types, serializers, and helpers used across page, summit-page, blog-post, and grant-track.
  */
 
+import fs from 'fs'
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface MediaFile {
@@ -336,6 +338,42 @@ export function serializeContent(content: ContentBlock[] | undefined): string {
 }
 
 // ── Frontmatter helpers ──────────────────────────────────────────────────────
+
+/**
+ * Read existing frontmatter fields that should be preserved (not managed by Strapi).
+ * Used during MDX export to keep fields like 'localizes' that are set manually in MDX.
+ */
+export function getPreservedFields(filepath: string): Record<string, string> {
+  const preserved: Record<string, string> = {}
+  const fieldsToPreserve = ['localizes'] // Fields set in MDX but not in Strapi
+
+  if (!fs.existsSync(filepath)) {
+    return preserved
+  }
+
+  try {
+    const content = fs.readFileSync(filepath, 'utf-8')
+    const match = content.match(/^---\n([\s\S]*?)\n---/)
+    if (!match) return preserved
+
+    const lines = match[1].split('\n')
+    for (const line of lines) {
+      const colonIndex = line.indexOf(':')
+      if (colonIndex > 0) {
+        const key = line.substring(0, colonIndex).trim()
+        if (fieldsToPreserve.includes(key)) {
+          let value = line.substring(colonIndex + 1).trim()
+          value = value.replace(/^["']|["']$/g, '')
+          preserved[key] = value
+        }
+      }
+    }
+  } catch {
+    // Ignore read errors
+  }
+
+  return preserved
+}
 
 export function heroFrontmatter(hero: Hero | undefined): string[] {
   if (!hero) return []

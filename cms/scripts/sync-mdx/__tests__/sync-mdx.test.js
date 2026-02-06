@@ -7,6 +7,10 @@ const { parseMDX } = require('../mdx');
 const { markdownToHTML } = require('../markdown');
 const { scanMDXFiles } = require('../scan');
 const { buildEntryData, syncContentType } = require('../sync');
+const {
+  updateMdxFrontmatter,
+  readMdxFrontmatterField
+} = require('../contentId');
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -35,6 +39,104 @@ describe('parseMDX', () => {
     expect(result.frontmatter.slug).toBe('hello');
     expect(result.frontmatter.order).toBe(2);
     expect(result.content).toBe('Body content');
+  });
+});
+
+describe('updateMdxFrontmatter', () => {
+  it('adds a new field to frontmatter', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const filePath = path.join(tmpDir, 'test.mdx');
+    writeFile(
+      filePath,
+      ['---', 'title: "Hello"', 'slug: "hello"', '---', '', 'Body'].join('\n')
+    );
+
+    updateMdxFrontmatter(filePath, 'contentId', 'abc123');
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    expect(content).toContain('contentId: "abc123"');
+    expect(content).toContain('title: "Hello"');
+    expect(content).toContain('slug: "hello"');
+  });
+
+  it('updates an existing field in frontmatter', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const filePath = path.join(tmpDir, 'test.mdx');
+    writeFile(
+      filePath,
+      [
+        '---',
+        'title: "Hello"',
+        'contentId: "old-value"',
+        '---',
+        '',
+        'Body'
+      ].join('\n')
+    );
+
+    updateMdxFrontmatter(filePath, 'contentId', 'new-value');
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    expect(content).toContain('contentId: "new-value"');
+    expect(content).not.toContain('old-value');
+  });
+
+  it('preserves other fields when updating', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const filePath = path.join(tmpDir, 'test.mdx');
+    writeFile(
+      filePath,
+      [
+        '---',
+        'title: "Hello"',
+        'localizes: "english-slug"',
+        'locale: "es"',
+        '---',
+        '',
+        'Body'
+      ].join('\n')
+    );
+
+    updateMdxFrontmatter(filePath, 'contentId', 'abc123');
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    expect(content).toContain('contentId: "abc123"');
+    expect(content).toContain('localizes: "english-slug"');
+    expect(content).toContain('locale: "es"');
+    expect(content).toContain('title: "Hello"');
+  });
+});
+
+describe('readMdxFrontmatterField', () => {
+  it('reads a field from frontmatter', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const filePath = path.join(tmpDir, 'test.mdx');
+    writeFile(
+      filePath,
+      [
+        '---',
+        'title: "Hello"',
+        'contentId: "abc123"',
+        '---',
+        '',
+        'Body'
+      ].join('\n')
+    );
+
+    const value = readMdxFrontmatterField(filePath, 'contentId');
+    expect(value).toBe('abc123');
+  });
+
+  it('returns null for missing field', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const filePath = path.join(tmpDir, 'test.mdx');
+    writeFile(
+      filePath,
+      ['---', 'title: "Hello"', '---', '', 'Body'].join('\n')
+    );
+
+    const value = readMdxFrontmatterField(filePath, 'contentId');
+    expect(value).toBeNull();
   });
 });
 
@@ -130,6 +232,119 @@ describe('buildEntryData', () => {
 });
 
 describe('syncContentType', () => {
+  it('matches locale file via localizes field', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+    const esSummitDir = path.join(contentRoot, 'es', 'summit');
+
+    writeFile(
+      path.join(summitDir, 'about.mdx'),
+      ['---', 'title: "About"', '---', '', 'Body'].join('\n')
+    );
+
+    writeFile(
+      path.join(esSummitDir, 'sobre-nosotros.mdx'),
+      [
+        '---',
+        'title: "Sobre Nosotros"',
+        'locale: "es"',
+        'localizes: "about"',
+        '---',
+        '',
+        'Contenido'
+      ].join('\n')
+    );
+
+    const existingEntry = {
+      documentId: 'doc-about',
+      slug: 'about',
+      locale: 'en'
+    };
+
+    const calls = { createLocalization: 0 };
+
+    const strapi = {
+      getAllEntries: async () => [existingEntry],
+      findBySlug: async (apiId, slug, locale) => {
+        if (locale === 'en' && slug === 'about') return existingEntry;
+        return null;
+      },
+      createLocalization: async () => {
+        calls.createLocalization++;
+      },
+      updateLocalization: async () => {},
+      updateEntry: async () => ({ data: existingEntry }),
+      createEntry: async () => ({ data: existingEntry }),
+      deleteEntry: async () => {}
+    };
+
+    const contentTypes = {
+      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summitPages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    // Should match via localizes field and create localization
+    expect(calls.createLocalization).toBe(1);
+
+    // Should write contentId to locale file
+    const localeContent = fs.readFileSync(
+      path.join(esSummitDir, 'sobre-nosotros.mdx'),
+      'utf-8'
+    );
+    expect(localeContent).toContain('contentId: "doc-about"');
+    expect(localeContent).toContain('localizes: "about"');
+  });
+
+  it('writes contentId to English file after sync', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+
+    writeFile(
+      path.join(summitDir, 'new-page.mdx'),
+      ['---', 'title: "New Page"', '---', '', 'Body'].join('\n')
+    );
+
+    const createdEntry = {
+      documentId: 'new-doc-id',
+      slug: 'new-page',
+      locale: 'en'
+    };
+
+    const strapi = {
+      getAllEntries: async () => [],
+      findBySlug: async () => null,
+      createLocalization: async () => {},
+      updateLocalization: async () => {},
+      updateEntry: async () => ({ data: createdEntry }),
+      createEntry: async () => ({ data: createdEntry }),
+      deleteEntry: async () => {}
+    };
+
+    const contentTypes = {
+      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summitPages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    // Should write contentId to English file
+    const englishContent = fs.readFileSync(
+      path.join(summitDir, 'new-page.mdx'),
+      'utf-8'
+    );
+    expect(englishContent).toContain('contentId: "new-doc-id"');
+  });
+
   it('creates localization for summit pages using contentId slug match', async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
     const contentRoot = path.join(tmpDir, 'src', 'content');

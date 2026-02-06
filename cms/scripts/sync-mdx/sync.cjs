@@ -1,9 +1,6 @@
 const { scanMDXFiles } = require('./scan');
 const { markdownToHTML } = require('./markdown');
-const {
-  generateContentId,
-  updateMdxFrontmatter
-} = require('./contentId');
+const { updateMdxFrontmatter } = require('./contentId');
 
 function getEntryField(entry, key) {
   if (!entry) return null;
@@ -101,18 +98,10 @@ async function syncContentType(contentType, ctx) {
     }
     processedSlugs.get(locale).add(englishMdx.slug);
 
-    try {
-      // Ensure English file has a contentId for linking with locale files
-      let localContentId = englishMdx.frontmatter.contentId;
-      if (!localContentId && !ctx.DRY_RUN) {
-        localContentId = generateContentId();
-        updateMdxFrontmatter(englishMdx.filepath, 'contentId', localContentId);
-        englishMdx.frontmatter.contentId = localContentId;
-        console.log(
-          `   🔗 Generated contentId for ${englishMdx.slug}: ${localContentId}`
-        );
-      }
+    // Capture old contentId before sync (for matching locale files that have the old value)
+    const oldContentId = englishMdx.frontmatter.contentId;
 
+    try {
       let englishEntry;
       const existing = await ctx.strapi.findBySlug(
         config.apiId,
@@ -133,14 +122,12 @@ async function syncContentType(contentType, ctx) {
           englishEntry = result.data || existing;
           console.log(`   🔄 Updated: ${englishMdx.slug} (en)`);
 
-          // Write back Strapi documentId to MDX for reference
+          // Write back Strapi documentId as contentId for locale linking
           const strapiDocId = englishEntry.documentId || existing.documentId;
-          if (strapiDocId) {
-            updateMdxFrontmatter(
-              englishMdx.filepath,
-              'strapiDocumentId',
-              strapiDocId
-            );
+          if (strapiDocId && englishMdx.frontmatter.contentId !== strapiDocId) {
+            updateMdxFrontmatter(englishMdx.filepath, 'contentId', strapiDocId);
+            englishMdx.frontmatter.contentId = strapiDocId;
+            console.log(`   🔗 Wrote contentId to ${englishMdx.slug}: ${strapiDocId}`);
           }
         }
         results.updated++;
@@ -153,13 +140,11 @@ async function syncContentType(contentType, ctx) {
           englishEntry = result.data;
           console.log(`   ✅ Created: ${englishMdx.slug} (en)`);
 
-          // Write back Strapi documentId to MDX for reference
+          // Write back Strapi documentId as contentId for locale linking
           if (englishEntry && englishEntry.documentId) {
-            updateMdxFrontmatter(
-              englishMdx.filepath,
-              'strapiDocumentId',
-              englishEntry.documentId
-            );
+            updateMdxFrontmatter(englishMdx.filepath, 'contentId', englishEntry.documentId);
+            englishMdx.frontmatter.contentId = englishEntry.documentId;
+            console.log(`   🔗 Wrote contentId to ${englishMdx.slug}: ${englishEntry.documentId}`);
           }
         }
         results.created++;
@@ -194,6 +179,10 @@ async function syncContentType(contentType, ctx) {
               if (englishContentId && localeContentId === englishContentId) {
                 matchScore = 1000;
                 matchReason = `contentId: ${englishContentId}`;
+              } else if (oldContentId && localeContentId === oldContentId) {
+                // Match against old contentId (before Strapi assigned new documentId)
+                matchScore = 1000;
+                matchReason = `contentId (old): ${oldContentId}`;
               } else if (localeContentId === englishMdx.slug) {
                 matchScore = 1000;
                 matchReason = `contentId matches slug: ${englishMdx.slug}`;
@@ -280,23 +269,12 @@ async function syncContentType(contentType, ctx) {
                   `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
                 );
 
-                // Sync contentId and strapiDocumentId to locale file
-                const englishLocalContentId = englishMdx.frontmatter.contentId;
-                if (
-                  englishLocalContentId &&
-                  localeMdx.frontmatter.contentId !== englishLocalContentId
-                ) {
-                  updateMdxFrontmatter(
-                    localeMdx.filepath,
-                    'contentId',
-                    englishLocalContentId
-                  );
+                // Write contentId to locale file (same as English file's Strapi documentId)
+                const contentId = englishMdx.frontmatter.contentId;
+                if (contentId && localeMdx.frontmatter.contentId !== contentId) {
+                  updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId);
+                  console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`);
                 }
-                updateMdxFrontmatter(
-                  localeMdx.filepath,
-                  'strapiDocumentId',
-                  englishEntry.documentId
-                );
               }
               results.updated++;
             } else {
@@ -315,23 +293,12 @@ async function syncContentType(contentType, ctx) {
                   `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
                 );
 
-                // Sync contentId and strapiDocumentId to locale file
-                const englishLocalContentId = englishMdx.frontmatter.contentId;
-                if (
-                  englishLocalContentId &&
-                  localeMdx.frontmatter.contentId !== englishLocalContentId
-                ) {
-                  updateMdxFrontmatter(
-                    localeMdx.filepath,
-                    'contentId',
-                    englishLocalContentId
-                  );
+                // Write contentId to locale file (same as English file's Strapi documentId)
+                const contentId = englishMdx.frontmatter.contentId;
+                if (contentId && localeMdx.frontmatter.contentId !== contentId) {
+                  updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId);
+                  console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`);
                 }
-                updateMdxFrontmatter(
-                  localeMdx.filepath,
-                  'strapiDocumentId',
-                  englishEntry.documentId
-                );
               }
               results.created++;
             }
@@ -428,12 +395,11 @@ async function syncContentType(contentType, ctx) {
                 `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
               );
 
-              // Write back strapiDocumentId to locale file
-              updateMdxFrontmatter(
-                localeMdx.filepath,
-                'strapiDocumentId',
-                matchedEnglishEntry.documentId
-              );
+              // Write contentId to locale file
+              if (localeMdx.frontmatter.contentId !== matchedEnglishEntry.documentId) {
+                updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId);
+                console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`);
+              }
             }
             results.updated++;
           } else {
@@ -452,12 +418,11 @@ async function syncContentType(contentType, ctx) {
                 `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
               );
 
-              // Write back strapiDocumentId to locale file
-              updateMdxFrontmatter(
-                localeMdx.filepath,
-                'strapiDocumentId',
-                matchedEnglishEntry.documentId
-              );
+              // Write contentId to locale file
+              if (localeMdx.frontmatter.contentId !== matchedEnglishEntry.documentId) {
+                updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId);
+                console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`);
+              }
             }
             results.created++;
           }

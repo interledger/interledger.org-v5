@@ -16,6 +16,7 @@ import {
   serializeContent,
   heroFrontmatter,
   seoFrontmatter,
+  getPreservedFields,
 } from './mdx'
 
 interface PageData {
@@ -63,7 +64,11 @@ function getOutputDir(config: PageLifecycleConfig, locale: string): string {
   return path.join(projectRoot, 'src/content', locale, config.localizedOutputDir)
 }
 
-function generateMDX(config: PageLifecycleConfig, page: PageData): string {
+function generateMDX(
+  config: PageLifecycleConfig,
+  page: PageData,
+  preservedFields: Record<string, string> = {}
+): string {
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
 
@@ -75,9 +80,16 @@ function generateMDX(config: PageLifecycleConfig, page: PageData): string {
     ...seoFrontmatter(page.seo),
   ]
 
+  // Always include contentId for locale linking (Strapi documentId)
+  frontmatterLines.push(`contentId: "${page.documentId}"`)
+
+  // Include preserved fields (like localizes) that exist in MDX but not in Strapi
+  for (const [key, value] of Object.entries(preservedFields)) {
+    frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
+  }
+
   if (isLocalized) {
     frontmatterLines.push(`locale: "${locale}"`)
-    frontmatterLines.push(`contentId: "${page.documentId}"`)
   }
 
   const frontmatter = frontmatterLines.join('\n')
@@ -95,7 +107,10 @@ async function writeMDXFile(config: PageLifecycleConfig, page: PageData): Promis
   }
 
   const filepath = path.join(outputDir, `${page.slug}.mdx`)
-  fs.writeFileSync(filepath, generateMDX(config, page), 'utf-8')
+
+  // Preserve fields that exist in MDX but not in Strapi
+  const preservedFields = getPreservedFields(filepath)
+  fs.writeFileSync(filepath, generateMDX(config, page, preservedFields), 'utf-8')
   console.log(`✅ Generated ${config.logPrefix} MDX: ${filepath}`)
 
   return filepath
