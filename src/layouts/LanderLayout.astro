@@ -41,9 +41,7 @@ const { title, description, gradient = 'option1' } = Astro.props
     style={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
   >
     <LanderHeader />
-    <div
-      class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]"
-    >
+    <div class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]">
       <slot />
     </div>
     <Footer />

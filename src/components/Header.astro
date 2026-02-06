@@ -5,18 +5,11 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from './logos/DevelopersLogo.astro'
 ---
 
-<div
-  class="flex h-full items-center gap-[var(--sl-nav-gap)] border-t-2 border-primary shadow-primary [&_site-search>button[data-open-modal]]:w-auto"
->
+<div class="flex h-full items-center gap-[var(--sl-nav-gap)] border-t-2 border-primary shadow-primary [&_site-search>button[data-open-modal]]:w-auto">
   <a href="/" class="flex items-center gap-space-xs">
-    <DevelopersLogo
-      class="w-[9.5em] flex-none text-primary dark:text-[var(--sl-color-text-accent)]"
-    />
+    <DevelopersLogo class="w-[9.5em] flex-none text-primary dark:text-[var(--sl-color-text-accent)]" />
   </a>
-  <a
-    href="/"
-    class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-primary no-underline hover:underline dark:text-[var(--sl-color-text-accent)]"
-  >
+  <a href="/" class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-primary no-underline hover:underline dark:text-[var(--sl-color-text-accent)]">
     <span
       class="block w-0 flex-auto overflow-hidden text-ellipsis text-right"
       aria-hidden="true"

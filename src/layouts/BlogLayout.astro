@@ -70,16 +70,12 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
         </li>
       </ol>
       <div>
-        <img src={frontmatter.featureImage} alt={frontmatter.featureImageAlt} />
-      </div>
+        <img src={frontmatter.featureImage} alt={frontmatter.featureImageAlt}>
+      </div> 
       <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>
-      <time
-        datetime={isoDate}
-        itemprop="datePublished"
-        class="block mb-space-3xs text-step--1"
-      >
+      <time datetime={isoDate} itemprop="datePublished" class="block mb-space-3xs text-step--1">
         {longDate}
       </time>
       {

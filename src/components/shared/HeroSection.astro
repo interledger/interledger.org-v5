@@ -3,14 +3,10 @@ import Link from './Link.astro'
 const { title, content, ctas } = Astro.props
 ---
 
-<section
-  class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[30vh] md:min-h-[50vh] py-space-m text-white flex items-center"
->
+<section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[30vh] md:min-h-[50vh] py-space-m text-white flex items-center">
   <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
     <div>
-      <h1
-        class="text-white max-w-[15em] leading-tight font-semibold mb-space-xs text-step-2"
-      >
+      <h1 class="text-white max-w-[15em] leading-tight font-semibold mb-space-xs text-step-2">
         {title ?? ''}
       </h1>
       <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-space-xs">
