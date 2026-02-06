@@ -1,10 +1,12 @@
 ---
 /**
- * Single Ambassador Block for Dynamic Zones
+ * Single Ambassador Block for Dynamic Zones (SSR Preview)
  * Displays a specific ambassador from the collection
+ * Converts markdown description to HTML for preview rendering
  */
 
 import Ambassador from '../ambassadors/Ambassador.astro'
+import { marked } from 'marked'
 
 interface AmbassadorData {
   name: string
@@ -29,11 +31,15 @@ if (!ambassador) {
 
 const photoUrl = ambassador.photo?.url
 const photoAlt = ambassador.photo?.alternativeText || ambassador.name
+// Convert markdown description to HTML for preview
+const descriptionHtml = ambassador.description
+  ? await marked.parse(ambassador.description)
+  : ''
 ---
 
 <Ambassador
   name={ambassador.name}
-  description={ambassador.description}
+  description={descriptionHtml}
   photo={photoUrl}
   photoAlt={photoAlt}
   linkedinUrl={showLinks ? ambassador.linkedinUrl : undefined}

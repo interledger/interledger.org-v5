@@ -1,10 +1,12 @@
 ---
 /**
- * Ambassadors Grid Block for Dynamic Zones
+ * Ambassadors Grid Block for Dynamic Zones (SSR Preview)
  * Renders the ambassadors selected by content authors in Strapi
+ * Converts markdown descriptions to HTML for preview rendering
  */
 
 import AmbassadorGrid from '../ambassadors/AmbassadorGrid.astro'
+import { marked } from 'marked'
 
 interface AmbassadorFromStrapi {
   name: string
@@ -24,16 +26,19 @@ interface Props {
 const { heading, ambassadors: strapiAmbassadors = [] } = Astro.props
 
 // Transform Strapi ambassador data to the format expected by AmbassadorGrid
-const ambassadors = strapiAmbassadors.map((amb) => ({
-  name: amb.name,
-  slug: amb.slug,
-  description: amb.description,
-  photo: amb.photo?.url || null,
-  photoAlt: amb.name,
-  linkedinUrl: amb.linkedinUrl,
-  grantReportUrl: amb.grantReportUrl,
-  order: amb.order || 0
-}))
+// Convert markdown description to HTML for preview rendering
+const ambassadors = await Promise.all(
+  strapiAmbassadors.map(async (amb) => ({
+    name: amb.name,
+    slug: amb.slug,
+    description: amb.description ? await marked.parse(amb.description) : '',
+    photo: amb.photo?.url || null,
+    photoAlt: amb.name,
+    linkedinUrl: amb.linkedinUrl,
+    grantReportUrl: amb.grantReportUrl,
+    order: amb.order || 0
+  }))
+)
 ---
 
 {ambassadors.length > 0 ? (
