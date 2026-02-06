@@ -17,14 +17,16 @@ if (!documentId) {
 
 // Build populate query for dynamic zone with nested relations
 const populateParams = new URLSearchParams({
-  'status': 'draft',
+  status: 'draft',
   'populate[hero][populate]': '*',
   'populate[seo][populate]': '*',
   'populate[content][populate]': '*',
-  'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]': '*',
-  'populate[content][on][blocks.ambassador][populate][ambassador][populate]': '*',
+  'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]':
+    '*',
+  'populate[content][on][blocks.ambassador][populate][ambassador][populate]':
+    '*',
   'populate[content][on][blocks.cards-grid][populate][cards]': '*',
-  'populate[content][on][blocks.carousel][populate][items][populate]': '*',
+  'populate[content][on][blocks.carousel][populate][items][populate]': '*'
 })
 
 const response = await fetchStrapi(
@@ -50,29 +52,33 @@ const content = page.content || []
       PREVIEW MODE - This content is not published
     </div>
 
-    {heroTitle && (
-      <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
-        <div class="mx-auto w-full max-w-wide px-space-m">
-          <div class="max-w-narrow">
-            <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
-              {heroTitle}
-            </h1>
-            {heroDescription && (
-              <p class="mb-space-m text-[1.125rem] max-w-[600px]">
-                {heroDescription}
-              </p>
-            )}
+    {
+      heroTitle && (
+        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+          <div class="mx-auto w-full max-w-wide px-space-m">
+            <div class="max-w-narrow">
+              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+                {heroTitle}
+              </h1>
+              {heroDescription && (
+                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                  {heroDescription}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
 
-    {content.length > 0 && (
-      <section class="py-space-xl">
-        <div class="mx-auto max-w-content min-w-90 max-[1324px]:px-[5%]">
-          <DynamicZone blocks={content} />
-        </div>
-      </section>
-    )}
+    {
+      content.length > 0 && (
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content min-w-90 max-[1324px]:px-[5%]">
+            <DynamicZone blocks={content} />
+          </div>
+        </section>
+      )
+    }
   </main>
 </BaseLayout>

@@ -41,8 +41,10 @@ const ambassadors = await Promise.all(
 )
 ---
 
-{ambassadors.length > 0 ? (
-  <AmbassadorGrid ambassadors={ambassadors} heading={heading} />
-) : (
-  <p class="text-gray">No ambassadors selected for this grid.</p>
-)}
+{
+  ambassadors.length > 0 ? (
+    <AmbassadorGrid ambassadors={ambassadors} heading={heading} />
+  ) : (
+    <p class="text-gray">No ambassadors selected for this grid.</p>
+  )
+}

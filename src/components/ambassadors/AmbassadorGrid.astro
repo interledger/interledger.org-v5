@@ -42,13 +42,15 @@ if (propAmbassadors && propAmbassadors.length > 0) {
 } else if (slugs && slugs.length > 0) {
   // Fetch ambassadors by slugs from the content collection
   const allAmbassadors = await getCollection('ambassadors')
-  const filtered = allAmbassadors.filter(entry => slugs.includes(entry.data.slug))
+  const filtered = allAmbassadors.filter((entry) =>
+    slugs.includes(entry.data.slug)
+  )
 
   // Maintain the order from the slugs array (reflects Strapi relation order)
   ambassadors = slugs
-    .map(slug => filtered.find(entry => entry.data.slug === slug))
+    .map((slug) => filtered.find((entry) => entry.data.slug === slug))
     .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
-    .map(entry => ({
+    .map((entry) => ({
       name: entry.data.name,
       slug: entry.data.slug,
       description: entry.data.description,
@@ -60,14 +62,12 @@ if (propAmbassadors && propAmbassadors.length > 0) {
 }
 ---
 
-{ambassadors.length > 0 ? (
-  <div class="ambassadors-section">
-    {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
-    <div
-      class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start"
-    >
-      {
-        ambassadors.map((ambassador) => (
+{
+  ambassadors.length > 0 ? (
+    <div class="ambassadors-section">
+      {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
+      <div class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start">
+        {ambassadors.map((ambassador) => (
           <Ambassador
             name={ambassador.name}
             description={ambassador.description}
@@ -76,13 +76,13 @@ if (propAmbassadors && propAmbassadors.length > 0) {
             linkedinUrl={ambassador.linkedinUrl || undefined}
             grantReportUrl={ambassador.grantReportUrl || undefined}
           />
-        ))
-      }
+        ))}
+      </div>
     </div>
-  </div>
-) : (
-  <p class="text-gray">No ambassadors to display.</p>
-)}
+  ) : (
+    <p class="text-gray">No ambassadors to display.</p>
+  )
+}
 
 <style>
   /* Additional styles for non-last ambassadors in mobile view */

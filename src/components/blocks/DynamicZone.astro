@@ -50,9 +50,11 @@ const resolvedBlocks = blocks
 ---
 
 <div class="flex flex-col gap-space-xl">
-  {resolvedBlocks.map(({ Component, props }) => (
-    <div class="w-full">
-      <Component {...props} />
-    </div>
-  ))}
+  {
+    resolvedBlocks.map(({ Component, props }) => (
+      <div class="w-full">
+        <Component {...props} />
+      </div>
+    ))
+  }
 </div>

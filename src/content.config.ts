@@ -15,18 +15,21 @@ const Section = z.object({
 })
 
 const pageSchema = z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z.array(Section).optional(),
-    gradient: z.string().optional()
-  })
+  title: z.string(),
+  slug: z.string(),
+  description: z.string().optional(),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  sections: z.array(Section).optional(),
+  gradient: z.string().optional()
+})
 
 const engBlogCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/developers/blog' }),
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/developers/blog'
+  }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -85,7 +88,10 @@ const grantPagesCollection = defineCollection({
 })
 
 const foundationPagesCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/foundation-pages' }),
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/foundation-pages'
+  }),
   schema: pageSchema
 })
 
@@ -143,5 +149,5 @@ export const collections = {
   'hackathon-pages': hackathonPagesCollection,
   'hackathon-resource-pages': hackathonResourcePagesCollection,
   'grant-pages': grantPagesCollection,
-  'ambassadors': ambassadorCollection
+  ambassadors: ambassadorCollection
 }
