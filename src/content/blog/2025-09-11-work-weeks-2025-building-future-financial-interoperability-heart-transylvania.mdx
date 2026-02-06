@@ -1,13 +1,13 @@
 ---
-title: "Work Weeks 2025: Building the Future of Financial Interoperability in the Heart of Transylvania"
-description: "The Interledger Foundation’s 2025 Work Weeks in Romania brought global collaborators together to advance Web Monetization and Rafiki, focusing on new publisher tools, scalable infrastructure, and real-world payment integrations. These gatherings accelerated progress toward building an open, inclusive, and interoperable financial network."
+title: 'Work Weeks 2025: Building the Future of Financial Interoperability in the Heart of Transylvania'
+description: 'The Interledger Foundation’s 2025 Work Weeks in Romania brought global collaborators together to advance Web Monetization and Rafiki, focusing on new publisher tools, scalable infrastructure, and real-world payment integrations. These gatherings accelerated progress toward building an open, inclusive, and interoperable financial network.'
 date: 2025-09-11
 slug: work-weeks-2025-building-future-financial-interoperability-heart-transylvania
-pillar: "tech"
-featureImage: "/img/foundation-blog/ilf-workweek-banner.jpg"
-featureImageAlt: "Group photo of the Rafiki team at the July 2025 work week."
-thumbnailImage: "/img/foundation-blog/ilf-workweek-thumbnail.jpg"
-thumbnailImageAlt: "Group photo of the Web Monetization team at the May 2025 work week"
+pillar: 'tech'
+featureImage: '/img/foundation-blog/ilf-workweek-banner.jpg'
+featureImageAlt: 'Group photo of the Rafiki team at the July 2025 work week.'
+thumbnailImage: '/img/foundation-blog/ilf-workweek-thumbnail.jpg'
+thumbnailImageAlt: 'Group photo of the Web Monetization team at the May 2025 work week'
 authors:
   - Marian Villa, Developer Advocate | Interledger Foundation
 tags:
@@ -22,16 +22,15 @@ To appreciate the magic of this gathering, let’s first explore the foundationa
 ## Interledger Foundation
 
 At its core, Interledger is about one simple idea:<br />
-***Sending money should be as easy as sending an email.***
+**_Sending money should be as easy as sending an email._**
 
 This vision is championed by the Interledger Foundation (ILF), which stewards the ILP ecosystem and its surrounding protocols. ILF works to empower communities globally with open financial infrastructure, and our work weeks are living proof of that commitment.
-
 
 - **Interledger Protocol (ILP)**: Much like how the Internet routes packets of data between networks, ILP routes packets of value across different financial systems: Fiat, crypto, mobile money, or anything that carries value. Its architecture is layered, modular, and open. [Get started](/developers/get-started/) here!
 - **ILP Addresses**: These addresses define how value flows across the ILP network, like a routing map.
 - **Payment Pointers** ([Wallet Addresses](https://openpayments.dev/concepts/wallet-addresses/)): Just as URLs simplify IP addresses, Payment Pointers make ILP addresses human-readable. For instance:<br />
-*$ilp.interledger-test.dev/alice* <br />
-This simple notation makes ILP more accessible and usable in real-world applications.
+  _$ilp.interledger-test.dev/alice_ <br />
+  This simple notation makes ILP more accessible and usable in real-world applications.
 - **Open Payments API**: A standardized API enabling third-party access to digital financial accounts. Whether it's recurring e-commerce payments or peer-to-peer transfers, [Open Payments](https://openpayments.dev/) allows seamless authorization and transaction initiation.
 - **Web Monetization**: A proposed W3C standard built on ILP. [Web Monetization](https://webmonetization.org/) enables real-time micropayments to web creators without the friction of ads or subscriptions. It's an elegant application layer of the ILP stack.
 - **Rafiki**: [Rafiki](https://rafiki.dev/) is the reference open-source implementation of the ILP ecosystem. It's not a wallet, not a platform, but a connective tissue between identity services, Open Payments, and ILP itself. Rafiki utilizes ILP-over-HTTP, enabling large, chunked transactions without requiring persistent socket connections.
@@ -46,7 +45,6 @@ The group intended to align on key topics for 2025, collaboratively define futur
 
 🗓️ **When &amp; Where**
 
-
 - **Dates:** May 5–9, 2025
 - **Location**: Cluj-Napoca, Romania
 - **Workplace**: BreakPointIT Office
@@ -55,10 +53,9 @@ The group intended to align on key topics for 2025, collaboratively define futur
 
 Over five workstreams and four shorter activities, our mission was clear:
 
-
 - Brainstorm and prioritize the next publisher tools, defining requirements for the top two.
 - Design the architecture for a fully post-paid Web Monetization model.
-- Propose a new ILF  WordPress plugin.
+- Propose a new ILF WordPress plugin.
 - Update at least two Web Monetization libraries for compatibility with v2.0 of the spec.
 - Build a proof-of-concept for monetizing audio and video only when played.
 - Review and update the Web Monetization spec for accuracy and completeness.
@@ -71,7 +68,6 @@ Over five workstreams and four shorter activities, our mission was clear:
 ![Members of the Web Monetization team collaborating during a work session at the May 2025 work week.](/img/foundation-blog/ilf-workweek-p2.png)
 
 During the May 2025 Web Monetization Work Week in Cluj-Napoca, one of our collective achievements was aligning on the direction and priorities for the rest of the year and beyond. From spec evolution to user tooling and ecosystem-wide strategy, our sessions surfaced the following focus areas:
-
 
 - **Publisher Empowerment**: We identified two new high-impact publisher tools beyond the current banner and link generator, one to visually showcase campaign goals and progress, and another for interactive shout-outs or contributor leaderboards. These tools will help creators communicate value more effectively and build a stronger community.
 - **UX-Driven Innovation**: We aligned around rebuilding a cleaner, user-first version under the Interledger brand. The new plugin will simplify monetization setup while supporting advanced use cases, such as multiple wallet addresses per author or post-type-specific settings.
@@ -95,7 +91,6 @@ We rolled up our sleeves to break monoliths, scale services, and document every 
 
 🗓️ **When &amp; Where**
 
-
 - **Dates**: July 7–11, 2025 (Travel: July 6 &amp; 12)
 - **Location**: Cluj-Napoca, Romania
 - **Workplace**: BreakPointIT Office
@@ -103,7 +98,6 @@ We rolled up our sleeves to break monoliths, scale services, and document every 
 ### What We Set Out to Achieve:
 
 Over five tracks and three in-depth technical discussions, our mission was clear:
-
 
 - Improve Rafiki’s performance, observability, and scalability.
 - Refactor and document core APIs and components.
@@ -129,7 +123,6 @@ Small performance increases are possible using known techniques, such as caching
 
 **Key changes:**
 
-
 - Full event-driven architectural pattern replacing DB-centric worker pattern
 - Partitioning for faster (and safer) in-memory processing
 - Batching for improved I/O access efficiency
@@ -141,14 +134,13 @@ The team demonstrated the prototype, confirming that the chosen design delivers 
 
 **Next steps:**
 
-
 - Expand the approach to areas not yet covered in the PoC
 - Explore binary event encoding and event sourcing
 - Shardable databases for scale
 
 The team will now focus on completing the prototype and proposing a plan to apply the lessons learned.
 
-#### 2. Rafiki Documentation 
+#### 2. Rafiki Documentation
 
 We’re working on making Rafiki more accessible by improving its overall structure, translating the Open Payments documentation into different languages, and creating SDK examples that developers can use in multiple languages to better understand and implement the technology.
 
@@ -159,7 +151,6 @@ We’re working on making Rafiki more accessible by improving its overall struct
 We restructured the Rafiki documentation to be easier to navigate, multilingual, and more developer-friendly. We replaced the astro-graphql-plugin with SpectaQL for API documentation, improved the site's UX, and began translating Open Payments content into Spanish.
 
 **Highlights:**
-
 
 - Snippets now available across JS, PHP, GoLang
 - UX revamp for Rafiki.dev
@@ -180,7 +171,6 @@ We built the first functional prototype of the Rafiki Operator, which supports d
 
 **Accomplishments**:
 
-
 - Custom Resource Definitions for services
 - Operators for Auth, Frontend, and Backend
 - GitOps-ready environment variables
@@ -194,7 +184,6 @@ Laying the groundwork for ILP Card &amp; POS, bringing ILP to the real world of 
 
 **Two new services were scoped and prototyped**:
 
-
 - POS Service: Accepts payments from point-of-sale terminals.
 - Card Service: Handles payment instructions initiated from a card &amp; POS.
 
@@ -202,7 +191,7 @@ Laying the groundwork for ILP Card &amp; POS, bringing ILP to the real world of 
 
 This track envisions a future where a physical card connects to your wallet through a Payment Pointer. A merchant → device → wallet flow that works with hardware terminals, and even offline.
 
-The proof-of-concept succeeded. 
+The proof-of-concept succeeded.
 
 **Next steps**: Streamline onboarding, improve scalability, and simplify device-wallet mapping logic.
 
@@ -215,7 +204,6 @@ Image creating an incoming payment, which will deliver your funds directly into 
 **This track delivered a powerful outcome**: users will soon be able to send funds to a Payment Pointer and have them routed directly to a SEPA bank account. While the feature isn’t live yet, we’re targeting to have it ready by the end of the year.
 
 **Implementation details**:
-
 
 - Open Payments API support for SEPA as a payment method
 - Back-end orchestration of SEPA transfers

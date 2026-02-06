@@ -44,10 +44,17 @@ const { page } = Astro.props
           <meta itemprop="position" content="1" />
         </li>
       </ol>
-      <header class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start">
+      <header
+        class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start"
+      >
         <h1>Engineering Blog</h1>
-        <a class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline" href="/blog">
-          <p class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current">
+        <a
+          class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
+          href="/blog"
+        >
+          <p
+            class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
+          >
             Check out Foundation updates
           </p>
           <img
@@ -87,7 +94,10 @@ const { page } = Astro.props
                           {blogPostEntry.data.title}
                         </a>
                       </h2>
-                      <a class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline" href="/blog/es">
+                      <a
+                        class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline"
+                        href="/blog/es"
+                      >
                         ES
                       </a>
                     </div>
