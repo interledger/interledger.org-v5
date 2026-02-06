@@ -1,5 +1,9 @@
 const { scanMDXFiles } = require('./scan');
 const { markdownToHTML } = require('./markdown');
+const {
+  generateContentId,
+  updateMdxFrontmatter
+} = require('./contentId');
 
 function getEntryField(entry, key) {
   if (!entry) return null;
@@ -98,6 +102,17 @@ async function syncContentType(contentType, ctx) {
     processedSlugs.get(locale).add(englishMdx.slug);
 
     try {
+      // Ensure English file has a contentId for linking with locale files
+      let localContentId = englishMdx.frontmatter.contentId;
+      if (!localContentId && !ctx.DRY_RUN) {
+        localContentId = generateContentId();
+        updateMdxFrontmatter(englishMdx.filepath, 'contentId', localContentId);
+        englishMdx.frontmatter.contentId = localContentId;
+        console.log(
+          `   🔗 Generated contentId for ${englishMdx.slug}: ${localContentId}`
+        );
+      }
+
       let englishEntry;
       const existing = await ctx.strapi.findBySlug(
         config.apiId,
@@ -117,6 +132,16 @@ async function syncContentType(contentType, ctx) {
           );
           englishEntry = result.data || existing;
           console.log(`   🔄 Updated: ${englishMdx.slug} (en)`);
+
+          // Write back Strapi documentId to MDX for reference
+          const strapiDocId = englishEntry.documentId || existing.documentId;
+          if (strapiDocId) {
+            updateMdxFrontmatter(
+              englishMdx.filepath,
+              'strapiDocumentId',
+              strapiDocId
+            );
+          }
         }
         results.updated++;
       } else {
@@ -127,6 +152,15 @@ async function syncContentType(contentType, ctx) {
           const result = await ctx.strapi.createEntry(config.apiId, englishData);
           englishEntry = result.data;
           console.log(`   ✅ Created: ${englishMdx.slug} (en)`);
+
+          // Write back Strapi documentId to MDX for reference
+          if (englishEntry && englishEntry.documentId) {
+            updateMdxFrontmatter(
+              englishMdx.filepath,
+              'strapiDocumentId',
+              englishEntry.documentId
+            );
+          }
         }
         results.created++;
       }
@@ -245,6 +279,24 @@ async function syncContentType(contentType, ctx) {
                 console.log(
                   `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
                 );
+
+                // Sync contentId and strapiDocumentId to locale file
+                const englishLocalContentId = englishMdx.frontmatter.contentId;
+                if (
+                  englishLocalContentId &&
+                  localeMdx.frontmatter.contentId !== englishLocalContentId
+                ) {
+                  updateMdxFrontmatter(
+                    localeMdx.filepath,
+                    'contentId',
+                    englishLocalContentId
+                  );
+                }
+                updateMdxFrontmatter(
+                  localeMdx.filepath,
+                  'strapiDocumentId',
+                  englishEntry.documentId
+                );
               }
               results.updated++;
             } else {
@@ -261,6 +313,24 @@ async function syncContentType(contentType, ctx) {
                 );
                 console.log(
                   `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
+                );
+
+                // Sync contentId and strapiDocumentId to locale file
+                const englishLocalContentId = englishMdx.frontmatter.contentId;
+                if (
+                  englishLocalContentId &&
+                  localeMdx.frontmatter.contentId !== englishLocalContentId
+                ) {
+                  updateMdxFrontmatter(
+                    localeMdx.filepath,
+                    'contentId',
+                    englishLocalContentId
+                  );
+                }
+                updateMdxFrontmatter(
+                  localeMdx.filepath,
+                  'strapiDocumentId',
+                  englishEntry.documentId
                 );
               }
               results.created++;
@@ -357,6 +427,13 @@ async function syncContentType(contentType, ctx) {
               console.log(
                 `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
               );
+
+              // Write back strapiDocumentId to locale file
+              updateMdxFrontmatter(
+                localeMdx.filepath,
+                'strapiDocumentId',
+                matchedEnglishEntry.documentId
+              );
             }
             results.updated++;
           } else {
@@ -373,6 +450,13 @@ async function syncContentType(contentType, ctx) {
               );
               console.log(
                 `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
+              );
+
+              // Write back strapiDocumentId to locale file
+              updateMdxFrontmatter(
+                localeMdx.filepath,
+                'strapiDocumentId',
+                matchedEnglishEntry.documentId
               );
             }
             results.created++;
