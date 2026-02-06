@@ -1,0 +1,170 @@
+# GitHub Copilot Onboarding Instructions
+
+## Repository Overview
+
+This repository contains **interledger.org** – the official Interledger Foundation website. It is a **static documentation site** built with **Astro** and **Starlight**, featuring API documentation, technical specifications, and informational content. The project also includes a **Strapi CMS** in the `cms/` directory for managing structured content.
+
+**Repository Size**: Medium (~600 files, ~3MB)  
+**Primary Language**: TypeScript/JavaScript (Astro components, MDX, config files)  
+**Package Manager**: Bun (v1.3.3+)  
+**Node Requirement**: Node.js >=18.20.8 (critical - 18.19.1 is insufficient)  
+**Development Port**: localhost:1103
+
+## Build and Validation Commands
+
+### Prerequisites
+Ensure these are installed before running any commands:
+- **Node.js**: >=18.20.8 (NOT 18.19.1). Check with `node --version`. If using nvm, ensure .nvmrc is respected.
+- **Bun**: Any recent version (verify with `bun --version`)
+
+### Essential Commands (must run in repository root)
+
+| Command | Purpose | Duration | Notes |
+|---------|---------|----------|-------|
+| `bun install` | Install dependencies | ~30s | Always run before build/start |
+| `bun run start` | Start dev server | - | Runs on localhost:1103 |
+| `bun run build` | Build production site to ./dist/ | ~30-45s | **Will fail with Node < 18.20.8** |
+| `bun run lint` | Check code formatting and linting | ~20-30s | Fails if ANY ESLint warnings exist |
+| `bun run format` | Auto-fix formatting and run lint | ~30-40s | Fixes Prettier issues; some warnings may remain |
+| `bun run preview` | Preview the built site locally | - | Run `bun run build` first |
+
+### CI Validation Pipeline
+
+The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
+1. Checkout code
+2. Setup Node.js (v18)
+3. Setup Bun
+4. `bun install`
+5. **`bun run lint`** – Must pass with zero warnings
+6. **`bun run build`** – Must succeed
+
+**To replicate CI locally**: Run `bun install && bun run lint && bun run build`. Both lint and build must pass with no output errors.
+
+### Important Caveats
+
+- **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
+- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
+- **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
+
+## Project Layout and Architecture
+
+```
+├── src/                       # Main Astro site
+│   ├── pages/                 # Route pages (catch-all in [...page].astro)
+│   ├── content/               # MDX content organized by section
+│   │   ├── blog/              # Blog posts (developers section)
+│   │   ├── developers/        # Developer documentation
+│   │   ├── docs/              # Specification documents
+│   │   ├── foundation-pages/  # Pages managed by Strapi CMS
+│   │   └── summit/            # Summit-specific content
+│   ├── layouts/               # Astro layout components
+│   ├── components/            # Reusable Astro components
+│   │   ├── blocks/            # Content blocks
+│   │   ├── logos/             # Logo components
+│   │   ├── pages/             # Page-specific components
+│   │   └── shared/            # Shared UI components
+│   ├── config/                # Site configuration (navigation JSON)
+│   ├── content.config.ts      # Astro content collections config
+│   ├── styles/                # Global CSS (Tailwind, atom-one-light)
+│   └── utils/                 # Utility functions
+├── cms/                       # Strapi CMS (separate installation)
+│   ├── src/api/               # Content-type definitions
+│   ├── config/                # Strapi configuration
+│   ├── scripts/               # MDX generation scripts
+│   ├── public/uploads/        # Uploaded media
+│   └── package.json           # CMS dependencies (npm)
+├── public/                    # Static assets
+│   ├── img/                   # Images (organized by section/date)
+│   ├── documents/             # PDFs and docs
+│   ├── scripts/               # Public JavaScript
+│   └── fonts/                 # Web fonts
+├── scripts/                   # Root-level build scripts
+├── astro.config.mjs           # Astro configuration (port 1103, Starlight setup)
+├── tsconfig.json              # TypeScript config (strict mode)
+├── tailwind.config.mjs        # Tailwind CSS config
+├── eslint.config.js           # Linting rules (ESLint 9 flat config)
+└── .prettierrc                # Prettier config (semi: false, singleQuote: true)
+```
+
+### Key Configuration Files
+
+- **astro.config.mjs**: Defines Starlight integration, custom components (Header, PageSidebar), redirects, server port (1103)
+- **eslint.config.js**: Uses ESLint 9 flat config. Ignores: dist, .astro, node_modules, *.min.js, and specific CMS files
+- **tsconfig.json**: Extends Astro strict config with React JSX support
+- **tailwind.config.mjs**: Custom font families (Titillium, system), fluid typography from pages.css
+- **.prettierrc**: No semicolons, single quotes, no trailing commas
+
+## Content and Routing
+
+- **Main navigation**: Configured in `src/config/navigation.json`
+- **Summit navigation**: Configured in `src/config/summit-navigation.json`  
+- **Dynamic routing**: `src/pages/[...page].astro` handles catch-all routes
+- **Blog routing**: `src/pages/blog/[...page].astro` and `src/pages/developers/blog/[...page].astro` for dated blog content
+- **Content collections**: Defined in `src/content.config.ts` using Astro's content loader API
+
+## Dependency Notes
+
+- **@interledger/docs-design-system** (v0.11.0): Custom design system CSS for Teal theme
+- **@astrojs/starlight** (v0.36.3): Documentation framework with Astro
+- **starlight-links-validator**: Validates internal links during build (excludes `/participation-guidelines`)
+- **starlight-fullview-mode**: Plugin to disable left sidebar on some views
+- **sharp**: Image processing for optimization
+- **marked, showdown, html-to-text**: Markdown/HTML utilities
+- **@astrojs/netlify**: Netlify deployment adapter (site is deployed to Netlify)
+
+## Known Issues and Workarounds
+
+1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
+
+2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
+
+3. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
+
+4. **Formatters**: Prettier and ESLint run together. `bun run format` runs Prettier, then ESLint with auto-fix. Some ESLint warnings may remain unfixed and require manual intervention.
+
+## CMS Information
+
+The CMS (Strapi v5.31.3) runs independently and uses **npm** (not Bun):
+```bash
+cd cms
+npm install
+npm run develop  # Runs on localhost:1337/admin
+npm run build    # Production build
+```
+
+Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
+
+## Making Changes
+
+When making changes to Astro components, pages, or styles:
+1. Run `bun run start` to start the dev server (hot reload enabled)
+2. Make changes in `src/`
+3. Test locally at localhost:1103
+4. Before committing, run `bun run format` to fix formatting issues
+5. If format fails due to ESLint warnings, address warnings manually (check files listed in format output)
+6. Verify `bun run build` succeeds (no output errors)
+
+For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/navigation.json` and verify the sidebar updates correctly.
+
+## Files to Avoid Modifying
+
+These files are auto-generated or have special constraints and should not be manually edited unless you understand their dependencies:
+- `cms/types/generated/*` – Generated from Strapi content-types
+- `cms/src/index.ts` – Generated by Strapi plugin (in eslint ignore list)
+- `cms/src/admin/app.tsx` – Generated by Strapi (in eslint ignore list)
+- `public/scripts/highlight.min.js` – Minified third-party library
+- `src/pages/financial-services.astro` – In eslint ignore list (pre-existing issues)
+- `.astro/` directory – Build cache
+
+## Trust These Instructions
+
+This guide contains validated information about the build process, commands, and known issues. If a command fails:
+1. Check if Node version is >=18.20.8
+2. Verify you ran `bun install` first
+3. Check the command in the table above for expected duration/behavior
+4. Review the known issues section if the failure is pre-existing
+
+Only perform additional searches if:
+- Instructions appear outdated or contradict actual behavior
+- A new error occurs not mentioned in known issues
+- A build step takes significantly longer than documented
