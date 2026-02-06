@@ -8,6 +8,9 @@
  * Can be used in two ways:
  * 1. With ambassadors data: <AmbassadorGrid ambassadors={data} />
  * 2. With slugs (fetches from collection): <AmbassadorGrid slugs={["slug1", "slug2"]} />
+ *
+ * Order is preserved from the input (slugs array order or ambassadors array order).
+ * This allows per-grid ordering via Strapi's relation field arrangement.
  */
 
 import { getCollection } from 'astro:content'
@@ -21,7 +24,6 @@ interface AmbassadorData {
   photoAlt?: string | null
   linkedinUrl?: string | null
   grantReportUrl?: string | null
-  order?: number
 }
 
 interface Props {
@@ -42,7 +44,7 @@ if (propAmbassadors && propAmbassadors.length > 0) {
   const allAmbassadors = await getCollection('ambassadors')
   const filtered = allAmbassadors.filter(entry => slugs.includes(entry.data.slug))
 
-  // Maintain the order from the slugs array
+  // Maintain the order from the slugs array (reflects Strapi relation order)
   ambassadors = slugs
     .map(slug => filtered.find(entry => entry.data.slug === slug))
     .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
@@ -53,27 +55,19 @@ if (propAmbassadors && propAmbassadors.length > 0) {
       photo: entry.data.photo,
       photoAlt: entry.data.photoAlt,
       linkedinUrl: entry.data.linkedinUrl,
-      grantReportUrl: entry.data.grantReportUrl,
-      order: entry.data.order
+      grantReportUrl: entry.data.grantReportUrl
     }))
 }
-
-// Sort by order field, then by name as fallback
-const sortedAmbassadors = [...ambassadors].sort((a, b) => {
-  const orderDiff = (a.order || 0) - (b.order || 0)
-  if (orderDiff !== 0) return orderDiff
-  return a.name.localeCompare(b.name)
-})
 ---
 
-{sortedAmbassadors.length > 0 ? (
+{ambassadors.length > 0 ? (
   <div class="ambassadors-section">
     {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
     <div
       class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start"
     >
       {
-        sortedAmbassadors.map((ambassador) => (
+        ambassadors.map((ambassador) => (
           <Ambassador
             name={ambassador.name}
             description={ambassador.description}
