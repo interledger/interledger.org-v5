@@ -7,6 +7,7 @@ This repository contains **interledger.org** – the official Interledger Founda
 **Repository Size**: Medium (~600 files, ~3MB)  
 **Primary Language**: TypeScript/JavaScript (Astro components, MDX, config files)  
 **Package Manager**: Bun (v1.3.3+)  
+**Lockfile**: `bun.lock` (Bun v1 uses a text lockfile; no `bun.lockb`)  
 **Node Requirement**: Node.js >=18.20.8 (critical - 18.19.1 is insufficient)  
 **Development Port**: localhost:1103
 
@@ -45,6 +46,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 - **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
 - **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
 - **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
+- **Bun Lockfile**: Netlify or scripts may expect `bun.lockb`, but Bun v1 generates `bun.lock` only. Update checks or docs if needed.
 
 ## Project Layout and Architecture
 
@@ -102,6 +104,14 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 - **Blog routing**: `src/pages/blog/[...page].astro` and `src/pages/developers/blog/[...page].astro` for dated blog content
 - **Content collections**: Defined in `src/content.config.ts` using Astro's content loader API
 
+## Content Publishing Workflow
+
+- **Branches**: `staging` is the preview environment, `main` is production.
+- **Strapi publishing**: Lifecycle hooks generate MDX and commit/push to `staging`.
+- **Netlify**: Auto-builds `staging` to preview and `main` to production.
+- **Promotion**: Content moves from `staging` to `main` via PR approval.
+- **Preview drafts**: Drafts can be previewed via SSR without publishing.
+
 ## Dependency Notes
 
 - **@interledger/docs-design-system** (v0.11.0): Custom design system CSS for Teal theme
@@ -135,6 +145,8 @@ npm run build    # Production build
 Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
 
 For pages and blog posts, those lifecycle hooks also run a git add/commit/pull --rebase/push to trigger preview builds. Grant tracks only write/delete MDX locally. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+
+CMS code changes are deployed to the Strapi VM when merged to `staging`. Content-only changes can be rebuilt into Strapi via `cms/scripts/sync-mdx.cjs`.
 
 ## Making Changes
 
