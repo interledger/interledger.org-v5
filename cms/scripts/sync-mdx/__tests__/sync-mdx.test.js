@@ -424,6 +424,78 @@ describe('syncContentType', () => {
     expect(calls.updateLocalization).toBe(0);
   });
 
+  it('updates localizes field when English slug changes', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+    const esSummitDir = path.join(contentRoot, 'es', 'summit');
+
+    // English file with NEW slug but same contentId
+    writeFile(
+      path.join(summitDir, 'new-english-slug.mdx'),
+      [
+        '---',
+        'title: "About Us"',
+        'contentId: "shared-content-id"',
+        '---',
+        '',
+        'Body'
+      ].join('\n')
+    );
+
+    // Spanish file with OLD localizes value but same contentId
+    writeFile(
+      path.join(esSummitDir, 'sobre-nosotros.mdx'),
+      [
+        '---',
+        'title: "Sobre Nosotros"',
+        'locale: "es"',
+        'contentId: "shared-content-id"',
+        'localizes: "old-english-slug"',
+        '---',
+        '',
+        'Contenido'
+      ].join('\n')
+    );
+
+    const existingEntry = {
+      documentId: 'shared-content-id',
+      slug: 'new-english-slug',
+      locale: 'en'
+    };
+
+    const strapi = {
+      getAllEntries: async () => [existingEntry],
+      findBySlug: async (apiId, slug, locale) => {
+        if (locale === 'en' && slug === 'new-english-slug') return existingEntry;
+        return null;
+      },
+      createLocalization: async () => {},
+      updateLocalization: async () => {},
+      updateEntry: async () => ({ data: existingEntry }),
+      createEntry: async () => ({ data: existingEntry }),
+      deleteEntry: async () => {}
+    };
+
+    const contentTypes = {
+      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summitPages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    // Should update localizes field to new English slug
+    const localeContent = fs.readFileSync(
+      path.join(esSummitDir, 'sobre-nosotros.mdx'),
+      'utf-8'
+    );
+    expect(localeContent).toContain('localizes: "new-english-slug"');
+    expect(localeContent).not.toContain('localizes: "old-english-slug"');
+  });
+
   it('does not call mutating Strapi methods in dry-run', async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
     const contentRoot = path.join(tmpDir, 'src', 'content');
