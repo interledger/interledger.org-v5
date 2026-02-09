@@ -50,10 +50,14 @@ function generateFilename(post: BlogPost): string {
 function generateMDX(
   post: BlogPost,
   locale: string,
-  preservedFields: Record<string, string> = {}
+  preservedFields: Record<string, string> = {},
+  englishSlug?: string
 ): string {
   const imageUrl = getImageUrl(post.featuredImage)
   const langValue = post.lang || locale
+  const { localizes, ...restPreserved } = preservedFields
+  const localizesValue =
+    localizes || (locale !== 'en' && englishSlug ? englishSlug : undefined)
 
   const frontmatterLines = [
     `title: "${escapeQuotes(post.title)}"`,
@@ -70,8 +74,12 @@ function generateMDX(
   // Always include contentId for locale linking (Strapi documentId)
   frontmatterLines.push(`contentId: "${escapeQuotes(post.documentId)}"`)
 
+  if (localizesValue) {
+    frontmatterLines.push(`localizes: "${escapeQuotes(localizesValue)}"`)
+  }
+
   // Include preserved fields (like localizes) that exist in MDX but not in Strapi
-  for (const [key, value] of Object.entries(preservedFields)) {
+  for (const [key, value] of Object.entries(restPreserved)) {
     frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
   }
 
@@ -94,7 +102,11 @@ function getOutputDir(locale: string): string {
   return path.resolve(process.cwd(), `../src/content/${locale}/blog`)
 }
 
-async function writeMDXFile(post: BlogPost, locale: string): Promise<string> {
+async function writeMDXFile(
+  post: BlogPost,
+  locale: string,
+  englishSlug?: string
+): Promise<string> {
   const baseDir = getOutputDir(locale)
 
   if (!fs.existsSync(baseDir)) {
@@ -106,7 +118,11 @@ async function writeMDXFile(post: BlogPost, locale: string): Promise<string> {
 
   // Preserve fields that exist in MDX but not in Strapi
   const preservedFields = getPreservedFields(filepath)
-  fs.writeFileSync(filepath, generateMDX(post, locale, preservedFields), 'utf-8')
+  fs.writeFileSync(
+    filepath,
+    generateMDX(post, locale, preservedFields, englishSlug),
+    'utf-8'
+  )
   console.log(`✅ Generated blog post MDX: ${filepath}`)
   return filepath
 }
@@ -138,14 +154,19 @@ export default {
 
     console.log(`📝 Creating blog post MDX for all locales: ${result.slug}`)
     const filepaths: string[] = []
+    const englishPost = await fetchPublishedPost(result.documentId, 'en')
+    const englishSlug = englishPost?.slug
 
     for (const locale of LOCALES) {
-      const post = await fetchPublishedPost(result.documentId, locale)
+      const post =
+        locale === 'en'
+          ? englishPost
+          : await fetchPublishedPost(result.documentId, locale)
       if (!post) {
         console.log(`⏭️  No published ${locale} blog post for ${result.documentId}`)
         continue
       }
-      const filepath = await writeMDXFile(post, locale)
+      const filepath = await writeMDXFile(post, locale, englishSlug)
       filepaths.push(filepath)
     }
 
@@ -161,11 +182,16 @@ export default {
     console.log(`📝 Updating blog post MDX for all locales: ${result.slug}`)
     const filepaths: string[] = []
     const deletedPaths: string[] = []
+    const englishPost = await fetchPublishedPost(result.documentId, 'en')
+    const englishSlug = englishPost?.slug
 
     for (const locale of LOCALES) {
-      const post = await fetchPublishedPost(result.documentId, locale)
+      const post =
+        locale === 'en'
+          ? englishPost
+          : await fetchPublishedPost(result.documentId, locale)
       if (post) {
-        const filepath = await writeMDXFile(post, locale)
+        const filepath = await writeMDXFile(post, locale, englishSlug)
         filepaths.push(filepath)
       } else {
         const baseDir = getOutputDir(locale)

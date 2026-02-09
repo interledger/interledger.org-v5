@@ -67,10 +67,14 @@ function getOutputDir(config: PageLifecycleConfig, locale: string): string {
 function generateMDX(
   config: PageLifecycleConfig,
   page: PageData,
-  preservedFields: Record<string, string> = {}
+  preservedFields: Record<string, string> = {},
+  englishSlug?: string
 ): string {
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
+  const { localizes, ...restPreserved } = preservedFields
+  const localizesValue =
+    localizes || (isLocalized && englishSlug ? englishSlug : undefined)
 
   const frontmatterLines: string[] = [
     `slug: "${escapeQuotes(page.slug)}"`,
@@ -83,8 +87,12 @@ function generateMDX(
   // Always include contentId for locale linking (Strapi documentId)
   frontmatterLines.push(`contentId: "${page.documentId}"`)
 
+  if (localizesValue) {
+    frontmatterLines.push(`localizes: "${escapeQuotes(localizesValue)}"`)
+  }
+
   // Include preserved fields (like localizes) that exist in MDX but not in Strapi
-  for (const [key, value] of Object.entries(preservedFields)) {
+  for (const [key, value] of Object.entries(restPreserved)) {
     frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
   }
 
@@ -98,7 +106,11 @@ function generateMDX(
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
 
-async function writeMDXFile(config: PageLifecycleConfig, page: PageData): Promise<string> {
+async function writeMDXFile(
+  config: PageLifecycleConfig,
+  page: PageData,
+  englishSlug?: string
+): Promise<string> {
   const locale = page.locale || 'en'
   const outputDir = getOutputDir(config, locale)
 
@@ -110,7 +122,11 @@ async function writeMDXFile(config: PageLifecycleConfig, page: PageData): Promis
 
   // Preserve fields that exist in MDX but not in Strapi
   const preservedFields = getPreservedFields(filepath)
-  fs.writeFileSync(filepath, generateMDX(config, page, preservedFields), 'utf-8')
+  fs.writeFileSync(
+    filepath,
+    generateMDX(config, page, preservedFields, englishSlug),
+    'utf-8'
+  )
   console.log(`✅ Generated ${config.logPrefix} MDX: ${filepath}`)
 
   return filepath
@@ -135,17 +151,25 @@ async function fetchPublished(config: PageLifecycleConfig, documentId: string, l
   }
 }
 
-async function exportAllLocales(config: PageLifecycleConfig, documentId: string): Promise<string[]> {
+async function exportAllLocales(
+  config: PageLifecycleConfig,
+  documentId: string
+): Promise<string[]> {
   const filepaths: string[] = []
+  const englishPage = await fetchPublished(config, documentId, 'en')
+  const englishSlug = englishPage?.slug
 
   for (const locale of LOCALES) {
     try {
-      const page = await fetchPublished(config, documentId, locale)
+      const page =
+        locale === 'en'
+          ? englishPage
+          : await fetchPublished(config, documentId, locale)
       if (!page) {
         console.log(`⏭️  No published ${locale} ${config.logPrefix} for ${documentId}`)
         continue
       }
-      const filepath = await writeMDXFile(config, page)
+      const filepath = await writeMDXFile(config, page, englishSlug)
       filepaths.push(filepath)
     } catch (error) {
       console.error(`⚠️  Failed to export ${locale} ${config.logPrefix} for ${documentId}:`, error)
