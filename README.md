@@ -141,4 +141,4 @@ The script:
 
 **Note**: This only syncs content entries, not user accounts, API tokens, or Strapi configuration.
 
-See [cms/README.md](cms/README.md) for details.
+See [cms/README.md](cms/README.md) for details..
