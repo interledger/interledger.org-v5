@@ -54,4 +54,9 @@ Admin panel: <http://localhost:1337/admin>
 
 When content is published in Strapi, lifecycle hooks generate MDX and (for pages and blog posts) commit and push those files to GitHub to trigger preview builds. Grant tracks only write MDX locally and do not commit. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git commit/push behavior.
 
+Default MDX output locations:
+- Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
+- Blog posts: `src/content/blog/`
+- Grant tracks: `src/content/grants/`
+
 See [cms/README.md](cms/README.md) for details.
