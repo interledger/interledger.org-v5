@@ -73,8 +73,10 @@ function generateMDX(
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
+  // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
+  // This ensures localizes is updated when English slug changes
   const localizesValue =
-    localizes || (isLocalized && englishSlug ? englishSlug : undefined)
+    (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
   const frontmatterLines: string[] = [
     `slug: "${escapeQuotes(page.slug)}"`,

@@ -275,6 +275,13 @@ async function syncContentType(contentType, ctx) {
                   updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId);
                   console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`);
                 }
+
+                // Update localizes field to match current English slug
+                const currentLocalizes = localeMdx.frontmatter.localizes;
+                if (currentLocalizes !== englishMdx.slug) {
+                  updateMdxFrontmatter(localeMdx.filepath, 'localizes', englishMdx.slug);
+                  console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${englishMdx.slug}`);
+                }
               }
               results.updated++;
             } else {
@@ -298,6 +305,13 @@ async function syncContentType(contentType, ctx) {
                 if (contentId && localeMdx.frontmatter.contentId !== contentId) {
                   updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId);
                   console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`);
+                }
+
+                // Update localizes field to match current English slug
+                const currentLocalizes = localeMdx.frontmatter.localizes;
+                if (currentLocalizes !== englishMdx.slug) {
+                  updateMdxFrontmatter(localeMdx.filepath, 'localizes', englishMdx.slug);
+                  console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${englishMdx.slug}`);
                 }
               }
               results.created++;
@@ -400,6 +414,12 @@ async function syncContentType(contentType, ctx) {
                 updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId);
                 console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`);
               }
+
+              // Update localizes field to match current English slug
+              if (localeMdx.frontmatter.localizes !== matchedEnglishEntry.slug) {
+                updateMdxFrontmatter(localeMdx.filepath, 'localizes', matchedEnglishEntry.slug);
+                console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${matchedEnglishEntry.slug}`);
+              }
             }
             results.updated++;
           } else {
@@ -422,6 +442,12 @@ async function syncContentType(contentType, ctx) {
               if (localeMdx.frontmatter.contentId !== matchedEnglishEntry.documentId) {
                 updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId);
                 console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`);
+              }
+
+              // Update localizes field to match current English slug
+              if (localeMdx.frontmatter.localizes !== matchedEnglishEntry.slug) {
+                updateMdxFrontmatter(localeMdx.filepath, 'localizes', matchedEnglishEntry.slug);
+                console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${matchedEnglishEntry.slug}`);
               }
             }
             results.created++;
