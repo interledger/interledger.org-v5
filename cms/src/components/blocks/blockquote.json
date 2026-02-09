@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_blocks_blockquotes",
+  "info": {
+    "displayName": "Blockquote",
+    "icon": "quote",
+    "description": "A styled blockquote with optional attribution"
+  },
+  "options": {},
+  "attributes": {
+    "quote": {
+      "type": "richtext",
+      "required": true
+    },
+    "source": {
+      "type": "richtext"
+    }
+  }
+}

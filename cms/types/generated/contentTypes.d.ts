@@ -614,7 +614,8 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.carousel',
         'blocks.cta-banner',
         'blocks.ambassador',
-        'blocks.ambassadors-grid'
+        'blocks.ambassadors-grid',
+        'blocks.blockquote'
       ]
     >
     createdAt: Schema.Attribute.DateTime

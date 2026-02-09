@@ -1,0 +1,73 @@
+---
+import MarkdownIt from 'markdown-it'
+
+interface Props {
+  quote: string
+  source?: string
+}
+
+const { quote, source } = Astro.props
+
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
+const htmlQuote = quote ? md.render(quote) : ''
+const htmlSource = source ? md.renderInline(source) : ''
+---
+
+<div class="ps-space-s py-space-2xs border-l-4 border-primary">
+  <blockquote class="text-step-1" set:html={htmlQuote} />
+  {
+    htmlSource && (
+      <p>
+        — <cite class="text-step-1" set:html={htmlSource} />
+      </p>
+    )
+  }
+</div>
+
+<!--
+  Styling rendered HTML from set:html
+
+  Since set:html injects raw HTML that doesn't receive Astro's scoped data
+  attributes, we use :global() to target injected child elements while keeping
+  the parent selector scoped to this component.
+
+  Two approaches are available:
+
+  Option A — Tailwind arbitrary variants on container elements:
+    <blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
+    Consistent with the pattern used in [...page].astro and Paragraph.astro.
+    Keeps everything in the template, but can get verbose with many overrides.
+
+  Option B — Astro scoped <style> with :global() (used here):
+    Cleaner when there are multiple overrides. The parent element retains
+    Astro's scoped attribute, so styles only apply within this component.
+    e.g. blockquote[data-astro-cid-xyz] strong { ... }
+-->
+<style>
+  /* Reset inherited prose styles for rendered HTML inside blockquote */
+  blockquote :global(p) {
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  blockquote :global(strong) {
+    color: inherit;
+  }
+
+  blockquote :global(em) {
+    font-style: italic;
+  }
+
+  blockquote :global(a) {
+    text-decoration: underline;
+  }
+
+  /* Reset inherited prose styles for rendered HTML inside cite */
+  cite :global(strong) {
+    color: inherit;
+  }
+
+  cite :global(em) {
+    font-weight: 200;
+  }
+</style>

@@ -122,6 +122,24 @@ The token must have read access to the content types you want to preview (includ
 2. Create an SSR page in `src/pages/` (e.g. `my-type-preview.astro`) with `export const prerender = false`
 3. In that page, use `fetchStrapi()` with `status=draft` to fetch the draft content and render it
 
+#### Adding a new block to the page dynamic zone
+
+When you add a new block component to the page content dynamic zone, you **must** also add it to the populate params in `src/pages/page-preview.astro`. In Strapi v5, using `on` (component-specific population) for a dynamic zone acts as a filter — only block types listed in `on` clauses are returned in the API response. Unlisted types are silently excluded.
+
+For blocks with only scalar fields (richtext, string, enum):
+
+```js
+'populate[content][on][blocks.my-block][populate]': '*'
+```
+
+For blocks with nested components or relations:
+
+```js
+'populate[content][on][blocks.my-block][populate][myRelation][populate]': '*'
+```
+
+If you forget this step, the block will not appear in the preview even though it exists in Strapi.
+
 #### Component architecture: presentational vs block components
 
 Every Strapi dynamic zone block type needs a corresponding **block component** in `src/components/blocks/` so that the `DynamicZone` component can render it during preview. Whether you also need a separate **presentational component** depends on the data shape.
