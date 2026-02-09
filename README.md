@@ -15,6 +15,67 @@ bun run start
 bun run build
 ```
 
+## Architecture Overview
+
+```mermaid
+flowchart
+    subgraph gcp["☁️ GCP VM"]
+        direction TB
+        strapi[(Strapi CMS)]
+        gitclone[("Git Clone<br/>(staging)")]
+        strapi -->|"writes MDX"| gitclone
+    end
+    
+    subgraph github["📦 GitHub Repository"]
+        direction TB
+        staging["staging branch"]
+        main["main branch"]
+    end
+    
+    subgraph netlify["🚀 Netlify"]
+        direction TB
+        preview["Preview Site"]
+        production["Production Site"]
+    end
+    
+    editor["👤 Content Editor"]
+    dev["👨‍💻 Developer"]
+    feature["Feature Branch"]
+    
+    editor ==>|"Publish"| strapi
+    dev ==>|"Code PR"| feature
+    
+    gitclone ==>|"Push via<br/>lifecycle hooks"| staging
+    feature ==>|"PR"| staging
+    
+    staging ==>|"Auto-build"| preview
+    staging -->|"PR (approved)"| main
+    
+    main ==>|"Auto-build"| production
+    
+    gitclone -.-|"Restore via<br/>sync-mdx.cjs"| strapi
+    
+    classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
+    classDef githubStyle fill:#24292e,stroke:#000,color:#fff
+    classDef netlifyStyle fill:#00c7b7,stroke:#008577,color:#fff
+    classDef userStyle fill:#ff6b6b,stroke:#d63031,color:#fff
+    classDef branchStyle fill:#6c5ce7,stroke:#5f3dc4,color:#fff
+    
+    class strapi,gitclone gcpStyle
+    class staging,main,feature githubStyle
+    class preview,production netlifyStyle
+    class editor,dev userStyle
+```
+
+**Workflow:**
+1. **Content editors** publish in Strapi → MDX generated → committed to `staging`
+2. **Developers** create feature branches → PR to `staging`
+3. **Staging** auto-deploys to Netlify preview for review
+4. **Approved changes** merged to `main` via PR
+5. **Production** auto-deploys from `main`
+
+**Recovery:** The `sync-mdx.cjs` script can restore Strapi database from MDX files in git.
+
 ## Project Structure
 
 ```text
