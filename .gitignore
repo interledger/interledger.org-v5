@@ -24,8 +24,7 @@ pnpm-debug.log*
 .DS_Store
 
 # lock files
-bun.lock
-bun.lockb
+# bun.lock  # Netlify needs this file to detect the package manager, so we keep it in the repo
 pnpm-lock.yaml
 package-lock.json
 
