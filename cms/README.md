@@ -160,6 +160,33 @@ For published content, the MDX lifecycle hook in Strapi handles these transforma
 
 **Rule of thumb:** If you need to transform Strapi's API response before rendering (flatten nested objects, convert markdown to HTML, resolve relations), create a block adapter in `src/components/blocks/` that does the transformation and delegates to a presentational component. Otherwise, a single component in `src/components/blocks/` is fine.
 
+#### Styling rendered HTML from `set:html`
+
+Components that render Strapi richtext fields use `set:html` to inject HTML converted from markdown. Since this injected HTML doesn't receive Astro's scoped data attributes, child elements can inherit unwanted styles from page-level prose selectors (e.g. `[&_strong]:text-primary`).
+
+There are two approaches to control styling of `set:html` content:
+
+**Option A — Tailwind arbitrary variants on container elements:**
+
+```html
+<blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
+```
+
+Consistent with the pattern used in `[...page].astro` and `Paragraph.astro`. Keeps everything in the template but can get verbose with many overrides.
+
+**Option B — Astro scoped `<style>` with `:global()`:**
+
+```css
+<style>
+  blockquote :global(strong) { color: inherit; }
+  blockquote :global(p) { margin-bottom: 0; }
+</style>
+```
+
+The parent selector (`blockquote`) retains Astro's scoped attribute, so styles only apply within that component — they won't leak to other parts of the page. `:global()` removes scoping from the child selector so it can reach the injected HTML. Cleaner when there are multiple overrides.
+
+See `Blockquote.astro` for an example using Option B.
+
 ## Development Workflow
 
 1. **Start the CMS**: `cd cms && npm run develop`
