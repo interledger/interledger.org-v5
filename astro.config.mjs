@@ -37,9 +37,7 @@ export default defineConfig({
         './src/styles/atom-one-light.min.css'
       ],
       plugins: [
-        starlightLinksValidator({
-          exclude: ['/participation-guidelines']
-        }),
+        // starlightLinksValidator(),
         starlightFullViewMode({ leftSidebarEnabled: false })
       ],
       head: [
