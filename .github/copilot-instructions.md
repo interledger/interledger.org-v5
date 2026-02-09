@@ -134,6 +134,8 @@ npm run build    # Production build
 
 Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
 
+For pages and blog posts, those lifecycle hooks also run a git add/commit/pull --rebase/push to trigger preview builds. Grant tracks only write/delete MDX locally. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+
 ## Making Changes
 
 When making changes to Astro components, pages, or styles:
