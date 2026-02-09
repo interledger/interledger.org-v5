@@ -6,8 +6,6 @@ import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
 import tailwindcss from '@tailwindcss/vite'
 
-const enableLinkValidation =
-  process.env.CI === 'true' || process.env.STARLIGHT_LINKS_VALIDATOR === 'true'
 
 // https://astro.build/config
 export default defineConfig({
