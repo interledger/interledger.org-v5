@@ -1,2 +1,7 @@
 [build]
   command = "bun run build"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
