@@ -16,7 +16,6 @@ bun run build
 ```
 
 ## Architecture Overview
-
 ```mermaid
 flowchart
     subgraph gcp["☁️ GCP VM"]
@@ -53,7 +52,7 @@ flowchart
     
     main ==>|"Auto-build"| production
     
-    gitclone -.-|"Restore via<br/>sync-mdx.cjs"| strapi
+    gitclone -.-|"Sync after<br/>PR merge"| strapi
     
     classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
     classDef githubStyle fill:#24292e,stroke:#000,color:#fff
