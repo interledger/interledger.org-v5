@@ -65,13 +65,13 @@ const { page } = Astro.props
             return (
               <li class="flex flex-row gap-space-m mb-space-m p-space-m bg-white/50 rounded shadow max-[768px]:flex-col">
                 <div class="flex-shrink-0">
-                  {blogPostEntry.data.image && (
+                  {blogPostEntry.data.thumbnailImage && (
                     <img
                       loading="lazy"
-                      src={blogPostEntry.data.image}
+                      src={blogPostEntry.data.thumbnailImage}
                       width="250"
                       height="250"
-                      alt={blogPostEntry.data.title}
+                      alt={blogPostEntry.data.thumbnailImageAlt}
                       class="w-[250px] h-[250px] object-cover rounded max-[768px]:w-full max-[768px]:h-auto"
                     />
                   )}

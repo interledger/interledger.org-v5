@@ -50,29 +50,31 @@ const engBlogCollection = defineCollection({
   })
 })
 
-// TODO: add correct fields
 const foundationBlogCollection = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     slug: z.string(),
-    lang: z.string(),
+    lang: z.string().optional(),
     date: z.date(),
-    image: z.string().optional(),
+    pillar: z.string(),
+    thumbnailImage: z.string().optional(),
+    thumbnailImageAlt: z.string().optional(),
+    featureImage: z.string().optional(),
+    featureImageAlt: z.string().optional(),
     tags: z.array(
       z.enum([
-        'Interledger Protocol',
-        'Open Payments',
-        'Rafiki',
-        'Releases',
-        'Updates',
-        'Web Monetization'
+        'Announcements',
+        'Grants & Grantee Insights',
+        'Community & Events',
+        'Interledger Technology',
+        'Thought Leadership',
         // Please add a matching translation in i18n/ui.ts for any new tag
-      ])
+      ]).optional()
     ),
-    authors: z.array(z.string()),
-    author_urls: z.array(z.string())
+    authors: z.array(z.string()).optional(),
+    author_urls: z.array(z.string()).optional()
   })
 })
 
