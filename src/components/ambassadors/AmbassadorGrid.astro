@@ -1,0 +1,94 @@
+---
+/**
+ * Ambassador Grid component
+ * - Single column on mobile
+ * - Side-by-side (photo + text) at 600px+
+ * - 2-column grid at 1140px+
+ *
+ * Can be used in two ways:
+ * 1. With ambassadors data: <AmbassadorGrid ambassadors={data} />
+ * 2. With slugs (fetches from collection): <AmbassadorGrid slugs={["slug1", "slug2"]} />
+ *
+ * Order is preserved from the input (slugs array order or ambassadors array order).
+ * This allows per-grid ordering via Strapi's relation field arrangement.
+ */
+
+import { getCollection } from 'astro:content'
+import Ambassador from './Ambassador.astro'
+
+interface AmbassadorData {
+  name: string
+  slug: string
+  description: string
+  photo?: string | null
+  photoAlt?: string | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+}
+
+interface Props {
+  ambassadors?: AmbassadorData[]
+  slugs?: string[]
+  heading?: string
+}
+
+const { ambassadors: propAmbassadors, slugs, heading } = Astro.props
+
+let ambassadors: AmbassadorData[] = []
+
+if (propAmbassadors && propAmbassadors.length > 0) {
+  // Use provided ambassador data directly
+  ambassadors = propAmbassadors
+} else if (slugs && slugs.length > 0) {
+  // Fetch ambassadors by slugs from the content collection
+  const allAmbassadors = await getCollection('ambassadors')
+  const filtered = allAmbassadors.filter((entry) =>
+    slugs.includes(entry.data.slug)
+  )
+
+  // Maintain the order from the slugs array (reflects Strapi relation order)
+  ambassadors = slugs
+    .map((slug) => filtered.find((entry) => entry.data.slug === slug))
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+    .map((entry) => ({
+      name: entry.data.name,
+      slug: entry.data.slug,
+      description: entry.data.description,
+      photo: entry.data.photo,
+      photoAlt: entry.data.photoAlt,
+      linkedinUrl: entry.data.linkedinUrl,
+      grantReportUrl: entry.data.grantReportUrl
+    }))
+}
+---
+
+{
+  ambassadors.length > 0 ? (
+    <div class="ambassadors-section">
+      {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
+      <div class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start">
+        {ambassadors.map((ambassador) => (
+          <Ambassador
+            name={ambassador.name}
+            description={ambassador.description}
+            photo={ambassador.photo || undefined}
+            photoAlt={ambassador.photoAlt || ambassador.name}
+            linkedinUrl={ambassador.linkedinUrl || undefined}
+            grantReportUrl={ambassador.grantReportUrl || undefined}
+          />
+        ))}
+      </div>
+    </div>
+  ) : (
+    <p class="text-gray">No ambassadors to display.</p>
+  )
+}
+
+<style>
+  /* Additional styles for non-last ambassadors in mobile view */
+  @media screen and (max-width: 1139px) {
+    .ambassadors-wrapper > :global(article:not(:last-of-type)) {
+      margin-block-end: var(--space-s, 1.125rem);
+    }
+  }
+</style>

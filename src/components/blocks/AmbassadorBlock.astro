@@ -1,0 +1,47 @@
+---
+/**
+ * Single Ambassador Block for Dynamic Zones (SSR Preview)
+ * Displays a specific ambassador from the collection
+ * Converts markdown description to HTML for preview rendering
+ */
+
+import Ambassador from '../ambassadors/Ambassador.astro'
+import { marked } from 'marked'
+
+interface AmbassadorData {
+  name: string
+  slug: string
+  description: string
+  photo?: { url: string; alternativeText?: string } | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+}
+
+interface Props {
+  ambassador?: AmbassadorData
+  showLinks?: boolean
+}
+
+const { ambassador, showLinks = true } = Astro.props
+
+// Handle case where ambassador relation isn't populated
+if (!ambassador) {
+  return null
+}
+
+const photoUrl = ambassador.photo?.url
+const photoAlt = ambassador.photo?.alternativeText || ambassador.name
+// Convert markdown description to HTML for preview
+const descriptionHtml = ambassador.description
+  ? await marked.parse(ambassador.description)
+  : ''
+---
+
+<Ambassador
+  name={ambassador.name}
+  description={descriptionHtml}
+  photo={photoUrl}
+  photoAlt={photoAlt}
+  linkedinUrl={showLinks ? ambassador.linkedinUrl : undefined}
+  grantReportUrl={showLinks ? ambassador.grantReportUrl : undefined}
+/>

@@ -1,5 +1,37 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
+export interface BlocksAmbassador extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_ambassadors'
+  info: {
+    description: 'Display a single ambassador from the collection'
+    displayName: 'Ambassador'
+    icon: 'user'
+  }
+  attributes: {
+    ambassador: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::ambassador.ambassador'
+    >
+    showLinks: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
+  }
+}
+
+export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_ambassadors_grids'
+  info: {
+    description: 'Displays selected ambassadors in a grid layout'
+    displayName: 'Ambassadors Grid'
+    icon: 'user'
+  }
+  attributes: {
+    ambassadors: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ambassador.ambassador'
+    >
+    heading: Schema.Attribute.String
+  }
+}
+
 export interface BlocksCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cards'
   info: {
@@ -255,6 +287,8 @@ export interface SharedSeo extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
+      'blocks.ambassador': BlocksAmbassador
+      'blocks.ambassadors-grid': BlocksAmbassadorsGrid
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid

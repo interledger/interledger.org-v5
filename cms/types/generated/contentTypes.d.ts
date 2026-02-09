@@ -430,6 +430,51 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
+  collectionName: 'ambassadors'
+  info: {
+    description: 'Grant ambassadors with profiles and social links'
+    displayName: 'Ambassador'
+    pluralName: 'ambassadors'
+    singularName: 'ambassador'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.RichText & Schema.Attribute.Required
+    grantReportUrl: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500
+      }>
+    linkedinUrl: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500
+      }>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ambassador.ambassador'
+    > &
+      Schema.Attribute.Private
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255
+      }>
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    photo: Schema.Attribute.Media<'images'>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   collectionName: 'blog_posts'
   info: {
@@ -567,7 +612,9 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.cards-grid',
         'blocks.card-links-grid',
         'blocks.carousel',
-        'blocks.cta-banner'
+        'blocks.cta-banner',
+        'blocks.ambassador',
+        'blocks.ambassadors-grid'
       ]
     >
     createdAt: Schema.Attribute.DateTime
@@ -1075,6 +1122,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
+      'api::ambassador.ambassador': ApiAmbassadorAmbassador
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::navigation.navigation': ApiNavigationNavigation

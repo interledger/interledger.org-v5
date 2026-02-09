@@ -47,7 +47,9 @@
         "blocks.cards-grid",
         "blocks.card-links-grid",
         "blocks.carousel",
-        "blocks.cta-banner"
+        "blocks.cta-banner",
+        "blocks.ambassador",
+        "blocks.ambassadors-grid"
       ]
     }
   }

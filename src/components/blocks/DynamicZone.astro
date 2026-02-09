@@ -1,9 +1,19 @@
 ---
+/**
+ * DynamicZone - Maps Strapi block types to Astro components
+ * Used for SSR preview of draft content from Strapi
+ *
+ * Note: We use 'any' for the component map because TypeScript cannot
+ * statically verify props for dynamically selected components.
+ * The Strapi schema ensures correct props at runtime.
+ */
 import Paragraph from './Paragraph.astro'
 import CardsGrid from './CardsGrid.astro'
 import CardLinksGrid from './CardLinksGrid.astro'
 import Carousel from './Carousel.astro'
 import CtaBanner from './CtaBanner.astro'
+import AmbassadorBlock from './AmbassadorBlock.astro'
+import AmbassadorsGridBlock from './AmbassadorsGridBlock.astro'
 
 interface Block {
   __component: string
@@ -16,28 +26,35 @@ interface Props {
 
 const { blocks } = Astro.props
 
-const componentMap: Record<string, typeof Paragraph> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const componentMap: Record<string, any> = {
   'blocks.paragraph': Paragraph,
   'blocks.cards-grid': CardsGrid,
   'blocks.card-links-grid': CardLinksGrid,
   'blocks.carousel': Carousel,
-  'blocks.cta-banner': CtaBanner
+  'blocks.cta-banner': CtaBanner,
+  'blocks.ambassador': AmbassadorBlock,
+  'blocks.ambassadors-grid': AmbassadorsGridBlock
 }
+
+const resolvedBlocks = blocks
+  .map((block) => {
+    const Component = componentMap[block.__component]
+    if (!Component) {
+      console.warn(`Unknown component type: ${block.__component}`)
+      return null
+    }
+    return { Component, props: block }
+  })
+  .filter((item): item is NonNullable<typeof item> => item !== null)
 ---
 
 <div class="flex flex-col gap-space-xl">
   {
-    blocks.map((block) => {
-      const Component = componentMap[block.__component]
-      if (!Component) {
-        console.warn(`Unknown component type: ${block.__component}`)
-        return null
-      }
-      return (
-        <div class="w-full">
-          <Component {...block} />
-        </div>
-      )
-    })
+    resolvedBlocks.map(({ Component, props }) => (
+      <div class="w-full">
+        <Component {...props} />
+      </div>
+    ))
   }
 </div>

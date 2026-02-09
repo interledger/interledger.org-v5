@@ -8,7 +8,7 @@ const getPreviewPathname = (uid: string, { document }): string => {
       return `/blog/preview?slug=${document.documentId}`
     }
     case 'api::page.page':
-      return `/${document.slug}?preview=true`
+      return `/page-preview?documentId=${document.documentId}`
     default:
       return null
   }

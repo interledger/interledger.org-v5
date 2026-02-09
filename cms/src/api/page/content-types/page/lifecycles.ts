@@ -113,7 +113,41 @@ interface ImageRow {
   images?: MediaFile[]
 }
 
-type ContentBlock = CardsGrid | CardLinksGrid | Carousel | CtaBanner | Paragraph | ImageRow
+interface AmbassadorRef {
+  id?: number
+  documentId?: string
+  slug: string
+  name: string
+  description?: string
+  photo?: MediaFile | null
+  photoAlt?: string | null
+  linkedinUrl?: string | null
+  grantReportUrl?: string | null
+  order?: number
+}
+
+interface AmbassadorBlock {
+  __component: 'blocks.ambassador'
+  id: number
+  ambassador?: AmbassadorRef
+}
+
+interface AmbassadorsGridBlock {
+  __component: 'blocks.ambassadors-grid'
+  id: number
+  heading?: string
+  ambassadors?: AmbassadorRef[]
+}
+
+type ContentBlock =
+  | CardsGrid
+  | CardLinksGrid
+  | Carousel
+  | CtaBanner
+  | Paragraph
+  | ImageRow
+  | AmbassadorBlock
+  | AmbassadorsGridBlock
 
 interface Page {
   id: number
@@ -216,7 +250,9 @@ function serializeCardsGrid(block: CardsGrid): string {
   if (block.cards) {
     for (const card of block.cards) {
       lines.push('')
-      lines.push(`<Card title="${escapeQuotes(card.title)}"${card.link ? ` link="${escapeQuotes(card.link)}"` : ''}${card.linkText ? ` linkText="${escapeQuotes(card.linkText)}"` : ''}${card.icon ? ` icon="${escapeQuotes(card.icon)}"` : ''}>`)
+      lines.push(
+        `<Card title="${escapeQuotes(card.title)}"${card.link ? ` link="${escapeQuotes(card.link)}"` : ''}${card.linkText ? ` linkText="${escapeQuotes(card.linkText)}"` : ''}${card.icon ? ` icon="${escapeQuotes(card.icon)}"` : ''}>`
+      )
       if (card.description) {
         lines.push(card.description)
       }
@@ -245,7 +281,9 @@ function serializeCardLinksGrid(block: CardLinksGrid): string {
   if (block.links) {
     for (const link of block.links) {
       lines.push('')
-      lines.push(`<CardLink title="${escapeQuotes(link.title)}" url="${escapeQuotes(link.url)}"${link.icon ? ` icon="${escapeQuotes(link.icon)}"` : ''}>`)
+      lines.push(
+        `<CardLink title="${escapeQuotes(link.title)}" url="${escapeQuotes(link.url)}"${link.icon ? ` icon="${escapeQuotes(link.icon)}"` : ''}>`
+      )
       if (link.description) {
         lines.push(link.description)
       }
@@ -275,7 +313,9 @@ function serializeCarousel(block: Carousel): string {
     for (const item of block.items) {
       const imageUrl = getImageUrl(item.image)
       lines.push('')
-      lines.push(`<CarouselItem title="${escapeQuotes(item.title)}"${imageUrl ? ` image="${escapeQuotes(imageUrl)}"` : ''}${item.link ? ` link="${escapeQuotes(item.link)}"` : ''}>`)
+      lines.push(
+        `<CarouselItem title="${escapeQuotes(item.title)}"${imageUrl ? ` image="${escapeQuotes(imageUrl)}"` : ''}${item.link ? ` link="${escapeQuotes(item.link)}"` : ''}>`
+      )
       if (item.description) {
         lines.push(item.description)
       }
@@ -298,8 +338,12 @@ function serializeCtaBanner(block: CtaBanner): string {
     `title="${escapeQuotes(block.title)}"`,
     block.ctaText ? `ctaText="${escapeQuotes(block.ctaText)}"` : null,
     block.ctaUrl ? `ctaUrl="${escapeQuotes(block.ctaUrl)}"` : null,
-    block.backgroundColor ? `backgroundColor="${escapeQuotes(block.backgroundColor)}"` : null
-  ].filter(Boolean).join(' ')
+    block.backgroundColor
+      ? `backgroundColor="${escapeQuotes(block.backgroundColor)}"`
+      : null
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   lines.push(`<CtaBanner ${attrs}>`)
   if (block.description) {
@@ -341,6 +385,47 @@ function serializeImageRow(block: ImageRow): string {
 }
 
 /**
+ * Serializes a single ambassador block to MDX
+ */
+function serializeAmbassador(block: AmbassadorBlock): string {
+  if (!block.ambassador) return ''
+
+  const amb = block.ambassador
+  return `<AmbassadorCard
+  name="${escapeQuotes(amb.name)}"
+  slug="${escapeQuotes(amb.slug)}"
+  description="${escapeQuotes(amb.description || '')}"
+  photo="${amb.photo?.url ? escapeQuotes(getImageUrl(amb.photo) || '') : ''}"
+  photoAlt="${escapeQuotes(amb.photoAlt || '')}"
+  linkedinUrl="${escapeQuotes(amb.linkedinUrl || '')}"
+  grantReportUrl="${escapeQuotes(amb.grantReportUrl || '')}"
+/>`
+}
+
+/**
+ * Serializes an ambassadors-grid block to MDX
+ */
+function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
+  const lines: string[] = []
+
+  if (block.heading) {
+    lines.push(`## ${block.heading}`)
+    lines.push('')
+  }
+
+  // Extract slugs from the ambassadors relation
+  const slugs = (block.ambassadors || [])
+    .filter((amb) => amb?.slug)
+    .map((amb) => `"${escapeQuotes(amb.slug)}"`)
+
+  if (slugs.length > 0) {
+    lines.push(`<AmbassadorGrid slugs={[${slugs.join(',')}]} />`)
+  }
+
+  return lines.join('\n')
+}
+
+/**
  * Serializes the content dynamic zone to MDX
  */
 function serializeContent(content: ContentBlock[] | undefined): string {
@@ -368,8 +453,16 @@ function serializeContent(content: ContentBlock[] | undefined): string {
       case 'blocks.image-row':
         blocks.push(serializeImageRow(block as ImageRow))
         break
+      case 'blocks.ambassador':
+        blocks.push(serializeAmbassador(block as AmbassadorBlock))
+        break
+      case 'blocks.ambassadors-grid':
+        blocks.push(serializeAmbassadorsGrid(block as AmbassadorsGridBlock))
+        break
       default:
-        console.warn(`Unknown block component: ${(block as any).__component}`)
+        console.warn(
+          `Unknown block component: ${(block as ContentBlock).__component}`
+        )
     }
   }
 
@@ -394,7 +487,9 @@ function generateMDX(page: Page): string {
       frontmatterLines.push(`heroTitle: "${escapeQuotes(page.hero.title)}"`)
     }
     if (page.hero.description) {
-      frontmatterLines.push(`heroDescription: "${escapeQuotes(page.hero.description)}"`)
+      frontmatterLines.push(
+        `heroDescription: "${escapeQuotes(page.hero.description)}"`
+      )
     }
     const heroImage = getImageUrl(page.hero.backgroundImage)
     if (heroImage) {
@@ -408,7 +503,9 @@ function generateMDX(page: Page): string {
       frontmatterLines.push(`metaTitle: "${escapeQuotes(page.seo.metaTitle)}"`)
     }
     if (page.seo.metaDescription) {
-      frontmatterLines.push(`metaDescription: "${escapeQuotes(page.seo.metaDescription)}"`)
+      frontmatterLines.push(
+        `metaDescription: "${escapeQuotes(page.seo.metaDescription)}"`
+      )
     }
     const metaImage = getImageUrl(page.seo.metaImage)
     if (metaImage) {
@@ -418,7 +515,9 @@ function generateMDX(page: Page): string {
       frontmatterLines.push(`keywords: "${escapeQuotes(page.seo.keywords)}"`)
     }
     if (page.seo.canonicalUrl) {
-      frontmatterLines.push(`canonicalUrl: "${escapeQuotes(page.seo.canonicalUrl)}"`)
+      frontmatterLines.push(
+        `canonicalUrl: "${escapeQuotes(page.seo.canonicalUrl)}"`
+      )
     }
   }
 
@@ -432,7 +531,29 @@ function generateMDX(page: Page): string {
   const frontmatter = frontmatterLines.join('\n')
   const content = serializeContent(page.content)
 
-  return `---\n${frontmatter}\n---\n\n${content}\n`
+  // Check if we need to add imports for ambassador components
+  const imports: string[] = []
+  const hasAmbassadorCard = page.content?.some(
+    (block) => block.__component === 'blocks.ambassador'
+  )
+  const hasAmbassadorGrid = page.content?.some(
+    (block) => block.__component === 'blocks.ambassadors-grid'
+  )
+
+  if (hasAmbassadorCard) {
+    imports.push(
+      'import AmbassadorCard from "../../components/ambassadors/AmbassadorCard.astro"'
+    )
+  }
+  if (hasAmbassadorGrid) {
+    imports.push(
+      'import AmbassadorGrid from "../../components/ambassadors/AmbassadorGrid.astro"'
+    )
+  }
+
+  const importBlock = imports.length > 0 ? imports.join('\n') + '\n\n' : ''
+
+  return `---\n${frontmatter}\n---\n\n${importBlock}${content}\n`
 }
 
 /**
@@ -447,7 +568,8 @@ function getOutputDir(locale: string): string {
   const projectRoot = path.resolve(__dirname, '../../../../../../..')
 
   if (locale === 'en') {
-    const outputPath = process.env.PAGES_MDX_OUTPUT_PATH || 'src/content/foundation-pages'
+    const outputPath =
+      process.env.PAGES_MDX_OUTPUT_PATH || 'src/content/foundation-pages'
     return path.join(projectRoot, outputPath)
   }
 
@@ -477,6 +599,7 @@ async function writeMDXFile(page: Page): Promise<string> {
   return filepath
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function deleteMDXFile(page: Page): Promise<string | null> {
   const locale = page.locale || 'en'
   const outputDir = getOutputDir(locale)
@@ -495,7 +618,10 @@ async function deleteMDXFile(page: Page): Promise<string | null> {
 /**
  * Fetches the full page data with all components populated
  */
-async function fetchFullPage(documentId: string, locale: string): Promise<Page | null> {
+async function fetchFullPage(
+  documentId: string,
+  locale: string
+): Promise<Page | null> {
   try {
     // For dynamic zones, we must use '*' to populate all nested content
     // Strapi v5 doesn't allow specific field targeting in polymorphic structures
@@ -532,11 +658,13 @@ function getLocaleFromEvent(event: Event): string {
   console.log('  params:', JSON.stringify(event.params, null, 2))
 
   // Try to get locale from various sources in order of reliability
-  const locale = event.result?.locale
-    || event.params?.locale
-    || event.params?.where?.locale
-    || (event.params?.data as any)?.locale
-    || 'en'
+  const dataLocale = (event.params?.data as Record<string, unknown>)?.locale
+  const locale =
+    event.result?.locale ||
+    event.params?.locale ||
+    event.params?.where?.locale ||
+    (typeof dataLocale === 'string' ? dataLocale : null) ||
+    'en'
 
   console.log(`📍 Page lifecycle - detected locale: ${locale}`)
   return locale
@@ -564,10 +692,15 @@ export default {
 
     // Use locale from fetched page (most reliable)
     const confirmedLocale = fullPage.locale || eventLocale
-    console.log(`📝 Creating page MDX: ${result.slug} (confirmed: ${confirmedLocale})`)
+    console.log(
+      `📝 Creating page MDX: ${result.slug} (confirmed: ${confirmedLocale})`
+    )
 
     const filepath = await writeMDXFile(fullPage)
-    await gitCommitAndPush(filepath, `page: add "${result.title}" (${confirmedLocale})`)
+    await gitCommitAndPush(
+      filepath,
+      `page: add "${result.title}" (${confirmedLocale})`
+    )
   },
 
   async afterUpdate(event: Event) {
@@ -580,19 +713,26 @@ export default {
     const fullPage = await fetchFullPage(result.documentId, eventLocale)
 
     if (!fullPage) {
-      console.log(`⚠️  Could not fetch page ${result.documentId} - skipping MDX operation`)
+      console.log(
+        `⚠️  Could not fetch page ${result.documentId} - skipping MDX operation`
+      )
       // IMPORTANT: Don't delete anything if we can't confirm the locale
       return
     }
 
     // Use the locale from the fetched page - this is the source of truth
     const confirmedLocale = fullPage.locale || 'en'
-    console.log(`📝 Updating page: ${result.slug} (confirmed: ${confirmedLocale}), published: ${!!result.publishedAt}`)
+    console.log(
+      `📝 Updating page: ${result.slug} (confirmed: ${confirmedLocale}), published: ${!!result.publishedAt}`
+    )
 
     if (result.publishedAt) {
       // Export the MDX
       const filepath = await writeMDXFile(fullPage)
-      await gitCommitAndPush(filepath, `page: update "${result.title}" (${confirmedLocale})`)
+      await gitCommitAndPush(
+        filepath,
+        `page: update "${result.title}" (${confirmedLocale})`
+      )
     } else {
       // Page is unpublished - only delete if we have confirmed locale
       const outputDir = getOutputDir(confirmedLocale)
@@ -604,7 +744,10 @@ export default {
       if (fs.existsSync(filepath)) {
         fs.unlinkSync(filepath)
         console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-        await gitCommitAndPush(filepath, `page: unpublish "${result.title}" (${confirmedLocale})`)
+        await gitCommitAndPush(
+          filepath,
+          `page: unpublish "${result.title}" (${confirmedLocale})`
+        )
       } else {
         console.log(`⏭️  No MDX file exists at ${filepath} - nothing to delete`)
       }
@@ -620,8 +763,14 @@ export default {
     const eventLocale = getLocaleFromEvent(event)
 
     // SAFETY: If locale defaulted to 'en' but we're not sure, log a warning
-    if (eventLocale === 'en' && !event.result?.locale && !event.params?.locale) {
-      console.log(`⚠️  Delete: locale uncertain, defaulting to 'en' for ${result.slug}`)
+    if (
+      eventLocale === 'en' &&
+      !event.result?.locale &&
+      !event.params?.locale
+    ) {
+      console.log(
+        `⚠️  Delete: locale uncertain, defaulting to 'en' for ${result.slug}`
+      )
     }
 
     console.log(`🗑️  Deleting page: ${result.slug} (${eventLocale})`)
@@ -633,7 +782,10 @@ export default {
     if (fs.existsSync(filepath)) {
       fs.unlinkSync(filepath)
       console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-      await gitCommitAndPush(filepath, `page: delete "${result.title}" (${eventLocale})`)
+      await gitCommitAndPush(
+        filepath,
+        `page: delete "${result.title}" (${eventLocale})`
+      )
     }
   }
 }

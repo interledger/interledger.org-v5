@@ -211,7 +211,7 @@ async function strapiRequest(endpoint, options = {}) {
 
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -251,6 +251,7 @@ async function findBySlug(apiId, slug, locale = null) {
 }
 
 // Find entry by slug in default locale (en)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function findBySlugInDefaultLocale(apiId, slug) {
   return await findBySlug(apiId, slug, 'en');
 }
@@ -264,7 +265,7 @@ async function createLocalization(apiId, documentId, locale, data) {
   let entry;
   try {
     entry = await strapiRequest(`${apiId}/${documentId}?locale=en`);
-  } catch (e) {
+  } catch {
     entry = await strapiRequest(`${apiId}/${documentId}`);
   }
 
@@ -275,6 +276,7 @@ async function createLocalization(apiId, documentId, locale, data) {
   console.log(`      📝 Creating localization for documentId=${documentId}, locale=${locale}`);
 
   // Remove locale from data (should not be in body)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { locale: dataLocale, ...dataWithoutLocale } = data;
 
   // In Strapi v5, to create a localization for an existing document,
@@ -316,6 +318,7 @@ async function updateLocalization(apiId, documentId, locale, data) {
   const localization = await findBySlug(apiId, data.slug, locale);
 
   // Remove locale from data body (Strapi v5 uses query string for locale)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { locale: dataLocale, ...dataWithoutLocale } = data;
 
   if (localization) {
@@ -453,8 +456,6 @@ async function syncContentType(contentType) {
 
       // Now find matching locale versions for this English post
       if (!DRY_RUN && englishEntry && englishEntry.documentId) {
-        const englishDate = englishMdx.frontmatter.date ? new Date(englishMdx.frontmatter.date) : null;
-        
         // Find locale files that might be translations of this English post
         // Use contentId or localizes as foreign keys
         // English contentId can be: frontmatter.contentId OR slug (since English posts use slug as contentId)
