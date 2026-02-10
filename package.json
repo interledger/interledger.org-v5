@@ -25,6 +25,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@types/showdown": "^2.0.6",
     "astro": "^5.16.0",
+    "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
     "html-to-text": "^9.0.5",
     "markdown-it": "^14.1.0",

@@ -4,7 +4,8 @@ import dotenv from 'dotenv'
 import path from 'path'
 
 // Load .env from project root (one level up from cms directory)
-const envPath = path.resolve(__dirname, '../../../.env')
+// Use process.cwd() to get the cms directory, then go up one level
+const envPath = path.resolve(process.cwd(), '../.env')
 const result = dotenv.config({ path: envPath })
 
 if (result.error) {
