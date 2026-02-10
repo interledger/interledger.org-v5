@@ -2,11 +2,9 @@ const { describe, it, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const matter = require('gray-matter');
 
 const { scanMDXFiles } = require('../scan');
-const { buildEntryData, syncContentType } = require('../sync');
-const { updateMdxFrontmatter } = require('../contentId');
+const { buildEntryData, syncContentType, updateMdxFrontmatter } = require('../sync');
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });

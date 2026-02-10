@@ -8,8 +8,9 @@
  *   bun scripts/sync-mdx/index.ts
  */
 
+import fs from 'fs'
 import path from 'path'
-import { loadEnv } from './env'
+import dotenv from 'dotenv'
 import { DEFAULT_STRAPI_URL, buildContentTypes } from './config'
 import { createStrapiClient } from './strapi'
 import { syncAll } from './sync'
@@ -26,7 +27,10 @@ async function main() {
   }
 
   const projectRoot = path.resolve(cwd, '..')
-  loadEnv(projectRoot)
+  const envPath = path.join(projectRoot, '.env')
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath })
+  }
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN

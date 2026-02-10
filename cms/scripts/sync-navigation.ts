@@ -10,7 +10,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { loadEnv } from './sync-mdx/env'
+import dotenv from 'dotenv'
 import { DEFAULT_STRAPI_URL } from './sync-mdx/config'
 
 const DRY_RUN = process.argv.includes('--dry-run')
@@ -134,7 +134,10 @@ async function main() {
   }
 
   const projectRoot = path.resolve(cwd, '..')
-  loadEnv(projectRoot)
+  const envPath = path.join(projectRoot, '.env')
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath })
+  }
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN

@@ -1,6 +1,7 @@
+import fs from 'fs'
 import { marked } from 'marked'
+import matter from 'gray-matter'
 import { scanMDXFiles, type MDXFile } from './scan'
-import { updateMdxFrontmatter } from './contentId'
 import type { ContentTypes } from './config'
 import type { StrapiClient, StrapiEntry } from './strapi'
 
@@ -20,6 +21,18 @@ interface SyncResults {
 function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   if (!entry) return null
   return entry[key] ?? (entry as Record<string, unknown>).attributes?.[key as keyof typeof entry] ?? null
+}
+
+export function updateMdxFrontmatter(filepath: string, key: string, value: string): void {
+  try {
+    const fileContent = fs.readFileSync(filepath, 'utf-8')
+    const { data, content } = matter(fileContent)
+    data[key] = value
+    const newContent = matter.stringify(content, data)
+    fs.writeFileSync(filepath, newContent, 'utf-8')
+  } catch (error) {
+    console.warn(`   ⚠️  Could not update frontmatter in: ${filepath}`)
+  }
 }
 
 const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
