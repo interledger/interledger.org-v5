@@ -86,11 +86,10 @@ async function main() {
   loadCmsEnv(projectRoot);
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL;
-  const STRAPI_TOKEN =
-    process.env.STRAPI_API_TOKEN || process.env.STRAPI_PREVIEW_TOKEN;
+  const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
 
   if (!STRAPI_TOKEN) {
-    console.error('❌ Error: STRAPI_API_TOKEN or STRAPI_PREVIEW_TOKEN not set');
+    console.error('❌ Error: STRAPI_API_TOKEN not set');
     process.exit(1);
   }
 

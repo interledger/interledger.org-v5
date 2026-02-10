@@ -7,7 +7,7 @@
  *   or
  *   npx tsx scripts/import-navigation.ts --all
  *
- * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
+ * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
  */
 
 import { readFileSync, existsSync } from 'fs'
@@ -48,7 +48,7 @@ interface Navigation {
 
 async function importNavigation(type: 'regular' | 'summit' | 'all') {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
-  const token = process.env.STRAPI_PREVIEW_TOKEN
+  const token = process.env.STRAPI_API_TOKEN
 
   const typesToImport: ('regular' | 'summit')[] =
     type === 'all' ? ['regular', 'summit'] : [type]

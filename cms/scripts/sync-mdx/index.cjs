@@ -11,20 +11,11 @@ async function main() {
   loadCmsEnv(projectRoot);
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL;
-  const STRAPI_TOKEN =
-    process.env.STRAPI_API_TOKEN || process.env.STRAPI_PREVIEW_TOKEN;
+  const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
   const DRY_RUN = process.argv.includes('--dry-run');
 
   if (!STRAPI_TOKEN) {
-    console.error('❌ Error: STRAPI_API_TOKEN or STRAPI_PREVIEW_TOKEN not set');
-    console.error(
-      '   STRAPI_API_TOKEN:',
-      process.env.STRAPI_API_TOKEN ? 'SET' : 'NOT SET'
-    );
-    console.error(
-      '   STRAPI_PREVIEW_TOKEN:',
-      process.env.STRAPI_PREVIEW_TOKEN ? 'SET' : 'NOT SET'
-    );
+    console.error('❌ Error: STRAPI_API_TOKEN not set');
     process.exit(1);
   }
 

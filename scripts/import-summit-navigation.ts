@@ -3,7 +3,7 @@
  *
  * Usage: npx tsx scripts/import-summit-navigation.ts
  *
- * Requires STRAPI_URL and STRAPI_PREVIEW_TOKEN environment variables
+ * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
  */
 
 import { readFileSync, existsSync } from 'fs'
@@ -44,7 +44,7 @@ interface SummitNavigation {
 
 async function importSummitNavigation() {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
-  const token = process.env.STRAPI_PREVIEW_TOKEN
+  const token = process.env.STRAPI_API_TOKEN
 
   // Read local summit navigation config
   const configPath = join(process.cwd(), 'src/config/summit-navigation.json')
