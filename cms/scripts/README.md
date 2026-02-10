@@ -33,7 +33,7 @@ STRAPI_API_TOKEN=your-token-here
 
 ## Usage
 
-### From cms directory (recommended)
+### From cms directory (required)
 
 ```bash
 cd cms
@@ -41,21 +41,9 @@ bun run sync:mdx:dry-run  # Preview changes
 bun run sync:mdx          # Actually sync
 ```
 
-### From project root
+### Direct execution (from cms only)
 
 ```bash
-bun run sync:mdx:dry-run  # Preview changes
-bun run sync:mdx          # Actually sync
-```
-
-### Direct execution
-
-```bash
-# From project root
-bun cms/scripts/sync-mdx/index.ts --dry-run
-bun cms/scripts/sync-mdx/index.ts
-
-# From cms directory
 bun scripts/sync-mdx/index.ts --dry-run
 bun scripts/sync-mdx/index.ts
 ```

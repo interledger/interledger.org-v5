@@ -18,7 +18,14 @@ async function main() {
   console.log('🚀 MDX → Strapi Sync')
   console.log('='.repeat(50))
 
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const cwd = process.cwd()
+  if (path.basename(cwd) !== 'cms') {
+    console.error('❌ Error: run this script from the cms directory')
+    console.error('   Example: cd cms && bun run sync:mdx')
+    process.exit(1)
+  }
+
+  const projectRoot = path.resolve(cwd, '..')
   loadEnv(projectRoot)
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL
