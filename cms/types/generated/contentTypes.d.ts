@@ -602,38 +602,6 @@ export interface ApiFoundationPageFoundationPage
   }
 }
 
-export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
-  collectionName: 'grant_tracks'
-  info: {
-    description: 'Individual grant programs'
-    displayName: 'Grant Track'
-    pluralName: 'grant-tracks'
-    singularName: 'grant-track'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    amount: Schema.Attribute.String & Schema.Attribute.Required
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    description: Schema.Attribute.RichText & Schema.Attribute.Required
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::grant-track.grant-track'
-    > &
-      Schema.Attribute.Private
-    name: Schema.Attribute.String & Schema.Attribute.Required
-    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    publishedAt: Schema.Attribute.DateTime
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
   collectionName: 'navigations'
   info: {
@@ -1176,7 +1144,6 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
-      'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::navigation.navigation': ApiNavigationNavigation
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage

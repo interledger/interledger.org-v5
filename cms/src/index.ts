@@ -81,15 +81,6 @@ async function configureFieldLabels(strapi: any) {
       updatedAt: 'Updated At',
       publishedAt: 'Published At'
     },
-    'api::grant-track.grant-track': {
-      name: 'Grant Name',
-      amount: 'Grant Amount',
-      description: 'Description',
-      order: 'Display Order',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
-    },
     'api::info-item.info-item': {
       title: 'Title',
       content: 'Content',

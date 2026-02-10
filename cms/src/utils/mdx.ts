@@ -1,6 +1,6 @@
 /**
  * Shared MDX utilities for Strapi lifecycle hooks.
- * Types, serializers, and helpers used across page, summit-page, blog-post, and grant-track.
+ * Types, serializers, and helpers used across page, summit-page, and blog-post.
  */
 
 import fs from 'fs'
