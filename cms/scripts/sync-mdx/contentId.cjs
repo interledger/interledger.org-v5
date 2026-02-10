@@ -1,19 +1,4 @@
-const crypto = require('crypto');
 const fs = require('fs');
-
-/**
- * Generate a unique contentId for linking EN/ES content.
- * Uses nanoid-style alphanumeric IDs (21 chars).
- */
-function generateContentId() {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const bytes = crypto.randomBytes(21);
-  let id = '';
-  for (let i = 0; i < 21; i++) {
-    id += chars[bytes[i] % chars.length];
-  }
-  return id;
-}
 
 /**
  * Update or add a frontmatter field in an MDX file.
@@ -93,7 +78,6 @@ function readMdxFrontmatterField(filepath, key) {
 }
 
 module.exports = {
-  generateContentId,
   updateMdxFrontmatter,
   readMdxFrontmatterField
 };
