@@ -67,12 +67,6 @@ The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs M
    - Updates existing entries if slug matches
    - Deletes orphaned entries (in Strapi but not in MDX)
 
-## Content Type Mappings
-
-- `src/content/blog/*.mdx` → `blog-posts` (API ID)
-- `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
-- `src/content/summit/*.mdx` → `summit-pages` (API ID)
-
 ## Troubleshooting
 
 ### 401 Unauthorized Error
