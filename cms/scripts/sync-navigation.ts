@@ -10,7 +10,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { resolveProjectRoot, loadEnv } from './sync-mdx/env'
+import { loadEnv } from './sync-mdx/env'
 import { DEFAULT_STRAPI_URL } from './sync-mdx/config'
 
 const DRY_RUN = process.argv.includes('--dry-run')
@@ -126,7 +126,7 @@ async function updateNavigation({ baseUrl, token, apiId, configPath, label }: Up
 }
 
 async function main() {
-  const projectRoot = resolveProjectRoot()
+  const projectRoot = path.resolve(process.cwd(), '..')
   loadEnv(projectRoot)
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL

@@ -8,7 +8,8 @@
  *   bun scripts/sync-mdx/index.ts
  */
 
-import { resolveProjectRoot, loadEnv } from './env'
+import path from 'path'
+import { loadEnv } from './env'
 import { DEFAULT_STRAPI_URL, buildContentTypes } from './config'
 import { createStrapiClient } from './strapi'
 import { syncAll } from './sync'
@@ -17,7 +18,7 @@ async function main() {
   console.log('🚀 MDX → Strapi Sync')
   console.log('='.repeat(50))
 
-  const projectRoot = resolveProjectRoot()
+  const projectRoot = path.resolve(process.cwd(), '..')
   loadEnv(projectRoot)
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL

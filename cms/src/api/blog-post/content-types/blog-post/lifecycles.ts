@@ -95,12 +95,11 @@ function generateMDX(
 }
 
 function getOutputDir(locale: string): string {
+  const projectRoot = path.resolve(process.cwd(), '..')
   if (locale === 'en') {
-    const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-    return path.resolve(process.cwd(), outputPath)
+    return path.join(projectRoot, 'src/content/blog')
   }
-
-  return path.resolve(process.cwd(), `../src/content/${locale}/blog`)
+  return path.join(projectRoot, 'src/content', locale, 'blog')
 }
 
 async function writeMDXFile(

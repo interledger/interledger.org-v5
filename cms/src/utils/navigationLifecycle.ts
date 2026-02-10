@@ -32,10 +32,6 @@ export interface NavigationLifecycleConfig {
   logPrefix: string
 }
 
-function getProjectRoot(): string {
-  return path.resolve(process.cwd(), '..')
-}
-
 function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
   if (!item) return null
   return {
@@ -63,7 +59,7 @@ function sanitizeNavigation(data: NavigationData) {
 }
 
 function writeNavigationFile(config: NavigationLifecycleConfig, data: NavigationData): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = path.resolve(process.cwd(), '..')
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
 
@@ -96,7 +92,7 @@ async function fetchPublishedNavigation(
 }
 
 async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<string | null> {
-  const projectRoot = getProjectRoot()
+  const projectRoot = path.resolve(process.cwd(), '..')
   const outputPath = path.join(projectRoot, config.outputPath)
   if (fs.existsSync(outputPath)) {
     fs.unlinkSync(outputPath)

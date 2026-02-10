@@ -19,7 +19,7 @@ export async function gitCommitAndPush(
     return
   }
 
-  const projectRoot = path.resolve(process.cwd(), '..') // repo root above /cms
+  const projectRoot = path.resolve(process.cwd(), '..')
   const safeMessage = escapeForShell(message)
   const filepaths = Array.isArray(filepath) ? filepath : [filepath]
 

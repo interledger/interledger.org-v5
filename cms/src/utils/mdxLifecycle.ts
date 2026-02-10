@@ -49,13 +49,8 @@ export interface PageLifecycleConfig {
   extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
-function getProjectRoot(): string {
-  // cwd is cms/, go up one level to project root
-  return path.resolve(process.cwd(), '..')
-}
-
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = path.resolve(process.cwd(), '..')
 
   if (locale === 'en') {
     return path.join(projectRoot, config.outputDir)
