@@ -163,6 +163,7 @@ interface Page {
   title: string
   slug: string
   locale?: string
+  category?: 'default' | 'tech' | 'mission' | 'vision' | 'values'
   hero?: Hero
   seo?: Seo
   content?: ContentBlock[]
@@ -546,6 +547,11 @@ function generateMDX(page: Page): string {
         `canonicalUrl: "${escapeQuotes(page.seo.canonicalUrl)}"`
       )
     }
+  }
+
+  // Add category for theming
+  if (page.category) {
+    frontmatterLines.push(`category: "${page.category}"`)
   }
 
   // Add locale and contentId for localized pages

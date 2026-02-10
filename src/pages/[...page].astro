@@ -18,12 +18,13 @@ export async function getStaticPaths() {
 const { page } = Astro.props
 const { Content } = await render(page)
 
-const { title, heroTitle, heroDescription, description } = page.data
+const { title, heroTitle, heroDescription, description, category } = page.data
 const pageTitle = title || page.data.slug
+const pageCategory = category || 'default'
 ---
 
 <BaseLayout title={pageTitle} description={description}>
-  <main class="pb-space-l">
+  <main class="pb-space-l" data-category={pageCategory}>
     {
       heroTitle && (
         <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">

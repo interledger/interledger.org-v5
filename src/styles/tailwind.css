@@ -138,6 +138,8 @@
     --color-header-accent: #eee;
     --color-table-stripe: #f6f7f9;
     --color-bg-inline-code: #edeef3;
+    /* Accent color for themed elements (blockquotes, etc.) */
+    --accent-color: var(--color-primary);
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),
@@ -148,6 +150,23 @@
   [data-theme='dark'] {
     --color-bg: var(--color-black);
     --color-text: var(--color-white);
+  }
+
+  /* Category-based theming */
+  [data-category='tech'] {
+    --accent-color: oklch(51.54% 0.088 194.77); /* Using primary for now */
+  }
+
+  [data-category='mission'] {
+    --accent-color: oklch(55.27% 0.205 32.62); /* Using mission color */
+  }
+
+  [data-category='vision'] {
+    --accent-color: oklch(51.54% 0.088 194.77); /* Using primary for now */
+  }
+
+  [data-category='values'] {
+    --accent-color: oklch(51.54% 0.088 194.77); /* Using primary for now */
   }
 
   main {
