@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs'
+import matter from 'gray-matter'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -352,20 +353,12 @@ export function getPreservedFields(filepath: string): Record<string, string> {
   }
 
   try {
-    const content = fs.readFileSync(filepath, 'utf-8')
-    const match = content.match(/^---\n([\s\S]*?)\n---/)
-    if (!match) return preserved
+    const fileContent = fs.readFileSync(filepath, 'utf-8')
+    const { data } = matter(fileContent)
 
-    const lines = match[1].split('\n')
-    for (const line of lines) {
-      const colonIndex = line.indexOf(':')
-      if (colonIndex > 0) {
-        const key = line.substring(0, colonIndex).trim()
-        if (fieldsToPreserve.includes(key)) {
-          let value = line.substring(colonIndex + 1).trim()
-          value = value.replace(/^["']|["']$/g, '')
-          preserved[key] = value
-        }
+    for (const key of fieldsToPreserve) {
+      if (data[key] !== undefined) {
+        preserved[key] = String(data[key])
       }
     }
   } catch {
