@@ -606,6 +606,15 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    category: Schema.Attribute.Enumeration<
+      ['default', 'tech', 'mission', 'vision', 'values']
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'default'>
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
