@@ -6,7 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { gitCommitAndPush } from '../../../../utils/gitSync'
+import { syncToGit } from '../../../../utils/gitSync'
 import {
   type MediaFile,
   getImageUrl,
@@ -171,7 +171,7 @@ export default {
     }
 
     if (filepaths.length > 0) {
-      await gitCommitAndPush(filepaths, `blog: add "${result.title}"`)
+      await syncToGit(filepaths, `blog: add "${result.title}"`)
     }
   },
 
@@ -206,7 +206,7 @@ export default {
 
     const allPaths = [...filepaths, ...deletedPaths]
     if (allPaths.length > 0) {
-      await gitCommitAndPush(allPaths, `blog: update "${result.title}"`)
+      await syncToGit(allPaths, `blog: update "${result.title}"`)
     }
   },
 
@@ -229,7 +229,7 @@ export default {
     }
 
     if (deletedPaths.length > 0) {
-      await gitCommitAndPush(deletedPaths, `blog: delete "${result.title}"`)
+      await syncToGit(deletedPaths, `blog: delete "${result.title}"`)
     }
   }
 }

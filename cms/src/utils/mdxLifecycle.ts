@@ -7,7 +7,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { gitCommitAndPush } from './gitSync'
+import { syncToGit } from './gitSync'
 import {
   type Hero,
   type Seo,
@@ -186,7 +186,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       const filepaths = await exportAllLocales(config, result.documentId)
 
       if (filepaths.length > 0) {
-        await gitCommitAndPush(filepaths, `${config.logPrefix}: add "${result.title}"`)
+        await syncToGit(filepaths, `${config.logPrefix}: add "${result.title}"`)
       }
     },
 
@@ -211,7 +211,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
 
       const allPaths = [...filepaths, ...deletedPaths]
       if (allPaths.length > 0) {
-        await gitCommitAndPush(allPaths, `${config.logPrefix}: update "${result.title}"`)
+        await syncToGit(allPaths, `${config.logPrefix}: update "${result.title}"`)
       }
     },
 
@@ -234,7 +234,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       }
 
       if (deletedPaths.length > 0) {
-        await gitCommitAndPush(deletedPaths, `${config.logPrefix}: delete "${result.title}"`)
+        await syncToGit(deletedPaths, `${config.logPrefix}: delete "${result.title}"`)
       }
     }
   }

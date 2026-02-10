@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush } from './gitSync'
+import { syncToGit } from './gitSync'
 
 interface MenuItem {
   label: string
@@ -112,7 +112,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
         return
       }
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(outputPath, `${config.logPrefix}: update navigation`)
+      await syncToGit(outputPath, `${config.logPrefix}: update navigation`)
     },
 
     async afterUpdate(_event: Event) {
@@ -122,7 +122,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       if (!navigation) {
         const deletedPath = await deleteNavigationFile(config)
         if (deletedPath) {
-          await gitCommitAndPush(
+          await syncToGit(
             deletedPath,
             `${config.logPrefix}: unpublish navigation`
           )
@@ -131,14 +131,14 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       }
 
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(outputPath, `${config.logPrefix}: update navigation`)
+      await syncToGit(outputPath, `${config.logPrefix}: update navigation`)
     },
 
     async afterDelete(_event: Event) {
       console.log(`🗑️  Deleting ${config.logPrefix} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
-        await gitCommitAndPush(deletedPath, `${config.logPrefix}: delete navigation`)
+        await syncToGit(deletedPath, `${config.logPrefix}: delete navigation`)
       }
     }
   }

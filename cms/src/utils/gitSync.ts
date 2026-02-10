@@ -7,10 +7,10 @@ function escapeForShell(str: string): string {
 }
 
 /**
- * Pulls latest changes with rebase, stages the filepath(s), commits, and pushes.
+ * Syncs changes to git: pulls latest with rebase, stages files, commits, and pushes.
  * Resolves even on failure so Strapi saves content.
  */
-export async function gitCommitAndPush(
+export async function syncToGit(
   filepath: string | string[],
   message: string
 ): Promise<void> {
@@ -48,7 +48,7 @@ export async function gitCommitAndPush(
         resolve()
         return
       }
-      console.log(`✅ Git sync complete: ${message}`)
+      console.log(`✅ Synced to git: ${message}`)
       if (stdout) console.log(stdout)
       resolve()
     })
