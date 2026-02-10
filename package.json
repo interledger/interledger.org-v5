@@ -8,8 +8,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
-    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
-    "import:nav": "npx tsx scripts/import-foundation-navigation.ts --all"
+    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 ."
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
