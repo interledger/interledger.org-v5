@@ -52,12 +52,12 @@ bun run sync:mdx          # Actually sync
 
 ```bash
 # From project root
-bun cms/scripts/sync-mdx.cjs --dry-run
-bun cms/scripts/sync-mdx.cjs
+bun cms/scripts/sync-mdx/index.ts --dry-run
+bun cms/scripts/sync-mdx/index.ts
 
 # From cms directory
-bun scripts/sync-mdx.cjs --dry-run
-bun scripts/sync-mdx.cjs
+bun scripts/sync-mdx/index.ts --dry-run
+bun scripts/sync-mdx/index.ts
 ```
 
 ## GitHub Actions
