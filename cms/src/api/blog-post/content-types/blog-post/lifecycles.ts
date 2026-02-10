@@ -5,10 +5,10 @@
 
 import fs from 'fs'
 import path from 'path'
+import matter from 'gray-matter'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
 import {
   type MediaFile,
-  escapeQuotes,
   getImageUrl,
   htmlToMarkdown,
   LOCALES,
@@ -59,38 +59,39 @@ function generateMDX(
   const localizesValue =
     localizes || (locale !== 'en' && englishSlug ? englishSlug : undefined)
 
-  const frontmatterLines = [
-    `title: "${escapeQuotes(post.title)}"`,
-    `description: "${escapeQuotes(post.description)}"`,
-    post.ogImageUrl
-      ? `ogImageUrl: "${escapeQuotes(post.ogImageUrl)}"`
-      : undefined,
-    `date: ${formatDate(post.date)}`,
-    `slug: ${post.slug}`,
-    `lang: "${escapeQuotes(langValue)}"`,
-    imageUrl ? `image: "${escapeQuotes(imageUrl)}"` : undefined
-  ].filter(Boolean) as string[]
+  const frontmatterData: Record<string, unknown> = {
+    title: post.title,
+    description: post.description,
+    date: formatDate(post.date),
+    slug: post.slug,
+    lang: langValue,
+    contentId: post.documentId,
+  }
 
-  // Always include contentId for locale linking (Strapi documentId)
-  frontmatterLines.push(`contentId: "${escapeQuotes(post.documentId)}"`)
+  if (post.ogImageUrl) {
+    frontmatterData.ogImageUrl = post.ogImageUrl
+  }
+
+  if (imageUrl) {
+    frontmatterData.image = imageUrl
+  }
 
   if (localizesValue) {
-    frontmatterLines.push(`localizes: "${escapeQuotes(localizesValue)}"`)
+    frontmatterData.localizes = localizesValue
   }
 
   // Include preserved fields (like localizes) that exist in MDX but not in Strapi
   for (const [key, value] of Object.entries(restPreserved)) {
-    frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
+    frontmatterData[key] = value
   }
 
   if (locale !== 'en') {
-    frontmatterLines.push(`locale: "${escapeQuotes(locale)}"`)
+    frontmatterData.locale = locale
   }
 
-  const frontmatter = frontmatterLines.join('\n')
   const content = post.content ? htmlToMarkdown(post.content) : ''
 
-  return `---\n${frontmatter}\n---\n\n${content}\n`
+  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
 }
 
 function getOutputDir(locale: string): string {

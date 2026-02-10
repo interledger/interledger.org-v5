@@ -6,13 +6,13 @@
 
 import fs from 'fs'
 import path from 'path'
+import matter from 'gray-matter'
 import { gitCommitAndPush } from './gitSync'
 import {
   type Hero,
   type Seo,
   type ContentBlock,
   LOCALES,
-  escapeQuotes,
   serializeContent,
   heroFrontmatter,
   seoFrontmatter,
@@ -45,8 +45,8 @@ export interface PageLifecycleConfig {
   localizedOutputDir: string
   /** Log prefix, e.g. 'page' or 'summit' */
   logPrefix: string
-  /** Return extra frontmatter lines for content-type-specific fields */
-  extraFrontmatter?: (page: PageData) => string[]
+  /** Return extra frontmatter fields for content-type-specific data */
+  extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
 function getProjectRoot(): string {
@@ -78,34 +78,31 @@ function generateMDX(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
-  const frontmatterLines: string[] = [
-    `slug: "${escapeQuotes(page.slug)}"`,
-    `title: "${escapeQuotes(page.title)}"`,
-    ...(config.extraFrontmatter?.(page) ?? []),
+  const frontmatterData: Record<string, unknown> = {
+    slug: page.slug,
+    title: page.title,
+    ...(config.extraFrontmatter?.(page) ?? {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
-  ]
-
-  // Always include contentId for locale linking (Strapi documentId)
-  frontmatterLines.push(`contentId: "${page.documentId}"`)
+    contentId: page.documentId,
+  }
 
   if (localizesValue) {
-    frontmatterLines.push(`localizes: "${escapeQuotes(localizesValue)}"`)
+    frontmatterData.localizes = localizesValue
   }
 
   // Include preserved fields (like localizes) that exist in MDX but not in Strapi
   for (const [key, value] of Object.entries(restPreserved)) {
-    frontmatterLines.push(`${key}: "${escapeQuotes(value)}"`)
+    frontmatterData[key] = value
   }
 
   if (isLocalized) {
-    frontmatterLines.push(`locale: "${locale}"`)
+    frontmatterData.locale = locale
   }
 
-  const frontmatter = frontmatterLines.join('\n')
   const content = serializeContent(page.content)
 
-  return `---\n${frontmatter}\n---\n\n${content}\n`
+  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
 }
 
 async function writeMDXFile(

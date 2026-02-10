@@ -127,7 +127,7 @@ export const LOCALES = ['en', 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
 
-export function escapeQuotes(value: string): string {
+function escapeQuotes(value: string): string {
   if (!value) return ''
   return value.replace(/"/g, '\\"')
 }
@@ -368,40 +368,40 @@ export function getPreservedFields(filepath: string): Record<string, string> {
   return preserved
 }
 
-export function heroFrontmatter(hero: Hero | undefined): string[] {
-  if (!hero) return []
-  const lines: string[] = []
+export function heroFrontmatter(hero: Hero | undefined): Record<string, string> {
+  const data: Record<string, string> = {}
+  if (!hero) return data
   if (hero.title) {
-    lines.push(`heroTitle: "${escapeQuotes(hero.title)}"`)
+    data.heroTitle = hero.title
   }
   if (hero.description) {
-    lines.push(`heroDescription: "${escapeQuotes(hero.description)}"`)
+    data.heroDescription = hero.description
   }
   const heroImage = getImageUrl(hero.backgroundImage)
   if (heroImage) {
-    lines.push(`heroImage: "${escapeQuotes(heroImage)}"`)
+    data.heroImage = heroImage
   }
-  return lines
+  return data
 }
 
-export function seoFrontmatter(seo: Seo | undefined): string[] {
-  if (!seo) return []
-  const lines: string[] = []
+export function seoFrontmatter(seo: Seo | undefined): Record<string, string> {
+  const data: Record<string, string> = {}
+  if (!seo) return data
   if (seo.metaTitle) {
-    lines.push(`metaTitle: "${escapeQuotes(seo.metaTitle)}"`)
+    data.metaTitle = seo.metaTitle
   }
   if (seo.metaDescription) {
-    lines.push(`metaDescription: "${escapeQuotes(seo.metaDescription)}"`)
+    data.metaDescription = seo.metaDescription
   }
   const metaImage = getImageUrl(seo.metaImage)
   if (metaImage) {
-    lines.push(`metaImage: "${escapeQuotes(metaImage)}"`)
+    data.metaImage = metaImage
   }
   if (seo.keywords) {
-    lines.push(`keywords: "${escapeQuotes(seo.keywords)}"`)
+    data.keywords = seo.keywords
   }
   if (seo.canonicalUrl) {
-    lines.push(`canonicalUrl: "${escapeQuotes(seo.canonicalUrl)}"`)
+    data.canonicalUrl = seo.canonicalUrl
   }
-  return lines
+  return data
 }
