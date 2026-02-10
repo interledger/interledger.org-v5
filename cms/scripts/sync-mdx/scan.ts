@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { parseMDX } from './mdx'
+import matter from 'gray-matter'
 import type { ContentTypes } from './config'
 
 export interface MDXFile {
@@ -32,7 +32,9 @@ function scanDirectory({ baseDir, locale, isLocalization }: ScanOptions): MDXFil
     if (!file.endsWith('.mdx')) continue
 
     const filepath = path.join(baseDir, file)
-    const { frontmatter, content } = parseMDX(filepath)
+    const fileContent = fs.readFileSync(filepath, 'utf-8')
+    const { data: frontmatter, content } = matter(fileContent)
+    const trimmedContent = content.trim()
 
     let slug = frontmatter.slug as string
     if (!slug) {
@@ -45,7 +47,7 @@ function scanDirectory({ baseDir, locale, isLocalization }: ScanOptions): MDXFil
       slug,
       locale: (frontmatter.locale as string) || locale,
       frontmatter,
-      content,
+      content: trimmedContent,
       isLocalization,
       localizes: (frontmatter.localizes as string) || null
     })

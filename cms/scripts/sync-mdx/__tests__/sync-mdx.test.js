@@ -2,8 +2,8 @@ const { describe, it, expect } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const matter = require('gray-matter');
 
-const { parseMDX } = require('../mdx');
 const { scanMDXFiles } = require('../scan');
 const { buildEntryData, syncContentType } = require('../sync');
 const { updateMdxFrontmatter } = require('../contentId');
@@ -13,28 +13,26 @@ function writeFile(filePath, content) {
   fs.writeFileSync(filePath, content);
 }
 
-describe('parseMDX', () => {
+describe('gray-matter parsing', () => {
   it('parses frontmatter and content', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
     const filePath = path.join(tmpDir, 'sample.mdx');
-    writeFile(
-      filePath,
-      [
-        '---',
-        'title: "Hello"',
-        'slug: "hello"',
-        'order: 2',
-        '---',
-        '',
-        'Body content'
-      ].join('\n')
-    );
+    const fileContent = [
+      '---',
+      'title: "Hello"',
+      'slug: "hello"',
+      'order: 2',
+      '---',
+      '',
+      'Body content'
+    ].join('\n');
+    writeFile(filePath, fileContent);
 
-    const result = parseMDX(filePath);
-    expect(result.frontmatter.title).toBe('Hello');
-    expect(result.frontmatter.slug).toBe('hello');
-    expect(result.frontmatter.order).toBe(2);
-    expect(result.content).toBe('Body content');
+    const { data: frontmatter, content } = matter(fileContent);
+    expect(frontmatter.title).toBe('Hello');
+    expect(frontmatter.slug).toBe('hello');
+    expect(frontmatter.order).toBe(2);
+    expect(content.trim()).toBe('Body content');
   });
 });
 
