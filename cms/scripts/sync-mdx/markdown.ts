@@ -1,4 +1,4 @@
-function markdownToHTML(markdown) {
+export function markdownToHTML(markdown: string): string {
   return markdown
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -9,9 +9,5 @@ function markdownToHTML(markdown) {
     .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1" />')
     .replace(/\n\n/g, '</p><p>')
     .replace(/^(?!<)(.+)$/gm, '<p>$1</p>')
-    .replace(/<p><\/p>/g, '');
+    .replace(/<p><\/p>/g, '')
 }
-
-module.exports = {
-  markdownToHTML
-};

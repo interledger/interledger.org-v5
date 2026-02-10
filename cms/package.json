@@ -8,10 +8,10 @@
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi",
-    "sync:mdx": "bun scripts/sync-mdx.cjs",
-    "sync:mdx:dry-run": "bun scripts/sync-mdx.cjs --dry-run",
-    "sync:navigation": "bun scripts/sync-navigation.cjs",
-    "sync:navigation:dry-run": "bun scripts/sync-navigation.cjs --dry-run",
+    "sync:mdx": "bun scripts/sync-mdx/index.ts",
+    "sync:mdx:dry-run": "bun scripts/sync-mdx/index.ts --dry-run",
+    "sync:navigation": "bun scripts/sync-navigation.ts",
+    "sync:navigation:dry-run": "bun scripts/sync-navigation.ts --dry-run",
     "test:scripts": "bun test"
   },
   "strapi": {
