@@ -1,9 +1,9 @@
 {
   "kind": "collectionType",
-  "collectionName": "pages",
+  "collectionName": "foundation-pages",
   "info": {
-    "singularName": "page",
-    "pluralName": "pages",
+    "singularName": "foundation-page",
+    "pluralName": "foundation-pages",
     "displayName": "Page",
     "description": "Website pages with dynamic content blocks"
   },

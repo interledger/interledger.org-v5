@@ -19,7 +19,7 @@ function buildEntryData(contentType, mdx, existingEntry = null) {
     };
   }
 
-  if (contentType === 'pages' || contentType === 'summitPages') {
+  if (contentType === 'foundation-pages' || contentType === 'summitPages') {
     const data = {
       title: mdx.frontmatter.title,
       slug: mdx.slug,

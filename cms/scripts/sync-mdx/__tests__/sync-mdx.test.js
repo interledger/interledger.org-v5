@@ -192,7 +192,7 @@ describe('buildEntryData', () => {
       slug: 'hello',
       content: '# Hi there'
     };
-    const data = buildEntryData('pages', mdx);
+    const data = buildEntryData('foundation-pages', mdx);
     expect(Array.isArray(data.content)).toBe(true);
     expect(data.content[0].__component).toBe('blocks.paragraph');
     expect(data.content[0].content).toContain('<h1>Hi there</h1>');
@@ -209,7 +209,7 @@ describe('buildEntryData', () => {
         content: [{ __component: 'blocks.paragraph', content: '<p>Keep</p>' }]
       }
     };
-    const data = buildEntryData('pages', mdx, existingEntry);
+    const data = buildEntryData('foundation-pages', mdx, existingEntry);
     expect(data.content).toEqual(existingEntry.attributes.content);
   });
 

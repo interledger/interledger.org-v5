@@ -37,7 +37,7 @@ interface Event {
 }
 
 export interface PageLifecycleConfig {
-  /** Strapi content type UID, e.g. 'api::page.page' */
+  /** Strapi content type UID, e.g. 'api::foundation-page.foundation-page' */
   contentTypeUid: string
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string

@@ -10,9 +10,9 @@ function buildContentTypes(projectRoot) {
       apiId: 'blog-posts',
       pattern: /^(\d{4}-\d{2}-\d{2})-(.+)\.mdx$/
     },
-    pages: {
+    'foundation-pages': {
       dir: path.join(projectRoot, 'src/content/foundation-pages'),
-      apiId: 'pages',
+      apiId: 'foundation-pages',
       pattern: /^(.+)\.mdx$/
     },
     summitPages: {

@@ -44,7 +44,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 ### Important Caveats
 
 - **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
-- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
+- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/foundation-page/content-types/foundation-page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
 - **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
 - **Bun Lockfile**: Netlify or scripts may expect `bun.lockb`, but Bun v1 generates `bun.lock` only. Update checks or docs if needed.
 
@@ -124,7 +124,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 ## Known Issues and Workarounds
 
-1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
+1. **ESLint warnings in CMS**: The file `cms/src/api/foundation-page/content-types/foundation-page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
 
 2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
 
