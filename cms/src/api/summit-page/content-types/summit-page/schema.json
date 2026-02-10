@@ -35,15 +35,6 @@
         }
       }
     },
-    "gradient": {
-      "type": "string",
-      "default": "option1",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "seo": {
       "type": "component",
       "repeatable": false,

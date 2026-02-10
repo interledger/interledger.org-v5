@@ -177,7 +177,7 @@ describe('buildEntryData', () => {
     expect(data.content).toEqual(existingEntry.attributes.content);
   });
 
-  it('preserves hero and gradient when not provided', () => {
+  it('preserves hero when not provided', () => {
     const mdx = {
       frontmatter: { title: 'Summit' },
       slug: 'summit',
@@ -185,13 +185,11 @@ describe('buildEntryData', () => {
     };
     const existingEntry = {
       attributes: {
-        hero: { title: 'Existing', description: 'Keep' },
-        gradient: 'option2'
+        hero: { title: 'Existing', description: 'Keep' }
       }
     };
-    const data = buildEntryData('summitPages', mdx, existingEntry);
+    const data = buildEntryData('summit-pages', mdx, existingEntry);
     expect(data.hero).toEqual(existingEntry.attributes.hero);
-    expect(data.gradient).toBe('option2');
   });
 });
 

@@ -83,17 +83,6 @@ function buildEntryData(
       }
     }
 
-    if (isSummitPageType(contentType)) {
-      if (mdx.frontmatter.gradient) {
-        data.gradient = mdx.frontmatter.gradient
-      } else {
-        const existingGradient = getEntryField(existingEntry, 'gradient')
-        if (existingGradient) {
-          data.gradient = existingGradient
-        }
-      }
-    }
-
     return data
   }
 

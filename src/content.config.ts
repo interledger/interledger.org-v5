@@ -22,8 +22,7 @@ const pageSchema = z.object({
     heroTitle: z.string().optional(),
     heroDescription: z.string().optional(),
     heroImage: z.string().optional(),
-    sections: z.array(Section).optional(),
-    gradient: z.string().optional()
+    sections: z.array(Section).optional()
   })
 
 const engBlogCollection = defineCollection({
