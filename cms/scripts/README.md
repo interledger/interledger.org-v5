@@ -1,6 +1,6 @@
 # MDX to Strapi Sync
 
-Simple proof-of-concept script that syncs MDX files to Strapi database.
+Script that syncs MDX files from the content directory to the Strapi database.
 
 ## Features
 
