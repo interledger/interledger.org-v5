@@ -31,7 +31,7 @@ Ensure these are installed before running any commands:
 
 ### CI Validation Pipeline
 
-The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
+The GitHub Actions workflow (`.github/workflows/build.yml`) runs on every PR:
 1. Checkout code
 2. Setup Node.js (v18)
 3. Setup Bun
