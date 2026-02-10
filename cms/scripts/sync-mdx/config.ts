@@ -1,7 +1,6 @@
 import path from 'path'
 
 export const DEFAULT_STRAPI_URL = 'http://localhost:1337'
-export const NUMERIC_FIELDS = ['order']
 
 export interface ContentTypeConfig {
   dir: string

@@ -8,7 +8,7 @@ export interface MDXFile {
   filepath: string
   slug: string
   locale: string
-  frontmatter: Record<string, string | number>
+  frontmatter: Record<string, unknown>
   content: string
   isLocalization: boolean
   localizes: string | null
