@@ -79,14 +79,6 @@ const foundationBlogCollection = defineCollection({
   })
 })
 
-const grantPagesCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/grants'
-  }),
-  schema: pageSchema
-})
-
 const foundationPagesCollection = defineCollection({
   loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/foundation-pages' }),
   schema: pageSchema
@@ -100,30 +92,11 @@ const summitPagesCollection = defineCollection({
   schema: pageSchema
 })
 
-const hackathonPagesCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/summit/hackathon'
-  }),
-  schema: pageSchema
-})
-
-const hackathonResourcePagesCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/summit/hackathon/resources'
-  }),
-  schema: pageSchema
-})
-
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }), // TODO: check base now since docs loader may have wrong path
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   'engineering-blog': engBlogCollection,
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
-  'summit-pages': summitPagesCollection,
-  'hackathon-pages': hackathonPagesCollection,
-  'hackathon-resource-pages': hackathonResourcePagesCollection,
-  'grant-pages': grantPagesCollection
+  'summit-pages': summitPagesCollection
 }

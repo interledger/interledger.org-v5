@@ -4,7 +4,7 @@ Script that syncs MDX files from the content directory to the Strapi database.
 
 ## Features
 
-- Scans MDX files in all content directories (blog, foundation-pages, summit-pages, grant-pages, hackathon-pages, hackathon-resource-pages)
+- Scans MDX files in content directories (blog, foundation-pages, summit-pages)
 - Creates new Strapi entries for new MDX files
 - Updates existing entries when MDX content changes
 - Deletes Strapi entries when MDX files are removed
@@ -84,9 +84,6 @@ The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs M
 - `src/content/blog/*.mdx` → `blog-posts` (API ID)
 - `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
 - `src/content/summit/*.mdx` → `summit-pages` (API ID)
-- `src/content/grants/*.mdx` → `foundation-pages` (API ID)
-- `src/content/summit/hackathon/*.mdx` → `summit-pages` (API ID)
-- `src/content/summit/hackathon/resources/*.mdx` → `summit-pages` (API ID)
 
 ## Troubleshooting
 

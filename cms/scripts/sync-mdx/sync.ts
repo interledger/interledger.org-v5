@@ -22,8 +22,8 @@ function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   return entry[key] ?? (entry as Record<string, unknown>).attributes?.[key as keyof typeof entry] ?? null
 }
 
-const PAGE_TYPES = ['foundation-pages', 'summit-pages', 'grant-pages', 'hackathon-pages', 'hackathon-resource-pages'] as const
-const SUMMIT_PAGE_TYPES = ['summit-pages', 'hackathon-pages', 'hackathon-resource-pages'] as const
+const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
+const SUMMIT_PAGE_TYPES = ['summit-pages'] as const
 
 function isPageType(contentType: keyof ContentTypes): boolean {
   return PAGE_TYPES.includes(contentType as typeof PAGE_TYPES[number])
