@@ -124,16 +124,11 @@ async function saveImageToDisk(url) {
   const filePath = path.join(projectRoot, imgFilePath, fileName)
   const buffer = await response.arrayBuffer()
 
-  try {
-    await fs.promises.mkdir(path.join(projectRoot, imgFilePath), {
-      recursive: true
-    })
+  await fs.promises.mkdir(path.join(projectRoot, imgFilePath), {
+    recursive: true
+  })
 
-    await fs.promises.writeFile(filePath, Buffer.from(buffer))
-  } catch (error) {
-    console.error(`Failed to save image to disk: ${filePath}`, error.message)
-    throw error
-  }
+  await fs.promises.writeFile(filePath, Buffer.from(buffer))
 
   return imgReferencePath + fileName
 }
@@ -246,21 +241,16 @@ async function generateMDXContent(post) {
 
 async function writeMDXFile(post) {
   const blogDir = path.join(projectRoot, mdxFilePath)
+  if (!fs.existsSync(blogDir)) {
+    fs.mkdirSync(blogDir, { recursive: true })
+  }
+
   const filename = generateFilename(post)
   const filepath = path.join(blogDir, filename)
+  const mdxContent = await generateMDXContent(post)
 
-  try {
-    if (!fs.existsSync(blogDir)) {
-      fs.mkdirSync(blogDir, { recursive: true })
-    }
-
-    const mdxContent = await generateMDXContent(post)
-    fs.writeFileSync(filepath, mdxContent, 'utf-8')
-    // console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
-  } catch (error) {
-    console.error(`Failed to write MDX file: ${filepath}`, error.message)
-    throw error
-  }
+  fs.writeFileSync(filepath, mdxContent, 'utf-8')
+  // console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
 }
 
 async function importArticlesFromDrupal() {
