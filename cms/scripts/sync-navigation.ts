@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Navigation JSON to Strapi Sync Script
+ * Foundation/Summit navigation JSON to Strapi Sync Script
  *
  * Usage:
  *   bun scripts/sync-navigation.ts --dry-run
@@ -126,7 +126,14 @@ async function updateNavigation({ baseUrl, token, apiId, configPath, label }: Up
 }
 
 async function main() {
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const cwd = process.cwd()
+  if (path.basename(cwd) !== 'cms') {
+    console.error('❌ Error: run this script from the cms directory')
+    console.error('   Example: cd cms && bun run sync:navigation')
+    process.exit(1)
+  }
+
+  const projectRoot = path.resolve(cwd, '..')
   loadEnv(projectRoot)
 
   const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL
@@ -139,9 +146,9 @@ async function main() {
 
   const configs = [
     {
-      apiId: 'navigation',
-      configPath: path.join(projectRoot, 'src/config/navigation.json'),
-      label: 'navigation'
+      apiId: 'foundation-navigation',
+      configPath: path.join(projectRoot, 'src/config/foundation-navigation.json'),
+      label: 'foundation navigation'
     },
     {
       apiId: 'summit-navigation',

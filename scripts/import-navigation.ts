@@ -1,6 +1,6 @@
 /**
- * Import navigation from local JSON config to Strapi
- * Handles both regular navigation and summit navigation
+ * Import foundation navigation from local JSON config to Strapi
+ * Handles both foundation navigation and summit navigation
  *
  * Usage:
  *   npx tsx scripts/import-navigation.ts [--summit]
@@ -37,12 +37,12 @@ interface Navigation {
   ctaButton?: MenuItem
 }
 
-async function importNavigation(type: 'regular' | 'summit' | 'all') {
+async function importNavigation(type: 'foundation' | 'summit' | 'all') {
   const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
   const token = process.env.STRAPI_API_TOKEN
 
-  const typesToImport: ('regular' | 'summit')[] =
-    type === 'all' ? ['regular', 'summit'] : [type]
+  const typesToImport: ('foundation' | 'summit')[] =
+    type === 'all' ? ['foundation', 'summit'] : [type]
 
   interface StrapiMenuItemData {
     label: string
@@ -67,10 +67,10 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
     const isSummit = navType === 'summit'
     const configPath = join(
       process.cwd(),
-      `src/config/${isSummit ? 'summit-' : ''}navigation.json`
+      `src/config/${isSummit ? 'summit-' : 'foundation-'}navigation.json`
     )
-    const apiPath = isSummit ? 'summit-navigation' : 'navigation'
-    const displayName = isSummit ? 'summit navigation' : 'navigation'
+    const apiPath = isSummit ? 'summit-navigation' : 'foundation-navigation'
+    const displayName = isSummit ? 'summit navigation' : 'foundation navigation'
 
     console.log(`\nImporting ${displayName}...`)
 
@@ -156,7 +156,7 @@ async function importNavigation(type: 'regular' | 'summit' | 'all') {
 
 async function main() {
   const args = process.argv.slice(2)
-  let type: 'regular' | 'summit' | 'all' = 'regular'
+  let type: 'foundation' | 'summit' | 'all' = 'foundation'
 
   if (args.includes('--summit')) {
     type = 'summit'

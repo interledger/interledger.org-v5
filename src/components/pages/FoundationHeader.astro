@@ -1,6 +1,6 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
-import navigation from '../../config/navigation.json'
+import foundationNavigation from '../../config/foundation-navigation.json'
 
 interface MenuItem {
   label: string
@@ -14,7 +14,7 @@ interface MenuGroup {
   items?: MenuItem[]
 }
 
-const { mainMenu, ctaButton } = navigation as {
+const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }

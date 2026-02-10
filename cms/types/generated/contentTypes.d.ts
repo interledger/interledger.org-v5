@@ -602,13 +602,14 @@ export interface ApiFoundationPageFoundationPage
   }
 }
 
-export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
-  collectionName: 'navigations'
+export interface ApiFoundationNavigationFoundationNavigation
+  extends Struct.SingleTypeSchema {
+  collectionName: 'foundation_navigations'
   info: {
-    description: 'Main site navigation menu'
-    displayName: 'Navigation'
-    pluralName: 'navigations'
-    singularName: 'navigation'
+    description: 'Foundation site navigation menu'
+    displayName: 'Foundation Navigation'
+    pluralName: 'foundation-navigations'
+    singularName: 'foundation-navigation'
   }
   options: {
     draftAndPublish: true
@@ -621,7 +622,7 @@ export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::navigation.navigation'
+      'api::foundation-navigation.foundation-navigation'
     > &
       Schema.Attribute.Private
     mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
@@ -1137,7 +1138,8 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
-      'api::navigation.navigation': ApiNavigationNavigation
+      'api::foundation-navigation.foundation-navigation':
+        ApiFoundationNavigationFoundationNavigation
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease
