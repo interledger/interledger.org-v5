@@ -1,5 +1,5 @@
+import { marked } from 'marked'
 import { scanMDXFiles, type MDXFile } from './scan'
-import { markdownToHTML } from './markdown'
 import { updateMdxFrontmatter } from './contentId'
 import type { ContentTypes } from './config'
 import type { StrapiClient, StrapiEntry } from './strapi'
@@ -44,7 +44,7 @@ function buildEntryData(
       description: mdx.frontmatter.description,
       slug: mdx.slug,
       date: mdx.frontmatter.date,
-      content: markdownToHTML(mdx.content),
+      content: marked.parse(mdx.content),
       publishedAt: new Date().toISOString()
     }
   }
@@ -73,7 +73,7 @@ function buildEntryData(
       data.content = [
         {
           __component: 'blocks.paragraph',
-          content: markdownToHTML(mdx.content)
+          content: marked.parse(mdx.content)
         }
       ]
     } else {

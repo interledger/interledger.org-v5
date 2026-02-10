@@ -4,7 +4,6 @@ const path = require('path');
 const os = require('os');
 
 const { parseMDX } = require('../mdx');
-const { markdownToHTML } = require('../markdown');
 const { scanMDXFiles } = require('../scan');
 const { buildEntryData, syncContentType } = require('../sync');
 const { updateMdxFrontmatter } = require('../contentId');
@@ -101,15 +100,6 @@ describe('updateMdxFrontmatter', () => {
     expect(content).toContain('localizes: "english-slug"');
     expect(content).toContain('locale: "es"');
     expect(content).toContain('title: "Hello"');
-  });
-});
-
-describe('markdownToHTML', () => {
-  it('converts basic markdown to HTML', () => {
-    const html = markdownToHTML('# Title\n\n**Bold** and *italics*');
-    expect(html).toContain('<h1>Title</h1>');
-    expect(html).toContain('<strong>Bold</strong>');
-    expect(html).toContain('<em>italics</em>');
   });
 });
 
