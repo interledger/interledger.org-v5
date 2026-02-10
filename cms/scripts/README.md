@@ -28,8 +28,6 @@ In Strapi admin (<http://localhost:1337/admin>):
 Add to `cms/.env`:
 
 ```env
-STRAPI_PREVIEW_TOKEN=your-token-here
-# or
 STRAPI_API_TOKEN=your-token-here
 ```
 
