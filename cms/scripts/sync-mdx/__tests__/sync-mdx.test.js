@@ -50,9 +50,9 @@ describe('updateMdxFrontmatter', () => {
     updateMdxFrontmatter(filePath, 'contentId', 'abc123');
 
     const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: "abc123"');
-    expect(content).toContain('title: "Hello"');
-    expect(content).toContain('slug: "hello"');
+    expect(content).toContain('contentId: abc123');
+    expect(content).toContain('title: Hello');
+    expect(content).toContain('slug: hello');
   });
 
   it('updates an existing field in frontmatter', () => {
@@ -73,7 +73,7 @@ describe('updateMdxFrontmatter', () => {
     updateMdxFrontmatter(filePath, 'contentId', 'new-value');
 
     const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: "new-value"');
+    expect(content).toContain('contentId: new-value');
     expect(content).not.toContain('old-value');
   });
 
@@ -96,10 +96,10 @@ describe('updateMdxFrontmatter', () => {
     updateMdxFrontmatter(filePath, 'contentId', 'abc123');
 
     const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: "abc123"');
-    expect(content).toContain('localizes: "english-slug"');
-    expect(content).toContain('locale: "es"');
-    expect(content).toContain('title: "Hello"');
+    expect(content).toContain('contentId: abc123');
+    expect(content).toContain('localizes: english-slug');
+    expect(content).toContain('locale: es');
+    expect(content).toContain('title: Hello');
   });
 });
 
@@ -249,8 +249,8 @@ describe('syncContentType', () => {
       path.join(esSummitDir, 'sobre-nosotros.mdx'),
       'utf-8'
     );
-    expect(localeContent).toContain('contentId: "doc-about"');
-    expect(localeContent).toContain('localizes: "about"');
+    expect(localeContent).toContain('contentId: doc-about');
+    expect(localeContent).toContain('localizes: about');
   });
 
   it('writes contentId to English file after sync', async () => {
@@ -294,7 +294,7 @@ describe('syncContentType', () => {
       path.join(summitDir, 'new-page.mdx'),
       'utf-8'
     );
-    expect(englishContent).toContain('contentId: "new-doc-id"');
+    expect(englishContent).toContain('contentId: new-doc-id');
   });
 
   it('creates localization for summit pages using contentId slug match', async () => {
@@ -444,8 +444,8 @@ describe('syncContentType', () => {
       path.join(esSummitDir, 'sobre-nosotros.mdx'),
       'utf-8'
     );
-    expect(localeContent).toContain('localizes: "new-english-slug"');
-    expect(localeContent).not.toContain('localizes: "old-english-slug"');
+    expect(localeContent).toContain('localizes: new-english-slug');
+    expect(localeContent).not.toContain('localizes: old-english-slug');
   });
 
   it('does not call mutating Strapi methods in dry-run', async () => {
