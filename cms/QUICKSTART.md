@@ -11,10 +11,9 @@ bun -e "console.log('APP_KEYS=' + Array(4).fill(0).map(() => require('crypto').r
 bun -e "console.log('API_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
 bun -e "console.log('ADMIN_JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
 bun -e "console.log('TRANSFER_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
-bun -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(16).toString('base64'))"
 ```
 
-Copy the output and replace the values in your `.env` file.
+Copy the output and replace the values in the root `.env` file (which symlinks to `cms/.env`).
 
 ### 2. Install Dependencies
 
@@ -100,8 +99,7 @@ PORT=1338
 
 1. Ensure the item is **published** (not just saved)
 2. Check the Strapi console for errors
-3. Verify the `MDX_OUTPUT_PATH` in `.env` is correct
-4. Check file permissions on `src/content/press/`
+3. Check file permissions on `src/content/press/`
 
 ### Can't Access Admin Panel
 

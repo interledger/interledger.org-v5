@@ -25,7 +25,7 @@ In Strapi admin (<http://localhost:1337/admin>):
 
 ### 2. Configure Environment Variables
 
-Add to `cms/.env`:
+Add to the root `.env` file:
 
 ```env
 STRAPI_API_TOKEN=your-token-here

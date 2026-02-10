@@ -26,11 +26,12 @@ bun install
 
 ### Configuration
 
-The CMS is configured via environment variables in `.env`. Key settings:
+The CMS is configured via environment variables in the root `.env` file (which symlinks to `cms/.env`). Key settings:
 
-- `PORT`: CMS runs on port 1337 (default)
-- `DATABASE_CLIENT`: Using better-sqlite3
-- `MDX_OUTPUT_PATH`: Where MDX files are written (`../src/content/foundation-pages`)
+- `APP_KEYS`: Session encryption keys
+- `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`: Security salts
+- `STRAPI_URL`: Strapi server URL (default: `http://localhost:1337`)
+- `STRAPI_API_TOKEN`: API token for scripts and frontend
 
 ### Running the CMS
 
@@ -106,7 +107,7 @@ cms/
 │   │       ├── routes/
 │   │       └── services/
 │   └── index.ts
-├── .env                 # Environment variables
+├── .env                 # Environment variables (symlinked from root)
 ├── .gitignore
 ├── package.json
 ├── tsconfig.json
@@ -124,9 +125,8 @@ cms/
 ### MDX files not generating
 
 1. Check that the content item is **published** (not just saved as draft)
-2. Verify the `MDX_OUTPUT_PATH` in `.env` points to the correct directory
-3. Check file permissions on the content directory (e.g. `src/content/foundation-pages`)
-4. Look for errors in the Strapi console output
+2. Check file permissions on the content directory (e.g. `src/content/foundation-pages`)
+3. Look for errors in the Strapi console output
 
 ### Database issues
 
@@ -143,7 +143,7 @@ Then restart Strapi. You'll need to create a new admin user.
 - The `.env` file contains secrets - never commit it to version control
 - Change the default secrets in `.env` before deploying to production
 - The CMS is configured to allow CORS from `localhost:1103` (the Astro dev server)
-- Update `FRONTEND_ORIGINS` in `.env` and `config/middlewares.ts` for production
+- Update CORS origins in `config/middlewares.ts` for production
 
 ## Support
 
