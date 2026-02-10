@@ -108,23 +108,27 @@ async function writeMDXFile(
   englishSlug?: string
 ): Promise<string> {
   const baseDir = getOutputDir(locale)
-
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true })
-  }
-
   const filename = generateFilename(post)
   const filepath = path.join(baseDir, filename)
 
-  // Preserve fields that exist in MDX but not in Strapi
-  const preservedFields = getPreservedFields(filepath)
-  fs.writeFileSync(
-    filepath,
-    generateMDX(post, locale, preservedFields, englishSlug),
-    'utf-8'
-  )
-  console.log(`✅ Generated blog post MDX: ${filepath}`)
-  return filepath
+  try {
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true })
+    }
+
+    // Preserve fields that exist in MDX but not in Strapi
+    const preservedFields = getPreservedFields(filepath)
+    fs.writeFileSync(
+      filepath,
+      generateMDX(post, locale, preservedFields, englishSlug),
+      'utf-8'
+    )
+    console.log(`✅ Generated blog post MDX: ${filepath}`)
+    return filepath
+  } catch (error) {
+    console.error(`Failed to write blog post MDX file: ${filepath}`, error)
+    throw error
+  }
 }
 
 async function fetchPublishedPost(
@@ -197,9 +201,13 @@ export default {
         const baseDir = getOutputDir(locale)
         const filepath = path.join(baseDir, generateFilename(result))
         if (fs.existsSync(filepath)) {
-          fs.unlinkSync(filepath)
-          console.log(`🗑️  Deleted unpublished ${locale} blog post MDX: ${filepath}`)
-          deletedPaths.push(filepath)
+          try {
+            fs.unlinkSync(filepath)
+            console.log(`🗑️  Deleted unpublished ${locale} blog post MDX: ${filepath}`)
+            deletedPaths.push(filepath)
+          } catch (error) {
+            console.error(`Failed to delete unpublished ${locale} blog post MDX: ${filepath}`, error)
+          }
         }
       }
     }
@@ -222,9 +230,13 @@ export default {
       const filepath = path.join(baseDir, generateFilename(result))
 
       if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath)
-        console.log(`🗑️  Deleted ${locale} blog post MDX: ${filepath}`)
-        deletedPaths.push(filepath)
+        try {
+          fs.unlinkSync(filepath)
+          console.log(`🗑️  Deleted ${locale} blog post MDX: ${filepath}`)
+          deletedPaths.push(filepath)
+        } catch (error) {
+          console.error(`Failed to delete ${locale} blog post MDX: ${filepath}`, error)
+        }
       }
     }
 

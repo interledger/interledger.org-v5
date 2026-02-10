@@ -107,23 +107,27 @@ async function writeMDXFile(
 ): Promise<string> {
   const locale = page.locale || 'en'
   const outputDir = getOutputDir(config, locale)
-
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true })
-  }
-
   const filepath = path.join(outputDir, `${page.slug}.mdx`)
 
-  // Preserve fields that exist in MDX but not in Strapi
-  const preservedFields = getPreservedFields(filepath)
-  fs.writeFileSync(
-    filepath,
-    generateMDX(config, page, preservedFields, englishSlug),
-    'utf-8'
-  )
-  console.log(`✅ Generated ${config.logPrefix} MDX: ${filepath}`)
+  try {
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true })
+    }
 
-  return filepath
+    // Preserve fields that exist in MDX but not in Strapi
+    const preservedFields = getPreservedFields(filepath)
+    fs.writeFileSync(
+      filepath,
+      generateMDX(config, page, preservedFields, englishSlug),
+      'utf-8'
+    )
+    console.log(`✅ Generated ${config.logPrefix} MDX: ${filepath}`)
+
+    return filepath
+  } catch (error) {
+    console.error(`Failed to write ${config.logPrefix} MDX file: ${filepath}`, error)
+    throw error
+  }
 }
 
 async function fetchPublished(config: PageLifecycleConfig, documentId: string, locale: string): Promise<PageData | null> {
@@ -203,9 +207,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         const outputDir = getOutputDir(config, locale)
         const filepath = path.join(outputDir, `${result.slug}.mdx`)
         if (!filepaths.includes(filepath) && fs.existsSync(filepath)) {
-          fs.unlinkSync(filepath)
-          console.log(`🗑️  Deleted unpublished ${locale} ${config.logPrefix} MDX: ${filepath}`)
-          deletedPaths.push(filepath)
+          try {
+            fs.unlinkSync(filepath)
+            console.log(`🗑️  Deleted unpublished ${locale} ${config.logPrefix} MDX: ${filepath}`)
+            deletedPaths.push(filepath)
+          } catch (error) {
+            console.error(`Failed to delete unpublished ${locale} ${config.logPrefix} MDX: ${filepath}`, error)
+          }
         }
       }
 
@@ -227,9 +235,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         const filepath = path.join(outputDir, `${result.slug}.mdx`)
 
         if (fs.existsSync(filepath)) {
-          fs.unlinkSync(filepath)
-          console.log(`🗑️  Deleted ${locale} ${config.logPrefix} MDX: ${filepath}`)
-          deletedPaths.push(filepath)
+          try {
+            fs.unlinkSync(filepath)
+            console.log(`🗑️  Deleted ${locale} ${config.logPrefix} MDX: ${filepath}`)
+            deletedPaths.push(filepath)
+          } catch (error) {
+            console.error(`Failed to delete ${locale} ${config.logPrefix} MDX: ${filepath}`, error)
+          }
         }
       }
 

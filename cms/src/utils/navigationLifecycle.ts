@@ -63,14 +63,19 @@ function writeNavigationFile(config: NavigationLifecycleConfig, data: Navigation
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true })
-  }
+  try {
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true })
+    }
 
-  const payload = sanitizeNavigation(data)
-  fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
-  console.log(`✅ Wrote ${config.logPrefix} JSON: ${outputPath}`)
-  return outputPath
+    const payload = sanitizeNavigation(data)
+    fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
+    console.log(`✅ Wrote ${config.logPrefix} JSON: ${outputPath}`)
+    return outputPath
+  } catch (error) {
+    console.error(`Failed to write ${config.logPrefix} navigation file: ${outputPath}`, error)
+    throw error
+  }
 }
 
 async function fetchPublishedNavigation(
@@ -94,12 +99,17 @@ async function fetchPublishedNavigation(
 async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<string | null> {
   const projectRoot = path.resolve(process.cwd(), '..')
   const outputPath = path.join(projectRoot, config.outputPath)
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath)
-    console.log(`🗑️  Deleted ${config.logPrefix} JSON: ${outputPath}`)
-    return outputPath
+  try {
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath)
+      console.log(`🗑️  Deleted ${config.logPrefix} JSON: ${outputPath}`)
+      return outputPath
+    }
+    return null
+  } catch (error) {
+    console.error(`Failed to delete ${config.logPrefix} navigation file: ${outputPath}`, error)
+    throw error
   }
-  return null
 }
 
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {

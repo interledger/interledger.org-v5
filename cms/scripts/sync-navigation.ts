@@ -55,7 +55,11 @@ function readJson(filepath: string): Navigation {
   if (!fs.existsSync(filepath)) {
     throw new Error(`Config file not found: ${filepath}`)
   }
-  return JSON.parse(fs.readFileSync(filepath, 'utf-8'))
+  try {
+    return JSON.parse(fs.readFileSync(filepath, 'utf-8'))
+  } catch (error) {
+    throw new Error(`Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`)
+  }
 }
 
 function toStrapiPayload(navigation: Navigation): StrapiPayload {

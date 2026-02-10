@@ -27,12 +27,25 @@ function scanDirectory({ baseDir, locale, isLocalization }: ScanOptions): MDXFil
     return mdxFiles
   }
 
-  const files = fs.readdirSync(baseDir)
+  let files: string[]
+  try {
+    files = fs.readdirSync(baseDir)
+  } catch (error) {
+    console.error(`Failed to read directory: ${baseDir}`, error)
+    return mdxFiles
+  }
+
   for (const file of files) {
     if (!file.endsWith('.mdx')) continue
 
     const filepath = path.join(baseDir, file)
-    const fileContent = fs.readFileSync(filepath, 'utf-8')
+    let fileContent: string
+    try {
+      fileContent = fs.readFileSync(filepath, 'utf-8')
+    } catch (error) {
+      console.error(`Failed to read file: ${filepath}`, error)
+      continue
+    }
     const { data: frontmatter, content } = matter(fileContent)
     const trimmedContent = content.trim()
 
@@ -79,7 +92,13 @@ export function scanMDXFiles(
     return mdxFiles
   }
 
-  const localeDirs = fs.readdirSync(contentDir, { withFileTypes: true })
+  let localeDirs: fs.Dirent[]
+  try {
+    localeDirs = fs.readdirSync(contentDir, { withFileTypes: true })
+  } catch (error) {
+    console.error(`Failed to read content directory: ${contentDir}`, error)
+    return mdxFiles
+  }
   for (const localeDir of localeDirs) {
     if (!localeDir.isDirectory()) continue
     if (localeDir.name === path.basename(baseDir)) continue
