@@ -1,5 +1,10 @@
-const fs = require('fs')
 const path = require('path')
+
+// Load environment variables from root .env BEFORE Strapi config files are evaluated
+// This ensures ADMIN_JWT_SECRET and other env vars are available when config/admin.ts runs
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
+
+const fs = require('fs')
 
 function copySchemas() {
   const srcDir = path.join(__dirname, 'src')

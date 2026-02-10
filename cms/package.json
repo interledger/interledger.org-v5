@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "description": "Strapi CMS for Interledger developer portal",
   "scripts": {
-    "develop": "strapi develop",
-    "start": "strapi start",
+    "develop": "node strapi-entry.js develop",
+    "start": "node strapi-entry.js start",
     "build": "strapi build",
     "strapi": "strapi",
     "sync:mdx": "bun scripts/sync-mdx/index.ts",

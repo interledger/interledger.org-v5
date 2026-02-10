@@ -1,7 +1,16 @@
 // Load environment variables from root .env
+// This must run BEFORE any config files are loaded
 import dotenv from 'dotenv'
 import path from 'path'
-dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+
+// Load .env from project root (one level up from cms directory)
+const envPath = path.resolve(__dirname, '../../../.env')
+const result = dotenv.config({ path: envPath })
+
+if (result.error) {
+  console.warn(`⚠️  Warning: Could not load .env from ${envPath}`)
+  console.warn(`   Error: ${result.error.message}`)
+}
 
 import fs from 'fs'
 
