@@ -41,13 +41,6 @@ bun run sync:mdx:dry-run  # Preview changes
 bun run sync:mdx          # Actually sync
 ```
 
-### Direct execution (from cms only)
-
-```bash
-bun scripts/sync-mdx/index.ts --dry-run
-bun scripts/sync-mdx/index.ts
-```
-
 ## GitHub Actions
 
 The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs MDX files to Strapi when changes are pushed to the `main` branch.
