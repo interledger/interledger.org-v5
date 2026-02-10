@@ -1,10 +1,26 @@
-const { describe, it, expect } = require('bun:test');
+const { describe, it, expect, afterEach } = require('bun:test');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const matter = require('gray-matter');
 
 const { scanMDXFiles } = require('../scan');
 const { buildEntryData, syncContentType, updateMdxFrontmatter } = require('../sync');
+
+const tempDirs = new Set();
+
+function makeTmpDir() {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+  tempDirs.add(tmpDir);
+  return tmpDir;
+}
+
+afterEach(() => {
+  for (const dir of tempDirs) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  tempDirs.clear();
+});
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -13,7 +29,7 @@ function writeFile(filePath, content) {
 
 describe('gray-matter parsing', () => {
   it('parses frontmatter and content', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const filePath = path.join(tmpDir, 'sample.mdx');
     const fileContent = [
       '---',
@@ -36,7 +52,7 @@ describe('gray-matter parsing', () => {
 
 describe('updateMdxFrontmatter', () => {
   it('adds a new field to frontmatter', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const filePath = path.join(tmpDir, 'test.mdx');
     writeFile(
       filePath,
@@ -52,7 +68,7 @@ describe('updateMdxFrontmatter', () => {
   });
 
   it('updates an existing field in frontmatter', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const filePath = path.join(tmpDir, 'test.mdx');
     writeFile(
       filePath,
@@ -74,7 +90,7 @@ describe('updateMdxFrontmatter', () => {
   });
 
   it('preserves other fields when updating', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const filePath = path.join(tmpDir, 'test.mdx');
     writeFile(
       filePath,
@@ -101,7 +117,7 @@ describe('updateMdxFrontmatter', () => {
 
 describe('scanMDXFiles', () => {
   it('scans base and locale directories', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const blogDir = path.join(contentRoot, 'blog');
     const esBlogDir = path.join(contentRoot, 'es', 'blog');
@@ -132,6 +148,45 @@ describe('scanMDXFiles', () => {
     expect(spanish.slug).toBe('hola');
     expect(spanish.isLocalization).toBe(true);
     expect(spanish.localizes).toBe('hello');
+  });
+
+  it('derives slug from filename and respects frontmatter slug and locale', () => {
+    const tmpDir = makeTmpDir();
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const blogDir = path.join(contentRoot, 'blog');
+    const frBlogDir = path.join(contentRoot, 'fr', 'blog');
+
+    writeFile(
+      path.join(blogDir, '2026-02-02-hello-world.mdx'),
+      ['---', 'title: "Hello"', '---', '', 'Hi'].join('\n')
+    );
+
+    writeFile(
+      path.join(blogDir, 'custom.mdx'),
+      ['---', 'title: "Custom"', 'slug: "custom-slug"', '---'].join('\n')
+    );
+
+    writeFile(
+      path.join(frBlogDir, 'bonjour.mdx'),
+      ['---', 'title: "Bonjour"', 'locale: "fr-CA"', '---'].join('\n')
+    );
+
+    writeFile(path.join(blogDir, 'ignore.txt'), 'skip');
+
+    const contentTypes = {
+      blog: { dir: blogDir }
+    };
+
+    const results = scanMDXFiles('blog', contentTypes);
+    expect(results.length).toBe(3);
+
+    const dated = results.find((item) => item.slug === 'hello-world');
+    const custom = results.find((item) => item.slug === 'custom-slug');
+    const french = results.find((item) => item.locale === 'fr-CA');
+
+    expect(dated).toBeTruthy();
+    expect(custom).toBeTruthy();
+    expect(french.isLocalization).toBe(true);
   });
 });
 
@@ -177,11 +232,47 @@ describe('buildEntryData', () => {
     const data = buildEntryData('summit-pages', mdx, existingEntry);
     expect(data.hero).toEqual(existingEntry.attributes.hero);
   });
+
+  it('builds hero from frontmatter when provided', () => {
+    const mdx = {
+      frontmatter: {
+        title: 'Foundation',
+        heroTitle: 'Hero Title',
+        heroDescription: 'Hero Description'
+      },
+      slug: 'foundation',
+      content: 'Body'
+    };
+    const data = buildEntryData('foundation-pages', mdx);
+    expect(data.hero).toEqual({
+      title: 'Hero Title',
+      description: 'Hero Description'
+    });
+  });
+
+  it('builds blog entries with HTML content and publishedAt', () => {
+    const mdx = {
+      frontmatter: {
+        title: 'Blog Title',
+        description: 'Blog Desc',
+        date: '2026-01-01'
+      },
+      slug: 'blog-title',
+      content: 'Hello **world**'
+    };
+    const data = buildEntryData('blog', mdx);
+    expect(data.title).toBe('Blog Title');
+    expect(data.description).toBe('Blog Desc');
+    expect(data.slug).toBe('blog-title');
+    expect(data.date).toBe('2026-01-01');
+    expect(data.content).toContain('<p>');
+    expect(typeof data.publishedAt).toBe('string');
+  });
 });
 
 describe('syncContentType', () => {
   it('matches locale file via localizes field', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
     const esSummitDir = path.join(contentRoot, 'es', 'summit');
@@ -228,10 +319,10 @@ describe('syncContentType', () => {
     };
 
     const contentTypes = {
-      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
     };
 
-    await syncContentType('summitPages', {
+    await syncContentType('summit-pages', {
       contentTypes,
       strapi,
       DRY_RUN: false
@@ -250,7 +341,7 @@ describe('syncContentType', () => {
   });
 
   it('writes contentId to English file after sync', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
 
@@ -276,10 +367,10 @@ describe('syncContentType', () => {
     };
 
     const contentTypes = {
-      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
     };
 
-    await syncContentType('summitPages', {
+    await syncContentType('summit-pages', {
       contentTypes,
       strapi,
       DRY_RUN: false
@@ -294,7 +385,7 @@ describe('syncContentType', () => {
   });
 
   it('creates localization for summit pages using contentId slug match', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
     const esSummitDir = path.join(contentRoot, 'es', 'summit');
@@ -359,10 +450,10 @@ describe('syncContentType', () => {
     };
 
     const contentTypes = {
-      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
     };
 
-    await syncContentType('summitPages', {
+    await syncContentType('summit-pages', {
       contentTypes,
       strapi,
       DRY_RUN: false
@@ -373,7 +464,7 @@ describe('syncContentType', () => {
   });
 
   it('updates localizes field when English slug changes', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
     const esSummitDir = path.join(contentRoot, 'es', 'summit');
@@ -426,10 +517,10 @@ describe('syncContentType', () => {
     };
 
     const contentTypes = {
-      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
     };
 
-    await syncContentType('summitPages', {
+    await syncContentType('summit-pages', {
       contentTypes,
       strapi,
       DRY_RUN: false
@@ -445,7 +536,7 @@ describe('syncContentType', () => {
   });
 
   it('does not call mutating Strapi methods in dry-run', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
+    const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
 
@@ -483,10 +574,10 @@ describe('syncContentType', () => {
     };
 
     const contentTypes = {
-      summitPages: { dir: summitDir, apiId: 'summit-pages' }
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
     };
 
-    await syncContentType('summitPages', {
+    await syncContentType('summit-pages', {
       contentTypes,
       strapi,
       DRY_RUN: true
@@ -497,5 +588,114 @@ describe('syncContentType', () => {
     expect(calls.createLocalization).toBe(0);
     expect(calls.updateLocalization).toBe(0);
     expect(calls.deleteEntry).toBe(0);
+  });
+
+  it('matches unmatched locale files to Strapi entries via contentId', async () => {
+    const tmpDir = makeTmpDir();
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+    const esSummitDir = path.join(contentRoot, 'es', 'summit');
+
+    fs.mkdirSync(summitDir, { recursive: true });
+
+    writeFile(
+      path.join(esSummitDir, 'sobre.mdx'),
+      [
+        '---',
+        'title: "Sobre"',
+        'locale: "es"',
+        'contentId: "about"',
+        '---',
+        '',
+        'Contenido'
+      ].join('\n')
+    );
+
+    const entry = {
+      documentId: 'doc-about',
+      slug: 'about',
+      locale: 'en'
+    };
+
+    const calls = { createLocalization: 0, updateLocalization: 0 };
+
+    const strapi = {
+      getAllEntries: async () => [entry],
+      findBySlug: async () => null,
+      createLocalization: async () => {
+        calls.createLocalization++;
+      },
+      updateLocalization: async () => {
+        calls.updateLocalization++;
+      },
+      updateEntry: async () => ({ data: entry }),
+      createEntry: async () => ({ data: entry }),
+      deleteEntry: async () => {}
+    };
+
+    const contentTypes = {
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summit-pages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    expect(calls.createLocalization).toBe(1);
+    expect(calls.updateLocalization).toBe(0);
+
+    const localeContent = fs.readFileSync(
+      path.join(esSummitDir, 'sobre.mdx'),
+      'utf-8'
+    );
+    expect(localeContent).toContain('contentId: doc-about');
+    expect(localeContent).toContain('localizes: about');
+  });
+
+  it('deletes orphaned English entries not present in MDX', async () => {
+    const tmpDir = makeTmpDir();
+    const contentRoot = path.join(tmpDir, 'src', 'content');
+    const summitDir = path.join(contentRoot, 'summit');
+
+    writeFile(
+      path.join(summitDir, 'keep.mdx'),
+      ['---', 'title: "Keep"', '---', '', 'Body'].join('\n')
+    );
+
+    const entries = [
+      { documentId: 'doc-keep', slug: 'keep', locale: 'en' },
+      { documentId: 'doc-remove', slug: 'remove', locale: 'en' }
+    ];
+
+    const calls = { deleteEntry: [] };
+
+    const strapi = {
+      getAllEntries: async () => entries,
+      findBySlug: async (apiId, slug, locale) => {
+        if (locale === 'en' && slug === 'keep') return entries[0];
+        return null;
+      },
+      createLocalization: async () => {},
+      updateLocalization: async () => {},
+      updateEntry: async () => ({ data: entries[0] }),
+      createEntry: async () => ({ data: entries[0] }),
+      deleteEntry: async (apiId, documentId) => {
+        calls.deleteEntry.push(documentId);
+      }
+    };
+
+    const contentTypes = {
+      'summit-pages': { dir: summitDir, apiId: 'summit-pages' }
+    };
+
+    await syncContentType('summit-pages', {
+      contentTypes,
+      strapi,
+      DRY_RUN: false
+    });
+
+    expect(calls.deleteEntry).toEqual(['doc-remove']);
   });
 });
