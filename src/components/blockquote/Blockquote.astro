@@ -9,12 +9,40 @@ interface Props {
 const { quote, source } = Astro.props
 
 const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
-const htmlQuote = quote ? md.render(quote) : ''
 const htmlSource = source ? md.renderInline(source) : ''
+
+// Strip any existing quotes and add curly quotes for consistent output
+// Handles straight quotes ("), curly quotes (" " ' '), and single quotes (' ')
+let trimmedQuote = quote.trim()
+
+// Strip any leading quote (any type)
+if (
+  trimmedQuote.startsWith('"') ||
+  trimmedQuote.startsWith('"') ||
+  trimmedQuote.startsWith("'") ||
+  trimmedQuote.startsWith("'")
+) {
+  trimmedQuote = trimmedQuote.slice(1)
+}
+
+// Strip any trailing quote (any type)
+if (
+  trimmedQuote.endsWith('"') ||
+  trimmedQuote.endsWith('"') ||
+  trimmedQuote.endsWith("'") ||
+  trimmedQuote.endsWith("'")
+) {
+  trimmedQuote = trimmedQuote.slice(0, -1)
+}
+
+// Always use curly quotes for consistent styling
+const formattedQuote = `“${trimmedQuote.trim()}”`
 ---
 
-<div class="ps-space-s py-space-2xs border-l-4 border-primary">
-  <blockquote class="text-step-1" set:html={htmlQuote} />
+<div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">
+  <blockquote class="text-step-1">
+    <p>{formattedQuote}</p>
+  </blockquote>
   {
     htmlSource && (
       <p>
@@ -30,44 +58,21 @@ const htmlSource = source ? md.renderInline(source) : ''
   Since set:html injects raw HTML that doesn't receive Astro's scoped data
   attributes, we use :global() to target injected child elements while keeping
   the parent selector scoped to this component.
-
-  Two approaches are available:
-
-  Option A — Tailwind arbitrary variants on container elements:
-    <blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
-    Consistent with the pattern used in [...page].astro and Paragraph.astro.
-    Keeps everything in the template, but can get verbose with many overrides.
-
-  Option B — Astro scoped <style> with :global() (used here):
-    Cleaner when there are multiple overrides. The parent element retains
-    Astro's scoped attribute, so styles only apply within this component.
-    e.g. blockquote[data-astro-cid-xyz] strong { ... }
 -->
 <style>
-  /* Reset inherited prose styles for rendered HTML inside blockquote */
-  blockquote :global(p) {
-    margin-bottom: 0;
-    line-height: 1.6;
+  /* Reset inherited prose styles for rendered HTML inside cite */
+  cite {
+    font-weight: 200;
+    font-style: normal;
   }
 
-  blockquote :global(strong) {
+  cite :global(strong) {
     color: inherit;
-  }
-
-  blockquote :global(em) {
+    font-weight: 400;
     font-style: italic;
   }
 
-  blockquote :global(a) {
-    text-decoration: underline;
-  }
-
-  /* Reset inherited prose styles for rendered HTML inside cite */
-  cite :global(strong) {
-    color: inherit;
-  }
-
   cite :global(em) {
-    font-weight: 200;
+    font-style: italic;
   }
 </style>

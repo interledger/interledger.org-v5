@@ -40,7 +40,7 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
     icon: 'quote'
   }
   attributes: {
-    quote: Schema.Attribute.RichText & Schema.Attribute.Required
+    quote: Schema.Attribute.Text & Schema.Attribute.Required
     source: Schema.Attribute.RichText
   }
 }

@@ -437,9 +437,8 @@ function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
  * Serializes a blockquote block to MDX
  */
 function serializeBlockquote(block: BlockquoteBlock): string {
-  const quote = htmlToMarkdown(block.quote)
   const attrs = [
-    `quote="${escapeQuotes(quote)}"`,
+    `quote="${escapeQuotes(block.quote)}"`,
     block.source
       ? `source="${escapeQuotes(htmlToMarkdown(block.source))}"`
       : null
