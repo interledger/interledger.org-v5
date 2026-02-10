@@ -5,6 +5,13 @@
 
 import fs from 'fs'
 import matter from 'gray-matter'
+import TurndownService from 'turndown'
+
+const turndown = new TurndownService({
+  headingStyle: 'atx',
+  codeBlockStyle: 'fenced',
+  bulletListMarker: '-',
+})
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -147,34 +154,7 @@ export function getImageUrl(media: MediaFile | undefined): string | undefined {
 
 export function htmlToMarkdown(html: string): string {
   if (!html) return ''
-
-  return html
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '# $1\n\n')
-    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '## $1\n\n')
-    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '### $1\n\n')
-    .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, '#### $1\n\n')
-    .replace(/<h5[^>]*>([\s\S]*?)<\/h5>/gi, '##### $1\n\n')
-    .replace(/<h6[^>]*>([\s\S]*?)<\/h6>/gi, '###### $1\n\n')
-    .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
-    .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**')
-    .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**')
-    .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, '*$1*')
-    .replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, '*$1*')
-    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
-    .replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, '```\n$1\n```')
-    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`')
-    .replace(/<ul[^>]*>/gi, '\n')
-    .replace(/<\/ul>/gi, '\n')
-    .replace(/<ol[^>]*>/gi, '\n')
-    .replace(/<\/ol>/gi, '\n')
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '> $1\n')
-    .replace(/<img[^>]*src="([^"]*)"[^>]*alt="([\s\S]*?)"[^>]*>/gi, '![$2]($1)')
-    .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![]($1)')
-    .replace(/<[^>]+>/g, '')
-    .trim()
+  return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
 }
 
 // ── Block serializers ────────────────────────────────────────────────────────
