@@ -529,6 +529,79 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiFoundationPageFoundationPage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'foundation-pages'
+  info: {
+    description: 'Website pages with dynamic content blocks'
+    displayName: 'Page'
+    pluralName: 'foundation-pages'
+    singularName: 'foundation-page'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.cards-grid',
+        'blocks.card-links-grid',
+        'blocks.carousel',
+        'blocks.cta-banner'
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foundation-page.foundation-page'
+    >
+    publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    slug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
   collectionName: 'grant_tracks'
   info: {
@@ -585,75 +658,6 @@ export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
       Schema.Attribute.Private
     mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
     publishedAt: Schema.Attribute.DateTime
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiPagePage extends Struct.CollectionTypeSchema {
-  collectionName: 'pages'
-  info: {
-    description: 'Website pages with dynamic content blocks'
-    displayName: 'Page'
-    pluralName: 'pages'
-    singularName: 'page'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    content: Schema.Attribute.DynamicZone<
-      [
-        'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner'
-      ]
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    hero: Schema.Attribute.Component<'shared.hero', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>
-    publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1171,9 +1175,9 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
+      'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
       'api::navigation.navigation': ApiNavigationNavigation
-      'api::page.page': ApiPagePage
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease
