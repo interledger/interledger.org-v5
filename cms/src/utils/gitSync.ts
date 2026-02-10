@@ -7,7 +7,7 @@ function escapeForShell(str: string): string {
 }
 
 /**
- * Pulls latest changes, stages the filepath(s), commits, and pushes.
+ * Pulls latest changes with rebase, stages the filepath(s), commits, and pushes.
  * Resolves even on failure so Strapi saves content.
  */
 export async function gitCommitAndPush(
@@ -35,9 +35,9 @@ export async function gitCommitAndPush(
 
   return new Promise((resolve) => {
     const commands = [
+      'git pull --rebase',
       `git add ${addPaths.map((p) => `'${p}'`).join(' ')}`,
       `git commit -m '${safeMessage}'`,
-      'git pull --rebase',
       'git push'
     ].join(' && ')
 
