@@ -7,10 +7,7 @@ const { parseMDX } = require('../mdx');
 const { markdownToHTML } = require('../markdown');
 const { scanMDXFiles } = require('../scan');
 const { buildEntryData, syncContentType } = require('../sync');
-const {
-  updateMdxFrontmatter,
-  readMdxFrontmatterField
-} = require('../contentId');
+const { updateMdxFrontmatter } = require('../contentId');
 
 function writeFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -104,39 +101,6 @@ describe('updateMdxFrontmatter', () => {
     expect(content).toContain('localizes: "english-slug"');
     expect(content).toContain('locale: "es"');
     expect(content).toContain('title: "Hello"');
-  });
-});
-
-describe('readMdxFrontmatterField', () => {
-  it('reads a field from frontmatter', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
-    const filePath = path.join(tmpDir, 'test.mdx');
-    writeFile(
-      filePath,
-      [
-        '---',
-        'title: "Hello"',
-        'contentId: "abc123"',
-        '---',
-        '',
-        'Body'
-      ].join('\n')
-    );
-
-    const value = readMdxFrontmatterField(filePath, 'contentId');
-    expect(value).toBe('abc123');
-  });
-
-  it('returns null for missing field', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-mdx-'));
-    const filePath = path.join(tmpDir, 'test.mdx');
-    writeFile(
-      filePath,
-      ['---', 'title: "Hello"', '---', '', 'Body'].join('\n')
-    );
-
-    const value = readMdxFrontmatterField(filePath, 'contentId');
-    expect(value).toBeNull();
   });
 });
 
