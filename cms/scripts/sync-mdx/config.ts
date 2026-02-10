@@ -10,8 +10,11 @@ export interface ContentTypeConfig {
 
 export interface ContentTypes {
   blog: ContentTypeConfig
-  pages: ContentTypeConfig
-  summitPages: ContentTypeConfig
+  'foundation-pages': ContentTypeConfig
+  'summit-pages': ContentTypeConfig
+  'grant-pages': ContentTypeConfig
+  'hackathon-pages': ContentTypeConfig
+  'hackathon-resource-pages': ContentTypeConfig
 }
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
@@ -21,13 +24,28 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       apiId: 'blog-posts',
       pattern: /^(\d{4}-\d{2}-\d{2})-(.+)\.mdx$/
     },
-    pages: {
+    'foundation-pages': {
       dir: path.join(projectRoot, 'src/content/foundation-pages'),
-      apiId: 'pages',
+      apiId: 'foundation-pages',
       pattern: /^(.+)\.mdx$/
     },
-    summitPages: {
+    'summit-pages': {
       dir: path.join(projectRoot, 'src/content/summit'),
+      apiId: 'summit-pages',
+      pattern: /^(.+)\.mdx$/
+    },
+    'grant-pages': {
+      dir: path.join(projectRoot, 'src/content/grants'),
+      apiId: 'foundation-pages',
+      pattern: /^(.+)\.mdx$/
+    },
+    'hackathon-pages': {
+      dir: path.join(projectRoot, 'src/content/summit/hackathon'),
+      apiId: 'summit-pages',
+      pattern: /^(.+)\.mdx$/
+    },
+    'hackathon-resource-pages': {
+      dir: path.join(projectRoot, 'src/content/summit/hackathon/resources'),
       apiId: 'summit-pages',
       pattern: /^(.+)\.mdx$/
     }

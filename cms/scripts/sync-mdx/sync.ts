@@ -22,6 +22,17 @@ function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   return entry[key] ?? (entry as Record<string, unknown>).attributes?.[key as keyof typeof entry] ?? null
 }
 
+const PAGE_TYPES = ['foundation-pages', 'summit-pages', 'grant-pages', 'hackathon-pages', 'hackathon-resource-pages'] as const
+const SUMMIT_PAGE_TYPES = ['summit-pages', 'hackathon-pages', 'hackathon-resource-pages'] as const
+
+function isPageType(contentType: keyof ContentTypes): boolean {
+  return PAGE_TYPES.includes(contentType as typeof PAGE_TYPES[number])
+}
+
+function isSummitPageType(contentType: keyof ContentTypes): boolean {
+  return SUMMIT_PAGE_TYPES.includes(contentType as typeof SUMMIT_PAGE_TYPES[number])
+}
+
 function buildEntryData(
   contentType: keyof ContentTypes,
   mdx: MDXFile,
@@ -38,7 +49,7 @@ function buildEntryData(
     }
   }
 
-  if (contentType === 'pages' || contentType === 'summitPages') {
+  if (isPageType(contentType)) {
     const data: Record<string, unknown> = {
       title: mdx.frontmatter.title,
       slug: mdx.slug,
@@ -72,7 +83,7 @@ function buildEntryData(
       }
     }
 
-    if (contentType === 'summitPages') {
+    if (isSummitPageType(contentType)) {
       if (mdx.frontmatter.gradient) {
         data.gradient = mdx.frontmatter.gradient
       } else {
