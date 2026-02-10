@@ -529,6 +529,37 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiFoundationNavigationFoundationNavigation
+  extends Struct.SingleTypeSchema {
+  collectionName: 'foundation_navigations'
+  info: {
+    description: 'Foundation site navigation menu'
+    displayName: 'Foundation Navigation'
+    pluralName: 'foundation-navigations'
+    singularName: 'foundation-navigation'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foundation-navigation.foundation-navigation'
+    > &
+      Schema.Attribute.Private
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiFoundationPageFoundationPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation-pages'
@@ -596,37 +627,6 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiFoundationNavigationFoundationNavigation
-  extends Struct.SingleTypeSchema {
-  collectionName: 'foundation_navigations'
-  info: {
-    description: 'Foundation site navigation menu'
-    displayName: 'Foundation Navigation'
-    pluralName: 'foundation-navigations'
-    singularName: 'foundation-navigation'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::foundation-navigation.foundation-navigation'
-    > &
-      Schema.Attribute.Private
-    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
-    publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1137,9 +1137,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
+      'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
-      'api::foundation-navigation.foundation-navigation':
-        ApiFoundationNavigationFoundationNavigation
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease
