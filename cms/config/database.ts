@@ -1,13 +1,10 @@
 import path from 'path'
 
-export default ({ env }) => ({
+export default () => ({
   connection: {
     client: 'sqlite',
     connection: {
-      filename: path.resolve(
-        process.cwd(),
-        env('DATABASE_FILENAME', '.tmp/data.db')
-      )
+      filename: path.resolve(process.cwd(), '.tmp/data.db')
     },
     useNullAsDefault: true
   }
