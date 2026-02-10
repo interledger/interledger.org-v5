@@ -3,9 +3,9 @@
  * Handles both foundation navigation and summit navigation
  *
  * Usage:
- *   npx tsx scripts/import-navigation.ts [--summit]
+ *   npx tsx scripts/import-foundation-navigation.ts [--summit]
  *   or
- *   npx tsx scripts/import-navigation.ts --all
+ *   npx tsx scripts/import-foundation-navigation.ts --all
  *
  * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
  */
