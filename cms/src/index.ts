@@ -1,5 +1,9 @@
-import fs from 'fs'
+// Load environment variables from root .env
+import dotenv from 'dotenv'
 import path from 'path'
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+
+import fs from 'fs'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')

@@ -26,7 +26,7 @@ bun install
 
 ### Configuration
 
-The CMS is configured via environment variables in the root `.env` file (which symlinks to `cms/.env`). Key settings:
+The CMS is configured via environment variables in the root `.env` file. Key settings:
 
 - `APP_KEYS`: Session encryption keys
 - `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`: Security salts
@@ -107,7 +107,6 @@ cms/
 │   │       ├── routes/
 │   │       └── services/
 │   └── index.ts
-├── .env                 # Environment variables (symlinked from root)
 ├── .gitignore
 ├── package.json
 ├── tsconfig.json

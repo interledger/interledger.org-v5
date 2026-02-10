@@ -13,7 +13,7 @@ bun -e "console.log('ADMIN_JWT_SECRET=' + require('crypto').randomBytes(16).toSt
 bun -e "console.log('TRANSFER_TOKEN_SALT=' + require('crypto').randomBytes(16).toString('base64'))"
 ```
 
-Copy the output and replace the values in the root `.env` file (which symlinks to `cms/.env`).
+Copy the output and replace the values in the root `.env` file.
 
 ### 2. Install Dependencies
 

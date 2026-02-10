@@ -7,10 +7,10 @@ function resolveProjectRoot(cwd = process.cwd()) {
 }
 
 function loadCmsEnv(projectRoot) {
-  // Ensure cms/.env takes precedence
+  // Load from root .env
   delete process.env.STRAPI_API_TOKEN;
 
-  const envPath = path.join(projectRoot, 'cms', '.env');
+  const envPath = path.join(projectRoot, '.env');
   if (fs.existsSync(envPath)) {
     require('dotenv').config({ path: envPath });
   }
