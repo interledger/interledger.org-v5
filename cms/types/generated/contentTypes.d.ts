@@ -534,7 +534,7 @@ export interface ApiFoundationPageFoundationPage
   collectionName: 'foundation-pages'
   info: {
     description: 'Website pages with dynamic content blocks'
-    displayName: 'Page'
+    displayName: 'Foundation Page'
     pluralName: 'foundation-pages'
     singularName: 'foundation-page'
   }

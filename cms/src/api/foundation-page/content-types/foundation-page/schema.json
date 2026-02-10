@@ -4,7 +4,7 @@
   "info": {
     "singularName": "foundation-page",
     "pluralName": "foundation-pages",
-    "displayName": "Page",
+    "displayName": "Foundation Page",
     "description": "Website pages with dynamic content blocks"
   },
   "options": {
