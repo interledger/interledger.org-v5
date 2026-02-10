@@ -38,7 +38,6 @@ async function main() {
   }
 
   console.log(`🔗 Connecting to: ${STRAPI_URL}`)
-  console.log(`🔑 Token: ${STRAPI_TOKEN.substring(0, 10)}...`)
 
   if (DRY_RUN) {
     console.log('🔍 DRY-RUN MODE - No changes will be made\n')
