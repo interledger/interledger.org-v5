@@ -9,8 +9,6 @@
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
-    "export:nav": "npx tsx scripts/export-navigation.ts",
-    "export:summit-nav": "npx tsx scripts/export-summit-navigation.ts",
     "import:nav": "npx tsx scripts/import-foundation-navigation.ts --all"
   },
   "dependencies": {
