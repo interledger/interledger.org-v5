@@ -49,7 +49,7 @@ function generateFilename(post: BlogPost): string {
 function generateMDX(
   post: BlogPost,
   locale: string,
-  preservedFields: Record<string, string> = {},
+  preservedFields: Record<string, unknown> = {},
   englishSlug?: string
 ): string {
   const imageUrl = getImageUrl(post.featuredImage)
@@ -58,34 +58,19 @@ function generateMDX(
   const localizesValue =
     localizes || (locale !== 'en' && englishSlug ? englishSlug : undefined)
 
+  // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
+    ...restPreserved,
     title: post.title,
     description: post.description,
     date: formatDate(post.date),
     slug: post.slug,
     lang: langValue,
     contentId: post.documentId,
-  }
-
-  if (post.ogImageUrl) {
-    frontmatterData.ogImageUrl = post.ogImageUrl
-  }
-
-  if (imageUrl) {
-    frontmatterData.image = imageUrl
-  }
-
-  if (localizesValue) {
-    frontmatterData.localizes = localizesValue
-  }
-
-  // Include preserved fields (like localizes) that exist in MDX but not in Strapi
-  for (const [key, value] of Object.entries(restPreserved)) {
-    frontmatterData[key] = value
-  }
-
-  if (locale !== 'en') {
-    frontmatterData.locale = locale
+    ...(post.ogImageUrl ? { ogImageUrl: post.ogImageUrl } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+    ...(localizesValue ? { localizes: localizesValue } : {}),
+    ...(locale !== 'en' ? { locale } : {}),
   }
 
   const content = post.content ? htmlToMarkdown(post.content) : ''

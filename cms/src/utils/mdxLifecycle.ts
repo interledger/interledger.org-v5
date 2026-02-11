@@ -59,37 +59,27 @@ function getOutputDir(config: PageLifecycleConfig, locale: string): string {
 function generateMDX(
   config: PageLifecycleConfig,
   page: PageData,
-  preservedFields: Record<string, string> = {},
+  preservedFields: Record<string, unknown> = {},
   englishSlug?: string
 ): string {
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
   // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
-  // This ensures localizes is updated when English slug changes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
+  // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
+    ...restPreserved,
     slug: page.slug,
     title: page.title,
     ...(config.extraFrontmatter?.(page) ?? {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
     contentId: page.documentId,
-  }
-
-  if (localizesValue) {
-    frontmatterData.localizes = localizesValue
-  }
-
-  // Include preserved fields (like localizes) that exist in MDX but not in Strapi
-  for (const [key, value] of Object.entries(restPreserved)) {
-    frontmatterData[key] = value
-  }
-
-  if (isLocalized) {
-    frontmatterData.locale = locale
+    ...(localizesValue ? { localizes: localizesValue } : {}),
+    ...(isLocalized ? { locale } : {}),
   }
 
   const content = serializeContent(page.content)

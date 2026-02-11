@@ -11,6 +11,7 @@ const turndown = new TurndownService({
   headingStyle: 'atx',
   codeBlockStyle: 'fenced',
   bulletListMarker: '-',
+  emDelimiter: '*',
 })
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -244,31 +245,21 @@ export function serializeContent(content: Array<{ __component: string; [key: str
 // ── Frontmatter helpers ──────────────────────────────────────────────────────
 
 /**
- * Read existing frontmatter fields that should be preserved (not managed by Strapi).
- * Used during MDX export to keep fields like 'localizes' that are set manually in MDX.
+ * Read all existing frontmatter fields from an MDX file.
+ * Strapi-managed fields will overwrite these when generating MDX.
  */
-export function getPreservedFields(filepath: string): Record<string, string> {
-  const preserved: Record<string, string> = {}
-  const fieldsToPreserve = ['localizes']
-
+export function getPreservedFields(filepath: string): Record<string, unknown> {
   if (!fs.existsSync(filepath)) {
-    return preserved
+    return {}
   }
 
   try {
     const fileContent = fs.readFileSync(filepath, 'utf-8')
     const { data } = matter(fileContent)
-
-    for (const key of fieldsToPreserve) {
-      if (data[key] !== undefined) {
-        preserved[key] = String(data[key])
-      }
-    }
+    return data
   } catch {
-    // Ignore read errors
+    return {}
   }
-
-  return preserved
 }
 
 export function heroFrontmatter(hero: {
