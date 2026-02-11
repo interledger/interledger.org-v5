@@ -8,9 +8,9 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { syncToGit } from './gitSync'
+import { serializeContent } from '../components/blocks'
 import {
   LOCALES,
-  serializeContent,
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
