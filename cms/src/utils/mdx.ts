@@ -1,6 +1,6 @@
 /**
  * Shared MDX utilities for Strapi lifecycle hooks.
- * Types, serializers, and helpers used across page, summit-page, and blog-post.
+ * Serializers and helpers used across page, summit-page, and blog-post.
  */
 
 import fs from 'fs'
@@ -13,121 +13,6 @@ const turndown = new TurndownService({
   bulletListMarker: '-',
 })
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
-export interface MediaFile {
-  id: number
-  url: string
-  alternativeText?: string
-  name?: string
-  width?: number
-  height?: number
-  formats?: {
-    thumbnail?: { url: string }
-    small?: { url: string }
-    medium?: { url: string }
-    large?: { url: string }
-  }
-}
-
-export interface CtaLink {
-  id: number
-  text: string
-  url: string
-  style?: string
-}
-
-export interface Hero {
-  id: number
-  title: string
-  description?: string
-  backgroundImage?: MediaFile
-  secondaryCtas?: CtaLink[]
-}
-
-export interface Seo {
-  id: number
-  metaTitle: string
-  metaDescription?: string
-  metaImage?: MediaFile
-  keywords?: string
-  canonicalUrl?: string
-}
-
-export interface Card {
-  id: number
-  title: string
-  description?: string
-  link?: string
-  linkText?: string
-  icon?: string
-  openInNewTab?: boolean
-}
-
-export interface CardsGrid {
-  __component: 'blocks.cards-grid'
-  id: number
-  heading?: string
-  subheading?: string
-  cards?: Card[]
-  columns?: '2' | '3' | '4'
-}
-
-export interface CardLink {
-  id: number
-  title: string
-  description?: string
-  url: string
-  icon?: string
-}
-
-export interface CardLinksGrid {
-  __component: 'blocks.card-links-grid'
-  id: number
-  heading?: string
-  links?: CardLink[]
-}
-
-export interface CarouselItem {
-  id: number
-  title: string
-  description?: string
-  image?: MediaFile
-  link?: string
-}
-
-export interface Carousel {
-  __component: 'blocks.carousel'
-  id: number
-  heading?: string
-  items?: CarouselItem[]
-}
-
-export interface CtaBanner {
-  __component: 'blocks.cta-banner'
-  id: number
-  title: string
-  description?: string
-  ctaText?: string
-  ctaUrl?: string
-  backgroundColor?: string
-}
-
-export interface Paragraph {
-  __component: 'blocks.paragraph'
-  id: number
-  content: string
-  alignment?: 'left' | 'center' | 'right'
-}
-
-export interface ImageRow {
-  __component: 'blocks.image-row'
-  id: number
-  images?: MediaFile[]
-}
-
-export type ContentBlock = CardsGrid | CardLinksGrid | Carousel | CtaBanner | Paragraph | ImageRow
-
 // ── Constants ────────────────────────────────────────────────────────────────
 
 export const LOCALES = ['en', 'es']
@@ -139,7 +24,7 @@ function escapeQuotes(value: string): string {
   return value.replace(/"/g, '\\"')
 }
 
-export function getImageUrl(media: MediaFile | undefined): string | undefined {
+export function getImageUrl(media: { url?: string } | undefined): string | undefined {
   if (!media?.url) return undefined
 
   if (media.url.startsWith('/uploads/')) {
@@ -159,7 +44,18 @@ export function htmlToMarkdown(html: string): string {
 
 // ── Block serializers ────────────────────────────────────────────────────────
 
-export function serializeCardsGrid(block: CardsGrid): string {
+export function serializeCardsGrid(block: {
+  heading?: string
+  subheading?: string
+  columns?: string
+  cards?: Array<{
+    title: string
+    description?: string
+    link?: string
+    linkText?: string
+    icon?: string
+  }>
+}): string {
   const lines: string[] = []
 
   if (block.heading) {
@@ -189,7 +85,15 @@ export function serializeCardsGrid(block: CardsGrid): string {
   return lines.join('\n')
 }
 
-export function serializeCardLinksGrid(block: CardLinksGrid): string {
+export function serializeCardLinksGrid(block: {
+  heading?: string
+  links?: Array<{
+    title: string
+    description?: string
+    url: string
+    icon?: string
+  }>
+}): string {
   const lines: string[] = []
 
   if (block.heading) {
@@ -215,7 +119,15 @@ export function serializeCardLinksGrid(block: CardLinksGrid): string {
   return lines.join('\n')
 }
 
-export function serializeCarousel(block: Carousel): string {
+export function serializeCarousel(block: {
+  heading?: string
+  items?: Array<{
+    title: string
+    description?: string
+    image?: { url?: string }
+    link?: string
+  }>
+}): string {
   const lines: string[] = []
 
   if (block.heading) {
@@ -242,7 +154,13 @@ export function serializeCarousel(block: Carousel): string {
   return lines.join('\n')
 }
 
-export function serializeCtaBanner(block: CtaBanner): string {
+export function serializeCtaBanner(block: {
+  title: string
+  description?: string
+  ctaText?: string
+  ctaUrl?: string
+  backgroundColor?: string
+}): string {
   const lines: string[] = []
 
   const attrs = [
@@ -260,7 +178,10 @@ export function serializeCtaBanner(block: CtaBanner): string {
   return lines.join('\n')
 }
 
-export function serializeParagraph(block: Paragraph): string {
+export function serializeParagraph(block: {
+  content: string
+  alignment?: string
+}): string {
   const content = htmlToMarkdown(block.content)
   if (block.alignment && block.alignment !== 'left') {
     return `<div class="text-${block.alignment}">\n\n${content}\n\n</div>`
@@ -268,7 +189,9 @@ export function serializeParagraph(block: Paragraph): string {
   return content
 }
 
-export function serializeImageRow(block: ImageRow): string {
+export function serializeImageRow(block: {
+  images?: Array<{ url?: string; alternativeText?: string }>
+}): string {
   const lines: string[] = []
   lines.push('<ImageRow>')
 
@@ -285,7 +208,7 @@ export function serializeImageRow(block: ImageRow): string {
   return lines.join('\n')
 }
 
-export function serializeContent(content: ContentBlock[] | undefined): string {
+export function serializeContent(content: Array<{ __component: string; [key: string]: unknown }> | undefined): string {
   if (!content || content.length === 0) return ''
 
   const blocks: string[] = []
@@ -293,25 +216,25 @@ export function serializeContent(content: ContentBlock[] | undefined): string {
   for (const block of content) {
     switch (block.__component) {
       case 'blocks.cards-grid':
-        blocks.push(serializeCardsGrid(block as CardsGrid))
+        blocks.push(serializeCardsGrid(block as unknown as Parameters<typeof serializeCardsGrid>[0]))
         break
       case 'blocks.card-links-grid':
-        blocks.push(serializeCardLinksGrid(block as CardLinksGrid))
+        blocks.push(serializeCardLinksGrid(block as unknown as Parameters<typeof serializeCardLinksGrid>[0]))
         break
       case 'blocks.carousel':
-        blocks.push(serializeCarousel(block as Carousel))
+        blocks.push(serializeCarousel(block as unknown as Parameters<typeof serializeCarousel>[0]))
         break
       case 'blocks.cta-banner':
-        blocks.push(serializeCtaBanner(block as CtaBanner))
+        blocks.push(serializeCtaBanner(block as unknown as Parameters<typeof serializeCtaBanner>[0]))
         break
       case 'blocks.paragraph':
-        blocks.push(serializeParagraph(block as Paragraph))
+        blocks.push(serializeParagraph(block as unknown as Parameters<typeof serializeParagraph>[0]))
         break
       case 'blocks.image-row':
-        blocks.push(serializeImageRow(block as ImageRow))
+        blocks.push(serializeImageRow(block as unknown as Parameters<typeof serializeImageRow>[0]))
         break
       default:
-        console.warn(`Unknown block component: ${(block as any).__component}`)
+        console.warn(`Unknown block component: ${block.__component}`)
     }
   }
 
@@ -326,7 +249,7 @@ export function serializeContent(content: ContentBlock[] | undefined): string {
  */
 export function getPreservedFields(filepath: string): Record<string, string> {
   const preserved: Record<string, string> = {}
-  const fieldsToPreserve = ['localizes'] // Fields set in MDX but not in Strapi
+  const fieldsToPreserve = ['localizes']
 
   if (!fs.existsSync(filepath)) {
     return preserved
@@ -348,7 +271,11 @@ export function getPreservedFields(filepath: string): Record<string, string> {
   return preserved
 }
 
-export function heroFrontmatter(hero: Hero | undefined): Record<string, string> {
+export function heroFrontmatter(hero: {
+  title?: string
+  description?: string
+  backgroundImage?: { url?: string }
+} | undefined): Record<string, string> {
   const data: Record<string, string> = {}
   if (!hero) return data
   if (hero.title) {
@@ -364,7 +291,13 @@ export function heroFrontmatter(hero: Hero | undefined): Record<string, string> 
   return data
 }
 
-export function seoFrontmatter(seo: Seo | undefined): Record<string, string> {
+export function seoFrontmatter(seo: {
+  metaTitle?: string
+  metaDescription?: string
+  metaImage?: { url?: string }
+  keywords?: string
+  canonicalUrl?: string
+} | undefined): Record<string, string> {
   const data: Record<string, string> = {}
   if (!seo) return data
   if (seo.metaTitle) {

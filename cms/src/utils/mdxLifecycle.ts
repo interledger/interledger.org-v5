@@ -9,9 +9,6 @@ import path from 'path'
 import matter from 'gray-matter'
 import { syncToGit } from './gitSync'
 import {
-  type Hero,
-  type Seo,
-  type ContentBlock,
   LOCALES,
   serializeContent,
   heroFrontmatter,
@@ -25,9 +22,9 @@ interface PageData {
   title: string
   slug: string
   locale?: string
-  hero?: Hero
-  seo?: Seo
-  content?: ContentBlock[]
+  hero?: { title?: string; description?: string; backgroundImage?: { url?: string } }
+  seo?: { metaTitle?: string; metaDescription?: string; metaImage?: { url?: string }; keywords?: string; canonicalUrl?: string }
+  content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
   [key: string]: unknown
 }

@@ -8,7 +8,6 @@ import path from 'path'
 import matter from 'gray-matter'
 import { syncToGit } from '../../../../utils/gitSync'
 import {
-  type MediaFile,
   getImageUrl,
   htmlToMarkdown,
   LOCALES,
@@ -23,7 +22,7 @@ interface BlogPost {
   slug: string
   date: string
   content: string
-  featuredImage?: MediaFile
+  featuredImage?: { url?: string; alternativeText?: string }
   lang?: string
   ogImageUrl?: string
   publishedAt?: string
