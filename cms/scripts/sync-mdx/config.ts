@@ -1,7 +1,5 @@
 import path from 'path'
 
-export const DEFAULT_STRAPI_URL = 'http://localhost:1337'
-
 export interface ContentTypeConfig {
   dir: string
   apiId: string

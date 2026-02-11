@@ -34,8 +34,13 @@ interface SummitNavigation {
 }
 
 async function importSummitNavigation() {
-  const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
+  const baseUrl = process.env.STRAPI_URL
   const token = process.env.STRAPI_API_TOKEN
+
+  if (!baseUrl) {
+    console.error('Error: STRAPI_URL not set. Add it to your .env file (e.g. STRAPI_URL=http://localhost:1337)')
+    process.exit(1)
+  }
 
   // Read local summit navigation config
   const configPath = join(process.cwd(), 'src/config/summit-navigation.json')

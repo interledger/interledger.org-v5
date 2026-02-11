@@ -26,12 +26,17 @@ bun install
 
 ### Configuration
 
-The CMS is configured via environment variables in the root `.env` file. Key settings:
+The CMS is configured via environment variables in the root `.env` file. Add the following:
+
+```env
+STRAPI_URL=http://localhost:1337
+STRAPI_API_TOKEN=your-api-token
+```
+
+Other required settings (generated on first run or in Strapi setup):
 
 - `APP_KEYS`: Session encryption keys
 - `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`: Security salts
-- `STRAPI_URL`: Strapi server URL (default: `http://localhost:1337`)
-- `STRAPI_API_TOKEN`: API token for scripts and frontend
 
 ### Running the CMS
 

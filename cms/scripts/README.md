@@ -28,8 +28,11 @@ In Strapi admin (<http://localhost:1337/admin>):
 Add to the root `.env` file:
 
 ```env
+STRAPI_URL=http://localhost:1337
 STRAPI_API_TOKEN=your-token-here
 ```
+
+Both variables are required. The sync script loads `.env` from the project root.
 
 ## Usage
 

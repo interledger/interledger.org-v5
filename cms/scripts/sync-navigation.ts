@@ -11,8 +11,6 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import { DEFAULT_STRAPI_URL } from './sync-mdx/config'
-
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -143,9 +141,14 @@ async function main() {
     dotenv.config({ path: envPath })
   }
 
-  const STRAPI_URL = process.env.STRAPI_URL || DEFAULT_STRAPI_URL
+  const STRAPI_URL = process.env.STRAPI_URL
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN
 
+  if (!STRAPI_URL) {
+    console.error('❌ Error: STRAPI_URL not set')
+    console.error('   Add STRAPI_URL to your .env file (e.g. STRAPI_URL=http://localhost:1337)')
+    process.exit(1)
+  }
   if (!STRAPI_TOKEN) {
     console.error('❌ Error: STRAPI_API_TOKEN not set')
     process.exit(1)

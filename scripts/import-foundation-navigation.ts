@@ -10,7 +10,7 @@
  * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
  */
 
-import { existsSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import dotenv from 'dotenv'
 
@@ -38,8 +38,13 @@ interface Navigation {
 }
 
 async function importNavigation(type: 'foundation' | 'summit' | 'all') {
-  const baseUrl = process.env.STRAPI_URL || 'http://localhost:1337'
+  const baseUrl = process.env.STRAPI_URL
   const token = process.env.STRAPI_API_TOKEN
+
+  if (!baseUrl) {
+    console.error('Error: STRAPI_URL not set. Add it to your .env file (e.g. STRAPI_URL=http://localhost:1337)')
+    process.exit(1)
+  }
 
   const typesToImport: ('foundation' | 'summit')[] =
     type === 'all' ? ['foundation', 'summit'] : [type]
