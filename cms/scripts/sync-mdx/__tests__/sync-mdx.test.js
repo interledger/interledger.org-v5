@@ -5,7 +5,7 @@ const os = require('os');
 const matter = require('gray-matter');
 
 const { scanMDXFiles } = require('../scan');
-const { buildEntryData, syncContentType, updateMdxFrontmatter } = require('../sync');
+const { buildEntryData, syncContentType, getEntryField } = require('../sync');
 
 const tempDirs = new Set();
 
@@ -50,68 +50,21 @@ describe('gray-matter parsing', () => {
   });
 });
 
-describe('updateMdxFrontmatter', () => {
-  it('adds a new field to frontmatter', () => {
-    const tmpDir = makeTmpDir();
-    const filePath = path.join(tmpDir, 'test.mdx');
-    writeFile(
-      filePath,
-      ['---', 'title: "Hello"', 'slug: "hello"', '---', '', 'Body'].join('\n')
-    );
-
-    updateMdxFrontmatter(filePath, 'contentId', 'abc123');
-
-    const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: abc123');
-    expect(content).toContain('title: Hello');
-    expect(content).toContain('slug: hello');
+describe('getEntryField', () => {
+  it('returns top-level field for Strapi v5 flat response', () => {
+    const entry = { documentId: 'doc-1', slug: 'hello', content: '<p>Hi</p>' };
+    expect(getEntryField(entry, 'content')).toBe('<p>Hi</p>');
+    expect(getEntryField(entry, 'slug')).toBe('hello');
   });
 
-  it('updates an existing field in frontmatter', () => {
-    const tmpDir = makeTmpDir();
-    const filePath = path.join(tmpDir, 'test.mdx');
-    writeFile(
-      filePath,
-      [
-        '---',
-        'title: "Hello"',
-        'contentId: "old-value"',
-        '---',
-        '',
-        'Body'
-      ].join('\n')
-    );
-
-    updateMdxFrontmatter(filePath, 'contentId', 'new-value');
-
-    const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: new-value');
-    expect(content).not.toContain('old-value');
+  it('falls back to attributes for Strapi v4-style response', () => {
+    const entry = { attributes: { content: '<p>Legacy</p>' } };
+    expect(getEntryField(entry, 'content')).toBe('<p>Legacy</p>');
   });
 
-  it('preserves other fields when updating', () => {
-    const tmpDir = makeTmpDir();
-    const filePath = path.join(tmpDir, 'test.mdx');
-    writeFile(
-      filePath,
-      [
-        '---',
-        'title: "Hello"',
-        'localizes: "english-slug"',
-        'locale: "es"',
-        '---',
-        '',
-        'Body'
-      ].join('\n')
-    );
-
-    updateMdxFrontmatter(filePath, 'contentId', 'abc123');
-
-    const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('contentId: abc123');
-    expect(content).toContain('localizes: english-slug');
-    expect(content).toContain('locale: es');
-    expect(content).toContain('title: Hello');
+  it('returns null for missing field', () => {
+    expect(getEntryField({ slug: 'x' }, 'content')).toBeNull();
+    expect(getEntryField(null, 'content')).toBeNull();
   });
 });
 
