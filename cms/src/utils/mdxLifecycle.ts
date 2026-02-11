@@ -33,6 +33,15 @@ interface Event {
   result?: PageData
 }
 
+export function shouldSkipMdxExport(): boolean {
+  try {
+    const ctx = strapi.requestContext.get() as { request?: { headers?: Record<string, string> } } | null
+    return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
+  } catch {
+    return false
+  }
+}
+
 export interface PageLifecycleConfig {
   /** Strapi content type UID, e.g. 'api::foundation-page.foundation-page' */
   contentTypeUid: string
@@ -172,6 +181,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
     async afterCreate(event: Event) {
       const { result } = event
       if (!result) return
+      if (shouldSkipMdxExport()) return
 
       console.log(`📝 Creating ${config.logPrefix} MDX for all locales: ${result.slug}`)
       const filepaths = await exportAllLocales(config, result.documentId)
@@ -184,6 +194,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
     async afterUpdate(event: Event) {
       const { result } = event
       if (!result) return
+      if (shouldSkipMdxExport()) return
 
       console.log(`📝 Updating ${config.logPrefix} MDX for all locales: ${result.slug}`)
       const filepaths = await exportAllLocales(config, result.documentId)
@@ -213,6 +224,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
     async afterDelete(event: Event) {
       const { result } = event
       if (!result) return
+      if (shouldSkipMdxExport()) return
 
       console.log(`🗑️  Deleting ${config.logPrefix} MDX for all locales: ${result.slug}`)
 

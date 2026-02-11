@@ -328,27 +328,17 @@ describe('syncContentType', () => {
       DRY_RUN: false
     });
 
-    // Should match via localizes field and create localization
+    // Import-only: match via localizes and create localization in Strapi
     expect(calls.createLocalization).toBe(1);
-
-    // Should write contentId to locale file
-    const localeContent = fs.readFileSync(
-      path.join(esSummitDir, 'sobre-nosotros.mdx'),
-      'utf-8'
-    );
-    expect(localeContent).toContain('contentId: doc-about');
-    expect(localeContent).toContain('localizes: about');
   });
 
-  it('writes contentId to English file after sync', async () => {
+  it('creates English entry without modifying MDX (import-only)', async () => {
     const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
 
-    writeFile(
-      path.join(summitDir, 'new-page.mdx'),
-      ['---', 'title: "New Page"', '---', '', 'Body'].join('\n')
-    );
+    const originalContent = ['---', 'title: "New Page"', '---', '', 'Body'].join('\n');
+    writeFile(path.join(summitDir, 'new-page.mdx'), originalContent);
 
     const createdEntry = {
       documentId: 'new-doc-id',
@@ -376,12 +366,10 @@ describe('syncContentType', () => {
       DRY_RUN: false
     });
 
-    // Should write contentId to English file
-    const englishContent = fs.readFileSync(
-      path.join(summitDir, 'new-page.mdx'),
-      'utf-8'
-    );
-    expect(englishContent).toContain('contentId: new-doc-id');
+    // Import-only: MDX file unchanged
+    const englishContent = fs.readFileSync(path.join(summitDir, 'new-page.mdx'), 'utf-8');
+    expect(englishContent).toBe(originalContent);
+    expect(englishContent).not.toContain('contentId');
   });
 
   it('creates localization for summit pages using contentId slug match', async () => {
@@ -463,39 +451,28 @@ describe('syncContentType', () => {
     expect(calls.updateLocalization).toBe(0);
   });
 
-  it('updates localizes field when English slug changes', async () => {
+  it('syncs localization to Strapi without modifying MDX (import-only)', async () => {
     const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
     const esSummitDir = path.join(contentRoot, 'es', 'summit');
 
-    // English file with NEW slug but same contentId
+    const spanishOriginal = [
+      '---',
+      'title: "Sobre Nosotros"',
+      'locale: "es"',
+      'contentId: "shared-content-id"',
+      'localizes: "old-english-slug"',
+      '---',
+      '',
+      'Contenido'
+    ].join('\n');
+
     writeFile(
       path.join(summitDir, 'new-english-slug.mdx'),
-      [
-        '---',
-        'title: "About Us"',
-        'contentId: "shared-content-id"',
-        '---',
-        '',
-        'Body'
-      ].join('\n')
+      ['---', 'title: "About Us"', 'contentId: "shared-content-id"', '---', '', 'Body'].join('\n')
     );
-
-    // Spanish file with OLD localizes value but same contentId
-    writeFile(
-      path.join(esSummitDir, 'sobre-nosotros.mdx'),
-      [
-        '---',
-        'title: "Sobre Nosotros"',
-        'locale: "es"',
-        'contentId: "shared-content-id"',
-        'localizes: "old-english-slug"',
-        '---',
-        '',
-        'Contenido'
-      ].join('\n')
-    );
+    writeFile(path.join(esSummitDir, 'sobre-nosotros.mdx'), spanishOriginal);
 
     const existingEntry = {
       documentId: 'shared-content-id',
@@ -526,13 +503,9 @@ describe('syncContentType', () => {
       DRY_RUN: false
     });
 
-    // Should update localizes field to new English slug
-    const localeContent = fs.readFileSync(
-      path.join(esSummitDir, 'sobre-nosotros.mdx'),
-      'utf-8'
-    );
-    expect(localeContent).toContain('localizes: new-english-slug');
-    expect(localeContent).not.toContain('localizes: old-english-slug');
+    // Import-only: MDX file unchanged
+    const localeContent = fs.readFileSync(path.join(esSummitDir, 'sobre-nosotros.mdx'), 'utf-8');
+    expect(localeContent).toBe(spanishOriginal);
   });
 
   it('does not call mutating Strapi methods in dry-run', async () => {
@@ -646,12 +619,9 @@ describe('syncContentType', () => {
     expect(calls.createLocalization).toBe(1);
     expect(calls.updateLocalization).toBe(0);
 
-    const localeContent = fs.readFileSync(
-      path.join(esSummitDir, 'sobre.mdx'),
-      'utf-8'
-    );
-    expect(localeContent).toContain('contentId: doc-about');
-    expect(localeContent).toContain('localizes: about');
+    // Import-only: MDX unchanged (contentId "about" used for matching)
+    const localeContent = fs.readFileSync(path.join(esSummitDir, 'sobre.mdx'), 'utf-8');
+    expect(localeContent).toContain('contentId: "about"');
   });
 
   it('deletes orphaned English entries not present in MDX', async () => {

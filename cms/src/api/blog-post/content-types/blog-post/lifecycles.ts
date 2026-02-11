@@ -7,6 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { syncToGit } from '../../../../utils/gitSync'
+import { shouldSkipMdxExport } from '../../../../utils/mdxLifecycle'
 import {
   getImageUrl,
   htmlToMarkdown,
@@ -139,6 +140,7 @@ export default {
   async afterCreate(event: Event) {
     const { result } = event
     if (!result) return
+    if (shouldSkipMdxExport()) return
 
     console.log(`📝 Creating blog post MDX for all locales: ${result.slug}`)
     const filepaths: string[] = []
@@ -166,6 +168,7 @@ export default {
   async afterUpdate(event: Event) {
     const { result } = event
     if (!result) return
+    if (shouldSkipMdxExport()) return
 
     console.log(`📝 Updating blog post MDX for all locales: ${result.slug}`)
     const filepaths: string[] = []
@@ -205,6 +208,7 @@ export default {
   async afterDelete(event: Event) {
     const { result } = event
     if (!result) return
+    if (shouldSkipMdxExport()) return
 
     console.log(`🗑️  Deleting blog post MDX for all locales: ${result.slug}`)
     const deletedPaths: string[] = []

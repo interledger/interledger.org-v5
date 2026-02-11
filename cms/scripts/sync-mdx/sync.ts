@@ -156,12 +156,6 @@ async function syncContentType(
           englishEntry = result.data || existing
           console.log(`   🔄 Updated: ${englishMdx.slug} (en)`)
 
-          const strapiDocId = englishEntry.documentId || existing.documentId
-          if (strapiDocId && englishMdx.frontmatter.contentId !== strapiDocId) {
-            updateMdxFrontmatter(englishMdx.filepath, 'contentId', strapiDocId)
-            englishMdx.frontmatter.contentId = strapiDocId
-            console.log(`   🔗 Wrote contentId to ${englishMdx.slug}: ${strapiDocId}`)
-          }
         }
         results.updated++
       } else {
@@ -173,11 +167,6 @@ async function syncContentType(
           englishEntry = result.data
           console.log(`   ✅ Created: ${englishMdx.slug} (en)`)
 
-          if (englishEntry && englishEntry.documentId) {
-            updateMdxFrontmatter(englishMdx.filepath, 'contentId', englishEntry.documentId)
-            englishMdx.frontmatter.contentId = englishEntry.documentId
-            console.log(`   🔗 Wrote contentId to ${englishMdx.slug}: ${englishEntry.documentId}`)
-          }
         }
         results.created++
       }
@@ -300,17 +289,6 @@ async function syncContentType(
                   `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
                 )
 
-                const contentId = englishMdx.frontmatter.contentId as string
-                if (contentId && localeMdx.frontmatter.contentId !== contentId) {
-                  updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId)
-                  console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`)
-                }
-
-                const currentLocalizes = localeMdx.frontmatter.localizes
-                if (currentLocalizes !== englishMdx.slug) {
-                  updateMdxFrontmatter(localeMdx.filepath, 'localizes', englishMdx.slug)
-                  console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${englishMdx.slug}`)
-                }
               }
               results.updated++
             } else {
@@ -329,17 +307,6 @@ async function syncContentType(
                   `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
                 )
 
-                const contentId = englishMdx.frontmatter.contentId as string
-                if (contentId && localeMdx.frontmatter.contentId !== contentId) {
-                  updateMdxFrontmatter(localeMdx.filepath, 'contentId', contentId)
-                  console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${contentId}`)
-                }
-
-                const currentLocalizes = localeMdx.frontmatter.localizes
-                if (currentLocalizes !== englishMdx.slug) {
-                  updateMdxFrontmatter(localeMdx.filepath, 'localizes', englishMdx.slug)
-                  console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${englishMdx.slug}`)
-                }
               }
               results.created++
             }
@@ -437,15 +404,6 @@ async function syncContentType(
                 `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
               )
 
-              if (localeMdx.frontmatter.contentId !== matchedEnglishEntry.documentId) {
-                updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId)
-                console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`)
-              }
-
-              if (localeMdx.frontmatter.localizes !== matchedEnglishEntry.slug) {
-                updateMdxFrontmatter(localeMdx.filepath, 'localizes', matchedEnglishEntry.slug)
-                console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${matchedEnglishEntry.slug}`)
-              }
             }
             results.updated++
           } else {
@@ -464,15 +422,6 @@ async function syncContentType(
                 `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
               )
 
-              if (localeMdx.frontmatter.contentId !== matchedEnglishEntry.documentId) {
-                updateMdxFrontmatter(localeMdx.filepath, 'contentId', matchedEnglishEntry.documentId)
-                console.log(`      🔗 Wrote contentId to ${localeMdx.slug}: ${matchedEnglishEntry.documentId}`)
-              }
-
-              if (localeMdx.frontmatter.localizes !== matchedEnglishEntry.slug) {
-                updateMdxFrontmatter(localeMdx.filepath, 'localizes', matchedEnglishEntry.slug)
-                console.log(`      🔗 Updated localizes to ${localeMdx.slug}: ${matchedEnglishEntry.slug}`)
-              }
             }
             results.created++
           }

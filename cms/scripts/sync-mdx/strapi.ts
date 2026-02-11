@@ -30,6 +30,7 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'x-skip-mdx-export': 'true', // Skip lifecycle MDX export - sync script is import-only
         ...options.headers
       }
     })
