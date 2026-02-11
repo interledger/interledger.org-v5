@@ -1,0 +1,121 @@
+---
+/**
+ * CTA Button Component
+ * Styled call-to-action button with optional arrow icon
+ *
+ * Special link tokens:
+ * - <front> → Links to home page (/)
+ * - <nolink> → Displays text without link
+ * - <button> → Keyboard-accessible button (no navigation)
+ */
+
+interface Props {
+  text: string
+  link: string
+  analyticsEventLabel?: string
+}
+
+const { text, link: rawLink, analyticsEventLabel } = Astro.props
+
+// Handle special link tokens
+let link = rawLink
+let isNoLink = false
+let isButton = false
+
+if (rawLink === '<front>') {
+  link = '/'
+} else if (rawLink === '<nolink>') {
+  isNoLink = true
+} else if (rawLink === '<button>') {
+  isButton = true
+}
+
+// Auto-detect external links
+const isExternal =
+  !isNoLink &&
+  !isButton &&
+  (link.startsWith('http://') ||
+    link.startsWith('https://') ||
+    link.startsWith('//'))
+
+const buttonClasses =
+  'inline-flex items-center gap-space-2xs rounded-pill px-space-s py-space-xs text-step-0 font-medium no-underline bg-primary text-white hover:bg-primary-hover transition-all duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary group'
+
+// For <nolink>, use plain text styling (no button appearance)
+const noLinkClasses = 'text-step-0 font-medium'
+---
+
+{
+  /* Regular link */
+  !isNoLink && !isButton && (
+    <a
+      href={link}
+      class={buttonClasses}
+      data-umami-event={analyticsEventLabel ?? ''}
+      {...(isExternal && {
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        'aria-label': `${text} (opens in new window)`
+      })}
+    >
+      {text}
+
+      {
+        /* Arrow icon - internal links only */
+        !isExternal && (
+          <svg
+            class="h-[0.6em] w-[0.6em] flex-none transition-transform duration-fast group-hover:translate-x-1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 12 12"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z" />
+          </svg>
+        )
+      }
+
+      {
+        /* External link icon */
+        isExternal && (
+          <svg
+            class="h-[0.6em] w-[0.6em] flex-none"
+            fill="none"
+            viewBox="0 0 18 18"
+            aria-hidden="true"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
+            />
+          </svg>
+        )
+      }
+    </a>
+  )
+}
+
+{
+  /* <button> token - real button element */
+  isButton && (
+    <button
+      type="button"
+      class={buttonClasses}
+      data-umami-event={analyticsEventLabel ?? ''}
+    >
+      {text}
+    </button>
+  )
+}
+
+{
+  /* <nolink> token - plain text, no interactive styling */
+  isNoLink && (
+    <span class={noLinkClasses} data-umami-event={analyticsEventLabel ?? ''}>
+      {text}
+    </span>
+  )
+}

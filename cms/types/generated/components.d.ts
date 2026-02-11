@@ -161,6 +161,20 @@ export interface BlocksCtaBanner extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCtaButton extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cta_buttons'
+  info: {
+    description: 'Call-to-action button with link. Special tokens: <front> (home), <nolink> (text only), <button> (non-navigating button)'
+    displayName: 'CTA Button'
+    icon: 'cursor'
+  }
+  attributes: {
+    analytics_event_label: Schema.Attribute.String
+    link: Schema.Attribute.String & Schema.Attribute.Required
+    text: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface BlocksImageRow extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_rows'
   info: {
@@ -310,6 +324,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-item': BlocksCarouselItem
       'blocks.cta-banner': BlocksCtaBanner
+      'blocks.cta-button': BlocksCtaButton
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'navigation.menu-group': NavigationMenuGroup
