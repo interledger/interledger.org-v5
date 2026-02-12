@@ -1,7 +1,7 @@
 const { describe, it, expect } = require('bun:test');
 
 /**
- * Tests for the localizes field priority logic in mdxLifecycle.ts
+ * Tests for the localizes field priority logic in pageLifecycle.ts
  *
  * The logic should be:
  *   localizesValue = (isLocalized && englishSlug ? englishSlug : undefined) || localizes
@@ -13,7 +13,7 @@ const { describe, it, expect } = require('bun:test');
  */
 
 describe('localizes field priority', () => {
-  // Simulate the logic from mdxLifecycle.ts generateMDX function
+  // Simulate the logic from pageLifecycle.ts generateMDX function
   function computeLocalizesValue(locale, englishSlug, preservedLocalizes) {
     const isLocalized = locale !== 'en';
     return (isLocalized && englishSlug ? englishSlug : undefined) || preservedLocalizes;

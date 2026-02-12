@@ -8,7 +8,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { getProjectRoot, getContentPath } from '../../../../utils/paths'
 import { syncToGit } from '../../../../utils/gitSync'
-import { shouldSkipMdxExport } from '../../../../utils/mdxLifecycle'
+import { shouldSkipMdxExport } from '../../../../utils/pageLifecycle'
 import {
   getImageUrl,
   htmlToMarkdown,

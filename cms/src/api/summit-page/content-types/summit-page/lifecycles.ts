@@ -1,4 +1,4 @@
-import { createPageLifecycle } from '../../../../utils/mdxLifecycle'
+import { createPageLifecycle } from '../../../../utils/pageLifecycle'
 import { PATHS } from '../../../../utils/paths'
 
 export default createPageLifecycle({
