@@ -146,6 +146,14 @@ interface BlockquoteBlock {
   source?: string
 }
 
+interface CtaButtonBlock {
+  __component: 'blocks.cta-button'
+  id: number
+  text: string
+  link: string
+  analytics_event_label?: string
+}
+
 type ContentBlock =
   | CardsGrid
   | CardLinksGrid
@@ -156,6 +164,7 @@ type ContentBlock =
   | AmbassadorBlock
   | AmbassadorsGridBlock
   | BlockquoteBlock
+  | CtaButtonBlock
 
 interface Page {
   id: number
@@ -450,6 +459,23 @@ function serializeBlockquote(block: BlockquoteBlock): string {
 }
 
 /**
+ * Serializes a CTA button block to MDX
+ */
+function serializeCtaButton(block: CtaButtonBlock): string {
+  const attrs = [
+    `text="${escapeQuotes(block.text)}"`,
+    `link="${escapeQuotes(block.link)}"`,
+    block.analytics_event_label
+      ? `analyticsEventLabel="${escapeQuotes(block.analytics_event_label)}"`
+      : null
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return `<CtaButton ${attrs} />`
+}
+
+/**
  * Serializes the content dynamic zone to MDX
  */
 function serializeContent(content: ContentBlock[] | undefined): string {
@@ -485,6 +511,9 @@ function serializeContent(content: ContentBlock[] | undefined): string {
         break
       case 'blocks.blockquote':
         blocks.push(serializeBlockquote(block as BlockquoteBlock))
+        break
+      case 'blocks.cta-button':
+        blocks.push(serializeCtaButton(block as CtaButtonBlock))
         break
       default:
         console.warn(
@@ -584,6 +613,15 @@ function generateMDX(page: Page): string {
   if (hasBlockquote) {
     imports.push(
       'import Blockquote from "../../components/blockquote/Blockquote.astro"'
+    )
+  }
+
+  const hasCtaButton = page.content?.some(
+    (block) => block.__component === 'blocks.cta-button'
+  )
+  if (hasCtaButton) {
+    imports.push(
+      'import CtaButton from "../../components/buttons/CtaButton.astro"'
     )
   }
 

@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_blocks_cta_buttons",
+  "info": {
+    "displayName": "CTA Button",
+    "icon": "cursor",
+    "description": "Call-to-action button with link. Special tokens: <front> (home), <nolink> (text only), <button> (non-navigating button)"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "link": {
+      "type": "string",
+      "required": true,
+      "description": "Enter URL or special token: <front> for home page, <nolink> for text only, <button> for keyboard-accessible text"
+    },
+    "analytics_event_label": {
+      "type": "string"
+    }
+  }
+}

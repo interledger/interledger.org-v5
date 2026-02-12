@@ -1,0 +1,18 @@
+---
+/**
+ * CTA Button Block for Dynamic Zones (SSR Preview)
+ * Wrapper that passes Strapi data to the CtaButton presentation component
+ */
+
+import CtaButton from '../buttons/CtaButton.astro'
+
+interface Props {
+  text: string
+  link: string
+  analytics_event_label?: string
+}
+
+const { text, link, analytics_event_label } = Astro.props
+---
+
+<CtaButton text={text} link={link} analyticsEventLabel={analytics_event_label} />

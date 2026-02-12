@@ -613,6 +613,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.card-links-grid',
         'blocks.carousel',
         'blocks.cta-banner',
+        'blocks.cta-button',
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote'
