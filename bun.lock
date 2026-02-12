@@ -25,6 +25,7 @@
         "starlight-links-validator": "^0.19.1",
         "tailwindcss": "^4.1.18",
         "turndown": "^7.2.2",
+        "zod": "^3.25.76",
       },
       "devDependencies": {
         "@eslint/js": "^9.39.1",
