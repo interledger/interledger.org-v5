@@ -8,6 +8,7 @@ import {
   syncUnmatchedLocales,
   deleteOrphanedEntries
 } from './syncOperations'
+import { validateMdxFiles } from './validateFrontmatter'
 
 export async function syncContentType(
   contentType: keyof ContentTypes,
@@ -16,8 +17,19 @@ export async function syncContentType(
   const config = ctx.contentTypes[contentType]
   console.log(`\n📁 Syncing ${contentType}...`)
 
-  const mdxFiles = scanMDXFiles(contentType, ctx.contentTypes)
-  console.log(`   Found ${mdxFiles.length} MDX files`)
+  const scanned = scanMDXFiles(contentType, ctx.contentTypes)
+  const { valid: mdxFiles, invalid } = validateMdxFiles(contentType, scanned)
+
+  if (invalid.length > 0) {
+    for (const err of invalid) {
+      console.error(`   ⚠️  ${err.filepath}`)
+      for (const msg of err.errors) {
+        console.error(`      - ${msg}`)
+      }
+    }
+  }
+
+  console.log(`   Found ${mdxFiles.length} MDX files (${invalid.length} invalid skipped)`)
 
   const strapiEntries = await ctx.strapi.getAllEntries(config.apiId)
   console.log(`   Found ${strapiEntries.length} Strapi entries`)
@@ -26,7 +38,7 @@ export async function syncContentType(
     created: 0,
     updated: 0,
     deleted: 0,
-    errors: 0
+    errors: invalid.length
   }
 
   const processedSlugs = new Map<string, Set<string>>()

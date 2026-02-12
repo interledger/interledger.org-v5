@@ -3,27 +3,10 @@ import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 import { PATHS } from '../cms/src/utils/paths'
-
-const CTA = z.object({
-  label: z.string(),
-  href: z.string()
-})
-
-const Section = z.object({
-  title: z.string(),
-  content: z.string(),
-  ctas: z.array(CTA).optional()
-})
-
-const pageSchema = z.object({
-    title: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z.array(Section).optional()
-  })
+import {
+  foundationBlogFrontmatterSchema,
+  pageFrontmatterSchema
+} from './schemas/content'
 
 const engBlogCollection = defineCollection({
   loader: glob({
@@ -58,30 +41,7 @@ const foundationBlogCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.blog}`
   }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    slug: z.string(),
-    lang: z.string().optional(),
-    date: z.date(),
-    pillar: z.string(),
-    thumbnailImage: z.string().optional(),
-    thumbnailImageAlt: z.string().optional(),
-    featureImage: z.string().optional(),
-    featureImageAlt: z.string().optional(),
-    tags: z.array(
-      z.enum([
-        'Announcements',
-        'Grants & Grantee Insights',
-        'Community & Events',
-        'Interledger Technology',
-        'Thought Leadership',
-        // Please add a matching translation in i18n/ui.ts for any new tag
-      ]).optional()
-    ),
-    authors: z.array(z.string()).optional(),
-    author_urls: z.array(z.string()).optional()
-  })
+  schema: foundationBlogFrontmatterSchema
 })
 
 const foundationPagesCollection = defineCollection({
@@ -89,7 +49,7 @@ const foundationPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`
   }),
-  schema: pageSchema
+  schema: pageFrontmatterSchema
 })
 
 const summitPagesCollection = defineCollection({
@@ -97,7 +57,7 @@ const summitPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summit}`
   }),
-  schema: pageSchema
+  schema: pageFrontmatterSchema
 })
 
 export const collections = {

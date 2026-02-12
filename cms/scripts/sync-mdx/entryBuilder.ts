@@ -2,6 +2,10 @@ import { marked } from 'marked'
 import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapi'
+import {
+  foundationBlogFrontmatterSchema,
+  pageFrontmatterSchema
+} from '../../../src/schemas/content'
 
 marked.use({ headerIds: false })
 
@@ -26,27 +30,35 @@ export function buildEntryData(
   existingEntry: StrapiEntry | null = null
 ): Record<string, unknown> | null {
   if (contentType === 'blog') {
+    const parsed = foundationBlogFrontmatterSchema.parse({
+      ...mdx.frontmatter,
+      slug: mdx.slug
+    })
     return {
-      title: mdx.frontmatter.title,
-      description: mdx.frontmatter.description,
-      slug: mdx.slug,
-      date: mdx.frontmatter.date,
+      title: parsed.title,
+      description: parsed.description,
+      slug: parsed.slug,
+      date: parsed.date,
       content: marked.parse(mdx.content),
       publishedAt: new Date().toISOString()
     }
   }
 
   if (isPageType(contentType)) {
+    const parsed = pageFrontmatterSchema.parse({
+      ...mdx.frontmatter,
+      slug: mdx.slug
+    })
     const data: Record<string, unknown> = {
-      title: mdx.frontmatter.title,
-      slug: mdx.slug,
+      title: parsed.title,
+      slug: parsed.slug,
       publishedAt: new Date().toISOString()
     }
 
-    if (mdx.frontmatter.heroTitle || mdx.frontmatter.heroDescription) {
+    if (parsed.heroTitle || parsed.heroDescription) {
       data.hero = {
-        title: mdx.frontmatter.heroTitle || mdx.frontmatter.title,
-        description: mdx.frontmatter.heroDescription || ''
+        title: parsed.heroTitle || parsed.title,
+        description: parsed.heroDescription || ''
       }
     } else {
       const existingHero = getEntryField(existingEntry, 'hero')
