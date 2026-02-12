@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { getProjectRoot } from './paths'
 import { syncToGit } from './gitSync'
 
 interface MenuItem {
@@ -59,7 +60,7 @@ function sanitizeNavigation(data: NavigationData) {
 }
 
 function writeNavigationFile(config: NavigationLifecycleConfig, data: NavigationData): string {
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
 
@@ -97,7 +98,7 @@ async function fetchPublishedNavigation(
 }
 
 async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<string | null> {
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   try {
     if (fs.existsSync(outputPath)) {

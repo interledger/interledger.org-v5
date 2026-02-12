@@ -2,10 +2,10 @@
 // This must run BEFORE any config files are loaded
 import dotenv from 'dotenv'
 import path from 'path'
+import { getCmsDir, getProjectRoot, PATHS } from './utils/paths'
 
 // Load .env from project root (one level up from cms directory)
-// Use process.cwd() to get the cms directory, then go up one level
-const envPath = path.resolve(process.cwd(), '../.env')
+const envPath = path.join(getProjectRoot(), '.env')
 const result = dotenv.config({ path: envPath })
 
 if (result.error) {
@@ -173,8 +173,8 @@ export default {
    */
   async bootstrap({ strapi }) {
     // Ensure database directory exists with proper permissions
-    // Default database path is .tmp/data.db relative to process.cwd()
-    const dbDir = path.resolve(process.cwd(), '.tmp')
+    const dbPath = path.resolve(getCmsDir(), PATHS.DB_FILE)
+    const dbDir = path.dirname(dbPath)
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true, mode: 0o775 })
     } else {
@@ -187,7 +187,6 @@ export default {
     }
 
     // If database file exists, ensure it has write permissions
-    const dbPath = path.join(dbDir, 'data.db')
     if (fs.existsSync(dbPath)) {
       try {
         fs.chmodSync(dbPath, 0o664)

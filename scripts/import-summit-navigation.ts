@@ -9,9 +9,11 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import dotenv from 'dotenv'
+import { getConfigPath, getProjectRoot } from '../cms/src/utils/paths'
 
 // Load .env file
-const envPath = join(process.cwd(), '.env')
+const projectRoot = getProjectRoot()
+const envPath = join(projectRoot, '.env')
 if (existsSync(envPath)) {
   dotenv.config({ path: envPath })
 }
@@ -43,7 +45,7 @@ async function importSummitNavigation() {
   }
 
   // Read local summit navigation config
-  const configPath = join(process.cwd(), 'src/config/summit-navigation.json')
+  const configPath = getConfigPath(projectRoot, 'summitNavigation')
   const navigation: SummitNavigation = JSON.parse(
     readFileSync(configPath, 'utf-8')
   )

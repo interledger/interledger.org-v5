@@ -7,6 +7,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { getProjectRoot, PATHS } from './paths'
 import { syncToGit } from './gitSync'
 import { serializeContent } from '../serializers/blocks'
 import {
@@ -56,13 +57,13 @@ export interface PageLifecycleConfig {
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const projectRoot = getProjectRoot()
 
   if (locale === 'en') {
     return path.join(projectRoot, config.outputDir)
   }
 
-  return path.join(projectRoot, 'src/content', locale, config.localizedOutputDir)
+  return path.join(projectRoot, PATHS.CONTENT_ROOT, locale, config.localizedOutputDir)
 }
 
 function generateMDX(

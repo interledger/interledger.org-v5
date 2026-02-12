@@ -11,6 +11,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
+import { assertRunFromCms, getConfigPath, getProjectRoot } from '../src/utils/paths'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -128,14 +129,8 @@ async function updateNavigation({ baseUrl, token, apiId, configPath, label }: Up
 }
 
 async function main() {
-  const cwd = process.cwd()
-  if (path.basename(cwd) !== 'cms') {
-    console.error('❌ Error: run this script from the cms directory')
-    console.error('   Example: cd cms && bun run sync:navigation')
-    process.exit(1)
-  }
-
-  const projectRoot = path.resolve(cwd, '..')
+  assertRunFromCms()
+  const projectRoot = getProjectRoot()
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })
@@ -157,12 +152,12 @@ async function main() {
   const configs = [
     {
       apiId: 'foundation-navigation',
-      configPath: path.join(projectRoot, 'src/config/foundation-navigation.json'),
+      configPath: getConfigPath(projectRoot, 'foundationNavigation'),
       label: 'foundation navigation'
     },
     {
       apiId: 'summit-navigation',
-      configPath: path.join(projectRoot, 'src/config/summit-navigation.json'),
+      configPath: getConfigPath(projectRoot, 'summitNavigation'),
       label: 'summit navigation'
     }
   ]

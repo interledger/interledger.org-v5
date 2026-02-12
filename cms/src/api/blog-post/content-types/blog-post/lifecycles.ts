@@ -6,6 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { getProjectRoot, getContentPath } from '../../../../utils/paths'
 import { syncToGit } from '../../../../utils/gitSync'
 import { shouldSkipMdxExport } from '../../../../utils/mdxLifecycle'
 import {
@@ -79,11 +80,8 @@ function generateMDX(
 }
 
 function getOutputDir(locale: string): string {
-  const projectRoot = path.resolve(process.cwd(), '..')
-  if (locale === 'en') {
-    return path.join(projectRoot, 'src/content/blog')
-  }
-  return path.join(projectRoot, 'src/content', locale, 'blog')
+  const projectRoot = getProjectRoot()
+  return getContentPath(projectRoot, 'blog', locale === 'en' ? undefined : locale)
 }
 
 async function writeMDXFile(

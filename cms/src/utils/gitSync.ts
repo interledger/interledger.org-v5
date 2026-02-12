@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { exec } from 'child_process'
+import { getProjectRoot, PATHS } from './paths'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
@@ -19,12 +20,12 @@ export async function syncToGit(
     return
   }
 
-  const projectRoot = path.resolve(process.cwd(), '..')
+  const projectRoot = getProjectRoot()
   const safeMessage = escapeForShell(message)
   const filepaths = Array.isArray(filepath) ? filepath : [filepath]
 
   // Always include public/uploads if it exists so media changes are committed
-  const uploadsDir = path.join(projectRoot, 'public', 'uploads')
+  const uploadsDir = path.join(projectRoot, PATHS.UPLOADS)
   const addPaths = filepaths.map((fp) => escapeForShell(fp))
   if (fs.existsSync(uploadsDir)) {
     const uploadsRelative = escapeForShell(

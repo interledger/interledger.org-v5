@@ -1,4 +1,4 @@
-import path from 'path'
+import { getContentPath } from '../../src/utils/paths'
 
 export interface ContentTypeConfig {
   dir: string
@@ -15,17 +15,17 @@ export interface ContentTypes {
 export function buildContentTypes(projectRoot: string): ContentTypes {
   return {
     blog: {
-      dir: path.join(projectRoot, 'src/content/blog'),
+      dir: getContentPath(projectRoot, 'blog'),
       apiId: 'blog-posts',
       pattern: /^(\d{4}-\d{2}-\d{2})-(.+)\.mdx$/
     },
     'foundation-pages': {
-      dir: path.join(projectRoot, 'src/content/foundation-pages'),
+      dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       pattern: /^(.+)\.mdx$/
     },
     'summit-pages': {
-      dir: path.join(projectRoot, 'src/content/summit'),
+      dir: getContentPath(projectRoot, 'summit'),
       apiId: 'summit-pages',
       pattern: /^(.+)\.mdx$/
     }

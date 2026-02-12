@@ -2,6 +2,7 @@ import { defineCollection, z } from 'astro:content'
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
+import { PATHS } from '../cms/src/utils/paths'
 
 const CTA = z.object({
   label: z.string(),
@@ -25,7 +26,10 @@ const pageSchema = z.object({
   })
 
 const engBlogCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/developers/blog' }),
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.developersBlog}`
+  }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -50,7 +54,10 @@ const engBlogCollection = defineCollection({
 })
 
 const foundationBlogCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.blog}`
+  }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -78,14 +85,17 @@ const foundationBlogCollection = defineCollection({
 })
 
 const foundationPagesCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/foundation-pages' }),
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`
+  }),
   schema: pageSchema
 })
 
 const summitPagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/summit'
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summit}`
   }),
   schema: pageSchema
 })

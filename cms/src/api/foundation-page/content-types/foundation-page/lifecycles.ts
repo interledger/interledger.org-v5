@@ -1,8 +1,9 @@
 import { createPageLifecycle } from '../../../../utils/mdxLifecycle'
+import { PATHS } from '../../../../utils/paths'
 
 export default createPageLifecycle({
   contentTypeUid: 'api::foundation-page.foundation-page',
-  outputDir: 'src/content/foundation-pages',
-  localizedOutputDir: 'foundation-pages',
+  outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`,
+  localizedOutputDir: PATHS.CONTENT.foundationPages,
   logPrefix: 'page',
 })

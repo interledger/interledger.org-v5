@@ -13,9 +13,11 @@
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import dotenv from 'dotenv'
+import { getConfigPath, getProjectRoot } from '../cms/src/utils/paths'
 
 // Load .env file
-const envPath = join(process.cwd(), '.env')
+const projectRoot = getProjectRoot()
+const envPath = join(projectRoot, '.env')
 if (existsSync(envPath)) {
   dotenv.config({ path: envPath })
 }
@@ -70,9 +72,9 @@ async function importNavigation(type: 'foundation' | 'summit' | 'all') {
 
   for (const navType of typesToImport) {
     const isSummit = navType === 'summit'
-    const configPath = join(
-      process.cwd(),
-      `src/config/${isSummit ? 'summit-' : 'foundation-'}navigation.json`
+    const configPath = getConfigPath(
+      projectRoot,
+      isSummit ? 'summitNavigation' : 'foundationNavigation'
     )
     const apiPath = isSummit ? 'summit-navigation' : 'foundation-navigation'
     const displayName = isSummit ? 'summit navigation' : 'foundation navigation'

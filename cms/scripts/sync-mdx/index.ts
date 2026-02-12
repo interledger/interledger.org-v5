@@ -11,6 +11,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
+import { assertRunFromCms, getProjectRoot } from '../../src/utils/paths'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapi'
 import { syncAll } from './sync'
@@ -19,14 +20,8 @@ async function main() {
   console.log('🚀 MDX → Strapi Sync')
   console.log('='.repeat(50))
 
-  const cwd = process.cwd()
-  if (path.basename(cwd) !== 'cms') {
-    console.error('❌ Error: run this script from the cms directory')
-    console.error('   Example: cd cms && bun run sync:mdx')
-    process.exit(1)
-  }
-
-  const projectRoot = path.resolve(cwd, '..')
+  assertRunFromCms()
+  const projectRoot = getProjectRoot()
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })
