@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { getProjectRoot } from './paths'
 import { syncToGit } from './gitSync'
+import { uidToLogLabel } from './mdx'
 
 interface MenuItem {
   label: string
@@ -30,7 +31,6 @@ interface Event {
 export interface NavigationLifecycleConfig {
   contentTypeUid: string
   outputPath: string
-  logPrefix: string
 }
 
 function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
@@ -71,10 +71,10 @@ function writeNavigationFile(config: NavigationLifecycleConfig, data: Navigation
 
     const payload = sanitizeNavigation(data)
     fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
-    console.log(`✅ Wrote ${config.logPrefix} JSON: ${outputPath}`)
+    console.log(`✅ Wrote ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`)
     return outputPath
   } catch (error) {
-    console.error(`Failed to write ${config.logPrefix} navigation file: ${outputPath}`, error)
+    console.error(`Failed to write ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`, error)
     throw error
   }
 }
@@ -92,7 +92,7 @@ async function fetchPublishedNavigation(
     })
     return navigation as NavigationData | null
   } catch (error) {
-    console.error(`Failed to fetch ${config.logPrefix} navigation:`, error)
+    console.error(`Failed to fetch ${uidToLogLabel(config.contentTypeUid)} navigation:`, error)
     return null
   }
 }
@@ -103,12 +103,12 @@ async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<
   try {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath)
-      console.log(`🗑️  Deleted ${config.logPrefix} JSON: ${outputPath}`)
+      console.log(`🗑️  Deleted ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`)
       return outputPath
     }
     return null
   } catch (error) {
-    console.error(`Failed to delete ${config.logPrefix} navigation file: ${outputPath}`, error)
+    console.error(`Failed to delete ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`, error)
     throw error
   }
 }
@@ -116,18 +116,18 @@ async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
   return {
     async afterCreate(_event: Event) {
-      console.log(`📝 Creating ${config.logPrefix} JSON`)
+      console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const navigation = await fetchPublishedNavigation(config)
       if (!navigation) {
-        console.log(`⏭️  No published ${config.logPrefix} navigation`)
+        console.log(`⏭️  No published ${uidToLogLabel(config.contentTypeUid)} navigation`)
         return
       }
       const outputPath = writeNavigationFile(config, navigation)
-      await syncToGit(outputPath, `${config.logPrefix}: update navigation`)
+      await syncToGit(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
     },
 
     async afterUpdate(_event: Event) {
-      console.log(`📝 Updating ${config.logPrefix} JSON`)
+      console.log(`📝 Updating ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const navigation = await fetchPublishedNavigation(config)
 
       if (!navigation) {
@@ -135,21 +135,21 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
         if (deletedPath) {
           await syncToGit(
             deletedPath,
-            `${config.logPrefix}: unpublish navigation`
+            `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
           )
         }
         return
       }
 
       const outputPath = writeNavigationFile(config, navigation)
-      await syncToGit(outputPath, `${config.logPrefix}: update navigation`)
+      await syncToGit(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
     },
 
     async afterDelete(_event: Event) {
-      console.log(`🗑️  Deleting ${config.logPrefix} JSON`)
+      console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
-        await syncToGit(deletedPath, `${config.logPrefix}: delete navigation`)
+        await syncToGit(deletedPath, `${uidToLogLabel(config.contentTypeUid)}: delete navigation`)
       }
     }
   }

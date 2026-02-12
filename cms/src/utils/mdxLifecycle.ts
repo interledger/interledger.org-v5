@@ -15,6 +15,7 @@ import {
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
+  uidToLogLabel,
 } from './mdx'
 
 interface PageData {
@@ -50,8 +51,6 @@ export interface PageLifecycleConfig {
   outputDir: string
   /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
   localizedOutputDir: string
-  /** Log prefix, e.g. 'page' or 'summit' */
-  logPrefix: string
   /** Return extra frontmatter fields for content-type-specific data */
   extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
@@ -117,11 +116,11 @@ async function writeMDXFile(
       generateMDX(config, page, preservedFields, englishSlug),
       'utf-8'
     )
-    console.log(`✅ Generated ${config.logPrefix} MDX: ${filepath}`)
+    console.log(`✅ Generated ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`)
 
     return filepath
   } catch (error) {
-    console.error(`Failed to write ${config.logPrefix} MDX file: ${filepath}`, error)
+    console.error(`Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file: ${filepath}`, error)
     throw error
   }
 }
@@ -140,7 +139,7 @@ async function fetchPublished(config: PageLifecycleConfig, documentId: string, l
     })
     return page as PageData | null
   } catch (error) {
-    console.error(`Failed to fetch ${config.logPrefix} ${documentId} (${locale}):`, error)
+    console.error(`Failed to fetch ${uidToLogLabel(config.contentTypeUid)} ${documentId} (${locale}):`, error)
     return null
   }
 }
@@ -160,13 +159,13 @@ async function exportAllLocales(
           ? englishPage
           : await fetchPublished(config, documentId, locale)
       if (!page) {
-        console.log(`⏭️  No published ${locale} ${config.logPrefix} for ${documentId}`)
+        console.log(`⏭️  No published ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}`)
         continue
       }
       const filepath = await writeMDXFile(config, page, englishSlug)
       filepaths.push(filepath)
     } catch (error) {
-      console.error(`⚠️  Failed to export ${locale} ${config.logPrefix} for ${documentId}:`, error)
+      console.error(`⚠️  Failed to export ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}:`, error)
     }
   }
 
@@ -183,11 +182,11 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
-      console.log(`📝 Creating ${config.logPrefix} MDX for all locales: ${result.slug}`)
+      console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`)
       const filepaths = await exportAllLocales(config, result.documentId)
 
       if (filepaths.length > 0) {
-        await syncToGit(filepaths, `${config.logPrefix}: add "${result.title}"`)
+        await syncToGit(filepaths, `${uidToLogLabel(config.contentTypeUid)}: add "${result.title}"`)
       }
     },
 
@@ -196,7 +195,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
-      console.log(`📝 Updating ${config.logPrefix} MDX for all locales: ${result.slug}`)
+      console.log(`📝 Updating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`)
       const filepaths = await exportAllLocales(config, result.documentId)
 
       // Clean up MDX for any locale that is no longer published
@@ -207,17 +206,17 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         if (!filepaths.includes(filepath) && fs.existsSync(filepath)) {
           try {
             fs.unlinkSync(filepath)
-            console.log(`🗑️  Deleted unpublished ${locale} ${config.logPrefix} MDX: ${filepath}`)
+            console.log(`🗑️  Deleted unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`)
             deletedPaths.push(filepath)
           } catch (error) {
-            console.error(`Failed to delete unpublished ${locale} ${config.logPrefix} MDX: ${filepath}`, error)
+            console.error(`Failed to delete unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`, error)
           }
         }
       }
 
       const allPaths = [...filepaths, ...deletedPaths]
       if (allPaths.length > 0) {
-        await syncToGit(allPaths, `${config.logPrefix}: update "${result.title}"`)
+        await syncToGit(allPaths, `${uidToLogLabel(config.contentTypeUid)}: update "${result.title}"`)
       }
     },
 
@@ -226,7 +225,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
-      console.log(`🗑️  Deleting ${config.logPrefix} MDX for all locales: ${result.slug}`)
+      console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`)
 
       const deletedPaths: string[] = []
       for (const locale of LOCALES) {
@@ -236,16 +235,16 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         if (fs.existsSync(filepath)) {
           try {
             fs.unlinkSync(filepath)
-            console.log(`🗑️  Deleted ${locale} ${config.logPrefix} MDX: ${filepath}`)
+            console.log(`🗑️  Deleted ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`)
             deletedPaths.push(filepath)
           } catch (error) {
-            console.error(`Failed to delete ${locale} ${config.logPrefix} MDX: ${filepath}`, error)
+            console.error(`Failed to delete ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`, error)
           }
         }
       }
 
       if (deletedPaths.length > 0) {
-        await syncToGit(deletedPaths, `${config.logPrefix}: delete "${result.title}"`)
+        await syncToGit(deletedPaths, `${uidToLogLabel(config.contentTypeUid)}: delete "${result.title}"`)
       }
     }
   }

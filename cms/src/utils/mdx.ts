@@ -20,6 +20,12 @@ export const LOCALES = ['en', 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
 
+/** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
+export function uidToLogLabel(uid: string): string {
+  const parts = uid.split('.')
+  return parts[parts.length - 1] ?? uid
+}
+
 export function getImageUrl(media: { url?: string } | undefined): string | undefined {
   if (!media?.url) return undefined
 
