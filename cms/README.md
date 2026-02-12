@@ -9,7 +9,7 @@ Content management for the Interledger site. Publishes content to MDX files used
 
 ## Setup
 
-Create a `.env` file in the **project root** (not in cms/):
+Copy `.env.example` to `.env` in the **project root** (not in cms/) and fill in values:
 
 ```env
 # Server
