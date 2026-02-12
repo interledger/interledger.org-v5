@@ -24,14 +24,9 @@ function getEntryField(entry: StrapiEntry | null, key: string): unknown {
 }
 
 const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
-const SUMMIT_PAGE_TYPES = ['summit-pages'] as const
 
 function isPageType(contentType: keyof ContentTypes): boolean {
   return PAGE_TYPES.includes(contentType as typeof PAGE_TYPES[number])
-}
-
-function isSummitPageType(contentType: keyof ContentTypes): boolean {
-  return SUMMIT_PAGE_TYPES.includes(contentType as typeof SUMMIT_PAGE_TYPES[number])
 }
 
 function buildEntryData(
