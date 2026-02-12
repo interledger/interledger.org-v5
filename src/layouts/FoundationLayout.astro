@@ -1,6 +1,6 @@
 ---
-import SummitFooter from '../components/pages/SummitFooter.astro'
-import SummitHeader from '../components/pages/SummitHeader.astro'
+import FoundationFooter from '../components/pages/FoundationFooter.astro'
+import FoundationHeader from '../components/pages/FoundationHeader.astro'
 import SeoHead from '../components/SeoHead.astro'
 import '../styles/tailwind.css'
 import { resolveLang } from '../utils/seo'
@@ -36,13 +36,12 @@ const pageLang = resolveLang(lang, Astro.url.pathname)
     <SeoHead
       title={title}
       description={description}
-      siteName="Interledger Summit"
+      siteName="Interledger Foundation"
       ogType={ogType}
       ogImageUrl={ogImageUrl}
       canonicalURL={canonicalURL}
       lang={pageLang}
       alternates={alternates}
-      jsonLdSiteName="Interledger Summit"
     />
     <slot name="head" />
     <script
@@ -56,10 +55,10 @@ const pageLang = resolveLang(lang, Astro.url.pathname)
     class="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat font-titillium text-step-0 text-white"
     style={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
   >
-    <SummitHeader />
+    <FoundationHeader />
     <div class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]">
       <slot />
     </div>
-    <SummitFooter />
+    <FoundationFooter />
   </body>
 </html>
