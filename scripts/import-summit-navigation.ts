@@ -1,11 +1,3 @@
-/**
- * Import summit navigation from local JSON config to Strapi
- *
- * Usage: npx tsx scripts/import-summit-navigation.ts
- *
- * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
- */
-
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import dotenv from 'dotenv'

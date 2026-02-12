@@ -1,15 +1,3 @@
-/**
- * Import foundation navigation from local JSON config to Strapi
- * Handles both foundation navigation and summit navigation
- *
- * Usage:
- *   npx tsx scripts/import-foundation-navigation.ts [--summit]
- *   or
- *   npx tsx scripts/import-foundation-navigation.ts --all
- *
- * Requires STRAPI_URL and STRAPI_API_TOKEN environment variables
- */
-
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import dotenv from 'dotenv'
