@@ -62,3 +62,11 @@ bun run sync:navigation        # Sync navigation config
 ```
 
 Both require `STRAPI_URL` and `STRAPI_API_TOKEN` in `.env`. The workflow `.github/workflows/sync-mdx-to-strapi.yml` syncs on push to `main` (requires GitHub secrets).
+
+## Testing
+
+Run tests from the `cms` directory:
+
+```bash
+bun test
+```
