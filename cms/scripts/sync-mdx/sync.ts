@@ -107,6 +107,7 @@ async function syncEnglishEntry(
     if (ctx.DRY_RUN) {
       console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.slug} (en)`)
       results.updated++
+      return existing
     } else {
       const result = await ctx.strapi.updateEntry(
         config.apiId,
@@ -427,7 +428,7 @@ async function syncContentType(
         results
       )
 
-      if (!ctx.DRY_RUN && englishEntry && englishEntry.documentId) {
+      if (englishEntry && englishEntry.documentId) {
         const matchingLocales = findMatchingLocales(
           englishMdx,
           localeFiles,
