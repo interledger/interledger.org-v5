@@ -4,6 +4,7 @@ import starlightLinksValidator from 'starlight-links-validator'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
@@ -155,7 +156,8 @@ export default defineConfig({
         }
       }
     }),
-    mdx()
+    mdx(),
+    sitemap()
   ],
   vite: {
     plugins: [tailwindcss()]
