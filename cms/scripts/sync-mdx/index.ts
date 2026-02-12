@@ -3,9 +3,9 @@
 /**
  * MDX to Strapi Sync Script
  *
- * Usage:
- *   bun scripts/sync-mdx/index.ts --dry-run
- *   bun scripts/sync-mdx/index.ts
+ * Usage (run from cms/):
+ *   bun run sync:mdx:dry-run
+ *   bun run sync:mdx
  */
 
 import fs from 'fs'

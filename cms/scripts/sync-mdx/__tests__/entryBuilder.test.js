@@ -1,6 +1,6 @@
 const { describe, it, expect } = require('bun:test')
 
-const { buildEntryData, getEntryField } = require('../sync')
+const { buildEntryData, getEntryField } = require('../entryBuilder')
 
 describe('getEntryField', () => {
   it('returns top-level field for Strapi v5 flat response', () => {

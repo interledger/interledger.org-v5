@@ -1,7 +1,8 @@
 const { describe, it, expect } = require('bun:test');
 
 /**
- * Tests for the localizes field priority logic in pageLifecycle.ts
+ * Tests the localizes field priority logic used in pageLifecycle.ts (Strapi → MDX export).
+ * Lives in sync-mdx because it validates the shared localizes contract that sync-mdx writes.
  *
  * The logic should be:
  *   localizesValue = (isLocalized && englishSlug ? englishSlug : undefined) || localizes
@@ -31,11 +32,10 @@ describe('localizes field priority', () => {
     expect(result).toBe('preserved-slug');
   });
 
-  it('returns undefined for English files', () => {
-    // English files should not have localizes field
+  it('preserves existing localizes for English files when present (defensive fallback)', () => {
+    // Defensive behavior: if an English file still has preserved localizes, keep it.
     const result = computeLocalizesValue('en', 'some-slug', 'preserved-slug');
-    // For English, isLocalized is false, so first part is undefined, falls back to preserved
-    // But in practice, English files shouldn't have localizes preserved
+    // For English, isLocalized is false, so logic falls back to preserved value.
     expect(result).toBe('preserved-slug');
   });
 

@@ -9,7 +9,6 @@ export interface StrapiClient {
   request: (endpoint: string, options?: RequestInit) => Promise<unknown>
   getAllEntries: (apiId: string, locale?: string) => Promise<StrapiEntry[]>
   findBySlug: (apiId: string, slug: string, locale?: string | null) => Promise<StrapiEntry | null>
-  findBySlugInDefaultLocale: (apiId: string, slug: string) => Promise<StrapiEntry | null>
   createLocalization: (apiId: string, documentId: string, locale: string, data: Record<string, unknown>) => Promise<unknown>
   updateLocalization: (apiId: string, documentId: string, locale: string, data: Record<string, unknown>) => Promise<unknown>
   createEntry: (apiId: string, data: Record<string, unknown>, locale?: string | null) => Promise<{ data: StrapiEntry }>
@@ -83,10 +82,6 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     return data.data && data.data.length > 0 ? data.data[0] : null
   }
 
-  async function findBySlugInDefaultLocale(apiId: string, slug: string): Promise<StrapiEntry | null> {
-    return await findBySlug(apiId, slug, 'en')
-  }
-
   async function createLocalization(
     apiId: string,
     documentId: string,
@@ -104,15 +99,9 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
       throw new Error(`Base entry not found with documentId: ${documentId}`)
     }
 
-    console.log(
-      `      📝 Creating localization for documentId=${documentId}, locale=${locale}`
-    )
-
     const { locale: _dataLocale, ...dataWithoutLocale } = data
 
     const endpoint = `${apiId}/${documentId}?locale=${locale}`
-    console.log(`      🔗 PUT ${endpoint}`)
-
     const result = await request(endpoint, {
       method: 'PUT',
       body: JSON.stringify({
@@ -129,8 +118,6 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     const createdEntry = result.data
     const actualLocale = createdEntry.locale
     const actualDocId = createdEntry.documentId
-
-    console.log(`      📋 Result: documentId=${actualDocId}, locale=${actualLocale}`)
 
     if (actualLocale !== locale) {
       console.warn(
@@ -157,22 +144,14 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     const { locale: _dataLocale, ...dataWithoutLocale } = data
 
     if (localization) {
-      console.log(
-        `      📝 Updating existing localization: documentId=${localization.documentId}, locale=${locale}`
-      )
       const result = await updateEntry(
         apiId,
         localization.documentId,
         dataWithoutLocale,
         locale
       )
-      console.log(
-        `      📋 Update result: documentId=${result?.data?.documentId}, locale=${result?.data?.locale}`
-      )
       return result
     }
-
-    console.log(`      📝 No existing localization found, creating new one`)
     return await createLocalization(apiId, documentId, locale, data)
   }
 
@@ -213,7 +192,6 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     request,
     getAllEntries,
     findBySlug,
-    findBySlugInDefaultLocale,
     createLocalization,
     updateLocalization,
     createEntry,

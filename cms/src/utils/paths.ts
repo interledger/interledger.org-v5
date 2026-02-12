@@ -15,9 +15,9 @@ export function getProjectRoot(): string {
   return path.basename(cwd) === 'cms' ? path.resolve(cwd, '..') : cwd
 }
 
-/** CMS directory. Use when cwd is cms (Strapi, cms scripts). */
+/** CMS directory (absolute path). Works regardless of cwd. */
 export function getCmsDir(): string {
-  return getCwd()
+  return path.join(getProjectRoot(), 'cms')
 }
 
 /** Exits if not run from cms directory. */

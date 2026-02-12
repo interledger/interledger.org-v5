@@ -3,7 +3,7 @@ import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapi'
 import type { SyncContext, SyncResults } from './types'
 import { buildEntryData } from './entryBuilder'
-import { findMatchingLocales } from './localeMatch'
+import { getLocaleBase, addProcessedSlug, isProcessed } from './localeMatch'
 
 /** Sync a single English entry (create or update). Returns the entry if successful. */
 export async function syncEnglishEntry(
@@ -59,54 +59,46 @@ export async function syncLocaleEntry(
   results: SyncResults
 ): Promise<void> {
   const localeCode = localeMdx.locale || 'en'
-  const strapiLocale = localeCode
 
-  let existingLocale = await ctx.strapi.findBySlug(
+  const existingLocale = await ctx.strapi.findBySlug(
     config.apiId,
     localeMdx.slug,
-    strapiLocale
+    localeCode
   )
-  if (!existingLocale && strapiLocale !== localeCode) {
-    existingLocale = await ctx.strapi.findBySlug(
-      config.apiId,
-      localeMdx.slug,
-      localeCode
-    )
-  }
 
   const localeData = buildEntryData(contentType, localeMdx, existingLocale)
 
   if (existingLocale) {
     if (ctx.DRY_RUN) {
       console.log(
-        `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${strapiLocale})`
+        `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${localeCode})`
       )
     } else {
       await ctx.strapi.updateLocalization(
         config.apiId,
         englishEntry.documentId,
-        strapiLocale,
+        localeCode,
         localeData!
       )
       console.log(
-        `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
+        `      🌍 Updated localization: ${localeMdx.slug} (${localeCode})`
       )
     }
     results.updated++
   } else {
     if (ctx.DRY_RUN) {
       console.log(
-        `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${strapiLocale})`
+        `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${localeCode})`
       )
     } else {
       await ctx.strapi.createLocalization(
         config.apiId,
         englishEntry.documentId,
-        strapiLocale,
+        localeCode,
         localeData!
       )
       console.log(
-        `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
+        `      🌍 Created localization: ${localeMdx.slug} (${localeCode})`
       )
     }
     results.created++
@@ -122,14 +114,9 @@ export async function syncUnmatchedLocales(
   ctx: SyncContext,
   results: SyncResults
 ): Promise<void> {
-  const unmatchedLocales = localeFiles.filter((localeMdx) => {
-    const localeCode = localeMdx.locale || 'en'
-    const localeForPath = localeCode.split('-')[0]
-    return (
-      !processedSlugs.has(localeForPath) ||
-      !processedSlugs.get(localeForPath)!.has(localeMdx.slug)
-    )
-  })
+  const unmatchedLocales = localeFiles.filter(
+    (localeMdx) => !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug)
+  )
 
   if (unmatchedLocales.length === 0) return
 
@@ -141,7 +128,7 @@ export async function syncUnmatchedLocales(
 
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
-    const localeForPath = localeCode.split('-')[0]
+    const localeForPath = getLocaleBase(localeCode)
     const localeLocalizes =
       localeMdx.localizes || localeMdx.frontmatter.localizes
 
@@ -154,10 +141,12 @@ export async function syncUnmatchedLocales(
         `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via localizes)`
       )
 
-      if (!processedSlugs.has(localeForPath)) {
-        processedSlugs.set(localeForPath, new Set())
-      }
-      processedSlugs.get(localeForPath)!.add(localeMdx.slug)
+      addProcessedSlug(processedSlugs, localeForPath, localeMdx.slug)
+      addProcessedSlug(
+        processedSlugs,
+        getLocaleBase(matchedEnglishEntry.locale || 'en'),
+        matchedEnglishEntry.slug
+      )
 
       try {
         await syncLocaleEntry(
@@ -203,12 +192,10 @@ export async function deleteOrphanedEntries(
 ): Promise<void> {
   for (const entry of strapiEntries) {
     const entryLocale = entry.locale || 'en'
-    const localeForPath = entryLocale.split('-')[0]
+    const localeForPath = getLocaleBase(entryLocale)
 
     if (localeForPath !== 'en') continue
-
-    const processedSlugsForLocale = processedSlugs.get(localeForPath) || new Set()
-    if (processedSlugsForLocale.has(entry.slug)) continue
+    if (isProcessed(processedSlugs, entryLocale, entry.slug)) continue
 
     try {
       if (ctx.DRY_RUN) {

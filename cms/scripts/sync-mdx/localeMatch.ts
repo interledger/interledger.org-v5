@@ -1,5 +1,31 @@
 import type { MDXFile } from './scan'
 
+/** Base locale from locale code (e.g. "es-419" -> "es"). */
+export function getLocaleBase(localeCode: string): string {
+  return localeCode.split('-')[0]
+}
+
+export function addProcessedSlug(
+  processedSlugs: Map<string, Set<string>>,
+  localeCode: string,
+  slug: string
+): void {
+  const localeForPath = getLocaleBase(localeCode)
+  if (!processedSlugs.has(localeForPath)) {
+    processedSlugs.set(localeForPath, new Set())
+  }
+  processedSlugs.get(localeForPath)!.add(slug)
+}
+
+export function isProcessed(
+  processedSlugs: Map<string, Set<string>>,
+  localeCode: string,
+  slug: string
+): boolean {
+  const localeForPath = getLocaleBase(localeCode)
+  return processedSlugs.has(localeForPath) && processedSlugs.get(localeForPath)!.has(slug)
+}
+
 export interface LocaleMatch {
   localeMdx: MDXFile
   matchReason: string
@@ -14,17 +40,9 @@ export function findMatchingLocales(
   processedSlugs: Map<string, Set<string>>
 ): LocaleMatch[] {
   const candidateLocales = localeFiles
-    .filter((localeMdx) => {
-      const localeCode = localeMdx.locale || 'en'
-      const localeForPath = localeCode.split('-')[0]
-      if (
-        processedSlugs.has(localeForPath) &&
-        processedSlugs.get(localeForPath)!.has(localeMdx.slug)
-      ) {
-        return false
-      }
-      return true
-    })
+    .filter(
+      (localeMdx) => !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug)
+    )
     .filter((localeMdx) => {
       const localeLocalizes =
         localeMdx.localizes || localeMdx.frontmatter.localizes
@@ -37,7 +55,7 @@ export function findMatchingLocales(
 
   const localeMatches = new Map<string, LocaleMatch>()
   for (const candidate of candidateLocales) {
-    const localeForPath = (candidate.localeMdx.locale || 'en').split('-')[0]
+    const localeForPath = getLocaleBase(candidate.localeMdx.locale || 'en')
     if (!localeMatches.has(localeForPath)) {
       localeMatches.set(localeForPath, candidate)
     }

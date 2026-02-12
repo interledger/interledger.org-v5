@@ -310,7 +310,7 @@ describe('syncContentType', () => {
       locale: 'en'
     }
 
-    const calls = { createLocalization: 0, updateLocalization: 0 }
+    const calls = { createLocalization: 0, updateLocalization: 0, deleteEntry: 0 }
 
     const strapi = {
       getAllEntries: async () => [entry],
@@ -323,7 +323,9 @@ describe('syncContentType', () => {
       },
       updateEntry: async () => ({ data: entry }),
       createEntry: async () => ({ data: entry }),
-      deleteEntry: async () => {}
+      deleteEntry: async () => {
+        calls.deleteEntry++
+      }
     }
 
     const contentTypes = {
@@ -338,6 +340,7 @@ describe('syncContentType', () => {
 
     expect(calls.createLocalization).toBe(1)
     expect(calls.updateLocalization).toBe(0)
+    expect(calls.deleteEntry).toBe(0)
 
     const localeContent = fs.readFileSync(path.join(esSummitDir, 'sobre.mdx'), 'utf-8')
     expect(localeContent).toContain('localizes: "about"')

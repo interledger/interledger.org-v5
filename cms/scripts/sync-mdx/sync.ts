@@ -1,7 +1,7 @@
 import { scanMDXFiles } from './scan'
 import type { ContentTypes } from './config'
 import type { SyncContext, SyncResults } from './types'
-import { findMatchingLocales } from './localeMatch'
+import { findMatchingLocales, getLocaleBase, addProcessedSlug } from './localeMatch'
 import {
   syncEnglishEntry,
   syncLocaleEntry,
@@ -46,11 +46,11 @@ export async function syncContentType(
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
 
   for (const englishMdx of englishFiles) {
-    const locale = englishMdx.locale || 'en'
-    if (!processedSlugs.has(locale)) {
-      processedSlugs.set(locale, new Set())
-    }
-    processedSlugs.get(locale)!.add(englishMdx.slug)
+    addProcessedSlug(
+      processedSlugs,
+      getLocaleBase(englishMdx.locale || 'en'),
+      englishMdx.slug
+    )
 
     try {
       const englishEntry = await syncEnglishEntry(
@@ -70,12 +70,8 @@ export async function syncContentType(
 
         for (const candidate of matchingLocales) {
           const localeCode = candidate.localeMdx.locale || 'en'
-          const localeForPath = localeCode.split('-')[0]
-
-          if (!processedSlugs.has(localeForPath)) {
-            processedSlugs.set(localeForPath, new Set())
-          }
-          processedSlugs.get(localeForPath)!.add(candidate.localeMdx.slug)
+          const localeForPath = getLocaleBase(localeCode)
+          addProcessedSlug(processedSlugs, localeForPath, candidate.localeMdx.slug)
 
           console.log(
             `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
@@ -100,7 +96,7 @@ export async function syncContentType(
       }
     } catch (error) {
       console.error(
-        `   ❌ Error processing ${englishMdx.slug} (${locale}): ${(error as Error).message}`
+        `   ❌ Error processing ${englishMdx.slug} (${englishMdx.locale || 'en'}): ${(error as Error).message}`
       )
       results.errors++
     }
@@ -154,5 +150,4 @@ export async function syncAll(ctx: SyncContext): Promise<SyncResults> {
   return allResults
 }
 
-export { buildEntryData, getEntryField } from './entryBuilder'
 export type { SyncContext, SyncResults } from './types'
