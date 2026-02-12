@@ -88,6 +88,303 @@ function buildEntryData(
   return null
 }
 
+/** Sync a single English entry (create or update). Returns the entry if successful. */
+async function syncEnglishEntry(
+  contentType: keyof ContentTypes,
+  config: ContentTypes[keyof ContentTypes],
+  englishMdx: MDXFile,
+  ctx: SyncContext,
+  results: SyncResults
+): Promise<StrapiEntry | undefined> {
+  const existing = await ctx.strapi.findBySlug(
+    config.apiId,
+    englishMdx.slug,
+    'en'
+  )
+  const englishData = buildEntryData(contentType, englishMdx, existing)
+
+  if (existing) {
+    if (ctx.DRY_RUN) {
+      console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.slug} (en)`)
+      results.updated++
+    } else {
+      const result = await ctx.strapi.updateEntry(
+        config.apiId,
+        existing.documentId,
+        englishData!
+      )
+      console.log(`   🔄 Updated: ${englishMdx.slug} (en)`)
+      results.updated++
+      return result.data || existing
+    }
+  } else {
+    if (ctx.DRY_RUN) {
+      console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.slug} (en)`)
+      results.created++
+      return { documentId: 'dry-run-id', slug: englishMdx.slug }
+    } else {
+      const result = await ctx.strapi.createEntry(config.apiId, englishData!)
+      console.log(`   ✅ Created: ${englishMdx.slug} (en)`)
+      results.created++
+      return result.data
+    }
+  }
+  return undefined
+}
+
+interface LocaleMatch {
+  localeMdx: MDXFile
+  matchScore: number
+  matchReason: string
+}
+
+/** Find locale files that match an English entry. */
+function findMatchingLocales(
+  englishMdx: MDXFile,
+  localeFiles: MDXFile[],
+  processedSlugs: Map<string, Set<string>>,
+  oldContentId: string | undefined
+): LocaleMatch[] {
+  const englishContentId =
+    englishMdx.frontmatter.contentId ||
+    englishMdx.frontmatter.postId ||
+    englishMdx.slug
+
+  const candidateLocales = localeFiles
+    .filter((localeMdx) => {
+      const localeCode = localeMdx.locale || 'en'
+      const localeForPath = localeCode.split('-')[0]
+      if (
+        processedSlugs.has(localeForPath) &&
+        processedSlugs.get(localeForPath)!.has(localeMdx.slug)
+      ) {
+        return false
+      }
+      return true
+    })
+    .map((localeMdx): LocaleMatch => {
+      let matchScore = 0
+      let matchReason = ''
+
+      const localeContentId =
+        localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
+
+      if (localeContentId) {
+        if (englishContentId && localeContentId === englishContentId) {
+          matchScore = 1000
+          matchReason = `contentId: ${englishContentId}`
+        } else if (oldContentId && localeContentId === oldContentId) {
+          matchScore = 1000
+          matchReason = `contentId (old): ${oldContentId}`
+        } else if (localeContentId === englishMdx.slug) {
+          matchScore = 1000
+          matchReason = `contentId matches slug: ${englishMdx.slug}`
+        }
+      }
+
+      const localeLocalizes =
+        localeMdx.localizes || localeMdx.frontmatter.localizes
+      if (localeLocalizes === englishMdx.slug) {
+        matchScore = Math.max(matchScore, 900)
+        matchReason = matchReason || `localizes: ${englishMdx.slug}`
+      }
+
+      return { localeMdx, matchScore, matchReason }
+    })
+    .filter((candidate) => candidate.matchScore > 0)
+    .sort((a, b) => b.matchScore - a.matchScore)
+
+  const localeMatches = new Map<string, LocaleMatch>()
+  for (const candidate of candidateLocales) {
+    const localeForPath = (candidate.localeMdx.locale || 'en').split('-')[0]
+    if (!localeMatches.has(localeForPath)) {
+      localeMatches.set(localeForPath, candidate)
+    }
+  }
+
+  return Array.from(localeMatches.values())
+}
+
+/** Sync unmatched locale files by matching contentId to Strapi English entries. */
+async function syncUnmatchedLocales(
+  contentType: keyof ContentTypes,
+  config: ContentTypes[keyof ContentTypes],
+  localeFiles: MDXFile[],
+  processedSlugs: Map<string, Set<string>>,
+  ctx: SyncContext,
+  results: SyncResults
+): Promise<void> {
+  const unmatchedLocales = localeFiles.filter((localeMdx) => {
+    const localeCode = localeMdx.locale || 'en'
+    const localeForPath = localeCode.split('-')[0]
+    return (
+      !processedSlugs.has(localeForPath) ||
+      !processedSlugs.get(localeForPath)!.has(localeMdx.slug)
+    )
+  })
+
+  if (unmatchedLocales.length === 0) return
+
+  console.log(
+    `   🔍 Trying to match ${unmatchedLocales.length} unmatched locale file(s) with Strapi entries...`
+  )
+
+  const allStrapiEntries = await ctx.strapi.getAllEntries(config.apiId, 'en')
+
+  for (const localeMdx of unmatchedLocales) {
+    const localeCode = localeMdx.locale || 'en'
+    const localeForPath = localeCode.split('-')[0]
+    const localeContentId =
+      localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
+
+    const matchedEnglishEntry = localeContentId
+      ? allStrapiEntries.find((entry) => entry.slug === localeContentId)
+      : undefined
+
+    if (matchedEnglishEntry) {
+      console.log(
+        `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via contentId)`
+      )
+
+      if (!processedSlugs.has(localeForPath)) {
+        processedSlugs.set(localeForPath, new Set())
+      }
+      processedSlugs.get(localeForPath)!.add(localeMdx.slug)
+
+      try {
+        await syncLocaleEntry(
+          contentType,
+          config,
+          localeMdx,
+          matchedEnglishEntry,
+          ctx,
+          results
+        )
+      } catch (error) {
+        console.error(
+          `      ❌ Error processing localization ${localeMdx.slug} (${localeCode}): ${(error as Error).message}`
+        )
+        results.errors++
+      }
+    } else {
+      console.log(`   ⚠️  Could not match: ${localeMdx.slug} (${localeCode})`)
+      console.log(`      📋 Locale contentId: ${localeContentId || 'N/A'}`)
+      if (localeContentId) {
+        console.log(
+          `      💡 Looking for English post in Strapi with slug: "${localeContentId}"`
+        )
+        console.log(
+          `      💡 If it doesn't exist, create the English post first, then re-run sync`
+        )
+      } else {
+        console.log(
+          `      💡 Add 'contentId: "english-slug"' to frontmatter to link to English post`
+        )
+      }
+    }
+  }
+}
+
+/** Delete Strapi entries that no longer have a matching MDX file. */
+async function deleteOrphanedEntries(
+  config: ContentTypes[keyof ContentTypes],
+  strapiEntries: StrapiEntry[],
+  processedSlugs: Map<string, Set<string>>,
+  ctx: SyncContext,
+  results: SyncResults
+): Promise<void> {
+  for (const entry of strapiEntries) {
+    const entryLocale = entry.locale || 'en'
+    const localeForPath = entryLocale.split('-')[0]
+
+    if (localeForPath !== 'en') continue
+
+    const processedSlugsForLocale = processedSlugs.get(localeForPath) || new Set()
+    if (processedSlugsForLocale.has(entry.slug)) continue
+
+    try {
+      if (ctx.DRY_RUN) {
+        console.log(
+          `   🗑️  [DRY-RUN] Would delete: ${entry.slug} (${entryLocale})`
+        )
+      } else {
+        await ctx.strapi.deleteEntry(config.apiId, entry.documentId)
+        console.log(`   🗑️  Deleted: ${entry.slug} (${entryLocale})`)
+      }
+      results.deleted++
+    } catch (error) {
+      console.error(
+        `   ❌ Error deleting ${entry.slug} (${entryLocale}): ${(error as Error).message}`
+      )
+      results.errors++
+    }
+  }
+}
+
+/** Sync a single locale (create or update localization). */
+async function syncLocaleEntry(
+  contentType: keyof ContentTypes,
+  config: ContentTypes[keyof ContentTypes],
+  localeMdx: MDXFile,
+  englishEntry: StrapiEntry,
+  ctx: SyncContext,
+  results: SyncResults
+): Promise<void> {
+  const localeCode = localeMdx.locale || 'en'
+  const strapiLocale = localeCode
+
+  let existingLocale = await ctx.strapi.findBySlug(
+    config.apiId,
+    localeMdx.slug,
+    strapiLocale
+  )
+  if (!existingLocale && strapiLocale !== localeCode) {
+    existingLocale = await ctx.strapi.findBySlug(
+      config.apiId,
+      localeMdx.slug,
+      localeCode
+    )
+  }
+
+  const localeData = buildEntryData(contentType, localeMdx, existingLocale)
+
+  if (existingLocale) {
+    if (ctx.DRY_RUN) {
+      console.log(
+        `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${strapiLocale})`
+      )
+    } else {
+      await ctx.strapi.updateLocalization(
+        config.apiId,
+        englishEntry.documentId,
+        strapiLocale,
+        localeData!
+      )
+      console.log(
+        `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
+      )
+    }
+    results.updated++
+  } else {
+    if (ctx.DRY_RUN) {
+      console.log(
+        `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${strapiLocale})`
+      )
+    } else {
+      await ctx.strapi.createLocalization(
+        config.apiId,
+        englishEntry.documentId,
+        strapiLocale,
+        localeData!
+      )
+      console.log(
+        `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
+      )
+    }
+    results.created++
+  }
+}
+
 async function syncContentType(
   contentType: keyof ContentTypes,
   ctx: SyncContext
@@ -122,183 +419,47 @@ async function syncContentType(
     const oldContentId = englishMdx.frontmatter.contentId as string | undefined
 
     try {
-      let englishEntry: StrapiEntry | undefined
-      const existing = await ctx.strapi.findBySlug(
-        config.apiId,
-        englishMdx.slug,
-        'en'
+      const englishEntry = await syncEnglishEntry(
+        contentType,
+        config,
+        englishMdx,
+        ctx,
+        results
       )
-      const englishData = buildEntryData(contentType, englishMdx, existing)
-
-      if (existing) {
-        if (ctx.DRY_RUN) {
-          console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.slug} (en)`)
-        } else {
-          const result = await ctx.strapi.updateEntry(
-            config.apiId,
-            existing.documentId,
-            englishData!
-          )
-          englishEntry = result.data || existing
-          console.log(`   🔄 Updated: ${englishMdx.slug} (en)`)
-
-        }
-        results.updated++
-      } else {
-        if (ctx.DRY_RUN) {
-          console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.slug} (en)`)
-          englishEntry = { documentId: 'dry-run-id', slug: englishMdx.slug }
-        } else {
-          const result = await ctx.strapi.createEntry(config.apiId, englishData!)
-          englishEntry = result.data
-          console.log(`   ✅ Created: ${englishMdx.slug} (en)`)
-
-        }
-        results.created++
-      }
 
       if (!ctx.DRY_RUN && englishEntry && englishEntry.documentId) {
-        const englishContentId =
-          englishMdx.frontmatter.contentId ||
-          englishMdx.frontmatter.postId ||
-          englishMdx.slug
-
-        const candidateLocales = localeFiles
-          .filter((localeMdx) => {
-            const localeCode = localeMdx.locale || 'en'
-            const localeForPath = localeCode.split('-')[0]
-            if (
-              processedSlugs.has(localeForPath) &&
-              processedSlugs.get(localeForPath)!.has(localeMdx.slug)
-            ) {
-              return false
-            }
-            return true
-          })
-          .map((localeMdx) => {
-            let matchScore = 0
-            let matchReason = ''
-
-            const localeContentId =
-              localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
-
-            if (localeContentId) {
-              if (englishContentId && localeContentId === englishContentId) {
-                matchScore = 1000
-                matchReason = `contentId: ${englishContentId}`
-              } else if (oldContentId && localeContentId === oldContentId) {
-                matchScore = 1000
-                matchReason = `contentId (old): ${oldContentId}`
-              } else if (localeContentId === englishMdx.slug) {
-                matchScore = 1000
-                matchReason = `contentId matches slug: ${englishMdx.slug}`
-              }
-            }
-
-            const localeLocalizes =
-              localeMdx.localizes || localeMdx.frontmatter.localizes
-            if (localeLocalizes === englishMdx.slug) {
-              matchScore = Math.max(matchScore, 900)
-              matchReason = matchReason || `localizes: ${englishMdx.slug}`
-            }
-
-            return { localeMdx, matchScore, matchReason }
-          })
-          .filter((candidate) => candidate.matchScore > 0)
-          .sort((a, b) => b.matchScore - a.matchScore)
-
-        const localeMatches = new Map<string, { localeMdx: MDXFile; matchScore: number; matchReason: string }>()
-        for (const candidate of candidateLocales) {
-          const localeCode = candidate.localeMdx.locale || 'en'
-          const localeForPath = localeCode.split('-')[0]
-          if (!localeMatches.has(localeForPath)) {
-            localeMatches.set(localeForPath, candidate)
-          }
-        }
-
-        const matchingLocales = Array.from(localeMatches.values()).map(
-          (c) => c.localeMdx
+        const matchingLocales = findMatchingLocales(
+          englishMdx,
+          localeFiles,
+          processedSlugs,
+          oldContentId
         )
 
-        for (const localeMdx of matchingLocales) {
-          const localeCode = localeMdx.locale || 'en'
+        for (const candidate of matchingLocales) {
+          const localeCode = candidate.localeMdx.locale || 'en'
           const localeForPath = localeCode.split('-')[0]
-          const strapiLocale = localeCode
-
-          const candidate = candidateLocales.find(
-            (c) => c.localeMdx === localeMdx
-          )
-          const matchReason = candidate ? candidate.matchReason : 'unknown'
 
           if (!processedSlugs.has(localeForPath)) {
             processedSlugs.set(localeForPath, new Set())
           }
-          processedSlugs.get(localeForPath)!.add(localeMdx.slug)
+          processedSlugs.get(localeForPath)!.add(candidate.localeMdx.slug)
 
           console.log(
-            `      📌 Matched via ${matchReason}: ${localeMdx.slug} (${localeCode} -> ${strapiLocale})`
+            `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
           )
 
           try {
-            let existingLocale = await ctx.strapi.findBySlug(
-              config.apiId,
-              localeMdx.slug,
-              strapiLocale
-            )
-            if (!existingLocale && strapiLocale !== localeCode) {
-              existingLocale = await ctx.strapi.findBySlug(
-                config.apiId,
-                localeMdx.slug,
-                localeCode
-              )
-            }
-
-            const localeData = buildEntryData(
+            await syncLocaleEntry(
               contentType,
-              localeMdx,
-              existingLocale
+              config,
+              candidate.localeMdx,
+              englishEntry,
+              ctx,
+              results
             )
-
-            if (existingLocale) {
-              if (ctx.DRY_RUN) {
-                console.log(
-                  `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${strapiLocale})`
-                )
-              } else {
-                await ctx.strapi.updateLocalization(
-                  config.apiId,
-                  englishEntry.documentId,
-                  strapiLocale,
-                  localeData!
-                )
-                console.log(
-                  `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
-                )
-
-              }
-              results.updated++
-            } else {
-              if (ctx.DRY_RUN) {
-                console.log(
-                  `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${strapiLocale})`
-                )
-              } else {
-                await ctx.strapi.createLocalization(
-                  config.apiId,
-                  englishEntry.documentId,
-                  strapiLocale,
-                  localeData!
-                )
-                console.log(
-                  `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
-                )
-
-              }
-              results.created++
-            }
           } catch (error) {
             console.error(
-              `      ❌ Error processing localization ${localeMdx.slug} (${localeCode}): ${(error as Error).message}`
+              `      ❌ Error processing localization ${candidate.localeMdx.slug} (${localeCode}): ${(error as Error).message}`
             )
             results.errors++
           }
@@ -312,162 +473,22 @@ async function syncContentType(
     }
   }
 
-  // Handle unmatched locale files
-  const unmatchedLocales = localeFiles.filter((localeMdx) => {
-    const localeCode = localeMdx.locale || 'en'
-    const localeForPath = localeCode.split('-')[0]
-    return (
-      !processedSlugs.has(localeForPath) ||
-      !processedSlugs.get(localeForPath)!.has(localeMdx.slug)
-    )
-  })
+  await syncUnmatchedLocales(
+    contentType,
+    config,
+    localeFiles,
+    processedSlugs,
+    ctx,
+    results
+  )
 
-  if (unmatchedLocales.length > 0) {
-    console.log(
-      `   🔍 Trying to match ${unmatchedLocales.length} unmatched locale file(s) with Strapi entries...`
-    )
-
-    const allStrapiEntries = await ctx.strapi.getAllEntries(config.apiId, 'en')
-
-    for (const localeMdx of unmatchedLocales) {
-      const localeCode = localeMdx.locale || 'en'
-      const localeForPath = localeCode.split('-')[0]
-      const strapiLocale = localeCode
-      const localeContentId =
-        localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
-
-      let matchedEnglishEntry: StrapiEntry | undefined
-
-      if (localeContentId) {
-        matchedEnglishEntry = allStrapiEntries.find((entry) => {
-          return entry.slug === localeContentId
-        })
-      }
-
-      if (matchedEnglishEntry) {
-        console.log(
-          `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode} -> ${strapiLocale}) -> ${matchedEnglishEntry.slug} (via contentId)`
-        )
-
-        if (!processedSlugs.has(localeForPath)) {
-          processedSlugs.set(localeForPath, new Set())
-        }
-        processedSlugs.get(localeForPath)!.add(localeMdx.slug)
-
-        try {
-          let existingLocale = await ctx.strapi.findBySlug(
-            config.apiId,
-            localeMdx.slug,
-            strapiLocale
-          )
-          if (!existingLocale && strapiLocale !== localeCode) {
-            existingLocale = await ctx.strapi.findBySlug(
-              config.apiId,
-              localeMdx.slug,
-              localeCode
-            )
-          }
-
-          const localeData = buildEntryData(
-            contentType,
-            localeMdx,
-            existingLocale
-          )
-
-          if (existingLocale) {
-            if (ctx.DRY_RUN) {
-              console.log(
-                `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${strapiLocale})`
-              )
-            } else {
-              await ctx.strapi.updateLocalization(
-                config.apiId,
-                matchedEnglishEntry.documentId,
-                strapiLocale,
-                localeData!
-              )
-              console.log(
-                `      🌍 Updated localization: ${localeMdx.slug} (${strapiLocale})`
-              )
-
-            }
-            results.updated++
-          } else {
-            if (ctx.DRY_RUN) {
-              console.log(
-                `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${strapiLocale})`
-              )
-            } else {
-              await ctx.strapi.createLocalization(
-                config.apiId,
-                matchedEnglishEntry.documentId,
-                strapiLocale,
-                localeData!
-              )
-              console.log(
-                `      🌍 Created localization: ${localeMdx.slug} (${strapiLocale})`
-              )
-
-            }
-            results.created++
-          }
-        } catch (error) {
-          console.error(
-            `      ❌ Error processing localization ${localeMdx.slug} (${localeCode}): ${(error as Error).message}`
-          )
-          results.errors++
-        }
-      } else {
-        console.log(`   ⚠️  Could not match: ${localeMdx.slug} (${localeCode})`)
-        console.log(
-          `      📋 Locale contentId: ${localeContentId || 'N/A'}`
-        )
-        if (localeContentId) {
-          console.log(
-            `      💡 Looking for English post in Strapi with slug: "${localeContentId}"`
-          )
-          console.log(
-            `      💡 If it doesn't exist, create the English post first, then re-run sync`
-          )
-        } else {
-          console.log(
-            `      💡 Add 'contentId: "english-slug"' to frontmatter to link to English post`
-          )
-        }
-      }
-    }
-  }
-
-  // Delete orphaned entries
-  for (const entry of strapiEntries) {
-    const entryLocale = entry.locale || 'en'
-    const localeForPath = entryLocale.split('-')[0]
-
-    if (localeForPath !== 'en') {
-      continue
-    }
-
-    const processedSlugsForLocale = processedSlugs.get(localeForPath) || new Set()
-
-    if (!processedSlugsForLocale.has(entry.slug)) {
-      try {
-        if (ctx.DRY_RUN) {
-          console.log(
-            `   🗑️  [DRY-RUN] Would delete: ${entry.slug} (${entryLocale})`
-          )
-        } else {
-          await ctx.strapi.deleteEntry(config.apiId, entry.documentId)
-          console.log(`   🗑️  Deleted: ${entry.slug} (${entryLocale})`)
-        }
-        results.deleted++
-      } catch (error) {
-        console.error(
-          `   ❌ Error deleting ${entry.slug} (${entryLocale}): ${(error as Error).message}`
-        )
-        results.errors++
-      }
-    }
-  }
+  await deleteOrphanedEntries(
+    config,
+    strapiEntries,
+    processedSlugs,
+    ctx,
+    results
+  )
 
   return results
 }
