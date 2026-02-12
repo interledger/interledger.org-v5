@@ -10,6 +10,7 @@
 
 import fs from 'fs'
 import path from 'path'
+import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
 import { assertRunFromCms, getProjectRoot } from '../../src/utils/paths'
 import { buildContentTypes } from './config'
@@ -21,7 +22,22 @@ async function main() {
   console.log('='.repeat(50))
 
   assertRunFromCms()
+
   const projectRoot = getProjectRoot()
+  const DRY_RUN = process.argv.includes('--dry-run')
+  if (!DRY_RUN) {
+    const branch = spawnSync('git', ['branch', '--show-current'], {
+      encoding: 'utf-8',
+      cwd: projectRoot
+    })
+    const currentBranch = branch.stdout?.trim()
+    if (currentBranch !== 'main') {
+      console.error('❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)')
+      console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
+      process.exit(1)
+    }
+  }
+
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })
@@ -29,7 +45,6 @@ async function main() {
 
   const STRAPI_URL = process.env.STRAPI_URL
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN
-  const DRY_RUN = process.argv.includes('--dry-run')
 
   if (!STRAPI_URL) {
     console.error('❌ Error: STRAPI_URL not set')
