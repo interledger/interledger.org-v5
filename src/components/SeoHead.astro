@@ -1,5 +1,5 @@
 ---
-import { buildDefaultAlternates, resolveLang } from '../utils/seo'
+import { buildDefaultAlternates, resolveLang, toOgLocale } from '../utils/seo'
 
 interface AlternateLink {
   href: string
@@ -12,11 +12,16 @@ interface Props {
   siteName: string
   ogType?: string
   ogImageUrl?: string
+  ogImageAlt?: string
+  ogSiteName?: string
+  ogLocale?: string
   canonicalURL?: string
   lang?: string
   alternates?: AlternateLink[]
   jsonLdSiteName?: string
   includeJsonLd?: boolean
+  twitterSite?: string
+  robots?: string
 }
 
 const {
@@ -25,24 +30,34 @@ const {
   siteName,
   ogType = 'website',
   ogImageUrl,
+  ogImageAlt,
+  ogSiteName,
+  ogLocale,
   canonicalURL: canonicalOverride,
   lang: langOverride,
   alternates,
   jsonLdSiteName,
-  includeJsonLd = true
+  includeJsonLd = true,
+  twitterSite = '@interledger',
+  robots
 } = Astro.props
 
 const site = Astro.site ?? new URL('/', Astro.url)
-const canonicalURL = canonicalOverride ?? new URL(Astro.url.pathname, site).href
+const canonicalURL = canonicalOverride
+  ? new URL(canonicalOverride, site).href
+  : new URL(Astro.url.pathname, site).href
 const pageLang = resolveLang(langOverride, Astro.url.pathname)
 const alternateLinks = alternates ?? buildDefaultAlternates(Astro.url.pathname, site)
 const ogImage = ogImageUrl
   ? new URL(ogImageUrl, site).href
   : new URL('/img/og-image.png', site).href
+const resolvedOgSiteName = ogSiteName ?? siteName
+const resolvedOgLocale = ogLocale ?? toOgLocale(pageLang)
 
 const resolvedTitle = title ? `${title} | ${siteName}` : siteName
 const resolvedDescription =
   description ?? 'Making payments as easy as sending an email'
+const resolvedOgImageAlt = ogImageAlt ?? (title ? title : siteName)
 
 const orgId = `${site.href}#organization`
 const websiteId = `${site.href}#website`
@@ -81,6 +96,9 @@ const jsonLd = includeJsonLd
 <meta property="og:title" content={resolvedTitle} />
 <meta property="og:type" content={ogType} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={resolvedOgImageAlt} />
+<meta property="og:site_name" content={resolvedOgSiteName} />
+<meta property="og:locale" content={resolvedOgLocale} />
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:description" content={resolvedDescription} />
 
@@ -88,6 +106,8 @@ const jsonLd = includeJsonLd
 <meta name="twitter:title" content={resolvedTitle} />
 <meta name="twitter:image" content={ogImage} />
 <meta name="twitter:description" content={resolvedDescription} />
+{twitterSite && <meta name="twitter:site" content={twitterSite} />}
+{robots && <meta name="robots" content={robots} />}
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="canonical" href={canonicalURL} />

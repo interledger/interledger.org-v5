@@ -23,6 +23,13 @@ export function resolveLang(override: string | undefined, pathname: string): str
   return override ?? inferLangFromPath(pathname)
 }
 
+export function toOgLocale(lang: string): string {
+  const normalized = lang.toLowerCase()
+  if (normalized === 'en' || normalized.startsWith('en-')) return 'en_US'
+  if (normalized === 'es' || normalized.startsWith('es-')) return 'es_ES'
+  return 'en_US'
+}
+
 export function buildDefaultAlternates(
   pathname: string,
   site: URL

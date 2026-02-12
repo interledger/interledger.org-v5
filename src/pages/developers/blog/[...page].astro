@@ -25,6 +25,7 @@ const { page } = Astro.props
   title="Engineering Blog"
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
   ogImageUrl={new URL('/img/blog/og-image.png', Astro.site).href}
+  canonicalURL={page.url.current}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">

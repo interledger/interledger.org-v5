@@ -11,9 +11,11 @@ interface Props {
   gradient?: string
   ogType?: string
   ogImageUrl?: string
+  ogImageAlt?: string
   canonicalURL?: string
   lang?: string
   alternates?: { href: string; hreflang: string }[]
+  robots?: string
 }
 
 const {
@@ -22,9 +24,11 @@ const {
   gradient = 'option1',
   ogType,
   ogImageUrl,
+  ogImageAlt,
   canonicalURL,
   lang,
-  alternates
+  alternates,
+  robots
 } = Astro.props
 
 const pageLang = resolveLang(lang, Astro.url.pathname)
@@ -39,9 +43,11 @@ const pageLang = resolveLang(lang, Astro.url.pathname)
       siteName="Interledger Foundation"
       ogType={ogType}
       ogImageUrl={ogImageUrl}
+      ogImageAlt={ogImageAlt}
       canonicalURL={canonicalURL}
       lang={pageLang}
       alternates={alternates}
+      robots={robots}
     />
     <slot name="head" />
     <script

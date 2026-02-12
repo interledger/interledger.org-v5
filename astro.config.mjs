@@ -157,7 +157,12 @@ export default defineConfig({
       }
     }),
     mdx(),
-    sitemap()
+    sitemap({
+      filter: (page) => {
+        const pathname = typeof page === 'string' ? page : page.pathname
+        return !pathname.startsWith('/blog/preview')
+      }
+    })
   ],
   vite: {
     plugins: [tailwindcss()]
