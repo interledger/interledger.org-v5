@@ -17,7 +17,6 @@ const Section = z.object({
 const pageSchema = z.object({
     title: z.string(),
     slug: z.string(),
-    contentId: z.string(),
     description: z.string().optional(),
     heroTitle: z.string().optional(),
     heroDescription: z.string().optional(),

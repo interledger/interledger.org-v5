@@ -86,7 +86,6 @@ function generateMDX(
     ...(config.extraFrontmatter?.(page) ?? {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
-    contentId: page.documentId,
     ...(localizesValue ? { localizes: localizesValue } : {}),
     ...(isLocalized ? { locale } : {}),
   }

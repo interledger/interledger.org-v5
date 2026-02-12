@@ -67,7 +67,6 @@ function generateMDX(
     date: formatDate(post.date),
     slug: post.slug,
     lang: langValue,
-    contentId: post.documentId,
     ...(post.ogImageUrl ? { ogImageUrl: post.ogImageUrl } : {}),
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),

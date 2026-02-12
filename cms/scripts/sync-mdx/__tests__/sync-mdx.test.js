@@ -325,7 +325,7 @@ describe('syncContentType', () => {
     expect(englishContent).not.toContain('contentId');
   });
 
-  it('creates localization for summit pages using contentId slug match', async () => {
+  it('creates localization for summit pages using localizes field', async () => {
     const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
@@ -342,7 +342,7 @@ describe('syncContentType', () => {
         '---',
         'title: "Código de conducta"',
         'locale: "es"',
-        'contentId: "code-of-conduct"',
+        'localizes: "code-of-conduct"',
         '---',
         '',
         'Contenido'
@@ -414,8 +414,7 @@ describe('syncContentType', () => {
       '---',
       'title: "Sobre Nosotros"',
       'locale: "es"',
-      'contentId: "shared-content-id"',
-      'localizes: "old-english-slug"',
+      'localizes: "new-english-slug"',
       '---',
       '',
       'Contenido'
@@ -423,7 +422,7 @@ describe('syncContentType', () => {
 
     writeFile(
       path.join(summitDir, 'new-english-slug.mdx'),
-      ['---', 'title: "About Us"', 'contentId: "shared-content-id"', '---', '', 'Body'].join('\n')
+      ['---', 'title: "About Us"', '---', '', 'Body'].join('\n')
     );
     writeFile(path.join(esSummitDir, 'sobre-nosotros.mdx'), spanishOriginal);
 
@@ -516,7 +515,7 @@ describe('syncContentType', () => {
     expect(calls.deleteEntry).toBe(0);
   });
 
-  it('matches unmatched locale files to Strapi entries via contentId', async () => {
+  it('matches unmatched locale files to Strapi entries via localizes', async () => {
     const tmpDir = makeTmpDir();
     const contentRoot = path.join(tmpDir, 'src', 'content');
     const summitDir = path.join(contentRoot, 'summit');
@@ -530,7 +529,7 @@ describe('syncContentType', () => {
         '---',
         'title: "Sobre"',
         'locale: "es"',
-        'contentId: "about"',
+        'localizes: "about"',
         '---',
         '',
         'Contenido'
@@ -572,9 +571,9 @@ describe('syncContentType', () => {
     expect(calls.createLocalization).toBe(1);
     expect(calls.updateLocalization).toBe(0);
 
-    // Import-only: MDX unchanged (contentId "about" used for matching)
+    // Import-only: MDX unchanged (localizes "about" used for matching)
     const localeContent = fs.readFileSync(path.join(esSummitDir, 'sobre.mdx'), 'utf-8');
-    expect(localeContent).toContain('contentId: "about"');
+    expect(localeContent).toContain('localizes: "about"');
   });
 
   it('deletes orphaned English entries not present in MDX', async () => {

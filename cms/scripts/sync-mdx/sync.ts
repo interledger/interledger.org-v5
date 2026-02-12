@@ -141,18 +141,12 @@ interface LocaleMatch {
   matchReason: string
 }
 
-/** Find locale files that match an English entry. */
+/** Find locale files that match an English entry via localizes field. */
 function findMatchingLocales(
   englishMdx: MDXFile,
   localeFiles: MDXFile[],
-  processedSlugs: Map<string, Set<string>>,
-  oldContentId: string | undefined
+  processedSlugs: Map<string, Set<string>>
 ): LocaleMatch[] {
-  const englishContentId =
-    englishMdx.frontmatter.contentId ||
-    englishMdx.frontmatter.postId ||
-    englishMdx.slug
-
   const candidateLocales = localeFiles
     .filter((localeMdx) => {
       const localeCode = localeMdx.locale || 'en'
@@ -166,33 +160,14 @@ function findMatchingLocales(
       return true
     })
     .map((localeMdx): LocaleMatch => {
-      let matchScore = 0
-      let matchReason = ''
-
-      const localeContentId =
-        localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
-
-      if (localeContentId) {
-        if (englishContentId && localeContentId === englishContentId) {
-          matchScore = 1000
-          matchReason = `contentId: ${englishContentId}`
-        } else if (oldContentId && localeContentId === oldContentId) {
-          matchScore = 1000
-          matchReason = `contentId (old): ${oldContentId}`
-        } else if (localeContentId === englishMdx.slug) {
-          matchScore = 1000
-          matchReason = `contentId matches slug: ${englishMdx.slug}`
-        }
-      }
-
       const localeLocalizes =
         localeMdx.localizes || localeMdx.frontmatter.localizes
-      if (localeLocalizes === englishMdx.slug) {
-        matchScore = Math.max(matchScore, 900)
-        matchReason = matchReason || `localizes: ${englishMdx.slug}`
+      const matches = localeLocalizes === englishMdx.slug
+      return {
+        localeMdx,
+        matchScore: matches ? 1 : 0,
+        matchReason: matches ? `localizes: ${englishMdx.slug}` : ''
       }
-
-      return { localeMdx, matchScore, matchReason }
     })
     .filter((candidate) => candidate.matchScore > 0)
     .sort((a, b) => b.matchScore - a.matchScore)
@@ -208,7 +183,7 @@ function findMatchingLocales(
   return Array.from(localeMatches.values())
 }
 
-/** Sync unmatched locale files by matching contentId to Strapi English entries. */
+/** Sync unmatched locale files by matching localizes to Strapi English entries. */
 async function syncUnmatchedLocales(
   contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
@@ -237,16 +212,16 @@ async function syncUnmatchedLocales(
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
     const localeForPath = localeCode.split('-')[0]
-    const localeContentId =
-      localeMdx.frontmatter.contentId || localeMdx.frontmatter.postId
+    const localeLocalizes =
+      localeMdx.localizes || localeMdx.frontmatter.localizes
 
-    const matchedEnglishEntry = localeContentId
-      ? allStrapiEntries.find((entry) => entry.slug === localeContentId)
+    const matchedEnglishEntry = localeLocalizes
+      ? allStrapiEntries.find((entry) => entry.slug === localeLocalizes)
       : undefined
 
     if (matchedEnglishEntry) {
       console.log(
-        `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via contentId)`
+        `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via localizes)`
       )
 
       if (!processedSlugs.has(localeForPath)) {
@@ -271,17 +246,17 @@ async function syncUnmatchedLocales(
       }
     } else {
       console.log(`   ⚠️  Could not match: ${localeMdx.slug} (${localeCode})`)
-      console.log(`      📋 Locale contentId: ${localeContentId || 'N/A'}`)
-      if (localeContentId) {
+      console.log(`      📋 Locale localizes: ${localeLocalizes || 'N/A'}`)
+      if (localeLocalizes) {
         console.log(
-          `      💡 Looking for English post in Strapi with slug: "${localeContentId}"`
+          `      💡 Looking for English post in Strapi with slug: "${localeLocalizes}"`
         )
         console.log(
           `      💡 If it doesn't exist, create the English post first, then re-run sync`
         )
       } else {
         console.log(
-          `      💡 Add 'contentId: "english-slug"' to frontmatter to link to English post`
+          `      💡 Add 'localizes: "english-slug"' to frontmatter to link to English post`
         )
       }
     }
@@ -419,8 +394,6 @@ async function syncContentType(
     }
     processedSlugs.get(locale)!.add(englishMdx.slug)
 
-    const oldContentId = englishMdx.frontmatter.contentId as string | undefined
-
     try {
       const englishEntry = await syncEnglishEntry(
         contentType,
@@ -434,8 +407,7 @@ async function syncContentType(
         const matchingLocales = findMatchingLocales(
           englishMdx,
           localeFiles,
-          processedSlugs,
-          oldContentId
+          processedSlugs
         )
 
         for (const candidate of matchingLocales) {
