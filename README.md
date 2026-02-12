@@ -27,4 +27,4 @@ Site runs at `localhost:1103`.
 
 - `cms/` – Strapi CMS for content (see [cms/README.md](cms/README.md))
 - `src/content/` – MDX content (blog, docs, pages)
-- `scripts/` – Sync and import scripts
+- `cms/scripts/` – Sync and import scripts
