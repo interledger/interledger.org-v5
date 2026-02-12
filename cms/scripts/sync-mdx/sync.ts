@@ -1,5 +1,7 @@
 import { marked } from 'marked'
 import { scanMDXFiles, type MDXFile } from './scan'
+
+marked.use({ headerIds: false })
 import type { ContentTypes } from './config'
 import type { StrapiClient, StrapiEntry } from './strapi'
 
