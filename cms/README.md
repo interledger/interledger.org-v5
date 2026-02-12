@@ -122,6 +122,24 @@ The token must have read access to the content types you want to preview (includ
 2. Create an SSR page in `src/pages/` (e.g. `my-type-preview.astro`) with `export const prerender = false`
 3. In that page, use `fetchStrapi()` with `status=draft` to fetch the draft content and render it
 
+#### Adding a new block to the page dynamic zone
+
+When you add a new block component to the page content dynamic zone, you **must** also add it to the populate params in `src/pages/page-preview.astro`. In Strapi v5, using `on` (component-specific population) for a dynamic zone acts as a filter — only block types listed in `on` clauses are returned in the API response. Unlisted types are silently excluded.
+
+For blocks with only scalar fields (richtext, string, enum):
+
+```js
+'populate[content][on][blocks.my-block][populate]': '*'
+```
+
+For blocks with nested components or relations:
+
+```js
+'populate[content][on][blocks.my-block][populate][myRelation][populate]': '*'
+```
+
+If you forget this step, the block will not appear in the preview even though it exists in Strapi.
+
 #### Component architecture: presentational vs block components
 
 Every Strapi dynamic zone block type needs a corresponding **block component** in `src/components/blocks/` so that the `DynamicZone` component can render it during preview. Whether you also need a separate **presentational component** depends on the data shape.
@@ -141,6 +159,33 @@ If the Strapi API returns a different shape than what the presentational compone
 For published content, the MDX lifecycle hook in Strapi handles these transformations at publish time, so the presentational component is used directly in the generated MDX. The block adapters are only needed for preview.
 
 **Rule of thumb:** If you need to transform Strapi's API response before rendering (flatten nested objects, convert markdown to HTML, resolve relations), create a block adapter in `src/components/blocks/` that does the transformation and delegates to a presentational component. Otherwise, a single component in `src/components/blocks/` is fine.
+
+#### Styling rendered HTML from `set:html`
+
+Components that render Strapi richtext fields use `set:html` to inject HTML converted from markdown. Since this injected HTML doesn't receive Astro's scoped data attributes, child elements can inherit unwanted styles from page-level prose selectors (e.g. `[&_strong]:text-primary`).
+
+There are two approaches to control styling of `set:html` content:
+
+**Option A — Tailwind arbitrary variants on container elements:**
+
+```html
+<blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
+```
+
+Consistent with the pattern used in `[...page].astro` and `Paragraph.astro`. Keeps everything in the template but can get verbose with many overrides.
+
+**Option B — Astro scoped `<style>` with `:global()`:**
+
+```css
+<style>
+  blockquote :global(strong) { color: inherit; }
+  blockquote :global(p) { margin-bottom: 0; }
+</style>
+```
+
+The parent selector (`blockquote`) retains Astro's scoped attribute, so styles only apply within that component — they won't leak to other parts of the page. `:global()` removes scoping from the child selector so it can reach the injected HTML. Cleaner when there are multiple overrides.
+
+See `Blockquote.astro` for an example using Option B.
 
 ## Development Workflow
 

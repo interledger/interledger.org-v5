@@ -14,6 +14,7 @@ import Carousel from './Carousel.astro'
 import CtaBanner from './CtaBanner.astro'
 import AmbassadorBlock from './AmbassadorBlock.astro'
 import AmbassadorsGridBlock from './AmbassadorsGridBlock.astro'
+import BlockquoteBlock from './BlockquoteBlock.astro'
 
 interface Block {
   __component: string
@@ -34,7 +35,8 @@ const componentMap: Record<string, any> = {
   'blocks.carousel': Carousel,
   'blocks.cta-banner': CtaBanner,
   'blocks.ambassador': AmbassadorBlock,
-  'blocks.ambassadors-grid': AmbassadorsGridBlock
+  'blocks.ambassadors-grid': AmbassadorsGridBlock,
+  'blocks.blockquote': BlockquoteBlock
 }
 
 const resolvedBlocks = blocks

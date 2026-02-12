@@ -16,17 +16,22 @@ if (!documentId) {
 }
 
 // Build populate query for dynamic zone with nested relations
+// Note: In Strapi v5, using `on` for any component in a dynamic zone
+// requires listing ALL component types — unlisted types are excluded.
 const populateParams = new URLSearchParams({
   status: 'draft',
   'populate[hero][populate]': '*',
   'populate[seo][populate]': '*',
-  'populate[content][populate]': '*',
-  'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]':
-    '*',
+  'populate[content][on][blocks.paragraph][populate]': '*',
+  'populate[content][on][blocks.blockquote][populate]': '*',
+  'populate[content][on][blocks.cta-banner][populate]': '*',
+  'populate[content][on][blocks.cards-grid][populate][cards]': '*',
+  'populate[content][on][blocks.card-links-grid][populate][cards]': '*',
+  'populate[content][on][blocks.carousel][populate][items][populate]': '*',
   'populate[content][on][blocks.ambassador][populate][ambassador][populate]':
     '*',
-  'populate[content][on][blocks.cards-grid][populate][cards]': '*',
-  'populate[content][on][blocks.carousel][populate][items][populate]': '*'
+  'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]':
+    '*'
 })
 
 const response = await fetchStrapi(

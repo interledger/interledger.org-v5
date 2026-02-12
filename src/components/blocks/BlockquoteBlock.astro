@@ -1,0 +1,20 @@
+---
+/**
+ * Blockquote Block for Dynamic Zones (SSR Preview)
+ * Passes quote as plain text, converts source markdown to HTML
+ */
+
+import Blockquote from '../blockquote/Blockquote.astro'
+import { marked } from 'marked'
+
+interface Props {
+  quote: string
+  source?: string
+}
+
+const { quote, source } = Astro.props
+
+const htmlSource = source ? await marked.parseInline(source) : undefined
+---
+
+<Blockquote quote={quote} source={htmlSource} />

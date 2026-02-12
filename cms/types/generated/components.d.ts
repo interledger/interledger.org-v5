@@ -32,6 +32,19 @@ export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksBlockquote extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_blockquotes'
+  info: {
+    description: 'A styled blockquote with optional attribution'
+    displayName: 'Blockquote'
+    icon: 'quote'
+  }
+  attributes: {
+    quote: Schema.Attribute.Text & Schema.Attribute.Required
+    source: Schema.Attribute.RichText
+  }
+}
+
 export interface BlocksCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cards'
   info: {
@@ -289,6 +302,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.ambassador': BlocksAmbassador
       'blocks.ambassadors-grid': BlocksAmbassadorsGrid
+      'blocks.blockquote': BlocksBlockquote
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid

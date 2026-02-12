@@ -139,6 +139,13 @@ interface AmbassadorsGridBlock {
   ambassadors?: AmbassadorRef[]
 }
 
+interface BlockquoteBlock {
+  __component: 'blocks.blockquote'
+  id: number
+  quote: string
+  source?: string
+}
+
 type ContentBlock =
   | CardsGrid
   | CardLinksGrid
@@ -148,6 +155,7 @@ type ContentBlock =
   | ImageRow
   | AmbassadorBlock
   | AmbassadorsGridBlock
+  | BlockquoteBlock
 
 interface Page {
   id: number
@@ -426,6 +434,22 @@ function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
 }
 
 /**
+ * Serializes a blockquote block to MDX
+ */
+function serializeBlockquote(block: BlockquoteBlock): string {
+  const attrs = [
+    `quote="${escapeQuotes(block.quote)}"`,
+    block.source
+      ? `source="${escapeQuotes(htmlToMarkdown(block.source))}"`
+      : null
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return `<Blockquote ${attrs} />`
+}
+
+/**
  * Serializes the content dynamic zone to MDX
  */
 function serializeContent(content: ContentBlock[] | undefined): string {
@@ -458,6 +482,9 @@ function serializeContent(content: ContentBlock[] | undefined): string {
         break
       case 'blocks.ambassadors-grid':
         blocks.push(serializeAmbassadorsGrid(block as AmbassadorsGridBlock))
+        break
+      case 'blocks.blockquote':
+        blocks.push(serializeBlockquote(block as BlockquoteBlock))
         break
       default:
         console.warn(
@@ -548,6 +575,15 @@ function generateMDX(page: Page): string {
   if (hasAmbassadorGrid) {
     imports.push(
       'import AmbassadorGrid from "../../components/ambassadors/AmbassadorGrid.astro"'
+    )
+  }
+
+  const hasBlockquote = page.content?.some(
+    (block) => block.__component === 'blocks.blockquote'
+  )
+  if (hasBlockquote) {
+    imports.push(
+      'import Blockquote from "../../components/blockquote/Blockquote.astro"'
     )
   }
 
