@@ -1,0 +1,77 @@
+import { marked } from 'marked'
+import { type MDXFile } from './scan'
+import type { ContentTypes } from './config'
+import type { StrapiEntry } from './strapi'
+
+marked.use({ headerIds: false })
+
+const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
+
+export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
+  if (!entry) return null
+  return (
+    entry[key] ??
+    (entry as Record<string, unknown>).attributes?.[key as keyof typeof entry] ??
+    null
+  )
+}
+
+export function isPageType(contentType: keyof ContentTypes): boolean {
+  return PAGE_TYPES.includes(contentType as (typeof PAGE_TYPES)[number])
+}
+
+export function buildEntryData(
+  contentType: keyof ContentTypes,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null
+): Record<string, unknown> | null {
+  if (contentType === 'blog') {
+    return {
+      title: mdx.frontmatter.title,
+      description: mdx.frontmatter.description,
+      slug: mdx.slug,
+      date: mdx.frontmatter.date,
+      content: marked.parse(mdx.content),
+      publishedAt: new Date().toISOString()
+    }
+  }
+
+  if (isPageType(contentType)) {
+    const data: Record<string, unknown> = {
+      title: mdx.frontmatter.title,
+      slug: mdx.slug,
+      publishedAt: new Date().toISOString()
+    }
+
+    if (mdx.frontmatter.heroTitle || mdx.frontmatter.heroDescription) {
+      data.hero = {
+        title: mdx.frontmatter.heroTitle || mdx.frontmatter.title,
+        description: mdx.frontmatter.heroDescription || ''
+      }
+    } else {
+      const existingHero = getEntryField(existingEntry, 'hero')
+      if (existingHero) {
+        data.hero = existingHero
+      }
+    }
+
+    const mdxBody = (mdx.content || '').trim()
+    if (mdxBody.length > 0) {
+      data.content = [
+        {
+          __component: 'blocks.paragraph',
+          content: marked.parse(mdx.content)
+        }
+      ]
+    } else {
+      const existingContent = getEntryField(existingEntry, 'content')
+      if (existingContent) {
+        data.content = existingContent
+      }
+    }
+
+    return data
+  }
+
+  return null
+}
