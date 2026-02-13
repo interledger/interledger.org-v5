@@ -6,6 +6,11 @@ on:
       branches:
         - main
 
+concurrency:
+  # Ensure only one instance of this workflow runs at a time to avoid multiple rebuilds
+  group: main-merge
+  cancel-in-progress: false
+
 jobs:
   rebuild-strapi:
     # Runs on self hosted runner called strapi-vm
@@ -31,12 +36,12 @@ jobs:
 
             cd /home/strapi/interledger.org-v5/cms
             # Stops the service while we are busy
-            systemctl stop strapi.service
+            sudo systemctl stop strapi.service
             # Perform installs in case there are new dependencies from the merged PRs
             bun install
             # Rebuild with more memory to avoid OOM errors during build
             NODE_OPTIONS="--max-old-space-size=4096" bun run build
-            systemctl start strapi.service
+            sudo systemctl start strapi.service
             sleep 5
-            systemctl status strapi.service
+            sudo systemctl status strapi.service
 
