@@ -24,7 +24,7 @@ flowchart
         appclone[("Repo Clone A<br/>(running Strapi app)")]
         stagingclone[("Repo Clone B<br/>(staging sync target)")]
         strapi[Strapi Admin portal]
-        appclone -->|"hosts cms/"| strapi
+        appclone -->|"hosts './cms' folder"| strapi
         strapi -->|"writes MDX"| stagingclone
     end
 
@@ -39,6 +39,8 @@ flowchart
         preview["Preview Site"]
         production["Production Site"]
     end
+
+    github -.->|"Manual strapi workflow"| strapi
 
     editor["👤 Content Editor"]
     dev["👨‍💻 Developer"]
@@ -55,8 +57,7 @@ flowchart
 
     main ==>|"Auto-build"| production
 
-    staging -.->|"Pull updates"| stagingclone
-    stagingclone -.-|"Sync after<br/>PR merge"| strapi
+    staging -.->|"Pull updates"| appclone
 
     classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
     classDef portalStyle fill:#018501,stroke:#1967d2,color:#fff    
