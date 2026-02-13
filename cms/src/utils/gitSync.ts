@@ -1,9 +1,68 @@
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
+}
+
+function expandHomeDir(filepath: string): string {
+  if (!filepath.startsWith('~/')) return filepath
+  return path.join(os.homedir(), filepath.slice(2))
+}
+
+export function getTargetRepoRoot(): string {
+  const configuredPath =
+    process.env.STRAPI_GIT_SYNC_REPO_PATH || '~/interledger.org-v5-staging'
+  return path.resolve(expandHomeDir(configuredPath))
+}
+
+export function resolveTargetRepoPath(relativePath: string): string {
+  const normalizedRelativePath = relativePath.replace(/^\/+/, '')
+  return path.join(getTargetRepoRoot(), normalizedRelativePath)
+}
+
+function execInRepo(command: string, cwd: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    exec(command, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(stderr?.trim() || error.message))
+        return
+      }
+      resolve(stdout.trim())
+    })
+  })
+}
+
+export async function validateGitSyncRepoOnStartup(): Promise<void> {
+  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
+    console.log('⏭️  Git sync validation skipped via STRAPI_DISABLE_GIT_SYNC')
+    return
+  }
+
+  const targetRepoRoot = getTargetRepoRoot()
+  const gitDir = path.join(targetRepoRoot, '.git')
+
+  if (!fs.existsSync(targetRepoRoot)) {
+    throw new Error(
+      `Git sync repository path does not exist: ${targetRepoRoot}. ` +
+        'Set STRAPI_GIT_SYNC_REPO_PATH or create the staging clone.'
+    )
+  }
+
+  if (!fs.existsSync(gitDir)) {
+    throw new Error(`Git sync repository is not a git checkout: ${targetRepoRoot}`)
+  }
+
+  const branch = await execInRepo('git rev-parse --abbrev-ref HEAD', targetRepoRoot)
+  if (branch !== 'staging') {
+    throw new Error(
+      `Git sync repository must be on "staging" branch, found "${branch}" at ${targetRepoRoot}`
+    )
+  }
+
+  console.log(`✅ Git sync repository validated: ${targetRepoRoot} (branch: ${branch})`)
 }
 
 /**
@@ -19,9 +78,13 @@ export async function gitCommitAndPush(
     return
   }
 
-  const projectRoot = path.resolve(process.cwd(), '..') // repo root above /cms
+  const projectRoot = getTargetRepoRoot()
   const safeMessage = escapeForShell(message)
-  const safeFilepath = escapeForShell(filepath)
+
+  const relativeFilepath = path.isAbsolute(filepath)
+    ? path.relative(projectRoot, filepath)
+    : filepath
+  const safeFilepath = escapeForShell(relativeFilepath)
 
   // Always include public/uploads if it exists so media changes are committed
   const uploadsDir = path.join(projectRoot, 'public', 'uploads')

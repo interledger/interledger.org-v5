@@ -8,7 +8,10 @@
 
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush } from '../../../../utils/gitSync'
+import {
+  gitCommitAndPush,
+  resolveTargetRepoPath
+} from '../../../../utils/gitSync'
 
 interface MediaFile {
   id: number
@@ -441,18 +444,13 @@ function generateMDX(page: Page): string {
  * - Other locales: src/content/{locale}/foundation-pages/
  */
 function getOutputDir(locale: string): string {
-  // Resolve from dist/src/api/page/content-types/page/ up to cms root then project root
-  // __dirname is cms/dist/src/api/page/content-types/page/
-  // Go up 6 levels to get to cms/, then up one more to project root
-  const projectRoot = path.resolve(__dirname, '../../../../../../..')
-
   if (locale === 'en') {
     const outputPath = process.env.PAGES_MDX_OUTPUT_PATH || 'src/content/foundation-pages'
-    return path.join(projectRoot, outputPath)
+    return resolveTargetRepoPath(outputPath)
   }
 
   // For other locales, use src/content/{locale}/foundation-pages/
-  return path.join(projectRoot, 'src/content', locale, 'foundation-pages')
+  return resolveTargetRepoPath(path.join('src/content', locale, 'foundation-pages'))
 }
 
 function generateFilename(page: Page): string {

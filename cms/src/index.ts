@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { validateGitSyncRepoOnStartup } from './utils/gitSync'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -190,6 +191,9 @@ export default {
         // Ignore permission errors if we can't change them
       }
     }
+
+    // Ensure git sync points at a valid staging clone before handling content events
+    await validateGitSyncRepoOnStartup()
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
