@@ -1,11 +1,11 @@
 {
   "kind": "singleType",
-  "collectionName": "navigations",
+  "collectionName": "foundation_navigations",
   "info": {
-    "singularName": "navigation",
-    "pluralName": "navigations",
-    "displayName": "Navigation",
-    "description": "Main site navigation menu"
+    "singularName": "foundation-navigation",
+    "pluralName": "foundation-navigations",
+    "displayName": "Foundation Navigation",
+    "description": "Foundation site navigation menu"
   },
   "options": {
     "draftAndPublish": true
