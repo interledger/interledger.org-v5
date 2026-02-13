@@ -54,14 +54,19 @@ Create a token in Strapi Admin → **Settings** → **API Tokens**: name it e.g.
 
 ### Commands
 
+**MDX Sync** (syncs MDX files from filesystem to Strapi):
 ```bash
 bun run sync:mdx:dry-run       # Preview MDX sync
 bun run sync:mdx               # Sync MDX content to Strapi
-bun run sync:navigation:dry-run # Preview navigation sync
-bun run sync:navigation        # Sync navigation config
 ```
 
-Both require `STRAPI_URL` and `STRAPI_API_TOKEN` in `.env`. The workflow `.github/workflows/sync-mdx-to-strapi.yml` can be triggered manually (workflow_dispatch) from the Actions tab (requires GitHub secrets).
+**Navigation Sync** (syncs navigation config from JSON files to Strapi):
+```bash
+bun run sync:navigation:dry-run # Preview navigation sync
+bun run sync:navigation        # Sync navigation config to Strapi
+```
+
+All sync/import commands require `STRAPI_URL` and `STRAPI_API_TOKEN` in `.env`. The workflow `.github/workflows/sync-mdx-to-strapi.yml` can be triggered manually (workflow_dispatch) from the Actions tab (requires GitHub secrets).
 
 ## Testing
 

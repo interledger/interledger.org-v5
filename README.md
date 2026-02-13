@@ -73,8 +73,8 @@ flowchart
 
 ```text
 ├── cms/              # Strapi CMS for content management
+│   └── scripts/      # CMS sync and import scripts
 ├── public/           # Static assets (images, favicons)
-├── scripts/          # Sync and import scripts
 ├── src/
 │   ├── components/   # Astro/React components
 │   ├── config/       # Site configuration
@@ -195,3 +195,44 @@ Test coverage includes:
 - File scanning and validation
 - Entry creation and updates
 - Locale attachment to English entries
+
+## Navigation Sync Script
+
+The navigation sync script synchronizes navigation configuration from JSON files into Strapi CMS. It syncs both foundation and summit navigation configs. This is useful for:
+- Initializing navigation structure in Strapi
+- Restoring navigation from version-controlled JSON files
+- Bulk updates to navigation menus
+
+### Usage
+
+```bash
+cd cms
+
+# Preview changes without applying them
+bun run sync:navigation:dry-run
+
+# Apply changes
+bun run sync:navigation
+```
+
+### How It Works
+
+1. **Reads JSON config files** from:
+   - `src/config/foundation-navigation.json` → `foundation-navigation` single type
+   - `src/config/summit-navigation.json` → `summit-navigation` single type
+
+2. **Transforms to Strapi format**:
+   - Converts menu groups and items to Strapi component structure
+   - Handles optional fields (href, openInNewTab, etc.)
+
+3. **Updates Strapi**:
+   - Uses PUT request to create or update single type entries
+   - Requires authentication via `STRAPI_API_TOKEN`
+
+### Requirements
+
+- Strapi must be running and accessible
+- Environment variables in `.env`:
+  - `STRAPI_URL` (e.g., `http://localhost:1337`)
+  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
+- JSON config files must exist in `src/config/`
