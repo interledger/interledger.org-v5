@@ -5,76 +5,88 @@ The official [Interledger.org](https://interledger.org/) website built with [Ast
 ## Quick Start
 
 ```bash
-bun install # Install dependencies
-bun run start # Start dev server 
+# Install dependencies
+bun install
+
+# Start dev server (localhost:1103)
+bun run start
+
+# Build for production
+bun run build
 ```
 
 ## Architecture Overview
+
 ```mermaid
 flowchart
     subgraph gcp["☁️ GCP VM"]
         direction TB
-        strapi[(Strapi CMS)]
-        gitclone[("Git Clone<br/>(staging)")]
-        strapi -->|"writes MDX"| gitclone
+        appclone[("Repo Clone A<br/>(running Strapi app)")]
+        stagingclone[("Repo Clone B<br/>(staging sync target)")]
+        strapi[Strapi Admin portal]
+        appclone -->|"hosts './cms' folder"| strapi
+        strapi -->|"writes MDX"| stagingclone
     end
-    
+
     subgraph github["📦 GitHub Repository"]
         direction TB
         staging["staging branch"]
         main["main branch"]
     end
-    
+
     subgraph netlify["🚀 Netlify"]
         direction TB
         preview["Preview Site"]
         production["Production Site"]
     end
-    
+
+    github -.->|"Manual strapi workflow"| strapi
+
     editor["👤 Content Editor"]
     dev["👨‍💻 Developer"]
     feature["Feature Branch"]
-    
+
     editor ==>|"Publish"| strapi
     dev ==>|"Code PR"| feature
-    
-    gitclone ==>|"Push via<br/>lifecycle hooks"| staging
+
+    stagingclone ==>|"Push via<br/>lifecycle hooks"| staging
     feature ==>|"PR"| staging
-    
+
     staging ==>|"Auto-build"| preview
     staging -->|"PR (approved)"| main
-    
+
     main ==>|"Auto-build"| production
-    
-    gitclone -.-|"Sync after<br/>PR merge"| strapi
-    
+
+    staging -.->|"Pull updates"| appclone
+
     classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
+    classDef portalStyle fill:#018501,stroke:#1967d2,color:#fff
     classDef githubStyle fill:#24292e,stroke:#000,color:#fff
     classDef netlifyStyle fill:#00c7b7,stroke:#008577,color:#fff
     classDef userStyle fill:#ff6b6b,stroke:#d63031,color:#fff
     classDef branchStyle fill:#6c5ce7,stroke:#5f3dc4,color:#fff
-    
-    class strapi,gitclone gcpStyle
+
+    class strapi portalStyle
+    class appclone,stagingclone gcpStyle
     class staging,main,feature githubStyle
     class preview,production netlifyStyle
     class editor,dev userStyle
 ```
 
 **Workflow:**
-1. **Content editors** publish in Strapi → MDX generated → committed to `staging`
+
+1. **Content editors** publish in Strapi (running from VM Clone A) → MDX generated in VM Clone B → committed to `staging`
 2. **Developers** create feature branches → PR to `staging`
 3. **Staging** auto-deploys to Netlify preview for review
 4. **Approved changes** merged to `main` via PR
 5. **Production** auto-deploys from `main`
 
-**Recovery:** The `sync-mdx.cjs` script can restore Strapi database from MDX files in git.
-
 ## Project Structure
 
 ```text
 ├── cms/              # Strapi CMS for content management
-│   └── scripts/      # CMS sync and import scripts
 ├── public/           # Static assets (images, favicons)
+├── scripts/          # Sync and import scripts
 ├── src/
 │   ├── components/   # Astro/React components
 │   ├── config/       # Site configuration
@@ -92,6 +104,7 @@ flowchart
 | :---------------- | :----------------------------------- |
 | `bun run start`   | Start dev server at `localhost:1103` |
 | `bun run build`   | Build production site to `./dist/`   |
+| `bun run preview` | Preview production build locally     |
 | `bun run format`  | Format code with Prettier/ESLint     |
 | `bun run lint`    | Check code formatting and linting    |
 
@@ -99,140 +112,28 @@ flowchart
 
 ```bash
 cd cms
-bun install
-bun run develop
+npm install
+npm run develop
 ```
 
 Admin panel: <http://localhost:1337/admin>
 
 When content is published in Strapi, lifecycle hooks generate MDX and (for pages and blog posts) commit and push those files to GitHub to trigger preview builds. Grant tracks only write MDX locally and do not commit. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git commit/push behavior.
 
+Git sync now targets a dedicated local clone for staging publishing instead of resolving the repo via a relative path. Configure this with:
+
+- `STRAPI_GIT_SYNC_REPO_PATH`: Absolute path (or `~/...`) to the git working copy used by lifecycle hooks. Default: `~/interledger.org-v5-staging`.
+
+Page MDX output defaults to `src/content/foundation-pages` inside that repo clone. You can override with `MDX_OUTPUT_PATH` (preferred) or `PAGES_MDX_OUTPUT_PATH` (legacy fallback).
+
+Why this was added:
+
+- Avoids ambiguity from relative-path resolution when Strapi starts from different working directories.
+- Keeps CMS content commits isolated to a dedicated staging checkout.
+- Enables startup validation that the target folder exists and is on the `staging` branch before any sync runs.
+
 Default MDX output locations:
+
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
 - Blog posts: `src/content/blog/`
-
-## MDX to Strapi Sync Script
-
-The `sync-mdx` script synchronizes MDX files from the filesystem into Strapi CMS. This is useful for:
-- Restoring Strapi content from MDX files in git
-- Importing new MDX files created outside Strapi
-- Syncing locale translations that reference English entries via `localizes` field
-
-### Usage
-
-```bash
-cd cms
-
-# Preview changes without applying them
-bun run sync:mdx:dry-run
-
-# Apply changes (only works on main branch)
-bun run sync:mdx
-```
-
-### How It Works
-
-The sync script performs a bidirectional sync:
-
-1. **Scans MDX files** from:
-   - `src/content/blog/` → `blog-posts` content type
-   - `src/content/foundation-pages/` → `foundation-pages` content type
-   - `src/content/summit/` → `summit-pages` content type
-   - Locale directories: `src/content/{locale}/*/` for translations
-
-2. **Validates frontmatter** using Zod schemas (skips invalid files)
-
-3. **Syncs English entries**:
-   - Creates new entries if MDX doesn't exist in Strapi
-   - Updates existing entries if MDX has changed
-   - Matches locale files via `localizes` field in frontmatter
-
-4. **Syncs locale translations**:
-   - Matches locale files to English entries using `localizes: "english-slug"` field
-   - Creates/updates localizations in Strapi
-   - Handles unmatched locales by searching Strapi for matching English entries
-
-5. **Cleans up orphaned entries**:
-   - Deletes Strapi entries that no longer have corresponding MDX files
-
-### Locale Matching
-
-Locale files are matched to English entries using the `localizes` field:
-
-```yaml
----
-slug: "sobre-nosotros"
-title: "About Us"
-locale: "es"
-localizes: "about-us"  # Links to English entry with slug "about-us"
----
-```
-
-The script will:
-- Find the English entry with `slug: "about-us"`
-- Create/update a Spanish localization linked to that entry
-- Preserve the `localizes` field in the generated MDX
-
-### Requirements
-
-- Strapi must be running and accessible
-- Environment variables in `.env`:
-  - `STRAPI_URL` (e.g., `http://localhost:1337`)
-  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
-- For non-dry-run: must be on `main` branch (use `--dry-run` to preview on other branches)
-
-### Tests
-
-Tests are located in `cms/scripts/sync-mdx/__tests/`:
-
-```bash
-cd cms
-bun test
-```
-
-Test coverage includes:
-- Locale matching via `localizes` field
-- File scanning and validation
-- Entry creation and updates
-- Locale attachment to English entries
-
-## Navigation Sync Script
-
-The navigation sync script synchronizes navigation configuration from JSON files into Strapi CMS. It syncs both foundation and summit navigation configs. This is useful for:
-- Initializing navigation structure in Strapi
-- Restoring navigation from version-controlled JSON files
-- Bulk updates to navigation menus
-
-### Usage
-
-```bash
-cd cms
-
-# Preview changes without applying them
-bun run sync:navigation:dry-run
-
-# Apply changes
-bun run sync:navigation
-```
-
-### How It Works
-
-1. **Reads JSON config files** from:
-   - `src/config/foundation-navigation.json` → `foundation-navigation` single type
-   - `src/config/summit-navigation.json` → `summit-navigation` single type
-
-2. **Transforms to Strapi format**:
-   - Converts menu groups and items to Strapi component structure
-   - Handles optional fields (href, openInNewTab, etc.)
-
-3. **Updates Strapi**:
-   - Uses PUT request to create or update single type entries
-   - Requires authentication via `STRAPI_API_TOKEN`
-
-### Requirements
-
-- Strapi must be running and accessible
-- Environment variables in `.env`:
-  - `STRAPI_URL` (e.g., `http://localhost:1337`)
-  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
-- JSON config files must exist in `src/config/`
+- Grant tracks: `src/content/grants/`

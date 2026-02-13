@@ -1,38 +1,85 @@
 /**
- * Lifecycle callbacks for foundation blog-post.
- * Generates MDX files then commits and pushes to trigger Netlify preview builds.
+ * Lifecycle callbacks for foundation blog-post
+ * Generates MDX files that match the blog post format used on the site
+ * Then commits and pushes to trigger Netlify preview builds
  */
 
 import fs from 'fs'
 import path from 'path'
-import matter from 'gray-matter'
-import { getProjectRoot, getContentPath } from '../../../../../src/utils/paths'
-import { syncToGit } from '../../../../utils/gitSync'
-import { shouldSkipMdxExport } from '../../../../utils/pageLifecycle'
 import {
-  getImageUrl,
-  htmlToMarkdown,
-  LOCALES,
-  getPreservedFields
-} from '../../../../utils/mdx'
+  gitCommitAndPush,
+  resolveTargetRepoPath
+} from '../../../../utils/gitSync'
+
+interface MediaFile {
+  id: number
+  url: string
+  alternativeText?: string
+  name?: string
+  width?: number
+  height?: number
+  formats?: {
+    thumbnail?: { url: string }
+    small?: { url: string }
+    medium?: { url: string }
+    large?: { url: string }
+  }
+}
 
 interface BlogPost {
   id: number
-  documentId: string
   title: string
   description: string
   slug: string
   date: string
   content: string
-  featuredImage?: { url?: string; alternativeText?: string }
+  featuredImage?: MediaFile
   lang?: string
   ogImageUrl?: string
   publishedAt?: string
-  locale?: string
 }
 
 interface Event {
   result?: BlogPost
+}
+
+/**
+ * Converts HTML content to markdown-like format
+ */
+function htmlToMarkdown(html: string): string {
+  if (!html) return ''
+
+  return html
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '# $1\n\n')
+    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '## $1\n\n')
+    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '### $1\n\n')
+    .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, '#### $1\n\n')
+    .replace(/<h5[^>]*>([\s\S]*?)<\/h5>/gi, '##### $1\n\n')
+    .replace(/<h6[^>]*>([\s\S]*?)<\/h6>/gi, '###### $1\n\n')
+    .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
+    .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**')
+    .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**')
+    .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, '*$1*')
+    .replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, '*$1*')
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
+    .replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, '```\n$1\n```')
+    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`')
+    .replace(/<ul[^>]*>/gi, '\n')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<ol[^>]*>/gi, '\n')
+    .replace(/<\/ol>/gi, '\n')
+    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '> $1\n')
+    .replace(/<img[^>]*src="([^"]*)"[^>]*alt="([\s\S]*?)"[^>]*>/gi, '![$2]($1)')
+    .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, '![]($1)')
+    .replace(/<[^>]+>/g, '')
+    .trim()
+}
+
+function escapeQuotes(value: string): string {
+  return value.replace(/"/g, '\\"')
 }
 
 function formatDate(dateString: string): string {
@@ -48,185 +95,114 @@ function generateFilename(post: BlogPost): string {
   return `${prefix}${post.slug}.mdx`
 }
 
-function generateMDX(
-  post: BlogPost,
-  locale: string,
-  preservedFields: Record<string, unknown> = {},
-  englishSlug?: string
-): string {
-  const imageUrl = getImageUrl(post.featuredImage)
-  const langValue = post.lang || locale
-  const { localizes, ...restPreserved } = preservedFields
-  const localizesValue =
-    localizes || (locale !== 'en' && englishSlug ? englishSlug : undefined)
+/**
+ * Gets the image URL from a media field
+ * Returns the full Strapi URL for local files, or the full URL for external
+ */
+function getImageUrl(media: MediaFile | undefined): string | undefined {
+  if (!media?.url) return undefined
 
-  // Spread preserved fields first, then Strapi-managed fields overwrite
-  const frontmatterData: Record<string, unknown> = {
-    ...restPreserved,
-    title: post.title,
-    description: post.description,
-    date: formatDate(post.date),
-    slug: post.slug,
-    lang: langValue,
-    ...(post.ogImageUrl ? { ogImageUrl: post.ogImageUrl } : {}),
-    ...(imageUrl ? { image: imageUrl } : {}),
-    ...(localizesValue ? { localizes: localizesValue } : {}),
-    ...(locale !== 'en' ? { locale } : {}),
+  // If it's a relative URL (starts with /uploads/), allow an optional base URL override, otherwise keep it relative
+  if (media.url.startsWith('/uploads/')) {
+    const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
+    return uploadsBase
+      ? `${uploadsBase.replace(/\/$/, '')}${media.url}`
+      : media.url
   }
 
+  // Return the URL as-is for external images
+  return media.url
+}
+
+function generateMDX(post: BlogPost): string {
+  const imageUrl = getImageUrl(post.featuredImage)
+
+  const frontmatterLines = [
+    `title: "${escapeQuotes(post.title)}"`,
+    `description: "${escapeQuotes(post.description)}"`,
+    post.ogImageUrl
+      ? `ogImageUrl: "${escapeQuotes(post.ogImageUrl)}"`
+      : undefined,
+    `date: ${formatDate(post.date)}`,
+    `slug: ${post.slug}`,
+    post.lang ? `lang: "${escapeQuotes(post.lang)}"` : undefined,
+    imageUrl ? `image: "${escapeQuotes(imageUrl)}"` : undefined
+  ].filter(Boolean) as string[]
+
+  const frontmatter = frontmatterLines.join('\n')
   const content = post.content ? htmlToMarkdown(post.content) : ''
 
-  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
+  return `---\n${frontmatter}\n---\n\n${content}\n`
 }
 
-function getOutputDir(locale: string): string {
-  const projectRoot = getProjectRoot()
-  return getContentPath(projectRoot, 'blog', locale === 'en' ? undefined : locale)
+async function writeMDXFile(post: BlogPost): Promise<void> {
+  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+  const baseDir = resolveTargetRepoPath(outputPath)
+
+  if (!fs.existsSync(baseDir)) {
+    fs.mkdirSync(baseDir, { recursive: true })
+  }
+
+  const filename = generateFilename(post)
+  const filepath = path.join(baseDir, filename)
+  const mdxContent = generateMDX(post)
+
+  fs.writeFileSync(filepath, mdxContent, 'utf-8')
+  console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
 }
 
-async function writeMDXFile(
-  post: BlogPost,
-  locale: string,
-  englishSlug?: string
-): Promise<string> {
-  const baseDir = getOutputDir(locale)
+async function deleteMDXFile(post: BlogPost): Promise<void> {
+  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+  const baseDir = resolveTargetRepoPath(outputPath)
   const filename = generateFilename(post)
   const filepath = path.join(baseDir, filename)
 
-  try {
-    if (!fs.existsSync(baseDir)) {
-      fs.mkdirSync(baseDir, { recursive: true })
-    }
-
-    // Preserve fields that exist in MDX but not in Strapi
-    const preservedFields = getPreservedFields(filepath)
-    fs.writeFileSync(
-      filepath,
-      generateMDX(post, locale, preservedFields, englishSlug),
-      'utf-8'
-    )
-    console.log(`✅ Generated blog post MDX: ${filepath}`)
-    return filepath
-  } catch (error) {
-    console.error(`Failed to write blog post MDX file: ${filepath}`, error)
-    throw error
-  }
-}
-
-async function fetchPublishedPost(
-  documentId: string,
-  locale: string
-): Promise<BlogPost | null> {
-  try {
-    const post = await strapi.documents('api::blog-post.blog-post').findOne({
-      documentId,
-      locale,
-      status: 'published',
-      populate: {
-        featuredImage: true
-      }
-    })
-    return post as BlogPost | null
-  } catch (error) {
-    console.error(`Failed to fetch blog post ${documentId}:`, error)
-    return null
+  if (fs.existsSync(filepath)) {
+    fs.unlinkSync(filepath)
+    console.log(`🗑️  Deleted Blog Post MDX file: ${filepath}`)
   }
 }
 
 export default {
   async afterCreate(event: Event) {
     const { result } = event
-    if (!result) return
-    if (shouldSkipMdxExport()) return
-
-    console.log(`📝 Creating blog post MDX for all locales: ${result.slug}`)
-    const filepaths: string[] = []
-    const englishPost = await fetchPublishedPost(result.documentId, 'en')
-    const englishSlug = englishPost?.slug
-
-    for (const locale of LOCALES) {
-      const post =
-        locale === 'en'
-          ? englishPost
-          : await fetchPublishedPost(result.documentId, locale)
-      if (!post) {
-        console.log(`⏭️  No published ${locale} blog post for ${result.documentId}`)
-        continue
-      }
-      const filepath = await writeMDXFile(post, locale, englishSlug)
-      filepaths.push(filepath)
-    }
-
-    if (filepaths.length > 0) {
-      await syncToGit(filepaths, `blog: add "${result.title}"`)
+    if (result && result.publishedAt) {
+      await writeMDXFile(result)
+      const filename = generateFilename(result)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
+      const filepath = path.join(baseDir, filename)
+      await gitCommitAndPush(filepath, `blog: add "${result.title}"`)
     }
   },
 
   async afterUpdate(event: Event) {
     const { result } = event
-    if (!result) return
-    if (shouldSkipMdxExport()) return
+    if (result) {
+      const filename = generateFilename(result)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
+      const filepath = path.join(baseDir, filename)
 
-    console.log(`📝 Updating blog post MDX for all locales: ${result.slug}`)
-    const filepaths: string[] = []
-    const deletedPaths: string[] = []
-    const englishPost = await fetchPublishedPost(result.documentId, 'en')
-    const englishSlug = englishPost?.slug
-
-    for (const locale of LOCALES) {
-      const post =
-        locale === 'en'
-          ? englishPost
-          : await fetchPublishedPost(result.documentId, locale)
-      if (post) {
-        const filepath = await writeMDXFile(post, locale, englishSlug)
-        filepaths.push(filepath)
+      if (result.publishedAt) {
+        await writeMDXFile(result)
+        await gitCommitAndPush(filepath, `blog: update "${result.title}"`)
       } else {
-        const baseDir = getOutputDir(locale)
-        const filepath = path.join(baseDir, generateFilename(result))
-        if (fs.existsSync(filepath)) {
-          try {
-            fs.unlinkSync(filepath)
-            console.log(`🗑️  Deleted unpublished ${locale} blog post MDX: ${filepath}`)
-            deletedPaths.push(filepath)
-          } catch (error) {
-            console.error(`Failed to delete unpublished ${locale} blog post MDX: ${filepath}`, error)
-          }
-        }
+        await deleteMDXFile(result)
+        await gitCommitAndPush(filepath, `blog: unpublish "${result.title}"`)
       }
-    }
-
-    const allPaths = [...filepaths, ...deletedPaths]
-    if (allPaths.length > 0) {
-      await syncToGit(allPaths, `blog: update "${result.title}"`)
     }
   },
 
   async afterDelete(event: Event) {
     const { result } = event
-    if (!result) return
-    if (shouldSkipMdxExport()) return
-
-    console.log(`🗑️  Deleting blog post MDX for all locales: ${result.slug}`)
-    const deletedPaths: string[] = []
-
-    for (const locale of LOCALES) {
-      const baseDir = getOutputDir(locale)
-      const filepath = path.join(baseDir, generateFilename(result))
-
-      if (fs.existsSync(filepath)) {
-        try {
-          fs.unlinkSync(filepath)
-          console.log(`🗑️  Deleted ${locale} blog post MDX: ${filepath}`)
-          deletedPaths.push(filepath)
-        } catch (error) {
-          console.error(`Failed to delete ${locale} blog post MDX: ${filepath}`, error)
-        }
-      }
-    }
-
-    if (deletedPaths.length > 0) {
-      await syncToGit(deletedPaths, `blog: delete "${result.title}"`)
+    if (result) {
+      await deleteMDXFile(result)
+      const filename = generateFilename(result)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
+      const filepath = path.join(baseDir, filename)
+      await gitCommitAndPush(filepath, `blog: delete "${result.title}"`)
     }
   }
 }

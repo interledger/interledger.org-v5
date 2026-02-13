@@ -1,18 +1,89 @@
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
-import { getProjectRoot, PATHS } from '../../../src/utils/paths'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
 }
 
+function expandHomeDir(filepath: string): string {
+  if (!filepath.startsWith('~/')) return filepath
+  return path.join(os.homedir(), filepath.slice(2))
+}
+
+export function getTargetRepoRoot(): string {
+  const configuredPath =
+    process.env.STRAPI_GIT_SYNC_REPO_PATH || '~/interledger.org-v5-staging'
+  return path.resolve(expandHomeDir(configuredPath))
+}
+
+export function resolveTargetRepoPath(targetPath: string): string {
+  const expandedPath = expandHomeDir(targetPath)
+
+  if (path.isAbsolute(expandedPath)) {
+    return path.resolve(expandedPath)
+  }
+
+  const normalizedRelativePath = expandedPath.replace(/^\/+/, '')
+  return path.join(getTargetRepoRoot(), normalizedRelativePath)
+}
+
+function execInRepo(command: string, cwd: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    exec(command, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(stderr?.trim() || error.message))
+        return
+      }
+      resolve(stdout.trim())
+    })
+  })
+}
+
+export async function validateGitSyncRepoOnStartup(): Promise<void> {
+  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
+    console.log('⏭️  Git sync validation skipped via STRAPI_DISABLE_GIT_SYNC')
+    return
+  }
+
+  const targetRepoRoot = getTargetRepoRoot()
+  const gitDir = path.join(targetRepoRoot, '.git')
+
+  if (!fs.existsSync(targetRepoRoot)) {
+    throw new Error(
+      `Git sync repository path does not exist: ${targetRepoRoot}. ` +
+        'Set STRAPI_GIT_SYNC_REPO_PATH or create the staging clone.'
+    )
+  }
+
+  if (!fs.existsSync(gitDir)) {
+    throw new Error(
+      `Git sync repository is not a git checkout: ${targetRepoRoot}`
+    )
+  }
+
+  const branch = await execInRepo(
+    'git rev-parse --abbrev-ref HEAD',
+    targetRepoRoot
+  )
+  if (branch !== 'staging') {
+    throw new Error(
+      `Git sync repository must be on "staging" branch, found "${branch}" at ${targetRepoRoot}`
+    )
+  }
+
+  console.log(
+    `✅ Git sync repository validated: ${targetRepoRoot} (branch: ${branch})`
+  )
+}
+
 /**
- * Syncs changes to git: pulls latest with rebase, stages files, commits, and pushes.
+ * Pulls latest changes, stages the filepath, commits, and pushes.
  * Resolves even on failure so Strapi saves content.
  */
-export async function syncToGit(
-  filepath: string | string[],
+export async function gitCommitAndPush(
+  filepath: string,
   message: string
 ): Promise<void> {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
@@ -20,13 +91,17 @@ export async function syncToGit(
     return
   }
 
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const safeMessage = escapeForShell(message)
-  const filepaths = Array.isArray(filepath) ? filepath : [filepath]
+
+  const relativeFilepath = path.isAbsolute(filepath)
+    ? path.relative(projectRoot, filepath)
+    : filepath
+  const safeFilepath = escapeForShell(relativeFilepath)
 
   // Always include public/uploads if it exists so media changes are committed
-  const uploadsDir = path.join(projectRoot, PATHS.UPLOADS)
-  const addPaths = filepaths.map((fp) => escapeForShell(fp))
+  const uploadsDir = path.join(projectRoot, 'public', 'uploads')
+  const addPaths = [safeFilepath]
   if (fs.existsSync(uploadsDir)) {
     const uploadsRelative = escapeForShell(
       path.relative(projectRoot, uploadsDir)
@@ -36,9 +111,9 @@ export async function syncToGit(
 
   return new Promise((resolve) => {
     const commands = [
-      'git pull --rebase',
       `git add ${addPaths.map((p) => `'${p}'`).join(' ')}`,
       `git commit -m '${safeMessage}'`,
+      'git pull --rebase',
       'git push'
     ].join(' && ')
 
@@ -49,7 +124,7 @@ export async function syncToGit(
         resolve()
         return
       }
-      console.log(`✅ Synced to git: ${message}`)
+      console.log(`✅ Git sync complete: ${message}`)
       if (stdout) console.log(stdout)
       resolve()
     })

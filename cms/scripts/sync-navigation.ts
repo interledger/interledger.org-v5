@@ -11,7 +11,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import { assertRunFromCms, getConfigPath, getProjectRoot } from '../../src/utils/paths'
+import { assertRunFromCms, getConfigPath, getProjectRoot } from '../src/utils/paths'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -128,6 +128,35 @@ async function updateNavigation({ baseUrl, token, apiId, configPath, label }: Up
   console.log(`✅ Synced ${label} (documentId: ${result.data.documentId})`)
 }
 
+async function syncAllNavigations(
+  projectRoot: string,
+  baseUrl: string,
+  token: string
+) {
+  const configs = [
+    {
+      apiId: 'foundation-navigation',
+      configPath: getConfigPath(projectRoot, 'foundationNavigation'),
+      label: 'foundation navigation'
+    },
+    {
+      apiId: 'summit-navigation',
+      configPath: getConfigPath(projectRoot, 'summitNavigation'),
+      label: 'summit navigation'
+    }
+  ]
+
+  for (const config of configs) {
+    await updateNavigation({
+      baseUrl,
+      token,
+      apiId: config.apiId,
+      configPath: config.configPath,
+      label: config.label
+    })
+  }
+}
+
 async function main() {
   assertRunFromCms()
   const projectRoot = getProjectRoot()
@@ -149,28 +178,7 @@ async function main() {
     process.exit(1)
   }
 
-  const configs = [
-    {
-      apiId: 'foundation-navigation',
-      configPath: getConfigPath(projectRoot, 'foundationNavigation'),
-      label: 'foundation navigation'
-    },
-    {
-      apiId: 'summit-navigation',
-      configPath: getConfigPath(projectRoot, 'summitNavigation'),
-      label: 'summit navigation'
-    }
-  ]
-
-  for (const config of configs) {
-    await updateNavigation({
-      baseUrl: STRAPI_URL,
-      token: STRAPI_TOKEN,
-      apiId: config.apiId,
-      configPath: config.configPath,
-      label: config.label
-    })
-  }
+  await syncAllNavigations(projectRoot, STRAPI_URL, STRAPI_TOKEN)
 
   if (DRY_RUN) {
     console.log('\n💡 This was a dry-run. Run without --dry-run to apply changes.')
