@@ -2,6 +2,8 @@ name: Merge to Main Workflow
 
 on:
   # Only after PRs are merged to main (production)
+  # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
+  # and pull_request events run for forks. This workflow should only run on push to main.
     push:
       branches:
         - main
@@ -13,11 +15,30 @@ concurrency:
 
 jobs:
   rebuild-strapi:
+
     # Runs on self hosted runner called strapi-vm
     runs-on: strapi-vm
 
     steps:
-        - name: Rebuild strapi
+        - name: Detect cms changes
+          id: cms_changes
+          shell: bash
+          run: |
+            set -euo pipefail
+
+            cd /home/strapi/interledger.org-v5
+            git fetch --quiet
+
+            if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^cms/'; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "CMS changes detected; rebuild will run."
+            else
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              echo "No CMS changes detected; rebuild will be skipped."
+            fi
+
+        - name: Rebuild strapi cms
+          if: steps.cms_changes.outputs.changed == 'true'
           shell: bash
           run: |
             set -euo pipefail
