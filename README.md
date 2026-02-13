@@ -110,3 +110,88 @@ When content is published in Strapi, lifecycle hooks generate MDX and (for pages
 Default MDX output locations:
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
 - Blog posts: `src/content/blog/`
+
+## MDX to Strapi Sync Script
+
+The `sync-mdx` script synchronizes MDX files from the filesystem into Strapi CMS. This is useful for:
+- Restoring Strapi content from MDX files in git
+- Importing new MDX files created outside Strapi
+- Syncing locale translations that reference English entries via `localizes` field
+
+### Usage
+
+```bash
+cd cms
+
+# Preview changes without applying them
+bun run sync:mdx:dry-run
+
+# Apply changes (only works on main branch)
+bun run sync:mdx
+```
+
+### How It Works
+
+The sync script performs a bidirectional sync:
+
+1. **Scans MDX files** from:
+   - `src/content/blog/` → `blog-posts` content type
+   - `src/content/foundation-pages/` → `foundation-pages` content type
+   - `src/content/summit/` → `summit-pages` content type
+   - Locale directories: `src/content/{locale}/*/` for translations
+
+2. **Validates frontmatter** using Zod schemas (skips invalid files)
+
+3. **Syncs English entries**:
+   - Creates new entries if MDX doesn't exist in Strapi
+   - Updates existing entries if MDX has changed
+   - Matches locale files via `localizes` field in frontmatter
+
+4. **Syncs locale translations**:
+   - Matches locale files to English entries using `localizes: "english-slug"` field
+   - Creates/updates localizations in Strapi
+   - Handles unmatched locales by searching Strapi for matching English entries
+
+5. **Cleans up orphaned entries**:
+   - Deletes Strapi entries that no longer have corresponding MDX files
+
+### Locale Matching
+
+Locale files are matched to English entries using the `localizes` field:
+
+```yaml
+---
+slug: "sobre-nosotros"
+title: "About Us"
+locale: "es"
+localizes: "about-us"  # Links to English entry with slug "about-us"
+---
+```
+
+The script will:
+- Find the English entry with `slug: "about-us"`
+- Create/update a Spanish localization linked to that entry
+- Preserve the `localizes` field in the generated MDX
+
+### Requirements
+
+- Strapi must be running and accessible
+- Environment variables in `.env`:
+  - `STRAPI_URL` (e.g., `http://localhost:1337`)
+  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
+- For non-dry-run: must be on `main` branch (use `--dry-run` to preview on other branches)
+
+### Tests
+
+Tests are located in `cms/scripts/sync-mdx/__tests/`:
+
+```bash
+cd cms
+bun test
+```
+
+Test coverage includes:
+- Locale matching via `localizes` field
+- File scanning and validation
+- Entry creation and updates
+- Locale attachment to English entries
