@@ -73,7 +73,6 @@ flowchart
 4. **Approved changes** merged to `main` via PR
 5. **Production** auto-deploys from `main`
 
-**Recovery:** The `sync-mdx.cjs` script can restore Strapi database from MDX files in git.
 
 ## Project Structure
 
@@ -119,26 +118,3 @@ Default MDX output locations:
 - Blog posts: `src/content/blog/`
 - Grant tracks: `src/content/grants/`
 
-### Syncing MDX to Strapi
-
-The `cms/scripts/sync-mdx.cjs` script syncs MDX files from git **to** Strapi (reverse direction of lifecycle hooks). This is useful for:
-
-- **Database regeneration**: Rebuild Strapi database from MDX files in git
-- **Initial setup**: Populate a fresh Strapi instance with existing content
-- **Recovery**: Restore content after database corruption/loss
-
-```bash
-cd cms
-node scripts/sync-mdx.cjs --dry-run  # Preview changes
-node scripts/sync-mdx.cjs            # Apply changes
-```
-
-The script:
-- Scans MDX files in `src/content/blog`, `src/content/events`, `src/content/pages`
-- Creates/updates/deletes Strapi entries to match MDX files
-- Handles localized content (matches via `contentId` in frontmatter)
-- Requires `STRAPI_API_TOKEN` in `cms/.env` with full access permissions
-
-**Note**: This only syncs content entries, not user accounts, API tokens, or Strapi configuration.
-
-See [cms/README.md](cms/README.md) for details.
