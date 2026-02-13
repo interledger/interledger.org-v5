@@ -11,7 +11,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import { assertRunFromCms, getConfigPath, getProjectRoot } from '../../src/utils/paths'
+import { assertRunFromCms, getConfigPath, getProjectRoot } from '../src/utils/paths'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
