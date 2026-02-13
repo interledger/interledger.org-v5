@@ -18,8 +18,14 @@ export function getTargetRepoRoot(): string {
   return path.resolve(expandHomeDir(configuredPath))
 }
 
-export function resolveTargetRepoPath(relativePath: string): string {
-  const normalizedRelativePath = relativePath.replace(/^\/+/, '')
+export function resolveTargetRepoPath(targetPath: string): string {
+  const expandedPath = expandHomeDir(targetPath)
+
+  if (path.isAbsolute(expandedPath)) {
+    return path.resolve(expandedPath)
+  }
+
+  const normalizedRelativePath = expandedPath.replace(/^\/+/, '')
   return path.join(getTargetRepoRoot(), normalizedRelativePath)
 }
 
@@ -52,17 +58,24 @@ export async function validateGitSyncRepoOnStartup(): Promise<void> {
   }
 
   if (!fs.existsSync(gitDir)) {
-    throw new Error(`Git sync repository is not a git checkout: ${targetRepoRoot}`)
+    throw new Error(
+      `Git sync repository is not a git checkout: ${targetRepoRoot}`
+    )
   }
 
-  const branch = await execInRepo('git rev-parse --abbrev-ref HEAD', targetRepoRoot)
+  const branch = await execInRepo(
+    'git rev-parse --abbrev-ref HEAD',
+    targetRepoRoot
+  )
   if (branch !== 'staging') {
     throw new Error(
       `Git sync repository must be on "staging" branch, found "${branch}" at ${targetRepoRoot}`
     )
   }
 
-  console.log(`✅ Git sync repository validated: ${targetRepoRoot} (branch: ${branch})`)
+  console.log(
+    `✅ Git sync repository validated: ${targetRepoRoot} (branch: ${branch})`
+  )
 }
 
 /**
