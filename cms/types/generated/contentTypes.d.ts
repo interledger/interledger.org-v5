@@ -1114,7 +1114,7 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken
       'admin::api-token-permission': AdminApiTokenPermission
