@@ -1,17 +1,18 @@
 import fs from 'fs'
 import path from 'path'
 import { exec } from 'child_process'
+import { getProjectRoot, PATHS } from '../../../src/utils/paths'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
 }
 
 /**
- * Pulls latest changes, stages the filepath, commits, and pushes.
+ * Syncs changes to git: pulls latest with rebase, stages files, commits, and pushes.
  * Resolves even on failure so Strapi saves content.
  */
-export async function gitCommitAndPush(
-  filepath: string,
+export async function syncToGit(
+  filepath: string | string[],
   message: string
 ): Promise<void> {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
@@ -19,13 +20,13 @@ export async function gitCommitAndPush(
     return
   }
 
-  const projectRoot = path.resolve(process.cwd(), '..') // repo root above /cms
+  const projectRoot = getProjectRoot()
   const safeMessage = escapeForShell(message)
-  const safeFilepath = escapeForShell(filepath)
+  const filepaths = Array.isArray(filepath) ? filepath : [filepath]
 
   // Always include public/uploads if it exists so media changes are committed
-  const uploadsDir = path.join(projectRoot, 'public', 'uploads')
-  const addPaths = [safeFilepath]
+  const uploadsDir = path.join(projectRoot, PATHS.UPLOADS)
+  const addPaths = filepaths.map((fp) => escapeForShell(fp))
   if (fs.existsSync(uploadsDir)) {
     const uploadsRelative = escapeForShell(
       path.relative(projectRoot, uploadsDir)
@@ -35,9 +36,9 @@ export async function gitCommitAndPush(
 
   return new Promise((resolve) => {
     const commands = [
+      'git pull --rebase',
       `git add ${addPaths.map((p) => `'${p}'`).join(' ')}`,
       `git commit -m '${safeMessage}'`,
-      'git pull --rebase',
       'git push'
     ].join(' && ')
 
@@ -48,7 +49,7 @@ export async function gitCommitAndPush(
         resolve()
         return
       }
-      console.log(`✅ Git sync complete: ${message}`)
+      console.log(`✅ Synced to git: ${message}`)
       if (stdout) console.log(stdout)
       resolve()
     })

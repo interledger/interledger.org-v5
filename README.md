@@ -5,14 +5,8 @@ The official [Interledger.org](https://interledger.org/) website built with [Ast
 ## Quick Start
 
 ```bash
-# Install dependencies
-bun install
-
-# Start dev server (localhost:1103)
-bun run start
-
-# Build for production
-bun run build
+bun install # Install dependencies
+bun run start # Start dev server 
 ```
 
 ## Architecture Overview
@@ -79,8 +73,8 @@ flowchart
 
 ```text
 ├── cms/              # Strapi CMS for content management
+│   └── scripts/      # CMS sync and import scripts
 ├── public/           # Static assets (images, favicons)
-├── scripts/          # Sync and import scripts
 ├── src/
 │   ├── components/   # Astro/React components
 │   ├── config/       # Site configuration
@@ -98,7 +92,6 @@ flowchart
 | :---------------- | :----------------------------------- |
 | `bun run start`   | Start dev server at `localhost:1103` |
 | `bun run build`   | Build production site to `./dist/`   |
-| `bun run preview` | Preview production build locally     |
 | `bun run format`  | Format code with Prettier/ESLint     |
 | `bun run lint`    | Check code formatting and linting    |
 
@@ -106,8 +99,8 @@ flowchart
 
 ```bash
 cd cms
-npm install
-npm run develop
+bun install
+bun run develop
 ```
 
 Admin panel: <http://localhost:1337/admin>
@@ -117,28 +110,129 @@ When content is published in Strapi, lifecycle hooks generate MDX and (for pages
 Default MDX output locations:
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
 - Blog posts: `src/content/blog/`
-- Grant tracks: `src/content/grants/`
 
-### Syncing MDX to Strapi
+## MDX to Strapi Sync Script
 
-The `cms/scripts/sync-mdx.cjs` script syncs MDX files from git **to** Strapi (reverse direction of lifecycle hooks). This is useful for:
+The `sync-mdx` script synchronizes MDX files from the filesystem into Strapi CMS. This is useful for:
+- Restoring Strapi content from MDX files in git
+- Importing new MDX files created outside Strapi
+- Syncing locale translations that reference English entries via `localizes` field
 
-- **Database regeneration**: Rebuild Strapi database from MDX files in git
-- **Initial setup**: Populate a fresh Strapi instance with existing content
-- **Recovery**: Restore content after database corruption/loss
+### Usage
 
 ```bash
 cd cms
-node scripts/sync-mdx.cjs --dry-run  # Preview changes
-node scripts/sync-mdx.cjs            # Apply changes
+
+# Preview changes without applying them
+bun run sync:mdx:dry-run
+
+# Apply changes (only works on main branch)
+bun run sync:mdx
 ```
 
-The script:
-- Scans MDX files in `src/content/blog`, `src/content/events`, `src/content/pages`
-- Creates/updates/deletes Strapi entries to match MDX files
-- Handles localized content (matches via `contentId` in frontmatter)
-- Requires `STRAPI_API_TOKEN` in `cms/.env` with full access permissions
+### How It Works
 
-**Note**: This only syncs content entries, not user accounts, API tokens, or Strapi configuration.
+The sync script performs a bidirectional sync:
 
-See [cms/README.md](cms/README.md) for details.
+1. **Scans MDX files** from:
+   - `src/content/blog/` → `blog-posts` content type
+   - `src/content/foundation-pages/` → `foundation-pages` content type
+   - `src/content/summit/` → `summit-pages` content type
+   - Locale directories: `src/content/{locale}/*/` for translations
+
+2. **Validates frontmatter** using Zod schemas (skips invalid files)
+
+3. **Syncs English entries**:
+   - Creates new entries if MDX doesn't exist in Strapi
+   - Updates existing entries if MDX has changed
+   - Matches locale files via `localizes` field in frontmatter
+
+4. **Syncs locale translations**:
+   - Matches locale files to English entries using `localizes: "english-slug"` field
+   - Creates/updates localizations in Strapi
+   - Handles unmatched locales by searching Strapi for matching English entries
+
+5. **Cleans up orphaned entries**:
+   - Deletes Strapi entries that no longer have corresponding MDX files
+
+### Locale Matching
+
+Locale files are matched to English entries using the `localizes` field:
+
+```yaml
+---
+slug: "sobre-nosotros"
+title: "About Us"
+locale: "es"
+localizes: "about-us"  # Links to English entry with slug "about-us"
+---
+```
+
+The script will:
+- Find the English entry with `slug: "about-us"`
+- Create/update a Spanish localization linked to that entry
+- Preserve the `localizes` field in the generated MDX
+
+### Requirements
+
+- Strapi must be running and accessible
+- Environment variables in `.env`:
+  - `STRAPI_URL` (e.g., `http://localhost:1337`)
+  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
+- For non-dry-run: must be on `main` branch (use `--dry-run` to preview on other branches)
+
+### Tests
+
+Tests are located in `cms/scripts/sync-mdx/__tests/`:
+
+```bash
+cd cms
+bun test
+```
+
+Test coverage includes:
+- Locale matching via `localizes` field
+- File scanning and validation
+- Entry creation and updates
+- Locale attachment to English entries
+
+## Navigation Sync Script
+
+The navigation sync script synchronizes navigation configuration from JSON files into Strapi CMS. It syncs both foundation and summit navigation configs. This is useful for:
+- Initializing navigation structure in Strapi
+- Restoring navigation from version-controlled JSON files
+- Bulk updates to navigation menus
+
+### Usage
+
+```bash
+cd cms
+
+# Preview changes without applying them
+bun run sync:navigation:dry-run
+
+# Apply changes
+bun run sync:navigation
+```
+
+### How It Works
+
+1. **Reads JSON config files** from:
+   - `src/config/foundation-navigation.json` → `foundation-navigation` single type
+   - `src/config/summit-navigation.json` → `summit-navigation` single type
+
+2. **Transforms to Strapi format**:
+   - Converts menu groups and items to Strapi component structure
+   - Handles optional fields (href, openInNewTab, etc.)
+
+3. **Updates Strapi**:
+   - Uses PUT request to create or update single type entries
+   - Requires authentication via `STRAPI_API_TOKEN`
+
+### Requirements
+
+- Strapi must be running and accessible
+- Environment variables in `.env`:
+  - `STRAPI_URL` (e.g., `http://localhost:1337`)
+  - `STRAPI_API_TOKEN` (from Strapi admin → Settings → API Tokens)
+- JSON config files must exist in `src/config/`

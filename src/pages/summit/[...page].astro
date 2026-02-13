@@ -2,8 +2,21 @@
 import { getCollection, render } from 'astro:content'
 import SummitLayout from '../../layouts/SummitLayout.astro'
 
-export const prerender = false
-const slug = Astro.originPathname.replace(/^\/summit\/|\/$/g, '')
+export const prerender = true
+
+export async function getStaticPaths() {
+  const pages = await getCollection('summit-pages')
+  return pages.map((page) => ({
+    params: {
+      page: page.data.slug
+    }
+  }))
+}
+
+const slugParam = Astro.params.page
+const slug = Array.isArray(slugParam)
+  ? slugParam.join('/')
+  : slugParam ?? ''
 
 const pages = await getCollection('summit-pages')
 const mdxPage = pages.find((page) => page.data.slug === slug)
@@ -25,14 +38,13 @@ const title = mdxData?.title || pageTitle
 const description = mdxData?.description || null
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
-const gradient = mdxData?.gradient || 'option1'
 
 const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<SummitLayout title={title} description={description} gradient={gradient}>
-  <main class="pb-space-l">
+<SummitLayout title={title} description={description}>
+  <main class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0">
     {isNotFound ? (
       <section class="min-h-[50vh] flex items-center justify-center text-center">
         <div class="mx-auto w-full max-w-wide px-space-m">

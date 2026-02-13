@@ -9,12 +9,26 @@
   "attributes": {
     "content": {
       "type": "richtext",
-      "required": true
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "alignment": {
       "type": "enumeration",
-      "enum": ["left", "center", "right"],
-      "default": "left"
+      "enum": [
+        "left",
+        "center",
+        "right"
+      ],
+      "default": "left",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }
