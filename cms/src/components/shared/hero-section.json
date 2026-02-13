@@ -6,15 +6,30 @@
   "options": {},
   "attributes": {
     "hero_title": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "hero_content": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "hero_call_to_action": {
       "type": "component",
       "component": "shared.cta-link",
-      "repeatable": true
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   },
   "config": {}
