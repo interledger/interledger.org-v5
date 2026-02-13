@@ -1,0 +1,16 @@
+---
+/**
+ * Callout Text Block for Dynamic Zones (SSR Preview)
+ * Passes Strapi richtext content to the presentational component
+ */
+
+import CalloutText from '../callout/CalloutText.astro'
+
+interface Props {
+  content: string
+}
+
+const { content } = Astro.props
+---
+
+<CalloutText content={content} />

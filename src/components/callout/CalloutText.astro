@@ -1,0 +1,24 @@
+---
+import MarkdownIt from 'markdown-it'
+
+interface Props {
+  content: string
+}
+
+const { content } = Astro.props
+
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
+const htmlContent = md.render(content)
+---
+
+<div
+  class="mb-space-s text-step-2 [&_p]:text-step-2 [&_p]:mb-space-xs [&_strong]:font-semibold [&_em]:italic [&_a]:text-primary [&_a]:underline"
+  set:html={htmlContent}
+/>
+
+<style>
+  /* Astro automatically scopes this to divs in THIS component only */
+  div :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

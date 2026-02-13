@@ -146,6 +146,12 @@ interface BlockquoteBlock {
   source?: string
 }
 
+interface CalloutTextBlock {
+  __component: 'blocks.callout-text'
+  id: number
+  content: string
+}
+
 type ContentBlock =
   | CardsGrid
   | CardLinksGrid
@@ -156,6 +162,7 @@ type ContentBlock =
   | AmbassadorBlock
   | AmbassadorsGridBlock
   | BlockquoteBlock
+  | CalloutTextBlock
 
 interface Page {
   id: number
@@ -450,6 +457,14 @@ function serializeBlockquote(block: BlockquoteBlock): string {
 }
 
 /**
+ * Serializes a callout text block to MDX
+ */
+function serializeCalloutText(block: CalloutTextBlock): string {
+  const markdownContent = htmlToMarkdown(block.content)
+  return `<CalloutText content="${escapeQuotes(markdownContent)}" />`
+}
+
+/**
  * Serializes the content dynamic zone to MDX
  */
 function serializeContent(content: ContentBlock[] | undefined): string {
@@ -485,6 +500,9 @@ function serializeContent(content: ContentBlock[] | undefined): string {
         break
       case 'blocks.blockquote':
         blocks.push(serializeBlockquote(block as BlockquoteBlock))
+        break
+      case 'blocks.callout-text':
+        blocks.push(serializeCalloutText(block as CalloutTextBlock))
         break
       default:
         console.warn(
@@ -584,6 +602,15 @@ function generateMDX(page: Page): string {
   if (hasBlockquote) {
     imports.push(
       'import Blockquote from "../../components/blockquote/Blockquote.astro"'
+    )
+  }
+
+  const hasCalloutText = page.content?.some(
+    (block) => block.__component === 'blocks.callout-text'
+  )
+  if (hasCalloutText) {
+    imports.push(
+      'import CalloutText from "../../components/callout/CalloutText.astro"'
     )
   }
 

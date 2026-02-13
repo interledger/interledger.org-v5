@@ -15,6 +15,7 @@ import CtaBanner from './CtaBanner.astro'
 import AmbassadorBlock from './AmbassadorBlock.astro'
 import AmbassadorsGridBlock from './AmbassadorsGridBlock.astro'
 import BlockquoteBlock from './BlockquoteBlock.astro'
+import CalloutTextBlock from './CalloutTextBlock.astro'
 
 interface Block {
   __component: string
@@ -36,7 +37,8 @@ const componentMap: Record<string, any> = {
   'blocks.cta-banner': CtaBanner,
   'blocks.ambassador': AmbassadorBlock,
   'blocks.ambassadors-grid': AmbassadorsGridBlock,
-  'blocks.blockquote': BlockquoteBlock
+  'blocks.blockquote': BlockquoteBlock,
+  'blocks.callout-text': CalloutTextBlock
 }
 
 const resolvedBlocks = blocks
