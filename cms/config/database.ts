@@ -1,11 +1,13 @@
 import path from 'path'
-import { getCmsDir, PATHS } from '../../src/utils/paths'
 
-export default () => ({
+export default ({ env }) => ({
   connection: {
     client: 'sqlite',
     connection: {
-      filename: path.resolve(getCmsDir(), PATHS.DB_FILE)
+      filename: path.resolve(
+        process.cwd(),
+        env('DATABASE_FILENAME', '.tmp/data.db')
+      )
     },
     useNullAsDefault: true
   }

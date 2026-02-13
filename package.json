@@ -5,9 +5,13 @@
   "scripts": {
     "start": "astro dev",
     "build": "astro build",
+    "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
-    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 ."
+    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
+    "export:nav": "npx tsx scripts/export-navigation.ts",
+    "export:summit-nav": "npx tsx scripts/export-summit-navigation.ts",
+    "import:nav": "npx tsx scripts/import-navigation.ts --all"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
@@ -15,10 +19,12 @@
     "@astrojs/node": "^9.5.1",
     "@astrojs/starlight": "^0.36.3",
     "@interledger/docs-design-system": "^0.11.0",
+    "starlight-fullview-mode": "^0.2.6",
+    "starlight-links-validator": "^0.19.1",
+    "@astrojs/tailwind": "^6.0.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/showdown": "^2.0.6",
     "astro": "^5.16.0",
-    "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
     "html-to-text": "^9.0.5",
     "markdown-it": "^14.1.0",
@@ -26,11 +32,7 @@
     "node-html-parser": "^7.0.1",
     "sharp": "^0.34.5",
     "showdown": "^2.1.0",
-    "starlight-fullview-mode": "^0.2.6",
-    "starlight-links-validator": "^0.19.1",
-    "tailwindcss": "^4.1.18",
-    "turndown": "^7.2.2",
-    "zod": "^3.25.76"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

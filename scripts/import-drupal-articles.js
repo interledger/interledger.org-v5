@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { getContentPath, getProjectRoot, PATHS } from '../src/utils/paths'
 
-const projectRoot = getProjectRoot()
-const imgFilePath = path.join(projectRoot, PATHS.PUBLIC, PATHS.FOUNDATION_BLOG_IMG)
-const imgReferencePath = `/${PATHS.FOUNDATION_BLOG_IMG}/`
+const projectRoot = process.cwd()
+const imgFilePath = '/public/img/foundation-blog'
+const imgReferencePath = '/img/foundation-blog/'
+const mdxFilePath = '/src/content/blog'
 const drupalMediaUrl =
   'https://staging.interledger.org/sites/default/files/image-uploads/'
 
@@ -121,10 +121,10 @@ async function saveImageToDisk(url) {
 
   url = url.endsWith('/') ? url.slice(0, -1) : url
   const fileName = url.split('/').pop()
-  const filePath = path.join(imgFilePath, fileName)
+  const filePath = path.join(projectRoot, imgFilePath, fileName)
   const buffer = await response.arrayBuffer()
 
-  await fs.promises.mkdir(imgFilePath, {
+  await fs.promises.mkdir(path.join(projectRoot, imgFilePath), {
     recursive: true
   })
 
@@ -240,7 +240,7 @@ async function generateMDXContent(post) {
 }
 
 async function writeMDXFile(post) {
-  const blogDir = getContentPath(projectRoot, 'blog')
+  const blogDir = path.join(projectRoot, mdxFilePath)
   if (!fs.existsSync(blogDir)) {
     fs.mkdirSync(blogDir, { recursive: true })
   }
