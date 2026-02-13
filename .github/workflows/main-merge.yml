@@ -31,12 +31,12 @@ jobs:
 
             cd /home/strapi/interledger.org-v5/cms
             # Stops the service while we are busy
-            service strapi stop
+            systemctl stop strapi.service
             # Perform installs in case there are new dependencies from the merged PRs
             bun install
             # Rebuild with more memory to avoid OOM errors during build
             NODE_OPTIONS="--max-old-space-size=4096" bun run build
-            service strapi start
+            systemctl start strapi.service
             sleep 5
             systemctl status strapi.service
 
