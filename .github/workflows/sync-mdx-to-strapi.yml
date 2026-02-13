@@ -1,6 +1,14 @@
 name: Sync MDX to Strapi
 
 on:
+  # Run when PRs are merged to main (production)
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'src/content/blog/**/*.mdx'
+  #     - 'src/content/events/**/*.mdx'
+
   # Manual trigger for demo/testing from any branch
   workflow_dispatch:
 
@@ -12,14 +20,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20'
 
       - name: Sync MDX to Strapi
         env:
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
-        working-directory: cms
-        run: bun run sync:mdx
+        run: node cms/scripts/sync-mdx.cjs

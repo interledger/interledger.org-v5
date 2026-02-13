@@ -31,18 +31,20 @@ Ensure these are installed before running any commands:
 
 ### CI Validation Pipeline
 
-No dedicated GitHub Actions build workflow exists. **To replicate CI locally**, run:
+The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
+1. Checkout code
+2. Setup Node.js (v18)
+3. Setup Bun
+4. `bun install`
+5. **`bun run lint`** – Must pass with zero warnings
+6. **`bun run build`** – Must succeed
 
-```bash
-bun install && bun run lint && bun run build
-```
-
-Both lint and build must pass with no output errors. Netlify handles deployment builds.
+**To replicate CI locally**: Run `bun install && bun run lint && bun run build`. Both lint and build must pass with no output errors.
 
 ### Important Caveats
 
 - **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
-- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/foundation-page/content-types/foundation-page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
+- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
 - **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
 - **Bun Lockfile**: Netlify or scripts may expect `bun.lockb`, but Bun v1 generates `bun.lock` only. Update checks or docs if needed.
 
@@ -122,7 +124,7 @@ Both lint and build must pass with no output errors. Netlify handles deployment 
 
 ## Known Issues and Workarounds
 
-1. **ESLint warnings in CMS**: The file `cms/src/api/foundation-page/content-types/foundation-page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
+1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
 
 2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
 
@@ -132,17 +134,19 @@ Both lint and build must pass with no output errors. Netlify handles deployment 
 
 ## CMS Information
 
-The CMS (Strapi v5.31.3) runs independently with **Bun**:
+The CMS (Strapi v5.31.3) runs independently and uses **npm** (not Bun):
 ```bash
 cd cms
-bun install
-bun run develop  # Runs on localhost:1337/admin
-bun run build    # Production build
+npm install
+npm run develop  # Runs on localhost:1337/admin
+npm run build    # Production build
 ```
 
-Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. For pages and blog posts, those lifecycle hooks can run git add/commit/push to trigger preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
 
-Content can be synced from MDX to Strapi via `bun run sync:mdx` (run from cms/).
+For pages and blog posts, those lifecycle hooks also run a git add/commit/pull --rebase/push to trigger preview builds. Grant tracks only write/delete MDX locally. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+
+CMS code changes are deployed to the Strapi VM when merged to `staging`. Content-only changes can be rebuilt into Strapi via `cms/scripts/sync-mdx.cjs`.
 
 ## Making Changes
 
