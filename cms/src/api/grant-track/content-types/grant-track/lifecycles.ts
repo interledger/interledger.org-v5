@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { resolveTargetRepoPath } from '../../../../utils/gitSync'
 
 interface GrantTrack {
   id: number
@@ -59,8 +60,8 @@ function generateMDX(grant: GrantTrack): string {
 
 async function writeMDXFile(grant: GrantTrack): Promise<void> {
   const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || 'src/content/grants'
+  const baseDir = resolveTargetRepoPath(outputPath)
 
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true })
@@ -76,8 +77,8 @@ async function writeMDXFile(grant: GrantTrack): Promise<void> {
 
 async function deleteMDXFile(grant: GrantTrack): Promise<void> {
   const outputPath =
-    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || '../src/content/grants'
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+    process.env.GRANT_TRACK_MDX_OUTPUT_PATH || 'src/content/grants'
+  const baseDir = resolveTargetRepoPath(outputPath)
   const filename = `${slugify(grant.name)}-${grant.id}.mdx`
   const filepath = path.join(baseDir, filename)
 
