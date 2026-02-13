@@ -11,7 +11,6 @@ type Props = {
 }
 
 const basePath = stripPagination(Astro.url.pathname);
-export const prerender = true
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
