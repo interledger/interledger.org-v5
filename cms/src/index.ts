@@ -69,7 +69,7 @@ async function configureFieldLabels(strapi: any) {
       updatedAt: 'Updated At',
       publishedAt: 'Published At'
     },
-'api::info-item.info-item': {
+    'api::info-item.info-item': {
       title: 'Title',
       content: 'Content',
       order: 'Display Order',
