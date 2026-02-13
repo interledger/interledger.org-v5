@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "foundation_navigations",
+  "info": {
+    "singularName": "foundation-navigation",
+    "pluralName": "foundation-navigations",
+    "displayName": "Foundation Navigation",
+    "description": "Foundation site navigation menu"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "mainMenu": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-group"
+    },
+    "ctaButton": {
+      "type": "component",
+      "repeatable": false,
+      "component": "navigation.menu-item"
+    }
+  }
+}

@@ -8,12 +8,44 @@ export interface BlocksCard extends Struct.ComponentSchema {
     icon: 'dashboard'
   }
   attributes: {
-    description: Schema.Attribute.Text
-    icon: Schema.Attribute.String
-    link: Schema.Attribute.String
-    linkText: Schema.Attribute.String
-    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    title: Schema.Attribute.String & Schema.Attribute.Required
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    icon: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    link: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    linkText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    openInNewTab: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -25,10 +57,33 @@ export interface BlocksCardLink extends Struct.ComponentSchema {
     icon: 'link'
   }
   attributes: {
-    description: Schema.Attribute.Text
-    href: Schema.Attribute.String & Schema.Attribute.Required
-    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    title: Schema.Attribute.String & Schema.Attribute.Required
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    href: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    openInNewTab: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -40,11 +95,31 @@ export interface BlocksCardLinksGrid extends Struct.ComponentSchema {
     icon: 'th-large'
   }
   attributes: {
-    cards: Schema.Attribute.Component<'blocks.card-link', true>
+    cards: Schema.Attribute.Component<'blocks.card-link', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'3'>
-    heading: Schema.Attribute.String
-    subheading: Schema.Attribute.Text
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -56,11 +131,31 @@ export interface BlocksCardsGrid extends Struct.ComponentSchema {
     icon: 'apps'
   }
   attributes: {
-    cards: Schema.Attribute.Component<'blocks.card', true>
+    cards: Schema.Attribute.Component<'blocks.card', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'3'>
-    heading: Schema.Attribute.String
-    subheading: Schema.Attribute.Text
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -72,10 +167,32 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
     icon: 'images'
   }
   attributes: {
-    autoplay: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
-    heading: Schema.Attribute.String
-    interval: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<5000>
-    items: Schema.Attribute.Component<'blocks.carousel-item', true>
+    autoplay: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<true>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    interval: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<5000>
+    items: Schema.Attribute.Component<'blocks.carousel-item', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -87,11 +204,37 @@ export interface BlocksCarouselItem extends Struct.ComponentSchema {
     icon: 'quote-right'
   }
   attributes: {
-    author: Schema.Attribute.String
-    image: Schema.Attribute.Media<'images'>
-    organization: Schema.Attribute.String
-    quote: Schema.Attribute.Text & Schema.Attribute.Required
-    role: Schema.Attribute.String
+    author: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    organization: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    quote: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    role: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -106,13 +249,49 @@ export interface BlocksCtaBanner extends Struct.ComponentSchema {
     backgroundColor: Schema.Attribute.Enumeration<
       ['primary', 'secondary', 'light', 'dark']
     > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'primary'>
-    heading: Schema.Attribute.String & Schema.Attribute.Required
-    primaryButtonLink: Schema.Attribute.String
-    primaryButtonText: Schema.Attribute.String
-    secondaryButtonLink: Schema.Attribute.String
-    secondaryButtonText: Schema.Attribute.String
-    text: Schema.Attribute.Text
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -124,11 +303,39 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
-    attribution: Schema.Attribute.String
-    content: Schema.Attribute.RichText & Schema.Attribute.Required
-    heading: Schema.Attribute.String & Schema.Attribute.Required
-    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
+    attribution: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'right'>
   }
 }
@@ -142,8 +349,19 @@ export interface BlocksParagraph extends Struct.ComponentSchema {
   }
   attributes: {
     alignment: Schema.Attribute.Enumeration<['left', 'center', 'right']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'left'>
-    content: Schema.Attribute.RichText & Schema.Attribute.Required
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -155,9 +373,25 @@ export interface NavigationMenuGroup extends Struct.ComponentSchema {
     icon: 'layer'
   }
   attributes: {
-    href: Schema.Attribute.String
-    items: Schema.Attribute.Component<'navigation.menu-item', true>
-    label: Schema.Attribute.String & Schema.Attribute.Required
+    href: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'navigation.menu-item', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -169,9 +403,26 @@ export interface NavigationMenuItem extends Struct.ComponentSchema {
     icon: 'link'
   }
   attributes: {
-    href: Schema.Attribute.String
-    label: Schema.Attribute.String & Schema.Attribute.Required
-    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    href: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    openInNewTab: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
   }
 }
 
@@ -181,12 +432,40 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
     displayName: 'Call-to-action Link'
   }
   attributes: {
-    analytics_event_label: Schema.Attribute.String
-    external: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    link: Schema.Attribute.String & Schema.Attribute.Required
+    analytics_event_label: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    external: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    link: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     style: Schema.Attribute.Enumeration<['primary', 'secondary']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.DefaultTo<'primary'>
-    text: Schema.Attribute.String & Schema.Attribute.Required
+    text: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -198,10 +477,31 @@ export interface SharedHero extends Struct.ComponentSchema {
     icon: 'star'
   }
   attributes: {
-    backgroundImage: Schema.Attribute.Media<'images'>
-    description: Schema.Attribute.Text
-    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true>
-    title: Schema.Attribute.String & Schema.Attribute.Required
+    backgroundImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -211,9 +511,24 @@ export interface SharedHeroSection extends Struct.ComponentSchema {
     displayName: 'hero section'
   }
   attributes: {
-    hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', true>
-    hero_content: Schema.Attribute.Text
-    hero_title: Schema.Attribute.Text
+    hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero_content: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero_title: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -223,9 +538,24 @@ export interface SharedSection extends Struct.ComponentSchema {
     displayName: 'Text Block'
   }
   attributes: {
-    content: Schema.Attribute.Blocks
-    name: Schema.Attribute.String
-    title: Schema.Attribute.String
+    content: Schema.Attribute.Blocks &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    name: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -237,15 +567,40 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search'
   }
   attributes: {
-    canonicalUrl: Schema.Attribute.String
-    keywords: Schema.Attribute.Text
+    canonicalUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    keywords: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     metaDescription: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 160
       }>
-    metaImage: Schema.Attribute.Media<'images'>
+    metaImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     metaTitle: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 60
       }>
@@ -253,7 +608,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export namespace Public {
+  export module Public {
     export interface ComponentSchemas {
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink
