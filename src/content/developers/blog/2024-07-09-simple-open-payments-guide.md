@@ -18,13 +18,13 @@ Handling payments is a crucial part of many online applications. Whether it's an
 
 Many application developers rely on third-party payment gateways to handle these transactions. Companies like PayPal, Stripe, and Square offer services to process credit card payments on behalf of the application. In return for these services, applications incur various fees, which can include monthly fees, flat rates per transaction, or a percentage of the transaction amounts. This approach, while convenient, introduces additional expenses and makes the application reliant on a third-party provider. This reliance can limit control over the user experience, such as forcing users to trust third-party providers with sensitive information like credit card details.
 
-![Most applications' payment implementation today](/developers/img/blog/2024-06-20/credit-cards.png)
+![Most applications' payment implementation today](/img/blog/2024-06-20/credit-cards.png)
 
 An alternative is for applications to integrate directly with their bank's payment processing services. This method can offer lower transaction fees and increase control over the payment process. However, it requires significant development effort and is not always possible. Additionally, switching to a different bank becomes very challenging due to the extensive integration work that was already completed.
 
 This problem gets even more complicated when we consider situations where either the sender or the recipient of funds does not have a bank account. What if a payment has to take place between a bank and a mobile money provider? Now the application would have to also integrate with the mobile money provider. Custom integration becomes an expansive problem.
 
-![Custom integrations are not scaleable](/developers/img/blog/2024-06-20/custom-integration.png)
+![Custom integrations are not scaleable](/img/blog/2024-06-20/custom-integration.png)
 
 What if there was a way for an application to access your account directly, and securely? Currently, even if you provide an application with your account details, it likely wouldn't be able to do much with them, even with your permission. As an account owner, shouldn't you have the power to decide who can access your account and what they can do with it?
 
@@ -32,7 +32,7 @@ What if there was a way for an application to access your account directly, and 
 
 Open Payments aims to change that by enabling applications to access users' accounts directly without needing multiple custom integrations. Standardization is key to eliminating these custom integrations. With a single integration point, applications can access any account that implements the standard, whether it's a bank account, a digital wallet, or a mobile money account. The only requirement is that both the sender's and recipient's account providers support the Open Payments standard.
 
-![Open Payments allow applications to talk to accounting service entities directly](/developers/img/blog/2024-06-20/open-payments.png)
+![Open Payments allow applications to talk to accounting service entities directly](/img/blog/2024-06-20/open-payments.png)
 
 Consider how email works: if you have a Gmail account and someone else has an Outlook account, it doesn't matter because our email providers communicate using a shared, standardized language, allowing us to send emails seamlessly across providers. To send an email, you don't need to know the other person's email provider; you just need their email address.
 

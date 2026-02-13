@@ -80,7 +80,7 @@
         },
         {
           "label": "Tech Blog",
-          "href": "/blog?filter=tech"
+          "href": "/developers/blog"
         },
         {
           "label": "Podcast",

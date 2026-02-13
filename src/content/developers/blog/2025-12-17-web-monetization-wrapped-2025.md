@@ -13,7 +13,7 @@ tags:
   - Updates
 ---
 
-![“Web Monetization Wrapped 2025” banner over a colorful background featuring a microphone.](/developers/img/blog/2025-12-17/wrapped-banner.png)
+![“Web Monetization Wrapped 2025” banner over a colorful background featuring a microphone.](/img/blog/2025-12-17/wrapped-banner.png)
 
 Welcome to **Web Monetization Wrapped**, a look back at the progress we made in 2025 and everything we shipped, fixed, revived, and pushed forward this year.
 
@@ -21,7 +21,7 @@ Turn up the volume. Let’s relive the year. 🎧✨
 
 ### 🎼 Top Genre: Strengthening The Ecosystem
 
-![Text reading “More wallet providers supporting Web Monetization, bringing the number to three” on a colorful background.](/developers/img/blog/2025-12-17/wrapped-4.png)
+![Text reading “More wallet providers supporting Web Monetization, bringing the number to three” on a colorful background.](/img/blog/2025-12-17/wrapped-4.png)
 
 2025 wasn’t theoretical, it was measurable.
 
@@ -34,7 +34,7 @@ The needle moved and we moved it.
 
 ### 🎵 Top Song: Reviving The Grant Program
 
-![Text reading “More publishers and podcasts experimenting with Web Monetization” displayed over a disco-style background.](/developers/img/blog/2025-12-17/wrapped-3.png)
+![Text reading “More publishers and podcasts experimenting with Web Monetization” displayed over a disco-style background.](/img/blog/2025-12-17/wrapped-3.png)
 
 This was our headline track of 2025.
 
@@ -57,7 +57,7 @@ Looks better. Works better.
 
 ### 💿 Top Albums: We Leveled Up Our Product Offerings
 
-![Graphic presenting a list of product offerings styled as tracks on a CD.](/developers/img/blog/2025-12-17/wrapped-2.png)
+![Graphic presenting a list of product offerings styled as tracks on a CD.](/img/blog/2025-12-17/wrapped-2.png)
 
 Because a standard only moves if we do.
 
@@ -82,7 +82,7 @@ More voices, more momentum.
 
 ## 💫 That’s Web Monetization Wrapped 2025
 
-![Music player–style graphic showing “We Did It as a Team” as the track title and “Powering the Internet of Opportunity” as the artist.](/developers/img/blog/2025-12-17/wrapped-1.png)
+![Music player–style graphic showing “We Did It as a Team” as the track title and “Powering the Internet of Opportunity” as the artist.](/img/blog/2025-12-17/wrapped-1.png)
 
 Consistent follow-through, collaboration across teams, transparency, listening to the community, and a willingness to solve problems as they came.
 

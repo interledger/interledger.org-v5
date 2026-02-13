@@ -53,7 +53,7 @@ The **`api`** provides a service that retrieves configuration and later can hand
 2. **Payment proxy:** Handle the Open Payments flow (quote generation, grant authorization, payment finalization)
 
 Based on what we’ve established so far, we can draw the following:
-![Configuration flow](/developers/img/blog/2025-12-09/publisher-tools-schema.png)
+![Configuration flow](/img/blog/2025-12-09/publisher-tools-schema.png)
 
 **Key flow steps:**
 
