@@ -7,7 +7,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { getProjectRoot, PATHS } from '../../../src/utils/paths'
+import { getProjectRoot, PATHS } from './paths'
 import { syncToGit } from './gitSync'
 import { serializeContent } from '../serializers/blocks'
 import {
