@@ -41,7 +41,8 @@ const engBlogCollection = defineCollection({
         'Rafiki',
         'Releases',
         'Updates',
-        'Web Monetization'
+        'Web Monetization',
+        'Card Payments'
         // Please add a matching translation in i18n/ui.ts for any new tag
       ])
     ),
