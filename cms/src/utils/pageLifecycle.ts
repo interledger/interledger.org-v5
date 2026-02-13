@@ -8,7 +8,6 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { getProjectRoot, PATHS } from './paths'
-import { syncToGit } from './gitSync'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
@@ -183,11 +182,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (shouldSkipMdxExport()) return
 
       console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`)
-      const filepaths = await exportAllLocales(config, result.documentId)
-
-      if (filepaths.length > 0) {
-        await syncToGit(filepaths, `${uidToLogLabel(config.contentTypeUid)}: add "${result.title}"`)
-      }
+      await exportAllLocales(config, result.documentId)
     },
 
     async afterUpdate(event: Event) {
@@ -214,10 +209,6 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         }
       }
 
-      const allPaths = [...filepaths, ...deletedPaths]
-      if (allPaths.length > 0) {
-        await syncToGit(allPaths, `${uidToLogLabel(config.contentTypeUid)}: update "${result.title}"`)
-      }
     },
 
     async afterDelete(event: Event) {
@@ -243,9 +234,6 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         }
       }
 
-      if (deletedPaths.length > 0) {
-        await syncToGit(deletedPaths, `${uidToLogLabel(config.contentTypeUid)}: delete "${result.title}"`)
-      }
     }
   }
 }
