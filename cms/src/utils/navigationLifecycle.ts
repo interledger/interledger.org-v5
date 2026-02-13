@@ -1,8 +1,17 @@
 import fs from 'fs'
 import path from 'path'
-import { getProjectRoot } from '../../../src/utils/paths'
-import { syncToGit } from './gitSync'
-import { uidToLogLabel } from './mdx'
+import { getProjectRoot } from './paths'
+import { gitCommitAndPush } from './gitSync'
+
+/** Convert content type UID to human-readable log label */
+function uidToLogLabel(uid: string): string {
+  // e.g. "api::foundation-navigation.foundation-navigation" -> "Foundation Navigation"
+  const name = uid.split('.').pop() || uid
+  return name
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
 
 interface MenuItem {
   label: string
@@ -123,7 +132,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
         return
       }
       const outputPath = writeNavigationFile(config, navigation)
-      await syncToGit(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
+      await gitCommitAndPush(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
     },
 
     async afterUpdate(_event: Event) {
@@ -133,7 +142,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       if (!navigation) {
         const deletedPath = await deleteNavigationFile(config)
         if (deletedPath) {
-          await syncToGit(
+          await gitCommitAndPush(
             deletedPath,
             `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
           )
@@ -142,14 +151,14 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       }
 
       const outputPath = writeNavigationFile(config, navigation)
-      await syncToGit(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
+      await gitCommitAndPush(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
     },
 
     async afterDelete(_event: Event) {
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
-        await syncToGit(deletedPath, `${uidToLogLabel(config.contentTypeUid)}: delete navigation`)
+        await gitCommitAndPush(deletedPath, `${uidToLogLabel(config.contentTypeUid)}: delete navigation`)
       }
     }
   }
