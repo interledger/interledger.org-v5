@@ -45,7 +45,7 @@ An alternative to our current architecture is to switch the bilateral communicat
 As illustrated below, each incoming ILP Prepare packet would be its own HTTP POST request, and the ILP Fulfill or Reject would come back on the HTTP response. An ILSP would run a standard HTTP load balancer in front of an autoscaling cluster of connectors. Connectors would look up the next hop in their routing table and send an outgoing HTTP POST request to the peer’s endpoint, which would likely correspond to their load balancer. As a result, each ILSP could use a single ILP address and HTTPS URL for peering and the internal configuration of their network would be kept private.
 
 <figure>
-  <img src="/developers/img/blog/2019-01-23/ilsp-architecture.webp" alt="Proposed ILSP architecture">
+  <img src="/img/blog/2019-01-23/ilsp-architecture.webp" alt="Proposed ILSP architecture">
   <figcaption>Proposed ILSP architecture</figcaption>
 </figure>
 

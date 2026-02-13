@@ -16,7 +16,7 @@ tags:
 As the development of the [Interledger Protocol](https://interledger.org/) (ILP) nears completion, I thought we should take a moment to remember some of the many core protocol features we’ve killed off along the way.
 
 <figure>
-  <img src="/developers/img/blog/2018-01-29/tree.webp" alt="Lone tree on graveyard">
+  <img src="/img/blog/2018-01-29/tree.webp" alt="Lone tree on graveyard">
   <figcaption>Photo by&nbsp;<a href="https://unsplash.com/photos/WE8X1GPPJ4E?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Ashim D’Silva</a>&nbsp;on&nbsp;<a href="https://unsplash.com/search/photos/graveyard?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></figcaption>
 </figure>
 
@@ -40,7 +40,7 @@ The Interledger project began with the realization that the world will never agr
 Died: [_June, 2016_](https://github.com/interledger/rfcs/issues/28). Age: *2 years*.  
 Cause of Death: *Trust isn’t universal.*
 
-If we could not agree to use a single ledger, maybe we could replicate the benefits of having all transactions within one system, but across multiple ledgers. The idea of “Atomic Mode,” as described in the [Interledger whitepaper](https://interledger.org/interledger.pdf), was to use a group of “notaries” or validators to ensure that transfers on multiple systems would be atomic, meaning they would be executed or rolled back together. Senders and intermediary connectors would first put funds on hold in the first part of a two-phase commit. Notaries would then decide whether the payment succeeded or failed, similar to blockchain validators or miners, but chosen on a per-transaction basis.
+If we could not agree to use a single ledger, maybe we could replicate the benefits of having all transactions within one system, but across multiple ledgers. The idea of “Atomic Mode,” as described in the [Interledger whitepaper](/documents/interledger.pdf), was to use a group of “notaries” or validators to ensure that transfers on multiple systems would be atomic, meaning they would be executed or rolled back together. Senders and intermediary connectors would first put funds on hold in the first part of a two-phase commit. Notaries would then decide whether the payment succeeded or failed, similar to blockchain validators or miners, but chosen on a per-transaction basis.
 
 Atomic mode provides some important benefits, but it only works if all parties in a payment share a commonly-trusted set of notaries or blockchain. Unfortunately, finding overlapping trust amongst groups using different ledgers and spread across the entire internet just isn’t likely. Atomic Mode would work best in pre-defined groups with fixed notaries, rather than as a solution for general interoperability. We prioritized the other mode, called Universal. Intermediaries take some [manageable risk](https://github.com/interledger/rfcs/blob/master/0018-connector-risk-mitigations/0018-connector-risk-mitigations.md#fulfillment-failure) but, the protocol does not require agreement on who to trust, making it more… universal.
 

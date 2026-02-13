@@ -49,7 +49,7 @@ You can view our public dashboard for test data telemetry on [Grafana Cloud](htt
 
 Here is an example of how it looks:
 
-![A screenshot of Testnet's telemetry dashboard](/developers/img/blog/2024-04-10/testnet-telemetry-dashboard-screenshot.png)
+![A screenshot of Testnet's telemetry dashboard](/img/blog/2024-04-10/testnet-telemetry-dashboard-screenshot.png)
 
 Each column of our dashboard represents one of our metrics (number of transactions, value sent through the network, and average transaction value) measured over the last hour, day, week, and month respectively.
 
@@ -116,7 +116,7 @@ For more information please have a look at our privacy [docs](https://github.com
 
 ## Architecture and Instrumentation
 
-![The Rafiki telemetry architecture](/developers/img/blog/2024-04-10/telemetry-architecture.png)
+![The Rafiki telemetry architecture](/img/blog/2024-04-10/telemetry-architecture.png)
 
 The [number of transactions](https://github.com/interledger/rafiki/blob/d3be6b8d151d8cebc32b862e52a7bb678674d48e/packages/backend/src/open_payments/payment/outgoing/lifecycle.ts#L84-L90) is extracted from the Open Payments outgoing payment lifecycle and the value metric is handled by a [telemetry middleware](https://github.com/interledger/rafiki/blob/d3be6b8d151d8cebc32b862e52a7bb678674d48e/packages/backend/src/payment-method/ilp/connector/core/middleware/telemetry.ts) layer inside the ILP connector core.
 
