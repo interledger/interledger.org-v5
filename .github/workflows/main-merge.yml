@@ -1,0 +1,42 @@
+name: Merge to Main Workflow
+
+on:
+  # Only after PRs are merged to main (production)
+    push:
+      branches:
+        - main
+
+jobs:
+  rebuild-strapi:
+    # Runs on self hosted runner called strapi-vm
+    runs-on: strapi-vm
+
+    steps:
+        - name: Rebuild strapi
+          shell: bash
+          run: |
+            set -euo pipefail
+
+            cd /home/strapi/interledger.org-v5
+
+            # Ensure pull fails instead of creating merge commits
+            git fetch
+            git pull --ff-only
+
+            # Defensive check: fail if git index contains unresolved conflicts
+            if [ -n "$(git ls-files -u)" ]; then
+              echo "Unresolved git conflicts detected after pull"
+              exit 1
+            fi
+
+            cd /home/strapi/interledger.org-v5/cms
+            # Stops the service while we are busy
+            service strapi stop
+            # Perform installs in case there are new dependencies from the merged PRs
+            bun install
+            # Rebuild with more memory to avoid OOM errors during build
+            NODE_OPTIONS="--max-old-space-size=4096" bun run build
+            service strapi start
+            sleep 5
+            systemctl status strapi.service
+
