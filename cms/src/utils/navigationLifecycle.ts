@@ -2,16 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { getProjectRoot } from './paths'
 import { gitCommitAndPush } from './gitSync'
-
-/** Convert content type UID to human-readable log label */
-function uidToLogLabel(uid: string): string {
-  // e.g. "api::foundation-navigation.foundation-navigation" -> "Foundation Navigation"
-  const name = uid.split('.').pop() || uid
-  return name
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
+import { uidToLogLabel } from './mdx'
 
 interface MenuItem {
   label: string
