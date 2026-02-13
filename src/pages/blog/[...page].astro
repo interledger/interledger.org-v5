@@ -4,13 +4,14 @@ import type { GetStaticPaths, Page } from 'astro'
 import Pagination from '../../components/blog/Pagination.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { createExcerpt } from '../../utils/create-excerpt'
+import stripPagination from '../../utils/stripPagination'
 
 type Props = {
   page: Page
 }
 
+const basePath = stripPagination(Astro.url.pathname);
 export const prerender = true
-
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
@@ -81,7 +82,7 @@ const { page } = Astro.props
                     <div class="flex items-start gap-space-2xs">
                       <h2 class="mb-space-3xs">
                         <a
-                          href={`/blog/${blogPostEntry.id}`}
+                          href={`${basePath}/${blogPostEntry.id}`}
                           class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
                         >
                           {blogPostEntry.data.title}
@@ -94,7 +95,7 @@ const { page } = Astro.props
                   ) : (
                     <h2 class="mb-space-3xs">
                       <a
-                        href={`/blog/${blogPostEntry.id}`}
+                        href={`${basePath}/${blogPostEntry.id}`}
                         class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
                       >
                         {blogPostEntry.data.title}
@@ -125,6 +126,7 @@ const { page } = Astro.props
         }
       </ol>
       <Pagination
+        baseUrl={basePath}
         length={page.lastPage}
         currentPage={page.currentPage}
         firstUrl={page.url.first}
