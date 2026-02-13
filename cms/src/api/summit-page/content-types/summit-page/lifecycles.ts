@@ -1,5 +1,5 @@
 import { createPageLifecycle } from '../../../../utils/pageLifecycle'
-import { PATHS } from '../../../../utils/paths'
+import { PATHS } from '../../../../../src/utils/paths'
 
 export default createPageLifecycle({
   contentTypeUid: 'api::summit-page.summit-page',

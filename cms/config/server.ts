@@ -1,5 +1,5 @@
 import path from 'path'
-import { getProjectRoot, PATHS } from '../src/utils/paths'
+import { getProjectRoot, PATHS } from '../../src/utils/paths'
 
 export default ({ env }) => ({
   host: env('HOST', '0.0.0.0'),

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { getProjectRoot } from './paths'
+import { getProjectRoot } from '../../../src/utils/paths'
 import { syncToGit } from './gitSync'
 import { uidToLogLabel } from './mdx'
 

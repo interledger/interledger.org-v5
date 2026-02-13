@@ -1,4 +1,4 @@
-import { getContentPath } from '../../src/utils/paths'
+import { getContentPath } from '../../../src/utils/paths'
 
 export interface ContentTypeConfig {
   dir: string

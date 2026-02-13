@@ -2,7 +2,7 @@ import { defineCollection, z } from 'astro:content'
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
-import { PATHS } from '../cms/src/utils/paths'
+import { PATHS } from './utils/paths'
 import {
   foundationBlogFrontmatterSchema,
   pageFrontmatterSchema

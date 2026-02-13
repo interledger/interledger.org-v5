@@ -2,7 +2,7 @@
 // This must run BEFORE any config files are loaded
 import dotenv from 'dotenv'
 import path from 'path'
-import { getCmsDir, getProjectRoot, PATHS } from './utils/paths'
+import { getCmsDir, getProjectRoot, PATHS } from '../../src/utils/paths'
 
 // Load .env from project root (one level up from cms directory)
 const envPath = path.join(getProjectRoot(), '.env')

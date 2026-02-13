@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { getContentPath, getProjectRoot, PATHS } from '../cms/src/utils/paths'
+import { getContentPath, getProjectRoot, PATHS } from '../src/utils/paths'
 
 const projectRoot = getProjectRoot()
 const imgFilePath = path.join(projectRoot, PATHS.PUBLIC, PATHS.FOUNDATION_BLOG_IMG)

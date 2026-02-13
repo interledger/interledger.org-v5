@@ -6,7 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { getProjectRoot, getContentPath } from '../../../../utils/paths'
+import { getProjectRoot, getContentPath } from '../../../../../src/utils/paths'
 import { syncToGit } from '../../../../utils/gitSync'
 import { shouldSkipMdxExport } from '../../../../utils/pageLifecycle'
 import {

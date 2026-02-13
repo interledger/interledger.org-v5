@@ -1,5 +1,5 @@
 import path from 'path'
-import { getCmsDir, PATHS } from '../src/utils/paths'
+import { getCmsDir, PATHS } from '../../src/utils/paths'
 
 export default () => ({
   connection: {

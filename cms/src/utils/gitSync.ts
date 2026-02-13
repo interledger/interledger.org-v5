@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { exec } from 'child_process'
-import { getProjectRoot, PATHS } from './paths'
+import { getProjectRoot, PATHS } from '../../../src/utils/paths'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
