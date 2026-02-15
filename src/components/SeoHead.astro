@@ -1,0 +1,119 @@
+---
+import { buildDefaultAlternates, resolveLang, toOgLocale } from '../utils/seo'
+
+interface AlternateLink {
+  href: string
+  hreflang: string
+}
+
+interface Props {
+  title?: string
+  description?: string
+  siteName: string
+  ogType?: string
+  ogImageUrl?: string
+  ogImageAlt?: string
+  ogSiteName?: string
+  ogLocale?: string
+  canonicalURL?: string
+  lang?: string
+  alternates?: AlternateLink[]
+  jsonLdSiteName?: string
+  includeJsonLd?: boolean
+  twitterSite?: string
+  robots?: string
+}
+
+const {
+  title,
+  description,
+  siteName,
+  ogType = 'website',
+  ogImageUrl,
+  ogImageAlt,
+  ogSiteName,
+  ogLocale,
+  canonicalURL: canonicalOverride,
+  lang: langOverride,
+  alternates,
+  jsonLdSiteName,
+  includeJsonLd = true,
+  twitterSite = '@interledger',
+  robots
+} = Astro.props
+
+const site = Astro.site ?? new URL('/', Astro.url)
+const canonicalURL = canonicalOverride
+  ? new URL(canonicalOverride, site).href
+  : new URL(Astro.url.pathname, site).href
+const pageLang = resolveLang(langOverride, Astro.url.pathname)
+const alternateLinks = alternates ?? buildDefaultAlternates(Astro.url.pathname, site)
+const ogImage = ogImageUrl
+  ? new URL(ogImageUrl, site).href
+  : new URL('/img/og-image.png', site).href
+const resolvedOgSiteName = ogSiteName ?? siteName
+const resolvedOgLocale = ogLocale ?? toOgLocale(pageLang)
+
+const resolvedTitle = title ? `${title} | ${siteName}` : siteName
+const resolvedDescription =
+  description ?? 'Making payments as easy as sending an email'
+const resolvedOgImageAlt = ogImageAlt ?? (title ? title : siteName)
+
+const orgId = `${site.href}#organization`
+const websiteId = `${site.href}#website`
+const jsonLd = includeJsonLd
+  ? JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        '@id': orgId,
+        name: 'Interledger Foundation',
+        url: site.href,
+        logo: new URL('/img/logo-interledger.svg', site).href
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': websiteId,
+        name: jsonLdSiteName ?? siteName,
+        url: site.href,
+        inLanguage: pageLang,
+        publisher: {
+          '@id': orgId
+        }
+      }
+    ])
+  : null
+---
+
+<meta charset="UTF-8" />
+<meta name="author" content="Interledger Foundation" />
+<meta name="description" content={resolvedDescription} />
+<meta name="viewport" content="width=device-width" />
+<meta name="generator" content={Astro.generator} />
+<title>{resolvedTitle}</title>
+
+<meta property="og:title" content={resolvedTitle} />
+<meta property="og:type" content={ogType} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={resolvedOgImageAlt} />
+<meta property="og:site_name" content={resolvedOgSiteName} />
+<meta property="og:locale" content={resolvedOgLocale} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:description" content={resolvedDescription} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={resolvedTitle} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:description" content={resolvedDescription} />
+{twitterSite && <meta name="twitter:site" content={twitterSite} />}
+{robots && <meta name="robots" content={robots} />}
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="canonical" href={canonicalURL} />
+{
+  alternateLinks.map((link) => (
+    <link rel="alternate" hreflang={link.hreflang} href={link.href} />
+  ))
+}
+{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}

@@ -30,7 +30,12 @@ const frontmatter = {
 const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<BlogLayout frontmatter={frontmatter}>
+<BlogLayout
+  frontmatter={frontmatter}
+  body={article.content || ''}
+  canonicalURL="/blog/preview"
+  robots="noindex, nofollow"
+>
   <article set:html={bodyHtml} />
   <CommunityLinks />
 </BlogLayout>

@@ -1,23 +1,107 @@
 ---
 import BaseLayout from './BaseLayout.astro'
 
-const { frontmatter } = Astro.props
+interface Props {
+  frontmatter: Record<string, any>
+  body?: string
+  canonicalURL?: string
+  alternates?: { href: string; hreflang: string }[]
+  robots?: string
+}
+
+const { frontmatter, body, canonicalURL, alternates, robots } = Astro.props as Props
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
 const longDate = dateObj.toDateString().substring(4)
 
 const rawHTMLString = `This article was originally published at <a href=${frontmatter.external_url}>${frontmatter.external_url}</a>.`
+
+const stripToWords = (input: string) =>
+  input
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[#_*>\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const wordCount = body ? stripToWords(body).split(' ').filter(Boolean).length : undefined
+
+const site = Astro.site ?? new URL('/', Astro.url)
+const lang = frontmatter.lang || 'en'
+const articleUrl = new URL(Astro.url.pathname, site).href
+const imageCandidate =
+  frontmatter.ogImageUrl ||
+  frontmatter.featureImage ||
+  frontmatter.image ||
+  frontmatter.thumbnailImage
+const articleImage = imageCandidate
+  ? new URL(imageCandidate, site).href
+  : undefined
+const ogImageUrl = imageCandidate || '/img/blog/og-image.png'
+const publishedAt =
+  frontmatter.date instanceof Date
+    ? frontmatter.date.toISOString()
+    : new Date(frontmatter.date).toISOString()
+
+const authors = Array.isArray(frontmatter.authors)
+  ? frontmatter.authors
+  : frontmatter.authors
+    ? [frontmatter.authors]
+    : []
+const authorUrls = Array.isArray(frontmatter.author_urls)
+  ? frontmatter.author_urls
+  : []
+const authorJsonLd =
+  authors.length > 0
+    ? authors.map((name, index) => {
+        const url = authorUrls[index]
+        return url ? { '@type': 'Person', name, url } : { '@type': 'Person', name }
+      })
+    : undefined
+
+const articleJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: frontmatter.title,
+  description: frontmatter.description,
+  datePublished: publishedAt,
+  dateModified: publishedAt,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': articleUrl
+  },
+  inLanguage: lang,
+  image: articleImage ? [articleImage] : undefined,
+  author: authorJsonLd,
+  publisher: {
+    '@type': 'Organization',
+    '@id': `${site.href}#organization`,
+    name: 'Interledger Foundation',
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/img/logo-interledger.svg', site).href
+    }
+  },
+  wordCount: wordCount ?? undefined
+})
 ---
 
 <BaseLayout
   title={frontmatter.title}
   description={frontmatter.description}
   ogType="article"
-  ogImageUrl={frontmatter.ogImageUrl
-    ? new URL(frontmatter.ogImageUrl, Astro.site).href
-    : new URL('/img/blog/og-image.png', Astro.site).href}
+  ogImageUrl={ogImageUrl}
+  ogImageAlt={frontmatter.featureImageAlt || frontmatter.title}
+  lang={lang}
+  canonicalURL={canonicalURL}
+  alternates={alternates}
+  robots={robots}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={articleJsonLd} />
+  </Fragment>
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article
       itemscope
@@ -69,9 +153,17 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           }
         </li>
       </ol>
-      <div>
-        <img src={frontmatter.featureImage} alt={frontmatter.featureImageAlt}>
-      </div> 
+      {frontmatter.featureImage && (
+        <div>
+          <img
+            src={frontmatter.featureImage}
+            alt={frontmatter.featureImageAlt || frontmatter.title}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </div>
+      )}
       <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>

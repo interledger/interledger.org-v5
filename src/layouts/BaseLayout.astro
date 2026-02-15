@@ -1,7 +1,9 @@
 ---
 import FoundationFooter from '../components/pages/FoundationFooter.astro'
 import FoundationHeader from '../components/pages/FoundationHeader.astro'
+import SeoHead from '../components/SeoHead.astro'
 import '../styles/tailwind.css'
+import { resolveLang } from '../utils/seo'
 
 interface Props {
   title: string
@@ -9,7 +11,11 @@ interface Props {
   gradient?: string
   ogType?: string
   ogImageUrl?: string
+  ogImageAlt?: string
   canonicalURL?: string
+  lang?: string
+  alternates?: { href: string; hreflang: string }[]
+  robots?: string
 }
 
 const {
@@ -17,69 +23,32 @@ const {
   description,
   ogType,
   ogImageUrl,
-  canonicalURL = new URL(Astro.url.pathname, Astro.site).href
+  ogImageAlt,
+  canonicalURL,
+  lang,
+  alternates,
+  robots
 } = Astro.props
+
+const pageLang = resolveLang(lang, Astro.url.pathname)
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang={pageLang} data-theme="light">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="author" content="Interledger Foundation" />
-    <meta
-      name="description"
-      content={description
-        ? description
-        : 'Making payments as easy as sending an email'}
+    <SeoHead
+      title={title}
+      description={description}
+      siteName="Interledger Foundation"
+      ogType={ogType}
+      ogImageUrl={ogImageUrl}
+      ogImageAlt={ogImageAlt}
+      canonicalURL={canonicalURL}
+      lang={pageLang}
+      alternates={alternates}
+      robots={robots}
     />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>
-      {title ? `${title} | Interledger Foundation` : 'Interledger Foundation'}
-    </title>
-
-    <meta
-      property="og:title"
-      content={title
-        ? `${title} | Interledger Foundation`
-        : 'Interledger Foundation'}
-    />
-    <meta property="og:type" content={ogType ? ogType : 'website'} />
-    <meta
-      property="og:image"
-      content={ogImageUrl
-        ? ogImageUrl
-        : new URL('/img/og-image.png', Astro.site).href}
-    />
-    <meta property="og:url" content={canonicalURL} />
-    <meta
-      property="og:description"
-      content={description
-        ? description
-        : 'Making payments as easy as sending an email'}
-    />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content={title
-        ? `${title} | Interledger Foundation`
-        : 'Interledger Foundation'}
-    />
-    <meta
-      name="twitter:image"
-      content={ogImageUrl
-        ? ogImageUrl
-        : new URL('/img/og-image.png', Astro.site).href}
-    />
-    <meta
-      name="twitter:description"
-      content={description
-        ? description
-        : 'Making payments as easy as sending an email'}
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <slot name="head" />
     <script
       defer
       src="https://uwa.interledger.org/script.js"

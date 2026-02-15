@@ -1,0 +1,88 @@
+# Interledger.org
+
+Official website for Interledger (https://interledger.org/): enable seamless exchange of value across payment networks.
+
+## Tech stack
+
+- Astro 5, Starlight (docs theme), MDX
+- Tailwind CSS 4, design system: @interledger/docs-design-system
+- Netlify (static), dev server port 1103
+- Strapi CMS (in cms/) for content; lifecycle hooks write MDX to repo and push to GitHub
+
+## Commands
+
+- bun run start   — dev server (localhost:1103)
+- bun run build   — production build to ./dist
+- bun run format  — Prettier + ESLint fix
+- bun run lint    — check formatting and lint
+
+## Project structure
+
+astro.config.mjs     — Astro + Starlight + Netlify + MDX + sitemap config
+package.json        — scripts, deps (bun)
+
+src/
+  components/       — Astro/React (Header.astro, PageSidebar.astro, SeoHead.astro, etc.)
+  config/           — navigation.json, summit-navigation.json
+  content/          — MDX: foundation-pages/, blog/, developers/blog/, docs/, summit/, grants/
+  content.config.ts — content collection config
+  layouts/          — BaseLayout, BlogLayout, FoundationLayout, SummitLayout
+  pages/            — Astro routes (index, [...page], blog/[...id], developers/blog/, summit/[...page])
+  styles/           — interledger.css, tailwind, atom-one-light (code theme)
+  utils/            — seo.ts, fetchStrapi.ts
+
+cms/                — Strapi CMS; publishes → MDX → git (staging). sync-mdx.cjs syncs MDX → Strapi.
+public/             — static assets
+scripts/            — export-navigation, import-navigation, export-summit-navigation
+
+## Content and routing
+
+- Foundation pages: src/content/foundation-pages/*.mdx → routes via [...page]
+- Blog: src/content/blog/, src/content/developers/blog/ — [...id] / [...page]
+- Docs: Starlight sidebar from astro.config.mjs; content under src/content/docs/
+- Summit: src/content/summit/, src/pages/summit/[...page].astro
+- Nav: src/config/navigation.json, summit-navigation.json; scripts for export/import
+
+## Team and workflow
+
+- All work via Linear; assign yourself before starting. GitHub issues/PRs and Slack context linked in Linear.
+- Branch naming: initials/short-description (e.g. jm/SEO-baseline).
+- Conventional Commits for history and automation; PRs are squash merged.
+- Communicate in Slack group channels, threads, tag who needs context. #frontend-team, #ilf-website, #ilf-website-requests, #user-docs. Document decisions and status in Linear and meeting notes.
+
+## Code standards
+
+- Prioritize clarity: optimize for the next reader. Simple, readable code over clever.
+- Name things well; small, focused functions (one thing; ~50+ lines → consider splitting). Early returns over deep nesting.
+- DRY: extract repeated logic into utilities/helpers; constants for shared values; shared components/tokens over one-off styling.
+- Strict typing; break on build, not at runtime. Lint, format, type-check, tests where possible.
+- Edge cases, error handling, accessibility (keyboard, focus, zoom, semantic HTML, ARIA). Responsive across screens and browsers.
+- Performance: watch bundle size, prefer static output, lazy-load, optimize assets. Use Lighthouse, PageSpeed, WebPageTest, TinyPNG, SVGO as needed.
+- Dependencies: actively maintained, widely used, necessary; prefer existing solutions; add latest stable. Review every suggested dependency.
+- Keep READMEs updated: setup, env vars, workflows, scripts, key decisions, how to run/test/release.
+
+## Reviews
+
+- One PR, one idea; keep PRs small. Split refactors/formatting into separate PRs.
+- Author: self-review first (double-check if LLM-assisted); add PR comments for context; nudge if stale.
+- Reviewer: run branch locally, check screen sizes and browsers, Lighthouse, edge cases, a11y, performance, alignment with standards.
+
+## LLM use
+
+- Give the LLM this file and README so it follows our standards and structure.
+- Prompt explicitly for: clean code, clear naming, strong typing, error handling, accessibility.
+- Author owns every line. Review all generated output (architecture, file structure, types, comments). Verify suggested dependencies manually.
+- Ask the LLM to critique the code before submission: tradeoffs, edge cases, tests, a11y, naming, clarity.
+
+## Interledger.org specifics
+
+- Astro is the source of truth. Strapi is for editing; keep the Strapi UI simple and minimal.
+- Content editors are our clients—prioritize their needs and convenience in the CMS.
+
+## Conventions for LLMs (this repo)
+
+- Use existing Astro/Starlight patterns; custom components under src/components/
+- Global styles: src/styles/interledger.css + design-system CSS in astro.config.mjs
+- SEO: src/utils/seo.ts, SeoHead.astro; sitemap excludes /blog/preview
+- Content: edit MDX in src/content/ or via Strapi (cms/); Strapi writes to foundation-pages/, blog/, grants/
+- i18n: commented in astro.config.mjs; some content under src/content/es/

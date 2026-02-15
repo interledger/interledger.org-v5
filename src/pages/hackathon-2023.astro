@@ -1,10 +1,10 @@
 ---
 import AnimatedSummitLogo from '../components/logos/AnimatedSummitLogo.astro'
 import Section from '../components/pages/Section.astro'
-import LanderLayout from '../layouts/LanderLayout.astro'
+import FoundationLayout from '../layouts/FoundationLayout.astro'
 ---
 
-<LanderLayout title="Interledger Summit Hackthon 2023">
+<FoundationLayout title="Interledger Summit Hackthon 2023">
   <main class="min-[850px]:grid min-[850px]:grid-cols-[max-content_1fr] min-[850px]:grid-rows-[auto_auto] min-[850px]:[grid-template-areas:'hero_hero'_'sidebar_content']">
     <button
       id="toggleNav"
@@ -525,7 +525,7 @@ import LanderLayout from '../layouts/LanderLayout.astro'
       </Section>
     </div>
   </main>
-</LanderLayout>
+</FoundationLayout>
 
 <script>
   const sidebar = document.getElementById('mobileNav')
