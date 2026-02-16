@@ -138,6 +138,7 @@
     --color-header-accent: #eee;
     --color-table-stripe: #f6f7f9;
     --color-bg-inline-code: #edeef3;
+    --color-tech-light-bg: oklch(98.21% 0.021 193.19);
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),

@@ -34,7 +34,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/" data-umami-event="Devs breadcrumb - Home">
+          <a itemprop="item" href="/developers" data-umami-event="Devs breadcrumb - Home">
             <span itemprop="name">Developers Portal</span></a
           >
           <meta itemprop="position" content="1" />
@@ -47,14 +47,14 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
         >
           <a
             itemprop="item"
-            href="/blog"
+            href="/developers/blog"
             data-umami-event="Devs breadcrumb - Blog"
           >
             <span itemprop="name">Engineering Blog</span></a
           >
           <meta itemprop="position" content="2" />
           {
-            frontmatter.lang && (
+            frontmatter.lang == 'es' && (
               <>
                 <span>|</span>
                 <a
