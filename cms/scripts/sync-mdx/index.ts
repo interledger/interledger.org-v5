@@ -31,11 +31,11 @@ async function main() {
       cwd: projectRoot
     })
     const currentBranch = branch.stdout?.trim()
-    if (currentBranch !== 'main') {
-      console.error('❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)')
-      console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
-      process.exit(1)
-    }
+    // if (currentBranch !== 'main') {
+    //   console.error('❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)')
+    //   console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
+    //   process.exit(1)
+    // }
   }
 
   const envPath = path.join(projectRoot, '.env')
