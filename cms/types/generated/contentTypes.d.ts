@@ -482,6 +482,37 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiFoundationNavigationFoundationNavigation
+  extends Struct.SingleTypeSchema {
+  collectionName: 'foundation_navigations'
+  info: {
+    description: 'Foundation site navigation menu'
+    displayName: 'Foundation Navigation'
+    pluralName: 'foundation-navigations'
+    singularName: 'foundation-navigation'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foundation-navigation.foundation-navigation'
+    > &
+      Schema.Attribute.Private
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
   collectionName: 'grant_tracks'
   info: {
@@ -507,36 +538,6 @@ export interface ApiGrantTrackGrantTrack extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private
     name: Schema.Attribute.String & Schema.Attribute.Required
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    publishedAt: Schema.Attribute.DateTime
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
-  collectionName: 'navigations'
-  info: {
-    description: 'Main site navigation menu'
-    displayName: 'Navigation'
-    pluralName: 'navigations'
-    singularName: 'navigation'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::navigation.navigation'
-    > &
-      Schema.Attribute.Private
-    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1065,7 +1066,7 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
 }
 
 declare module '@strapi/strapi' {
-  export namespace Public {
+  export module Public {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken
       'admin::api-token-permission': AdminApiTokenPermission
@@ -1076,8 +1077,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
       'api::blog-post.blog-post': ApiBlogPostBlogPost
+      'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::grant-track.grant-track': ApiGrantTrackGrantTrack
-      'api::navigation.navigation': ApiNavigationNavigation
       'api::page.page': ApiPagePage
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
