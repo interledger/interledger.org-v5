@@ -163,6 +163,41 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       updatedAt: 'Updated At',
       publishedAt: 'Published At'
     },
+    'api::foundation-blog-post.foundation-blog-post': {
+      title: 'Title',
+      description: 'Description',
+      slug: 'URL Slug',
+      date: 'Publish Date',
+      featuredImage: 'Featured Image',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::foundation-page.foundation-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path (e.g. /grant/ambassadors)',
+      pageType: 'Page Type (Grant, Policy, Developer)',
+      seo: 'SEO',
+      hero: 'Hero',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::summit-page.summit-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path',
+      pageType: 'Page Type (Hackathon, Hackathon Resource)',
+      seo: 'SEO',
+      hero: 'Hero',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
     'api::press-item.press-item': {
       title: 'Title',
       description: 'Description',

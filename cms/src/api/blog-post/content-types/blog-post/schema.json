@@ -4,8 +4,8 @@
   "info": {
     "singularName": "blog-post",
     "pluralName": "blog-posts",
-    "displayName": "Blog Post",
-    "description": "Engineering blog posts that sync to MDX"
+    "displayName": "Tech Blog Post",
+    "description": "Engineering/developer blog posts that sync to MDX"
   },
   "options": {
     "draftAndPublish": true

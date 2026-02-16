@@ -1,14 +1,19 @@
 const getPreviewPathname = (uid: string, { document }): string => {
-  // Handle blog posts
+  if (!document) return null
+
   switch (uid) {
-    case 'api::blog-post.blog-post': {
-      if (!document?.id) {
-        return '/blog'
-      }
-      return `/blog/preview?slug=${document.documentId}`
+    case 'api::blog-post.blog-post':
+      return document.documentId ? `/blog/preview?slug=${document.documentId}` : '/blog'
+    case 'api::foundation-blog-post.foundation-blog-post':
+      return document.documentId ? `/blog/preview?slug=${document.documentId}&type=foundation` : '/blog'
+    case 'api::foundation-page.foundation-page': {
+      const path = document.path?.replace(/^\//, '') || document.slug
+      return `/${path}?preview=true`
     }
-    case 'api::foundation-page.foundation-page':
-      return `/${document.slug}?preview=true`
+    case 'api::summit-page.summit-page': {
+      const path = document.path?.replace(/^\//, '') || document.slug
+      return `/summit/${path}?preview=true`
+    }
     default:
       return null
   }
