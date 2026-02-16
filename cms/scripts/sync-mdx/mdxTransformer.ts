@@ -4,11 +4,10 @@
  * Transforms MDX files into Strapi payload format for content types.
  * Handles page content types (foundation-pages, summit-pages) by:
  * - Validating frontmatter against Zod schemas
- * - Converting MDX content to HTML
+ * - Importing MDX content as markdown (preserving original format)
  * - Preserving existing Strapi entry data when appropriate
  */
 
-import { marked } from 'marked'
 import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
@@ -16,9 +15,6 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from '../../../src/schemas/content'
-
-// Configure marked to not generate header IDs (Strapi handles this)
-marked.use({ headerIds: false })
 
 // Content types that are treated as "pages" (have hero sections, etc.)
 const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
@@ -61,7 +57,7 @@ export function isPageType(contentType: keyof ContentTypes): boolean {
  * 1. Validates frontmatter against the appropriate Zod schema
  * 2. Builds the base payload with required fields (title, slug, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
- * 4. Converts MDX content to HTML (or preserves existing if MDX is empty)
+ * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  * 
  * Currently only supports page content types (foundation-pages, summit-pages).
  * Returns null for unsupported content types.
@@ -111,15 +107,16 @@ export function mdxToStrapiPayload(
       }
     }
 
-    // Handle content conversion
-    // Convert MDX to HTML if content exists, otherwise preserve existing content
+    // Handle content import
+    // Import MDX content as markdown (preserve original format, no HTML conversion)
     const mdxBody = (mdx.content || '').trim()
     if (mdxBody.length > 0) {
-      // Wrap converted HTML in a Strapi paragraph block component
+      // Store markdown content in a Strapi paragraph block component
+      // Strapi's richtext field can accept markdown and will handle rendering
       data.content = [
         {
           __component: 'blocks.paragraph',
-          content: marked.parse(mdx.content)
+          content: mdx.content
         }
       ]
     } else {
