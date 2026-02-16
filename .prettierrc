@@ -4,11 +4,7 @@
   "trailingComma": "none",
   "plugins": ["prettier-plugin-astro"],
   "overrides": [
-    {
-      "files": "**/*.astro",
-      "options": {
-        "parser": "astro"
-      }
-    }
+    { "files": "**/*.astro", "options": { "parser": "astro" } },
+    { "files": "**/*.mdx", "options": { "proseWrap": "preserve" } }
   ]
 }
