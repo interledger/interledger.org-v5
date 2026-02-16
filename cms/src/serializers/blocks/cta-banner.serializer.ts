@@ -15,8 +15,12 @@ export function serialize(block: {
     `title="${esc(block.title)}"`,
     block.ctaText ? `ctaText="${esc(block.ctaText)}"` : null,
     block.ctaUrl ? `ctaUrl="${esc(block.ctaUrl)}"` : null,
-    block.backgroundColor ? `backgroundColor="${esc(block.backgroundColor)}"` : null
-  ].filter(Boolean).join(' ')
+    block.backgroundColor
+      ? `backgroundColor="${esc(block.backgroundColor)}"`
+      : null
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   lines.push(`<CtaBanner ${attrs}>`)
   if (block.description) {

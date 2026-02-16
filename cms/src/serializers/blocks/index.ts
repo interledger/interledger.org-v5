@@ -19,7 +19,9 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.paragraph': paragraph
 }
 
-export function serializeContent(content: Array<{ __component: string; [key: string]: unknown }> | undefined): string {
+export function serializeContent(
+  content: Array<{ __component: string; [key: string]: unknown }> | undefined
+): string {
   if (!content || content.length === 0) return ''
 
   const blocks: string[] = []

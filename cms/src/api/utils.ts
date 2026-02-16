@@ -9,7 +9,12 @@ export {
   type PageLifecycleConfig
 } from '../utils/pageLifecycle'
 export { createNavigationLifecycle } from '../utils/navigationLifecycle'
-export { getProjectRoot, getContentPath, getCmsDir, PATHS } from '../utils/paths'
+export {
+  getProjectRoot,
+  getContentPath,
+  getCmsDir,
+  PATHS
+} from '../utils/paths'
 export {
   getImageUrl,
   htmlToMarkdown,

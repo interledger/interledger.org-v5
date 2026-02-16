@@ -11,7 +11,7 @@ const turndown = new TurndownService({
   headingStyle: 'atx',
   codeBlockStyle: 'fenced',
   bulletListMarker: '-',
-  emDelimiter: '*',
+  emDelimiter: '*'
 })
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -26,7 +26,9 @@ export function uidToLogLabel(uid: string): string {
   return parts[parts.length - 1] ?? uid
 }
 
-export function getImageUrl(media: { url?: string } | undefined): string | undefined {
+export function getImageUrl(
+  media: { url?: string } | undefined
+): string | undefined {
   if (!media?.url) return undefined
 
   if (media.url.startsWith('/uploads/')) {
@@ -64,11 +66,15 @@ export function getPreservedFields(filepath: string): Record<string, unknown> {
   }
 }
 
-export function heroFrontmatter(hero: {
-  title?: string
-  description?: string
-  backgroundImage?: { url?: string }
-} | undefined): Record<string, string> {
+export function heroFrontmatter(
+  hero:
+    | {
+        title?: string
+        description?: string
+        backgroundImage?: { url?: string }
+      }
+    | undefined
+): Record<string, string> {
   const data: Record<string, string> = {}
   if (!hero) return data
   if (hero.title) {
@@ -84,13 +90,17 @@ export function heroFrontmatter(hero: {
   return data
 }
 
-export function seoFrontmatter(seo: {
-  metaTitle?: string
-  metaDescription?: string
-  metaImage?: { url?: string }
-  keywords?: string
-  canonicalUrl?: string
-} | undefined): Record<string, string> {
+export function seoFrontmatter(
+  seo:
+    | {
+        metaTitle?: string
+        metaDescription?: string
+        metaImage?: { url?: string }
+        keywords?: string
+        canonicalUrl?: string
+      }
+    | undefined
+): Record<string, string> {
   const data: Record<string, string> = {}
   if (!seo) return data
   if (seo.metaTitle) {

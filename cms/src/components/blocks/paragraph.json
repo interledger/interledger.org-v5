@@ -18,11 +18,7 @@
     },
     "alignment": {
       "type": "enumeration",
-      "enum": [
-        "left",
-        "center",
-        "right"
-      ],
+      "enum": ["left", "center", "right"],
       "default": "left",
       "pluginOptions": {
         "i18n": {
