@@ -1,11 +1,11 @@
 {
   "kind": "collectionType",
-  "collectionName": "summit_pages",
+  "collectionName": "foundation-pages",
   "info": {
-    "singularName": "summit-page",
-    "pluralName": "summit-pages",
-    "displayName": "Summit Page",
-    "description": "Summit pages with dark theme and dynamic content blocks"
+    "singularName": "foundation-page",
+    "pluralName": "foundation-pages",
+    "displayName": "Foundation Page",
+    "description": "Website pages with dynamic content blocks"
   },
   "options": {
     "draftAndPublish": true
@@ -62,8 +62,7 @@
         "blocks.cards-grid",
         "blocks.card-links-grid",
         "blocks.carousel",
-        "blocks.cta-banner",
-        "blocks.image-row"
+        "blocks.cta-banner"
       ],
       "pluginOptions": {
         "i18n": {
