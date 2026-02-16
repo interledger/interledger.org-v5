@@ -43,15 +43,9 @@ export default {
       },
 
       // Colors from pages.css
+      // NOTE: 'primary' is now dynamic via @theme inline in tailwind.css
+      // It reads from var(--color-primary) which responds to [data-pillar] overrides
       colors: {
-        primary: {
-          DEFAULT: 'oklch(51.54% 0.088 194.77)',
-          fallback: '#007777',
-          bg: 'oklch(51.95% 0.089 187.7 / 0.1)',
-          'bg-fallback': 'rgba(7, 121, 114, 0.1)',
-          hover: '#0c9b9b',
-          light: 'oklch(74.53% 0.082 202.65)'
-        },
         mission: {
           DEFAULT: 'oklch(55.27% 0.205 32.62)',
           fallback: '#c24b3d'

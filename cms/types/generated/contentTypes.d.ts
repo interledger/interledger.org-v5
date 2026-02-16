@@ -625,6 +625,14 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     hero: Schema.Attribute.Component<'shared.hero', false>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>
+    pillar: Schema.Attribute.Enumeration<
+      ['tech', 'mission', 'vision', 'values']
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false>
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required

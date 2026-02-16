@@ -171,6 +171,7 @@ interface Page {
   documentId: string
   title: string
   slug: string
+  pillar?: 'tech' | 'mission' | 'vision' | 'values' | null
   locale?: string
   hero?: Hero
   seo?: Seo
@@ -536,6 +537,11 @@ function generateMDX(page: Page): string {
     `slug: "${escapeQuotes(page.slug)}"`,
     `title: "${escapeQuotes(page.title)}"`
   ]
+
+  // Add pillar field
+  if (page.pillar) {
+    frontmatterLines.push(`pillar: "${page.pillar}"`)
+  }
 
   // Add hero fields
   if (page.hero) {

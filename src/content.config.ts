@@ -18,6 +18,7 @@ const pageSchema = z.object({
   title: z.string(),
   slug: z.string(),
   description: z.string().optional(),
+  pillar: z.enum(['tech', 'mission', 'vision', 'values']).optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),

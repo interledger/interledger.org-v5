@@ -24,7 +24,10 @@ const alignmentClass =
       : ''
 ---
 
+{/* :where(a) keeps specificity low so styled components (e.g. CtaButton)
+    can override these prose defaults with their own Tailwind classes */}
 <div
-  class={`mx-auto max-w-narrow ${alignmentClass} [&_p]:mb-space-s [&_p]:leading-relaxed [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_ul]:mb-space-s [&_ul]:ps-space-m [&_ol]:mb-space-s [&_ol]:ps-space-m [&_li]:mb-space-xs`}
+  data-prose
+  class={`mx-auto max-w-narrow ${alignmentClass}`}
   set:html={htmlContent}
 />

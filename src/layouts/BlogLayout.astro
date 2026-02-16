@@ -19,10 +19,13 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     : new URL('/img/blog/og-image.png', Astro.site).href}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
+    {/* :where(a) keeps specificity low so styled components (e.g. CtaButton)
+        can override these prose defaults with their own Tailwind classes */}
     <article
       itemscope
       itemtype="http://schema.org/Article"
-      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s [&_ol]:mb-space-s [&_ul]:mb-space-s [&_figure]:mb-space-s [&_hr]:mb-space-s [&_h2]:mb-space-xs [&_h3]:mb-space-xs [&_h4]:mb-space-xs [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto"
+      data-prose-blog
+      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%]"
     >
       <ol
         class="flex list-none ps-0 text-step--1 font-bold pt-space-l"

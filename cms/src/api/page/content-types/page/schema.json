@@ -35,6 +35,15 @@
       "repeatable": false,
       "component": "shared.seo"
     },
+    "pillar": {
+      "type": "enumeration",
+      "enum": ["tech", "mission", "vision", "values"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "hero": {
       "type": "component",
       "repeatable": false,
