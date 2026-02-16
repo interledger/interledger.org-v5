@@ -1,0 +1,99 @@
+---
+/**
+ * Base layout for Foundation Page collection type.
+ * Used for Grant Page, Policy Page, and Developer Page variants.
+ */
+import FoundationFooter from '../components/pages/FoundationFooter.astro'
+import FoundationHeader from '../components/pages/FoundationHeader.astro'
+import '../styles/tailwind.css'
+
+interface Props {
+  title: string
+  description?: string
+  gradient?: string
+  ogType?: string
+  ogImageUrl?: string
+  canonicalURL?: string
+}
+
+const {
+  title,
+  description,
+  ogType,
+  ogImageUrl,
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href
+} = Astro.props
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="Interledger Foundation" />
+    <meta
+      name="description"
+      content={description
+        ? description
+        : 'Making payments as easy as sending an email'}
+    />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>
+      {title ? `${title} | Interledger Foundation` : 'Interledger Foundation'}
+    </title>
+
+    <meta
+      property="og:title"
+      content={title
+        ? `${title} | Interledger Foundation`
+        : 'Interledger Foundation'}
+    />
+    <meta property="og:type" content={ogType ? ogType : 'website'} />
+    <meta
+      property="og:image"
+      content={ogImageUrl
+        ? ogImageUrl
+        : new URL('/img/og-image.png', Astro.site).href}
+    />
+    <meta property="og:url" content={canonicalURL} />
+    <meta
+      property="og:description"
+      content={description
+        ? description
+        : 'Making payments as easy as sending an email'}
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content={title
+        ? `${title} | Interledger Foundation`
+        : 'Interledger Foundation'}
+    />
+    <meta
+      name="twitter:image"
+      content={ogImageUrl
+        ? ogImageUrl
+        : new URL('/img/og-image.png', Astro.site).href}
+    />
+    <meta
+      name="twitter:description"
+      content={description
+        ? description
+        : 'Making payments as easy as sending an email'}
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script
+      defer
+      src="https://uwa.interledger.org/script.js"
+      data-website-id="50d81dd1-bd02-4f82-8a55-34a09ccbbbd9"
+      data-domains="interledger.org"></script>
+  </head>
+
+  <body class="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden">
+    <FoundationHeader />
+    <slot />
+    <FoundationFooter />
+  </body>
+</html>

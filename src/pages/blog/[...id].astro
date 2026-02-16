@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import CommunityLinks from '../../components/blog/CommunityLinks.astro'
-import BlogLayout from '../../layouts/BlogLayout.astro'
+import FoundationBlogLayout from '../../layouts/FoundationBlogLayout.astro'
 
 export const prerender = true
 
@@ -17,7 +17,7 @@ const { entry } = Astro.props
 const { Content } = await render(entry)
 ---
 
-<BlogLayout frontmatter={entry.data}>
+<FoundationBlogLayout frontmatter={entry.data}>
   <Content />
   <CommunityLinks />
-</BlogLayout>
+</FoundationBlogLayout>

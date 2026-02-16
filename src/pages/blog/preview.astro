@@ -1,5 +1,5 @@
 ---
-import BlogLayout from '../../layouts/BlogLayout.astro'
+import FoundationBlogLayout from '../../layouts/FoundationBlogLayout.astro'
 import CommunityLinks from '../../components/blog/CommunityLinks.astro'
 import { fetchStrapi } from '../../utils/fetchStrapi'
 import { marked } from 'marked'
@@ -20,17 +20,20 @@ if (!article) {
   throw new Error(`Preview: No article found for documentId "${documentId}"`)
 }
 
-// Map Strapi fields to your BlogLayout frontmatter
+// Map Strapi fields to FoundationBlogLayout frontmatter
 const frontmatter = {
   title: article.title,
   description: article.description,
-  date: article.publishedAt
+  date: article.publishedAt,
+  featureImage: article.featuredImage?.url,
+  featureImageAlt: article.featuredImage?.alternativeText,
+  ogImageUrl: article.ogImageUrl
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<BlogLayout frontmatter={frontmatter}>
+<FoundationBlogLayout frontmatter={frontmatter}>
   <article set:html={bodyHtml} />
   <CommunityLinks />
-</BlogLayout>
+</FoundationBlogLayout>

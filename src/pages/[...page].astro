@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import { getPagePaths } from '../utils/static-paths'
 
 export const prerender = true
@@ -37,7 +37,7 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<BaseLayout title={title} description={description}>
+<FoundationPageLayout title={title} description={description}>
   <main class="pb-space-l">
     {
       isNotFound ? (
@@ -81,4 +81,4 @@ if (isNotFound) Astro.response.status = 404
       )
     }
   </main>
-</BaseLayout>
+</FoundationPageLayout>
