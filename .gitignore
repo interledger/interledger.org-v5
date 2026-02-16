@@ -32,5 +32,3 @@ pnpm-lock.yaml
 
 # Local Netlify folder
 .netlify
-
-test-results/
