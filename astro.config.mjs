@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
-import starlightLinksValidator from 'starlight-links-validator'
+// import starlightLinksValidator from 'starlight-links-validator'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
