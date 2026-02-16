@@ -633,54 +633,6 @@ export interface ApiFoundationPageFoundationPage
   }
 }
 
-export interface ApiPagePage extends Struct.CollectionTypeSchema {
-  collectionName: 'pages'
-  info: {
-    description: 'Website pages with dynamic content blocks'
-    displayName: 'Page'
-    pluralName: 'pages'
-    singularName: 'page'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    content: Schema.Attribute.DynamicZone<
-      [
-        'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner'
-      ]
-    >
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    hero: Schema.Attribute.Component<'shared.hero', false>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>
-    publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false>
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiSummitNavigationSummitNavigation
   extends Struct.SingleTypeSchema {
   collectionName: 'summit_navigations'
@@ -1187,7 +1139,6 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
-      'api::page.page': ApiPagePage
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease
