@@ -1,7 +1,7 @@
 import { marked } from 'marked'
 import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
-import type { StrapiEntry } from './strapi'
+import type { StrapiEntry } from './strapiClient'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema

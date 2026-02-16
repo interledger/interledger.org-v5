@@ -14,7 +14,7 @@ import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
 import { assertRunFromCms, getProjectRoot } from '../../src/utils/paths'
 import { buildContentTypes } from './config'
-import { createStrapiClient } from './strapi'
+import { createStrapiClient } from './strapiClient'
 import { syncAll } from './sync'
 
 async function main() {

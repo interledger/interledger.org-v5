@@ -1,5 +1,5 @@
 import type { ContentTypes } from './config'
-import type { StrapiClient } from './strapi'
+import type { StrapiClient } from './strapiClient'
 
 export interface SyncContext {
   contentTypes: ContentTypes

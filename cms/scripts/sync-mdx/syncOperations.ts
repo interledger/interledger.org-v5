@@ -1,6 +1,6 @@
 import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
-import type { StrapiEntry } from './strapi'
+import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { mdxToStrapiPayload } from './entryBuilder'
 import { getLocaleBase, addProcessedSlug, isProcessed } from './localeMatch'
