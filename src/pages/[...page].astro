@@ -1,18 +1,12 @@
 ---
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import { getPagePaths } from '../utils/static-paths'
 
 export const prerender = true
 
 export async function getStaticPaths() {
-  const pages = await getCollection('foundation-pages')
-  return pages
-    .filter((page) => page.data.slug !== 'home')
-    .map((page) => ({
-      params: {
-        page: page.data.slug
-      }
-    }))
+  return getPagePaths('foundation-pages', { excludeSlug: 'home' })
 }
 
 const slugParam = Astro.params.page

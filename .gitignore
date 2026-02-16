@@ -26,7 +26,6 @@ pnpm-debug.log*
 # lock files
 # bun.lock  # Netlify needs this file to detect the package manager, so we keep it in the repo
 pnpm-lock.yaml
-package-lock.json
 
 # webstorm
 .idea/

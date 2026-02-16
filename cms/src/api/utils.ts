@@ -9,8 +9,7 @@ export {
   type PageLifecycleConfig
 } from '../utils/pageLifecycle'
 export { createNavigationLifecycle } from '../utils/navigationLifecycle'
-export { getProjectRoot, getContentPath, getCmsDir, PATHS } from '../../../src/utils/paths'
-export { syncToGit } from '../utils/gitSync'
+export { getProjectRoot, getContentPath, getCmsDir, PATHS } from '../utils/paths'
 export {
   getImageUrl,
   htmlToMarkdown,
