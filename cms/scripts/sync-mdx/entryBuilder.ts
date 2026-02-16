@@ -24,7 +24,7 @@ export function isPageType(contentType: keyof ContentTypes): boolean {
   return PAGE_TYPES.includes(contentType as (typeof PAGE_TYPES)[number])
 }
 
-export function buildEntryData(
+export function mdxToStrapiPayload(
   contentType: keyof ContentTypes,
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null

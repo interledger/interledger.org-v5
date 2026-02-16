@@ -2,7 +2,7 @@ import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapi'
 import type { SyncContext, SyncResults } from './types'
-import { buildEntryData } from './entryBuilder'
+import { mdxToStrapiPayload } from './entryBuilder'
 import { getLocaleBase, addProcessedSlug, isProcessed } from './localeMatch'
 
 /** Sync a single English entry (create or update). Returns the entry if successful. */
@@ -18,7 +18,7 @@ export async function syncEnglishEntry(
     englishMdx.slug,
     'en'
   )
-  const englishData = buildEntryData(contentType, englishMdx, existing)
+  const englishData = mdxToStrapiPayload(contentType, englishMdx, existing)
 
   if (existing) {
     if (ctx.DRY_RUN) {
@@ -66,7 +66,7 @@ export async function syncLocaleEntry(
     localeCode
   )
 
-  const localeData = buildEntryData(contentType, localeMdx, existingLocale)
+  const localeData = mdxToStrapiPayload(contentType, localeMdx, existingLocale)
 
   if (existingLocale) {
     if (ctx.DRY_RUN) {
