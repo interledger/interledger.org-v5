@@ -123,29 +123,33 @@ export function scanMDXFiles(
   return mdxFiles
 }
 
-/** Locales to check for orphan deletion (en + any locale dirs in content). */
+/** Locales to check for orphan deletion. Returns union across ALL content types
+ * so we delete e.g. es/sobre-nosotros in Strapi even when es/foundation-pages dir was removed. */
 export function getLocalesToCheck(
-  contentType: keyof ContentTypes,
+  _contentType: keyof ContentTypes,
   contentTypes: ContentTypes
 ): string[] {
-  const config = contentTypes[contentType]
-  const baseDir = config.dir
-  const contentDir = path.dirname(baseDir)
   const locales = new Set<string>(['en'])
 
-  if (!fs.existsSync(contentDir)) return ['en']
+  for (const contentType of Object.keys(contentTypes) as Array<keyof ContentTypes>) {
+    const config = contentTypes[contentType]
+    const baseDir = config.dir
+    const contentDir = path.dirname(baseDir)
 
-  try {
-    for (const ent of fs.readdirSync(contentDir, { withFileTypes: true })) {
-      if (!ent.isDirectory()) continue
-      if (ent.name === path.basename(baseDir)) continue
-      const localeContentDir = path.join(contentDir, ent.name, path.basename(baseDir))
-      if (fs.existsSync(localeContentDir)) {
-        locales.add(ent.name.split('-')[0])
+    if (!fs.existsSync(contentDir)) continue
+
+    try {
+      for (const ent of fs.readdirSync(contentDir, { withFileTypes: true })) {
+        if (!ent.isDirectory()) continue
+        if (ent.name === path.basename(baseDir)) continue
+        const localeContentDir = path.join(contentDir, ent.name, path.basename(baseDir))
+        if (fs.existsSync(localeContentDir)) {
+          locales.add(ent.name.split('-')[0])
+        }
       }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
   }
 
   return Array.from(locales)
