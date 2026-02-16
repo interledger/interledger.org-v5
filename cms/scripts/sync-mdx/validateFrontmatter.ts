@@ -1,12 +1,10 @@
 import type { ContentTypes } from './config'
 import type { MDXFile } from './scan'
 import {
-  foundationBlogFrontmatterSchema,
   pageFrontmatterSchema
 } from '../../../src/schemas/content'
 
 const SCHEMAS = {
-  blog: foundationBlogFrontmatterSchema,
   'foundation-pages': pageFrontmatterSchema,
   'summit-pages': pageFrontmatterSchema
 }

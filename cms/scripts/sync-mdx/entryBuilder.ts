@@ -3,7 +3,6 @@ import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapi'
 import {
-  foundationBlogFrontmatterSchema,
   pageFrontmatterSchema
 } from '../../../src/schemas/content'
 
@@ -29,21 +28,6 @@ export function buildEntryData(
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null
 ): Record<string, unknown> | null {
-  if (contentType === 'blog') {
-    const parsed = foundationBlogFrontmatterSchema.parse({
-      ...mdx.frontmatter,
-      slug: mdx.slug
-    })
-    return {
-      title: parsed.title,
-      description: parsed.description,
-      slug: parsed.slug,
-      date: parsed.date,
-      content: marked.parse(mdx.content),
-      publishedAt: new Date().toISOString()
-    }
-  }
-
   if (isPageType(contentType)) {
     const parsed = pageFrontmatterSchema.parse({
       ...mdx.frontmatter,
