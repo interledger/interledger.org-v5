@@ -14,6 +14,7 @@ export interface StrapiClient {
   createEntry: (apiId: string, data: Record<string, unknown>, locale?: string | null) => Promise<{ data: StrapiEntry }>
   updateEntry: (apiId: string, documentId: string, data: Record<string, unknown>, locale?: string | null) => Promise<{ data: StrapiEntry }>
   deleteEntry: (apiId: string, documentId: string) => Promise<unknown>
+  deleteLocalization: (apiId: string, documentId: string, locale: string) => Promise<unknown>
 }
 
 interface StrapiClientOptions {
@@ -188,6 +189,17 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     })
   }
 
+  /** Delete a single locale variant. Keeps other locales. */
+  async function deleteLocalization(
+    apiId: string,
+    documentId: string,
+    locale: string
+  ): Promise<unknown> {
+    return await request(`${apiId}/${documentId}?locale=${locale}`, {
+      method: 'DELETE'
+    })
+  }
+
   return {
     request,
     getAllEntries,
@@ -196,6 +208,7 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     updateLocalization,
     createEntry,
     updateEntry,
-    deleteEntry
+    deleteEntry,
+    deleteLocalization
   }
 }

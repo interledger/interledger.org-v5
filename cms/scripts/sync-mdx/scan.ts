@@ -122,3 +122,31 @@ export function scanMDXFiles(
 
   return mdxFiles
 }
+
+/** Locales to check for orphan deletion (en + any locale dirs in content). */
+export function getLocalesToCheck(
+  contentType: keyof ContentTypes,
+  contentTypes: ContentTypes
+): string[] {
+  const config = contentTypes[contentType]
+  const baseDir = config.dir
+  const contentDir = path.dirname(baseDir)
+  const locales = new Set<string>(['en'])
+
+  if (!fs.existsSync(contentDir)) return ['en']
+
+  try {
+    for (const ent of fs.readdirSync(contentDir, { withFileTypes: true })) {
+      if (!ent.isDirectory()) continue
+      if (ent.name === path.basename(baseDir)) continue
+      const localeContentDir = path.join(contentDir, ent.name, path.basename(baseDir))
+      if (fs.existsSync(localeContentDir)) {
+        locales.add(ent.name.split('-')[0])
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return Array.from(locales)
+}

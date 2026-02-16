@@ -1,4 +1,4 @@
-import { type MDXFile } from './scan'
+import { type MDXFile, getLocalesToCheck } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
@@ -176,36 +176,46 @@ export async function syncUnmatchedLocales(
   }
 }
 
-/** Delete Strapi entries that no longer have a matching MDX file. */
+/** Delete Strapi entries (any locale) that no longer have a matching MDX file. */
 export async function deleteOrphanedEntries(
+  contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
-  strapiEntries: StrapiEntry[],
+  contentTypes: ContentTypes,
   processedSlugs: Map<string, Set<string>>,
   ctx: SyncContext,
   results: SyncResults
 ): Promise<void> {
-  for (const entry of strapiEntries) {
-    const entryLocale = entry.locale || 'en'
-    const localeForPath = getLocaleBase(entryLocale)
+  const locales = getLocalesToCheck(contentType, contentTypes)
 
-    if (localeForPath !== 'en') continue
-    if (isProcessed(processedSlugs, entryLocale, entry.slug)) continue
+  for (const locale of locales) {
+    const strapiEntries = await ctx.strapi.getAllEntries(config.apiId, locale)
 
-    try {
-      if (ctx.DRY_RUN) {
-        console.log(
-          `   🗑️  [DRY-RUN] Would delete: ${entry.slug} (${entryLocale})`
+    for (const entry of strapiEntries) {
+      const entryLocale = entry.locale || locale
+      const localeForPath = getLocaleBase(entryLocale)
+
+      if (isProcessed(processedSlugs, localeForPath, entry.slug)) continue
+
+      try {
+        if (ctx.DRY_RUN) {
+          console.log(
+            `   🗑️  [DRY-RUN] Would delete: ${entry.slug} (${entryLocale})`
+          )
+        } else {
+          await ctx.strapi.deleteLocalization(
+            config.apiId,
+            entry.documentId,
+            entryLocale
+          )
+          console.log(`   🗑️  Deleted: ${entry.slug} (${entryLocale})`)
+        }
+        results.deleted++
+      } catch (error) {
+        console.error(
+          `   ❌ Error deleting ${entry.slug} (${entryLocale}): ${(error as Error).message}`
         )
-      } else {
-        await ctx.strapi.deleteEntry(config.apiId, entry.documentId)
-        console.log(`   🗑️  Deleted: ${entry.slug} (${entryLocale})`)
+        results.errors++
       }
-      results.deleted++
-    } catch (error) {
-      console.error(
-        `   ❌ Error deleting ${entry.slug} (${entryLocale}): ${(error as Error).message}`
-      )
-      results.errors++
     }
   }
 }
