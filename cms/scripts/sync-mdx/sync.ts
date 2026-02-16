@@ -31,7 +31,8 @@ export async function syncContentType(
 
   console.log(`   Found ${mdxFiles.length} MDX files (${invalid.length} invalid skipped)`)
 
-  const strapiEntries = await ctx.strapi.getAllEntries(config.apiId)
+  // Strapi v5 no longer supports locale=all; use 'en' since we only need English entries for orphan detection
+  const strapiEntries = await ctx.strapi.getAllEntries(config.apiId, 'en')
   console.log(`   Found ${strapiEntries.length} Strapi entries`)
 
   const results: SyncResults = {
@@ -102,18 +103,20 @@ export async function syncContentType(
     }
   }
 
-  await syncUnmatchedLocales(
-    contentType,
+  // Delete orphans first. Otherwise a locale file (e.g. es/sobre-nosotros localizes to about-us)
+  // would add the English slug to processedSlugs and block deletion when about-us.mdx is gone.
+  await deleteOrphanedEntries(
     config,
-    localeFiles,
+    strapiEntries,
     processedSlugs,
     ctx,
     results
   )
 
-  await deleteOrphanedEntries(
+  await syncUnmatchedLocales(
+    contentType,
     config,
-    strapiEntries,
+    localeFiles,
     processedSlugs,
     ctx,
     results

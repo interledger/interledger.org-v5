@@ -140,13 +140,7 @@ export async function syncUnmatchedLocales(
       console.log(
         `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via localizes)`
       )
-
       addProcessedSlug(processedSlugs, localeForPath, localeMdx.slug)
-      addProcessedSlug(
-        processedSlugs,
-        getLocaleBase(matchedEnglishEntry.locale || 'en'),
-        matchedEnglishEntry.slug
-      )
 
       try {
         await syncLocaleEntry(
