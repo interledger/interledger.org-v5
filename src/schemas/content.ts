@@ -1,4 +1,4 @@
-import { z } from 'astro:content'
+import { z } from 'zod'
 
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string(),
