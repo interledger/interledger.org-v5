@@ -1,12 +1,13 @@
 import type { ContentTypes } from './config'
 import type { MDXFile } from './scan'
 import {
-  pageFrontmatterSchema
+  foundationPageFrontmatterSchema,
+  summitPageFrontmatterSchema
 } from '../../../src/schemas/content'
 
 const SCHEMAS = {
-  'foundation-pages': pageFrontmatterSchema,
-  'summit-pages': pageFrontmatterSchema
+  'foundation-pages': foundationPageFrontmatterSchema,
+  'summit-pages': summitPageFrontmatterSchema
 }
 
 export interface ValidationError {

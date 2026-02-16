@@ -3,7 +3,8 @@ import { type MDXFile } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapi'
 import {
-  pageFrontmatterSchema
+  foundationPageFrontmatterSchema,
+  summitPageFrontmatterSchema
 } from '../../../src/schemas/content'
 
 marked.use({ headerIds: false })
@@ -29,7 +30,10 @@ export function buildEntryData(
   existingEntry: StrapiEntry | null = null
 ): Record<string, unknown> | null {
   if (isPageType(contentType)) {
-    const parsed = pageFrontmatterSchema.parse({
+    const schema = contentType === 'foundation-pages' 
+      ? foundationPageFrontmatterSchema 
+      : summitPageFrontmatterSchema
+    const parsed = schema.parse({
       ...mdx.frontmatter,
       slug: mdx.slug
     })
