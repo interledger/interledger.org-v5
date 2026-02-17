@@ -4,6 +4,23 @@
  * Used by page and summit-page content types.
  */
 
+// Strapi v5 Document API types
+interface StrapiDocumentAPI {
+  findOne: (options: {
+    documentId: string
+    locale: string
+    status: string
+    populate: Record<string, unknown>
+  }) => Promise<unknown>
+}
+
+declare const strapi: {
+  documents: (uid: string) => StrapiDocumentAPI
+  requestContext: {
+    get: () => { request?: { headers?: Record<string, string> } } | null
+  }
+}
+
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
@@ -152,7 +169,7 @@ async function fetchPublished(
   locale: string
 ): Promise<PageData | null> {
   try {
-    const page = await strapi.documents(config.contentTypeUid as any).findOne({
+    const page = await strapi.documents(config.contentTypeUid).findOne({
       documentId,
       locale,
       status: 'published',

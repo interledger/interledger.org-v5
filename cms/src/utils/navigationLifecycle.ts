@@ -4,6 +4,18 @@ import { getProjectRoot } from './paths'
 import { gitCommitAndPush } from './gitSync'
 import { uidToLogLabel } from './mdx'
 
+// Strapi v5 Document API types
+interface StrapiDocumentAPI {
+  findFirst: (options: {
+    status: string
+    populate: Record<string, unknown>
+  }) => Promise<unknown>
+}
+
+declare const strapi: {
+  documents: (uid: string) => StrapiDocumentAPI
+}
+
 interface MenuItem {
   label: string
   href?: string | null
@@ -95,7 +107,7 @@ async function fetchPublishedNavigation(
 ): Promise<NavigationData | null> {
   try {
     const navigation = await strapi
-      .documents(config.contentTypeUid as any)
+      .documents(config.contentTypeUid)
       .findFirst({
         status: 'published',
         populate: {
