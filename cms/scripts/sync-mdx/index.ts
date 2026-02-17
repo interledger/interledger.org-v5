@@ -12,7 +12,7 @@ import fs from 'fs'
 import path from 'path'
 import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
-import { assertRunFromCms, getProjectRoot } from '../../src/utils/paths'
+import { getProjectRoot } from '../../src/utils/paths'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapiClient'
 import { syncAll } from './sync'
@@ -20,8 +20,6 @@ import { syncAll } from './sync'
 async function main() {
   console.log('🚀 MDX → Strapi Sync')
   console.log('='.repeat(50))
-
-  assertRunFromCms()
 
   const projectRoot = getProjectRoot()
   const DRY_RUN = process.argv.includes('--dry-run')
