@@ -5,7 +5,8 @@ import { glob } from 'astro/loaders'
 import { PATHS } from './utils/paths'
 import {
   foundationBlogFrontmatterSchema,
-  pageFrontmatterSchema
+  foundationPageFrontmatterSchema,
+  summitPageFrontmatterSchema
 } from './schemas/content'
 
 const engBlogCollection = defineCollection({
@@ -49,7 +50,7 @@ const foundationPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`
   }),
-  schema: pageFrontmatterSchema
+  schema: foundationPageFrontmatterSchema
 })
 
 const summitPagesCollection = defineCollection({
@@ -57,7 +58,7 @@ const summitPagesCollection = defineCollection({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summit}`
   }),
-  schema: pageFrontmatterSchema
+  schema: summitPageFrontmatterSchema
 })
 
 export const collections = {

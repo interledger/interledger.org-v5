@@ -1,5 +1,5 @@
 import { createPageLifecycle } from '../../../../utils/pageLifecycle'
-import { PATHS } from '../../../../../src/utils/paths'
+import { PATHS } from '../../../../utils/paths'
 
 export default createPageLifecycle({
   contentTypeUid: 'api::foundation-page.foundation-page',

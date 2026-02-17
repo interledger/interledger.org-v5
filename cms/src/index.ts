@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import { LOCALES } from './utils/mdx'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -30,6 +31,54 @@ function copySchemas() {
     console.log('✅ Schema files copied successfully')
   } catch (error) {
     console.error('❌ Error copying schema files:', error)
+  }
+}
+
+/**
+ * Ensures required locales (en, es) are installed in Strapi i18n plugin.
+ * Creates locales if they don't exist.
+ */
+async function ensureLocales(strapi: any) {
+  const localeConfigs: Record<string, string> = {
+    en: 'English (en)',
+    es: 'Spanish (es)'
+  }
+
+  for (const localeCode of LOCALES) {
+    try {
+      // Check if locale already exists
+      const existingLocales = await strapi.entityService.findMany(
+        'plugin::i18n.locale',
+        {
+          filters: { code: localeCode },
+          limit: 1
+        }
+      )
+      
+      if (existingLocales && existingLocales.length > 0) {
+        strapi.log.debug(`✅ Locale ${localeCode} already exists`)
+        continue
+      }
+
+      // Create locale if it doesn't exist
+      const displayName = localeConfigs[localeCode] || `${localeCode.toUpperCase()} (${localeCode})`
+      await strapi.entityService.create('plugin::i18n.locale', {
+        data: {
+          code: localeCode,
+          name: displayName
+        }
+      })
+      strapi.log.info(`✅ Created locale: ${displayName}`)
+    } catch (error: any) {
+      // Handle cases where locale might already exist (race condition, etc.)
+      if (error.message?.includes('already exists') || 
+          error.message?.includes('duplicate') || 
+          error.message?.includes('unique')) {
+        strapi.log.debug(`Locale ${localeCode} already exists (checked via error)`)
+      } else {
+        strapi.log.warn(`⚠️  Could not create locale ${localeCode}: ${error.message}`)
+      }
+    }
   }
 }
 
@@ -185,6 +234,9 @@ export default {
 
     // Ensure git sync points at a valid staging clone before handling content events
     await validateGitSyncRepoOnStartup()
+
+    // Ensure required locales (en, es) are installed
+    await ensureLocales(strapi)
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
