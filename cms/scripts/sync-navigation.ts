@@ -62,7 +62,8 @@ function readJson(filepath: string): Navigation {
     return JSON.parse(fs.readFileSync(filepath, 'utf-8'))
   } catch (error) {
     throw new Error(
-      `Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`
+      `Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`,
+      { cause: error }
     )
   }
 }
