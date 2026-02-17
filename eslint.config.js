@@ -15,6 +15,7 @@ export default defineConfig([
   eslintPluginAstro.configs.recommended,
   globalIgnores([
     'dist',
+    '**/dist/**',
     'node_modules',
     'public',
     '**/*.min.js',
