@@ -41,12 +41,14 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     }
 
     const text = await response.text()
-    if (!text) return null
+    if (!text) {
+      throw new Error(`Empty response from Strapi API: ${url}`)
+    }
 
     try {
       return JSON.parse(text)
-    } catch {
-      return null
+    } catch (error) {
+      throw new Error(`Failed to parse JSON response from Strapi API: ${url} - ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
