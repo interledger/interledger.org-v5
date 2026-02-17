@@ -11,10 +11,9 @@ export function addProcessedSlug(
   slug: string
 ): void {
   const localeForPath = getLocaleBase(localeCode)
-  if (!processedSlugs.has(localeForPath)) {
-    processedSlugs.set(localeForPath, new Set())
-  }
-  processedSlugs.get(localeForPath)!.add(slug)
+  const slugSet = processedSlugs.get(localeForPath) ?? new Set()
+  slugSet.add(slug)
+  processedSlugs.set(localeForPath, slugSet)
 }
 
 export function isProcessed(
