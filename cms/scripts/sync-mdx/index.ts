@@ -63,11 +63,13 @@ async function main() {
   const contentTypes = buildContentTypes(projectRoot)
   const strapi = createStrapiClient({ baseUrl: STRAPI_URL, token: STRAPI_TOKEN })
 
-  const results = await syncAll({
-    contentTypes,
-    strapi,
+  const results = await syncAll(
+    {
+      contentTypes,
+      strapi
+    },
     DRY_RUN
-  })
+  )
 
   console.log('\n' + '='.repeat(50))
   console.log('📊 Summary')
@@ -81,7 +83,7 @@ async function main() {
     console.log('\n💡 This was a dry-run. Run without --dry-run to apply changes.')
   }
 
-  process.exit(results.errors > 0 ? 1 : 0)
+  process.exit(results.errors ? 1 : 0)
 }
 
 main().catch((error) => {

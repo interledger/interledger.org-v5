@@ -11,7 +11,8 @@ export async function syncEnglishEntry(
   config: ContentTypes[keyof ContentTypes],
   englishMdx: MDXFile,
   ctx: SyncContext,
-  results: SyncResults
+  results: SyncResults,
+  dryRun: boolean
 ): Promise<StrapiEntry | undefined> {
   const existing = await ctx.strapi.findBySlug(
     config.apiId,
@@ -21,7 +22,7 @@ export async function syncEnglishEntry(
   const englishData = mdxToStrapiPayload(contentType, englishMdx, existing)
 
   if (existing) {
-    if (ctx.DRY_RUN) {
+    if (dryRun) {
       console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.slug} (en)`)
       results.updated++
       return existing
@@ -36,7 +37,7 @@ export async function syncEnglishEntry(
       return result.data || existing
     }
   } else {
-    if (ctx.DRY_RUN) {
+    if (dryRun) {
       console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.slug} (en)`)
       results.created++
       return { documentId: 'dry-run-id', slug: englishMdx.slug }
@@ -56,7 +57,8 @@ export async function syncLocaleEntry(
   localeMdx: MDXFile,
   englishEntry: StrapiEntry,
   ctx: SyncContext,
-  results: SyncResults
+  results: SyncResults,
+  dryRun: boolean
 ): Promise<void> {
   const localeCode = localeMdx.locale || 'en'
 
@@ -69,7 +71,7 @@ export async function syncLocaleEntry(
   const localeData = mdxToStrapiPayload(contentType, localeMdx, existingLocale)
 
   if (existingLocale) {
-    if (ctx.DRY_RUN) {
+    if (dryRun) {
       console.log(
         `      🌍 [DRY-RUN] Would update localization: ${localeMdx.slug} (${localeCode})`
       )
@@ -86,7 +88,7 @@ export async function syncLocaleEntry(
     }
     results.updated++
   } else {
-    if (ctx.DRY_RUN) {
+    if (dryRun) {
       console.log(
         `      🌍 [DRY-RUN] Would create localization: ${localeMdx.slug} (${localeCode})`
       )
@@ -112,7 +114,8 @@ export async function syncUnmatchedLocales(
   localeFiles: MDXFile[],
   processedSlugs: Map<string, Set<string>>,
   ctx: SyncContext,
-  results: SyncResults
+  results: SyncResults,
+  dryRun: boolean
 ): Promise<void> {
   const unmatchedLocales = localeFiles.filter(
     (localeMdx) => !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug)
@@ -148,7 +151,8 @@ export async function syncUnmatchedLocales(
           localeMdx,
           matchedEnglishEntry,
           ctx,
-          results
+          results,
+          dryRun
         )
       } catch (error) {
         console.error(
@@ -182,7 +186,8 @@ export async function deleteOrphanedEntries(
   contentTypes: ContentTypes,
   processedSlugs: Map<string, Set<string>>,
   ctx: SyncContext,
-  results: SyncResults
+  results: SyncResults,
+  dryRun: boolean
 ): Promise<void> {
   const locales = getLocalesToCheck(contentType, contentTypes)
 
@@ -196,7 +201,7 @@ export async function deleteOrphanedEntries(
       if (isProcessed(processedSlugs, localeForPath, entry.slug)) continue
 
       try {
-        if (ctx.DRY_RUN) {
+        if (dryRun) {
           console.log(
             `   🗑️  [DRY-RUN] Would delete: ${entry.slug} (${entryLocale})`
           )

@@ -12,7 +12,8 @@ import { validateMdxFiles } from './validateFrontmatter'
 
 export async function syncContentType(
   contentType: keyof ContentTypes,
-  ctx: SyncContext
+  ctx: SyncContext,
+  dryRun: boolean
 ): Promise<SyncResults> {
   const config = ctx.contentTypes[contentType]
   console.log(`\n📁 Syncing ${contentType}...`)
@@ -61,7 +62,8 @@ export async function syncContentType(
         config,
         englishMdx,
         ctx,
-        results
+        results,
+        dryRun
       )
 
       if (englishEntry && englishEntry.documentId) {
@@ -87,7 +89,8 @@ export async function syncContentType(
               candidate.localeMdx,
               englishEntry,
               ctx,
-              results
+              results,
+              dryRun
             )
           } catch (error) {
             console.error(
@@ -112,7 +115,8 @@ export async function syncContentType(
     ctx.contentTypes,
     processedSlugs,
     ctx,
-    results
+    results,
+    dryRun
   )
 
   await syncUnmatchedLocales(
@@ -121,13 +125,14 @@ export async function syncContentType(
     localeFiles,
     processedSlugs,
     ctx,
-    results
+    results,
+    dryRun
   )
 
   return results
 }
 
-export async function syncAll(ctx: SyncContext): Promise<SyncResults> {
+export async function syncAll(ctx: SyncContext, dryRun: boolean): Promise<SyncResults> {
   const allResults: SyncResults = {
     created: 0,
     updated: 0,
@@ -139,7 +144,7 @@ export async function syncAll(ctx: SyncContext): Promise<SyncResults> {
     keyof ContentTypes
   >) {
     try {
-      const results = await syncContentType(contentType, ctx)
+      const results = await syncContentType(contentType, ctx, dryRun)
       allResults.created += results.created
       allResults.updated += results.updated
       allResults.deleted += results.deleted
@@ -154,5 +159,3 @@ export async function syncAll(ctx: SyncContext): Promise<SyncResults> {
 
   return allResults
 }
-
-export type { SyncContext, SyncResults } from './types'

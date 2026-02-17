@@ -4,7 +4,6 @@ import type { StrapiClient } from './strapiClient'
 export interface SyncContext {
   contentTypes: ContentTypes
   strapi: StrapiClient
-  DRY_RUN: boolean
 }
 
 export interface SyncResults {
