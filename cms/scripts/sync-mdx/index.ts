@@ -15,7 +15,7 @@ import dotenv from 'dotenv'
 import { getProjectRoot } from '../../src/utils/paths'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapiClient'
-import { syncAll } from './sync'
+import { syncAll } from './syncCoordinator'
 
 async function main() {
   console.log('🚀 MDX → Strapi Sync')
