@@ -30,7 +30,6 @@ const componentMap: Record<string, typeof Paragraph> = {
     blocks.map((block) => {
       const Component = componentMap[block.__component]
       if (!Component) {
-        console.warn(`Unknown component type: ${block.__component}`)
         return null
       }
       return (

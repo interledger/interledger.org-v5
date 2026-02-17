@@ -31,14 +31,22 @@ const renderChildren = (children = []) => {
       content.map((block) => {
         switch (block.type) {
           case 'paragraph':
-            return <p class="mb-space-2xs" set:html={renderChildren(block.children)} />
+            return (
+              <p
+                class="mb-space-2xs"
+                set:html={renderChildren(block.children)}
+              />
+            )
           case 'list': {
             const isOrdered = block.format === 'ordered'
             const ListTag = isOrdered ? 'ol' : 'ul'
             return (
               <ListTag class="mb-space-2xs">
                 {block.children.map((item) => (
-                  <li class="mb-space-3xs" set:html={renderChildren(item.children)} />
+                  <li
+                    class="mb-space-3xs"
+                    set:html={renderChildren(item.children)}
+                  />
                 ))}
               </ListTag>
             )
