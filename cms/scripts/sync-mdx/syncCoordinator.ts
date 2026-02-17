@@ -51,10 +51,9 @@ export async function syncContentType(
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
-  const matchedLocaleSlugs = new Set<string>()
+  const processedLocaleSlugs = new Set<string>()
 
   for (const englishMdx of englishFiles) {
-
     try {
       const englishEntry = await syncEnglishEntry(
         contentType,
@@ -66,11 +65,11 @@ export async function syncContentType(
       )
 
       if (englishEntry && englishEntry.documentId) {
-        const matchingLocales = findMatchingLocales(
-          englishMdx,
-          localeFiles,
-          matchedLocaleSlugs
-        )
+        const matchingLocales = findMatchingLocales(englishMdx, localeFiles)
+
+        for (const candidate of matchingLocales) {
+          const localeCode = candidate.localeMdx.locale || 'en'
+          processedLocaleSlugs.add(`${localeCode}:${candidate.localeMdx.slug}`)
 
         for (const candidate of matchingLocales) {
           const localeCode = candidate.localeMdx.locale || 'en'
@@ -120,7 +119,7 @@ export async function syncContentType(
     contentType,
     config,
     localeFiles,
-    matchedLocaleSlugs,
+    processedLocaleSlugs,
     ctx,
     results,
     dryRun

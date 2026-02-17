@@ -43,42 +43,24 @@ export interface LocaleMatch {
  * 
  * Searches through locale files to find those that reference the English entry's slug
  * in their `localizes` frontmatter field.
- * 
- * Returns one match per locale (e.g., if multiple "es" files match, only the first is returned).
- * 
- * @param matchedSlugs - Set of locale file slugs that have already been matched (to avoid duplicates)
  */
 export function findMatchingLocales(
   englishMdx: MDXFile,
-  localeFiles: MDXFile[],
-  matchedSlugs: Set<string>
+  localeFiles: MDXFile[]
 ): LocaleMatch[] {
-  // Map to store matches, keyed by locale to ensure one match per locale
-  const localeMatches = new Map<string, LocaleMatch>()
+  const matches: LocaleMatch[] = []
 
   for (const localeMdx of localeFiles) {
-    const localeCode = localeMdx.locale || 'en'
-    const slugKey = `${localeCode}:${localeMdx.slug}`
-    
-    // Skip if this file has already been matched to another English entry
-    if (matchedSlugs.has(slugKey)) {
-      continue
-    }
-    
     // Skip if this file doesn't reference the English entry's slug
     if (localeMdx.localizes !== englishMdx.slug) {
       continue
     }
 
-    // Only keep the first match per locale
-    if (!localeMatches.has(localeCode)) {
-      localeMatches.set(localeCode, {
-        localeMdx,
-        matchReason: `localizes: ${englishMdx.slug}`
-      })
-      matchedSlugs.add(slugKey)
-    }
+    matches.push({
+      localeMdx,
+      matchReason: `localizes: ${englishMdx.slug}`
+    })
   }
 
-  return Array.from(localeMatches.values())
+  return matches
 }
