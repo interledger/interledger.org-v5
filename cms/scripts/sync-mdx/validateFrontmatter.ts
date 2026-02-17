@@ -22,29 +22,32 @@ export function validateFrontmatter(
   mdx: MDXFile
 ): ValidationError | null {
   const schema = SCHEMAS[contentType]
-  if (!schema) return null
+  let validationError: ValidationError | null = null
 
-  const toValidate = {
-    ...mdx.frontmatter,
-    slug: mdx.slug
+  if (schema) {
+    const toValidate = {
+      ...mdx.frontmatter,
+      slug: mdx.slug
+    }
+
+    const result = schema.safeParse(toValidate)
+
+    if (!result.success) {
+      const errors = result.error.issues.map((issue) => {
+        const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : ''
+        return `${path}${issue.message}`
+      })
+
+      validationError = {
+        filepath: mdx.filepath,
+        slug: mdx.slug,
+        locale: mdx.locale,
+        errors
+      }
+    }
   }
 
-  const result = schema.safeParse(toValidate)
-  if (result.success) return null
-
-  const issues = result.error.issues
-  const errors = (issues ?? []).flatMap((e: { path: unknown[]; message: string }) =>
-    Array.isArray(e.path) && e.path.length > 0
-      ? [`${e.path.join('.')}: ${e.message}`]
-      : [e.message]
-  )
-
-  return {
-    filepath: mdx.filepath,
-    slug: mdx.slug,
-    locale: mdx.locale || 'en',
-    errors
-  }
+  return validationError
 }
 
 export function validateMdxFiles(
