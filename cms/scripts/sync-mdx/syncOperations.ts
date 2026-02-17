@@ -3,7 +3,7 @@ import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { mdxToStrapiPayload } from './mdxTransformer'
-import { addProcessedSlug, isProcessed } from './localeMatch'
+import { hasMdxFile } from './localeMatch'
 
 /** Sync a single English entry (create or update). Returns the entry if successful. */
 export async function syncEnglishEntry(
@@ -111,14 +111,16 @@ export async function syncUnmatchedLocales(
   contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
   localeFiles: MDXFile[],
-  processedSlugs: Map<string, Set<string>>,
+  matchedSlugs: Set<string>,
   ctx: SyncContext,
   results: SyncResults,
   dryRun: boolean
 ): Promise<void> {
-  const unmatchedLocales = localeFiles.filter(
-    (localeMdx) => !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug)
-  )
+  const unmatchedLocales = localeFiles.filter((localeMdx) => {
+    const localeCode = localeMdx.locale || 'en'
+    const slugKey = `${localeCode}:${localeMdx.slug}`
+    return !matchedSlugs.has(slugKey)
+  })
 
   if (unmatchedLocales.length === 0) return
 
@@ -140,7 +142,7 @@ export async function syncUnmatchedLocales(
       console.log(
         `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via localizes)`
       )
-      addProcessedSlug(processedSlugs, localeCode, localeMdx.slug)
+      matchedSlugs.add(`${localeCode}:${localeMdx.slug}`)
 
       try {
         await syncLocaleEntry(
@@ -182,7 +184,7 @@ export async function deleteOrphanedEntries(
   contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
   contentTypes: ContentTypes,
-  processedSlugs: Map<string, Set<string>>,
+  mdxSlugsByLocale: Map<string, Set<string>>,
   ctx: SyncContext,
   results: SyncResults,
   dryRun: boolean
@@ -195,7 +197,8 @@ export async function deleteOrphanedEntries(
     for (const entry of strapiEntries) {
       const entryLocale = entry.locale || locale
 
-      if (isProcessed(processedSlugs, entryLocale, entry.slug)) continue
+      // Skip if this entry has a corresponding MDX file
+      if (hasMdxFile(mdxSlugsByLocale, entryLocale, entry.slug)) continue
 
       try {
         if (dryRun) {

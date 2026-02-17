@@ -1,7 +1,7 @@
 import { scanMDXFiles } from './scan'
 import type { ContentTypes } from './config'
 import type { SyncContext, SyncResults } from './types'
-import { findMatchingLocales, addProcessedSlug } from './localeMatch'
+import { findMatchingLocales, buildMdxSlugsByLocale } from './localeMatch'
 import {
   syncEnglishEntry,
   syncLocaleEntry,
@@ -39,22 +39,21 @@ export async function syncContentType(
     errors: invalid.length
   }
 
-  const processedSlugs = new Map<string, Set<string>>()
-
-  // Include invalid MDX slugs so we don't delete Strapi entries that have MDX files (even if invalid)
+  // Build map of all MDX slugs by locale (valid + invalid) to prevent deletion
+  const mdxSlugsByLocale = buildMdxSlugsByLocale(mdxFiles)
+  // Add invalid MDX slugs so we don't delete Strapi entries that have MDX files (even if invalid)
   for (const err of invalid) {
-    addProcessedSlug(processedSlugs, err.locale, err.slug)
+    const locale = err.locale || 'en'
+    const slugSet = mdxSlugsByLocale.get(locale) ?? new Set()
+    slugSet.add(err.slug)
+    mdxSlugsByLocale.set(locale, slugSet)
   }
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
+  const matchedLocaleSlugs = new Set<string>()
 
   for (const englishMdx of englishFiles) {
-    addProcessedSlug(
-      processedSlugs,
-      englishMdx.locale || 'en',
-      englishMdx.slug
-    )
 
     try {
       const englishEntry = await syncEnglishEntry(
@@ -70,12 +69,11 @@ export async function syncContentType(
         const matchingLocales = findMatchingLocales(
           englishMdx,
           localeFiles,
-          processedSlugs
+          matchedLocaleSlugs
         )
 
         for (const candidate of matchingLocales) {
           const localeCode = candidate.localeMdx.locale || 'en'
-          addProcessedSlug(processedSlugs, localeCode, candidate.localeMdx.slug)
 
           console.log(
             `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
@@ -112,7 +110,7 @@ export async function syncContentType(
     contentType,
     config,
     ctx.contentTypes,
-    processedSlugs,
+    mdxSlugsByLocale,
     ctx,
     results,
     dryRun
@@ -122,7 +120,7 @@ export async function syncContentType(
     contentType,
     config,
     localeFiles,
-    processedSlugs,
+    matchedLocaleSlugs,
     ctx,
     results,
     dryRun

@@ -1,39 +1,31 @@
 import type { MDXFile } from './scan'
 
 /**
- * Marks a slug as processed for a given locale to prevent duplicate processing.
+ * Builds a map of all MDX slugs by locale.
+ * Used to prevent deleting Strapi entries that have corresponding MDX files.
  */
-export function addProcessedSlug(
-  processedSlugs: Map<string, Set<string>>,
-  localeCode: string,
-  slug: string
-): void {
-  // Get or create the set of processed slugs for this locale
-  const slugSet = processedSlugs.get(localeCode) ?? new Set()
+export function buildMdxSlugsByLocale(mdxFiles: MDXFile[]): Map<string, Set<string>> {
+  const slugsByLocale = new Map<string, Set<string>>()
   
-  // Add this slug to the set
-  slugSet.add(slug)
+  for (const mdx of mdxFiles) {
+    const locale = mdx.locale || 'en'
+    const slugSet = slugsByLocale.get(locale) ?? new Set()
+    slugSet.add(mdx.slug)
+    slugsByLocale.set(locale, slugSet)
+  }
   
-  // Store the updated set back in the map
-  processedSlugs.set(localeCode, slugSet)
+  return slugsByLocale
 }
 
 /**
- * Checks if a slug has already been processed for a given locale.
+ * Checks if a slug exists in MDX files for a given locale.
  */
-export function isProcessed(
-  processedSlugs: Map<string, Set<string>>,
+export function hasMdxFile(
+  mdxSlugsByLocale: Map<string, Set<string>>,
   localeCode: string,
   slug: string
 ): boolean {
-  // Check if we have processed slugs for this locale
-  const slugSet = processedSlugs.get(localeCode)
-  if (!slugSet) {
-    return false
-  }
-  
-  // Check if this specific slug has been processed
-  return slugSet.has(slug)
+  return mdxSlugsByLocale.get(localeCode)?.has(slug) ?? false
 }
 
 /**
@@ -53,21 +45,23 @@ export interface LocaleMatch {
  * in their `localizes` frontmatter field.
  * 
  * Returns one match per locale (e.g., if multiple "es" files match, only the first is returned).
+ * 
+ * @param matchedSlugs - Set of locale file slugs that have already been matched (to avoid duplicates)
  */
 export function findMatchingLocales(
   englishMdx: MDXFile,
   localeFiles: MDXFile[],
-  processedSlugs: Map<string, Set<string>>
+  matchedSlugs: Set<string>
 ): LocaleMatch[] {
   // Map to store matches, keyed by locale to ensure one match per locale
   const localeMatches = new Map<string, LocaleMatch>()
 
-  // Search through all locale files
   for (const localeMdx of localeFiles) {
     const localeCode = localeMdx.locale || 'en'
+    const slugKey = `${localeCode}:${localeMdx.slug}`
     
-    // Skip if this file has already been processed
-    if (isProcessed(processedSlugs, localeCode, localeMdx.slug)) {
+    // Skip if this file has already been matched to another English entry
+    if (matchedSlugs.has(slugKey)) {
       continue
     }
     
@@ -82,9 +76,9 @@ export function findMatchingLocales(
         localeMdx,
         matchReason: `localizes: ${englishMdx.slug}`
       })
+      matchedSlugs.add(slugKey)
     }
   }
 
-  // Convert map values to array and return
   return Array.from(localeMatches.values())
 }
