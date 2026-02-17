@@ -32,28 +32,32 @@ export interface LocaleMatch {
 
 /**
  * Find locale files that match an English entry via localizes field.
+ * Returns one match per locale base (e.g., only one match for "es" even if both "es" and "es-419" match).
  */
 export function findMatchingLocales(
   englishMdx: MDXFile,
   localeFiles: MDXFile[],
   processedSlugs: Map<string, Set<string>>
 ): LocaleMatch[] {
-  const candidateLocales = localeFiles
-    .filter(
-      (localeMdx) =>
-        !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug) &&
-        localeMdx.localizes === englishMdx.slug
-    )
-    .map((localeMdx): LocaleMatch => ({
-      localeMdx,
-      matchReason: `localizes: ${englishMdx.slug}`
-    }))
-
   const localeMatches = new Map<string, LocaleMatch>()
-  for (const candidate of candidateLocales) {
-    const localeForPath = getLocaleBase(candidate.localeMdx.locale || 'en')
+
+  for (const localeMdx of localeFiles) {
+    // Skip if already processed or doesn't match the English slug
+    const localeCode = localeMdx.locale || 'en'
+    if (
+      isProcessed(processedSlugs, localeCode, localeMdx.slug) ||
+      localeMdx.localizes !== englishMdx.slug
+    ) {
+      continue
+    }
+
+    // Keep only the first match per locale base
+    const localeForPath = getLocaleBase(localeCode)
     if (!localeMatches.has(localeForPath)) {
-      localeMatches.set(localeForPath, candidate)
+      localeMatches.set(localeForPath, {
+        localeMdx,
+        matchReason: `localizes: ${englishMdx.slug}`
+      })
     }
   }
 
