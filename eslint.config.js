@@ -8,35 +8,39 @@ import eslintPluginAstro from 'eslint-plugin-astro'
 export default defineConfig([
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
-    plugins: { js },
-    extends: ['js/recommended'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } }
   },
+  js.configs.recommended,
   tseslint.configs.recommended,
   eslintPluginAstro.configs.recommended,
-  globalIgnores([
-    '**/dist/**',
-    '.astro',
-    'node_modules',
-    'public',
-    '**/*.min.js',
-    'cms/strapi-server.js',
-    'cms/copy-schemas.js',
-    'cms/src/admin/app.tsx',
-    'cms/src/index.ts',
-    'src/pages/financial-services.astro'
-  ]),
+  globalIgnores(['dist', '.astro', 'node_modules', 'public', '**/*.min.js']),
   {
+    files: ['**/*.{js,mjs,cjs}'],
     rules: {
-      'no-console': 'off',
+      'no-console': 'error'
+    }
+  },
+  {
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    rules: {
+      'no-console': 'error',
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         { argsIgnorePattern: '^_' }
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      'astro/no-set-text-directive': 'error',
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off'
+      '@typescript-eslint/no-explicit-any': 'error'
+    }
+  },
+  {
+    files: ['**/*.astro'],
+    rules: {
+      'astro/no-set-text-directive': 'error'
+    }
+  },
+  {
+    files: ['**/*.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
     }
   },
   eslintConfigPrettier

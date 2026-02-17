@@ -3,5 +3,5 @@
 node_modules
 public
 dist
-**/*.min.css 
+**/*.min.css
 **/*.min.js
