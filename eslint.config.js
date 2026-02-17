@@ -19,7 +19,9 @@ export default defineConfig([
     'node_modules',
     'public',
     '**/*.min.js',
-    '**/*.min.css'
+    '**/*.min.css',
+    '.astro',
+    '**/.astro/**'
   ]),
   {
     files: ['**/*.{js,mjs,cjs}'],
