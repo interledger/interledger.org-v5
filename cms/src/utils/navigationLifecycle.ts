@@ -106,15 +106,13 @@ async function fetchPublishedNavigation(
   config: NavigationLifecycleConfig
 ): Promise<NavigationData | null> {
   try {
-    const navigation = await strapi
-      .documents(config.contentTypeUid)
-      .findFirst({
-        status: 'published',
-        populate: {
-          mainMenu: { populate: { items: true } },
-          ctaButton: true
-        }
-      })
+    const navigation = await strapi.documents(config.contentTypeUid).findFirst({
+      status: 'published',
+      populate: {
+        mainMenu: { populate: { items: true } },
+        ctaButton: true
+      }
+    })
     return navigation as NavigationData | null
   } catch (error) {
     console.error(

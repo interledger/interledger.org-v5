@@ -36,8 +36,14 @@ function copySchemas() {
 
 // Strapi instance type for lifecycle functions
 interface StrapiEntityService {
-  findMany: (uid: string, options: Record<string, unknown>) => Promise<unknown[]>
-  create: (uid: string, options: { data: Record<string, unknown> }) => Promise<unknown>
+  findMany: (
+    uid: string,
+    options: Record<string, unknown>
+  ) => Promise<unknown[]>
+  create: (
+    uid: string,
+    options: { data: Record<string, unknown> }
+  ) => Promise<unknown>
 }
 
 interface StrapiLogger {
@@ -59,9 +65,11 @@ interface StrapiContentManagerService {
 interface StrapiInstance {
   entityService: StrapiEntityService
   log: StrapiLogger
-  plugin: (name: string) => {
-    service: (serviceName: string) => StrapiContentManagerService
-  } | undefined
+  plugin: (name: string) =>
+    | {
+        service: (serviceName: string) => StrapiContentManagerService
+      }
+    | undefined
 }
 
 /**
