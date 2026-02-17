@@ -22,20 +22,14 @@ const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
 /**
  * Extracts a field value from a Strapi entry.
  * 
- * Handles both flat entry structure and nested attributes structure
- * that Strapi may return depending on API response format.
- * 
  * @param entry - Strapi entry (may be null for new entries)
  * @param key - Field name to extract
  * @returns Field value or null if not found
  */
 export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   if (!entry) return null
-  return (
-    entry[key] ??
-    (entry as Record<string, unknown>).attributes?.[key as keyof typeof entry] ??
-    null
-  )
+  const entryRecord = entry as Record<string, unknown>
+  return entryRecord[key] ?? null
 }
 
 /**
