@@ -82,7 +82,8 @@ export function createStrapiClient({
       return JSON.parse(text)
     } catch (error) {
       throw new Error(
-        `Failed to parse JSON response from Strapi API: ${url} - ${error instanceof Error ? error.message : String(error)}`
+        `Failed to parse JSON response from Strapi API: ${url} - ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error }
       )
     }
   }
