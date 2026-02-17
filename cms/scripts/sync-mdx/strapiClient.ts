@@ -51,27 +51,12 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
   }
 
   async function getAllEntries(apiId: string, locale = 'all'): Promise<StrapiEntry[]> {
-    const allEntries: StrapiEntry[] = []
-    let page = 1
-    let hasMore = true
+    const localeParam = locale === 'all' ? 'locale=all' : locale ? `locale=${locale}` : ''
+    const paginationParam = 'pagination[limit]=-1' // -1 disables pagination, returns all entries
+    const endpoint = `${apiId}?${paginationParam}${localeParam ? `&${localeParam}` : ''}`
 
-    while (hasMore) {
-      const localeParam =
-        locale === 'all' ? 'locale=all' : locale ? `locale=${locale}` : ''
-      const paginationParam = `pagination[page]=${page}&pagination[pageSize]=100`
-      const endpoint = `${apiId}?${paginationParam}`
-      const finalEndpoint = endpoint + (localeParam ? `&${localeParam}` : '')
-
-      const data = await request(finalEndpoint) as { data: StrapiEntry[]; meta?: { pagination?: { pageCount: number } } }
-      const entries = data.data || []
-      allEntries.push(...entries)
-
-      const pagination = data.meta?.pagination
-      hasMore = pagination !== undefined && page < pagination.pageCount
-      page++
-    }
-
-    return allEntries
+    const data = await request(endpoint) as { data: StrapiEntry[] }
+    return data.data || []
   }
 
   async function findBySlug(apiId: string, slug: string, locale: string | null = null): Promise<StrapiEntry | null> {
