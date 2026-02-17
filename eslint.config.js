@@ -16,6 +16,8 @@ export default defineConfig([
   globalIgnores([
     'dist',
     '**/dist/**',
+    'cms/types/generated',
+    'cms/types/generated/**',
     'node_modules',
     'public',
     '**/*.min.js',
