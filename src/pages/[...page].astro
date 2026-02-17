@@ -1,5 +1,8 @@
 ---
 import { getCollection, render } from 'astro:content'
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { getPagePaths } from '../utils/static-paths'
 
@@ -33,11 +36,43 @@ const description = mdxData?.description || null
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 
+const site = Astro.site ?? new URL('/', Astro.url)
+const esFoundationDir = path.resolve('src/content/es/foundation-pages')
+const getSlugFromFilename = (filename: string) =>
+  filename.replace(/\.mdx$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '')
+
+const findSpanishSlug = (englishSlug: string): string | null => {
+  if (!fs.existsSync(esFoundationDir)) return null
+  const files = fs.readdirSync(esFoundationDir).filter((file) => file.endsWith('.mdx'))
+  for (const file of files) {
+    const filePath = path.join(esFoundationDir, file)
+    const { data } = matter(fs.readFileSync(filePath, 'utf-8'))
+    if (data.localizes === englishSlug) {
+      return (data.slug as string) || getSlugFromFilename(file)
+    }
+  }
+  return null
+}
+
+const englishSlug = mdxData?.slug || slug
+const spanishSlug = findSpanishSlug(englishSlug)
+const alternates = spanishSlug
+  ? [
+      { hreflang: 'en', href: new URL(`/${englishSlug}`, site).href },
+      { hreflang: 'es', href: new URL(`/es/${spanishSlug}`, site).href }
+    ]
+  : undefined
+
 const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={title}
+  description={description}
+  lang={mdxData?.locale as string | undefined}
+  alternates={alternates}
+>
   <main class="pb-space-l">
     {isNotFound ? (
       <section class="min-h-[50vh] flex items-center justify-center text-center">
