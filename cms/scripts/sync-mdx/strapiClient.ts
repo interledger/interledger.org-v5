@@ -77,14 +77,9 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     data: Record<string, unknown>
   ): Promise<unknown> {
     // Verify base entry exists
-    let entry: { data?: StrapiEntry }
-    try {
-      entry = await request(`${apiId}/${documentId}?locale=en`) as { data?: StrapiEntry }
-    } catch {
-      entry = await request(`${apiId}/${documentId}`) as { data?: StrapiEntry }
-    }
+    const entry = await request(`${apiId}/${documentId}`) as { data?: StrapiEntry }
 
-    if (!entry || !entry.data) {
+    if (!entry?.data) {
       throw new Error(`Base entry not found with documentId: ${documentId}`)
     }
 
