@@ -8,11 +8,11 @@ export interface StrapiEntry {
 export interface StrapiClient {
   request: (endpoint: string, options?: RequestInit) => Promise<unknown>
   getAllEntries: (apiId: string, locale?: string) => Promise<StrapiEntry[]>
-  findBySlug: (apiId: string, slug: string, locale?: string | null) => Promise<StrapiEntry | null>
+  findBySlug: (apiId: string, slug: string, locale?: string) => Promise<StrapiEntry | undefined>
   createLocalization: (apiId: string, documentId: string, locale: string, data: Record<string, unknown>) => Promise<unknown>
   updateLocalization: (apiId: string, documentId: string, locale: string, data: Record<string, unknown>) => Promise<unknown>
-  createEntry: (apiId: string, data: Record<string, unknown>, locale?: string | null) => Promise<{ data: StrapiEntry }>
-  updateEntry: (apiId: string, documentId: string, data: Record<string, unknown>, locale?: string | null) => Promise<{ data: StrapiEntry }>
+  createEntry: (apiId: string, data: Record<string, unknown>, locale?: string) => Promise<{ data: StrapiEntry }>
+  updateEntry: (apiId: string, documentId: string, data: Record<string, unknown>, locale?: string) => Promise<{ data: StrapiEntry }>
   deleteEntry: (apiId: string, documentId: string) => Promise<unknown>
   deleteLocalization: (apiId: string, documentId: string, locale: string) => Promise<unknown>
 }
@@ -61,13 +61,13 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     return data.data || []
   }
 
-  async function findBySlug(apiId: string, slug: string, locale: string | null = null): Promise<StrapiEntry | null> {
+  async function findBySlug(apiId: string, slug: string, locale?: string): Promise<StrapiEntry | undefined> {
     let endpoint = `${apiId}?filters[slug][$eq]=${slug}`
     if (locale) {
       endpoint += `&locale=${locale}`
     }
     const data = await request(endpoint) as { data: StrapiEntry[] }
-    return data.data && data.data.length > 0 ? data.data[0] : null
+    return data.data?.[0]
   }
 
   async function createLocalization(
@@ -113,7 +113,7 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
   async function createEntry(
     apiId: string,
     data: Record<string, unknown>,
-    locale: string | null = null
+    locale?: string
   ): Promise<{ data: StrapiEntry }> {
     const endpoint = locale ? `${apiId}?locale=${locale}` : apiId
     return await request(endpoint, {
@@ -126,7 +126,7 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     apiId: string,
     documentId: string,
     data: Record<string, unknown>,
-    locale: string | null = null
+    locale?: string
   ): Promise<{ data: StrapiEntry }> {
     const endpoint = locale
       ? `${apiId}/${documentId}?locale=${locale}`
