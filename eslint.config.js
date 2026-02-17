@@ -16,14 +16,15 @@ export default defineConfig([
   globalIgnores([
     'dist',
     '**/dist/**',
-    'cms/types/generated',
     'cms/types/generated/**',
     'node_modules',
     'public',
     '**/*.min.js',
     '**/*.min.css',
     '.astro',
-    '**/.astro/**'
+    '**/.astro/**',
+    '.vscode',
+    '.netlify'
   ]),
   {
     files: ['**/*.{js,mjs,cjs}'],

@@ -5,3 +5,9 @@ public
 dist
 **/*.min.css
 **/*.min.js
+cms/.strapi/**
+cms/.strapi-updater.json
+cms/types/generated/**
+cms/src/api/*/content-types/*/schema.json
+.vscode
+.netlify
