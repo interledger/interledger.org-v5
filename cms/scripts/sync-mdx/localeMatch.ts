@@ -41,13 +41,10 @@ export function findMatchingLocales(
 ): LocaleMatch[] {
   const candidateLocales = localeFiles
     .filter(
-      (localeMdx) => !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug)
+      (localeMdx) =>
+        !isProcessed(processedSlugs, localeMdx.locale || 'en', localeMdx.slug) &&
+        localeMdx.localizes === englishMdx.slug
     )
-    .filter((localeMdx) => {
-      const localeLocalizes =
-        localeMdx.localizes || localeMdx.frontmatter.localizes
-      return localeLocalizes === englishMdx.slug
-    })
     .map((localeMdx): LocaleMatch => ({
       localeMdx,
       matchReason: `localizes: ${englishMdx.slug}`

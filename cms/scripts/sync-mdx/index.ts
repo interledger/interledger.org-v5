@@ -76,7 +76,7 @@ async function main() {
   console.log('='.repeat(50))
   console.log(`   ✅ Created: ${results.created}`)
   console.log(`   🔄 Updated: ${results.updated}`)
-  console.log(`   🗑️  Deleted: ${results.deleted}`)
+  console.log(`   🗑️ Deleted: ${results.deleted}`)
   console.log(`   ❌ Errors:  ${results.errors}`)
 
   if (DRY_RUN) {

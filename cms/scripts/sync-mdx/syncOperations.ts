@@ -129,8 +129,7 @@ export async function syncUnmatchedLocales(
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
     const localeForPath = getLocaleBase(localeCode)
-    const localeLocalizes =
-      localeMdx.localizes || localeMdx.frontmatter.localizes
+    const localeLocalizes = localeMdx.localizes
 
     const matchedEnglishEntry = localeLocalizes
       ? allStrapiEntries.find((entry) => entry.slug === localeLocalizes)
