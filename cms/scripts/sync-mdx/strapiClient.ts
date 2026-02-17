@@ -89,6 +89,7 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     locale: string,
     data: Record<string, unknown>
   ): Promise<unknown> {
+    // Verify base entry exists
     let entry: { data?: StrapiEntry }
     try {
       entry = await request(`${apiId}/${documentId}?locale=en`) as { data?: StrapiEntry }
@@ -100,39 +101,12 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
       throw new Error(`Base entry not found with documentId: ${documentId}`)
     }
 
-    const { locale: _dataLocale, ...dataWithoutLocale } = data
-
+    // Create localization by updating with locale in query param
     const endpoint = `${apiId}/${documentId}?locale=${locale}`
-    const result = await request(endpoint, {
+    return await request(endpoint, {
       method: 'PUT',
-      body: JSON.stringify({
-        data: dataWithoutLocale
-      })
-    }) as { data?: StrapiEntry }
-
-    if (!result || !result.data) {
-      throw new Error(
-        `Failed to create localization. Response: ${JSON.stringify(result)}`
-      )
-    }
-
-    const createdEntry = result.data
-    const actualLocale = createdEntry.locale
-    const actualDocId = createdEntry.documentId
-
-    if (actualLocale !== locale) {
-      console.warn(
-        `   ⚠️  Created entry has locale '${actualLocale}' but expected '${locale}'`
-      )
-    }
-
-    if (actualDocId !== documentId) {
-      console.warn(
-        `   ⚠️  DocumentId mismatch: expected '${documentId}', got '${actualDocId}'`
-      )
-    }
-
-    return result
+      body: JSON.stringify({ data })
+    })
   }
 
   async function updateLocalization(
@@ -142,16 +116,9 @@ export function createStrapiClient({ baseUrl, token }: StrapiClientOptions): Str
     data: Record<string, unknown>
   ): Promise<unknown> {
     const localization = await findBySlug(apiId, data.slug as string, locale)
-    const { locale: _dataLocale, ...dataWithoutLocale } = data
 
     if (localization) {
-      const result = await updateEntry(
-        apiId,
-        localization.documentId,
-        dataWithoutLocale,
-        locale
-      )
-      return result
+      return await updateEntry(apiId, localization.documentId, data, locale)
     }
     return await createLocalization(apiId, documentId, locale, data)
   }
