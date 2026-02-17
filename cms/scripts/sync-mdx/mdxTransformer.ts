@@ -54,18 +54,19 @@ export function isPageType(contentType: keyof ContentTypes): boolean {
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  * 
  * Currently only supports page content types (foundation-pages, summit-pages).
- * Returns null for unsupported content types.
+ * Throws an error for unsupported content types.
  * 
  * @param contentType - Content type identifier (e.g., 'foundation-pages')
  * @param mdx - MDX file data with frontmatter and content
  * @param existingEntry - Existing Strapi entry (optional, for updates)
- * @returns Strapi payload object or null if content type not supported
+ * @returns Strapi payload object
+ * @throws Error if content type is not supported
  */
 export function mdxToStrapiPayload(
   contentType: keyof ContentTypes,
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null
-): Record<string, unknown> | null {
+): Record<string, unknown> {
   // Only process page content types
   if (isPageType(contentType)) {
     // Select the appropriate schema based on content type
@@ -124,6 +125,6 @@ export function mdxToStrapiPayload(
     return data
   }
 
-  // Return null for unsupported content types
-  return null
+  // Throw error for unsupported content types
+  throw new Error(`Unsupported content type: ${contentType}`)
 }

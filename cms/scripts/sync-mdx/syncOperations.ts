@@ -20,10 +20,6 @@ export async function syncEnglishEntry(
     'en'
   )
   const englishData = mdxToStrapiPayload(contentType, englishMdx, existing)
-  
-  if (!englishData) {
-    throw new Error(`Unsupported content type: ${contentType}`)
-  }
 
   if (existing) {
     if (dryRun) {
@@ -72,10 +68,6 @@ export async function syncLocaleEntry(
   )
 
   const localeData = mdxToStrapiPayload(contentType, localeMdx, existingLocale)
-  
-  if (!localeData) {
-    throw new Error(`Unsupported content type: ${contentType}`)
-  }
 
   if (existingLocale) {
     if (dryRun) {
