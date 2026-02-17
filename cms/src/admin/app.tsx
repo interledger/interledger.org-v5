@@ -4,6 +4,43 @@ import {
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
 
+// CKEditor type definitions for the APIs we use
+interface CKEditorDataTransfer {
+  getData(format: string): string
+}
+
+interface CKEditorInsertionData {
+  dataTransfer: CKEditorDataTransfer
+  content: unknown
+}
+
+interface CKEditorPlugin {
+  on(
+    event: string,
+    callback: (evt: unknown, data: CKEditorInsertionData) => void,
+    options?: { priority: string }
+  ): void
+}
+
+interface CKEditorPlugins {
+  get(name: string): CKEditorPlugin
+}
+
+interface CKEditorDataProcessor {
+  toView(html: string): unknown
+  toModel(view: unknown): unknown
+}
+
+interface CKEditorData {
+  processor: CKEditorDataProcessor
+  toModel(view: unknown): unknown
+}
+
+interface CKEditor {
+  plugins: CKEditorPlugins
+  data: CKEditorData
+}
+
 const myCustomPreset: Preset = {
   ...defaultMarkdownPreset,
   description: 'Markdown editor without H1',
@@ -15,12 +52,12 @@ const myCustomPreset: Preset = {
       )
     },
     extraPlugins: [
-      function cleanGoogleDocsOnPaste(editor: any) {
+      function cleanGoogleDocsOnPaste(editor: CKEditor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
 
         clipboardPlugin.on(
           'contentInsertion',
-          (evt: any, data: any) => {
+          (evt: unknown, data: CKEditorInsertionData) => {
             const htmlContent = data.dataTransfer.getData('text/html')
 
             if (
@@ -58,11 +95,11 @@ const myPluginConfig: PluginConfig = {
 }
 
 export default {
-  register(app: any) {
+  register(_app: unknown) {
     setPluginConfig(myPluginConfig)
   },
 
-  bootstrap(app: any) {
+  bootstrap(_app: unknown) {
     // Override button labels using DOM manipulation
     const interval = setInterval(() => {
       // Find all buttons in the admin panel
@@ -79,6 +116,8 @@ export default {
     }, 100)
 
     // Store interval for cleanup if needed
-    ;(window as any).__strapiButtonInterval = interval
+    ;(
+      window as unknown as { __strapiButtonInterval: NodeJS.Timeout }
+    ).__strapiButtonInterval = interval
   }
 }
