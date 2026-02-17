@@ -20,34 +20,37 @@ export async function syncEnglishEntry(
     'en'
   )
   const englishData = mdxToStrapiPayload(contentType, englishMdx, existing)
+  
+  if (!englishData) {
+    throw new Error(`Unsupported content type: ${contentType}`)
+  }
 
   if (existing) {
     if (dryRun) {
       console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.slug} (en)`)
       results.updated++
       return existing
-    } else {
-      const result = await ctx.strapi.updateEntry(
-        config.apiId,
-        existing.documentId,
-        englishData!
-      )
-      console.log(`   🔄 Updated: ${englishMdx.slug} (en)`)
-      results.updated++
-      return result.data || existing
     }
-  } else {
-    if (dryRun) {
-      console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.slug} (en)`)
-      results.created++
-      return { documentId: 'dry-run-id', slug: englishMdx.slug }
-    } else {
-      const result = await ctx.strapi.createEntry(config.apiId, englishData!)
-      console.log(`   ✅ Created: ${englishMdx.slug} (en)`)
-      results.created++
-      return result.data
-    }
+    const result = await ctx.strapi.updateEntry(
+      config.apiId,
+      existing.documentId,
+      englishData
+    )
+    console.log(`   🔄 Updated: ${englishMdx.slug} (en)`)
+    results.updated++
+    return result.data || existing
   }
+
+  if (dryRun) {
+    console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.slug} (en)`)
+    results.created++
+    return { documentId: 'dry-run-id', slug: englishMdx.slug }
+  }
+
+  const result = await ctx.strapi.createEntry(config.apiId, englishData)
+  console.log(`   ✅ Created: ${englishMdx.slug} (en)`)
+  results.created++
+  return result.data
 }
 
 /** Sync a single locale (create or update localization). */
@@ -69,6 +72,10 @@ export async function syncLocaleEntry(
   )
 
   const localeData = mdxToStrapiPayload(contentType, localeMdx, existingLocale)
+  
+  if (!localeData) {
+    throw new Error(`Unsupported content type: ${contentType}`)
+  }
 
   if (existingLocale) {
     if (dryRun) {
@@ -80,7 +87,7 @@ export async function syncLocaleEntry(
         config.apiId,
         englishEntry.documentId,
         localeCode,
-        localeData!
+        localeData
       )
       console.log(
         `      🌍 Updated localization: ${localeMdx.slug} (${localeCode})`
@@ -97,7 +104,7 @@ export async function syncLocaleEntry(
         config.apiId,
         englishEntry.documentId,
         localeCode,
-        localeData!
+        localeData
       )
       console.log(
         `      🌍 Created localization: ${localeMdx.slug} (${localeCode})`
