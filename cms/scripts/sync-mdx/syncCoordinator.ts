@@ -71,9 +71,6 @@ export async function syncContentType(
           const localeCode = candidate.localeMdx.locale || 'en'
           processedLocaleSlugs.add(`${localeCode}:${candidate.localeMdx.slug}`)
 
-        for (const candidate of matchingLocales) {
-          const localeCode = candidate.localeMdx.locale || 'en'
-
           console.log(
             `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
           )
