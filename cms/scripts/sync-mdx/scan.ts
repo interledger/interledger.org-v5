@@ -223,9 +223,7 @@ export function getLocalesToCheck(
         // Example: src/content/es/foundation-pages/
         const localeContentDir = path.join(contentDir, entry.name, contentTypeDirName)
         if (fs.existsSync(localeContentDir)) {
-          // Extract base locale (e.g., "es-419" -> "es")
-          const baseLocale = entry.name.split('-')[0]
-          locales.add(baseLocale)
+          locales.add(entry.name)
         }
       }
     } catch {

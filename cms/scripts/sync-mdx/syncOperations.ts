@@ -3,7 +3,7 @@ import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { mdxToStrapiPayload } from './mdxTransformer'
-import { getLocaleBase, addProcessedSlug, isProcessed } from './localeMatch'
+import { addProcessedSlug, isProcessed } from './localeMatch'
 
 /** Sync a single English entry (create or update). Returns the entry if successful. */
 export async function syncEnglishEntry(
@@ -138,7 +138,6 @@ export async function syncUnmatchedLocales(
 
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
-    const localeForPath = getLocaleBase(localeCode)
     const localeLocalizes = localeMdx.localizes
 
     const matchedEnglishEntry = localeLocalizes
@@ -149,7 +148,7 @@ export async function syncUnmatchedLocales(
       console.log(
         `   ✅ Found match in Strapi: ${localeMdx.slug} (${localeCode}) -> ${matchedEnglishEntry.slug} (via localizes)`
       )
-      addProcessedSlug(processedSlugs, localeForPath, localeMdx.slug)
+      addProcessedSlug(processedSlugs, localeCode, localeMdx.slug)
 
       try {
         await syncLocaleEntry(
@@ -203,9 +202,8 @@ export async function deleteOrphanedEntries(
 
     for (const entry of strapiEntries) {
       const entryLocale = entry.locale || locale
-      const localeForPath = getLocaleBase(entryLocale)
 
-      if (isProcessed(processedSlugs, localeForPath, entry.slug)) continue
+      if (isProcessed(processedSlugs, entryLocale, entry.slug)) continue
 
       try {
         if (dryRun) {

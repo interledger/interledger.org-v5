@@ -1,7 +1,7 @@
 import { scanMDXFiles } from './scan'
 import type { ContentTypes } from './config'
 import type { SyncContext, SyncResults } from './types'
-import { findMatchingLocales, getLocaleBase, addProcessedSlug } from './localeMatch'
+import { findMatchingLocales, addProcessedSlug } from './localeMatch'
 import {
   syncEnglishEntry,
   syncLocaleEntry,
@@ -43,7 +43,7 @@ export async function syncContentType(
 
   // Include invalid MDX slugs so we don't delete Strapi entries that have MDX files (even if invalid)
   for (const err of invalid) {
-    addProcessedSlug(processedSlugs, getLocaleBase(err.locale), err.slug)
+    addProcessedSlug(processedSlugs, err.locale, err.slug)
   }
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
@@ -52,7 +52,7 @@ export async function syncContentType(
   for (const englishMdx of englishFiles) {
     addProcessedSlug(
       processedSlugs,
-      getLocaleBase(englishMdx.locale || 'en'),
+      englishMdx.locale || 'en',
       englishMdx.slug
     )
 
@@ -75,8 +75,7 @@ export async function syncContentType(
 
         for (const candidate of matchingLocales) {
           const localeCode = candidate.localeMdx.locale || 'en'
-          const localeForPath = getLocaleBase(localeCode)
-          addProcessedSlug(processedSlugs, localeForPath, candidate.localeMdx.slug)
+          addProcessedSlug(processedSlugs, localeCode, candidate.localeMdx.slug)
 
           console.log(
             `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
