@@ -25,24 +25,24 @@ const isSpanish = currentPath.startsWith('/es')
 const currentLang = isSpanish ? 'es' : 'en-gb'
 
 const navWrapperClass =
-  "xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full"
+  'xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full'
 
 const navItemBase =
-  "block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-150 max-[1059px]:px-space-s"
+  'block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-150 max-[1059px]:px-space-s'
 const navItemActive =
-  "hover:bg-[#444] data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+  'hover:bg-[#444] data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
 const topNavLinkClass = `${navItemBase} ${navItemActive}`
 const topNavButtonClass = `${navItemBase} border-none bg-transparent after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:filter after:invert after:transition-transform after:duration-300 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:bg-[#444] data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 ${navItemActive} peer`
 
 const submenuClass =
-  "list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black min-[1060px]:border-l-2 min-[1060px]:border-[#444] min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block"
+  'list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black min-[1060px]:border-l-2 min-[1060px]:border-[#444] min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block'
 
 const submenuItemBase =
-  "block no-underline text-white max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs transition-colors duration-150"
+  'block no-underline text-white max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs transition-colors duration-150'
 const submenuItemClass = `${submenuItemBase} ${navItemActive}`
 
 const rightNavBase =
-  "self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]"
+  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
 const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
 const ctaLinkClass = rightNavBase
 
@@ -50,7 +50,7 @@ const langItemClass =
   "flex items-center after:mx-space-2xs after:text-white/70 after:content-['|'] last:after:content-none"
 
 const langLinkClass =
-  "block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+  'block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
 ---
 
 <header
@@ -64,9 +64,7 @@ const langLinkClass =
     id="block-summit-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">
-      Summit navigation
-    </h2>
+    <h2 class="sr-only" id="block-summit-navigation-menu">Summit navigation</h2>
     <a
       href="/summit"
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
@@ -75,7 +73,12 @@ const langLinkClass =
     >
       <FoundationLogo class="text-white" />
     </a>
-    <div class={navWrapperClass} data-nav-wrapper data-offscreen="true" id="summitNavLinks">
+    <div
+      class={navWrapperClass}
+      data-nav-wrapper
+      data-offscreen="true"
+      id="summitNavLinks"
+    >
       <ul
         class="list-none ps-0 justify-center xl:flex xl:items-center"
         id="summitNavMenu"
@@ -128,7 +131,9 @@ const langLinkClass =
         }
       </ul>
     </div>
-    <div class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s">
+    <div
+      class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+    >
       {
         ctaButton && (
           <a
@@ -201,10 +206,18 @@ const langLinkClass =
         class="group relative h-[1em] w-[1.5em] cursor-pointer transition-[transform] duration-500 ease-in-out"
         data-open="false"
       >
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
+        ></span>
       </div>
     </button>
   </nav>
@@ -263,7 +276,9 @@ const langLinkClass =
   }
 
   // Summit sub-navigation toggle
-  const summitNav = document.querySelector('[data-nav-list]') as HTMLInputElement
+  const summitNav = document.querySelector(
+    '[data-nav-list]'
+  ) as HTMLInputElement
 
   if (document.contains(summitNav)) {
     const submenuButtons = document.querySelectorAll('[data-submenu-button]')

@@ -25,7 +25,9 @@ export function serialize(block: {
     for (const item of block.items) {
       const imageUrl = getImageUrl(item.image)
       lines.push('')
-      lines.push(`<CarouselItem title="${esc(item.title)}"${imageUrl ? ` image="${esc(imageUrl)}"` : ''}${item.link ? ` link="${esc(item.link)}"` : ''}>`)
+      lines.push(
+        `<CarouselItem title="${esc(item.title)}"${imageUrl ? ` image="${esc(imageUrl)}"` : ''}${item.link ? ` link="${esc(item.link)}"` : ''}>`
+      )
       if (item.description) {
         lines.push(item.description)
       }

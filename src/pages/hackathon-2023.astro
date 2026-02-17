@@ -5,7 +5,9 @@ import LanderLayout from '../layouts/LanderLayout.astro'
 ---
 
 <LanderLayout title="Interledger Summit Hackthon 2023">
-  <main class="min-[850px]:grid min-[850px]:grid-cols-[max-content_1fr] min-[850px]:grid-rows-[auto_auto] min-[850px]:[grid-template-areas:'hero_hero'_'sidebar_content']">
+  <main
+    class="min-[850px]:grid min-[850px]:grid-cols-[max-content_1fr] min-[850px]:grid-rows-[auto_auto] min-[850px]:[grid-template-areas:'hero_hero'_'sidebar_content']"
+  >
     <button
       id="toggleNav"
       class="fixed top-[4em] right-0 inline-block border-0 bg-black/50 px-space-2xs text-step-0 text-[var(--color-text)] cursor-pointer opacity-75 rounded-l transition-opacity duration-300 hover:opacity-100 min-[850px]:hidden"
@@ -88,7 +90,9 @@ import LanderLayout from '../layouts/LanderLayout.astro'
       </nav>
     </aside>
 
-    <Section class="bg-[hsla(162,86%,12%,1)] py-space-3xl text-center min-[850px]:[grid-area:hero]">
+    <Section
+      class="bg-[hsla(162,86%,12%,1)] py-space-3xl text-center min-[850px]:[grid-area:hero]"
+    >
       <header>
         <div class="mb-space-m flex justify-center gap-4">
           <AnimatedSummitLogo class="max-w-[5em] flex-none" />
@@ -102,7 +106,9 @@ import LanderLayout from '../layouts/LanderLayout.astro'
       </header>
     </Section>
 
-    <div class="min-[850px]:[grid-area:content] [&_h2]:mb-space-s [&_h3]:mb-space-s [&_p]:mb-space-xs [&_ul]:mb-space-xs [&_ol]:mb-space-xs">
+    <div
+      class="min-[850px]:[grid-area:content] [&_h2]:mb-space-s [&_h3]:mb-space-s [&_p]:mb-space-xs [&_ul]:mb-space-xs [&_ol]:mb-space-xs"
+    >
       <Section>
         <h2 id="open-payments">Open Payments</h2>
         <img

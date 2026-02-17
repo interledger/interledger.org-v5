@@ -54,14 +54,16 @@ async function ensureLocales(strapi: any) {
           limit: 1
         }
       )
-      
+
       if (existingLocales && existingLocales.length > 0) {
         strapi.log.debug(`✅ Locale ${localeCode} already exists`)
         continue
       }
 
       // Create locale if it doesn't exist
-      const displayName = localeConfigs[localeCode] || `${localeCode.toUpperCase()} (${localeCode})`
+      const displayName =
+        localeConfigs[localeCode] ||
+        `${localeCode.toUpperCase()} (${localeCode})`
       await strapi.entityService.create('plugin::i18n.locale', {
         data: {
           code: localeCode,
@@ -71,12 +73,18 @@ async function ensureLocales(strapi: any) {
       strapi.log.info(`✅ Created locale: ${displayName}`)
     } catch (error: any) {
       // Handle cases where locale might already exist (race condition, etc.)
-      if (error.message?.includes('already exists') || 
-          error.message?.includes('duplicate') || 
-          error.message?.includes('unique')) {
-        strapi.log.debug(`Locale ${localeCode} already exists (checked via error)`)
+      if (
+        error.message?.includes('already exists') ||
+        error.message?.includes('duplicate') ||
+        error.message?.includes('unique')
+      ) {
+        strapi.log.debug(
+          `Locale ${localeCode} already exists (checked via error)`
+        )
       } else {
-        strapi.log.warn(`⚠️  Could not create locale ${localeCode}: ${error.message}`)
+        strapi.log.warn(
+          `⚠️  Could not create locale ${localeCode}: ${error.message}`
+        )
       }
     }
   }

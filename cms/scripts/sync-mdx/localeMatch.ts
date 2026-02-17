@@ -4,16 +4,18 @@ import type { MDXFile } from './scan'
  * Builds a map of all MDX slugs by locale.
  * Used to prevent deleting Strapi entries that have corresponding MDX files.
  */
-export function buildMdxSlugsByLocale(mdxFiles: MDXFile[]): Map<string, Set<string>> {
+export function buildMdxSlugsByLocale(
+  mdxFiles: MDXFile[]
+): Map<string, Set<string>> {
   const slugsByLocale = new Map<string, Set<string>>()
-  
+
   for (const mdx of mdxFiles) {
     const locale = mdx.locale || 'en'
     const slugSet = slugsByLocale.get(locale) ?? new Set()
     slugSet.add(mdx.slug)
     slugsByLocale.set(locale, slugSet)
   }
-  
+
   return slugsByLocale
 }
 
@@ -40,7 +42,7 @@ export interface LocaleMatch {
 
 /**
  * Finds locale files that match an English entry via the `localizes` field.
- * 
+ *
  * Searches through locale files to find those that reference the English entry's slug
  * in their `localizes` frontmatter field.
  */

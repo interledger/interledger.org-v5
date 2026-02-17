@@ -23,7 +23,9 @@ export function serialize(block: {
   if (block.links) {
     for (const link of block.links) {
       lines.push('')
-      lines.push(`<CardLink title="${esc(link.title)}" url="${esc(link.url)}"${link.icon ? ` icon="${esc(link.icon)}"` : ''}>`)
+      lines.push(
+        `<CardLink title="${esc(link.title)}" url="${esc(link.url)}"${link.icon ? ` icon="${esc(link.icon)}"` : ''}>`
+      )
       if (link.description) {
         lines.push(link.description)
       }

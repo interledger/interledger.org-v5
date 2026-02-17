@@ -39,7 +39,7 @@ export const PATHS = {
     blog: 'blog',
     developersBlog: 'developers/blog',
     foundationPages: 'foundation-pages',
-    summit: 'summit',
+    summit: 'summit'
   },
   /** Public asset paths. */
   PUBLIC: 'public',
@@ -47,11 +47,11 @@ export const PATHS = {
   FOUNDATION_BLOG_IMG: 'img/foundation-blog',
   CONFIG: {
     foundationNavigation: 'foundation-navigation.json',
-    summitNavigation: 'summit-navigation.json',
+    summitNavigation: 'summit-navigation.json'
   },
   /** CMS-internal paths (relative to cms/ when cwd is cms). */
   TMP: '.tmp',
-  DB_FILE: '.tmp/data.db',
+  DB_FILE: '.tmp/data.db'
 } as const
 
 export function getContentPath(

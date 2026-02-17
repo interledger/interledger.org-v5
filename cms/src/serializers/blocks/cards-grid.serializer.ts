@@ -30,7 +30,9 @@ export function serialize(block: {
   if (block.cards) {
     for (const card of block.cards) {
       lines.push('')
-      lines.push(`<Card title="${esc(card.title)}"${card.link ? ` link="${esc(card.link)}"` : ''}${card.linkText ? ` linkText="${esc(card.linkText)}"` : ''}${card.icon ? ` icon="${esc(card.icon)}"` : ''}>`)
+      lines.push(
+        `<Card title="${esc(card.title)}"${card.link ? ` link="${esc(card.link)}"` : ''}${card.linkText ? ` linkText="${esc(card.linkText)}"` : ''}${card.icon ? ` icon="${esc(card.icon)}"` : ''}>`
+      )
       if (card.description) {
         lines.push(card.description)
       }

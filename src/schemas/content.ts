@@ -20,14 +20,22 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
-  sections: z.array(z.object({
-    title: z.string(),
-    content: z.string(),
-    ctas: z.array(z.object({
-      label: z.string(),
-      href: z.string()
-    })).optional()
-  })).optional(),
+  sections: z
+    .array(
+      z.object({
+        title: z.string(),
+        content: z.string(),
+        ctas: z
+          .array(
+            z.object({
+              label: z.string(),
+              href: z.string()
+            })
+          )
+          .optional()
+      })
+    )
+    .optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
@@ -39,14 +47,22 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
-  sections: z.array(z.object({
-    title: z.string(),
-    content: z.string(),
-    ctas: z.array(z.object({
-      label: z.string(),
-      href: z.string()
-    })).optional()
-  })).optional(),
+  sections: z
+    .array(
+      z.object({
+        title: z.string(),
+        content: z.string(),
+        ctas: z
+          .array(
+            z.object({
+              label: z.string(),
+              href: z.string()
+            })
+          )
+          .optional()
+      })
+    )
+    .optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
