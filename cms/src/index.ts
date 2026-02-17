@@ -52,13 +52,25 @@ interface StrapiLogger {
   warn: (message: string) => void
 }
 
+interface FieldMetadata {
+  edit?: {
+    label?: string
+    [key: string]: unknown
+  }
+  list?: {
+    label?: string
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
 interface StrapiContentManagerService {
   findConfiguration: (options: { uid: string }) => Promise<{
-    metadatas?: Record<string, unknown>
+    metadatas?: Record<string, FieldMetadata>
   } | null>
   updateConfiguration: (
     uidOptions: { uid: string },
-    config: { metadatas: Record<string, unknown> }
+    config: { metadatas: Record<string, FieldMetadata> }
   ) => Promise<void>
 }
 
