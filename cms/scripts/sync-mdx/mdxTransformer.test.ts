@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
 import type { StrapiEntry } from './strapiClient'
 import type { MDXFile } from './scan'
+import type { ContentTypes } from './config'
 
 function createMDXFile(overrides: Partial<MDXFile> = {}): MDXFile {
   return {
@@ -59,7 +60,7 @@ describe('isPageType', () => {
   ]
   for (const { input, expected } of cases) {
     test(`${input} -> ${expected}`, () => {
-      expect(isPageType(input as any)).toBe(expected)
+      expect(isPageType(input as keyof ContentTypes)).toBe(expected)
     })
   }
 })
@@ -67,7 +68,7 @@ describe('isPageType', () => {
 describe('mdxToStrapiPayload', () => {
   test('throws for non-page content type', () => {
     const mdx = createMDXFile()
-    expect(() => mdxToStrapiPayload('blog-posts' as any, mdx)).toThrow(
+    expect(() => mdxToStrapiPayload('blog-posts' as keyof ContentTypes, mdx)).toThrow(
       'Unsupported content type'
     )
   })

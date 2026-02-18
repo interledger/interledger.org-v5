@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { validateFrontmatter, validateMdxFiles } from './validateFrontmatter'
 import type { MDXFile } from './scan'
+import type { ContentTypes } from './config'
 
 function createMDXFile(overrides: Partial<MDXFile> = {}): MDXFile {
   return {
@@ -50,7 +51,7 @@ describe('validateFrontmatter', () => {
     ]
   for (const { desc, contentType, mdx } of validCases) {
     test(desc, () => {
-      expect(validateFrontmatter(contentType as any, mdx)).toBeNull()
+      expect(validateFrontmatter(contentType as keyof ContentTypes, mdx)).toBeNull()
     })
   }
 
@@ -86,7 +87,7 @@ describe('validateFrontmatter', () => {
   ]
   for (const { desc, contentType, mdx, expectedInErrors } of invalidCases) {
     test(desc, () => {
-      const result = validateFrontmatter(contentType as any, mdx)
+      const result = validateFrontmatter(contentType as keyof ContentTypes, mdx)
       if (contentType === 'blog-posts') {
         expect(result).toBeNull()
         return
