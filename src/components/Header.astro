@@ -3,6 +3,9 @@ import Search from '@astrojs/starlight/components/Search.astro'
 import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from './logos/DevelopersLogo.astro'
+import LanguagePicker from './LanguagePicker.astro'
+
+const currrentLang = Astro.currentLocale
 ---
 
 <div
@@ -30,5 +33,6 @@ import DevelopersLogo from './logos/DevelopersLogo.astro'
   <div class="hidden items-center gap-space-s md:flex">
     <SocialIcons />
     <ThemeSelect />
+    <LanguagePicker lang={currrentLang} />
   </div>
 </div>
