@@ -10,7 +10,7 @@ type Props = {
   page: Page
 }
 
-const basePath = stripPagination(Astro.url.pathname);
+const basePath = stripPagination(Astro.url.pathname)
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
@@ -111,7 +111,15 @@ const { page } = Astro.props
                     class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
                   >
                     Read more
-                    <svg viewBox="0 0 12 12" class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"><path d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z" fill="currentColor"></path></svg>
+                    <svg
+                      viewBox="0 0 12 12"
+                      class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
+                    >
+                      <path
+                        d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+                        fill="currentColor"
+                      />
+                    </svg>
                   </a>
                 </div>
               </li>

@@ -17,7 +17,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   return paginate(blogEntries, { pageSize: 10 })
 }
 
-const basePath = stripPagination(Astro.url.pathname);
+const basePath = stripPagination(Astro.url.pathname)
 const { page } = Astro.props
 ---
 
@@ -38,7 +38,11 @@ const { page } = Astro.props
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/developers" data-umami-event="Devs blog breadcrumb - Dev Portal">
+          <a
+            itemprop="item"
+            href="/developers"
+            data-umami-event="Devs blog breadcrumb - Dev Portal"
+          >
             <span itemprop="name">Developers Portal</span></a
           >
           <meta itemprop="position" content="1" />
@@ -106,7 +110,7 @@ const { page } = Astro.props
                       </a>
                     </h2>
                   )}
-                  
+
                   <p class="mb-space-2xs flex-grow">
                     {blogPostEntry.data.description
                       ? blogPostEntry.data.description
