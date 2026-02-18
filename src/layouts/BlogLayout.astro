@@ -57,26 +57,12 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
             <span itemprop="name">Engineering Blog</span></a
           >
           <meta itemprop="position" content="2" />
-          {
-            frontmatter.lang == 'es' && (
-              <>
-                <span>|</span>
-                <a
-                  itemprop="item"
-                  href="/blog/es"
-                  data-umami-event="Devs breadcrumb - ES blogs"
-                >
-                  <span itemprop="name">Blog de Ingeniería</span>
-                </a>
-              </>
-            )
-          }
         </li>
       </ol>
       <div>
         <img src={frontmatter.featureImage} alt={frontmatter.featureImageAlt} />
       </div>
-      <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
+      <h1 class="text-primary text-step-4 font-bold leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>
       <time
@@ -86,6 +72,23 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       >
         {longDate}
       </time>
+      {
+        frontmatter.authors && (
+          <p>
+            Written by:{' '}
+            {frontmatter.authors.map((author: string, i: number) => {
+              const authorElement = frontmatter.author_urls[i] ? (
+                <a href={frontmatter.author_urls[i]}>{author}</a>
+              ) : (
+                <span>{author}</span>
+              )
+              return i < frontmatter.authors.length - 1
+                ? [authorElement, ', ']
+                : authorElement
+            })}
+          </p>
+        )
+      }
       {
         frontmatter.external_url ? (
           <div
