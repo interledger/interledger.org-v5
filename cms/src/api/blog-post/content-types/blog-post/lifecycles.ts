@@ -6,7 +6,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush, resolveTargetRepoPath } from '../../../utils'
+import { gitCommitAndPush, resolveTargetRepoPath } from '@/api/utils'
 
 interface MediaFile {
   id: number

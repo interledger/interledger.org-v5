@@ -1,5 +1,5 @@
 import path from 'path'
-import { createNavigationLifecycle, PATHS } from '../../../utils'
+import { createNavigationLifecycle, PATHS } from '@/api/utils'
 
 export default createNavigationLifecycle({
   contentTypeUid: 'api::summit-navigation.summit-navigation',
