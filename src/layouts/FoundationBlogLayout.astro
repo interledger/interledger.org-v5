@@ -32,11 +32,9 @@ const rawHTMLString = frontmatter.external_url
   title={frontmatter.title}
   description={frontmatter.description}
   ogType="article"
-  ogImageUrl={
-    frontmatter.ogImageUrl
-      ? new URL(frontmatter.ogImageUrl, Astro.site).href
-      : new URL('/img/blog/og-image.png', Astro.site).href
-  }
+  ogImageUrl={frontmatter.ogImageUrl
+    ? new URL(frontmatter.ogImageUrl, Astro.site).href
+    : new URL('/img/blog/og-image.png', Astro.site).href}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article
@@ -54,7 +52,11 @@ const rawHTMLString = frontmatter.external_url
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/" data-umami-event="Foundation blog breadcrumb - Home">
+          <a
+            itemprop="item"
+            href="/"
+            data-umami-event="Foundation blog breadcrumb - Home"
+          >
             <span itemprop="name">Interledger Foundation</span></a
           >
           <meta itemprop="position" content="1" />
@@ -75,14 +77,16 @@ const rawHTMLString = frontmatter.external_url
           <meta itemprop="position" content="2" />
         </li>
       </ol>
-      {frontmatter.featureImage && (
-        <div>
-          <img
-            src={frontmatter.featureImage}
-            alt={frontmatter.featureImageAlt || frontmatter.title}
-          />
-        </div>
-      )}
+      {
+        frontmatter.featureImage && (
+          <div>
+            <img
+              src={frontmatter.featureImage}
+              alt={frontmatter.featureImageAlt || frontmatter.title}
+            />
+          </div>
+        )
+      }
       <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>
@@ -93,12 +97,14 @@ const rawHTMLString = frontmatter.external_url
       >
         {longDate}
       </time>
-      {rawHTMLString && (
-        <div
-          class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
-          set:html={rawHTMLString}
-        />
-      )}
+      {
+        rawHTMLString && (
+          <div
+            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
+            set:html={rawHTMLString}
+          />
+        )
+      }
       <slot />
     </article>
   </main>

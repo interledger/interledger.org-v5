@@ -25,8 +25,7 @@ const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
 const longDate = dateObj.toDateString().substring(4)
 
-const imageUrl =
-  frontmatter.featureImage || frontmatter.image
+const imageUrl = frontmatter.featureImage || frontmatter.image
 
 const rawHTMLString = frontmatter.external_url
   ? `This article was originally published at <a href=${frontmatter.external_url}>${frontmatter.external_url}</a>.`
@@ -37,11 +36,9 @@ const rawHTMLString = frontmatter.external_url
   title={frontmatter.title}
   description={frontmatter.description}
   ogType="article"
-  ogImageUrl={
-    frontmatter.ogImageUrl
-      ? new URL(frontmatter.ogImageUrl, Astro.site).href
-      : new URL('/img/blog/og-image.png', Astro.site).href
-  }
+  ogImageUrl={frontmatter.ogImageUrl
+    ? new URL(frontmatter.ogImageUrl, Astro.site).href
+    : new URL('/img/blog/og-image.png', Astro.site).href}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article
@@ -59,7 +56,11 @@ const rawHTMLString = frontmatter.external_url
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/" data-umami-event="Tech blog breadcrumb - Home">
+          <a
+            itemprop="item"
+            href="/"
+            data-umami-event="Tech blog breadcrumb - Home"
+          >
             <span itemprop="name">Developers Portal</span></a
           >
           <meta itemprop="position" content="1" />
@@ -78,28 +79,32 @@ const rawHTMLString = frontmatter.external_url
             <span itemprop="name">Engineering Blog</span></a
           >
           <meta itemprop="position" content="2" />
-          {frontmatter.lang && (
-            <>
-              <span>|</span>
-              <a
-                itemprop="item"
-                href="/developers/blog/es"
-                data-umami-event="Tech blog breadcrumb - ES"
-              >
-                <span itemprop="name">Blog de Ingeniería</span>
-              </a>
-            </>
-          )}
+          {
+            frontmatter.lang && (
+              <>
+                <span>|</span>
+                <a
+                  itemprop="item"
+                  href="/developers/blog/es"
+                  data-umami-event="Tech blog breadcrumb - ES"
+                >
+                  <span itemprop="name">Blog de Ingeniería</span>
+                </a>
+              </>
+            )
+          }
         </li>
       </ol>
-      {imageUrl && (
-        <div>
-          <img
-            src={imageUrl}
-            alt={frontmatter.featureImageAlt || frontmatter.title}
-          />
-        </div>
-      )}
+      {
+        imageUrl && (
+          <div>
+            <img
+              src={imageUrl}
+              alt={frontmatter.featureImageAlt || frontmatter.title}
+            />
+          </div>
+        )
+      }
       <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>
@@ -110,12 +115,14 @@ const rawHTMLString = frontmatter.external_url
       >
         {longDate}
       </time>
-      {rawHTMLString && (
-        <div
-          class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
-          set:html={rawHTMLString}
-        />
-      )}
+      {
+        rawHTMLString && (
+          <div
+            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
+            set:html={rawHTMLString}
+          />
+        )
+      }
       <slot />
     </article>
   </main>

@@ -3,9 +3,13 @@ const getPreviewPathname = (uid: string, { document }): string => {
 
   switch (uid) {
     case 'api::blog-post.blog-post':
-      return document.documentId ? `/blog/preview?slug=${document.documentId}` : '/blog'
+      return document.documentId
+        ? `/blog/preview?slug=${document.documentId}`
+        : '/blog'
     case 'api::foundation-blog-post.foundation-blog-post':
-      return document.documentId ? `/blog/preview?slug=${document.documentId}&type=foundation` : '/blog'
+      return document.documentId
+        ? `/blog/preview?slug=${document.documentId}&type=foundation`
+        : '/blog'
     case 'api::foundation-page.foundation-page': {
       const path = document.path?.replace(/^\//, '') || document.slug
       return `/${path}?preview=true`
