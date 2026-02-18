@@ -57,10 +57,20 @@ describe('syncEnglishEntry', () => {
   test('creates when no existing entry', async () => {
     const strapi = createMockStrapi({
       findBySlug: async () => undefined,
-      createEntry: async () => ({ data: { documentId: 'created-1', slug: 'about' } })
+      createEntry: async () => ({
+        data: { documentId: 'created-1', slug: 'about' }
+      })
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
-    const mdx = createMDXFile({ slug: 'about', frontmatter: { title: 'About', slug: 'about' } })
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
+    const mdx = createMDXFile({
+      slug: 'about',
+      frontmatter: { title: 'About', slug: 'about' }
+    })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -82,8 +92,16 @@ describe('syncEnglishEntry', () => {
       findBySlug: async () => existing,
       updateEntry: async () => ({ data: existing })
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
-    const mdx = createMDXFile({ slug: 'about', frontmatter: { title: 'About', slug: 'about' } })
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
+    const mdx = createMDXFile({
+      slug: 'about',
+      frontmatter: { title: 'About', slug: 'about' }
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -107,8 +125,16 @@ describe('syncEnglishEntry', () => {
         return { data: { documentId: 'x', slug: 'x' } }
       }
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
-    const mdx = createMDXFile({ slug: 'about', frontmatter: { title: 'About', slug: 'about' } })
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
+    const mdx = createMDXFile({
+      slug: 'about',
+      frontmatter: { title: 'About', slug: 'about' }
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -125,7 +151,11 @@ describe('syncEnglishEntry', () => {
 })
 
 describe('syncLocaleEntry', () => {
-  const englishEntry: StrapiEntry = { documentId: 'en-1', slug: 'about', locale: 'en' }
+  const englishEntry: StrapiEntry = {
+    documentId: 'en-1',
+    slug: 'about',
+    locale: 'en'
+  }
 
   test('creates localization when none exists', async () => {
     let createLocalizationCalled = false
@@ -136,12 +166,21 @@ describe('syncLocaleEntry', () => {
         return {}
       }
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
     const mdx = createMDXFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
-      frontmatter: { title: 'Sobre', slug: 'sobre-nosotros', localizes: 'about' }
+      frontmatter: {
+        title: 'Sobre',
+        slug: 'sobre-nosotros',
+        localizes: 'about'
+      }
     })
 
     await syncLocaleEntry(
@@ -172,12 +211,21 @@ describe('syncLocaleEntry', () => {
         return {}
       }
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
     const mdx = createMDXFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
-      frontmatter: { title: 'Sobre', slug: 'sobre-nosotros', localizes: 'about' }
+      frontmatter: {
+        title: 'Sobre',
+        slug: 'sobre-nosotros',
+        localizes: 'about'
+      }
     })
 
     await syncLocaleEntry(
@@ -205,7 +253,7 @@ describe('deleteOrphanedEntries', () => {
       { documentId: '2', slug: 'kept', locale: 'en' }
     ]
 
-    let deleteCalledWith: Array<[string, string]> = []
+    const deleteCalledWith: Array<[string, string]> = []
     const strapi = createMockStrapi({
       getAllEntries: async (_apiId, locale) =>
         locale === 'en' ? strapiEntries : [],
@@ -214,7 +262,12 @@ describe('deleteOrphanedEntries', () => {
         return {}
       }
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
 
     await deleteOrphanedEntries(
       'foundation-pages',
@@ -233,12 +286,19 @@ describe('deleteOrphanedEntries', () => {
   test('dryRun: increments deleted without calling deleteLocalization', async () => {
     const mdxSlugsByLocale = new Map<string, Set<string>>()
     const strapi = createMockStrapi({
-      getAllEntries: async () => [{ documentId: '1', slug: 'orphan', locale: 'en' }],
+      getAllEntries: async () => [
+        { documentId: '1', slug: 'orphan', locale: 'en' }
+      ],
       deleteLocalization: async () => {
         throw new Error('should not be called')
       }
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
 
     await deleteOrphanedEntries(
       'foundation-pages',
@@ -261,7 +321,11 @@ describe('syncUnmatchedLocales', () => {
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us',
-      frontmatter: { title: 'Sobre', slug: 'sobre-nosotros', localizes: 'about-us' }
+      frontmatter: {
+        title: 'Sobre',
+        slug: 'sobre-nosotros',
+        localizes: 'about-us'
+      }
     })
     const matchedSlugs = new Set<string>()
     const allStrapiEntries: StrapiEntry[] = [
@@ -273,7 +337,12 @@ describe('syncUnmatchedLocales', () => {
       findBySlug: async () => undefined,
       createLocalization: async () => ({})
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
 
     await syncUnmatchedLocales(
       'foundation-pages',
@@ -295,13 +364,22 @@ describe('syncUnmatchedLocales', () => {
       locale: 'es',
       isLocalization: true,
       localizes: 'nonexistent',
-      frontmatter: { title: 'Sobre', slug: 'sobre-nosotros', localizes: 'nonexistent' }
+      frontmatter: {
+        title: 'Sobre',
+        slug: 'sobre-nosotros',
+        localizes: 'nonexistent'
+      }
     })
     const matchedSlugs = new Set<string>()
     const strapi = createMockStrapi({
       getAllEntries: async () => []
     })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
 
     await syncUnmatchedLocales(
       'foundation-pages',
@@ -325,7 +403,12 @@ describe('syncUnmatchedLocales', () => {
     })
     const matchedSlugs = new Set<string>(['es:sobre-nosotros'])
     const strapi = createMockStrapi({ getAllEntries: async () => [] })
-    const results: SyncResults = { created: 0, updated: 0, deleted: 0, errors: 0 }
+    const results: SyncResults = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      errors: 0
+    }
 
     await syncUnmatchedLocales(
       'foundation-pages',

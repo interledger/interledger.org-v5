@@ -1,9 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import {
-  getEntryField,
-  isPageType,
-  mdxToStrapiPayload
-} from './mdxTransformer'
+import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
 import type { StrapiEntry } from './strapiClient'
 import type { MDXFile } from './scan'
 
@@ -28,7 +24,12 @@ describe('getEntryField', () => {
     key: string
     expected: unknown
   }> = [
-    { desc: 'null entry returns null', entry: null, key: 'title', expected: null },
+    {
+      desc: 'null entry returns null',
+      entry: null,
+      key: 'title',
+      expected: null
+    },
     {
       desc: 'flat Strapi v5 field on root',
       entry: { documentId: '1', slug: 'test', title: 'My Title' },
@@ -66,7 +67,9 @@ describe('isPageType', () => {
 describe('mdxToStrapiPayload', () => {
   test('throws for non-page content type', () => {
     const mdx = createMDXFile()
-    expect(() => mdxToStrapiPayload('blog-posts' as any, mdx)).toThrow('Unsupported content type')
+    expect(() => mdxToStrapiPayload('blog-posts' as any, mdx)).toThrow(
+      'Unsupported content type'
+    )
   })
 
   test('foundation-pages: minimal required fields', () => {
@@ -120,7 +123,9 @@ describe('mdxToStrapiPayload', () => {
       content: ''
     })
     const payload = mdxToStrapiPayload('foundation-pages', mdx, existing)
-    expect(payload.content).toEqual([{ __component: 'blocks.paragraph', content: 'Existing' }])
+    expect(payload.content).toEqual([
+      { __component: 'blocks.paragraph', content: 'Existing' }
+    ])
   })
 
   test('stores markdown as-is when MDX has body', () => {
@@ -130,7 +135,10 @@ describe('mdxToStrapiPayload', () => {
     })
     const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
     expect(payload.content).toEqual([
-      { __component: 'blocks.paragraph', content: '## Heading\n\nParagraph **bold**' }
+      {
+        __component: 'blocks.paragraph',
+        content: '## Heading\n\nParagraph **bold**'
+      }
     ])
   })
 

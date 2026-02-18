@@ -17,25 +17,37 @@ function createMDXFile(overrides: Partial<MDXFile> = {}): MDXFile {
 }
 
 describe('validateFrontmatter', () => {
-  const validCases: Array<{ desc: string; contentType: string; mdx: MDXFile }> = [
-    {
-      desc: 'foundation-pages valid',
-      contentType: 'foundation-pages',
-      mdx: createMDXFile({ slug: 'about-us', frontmatter: { title: 'About', slug: 'about-us' } })
-    },
-    {
-      desc: 'summit-pages valid',
-      contentType: 'summit-pages',
-      mdx: createMDXFile({ slug: 'schedule', frontmatter: { title: 'Schedule', slug: 'schedule' } })
-    },
-    {
-      desc: 'with optional hero fields',
-      contentType: 'foundation-pages',
-      mdx: createMDXFile({
-        frontmatter: { title: 'Page', slug: 'page', heroTitle: 'Hero', heroDescription: 'Desc' }
-      })
-    }
-  ]
+  const validCases: Array<{ desc: string; contentType: string; mdx: MDXFile }> =
+    [
+      {
+        desc: 'foundation-pages valid',
+        contentType: 'foundation-pages',
+        mdx: createMDXFile({
+          slug: 'about-us',
+          frontmatter: { title: 'About', slug: 'about-us' }
+        })
+      },
+      {
+        desc: 'summit-pages valid',
+        contentType: 'summit-pages',
+        mdx: createMDXFile({
+          slug: 'schedule',
+          frontmatter: { title: 'Schedule', slug: 'schedule' }
+        })
+      },
+      {
+        desc: 'with optional hero fields',
+        contentType: 'foundation-pages',
+        mdx: createMDXFile({
+          frontmatter: {
+            title: 'Page',
+            slug: 'page',
+            heroTitle: 'Hero',
+            heroDescription: 'Desc'
+          }
+        })
+      }
+    ]
   for (const { desc, contentType, mdx } of validCases) {
     test(desc, () => {
       expect(validateFrontmatter(contentType as any, mdx)).toBeNull()
@@ -82,7 +94,9 @@ describe('validateFrontmatter', () => {
       expect(result).not.toBeNull()
       expect(result!.errors.length).toBeGreaterThan(0)
       if (expectedInErrors) {
-        expect(result!.errors.some((e) => e.toLowerCase().includes(expectedInErrors))).toBe(true)
+        expect(
+          result!.errors.some((e) => e.toLowerCase().includes(expectedInErrors))
+        ).toBe(true)
       }
     })
   }
@@ -91,7 +105,10 @@ describe('validateFrontmatter', () => {
 describe('validateMdxFiles', () => {
   test('splits valid and invalid', () => {
     const files: MDXFile[] = [
-      createMDXFile({ slug: 'good', frontmatter: { title: 'Good', slug: 'good' } }),
+      createMDXFile({
+        slug: 'good',
+        frontmatter: { title: 'Good', slug: 'good' }
+      }),
       createMDXFile({ slug: 'bad', frontmatter: { slug: 'bad' } })
     ]
     const { valid, invalid } = validateMdxFiles('foundation-pages', files)

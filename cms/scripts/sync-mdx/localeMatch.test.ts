@@ -98,7 +98,11 @@ describe('findMatchingLocales', () => {
   }> = [
     {
       desc: 'matches via localizes field',
-      englishMdx: createMDXFile({ slug: 'about-us', locale: 'en', isLocalization: false }),
+      englishMdx: createMDXFile({
+        slug: 'about-us',
+        locale: 'en',
+        isLocalization: false
+      }),
       localeFiles: [
         createMDXFile({
           slug: 'sobre-nosotros',
@@ -140,8 +144,18 @@ describe('findMatchingLocales', () => {
       desc: 'multiple locale files matching same English',
       englishMdx: createMDXFile({ slug: 'about-us' }),
       localeFiles: [
-        createMDXFile({ slug: 'a', locale: 'es', isLocalization: true, localizes: 'about-us' }),
-        createMDXFile({ slug: 'b', locale: 'de', isLocalization: true, localizes: 'about-us' })
+        createMDXFile({
+          slug: 'a',
+          locale: 'es',
+          isLocalization: true,
+          localizes: 'about-us'
+        }),
+        createMDXFile({
+          slug: 'b',
+          locale: 'de',
+          isLocalization: true,
+          localizes: 'about-us'
+        })
       ],
       expectedCount: 2,
       expectedSlugs: ['a', 'b']
@@ -153,12 +167,20 @@ describe('findMatchingLocales', () => {
       expectedCount: 0
     }
   ]
-  for (const { desc, englishMdx, localeFiles, expectedCount, expectedSlugs } of cases) {
+  for (const {
+    desc,
+    englishMdx,
+    localeFiles,
+    expectedCount,
+    expectedSlugs
+  } of cases) {
     test(desc, () => {
       const matches = findMatchingLocales(englishMdx, localeFiles)
       expect(matches).toHaveLength(expectedCount)
       if (expectedSlugs) {
-        expect(matches.map((m) => m.localeMdx.slug)).toEqual(expect.arrayContaining(expectedSlugs))
+        expect(matches.map((m) => m.localeMdx.slug)).toEqual(
+          expect.arrayContaining(expectedSlugs)
+        )
       }
     })
   }
