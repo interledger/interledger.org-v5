@@ -1,5 +1,5 @@
 import isHtml from 'is-html'
-import { htmlToMarkdown } from '@/utils/mdx'
+import { htmlToMarkdown } from '../../utils/mdx'
 
 export function serialize(block: {
   content: string

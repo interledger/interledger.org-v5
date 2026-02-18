@@ -1,5 +1,5 @@
 import jsesc from 'jsesc'
-import { getImageUrl } from '@/utils/mdx'
+import { getImageUrl } from '../../utils/mdx'
 
 const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
 
