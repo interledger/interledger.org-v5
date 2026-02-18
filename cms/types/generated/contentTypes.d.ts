@@ -430,13 +430,15 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
+export interface ApiTechBlogPostTechBlogPost
+  extends Struct.CollectionTypeSchema
+{
   collectionName: 'blog_posts'
   info: {
     description: 'Engineering/developer blog posts that sync to MDX'
     displayName: 'Tech Blog Post'
-    pluralName: 'blog-posts'
-    singularName: 'blog-post'
+    pluralName: 'tech-blog-posts'
+    singularName: 'tech-blog-post'
   }
   options: {
     draftAndPublish: true
@@ -494,7 +496,7 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::blog-post.blog-post'
+      'api::tech-blog-post.tech-blog-post'
     >
     ogImageUrl: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
@@ -1246,7 +1248,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
-      'api::blog-post.blog-post': ApiBlogPostBlogPost
+      'api::tech-blog-post.tech-blog-post': ApiTechBlogPostTechBlogPost
       'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage

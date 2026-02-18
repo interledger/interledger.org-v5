@@ -68,9 +68,6 @@ The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs M
 
 ## Content Type Mappings
 
-- `src/content/blog/*.mdx` → `blog-posts` (API ID)
-- `src/content/events/*.mdx` → `news-events` (API ID)
-
 ## Troubleshooting
 
 ### 401 Unauthorized Error

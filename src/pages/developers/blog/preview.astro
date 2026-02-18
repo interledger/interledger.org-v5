@@ -12,7 +12,9 @@ if (!documentId) {
 }
 
 // Always fetch draft content for preview
-const response = await fetchStrapi(`api/blog-posts/${documentId}?status=draft`)
+const response = await fetchStrapi(
+  `api/tech-blog-posts/${documentId}?status=draft`
+)
 
 const article = response?.data
 

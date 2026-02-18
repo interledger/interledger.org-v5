@@ -2,8 +2,8 @@
   "kind": "collectionType",
   "collectionName": "blog_posts",
   "info": {
-    "singularName": "blog-post",
-    "pluralName": "blog-posts",
+    "singularName": "tech-blog-post",
+    "pluralName": "tech-blog-posts",
     "displayName": "Tech Blog Post",
     "description": "Engineering/developer blog posts that sync to MDX"
   },

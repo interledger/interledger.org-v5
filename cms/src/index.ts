@@ -150,7 +150,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // Map of content type UIDs to their field label configurations
   // All fields get human-readable labels for better UX
   const labelConfigs: Record<string, Record<string, string>> = {
-    'api::blog-post.blog-post': {
+    'api::tech-blog-post.tech-blog-post': {
       title: 'Title',
       description: 'Description',
       slug: 'URL Slug',
