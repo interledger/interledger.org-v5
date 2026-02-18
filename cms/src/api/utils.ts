@@ -21,3 +21,4 @@ export {
   LOCALES,
   getPreservedFields
 } from '../utils/mdx'
+export { gitCommitAndPush, resolveTargetRepoPath } from '../utils/gitSync'
