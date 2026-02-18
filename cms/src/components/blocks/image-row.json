@@ -29,9 +29,7 @@
       "type": "media",
       "multiple": false,
       "required": true,
-      "allowedTypes": [
-        "images"
-      ],
+      "allowedTypes": ["images"],
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -40,10 +38,7 @@
     },
     "imagePosition": {
       "type": "enumeration",
-      "enum": [
-        "left",
-        "right"
-      ],
+      "enum": ["left", "right"],
       "default": "right",
       "pluginOptions": {
         "i18n": {

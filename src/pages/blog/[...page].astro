@@ -28,10 +28,17 @@ const { page } = Astro.props
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-[1440px] min-w-[360px] px-[5%] min-[1600px]:px-0">
-      <header class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start">
+      <header
+        class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start"
+      >
         <h1 class="text-step-3 font-bold">Foundation Blog</h1>
-        <a class="group flex items-center gap-space-s rounded bg-radial from-white to-tech-light-bg px-space-2xs py-space-3xs shadow text-step--1 no-underline" href="/blog">
-          <p class="text-gray underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current">
+        <a
+          class="group flex items-center gap-space-s rounded bg-radial from-white to-tech-light-bg px-space-2xs py-space-3xs shadow text-step--1 no-underline"
+          href="/blog"
+        >
+          <p
+            class="text-gray underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
+          >
             Explore our Engineering Blog
           </p>
           <img
@@ -71,7 +78,10 @@ const { page } = Astro.props
                           {blogPostEntry.data.title}
                         </a>
                       </h2>
-                      <a class="mt-space-3xs/6 rounded border-[1.5px] bg-white px-1 text-step--1 no-underline" href="/blog/es">
+                      <a
+                        class="mt-space-3xs/6 rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
+                        href="/blog/es"
+                      >
                         ES
                       </a>
                     </div>

@@ -1,5 +1,9 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 function copySchemas() {
   const srcDir = path.join(__dirname, 'src')
@@ -28,7 +32,7 @@ function copySchemas() {
   console.log('✅ Schema files copied successfully')
 }
 
-module.exports = () => {
+export default () => {
   return {
     register() {
       // Copy schemas when Strapi initializes

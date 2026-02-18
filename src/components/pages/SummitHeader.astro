@@ -23,6 +23,34 @@ const { mainMenu, ctaButton } = summitNavigation as {
 const currentPath = Astro.url.pathname
 const isSpanish = currentPath.startsWith('/es')
 const currentLang = isSpanish ? 'es' : 'en-gb'
+
+const navWrapperClass =
+  'xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full'
+
+const navItemBase =
+  'block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-150 max-[1059px]:px-space-s'
+const navItemActive =
+  'hover:bg-[#444] data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
+const topNavLinkClass = `${navItemBase} ${navItemActive}`
+const topNavButtonClass = `${navItemBase} border-none bg-transparent after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:filter after:invert after:transition-transform after:duration-300 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:bg-[#444] data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 ${navItemActive} peer`
+
+const submenuClass =
+  'list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black min-[1060px]:border-l-2 min-[1060px]:border-[#444] min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block'
+
+const submenuItemBase =
+  'block no-underline text-white max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs transition-colors duration-150'
+const submenuItemClass = `${submenuItemBase} ${navItemActive}`
+
+const rightNavBase =
+  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
+const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
+const ctaLinkClass = rightNavBase
+
+const langItemClass =
+  "flex items-center after:mx-space-2xs after:text-white/70 after:content-['|'] last:after:content-none"
+
+const langLinkClass =
+  'block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
 ---
 
 <header
@@ -36,9 +64,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
     id="block-summit-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">
-      Summit navigation
-    </h2>
+    <h2 class="sr-only" id="block-summit-navigation-menu">Summit navigation</h2>
     <a
       href="/summit"
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
@@ -48,7 +74,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       <FoundationLogo class="text-white" />
     </a>
     <div
-      class="xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full"
+      class={navWrapperClass}
       data-nav-wrapper
       data-offscreen="true"
       id="summitNavLinks"
@@ -65,7 +91,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                 <a
                   href={group.href}
                   data-umami-event={`Summit Nav - ${group.label}`}
-                  class="block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-200 hover:bg-white/10 max-[1059px]:px-space-s data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                  class={topNavLinkClass}
                 >
                   {group.label}
                 </a>
@@ -74,20 +100,20 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                   <button
                     aria-expanded="false"
                     data-umami-event={`Summit Nav - ${group.label}`}
-                    class="peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-white/10 max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:filter after:invert after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                    class={topNavButtonClass}
                     data-submenu-button
                     data-open="false"
                   >
                     {group.label}
                   </button>
                   {group.items && group.items.length > 0 && (
-                    <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-black min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
+                    <ul class={submenuClass}>
                       {group.items.map((item) => (
                         <li data-menu-level="2">
                           <a
                             href={item.href || '#'}
                             data-umami-event={`Summit Nav - ${item.label}`}
-                            class="block no-underline text-white hover:bg-white/10 max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+                            class={submenuItemClass}
                             {...(item.openInNewTab
                               ? { target: '_blank', rel: 'noopener noreferrer' }
                               : {})}
@@ -105,11 +131,13 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
         }
       </ul>
     </div>
-    <div class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s">
+    <div
+      class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+    >
       {
         ctaButton && (
           <a
-            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-white/10"
+            class={ctaLinkClass}
             href={ctaButton.href || '#'}
             data-umami-event={`Summit Nav - ${ctaButton.label}`}
             {...(ctaButton.openInNewTab
@@ -122,7 +150,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
       }
       <a
         href="/"
-        class="self-center py-space-s whitespace-nowrap no-underline hover:underline max-[1059px]:hover:bg-white/10 max-[1059px]:hidden"
+        class={rightNavLinkClass}
         data-umami-event="Summit Nav - Interledger Foundation"
       >
         Interledger Foundation
@@ -131,12 +159,12 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
         <li
           hreflang="en-gb"
           data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          class={langItemClass}
           aria-current={currentLang === 'en-gb' ? 'page' : undefined}
         >
           <a
             href="/summit"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            class={langLinkClass}
             hreflang="en-gb"
             data-drupal-link-system-path="<front>"
             aria-current={currentLang === 'en-gb' ? 'page' : undefined}
@@ -148,12 +176,12 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
         <li
           hreflang="es"
           data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+          class={langItemClass}
           aria-current={currentLang === 'es' ? 'page' : undefined}
         >
           <a
             href="/es/summit"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            class={langLinkClass}
             hreflang="es"
             data-drupal-link-system-path="<front>"
             aria-current={currentLang === 'es' ? 'page' : undefined}
@@ -178,10 +206,18 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
         class="group relative h-[1em] w-[1.5em] cursor-pointer transition-[transform] duration-500 ease-in-out"
         data-open="false"
       >
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"></span>
-        <span class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"
+        ></span>
+        <span
+          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
+        ></span>
       </div>
     </button>
   </nav>
@@ -240,7 +276,9 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
   }
 
   // Summit sub-navigation toggle
-  const summitNav = document.querySelector('[data-nav-list]') as HTMLInputElement
+  const summitNav = document.querySelector(
+    '[data-nav-list]'
+  ) as HTMLInputElement
 
   if (document.contains(summitNav)) {
     const submenuButtons = document.querySelectorAll('[data-submenu-button]')
