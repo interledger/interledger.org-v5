@@ -18,4 +18,3 @@ bun run sync:mdx           # run !
 7. **localeMatch.ts** – Matches locale files to English entries via `localizes` field
 8. **syncOperations.ts** – Performs Strapi operations: create/update entries, create/update localizations, delete orphans
 9. **strapiClient.ts** – Strapi API client wrapper
-

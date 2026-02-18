@@ -35,9 +35,7 @@ export default defineConfig({
         './src/styles/interledger.css',
         './src/styles/atom-one-light.min.css'
       ],
-      plugins: [
-        starlightFullViewMode({ leftSidebarEnabled: false })
-      ],
+      plugins: [starlightFullViewMode({ leftSidebarEnabled: false })],
       head: [
         {
           tag: 'script',

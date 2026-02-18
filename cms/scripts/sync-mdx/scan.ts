@@ -22,13 +22,17 @@ interface ScanOptions {
 
 /**
  * Scans a directory for MDX files and extracts their metadata and content.
- * 
+ *
  * @param baseDir - Directory path to scan for MDX files
  * @param locale - Default locale for files in this directory
  * @param isLocalization - Whether files in this directory are localizations (not English)
  * @returns Array of parsed MDX file objects
  */
-function scanDirectory({ baseDir, locale, isLocalization }: ScanOptions): MDXFile[] {
+function scanDirectory({
+  baseDir,
+  locale,
+  isLocalization
+}: ScanOptions): MDXFile[] {
   const mdxFiles: MDXFile[] = []
 
   // Skip if directory doesn't exist
@@ -99,11 +103,11 @@ function scanDirectory({ baseDir, locale, isLocalization }: ScanOptions): MDXFil
 
 /**
  * Scans MDX files for a specific content type from base directory and all locale directories.
- * 
+ *
  * Scans:
  * - Base directory: src/content/<contentTypeDir>/ (English files)
  * - Locale directories: src/content/<locale>/<contentTypeDir>/ (localized files)
- * 
+ *
  * @param contentType - Content type to scan (e.g., 'foundation-pages')
  * @param contentTypes - Content type configurations
  * @returns Array of all MDX files found (English + all locales)
@@ -155,7 +159,11 @@ export function scanMDXFiles(
 
     // Build path to locale-specific content directory
     // Example: src/content/es/foundation-pages/
-    const localeContentDir = path.join(contentDir, localeDir.name, contentTypeDirName)
+    const localeContentDir = path.join(
+      contentDir,
+      localeDir.name,
+      contentTypeDirName
+    )
 
     // Skip if locale directory doesn't have this content type
     if (!fs.existsSync(localeContentDir)) {
@@ -176,13 +184,13 @@ export function scanMDXFiles(
 
 /**
  * Gets all locales that exist across ALL content types for orphan deletion.
- * 
+ *
  * This ensures we check for orphaned entries in all locales, even if a specific
  * content type's locale directory was removed.
- * 
+ *
  * Example: If es/foundation-pages/ is removed but es/summit/ still exists,
  * we still check for orphaned "es" entries in Strapi.
- * 
+ *
  * @param _contentType - Content type (unused, kept for API consistency)
  * @param contentTypes - All content type configurations
  * @returns Array of locale codes (e.g., ['en', 'es'])
@@ -194,7 +202,9 @@ export function getLocalesToCheck(
   const locales = new Set<string>(['en'])
 
   // Check all content types to find all locales that exist
-  for (const contentType of Object.keys(contentTypes) as Array<keyof ContentTypes>) {
+  for (const contentType of Object.keys(contentTypes) as Array<
+    keyof ContentTypes
+  >) {
     const config = contentTypes[contentType]
     const baseDir = config.dir
     const contentDir = path.dirname(baseDir)
@@ -221,7 +231,11 @@ export function getLocalesToCheck(
 
         // Check if this locale has content for this content type
         // Example: src/content/es/foundation-pages/
-        const localeContentDir = path.join(contentDir, entry.name, contentTypeDirName)
+        const localeContentDir = path.join(
+          contentDir,
+          entry.name,
+          contentTypeDirName
+        )
         if (fs.existsSync(localeContentDir)) {
           locales.add(entry.name)
         }

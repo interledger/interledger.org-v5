@@ -1,6 +1,6 @@
 /**
  * MDX Transformer
- * 
+ *
  * Transforms MDX files into Strapi payload format for content types.
  * Handles page content types (foundation-pages, summit-pages) by:
  * - Validating frontmatter against Zod schemas
@@ -21,7 +21,7 @@ const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
 
 /**
  * Extracts a field value from a Strapi entry.
- * 
+ *
  * @param entry - Strapi entry (may be null for new entries)
  * @param key - Field name to extract
  * @returns Field value or null if not found
@@ -34,9 +34,9 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
 
 /**
  * Checks if a content type is a "page" type.
- * 
+ *
  * Page types have special handling for hero sections and content blocks.
- * 
+ *
  * @param contentType - Content type to check
  * @returns true if content type is a page type
  */
@@ -46,16 +46,16 @@ export function isPageType(contentType: keyof ContentTypes): boolean {
 
 /**
  * Transforms an MDX file into a Strapi API payload.
- * 
+ *
  * This function:
  * 1. Validates frontmatter against the appropriate Zod schema
  * 2. Builds the base payload with required fields (title, slug, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
- * 
+ *
  * Currently only supports page content types (foundation-pages, summit-pages).
  * Throws an error for unsupported content types.
- * 
+ *
  * @param contentType - Content type identifier (e.g., 'foundation-pages')
  * @param mdx - MDX file data with frontmatter and content
  * @param existingEntry - Existing Strapi entry (optional, for updates)
@@ -70,16 +70,17 @@ export function mdxToStrapiPayload(
   // Only process page content types
   if (isPageType(contentType)) {
     // Select the appropriate schema based on content type
-    const schema = contentType === 'foundation-pages' 
-      ? foundationPageFrontmatterSchema 
-      : summitPageFrontmatterSchema
-    
+    const schema =
+      contentType === 'foundation-pages'
+        ? foundationPageFrontmatterSchema
+        : summitPageFrontmatterSchema
+
     // Validate frontmatter against schema (throws if invalid)
     const parsed = schema.parse({
       ...mdx.frontmatter,
       slug: mdx.slug
     })
-    
+
     // Build base payload with required fields
     const data: Record<string, unknown> = {
       title: parsed.title,

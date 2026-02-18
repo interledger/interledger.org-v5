@@ -35,11 +35,7 @@
     },
     "columns": {
       "type": "enumeration",
-      "enum": [
-        "2",
-        "3",
-        "4"
-      ],
+      "enum": ["2", "3", "4"],
       "default": "3",
       "pluginOptions": {
         "i18n": {

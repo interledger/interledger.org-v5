@@ -4,6 +4,18 @@ import { getProjectRoot } from './paths'
 import { gitCommitAndPush } from './gitSync'
 import { uidToLogLabel } from './mdx'
 
+// Strapi v5 Document API types
+interface StrapiDocumentAPI {
+  findFirst: (options: {
+    status: string
+    populate: Record<string, unknown>
+  }) => Promise<unknown>
+}
+
+declare const strapi: {
+  documents: (uid: string) => StrapiDocumentAPI
+}
+
 interface MenuItem {
   label: string
   href?: string | null
@@ -43,8 +55,7 @@ function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
 }
 
 function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
-  const items =
-    group.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
+  const items = group.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
   return {
     label: group.label,
     ...(group.href ? { href: group.href } : {}),
@@ -59,7 +70,10 @@ function sanitizeNavigation(data: NavigationData) {
   }
 }
 
-function writeNavigationFile(config: NavigationLifecycleConfig, data: NavigationData): string {
+function writeNavigationFile(
+  config: NavigationLifecycleConfig,
+  data: NavigationData
+): string {
   const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
@@ -70,11 +84,20 @@ function writeNavigationFile(config: NavigationLifecycleConfig, data: Navigation
     }
 
     const payload = sanitizeNavigation(data)
-    fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
-    console.log(`✅ Wrote ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`)
+    fs.writeFileSync(
+      outputPath,
+      JSON.stringify(payload, null, 2) + '\n',
+      'utf-8'
+    )
+    console.log(
+      `✅ Wrote ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`
+    )
     return outputPath
   } catch (error) {
-    console.error(`Failed to write ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`, error)
+    console.error(
+      `Failed to write ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`,
+      error
+    )
     throw error
   }
 }
@@ -83,7 +106,7 @@ async function fetchPublishedNavigation(
   config: NavigationLifecycleConfig
 ): Promise<NavigationData | null> {
   try {
-    const navigation = await strapi.documents(config.contentTypeUid as any).findFirst({
+    const navigation = await strapi.documents(config.contentTypeUid).findFirst({
       status: 'published',
       populate: {
         mainMenu: { populate: { items: true } },
@@ -92,23 +115,33 @@ async function fetchPublishedNavigation(
     })
     return navigation as NavigationData | null
   } catch (error) {
-    console.error(`Failed to fetch ${uidToLogLabel(config.contentTypeUid)} navigation:`, error)
+    console.error(
+      `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} navigation:`,
+      error
+    )
     return null
   }
 }
 
-async function deleteNavigationFile(config: NavigationLifecycleConfig): Promise<string | null> {
+async function deleteNavigationFile(
+  config: NavigationLifecycleConfig
+): Promise<string | null> {
   const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   try {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath)
-      console.log(`🗑️  Deleted ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`)
+      console.log(
+        `🗑️  Deleted ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`
+      )
       return outputPath
     }
     return null
   } catch (error) {
-    console.error(`Failed to delete ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`, error)
+    console.error(
+      `Failed to delete ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`,
+      error
+    )
     throw error
   }
 }
@@ -119,11 +152,16 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const navigation = await fetchPublishedNavigation(config)
       if (!navigation) {
-        console.log(`⏭️  No published ${uidToLogLabel(config.contentTypeUid)} navigation`)
+        console.log(
+          `⏭️  No published ${uidToLogLabel(config.contentTypeUid)} navigation`
+        )
         return
       }
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
+      await gitCommitAndPush(
+        outputPath,
+        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
+      )
     },
 
     async afterUpdate(_event: Event) {
@@ -142,14 +180,20 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       }
 
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(outputPath, `${uidToLogLabel(config.contentTypeUid)}: update navigation`)
+      await gitCommitAndPush(
+        outputPath,
+        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
+      )
     },
 
     async afterDelete(_event: Event) {
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
-        await gitCommitAndPush(deletedPath, `${uidToLogLabel(config.contentTypeUid)}: delete navigation`)
+        await gitCommitAndPush(
+          deletedPath,
+          `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
+        )
       }
     }
   }

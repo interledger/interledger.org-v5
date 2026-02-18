@@ -137,3 +137,12 @@ Default MDX output locations:
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
 - Blog posts: `src/content/blog/`
 - Grant tracks: `src/content/grants/`
+
+### 🔍 Code Formatting
+
+This project uses [ESLint](https://eslint.org/) for code linting and [Prettier](https://prettier.io/) for code formatting. Before submitting a pull request, please ensure your code is properly formatted:
+
+1. **Fix issues**: Run `bun run format` to automatically format code and fix linting issues
+2. **Check before pushing**: Run `bun run lint` to verify everything passes (CI will also run this)
+
+ESLint is configured to work with TypeScript and Astro files. The configuration extends recommended rules from ESLint, TypeScript ESLint, and Astro ESLint plugins, and integrates with Prettier to avoid conflicts.

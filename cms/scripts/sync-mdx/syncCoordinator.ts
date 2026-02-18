@@ -30,7 +30,9 @@ export async function syncContentType(
     }
   }
 
-  console.log(`   Found ${mdxFiles.length} MDX files (${invalid.length} invalid skipped)`)
+  console.log(
+    `   Found ${mdxFiles.length} MDX files (${invalid.length} invalid skipped)`
+  )
 
   const results: SyncResults = {
     created: 0,
@@ -125,7 +127,10 @@ export async function syncContentType(
   return results
 }
 
-export async function syncAll(ctx: SyncContext, dryRun: boolean): Promise<SyncResults> {
+export async function syncAll(
+  ctx: SyncContext,
+  dryRun: boolean
+): Promise<SyncResults> {
   const allResults: SyncResults = {
     created: 0,
     updated: 0,

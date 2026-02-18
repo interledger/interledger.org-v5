@@ -30,7 +30,9 @@ async function main() {
     })
     const currentBranch = branch.stdout?.trim()
     if (currentBranch !== 'main') {
-      console.error('❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)')
+      console.error(
+        '❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)'
+      )
       console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
       process.exit(1)
     }
@@ -46,7 +48,9 @@ async function main() {
 
   if (!STRAPI_URL) {
     console.error('❌ Error: STRAPI_URL not set')
-    console.error('   Add STRAPI_URL to your .env file (e.g. STRAPI_URL=http://localhost:1337)')
+    console.error(
+      '   Add STRAPI_URL to your .env file (e.g. STRAPI_URL=http://localhost:1337)'
+    )
     process.exit(1)
   }
   if (!STRAPI_TOKEN) {
@@ -61,7 +65,10 @@ async function main() {
   }
 
   const contentTypes = buildContentTypes(projectRoot)
-  const strapi = createStrapiClient({ baseUrl: STRAPI_URL, token: STRAPI_TOKEN })
+  const strapi = createStrapiClient({
+    baseUrl: STRAPI_URL,
+    token: STRAPI_TOKEN
+  })
 
   const results = await syncAll(
     {
@@ -80,7 +87,9 @@ async function main() {
   console.log(`   ❌ Errors:  ${results.errors}`)
 
   if (DRY_RUN) {
-    console.log('\n💡 This was a dry-run. Run without --dry-run to apply changes.')
+    console.log(
+      '\n💡 This was a dry-run. Run without --dry-run to apply changes.'
+    )
   }
 
   process.exit(results.errors ? 1 : 0)

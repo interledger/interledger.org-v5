@@ -11,7 +11,11 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import { assertRunFromCms, getConfigPath, getProjectRoot } from '../src/utils/paths'
+import {
+  assertRunFromCms,
+  getConfigPath,
+  getProjectRoot
+} from '../src/utils/paths'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -57,7 +61,10 @@ function readJson(filepath: string): Navigation {
   try {
     return JSON.parse(fs.readFileSync(filepath, 'utf-8'))
   } catch (error) {
-    throw new Error(`Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`)
+    throw new Error(
+      `Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`,
+      { cause: error }
+    )
   }
 }
 
@@ -74,7 +81,9 @@ function toStrapiPayload(navigation: Navigation): StrapiPayload {
     const groupData: StrapiMenuGroup = { label: group.label }
     if (group.href) groupData.href = group.href
     if (group.items && group.items.length > 0) {
-      groupData.items = group.items.map(mapItem).filter((item): item is StrapiMenuItem => item !== null)
+      groupData.items = group.items
+        .map(mapItem)
+        .filter((item): item is StrapiMenuItem => item !== null)
     }
     return groupData
   })
@@ -95,7 +104,13 @@ interface UpdateNavigationOptions {
   label: string
 }
 
-async function updateNavigation({ baseUrl, token, apiId, configPath, label }: UpdateNavigationOptions) {
+async function updateNavigation({
+  baseUrl,
+  token,
+  apiId,
+  configPath,
+  label
+}: UpdateNavigationOptions) {
   const navigation = readJson(configPath)
   const payload = toStrapiPayload(navigation)
   const url = `${baseUrl}/api/${apiId}?publicationState=preview`
@@ -124,7 +139,7 @@ async function updateNavigation({ baseUrl, token, apiId, configPath, label }: Up
     throw new Error(`Failed to sync ${label}: ${res.status} - ${text}`)
   }
 
-  const result = await res.json() as { data: { documentId: string } }
+  const result = (await res.json()) as { data: { documentId: string } }
   console.log(`✅ Synced ${label} (documentId: ${result.data.documentId})`)
 }
 
@@ -170,7 +185,9 @@ async function main() {
 
   if (!STRAPI_URL) {
     console.error('❌ Error: STRAPI_URL not set')
-    console.error('   Add STRAPI_URL to your .env file (e.g. STRAPI_URL=http://localhost:1337)')
+    console.error(
+      '   Add STRAPI_URL to your .env file (e.g. STRAPI_URL=http://localhost:1337)'
+    )
     process.exit(1)
   }
   if (!STRAPI_TOKEN) {
@@ -181,7 +198,9 @@ async function main() {
   await syncAllNavigations(projectRoot, STRAPI_URL, STRAPI_TOKEN)
 
   if (DRY_RUN) {
-    console.log('\n💡 This was a dry-run. Run without --dry-run to apply changes.')
+    console.log(
+      '\n💡 This was a dry-run. Run without --dry-run to apply changes.'
+    )
   }
 }
 
