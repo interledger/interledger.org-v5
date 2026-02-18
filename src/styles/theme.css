@@ -1,0 +1,20 @@
+/**
+ * Dynamic Tailwind Utility Generation
+ *
+ * CRITICAL: This file MUST import after base/variables.css
+ *
+ * The @theme inline block generates Tailwind utilities (text-primary,
+ * bg-primary, border-primary, etc.) that read from CSS variables at the
+ * element's DOM position rather than at :root.
+ *
+ * This enables pillar theming: when a page wrapper has [data-pillar="mission"],
+ * it overrides --color-primary, and all utilities inside that wrapper
+ * automatically use the mission color.
+ *
+ * Without this inline approach, utilities would read from :root only and
+ * ignore pillar overrides.
+ */
+
+@theme inline {
+  --color-primary: var(--color-primary);
+}

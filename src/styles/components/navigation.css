@@ -1,0 +1,12 @@
+/**
+ * Navigation Component Styles
+ * Part of @layer components - can be overridden by utility classes
+ */
+
+@layer components {
+  /* === Breadcrumb nav links === */
+  [data-nav-links] a {
+    color: var(--color-primary);
+    text-decoration-line: none;
+  }
+}

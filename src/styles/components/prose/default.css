@@ -1,0 +1,23 @@
+/**
+ * Default Prose Styles (Drupal v4 Production Defaults)
+ * Applied to all pages without requiring a data attribute
+ * Part of @layer components - can be overridden by utility classes
+ */
+
+@layer components {
+  /* Links: hidden underline that reveals on hover */
+  main a {
+    color: var(--color-primary);
+    text-decoration-color: transparent;
+    text-decoration-line: underline;
+    transition: text-decoration-color 200ms ease-in-out;
+  }
+  main a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Paragraphs: tighter line-height for body text */
+  main p {
+    line-height: 1.39;
+  }
+}

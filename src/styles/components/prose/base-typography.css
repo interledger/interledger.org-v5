@@ -1,0 +1,48 @@
+/**
+ * Base Prose Typography
+ * Common typographic elements for [data-prose] and [data-prose-blog]
+ * Part of @layer components - can be overridden by utility classes
+ */
+
+@layer components {
+  /* H2 headings: large, colored, spaced */
+  [data-prose] h2,
+  [data-prose-blog] h2 {
+    margin-block-start: var(--space-l);
+    margin-block-end: var(--space-s);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* H3 headings: medium, semibold */
+  [data-prose] h3,
+  [data-prose-blog] h3 {
+    margin-block-start: var(--space-m);
+    margin-block-end: var(--space-xs);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Paragraphs: relaxed line-height with spacing */
+  [data-prose] p,
+  [data-prose-blog] p {
+    margin-block-end: var(--space-s);
+    line-height: 1.6;
+  }
+
+  /* Lists: indented with spacing */
+  [data-prose] ul,
+  [data-prose-blog] ul,
+  [data-prose] ol,
+  [data-prose-blog] ol {
+    margin-block-end: var(--space-s);
+    padding-inline-start: var(--space-m);
+  }
+
+  /* List items: spaced */
+  [data-prose] li,
+  [data-prose-blog] li {
+    margin-block-end: var(--space-xs);
+  }
+}

@@ -1,0 +1,76 @@
+/**
+ * CSS Reset and Base Element Styles
+ * Extends Tailwind's Preflight (already imported in tailwind.css)
+ * with custom project-specific styles
+ */
+
+/* Custom base layer styles specific to this project */
+@layer base {
+  /* Custom keyframe animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoom {
+    0% {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes clockwise {
+    0% {
+      transform-origin: 50%;
+      transform: rotate(0);
+    }
+    to {
+      transform-origin: 50%;
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes anticlockwise {
+    0% {
+      transform-origin: 50%;
+      transform: rotate(0);
+    }
+    to {
+      transform-origin: 50%;
+      transform: rotate(-360deg);
+    }
+  }
+
+  /* Custom element styles extending Preflight */
+  html {
+    height: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    font-family: 'Titillium', Arial, sans-serif;
+    overflow-x: clip;
+  }
+
+  main {
+    @apply flex-1 text-step-0;
+  }
+
+  strong {
+    color: var(--color-primary);
+  }
+
+  a {
+    @apply text-current transition-colors duration-slow;
+  }
+
+  a:hover {
+    color: var(--color-primary);
+  }
+}

@@ -16,33 +16,35 @@ export default {
         ]
       },
 
-      // Fluid typography scale from pages.css
+      // Fluid typography scale
+      // References CSS variables from base/variables.css
       fontSize: {
-        'step--2': 'clamp(0.72rem, 0.6261rem + 0.4174vi, 0.96rem)',
-        'step--1': 'clamp(0.9rem, 0.7826rem + 0.5217vi, 1.2rem)',
-        'step-0': 'clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem)',
-        'step-1': 'clamp(1.4063rem, 1.2228rem + 0.8152vi, 1.875rem)',
-        'step-2': 'clamp(1.7578rem, 1.5285rem + 1.019vi, 2.3438rem)',
-        'step-3': 'clamp(2.1973rem, 1.9107rem + 1.2738vi, 2.9297rem)',
-        'step-4': 'clamp(2.7466rem, 2.3883rem + 1.5922vi, 3.6621rem)',
-        'step-5': 'clamp(3.4332rem, 2.9854rem + 1.9903vi, 4.5776rem)',
-        'step-6': 'clamp(4.2915rem, 3.7318rem + 2.4878vi, 5.722rem)'
+        'step--2': 'var(--step--2)',
+        'step--1': 'var(--step--1)',
+        'step-0': 'var(--step-0)',
+        'step-1': 'var(--step-1)',
+        'step-2': 'var(--step-2)',
+        'step-3': 'var(--step-3)',
+        'step-4': 'var(--step-4)',
+        'step-5': 'var(--step-5)',
+        'step-6': 'var(--step-6)'
       },
 
-      // Fluid spacing scale from pages.css
+      // Fluid spacing scale
+      // References CSS variables from base/variables.css
       spacing: {
-        'space-3xs': 'clamp(0.3125rem, 0.288rem + 0.1087vi, 0.375rem)',
-        'space-2xs': 'clamp(0.5625rem, 0.4891rem + 0.3261vi, 0.75rem)',
-        'space-xs': 'clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem)',
-        'space-s': 'clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem)',
-        'space-m': 'clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem)',
-        'space-l': 'clamp(2.25rem, 1.9565rem + 1.3043vi, 3rem)',
-        'space-xl': 'clamp(3.375rem, 2.9348rem + 1.9565vi, 4.5rem)',
-        'space-2xl': 'clamp(4.5rem, 3.913rem + 2.6087vi, 6rem)',
-        'space-3xl': 'clamp(6.75rem, 5.8696rem + 3.913vi, 9rem)'
+        'space-3xs': 'var(--space-3xs)',
+        'space-2xs': 'var(--space-2xs)',
+        'space-xs': 'var(--space-xs)',
+        'space-s': 'var(--space-s)',
+        'space-m': 'var(--space-m)',
+        'space-l': 'var(--space-l)',
+        'space-xl': 'var(--space-xl)',
+        'space-2xl': 'var(--space-2xl)',
+        'space-3xl': 'var(--space-3xl)'
       },
 
-      // Colors from pages.css
+      // Colors (migrated from legacy pages.css)
       // NOTE: 'primary' is now dynamic via @theme inline in tailwind.css
       // It reads from var(--color-primary) which responds to [data-pillar] overrides
       colors: {
