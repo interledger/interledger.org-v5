@@ -51,7 +51,9 @@ describe('validateFrontmatter', () => {
     ]
   for (const { desc, contentType, mdx } of validCases) {
     test(desc, () => {
-      expect(validateFrontmatter(contentType as keyof ContentTypes, mdx)).toBeNull()
+      expect(
+        validateFrontmatter(contentType as keyof ContentTypes, mdx)
+      ).toBeNull()
     })
   }
 

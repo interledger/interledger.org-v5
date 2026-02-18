@@ -68,9 +68,9 @@ describe('isPageType', () => {
 describe('mdxToStrapiPayload', () => {
   test('throws for non-page content type', () => {
     const mdx = createMDXFile()
-    expect(() => mdxToStrapiPayload('blog-posts' as keyof ContentTypes, mdx)).toThrow(
-      'Unsupported content type'
-    )
+    expect(() =>
+      mdxToStrapiPayload('blog-posts' as keyof ContentTypes, mdx)
+    ).toThrow('Unsupported content type')
   })
 
   test('foundation-pages: minimal required fields', () => {
