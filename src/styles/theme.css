@@ -1,20 +1,94 @@
 /**
- * Dynamic Tailwind Utility Generation
+ * Tailwind v4 Theme Configuration
+ * See https://tailwindcss.com/docs/theme
  *
- * CRITICAL: This file MUST import after base/variables.css
+ * @theme generates BOTH CSS variables AND utility classes.
+ * This is the single source of truth for design token VALUES.
  *
- * The @theme inline block generates Tailwind utilities (text-primary,
- * bg-primary, border-primary, etc.) that read from CSS variables at the
- * element's DOM position rather than at :root.
+ * 1. @theme inline — for --color-primary (dynamic pillar theming)
+ *    Generates utilities that read the CSS variable at the element's
+ *    DOM position, so [data-pillar] overrides work automatically.
  *
- * This enables pillar theming: when a page wrapper has [data-pillar="mission"],
- * it overrides --color-primary, and all utilities inside that wrapper
- * automatically use the mission color.
- *
- * Without this inline approach, utilities would read from :root only and
- * ignore pillar overrides.
+ * 2. @theme — all static tokens (typography, spacing, colors, radius, shadows, animations)
+ *    Generates utilities with hardcoded values. Tree-shakes unused tokens.
+ *    Namespace reference (see tailwind docs for full reference):
+ *      --text-{name}    → text-{name}
+ *      --spacing-{name} → p-{name}/gap-{name}/m-{name}
+ *      --color-{name}   → text-{name}/bg-{name}/border-{name}
+ *      --radius-{name}  → rounded-{name}
+ *      --shadow-{name}  → shadow-{name}
+ *      --animate-{name} → animate-{name}
  */
 
+/* Dynamic color — reads from CSS variable at runtime (pillar theming) */
 @theme inline {
   --color-primary: var(--color-primary);
+  --color-btn-txt: var(--color-btn-txt);
+}
+
+/* Static design tokens — single source of truth for values */
+@theme {
+  /* Fluid typography scale */
+  --text-step--2: clamp(0.72rem, 0.6261rem + 0.4174vi, 0.96rem);
+  --text-step--1: clamp(0.9rem, 0.7826rem + 0.5217vi, 1.2rem);
+  --text-step-0: clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem);
+  --text-step-1: clamp(1.4063rem, 1.2228rem + 0.8152vi, 1.875rem);
+  --text-step-2: clamp(1.7578rem, 1.5285rem + 1.019vi, 2.3438rem);
+  --text-step-3: clamp(2.1973rem, 1.9107rem + 1.2738vi, 2.9297rem);
+  --text-step-4: clamp(2.7466rem, 2.3883rem + 1.5922vi, 3.6621rem);
+  --text-step-5: clamp(3.4332rem, 2.9854rem + 1.9903vi, 4.5776rem);
+  --text-step-6: clamp(4.2915rem, 3.7318rem + 2.4878vi, 5.722rem);
+
+  /* Fluid spacing scale */
+  --spacing-space-3xs: clamp(0.3125rem, 0.288rem + 0.1087vi, 0.375rem);
+  --spacing-space-2xs: clamp(0.5625rem, 0.4891rem + 0.3261vi, 0.75rem);
+  --spacing-space-xs: clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem);
+  --spacing-space-s: clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem);
+  --spacing-space-m: clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem);
+  --spacing-space-l: clamp(2.25rem, 1.9565rem + 1.3043vi, 3rem);
+  --spacing-space-xl: clamp(3.375rem, 2.9348rem + 1.9565vi, 4.5rem);
+  --spacing-space-2xl: clamp(4.5rem, 3.913rem + 2.6087vi, 6rem);
+  --spacing-space-3xl: clamp(6.75rem, 5.8696rem + 3.913vi, 9rem);
+
+  /* Color palette — static values
+     --color-primary is dynamic (see @theme inline above).
+     Its base value is set in variables.css :root, overridden by [data-pillar]. */
+  --color-primary-fallback: #007777;
+  --color-primary-bg-fallback: rgba(7, 121, 114, 0.1);
+  --color-primary-bg: oklch(51.95% 0.089 187.7 / 0.1);
+  --color-gray: #444;
+  --color-gray-header: #eee;
+  --color-frost: rgba(255, 255, 255, 0.5);
+  --color-table-stripe: #f6f7f9;
+  --color-bg-inline-code: #edeef3;
+
+  /* Pillar palette — each pillar's accent color + fallback */
+  --color-tech-main: oklch(51.54% 0.088 194.77);
+  --color-tech-main-fallback: #007777;
+  --color-mission: oklch(55.27% 0.205 32.62);
+  --color-mission-main: oklch(55.27% 0.205 32.62);
+  --color-mission-main-fallback: #cf2801;
+  --color-mission-fallback: #c24b3d;
+  --color-vision-main: oklch(46.08% 0.258 291.47);
+  --color-vision-main-fallback: #6500d8;
+  --color-values-main: oklch(56.84% 0.229 3.717);
+  --color-values-main-fallback: #d80068;
+
+  /* Border radius */
+  --radius: 6px;
+  --radius-card: 8px;
+  --radius-pill: 10em;
+  --radius-button: 1rem;
+
+  /* Box shadows */
+  --shadow:
+    0px 1px 1px hsla(0, 0%, 0%, 0.06), 0px 2px 2px hsla(0, 0%, 0%, 0.06);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-primary: 0px 0px 12px -4px oklch(51.54% 0.088 194.77);
+
+  /* Animation shorthand tokens → animate-* utilities */
+  --animate-fade-in: fade-in 500ms ease-in-out;
+  --animate-zoom: zoom 2s forwards;
+  --animate-clockwise: clockwise 22s linear infinite;
+  --animate-anticlockwise: anticlockwise 22s linear infinite;
 }

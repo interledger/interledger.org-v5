@@ -30,26 +30,26 @@
    .sl-container ends up inside [data-prose], the main site variables win. */
 :where(.sl-container) {
   /* Text size and line height */
-  --step--2: clamp(0.72rem, calc(0.95rem + -0.26vw), 0.89rem);
-  --step--1: clamp(0.9rem, calc(1.03rem + -0.15vw), 1rem);
-  --step-0: clamp(1.13rem, calc(1.13rem + 0vw), 1.13rem);
-  --step-1: clamp(1.27rem, calc(1.22rem + 0.22vw), 1.41rem);
-  --step-2: clamp(1.42rem, calc(1.31rem + 0.51vw), 1.76rem);
-  --step-3: clamp(1.6rem, calc(1.4rem + 0.92vw), 2.2rem);
-  --step-4: clamp(1.8rem, calc(1.47rem + 1.45vw), 2.75rem);
-  --step-5: clamp(2.03rem, calc(1.54rem + 2.16vw), 3.43rem);
-  --space-3xs: clamp(0.31rem, calc(0.31rem + 0vw), 0.31rem);
-  --space-2xs: clamp(0.56rem, calc(0.56rem + 0vw), 0.56rem);
-  --space-xs: clamp(0.88rem, calc(0.88rem + 0vw), 0.88rem);
-  --space-s: clamp(1.13rem, calc(1.13rem + 0vw), 1.13rem);
-  --space-m: clamp(1.69rem, calc(1.69rem + 0vw), 1.69rem);
-  --space-l: clamp(2.25rem, calc(2.25rem + 0vw), 2.25rem);
-  --space-xl: clamp(3.38rem, calc(3.38rem + 0vw), 3.38rem);
-  --space-2xl: clamp(4.5rem, calc(4.5rem + 0vw), 4.5rem);
-  --space-3xl: clamp(6.75rem, calc(6.75rem + 0vw), 6.75rem);
+  --text-step--2: clamp(0.72rem, calc(0.95rem + -0.26vw), 0.89rem);
+  --text-step--1: clamp(0.9rem, calc(1.03rem + -0.15vw), 1rem);
+  --text-step-0: clamp(1.13rem, calc(1.13rem + 0vw), 1.13rem);
+  --text-step-1: clamp(1.27rem, calc(1.22rem + 0.22vw), 1.41rem);
+  --text-step-2: clamp(1.42rem, calc(1.31rem + 0.51vw), 1.76rem);
+  --text-step-3: clamp(1.6rem, calc(1.4rem + 0.92vw), 2.2rem);
+  --text-step-4: clamp(1.8rem, calc(1.47rem + 1.45vw), 2.75rem);
+  --text-step-5: clamp(2.03rem, calc(1.54rem + 2.16vw), 3.43rem);
+  --spacing-space-3xs: clamp(0.31rem, calc(0.31rem + 0vw), 0.31rem);
+  --spacing-space-2xs: clamp(0.56rem, calc(0.56rem + 0vw), 0.56rem);
+  --spacing-space-xs: clamp(0.88rem, calc(0.88rem + 0vw), 0.88rem);
+  --spacing-space-s: clamp(1.13rem, calc(1.13rem + 0vw), 1.13rem);
+  --spacing-space-m: clamp(1.69rem, calc(1.69rem + 0vw), 1.69rem);
+  --spacing-space-l: clamp(2.25rem, calc(2.25rem + 0vw), 2.25rem);
+  --spacing-space-xl: clamp(3.38rem, calc(3.38rem + 0vw), 3.38rem);
+  --spacing-space-2xl: clamp(4.5rem, calc(4.5rem + 0vw), 4.5rem);
+  --spacing-space-3xl: clamp(6.75rem, calc(6.75rem + 0vw), 6.75rem);
 
-  --sl-text-xs: var(--step--1);
-  --sl-text-sm: var(--step--1);
+  --sl-text-xs: var(--text-step--1);
+  --sl-text-sm: var(--text-step--1);
 
   --sl-nav-height: 4.275rem;
 
@@ -96,17 +96,17 @@ header.header {
 .sl-markdown-content > blockquote,
 .sl-markdown-content > h1 + blockquote {
   border-inline-start: 2px solid var(--sl-color-text-accent);
-  font-size: var(--step-1);
+  font-size: var(--text-step-1);
   font-style: italic;
 }
 
 .sl-markdown-content > :first-child {
-  margin-block-start: var(--space-s);
+  margin-block-start: var(--spacing-space-s);
 }
 
 /* Markdown content layout styles */
 div.overview-item.overview-item p {
-  margin-block-start: var(--space-2xs);
+  margin-block-start: var(--spacing-space-2xs);
 }
 
 div.overview-item.overview-item div {
@@ -118,7 +118,7 @@ div.overview-item.overview-item div {
   div.overview-item {
     display: flex;
     align-items: center;
-    gap: var(--space-s);
+    gap: var(--spacing-space-s);
   }
 }
 
@@ -127,7 +127,7 @@ div.overview-item.overview-item div {
   .overview-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: var(--space-s);
+    gap: var(--spacing-space-s);
   }
 
   div.overview-item.overview-item.overview-item {
@@ -136,7 +136,7 @@ div.overview-item.overview-item div {
   }
 
   div.overview-item.overview-item p {
-    margin-block-start: var(--space-3xs);
+    margin-block-start: var(--spacing-space-3xs);
   }
 
   div.overview-item img {
@@ -146,14 +146,14 @@ div.overview-item.overview-item div {
 }
 
 div.community.community p {
-  margin-block-start: var(--space-2xs);
+  margin-block-start: var(--spacing-space-2xs);
 }
 
 @media screen and (min-width: 600px) {
   .community {
     display: flex;
     align-items: center;
-    gap: var(--space-s);
+    gap: var(--spacing-space-s);
   }
 
   div.community.community div {

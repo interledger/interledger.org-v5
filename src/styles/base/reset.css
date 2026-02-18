@@ -6,8 +6,10 @@
 
 /* Custom base layer styles specific to this project */
 @layer base {
-  /* Custom keyframe animations */
-  @keyframes fadeIn {
+  /* Keyframe definitions — always output (not tree-shaken).
+     Animation shorthand tokens (--animate-*) are in theme.css.
+     Keyframes live here so inline styles on SVG elements can reference them. */
+  @keyframes fade-in {
     from {
       opacity: 0;
     }

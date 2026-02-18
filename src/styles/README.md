@@ -13,11 +13,11 @@ This project uses **Tailwind CSS v4** with a modular architecture organized by l
 ```
 src/styles/
 ├── tailwind.css              # Main entry point - imports all modules
-├── theme.css                 # Dynamic utility generation (@theme inline)
-├── base/                     # Base layer - CSS reset, fonts, variables
+├── theme.css                 # @theme tokens: typography, spacing, colors, radius, shadows, animations
+├── base/                     # Base layer - CSS reset, fonts, runtime overrides
 │   ├── typography.css        # Font-face declarations
-│   ├── reset.css            # Tailwind Preflight + custom keyframes/elements
-│   └── variables.css        # CSS custom properties + pillar overrides
+│   ├── reset.css            # Tailwind Preflight + keyframes + element styles
+│   └── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
 └── components/              # Component layer - overridable by utilities
     ├── navigation.css       # Breadcrumb nav styles
     └── prose/              # Prose variants by content type
@@ -28,23 +28,19 @@ src/styles/
         └── summit.css      # [data-prose-summit] specific
 ```
 
-## 🚨 Critical: Import Order
+## Critical: Import Order
 
-**DO NOT REORDER IMPORTS IN `tailwind.css`**
+#### Required Import Sequence:
 
-Tailwind v4's cascade order is: `@layer theme < base < components < utilities`
+1. **Theme layer first** (`theme.css`)
+   - Defines ALL design token VALUES in `@theme` (typography, spacing, colors, radius, shadows, animations)
+   - Generates dynamic utilities via `@theme inline` (text-primary, bg-primary)
+   - MUST load before base files because reset.css uses `@apply text-step-0`
 
-### Required Import Sequence:
-
-1. **Base layer files first** (`base/*.css`)
-   - Defines CSS variables (--color-primary, spacing, etc.)
-   - Imports Tailwind Preflight reset
-   - Must load before theme.css or dynamic utilities break
-
-2. **Theme layer** (`theme.css`)
-   - Generates dynamic utilities via `@theme inline`
-   - Reads from CSS variables defined in base layer
-   - Must load after base, before components
+2. **Base layer** (`base/*.css`)
+   - typography.css: @font-face declarations
+   - reset.css: extends Preflight, defines @keyframes, uses @apply (needs theme utilities)
+   - variables.css: runtime vars (--color-primary base value, dependent vars, pillar overrides)
 
 3. **Components layer** (`components/**/*.css`)
    - Prose styles, navigation, etc.
@@ -53,9 +49,9 @@ Tailwind v4's cascade order is: `@layer theme < base < components < utilities`
 
 ### What Breaks If You Reorder:
 
-❌ **Base after theme** → Dynamic utilities (text-primary) become undefined
-❌ **Theme after components** → Utility overrides fail (component styles wrongly win)
-❌ **Components before base** → CSS variables are undefined
+**Theme after base** → `@apply text-step-0` fails (utility not yet defined)
+**Components before theme** → Utility overrides fail (component styles wrongly win)
+**Components before base** → Runtime CSS variables are undefined
 
 ## Pillar Theming System
 
@@ -110,13 +106,14 @@ Pages can set a `data-pillar` attribute to override the primary color theme:
 
 ### Adding a New Pillar
 
-1. Add color variable to `base/variables.css`:
+1. Add color token to `theme.css` (`@theme` block):
 
    ```css
    --color-newpillar-main: oklch(...);
+   --color-newpillar-main-fallback: #hexcolor;
    ```
 
-2. Add pillar override:
+2. Add pillar override to `base/variables.css`:
 
    ```css
    [data-pillar='newpillar'] {
@@ -193,34 +190,65 @@ Generates:
 
 ### When to Use Each
 
-| Approach                       | Use When                               | Example                                                |
-| ------------------------------ | -------------------------------------- | ------------------------------------------------------ |
-| **Config**                     | Value never changes                    | Font families, breakpoints, static border radius       |
-| **@theme inline**              | Value changes by context               | Colors (pillar theming), theme-aware tokens            |
-| **Config referencing CSS var** | Need both utilities + component access | Typography scale, spacing scale (used in this project) |
+| Approach          | Use When                                 | Example                                                                                          |
+| ----------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Config**        | Value never changes, no @theme namespace | Font families, breakpoints, maxWidth, gradients                                                  |
+| **@theme**        | Static design tokens needing utilities   | Typography (`--text-step-0`), spacing (`--spacing-space-s`), colors, radius, shadows, animations |
+| **@theme inline** | Value changes by context                 | `--color-primary` (pillar theming)                                                               |
+| **variables.css** | Needs selectors or depends on other vars | `--color-primary` base, `[data-pillar]` overrides, `--color-btn-txt: var(--color-white)`         |
 
-### Performance Impact
+### This Project's Architecture
 
-**Q: Do CSS variables hurt performance?**
+```
+@theme (theme.css)          ← Single source of truth for ALL design token VALUES
+  │                            Typography, spacing, colors, radius, shadows, animations
+  │                            Generates utilities (text-step-0, p-space-s, bg-gray, rounded, shadow)
+  │                            AND CSS variables (--text-step-0, --spacing-space-s, --color-gray, --radius, --shadow)
+  │
+  ▼
+:root (variables.css)       ← Runtime overrides only
+  --color-primary: oklch(...)     ← Base value read by @theme inline
+  --color-btn-txt: var(--color-white)  ← Depends on another var
+  [data-pillar='tech'] { ... }    ← Selector-scoped overrides
+```
 
-**A: No significant impact.** Modern browsers optimize CSS variable resolution extremely well. The tiny overhead (microseconds) is negligible compared to the benefits:
+This means:
 
-- **Runtime:** CSS variables resolve at paint time (~0.001ms slower than static)
-- **Bundle Size:** `var(--color)` vs `#007777` - same or smaller after gzip
-- **Real-World:** No noticeable difference in typical web applications
+- Tailwind utilities: `class="text-step-0 p-space-s bg-gray rounded shadow"` (reads from @theme)
+- Component CSS: `font-size: var(--text-step-0)` (reads @theme variable directly)
+- Component CSS: `border-radius: var(--radius)` (reads @theme variable directly)
+- Update token values in ONE place: `theme.css`
 
-**This Project's Approach:** CSS variables in `base/variables.css` serve as the single source of truth. The Tailwind config references these variables (`fontSize: { 'step-0': 'var(--step-0)' }`) to generate utilities, eliminating duplication and ensuring consistency.
+### @theme Namespace Reference
 
-## Prose Variant System
+| Namespace     | Utility                      | Example                                                  |
+| ------------- | ---------------------------- | -------------------------------------------------------- |
+| `--text-*`    | `text-*` (font size)         | `--text-step-0` → `text-step-0`                          |
+| `--spacing-*` | `p-*`, `m-*`, `gap-*`        | `--spacing-space-s` → `p-space-s`                        |
+| `--color-*`   | `bg-*`, `text-*`, `border-*` | `--color-gray` → `bg-gray`                               |
+| `--radius-*`  | `rounded-*`                  | `--radius` → `rounded`, `--radius-card` → `rounded-card` |
+| `--shadow-*`  | `shadow-*`                   | `--shadow` → `shadow`, `--shadow-card` → `shadow-card`   |
+| `--animate-*` | `animate-*`                  | `--animate-fade-in` → `animate-fade-in`                  |
 
-### Available Variants
+See tailwind docs for more.
 
-| Variant    | Attribute           | Usage            | Key Styles                            |
-| ---------- | ------------------- | ---------------- | ------------------------------------- |
-| Default    | _(none)_            | All pages        | Hidden underline, reveals on hover    |
-| Foundation | `data-prose`        | Foundation pages | Visible underline, hides on hover     |
-| Blog       | `data-prose-blog`   | Blog articles    | Tables, code blocks, extended spacing |
-| Summit     | `data-prose-summit` | Summit pages     | Heading normalization only            |
+### Why Prose Files Use Raw CSS (Not `@apply`)
+
+The prose CSS files (`blog.css`, `summit.css`, etc.) use raw CSS properties with
+`var(--spacing-space-m)` instead of `@apply` utilities. This is intentional:
+
+1. **CMS content is uncontrolled HTML.** Strapi renders `<table>`, `<h2>`, `<blockquote>` etc.
+   We can't add Tailwind classes to those elements — selector-based styling is the only option.
+
+2. **CSS variables ARE the design system.** `var(--spacing-space-m)` resolves to the same value
+   as `p-space-m`. Using @theme variables in raw CSS is the Tailwind v4 recommended pattern
+   for styling elements you don't control.
+
+3. **Logical properties have no Tailwind equivalent.** Properties like `margin-block-end`,
+   `padding-inline-start` aren't available as utilities.
+
+4. **`@apply` is discouraged for this use case.** The Tailwind team recommends `@apply`
+   sparingly, not as a wholesale replacement for CSS in component layers.
 
 ### How It Works
 
@@ -279,15 +307,6 @@ Prose styles are layered for flexibility:
 
 ## Layer System Explained
 
-Tailwind v4 uses CSS `@layer` to control cascade order:
-
-```
-@layer theme      (lowest precedence)
-@layer base
-@layer components
-@layer utilities  (highest precedence)
-```
-
 **Key principle:** Layer order trumps specificity.
 
 A utility class (in utilities layer) will **always** override a component style (in components layer), regardless of specificity.
@@ -327,10 +346,11 @@ Edit `components/prose/blog.css` - only affects `[data-prose-blog]`.
 
 Edit `base/variables.css` - change `--color-primary` in `:root`.
 
-### Add New CSS Variable
+### Add New Design Token
 
-1. Add to `:root` in `base/variables.css`
-2. Use in components via `var(--your-variable)`
+1. If it fits a @theme namespace (`--color-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--animate-*`): add to `theme.css`
+2. If it needs selectors or depends on other vars: add to `base/variables.css`
+3. Use in components via `var(--your-variable)` or as a Tailwind utility class
 
 ### Override Component Style
 
@@ -342,42 +362,6 @@ Use a utility class - it will always win due to layer order:
 </div>
 ```
 
-## Troubleshooting
-
-### Dynamic Utilities Not Working
-
-**Symptom:** `text-primary` doesn't respond to `data-pillar` changes
-
-**Fix:** Ensure `base/variables.css` imports before `theme.css` in `tailwind.css`
-
-### Utility Class Not Overriding
-
-**Symptom:** Component style wins over utility class
-
-**Fix:** Ensure component styles are in `@layer components` block
-
-### Pillar Theme Not Applying
-
-**Symptom:** `data-pillar="mission"` doesn't change colors
-
-**Fix:**
-
-1. Check `data-pillar` attribute is on an ancestor element
-2. Ensure component uses `var(--color-primary)` not hardcoded color
-3. Verify pillar override exists in `base/variables.css`
-
-### Build Fails with "Cannot resolve"
-
-**Symptom:** Import path errors during build
-
-**Fix:** Check file paths in `tailwind.css` are correct and files exist
-
-## Performance Notes
-
-- **Preflight is imported once** in `base/reset.css` - don't import elsewhere
-- **CSS variables cascade** - use them instead of duplicating values
-- **@theme inline** generates utilities on-demand - no bloat from unused pillar colors
-
 ## Starlight Docs Isolation
 
 The site has **two separate CSS systems**:
@@ -386,7 +370,7 @@ The site has **two separate CSS systems**:
 
 - **Pages:** Foundation, blog, summit, homepage, etc.
 - **CSS:** `tailwind.css` → modular architecture (base/, components/, theme.css)
-- **Variables:** `--step-*`, `--space-*`, `--color-primary` from `base/variables.css`
+- **Variables:** `--text-step-*`, `--spacing-space-*`, `--color-primary` from `theme.css` + `base/variables.css`
 - **Prose:** Uses `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`
 
 ### Starlight Docs (`/developers/docs`)
@@ -396,9 +380,9 @@ The site has **two separate CSS systems**:
 - **Variables:** Scoped to `.sl-container` to avoid conflicts
 - **Prose:** Uses Starlight's own markdown rendering (`.sl-markdown-content`)
 
-### Known Limitation
+### Limitations
 
-⚠️ **Starlight variables override main site variables within `.sl-container`**
+**Starlight variables override main site variables within `.sl-container`**
 
 ```css
 :root {
@@ -414,12 +398,6 @@ The site has **two separate CSS systems**:
 
 **Why this matters:** If you want to embed a main site component (that uses `var(--color-primary)`) inside Starlight docs, it will use Starlight's color value, not the main site's.
 
-**Future Fix:** Rename Starlight variables to `--sl-*` prefix (e.g., `--sl-color-primary`, `--sl-step-0`) so both sets of variables are accessible simultaneously. This requires updating `interledger.css` and all Starlight component styles.
+**Future Fix:** Rename Starlight variables to `--sl-*` prefix (e.g., `--sl-color-primary`, `--sl-text-step-0`) so both sets of variables are accessible simultaneously. This requires updating `interledger.css` and all Starlight component styles.
 
 **Current Workaround:** Keep main site components and Starlight docs completely separate. Don't nest `.sl-container` inside `[data-prose]` wrappers or vice versa.
-
-## References
-
-- [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
-- [CSS @layer MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
-- [CSS Custom Properties MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/--*)

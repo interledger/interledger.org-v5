@@ -2,17 +2,10 @@
  * Foundation Page Prose Styles
  * Applied via [data-prose] attribute
  * Part of @layer components - can be overridden by utility classes
- *
- * Foundation pages show underlined links by default,
- * removing the underline on hover (opposite of default behavior)
  */
 
 @layer components {
   [data-prose] a {
     color: var(--color-primary);
-    text-decoration-line: underline;
-  }
-  [data-prose] a:hover {
-    text-decoration-line: none;
   }
 }

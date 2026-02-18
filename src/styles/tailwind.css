@@ -1,7 +1,7 @@
 /**
  * Main Tailwind CSS Entry Point
  *
- * ⚠️ CRITICAL: IMPORT ORDER MATTERS ⚠️
+ * IMPORT ORDER MATTERS
  *
  * Tailwind v4 uses CSS @layer to control cascade:
  *   @layer theme < base < components < utilities
@@ -11,28 +11,21 @@
  *
  * Why this order is required:
  *
- * 1. base/* files MUST load first
- *    - reset.css imports Tailwind's Preflight, then adds custom keyframes/element styles
+ * 1. theme.css MUST load first (after tailwindcss core)
+ *    - Defines design token VALUES in @theme (font-size, spacing, animations)
+ *    - Generates dynamic utilities (text-primary) via @theme inline
+ *    - Must be processed before any @apply that uses these utilities
+ *
+ * 2. base/* files load next
  *    - typography.css defines @font-face declarations
- *    - variables.css defines CSS custom properties (--color-primary, spacing tokens, etc.)
- *    - These variables are used by theme.css and components/*
- *    - If loaded after theme.css, dynamic utilities won't work
+ *    - reset.css extends Preflight + defines keyframes + uses @apply (needs theme)
+ *    - variables.css defines short aliases and color/layout tokens
  *
- * 2. theme.css MUST load after base/* but before components/*
- *    - Generates dynamic utilities (text-primary, bg-primary) via @theme inline
- *    - Reads from --color-primary which is defined in base/variables.css
- *    - Must come before components so utilities can override component styles
- *
- * 3. components/* files MUST load last
+ * 3. components/* files load last
  *    - Prose styles, navigation styles, etc. in @layer components
  *    - Can be overridden by utility classes (e.g., text-white beats component color)
- *    - Reads from CSS variables defined in base/*
  *
- * 🚨 DO NOT REORDER THESE IMPORTS 
- * Changing the order will break:
- *   - Pillar theming (data-pillar attributes won't work)
- *   - Dynamic utilities (text-primary will be undefined)
- *   - Utility overrides (component styles will wrongly win)
+ * DO NOT REORDER THESE IMPORTS without understanding the layer system.
  */
 
 /* Tailwind CSS v4 core
@@ -42,13 +35,13 @@
 @import 'tailwindcss';
 @config "../../tailwind.config.mjs";
 
-/* Base layer - Preflight reset + custom styles, fonts, CSS variables */
+/* Theme layer - @theme tokens must be processed before @apply in base files */
+@import './theme.css';
+
+/* Base layer - Preflight reset + custom styles, fonts, CSS variable aliases */
 @import './base/typography.css';
 @import './base/reset.css';
 @import './base/variables.css';
-
-/* Theme layer - dynamic utility generation */
-@import './theme.css';
 
 /* Components layer - prose styles (by variant), navigation */
 @import './components/prose/default.css';
