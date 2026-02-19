@@ -20,7 +20,7 @@ const engBlogCollection = defineCollection({
     slug: z.string(),
     lang: z.string(),
     date: z.date(),
-    image: z.string().optional(),
+    ogImageUrl: z.string().optional(),
     tags: z.array(
       z.enum([
         'Interledger Protocol',
