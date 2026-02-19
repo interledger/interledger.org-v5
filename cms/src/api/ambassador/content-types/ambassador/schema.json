@@ -39,10 +39,6 @@
     "grantReportUrl": {
       "type": "string",
       "maxLength": 500
-    },
-    "order": {
-      "type": "integer",
-      "default": 0
     }
   }
 }

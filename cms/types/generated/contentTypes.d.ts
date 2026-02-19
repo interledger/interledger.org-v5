@@ -465,7 +465,6 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255
       }>
-    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
     photo: Schema.Attribute.Media<'images'>
     publishedAt: Schema.Attribute.DateTime
     slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required

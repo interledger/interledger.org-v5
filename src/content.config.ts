@@ -127,8 +127,7 @@ const ambassadorSchema = z.object({
   photo: z.string().nullable().optional(),
   photoAlt: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
-  grantReportUrl: z.string().nullable().optional(),
-  order: z.number().default(0)
+  grantReportUrl: z.string().nullable().optional()
 })
 
 const ambassadorCollection = defineCollection({
