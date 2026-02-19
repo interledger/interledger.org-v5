@@ -14,7 +14,7 @@ import type { StrapiEntry } from './strapiClient'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
-} from '../../../src/schemas/content'
+} from './siteSchemas'
 
 // Content types that are treated as "pages" (have hero sections, etc.)
 const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
