@@ -430,107 +430,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiTechBlogPostTechBlogPost
-  extends Struct.CollectionTypeSchema
-{
-  collectionName: 'blog_posts'
-  info: {
-    description: 'Engineering/developer blog posts that sync to MDX'
-    displayName: 'Tech Blog Post'
-    pluralName: 'tech-blog-posts'
-    singularName: 'tech-blog-post'
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-    date: Schema.Attribute.Date &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    description: Schema.Attribute.Text &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    featuredImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    lang: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 10
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::tech-blog-post.tech-blog-post'
-    >
-    ogImageUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface ApiFoundationBlogPostFoundationBlogPost
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation_blog_posts'
@@ -842,6 +741,106 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         i18n: {
           localized: true
         }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiTechBlogPostTechBlogPost
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'blog_posts'
+  info: {
+    description: 'Engineering/developer blog posts that sync to MDX'
+    displayName: 'Tech Blog Post'
+    pluralName: 'tech-blog-posts'
+    singularName: 'tech-blog-post'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    date: Schema.Attribute.Date &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    featuredImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    lang: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 10
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::tech-blog-post.tech-blog-post'
+    >
+    ogImageUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255
       }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1238,7 +1237,7 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
 }
 
 declare module '@strapi/strapi' {
-  export namespace Public {
+  export module Public {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken
       'admin::api-token-permission': AdminApiTokenPermission
@@ -1248,12 +1247,12 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
-      'api::tech-blog-post.tech-blog-post': ApiTechBlogPostTechBlogPost
       'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
+      'api::tech-blog-post.tech-blog-post': ApiTechBlogPostTechBlogPost
       'plugin::content-releases.release': PluginContentReleasesRelease
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction
       'plugin::i18n.locale': PluginI18NLocale
