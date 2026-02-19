@@ -124,7 +124,7 @@ const ambassadorSchema = z.object({
   slug: z.string(),
   description: z.string(),
   descriptionPlainText: z.string().optional(),
-  photo: z.string().nullable().optional(),
+  photo: z.string(),
   photoAlt: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
   grantReportUrl: z.string().nullable().optional()
