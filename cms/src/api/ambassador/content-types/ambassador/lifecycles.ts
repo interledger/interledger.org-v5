@@ -42,17 +42,20 @@ async function writeJSONFile(ambassador: Ambassador): Promise<void> {
     process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
   // Resolve from dist/src/api/ambassador/content-types/ambassador/ up to cms root then project root
   const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true })
-  }
-
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
-  const jsonContent = generateJSON(ambassador)
 
-  fs.writeFileSync(filepath, jsonContent, 'utf-8')
-  console.log(`✅ Generated Ambassador JSON file: ${filepath}`)
+  try {
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true })
+    }
+    const jsonContent = generateJSON(ambassador)
+    fs.writeFileSync(filepath, jsonContent, 'utf-8')
+    console.log(`✅ Generated Ambassador JSON file: ${filepath}`)
+  } catch (error) {
+    console.error(`❌ Failed to write Ambassador JSON file: ${filepath}`, error)
+    throw error
+  }
 }
 
 async function deleteJSONFile(ambassador: Ambassador): Promise<void> {
@@ -62,9 +65,14 @@ async function deleteJSONFile(ambassador: Ambassador): Promise<void> {
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
 
-  if (fs.existsSync(filepath)) {
-    fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted Ambassador JSON file: ${filepath}`)
+  try {
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath)
+      console.log(`🗑️  Deleted Ambassador JSON file: ${filepath}`)
+    }
+  } catch (error) {
+    console.error(`❌ Failed to delete Ambassador JSON file: ${filepath}`, error)
+    throw error
   }
 }
 
