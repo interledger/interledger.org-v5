@@ -115,11 +115,10 @@ cms/
 │   └── server.ts
 ├── src/
 │   ├── api/
-│   │   └── tech-blog-post/
+│   │   └── foundation-blog-post/
 │   │       ├── content-types/
-│   │       │   └── tech-blog-post/
-│   │       │       ├── schema.json
-│   │       │       └── lifecycles.ts  # MDX generation logic
+│   │       │   └── foundation-blog-post/
+│   │       │       └── schema.json
 │   │       ├── controllers/
 │   │       ├── routes/
 │   │       └── services/

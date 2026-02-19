@@ -1,11 +1,5 @@
 const getPreviewPathname = (uid: string, { document }): string => {
-  if (!document) return null
-
   switch (uid) {
-    case 'api::tech-blog-post.tech-blog-post':
-      return document.documentId
-        ? `/blog/preview?slug=${document.documentId}`
-        : '/blog'
     case 'api::foundation-blog-post.foundation-blog-post':
       return document.documentId
         ? `/blog/preview?slug=${document.documentId}&type=foundation`

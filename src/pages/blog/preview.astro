@@ -13,7 +13,7 @@ if (!documentId) {
 
 // Always fetch draft content for preview
 const response = await fetchStrapi(
-  `api/tech-blog-posts/${documentId}?status=draft`
+  `api/foundation-blog-posts/${documentId}?status=draft`
 )
 
 const article = response?.data
