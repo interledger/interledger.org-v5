@@ -6,8 +6,8 @@ This repository contains **interledger.org** – the official Interledger Founda
 
 **Repository Size**: Medium (~600 files, ~3MB)  
 **Primary Language**: TypeScript/JavaScript (Astro components, MDX, config files)  
-**Package Manager**: Bun (v1.3.3+)  
-**Lockfile**: `bun.lock` (Bun v1 uses a text lockfile; no `bun.lockb`)  
+**Package Manager**: pnpm  
+**Lockfile**: `pnpm-lock.yaml`  
 **Node Requirement**: Node.js >=18.20.8 (critical - 18.19.1 is insufficient)  
 **Development Port**: localhost:1103
 
@@ -16,37 +16,37 @@ This repository contains **interledger.org** – the official Interledger Founda
 ### Prerequisites
 Ensure these are installed before running any commands:
 - **Node.js**: >=18.20.8 (NOT 18.19.1). Check with `node --version`. If using nvm, ensure .nvmrc is respected.
-- **Bun**: Any recent version (verify with `bun --version`)
+- **pnpm**: Any recent version (verify with `pnpm --version`)
 
 ### Essential Commands (must run in repository root)
 
 | Command | Purpose | Duration | Notes |
 |---------|---------|----------|-------|
-| `bun install` | Install dependencies | ~30s | Always run before build/start |
-| `bun run start` | Start dev server | - | Runs on localhost:1103 |
-| `bun run build` | Build production site to ./dist/ | ~30-45s | **Will fail with Node < 18.20.8** |
-| `bun run lint` | Check code formatting and linting | ~20-30s | Fails if ANY ESLint warnings exist |
-| `bun run format` | Auto-fix formatting and run lint | ~30-40s | Fixes Prettier issues; some warnings may remain |
-| `bun run preview` | Preview the built site locally | - | Run `bun run build` first |
+| `pnpm install` | Install dependencies | ~30s | Always run before build/start |
+| `pnpm run start` | Start dev server | - | Runs on localhost:1103 |
+| `pnpm run build` | Build production site to ./dist/ | ~30-45s | **Will fail with Node < 18.20.8** |
+| `pnpm run lint` | Check code formatting and linting | ~20-30s | Fails if ANY ESLint warnings exist |
+| `pnpm run format` | Auto-fix formatting and run lint | ~30-40s | Fixes Prettier issues; some warnings may remain |
+| `pnpm run preview` | Preview the built site locally | - | Run `pnpm run build` first |
 
 ### CI Validation Pipeline
 
 The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
 1. Checkout code
 2. Setup Node.js (v18)
-3. Setup Bun
-4. `bun install`
-5. **`bun run lint`** – Must pass with zero warnings
-6. **`bun run build`** – Must succeed
+3. Setup pnpm
+4. `pnpm install`
+5. **`pnpm run lint`** – Must pass with zero warnings
+6. **`pnpm run build`** – Must succeed
 
-**To replicate CI locally**: Run `bun install && bun run lint && bun run build`. Both lint and build must pass with no output errors.
+**To replicate CI locally**: Run `pnpm install && pnpm run lint && pnpm run build`. Both lint and build must pass with no output errors.
 
 ### Important Caveats
 
 - **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
-- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
-- **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
-- **Bun Lockfile**: Netlify or scripts may expect `bun.lockb`, but Bun v1 generates `bun.lock` only. Update checks or docs if needed.
+- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `pnpm run format` will attempt to fix issues but may not resolve all warnings.
+- **Package Manager**: Do NOT use npm or yarn. Only use pnpm for this project.
+- **Lockfile**: Keep `pnpm-lock.yaml` committed so CI and local installs stay deterministic.
 
 ## Project Layout and Architecture
 
@@ -124,22 +124,22 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 ## Known Issues and Workarounds
 
-1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
+1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `pnpm run lint` from passing.
 
 2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
 
 3. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
 
-4. **Formatters**: Prettier and ESLint run together. `bun run format` runs Prettier, then ESLint with auto-fix. Some ESLint warnings may remain unfixed and require manual intervention.
+4. **Formatters**: Prettier and ESLint run together. `pnpm run format` runs Prettier, then ESLint with auto-fix. Some ESLint warnings may remain unfixed and require manual intervention.
 
 ## CMS Information
 
-The CMS (Strapi v5.31.3) runs independently and uses **npm** (not Bun):
+The CMS (Strapi v5.31.3) runs independently and uses **pnpm**:
 ```bash
 cd cms
-npm install
-npm run develop  # Runs on localhost:1337/admin
-npm run build    # Production build
+pnpm install
+pnpm run develop  # Runs on localhost:1337/admin
+pnpm run build    # Production build
 ```
 
 Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
@@ -151,12 +151,12 @@ CMS code changes are deployed to the Strapi VM when merged to `staging`. Content
 ## Making Changes
 
 When making changes to Astro components, pages, or styles:
-1. Run `bun run start` to start the dev server (hot reload enabled)
+1. Run `pnpm run start` to start the dev server (hot reload enabled)
 2. Make changes in `src/`
 3. Test locally at localhost:1103
-4. Before committing, run `bun run format` to fix formatting issues
+4. Before committing, run `pnpm run format` to fix formatting issues
 5. If format fails due to ESLint warnings, address warnings manually (check files listed in format output)
-6. Verify `bun run build` succeeds (no output errors)
+6. Verify `pnpm run build` succeeds (no output errors)
 
 For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/navigation.json` and verify the sidebar updates correctly.
 
@@ -174,7 +174,7 @@ These files are auto-generated or have special constraints and should not be man
 
 This guide contains validated information about the build process, commands, and known issues. If a command fails:
 1. Check if Node version is >=18.20.8
-2. Verify you ran `bun install` first
+2. Verify you ran `pnpm install` first
 3. Check the command in the table above for expected duration/behavior
 4. Review the known issues section if the failure is pre-existing
 
