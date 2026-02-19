@@ -37,7 +37,6 @@ export const PATHS = {
   /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/{locale}/). */
   CONTENT: {
     blog: 'blog',
-    developersBlog: 'developers/blog',
     foundationPages: 'foundation-pages',
     summit: 'summit'
   },
