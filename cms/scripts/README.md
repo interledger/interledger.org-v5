@@ -1,87 +1,44 @@
-# MDX to Strapi Sync
+# CMS Scripts
 
-Simple proof-of-concept script that syncs MDX files to Strapi database.
+Scripts in this folder sync local content/config into Strapi.
 
-## Features
+## Prerequisites
 
-- Scans MDX files in `src/content/blog` and `src/content/events`
-- Creates new Strapi entries for new MDX files
-- Updates existing entries when MDX content changes
-- Deletes Strapi entries when MDX files are removed
-- Supports dry-run mode to preview changes
-
-## Setup
-
-### 1. Create Strapi API Token
-
-In Strapi admin (<http://localhost:1337/admin>):
-
-1. Go to **Settings** → **API Tokens**
-2. Click **Create new API Token**
-3. Name: `MDX Sync Token`
-4. Token type: **Full access** (required for create/update/delete operations)
-5. Token duration: **Unlimited**
-6. Copy the token
-
-### 2. Configure Environment Variables
-
-Add to `cms/.env`:
+Add these to the project root `.env`:
 
 ```env
-STRAPI_PREVIEW_TOKEN=your-token-here
-# or
+STRAPI_URL=http://localhost:1337
 STRAPI_API_TOKEN=your-token-here
 ```
 
+Use a Strapi API token with write access to the synced content types.
+
 ## Usage
 
-### Direct execution
+Run from `cms/`:
 
 ```bash
-# From project root
-node cms/scripts/sync-mdx.cjs --dry-run
-node cms/scripts/sync-mdx.cjs
+bun run sync:mdx:dry-run
+bun run sync:mdx
 
-# From cms directory
-node scripts/sync-mdx.cjs --dry-run
-node scripts/sync-mdx.cjs
+bun run sync:navigation:dry-run
+bun run sync:navigation
 ```
 
-## GitHub Actions
+## What each script syncs
 
-The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs MDX files to Strapi when changes are pushed to the `main` branch.
+- `sync:mdx`
+  - Syncs MDX page content for:
+    - `foundation-pages` from `src/content/foundation-pages` (+ locale variants like `src/content/es/foundation-pages`)
+    - `summit-pages` from `src/content/summit-pages` (+ locale variants like `src/content/es/summit-pages`)
+  - Creates, updates, and deletes Strapi entries to match filesystem state.
+  - Non-dry-run execution is restricted to the `main` branch.
+- `sync:navigation`
+  - Syncs:
+    - `src/config/foundation-navigation.json` -> `foundation-navigation`
+    - `src/config/summit-navigation.json` -> `summit-navigation`
 
-### Required GitHub Secrets
+## Notes
 
-- `STRAPI_URL` - URL of your Strapi instance
-- `STRAPI_API_TOKEN` - Full access API token from Strapi
-
-## How It Works
-
-1. **Scans MDX files**: Reads all `.mdx` files from content directories
-2. **Parses frontmatter**: Extracts metadata (title, description, slug, etc.)
-3. **Converts markdown**: Transforms markdown content to HTML
-4. **Syncs to Strapi**:
-   - Creates new entries if slug doesn't exist
-   - Updates existing entries if slug matches
-   - Deletes orphaned entries (in Strapi but not in MDX)
-
-## Content Type Mappings
-
-## Troubleshooting
-
-### 401 Unauthorized Error
-
-Your API token doesn't have sufficient permissions. Make sure:
-
-- Token type is "Full access" (not "Read-only" or "Custom")
-- Token is not expired
-- Token is correctly set in environment variables
-
-### Cannot find module 'dotenv'
-
-The script requires dotenv to load environment variables:
-
-```bash
-npm install dotenv
-```
+- `--dry-run` previews changes without writing to Strapi.
+- Detailed MDX sync internals are documented in `cms/scripts/sync-mdx/README.md`.

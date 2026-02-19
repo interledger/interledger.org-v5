@@ -188,7 +188,7 @@ export function scanMDXFiles(
  * This ensures we check for orphaned entries in all locales, even if a specific
  * content type's locale directory was removed.
  *
- * Example: If es/foundation-pages/ is removed but es/summit/ still exists,
+ * Example: If es/foundation-pages/ is removed but es/summit-pages/ still exists,
  * we still check for orphaned "es" entries in Strapi.
  *
  * @param _contentType - Content type (unused, kept for API consistency)
