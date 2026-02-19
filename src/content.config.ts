@@ -28,7 +28,7 @@ const foundationPagesCollection = defineCollection({
 const summitPagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summit}`
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summitPages}`
   }),
   schema: summitPageFrontmatterSchema
 })
