@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config'
+import { fileURLToPath } from 'node:url'
 import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
@@ -154,6 +155,11 @@ export default defineConfig({
     mdx()
   ],
   vite: {
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    },
     plugins: [tailwindcss()]
   },
   redirects: {

@@ -1,10 +1,9 @@
 ---
 import { getCollection } from 'astro:content'
 import type { GetStaticPaths, Page } from 'astro'
-import Pagination from '../../../components/blog/Pagination.astro'
-import BaseLayout from '../../../layouts/BaseLayout.astro'
-import { createExcerpt } from '../../../utils/create-excerpt'
-import stripPagination from '../../../utils/stripPagination'
+import Pagination from '@/components/blog/Pagination.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createExcerpt } from '@/utils/create-excerpt'
 
 type Props = {
   page: Page

@@ -1,6 +1,6 @@
 /**
  * Barrel re-export for utils used by api lifecycles.
- * Shorter path: import from '../../../utils' instead of '../../../../utils/...'
+ * Use this module to keep lifecycle imports short and consistent.
  */
 
 export {
@@ -21,3 +21,4 @@ export {
   LOCALES,
   getPreservedFields
 } from '../utils/mdx'
+export { gitCommitAndPush, resolveTargetRepoPath } from '../utils/gitSync'

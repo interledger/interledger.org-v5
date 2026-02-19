@@ -1,10 +1,20 @@
-## PR Checklist
-- [ ] Linked issue added (e.g., `Fixes #123`)
-- [ ] I have run `bun run format` to ensure code is properly formatted
-- [ ] I have verified that `bun run lint` passes without errors
-- [ ] If blog post was added:
-  - [ ] Ensure images have been optimised
-  - [ ] Update dates to reflect the actual publishing date when merged (file names, folder names, and frontmatter)
-
 ## Summary
-<!-- What has been updated and why -->
+<!-- What changed and why -->
+
+## Related Issue
+<!-- Fixes INTORG-123 -->
+
+## Manual Test
+<!-- Reviewer steps (only if needed) -->
+
+## Checks
+
+- [ ] `bun run format`
+- [ ] `bun run lint`
+
+## PR Checklist
+
+- [ ] PR title follows Conventional Commits (e.g. `feat: ...`, `fix: ...`)
+- [ ] Linked issue included
+- [ ] Scope is focused (target ~10-20 files when possible)
+- [ ] Screenshots for UI changes (if applicable)

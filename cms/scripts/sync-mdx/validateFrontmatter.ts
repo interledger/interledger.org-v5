@@ -3,7 +3,7 @@ import type { MDXFile } from './scan'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
-} from '../../../src/schemas/content'
+} from './siteSchemas'
 
 const SCHEMAS = {
   'foundation-pages': foundationPageFrontmatterSchema,
