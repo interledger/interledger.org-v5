@@ -45,6 +45,18 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCalloutText extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_callout_texts'
+  info: {
+    description: 'Highlighted text block with larger font size for emphasis'
+    displayName: 'Callout Text'
+    icon: 'megaphone'
+  }
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required
+  }
+}
+
 export interface BlocksCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cards'
   info: {
@@ -298,11 +310,12 @@ export interface SharedSeo extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'blocks.ambassador': BlocksAmbassador
       'blocks.ambassadors-grid': BlocksAmbassadorsGrid
       'blocks.blockquote': BlocksBlockquote
+      'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid
