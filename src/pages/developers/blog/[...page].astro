@@ -4,6 +4,7 @@ import type { GetStaticPaths, Page } from 'astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import { createExcerpt } from '@/utils/create-excerpt'
+import stripPagination from '@/utils/stripPagination'
 
 type Props = {
   page: Page
