@@ -8,6 +8,14 @@ import type { MediaFile } from '../../types/shared/types'
 // ── Media helpers ────────────────────────────────────────────────────────────
 
 /**
+ * Optional base URL for Strapi upload paths.
+ * Only needed when uploads are hosted externally (CDN, S3, etc.).
+ * When unset, upload paths remain relative (/uploads/...), which works
+ * for the default git-based deployment where uploads are committed to the repo.
+ */
+const UPLOADS_BASE_URL = process.env.STRAPI_UPLOADS_BASE_URL
+
+/**
  * Gets the resolved URL for a Strapi media field.
  * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
  * falling back to the original URL if that format is unavailable.
@@ -18,11 +26,11 @@ export function getImageUrl(
 ): string | undefined {
   if (!media?.url) return undefined
 
-  const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-
   function resolve(url: string): string {
     if (url.startsWith('/uploads/')) {
-      return uploadsBase ? `${uploadsBase.replace(/\/$/, '')}${url}` : url
+      return UPLOADS_BASE_URL
+        ? `${UPLOADS_BASE_URL.replace(/\/$/, '')}${url}`
+        : url
     }
     return url
   }

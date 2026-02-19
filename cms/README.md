@@ -26,11 +26,20 @@ npm install
 
 ### Configuration
 
-The CMS is configured via environment variables in `.env`. Key settings:
+Copy `.env.example` to `.env` and fill in the values:
 
-- `PORT`: CMS runs on port 1337 (default)
-- `DATABASE_CLIENT`: Using better-sqlite3
-- `MDX_OUTPUT_PATH`: Where MDX files are written (`../src/content/foundation-pages`)
+```bash
+cp .env.example .env
+```
+
+Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then set `CLIENT_URL` to match your Astro dev server port (default `http://localhost:1103`).
+
+#### Optional environment variables
+
+| Variable | Description |
+|---|---|
+| `STRAPI_UPLOADS_BASE_URL` | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`), which works for the default git-based deployment where uploads are committed to the repo. |
+| `STRAPI_DISABLE_GIT_SYNC` | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development. |
 
 ### Running the CMS
 

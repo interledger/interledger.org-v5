@@ -8,6 +8,7 @@ import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
 import { getImageUrl, markdownToHtml, toPlainText } from '../../../../utils/mdx'
+import { getContentPath, getProjectRoot } from '../../../../utils/paths'
 import type { AmbassadorBase } from '../../types'
 
 interface Ambassador extends AmbassadorBase {
@@ -16,6 +17,10 @@ interface Ambassador extends AmbassadorBase {
 
 interface Event {
   result?: Ambassador
+}
+
+function getBaseDir(): string {
+  return getContentPath(getProjectRoot(), 'ambassadors')
 }
 
 function generateFilename(ambassador: Ambassador): string {
@@ -38,10 +43,7 @@ function generateJSON(ambassador: Ambassador): string {
 }
 
 async function writeJSONFile(ambassador: Ambassador): Promise<void> {
-  const outputPath =
-    process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
-  // Resolve from dist/src/api/ambassador/content-types/ambassador/ up to cms root then project root
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  const baseDir = getBaseDir()
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
 
@@ -59,9 +61,7 @@ async function writeJSONFile(ambassador: Ambassador): Promise<void> {
 }
 
 async function deleteJSONFile(ambassador: Ambassador): Promise<void> {
-  const outputPath =
-    process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  const baseDir = getBaseDir()
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
 
@@ -81,11 +81,7 @@ export default {
     const { result } = event
     if (result && result.publishedAt) {
       await writeJSONFile(result)
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
+      const filepath = path.join(getBaseDir(), generateFilename(result))
       await gitCommitAndPush(filepath, `ambassador: add "${result.name}"`)
     }
   },
@@ -93,11 +89,7 @@ export default {
   async afterUpdate(event: Event) {
     const { result } = event
     if (result) {
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
+      const filepath = path.join(getBaseDir(), generateFilename(result))
 
       if (result.publishedAt) {
         await writeJSONFile(result)
@@ -116,11 +108,7 @@ export default {
     const { result } = event
     if (result) {
       await deleteJSONFile(result)
-      const filename = generateFilename(result)
-      const outputPath =
-        process.env.AMBASSADOR_JSON_OUTPUT_PATH || '../src/content/ambassadors'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
-      const filepath = path.join(baseDir, filename)
+      const filepath = path.join(getBaseDir(), generateFilename(result))
       await gitCommitAndPush(filepath, `ambassador: delete "${result.name}"`)
     }
   }
