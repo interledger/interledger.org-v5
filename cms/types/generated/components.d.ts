@@ -608,7 +608,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export namespace Public {
+  export module Public {
     export interface ComponentSchemas {
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink

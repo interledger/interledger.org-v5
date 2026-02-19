@@ -100,8 +100,8 @@ flowchart
 
 ## Commands
 
-| Command           | Action                               |
-| :---------------- | :----------------------------------- |
+| Command            | Action                               |
+| :----------------- | :----------------------------------- |
 | `pnpm run start`   | Start dev server at `localhost:1103` |
 | `pnpm run build`   | Build production site to `./dist/`   |
 | `pnpm run preview` | Preview production build locally     |
