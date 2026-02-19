@@ -1,5 +1,5 @@
 ---
-import BlogLayout from '../../../layouts/BlogLayout.astro'
+import TechBlogLayout from '../../../layouts/TechBlogLayout.astro'
 import CommunityLinks from '../../../components/blog/CommunityLinks.astro'
 import { fetchStrapi } from '../../../utils/fetchStrapi'
 import { marked } from 'marked'
@@ -12,7 +12,9 @@ if (!documentId) {
 }
 
 // Always fetch draft content for preview
-const response = await fetchStrapi(`api/blog-posts/${documentId}?status=draft`)
+const response = await fetchStrapi(
+  `api/tech-blog-posts/${documentId}?status=draft`
+)
 
 const article = response?.data
 
@@ -20,17 +22,21 @@ if (!article) {
   throw new Error(`Preview: No article found for documentId "${documentId}"`)
 }
 
-// Map Strapi fields to your BlogLayout frontmatter
+// Map Strapi fields to TechBlogLayout frontmatter
 const frontmatter = {
   title: article.title,
   description: article.description,
-  date: article.publishedAt
+  date: article.publishedAt,
+  featureImage: article.featuredImage?.url,
+  image: article.featuredImage?.url,
+  featureImageAlt: article.featuredImage?.alternativeText,
+  ogImageUrl: article.ogImageUrl
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<BlogLayout frontmatter={frontmatter}>
+<TechBlogLayout frontmatter={frontmatter}>
   <article set:html={bodyHtml} />
   <CommunityLinks />
-</BlogLayout>
+</TechBlogLayout>

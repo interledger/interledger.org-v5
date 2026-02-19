@@ -1,5 +1,5 @@
 /**
- * Lifecycle callbacks for foundation blog-post
+ * Lifecycle callbacks for tech-blog-post
  * Generates MDX files that match the blog post format used on the site
  * Then commits and pushes to trigger Netlify preview builds
  */

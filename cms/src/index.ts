@@ -150,7 +150,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // Map of content type UIDs to their field label configurations
   // All fields get human-readable labels for better UX
   const labelConfigs: Record<string, Record<string, string>> = {
-    'api::blog-post.blog-post': {
+    'api::tech-blog-post.tech-blog-post': {
       title: 'Title',
       description: 'Description',
       slug: 'URL Slug',
@@ -158,6 +158,41 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       lang: 'Language',
       featuredImage: 'Featured Image',
       ogImageUrl: 'OG Image URL',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::foundation-blog-post.foundation-blog-post': {
+      title: 'Title',
+      description: 'Description',
+      slug: 'URL Slug',
+      date: 'Publish Date',
+      featuredImage: 'Featured Image',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::foundation-page.foundation-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path (e.g. /grant/ambassadors)',
+      pageType: 'Page Type (Grant, Policy, Developer)',
+      seo: 'SEO',
+      hero: 'Hero',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::summit-page.summit-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path',
+      pageType: 'Page Type (Hackathon, Hackathon Resource)',
+      seo: 'SEO',
+      hero: 'Hero',
       content: 'Content',
       createdAt: 'Created At',
       updatedAt: 'Updated At',

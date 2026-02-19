@@ -115,9 +115,9 @@ cms/
 │   └── server.ts
 ├── src/
 │   ├── api/
-│   │   └── blog-post/
+│   │   └── tech-blog-post/
 │   │       ├── content-types/
-│   │       │   └── blog-post/
+│   │       │   └── tech-blog-post/
 │   │       │       ├── schema.json
 │   │       │       └── lifecycles.ts  # MDX generation logic
 │   │       ├── controllers/
