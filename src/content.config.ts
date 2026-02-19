@@ -123,7 +123,6 @@ const ambassadorSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string(),
-  descriptionPlainText: z.string().optional(),
   photo: z.string(),
   photoAlt: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
@@ -132,7 +131,7 @@ const ambassadorSchema = z.object({
 
 const ambassadorCollection = defineCollection({
   loader: glob({
-    pattern: '**/[^_]*.json',
+    pattern: '**/[^_]*.mdx',
     base: './src/content/ambassadors'
   }),
   schema: ambassadorSchema

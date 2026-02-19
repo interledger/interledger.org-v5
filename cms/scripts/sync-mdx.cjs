@@ -196,6 +196,7 @@ async function strapiRequest(endpoint, options = {}) {
     headers: {
       'Authorization': `Bearer ${STRAPI_TOKEN}`,
       'Content-Type': 'application/json',
+      'x-skip-mdx-export': 'true', // Prevents lifecycle from re-writing MDX on import
       ...options.headers
     }
   });
@@ -214,6 +215,30 @@ async function strapiRequest(endpoint, options = {}) {
   } catch {
     return null;
   }
+}
+
+
+// Look up a Strapi upload file by its URL. Returns the file's integer ID, or null.
+async function findUploadByUrl(url) {
+  if (!url || url === 'null') return null;
+
+  // For CDN URLs, extract just the path portion (e.g. /uploads/photo.webp)
+  let lookupUrl = url;
+  if (url.startsWith('http')) {
+    try {
+      lookupUrl = new URL(url).pathname;
+    } catch {
+      // Not a valid absolute URL — use as-is
+    }
+  }
+
+  const result = await strapiRequest(
+    `upload/files?filters[url][$eq]=${encodeURIComponent(lookupUrl)}`
+  );
+
+  // Strapi Upload API returns a plain array, not { data: [] }
+  const files = Array.isArray(result) ? result : (result?.data || []);
+  return files.length > 0 ? files[0].id : null;
 }
 
 // Get all entries from Strapi (with all locales)
@@ -755,6 +780,103 @@ async function syncContentType(contentType) {
   return results;
 }
 
+// Sync ambassadors (no locales, photo stored as upload relation)
+async function syncAmbassadors() {
+  const apiId = 'ambassadors';
+  const dir = path.join(projectRoot, 'src/content/ambassadors');
+  console.log('\n📁 Syncing ambassadors...');
+
+  // Scan MDX files
+  const mdxFiles = [];
+  if (fs.existsSync(dir)) {
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.mdx')) continue;
+      const filepath = path.join(dir, file);
+      const { frontmatter } = parseMDX(filepath);
+      const slug = frontmatter.slug || file.replace(/\.mdx$/, '');
+      mdxFiles.push({ file, filepath, slug, frontmatter });
+    }
+  } else {
+    console.log(`   ⚠️  Directory not found: ${dir}`);
+  }
+
+  console.log(`   Found ${mdxFiles.length} MDX files`);
+
+  // Get all Strapi entries
+  const strapiEntries = await getAllEntries(apiId);
+  console.log(`   Found ${strapiEntries.length} Strapi entries`);
+
+  const results = { created: 0, updated: 0, deleted: 0, errors: 0 };
+  const processedSlugs = new Set();
+
+  // Null-safe: the YAML parser returns the string "null" for null values
+  const nullOrValue = (v) => (v === 'null' || v == null || v === '') ? null : v;
+
+  for (const mdx of mdxFiles) {
+    processedSlugs.add(mdx.slug);
+    try {
+      // Look up the photo file ID in Strapi's media library
+      const photoId = await findUploadByUrl(mdx.frontmatter.photo);
+      if (!photoId) {
+        console.warn(`   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${mdx.frontmatter.photo}`);
+      }
+
+      const data = {
+        name: mdx.frontmatter.name,
+        slug: mdx.slug,
+        description: mdx.frontmatter.description,
+        ...(photoId ? { photo: photoId } : {}),
+        linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
+        grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
+        publishedAt: new Date().toISOString()
+      };
+
+      const existing = await findBySlug(apiId, mdx.slug);
+
+      if (existing) {
+        if (DRY_RUN) {
+          console.log(`   🔄 [DRY-RUN] Would update: ${mdx.slug}`);
+        } else {
+          await updateEntry(apiId, existing.documentId, data);
+          console.log(`   🔄 Updated: ${mdx.slug}`);
+        }
+        results.updated++;
+      } else {
+        if (DRY_RUN) {
+          console.log(`   ✅ [DRY-RUN] Would create: ${mdx.slug}`);
+        } else {
+          await createEntry(apiId, data);
+          console.log(`   ✅ Created: ${mdx.slug}`);
+        }
+        results.created++;
+      }
+    } catch (error) {
+      console.error(`   ❌ Error processing ${mdx.slug}: ${error.message}`);
+      results.errors++;
+    }
+  }
+
+  // Delete Strapi entries with no matching MDX file
+  for (const entry of strapiEntries) {
+    if (!processedSlugs.has(entry.slug)) {
+      try {
+        if (DRY_RUN) {
+          console.log(`   🗑️  [DRY-RUN] Would delete: ${entry.slug}`);
+        } else {
+          await deleteEntry(apiId, entry.documentId);
+          console.log(`   🗑️  Deleted: ${entry.slug}`);
+        }
+        results.deleted++;
+      } catch (error) {
+        console.error(`   ❌ Error deleting ${entry.slug}: ${error.message}`);
+        results.errors++;
+      }
+    }
+  }
+
+  return results;
+}
+
 // Main
 async function main() {
   console.log('🚀 MDX → Strapi Sync');
@@ -793,6 +915,18 @@ async function main() {
       console.error(`\n❌ Error syncing ${contentType}: ${error.message}`);
       allResults.errors++;
     }
+  }
+
+  // Sync ambassadors (separate logic: no locales, photo via upload API)
+  try {
+    const results = await syncAmbassadors();
+    allResults.created += results.created;
+    allResults.updated += results.updated;
+    allResults.deleted += results.deleted;
+    allResults.errors += results.errors;
+  } catch (error) {
+    console.error(`\n❌ Error syncing ambassadors: ${error.message}`);
+    allResults.errors++;
   }
 
   // Summary

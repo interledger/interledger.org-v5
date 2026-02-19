@@ -11,7 +11,7 @@
  * AmbassadorData is the normalised shape ready for the UI. It is used by
  * AmbassadorGrid and Ambassador directly. photo is a flat URL string,
  * description is already rendered HTML, and photoAlt is pre-derived.
- * This shape also matches what the content collection JSON files store,
+ * This shape also matches what the content collection MDX files store,
  * so AmbassadorGrid works the same way whether data comes from Strapi
  * live preview or the static collection.
  */
