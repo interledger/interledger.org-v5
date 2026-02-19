@@ -45,7 +45,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 - **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
 - **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `pnpm run format` will attempt to fix issues but may not resolve all warnings.
-- **Package Manager**: Do NOT use npm or yarn. Only use pnpm for this project.
+- **Package Manager**: Only use pnpm for this project.
 - **Lockfile**: Keep `pnpm-lock.yaml` committed so CI and local installs stay deterministic.
 
 ## Project Layout and Architecture
@@ -74,7 +74,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 │   ├── config/                # Strapi configuration
 │   ├── scripts/               # MDX generation scripts
 │   ├── public/uploads/        # Uploaded media
-│   └── package.json           # CMS dependencies (npm)
+│   └── package.json           # CMS dependencies (pnpm)
 ├── public/                    # Static assets
 │   ├── img/                   # Images (organized by section/date)
 │   ├── documents/             # PDFs and docs

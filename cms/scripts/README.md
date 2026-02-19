@@ -84,5 +84,5 @@ Your API token doesn't have sufficient permissions. Make sure:
 The script requires dotenv to load environment variables:
 
 ```bash
-npm install dotenv
+pnpm add dotenv
 ```
