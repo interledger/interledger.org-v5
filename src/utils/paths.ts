@@ -24,7 +24,7 @@ export function getCmsDir(): string {
 export function assertRunFromCms(): void {
   if (path.basename(getCwd()) !== 'cms') {
     console.error('❌ Error: run this script from the cms directory')
-    console.error('   Example: cd cms && bun run <command>')
+    console.error('   Example: cd cms && pnpm run <command>')
     process.exit(1)
   }
 }

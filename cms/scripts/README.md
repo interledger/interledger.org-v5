@@ -38,13 +38,11 @@ STRAPI_API_TOKEN=your-token-here
 ### Direct execution
 
 ```bash
-# From project root
-node cms/scripts/sync-mdx.cjs --dry-run
-node cms/scripts/sync-mdx.cjs
+pnpm run sync:mdx:dry-run
+pnpm run sync:mdx
 
-# From cms directory
-node scripts/sync-mdx.cjs --dry-run
-node scripts/sync-mdx.cjs
+pnpm run sync:navigation:dry-run
+pnpm run sync:navigation
 ```
 
 ## GitHub Actions

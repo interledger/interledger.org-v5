@@ -3,8 +3,8 @@
 Syncs MDX files to Strapi (MDX → Strapi import only). Run from `cms/`:
 
 ```bash
-bun run sync:mdx:dry-run   # Preview changes
-bun run sync:mdx           # run !
+pnpm run sync:mdx:dry-run   # Preview changes
+pnpm run sync:mdx           # run !
 ```
 
 ## Flow
