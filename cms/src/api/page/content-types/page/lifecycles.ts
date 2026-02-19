@@ -9,13 +9,9 @@
 import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
-
-interface MediaFile {
-  id: number
-  url: string
-  alternativeText?: string
-  name?: string
-}
+import { getImageUrl } from '../../../../utils/mdx'
+import type { AmbassadorBase } from '../../../ambassador/types'
+import type { MediaFile } from '../../../../../types/shared/types'
 
 interface CtaLink {
   id: number
@@ -113,16 +109,7 @@ interface ImageRow {
   images?: MediaFile[]
 }
 
-interface AmbassadorRef {
-  id?: number
-  documentId?: string
-  slug: string
-  name: string
-  description?: string
-  photo?: MediaFile | null
-  photoAlt?: string | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
+interface AmbassadorRef extends AmbassadorBase {
   order?: number
 }
 
@@ -187,21 +174,6 @@ function escapeQuotes(value: string): string {
   return value.replace(/"/g, '\\"')
 }
 
-/**
- * Gets the image URL from a media field
- */
-function getImageUrl(media: MediaFile | undefined): string | undefined {
-  if (!media?.url) return undefined
-
-  if (media.url.startsWith('/uploads/')) {
-    const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-    return uploadsBase
-      ? `${uploadsBase.replace(/\/$/, '')}${media.url}`
-      : media.url
-  }
-
-  return media.url
-}
 
 /**
  * Converts HTML/rich text to markdown

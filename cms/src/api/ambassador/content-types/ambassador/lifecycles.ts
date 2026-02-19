@@ -7,114 +7,15 @@
 import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
+import { getImageUrl, markdownToHtml, toPlainText } from '../../../../utils/mdx'
+import type { AmbassadorBase } from '../../types'
 
-interface MediaFile {
-  id: number
-  url: string
-  alternativeText?: string
-  name?: string
-  width?: number
-  height?: number
-  formats?: {
-    thumbnail?: { url: string }
-    small?: { url: string }
-    medium?: { url: string }
-    large?: { url: string }
-  }
-}
-
-interface Ambassador {
-  id: number
-  name: string
-  slug: string
-  description: string
-  photo?: MediaFile
-  linkedinUrl?: string
-  grantReportUrl?: string
-  order?: number
+interface Ambassador extends AmbassadorBase {
   publishedAt?: string
 }
 
 interface Event {
   result?: Ambassador
-}
-
-/**
- * Converts markdown to HTML
- * Handles: bold, italic, links, line breaks
- */
-function markdownToHtml(markdown: string): string {
-  if (!markdown) return ''
-
-  return (
-    markdown
-      // Bold: **text** or __text__
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
-      // Italic: *text* or _text_
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      .replace(/_([^_]+)_/g, '<em>$1</em>')
-      // Links: [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      // Line breaks
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      // Wrap in paragraph if not already
-      .replace(/^(?!<p>)/, '<p>')
-      .replace(/(?!<\/p>)$/, '</p>')
-  )
-}
-
-/**
- * Strips HTML/markdown and converts to plain text
- */
-function toPlainText(text: string): string {
-  if (!text) return ''
-
-  return (
-    text
-      // Remove markdown bold/italic
-      .replace(/\*\*([^*]+)\*\*/g, '$1')
-      .replace(/__([^_]+)__/g, '$1')
-      .replace(/\*([^*]+)\*/g, '$1')
-      .replace(/_([^_]+)_/g, '$1')
-      // Remove markdown links, keep text
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      // Remove HTML tags
-      .replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/gi, ' ')
-      .trim()
-  )
-}
-
-/**
- * Gets the image URL from a media field
- * Returns the full Strapi URL for local files, or the full URL for external
- */
-function getImageUrl(media: MediaFile | undefined): string | undefined {
-  if (!media?.url) return undefined
-
-  // Use thumbnail format if available for ambassador photos
-  if (media.formats?.thumbnail?.url) {
-    const thumbnailUrl = media.formats.thumbnail.url
-    if (thumbnailUrl.startsWith('/uploads/')) {
-      const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-      return uploadsBase
-        ? `${uploadsBase.replace(/\/$/, '')}${thumbnailUrl}`
-        : thumbnailUrl
-    }
-    return thumbnailUrl
-  }
-
-  // Fallback to main URL
-  if (media.url.startsWith('/uploads/')) {
-    const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-    return uploadsBase
-      ? `${uploadsBase.replace(/\/$/, '')}${media.url}`
-      : media.url
-  }
-
-  return media.url
 }
 
 function generateFilename(ambassador: Ambassador): string {
@@ -125,13 +26,12 @@ function generateJSON(ambassador: Ambassador): string {
   const data = {
     name: ambassador.name,
     slug: ambassador.slug,
-    description: markdownToHtml(ambassador.description),
-    descriptionPlainText: toPlainText(ambassador.description),
-    photo: getImageUrl(ambassador.photo),
+    description: markdownToHtml(ambassador.description || ''),
+    descriptionPlainText: toPlainText(ambassador.description || ''),
+    photo: getImageUrl(ambassador.photo, 'thumbnail'),
     photoAlt: ambassador.photo?.alternativeText || ambassador.name,
     linkedinUrl: ambassador.linkedinUrl || null,
-    grantReportUrl: ambassador.grantReportUrl || null,
-    order: ambassador.order || 0
+    grantReportUrl: ambassador.grantReportUrl || null
   }
 
   return JSON.stringify(data, null, 2)

@@ -1,5 +1,5 @@
 ---
-import MarkdownIt from 'markdown-it'
+import { parseMarkdownInline } from '../../utils/mdx'
 
 interface Props {
   quote: string
@@ -8,8 +8,7 @@ interface Props {
 
 const { quote, source } = Astro.props
 
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
-const htmlSource = source ? md.renderInline(source) : ''
+const htmlSource = source ? parseMarkdownInline(source) : ''
 
 // Strip any existing quotes and add curly quotes for consistent output
 // Handles straight quotes ("), curly quotes (" " ' '), and single quotes (' ')
