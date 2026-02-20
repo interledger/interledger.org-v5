@@ -1,16 +1,16 @@
-name: Merge to Main Workflow
+name: Merge to staging Workflow
 
 on:
-  # Only after PRs are merged to main (production)
+  # Only after PRs are merged to staging (preview)
   # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
-  # and pull_request events run for forks. This workflow should only run on push to main.
+  # and pull_request events run for forks. This workflow should only run on push to staging.
     push:
       branches:
-        - main
+        - staging
 
 concurrency:
   # Ensure only one instance of this workflow runs at a time to avoid multiple rebuilds
-  group: main-merge
+  group: staging-merge
   cancel-in-progress: false
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
     runs-on: strapi-vm
 
     steps:
+      # Only rebuild strapi if there are changes in the cms/ directory to avoid unnecessary rebuilds
         - name: Detect cms changes
           id: cms_changes
           shell: bash
@@ -43,7 +44,7 @@ jobs:
           run: |
             set -euo pipefail
 
-            cd /home/strapi/interledger.org-v5
+            cd /home/strapi/interledger.org-v5-staging
 
             # Ensure pull fails instead of creating merge commits
             git fetch
@@ -55,7 +56,7 @@ jobs:
               exit 1
             fi
 
-            cd /home/strapi/interledger.org-v5/cms
+            cd /home/strapi/interledger.org-v5-staging/cms
             # Stops the service while we are busy
             sudo systemctl stop strapi.service
             # Perform installs in case there are new dependencies from the merged PRs

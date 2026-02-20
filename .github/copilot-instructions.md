@@ -31,7 +31,7 @@ Ensure these are installed before running any commands:
 
 ### CI Validation Pipeline
 
-The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
+The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and push to main:
 1. Checkout code
 2. Setup Node.js (v18)
 3. Setup pnpm
@@ -40,6 +40,8 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 6. **`pnpm run build`** – Must succeed
 
 **To replicate CI locally**: Run `pnpm install && pnpm run lint && pnpm run build`. Both lint and build must pass with no output errors.
+
+**Note**: CI uses npm for installation despite Bun being the preferred local package manager. This is intentional for CI consistency.
 
 ### Important Caveats
 
@@ -98,7 +100,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 ## Content and Routing
 
-- **Main navigation**: Configured in `src/config/navigation.json`
+- **Foundation navigation**: Configured in `src/config/foundation-navigation.json`
 - **Summit navigation**: Configured in `src/config/summit-navigation.json`  
 - **Dynamic routing**: `src/pages/[...page].astro` handles catch-all routes
 - **Blog routing**: `src/pages/blog/[...page].astro` and `src/pages/developers/blog/[...page].astro` for dated blog content
@@ -109,6 +111,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 - **Branches**: `staging` is the preview environment, `main` is production.
 - **Strapi publishing**: Lifecycle hooks generate MDX and commit/push to `staging`.
 - **Netlify**: Auto-builds `staging` to preview and `main` to production.
+- **Self-hosted runner**: The `.github/workflows/main-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS if cms/ directory changes are detected, using `bun install && bun run build`.
 - **Promotion**: Content moves from `staging` to `main` via PR approval.
 - **Preview drafts**: Drafts can be previewed via SSR without publishing.
 
@@ -126,7 +129,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `pnpm run lint` from passing.
 
-2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
+2. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
 
 3. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
 
@@ -136,17 +139,23 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 The CMS (Strapi v5.31.3) runs independently and uses **pnpm**:
 ```bash
+# Local development (uses npm)
 cd cms
 pnpm install
 pnpm run develop  # Runs on localhost:1337/admin
 pnpm run build    # Production build
 ```
 
-Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
+**Production builds** (self-hosted runner on `staging` push):
+- Uses `bun install && bun run build` via `.github/workflows/main-merge.yml`
+- Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
+- Automatically restarts the `strapi.service` after rebuild
 
-For pages and blog posts, those lifecycle hooks also run a git add/commit/pull --rebase/push to trigger preview builds. Grant tracks only write/delete MDX locally. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
 
-CMS code changes are deployed to the Strapi VM when merged to `staging`. Content-only changes can be rebuilt into Strapi via `cms/scripts/sync-mdx.cjs`.
+For pages and blog posts, lifecycle hooks may trigger git synchronization for preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+
+CMS code changes are deployed to the Strapi VM when merged to `staging`. The self-hosted runner will automatically rebuild if `cms/` directory changes are detected.
 
 ## Making Changes
 
@@ -158,7 +167,7 @@ When making changes to Astro components, pages, or styles:
 5. If format fails due to ESLint warnings, address warnings manually (check files listed in format output)
 6. Verify `pnpm run build` succeeds (no output errors)
 
-For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/navigation.json` and verify the sidebar updates correctly.
+For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/foundation-navigation.json` or `src/config/summit-navigation.json` and verify the sidebar updates correctly.
 
 ## Files to Avoid Modifying
 
@@ -167,7 +176,6 @@ These files are auto-generated or have special constraints and should not be man
 - `cms/src/index.ts` – Generated by Strapi plugin (in eslint ignore list)
 - `cms/src/admin/app.tsx` – Generated by Strapi (in eslint ignore list)
 - `public/scripts/highlight.min.js` – Minified third-party library
-- `src/pages/financial-services.astro` – In eslint ignore list (pre-existing issues)
 - `.astro/` directory – Build cache
 
 ## Trust These Instructions
