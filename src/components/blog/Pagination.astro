@@ -1,5 +1,6 @@
 ---
-const { length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } = Astro.props
+const { baseUrl, length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } =
+  Astro.props
 
 const paginationList = Array.from({ length }, (_, i) => i + 1)
 ---
@@ -32,7 +33,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
   {
     paginationList.map((num) => (
       <a
-        href={`/blog${num == 1 ? '' : '/' + num}`}
+        href={`${baseUrl}${num == 1 ? '' : '/' + num}`}
         class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
       >
         {num}

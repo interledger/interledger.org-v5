@@ -22,10 +22,24 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
     <article
       itemscope
       itemtype="http://schema.org/Article"
-      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s [&_ol]:mb-space-s [&_ul]:mb-space-s [&_figure]:mb-space-s [&_hr]:mb-space-s [&_h2]:mb-space-xs [&_h3]:mb-space-xs [&_h4]:mb-space-xs [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto"
+      class="mx-auto flex-1 max-w-[960px] min-w-[360px] px-[5%]
+      [&_p]:mb-space-s
+      [&_ol]:list-decimal [&_ol]:ps-10 [&_ol]:mb-space-s
+      [&_ul]:list-disc [&_li>ul]:list-[circle] [&_ul]:mb-space-s [&_ul]:ps-10 [&_ul_li]:mb-space-2xs
+      [&_figure]:mb-space-s
+      [&_hr]:mb-space-s
+      [&_h2]:text-step-2 [&_h2]:font-bold [&_h2]:mb-space-xs
+      [&_h3]:text-step-1 [&_h3]:font-bold [&_h3]:mb-space-xs
+      [&_h4]:font-bold [&_h4]:mb-space-xs
+      [&_h5]:font-bold [&_h5]:text-[0.83em]
+      [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline
+      [&_figcaption]:text-step--1 [&_figcaption]:italic
+      [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee
+      [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere]
+      [&_img]:block [&_img]:mx-auto 2xl:px-0"
     >
       <ol
-        class="flex list-none ps-0 text-step--1 font-bold pt-space-l"
+        class="flex list-none! ps-0! text-step--1 font-bold pt-space-l"
         itemscope
         itemtype="https://schema.org/BreadcrumbList"
       >
@@ -34,7 +48,11 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/" data-umami-event="Devs breadcrumb - Home">
+          <a
+            itemprop="item"
+            href="/developers"
+            data-umami-event="Devs breadcrumb - Home"
+          >
             <span itemprop="name">Developers Portal</span></a
           >
           <meta itemprop="position" content="1" />
@@ -47,32 +65,18 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
         >
           <a
             itemprop="item"
-            href="/blog"
+            href="/developers/blog"
             data-umami-event="Devs breadcrumb - Blog"
           >
             <span itemprop="name">Engineering Blog</span></a
           >
           <meta itemprop="position" content="2" />
-          {
-            frontmatter.lang && (
-              <>
-                <span>|</span>
-                <a
-                  itemprop="item"
-                  href="/blog/es"
-                  data-umami-event="Devs breadcrumb - ES blogs"
-                >
-                  <span itemprop="name">Blog de Ingeniería</span>
-                </a>
-              </>
-            )
-          }
         </li>
       </ol>
       <div>
         <img src={frontmatter.featureImage} alt={frontmatter.featureImageAlt} />
       </div>
-      <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
+      <h1 class="text-primary text-step-4 font-bold leading-tight mb-space-2xs">
         {frontmatter.title}
       </h1>
       <time
@@ -82,6 +86,23 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       >
         {longDate}
       </time>
+      {
+        frontmatter.authors && (
+          <address class="text-step--1 mb-space-s">
+            Written by{' '}
+            {frontmatter.authors.map((author: string, i: number) => {
+              const authorElement = frontmatter.author_urls[i] ? (
+                <a href={frontmatter.author_urls[i]}>{author}</a>
+              ) : (
+                <span>{author}</span>
+              )
+              return i < frontmatter.authors.length - 1
+                ? [authorElement, ', ']
+                : authorElement
+            })}
+          </address>
+        )
+      }
       {
         frontmatter.external_url ? (
           <div

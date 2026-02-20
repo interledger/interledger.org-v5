@@ -1,18 +1,18 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * MDX to Strapi Sync Script
  *
  * Usage (run from cms/):
- *   bun run sync:mdx:dry-run
- *   bun run sync:mdx
+ *   pnpm run sync:mdx:dry-run
+ *   pnpm run sync:mdx
  */
 
 import fs from 'fs'
 import path from 'path'
 import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
-import { getProjectRoot } from '../../src/utils/paths'
+import { getProjectRoot } from '@/utils/paths'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapiClient'
 import { syncAll } from './syncCoordinator'
