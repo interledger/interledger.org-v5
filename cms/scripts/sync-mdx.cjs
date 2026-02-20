@@ -48,7 +48,7 @@ const CONTENT_TYPES = {
     pattern: /^(.+)\.mdx$/
   },
   pages: {
-    dir: path.join(projectRoot, 'src/content/pages'),
+    dir: path.join(projectRoot, 'src/content/foundation-pages'),
     apiId: 'pages',
     pattern: /^(.+)\.mdx$/
   }
@@ -281,6 +281,77 @@ async function findBySlugInDefaultLocale(apiId, slug) {
   return await findBySlug(apiId, slug, 'en');
 }
 
+/**
+ * Parses <AmbassadorGrid heading="..." slugs={["s1","s2"]} /> components
+ * from MDX body content and returns an array of raw block descriptors.
+ * The heading attribute is optional.
+ */
+function parsePageBodyBlocks(mdxBody) {
+  const blocks = [];
+  const regex = /<AmbassadorGrid([^>]*?)\/>/g;
+  let match;
+
+  while ((match = regex.exec(mdxBody)) !== null) {
+    const attrs = match[1];
+
+    const headingMatch = attrs.match(/heading="([^"]*)"/);
+    const heading = headingMatch ? headingMatch[1] : null;
+
+    const slugsMatch = attrs.match(/slugs=\{(\[[^\]]+\])\}/);
+    if (!slugsMatch) continue;
+
+    let slugs;
+    try {
+      slugs = JSON.parse(slugsMatch[1]);
+    } catch {
+      continue;
+    }
+
+    blocks.push({ type: 'ambassadors-grid', heading, slugs });
+  }
+
+  return blocks;
+}
+
+/**
+ * Resolves ambassador slugs to their Strapi documentIds.
+ */
+async function resolveAmbassadorSlugs(slugs) {
+  const ids = [];
+  for (const slug of slugs) {
+    const entry = await findBySlug('ambassadors', slug);
+    if (entry?.documentId) {
+      ids.push(entry.documentId);
+    } else {
+      console.warn(`   ⚠️  Ambassador not found in Strapi for slug: "${slug}"`);
+    }
+  }
+  return ids;
+}
+
+/**
+ * Converts parsed page body blocks into Strapi dynamic zone block data.
+ */
+async function buildStrapiContentBlocks(parsedBlocks) {
+  const strapiBlocks = [];
+
+  for (const block of parsedBlocks) {
+    if (block.type === 'ambassadors-grid') {
+      const ambassadorIds = await resolveAmbassadorSlugs(block.slugs);
+      const strapiBlock = {
+        __component: 'blocks.ambassadors-grid',
+        ambassadors: ambassadorIds.map(docId => ({ documentId: docId }))
+      };
+      if (block.heading) {
+        strapiBlock.heading = block.heading;
+      }
+      strapiBlocks.push(strapiBlock);
+    }
+  }
+
+  return strapiBlocks;
+}
+
 // Create localization for an existing entry
 async function createLocalization(apiId, documentId, locale, data) {
   // In Strapi v5, localizations are created by using PUT to the existing documentId
@@ -452,6 +523,11 @@ async function syncContentType(contentType) {
             description: englishMdx.frontmatter.heroDescription || ''
           };
         }
+        // Parse content blocks from MDX body (e.g. <AmbassadorGrid heading="..." slugs={[...]} />)
+        const parsedBlocks = parsePageBodyBlocks(englishMdx.content);
+        if (parsedBlocks.length > 0) {
+          englishData.content = await buildStrapiContentBlocks(parsedBlocks);
+        }
       }
 
       // Create or update English post
@@ -593,6 +669,11 @@ async function syncContentType(contentType) {
                   description: localeMdx.frontmatter.heroDescription || ''
                 };
               }
+              // Parse content blocks from MDX body
+              const parsedBlocks = parsePageBodyBlocks(localeMdx.content);
+              if (parsedBlocks.length > 0) {
+                localeData.content = await buildStrapiContentBlocks(parsedBlocks);
+              }
             }
 
             // Check if localization already exists (try both normalized and full locale)
@@ -702,6 +783,11 @@ async function syncContentType(contentType) {
                 title: localeMdx.frontmatter.heroTitle || localeMdx.frontmatter.title,
                 description: localeMdx.frontmatter.heroDescription || ''
               };
+            }
+            // Parse content blocks from MDX body
+            const parsedBlocks = parsePageBodyBlocks(localeMdx.content);
+            if (parsedBlocks.length > 0) {
+              localeData.content = await buildStrapiContentBlocks(parsedBlocks);
             }
           }
 

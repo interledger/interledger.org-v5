@@ -379,26 +379,20 @@ function serializeAmbassador(block: AmbassadorBlock): string {
 }
 
 /**
- * Serializes an ambassadors-grid block to MDX
+ * Serializes an ambassadors-grid block to MDX.
+ * The heading is serialized as a JSX prop (not a bare markdown heading) so that
+ * the block round-trips correctly: on re-import, the heading is parsed back as
+ * part of the block rather than treated as standalone page content.
  */
 function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
-  const lines: string[] = []
-
-  if (block.heading) {
-    lines.push(`## ${block.heading}`)
-    lines.push('')
-  }
-
-  // Extract slugs from the ambassadors relation
   const slugs = (block.ambassadors || [])
     .filter((amb) => amb?.slug)
     .map((amb) => `"${escapeQuotes(amb.slug)}"`)
 
-  if (slugs.length > 0) {
-    lines.push(`<AmbassadorGrid slugs={[${slugs.join(',')}]} />`)
-  }
+  if (slugs.length === 0) return ''
 
-  return lines.join('\n')
+  const headingAttr = block.heading ? ` heading="${escapeQuotes(block.heading)}"` : ''
+  return `<AmbassadorGrid${headingAttr} slugs={[${slugs.join(',')}]} />`
 }
 
 /**
