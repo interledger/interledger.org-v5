@@ -72,9 +72,10 @@ jobs:
           cms_changed=false
           content_changed=false
 
-          # For manual dispatch, check all files
+          # For manual dispatch, always rebuild CMS and sync content
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "Manual trigger - checking for any content changes"
+            echo "Manual trigger - will rebuild CMS and sync content"
+            cms_changed=true
             content_changed=true
           else
             # Check what changed in this push
@@ -96,7 +97,9 @@ jobs:
 
   rebuild-strapi:
     needs: check-pr-merge
-    if: needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true'
+    if: |
+      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true') ||
+      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
     runs-on: strapi-vm
 
     steps:
