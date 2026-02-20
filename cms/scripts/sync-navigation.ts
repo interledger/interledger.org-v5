@@ -1,11 +1,11 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * Foundation/Summit navigation JSON to Strapi Sync Script
  *
  * Usage:
- *   bun scripts/sync-navigation.ts --dry-run
- *   bun scripts/sync-navigation.ts
+ *   pnpm run sync:navigation:dry-run
+ *   pnpm run sync:navigation
  */
 
 import fs from 'fs'

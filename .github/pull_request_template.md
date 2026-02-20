@@ -9,8 +9,8 @@
 
 ## Checks
 
-- [ ] `bun run format`
-- [ ] `bun run lint`
+- [ ] `pnpm run format`
+- [ ] `pnpm run lint`
 
 ## PR Checklist
 
