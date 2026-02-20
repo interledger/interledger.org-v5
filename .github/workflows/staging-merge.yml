@@ -30,6 +30,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate manual trigger is on staging branch
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          CURRENT_BRANCH="${GITHUB_REF##*/}"
+          if [ "$CURRENT_BRANCH" != "staging" ]; then
+            echo "❌ Error: Manual workflow dispatch is only allowed on 'staging' branch"
+            echo "   Current branch: $CURRENT_BRANCH"
+            exit 1
+          fi
+          echo "✓ Manual trigger validated on staging branch"
+
       - name: Check if push is from merged PR
         id: pr_merge_check
         uses: actions/github-script@v7
