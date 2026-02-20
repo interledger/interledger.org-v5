@@ -6,13 +6,13 @@ The official [Interledger.org](https://interledger.org/) website built with [Ast
 
 ```bash
 # Install dependencies
-bun install
+pnpm install
 
 # Start dev server (localhost:1103)
-bun run start
+pnpm run start
 
 # Build for production
-bun run build
+pnpm run build
 ```
 
 ## Architecture Overview
@@ -100,20 +100,20 @@ flowchart
 
 ## Commands
 
-| Command           | Action                               |
-| :---------------- | :----------------------------------- |
-| `bun run start`   | Start dev server at `localhost:1103` |
-| `bun run build`   | Build production site to `./dist/`   |
-| `bun run preview` | Preview production build locally     |
-| `bun run format`  | Format code with Prettier/ESLint     |
-| `bun run lint`    | Check code formatting and linting    |
+| Command            | Action                               |
+| :----------------- | :----------------------------------- |
+| `pnpm run start`   | Start dev server at `localhost:1103` |
+| `pnpm run build`   | Build production site to `./dist/`   |
+| `pnpm run preview` | Preview production build locally     |
+| `pnpm run format`  | Format code with Prettier/ESLint     |
+| `pnpm run lint`    | Check code formatting and linting    |
 
 ## CMS
 
 ```bash
 cd cms
-npm install
-npm run develop
+pnpm install
+pnpm run develop
 ```
 
 Admin panel: <http://localhost:1337/admin>
@@ -135,14 +135,14 @@ Why this was added:
 Default MDX output locations:
 
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
-- Blog posts: `src/content/blog/`
+- Blog posts: `src/content/foundation-blog-posts/`
 - Grant tracks: `src/content/grants/`
 
 ### 🔍 Code Formatting
 
 This project uses [ESLint](https://eslint.org/) for code linting and [Prettier](https://prettier.io/) for code formatting. Before submitting a pull request, please ensure your code is properly formatted:
 
-1. **Fix issues**: Run `bun run format` to automatically format code and fix linting issues
-2. **Check before pushing**: Run `bun run lint` to verify everything passes (CI will also run this)
+1. **Fix issues**: Run `pnpm run format` to automatically format code and fix linting issues
+2. **Check before pushing**: Run `pnpm run lint` to verify everything passes (CI will also run this)
 
 ESLint is configured to work with TypeScript and Astro files. The configuration extends recommended rules from ESLint, TypeScript ESLint, and Astro ESLint plugins, and integrates with Prettier to avoid conflicts.

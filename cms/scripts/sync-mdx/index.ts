@@ -1,11 +1,11 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * MDX to Strapi Sync Script
  *
  * Usage (run from cms/):
- *   bun run sync:mdx:dry-run
- *   bun run sync:mdx
+ *   pnpm run sync:mdx:dry-run
+ *   pnpm run sync:mdx
  */
 
 import fs from 'fs'
