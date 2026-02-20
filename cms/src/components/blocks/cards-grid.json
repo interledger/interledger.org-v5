@@ -8,20 +8,40 @@
   "options": {},
   "attributes": {
     "heading": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "subheading": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "cards": {
       "type": "component",
       "repeatable": true,
-      "component": "blocks.card"
+      "component": "blocks.card",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "columns": {
       "type": "enumeration",
       "enum": ["2", "3", "4"],
-      "default": "3"
+      "default": "3",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

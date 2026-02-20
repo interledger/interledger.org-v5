@@ -45,14 +45,14 @@ STREAM is a transport-layer protocol for Interledger that is responsible for bre
 
 For each packet, STREAM handles them using a two-phase execution process that is similar to the request-response process that HTTP packets sent over the internet use.
 
-![Two-Phase Transfer Diagram](/developers/img/blog/2025-02-05/2p-transfer.png)
+![Two-Phase Transfer Diagram](/img/blog/2025-02-05/2p-transfer.png)
 
 In the first phase, the sender creates packets known as [Prepare packets](/developers/rfcs/interledger-protocol/), which each contain some fraction of the total send amount configured by each peer along the ILP network path, the condition generated using SPSP, the final destination of the packet in the network, and an expiration time for the packet.
 All of these packets are sent across the network to the receiver, and must be fulfilled or rejected by the receiver in the second phase in order to be considered successfully sent.
 
 #### ILP Prepare Packet Specification
 
-![ILP Prepare Packet Specification](/developers/img/blog/2025-02-05/ilp-prepare-spec.png)
+![ILP Prepare Packet Specification](/img/blog/2025-02-05/ilp-prepare-spec.png)
 
 ### Walking the Path
 
@@ -72,7 +72,7 @@ The Reject packet contains an error code that describes what would have caused t
 
 #### ILP Reject Packet Specification
 
-![ILP Reject Packet Specification](/developers/img/blog/2025-02-05/ilp-reject-spec.png)
+![ILP Reject Packet Specification](/img/blog/2025-02-05/ilp-reject-spec.png)
 
 Provided there are no rejections, this process is repeated until the packet reaches the connector of the receiving Rafiki instance.
 
@@ -83,7 +83,7 @@ The receiver fulfills a Prepare packet by sending a [Fulfill packet](/developers
 
 #### ILP Fulfill Packet Specification
 
-![ILP Fulfill Packet Specification](/developers/img/blog/2025-02-05/ilp-fulfill-spec.png)
+![ILP Fulfill Packet Specification](/img/blog/2025-02-05/ilp-fulfill-spec.png)
 
 Since only the receiver can provide the preimage needed to fulfill a "prepare" packet's condition, no node in the network in between it and the sender can intercept the packet and send back a fulfilled packet without it reaching the receiver first.
 As soon as the sender receives enough fulfillments from the receiver to complete the payment, it stops sending packets over STREAM and closes the connection.

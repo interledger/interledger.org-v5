@@ -1,5 +1,6 @@
 ---
-const { length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } = Astro.props
+const { baseUrl, length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } =
+  Astro.props
 
 const paginationList = Array.from({ length }, (_, i) => i + 1)
 ---
@@ -11,7 +12,9 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
         &#171;
       </a>
     ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#171;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
+        &#171;
+      </span>
     )
   }
 
@@ -21,14 +24,16 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
         &#8249;
       </a>
     ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#8249;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
+        &#8249;
+      </span>
     )
   }
 
   {
     paginationList.map((num) => (
       <a
-        href={`/blog${num == 1 ? '' : '/' + num}`}
+        href={`${baseUrl}${num == 1 ? '' : '/' + num}`}
         class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
       >
         {num}
@@ -38,7 +43,9 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
 
   {
     !nextUrl ? (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#8250;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
+        &#8250;
+      </span>
     ) : (
       <a href={`${nextUrl}`} class="px-space-s py-space-xs">
         &#8250;
@@ -52,7 +59,9 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
         &#187;
       </a>
     ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">&#187;</span>
+      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
+        &#187;
+      </span>
     )
   }
 </nav>

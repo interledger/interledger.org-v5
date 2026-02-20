@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "description": "Strapi CMS for Interledger developer portal",
   "scripts": {
-    "develop": "strapi develop",
-    "start": "strapi start",
+    "develop": "ENV_PATH=../.env strapi develop",
+    "start": "ENV_PATH=../.env strapi start",
     "build": "strapi build",
     "strapi": "strapi",
-    "sync:mdx": "node scripts/sync-mdx.cjs",
-    "sync:mdx:dry-run": "node scripts/sync-mdx.cjs --dry-run"
+    "sync:mdx": "bun scripts/sync-mdx/index.ts",
+    "sync:mdx:dry-run": "bun scripts/sync-mdx/index.ts --dry-run",
+    "sync:navigation": "bun scripts/sync-navigation.ts",
+    "sync:navigation:dry-run": "bun scripts/sync-navigation.ts --dry-run"
   },
   "strapi": {
     "uuid": "d5c8f4e2-9a1b-4c3d-8e7f-6a5b4c3d2e1f"
@@ -20,18 +22,26 @@
     "@notum-cz/strapi-plugin-record-locking": "^2.1.0",
     "@strapi/strapi": "5.31.3",
     "better-sqlite3": "11.5.0",
+    "dotenv": "^17.2.4",
+    "gray-matter": "^4.0.3",
+    "is-html": "^3.2.0",
+    "jsesc": "^3.1.0",
+    "marked": "^17.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.2",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "turndown": "^7.2.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "@types/turndown": "^5.0.6",
     "typescript": "^5.7.2"
   },
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
-    "npm": ">=6.0.0"
+    "bun": ">=1.0.0"
   },
   "overrides": {
     "esbuild": "0.20.2"

@@ -30,7 +30,25 @@ The CMS is configured via environment variables in `.env`. Key settings:
 
 - `PORT`: CMS runs on port 1337 (default)
 - `DATABASE_CLIENT`: Using better-sqlite3
-- `MDX_OUTPUT_PATH`: Where MDX files are written (`../src/content/foundation-pages`)
+- `MDX_OUTPUT_PATH`: Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`
+- `PAGES_MDX_OUTPUT_PATH`: Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)
+- `STRAPI_GIT_SYNC_REPO_PATH`: Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)
+
+### Git Sync Repository Target
+
+Lifecycle hooks that commit MDX updates now write to a dedicated staging clone configured by `STRAPI_GIT_SYNC_REPO_PATH`.
+
+For page MDX output, the resolution order is:
+
+1. `MDX_OUTPUT_PATH`
+2. `PAGES_MDX_OUTPUT_PATH`
+3. `src/content/foundation-pages` (resolved inside `STRAPI_GIT_SYNC_REPO_PATH`)
+
+This was introduced to:
+
+- avoid fragile relative-path repo detection,
+- ensure content commits happen in the intended staging checkout,
+- fail fast on startup if the target folder is missing or not on the `staging` branch.
 
 ### Running the CMS
 

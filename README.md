@@ -16,64 +16,70 @@ bun run build
 ```
 
 ## Architecture Overview
+
 ```mermaid
 flowchart
     subgraph gcp["☁️ GCP VM"]
         direction TB
-        strapi[(Strapi CMS)]
-        gitclone[("Git Clone<br/>(staging)")]
-        strapi -->|"writes MDX"| gitclone
+        appclone[("Repo Clone A<br/>(running Strapi app)")]
+        stagingclone[("Repo Clone B<br/>(staging sync target)")]
+        strapi[Strapi Admin portal]
+        appclone -->|"hosts './cms' folder"| strapi
+        strapi -->|"writes MDX"| stagingclone
     end
-    
+
     subgraph github["📦 GitHub Repository"]
         direction TB
         staging["staging branch"]
         main["main branch"]
     end
-    
+
     subgraph netlify["🚀 Netlify"]
         direction TB
         preview["Preview Site"]
         production["Production Site"]
     end
-    
+
+    github -.->|"Manual strapi workflow"| strapi
+
     editor["👤 Content Editor"]
     dev["👨‍💻 Developer"]
     feature["Feature Branch"]
-    
+
     editor ==>|"Publish"| strapi
     dev ==>|"Code PR"| feature
-    
-    gitclone ==>|"Push via<br/>lifecycle hooks"| staging
+
+    stagingclone ==>|"Push via<br/>lifecycle hooks"| staging
     feature ==>|"PR"| staging
-    
+
     staging ==>|"Auto-build"| preview
     staging -->|"PR (approved)"| main
-    
+
     main ==>|"Auto-build"| production
-    
-    gitclone -.-|"Sync after<br/>PR merge"| strapi
-    
+
+    staging -.->|"Pull updates"| appclone
+
     classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
+    classDef portalStyle fill:#018501,stroke:#1967d2,color:#fff
     classDef githubStyle fill:#24292e,stroke:#000,color:#fff
     classDef netlifyStyle fill:#00c7b7,stroke:#008577,color:#fff
     classDef userStyle fill:#ff6b6b,stroke:#d63031,color:#fff
     classDef branchStyle fill:#6c5ce7,stroke:#5f3dc4,color:#fff
-    
-    class strapi,gitclone gcpStyle
+
+    class strapi portalStyle
+    class appclone,stagingclone gcpStyle
     class staging,main,feature githubStyle
     class preview,production netlifyStyle
     class editor,dev userStyle
 ```
 
 **Workflow:**
-1. **Content editors** publish in Strapi → MDX generated → committed to `staging`
+
+1. **Content editors** publish in Strapi (running from VM Clone A) → MDX generated in VM Clone B → committed to `staging`
 2. **Developers** create feature branches → PR to `staging`
 3. **Staging** auto-deploys to Netlify preview for review
 4. **Approved changes** merged to `main` via PR
 5. **Production** auto-deploys from `main`
-
-**Recovery:** The `sync-mdx.cjs` script can restore Strapi database from MDX files in git.
 
 ## Project Structure
 
@@ -114,31 +120,29 @@ Admin panel: <http://localhost:1337/admin>
 
 When content is published in Strapi, lifecycle hooks generate MDX and (for pages and blog posts) commit and push those files to GitHub to trigger preview builds. Grant tracks only write MDX locally and do not commit. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git commit/push behavior.
 
+Git sync now targets a dedicated local clone for staging publishing instead of resolving the repo via a relative path. Configure this with:
+
+- `STRAPI_GIT_SYNC_REPO_PATH`: Absolute path (or `~/...`) to the git working copy used by lifecycle hooks. Default: `~/interledger.org-v5-staging`.
+
+Page MDX output defaults to `src/content/foundation-pages` inside that repo clone. You can override with `MDX_OUTPUT_PATH` (preferred) or `PAGES_MDX_OUTPUT_PATH` (legacy fallback).
+
+Why this was added:
+
+- Avoids ambiguity from relative-path resolution when Strapi starts from different working directories.
+- Keeps CMS content commits isolated to a dedicated staging checkout.
+- Enables startup validation that the target folder exists and is on the `staging` branch before any sync runs.
+
 Default MDX output locations:
+
 - Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
 - Blog posts: `src/content/blog/`
 - Grant tracks: `src/content/grants/`
 
-### Syncing MDX to Strapi
+### 🔍 Code Formatting
 
-The `cms/scripts/sync-mdx.cjs` script syncs MDX files from git **to** Strapi (reverse direction of lifecycle hooks). This is useful for:
+This project uses [ESLint](https://eslint.org/) for code linting and [Prettier](https://prettier.io/) for code formatting. Before submitting a pull request, please ensure your code is properly formatted:
 
-- **Database regeneration**: Rebuild Strapi database from MDX files in git
-- **Initial setup**: Populate a fresh Strapi instance with existing content
-- **Recovery**: Restore content after database corruption/loss
+1. **Fix issues**: Run `bun run format` to automatically format code and fix linting issues
+2. **Check before pushing**: Run `bun run lint` to verify everything passes (CI will also run this)
 
-```bash
-cd cms
-node scripts/sync-mdx.cjs --dry-run  # Preview changes
-node scripts/sync-mdx.cjs            # Apply changes
-```
-
-The script:
-- Scans MDX files in `src/content/blog`, `src/content/events`, `src/content/pages`
-- Creates/updates/deletes Strapi entries to match MDX files
-- Handles localized content (matches via `contentId` in frontmatter)
-- Requires `STRAPI_API_TOKEN` in `cms/.env` with full access permissions
-
-**Note**: This only syncs content entries, not user accounts, API tokens, or Strapi configuration.
-
-See [cms/README.md](cms/README.md) for details.
+ESLint is configured to work with TypeScript and Astro files. The configuration extends recommended rules from ESLint, TypeScript ESLint, and Astro ESLint plugins, and integrates with Prettier to avoid conflicts.

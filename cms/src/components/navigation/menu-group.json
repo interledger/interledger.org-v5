@@ -9,15 +9,30 @@
   "attributes": {
     "label": {
       "type": "string",
-      "required": true
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "href": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "items": {
       "type": "component",
       "repeatable": true,
-      "component": "navigation.menu-item"
+      "component": "navigation.menu-item",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

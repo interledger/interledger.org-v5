@@ -35,21 +35,6 @@ STRAPI_API_TOKEN=your-token-here
 
 ## Usage
 
-### From cms directory (recommended)
-
-```bash
-cd cms
-npm run sync:mdx:dry-run  # Preview changes
-npm run sync:mdx          # Actually sync
-```
-
-### From project root
-
-```bash
-npm run sync:mdx:dry-run  # Preview changes
-npm run sync:mdx          # Actually sync
-```
-
 ### Direct execution
 
 ```bash

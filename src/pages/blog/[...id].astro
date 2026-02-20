@@ -1,9 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
-import CommunityLinks from '../../components/blog/CommunityLinks.astro'
-import BlogLayout from '../../layouts/BlogLayout.astro'
-
-export const prerender = true
+import CommunityLinks from '@/components/blog/CommunityLinks.astro'
+import BlogLayout from '@/layouts/BlogLayout.astro'
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('foundation-blog')

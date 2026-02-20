@@ -1,16 +1,16 @@
 ---
 import { getCollection } from 'astro:content'
 import type { GetStaticPaths, Page } from 'astro'
-import Pagination from '../../components/blog/Pagination.astro'
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import { createExcerpt } from '../../utils/create-excerpt'
+import Pagination from '@/components/blog/Pagination.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createExcerpt } from '@/utils/create-excerpt'
+import stripPagination from '@/utils/stripPagination'
 
 type Props = {
   page: Page
 }
 
-export const prerender = true
-
+const basePath = stripPagination(Astro.url.pathname)
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
@@ -22,36 +22,27 @@ const { page } = Astro.props
 ---
 
 <BaseLayout
-  title="Engineering Blog"
-  description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
-  ogImageUrl={new URL('/img/blog/og-image.png', Astro.site).href}
+  title="Foundation Blog"
+  description="Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers."
+  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
-    <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-      <ol
-        class="flex list-none ps-0 text-step--1 font-bold pt-space-l [&_a]:text-primary [&_a]:no-underline"
-        itemscope
-        itemtype="https://schema.org/BreadcrumbList"
+    <div class="mx-auto max-w-[1440px] min-w-[360px] px-[5%] min-[1600px]:px-0">
+      <header
+        class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start"
       >
-        <li
-          itemprop="itemListElement"
-          itemscope
-          itemtype="https://schema.org/ListItem"
+        <h1 class="text-step-3 font-bold">Foundation Blog</h1>
+        <a
+          class="group flex items-center gap-space-s rounded bg-radial from-white to-tech-light-bg px-space-2xs py-space-3xs shadow text-step--1 no-underline"
+          href="/developers/blog"
         >
-          <a itemprop="item" href="/" data-umami-event="Devs breadcrumb - Home">
-            <span itemprop="name">Developers Portal</span></a
+          <p
+            class="text-gray underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
           >
-          <meta itemprop="position" content="1" />
-        </li>
-      </ol>
-      <header class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start">
-        <h1>Engineering Blog</h1>
-        <a class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline" href="/blog">
-          <p class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current">
-            Check out Foundation updates
+            Explore our Engineering Blog
           </p>
           <img
-            src="/img/ernie-purple.svg"
+            src="/img/ernie-teal.svg"
             alt="Ernie holding an envelope"
             aria-hidden="true"
             class="w-[4em]"
@@ -63,8 +54,8 @@ const { page } = Astro.props
           (page.data || []).map((blogPostEntry) => {
             const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
             return (
-              <li class="flex flex-row gap-space-m mb-space-m p-space-m bg-white/50 rounded shadow max-[768px]:flex-col">
-                <div class="flex-shrink-0">
+              <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
+                <div class="shrink-0">
                   {blogPostEntry.data.thumbnailImage && (
                     <img
                       loading="lazy"
@@ -72,30 +63,33 @@ const { page } = Astro.props
                       width="250"
                       height="250"
                       alt={blogPostEntry.data.thumbnailImageAlt}
-                      class="w-[250px] h-[250px] object-cover rounded max-[768px]:w-full max-[768px]:h-auto"
+                      class="w-[250px] h-[250px] object-cover"
                     />
                   )}
                 </div>
                 <div class="flex flex-col flex-1">
-                  {blogPostEntry.data.lang ? (
+                  {blogPostEntry.data.lang === 'es' ? (
                     <div class="flex items-start gap-space-2xs">
-                      <h2 class="mb-space-3xs">
+                      <h2 class="text-step-1 mb-space-3xs">
                         <a
-                          href={`/blog/${blogPostEntry.id}`}
-                          class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
+                          href={`${basePath}/${blogPostEntry.id}`}
+                          class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
                         >
                           {blogPostEntry.data.title}
                         </a>
                       </h2>
-                      <a class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline" href="/blog/es">
+                      <a
+                        class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
+                        href="/blog/es"
+                      >
                         ES
                       </a>
                     </div>
                   ) : (
-                    <h2 class="mb-space-3xs">
+                    <h2 class="text-step-1 mb-space-3xs">
                       <a
-                        href={`/blog/${blogPostEntry.id}`}
-                        class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
+                        href={`${basePath}/${blogPostEntry.id}`}
+                        class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
                       >
                         {blogPostEntry.data.title}
                       </a>
@@ -107,16 +101,25 @@ const { page } = Astro.props
                   >
                     {blogPostEntry.data.date.toDateString().substring(4)}
                   </time>
-                  <p class="mb-space-2xs flex-grow">
+                  <p class="leading-snug mb-space-2xs grow">
                     {blogPostEntry.data.description
                       ? blogPostEntry.data.description
                       : excerpt}
                   </p>
                   <a
                     href={`/blog/${blogPostEntry.id}`}
-                    class="self-start text-primary font-semibold no-underline transition-opacity duration-300 hover:opacity-80"
+                    class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
                   >
-                    Read more →
+                    Read more
+                    <svg
+                      viewBox="0 0 12 12"
+                      class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
+                    >
+                      <path
+                        d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+                        fill="currentColor"
+                      />
+                    </svg>
                   </a>
                 </div>
               </li>
@@ -125,6 +128,7 @@ const { page } = Astro.props
         }
       </ol>
       <Pagination
+        baseUrl={basePath}
         length={page.lastPage}
         currentPage={page.currentPage}
         firstUrl={page.url.first}

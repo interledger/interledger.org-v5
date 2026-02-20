@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config'
+import { fileURLToPath } from 'node:url'
 import starlight from '@astrojs/starlight'
-import starlightLinksValidator from 'starlight-links-validator'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
@@ -36,10 +36,7 @@ export default defineConfig({
         './src/styles/interledger.css',
         './src/styles/atom-one-light.min.css'
       ],
-      plugins: [
-        // starlightLinksValidator(),
-        starlightFullViewMode({ leftSidebarEnabled: false })
-      ],
+      plugins: [starlightFullViewMode({ leftSidebarEnabled: false })],
       head: [
         {
           tag: 'script',
@@ -158,6 +155,11 @@ export default defineConfig({
     mdx()
   ],
   vite: {
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    },
     plugins: [tailwindcss()]
   },
   redirects: {

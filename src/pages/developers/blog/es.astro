@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
-import BaseLayout from '../../../layouts/BaseLayout.astro'
-import { createExcerpt } from '../../../utils/create-excerpt'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createExcerpt } from '@/utils/create-excerpt'
 
 // Only return posts with `draft: true` in the frontmatter
 const esEntries = await getCollection('engineering-blog', ({ data }) => {
@@ -47,10 +47,17 @@ const esEntries = await getCollection('engineering-blog', ({ data }) => {
           <meta itemprop="position" content="2" />
         </li>
       </ol>
-      <header class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start">
+      <header
+        class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start"
+      >
         <h1>Blog de Ingeniería</h1>
-        <a class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline" href="/blog">
-          <p class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current">
+        <a
+          class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
+          href="/blog"
+        >
+          <p
+            class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
+          >
             Check out Foundation updates
           </p>
           <img
