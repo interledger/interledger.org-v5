@@ -156,8 +156,7 @@ jobs:
         with:
           version: 9
 
-      - name: Install CMS dependencies
-        working-directory: cms
+      - name: Install dependencies
         run: pnpm install
 
       - name: Sync MDX to Strapi
