@@ -44,6 +44,10 @@ jobs:
           run: |
             set -euo pipefail
 
+            # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
+            export PNPM_HOME="/home/strapi/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
+
             cd /home/strapi/interledger.org-v5-staging
 
             # Ensure pull fails instead of creating merge commits

@@ -170,4 +170,3 @@ For issues related to:
 - **Strapi CMS**: Check [Strapi Documentation](https://docs.strapi.io/)
 - **Content Issues**: Check the Strapi console logs
 - **Astro Integration**: Check the main README in the repository root
-.
