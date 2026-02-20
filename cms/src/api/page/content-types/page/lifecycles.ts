@@ -109,9 +109,7 @@ interface ImageRow {
   images?: MediaFile[]
 }
 
-interface AmbassadorRef extends AmbassadorBase {
-  order?: number
-}
+interface AmbassadorRef extends AmbassadorBase {}
 
 interface AmbassadorBlock {
   __component: 'blocks.ambassador'
@@ -605,22 +603,6 @@ async function writeMDXFile(page: Page): Promise<string> {
   console.log(`✅ Generated Page MDX file: ${filepath}`)
 
   return filepath
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function deleteMDXFile(page: Page): Promise<string | null> {
-  const locale = page.locale || 'en'
-  const outputDir = getOutputDir(locale)
-  const filename = generateFilename(page)
-  const filepath = path.join(outputDir, filename)
-
-  if (fs.existsSync(filepath)) {
-    fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted Page MDX file: ${filepath}`)
-    return filepath
-  }
-
-  return null
 }
 
 /**
