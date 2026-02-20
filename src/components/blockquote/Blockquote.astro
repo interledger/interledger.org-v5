@@ -2,22 +2,16 @@
 import { parseMarkdownInline } from '../../utils/mdx'
 
 interface Props {
-  quote: string
   source?: string
 }
 
-const { quote, source } = Astro.props
-
+const { source } = Astro.props
 const htmlSource = source ? parseMarkdownInline(source) : ''
-
-// Strip any leading/trailing quote characters and wrap in curly quotes
-const trimmedQuote = quote.trim().replace(/^[“'”']|[“'”']$/gu, '').trim()
-const formattedQuote = `”${trimmedQuote}”`
 ---
 
 <div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">
   <blockquote class="text-step-1">
-    <p>{formattedQuote}</p>
+    <slot />
   </blockquote>
   {
     htmlSource && (
