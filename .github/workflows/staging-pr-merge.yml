@@ -20,9 +20,35 @@ jobs:
     runs-on: strapi-vm
 
     steps:
+        - name: Ensure push is from merged PR
+          id: pr_merge_check
+          uses: actions/github-script@v7
+          with:
+            script: |
+              const owner = context.repo.owner
+              const repo = context.repo.repo
+              const sha = context.sha
+
+              const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner,
+                repo,
+                commit_sha: sha,
+                per_page: 100
+              })
+
+              const mergedIntoStaging = prs.some((pr) =>
+                pr.merged_at && pr.base && pr.base.ref === 'staging'
+              )
+
+              core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
+              if (!mergedIntoStaging) {
+                core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+              }
+
       # Only rebuild strapi if there are changes in the cms/ directory to avoid unnecessary rebuilds
         - name: Detect cms changes
           id: cms_changes
+          if: steps.pr_merge_check.outputs.merged_pr == 'true'
           shell: bash
           run: |
             set -euo pipefail
@@ -39,7 +65,7 @@ jobs:
             fi
 
         - name: Rebuild strapi cms
-          if: steps.cms_changes.outputs.changed == 'true'
+          if: steps.pr_merge_check.outputs.merged_pr == 'true' && steps.cms_changes.outputs.changed == 'true'
           shell: bash
           run: |
             set -euo pipefail

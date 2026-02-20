@@ -1,0 +1,39 @@
+name: Staging PR Astro or content changes
+
+on:
+  # Run when PRs are merged to staging (production)
+  push:
+    branches:
+      - staging
+    paths:
+      - 'src/content/blog/**/*.mdx'
+      - 'src/content/events/**/*.mdx'
+
+  # Manual trigger for demo/testing from any branch
+  workflow_dispatch:
+
+concurrency:
+  # Ensure only one instance of this workflow runs at a time to avoid multiple rebuilds
+  group: staging-merge
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync MDX to Strapi
+        # Only run sync if triggered by push (PR merge) or manual dispatch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
+        run: node cms/scripts/sync-mdx.cjs
