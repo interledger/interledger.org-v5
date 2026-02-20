@@ -109,19 +109,17 @@ interface ImageRow {
   images?: MediaFile[]
 }
 
-interface AmbassadorRef extends AmbassadorBase {}
-
 interface AmbassadorBlock {
   __component: 'blocks.ambassador'
   id: number
-  ambassador?: AmbassadorRef
+  ambassador?: AmbassadorBase
 }
 
 interface AmbassadorsGridBlock {
   __component: 'blocks.ambassadors-grid'
   id: number
   heading?: string
-  ambassadors?: AmbassadorRef[]
+  ambassadors?: AmbassadorBase[]
 }
 
 interface BlockquoteBlock {
