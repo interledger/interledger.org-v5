@@ -1,0 +1,158 @@
+name: Staging Merge Workflow
+
+on:
+  # Run when PRs are merged to staging
+  # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
+  # and pull_request events run for forks. This workflow should only run on push to staging.
+  push:
+    branches:
+      - staging
+
+  # Manual trigger for sync operations from any branch
+  workflow_dispatch:
+
+concurrency:
+  # Ensure only one instance of this workflow runs at a time to avoid conflicts
+  group: staging-merge
+  cancel-in-progress: false
+
+jobs:
+  check-pr-merge:
+    runs-on: ubuntu-latest
+    outputs:
+      is_merged_pr: ${{ steps.pr_merge_check.outputs.merged_pr }}
+      cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
+      content_changed: ${{ steps.detect_changes.outputs.content_changed }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if push is from merged PR
+        id: pr_merge_check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Skip PR check for manual dispatch
+            if (context.eventName === 'workflow_dispatch') {
+              core.setOutput('merged_pr', 'manual')
+              core.notice('Manually triggered workflow; PR check skipped.')
+              return
+            }
+
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const sha = context.sha
+
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: sha,
+              per_page: 100
+            })
+
+            const mergedIntoStaging = prs.some((pr) =>
+              pr.merged_at && pr.base && pr.base.ref === 'staging'
+            )
+
+            core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
+            if (!mergedIntoStaging) {
+              core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+            }
+
+      - name: Detect changed paths
+        id: detect_changes
+        if: steps.pr_merge_check.outputs.merged_pr != 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cms_changed=false
+          content_changed=false
+
+          # For manual dispatch, always rebuild CMS and sync content
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Manual trigger - will rebuild CMS and sync content"
+            cms_changed=true
+            content_changed=true
+          else
+            # Check what changed in this push
+            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
+            
+            if echo "$changed_files" | grep -q '^cms/'; then
+              cms_changed=true
+              echo "CMS changes detected"
+            fi
+            
+            if echo "$changed_files" | grep -qE '^src/content/(blog|events)/.*\.mdx$'; then
+              content_changed=true
+              echo "Content changes detected"
+            fi
+          fi
+
+          echo "cms_changed=$cms_changed" >> "$GITHUB_OUTPUT"
+          echo "content_changed=$content_changed" >> "$GITHUB_OUTPUT"
+
+  rebuild-strapi:
+    needs: check-pr-merge
+    if: |
+      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true') ||
+      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+    runs-on: strapi-vm
+
+    steps:
+      - name: Rebuild Strapi CMS
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
+          export PNPM_HOME="/home/strapi/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          cd /home/strapi/interledger.org-v5-staging
+
+          # Ensure pull fails instead of creating merge commits
+          git fetch
+          git pull --ff-only
+
+          # Defensive check: fail if git index contains unresolved conflicts
+          if [ -n "$(git ls-files -u)" ]; then
+            echo "Unresolved git conflicts detected after pull"
+            exit 1
+          fi
+
+          cd /home/strapi/interledger.org-v5-staging/cms
+          # Stop the service while we rebuild
+          sudo systemctl stop strapi.service
+          # Install dependencies in case there are new ones from the merged PRs
+          pnpm install
+          # Rebuild with more memory to avoid OOM errors during build
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+          sudo systemctl start strapi.service
+          sleep 5
+          sudo systemctl status strapi.service
+
+  sync-mdx-to-strapi:
+    needs: check-pr-merge
+    if: |
+      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
+      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync MDX to Strapi
+        env:
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
+        run: node cms/scripts/sync-mdx.cjs

@@ -2,6 +2,8 @@
 
 This is the Strapi CMS for managing content that will be rendered on the Interledger Developers Portal. The CMS automatically generates MDX files that are read by the Astro site.
 
+<!-- Last updated: 2026-02-20 -->
+
 ## Features
 
 - **Automatic MDX Generation**: Content is automatically written to MDX files when published
