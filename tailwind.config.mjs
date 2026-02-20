@@ -58,7 +58,8 @@ export default {
           header: '#eee',
           table: '#f6f7f9',
           'inline-code': '#edeef3'
-        }
+        },
+        'tech-light-bg': 'var(--color-tech-light-bg)'
       },
 
       // Layout constraints

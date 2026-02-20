@@ -3,8 +3,6 @@ import { getCollection, render } from 'astro:content'
 import CommunityLinks from '@/components/blog/CommunityLinks.astro'
 import BlogLayout from '@/layouts/BlogLayout.astro'
 
-export const prerender = true
-
 export async function getStaticPaths() {
   const blogEntries = await getCollection('engineering-blog')
   return blogEntries.map((entry) => ({

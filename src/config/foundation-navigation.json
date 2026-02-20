@@ -75,12 +75,12 @@
       "label": "Content Hub",
       "items": [
         {
-          "label": "Blog",
+          "label": "Foundation Blog",
           "href": "/blog"
         },
         {
           "label": "Tech Blog",
-          "href": "/blog?filter=tech"
+          "href": "/developers/blog"
         },
         {
           "label": "Podcast",

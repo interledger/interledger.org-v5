@@ -20,7 +20,7 @@ const engBlogCollection = defineCollection({
     slug: z.string(),
     lang: z.string(),
     date: z.date(),
-    image: z.string().optional(),
+    ogImageUrl: z.string().optional(),
     tags: z.array(
       z.enum([
         'Interledger Protocol',
@@ -28,7 +28,8 @@ const engBlogCollection = defineCollection({
         'Rafiki',
         'Releases',
         'Updates',
-        'Web Monetization'
+        'Web Monetization',
+        'Card Payments'
         // Please add a matching translation in i18n/ui.ts for any new tag
       ])
     ),
