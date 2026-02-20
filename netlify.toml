@@ -1,8 +1,13 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm run build"
-  publish = "dist"
 
+[build.environment]
+  NPM_FLAGS = "--version"
+  NODE_VERSION = "20"
+
+  
 [[headers]]
   for = "/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
