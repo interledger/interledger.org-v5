@@ -60,9 +60,9 @@ jobs:
             # Stops the service while we are busy
             sudo systemctl stop strapi.service
             # Perform installs in case there are new dependencies from the merged PRs
-            bun install
+            pnpm install
             # Rebuild with more memory to avoid OOM errors during build
-            NODE_OPTIONS="--max-old-space-size=4096" bun run build
+            NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
             sudo systemctl start strapi.service
             sleep 5
             sudo systemctl status strapi.service
