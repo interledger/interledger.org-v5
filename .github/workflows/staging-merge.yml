@@ -46,6 +46,16 @@ jobs:
             const repo = context.repo.repo
             const sha = context.sha
 
+            // Check if the commit message indicates a PR merge
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref: sha
+            })
+            
+            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/)
+            
+            // Also check via API for associated PRs
             const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner,
               repo,
@@ -55,11 +65,13 @@ jobs:
 
             const mergedIntoStaging = prs.some((pr) =>
               pr.merged_at && pr.base && pr.base.ref === 'staging'
-            )
+            ) || (isMergeCommit && commit.parents.length > 1)
 
             core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
             if (!mergedIntoStaging) {
               core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+            } else {
+              core.notice('Merged PR detected into staging.')
             }
 
       - name: Detect changed paths
