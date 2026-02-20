@@ -136,10 +136,11 @@ jobs:
           sudo systemctl status strapi.service
 
   sync-mdx-to-strapi:
-    needs: check-pr-merge
+    needs: [check-pr-merge, rebuild-strapi]
     if: |
-      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+      always() &&
+      ((needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
+      needs.check-pr-merge.outputs.is_merged_pr == 'manual')
     runs-on: ubuntu-latest
 
     steps:
