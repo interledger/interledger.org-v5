@@ -2,7 +2,7 @@
 
 ![Interledger Foundation](https://github.com/interledger/interledger.org-v5/blob/main/public/img/blog/og-ilf.png)
 
-This repository contains the source code for the [Interledger Foundation website](https://interledger.org), built with [Astro](https://astro.build/), [Starlight](https://starlight.astro.build/) for documentation, and [Strapi](https://strapi.io/) as a headless CMS.  
+This repository contains the source code for the [Interledger Foundation website](https://interledger.org), built with [Astro](https://astro.build/), [Starlight](https://starlight.astro.build/) for documentation, and [Strapi](https://strapi.io/) as a headless CMS.
 
 It represents the **fifth major iteration** of interledger.org. For background on previous versions and the site’s evolution, see the [v4 project wiki](https://github.com/interledger/interledger.org-v4/wiki#background).
 
@@ -12,22 +12,21 @@ It represents the **fifth major iteration** of interledger.org. For background o
 2. [Architecture Overview](#architecture-overview)
 3. [Project Structure](#project-structure)
 4. [Local Development](#local-development)
-5. [CI / Github Workflows](#ci--github-workflows) 
+5. [CI / Github Workflows](#ci--github-workflows)
 6. [Content Workflow](#content-workflow)
-    - [Astro as the Source of Truth](#astro-as-the-source-of-truth)
-    - [Preview functionality](#preview-functionality)
-    - [Branches and Deployment](#branches-and-deployment)
-    - [Environments](#environments)
+   - [Astro as the Source of Truth](#astro-as-the-source-of-truth)
+   - [Preview functionality](#preview-functionality)
+   - [Branches and Deployment](#branches-and-deployment)
+   - [Environments](#environments)
 7. [Contributing](#contributing)
-    - [Developer Flow](#developer-flow)
-    - [Editor Flow](#editor-flow) 
-    - [Writing guidelines for developers](#writing-guidelines-for-developers)
+   - [Developer Flow](#developer-flow)
+   - [Editor Flow](#editor-flow)
+   - [Writing guidelines for developers](#writing-guidelines-for-developers)
 8. [More Info](#more-info)
-
 
 ## About the Project
 
-- **Astro** provides a modern static site framework for fast, flexible site building. 
+- **Astro** provides a modern static site framework for fast, flexible site building.
 
 - **Starlight** adds a ready-made documentation system, including layouts, navigation, and styling, making it easy to write and maintain docs.
 
@@ -36,10 +35,10 @@ It represents the **fifth major iteration** of interledger.org. For background o
 ### Styling
 
 - The frontend styling is built using **Tailwind CSS**.
-
 - Design tokens, utility conventions, and custom styles are documented separately: [Styles README](https://github.com/interledger/interledger.org-v5/blob/f8d490be47b8e39d4ccd141dcd6a2aa4c4a2cde6/src/styles/README.md)
 
 <!-- TODO - update Architecture overview -->
+
 ## Architecture overview
 
 ```mermaid
@@ -119,10 +118,10 @@ flowchart
 │   │   ├─ /foundation-pages
 │   │   └─ /summit
 │   ├── /content.config
-│   ├─ /layouts       
+│   ├─ /layouts
 │   └─ /pages         # Route pages
 │   ├── /styles       # Global styles
-│   └── /utils        
+│   └── /utils
 ├── astro.config.mjs
 ├── package.json
 └── tsconfig.json
@@ -154,8 +153,8 @@ For more information about the way our documentation projects are set up, please
 git clone https://github.com/interledger/interledger.org-v5.git
 ```
 
-
 2. Install dependencies:
+
 ```sh
 pnpm install
 ```
@@ -176,15 +175,14 @@ pnpm run start
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-|  `pnpm install`             | Installs dependencies                            |
-|  `pnpm run start`           | Starts local dev server at `localhost:1103`      |
-|  `pnpm run build`           | Build your production site to `./dist/`          |
-|  `pnpm run preview`         | Preview your build locally, before deploying     |
-|  `pnpm run format`          | Format code and fix linting issues               |
-|  `pnpm run lint`            | Check code formatting and linting                |
-
+| Command            | Action                                       |
+| :----------------- | :------------------------------------------- |
+| `pnpm install`     | Installs dependencies                        |
+| `pnpm run start`   | Starts local dev server at `localhost:1103`  |
+| `pnpm run build`   | Build your production site to `./dist/`      |
+| `pnpm run preview` | Preview your build locally, before deploying |
+| `pnpm run format`  | Format code and fix linting issues           |
+| `pnpm run lint`    | Check code formatting and linting            |
 
 ### 🔍 Code Formatting
 
@@ -214,16 +212,12 @@ Pull requests must pass all checks before merging.
 The repository designates **Astro as the source of truth**, with bidirectional synchronization between Strapi and the codebase.
 
 1. **Strapi → Astro**:
-
-    - Strapi lifecycle hooks trigger `.mdx` file creation, updates, and deletions.
-
-    - Changes are automatically committed and pushed directly to the `staging` branch, where Strapi acts as a contributor.
+   - Strapi lifecycle hooks trigger `.mdx` file creation, updates, and deletions.
+   - Changes are automatically committed and pushed directly to the `staging` branch, where Strapi acts as a contributor.
 
 2. **Astro → Strapi**:
-
-    - Merges in `staging` sync `.mdx` files back into the Strapi database.
-
-    - Scripts like `sync:mdx` handle the synchronization.
+   - Merges in `staging` sync `.mdx` files back into the Strapi database.
+   - Scripts like `sync:mdx` handle the synchronization.
 
 ### Preview Functionality
 
@@ -235,13 +229,13 @@ The repository designates **Astro as the source of truth**, with bidirectional s
 ### Branches and Deployment
 
 - **`staging`**:
-    - Serves the live Strapi Admin interface.
-    - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin.
-    - Every merge to `staging` also runs the `sync:mdx` script to synchronize content between Strapi and Astro.
+  - Serves the live Strapi Admin interface.
+  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin.
+  - Every merge to `staging` also runs the `sync:mdx` script to synchronize content between Strapi and Astro.
 
 - **`main`**:
-    - Serves the live website.
-    - Merges to `main` trigger a Netlify rebuild of the production site.
+  - Serves the live website.
+  - Merges to `main` trigger a Netlify rebuild of the production site.
 
 **Strapi Admin** runs on GCP virtual machines, and the deployments of both the **Strapi Admin** and the **website** are managed via Netlify.
 
@@ -249,44 +243,43 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 
 ### Environments
 
-<!-- PROD: 
+<!-- PROD:
 - **Production**: https://interledger.org
 - **Staging**: https://staging.interledger.org -->
 
 <!-- CURRENT:  -->
+
 - **Live website**: https://interledger-org-v5.netlify.app/
 - **Strapi admin**: TODO (insert link when available)
 - **Staging**: TODO (insert link when available)
 
 ## Contributing
 
-Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (developer workflow).  
+Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (developer workflow).
 
 ### Developer flow:
+
 - Add `.mdx` content in Astro.
 - Open PRs against `staging`.
 - Use frontmatter correctly — invalid metadata will break the build.
 - Run `pnpm run build` and `pnpm run format` before PR.
 - Consult [Writing Guidelines for Developers](#writing-guidelines-for-developers) below for more details on content structure, metadata, tags, and blog formatting.
- 
+
 ### Editor flow
 
 - Editors create pages and blog posts via **Strapi Admin**.
-
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-
-    - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
-
+  - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
 - Content changes are automatically commited and pushed to the `staging` branch.
 
 #### Content Management Documentation
 
 All documentation for working with website content is available in [the wiki](https://github.com/interledger/interledger.org-v5/wiki). Please refer to the wiki for:
+
 - Content creation and editing guidelines
 - Adding blog posts and podcast episodes
 - Managing multilingual content
 - General site-building philosophy
-
 
 ### Writing guidelines for developers
 
