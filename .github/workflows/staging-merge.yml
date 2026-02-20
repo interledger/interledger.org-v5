@@ -46,16 +46,7 @@ jobs:
             const repo = context.repo.repo
             const sha = context.sha
 
-            // Check if the commit message indicates a PR merge
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: sha
-            })
-            
-            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/)
-            
-            // Also check via API for associated PRs
+            // Check via API for associated PRs merged into staging
             const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner,
               repo,
@@ -63,9 +54,21 @@ jobs:
               per_page: 100
             })
 
-            const mergedIntoStaging = prs.some((pr) =>
+            const mergedPRIntoStaging = prs.some((pr) =>
               pr.merged_at && pr.base && pr.base.ref === 'staging'
-            ) || (isMergeCommit && commit.parents.length > 1)
+            )
+
+            // Also check commit message for merge commit pattern
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref: sha
+            })
+            
+            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/) &&
+              commit.parents.length > 1
+
+            const mergedIntoStaging = mergedPRIntoStaging || isMergeCommit
 
             core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
             if (!mergedIntoStaging) {
