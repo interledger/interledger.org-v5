@@ -6,9 +6,9 @@ This repository contains **interledger.org** – the official Interledger Founda
 
 **Repository Size**: Medium (~600 files, ~3MB)  
 **Primary Language**: TypeScript/JavaScript (Astro components, MDX, config files)  
-**Package Manager**: Bun (v1.3.3+)  
-**Lockfile**: `bun.lock` (Bun v1 uses a text lockfile; no `bun.lockb`)  
-**Node Requirement**: Node.js >=18.20.8 (critical - 18.19.1 is insufficient)  
+**Package Manager**: Bun (v1.3.3+) for local development; npm used in CI  
+**Lockfiles**: Both `bun.lock` and `bun.lockb` present  
+**Node Requirement**: Node.js >=18.20.8 (or Node 20 via `.nvmrc` for lts/iron)  
 **Development Port**: localhost:1103
 
 ## Build and Validation Commands
@@ -31,22 +31,22 @@ Ensure these are installed before running any commands:
 
 ### CI Validation Pipeline
 
-The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every PR:
+The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and push to main:
 1. Checkout code
 2. Setup Node.js (v18)
-3. Setup Bun
-4. `bun install`
-5. **`bun run lint`** – Must pass with zero warnings
-6. **`bun run build`** – Must succeed
+3. `npm ci` – Install dependencies
+4. **`npm run lint`** – Must pass with zero warnings
+5. `npm run build` is configured but lint.yml only runs linting
 
 **To replicate CI locally**: Run `bun install && bun run lint && bun run build`. Both lint and build must pass with no output errors.
 
+**Note**: CI uses npm for installation despite Bun being the preferred local package manager. This is intentional for CI consistency.
+
 ### Important Caveats
 
-- **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended.
-- **Linting Warnings**: The repository has existing ESLint warnings in `cms/src/api/page/content-types/page/lifecycles.ts` that cause lint to fail. These are pre-existing and are not blocking the build itself – only linting checks. `bun run format` will attempt to fix issues but may not resolve all warnings.
-- **Package Manager**: Do NOT use npm or yarn. Only use Bun for this project.
-- **Bun Lockfile**: Netlify or scripts may expect `bun.lockb`, but Bun v1 generates `bun.lock` only. Update checks or docs if needed.
+- **Node Version**: The system may have multiple Node versions. If build fails with "Node.js vX.X.X is not supported by Astro", upgrade to >=18.20.8. The .nvmrc specifies `lts/iron` (Node 20), which is recommended for local development.
+- **Linting Warnings**: The `bun run format` command combines Prettier and ESLint. Some ESLint warnings may remain unfixed and require manual intervention.
+- **Package Manager**: Use Bun locally via `bun install`, `bun run` commands. CI uses npm for consistency.
 
 ## Project Layout and Architecture
 
@@ -98,7 +98,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 ## Content and Routing
 
-- **Main navigation**: Configured in `src/config/navigation.json`
+- **Foundation navigation**: Configured in `src/config/foundation-navigation.json`
 - **Summit navigation**: Configured in `src/config/summit-navigation.json`  
 - **Dynamic routing**: `src/pages/[...page].astro` handles catch-all routes
 - **Blog routing**: `src/pages/blog/[...page].astro` and `src/pages/developers/blog/[...page].astro` for dated blog content
@@ -109,6 +109,7 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 - **Branches**: `staging` is the preview environment, `main` is production.
 - **Strapi publishing**: Lifecycle hooks generate MDX and commit/push to `staging`.
 - **Netlify**: Auto-builds `staging` to preview and `main` to production.
+- **Self-hosted runner**: The `.github/workflows/main-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS if cms/ directory changes are detected, using `bun install && bun run build`.
 - **Promotion**: Content moves from `staging` to `main` via PR approval.
 - **Preview drafts**: Drafts can be previewed via SSR without publishing.
 
@@ -124,29 +125,33 @@ The GitHub Actions workflow (`.github/workflows/test-build.yml`) runs on every P
 
 ## Known Issues and Workarounds
 
-1. **ESLint warnings in CMS**: The file `cms/src/api/page/content-types/page/lifecycles.ts` contains warnings about unused variables and `any` types. These exist in the repo and are pre-existing. They do not block the build but do prevent `bun run lint` from passing.
+1. **Node version in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are recommended. Local development with Node 20 (via `.nvmrc` lts/iron) is preferred.
 
-2. **Node version mismatch in CI**: The GitHub Actions workflow uses Node 18, but newer patch versions (>=18.20.8) are required. The workflow's `actions/setup-node@v3` should install a compatible patch version automatically.
+2. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
 
-3. **Translation structure commented out**: `src/config` in astro.config.mjs has an i18n config block commented with TODO. Do not enable without understanding the full routing implications.
-
-4. **Formatters**: Prettier and ESLint run together. `bun run format` runs Prettier, then ESLint with auto-fix. Some ESLint warnings may remain unfixed and require manual intervention.
+3. **Formatters**: Prettier and ESLint run together. `bun run format` runs Prettier, then ESLint with auto-fix. Some ESLint warnings may remain unfixed and require manual intervention.
 
 ## CMS Information
 
-The CMS (Strapi v5.31.3) runs independently and uses **npm** (not Bun):
+The CMS (Strapi v5.31.3) runs independently. Local development uses **npm**, while the self-hosted runner uses **Bun** for production builds:
 ```bash
+# Local development (uses npm)
 cd cms
 npm install
 npm run develop  # Runs on localhost:1337/admin
 npm run build    # Production build
 ```
 
-Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx.cjs`.
+**Production builds** (self-hosted runner on `staging` push):
+- Uses `bun install && bun run build` via `.github/workflows/main-merge.yml`
+- Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
+- Automatically restarts the `strapi.service` after rebuild
 
-For pages and blog posts, those lifecycle hooks also run a git add/commit/pull --rebase/push to trigger preview builds. Grant tracks only write/delete MDX locally. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
 
-CMS code changes are deployed to the Strapi VM when merged to `staging`. Content-only changes can be rebuilt into Strapi via `cms/scripts/sync-mdx.cjs`.
+For pages and blog posts, lifecycle hooks may trigger git synchronization for preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
+
+CMS code changes are deployed to the Strapi VM when merged to `staging`. The self-hosted runner will automatically rebuild if `cms/` directory changes are detected.
 
 ## Making Changes
 
@@ -158,7 +163,7 @@ When making changes to Astro components, pages, or styles:
 5. If format fails due to ESLint warnings, address warnings manually (check files listed in format output)
 6. Verify `bun run build` succeeds (no output errors)
 
-For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/navigation.json` and verify the sidebar updates correctly.
+For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/foundation-navigation.json` or `src/config/summit-navigation.json` and verify the sidebar updates correctly.
 
 ## Files to Avoid Modifying
 
@@ -167,7 +172,6 @@ These files are auto-generated or have special constraints and should not be man
 - `cms/src/index.ts` – Generated by Strapi plugin (in eslint ignore list)
 - `cms/src/admin/app.tsx` – Generated by Strapi (in eslint ignore list)
 - `public/scripts/highlight.min.js` – Minified third-party library
-- `src/pages/financial-services.astro` – In eslint ignore list (pre-existing issues)
 - `.astro/` directory – Build cache
 
 ## Trust These Instructions
