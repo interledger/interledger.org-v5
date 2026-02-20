@@ -14,7 +14,7 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
 
 - Node.js >= 18.0.0 <= 22.x.x
 - pnpm >= 9.0.0
- 
+
 ### Installation
 
 The dependencies should already be installed. If not, run:
