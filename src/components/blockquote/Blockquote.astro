@@ -10,32 +10,9 @@ const { quote, source } = Astro.props
 
 const htmlSource = source ? parseMarkdownInline(source) : ''
 
-// Strip any existing quotes and add curly quotes for consistent output
-// Handles straight quotes ("), curly quotes (" " ' '), and single quotes (' ')
-let trimmedQuote = quote.trim()
-
-// Strip any leading quote (any type)
-if (
-  trimmedQuote.startsWith('"') ||
-  trimmedQuote.startsWith('"') ||
-  trimmedQuote.startsWith("'") ||
-  trimmedQuote.startsWith("'")
-) {
-  trimmedQuote = trimmedQuote.slice(1)
-}
-
-// Strip any trailing quote (any type)
-if (
-  trimmedQuote.endsWith('"') ||
-  trimmedQuote.endsWith('"') ||
-  trimmedQuote.endsWith("'") ||
-  trimmedQuote.endsWith("'")
-) {
-  trimmedQuote = trimmedQuote.slice(0, -1)
-}
-
-// Always use curly quotes for consistent styling
-const formattedQuote = `“${trimmedQuote.trim()}”`
+// Strip any leading/trailing quote characters and wrap in curly quotes
+const trimmedQuote = quote.trim().replace(/^[“'”']|[“'”']$/gu, '').trim()
+const formattedQuote = `”${trimmedQuote}”`
 ---
 
 <div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">
