@@ -9,7 +9,7 @@
 import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush } from '../../../../utils/gitSync'
-import { getImageUrl } from '../../../../utils/mdx'
+import { formatBlockquote, getImageUrl } from '../../../../utils/mdx'
 import type { AmbassadorBase } from '../../../ambassador/types'
 import type { MediaFile } from '../../../../../types/shared/types'
 
@@ -406,19 +406,19 @@ function serializeAmbassadorsGrid(block: AmbassadorsGridBlock): string {
 }
 
 /**
- * Serializes a blockquote block to MDX
+ * Serializes a blockquote block to MDX.
+ * The quote text is passed as slot content (not a prop attribute) so that
+ * any character — quotes, commas, etc. — is safe from JSX attribute parsing.
  */
 function serializeBlockquote(block: BlockquoteBlock): string {
-  const attrs = [
-    `quote="${escapeQuotes(block.quote)}"`,
-    block.source
-      ? `source="${escapeQuotes(htmlToMarkdown(block.source))}"`
-      : null
-  ]
-    .filter(Boolean)
-    .join(' ')
+  // Escape { and } so MDX doesn't try to parse them as JS expressions
+  const quote = formatBlockquote(block.quote).replace(/\{/g, '\\{').replace(/\}/g, '\\}')
 
-  return `<Blockquote ${attrs} />`
+  const sourceAttr = block.source
+    ? ` source="${escapeQuotes(htmlToMarkdown(block.source))}"`
+    : ''
+
+  return `<Blockquote${sourceAttr}>\n  ${quote}\n</Blockquote>`
 }
 
 /**

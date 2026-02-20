@@ -71,6 +71,15 @@ export function markdownToHtml(markdown: string): string {
 }
 
 /**
+ * Strips any surrounding straight or curly quotes from a blockquote string
+ * and wraps the result in curly double quotes for consistent styling.
+ */
+export function formatBlockquote(quote: string): string {
+  const stripped = quote.trim().replace(/^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu, '').trim()
+  return `\u201C${stripped}\u201D`
+}
+
+/**
  * Strips HTML tags and markdown syntax, returning plain text.
  */
 export function toPlainText(text: string): string {
