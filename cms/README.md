@@ -106,7 +106,7 @@ Example: If slug is `interledger-launches-new-platform`, the file will be `inter
 
 ### Git Commits
 
-- MDX updates are committed by the GitHub App `Interledger Strapi`. Editors do not push commits directly.
+- Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
 
 ### Sync Back from Astro
 
