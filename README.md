@@ -43,7 +43,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 flowchart
     subgraph gcp["☁️ GCP VM"]
         direction TB
-        appclone[("Repo Clone A<br/>(running Strapi app)")]
+        appclone[("Repo Clone<br/>(running Strapi app)")]
         strapidb[("Strapi Database")]
         strapi[Strapi Admin portal]
         appclone -->|"runs from './cms' folder"| strapi
