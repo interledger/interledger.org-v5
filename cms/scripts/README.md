@@ -38,8 +38,9 @@ STRAPI_API_TOKEN=your-token-here
 ### Direct execution
 
 ```bash
-pnpm run sync:mdx:dry-run
-pnpm run sync:mdx
+pnpm sync:mdx --dry-run          # Preview changes (any branch)
+pnpm sync:mdx                    # Sync (main/staging only)
+pnpm sync:mdx --force            # Sync from any branch (e.g. local dev)
 
 pnpm run sync:navigation:dry-run
 pnpm run sync:navigation

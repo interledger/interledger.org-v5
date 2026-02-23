@@ -3,10 +3,9 @@
 Syncs MDX files to Strapi (MDX → Strapi import only). Run from `cms/`:
 
 ```bash
-pnpm run sync:mdx:dry-run        # Preview changes (any branch)
-pnpm run sync:mdx                # Sync (main/staging only)
-pnpm sync:mdx -- --force         # Sync from any branch (e.g. local dev)
-pnpm sync:mdx -- --dry-run --force  # Dry-run with force (no-op, same as dry-run)
+pnpm sync:mdx --dry-run          # Preview changes (any branch)
+pnpm sync:mdx                    # Sync (main/staging only)
+pnpm sync:mdx --force            # Sync from any branch (e.g. local dev)
 ```
 
 The script only allows live runs on `main` or `staging`. Use `--force` to bypass this check on other branches (local development only — not for CI).
