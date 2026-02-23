@@ -441,11 +441,22 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: true
   }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.RichText & Schema.Attribute.Required
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     grantReportUrl: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 500
@@ -454,12 +465,11 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 500
       }>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
+    locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::ambassador.ambassador'
-    > &
-      Schema.Attribute.Private
+    >
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
