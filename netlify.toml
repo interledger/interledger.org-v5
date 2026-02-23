@@ -1,5 +1,13 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  base = "/"
+  publish = "dist"
+
+[dev]
+  command = "pnpm run start"
+  targetPort = 1103
+  framework = "#custom"
+  publish = "dist"
 
 [[headers]]
   for = "/*"
