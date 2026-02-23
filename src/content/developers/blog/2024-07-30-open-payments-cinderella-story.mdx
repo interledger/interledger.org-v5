@@ -53,7 +53,7 @@ Once the user completes the flow on the identity provider, the authorization ser
 Let’s collect this all into a nice sequence diagram.
 
 <LargeImg
-  src="/developers/img/blog/2024-07-30/oauth-sequence-diagram.png"
+  src="/img/blog/2024-07-30/oauth-sequence-diagram.png"
   alt="The OAuth 2.0 Sequence Diagram"
 />
 
@@ -101,7 +101,7 @@ Now we’re getting messy again. It’s immediately clear how much noise is in t
 Compare this sequence diagram with the previous sequence diagram and the increased complexity. There’s more interaction with the resource server just to set up the authorization flow and more work after the flow in order to initiate the payment.
 
 <LargeImg
-  src="/developers/img/blog/2024-07-30/mandates-sequence-diagram.png"
+  src="/img/blog/2024-07-30/mandates-sequence-diagram.png"
   alt="The Mandates Sequence Diagram"
 />
 
@@ -175,7 +175,7 @@ There is a clear way to describe the parameters for a payment.
 For reference, we have a more tame sequence diagram with GNAP. It’s closer to the baseline set by the OAuth 2.0 sequence diagram and keeps the responsibilities of the resource server properly separated from the authorization flow at large.
 
 <LargeImg
-  src="/developers/img/blog/2024-07-30/gnap-sequence-diagram.png"
+  src="/img/blog/2024-07-30/gnap-sequence-diagram.png"
   alt="GNAP Sequence Diagram"
 />
 

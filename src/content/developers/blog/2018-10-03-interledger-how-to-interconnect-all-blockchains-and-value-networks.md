@@ -33,7 +33,7 @@ With Interledger, a user can send BTC and the recipient will automatically recei
 
 Behind the scenes, Interledger routes packets of money across value networks like the internet routes packets of data between Internet Service Providers (ISPs). When the user sends BTC, the user’s wallet sends Interledger packets denominated in BTC to a connector. The connector applies their exchange rate and forwards ETH-denominated packets on to the receiver.
 
-![Diagram showing how the connector forwards packets to the receiver](/developers/img/blog/2018-10-03/connector.webp)
+![Diagram showing how the connector forwards packets to the receiver](/img/blog/2018-10-03/connector.webp)
 
 For more obscure assets, Interledger packets are automatically routed across multiple connectors and each one is incentivized to help find the best paths through the network. Importantly, all of this happens without the sender needing to trust the connectors, as the protocol guarantees that the sender’s money cannot be lost or stolen in transit (see Trustless Sending below).
 
@@ -61,7 +61,7 @@ The second key feature of Interledger is that it enables users to send money thr
 
 Interledger uses a [“forward-and-backward” packet flow](https://interledger.org/developers/rfcs/interledger-protocol/#ilp-packet-lifecycle), or incentivized two-phase commit, in which the recipient gets paid before the money ever leaves the sender’s account.
 
-![Diagram showing the “forward-and-backward” packet flow](/developers/img/blog/2018-10-03/packet-flow.webp)
+![Diagram showing the “forward-and-backward” packet flow](/img/blog/2018-10-03/packet-flow.webp)
 
 - Prepare packets travel from the sender to the receiver (the “forward” part) and represent a commitment to pay, *if and only if* the connector presents proof that the receiver was paid.
 - Fulfill packets include proof that the receiver was paid and are relayed by connectors back to the sender (the “backward” part). Only the receiver could generate the correct proof, which is a simple preimage of a hash. The sender knows with certainty when the money has arrived, no matter what path the packet has taken through the network of connectors. If a packet is misrouted or dropped, the sender will never get the Fulfill and the money will never leave their account.

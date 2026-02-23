@@ -2,6 +2,8 @@
 
 This is the Strapi CMS for managing content that will be rendered on the Interledger Developers Portal. The CMS automatically generates MDX files that are read by the Astro site.
 
+<!-- Test workflow run -->
+
 ## Features
 
 - **Automatic MDX Generation**: Content is automatically written to MDX files when published
@@ -13,7 +15,7 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
 ### Prerequisites
 
 - Node.js >= 18.0.0 <= 22.x.x
-- npm >= 6.0.0
+- pnpm >= 9.0.0
 
 ### Installation
 
@@ -21,7 +23,7 @@ The dependencies should already be installed. If not, run:
 
 ```bash
 cd cms
-npm install
+pnpm install
 ```
 
 ### Configuration
@@ -34,12 +36,34 @@ cp .env.example .env
 
 Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then set `CLIENT_URL` to match your Astro dev server port (default `http://localhost:1103`).
 
-#### Optional environment variables
+#### Environment variables
 
 | Variable | Description |
 |---|---|
-| `STRAPI_UPLOADS_BASE_URL` | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`), which works for the default git-based deployment where uploads are committed to the repo. |
+| `PORT` | CMS runs on port 1337 (default) |
+| `DATABASE_CLIENT` | Using better-sqlite3 |
+| `CLIENT_URL` | Must match the Astro dev server URL (e.g. `http://localhost:1103`) |
+| `MDX_OUTPUT_PATH` | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages` |
+| `PAGES_MDX_OUTPUT_PATH` | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set) |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`) |
+| `STRAPI_UPLOADS_BASE_URL` | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
 | `STRAPI_DISABLE_GIT_SYNC` | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development. |
+
+### Git Sync Repository Target
+
+Lifecycle hooks that commit MDX updates now write to a dedicated staging clone configured by `STRAPI_GIT_SYNC_REPO_PATH`.
+
+For page MDX output, the resolution order is:
+
+1. `MDX_OUTPUT_PATH`
+2. `PAGES_MDX_OUTPUT_PATH`
+3. `src/content/foundation-pages` (resolved inside `STRAPI_GIT_SYNC_REPO_PATH`)
+
+This was introduced to:
+
+- avoid fragile relative-path repo detection,
+- ensure content commits happen in the intended staging checkout,
+- fail fast on startup if the target folder is missing or not on the `staging` branch.
 
 ### Running the CMS
 
@@ -47,7 +71,7 @@ Start the development server:
 
 ```bash
 cd cms
-npm run develop
+pnpm run develop
 ```
 
 The Strapi admin panel will be available at: http://localhost:1337/admin
@@ -60,8 +84,8 @@ To build for production:
 
 ```bash
 cd cms
-npm run build
-npm run start
+pnpm run build
+pnpm run start
 ```
 
 ## Content Types
@@ -198,7 +222,7 @@ See `Blockquote.astro` for an example using Option B.
 
 ## Development Workflow
 
-1. **Start the CMS**: `cd cms && npm run develop`
+1. **Start the CMS**: `cd cms && pnpm run develop`
 2. **Access Admin Panel**: http://localhost:1337/admin
 3. **Create Content**: Add new content through the UI
 4. **Publish**: When ready, publish the content

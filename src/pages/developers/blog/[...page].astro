@@ -1,15 +1,14 @@
 ---
 import { getCollection } from 'astro:content'
 import type { GetStaticPaths, Page } from 'astro'
-import Pagination from '../../../components/blog/Pagination.astro'
-import BaseLayout from '../../../layouts/BaseLayout.astro'
-import { createExcerpt } from '../../../utils/create-excerpt'
+import Pagination from '@/components/blog/Pagination.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createExcerpt } from '@/utils/create-excerpt'
+import stripPagination from '@/utils/stripPagination'
 
 type Props = {
   page: Page
 }
-
-export const prerender = true
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('engineering-blog')).sort(
@@ -18,6 +17,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   return paginate(blogEntries, { pageSize: 10 })
 }
 
+const basePath = stripPagination(Astro.url.pathname)
 const { page } = Astro.props
 ---
 
@@ -27,7 +27,7 @@ const { page } = Astro.props
   ogImageUrl={new URL('/img/blog/og-image.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
-    <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+    <div class="mx-auto max-w-content min-w-[360px] px-[5%] 2xl:px-0">
       <ol
         class="flex list-none ps-0 text-step--1 font-bold pt-space-l [&_a]:text-primary [&_a]:no-underline"
         itemscope
@@ -38,16 +38,20 @@ const { page } = Astro.props
           itemscope
           itemtype="https://schema.org/ListItem"
         >
-          <a itemprop="item" href="/" data-umami-event="Devs breadcrumb - Home">
+          <a
+            itemprop="item"
+            href="/developers"
+            data-umami-event="Devs blog breadcrumb - Dev Portal"
+          >
             <span itemprop="name">Developers Portal</span></a
           >
           <meta itemprop="position" content="1" />
         </li>
       </ol>
       <header
-        class="pt-space-s pb-space-m flex justify-between items-center gap-space-xs max-[730px]:flex-col max-[730px]:items-start"
+        class="pt-space-s pb-space-m flex flex-col justify-between items-start gap-space-xs min-[730px]:flex-row min-[730px]:items-center"
       >
-        <h1>Engineering Blog</h1>
+        <h1 class="text-step-3 font-bold">Engineering Blog</h1>
         <a
           class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
           href="/blog"
@@ -70,64 +74,47 @@ const { page } = Astro.props
           (page.data || []).map((blogPostEntry) => {
             const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
             return (
-              <li class="flex flex-row gap-space-m mb-space-m p-space-m bg-white/50 rounded shadow max-[768px]:flex-col">
-                <div class="flex-shrink-0">
-                  {blogPostEntry.data.image && (
-                    <img
-                      loading="lazy"
-                      src={blogPostEntry.data.image}
-                      width="250"
-                      height="250"
-                      alt={blogPostEntry.data.title}
-                      class="w-[250px] h-[250px] object-cover rounded max-[768px]:w-full max-[768px]:h-auto"
-                    />
-                  )}
-                </div>
+              <li class="mb-space-2xs">
                 <div class="flex flex-col flex-1">
-                  {blogPostEntry.data.lang ? (
+                  <time
+                    class="block text-step--1"
+                    datetime={blogPostEntry.data.date.toISOString()}
+                  >
+                    {blogPostEntry.data.date.toDateString()}
+                  </time>
+                  {blogPostEntry.data.lang === 'es' ? (
                     <div class="flex items-start gap-space-2xs">
-                      <h2 class="mb-space-3xs">
+                      <h2 class="text-step-1">
                         <a
-                          href={`/blog/${blogPostEntry.id}`}
-                          class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
+                          href={`${basePath}/${blogPostEntry.id}`}
+                          class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                         >
                           {blogPostEntry.data.title}
                         </a>
                       </h2>
                       <a
                         class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline"
-                        href="/blog/es"
+                        href={`${basePath}/es`}
                       >
                         ES
                       </a>
                     </div>
                   ) : (
-                    <h2 class="mb-space-3xs">
+                    <h2 class="text-step-1">
                       <a
-                        href={`/blog/${blogPostEntry.id}`}
-                        class="text-primary font-semibold no-underline transition-colors duration-300 hover:underline"
+                        href={`${basePath}/${blogPostEntry.id}`}
+                        class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                       >
                         {blogPostEntry.data.title}
                       </a>
                     </h2>
                   )}
-                  <time
-                    class="block text-step--1 mb-space-2xs"
-                    datetime={blogPostEntry.data.date.toISOString()}
-                  >
-                    {blogPostEntry.data.date.toDateString().substring(4)}
-                  </time>
+
                   <p class="mb-space-2xs flex-grow">
                     {blogPostEntry.data.description
                       ? blogPostEntry.data.description
                       : excerpt}
                   </p>
-                  <a
-                    href={`/blog/${blogPostEntry.id}`}
-                    class="self-start text-primary font-semibold no-underline transition-opacity duration-300 hover:opacity-80"
-                  >
-                    Read more →
-                  </a>
                 </div>
               </li>
             )
@@ -135,6 +122,7 @@ const { page } = Astro.props
         }
       </ol>
       <Pagination
+        baseUrl={basePath}
         length={page.lastPage}
         currentPage={page.currentPage}
         firstUrl={page.url.first}

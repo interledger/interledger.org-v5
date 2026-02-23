@@ -1,19 +1,33 @@
 /**
- * Shared content utilities for Strapi lifecycle hooks.
- * Helpers used across CMS lifecycle files.
+ * Shared MDX utilities for Strapi lifecycle hooks.
+ * Serializers and helpers used across page, summit-page, and blog-post.
  */
 
+import fs from 'fs'
+import matter from 'gray-matter'
+import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
-// ── Media helpers ────────────────────────────────────────────────────────────
+type MediaLike = Pick<MediaFile, 'url'> & { formats?: MediaFile['formats'] }
 
-/**
- * Optional base URL for Strapi upload paths.
- * Only needed when uploads are hosted externally (CDN, S3, etc.).
- * When unset, upload paths remain relative (/uploads/...), which works
- * for the default git-based deployment where uploads are committed to the repo.
- */
-const UPLOADS_BASE_URL = process.env.STRAPI_UPLOADS_BASE_URL
+const turndown = new TurndownService({
+  headingStyle: 'atx',
+  codeBlockStyle: 'fenced',
+  bulletListMarker: '-',
+  emDelimiter: '*'
+})
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+export const LOCALES = ['en', 'es']
+
+// ── Utility functions ────────────────────────────────────────────────────────
+
+/** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
+export function uidToLogLabel(uid: string): string {
+  const parts = uid.split('.')
+  return parts[parts.length - 1] ?? uid
+}
 
 /**
  * Gets the resolved URL for a Strapi media field.
@@ -21,15 +35,16 @@ const UPLOADS_BASE_URL = process.env.STRAPI_UPLOADS_BASE_URL
  * falling back to the original URL if that format is unavailable.
  */
 export function getImageUrl(
-  media: MediaFile | undefined | null,
+  media: MediaLike | undefined | null,
   preferredFormat?: 'thumbnail' | 'small' | 'medium' | 'large'
 ): string | undefined {
   if (!media?.url) return undefined
 
   function resolve(url: string): string {
     if (url.startsWith('/uploads/')) {
-      return UPLOADS_BASE_URL
-        ? `${UPLOADS_BASE_URL.replace(/\/$/, '')}${url}`
+      const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
+      return uploadsBase
+        ? `${uploadsBase.replace(/\/$/, '')}${url}`
         : url
     }
     return url
@@ -40,6 +55,11 @@ export function getImageUrl(
   }
 
   return resolve(media.url)
+}
+
+export function htmlToMarkdown(html: string): string {
+  if (!html) return ''
+  return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
@@ -99,4 +119,80 @@ export function toPlainText(text: string): string {
       .replace(/&nbsp;/gi, ' ')
       .trim()
   )
+}
+
+// ── Frontmatter helpers ──────────────────────────────────────────────────────
+
+/**
+ * Read all existing frontmatter fields from an MDX file.
+ * Strapi-managed fields will overwrite these when generating MDX.
+ */
+export function getPreservedFields(filepath: string): Record<string, unknown> {
+  if (!fs.existsSync(filepath)) {
+    return {}
+  }
+
+  try {
+    const fileContent = fs.readFileSync(filepath, 'utf-8')
+    const { data } = matter(fileContent)
+    return data
+  } catch {
+    return {}
+  }
+}
+
+export function heroFrontmatter(
+  hero:
+    | {
+        title?: string
+        description?: string
+        backgroundImage?: { url?: string }
+      }
+    | undefined
+): Record<string, string> {
+  const data: Record<string, string> = {}
+  if (!hero) return data
+  if (hero.title) {
+    data.heroTitle = hero.title
+  }
+  if (hero.description) {
+    data.heroDescription = hero.description
+  }
+  const heroImage = getImageUrl(hero.backgroundImage)
+  if (heroImage) {
+    data.heroImage = heroImage
+  }
+  return data
+}
+
+export function seoFrontmatter(
+  seo:
+    | {
+        metaTitle?: string
+        metaDescription?: string
+        metaImage?: { url?: string }
+        keywords?: string
+        canonicalUrl?: string
+      }
+    | undefined
+): Record<string, string> {
+  const data: Record<string, string> = {}
+  if (!seo) return data
+  if (seo.metaTitle) {
+    data.metaTitle = seo.metaTitle
+  }
+  if (seo.metaDescription) {
+    data.metaDescription = seo.metaDescription
+  }
+  const metaImage = getImageUrl(seo.metaImage)
+  if (metaImage) {
+    data.metaImage = metaImage
+  }
+  if (seo.keywords) {
+    data.keywords = seo.keywords
+  }
+  if (seo.canonicalUrl) {
+    data.canonicalUrl = seo.canonicalUrl
+  }
+  return data
 }

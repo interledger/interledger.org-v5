@@ -6,14 +6,80 @@ The official [Interledger.org](https://interledger.org/) website built with [Ast
 
 ```bash
 # Install dependencies
-bun install
+pnpm install
 
 # Start dev server (localhost:1103)
-bun run start
+pnpm run start
 
 # Build for production
-bun run build
+pnpm run build
 ```
+
+## Architecture Overview
+
+```mermaid
+flowchart
+    subgraph gcp["☁️ GCP VM"]
+        direction TB
+        appclone[("Repo Clone A<br/>(running Strapi app)")]
+        stagingclone[("Repo Clone B<br/>(staging sync target)")]
+        strapi[Strapi Admin portal]
+        appclone -->|"hosts './cms' folder"| strapi
+        strapi -->|"writes MDX"| stagingclone
+    end
+
+    subgraph github["📦 GitHub Repository"]
+        direction TB
+        staging["staging branch"]
+        main["main branch"]
+    end
+
+    subgraph netlify["🚀 Netlify"]
+        direction TB
+        preview["Preview Site"]
+        production["Production Site"]
+    end
+
+    github -.->|"Manual strapi workflow"| strapi
+
+    editor["👤 Content Editor"]
+    dev["👨‍💻 Developer"]
+    feature["Feature Branch"]
+
+    editor ==>|"Publish"| strapi
+    dev ==>|"Code PR"| feature
+
+    stagingclone ==>|"Push via<br/>lifecycle hooks"| staging
+    feature ==>|"PR"| staging
+
+    staging ==>|"Auto-build"| preview
+    staging -->|"PR (approved)"| main
+
+    main ==>|"Auto-build"| production
+
+    staging -.->|"Pull updates"| appclone
+
+    classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
+    classDef portalStyle fill:#018501,stroke:#1967d2,color:#fff
+    classDef githubStyle fill:#24292e,stroke:#000,color:#fff
+    classDef netlifyStyle fill:#00c7b7,stroke:#008577,color:#fff
+    classDef userStyle fill:#ff6b6b,stroke:#d63031,color:#fff
+    classDef branchStyle fill:#6c5ce7,stroke:#5f3dc4,color:#fff
+
+    class strapi portalStyle
+    class appclone,stagingclone gcpStyle
+    class staging,main,feature githubStyle
+    class preview,production netlifyStyle
+    class editor,dev userStyle
+```
+
+**Workflow:**
+
+1. **Content editors** publish in Strapi (running from VM Clone A) → MDX generated in VM Clone B → committed to `staging`
+2. **Developers** create feature branches → PR to `staging`
+3. **Staging** auto-deploys to Netlify preview for review
+4. **Approved changes** merged to `main` via PR
+5. **Production** auto-deploys from `main`
 
 ## Project Structure
 
@@ -34,22 +100,49 @@ bun run build
 
 ## Commands
 
-| Command           | Action                               |
-| :---------------- | :----------------------------------- |
-| `bun run start`   | Start dev server at `localhost:1103` |
-| `bun run build`   | Build production site to `./dist/`   |
-| `bun run preview` | Preview production build locally     |
-| `bun run format`  | Format code with Prettier/ESLint     |
-| `bun run lint`    | Check code formatting and linting    |
+| Command            | Action                               |
+| :----------------- | :----------------------------------- |
+| `pnpm run start`   | Start dev server at `localhost:1103` |
+| `pnpm run build`   | Build production site to `./dist/`   |
+| `pnpm run preview` | Preview production build locally     |
+| `pnpm run format`  | Format code with Prettier/ESLint     |
+| `pnpm run lint`    | Check code formatting and linting    |
 
 ## CMS
 
 ```bash
 cd cms
-npm install
-npm run develop
+pnpm install
+pnpm run develop
 ```
 
 Admin panel: <http://localhost:1337/admin>
 
-See [cms/README.md](cms/README.md) for details.
+When content is published in Strapi, lifecycle hooks generate MDX and (for pages and blog posts) commit and push those files to GitHub to trigger preview builds. Grant tracks only write MDX locally and do not commit. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git commit/push behavior.
+
+Git sync now targets a dedicated local clone for staging publishing instead of resolving the repo via a relative path. Configure this with:
+
+- `STRAPI_GIT_SYNC_REPO_PATH`: Absolute path (or `~/...`) to the git working copy used by lifecycle hooks. Default: `~/interledger.org-v5-staging`.
+
+Page MDX output defaults to `src/content/foundation-pages` inside that repo clone. You can override with `MDX_OUTPUT_PATH` (preferred) or `PAGES_MDX_OUTPUT_PATH` (legacy fallback).
+
+Why this was added:
+
+- Avoids ambiguity from relative-path resolution when Strapi starts from different working directories.
+- Keeps CMS content commits isolated to a dedicated staging checkout.
+- Enables startup validation that the target folder exists and is on the `staging` branch before any sync runs.
+
+Default MDX output locations:
+
+- Pages: `src/content/foundation-pages/` (localized pages: `src/content/{locale}/foundation-pages/`)
+- Blog posts: `src/content/foundation-blog-posts/`
+- Grant tracks: `src/content/grants/`
+
+### 🔍 Code Formatting
+
+This project uses [ESLint](https://eslint.org/) for code linting and [Prettier](https://prettier.io/) for code formatting. Before submitting a pull request, please ensure your code is properly formatted:
+
+1. **Fix issues**: Run `pnpm run format` to automatically format code and fix linting issues
+2. **Check before pushing**: Run `pnpm run lint` to verify everything passes (CI will also run this)
+
+ESLint is configured to work with TypeScript and Astro files. The configuration extends recommended rules from ESLint, TypeScript ESLint, and Astro ESLint plugins, and integrates with Prettier to avoid conflicts.

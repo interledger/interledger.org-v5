@@ -6,7 +6,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush } from '../../../../utils/gitSync'
+import { gitCommitAndPush, resolveTargetRepoPath } from '../../../utils'
 
 interface MediaFile {
   id: number
@@ -133,9 +133,8 @@ function generateMDX(post: BlogPost): string {
 }
 
 async function writeMDXFile(post: BlogPost): Promise<void> {
-  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-  // Resolve from dist/src/api/blog-post/content-types/blog-post/ up to cms root then project root
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+  const baseDir = resolveTargetRepoPath(outputPath)
 
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true })
@@ -150,9 +149,8 @@ async function writeMDXFile(post: BlogPost): Promise<void> {
 }
 
 async function deleteMDXFile(post: BlogPost): Promise<void> {
-  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-  // Resolve from dist/src/api/blog-post/content-types/blog-post/ up to cms root then project root
-  const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+  const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+  const baseDir = resolveTargetRepoPath(outputPath)
   const filename = generateFilename(post)
   const filepath = path.join(baseDir, filename)
 
@@ -168,9 +166,8 @@ export default {
     if (result && result.publishedAt) {
       await writeMDXFile(result)
       const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
       const filepath = path.join(baseDir, filename)
       await gitCommitAndPush(filepath, `blog: add "${result.title}"`)
     }
@@ -180,9 +177,8 @@ export default {
     const { result } = event
     if (result) {
       const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
       const filepath = path.join(baseDir, filename)
 
       if (result.publishedAt) {
@@ -200,9 +196,8 @@ export default {
     if (result) {
       await deleteMDXFile(result)
       const filename = generateFilename(result)
-      const outputPath =
-        process.env.BLOG_MDX_OUTPUT_PATH || '../src/content/blog'
-      const baseDir = path.resolve(__dirname, '../../../../../../', outputPath)
+      const outputPath = process.env.BLOG_MDX_OUTPUT_PATH || 'src/content/blog'
+      const baseDir = resolveTargetRepoPath(outputPath)
       const filepath = path.join(baseDir, filename)
       await gitCommitAndPush(filepath, `blog: delete "${result.title}"`)
     }
