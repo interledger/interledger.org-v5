@@ -1,3 +1,6 @@
+packages:
+  - 'cms'
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild

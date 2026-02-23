@@ -29,9 +29,10 @@ async function main() {
       cwd: projectRoot
     })
     const currentBranch = branch.stdout?.trim()
-    if (currentBranch !== 'main') {
+    const allowedBranches = ['main', 'staging']
+    if (!allowedBranches.includes(currentBranch || '')) {
       console.error(
-        '❌ Error: sync-mdx can only run on the main branch (use --dry-run to preview)'
+        `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview)`
       )
       console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
       process.exit(1)

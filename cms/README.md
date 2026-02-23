@@ -2,6 +2,8 @@
 
 This is the Strapi CMS for managing content that will be rendered on the Interledger Website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally in the dedicated `staging clone` and then pushed to the remote `staging branch`. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
 
+<!-- Test workflow run -->
+
 ## Features
 
 - **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is created (published) or updated in Strapi.
