@@ -103,29 +103,88 @@ flowchart
 
 ```text
 .
-├─ /cms              # Strapi project for content management
-│   ├─ /scripts      # Scripts, e.g., sync:mdx
-│   └─ /src
-│       ├─ /admin
-│       └─ /api
-│           └─ {content-types}  # Each content type has lifecycle, schema, etc.
-├── /public           # Static assets (images, favicons)
-├─ /src              # Astro project
-│   ├─ /components    # Astro components
-│   ├─ /config        # JSON configs (navigation, etc.)
-│   ├─ /content       # Markdown/MDX content (blog, summit, docs)
-│   │   ├─ /blog
-│   │   ├─ /developers
-│   │   ├─ /docs
-│   │   ├─ /foundation-pages
-│   │   └─ /summit
-│   ├── /content.config
-│   ├─ /layouts
-│   └─ /pages         # Route pages
-│   ├── /styles       # Global styles
-│   └── /utils
+├── .github/
+│   ├── workflows/
+│   └── copilot-instructions.md
+├── cms/        # Strapi backend
+│   ├── config/              # Strapi configuration files
+│   │   ├── admin.ts
+│   │   ├── database.ts
+│   │   ├── middlewares.ts
+│   │   ├── plugins.ts
+│   │   └── server.ts
+│   ├── database/                      # Database files
+│   │   └── migrations/
+│   ├── public/                        # Static assets
+│   │   └── uploads/                   # User-uploaded media
+│   ├── scripts/              # e.g., sync:mdx, sync-navigation
+│   ├── src/         # Astro frontend application
+│   │   ├── admin/      # Admin UI customizations
+│   │   ├── api/
+│   │   │   ├──/{content-type}  # e.g., blog-post, foundation-page
+│   │   │       ├── content-types/
+│   │   │       │       ├── schema.json
+│   │   │       │       └── lifecycles.ts  # MDX generation logic
+│   │   │       ├── controllers/
+│   │   │       ├── routes/
+│   │   │       └── services/
+│   │   │   └── utils.ts
+│   │   ├── components/                # Reusable Strapi components
+│   │   │   ├── blocks/                # Content block components
+│   │   │   ├── navigation/
+│   │   │   └── shared/                # Shared components
+│   │   ├── serializers/               # MDX serialization logic
+│   │   │   └── blocks/
+│   │   ├── utils/
+│   │   └── index.ts
+│   └── types/                         # TypeScript type definitions
+│   │   └── generated/
+│   ├── .env                 # Environment variables
+│   ├── .gitignore
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   ├── pnpm-workspace.yaml
+│   ├── strapi-server.js
+│   ├── tsconfig.json
+│   ├── copy-schemas.js
+│   └── README.md
+├── public/           # Static assets (images, favicons)
+├── src/              # Astro project
+│   ├── components/    # Astro components
+│   ├── config/        # JSON configs (navigation, etc.)
+│   ├── content/       # Markdown/MDX content (blog, summit, docs)
+│   │   ├── blog/
+│   │   ├── developers/
+│   │   ├── docs/
+│   │   ├── foundation-pages/
+│   │   └── summit/
+│   ├── layouts/
+│   ├── pages/       # Route pages
+│   │   ├── blog/
+│   │   ├── developers/
+│   │   ├── summit/
+│   │   ├── [...page].astro
+│   │   └── index.astro
+│   ├── schemas/
+│   ├── styles/       # Global styles
+│   ├── utils/        # Utility functions
+│   ├── content.config.ts   # Astro content collections config
+│   ├── env.d.ts
+│   └── middleware.ts
+├── .env                 # Environment variables
+├── .env.example
+├── .gitignore
+├── .nvmrc
+├── .prettierignore
+├── .prettierrc
 ├── astro.config.mjs
+├── eslint.config.js
+├── netlify.toml
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── README.md
+├── tailwind.config.mjs
 └── tsconfig.json
 ```
 

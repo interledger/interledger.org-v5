@@ -144,22 +144,42 @@ cms/
 │   ├── admin.ts
 │   ├── database.ts
 │   ├── middlewares.ts
+│   ├── plugins.ts
 │   └── server.ts
+├── database/                      # Database files
+│   └── migrations/
+├── public/                        # Static assets
+│   └── uploads/                   # User-uploaded media
+├── scripts/              # e.g., sync:mdx, sync-navigation
 ├── src/
+│   ├── admin/      # Admin UI customizations
 │   ├── api/
-│   │   └── blog-post/
+│   │   ├──/{content-type}  # e.g., blog-post, foundation-page
 │   │       ├── content-types/
-│   │       │   └── blog-post/
 │   │       │       ├── schema.json
 │   │       │       └── lifecycles.ts  # MDX generation logic
 │   │       ├── controllers/
 │   │       ├── routes/
 │   │       └── services/
+│   │   └── utils.ts
+│   ├── components/                # Reusable Strapi components
+│   │   ├── blocks/                # Content block components
+│   │   ├── navigation/
+│   │   └── shared/                # Shared components
+│   ├── serializers/               # MDX serialization logic
+│   │   └── blocks/
+│   ├── utils/                     # Utility functions
 │   └── index.ts
+└── types/                         # TypeScript type definitions
+│   └── generated/
 ├── .env                 # Environment variables
 ├── .gitignore
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── strapi-server.js
 ├── tsconfig.json
+├── copy-schemas.js
 └── README.md
 ```
 
