@@ -4,7 +4,7 @@
 
 This repository contains the source code for the [Interledger Foundation website](https://interledger.org), built with [Astro](https://astro.build/), [Starlight](https://starlight.astro.build/) for documentation, and [Strapi](https://strapi.io/) as a headless CMS.
 
-It represents the **fifth major iteration** of interledger.org. For background on previous versions and the site’s evolution, see the [v4 project wiki](https://github.com/interledger/interledger.org-v4/wiki#background).
+It represents the **fifth major iteration** of interledger.org. For background on previous versions and the site’s evolution, see the [project wiki](https://github.com/interledger/interledger.org-v5/wiki#background).
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 4. [Local Development](#local-development)
 5. [CI / Github Workflows](#ci--github-workflows)
 6. [Content Workflow](#content-workflow)
-   - [Astro as the Source of Truth](#astro-as-the-source-of-truth)
+   - [Content Synchronization](#content-synchronization)
    - [Preview functionality](#preview-functionality)
    - [Branches and Deployment](#branches-and-deployment)
    - [Environments](#environments)
@@ -35,9 +35,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 ### Styling
 
 - The frontend styling is built using **Tailwind CSS**.
-- Design tokens, utility conventions, and custom styles are documented separately: [Styles README](https://github.com/interledger/interledger.org-v5/blob/f8d490be47b8e39d4ccd141dcd6a2aa4c4a2cde6/src/styles/README.md)
-
-<!-- TODO - update Architecture overview -->
+- Design tokens, utility conventions, and custom styles are documented separately: [Styles README](https://github.com/interledger/interledger.org-v5/blob/main/src/styles/README.md)
 
 ## Architecture overview
 
@@ -46,10 +44,10 @@ flowchart
     subgraph gcp["☁️ GCP VM"]
         direction TB
         appclone[("Repo Clone A<br/>(running Strapi app)")]
-        stagingclone[("Repo Clone B<br/>(staging sync target)")]
+        strapidb[("Strapi Database")]
         strapi[Strapi Admin portal]
-        appclone -->|"hosts './cms' folder"| strapi
-        strapi -->|"writes MDX"| stagingclone
+        appclone -->|"runs from './cms' folder"| strapi
+        strapi -->|"reads/writes"| strapidb
     end
 
     subgraph github["📦 GitHub Repository"]
@@ -61,27 +59,31 @@ flowchart
     subgraph netlify["🚀 Netlify"]
         direction TB
         preview["Preview Site"]
+        stagingsite["Staging Site"]
         production["Production Site"]
     end
-
-    github -.->|"Manual strapi workflow"| strapi
 
     editor["👤 Content Editor"]
     dev["👨‍💻 Developer"]
     feature["Feature Branch"]
 
     editor ==>|"Publish"| strapi
-    dev ==>|"Code PR"| feature
+    dev ==>|"Code / Content PR"| feature
 
-    stagingclone ==>|"Push via<br/>lifecycle hooks"| staging
-    feature ==>|"PR"| staging
+    strapi -->|"lifecycle hooks generate MDX & <br/> push via GitHub App"| staging
 
-    staging ==>|"Auto-build"| preview
-    staging -->|"PR (approved)"| main
+    appclone -.->|"sync:mdx script<br/>(after pulling staging)"| strapidb
+
+
+    feature ==>|"PR (approved)"| staging
+    feature ==>|"PR"| preview
+
+    staging ==>|"Auto-build"| stagingsite
+    staging -->|"PR"| main
+
+    staging -.->|"Pulls updates when <br/> './cms' folder changes"| appclone
 
     main ==>|"Auto-build"| production
-
-    staging -.->|"Pull updates"| appclone
 
     classDef gcpStyle fill:#4285f4,stroke:#1967d2,color:#fff
     classDef portalStyle fill:#018501,stroke:#1967d2,color:#fff
@@ -93,7 +95,7 @@ flowchart
     class strapi portalStyle
     class appclone,stagingclone gcpStyle
     class staging,main,feature githubStyle
-    class preview,production netlifyStyle
+    class preview,production,stagingsite netlifyStyle
     class editor,dev userStyle
 ```
 
@@ -142,8 +144,8 @@ For more information about the way our documentation projects are set up, please
 ### Prerequisites
 
 - [Git](https://git-scm.com/downloads) for version control
-- Node.js >= 18.0.0 <= 22.x.x
-- pnpm >= 9.0.0
+- [Node.js](https://nodejs.org/en/download) >= 18.0.0 <= 22.x.x
+- [pnpm](https://pnpm.io/installation) >= 9.0.0
 
 ### Environment Setup
 
@@ -207,12 +209,12 @@ Pull requests must pass all checks before merging.
 
 ## Content Workflow
 
-### Astro as the Source of Truth
+### Content Synchronization
 
-The repository designates **Astro as the source of truth**, with bidirectional synchronization between Strapi and the codebase.
+**Astro is the source of truth** for site content. Strapi lifecycles and synchronization scripts keep the CMS and Astro `.mdx` files in sync.
 
 1. **Strapi → Astro**:
-   - Strapi lifecycle hooks trigger `.mdx` file creation, updates, and deletions.
+   - Strapi lifecycle hooks trigger `.mdx` file **creation**, **updates**, and **deletions**.
    - Changes are automatically committed and pushed directly to the `staging` branch, where Strapi acts as a contributor.
 
 2. **Astro → Strapi**:
@@ -226,20 +228,27 @@ The repository designates **Astro as the source of truth**, with bidirectional s
 - While the rest of the site is statically generated, preview pages use **server-side rendering** in Astro (`export const prerender = false` in `page-preview.astro`).
 - Each content type is mapped to a corresponding preview route.
 
-### Branches and Deployment
-
-- **`staging`**:
-  - Serves the live Strapi Admin interface.
-  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin.
-  - Every merge to `staging` also runs the `sync:mdx` script to synchronize content between Strapi and Astro.
-
-- **`main`**:
-  - Serves the live website.
-  - Merges to `main` trigger a Netlify rebuild of the production site.
-
-**Strapi Admin** runs on GCP virtual machines, and the deployments of both the **Strapi Admin** and the **website** are managed via Netlify.
+⚠️ Note: Netlify automatically generates Deploy Previews for pull requests opened against `staging` that can be accessed at: `https://deploy-preview-{PR-number}--interledger-org-v5.netlify.app/`. These previews are **frontend-only** and reflect the Astro build at that PR state.
 
 For more information on Strapi lifecycles, synchronization scripts and preview functionality, see [/cms/README.md](https://github.com/interledger/interledger.org-v5/blob/main/cms/README.md).
+
+### Branches and Deployment
+
+- **`main`**:
+  - Serves the live production website.
+  - Merges to `main` trigger a Netlify rebuild of the production site.
+
+- **`staging`**:
+  - Serves the live staging website (deployed via Netlify).
+  - Serves the Strapi Admin interface (running on the GCP VM).
+  - Every merge to `staging` triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files..
+  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin panel.
+
+### Hosting Architecture
+
+- The Astro website (production and staging) is deployed and hosted via Netlify.
+- Strapi (including the Admin panel) runs on a single Google Cloud VM.
+- The Strapi instance on the VM tracks the `staging` branch and pulls updates when `/cms` changes are merged.
 
 ### Environments
 
@@ -249,9 +258,11 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 
 <!-- CURRENT:  -->
 
-- **Live website**: https://interledger-org-v5.netlify.app/
-- **Strapi admin**: TODO (insert link when available)
-- **Staging**: TODO (insert link when available)
+- **Live website** (built from `main`): https://interledger-org-v5.netlify.app/
+- **Staging website** (built from `staging`): TODO (insert link when available)
+- **Strapi admin** (controlled via `staging`): (https://strapi-admin.interledger.org/)
+
+Note: There is currently no separate production Strapi environment.
 
 ## Contributing
 
@@ -263,6 +274,7 @@ Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (
 - Open PRs against `staging`.
 - Use frontmatter correctly — invalid metadata will break the build.
 - Run `pnpm run build` and `pnpm run format` before PR.
+- The PR must undergo review and pass all checks before it can be merged.
 - Consult [Writing Guidelines for Developers](#writing-guidelines-for-developers) below for more details on content structure, metadata, tags, and blog formatting.
 
 ### Editor flow
@@ -270,7 +282,9 @@ Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
   - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
-- Content changes are automatically commited and pushed to the `staging` branch.
+- Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
+
+⚠️ Note: Editors do **not** push the commits themselves — Strapi lifecycles act as the committer via the GitHub App.
 
 #### Content Management Documentation
 
@@ -336,7 +350,7 @@ Copy the Template: Begin your draft using [this Google Doc template](https://doc
 
 Initial Reviews:
 
-- Once your draft is ready, request specific reviewers or ask for feedback on the #tech-team Slack channel.
+- Once your draft is ready, request specific reviewers or ask for feedback on the `#tech-team` Slack channel.
 - Incorporate feedback and refine the blog post.
 
 Finalizing:
@@ -344,11 +358,12 @@ Finalizing:
 - When the draft is stable, create a pull request in the [interledger.org](https://github.com/interledger/interledger.org-v5) GitHub repo against `staging`.
 - Please add links where appropriate so people can easily click to learn more about the concepts you reference.
 - Include all images used in the post in the PR.
-- Content merged into `staging` will be reviewed by the frontend team before being promoted to `main`.
+- No-one is expected to know the ins and outs of Astro (the framework that powers our site), so please tag someone in the frontend team as a reviewer to ensure everything Astro-related is in order.
+- The PR will be reviewed by the frontend team before being merged into `staging`.
 
 #### Working with Visuals
 
-- If you need an illustration, submit a design request in advance to Madalina via the #design Slack channel using the design request form.
+- If you need an illustration, submit a design request in advance to Madalina via the `#design` Slack channel using the design request form.
 - Before uploading images to GitHub, run them through an image optimizer such as [TinyPNG](https://tinypng.com/).
 - Ensure images are appropriately sized; feel free to ask Madalina or Sarah for assistance.
 
@@ -362,4 +377,4 @@ Finalizing:
 
 ## More Info
 
-Details on **Strapi lifecycles**, **MDX syncing**, and **preview functionality** are documented in [/cms/README.md](https://github.com/interledger/interledger.org-v5/blob/main/cms/README.md).
+Details on **Strapi lifecycles**, **MDX syncing**, and **preview functionality**, and how to **set up a local Strapi instance** are documented in [/cms/README.md](https://github.com/interledger/interledger.org-v5/blob/main/cms/README.md).
