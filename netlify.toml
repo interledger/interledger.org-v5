@@ -4,7 +4,6 @@
   publish = "dist"
 
 [dev]
-[build]
   command = "pnpm install --frozen-lockfile && pnpm run build"
   base = "/"
   publish = "dist"
