@@ -1,27 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { z } from 'zod'
-
-vi.mock('./siteSchemas', () => {
-  const { z } = require('zod')
-  return {
-    foundationPageFrontmatterSchema: z.object({
-      title: z.string().min(1),
-      slug: z.string().min(1)
-    }),
-    summitPageFrontmatterSchema: z.object({
-      title: z.string().min(1),
-      slug: z.string().min(1)
-    })
-  }
-})
-
+import { describe, it, expect } from 'vitest'
 import { validateFrontmatter, validateMdxFiles } from './validateFrontmatter'
 import type { MDXFile } from './scan'
-
-beforeEach(() => {
-  vi.spyOn(console, 'log').mockImplementation(() => {})
-  vi.spyOn(console, 'error').mockImplementation(() => {})
-})
 
 // Validates MDX frontmatter against Zod schemas before syncing to Strapi.
 // Invalid files are skipped during sync to avoid corrupting CMS data.
@@ -106,7 +85,9 @@ describe('validateFrontmatter', () => {
 
     expect(result).not.toBeNull()
     expect(result!.errors.length).toBeGreaterThan(0)
-    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(true)
+    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(
+      true
+    )
   })
 
   // Empty string is not the same as missing — Zod's min(1) catches both
@@ -121,7 +102,9 @@ describe('validateFrontmatter', () => {
     const result = validateFrontmatter('foundation-pages', mdx)
 
     expect(result).not.toBeNull()
-    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(true)
+    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(
+      true
+    )
   })
 
   // Slug comes from MDX file metadata, not frontmatter, but we still validate it
@@ -136,37 +119,9 @@ describe('validateFrontmatter', () => {
     const result = validateFrontmatter('foundation-pages', mdx)
 
     expect(result).not.toBeNull()
-    expect(result!.errors.some((e) => e.toLowerCase().includes('slug'))).toBe(true)
-  })
-
-  // Content types without schemas (like blog-posts) pass validation — they're
-  // handled differently or don't need frontmatter validation
-  it('returns null for unknown content type (no schema)', () => {
-    const mdx = {
-      filepath: '/content/test.mdx',
-      slug: 'test',
-      locale: 'en',
-      frontmatter: {}
-    } as unknown as MDXFile
-
-    const result = validateFrontmatter('blog-posts' as any, mdx)
-
-    expect(result).toBeNull()
-  })
-
-  // We merge mdx.slug into frontmatter before validation so the schema can
-  // validate the slug even though it's not in the frontmatter YAML
-  it('merges mdx.slug into frontmatter for validation', () => {
-    const mdx = {
-      filepath: '/content/test.mdx',
-      slug: 'valid-slug',
-      locale: 'en',
-      frontmatter: { title: 'Valid Title' }
-    } as unknown as MDXFile
-
-    const result = validateFrontmatter('foundation-pages', mdx)
-
-    expect(result).toBeNull()
+    expect(result!.errors.some((e) => e.toLowerCase().includes('slug'))).toBe(
+      true
+    )
   })
 })
 

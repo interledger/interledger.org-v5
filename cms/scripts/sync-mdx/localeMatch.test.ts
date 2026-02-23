@@ -80,7 +80,9 @@ describe('buildMdxSlugsByLocale', () => {
 // still has a corresponding MDX file before deleting it.
 describe('hasMdxFile', () => {
   it('returns true when slug exists for locale', () => {
-    const map = new Map<string, Set<string>>([['es', new Set(['sobre-nosotros'])]])
+    const map = new Map<string, Set<string>>([
+      ['es', new Set(['sobre-nosotros'])]
+    ])
 
     expect(hasMdxFile(map, 'es', 'sobre-nosotros')).toBe(true)
   })
@@ -92,7 +94,9 @@ describe('hasMdxFile', () => {
   })
 
   it('returns false when slug does not exist in locale', () => {
-    const map = new Map<string, Set<string>>([['es', new Set(['existing-slug'])]])
+    const map = new Map<string, Set<string>>([
+      ['es', new Set(['existing-slug'])]
+    ])
 
     expect(hasMdxFile(map, 'es', 'different-slug')).toBe(false)
   })

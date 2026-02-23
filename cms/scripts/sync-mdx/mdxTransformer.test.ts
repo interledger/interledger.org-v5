@@ -1,18 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { z } from 'zod'
 
-vi.mock('./siteSchemas', () => {
-  const { z } = require('zod')
-  const schema = z.object({
-    title: z.string().min(1),
-    slug: z.string().min(1),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional()
-  })
-  return {
-    foundationPageFrontmatterSchema: schema,
-    summitPageFrontmatterSchema: schema
-  }
+const mockSchema = z.object({
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional()
 })
+
+vi.mock('./siteSchemas', () => ({
+  foundationPageFrontmatterSchema: mockSchema,
+  summitPageFrontmatterSchema: mockSchema
+}))
 
 import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
 import type { StrapiEntry } from './strapiClient'
@@ -84,11 +83,13 @@ describe('isPageType', () => {
   })
 
   it('returns false for blog-posts', () => {
-    expect(isPageType('blog-posts' as any)).toBe(false)
+    // @ts-expect-error - testing with invalid content type
+    expect(isPageType('blog-posts')).toBe(false)
   })
 
   it('returns false for unknown content types', () => {
-    expect(isPageType('unknown-type' as any)).toBe(false)
+    // @ts-expect-error - testing with invalid content type
+    expect(isPageType('unknown-type')).toBe(false)
   })
 })
 
@@ -103,7 +104,8 @@ describe('mdxToStrapiPayload', () => {
         content: ''
       } as unknown as MDXFile
 
-      expect(() => mdxToStrapiPayload('blog-posts' as any, mdx)).toThrow(
+      // @ts-expect-error - testing with invalid content type
+      expect(() => mdxToStrapiPayload('blog-posts', mdx)).toThrow(
         'Unsupported content type'
       )
     })
