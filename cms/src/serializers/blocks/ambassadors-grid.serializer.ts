@@ -1,5 +1,5 @@
 import jsesc from 'jsesc'
-import type { AmbassadorBase } from '@/api/ambassador/types'
+import type { AmbassadorBase } from '../../api/ambassador/types'
 
 const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
 

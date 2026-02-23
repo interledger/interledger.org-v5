@@ -1,6 +1,6 @@
 import jsesc from 'jsesc'
-import { getImageUrl } from '@/utils/mdx'
-import type { AmbassadorBase } from '@/api/ambassador/types'
+import { getImageUrl } from '../../utils/mdx'
+import type { AmbassadorBase } from '../../api/ambassador/types'
 
 const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
 
