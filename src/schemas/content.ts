@@ -24,16 +24,19 @@ export const developersBlogFrontmatterSchema = z.object({
 })
 
 export const foundationBlogFrontmatterSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  date: z.date(),
-  slug: z.string(),
+  title: z.string().min(1, 'title is required'),
+  description: z.string().min(1, 'description is required'),
+  date: z.coerce.date(),
+  slug: z.string().min(1, 'slug is required'),
   pillar: z.string().optional(),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
-  tags: z.array(z.string())
+  authors: z.array(z.string()).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
 })
 
 export const foundationPageFrontmatterSchema = z.object({
