@@ -15,12 +15,6 @@
 [context.deploy-preview]
   command = "pnpm install --no-frozen-lockfile && pnpm run build"
 
-[dev]
-  command = "pnpm run start"
-  targetPort = 1103
-  framework = "#custom"
-  publish = "dist"
-
 [[headers]]
   for = "/*"
   [headers.values]
