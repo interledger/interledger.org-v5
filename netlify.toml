@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm --filter interledger-website run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
   base = "/"
   publish = "dist"
 
@@ -11,15 +11,15 @@
 
 # Production branch (main)
 [context.production]
-  command = "pnpm install --frozen-lockfile && pnpm --filter interledger-website run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 # Staging branch deploy
 [context.staging]
-  command = "pnpm install --frozen-lockfile && pnpm --filter interledger-website run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 # Deploy previews (for PRs against staging)
 [context.deploy-preview]
-  command = "pnpm install --frozen-lockfile && pnpm --filter interledger-website run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 [[headers]]
   for = "/*"
