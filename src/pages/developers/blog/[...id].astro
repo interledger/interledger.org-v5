@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import CommunityLinks from '@/components/blog/CommunityLinks.astro'
-import BlogLayout from '@/layouts/BlogLayout.astro'
+import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('engineering-blog')
@@ -15,7 +15,7 @@ const { entry } = Astro.props
 const { Content } = await render(entry)
 ---
 
-<BlogLayout frontmatter={entry.data}>
+<DevelopersBlogLayout frontmatter={entry.data}>
   <Content />
   <CommunityLinks />
-</BlogLayout>
+</DevelopersBlogLayout>

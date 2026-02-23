@@ -17,7 +17,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       apiId: 'foundation-pages'
     },
     'summit-pages': {
-      dir: getContentPath(projectRoot, 'summit'),
+      dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages'
     }
   }

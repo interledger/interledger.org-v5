@@ -1,6 +1,6 @@
 ---
 import CommunityLinks from '@/components/blog/CommunityLinks.astro'
-import BlogLayout from '@/layouts/BlogLayout.astro'
+import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 import { fetchStrapi } from '@/utils/fetchStrapi'
 import { marked } from 'marked'
 
@@ -30,7 +30,7 @@ const frontmatter = {
 const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<BlogLayout frontmatter={frontmatter}>
+<DevelopersBlogLayout frontmatter={frontmatter}>
   <article set:html={bodyHtml} />
   <CommunityLinks />
-</BlogLayout>
+</DevelopersBlogLayout>
