@@ -33,5 +33,7 @@ const descriptionHtml = await parseMarkdown(ambassador.description || '')
   photo={photoUrl}
   photoAlt={photoAlt}
   linkedinUrl={showLinks ? (ambassador.linkedinUrl ?? undefined) : undefined}
-  grantReportUrl={showLinks ? (ambassador.grantReportUrl ?? undefined) : undefined}
+  grantReportUrl={showLinks
+    ? (ambassador.grantReportUrl ?? undefined)
+    : undefined}
 />

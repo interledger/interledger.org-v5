@@ -3,10 +3,7 @@ import { formatBlockquote, htmlToMarkdown } from '../../utils/mdx'
 
 const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
 
-export function serialize(block: {
-  quote: string
-  source?: string
-}): string {
+export function serialize(block: { quote: string; source?: string }): string {
   // Escape { and } so MDX doesn't try to parse them as JS expressions
   const quote = formatBlockquote(block.quote)
     .replace(/\{/g, '\\{')

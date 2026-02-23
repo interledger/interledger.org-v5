@@ -10,7 +10,7 @@ export function serialize(block: {
   if (!block.ambassador) return ''
 
   const amb = block.ambassador
-  const photo = amb.photo ? getImageUrl(amb.photo) ?? '' : ''
+  const photo = amb.photo ? (getImageUrl(amb.photo) ?? '') : ''
 
   return `<AmbassadorCard
   name="${esc(amb.name)}"

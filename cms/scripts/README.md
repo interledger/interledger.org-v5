@@ -73,52 +73,51 @@ The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs M
 ## Page Block Import
 
 Page MDX files contain dynamic-zone blocks serialized as JSX components in the
-body (e.g. `<AmbassadorGrid heading="..." slugs={["alice"]} />`).  The sync
+body (e.g. `<AmbassadorGrid heading="..." slugs={["alice"]} />`). The sync
 script currently parses these with a targeted regex, which works reliably for
 machine-generated, single-line components.
 
 ### Future improvement — frontmatter-based block metadata
 
-As the number or complexity of block types grows, regex becomes fragile.  The
+As the number or complexity of block types grows, regex becomes fragile. The
 recommended upgrade path is:
 
 **Serializer** (`lifecycles.ts`): write structured block data into the YAML
-frontmatter in addition to the JSX body.  `js-yaml` is already available as a
+frontmatter in addition to the JSX body. `js-yaml` is already available as a
 Strapi transitive dependency.
 
 ```yaml
 ---
-slug: "ambassadors"
-title: "Ambassadors"
+slug: 'ambassadors'
+title: 'Ambassadors'
 content:
   - __component: blocks.ambassadors-grid
-    heading: "Meet our ambassadors"
+    heading: 'Meet our ambassadors'
     slugs:
       - alice
       - bob
   - __component: blocks.cards-grid
-    heading: "Programs"
-    columns: "3"
+    heading: 'Programs'
+    columns: '3'
     cards:
-      - title: "Web Monetization"
-        link: "/wm"
+      - title: 'Web Monetization'
+        link: '/wm'
 ---
-
 <AmbassadorGrid heading="Meet our ambassadors" slugs={["alice","bob"]} />
 ```
 
 **Import script** (`sync-mdx.cjs` or its TypeScript replacement): read
 `frontmatter.content` with `yaml.load()` — no body parsing, no regex, scales
-to any block shape.  Relation fields (`slugs`, `slug`) stay as human-readable
+to any block shape. Relation fields (`slugs`, `slug`) stay as human-readable
 slugs in YAML; the script resolves them to Strapi `documentId`s at sync time
 using the existing `findBySlug()` / `findUploadByUrl()` helpers.
 
 ```js
 // No JSX parsing needed — just:
-const blocks = frontmatter.content ?? [];
+const blocks = frontmatter.content ?? []
 for (const block of blocks) {
   if (block.__component === 'blocks.ambassadors-grid') {
-    const ids = await resolveAmbassadorSlugs(block.slugs);
+    const ids = await resolveAmbassadorSlugs(block.slugs)
     // ... build Strapi payload
   }
 }

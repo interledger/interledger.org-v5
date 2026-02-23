@@ -43,9 +43,7 @@ export function getImageUrl(
   function resolve(url: string): string {
     if (url.startsWith('/uploads/')) {
       const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-      return uploadsBase
-        ? `${uploadsBase.replace(/\/$/, '')}${url}`
-        : url
+      return uploadsBase ? `${uploadsBase.replace(/\/$/, '')}${url}` : url
     }
     return url
   }
@@ -95,7 +93,13 @@ export function markdownToHtml(markdown: string): string {
  * and wraps the result in curly double quotes for consistent styling.
  */
 export function formatBlockquote(quote: string): string {
-  const stripped = quote.trim().replace(/^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu, '').trim()
+  const stripped = quote
+    .trim()
+    .replace(
+      /^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu,
+      ''
+    )
+    .trim()
   return `\u201C${stripped}\u201D`
 }
 

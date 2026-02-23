@@ -42,7 +42,9 @@ if (propAmbassadors && propAmbassadors.length > 0) {
   ambassadors = await Promise.all(
     slugs
       .map((slug) => filtered.find((entry) => entry.data.slug === slug))
-      .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+      .filter(
+        (entry): entry is NonNullable<typeof entry> => entry !== undefined
+      )
       .map(async (entry) => ({
         name: entry.data.name,
         slug: entry.data.slug,

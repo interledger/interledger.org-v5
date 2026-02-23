@@ -38,16 +38,16 @@ Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then
 
 #### Environment variables
 
-| Variable | Description |
-|---|---|
-| `PORT` | CMS runs on port 1337 (default) |
-| `DATABASE_CLIENT` | Using better-sqlite3 |
-| `CLIENT_URL` | Must match the Astro dev server URL (e.g. `http://localhost:1103`) |
-| `MDX_OUTPUT_PATH` | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages` |
-| `PAGES_MDX_OUTPUT_PATH` | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set) |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`) |
-| `STRAPI_UPLOADS_BASE_URL` | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
-| `STRAPI_DISABLE_GIT_SYNC` | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development. |
+| Variable                    | Description                                                                                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
+| `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                   |
+| `CLIENT_URL`                | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
+| `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`                                                                             |
+| `PAGES_MDX_OUTPUT_PATH`     | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)                                                                                                                                     |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
 
 ### Git Sync Repository Target
 
@@ -202,7 +202,9 @@ There are two approaches to control styling of `set:html` content:
 **Option A — Tailwind arbitrary variants on container elements:**
 
 ```html
-<blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
+<blockquote
+  class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic"
+></blockquote>
 ```
 
 Consistent with the pattern used in `[...page].astro` and `Paragraph.astro`. Keeps everything in the template but can get verbose with many overrides.
