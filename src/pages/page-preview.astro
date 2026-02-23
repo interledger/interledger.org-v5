@@ -4,9 +4,9 @@
  * Fetches draft content from Strapi for preview before publishing
  * URL: /page-preview?documentId={documentId}
  */
-import BaseLayout from '../layouts/BaseLayout.astro'
-import DynamicZone from '../components/blocks/DynamicZone.astro'
-import { fetchStrapi } from '../utils/fetchStrapi'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import { fetchStrapi } from '@/utils/fetchStrapi'
 
 export const prerender = false
 
