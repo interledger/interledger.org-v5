@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  prettier: 3.8.1
+
 importers:
 
   .:
@@ -8760,20 +8763,10 @@ packages:
   prettier-plugin-packagejson@2.5.2:
     resolution: {integrity: sha512-w+TmoLv2pIa+siplW1cCj2ujEXQQS6z7wmWLOiLQK/2QVl7Wy6xh/ZUpqQw8tbKMXDodmSW4GONxlA33xpdNOg==}
     peerDependencies:
-      prettier: '>= 1.16.0'
+      prettier: 3.8.1
     peerDependenciesMeta:
       prettier:
         optional: true
-
-  prettier@2.8.8:
-    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-
-  prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
-    engines: {node: '>=14'}
-    hasBin: true
 
   prettier@3.8.1:
     resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
@@ -15119,8 +15112,8 @@ snapshots:
       ora: 5.4.1
       outdent: 0.8.0
       pkg-up: 3.1.0
-      prettier: 3.3.3
-      prettier-plugin-packagejson: 2.5.2(prettier@3.3.3)
+      prettier: 3.8.1
+      prettier-plugin-packagejson: 2.5.2(prettier@3.8.1)
       prompts: 2.4.2
       rxjs: 7.8.1
       typescript: 5.4.4
@@ -15209,7 +15202,7 @@ snapshots:
       ora: 5.4.1
       outdent: 0.8.0
       pkg-up: 3.1.0
-      prettier: 2.8.8
+      prettier: 3.8.1
       typescript: 5.4.4
       yup: 0.32.9
     transitivePeerDependencies:
@@ -15277,7 +15270,7 @@ snapshots:
       ora: 5.4.1
       outdent: 0.8.0
       pkg-up: 3.1.0
-      prettier: 3.3.3
+      prettier: 3.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-refresh: 0.14.0
@@ -15383,7 +15376,7 @@ snapshots:
       cli-table3: 0.6.5
       fs-extra: 11.2.0
       lodash: 4.17.21
-      prettier: 3.3.3
+      prettier: 3.8.1
       typescript: 5.4.4
 
   '@strapi/ui-primitives@2.0.0-rc.18(@types/react-dom@18.3.7(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -22011,16 +22004,12 @@ snapshots:
       prettier: 3.8.1
       sass-formatter: 0.7.9
 
-  prettier-plugin-packagejson@2.5.2(prettier@3.3.3):
+  prettier-plugin-packagejson@2.5.2(prettier@3.8.1):
     dependencies:
       sort-package-json: 2.10.1
       synckit: 0.9.1
     optionalDependencies:
-      prettier: 3.3.3
-
-  prettier@2.8.8: {}
-
-  prettier@3.3.3: {}
+      prettier: 3.8.1
 
   prettier@3.8.1: {}
 

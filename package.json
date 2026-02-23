@@ -33,6 +33,11 @@
     "turndown": "^7.2.2",
     "zod": "^3.25.76"
   },
+  "pnpm": {
+    "overrides": {
+      "prettier": "3.8.1"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/markdown-it": "^14.1.2",
