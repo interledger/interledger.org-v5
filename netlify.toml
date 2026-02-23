@@ -4,7 +4,7 @@
   publish = "dist"
 
 [dev]
-  command = "pnpm install --frozen-lockfile && pnpm run build"
+  command = "pnpm install && pnpm run build"
   base = "/"
   publish = "dist"
 
@@ -14,10 +14,6 @@
 
 # Staging branch deploy
 [context.staging]
-  command = "pnpm install && pnpm run build"
-  
-# Disable dev server for all contexts
-[dev]
   command = "pnpm install && pnpm run build"
 
 # Deploy previews (for PRs against staging)
