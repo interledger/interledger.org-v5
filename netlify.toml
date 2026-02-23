@@ -1,25 +1,19 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
   base = "/"
   publish = "dist"
 
 # Production branch (main)
 [context.production]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 # Staging branch deploy
 [context.staging]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 # Deploy previews (for PRs against staging)
 [context.deploy-preview]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
-
-[dev]
-  command = "pnpm run start"
-  targetPort = 1103
-  framework = "#custom"
-  publish = "dist"
+  command = "pnpm install --frozen-lockfile && pnpm run build"
 
 [[headers]]
   for = "/*"

@@ -155,6 +155,9 @@ export default defineConfig({
     mdx()
   ],
   vite: {
+    server: {
+      allowedHosts: ['.netlify.app', '.interledger.org']
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -165,11 +168,6 @@ export default defineConfig({
   redirects: {
     '/hacktoberfest': 'https://interledger.org/hacktoberfest',
     '/hacktoberfest-2023': 'https://interledger.org/hacktoberfest'
-  },
-  vite: {
-    server: {
-      allowedHosts: ['.netlify.app', '.interledger.org']
-    }
   },
   server: {
     port: 1103
