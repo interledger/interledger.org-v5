@@ -30,7 +30,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 
 - **Starlight** adds a ready-made documentation system, including layouts, navigation, and styling, making it easy to write and maintain docs.
 
-- **Strapi** is the headless CMS for content management. Custom lifecycles have been added to automatically synchronize content with the Astro project.
+- **Strapi** is the headless CMS for content management. Custom lifecycles hooks have been added to automatically synchronize content with the Astro project.
 
 ### Styling
 

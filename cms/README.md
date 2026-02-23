@@ -1,12 +1,15 @@
-# Interledger Developers Portal - Strapi CMS
+# Interledger - Strapi CMS
 
-This is the Strapi CMS for managing content that will be rendered on the Interledger Developers Portal. The CMS automatically generates MDX files that are read by the Astro site.
+This is the Strapi CMS for managing content that will be rendered on the Interledger Website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally in the dedicated `staging clone` and then pushed to the remote `staging branch`. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
 
 ## Features
 
-- **Automatic MDX Generation**: Content is automatically written to MDX files when published
-- **Draft & Publish Workflow**: Content can be drafted and published when ready
-- **SQLite Database**: Lightweight database for easy development and deployment
+- **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is created (published) or updated in Strapi.
+- **Draft & Publish Workflow**: Editors can draft content and publish it when ready.
+- **SQLite Database**: Lightweight database for easy development and deployment.
+- **Frontend Previews**:
+  - _server-side rendered_ preview pages generated via Strapi and served from the GCP VM, through Nginx (content stored in Strapi database)
+  - Netlify deploy previews for pull requests opened against `staging`.
 
 ## Getting Started
 
@@ -17,7 +20,7 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
 
 ### Installation
 
-The dependencies should already be installed. If not, run:
+Dependencies are typically installed already. If not:
 
 ```bash
 cd cms
@@ -26,13 +29,14 @@ pnpm install
 
 ### Configuration
 
-The CMS is configured via environment variables in `.env`. Key settings:
+The CMS is configured via environment variables in `.env`. _Refer to `env.example` for default values and examples_. Key settings:
 
 - `PORT`: CMS runs on port 1337 (default)
 - `DATABASE_CLIENT`: Using better-sqlite3
 - `MDX_OUTPUT_PATH`: Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`
 - `PAGES_MDX_OUTPUT_PATH`: Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)
 - `STRAPI_GIT_SYNC_REPO_PATH`: Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)
+- `FRONTEND_ORIGINS`: Origins allowed for CORS (e.g., local dev, staging, production Astro sites)
 
 ### Git Sync Repository Target
 
@@ -50,7 +54,7 @@ This was introduced to:
 - ensure content commits happen in the intended staging checkout,
 - fail fast on startup if the target folder is missing or not on the `staging` branch.
 
-### Running the CMS
+### Running the CMS - Development
 
 Start the development server:
 
@@ -65,7 +69,7 @@ On first run, you'll be prompted to create an admin user.
 
 ### Production Build
 
-To build for production:
+To build and run in production:
 
 ```bash
 cd cms
@@ -73,18 +77,24 @@ pnpm run build
 pnpm run start
 ```
 
+> Note: Strapi runs on a Google Cloud VM in production. Deployment is handled directly on the VM and is separate from the Astro website hosted on Netlify.
+
 ## Content Types
+
+- All content types are defined under `src/api/{content-type}/content-types/`.
+- Lifecycle hooks for each type handle MDX generation (**Strapi -> Astro sync**).
+- Scripts inside `/cms/scripts` (e.g., `sync:mdx`, `sync-navigation`) handle synchronizing from Astro MDX files back to the Strapi database for all content types (**Astro → Strapi sync**).
 
 ## How It Works
 
 ### MDX File Generation
 
-When you publish or update content in Strapi:
+When content is published or updated in Strapi:
 
 1. The lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered
 2. The content is converted to MDX format with frontmatter
-3. An MDX file is created/updated in `../src/content/.../` with the slug as the filename
-4. The Astro site automatically picks up the new content
+3. An MDX file is created/updated in the staging clone of Astro with the slug as the filename (e.g., `../src/content/foundation-pages/{slug}.mdx`)
+4. Astro automatically picks up the new content
 
 ### File Naming
 
@@ -92,17 +102,37 @@ MDX files are named using the slug: `{slug}.mdx`
 
 Example: If slug is `interledger-launches-new-platform`, the file will be `interledger-launches-new-platform.mdx`
 
+### Git Commits
+
+- MDX updates are committed by the GitHub App `Interledger Strapi`. Editors do not push commits directly.
+
+### Sync Back from Astro
+
+- On merges to `staging`, the `sync:mdx` script updates the Strapi database with values from Astro `.mdx` files, keeping CMS and site content in sync.
+
 ### Unpublishing Content
 
-??
+TODO: ???
+
+For more information on **MDX file generation** and **preview functionality**, see `/scripts/README.md`
 
 ## Development Workflow
 
-1. **Start the CMS**: `cd cms && pnpm run develop`
+1. **Start the CMS**:
+
+```bash
+cd cms && pnpm run develop
+```
+
 2. **Access Admin Panel**: http://localhost:1337/admin
 3. **Create Content**: Add new content through the UI
-4. **Publish**: When ready, publish the content
-5. **View on Site**: The content automatically appears at the generated URL
+4. **Preview Page**: Save the content as a **draft** or **publish** to enable server-side preview pages directly from the Strapi interface.
+5. **Publish**: When ready, publish the content.<br />
+   Publishing commits the changes locally in the `staging clone` and pushes them to the remote `staging branch` via the GitHub App.
+6. **View on Site**:
+
+- **Locally**: Your Astro dev server automatically picks up the newly generated MDX files.
+- **Staging website**: Once changes are merged into staging, Netlify rebuilds the staging site and the updates are visible online.
 
 ## File Structure
 
@@ -169,4 +199,4 @@ For issues related to:
 
 - **Strapi CMS**: Check [Strapi Documentation](https://docs.strapi.io/)
 - **Content Issues**: Check the Strapi console logs
-- **Astro Integration**: Check the main README in the repository root
+- **Astro Integration**: Check the [main README](https://github.com/interledger/interledger.org-v5/blob/main/README.md) in the repository root
