@@ -166,6 +166,11 @@ export default defineConfig({
     '/hacktoberfest': 'https://interledger.org/hacktoberfest',
     '/hacktoberfest-2023': 'https://interledger.org/hacktoberfest'
   },
+  vite: {
+    server: {
+      allowedHosts: ['.netlify.app', '.interledger.org']
+    }
+  },
   server: {
     port: 1103
   }
