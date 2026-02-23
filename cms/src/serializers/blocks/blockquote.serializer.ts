@@ -11,9 +11,7 @@ export function serialize(block: { quote: string; source?: string }): string {
 
   // source is a Strapi richtext (markdown) field — pass it directly so
   // Blockquote.astro can parse it as markdown via parseMarkdownInline
-  const sourceAttr = block.source
-    ? ` source="${esc(block.source)}"`
-    : ''
+  const sourceAttr = block.source ? ` source="${esc(block.source)}"` : ''
 
   return `<Blockquote${sourceAttr}>\n  ${quote}\n</Blockquote>`
 }
