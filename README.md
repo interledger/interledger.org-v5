@@ -284,7 +284,7 @@ Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (
   - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
-⚠️ Note: Editors do **not** push the commits themselves — Strapi lifecycles act as the committer via the GitHub App.
+⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
 
 #### Content Management Documentation
 
