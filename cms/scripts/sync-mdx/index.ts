@@ -24,7 +24,8 @@ async function main() {
 
   const projectRoot = getProjectRoot()
   const DRY_RUN = process.argv.includes('--dry-run')
-  if (!DRY_RUN) {
+  const FORCE = process.argv.includes('--force')
+  if (!DRY_RUN && !FORCE) {
     const branch = spawnSync('git', ['branch', '--show-current'], {
       encoding: 'utf-8',
       cwd: projectRoot
@@ -36,8 +37,18 @@ async function main() {
         `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview)`
       )
       console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
+      console.error(`   Use --force to run on any branch (e.g. for local dev)`)
       process.exit(1)
     }
+  }
+  if (FORCE && !DRY_RUN) {
+    const branch = spawnSync('git', ['branch', '--show-current'], {
+      encoding: 'utf-8',
+      cwd: projectRoot
+    })
+    console.warn(
+      `⚠️  --force: skipping branch check (current: ${branch.stdout?.trim() || '(unknown)'})`
+    )
   }
 
   const envPath = path.join(projectRoot, '.env')
