@@ -259,8 +259,8 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 <!-- CURRENT:  -->
 
 - **Live website** (built from `main`): https://interledger-org-v5.netlify.app/
-- **Staging website** (built from `staging`): TODO (insert link when available)
-- **Strapi admin** (controlled via `staging`): (https://strapi-admin.interledger.org/)
+- **Staging website** (built from `staging`): https://devserver-staging--interledger-org-v5.netlify.app/
+- **Strapi admin** (controlled via `staging`): https://strapi-admin.interledger.org/
 
 Note: There is currently no separate production Strapi environment.
 
