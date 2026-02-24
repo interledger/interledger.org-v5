@@ -19,8 +19,9 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [Branches and Deployment](#branches-and-deployment)
    - [Environments](#environments)
 7. [Contributing](#contributing)
-   - [Developer Flow](#developer-flow)
-   - [Editor Flow](#editor-flow)
+   - [1. Editor Flow](#1-editor-flow-strapi-workflow)
+   - [2. Developer Flow - Website content](#2-developer-flow---website-content-astro-content-collections)
+   - [3. Developer Flow - Documentation ](#3-developer-flow---documentation-starlight)
    - [Writing guidelines for developers](#writing-guidelines-for-developers)
 8. [More Info](#more-info)
 
@@ -188,16 +189,6 @@ flowchart
 └── tsconfig.json
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Static assets, like favicons or images, can be placed in the `public/` directory. When referencing these assets in your markdown, you do not have to include `public/` in the file path, so an image would have a path like:
-
-```md
-![A lovely description of your beautiful image](/img/YOUR_BEAUTIFUL_IMAGE.png)
-```
-
-For more information about the way our documentation projects are set up, please refer to our [documentation style guide](https://interledger.net/#docs-site-building).
-
 ## Local Development
 
 ### Prerequisites
@@ -319,18 +310,16 @@ Note: There is currently no separate production Strapi environment.
 
 ## Contributing
 
-Add pages or blog posts either via Strapi (editor workflow) or as `.mdx` files (developer workflow).
+Content can be added in two main ways:
 
-### Developer flow:
+- **Editor workflow (via Strapi Admin)**
+- **Developer workflow (via Astro `.mdx` files)**
 
-- Add `.mdx` content in Astro.
-- Open PRs against `staging`.
-- Use frontmatter correctly — invalid metadata will break the build.
-- Run `pnpm run build` and `pnpm run format` before PR.
-- The PR must undergo review and pass all checks before it can be merged.
-- Consult [Writing Guidelines for Developers](#writing-guidelines-for-developers) below for more details on content structure, metadata, tags, and blog formatting.
+The developer workflow also includes adding and maintaining documentation.
 
-### Editor flow
+There are **three contribution paths**, depending on your role and the type of content.
+
+### 1. Editor flow (Strapi workflow)
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
@@ -347,6 +336,93 @@ All documentation for working with website content is available in [the wiki](ht
 - Adding blog posts and podcast episodes
 - Managing multilingual content
 - General site-building philosophy
+
+### 2. Developer flow - Website Content (Astro Content Collections)
+
+Developers can add multiple types of content directly to the repository. Each content type has a specific folder and naming convention.
+
+Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates.
+
+**Foundation Blog posts**
+
+- Location: `src/content/foundation-blog-posts`
+- Filename format: `YYYY-MM-DD-slug.mdx`
+
+Used for: Foundation news, updates, announcements, thought leadership.
+
+**Tech Blog posts**
+
+- Location: `src/content/developers-blog-posts`
+- Filename format: `YYYY-MM-DD-slug.mdx`
+
+Used for: Technical deep dives, implementation updates, engineering insights.
+
+**Foundation Pages**
+
+- Location: `src/content/foundation-pages`
+- Filename format: `slug.mdx`
+
+Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
+
+**Summit Pages**
+
+- Location: `src/content/summit-pages`
+- Filename format: `slug.mdx`
+
+Used for: Summit landing pages, schedules, speaker lists, event resources.
+
+**⚠️ Important (Schema Validation)**
+
+- Use correct frontmatter for each content type.
+- Follow the required schema — **invalid metadata will break the build**.
+- See:
+  - `src/schemas/content.ts`
+  - `src/content.config.ts` <br/>
+    to understand the required schema and validation rules for each content collection.
+
+#### Blog metadata and tags
+
+Each blog post includes frontmatter at the top of the file (title, description, date, authors, etc.), including a `tags` field used for filtering on the blog index.
+
+Please **only use the existing, approved tags** unless you have aligned with the tech + comms team on adding a new one. This helps keep the tag filter focused and avoids fragmentation.
+
+**Current tags:**
+
+- Interledger Protocol
+- Open Payments
+- Web Monetization
+- Rafiki
+- Updates
+- Releases
+- Card Payments
+
+If you believe your post needs a new tag, propose it in your PR description or in the `#tech-team` Slack channel so we can decide whether to add it and update this list.
+
+### 3. Developer flow - Documentation (Starlight)
+
+Documentation pages are managed via Starlight.
+
+Docs live in `src/content/docs`.
+
+Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+
+Static assets, like favicons or images, can be placed in the `public/` directory. When referencing these assets in your markdown, you do not have to include `public/` in the file path, so an image would have a path like:
+
+```md
+![A lovely description of your beautiful image](/img/YOUR_BEAUTIFUL_IMAGE.png)
+```
+
+For more information about the way our documentation projects are set up, please refer to our [documentation style guide](https://interledger.net/#docs-site-building).
+
+#### Developer Contribution Requirements
+
+- Add `.mdx` content in Astro.
+- Open PRs against `staging`.
+- Use frontmatter correctly — invalid metadata will break the build.
+- Run `pnpm run build` and `pnpm run format` before PR.
+- The PR must undergo review and pass all checks before it can be merged.
+
+Consult **Writing Guidelines for Developers** below for more details on content structure, metadata, tags, and blog formatting.
 
 ### Writing guidelines for developers
 
@@ -372,26 +448,6 @@ If you're unsure how to structure your writing, you can use this as a guide.
 - Note: A call to action (CTA) will be included automatically at the bottom of every post.
 
 Ideal Word Count: Between 1,000 and 2,500 words, with links to relevant documents/pages for a deeper understanding.
-
-#### Blog metadata and tags
-
-Each blog post includes frontmatter at the top of the file (title, description, date, authors, etc.), including a `tags` field used for filtering on the blog index.
-
-⚠️ The frontmatter must follow the required schema and formatting conventions. Invalid or missing fields will cause the build to fail.
-
-Please **only use the existing, approved tags** unless you have aligned with the tech + comms team on adding a new one. This helps keep the tag filter focused and avoids fragmentation.
-
-**Current tags:**
-
-- Interledger Protocol
-- Open Payments
-- Web Monetization
-- Rafiki
-- Updates
-- Releases
-- Card Payments
-
-If you believe your post needs a new tag, propose it in your PR description or in the `#tech-team` Slack channel so we can decide whether to add it and update this list.
 
 #### Getting Started
 
