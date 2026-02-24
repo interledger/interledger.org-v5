@@ -1,9 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
-import SummitLayout from '@/layouts/SummitLayout.astro'
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import { getPagePaths } from '@/utils/static-paths'
-
-export const prerender = true
 
 export async function getStaticPaths() {
   return getPagePaths('summit-pages')
@@ -37,7 +35,7 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<SummitLayout title={title} description={description} gradient={gradient}>
+<SummitPageLayout title={title} description={description} gradient={gradient}>
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
@@ -83,4 +81,4 @@ if (isNotFound) Astro.response.status = 404
       )
     }
   </main>
-</SummitLayout>
+</SummitPageLayout>

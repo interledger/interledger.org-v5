@@ -1,5 +1,5 @@
 ---
-import BaseLayout from './BaseLayout.astro'
+import FoundationPageLayout from './FoundationPageLayout.astro'
 
 const { frontmatter } = Astro.props
 
@@ -10,7 +10,7 @@ const longDate = dateObj.toDateString().substring(4)
 const rawHTMLString = `This article was originally published at <a href=${frontmatter.external_url}>${frontmatter.external_url}</a>.`
 ---
 
-<BaseLayout
+<FoundationPageLayout
   title={frontmatter.title}
   description={frontmatter.description}
   ogType="article"
@@ -116,4 +116,4 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       <slot />
     </article>
   </main>
-</BaseLayout>
+</FoundationPageLayout>

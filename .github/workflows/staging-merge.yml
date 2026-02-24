@@ -115,7 +115,7 @@ jobs:
               echo "CMS changes detected"
             fi
             
-            if echo "$changed_files" | grep -qE '^src/content/(blog|events)/.*\.mdx$'; then
+            if echo "$changed_files" | grep -qE '^src/content/(foundation-pages|summit-pages)/.*\.(md|mdx)$'; then
               content_changed=true
               echo "Content changes detected"
             fi
