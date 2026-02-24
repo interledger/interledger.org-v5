@@ -34,7 +34,7 @@ const summitPagesCollection = defineCollection({
   schema: summitPageFrontmatterSchema
 })
 
-const engineeringBlogCollection = defineCollection({
+const developersBlogCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
     base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.developersBlog}`
@@ -45,7 +45,7 @@ const engineeringBlogCollection = defineCollection({
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }), // TODO: check base now since docs loader may have wrong path
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
-  'engineering-blog': engineeringBlogCollection,
+  'developers-blog': developersBlogCollection,
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'summit-pages': summitPagesCollection

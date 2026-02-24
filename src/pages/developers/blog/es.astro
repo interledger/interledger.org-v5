@@ -4,7 +4,7 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import { createExcerpt } from '@/utils/create-excerpt'
 
 // Only return posts with `draft: true` in the frontmatter
-const esEntries = await getCollection('engineering-blog', ({ data }) => {
+const esEntries = await getCollection('developers-blog', ({ data }) => {
   return data.lang === 'es'
 })
 ---
