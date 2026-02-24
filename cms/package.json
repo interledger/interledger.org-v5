@@ -11,7 +11,8 @@
     "sync:mdx": "tsx scripts/sync-mdx/index.ts",
     "sync:mdx:dry-run": "tsx scripts/sync-mdx/index.ts --dry-run",
     "sync:navigation": "tsx scripts/sync-navigation.ts",
-    "sync:navigation:dry-run": "tsx scripts/sync-navigation.ts --dry-run"
+    "sync:navigation:dry-run": "tsx scripts/sync-navigation.ts --dry-run",
+    "test:sync-mdx": "vitest run scripts/sync-mdx"
   },
   "strapi": {
     "uuid": "d5c8f4e2-9a1b-4c3d-8e7f-6a5b4c3d2e1f"
@@ -38,7 +39,8 @@
     "@types/node": "^22.10.1",
     "@types/turndown": "^5.0.6",
     "tsx": "^4.20.6",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.0"
   },
   "engines": {
     "node": ">=18.0.0 <=22.x.x",

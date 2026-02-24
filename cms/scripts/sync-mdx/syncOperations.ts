@@ -1,3 +1,14 @@
+/**
+ * Sync Operations
+ *
+ * Core functions for syncing MDX content to Strapi CMS:
+ * - syncEnglishEntry: Create/update English entries (synced first, as locale parents)
+ * - syncLocaleEntry: Create/update localized entries linked to English parents
+ * - syncUnmatchedLocales: Handle locale files whose English parent is in Strapi but not MDX
+ * - deleteOrphanedEntries: Remove Strapi entries that no longer have MDX files
+ *
+ * All operations support dry-run mode for previewing changes.
+ */
 import { type MDXFile, getLocalesToCheck } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'

@@ -1,20 +1,20 @@
 const getPreviewPathname = (
   uid: string,
-  {
-    documentId,
-    document
-  }: { documentId: string; document: Record<string, unknown> | null }
+  { documentId, document }: { documentId: string; document: Record<string, unknown> | null }
 ): string => {
   switch (uid) {
-    case 'api::blog-post.blog-post': {
-      if (!document?.id) {
-        return '/blog'
-      }
-      return `/blog/preview?slug=${document.documentId}`
-    }
+    case 'api::foundation-blog-post.foundation-blog-post':
+      return document?.documentId
+        ? `/blog/preview?slug=${document.documentId}&type=foundation`
+        : '/blog'
     case 'api::foundation-page.foundation-page':
       // documentId comes directly from the handler — no findOne needed
       return `/page-preview?documentId=${documentId}`
+    case 'api::summit-page.summit-page': {
+      const path =
+        (document?.path as string)?.replace(/^\//, '') || (document?.slug as string)
+      return path ? `/summit/${path}?preview=true` : null
+    }
     default:
       return null
   }

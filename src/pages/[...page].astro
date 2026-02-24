@@ -5,12 +5,10 @@
  * All pages are pre-rendered at build time
  */
 import { getCollection, render } from 'astro:content'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import { getPagePaths } from '../utils/static-paths'
 import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '../components/blockquote/Blockquote.astro'
-
-export const prerender = true
 
 export async function getStaticPaths() {
   return getPagePaths('foundation-pages', { excludeSlug: 'home' })
@@ -38,7 +36,7 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<BaseLayout title={title} description={description}>
+<FoundationPageLayout title={title} description={description}>
   <main class="pb-space-l">
     {
       isNotFound ? (
@@ -82,4 +80,4 @@ if (isNotFound) Astro.response.status = 404
       )
     }
   </main>
-</BaseLayout>
+</FoundationPageLayout>

@@ -55,7 +55,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
         buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
     },
     'summit-pages': {
-      dir: getContentPath(projectRoot, 'summit'),
+      dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
       buildPayload: async (mdx, _strapi, existing) =>

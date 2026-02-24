@@ -1,8 +1,19 @@
+/**
+ * Locale Matching Utilities
+ *
+ * Functions for matching MDX files across locales:
+ * - Building locale-to-slug maps for quick lookups
+ * - Checking if MDX files exist for specific locale/slug combinations
+ * - Finding locale files that translate English entries via the `localizes` field
+ */
 import type { MDXFile } from './mdxTypes'
 
 /**
- * Builds a map of all MDX slugs by locale.
- * Used to prevent deleting Strapi entries that have corresponding MDX files.
+ * Builds a map of all MDX slugs grouped by locale.
+ * Used to quickly check if an MDX file exists before deleting Strapi entries.
+ *
+ * @param mdxFiles - Array of MDX files to index
+ * @returns Map where keys are locale codes and values are Sets of slugs
  */
 export function buildMdxSlugsByLocale(
   mdxFiles: MDXFile[]
@@ -21,6 +32,11 @@ export function buildMdxSlugsByLocale(
 
 /**
  * Checks if a slug exists in MDX files for a given locale.
+ *
+ * @param mdxSlugsByLocale - Map built by buildMdxSlugsByLocale
+ * @param localeCode - Locale to check (e.g., 'en', 'es')
+ * @param slug - Slug to look for
+ * @returns True if the slug exists for that locale
  */
 export function hasMdxFile(
   mdxSlugsByLocale: Map<string, Set<string>>,
@@ -36,15 +52,19 @@ export function hasMdxFile(
 export interface LocaleMatch {
   /** The MDX file for the locale version */
   localeMdx: MDXFile
-  /** Explanation of why this match was found */
+  /** Explanation of why this match was found (e.g., "localizes: about-us") */
   matchReason: string
 }
 
 /**
- * Finds locale files that match an English entry via the `localizes` field.
+ * Finds locale files that translate an English entry via the `localizes` field.
  *
- * Searches through locale files to find those that reference the English entry's slug
- * in their `localizes` frontmatter field.
+ * Searches through locale files to find those whose `localizes` frontmatter
+ * field matches the English entry's slug.
+ *
+ * @param englishMdx - The English MDX file to find translations for
+ * @param localeFiles - Array of non-English MDX files to search
+ * @returns Array of matches with the locale file and match reason
  */
 export function findMatchingLocales(
   englishMdx: MDXFile,

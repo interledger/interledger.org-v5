@@ -484,13 +484,14 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
-  collectionName: 'blog_posts'
+export interface ApiFoundationBlogPostFoundationBlogPost
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'foundation_blog_posts'
   info: {
-    description: 'Engineering blog posts that sync to MDX'
-    displayName: 'Blog Post'
-    pluralName: 'blog-posts'
-    singularName: 'blog-post'
+    description: 'Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog'
+    displayName: 'Foundation Blog Post'
+    pluralName: 'foundation-blog-posts'
+    singularName: 'foundation-blog-post'
   }
   options: {
     draftAndPublish: true
@@ -536,29 +537,11 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
-    lang: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 10
-      }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::blog-post.blog-post'
+      'api::foundation-blog-post.foundation-blog-post'
     >
-    ogImageUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 255
-      }>
     publishedAt: Schema.Attribute.DateTime
     slug: Schema.Attribute.UID<'title'> &
       Schema.Attribute.Required &
@@ -618,7 +601,7 @@ export interface ApiFoundationPageFoundationPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation-pages'
   info: {
-    description: 'Website pages with dynamic content blocks'
+    description: 'Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting.'
     displayName: 'Foundation Page'
     pluralName: 'foundation-pages'
     singularName: 'foundation-page'
@@ -663,6 +646,19 @@ export interface ApiFoundationPageFoundationPage
       'oneToMany',
       'api::foundation-page.foundation-page'
     >
+    pageType: Schema.Attribute.Enumeration<['grant', 'policy', 'developer']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'grant'>
+    path: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false> &
       Schema.Attribute.SetPluginOptions<{
@@ -724,7 +720,7 @@ export interface ApiSummitNavigationSummitNavigation
 export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
   collectionName: 'summit_pages'
   info: {
-    description: 'Summit pages with dark theme and dynamic content blocks'
+    description: 'Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting.'
     displayName: 'Summit Page'
     pluralName: 'summit-pages'
     singularName: 'summit-page'
@@ -767,6 +763,21 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::summit-page.summit-page'
     >
+    pageType: Schema.Attribute.Enumeration<
+      ['hackathon', 'hackathon-resource']
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'hackathon'>
+    path: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false> &
       Schema.Attribute.SetPluginOptions<{
@@ -1194,7 +1205,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
       'api::ambassador.ambassador': ApiAmbassadorAmbassador
-      'api::blog-post.blog-post': ApiBlogPostBlogPost
+      'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation

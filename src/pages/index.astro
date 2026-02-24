@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 
 const pages = await getCollection('foundation-pages')
 const homePage = pages.find((page) => page.data.slug === 'home')
@@ -13,7 +13,7 @@ const { Content } = await render(homePage)
 const { title, heroTitle, heroDescription } = homePage.data
 ---
 
-<BaseLayout title={title || 'Interledger Foundation'}>
+<FoundationPageLayout title={title || 'Interledger Foundation'}>
   <main class="pb-space-l">
     <section
       class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[50vh] py-space-xl text-white flex items-center"
@@ -42,4 +42,4 @@ const { title, heroTitle, heroDescription } = homePage.data
       </div>
     </section>
   </main>
-</BaseLayout>
+</FoundationPageLayout>
