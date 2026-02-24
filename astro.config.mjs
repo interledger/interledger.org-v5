@@ -155,6 +155,9 @@ export default defineConfig({
     mdx()
   ],
   vite: {
+    server: {
+      allowedHosts: ['.netlify.app', '.interledger.org']
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
