@@ -3,8 +3,6 @@ import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import { getPagePaths } from '../utils/static-paths'
 
-export const prerender = true
-
 export async function getStaticPaths() {
   return getPagePaths('foundation-pages', { excludeSlug: 'home' })
 }
