@@ -8,7 +8,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -22,12 +22,5 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Debug - show prettier diff on failing file
-        run: |
-          node_modules/.bin/prettier --version
-          node_modules/.bin/prettier --write 'src/content/blog/2021-04-14-announcing-formal-launch-interledger-foundation.mdx'
-          git diff src/content/blog/2021-04-14-announcing-formal-launch-interledger-foundation.mdx
-          git checkout -- src/content/blog/2021-04-14-announcing-formal-launch-interledger-foundation.mdx
 
       - run: pnpm run lint
