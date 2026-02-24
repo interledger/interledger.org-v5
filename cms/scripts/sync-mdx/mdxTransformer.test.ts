@@ -1,17 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { z } from 'zod'
 
-const mockSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1),
-  heroTitle: z.string().optional(),
-  heroDescription: z.string().optional()
+vi.mock('./siteSchemas', async () => {
+  const { z } = await import('zod')
+  const sectionSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+    ctas: z
+      .array(
+        z.object({
+          label: z.string(),
+          href: z.string()
+        })
+      )
+      .optional()
+  })
+  const pageSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    slug: z.string().min(1, 'slug is required'),
+    description: z.string().optional(),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    sections: z.array(sectionSchema).optional(),
+    localizes: z.string().optional(),
+    locale: z.string().optional()
+  })
+  return {
+    foundationPageFrontmatterSchema: pageSchema,
+    summitPageFrontmatterSchema: pageSchema
+  }
 })
-
-vi.mock('./siteSchemas', () => ({
-  foundationPageFrontmatterSchema: mockSchema,
-  summitPageFrontmatterSchema: mockSchema
-}))
 
 import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
 import type { StrapiEntry } from './strapiClient'
@@ -157,6 +175,31 @@ describe('mdxToStrapiPayload', () => {
 
       expect(payload.publishedAt).toBeDefined()
       expect(typeof payload.publishedAt).toBe('string')
+    })
+
+    it('accepts optional schema fields (description, heroImage, sections)', () => {
+      const mdx = {
+        slug: 'about',
+        frontmatter: {
+          title: 'About',
+          description: 'Page description',
+          heroImage: '/images/hero.jpg',
+          sections: [
+            { title: 'Section 1', content: 'Content 1' },
+            {
+              title: 'Section 2',
+              content: 'Content 2',
+              ctas: [{ label: 'Learn', href: '/learn' }]
+            }
+          ]
+        },
+        content: ''
+      } as unknown as MDXFile
+
+      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+
+      expect(payload.title).toBe('About')
+      expect(payload.slug).toBe('about')
     })
   })
 
