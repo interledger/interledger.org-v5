@@ -8,6 +8,7 @@ export interface ContentTypeConfig {
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
+  'foundation-blog-posts': ContentTypeConfig
 }
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
@@ -19,6 +20,10 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
     'summit-pages': {
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages'
+    },
+    'foundation-blog-posts': {
+      dir: getContentPath(projectRoot, 'blog'),
+      apiId: 'foundation-blog-posts'
     }
   }
 }

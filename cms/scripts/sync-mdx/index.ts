@@ -6,6 +6,7 @@
  * Usage (run from cms/):
  *   pnpm run sync:mdx:dry-run
  *   pnpm run sync:mdx
+ *   pnpm run sync:mdx --force   # Bypass main/staging branch check
  */
 
 import fs from 'fs'
@@ -23,7 +24,8 @@ async function main() {
 
   const projectRoot = getProjectRoot()
   const DRY_RUN = process.argv.includes('--dry-run')
-  if (!DRY_RUN) {
+  const FORCE = process.argv.includes('--force')
+  if (!DRY_RUN && !FORCE) {
     const branch = spawnSync('git', ['branch', '--show-current'], {
       encoding: 'utf-8',
       cwd: projectRoot
@@ -32,7 +34,7 @@ async function main() {
     const allowedBranches = ['main', 'staging']
     if (!allowedBranches.includes(currentBranch || '')) {
       console.error(
-        `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview)`
+        `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview, --force to override)`
       )
       console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
       process.exit(1)

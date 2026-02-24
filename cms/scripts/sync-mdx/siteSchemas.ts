@@ -1,4 +1,5 @@
 export {
   foundationPageFrontmatterSchema,
-  summitPageFrontmatterSchema
+  summitPageFrontmatterSchema,
+  foundationBlogFrontmatterSchema
 } from '@site/schemas/content'

@@ -13,11 +13,15 @@ import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import {
   foundationPageFrontmatterSchema,
-  summitPageFrontmatterSchema
+  summitPageFrontmatterSchema,
+  foundationBlogFrontmatterSchema
 } from './siteSchemas'
 
 // Content types that are treated as "pages" (have hero sections, etc.)
 const PAGE_TYPES = ['foundation-pages', 'summit-pages'] as const
+
+// Content types that are blog posts (have date, description, content)
+const BLOG_TYPES = ['foundation-blog-posts'] as const
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -122,6 +126,27 @@ export function mdxToStrapiPayload(
         data.content = existingContent
       }
     }
+
+    return data
+  }
+
+  // Blog post content types
+  if (BLOG_TYPES.includes(contentType as (typeof BLOG_TYPES)[number])) {
+    const parsed = foundationBlogFrontmatterSchema.parse({
+      ...mdx.frontmatter,
+      slug: mdx.slug
+    })
+
+    const data: Record<string, unknown> = {
+      title: parsed.title,
+      description: parsed.description,
+      slug: parsed.slug,
+      date: parsed.date.toISOString().split('T')[0],
+      publishedAt: parsed.date.toISOString()
+    }
+
+    // MDX is single source of truth
+    data.content = mdx.content || ''
 
     return data
   }
