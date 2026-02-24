@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { localeSchema } from '../i18/utils'
 
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string(),
@@ -10,7 +11,8 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImageAlt: z.string().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
-  tags: z.array(z.string())
+  tags: z.array(z.string()),
+  lang: localeSchema
 })
 
 export const foundationPageFrontmatterSchema = z.object({
@@ -37,7 +39,8 @@ export const foundationPageFrontmatterSchema = z.object({
     )
     .optional(),
   localizes: z.string().optional(),
-  locale: z.string().optional()
+  locale: z.string().optional(),
+  lang: localeSchema
 })
 
 export const summitPageFrontmatterSchema = z.object({
@@ -64,7 +67,8 @@ export const summitPageFrontmatterSchema = z.object({
     )
     .optional(),
   localizes: z.string().optional(),
-  locale: z.string().optional()
+  locale: z.string().optional(),
+  lang: localeSchema
 })
 
 // Legacy export for backward compatibility

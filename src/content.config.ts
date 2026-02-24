@@ -8,6 +8,7 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
+import { localeSchema } from './i18/utils'
 
 const engBlogCollection = defineCollection({
   loader: glob({
@@ -18,7 +19,7 @@ const engBlogCollection = defineCollection({
     title: z.string(),
     description: z.string(),
     slug: z.string(),
-    lang: z.string(),
+    lang: localeSchema,
     date: z.date(),
     ogImageUrl: z.string().optional(),
     tags: z.array(
@@ -63,7 +64,7 @@ const summitPagesCollection = defineCollection({
 })
 
 export const collections = {
-  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }), // TODO: check base now since docs loader may have wrong path
+  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   'engineering-blog': engBlogCollection,
   'foundation-blog': foundationBlogCollection,
