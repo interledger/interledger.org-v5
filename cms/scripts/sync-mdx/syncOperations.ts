@@ -18,7 +18,11 @@ export async function syncEnglishEntry(
     englishMdx.slug,
     'en'
   )
-  const englishData = await config.buildPayload(englishMdx, ctx.strapi, existing ?? null)
+  const englishData = await config.buildPayload(
+    englishMdx,
+    ctx.strapi,
+    existing ?? null
+  )
 
   if (existing) {
     if (dryRun) {
@@ -66,7 +70,11 @@ export async function syncLocaleEntry(
     localeCode
   )
 
-  const localeData = await config.buildPayload(localeMdx, ctx.strapi, existingLocale ?? null)
+  const localeData = await config.buildPayload(
+    localeMdx,
+    ctx.strapi,
+    existingLocale ?? null
+  )
 
   if (existingLocale) {
     if (dryRun) {

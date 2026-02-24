@@ -44,6 +44,7 @@ function generateMdxContent(ambassador: Ambassador): string {
 
 export default createFlatContentLifecycle<Ambassador>({
   generateContent: generateMdxContent,
-  getBaseDir: (locale) => getContentPath(getProjectRoot(), 'ambassadors', locale),
+  getBaseDir: (locale) =>
+    getContentPath(getProjectRoot(), 'ambassadors', locale),
   label: 'ambassador'
 })

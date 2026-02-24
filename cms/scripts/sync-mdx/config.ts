@@ -67,9 +67,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       schema: ambassadorFrontmatterSchema,
       buildPayload: async (mdx, strapi, _existing) => {
         const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
-        const photoId = photoUrl
-          ? await strapi.findUploadByUrl(photoUrl)
-          : null
+        const photoId = photoUrl ? await strapi.findUploadByUrl(photoUrl) : null
         if (photoUrl && !photoId) {
           console.warn(
             `   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${photoUrl}`

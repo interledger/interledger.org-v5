@@ -11,7 +11,12 @@ import { shouldSkipMdxExport } from './pageLifecycle'
 import { gitCommitAndPush } from './gitSync'
 
 export interface FlatContentLifecycleConfig<
-  T extends { slug: string; name?: string; locale?: string; publishedAt?: string }
+  T extends {
+    slug: string
+    name?: string
+    locale?: string
+    publishedAt?: string
+  }
 > {
   /** Generates the full MDX file content string for the given entry. */
   generateContent: (entry: T) => string
@@ -22,7 +27,12 @@ export interface FlatContentLifecycleConfig<
 }
 
 async function writeMdxFile<
-  T extends { slug: string; name?: string; locale?: string; publishedAt?: string }
+  T extends {
+    slug: string
+    name?: string
+    locale?: string
+    publishedAt?: string
+  }
 >(config: FlatContentLifecycleConfig<T>, entry: T): Promise<string> {
   const baseDir = config.getBaseDir(entry.locale)
   const filepath = path.join(baseDir, `${entry.slug}.mdx`)
@@ -33,7 +43,12 @@ async function writeMdxFile<
 }
 
 async function deleteMdxFile<
-  T extends { slug: string; name?: string; locale?: string; publishedAt?: string }
+  T extends {
+    slug: string
+    name?: string
+    locale?: string
+    publishedAt?: string
+  }
 >(config: FlatContentLifecycleConfig<T>, entry: T): Promise<string> {
   const baseDir = config.getBaseDir(entry.locale)
   const filepath = path.join(baseDir, `${entry.slug}.mdx`)
@@ -42,7 +57,10 @@ async function deleteMdxFile<
     console.log(`🗑️  Deleted ${config.label} MDX file: ${filepath}`)
   } catch (error: unknown) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error(`❌ Failed to delete ${config.label} MDX file: ${filepath}`, error)
+      console.error(
+        `❌ Failed to delete ${config.label} MDX file: ${filepath}`,
+        error
+      )
       throw error
     }
   }
@@ -56,7 +74,12 @@ async function deleteMdxFile<
  * afterDelete: deletes MDX + git commit.
  */
 export function createFlatContentLifecycle<
-  T extends { slug: string; name?: string; locale?: string; publishedAt?: string }
+  T extends {
+    slug: string
+    name?: string
+    locale?: string
+    publishedAt?: string
+  }
 >(config: FlatContentLifecycleConfig<T>) {
   return {
     async afterCreate(event: { result?: T }) {
@@ -64,7 +87,10 @@ export function createFlatContentLifecycle<
       const { result } = event
       if (result && result.publishedAt) {
         const filepath = await writeMdxFile(config, result)
-        await gitCommitAndPush(filepath, `${config.label}: add "${result.name ?? result.slug}"`)
+        await gitCommitAndPush(
+          filepath,
+          `${config.label}: add "${result.name ?? result.slug}"`
+        )
       }
     },
 
@@ -74,10 +100,16 @@ export function createFlatContentLifecycle<
       if (!result) return
       if (result.publishedAt) {
         const filepath = await writeMdxFile(config, result)
-        await gitCommitAndPush(filepath, `${config.label}: update "${result.name ?? result.slug}"`)
+        await gitCommitAndPush(
+          filepath,
+          `${config.label}: update "${result.name ?? result.slug}"`
+        )
       } else {
         const filepath = await deleteMdxFile(config, result)
-        await gitCommitAndPush(filepath, `${config.label}: unpublish "${result.name ?? result.slug}"`)
+        await gitCommitAndPush(
+          filepath,
+          `${config.label}: unpublish "${result.name ?? result.slug}"`
+        )
       }
     },
 
@@ -86,7 +118,10 @@ export function createFlatContentLifecycle<
       const { result } = event
       if (!result) return
       const filepath = await deleteMdxFile(config, result)
-      await gitCommitAndPush(filepath, `${config.label}: delete "${result.name ?? result.slug}"`)
+      await gitCommitAndPush(
+        filepath,
+        `${config.label}: delete "${result.name ?? result.slug}"`
+      )
     }
   }
 }
