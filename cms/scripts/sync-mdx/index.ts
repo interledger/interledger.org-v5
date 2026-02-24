@@ -16,7 +16,6 @@ import { getProjectRoot } from '@/utils/paths'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapiClient'
 import { syncAll } from './syncCoordinator'
-import { syncAmbassadors } from './syncAmbassadors'
 
 async function main() {
   console.log('🚀 MDX → Strapi Sync')
@@ -90,19 +89,6 @@ async function main() {
     },
     DRY_RUN
   )
-
-  // Ambassadors use a separate sync path: photo is a Strapi upload relation,
-  // and the collection requires its own i18n handling.
-  try {
-    const ambResults = await syncAmbassadors(projectRoot, strapi, DRY_RUN)
-    results.created += ambResults.created
-    results.updated += ambResults.updated
-    results.deleted += ambResults.deleted
-    results.errors += ambResults.errors
-  } catch (error) {
-    console.error(`\n❌ Error syncing ambassadors: ${(error as Error).message}`)
-    results.errors++
-  }
 
   console.log('\n' + '='.repeat(50))
   console.log('📊 Summary')

@@ -19,7 +19,7 @@ export async function syncContentType(
   console.log(`\n📁 Syncing ${contentType}...`)
 
   const scanned = scanMDXFiles(contentType, ctx.contentTypes)
-  const { valid: mdxFiles, invalid } = validateMdxFiles(contentType, scanned)
+  const { valid: mdxFiles, invalid } = validateMdxFiles(config, scanned)
 
   if (invalid.length > 0) {
     for (const err of invalid) {

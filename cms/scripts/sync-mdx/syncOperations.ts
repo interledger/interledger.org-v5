@@ -2,12 +2,11 @@ import { type MDXFile, getLocalesToCheck } from './scan'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
-import { mdxToStrapiPayload } from './mdxTransformer'
 import { hasMdxFile } from './localeMatch'
 
 /** Sync a single English entry (create or update). Returns the entry if successful. */
 export async function syncEnglishEntry(
-  contentType: keyof ContentTypes,
+  _contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
   englishMdx: MDXFile,
   ctx: SyncContext,
@@ -19,7 +18,7 @@ export async function syncEnglishEntry(
     englishMdx.slug,
     'en'
   )
-  const englishData = mdxToStrapiPayload(contentType, englishMdx, existing)
+  const englishData = await config.buildPayload(englishMdx, ctx.strapi, existing ?? null)
 
   if (existing) {
     if (dryRun) {
@@ -51,7 +50,7 @@ export async function syncEnglishEntry(
 
 /** Sync a single locale (create or update localization). */
 export async function syncLocaleEntry(
-  contentType: keyof ContentTypes,
+  _contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
   localeMdx: MDXFile,
   englishEntry: StrapiEntry,
@@ -67,7 +66,7 @@ export async function syncLocaleEntry(
     localeCode
   )
 
-  const localeData = mdxToStrapiPayload(contentType, localeMdx, existingLocale)
+  const localeData = await config.buildPayload(localeMdx, ctx.strapi, existingLocale ?? null)
 
   if (existingLocale) {
     if (dryRun) {

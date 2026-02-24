@@ -1,4 +1,4 @@
-import type { MDXFile } from './scan'
+import type { MDXFile } from './mdxTypes'
 
 /**
  * Builds a map of all MDX slugs by locale.

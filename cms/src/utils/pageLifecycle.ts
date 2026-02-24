@@ -61,6 +61,13 @@ interface Event {
   result?: PageData
 }
 
+/**
+ * Returns true when the request originates from the sync script.
+ * The sync script sets `x-skip-mdx-export: true` so we don't re-write
+ * MDX files that were the source of the import in the first place.
+ *
+ * strapi.requestContext uses AsyncLocalStorage — safe inside lifecycle hooks.
+ */
 export function shouldSkipMdxExport(): boolean {
   try {
     const ctx = strapi.requestContext.get() as {

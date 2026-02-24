@@ -36,6 +36,7 @@ export const PATHS = {
   UPLOADS: 'public/uploads',
   /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/{locale}/). */
   CONTENT: {
+    ambassadors: 'ambassadors',
     blog: 'blog',
     developersBlog: 'developers/blog',
     foundationPages: 'foundation-pages',
