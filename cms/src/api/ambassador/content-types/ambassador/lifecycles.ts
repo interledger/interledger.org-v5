@@ -13,14 +13,15 @@ import type { AmbassadorBase } from '../../types'
 
 interface Ambassador extends AmbassadorBase {
   publishedAt?: string
+  locale?: string
 }
 
 interface Event {
   result?: Ambassador
 }
 
-function getBaseDir(): string {
-  return getContentPath(getProjectRoot(), 'ambassadors')
+function getBaseDir(locale?: string): string {
+  return getContentPath(getProjectRoot(), 'ambassadors', locale)
 }
 
 function generateFilename(ambassador: Ambassador): string {
@@ -36,6 +37,10 @@ function yamlValue(value: string | null | undefined): string {
 function generateMdxContent(ambassador: Ambassador): string {
   const photoUrl = getImageUrl(ambassador.photo, 'thumbnail') || null
   const photoAlt = ambassador.photo?.alternativeText || ambassador.name
+  const locale =
+    ambassador.locale && ambassador.locale !== 'en'
+      ? ambassador.locale
+      : undefined
 
   const fields = [
     `name: ${yamlValue(ambassador.name)}`,
@@ -44,14 +49,15 @@ function generateMdxContent(ambassador: Ambassador): string {
     `photo: ${yamlValue(photoUrl)}`,
     `photoAlt: ${yamlValue(photoAlt)}`,
     `linkedinUrl: ${yamlValue(ambassador.linkedinUrl ?? null)}`,
-    `grantReportUrl: ${yamlValue(ambassador.grantReportUrl ?? null)}`
+    `grantReportUrl: ${yamlValue(ambassador.grantReportUrl ?? null)}`,
+    ...(locale ? [`locale: ${yamlValue(locale)}`] : [])
   ]
 
   return `---\n${fields.join('\n')}\n---\n`
 }
 
 async function writeMdxFile(ambassador: Ambassador): Promise<void> {
-  const baseDir = getBaseDir()
+  const baseDir = getBaseDir(ambassador.locale)
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
 
@@ -67,7 +73,7 @@ async function writeMdxFile(ambassador: Ambassador): Promise<void> {
 }
 
 async function deleteMdxFile(ambassador: Ambassador): Promise<void> {
-  const baseDir = getBaseDir()
+  const baseDir = getBaseDir(ambassador.locale)
   const filename = generateFilename(ambassador)
   const filepath = path.join(baseDir, filename)
 
@@ -98,7 +104,7 @@ export default {
     const { result } = event
     if (result && result.publishedAt) {
       await writeMdxFile(result)
-      const filepath = path.join(getBaseDir(), generateFilename(result))
+      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
       await gitCommitAndPush(filepath, `ambassador: add "${result.name}"`)
     }
   },
@@ -107,7 +113,7 @@ export default {
     if (isImportRequest()) return
     const { result } = event
     if (result) {
-      const filepath = path.join(getBaseDir(), generateFilename(result))
+      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
 
       if (result.publishedAt) {
         await writeMdxFile(result)
@@ -127,7 +133,7 @@ export default {
     const { result } = event
     if (result) {
       await deleteMdxFile(result)
-      const filepath = path.join(getBaseDir(), generateFilename(result))
+      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
       await gitCommitAndPush(filepath, `ambassador: delete "${result.name}"`)
     }
   }
