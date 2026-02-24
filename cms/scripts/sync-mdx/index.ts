@@ -6,7 +6,7 @@
  * Usage (run from cms/):
  *   pnpm run sync:mdx:dry-run
  *   pnpm run sync:mdx
- *   pnpm run sync:mdx -- --force   # Bypass main/staging branch check
+ *   pnpm run sync:mdx --force   # Bypass main/staging branch check
  */
 
 import fs from 'fs'
