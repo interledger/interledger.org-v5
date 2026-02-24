@@ -1,6 +1,9 @@
 const getPreviewPathname = (
   uid: string,
-  { documentId, document }: { documentId: string; document: Record<string, unknown> | null }
+  {
+    documentId,
+    document
+  }: { documentId: string; document: Record<string, unknown> | null }
 ): string => {
   switch (uid) {
     case 'api::blog-post.blog-post': {
