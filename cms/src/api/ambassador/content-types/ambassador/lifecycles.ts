@@ -104,7 +104,10 @@ export default {
     const { result } = event
     if (result && result.publishedAt) {
       await writeMdxFile(result)
-      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
+      const filepath = path.join(
+        getBaseDir(result.locale),
+        generateFilename(result)
+      )
       await gitCommitAndPush(filepath, `ambassador: add "${result.name}"`)
     }
   },
@@ -113,7 +116,10 @@ export default {
     if (isImportRequest()) return
     const { result } = event
     if (result) {
-      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
+      const filepath = path.join(
+        getBaseDir(result.locale),
+        generateFilename(result)
+      )
 
       if (result.publishedAt) {
         await writeMdxFile(result)
@@ -133,7 +139,10 @@ export default {
     const { result } = event
     if (result) {
       await deleteMdxFile(result)
-      const filepath = path.join(getBaseDir(result.locale), generateFilename(result))
+      const filepath = path.join(
+        getBaseDir(result.locale),
+        generateFilename(result)
+      )
       await gitCommitAndPush(filepath, `ambassador: delete "${result.name}"`)
     }
   }
