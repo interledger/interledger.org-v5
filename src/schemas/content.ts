@@ -8,7 +8,19 @@ export const developersBlogFrontmatterSchema = z.object({
   lang: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
-  tags: z.array(z.string()).optional()
+  tags: z.array(
+      z.enum([
+        'Interledger Protocol',
+        'Open Payments',
+        'Rafiki',
+        'Releases',
+        'Updates',
+        'Web Monetization',
+        'Card Payments'
+        // Please add a matching translation in i18n/ui.ts for any new tag
+      ])
+    ),
+    ogImageUrl: z.string().optional()
 })
 
 export const foundationBlogFrontmatterSchema = z.object({
