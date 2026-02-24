@@ -1,3 +1,9 @@
+/**
+ * Frontmatter Validation
+ *
+ * Validates MDX frontmatter against Zod schemas before syncing to Strapi.
+ * Invalid files are filtered out during sync to prevent corrupting CMS data.
+ */
 import type { ContentTypes } from './config'
 import type { MDXFile } from './scan'
 import {
@@ -33,10 +39,12 @@ export function validateFrontmatter(
     const result = schema.safeParse(toValidate)
 
     if (!result.success) {
-      const errors = result.error.issues.map((issue) => {
-        const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : ''
-        return `${path}${issue.message}`
-      })
+      const errors = result.error.issues.map(
+        (issue: { path: (string | number)[]; message: string }) => {
+          const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : ''
+          return `${path}${issue.message}`
+        }
+      )
 
       validationError = {
         filepath: mdx.filepath,
