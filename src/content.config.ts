@@ -4,6 +4,7 @@ import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 import { PATHS } from './utils/paths'
 import {
+  developersBlogFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
@@ -33,9 +34,18 @@ const summitPagesCollection = defineCollection({
   schema: summitPageFrontmatterSchema
 })
 
+const engineeringBlogCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.developersBlog}`
+  }),
+  schema: developersBlogFrontmatterSchema
+})
+
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }), // TODO: check base now since docs loader may have wrong path
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
+  'engineering-blog': engineeringBlogCollection,
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'summit-pages': summitPagesCollection

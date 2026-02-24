@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+export const developersBlogFrontmatterSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.date(),
+  slug: z.string(),
+  lang: z.string().optional(),
+  authors: z.array(z.string()).optional(),
+  author_urls: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional()
+})
+
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
