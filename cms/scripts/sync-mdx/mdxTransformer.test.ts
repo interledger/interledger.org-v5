@@ -33,7 +33,7 @@ vi.mock('./siteSchemas', async () => {
 
 import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
 import type { StrapiEntry } from './strapiClient'
-import type { MDXFile } from './scan'
+import { createMdxFile } from './test-utils'
 
 beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -116,11 +116,10 @@ describe('isPageType', () => {
 describe('mdxToStrapiPayload', () => {
   describe('error handling', () => {
     it('throws for unsupported content type', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'test',
-        frontmatter: { title: 'Test' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'Test' }
+      })
 
       // @ts-expect-error - testing with invalid content type
       expect(() => mdxToStrapiPayload('blog-posts', mdx)).toThrow(
@@ -129,11 +128,9 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('throws when frontmatter fails validation', () => {
-      const mdx = {
-        slug: 'test',
-        frontmatter: {},
-        content: ''
-      } as unknown as MDXFile
+      const mdx = createMdxFile({
+        slug: 'test'
+      })
 
       expect(() => mdxToStrapiPayload('foundation-pages', mdx, null)).toThrow()
     })
@@ -141,11 +138,10 @@ describe('mdxToStrapiPayload', () => {
 
   describe('base payload fields', () => {
     it('includes title from frontmatter', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
-        frontmatter: { title: 'About Us' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About Us' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -153,11 +149,10 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('includes slug from mdx file', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about-page',
-        frontmatter: { title: 'About' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -165,11 +160,10 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('includes publishedAt timestamp', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'test',
-        frontmatter: { title: 'Test' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'Test' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -178,7 +172,7 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('accepts optional schema fields (description, heroImage, sections)', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
           title: 'About',
@@ -192,9 +186,8 @@ describe('mdxToStrapiPayload', () => {
               ctas: [{ label: 'Learn', href: '/learn' }]
             }
           ]
-        },
-        content: ''
-      } as unknown as MDXFile
+        }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -207,15 +200,14 @@ describe('mdxToStrapiPayload', () => {
   // This lets us update title/content without losing hero images set in Strapi admin.
   describe('hero fallback logic', () => {
     it('uses frontmatter heroTitle and heroDescription when provided', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'Welcome',
           heroDescription: 'Learn about us'
-        },
-        content: ''
-      } as unknown as MDXFile
+        }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -227,14 +219,13 @@ describe('mdxToStrapiPayload', () => {
 
     // If only description is provided, use the page title as hero title
     it('uses title as hero title when heroTitle not provided but heroDescription is', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
           title: 'About Page',
           heroDescription: 'Description only'
-        },
-        content: ''
-      } as unknown as MDXFile
+        }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -245,14 +236,13 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('uses empty description when heroTitle provided but heroDescription is not', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'Hero Only'
-        },
-        content: ''
-      } as unknown as MDXFile
+        }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -270,11 +260,10 @@ describe('mdxToStrapiPayload', () => {
         slug: 'about',
         hero: { title: 'Existing Hero', description: 'Kept intact' }
       }
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
-        frontmatter: { title: 'About' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
 
@@ -286,11 +275,10 @@ describe('mdxToStrapiPayload', () => {
 
     // No hero in MDX + no existing entry = no hero in payload
     it('does not include hero when no frontmatter hero and no existing entry', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
-        frontmatter: { title: 'About' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -304,15 +292,14 @@ describe('mdxToStrapiPayload', () => {
         slug: 'about',
         hero: { title: 'Old Hero', description: 'Old desc' }
       }
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'New Hero',
           heroDescription: 'New desc'
-        },
-        content: ''
-      } as unknown as MDXFile
+        }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
 
@@ -326,11 +313,11 @@ describe('mdxToStrapiPayload', () => {
   // Content is stored as a paragraph block component. Empty content preserves existing.
   describe('content block handling', () => {
     it('creates content block with markdown when mdx has body', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: '## Heading\n\nParagraph text'
-      } as unknown as MDXFile
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -349,11 +336,10 @@ describe('mdxToStrapiPayload', () => {
         slug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Existing' }]
       }
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
-        frontmatter: { title: 'About' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
 
@@ -369,11 +355,11 @@ describe('mdxToStrapiPayload', () => {
         slug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Kept' }]
       }
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: '   \n\n   '
-      } as unknown as MDXFile
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
 
@@ -383,11 +369,10 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('does not include content when no mdx body and no existing entry', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
-        frontmatter: { title: 'About' },
-        content: ''
-      } as unknown as MDXFile
+        frontmatter: { title: 'About' }
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -400,11 +385,11 @@ describe('mdxToStrapiPayload', () => {
         slug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Old content' }]
       }
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: 'New content'
-      } as unknown as MDXFile
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
 
@@ -414,11 +399,11 @@ describe('mdxToStrapiPayload', () => {
     })
 
     it('handles content with null existing entry', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: undefined
-      } as unknown as MDXFile
+      })
 
       const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
 
@@ -428,11 +413,11 @@ describe('mdxToStrapiPayload', () => {
 
   describe('summit-pages content type', () => {
     it('processes summit-pages same as foundation-pages', () => {
-      const mdx = {
+      const mdx = createMdxFile({
         slug: 'schedule',
         frontmatter: { title: 'Schedule' },
         content: 'Summit content'
-      } as unknown as MDXFile
+      })
 
       const payload = mdxToStrapiPayload('summit-pages', mdx, null)
 

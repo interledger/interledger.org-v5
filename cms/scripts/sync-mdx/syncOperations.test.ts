@@ -8,7 +8,7 @@ import {
 import type { StrapiEntry } from './strapiClient'
 import type { ContentTypes } from './config'
 import type { SyncContext, SyncResults } from './types'
-import type { MDXFile } from './scan'
+import { createMdxFile } from './test-utils'
 
 vi.mock('./mdxTransformer', () => ({
   mdxToStrapiPayload: vi.fn(() => ({ title: 'Mocked Payload', slug: 'mocked' }))
@@ -80,12 +80,11 @@ describe('syncEnglishEntry', () => {
     })
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'about',
-      locale: 'en',
       frontmatter: { title: 'About', slug: 'about' },
       content: 'Body'
-    } as unknown as MDXFile
+    })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -113,11 +112,10 @@ describe('syncEnglishEntry', () => {
     strapi.updateEntry.mockResolvedValue({ data: existing })
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'about',
-      locale: 'en',
       frontmatter: { title: 'About', slug: 'about' }
-    } as unknown as MDXFile
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -149,11 +147,10 @@ describe('syncEnglishEntry', () => {
     strapi.findBySlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'about',
-      locale: 'en',
       frontmatter: { title: 'About', slug: 'about' }
-    } as unknown as MDXFile
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -177,11 +174,10 @@ describe('syncEnglishEntry', () => {
     strapi.findBySlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'about',
-      locale: 'en',
       frontmatter: { title: 'About', slug: 'about' }
-    } as unknown as MDXFile
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -203,11 +199,10 @@ describe('syncEnglishEntry', () => {
     strapi.findBySlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'about',
-      locale: 'en',
       frontmatter: { title: 'About', slug: 'about' }
-    } as unknown as MDXFile
+    })
 
     await syncEnglishEntry(
       'foundation-pages',
@@ -228,7 +223,7 @@ describe('syncEnglishEntry', () => {
     strapi.findBySlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = { slug: 'about', locale: 'en' } as unknown as MDXFile
+    const mdx = createMdxFile({ slug: 'about' })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -248,7 +243,7 @@ describe('syncEnglishEntry', () => {
     strapi.findBySlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = { slug: 'new-page', locale: 'en' } as unknown as MDXFile
+    const mdx = createMdxFile({ slug: 'new-page' })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -279,7 +274,7 @@ describe('syncLocaleEntry', () => {
     strapi.findBySlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
@@ -288,7 +283,7 @@ describe('syncLocaleEntry', () => {
         slug: 'sobre-nosotros',
         localizes: 'about'
       }
-    } as unknown as MDXFile
+    })
 
     await syncLocaleEntry(
       'foundation-pages',
@@ -320,7 +315,7 @@ describe('syncLocaleEntry', () => {
     strapi.findBySlug.mockResolvedValue(existingLocale)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
@@ -329,7 +324,7 @@ describe('syncLocaleEntry', () => {
         slug: 'sobre-nosotros',
         localizes: 'about'
       }
-    } as unknown as MDXFile
+    })
 
     await syncLocaleEntry(
       'foundation-pages',
@@ -356,11 +351,11 @@ describe('syncLocaleEntry', () => {
     strapi.findBySlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'some-page',
       locale: undefined,
       frontmatter: { title: 'Some', slug: 'some-page' }
-    } as unknown as MDXFile
+    })
 
     await syncLocaleEntry(
       'foundation-pages',
@@ -384,10 +379,10 @@ describe('syncLocaleEntry', () => {
     strapi.findBySlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es'
-    } as unknown as MDXFile
+    })
 
     await syncLocaleEntry(
       'foundation-pages',
@@ -413,10 +408,10 @@ describe('syncLocaleEntry', () => {
     strapi.findBySlug.mockResolvedValue(existingLocale)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = {
+    const mdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es'
-    } as unknown as MDXFile
+    })
 
     await syncLocaleEntry(
       'foundation-pages',
@@ -615,7 +610,7 @@ describe('deleteOrphanedEntries', () => {
 // This can happen when the English file doesn't exist in MDX but does exist in Strapi.
 describe('syncUnmatchedLocales', () => {
   it('creates localization when match found in Strapi', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
@@ -625,7 +620,7 @@ describe('syncUnmatchedLocales', () => {
         slug: 'sobre-nosotros',
         localizes: 'about-us'
       }
-    } as unknown as MDXFile
+    })
     // Simulate English entry existing in Strapi (but not in MDX)
     const allStrapiEntries: StrapiEntry[] = [
       { documentId: 'en-1', slug: 'about-us', locale: 'en' }
@@ -658,12 +653,12 @@ describe('syncUnmatchedLocales', () => {
 
   // Track which locales we've processed to avoid duplicates
   it('adds matched locale to matchedSlugs set', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
       { documentId: 'en-1', slug: 'about-us', locale: 'en' }
@@ -688,12 +683,12 @@ describe('syncUnmatchedLocales', () => {
 
   // Can't create a localization without an English parent
   it('does not create when no matching English entry in Strapi', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'nonexistent'
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([])
     const ctx: SyncContext = { contentTypes, strapi }
@@ -717,12 +712,12 @@ describe('syncUnmatchedLocales', () => {
 
   // Skip locales already processed in the main sync loop
   it('skips already matched locale slugs', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -763,12 +758,12 @@ describe('syncUnmatchedLocales', () => {
   })
 
   it('defaults locale to en when mdx.locale is undefined', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'some-page',
       locale: undefined,
       isLocalization: true,
       localizes: 'english-page'
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
       { documentId: 'en-1', slug: 'english-page', locale: 'en' }
@@ -792,12 +787,12 @@ describe('syncUnmatchedLocales', () => {
   })
 
   it('increments errors counter when syncLocaleEntry fails', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
       { documentId: 'en-1', slug: 'about-us', locale: 'en' }
@@ -823,12 +818,12 @@ describe('syncUnmatchedLocales', () => {
 
   // localizes: null means this locale file doesn't know which English page it translates
   it('does not match when localizes is null', async () => {
-    const localeMdx = {
+    const localeMdx = createMdxFile({
       slug: 'orphan-page',
       locale: 'es',
       isLocalization: true,
       localizes: null
-    } as unknown as MDXFile
+    })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
       { documentId: 'en-1', slug: 'about-us', locale: 'en' }
