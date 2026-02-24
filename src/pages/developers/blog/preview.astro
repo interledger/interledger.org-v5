@@ -1,36 +1,24 @@
 ---
-import BlogLayout from '../../../layouts/BlogLayout.astro'
-import CommunityLinks from '../../../components/blog/CommunityLinks.astro'
-import { fetchStrapi } from '../../../utils/fetchStrapi'
-import { marked } from 'marked'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 
-// Get the documentId from the query string
+// Developers blog is not in Strapi (phase 1). Content is rendered from MDX files.
+// Preview from Strapi is not available until developers-blog-posts is added to the CMS.
 export const prerender = false
-const documentId = Astro.url.searchParams.get('slug')
-if (!documentId) {
-  throw new Error('Missing documentId in preview URL')
-}
-
-// Always fetch draft content for preview
-const response = await fetchStrapi(`api/blog-posts/${documentId}?status=draft`)
-
-const article = response?.data
-
-if (!article) {
-  throw new Error(`Preview: No article found for documentId "${documentId}"`)
-}
-
-// Map Strapi fields to your BlogLayout frontmatter
-const frontmatter = {
-  title: article.title,
-  description: article.description,
-  date: article.publishedAt
-}
-
-const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<BlogLayout frontmatter={frontmatter}>
-  <article set:html={bodyHtml} />
-  <CommunityLinks />
-</BlogLayout>
+<FoundationPageLayout
+  title="Preview not available"
+  description="Developers blog content is rendered from MDX files in the repository. Strapi preview is not available for this content type."
+>
+  <main class="mx-auto max-w-content px-[5%] py-space-xl">
+    <p class="text-step-0">
+      Developers blog preview is not available. Content is loaded from MDX files
+      in <code>src/content/developers-blog-posts/</code> and rendered at build time.
+    </p>
+    <p class="mt-space-m text-step-0">
+      <a href="/developers/blog" class="text-primary underline"
+        >View the developers blog</a
+      >
+    </p>
+  </main>
+</FoundationPageLayout>

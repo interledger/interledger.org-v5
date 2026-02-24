@@ -1,54 +1,62 @@
 ---
-import FoundationFooter from '../components/pages/FoundationFooter.astro'
-import FoundationHeader from '../components/pages/FoundationHeader.astro'
-import SeoHead from '../components/SeoHead.astro'
+/**
+ * Base HTML layout shell.
+ * Provides <head> with meta tags, OG/Twitter cards, and analytics.
+ * Use named slots for header/footer customization.
+ */
 import '../styles/tailwind.css'
 import { resolveLang } from '../utils/seo'
 
 interface Props {
   title: string
+  titleSuffix?: string
   description?: string
-  gradient?: string
+  theme?: 'light' | 'dark'
   ogType?: string
   ogImageUrl?: string
   ogImageAlt?: string
   canonicalURL?: string
-  lang?: string
-  alternates?: { href: string; hreflang: string }[]
-  robots?: string
+  bodyClass?: string
+  bodyStyle?: string
 }
 
 const {
   title,
-  description,
-  ogType,
-  ogImageUrl,
-  ogImageAlt,
-  canonicalURL,
-  lang,
-  alternates,
-  robots
+  titleSuffix = 'Interledger Foundation',
+  description = 'Making payments as easy as sending an email',
+  theme = 'light',
+  ogType = 'website',
+  ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  bodyClass = '',
+  bodyStyle = ''
 } = Astro.props
 
-const pageLang = resolveLang(lang, Astro.url.pathname)
+const fullTitle = title ? `${title} | ${titleSuffix}` : titleSuffix
 ---
 
 <!doctype html>
-<html lang={pageLang} data-theme="light">
+<html lang="en" data-theme={theme}>
   <head>
-    <SeoHead
-      title={title}
-      description={description}
-      siteName="Interledger Foundation"
-      ogType={ogType}
-      ogImageUrl={ogImageUrl}
-      ogImageAlt={ogImageAlt}
-      canonicalURL={canonicalURL}
-      lang={pageLang}
-      alternates={alternates}
-      robots={robots}
-    />
-    <slot name="head" />
+    <meta charset="UTF-8" />
+    <meta name="author" content="Interledger Foundation" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:description" content={description} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script
       defer
       src="https://uwa.interledger.org/script.js"
@@ -56,9 +64,9 @@ const pageLang = resolveLang(lang, Astro.url.pathname)
       data-domains="interledger.org"></script>
   </head>
 
-  <body class="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden">
-    <FoundationHeader />
+  <body class={bodyClass} style={bodyStyle}>
+    <slot name="header" />
     <slot />
-    <FoundationFooter />
+    <slot name="footer" />
   </body>
 </html>

@@ -22,7 +22,13 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
 ---
 
 <div class="max-w-[900px] mx-auto p-space-l">
-  {heading && <h2 class="text-[2rem] font-semibold text-primary-fallback text-center mb-space-l">{heading}</h2>}
+  {
+    heading && (
+      <h2 class="text-[2rem] font-semibold text-primary-fallback text-center mb-space-l">
+        {heading}
+      </h2>
+    )
+  }
   <div
     class="relative"
     id={carouselId}
@@ -40,7 +46,9 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
             data-active={index === 0 ? 'true' : 'false'}
           >
             <blockquote class="text-center m-0">
-              <p class="text-2xl italic leading-relaxed mb-space-m">"{item.quote}"</p>
+              <p class="text-2xl italic leading-relaxed mb-space-m">
+                "{item.quote}"
+              </p>
               {(item.author || item.organization) && (
                 <footer class="flex items-center justify-center gap-space-s">
                   {item.image && (

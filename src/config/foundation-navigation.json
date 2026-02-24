@@ -1,0 +1,118 @@
+{
+  "mainMenu": [
+    {
+      "label": "Foundation",
+      "items": [
+        {
+          "label": "About Us",
+          "href": "/about-us"
+        },
+        {
+          "label": "Policy & Advocacy",
+          "href": "/policy-and-advocacy"
+        },
+        {
+          "label": "Team",
+          "href": "/team"
+        },
+        {
+          "label": "Media",
+          "href": "/media"
+        }
+      ]
+    },
+    {
+      "label": "Technology",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/technology"
+        },
+        {
+          "label": "Interledger",
+          "href": "/interledger"
+        },
+        {
+          "label": "Open Payments",
+          "href": "/open-payments"
+        },
+        {
+          "label": "Web Monetization",
+          "href": "/web-monetization"
+        },
+        {
+          "label": "Join Network",
+          "href": "/join-network"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        }
+      ]
+    },
+    {
+      "label": "Grants",
+      "items": [
+        {
+          "label": "Digital Financial Services",
+          "href": "/grants/dfs"
+        },
+        {
+          "label": "Higher Education",
+          "href": "/grants/education"
+        },
+        {
+          "label": "Ambassadors",
+          "href": "/grants/ambassadors"
+        },
+        {
+          "label": "Grant for Web",
+          "href": "/grants-for-web"
+        }
+      ]
+    },
+    {
+      "label": "Content Hub",
+      "items": [
+        {
+          "label": "Foundation Blog",
+          "href": "/blog"
+        },
+        {
+          "label": "Tech Blog",
+          "href": "/developers/blog"
+        },
+        {
+          "label": "Podcast",
+          "href": "/podcast"
+        },
+        {
+          "label": "Community Forum",
+          "href": "https://forum.interledger.org",
+          "openInNewTab": true
+        }
+      ]
+    },
+    {
+      "label": "Participate",
+      "items": [
+        {
+          "label": "Get Involved",
+          "href": "/get-involved"
+        },
+        {
+          "label": "Events",
+          "href": "/events"
+        },
+        {
+          "label": "Guidelines",
+          "href": "/participation-guidelines"
+        }
+      ]
+    }
+  ],
+  "ctaButton": {
+    "label": "Interledger Summit",
+    "href": "/summit"
+  }
+}

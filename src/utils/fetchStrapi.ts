@@ -1,6 +1,6 @@
 export async function fetchStrapi(endpoint: string) {
   const base = import.meta.env.STRAPI_URL
-  const token = import.meta.env.STRAPI_PREVIEW_TOKEN
+  const token = import.meta.env.STRAPI_API_TOKEN
 
   if (!base || !token) {
     return null

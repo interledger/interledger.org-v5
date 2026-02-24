@@ -1,6 +1,7 @@
-module.exports = (config) => {
+import CopyPlugin from 'copy-webpack-plugin'
+
+export default (config) => {
   // Copy JSON files after build
-  const CopyPlugin = require('copy-webpack-plugin')
 
   config.plugins.push(
     new CopyPlugin({

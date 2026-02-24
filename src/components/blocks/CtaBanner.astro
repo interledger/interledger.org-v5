@@ -51,9 +51,13 @@ const secondaryButtonClasses = {
 }
 ---
 
-<section class={`py-space-xl px-space-m text-center ${bgClasses[backgroundColor]}`}>
+<section
+  class={`py-space-xl px-space-m text-center ${bgClasses[backgroundColor]}`}
+>
   <div class="max-w-narrow mx-auto">
-    <h2 class={`text-[2rem] font-semibold mb-space-s ${headingClasses[backgroundColor]}`}>
+    <h2
+      class={`text-[2rem] font-semibold mb-space-s ${headingClasses[backgroundColor]}`}
+    >
       {heading}
     </h2>
     {text && <p class="text-[1.125rem] mb-space-m opacity-90">{text}</p>}

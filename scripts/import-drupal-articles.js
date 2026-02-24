@@ -141,17 +141,19 @@ async function fetchMedia(mediaAPILink, type) {
     }
     const mediaResult = await mediaResponse.json()
     const mediaName = mediaResult.data.attributes.name
-    let mediaAlt; 
-    
+    let mediaAlt
+
     switch (type) {
-      case 'media--image': 
-        mediaAlt = mediaResult.data.relationships.field_media_image.data.meta.alt ?? '';
-        break; 
+      case 'media--image':
+        mediaAlt =
+          mediaResult.data.relationships.field_media_image.data.meta.alt ?? ''
+        break
       case 'media--svg':
-        mediaAlt = mediaResult.data.relationships.field_media_svg.data.meta.alt ?? '';
-        break;
-      default: 
-        mediaAlt = undefined;
+        mediaAlt =
+          mediaResult.data.relationships.field_media_svg.data.meta.alt ?? ''
+        break
+      default:
+        mediaAlt = undefined
     }
 
     if (mediaName.includes(' ')) {
@@ -165,14 +167,16 @@ async function fetchMedia(mediaAPILink, type) {
       return {
         url: mediaResult.data.attributes.field_media_oembed_video,
         alt: undefined
-      } 
+      }
     }
     return {
       url: await saveImageToDisk(imageUrl),
       alt: mediaAlt
     }
   } catch (err) {
-    console.error(`Error in fetchMedia regarding image: ${mediaAPILink} ; ${err.message} `)
+    console.error(
+      `Error in fetchMedia regarding image: ${mediaAPILink} ; ${err.message} `
+    )
   }
 }
 
@@ -197,7 +201,7 @@ async function getMediaInfo(media) {
 
   if (!mediaAPILink) return
 
-  return await fetchMedia(mediaAPILink, type )
+  return await fetchMedia(mediaAPILink, type)
 }
 
 async function generateMDXContent(post) {
@@ -212,9 +216,10 @@ async function generateMDXContent(post) {
   const tagNames = tagIds.map(
     (id) => articleTags.find((tag) => tag.id === id)?.name
   )
-  const frontmatterTags = tagNames.length === 0
-    ? 'tags: []'
-    : `tags:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
+  const frontmatterTags =
+    tagNames.length === 0
+      ? 'tags: []'
+      : `tags:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
 
   const frontmatterLines = [
     `title: "${escapeQuotes(post.attributes.title)}"`,
@@ -254,7 +259,7 @@ async function writeMDXFile(post) {
 }
 
 async function importArticlesFromDrupal() {
-  let articleUrl = "https://staging.interledger.org/jsonapi/node/article";
+  let articleUrl = 'https://staging.interledger.org/jsonapi/node/article'
 
   const articles = []
   while (articleUrl) {
@@ -268,7 +273,9 @@ async function importArticlesFromDrupal() {
       articles.push(...result.data)
       articleUrl = result.links?.next?.href ?? null
     } catch (error) {
-      console.error(`Error in catch block inside importArticlesFromDrupal: ${error.message}`)
+      console.error(
+        `Error in catch block inside importArticlesFromDrupal: ${error.message}`
+      )
     }
   }
   await Promise.all(articles.map(writeMDXFile))
