@@ -3,15 +3,17 @@ import { parseMarkdownInline } from '@/utils/mdx'
 
 interface Props {
   source?: string
+  /** Plain-text quote. If omitted, slot content is used (MDX usage). */
+  quote?: string
 }
 
-const { source } = Astro.props
+const { source, quote } = Astro.props
 const htmlSource = source ? parseMarkdownInline(source) : ''
 ---
 
 <div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">
   <blockquote class="text-step-1">
-    <slot />
+    {quote ?? <slot />}
   </blockquote>
   {
     htmlSource && (

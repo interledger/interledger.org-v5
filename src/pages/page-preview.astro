@@ -35,7 +35,7 @@ const populateParams = new URLSearchParams({
 })
 
 const response = await fetchStrapi(
-  `api/pages/${documentId}?${populateParams.toString()}`
+  `api/foundation-pages/${documentId}?${populateParams.toString()}`
 )
 
 const page = response?.data

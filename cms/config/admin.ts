@@ -1,5 +1,7 @@
-const getPreviewPathname = (uid: string, { document }): string => {
-  // Handle blog posts
+const getPreviewPathname = (
+  uid: string,
+  { documentId, document }: { documentId: string; document: Record<string, unknown> | null }
+): string => {
   switch (uid) {
     case 'api::blog-post.blog-post': {
       if (!document?.id) {
@@ -8,7 +10,8 @@ const getPreviewPathname = (uid: string, { document }): string => {
       return `/blog/preview?slug=${document.documentId}`
     }
     case 'api::foundation-page.foundation-page':
-      return `/page-preview?documentId=${document.documentId}`
+      // documentId comes directly from the handler — no findOne needed
+      return `/page-preview?documentId=${documentId}`
     default:
       return null
   }
@@ -42,7 +45,7 @@ export default ({ env }) => {
           const document = await strapi.documents(uid).findOne({ documentId })
 
           // Generate the preview pathname based on content type and document
-          const pathname = getPreviewPathname(uid, { document })
+          const pathname = getPreviewPathname(uid, { documentId, document })
 
           // Disable preview if the pathname is not found
           if (!pathname) {
