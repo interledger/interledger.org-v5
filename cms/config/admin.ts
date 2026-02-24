@@ -1,6 +1,9 @@
 const getPreviewPathname = (
   uid: string,
-  { documentId, document }: { documentId: string; document: Record<string, unknown> | null }
+  {
+    documentId,
+    document
+  }: { documentId: string; document: Record<string, unknown> | null }
 ): string => {
   switch (uid) {
     case 'api::foundation-blog-post.foundation-blog-post':
@@ -12,7 +15,8 @@ const getPreviewPathname = (
       return `/page-preview?documentId=${documentId}`
     case 'api::summit-page.summit-page': {
       const path =
-        (document?.path as string)?.replace(/^\//, '') || (document?.slug as string)
+        (document?.path as string)?.replace(/^\//, '') ||
+        (document?.slug as string)
       return path ? `/summit/${path}?preview=true` : null
     }
     default:
