@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_shared_article_bios",
+  "info": {
+    "displayName": "Article Bio"
+  },
+  "options": {},
+  "attributes": {
+    "profileBio": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      }
+    },
+    "profileImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  },
+  "config": {}
+}
