@@ -1,6 +1,34 @@
 import { describe, it, expect } from 'vitest'
+import { z } from 'zod'
 import { validateFrontmatter, validateMdxFiles } from './validateFrontmatter'
+import type { ContentTypeConfig } from './config'
 import { createMdxFile } from './test-utils'
+
+const pageSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  slug: z.string().min(1, 'slug is required'),
+  description: z.string().optional(),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  sections: z.array(z.any()).optional(),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
+})
+
+const foundationConfig: ContentTypeConfig = {
+  dir: '',
+  apiId: 'foundation-pages',
+  schema: pageSchema,
+  buildPayload: async () => ({})
+}
+
+const summitConfig: ContentTypeConfig = {
+  dir: '',
+  apiId: 'summit-pages',
+  schema: pageSchema,
+  buildPayload: async () => ({})
+}
 
 // Validates MDX frontmatter against Zod schemas before syncing to Strapi.
 // Invalid files are skipped during sync to avoid corrupting CMS data.
@@ -12,7 +40,7 @@ describe('validateFrontmatter', () => {
       frontmatter: { title: 'About Us' }
     })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).toBeNull()
   })
@@ -24,7 +52,7 @@ describe('validateFrontmatter', () => {
       frontmatter: { title: 'Schedule' }
     })
 
-    const result = validateFrontmatter('summit-pages', mdx)
+    const result = validateFrontmatter(summitConfig, mdx)
 
     expect(result).toBeNull()
   })
@@ -35,7 +63,7 @@ describe('validateFrontmatter', () => {
       slug: 'invalid'
     })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.filepath).toBe('/content/invalid.mdx')
@@ -44,7 +72,7 @@ describe('validateFrontmatter', () => {
   it('returns error with slug from mdx file', () => {
     const mdx = createMdxFile({ slug: 'test-slug' })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.slug).toBe('test-slug')
@@ -53,7 +81,7 @@ describe('validateFrontmatter', () => {
   it('returns error with locale from mdx file', () => {
     const mdx = createMdxFile({ locale: 'es' })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.locale).toBe('es')
@@ -62,7 +90,7 @@ describe('validateFrontmatter', () => {
   it('returns error array with validation messages', () => {
     const mdx = createMdxFile({})
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.errors.length).toBeGreaterThan(0)
@@ -75,7 +103,7 @@ describe('validateFrontmatter', () => {
   it('returns error when title is empty string', () => {
     const mdx = createMdxFile({ frontmatter: { title: '' } })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(
@@ -90,7 +118,7 @@ describe('validateFrontmatter', () => {
       frontmatter: { title: 'Valid Title' }
     })
 
-    const result = validateFrontmatter('foundation-pages', mdx)
+    const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
     expect(result!.errors.some((e) => e.toLowerCase().includes('slug'))).toBe(
@@ -115,7 +143,7 @@ describe('validateMdxFiles', () => {
       })
     ]
 
-    const { valid, invalid } = validateMdxFiles('foundation-pages', files)
+    const { valid, invalid } = validateMdxFiles(foundationConfig, files)
 
     expect(valid).toHaveLength(1)
     expect(invalid).toHaveLength(1)
@@ -135,7 +163,7 @@ describe('validateMdxFiles', () => {
       })
     ]
 
-    const { valid, invalid } = validateMdxFiles('foundation-pages', files)
+    const { valid, invalid } = validateMdxFiles(foundationConfig, files)
 
     expect(valid).toHaveLength(2)
     expect(valid[0].slug).toBe('page1')
@@ -151,7 +179,7 @@ describe('validateMdxFiles', () => {
       })
     ]
 
-    const { valid, invalid } = validateMdxFiles('foundation-pages', files)
+    const { valid, invalid } = validateMdxFiles(foundationConfig, files)
 
     expect(valid).toHaveLength(0)
     expect(invalid).toHaveLength(1)
@@ -160,7 +188,7 @@ describe('validateMdxFiles', () => {
   })
 
   it('returns empty arrays for empty input', () => {
-    const { valid, invalid } = validateMdxFiles('foundation-pages', [])
+    const { valid, invalid } = validateMdxFiles(foundationConfig, [])
 
     expect(valid).toHaveLength(0)
     expect(invalid).toHaveLength(0)
@@ -188,7 +216,7 @@ describe('validateMdxFiles', () => {
       })
     ]
 
-    const { valid, invalid } = validateMdxFiles('foundation-pages', files)
+    const { valid, invalid } = validateMdxFiles(foundationConfig, files)
 
     expect(valid).toHaveLength(2)
     expect(invalid).toHaveLength(1)
