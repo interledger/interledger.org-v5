@@ -1,17 +1,15 @@
 # Interledger - Strapi CMS
 
-This is the Strapi CMS for managing content that will be rendered on the Interledger Website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally to the dedicated `staging clone` and then pushed to the remote `staging` branch. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
-
-<!-- Test workflow run -->
+This is the Strapi CMS for managing content that will be rendered on the Interledger website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally to the dedicated `staging clone` and then pushed to the remote `staging` branch. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
 
 ## Features
 
 - **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is published or updated in Strapi.
 - **Draft & Publish Workflow**: Editors can draft content and publish it when ready.
 - **SQLite Database**: Lightweight database for easy development and deployment.
-- **Frontend Previews**:
-  - _Server-side rendered_ preview pages generated via Strapi and served from the GCP VM through Nginx (content stored in the Strapi database).
-  - Netlify deploy previews for pull requests opened against `staging`.
+- **Previews**:
+  - Strapi stores draft content, and Astro renders previews on demand via an SSR route that fetches the latest data directly from Strapi.
+  - TODO ??
 
 ## Getting Started
 
@@ -31,7 +29,7 @@ pnpm install
 
 ### Configuration
 
-The CMS is configured via environment variables in `.env`. Refer to `env.example` for default values and examples.
+The CMS is configured via environment variables in the root `.env`. Refer to `env.example` for default values and examples.
 
 Key settings:
 
@@ -114,7 +112,7 @@ Example: If slug is `interledger-launches-new-platform`, the file will be `inter
 
 ### Astro → Strapi (MDX Sync)
 
-- In addition to Strapi generating MDX files for Astro (**Strapi → Astro**), this project also supports syncing MDX files back into Strapi.
+- It is also possible for mdx file changes to happen in PRs that get merged into the `staging` branch.
 
 - This allows Astro content (blog posts, events, navigation, etc.) to remain the source of truth while keeping the Strapi database synchronized.
 
@@ -211,7 +209,7 @@ cd cms && pnpm run develop
 6. **View on Site**:
 
 - **Locally**: Your Astro dev server automatically picks up the newly generated MDX files.
-- **Staging website**: Once changes are merged into staging, Netlify rebuilds the staging site and the updates are visible online.
+- [**Staging website**](https://staging--interledger-org-v5.netlify.app/): Once changes are merged into staging, Netlify rebuilds the staging site and the updates are visible online.
 
 ## File Structure
 
