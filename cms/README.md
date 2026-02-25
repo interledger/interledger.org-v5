@@ -1,16 +1,16 @@
 # Interledger - Strapi CMS
 
-This is the Strapi CMS for managing content that will be rendered on the Interledger Website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally in the dedicated `staging clone` and then pushed to the remote `staging branch`. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
+This is the Strapi CMS for managing content that will be rendered on the Interledger Website. Custom lifecycle hooks automatically generate MDX files, which are first committed locally to the dedicated `staging clone` and then pushed to the remote `staging` branch. The CMS enables editors to **draft**, **publish**, and **manage** content while keeping the Astro site synchronized.
 
 <!-- Test workflow run -->
 
 ## Features
 
-- **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is created (published) or updated in Strapi.
+- **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is published or updated in Strapi.
 - **Draft & Publish Workflow**: Editors can draft content and publish it when ready.
 - **SQLite Database**: Lightweight database for easy development and deployment.
 - **Frontend Previews**:
-  - _server-side rendered_ preview pages generated via Strapi and served from the GCP VM, through Nginx (content stored in Strapi database)
+  - _Server-side rendered_ preview pages generated via Strapi and served from the GCP VM through Nginx (content stored in the Strapi database).
   - Netlify deploy previews for pull requests opened against `staging`.
 
 ## Getting Started
@@ -31,11 +31,13 @@ pnpm install
 
 ### Configuration
 
-The CMS is configured via environment variables in `.env`. _Refer to `env.example` for default values and examples_. Key settings:
+The CMS is configured via environment variables in `.env`. Refer to `env.example` for default values and examples.
+
+Key settings:
 
 - `PORT`: CMS runs on port 1337 (default)
 - `DATABASE_CLIENT`: Using better-sqlite3
-- `MDX_OUTPUT_PATH`: Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`
+- `MDX_OUTPUT_PATH`: Base output path for page MDX files. By default, this resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`
 - `PAGES_MDX_OUTPUT_PATH`: Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)
 - `STRAPI_GIT_SYNC_REPO_PATH`: Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)
 - `FRONTEND_ORIGINS`: Origins allowed for CORS (e.g., local dev, staging, production Astro sites)
@@ -52,9 +54,9 @@ For page MDX output, the resolution order is:
 
 This was introduced to:
 
-- avoid fragile relative-path repo detection,
-- ensure content commits happen in the intended staging checkout,
-- fail fast on startup if the target folder is missing or not on the `staging` branch.
+- Avoid fragile relative-path repository detection,
+- Ensure content commits happen in the intended staging checkout,
+- Fail fast on startup if the target folder is missing or not on the `staging` branch.
 
 ### Running the CMS - Development
 
@@ -85,38 +87,113 @@ pnpm run start
 
 - All content types are defined under `src/api/{content-type}/content-types/`.
 - Lifecycle hooks for each type handle MDX generation (**Strapi -> Astro sync**).
-- Scripts inside `/cms/scripts` (e.g., `sync:mdx`, `sync-navigation`) handle synchronizing from Astro MDX files back to the Strapi database for all content types (**Astro → Strapi sync**).
+- Scripts inside `/cms/scripts` (e.g., `sync:mdx`, `sync:navigation`) synchronize Astro MDX files back into the Strapi database for all content types. (**Astro → Strapi sync**).
 
 ## How It Works
 
-### MDX File Generation
+The CMS supports two synchronization flows: Strapi → Astro (MDX generation) and Astro → Strapi (MDX import).
+
+### Strapi → Astro (MDX File Generation)
 
 When content is published or updated in Strapi:
 
-1. The lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered
+1. Lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered automatically
 2. The content is converted to MDX format with frontmatter
 3. An MDX file is created/updated in the staging clone of Astro with the slug as the filename (e.g., `../src/content/foundation-pages/{slug}.mdx`)
 4. Astro automatically picks up the new content
 
-### File Naming
+**File Naming**
 
 MDX files are named using the slug: `{slug}.mdx`
 
 Example: If slug is `interledger-launches-new-platform`, the file will be `interledger-launches-new-platform.mdx`
 
-### Git Commits
+**Git Commits**
 
-- Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
+- Strapi is configured as a contributor to the codebase. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
 
-### Sync Back from Astro
+### Astro → Strapi (MDX Sync)
 
-- On merges to `staging`, the `sync:mdx` script updates the Strapi database with values from Astro `.mdx` files, keeping CMS and site content in sync.
+- In addition to Strapi generating MDX files for Astro (**Strapi → Astro**), this project also supports syncing MDX files back into Strapi.
+
+- This allows Astro content (blog posts, events, navigation, etc.) to remain the source of truth while keeping the Strapi database synchronized.
+
+- Every merge to `staging` that contains changes **outside the `/cms` directory** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
+
+**Features**
+
+- Scans MDX files in
+  - `src/content/foundation-pages`
+  - `src/content/summit-pages`
+- Creates, updates, and deletes Strapi entries to match the MDX file system
+- Supports localized content matching
+- Supports `dry-run` mode to preview changes
+- Automatically runs on merges to the `staging` branch
+
+**Setup**
+
+**1. Create Strapi API Token**
+
+In Strapi admin (<http://localhost:1337/admin>):
+
+1. Go to **Settings** → **API Tokens**
+2. Click **Create new API Token**
+3. Name: `MDX Sync Token`
+4. Token type: **Full access** (required for create/update/delete operations)
+5. Token duration: **Unlimited**
+6. Copy the generated token
+
+**2. Configure Environment Variables**
+
+Add to `cms/.env`:
+
+```env
+STRAPI_API_TOKEN=your-token-here
+```
+
+**Usage**
+
+Run from the `cms/` directory:
+
+```bash
+pnpm run sync:mdx:dry-run     # Preview changes (no writes)
+pnpm run sync:mdx             # Execute sync
+
+pnpm run sync:navigation:dry-run
+pnpm run sync:navigation
+```
+
+**GitHub Actions**
+
+The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX files to Strapi when changes are pushed to the `staging` branch.
+
+**Required GitHub Secrets**
+
+- `STRAPI_URL` - URL of your Strapi instance
+- `STRAPI_API_TOKEN` - Full access API token from Strapi
+
+**How the Sync Works**
+
+1. **Scans MDX files**: Reads all `.mdx` files from content directories
+2. **Parses frontmatter**: Extracts metadata (title, description, slug, etc.)
+3. **Validates content**: Validates frontmatter using Zod schemas defined in `src/schemas/content.ts`
+4. **Converts markdown**: Transforms markdown content to HTML
+5. **Syncs to Strapi**:
+   - Creates new entries if slug doesn't exist
+   - Updates existing entries if slug matches
+   - Creates or updates localized entries
+   - Deletes orphaned Strapi entries (present in Strapi but not in MDX)
+
+**Content Type Mappings**
+
+- `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
+- `src/content/summit-pages/*.mdx` → `summit-pages` (API ID)
+
+These mappings are configured in: `scripts/sync-mdx/config.ts`
 
 ### Unpublishing Content
 
 TODO: ???
-
-For more information on **MDX file generation** and **preview functionality**, see `/scripts/README.md`
 
 ## Development Workflow
 
@@ -130,7 +207,7 @@ cd cms && pnpm run develop
 3. **Create Content**: Add new content through the UI
 4. **Preview Page**: Save the content as a **draft** or **publish** to enable server-side preview pages directly from the Strapi interface.
 5. **Publish**: When ready, publish the content.<br />
-   Publishing commits the changes locally in the `staging clone` and pushes them to the remote `staging branch` via the GitHub App.
+   Publishing commits the changes locally to the `staging clone` and pushes them to the remote `staging branch` via the GitHub App.
 6. **View on Site**:
 
 - **Locally**: Your Astro dev server automatically picks up the newly generated MDX files.
@@ -207,6 +284,22 @@ rm -rf cms/.tmp
 ```
 
 Then restart Strapi. You'll need to create a new admin user.
+
+### 401 Unauthorized Error
+
+Your API token does not have sufficient permissions. Ensure that:
+
+- Token type is "Full access" (not "Read-only" or "Custom")
+- Token is not expired
+- Token is correctly set in environment variables
+
+### Cannot find module 'dotenv'
+
+The script requires dotenv to load environment variables:
+
+```bash
+pnpm add dotenv
+```
 
 ## Security Notes
 
