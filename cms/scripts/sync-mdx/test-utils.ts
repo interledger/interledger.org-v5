@@ -1,4 +1,4 @@
-import type { MDXFile } from './scan'
+import type { MDXFile } from './mdxTypes'
 
 // Allow undefined values to test edge cases without casts
 type MdxFileOverrides = Partial<{

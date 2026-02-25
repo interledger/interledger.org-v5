@@ -5,6 +5,7 @@
 
 import fs from 'fs'
 import matter from 'gray-matter'
+import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
@@ -62,30 +63,9 @@ export function htmlToMarkdown(html: string): string {
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
 
-/**
- * Converts markdown to HTML.
- * Handles: bold, italic, links, line breaks.
- */
 export function markdownToHtml(markdown: string): string {
   if (!markdown) return ''
-
-  return (
-    markdown
-      // Bold: **text** or __text__
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
-      // Italic: *text* or _text_
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      .replace(/_([^_]+)_/g, '<em>$1</em>')
-      // Links: [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      // Line breaks
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      // Wrap in paragraph if not already
-      .replace(/^(?!<p>)/, '<p>')
-      .replace(/(?!<\/p>)$/, '</p>')
-  )
+  return marked.parse(markdown) as string
 }
 
 /**

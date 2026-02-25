@@ -13,12 +13,9 @@ const getPreviewPathname = (
     case 'api::foundation-page.foundation-page':
       // documentId comes directly from the handler — no findOne needed
       return `/page-preview?documentId=${documentId}`
-    case 'api::summit-page.summit-page': {
-      const path =
-        (document?.path as string)?.replace(/^\//, '') ||
-        (document?.slug as string)
-      return path ? `/summit/${path}?preview=true` : null
-    }
+    case 'api::summit-page.summit-page':
+      // TODO: create /summit-preview SSR page (similar to /page-preview)
+      return `/summit-preview?documentId=${documentId}`
     default:
       return null
   }

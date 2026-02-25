@@ -4,8 +4,6 @@ import matter from 'gray-matter'
 import type { ContentTypes } from './config'
 import type { MDXFile } from './mdxTypes'
 
-export type { MDXFile }
-
 interface ScanOptions {
   baseDir: string
   locale: string

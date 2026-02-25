@@ -2,8 +2,6 @@
 
 This is the Strapi CMS for managing content that will be rendered on the Interledger Developers Portal. The CMS automatically generates MDX files that are read by the Astro site.
 
-<!-- Test workflow run -->
-
 ## Features
 
 - **Automatic MDX Generation**: Content is automatically written to MDX files when published
@@ -129,25 +127,6 @@ Content authors can preview draft pages before publishing. The preview system us
 **Note:** Preview requires saving first because Strapi reads the document from its database to generate the preview URL. Unsaved changes only exist in the browser and are not available to the preview handler.
 
 This is intentionally separate from the published content flow. Published pages are statically generated from MDX files at build time and have no runtime dependency on Strapi.
-
-#### Setup
-
-**Strapi side** (`cms/.env`):
-
-```env
-CLIENT_URL=http://localhost:1103   # Must match the Astro dev server URL
-```
-
-The preview handler is configured in `cms/config/admin.ts`. To add preview support for a new content type, add a case to the `getPreviewPathname` switch statement.
-
-**Astro side** (`.env` in project root):
-
-```env
-STRAPI_URL=http://localhost:1337
-STRAPI_PREVIEW_TOKEN=<your-api-token>
-```
-
-The token must have read access to the content types you want to preview (including draft status). You can generate one in the Strapi admin under Settings > API Tokens.
 
 #### Adding preview for a new content type
 
