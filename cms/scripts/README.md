@@ -67,9 +67,9 @@ The workflow in `.github/workflows/sync-mdx-to-strapi.yml` automatically syncs M
 
 ## Content Type Mappings
 
-- `src/content/blog/*.mdx` → `blog-posts` (API ID)
-- `src/content/events/*.mdx` → `news-events` (API ID)
-- `src/content/foundation-pages/*.mdx` → `pages` (API ID)
+- `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
+- `src/content/summit-pages/*.mdx` → `summit-pages` (API ID)
+- `src/content/ambassadors/*.mdx` → `ambassadors` (API ID)
 
 ## Page Block Import
 
