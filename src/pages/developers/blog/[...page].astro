@@ -82,7 +82,7 @@ const { page } = Astro.props
                   >
                     {blogPostEntry.data.date.toDateString()}
                   </time>
-                  {blogPostEntry.data.lang === 'es' ? (
+                  {blogPostEntry.data.locale === 'es' ? (
                     <div class="flex items-start gap-space-2xs">
                       <h2 class="text-step-1">
                         <a
