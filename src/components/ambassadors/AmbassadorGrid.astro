@@ -28,7 +28,7 @@ const { ambassadors: propAmbassadors, slugs, heading } = Astro.props
 
 let ambassadors: AmbassadorData[] = []
 
-if (propAmbassadors && propAmbassadors.length > 0) {
+if (propAmbassadors?.length > 0) {
   // Use provided ambassador data directly
   ambassadors = propAmbassadors
 } else if (slugs && slugs.length > 0) {
