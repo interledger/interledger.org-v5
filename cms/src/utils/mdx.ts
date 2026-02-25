@@ -9,7 +9,7 @@ import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
-type MediaLike = Pick<MediaFile, 'url'> & { formats?: MediaFile['formats'] }
+type MediaLike = { url?: string; formats?: MediaFile['formats'] }
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
