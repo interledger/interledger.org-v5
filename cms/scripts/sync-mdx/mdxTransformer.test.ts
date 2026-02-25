@@ -32,7 +32,10 @@ vi.mock('./siteSchemas', async () => {
 })
 
 import { getEntryField, buildPagePayload } from './mdxTransformer'
-import { foundationPageFrontmatterSchema, summitPageFrontmatterSchema } from './siteSchemas'
+import {
+  foundationPageFrontmatterSchema,
+  summitPageFrontmatterSchema
+} from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
 
@@ -112,7 +115,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About Us' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.title).toBe('About Us')
     })
@@ -123,7 +130,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.slug).toBe('about-page')
     })
@@ -134,7 +145,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'Test' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.publishedAt).toBeDefined()
       expect(typeof payload.publishedAt).toBe('string')
@@ -158,7 +173,11 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.title).toBe('About')
       expect(payload.slug).toBe('about')
@@ -178,7 +197,11 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'Welcome',
@@ -196,7 +219,11 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'About Page',
@@ -213,7 +240,11 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'Hero Only',
@@ -234,7 +265,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.hero).toEqual({
         title: 'Existing Hero',
@@ -249,7 +284,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toBeUndefined()
     })
@@ -270,7 +309,11 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.hero).toEqual({
         title: 'New Hero',
@@ -288,7 +331,11 @@ describe('buildPagePayload', () => {
         content: '## Heading\n\nParagraph text'
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toEqual([
         {
@@ -310,7 +357,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'Existing' }
@@ -330,7 +381,11 @@ describe('buildPagePayload', () => {
         content: '   \n\n   '
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'Kept' }
@@ -343,7 +398,11 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toBeUndefined()
     })
@@ -360,7 +419,11 @@ describe('buildPagePayload', () => {
         content: 'New content'
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'New content' }
@@ -374,7 +437,11 @@ describe('buildPagePayload', () => {
         content: undefined
       })
 
-      const payload = buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toBeUndefined()
     })

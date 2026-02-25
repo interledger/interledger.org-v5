@@ -49,7 +49,9 @@ function createMockStrapi() {
   }
 }
 
-const buildPayloadMock = vi.fn().mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+const buildPayloadMock = vi
+  .fn()
+  .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
 
 const baseConfig = {
   dir: '/content/foundation-pages',
@@ -62,7 +64,9 @@ const contentTypes = {
   'summit-pages': {
     dir: '/content/summit',
     apiId: 'summit-pages',
-    buildPayload: vi.fn().mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+    buildPayload: vi
+      .fn()
+      .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
   }
 } as unknown as ContentTypes
 
