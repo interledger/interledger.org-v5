@@ -32,7 +32,7 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
-Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then set `CLIENT_URL` to match your Astro dev server port (default `http://localhost:1103`).
+Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://localhost:1103`).
 
 #### Environment variables
 
@@ -40,7 +40,7 @@ Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
 | `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                   |
-| `CLIENT_URL`                | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
 | `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`                                                                             |
 | `PAGES_MDX_OUTPUT_PATH`     | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)                                                                                                                                     |
 | `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
@@ -119,7 +119,7 @@ Content authors can preview draft pages before publishing. The preview system us
 2. They click **Save / Draft**
 3. They click **Open preview** (the button is disabled until the draft is saved or the content is published)
 4. Strapi calls the `preview.handler` in `config/admin.ts`, which reads the document from the database and builds a preview URL based on the content type (e.g. `/page-preview?documentId=abc123`)
-5. The browser opens `{CLIENT_URL}/page-preview?documentId=abc123` on the Astro dev/SSR server
+5. The browser opens `{ASTRO_PREVIEW_URL}/page-preview?documentId=abc123` on the Astro dev/SSR server
 6. The Astro preview route (`src/pages/page-preview.astro`, which has `prerender = false`) fetches the **draft** content from the Strapi API using the `documentId`
 7. The page is rendered at runtime using the `DynamicZone` component, which maps Strapi block types to Astro components
 8. The author can edit, save, and re-preview as many times as needed before publishing

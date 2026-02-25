@@ -22,7 +22,7 @@ const getPreviewPathname = (
 }
 
 export default ({ env }) => {
-  const clientUrl = env('CLIENT_URL')
+  const clientUrl = env('ASTRO_PREVIEW_URL')
 
   return {
     auth: {
