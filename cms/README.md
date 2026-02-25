@@ -303,7 +303,6 @@ pnpm add dotenv
 
 - The `.env` file contains secrets - never commit it to version control
 - Change the default secrets in `.env` before deploying to production
-- The CMS is configured to allow CORS from `localhost:1103` (the Astro dev server)
 - Update `FRONTEND_ORIGINS` in `.env` and `config/middlewares.ts` for production
 
 ## Support
