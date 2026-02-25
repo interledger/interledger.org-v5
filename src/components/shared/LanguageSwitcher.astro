@@ -3,7 +3,6 @@ import { getRelativeLocaleUrl } from 'astro:i18n'
 const { url } = Astro.props
 import { getLangFromUrl } from '../../i18/utils.ts'
 const currentLang = getLangFromUrl(url)
-console.log('CURRENTLANG====================', currentLang)
 // TODO, does the getrelative url work in both directions?
 ---
 
