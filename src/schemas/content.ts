@@ -5,7 +5,7 @@ export const developersBlogFrontmatterSchema = z.object({
   description: z.string(),
   date: z.date(),
   slug: z.string(),
-  lang: z.string().optional(),
+  locale: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
   tags: z.array(
