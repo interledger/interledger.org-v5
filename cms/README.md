@@ -154,7 +154,7 @@ cms/
 ├── src/
 │   ├── admin/      # Admin UI customizations
 │   ├── api/
-│   │   ├──/{content-type}  # e.g., blog-post, foundation-page
+│   │   ├── {content-type}  # e.g., blog-post, foundation-page
 │   │       ├── content-types/
 │   │       │       ├── schema.json
 │   │       │       └── lifecycles.ts  # MDX generation logic

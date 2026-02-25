@@ -12,7 +12,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 2. [Architecture Overview](#architecture-overview)
 3. [Project Structure](#project-structure)
 4. [Local Development](#local-development)
-5. [CI / Github Workflows](#ci--github-workflows)
+5. [CI / GitHub Workflows](#ci--github-workflows)
 6. [Content Workflow](#content-workflow)
    - [Content Synchronization](#content-synchronization)
    - [Preview functionality](#preview-functionality)
@@ -21,7 +21,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 7. [Contributing](#contributing)
    - [1. Editor Flow](#1-editor-flow-strapi-workflow)
    - [2. Developer Flow - Website content](#2-developer-flow---website-content-astro-content-collections)
-   - [3. Developer Flow - Documentation ](#3-developer-flow---documentation-starlight)
+   - [3. Developer Flow - Documentation](#3-developer-flow---documentation-starlight)
    - [Writing guidelines for developers](#writing-guidelines-for-developers)
 8. [More Info](#more-info)
 
@@ -291,7 +291,7 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 - **`staging`**:
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
-  - Every merge to `staging` that contains changes **outside the `/cms` folder** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files..
+  - Every merge to `staging` that contains changes **outside the `/cms` folder** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
   - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin panel.
 
 ### Hosting Architecture
