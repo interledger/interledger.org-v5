@@ -41,8 +41,8 @@ function scanDirectory({
 
   // Process each file
   for (const filename of files) {
-    // Skip non-MDX files
-    if (!filename.endsWith('.mdx')) {
+    // Skip non-MD/MDX files
+    if (!filename.endsWith('.mdx') && !filename.endsWith('.md')) {
       continue
     }
 
@@ -67,7 +67,9 @@ function scanDirectory({
       slug = frontmatter.slug
     } else {
       // Remove .mdx extension and date prefix (e.g., "2025-01-15-") if present
-      slug = filename.replace(/\.mdx$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '')
+      slug = filename
+        .replace(/\.(mdx|md)$/, '')
+        .replace(/^\d{4}-\d{2}-\d{2}-/, '')
     }
 
     // Extract locale: prefer frontmatter, otherwise use directory locale

@@ -1,9 +1,14 @@
 import { getContentPath } from '@/utils/paths'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
-import { buildPagePayload } from './mdxTransformer'
+import {
+  buildPagePayload,
+  buildBlogPayload,
+  buildAmbassadorPayload
+} from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
+  foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './siteSchemas'
@@ -36,13 +41,8 @@ export interface ContentTypeConfig {
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
+  'foundation-blog-posts': ContentTypeConfig
   ambassadors: ContentTypeConfig
-}
-
-/** Coerce YAML null / "null" / empty-string values to null. */
-function nullOrValue(v: unknown): string | null {
-  if (v === 'null' || v == null || v === '') return null
-  return String(v)
 }
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
@@ -61,28 +61,19 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       buildPayload: async (mdx, _strapi, existing) =>
         buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
     },
+    'foundation-blog-posts': {
+      dir: getContentPath(projectRoot, 'blog'),
+      apiId: 'foundation-blog-posts',
+      schema: foundationBlogFrontmatterSchema,
+      buildPayload: async (mdx, _strapi, _existing) =>
+        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+    },
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
-      buildPayload: async (mdx, strapi, _existing) => {
-        const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
-        const photoId = photoUrl ? await strapi.findUploadByUrl(photoUrl) : null
-        if (photoUrl && !photoId) {
-          console.warn(
-            `   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${photoUrl}`
-          )
-        }
-        return {
-          name: nullOrValue(mdx.frontmatter.name),
-          slug: mdx.slug,
-          description: nullOrValue(mdx.frontmatter.description),
-          ...(photoId ? { photo: photoId } : {}),
-          linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
-          grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
-          publishedAt: new Date().toISOString()
-        }
-      }
+      buildPayload: (mdx, strapi, _existing) =>
+        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
     }
   }
 }

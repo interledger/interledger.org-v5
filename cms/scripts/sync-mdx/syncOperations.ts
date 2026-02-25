@@ -9,7 +9,8 @@
  *
  * All operations support dry-run mode for previewing changes.
  */
-import { type MDXFile, getLocalesToCheck } from './scan'
+import { getLocalesToCheck } from './scan'
+import type { MDXFile } from './mdxTypes'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'

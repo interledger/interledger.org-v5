@@ -12,7 +12,7 @@
  */
 
 import type { MDXFile } from './mdxTypes'
-import type { StrapiEntry } from './strapiClient'
+import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
 
 /**
@@ -96,4 +96,72 @@ export function buildPagePayload(
   }
 
   return data
+}
+
+/** Coerce YAML null / "null" / empty-string values to null. */
+function nullOrValue(v: unknown): string | null {
+  if (v === 'null' || v == null || v === '') return null
+  return String(v)
+}
+
+/**
+ * Builds a Strapi payload for an ambassador MDX file.
+ *
+ * @param schema - Zod schema to validate/parse the frontmatter
+ * @param mdx - MDX file data with frontmatter and content
+ * @param strapi - Strapi client for resolving photo upload IDs
+ * @returns Strapi payload object
+ */
+export async function buildAmbassadorPayload(
+  schema: FrontmatterSchema,
+  mdx: MDXFile,
+  strapi: StrapiClient
+): Promise<Record<string, unknown>> {
+  schema.parse({ ...mdx.frontmatter, slug: mdx.slug })
+
+  const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
+  const photoId = photoUrl ? await strapi.findUploadByUrl(photoUrl) : null
+  if (photoUrl && !photoId) {
+    console.warn(
+      `   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${photoUrl}`
+    )
+  }
+
+  return {
+    name: nullOrValue(mdx.frontmatter.name),
+    slug: mdx.slug,
+    description: nullOrValue(mdx.frontmatter.description),
+    ...(photoId ? { photo: photoId } : {}),
+    linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
+    grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
+    publishedAt: new Date().toISOString()
+  }
+}
+
+/**
+ * Builds a Strapi payload for a blog-post-type MDX file.
+ *
+ * @param schema - Zod schema to validate/parse the frontmatter
+ * @param mdx - MDX file data with frontmatter and content
+ * @returns Strapi payload object
+ */
+export function buildBlogPayload(
+  schema: FrontmatterSchema,
+  mdx: MDXFile
+): Record<string, unknown> {
+  const parsed = schema.parse({
+    ...mdx.frontmatter,
+    slug: mdx.slug
+  }) as Record<string, unknown>
+
+  const date = parsed.date as Date
+
+  return {
+    title: parsed.title,
+    description: parsed.description,
+    slug: parsed.slug,
+    date: date.toISOString().split('T')[0],
+    publishedAt: date.toISOString(),
+    content: mdx.content || ''
+  }
 }
