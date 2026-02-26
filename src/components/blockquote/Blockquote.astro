@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { source, quote } = Astro.props
-const htmlSource = source ? parseMarkdownInline(source) : ''
+const htmlSource = parseMarkdownInline(source)
 ---
 
 <div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">

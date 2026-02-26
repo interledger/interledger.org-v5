@@ -24,7 +24,7 @@ if (!ambassador) {
 const photoUrl = ambassador.photo?.url
 const photoAlt = ambassador.photo?.alternativeText || ambassador.name
 // Convert markdown description to HTML for preview
-const descriptionHtml = await parseMarkdown(ambassador.description || '')
+const descriptionHtml = await parseMarkdown(ambassador.description)
 ---
 
 <Ambassador
