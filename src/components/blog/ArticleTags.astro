@@ -1,0 +1,15 @@
+---
+const { tags } = Astro.props
+---
+
+<footer>
+  <ul class="flex gap-space-xs mb-space-s">
+    {
+      tags.map((tag) => (
+        <li class="mb-space-xs">
+          <a href="#">#{tag}</a>
+        </li>
+      ))
+    }
+  </ul>
+</footer>
