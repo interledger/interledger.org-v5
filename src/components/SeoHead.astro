@@ -87,7 +87,10 @@ const jsonLdGraph: object[] = isArticle
       }
     ]
 
-const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': jsonLdGraph })
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': jsonLdGraph
+})
 ---
 
 <meta charset="UTF-8" />

@@ -16,14 +16,8 @@ interface Props {
   datePublished?: string
 }
 
-const {
-  title,
-  description,
-  ogType,
-  ogImageUrl,
-  canonicalURL,
-  datePublished
-} = Astro.props
+const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
+  Astro.props
 ---
 
 <BaseLayout
