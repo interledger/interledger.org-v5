@@ -15,11 +15,7 @@ const { entry } = Astro.props
 const { Content } = await render(entry)
 ---
 
-<<<<<<< HEAD
-<BlogLayout frontmatter={entry.data} body={entry.body}>
-=======
 <FoundationBlogLayout frontmatter={entry.data}>
->>>>>>> origin/staging
   <Content />
   <CommunityLinks />
 </FoundationBlogLayout>

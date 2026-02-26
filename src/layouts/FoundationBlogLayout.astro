@@ -4,32 +4,57 @@
  * Grants, policy, announcements - distinct from Tech Blog.
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
+import type { AlternateLink } from '@/types/seo'
 
-interface Props {
-  frontmatter: {
-    title: string
-    description?: string
-    date: Date | string
-    featureImage?: string
-    featureImageAlt?: string
-    ogImageUrl?: string
-    external_url?: string
-  }
+interface Frontmatter {
+  title: string
+  description?: string
+  date: Date | string
+  ogImageUrl?: string
+  external_url?: string
+  featureImage?: string
+  featureImageAlt?: string
+  lang?: string
 }
 
 interface Props {
-  frontmatter: Record<string, any>
-  body?: string
+  frontmatter: Frontmatter
   canonicalURL?: string
-  alternates?: { href: string; hreflang: string }[]
+  alternates?: AlternateLink[]
   robots?: string
 }
 
-const { frontmatter, body, canonicalURL, alternates, robots } = Astro.props as Props
+const { frontmatter, canonicalURL, alternates, robots } = Astro.props as Props
+
+const site = Astro.site!
+const ogImageUrl = frontmatter.ogImageUrl
+  ? new URL(frontmatter.ogImageUrl, site).href
+  : new URL('/img/blog/og-image.png', site).href
+const lang = frontmatter.lang ?? 'en'
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
 const longDate = dateObj.toDateString().substring(4)
+
+const articleJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: frontmatter.title,
+  description: frontmatter.description,
+  datePublished: dateObj.toISOString(),
+  author: {
+    '@type': 'Organization',
+    name: 'Interledger Foundation'
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Interledger Foundation',
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/img/logo-interledger.svg', site).href
+    }
+  }
+})
 
 const rawHTMLString = frontmatter.external_url
   ? `This article was originally published at <a href=${frontmatter.external_url}>${frontmatter.external_url}</a>.`
@@ -41,7 +66,6 @@ const rawHTMLString = frontmatter.external_url
   description={frontmatter.description}
   ogType="article"
   ogImageUrl={ogImageUrl}
-  ogImageAlt={frontmatter.featureImageAlt || frontmatter.title}
   lang={lang}
   canonicalURL={canonicalURL}
   alternates={alternates}

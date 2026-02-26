@@ -1,10 +1,5 @@
 ---
-import { buildDefaultAlternates, resolveLang, toOgLocale } from '../utils/seo'
-
-interface AlternateLink {
-  href: string
-  hreflang: string
-}
+import type { AlternateLink } from '@/types/seo'
 
 interface Props {
   title?: string
@@ -42,47 +37,44 @@ const {
   robots
 } = Astro.props
 
-const site = Astro.site ?? new URL('/', Astro.url)
+const site = Astro.site!
 const canonicalURL = canonicalOverride
   ? new URL(canonicalOverride, site).href
   : new URL(Astro.url.pathname, site).href
-const pageLang = resolveLang(langOverride, Astro.url.pathname)
-const alternateLinks = alternates ?? buildDefaultAlternates(Astro.url.pathname, site)
+const pageLang = langOverride ?? 'en'
+const alternateLinks = alternates ?? []
 const ogImage = ogImageUrl
   ? new URL(ogImageUrl, site).href
   : new URL('/img/og-image.png', site).href
 const resolvedOgSiteName = ogSiteName ?? siteName
-const resolvedOgLocale = ogLocale ?? toOgLocale(pageLang)
+const resolvedOgLocale = ogLocale ?? 'en_US'
 
 const resolvedTitle = title ? `${title} | ${siteName}` : siteName
 const resolvedDescription =
   description ?? 'Making payments as easy as sending an email'
 const resolvedOgImageAlt = ogImageAlt ?? (title ? title : siteName)
 
-const orgId = `${site.href}#organization`
-const websiteId = `${site.href}#website`
 const jsonLd = includeJsonLd
-  ? JSON.stringify([
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        '@id': orgId,
-        name: 'Interledger Foundation',
-        url: site.href,
-        logo: new URL('/img/logo-interledger.svg', site).href
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        '@id': websiteId,
-        name: jsonLdSiteName ?? siteName,
-        url: site.href,
-        inLanguage: pageLang,
-        publisher: {
-          '@id': orgId
+  ? JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${site.href}#organization`,
+          name: 'Interledger Foundation',
+          url: site.href,
+          logo: new URL('/img/logo-interledger.svg', site).href
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${site.href}#website`,
+          name: jsonLdSiteName ?? siteName,
+          url: site.href,
+          inLanguage: pageLang,
+          publisher: { '@id': `${site.href}#organization` }
         }
-      }
-    ])
+      ]
+    })
   : null
 ---
 

@@ -155,10 +155,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (page) => {
-        const pathname = typeof page === 'string' ? page : page.pathname
-        return !pathname.startsWith('/blog/preview')
-      }
+      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
     })
   ],
   vite: {

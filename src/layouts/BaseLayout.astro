@@ -5,7 +5,7 @@
  * Use named slots for header/footer customization.
  */
 import '../styles/tailwind.css'
-import { resolveLang } from '../utils/seo'
+import type { AlternateLink } from '@/types/seo'
 
 interface Props {
   title: string
@@ -14,10 +14,12 @@ interface Props {
   theme?: 'light' | 'dark'
   ogType?: string
   ogImageUrl?: string
-  ogImageAlt?: string
   canonicalURL?: string
   bodyClass?: string
   bodyStyle?: string
+  lang?: string
+  alternates?: AlternateLink[]
+  robots?: string
 }
 
 const {
@@ -29,14 +31,17 @@ const {
   ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
   bodyClass = '',
-  bodyStyle = ''
+  bodyStyle = '',
+  lang = 'en',
+  alternates,
+  robots
 } = Astro.props
 
 const fullTitle = title ? `${title} | ${titleSuffix}` : titleSuffix
 ---
 
 <!doctype html>
-<html lang="en" data-theme={theme}>
+<html lang={lang} data-theme={theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="author" content="Interledger Foundation" />
@@ -57,6 +62,14 @@ const fullTitle = title ? `${title} | ${titleSuffix}` : titleSuffix
     <meta name="twitter:description" content={description} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    {
+      alternates?.map((link) => (
+        <link rel="alternate" hreflang={link.hreflang} href={link.href} />
+      ))
+    }
+    {robots && <meta name="robots" content={robots} />}
+    <slot name="head" />
     <script
       defer
       src="https://uwa.interledger.org/script.js"

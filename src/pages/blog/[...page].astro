@@ -62,7 +62,10 @@ const { page } = Astro.props
                       src={blogPostEntry.data.thumbnailImage}
                       width="250"
                       height="250"
-                      alt={blogPostEntry.data.thumbnailImageAlt || blogPostEntry.data.title}
+                      alt={
+                        blogPostEntry.data.thumbnailImageAlt ||
+                        blogPostEntry.data.title
+                      }
                       class="w-[250px] h-[250px] object-cover rounded max-[768px]:w-full max-[768px]:h-auto"
                     />
                   )}
