@@ -26,11 +26,7 @@ pnpm install
 
 ### Configuration
 
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
-cp .env.example .env
-```
+The CMS is configured via environment variables in `.env`. Key settings:
 
 Generate the required Strapi secrets using the commands in `QUICKSTART.md`, then set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://localhost:1103`).
 

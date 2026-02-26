@@ -41,16 +41,6 @@ async function main() {
       process.exit(1)
     }
   }
-  if (FORCE && !DRY_RUN) {
-    const branch = spawnSync('git', ['branch', '--show-current'], {
-      encoding: 'utf-8',
-      cwd: projectRoot
-    })
-    console.warn(
-      `⚠️  --force: skipping branch check (current: ${branch.stdout?.trim() || '(unknown)'})`
-    )
-  }
-
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })

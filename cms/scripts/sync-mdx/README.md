@@ -4,7 +4,7 @@ Syncs MDX files to Strapi (MDX → Strapi import only). Run from `cms/`:
 
 ```bash
 pnpm run sync:mdx:dry-run   # Preview changes
-pnpm run sync:mdx           # Sync !
+pnpm run sync:mdx           # run !
 ```
 
 ## Flow
