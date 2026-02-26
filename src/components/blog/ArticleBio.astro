@@ -1,0 +1,8 @@
+---
+const { text, imageUrl, imageAlt = '' } = Astro.props
+---
+
+<div>
+  <img loading="lazy" src={imageUrl} alt={imageAlt} />
+  <div>{text}</div>
+</div>
