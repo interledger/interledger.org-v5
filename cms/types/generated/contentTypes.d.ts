@@ -502,7 +502,20 @@ export interface ApiFoundationBlogPostFoundationBlogPost
     }
   }
   attributes: {
+    articleBio: Schema.Attribute.Component<'shared.article-bio', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    authors: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     content: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
@@ -531,20 +544,48 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    featuredImage: Schema.Attribute.Media<'images'> &
+    featureImage: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
+    language: Schema.Attribute.Enumeration<['en', 'es']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'en'>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::foundation-blog-post.foundation-blog-post'
     >
+    pillar: Schema.Attribute.Enumeration<
+      ['vision', 'mission', 'tech', 'values']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     slug: Schema.Attribute.UID<'title'> &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    tags: Schema.Attribute.Component<'shared.tags', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    thumbnailImage: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

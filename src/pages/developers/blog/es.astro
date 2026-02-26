@@ -5,7 +5,7 @@ import { createExcerpt } from '@/utils/create-excerpt'
 
 // Only return posts with `draft: true` in the frontmatter
 const esEntries = await getCollection('developers-blog', ({ data }) => {
-  return data.lang === 'es'
+  return data.locale === 'es'
 })
 ---
 
