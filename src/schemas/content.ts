@@ -1,5 +1,15 @@
 import { z } from 'zod'
 
+const foundationTags = [
+  'Announcements',
+  'Community & Events',
+  'Grants & Grantee Insights',
+  'Interledger Technology',
+  'Thought Leadership'
+] as const
+
+export type FoundationTag = (typeof foundationTags)[number]
+
 export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -34,17 +44,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
   authors: z.array(z.string()).optional().default([]),
-  tags: z
-    .array(
-      z.enum([
-        'Announcements',
-        'Community & Events',
-        'Grants & Grantee Insights',
-        'Interledger Technology',
-        'Thought Leadership'
-      ])
-    )
-    .default([]),
+  tags: z.array(z.enum(foundationTags)).default([]),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
