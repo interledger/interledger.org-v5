@@ -20,15 +20,6 @@ export function getCmsDir(): string {
   return path.join(getProjectRoot(), 'cms')
 }
 
-/** Exits if not run from cms directory. */
-export function assertRunFromCms(): void {
-  if (path.basename(getCwd()) !== 'cms') {
-    console.error('❌ Error: run this script from the cms directory')
-    console.error('   Example: cd cms && pnpm run <command>')
-    process.exit(1)
-  }
-}
-
 /** Path segments relative to project root (Astro site root when cms runs from cms/). */
 export const PATHS = {
   CONTENT_ROOT: 'src/content',
