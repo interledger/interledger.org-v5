@@ -183,7 +183,16 @@ async function fetchPublished(
       populate: {
         hero: { populate: '*' },
         seo: { populate: '*' },
-        content: { populate: '*' }
+        content: {
+          on: {
+            'blocks.ambassador': {
+              populate: { ambassador: { populate: { photo: true } } }
+            },
+            'blocks.ambassadors-grid': {
+              populate: { ambassadors: true }
+            }
+          }
+        }
       }
     })
     return page as PageData | null
