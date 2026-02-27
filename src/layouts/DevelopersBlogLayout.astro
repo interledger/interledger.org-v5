@@ -6,7 +6,7 @@ const { frontmatter, canonicalURL } = Astro.props
 const site = Astro.site!
 const ogImageUrl = frontmatter.ogImageUrl
   ? new URL(frontmatter.ogImageUrl, site).href
-  : new URL('/img/blog/og-image.png', site).href
+  : new URL('/img/blog/og-developers.png', site).href
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
