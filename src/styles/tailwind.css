@@ -158,7 +158,7 @@
   /* Category-based theming */
   [data-category='tech'] {
     --accent-color: var(--color-tech-primary); 
-    --color-feature-gradient: linear-gradient(
+    --feature-gradient: linear-gradient(
     to right,
     var(--color-tech-primary),
     oklch(74.53% 0.082 202.65)
@@ -167,7 +167,7 @@
 
   [data-category='mission'] {
     --accent-color: var(--color-mission-primary);
-    --color-feature-gradient: linear-gradient(
+    --feature-gradient: linear-gradient(
     to right,
     var(--color-mission-primary),
     oklch(76.1% 0.164 65)
@@ -176,7 +176,7 @@
 
   [data-category='vision'] {
     --accent-color: var(--color-vision-primary);
-    --color-feature-gradient: linear-gradient(
+    --feature-gradient: linear-gradient(
     to right,
     var(--color-vision-primary),
     oklch(68.24% 0.206 303.127)
@@ -185,7 +185,7 @@
 
   [data-category='values'] {
     --accent-color: var(--color-values-primary);
-    --color-feature-gradient: linear-gradient(
+    --feature-gradient: linear-gradient(
     to right,
      var(--color-values-primary),
     oklch(73% 0.158 351.42)

@@ -21,13 +21,14 @@ const { Content } = await render(entry)
   <Content />
   <CommunityLinksFoundation />
   {
-    entry.data.bioTexts && entry.data.bioTexts.map((bioText, i) => (
-      <ArticleBio
-        text={bioText}
-        imageUrl={entry.data.bioImages?.[i]}
-        imageAlt={entry.data.authors?.[i] ?? ''}
-      />
-    )) 
+    entry.data.bioTexts &&
+      entry.data.bioTexts.map((bioText, i) => (
+        <ArticleBio
+          text={bioText}
+          imageUrl={entry.data.bioImages?.[i]}
+          imageAlt={entry.data.authors?.[i] ?? ''}
+        />
+      ))
   }
   {entry.data.tags?.length > 0 && <ArticleTags tags={entry.data.tags} />}
 </FoundationBlogLayout>

@@ -61,7 +61,7 @@ const longDate = dateObj.toDateString().substring(4)
       {
         frontmatter.featureImage && (
           <div class="flex mb-space-xs">
-            <div class="bg-[image:var(--color-feature-gradient)] w-full"></div>
+            <div class="bg-[image:var(--feature-gradient)] w-full" />
             <img
               src={frontmatter.featureImage}
               alt={frontmatter.featureImageAlt || frontmatter.title}
