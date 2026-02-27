@@ -33,7 +33,9 @@ export const developersBlogFrontmatterSchema = z.object({
   external_url: z.string().optional()
 })
 
-export type DevelopersBlogFrontmatterType = z.infer<typeof developersBlogFrontmatterSchema>
+export type DevelopersBlogFrontmatterType = z.infer<
+  typeof developersBlogFrontmatterSchema
+>
 
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
@@ -53,7 +55,9 @@ export const foundationBlogFrontmatterSchema = z.object({
   locale: z.string().optional()
 })
 
-export type FoundationBlogFrontmatterType = z.infer<typeof foundationBlogFrontmatterSchema>
+export type FoundationBlogFrontmatterType = z.infer<
+  typeof foundationBlogFrontmatterSchema
+>
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),

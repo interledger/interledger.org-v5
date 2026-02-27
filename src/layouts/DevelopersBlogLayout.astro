@@ -103,7 +103,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
               ) : (
                 <span>{author}</span>
               )
-              return (frontmatter.authors && i < frontmatter.authors.length - 1)
+              return frontmatter.authors && i < frontmatter.authors.length - 1
                 ? [authorElement, ', ']
                 : authorElement
             })}
