@@ -5,6 +5,7 @@
  * Use named slots for header/footer customization.
  */
 import '../styles/tailwind.css'
+import SeoHead from '@/components/SeoHead.astro'
 
 interface Props {
   title: string
@@ -16,6 +17,7 @@ interface Props {
   canonicalURL?: string
   bodyClass?: string
   bodyStyle?: string
+  datePublished?: string
 }
 
 const {
@@ -27,34 +29,24 @@ const {
   ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
   bodyClass = '',
-  bodyStyle = ''
+  bodyStyle = '',
+  datePublished
 } = Astro.props
-
-const fullTitle = title ? `${title} | ${titleSuffix}` : titleSuffix
 ---
 
 <!doctype html>
 <html lang="en" data-theme={theme}>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="author" content="Interledger Foundation" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{fullTitle}</title>
-
-    <meta property="og:title" content={fullTitle} />
-    <meta property="og:type" content={ogType} />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:description" content={description} />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:image" content={ogImageUrl} />
-    <meta name="twitter:description" content={description} />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SeoHead
+      title={title}
+      description={description}
+      siteName={titleSuffix}
+      ogType={ogType}
+      ogImageUrl={ogImageUrl}
+      canonicalURL={canonicalURL}
+      datePublished={datePublished}
+    />
+    <slot name="head" />
     <script
       defer
       src="https://uwa.interledger.org/script.js"
