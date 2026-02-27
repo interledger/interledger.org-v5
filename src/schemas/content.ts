@@ -43,6 +43,8 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
   authors: z.array(z.string()).optional().default([]),
+  bioTexts: z.array(z.string()).optional(),
+  bioImages: z.array(z.string()).optional(),
   tags: z.array(z.enum(foundationTags)).default([]),
   localizes: z.string().optional(),
   locale: z.string().optional()

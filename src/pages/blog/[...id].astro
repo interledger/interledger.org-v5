@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
+import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 
 export async function getStaticPaths() {
@@ -19,5 +20,14 @@ const { Content } = await render(entry)
 <FoundationBlogLayout frontmatter={entry.data}>
   <Content />
   <CommunityLinksFoundation />
+  {
+    entry.data.bioTexts && entry.data.bioTexts.map((bioText, i) => (
+      <ArticleBio
+        text={bioText}
+        imageUrl={entry.data.bioImages?.[i]}
+        imageAlt={entry.data.authors?.[i] ?? ''}
+      />
+    )) 
+  }
   {entry.data.tags?.length > 0 && <ArticleTags tags={entry.data.tags} />}
 </FoundationBlogLayout>
