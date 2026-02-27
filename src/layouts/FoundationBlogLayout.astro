@@ -4,27 +4,16 @@
  * Grants, policy, announcements - distinct from Tech Blog.
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
-
+import type { FoundationBlogFrontmatterType} from '@/schemas/content.ts' 
 interface Props {
-  frontmatter: {
-    title: string
-    description?: string
-    date: Date | string
-    ogImageUrl?: string
-    external_url?: string
-    featureImage?: string
-    featureImageAlt?: string
-    authors?: string[]
-  }
+  frontmatter: FoundationBlogFrontmatterType
   canonicalURL?: string
 }
 
 const { frontmatter, canonicalURL } = Astro.props
 
 const site = Astro.site!
-const ogImageUrl = frontmatter.ogImageUrl
-  ? new URL(frontmatter.ogImageUrl, site).href
-  : new URL('/img/blog/og-ilf.png', site).href
+const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
