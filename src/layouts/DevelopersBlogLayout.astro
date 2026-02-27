@@ -1,7 +1,12 @@
 ---
 import FoundationPageLayout from './FoundationPageLayout.astro'
 
-const { frontmatter } = Astro.props
+const { frontmatter, canonicalURL } = Astro.props
+
+const site = Astro.site!
+const ogImageUrl = frontmatter.ogImageUrl
+  ? new URL(frontmatter.ogImageUrl, site).href
+  : new URL('/img/blog/og-developers.png', site).href
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
@@ -14,9 +19,9 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   title={frontmatter.title}
   description={frontmatter.description}
   ogType="article"
-  ogImageUrl={frontmatter.ogImageUrl
-    ? new URL(frontmatter.ogImageUrl, Astro.site).href
-    : new URL('/img/blog/og-image.png', Astro.site).href}
+  ogImageUrl={ogImageUrl}
+  canonicalURL={canonicalURL}
+  datePublished={dateObj.toISOString()}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article
