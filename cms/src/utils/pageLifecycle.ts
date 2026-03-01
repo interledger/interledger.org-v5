@@ -25,6 +25,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { getProjectRoot, PATHS } from './paths'
+import { gitCommitAndPush } from './gitSync'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
@@ -258,7 +259,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       console.log(
         `📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
       )
-      await exportAllLocales(config, result.documentId)
+      const filepaths = await exportAllLocales(config, result.documentId)
+      if (filepaths.length > 0) {
+        await gitCommitAndPush(
+          filepaths,
+          `${uidToLogLabel(config.contentTypeUid)}: create ${result.slug}`
+        )
+      }
     },
 
     async afterUpdate(event: Event) {
@@ -291,6 +298,14 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
           }
         }
       }
+
+      const allPaths = [...filepaths, ...deletedPaths]
+      if (allPaths.length > 0) {
+        await gitCommitAndPush(
+          allPaths,
+          `${uidToLogLabel(config.contentTypeUid)}: update ${result.slug}`
+        )
+      }
     },
 
     async afterDelete(event: Event) {
@@ -321,6 +336,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
             )
           }
         }
+      }
+
+      if (deletedPaths.length > 0) {
+        await gitCommitAndPush(
+          deletedPaths,
+          `${uidToLogLabel(config.contentTypeUid)}: delete ${result.slug}`
+        )
       }
     }
   }

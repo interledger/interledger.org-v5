@@ -2,6 +2,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
+import { getProjectRoot } from './paths'
 
 function escapeForShell(str: string): string {
   return str.replace(/'/g, "'\\''")
@@ -13,9 +14,12 @@ function expandHomeDir(filepath: string): string {
 }
 
 export function getTargetRepoRoot(): string {
-  const configuredPath =
-    process.env.STRAPI_GIT_SYNC_REPO_PATH || '~/interledger.org-v5-staging'
-  return path.resolve(expandHomeDir(configuredPath))
+  const configuredPath = process.env.STRAPI_GIT_SYNC_REPO_PATH
+  if (configuredPath) {
+    return path.resolve(expandHomeDir(configuredPath))
+  }
+  // Default: use project root so commits go to the same repo where MDX is written
+  return getProjectRoot()
 }
 
 export function resolveTargetRepoPath(targetPath: string): string {
@@ -49,6 +53,7 @@ export async function validateGitSyncRepoOnStartup(): Promise<void> {
 
   const targetRepoRoot = getTargetRepoRoot()
   const gitDir = path.join(targetRepoRoot, '.git')
+  const usingStagingRepo = Boolean(process.env.STRAPI_GIT_SYNC_REPO_PATH)
 
   if (!fs.existsSync(targetRepoRoot)) {
     throw new Error(
@@ -67,7 +72,8 @@ export async function validateGitSyncRepoOnStartup(): Promise<void> {
     'git rev-parse --abbrev-ref HEAD',
     targetRepoRoot
   )
-  if (branch !== 'staging') {
+
+  if (usingStagingRepo && branch !== 'staging') {
     throw new Error(
       `Git sync repository must be on "staging" branch, found "${branch}" at ${targetRepoRoot}`
     )
@@ -78,35 +84,90 @@ export async function validateGitSyncRepoOnStartup(): Promise<void> {
   )
 }
 
-/**
- * Pulls latest changes, stages the filepath, commits, and pushes.
- * Resolves even on failure so Strapi saves content.
- */
-export async function gitCommitAndPush(
-  filepath: string,
+const DEBOUNCE_MS = 2000
+
+interface PendingCommit {
+  paths: Set<string>
+  messages: string[]
+  timeout: ReturnType<typeof setTimeout>
+}
+
+let pendingCommit: PendingCommit | null = null
+
+function flushPendingCommit(): void {
+  if (!pendingCommit || pendingCommit.paths.size === 0) {
+    pendingCommit = null
+    return
+  }
+  const { paths, messages } = pendingCommit
+  pendingCommit = null
+  const pathsArray = Array.from(paths)
+  const message =
+    messages.length === 1
+      ? messages[0]
+      : messages[messages.length - 1].replace(
+          /^(foundation-page|summit-page): (create|update|delete) /,
+          '$1: sync '
+        )
+  gitCommitAndPushImmediate(pathsArray, message)
+}
+
+function scheduleDebouncedCommit(
+  filepath: string | string[],
+  message: string
+): void {
+  const paths = Array.isArray(filepath) ? filepath : [filepath]
+  if (paths.length === 0) return
+
+  const projectRoot = getTargetRepoRoot()
+  const normalizedPaths = paths.map((fp) =>
+    path.isAbsolute(fp) ? fp : path.join(projectRoot, fp)
+  )
+
+  if (pendingCommit) {
+    clearTimeout(pendingCommit.timeout)
+    normalizedPaths.forEach((p) => pendingCommit!.paths.add(p))
+    pendingCommit.messages.push(message)
+  } else {
+    pendingCommit = {
+      paths: new Set(normalizedPaths),
+      messages: [message],
+      timeout: null as unknown as ReturnType<typeof setTimeout>
+    }
+  }
+
+  pendingCommit.timeout = setTimeout(() => {
+    flushPendingCommit()
+  }, DEBOUNCE_MS)
+}
+
+function gitCommitAndPushImmediate(
+  filepath: string | string[],
   message: string
 ): Promise<void> {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
     console.log('⏭️  Git sync disabled via STRAPI_DISABLE_GIT_SYNC')
-    return
+    return Promise.resolve()
   }
+
+  const paths = Array.isArray(filepath) ? filepath : [filepath]
+  if (paths.length === 0) return Promise.resolve()
 
   const projectRoot = getTargetRepoRoot()
   const safeMessage = escapeForShell(message)
 
-  const relativeFilepath = path.isAbsolute(filepath)
-    ? path.relative(projectRoot, filepath)
-    : filepath
-  const safeFilepath = escapeForShell(relativeFilepath)
+  const addPaths = paths.map((fp) => {
+    const relative = path.isAbsolute(fp)
+      ? path.relative(projectRoot, fp)
+      : fp
+    return escapeForShell(relative)
+  })
 
-  // Always include public/uploads if it exists so media changes are committed
   const uploadsDir = path.join(projectRoot, 'public', 'uploads')
-  const addPaths = [safeFilepath]
   if (fs.existsSync(uploadsDir)) {
-    const uploadsRelative = escapeForShell(
-      path.relative(projectRoot, uploadsDir)
+    addPaths.push(
+      escapeForShell(path.relative(projectRoot, uploadsDir))
     )
-    addPaths.push(uploadsRelative)
   }
 
   return new Promise((resolve) => {
@@ -129,4 +190,20 @@ export async function gitCommitAndPush(
       resolve()
     })
   })
+}
+
+/**
+ * Schedules a debounced git commit. Multiple rapid calls (e.g. from Strapi
+ * update→delete→create lifecycle chain) are coalesced into a single commit.
+ */
+export async function gitCommitAndPush(
+  filepath: string | string[],
+  message: string
+): Promise<void> {
+  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
+    console.log('⏭️  Git sync disabled via STRAPI_DISABLE_GIT_SYNC')
+    return
+  }
+
+  scheduleDebouncedCommit(filepath, message)
 }
