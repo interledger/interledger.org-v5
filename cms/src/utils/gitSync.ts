@@ -157,17 +157,13 @@ function gitCommitAndPushImmediate(
   const safeMessage = escapeForShell(message)
 
   const addPaths = paths.map((fp) => {
-    const relative = path.isAbsolute(fp)
-      ? path.relative(projectRoot, fp)
-      : fp
+    const relative = path.isAbsolute(fp) ? path.relative(projectRoot, fp) : fp
     return escapeForShell(relative)
   })
 
   const uploadsDir = path.join(projectRoot, 'public', 'uploads')
   if (fs.existsSync(uploadsDir)) {
-    addPaths.push(
-      escapeForShell(path.relative(projectRoot, uploadsDir))
-    )
+    addPaths.push(escapeForShell(path.relative(projectRoot, uploadsDir)))
   }
 
   return new Promise((resolve) => {
