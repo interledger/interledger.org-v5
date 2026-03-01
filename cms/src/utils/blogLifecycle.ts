@@ -9,11 +9,75 @@ interface BlogResult {
   title: string
   description: string
   slug: string
-  date: string
-  content: string
-  createdAt: Date
-  updatedAt: Date
-  publishedAt?: Date
+  date?: string
+  pillar?: string
+  featureImage?: { url?: string; alternativeText?: string }
+  thumbnailImage?: { url?: string; alternativeText?: string }
+  authors?: string
+  content?: string
+  locale?: string
+  [key: string]: unknown
+}
+
+interface Event {
+  result?: BlogData
+}
+
+function getOutputDir(locale: string): string {
+  const projectRoot = getProjectRoot()
+  const subdir = PATHS.CONTENT.blog
+  if (locale === 'en') {
+    return path.join(projectRoot, PATHS.CONTENT_ROOT, subdir)
+  }
+  return path.join(projectRoot, PATHS.CONTENT_ROOT, locale, subdir)
+}
+
+function formatDate(date: string | undefined): string {
+  if (!date) return ''
+  const d = new Date(date)
+  return d.toISOString().split('T')[0]
+}
+
+function blogToMdxContent(blog: BlogData): string {
+  const dateStr = formatDate(blog.date)
+  const frontmatter: Record<string, unknown> = {
+    title: blog.title,
+    description: blog.description || '',
+    date: dateStr,
+    slug: blog.slug,
+    pillar: blog.pillar || 'vision'
+  }
+
+  if (blog.featureImage?.url) {
+    frontmatter.featureImage =
+      getImageUrl(blog.featureImage) || blog.featureImage.url
+    if (blog.featureImage.alternativeText) {
+      frontmatter.featureImageAlt = blog.featureImage.alternativeText
+    }
+  }
+  if (blog.thumbnailImage?.url) {
+    frontmatter.thumbnailImage =
+      getImageUrl(blog.thumbnailImage) || blog.thumbnailImage.url
+    if (blog.thumbnailImage.alternativeText) {
+      frontmatter.thumbnailImageAlt = blog.thumbnailImage.alternativeText
+    }
+  }
+  if (blog.authors) {
+    frontmatter.authors = blog.authors
+      .split(',')
+      .map((a) => a.trim())
+      .filter(Boolean)
+  }
+  if (blog.locale && blog.locale !== 'en') {
+    frontmatter.locale = blog.locale
+  }
+
+  const body = blog.content ? htmlToMarkdown(blog.content) : ''
+  return matter.stringify(body ? `\n${body}\n` : '\n', frontmatter)
+}
+
+async function fetchPublishedBlog(
+  documentId: string,
   locale: string
   pillar: 'vision' | 'mission' | 'tech' | 'values'
   language?: 'en' | 'es'
@@ -137,22 +201,55 @@ async function deleteMDXFile({
   const filepath = path.join(outputPath, filename)
 
   try {
-    await fs.promises.unlink(filepath)
-    console.log(`🗑️  Deleted MDX file: ${filepath}`)
-  } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+    const doc = await strapi.documents(CONTENT_TYPE_UID).findOne({
+      documentId,
+      locale,
+      status: 'published',
+      populate: {
+        featureImage: { populate: '*' },
+        thumbnailImage: { populate: '*' }
+      }
+    })
+    return doc as BlogData | null
+  } catch (error) {
+    console.error(
+      `Failed to fetch foundation-blog-post ${documentId} (${locale}):`,
+      error
+    )
+    return null
+  }
+}
+
+async function exportAllLocales(documentId: string): Promise<string[]> {
+  const filepaths: string[] = []
+
+  for (const locale of LOCALES) {
+    const blog = await fetchPublishedBlog(documentId, locale)
+    if (!blog) continue
+
+    const dateStr = formatDate(blog.date)
+    const filename = `${dateStr}-${blog.slug}.mdx`
+    const outputDir = getOutputDir(locale)
+    const filepath = path.join(outputDir, filename)
+
+    try {
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true })
+      }
+      fs.writeFileSync(filepath, blogToMdxContent(blog), 'utf-8')
+      console.log(`✅ Generated foundation-blog-post MDX: ${filepath}`)
+      filepaths.push(filepath)
+    } catch (error) {
       console.error(
-        `❌ Failed to delete Blog Post MDX file: ${filepath}`,
+        `Failed to write foundation-blog-post MDX: ${filepath}`,
         error
       )
-      throw error
     }
   }
 }
 
-export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
-  const projectRoot = getProjectRoot()
-  const outputPath = path.join(projectRoot, outputDir)
+function findExistingMdxFiles(slug: string): string[] {
+  const found: string[] = []
 
   return {
     async afterCreate(event: BlogEvent) {
