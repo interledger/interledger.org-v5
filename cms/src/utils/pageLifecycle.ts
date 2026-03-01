@@ -4,20 +4,14 @@
  * Used by page and summit-page content types.
  */
 
-// Strapi v5 Document API types
-interface StrapiDocumentAPI {
-  findOne: (options: {
-    documentId: string
-    locale: string
-    status: string
-    populate: Record<string, unknown>
-  }) => Promise<unknown>
-}
-
 declare const strapi: {
-  documents: (uid: string) => StrapiDocumentAPI
-  requestContext: {
-    get: () => { request?: { headers?: Record<string, string> } } | null
+  documents: (uid: string) => {
+    findOne: (options: {
+      documentId: string
+      locale: string
+      status: string
+      populate: Record<string, unknown>
+    }) => Promise<unknown>
   }
 }
 
@@ -25,7 +19,6 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { getProjectRoot, PATHS } from './paths'
-import { gitCommitAndPush } from './gitSync'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
@@ -34,6 +27,7 @@ import {
   getPreservedFields,
   uidToLogLabel
 } from './mdx'
+import { shouldSkipMdxExport, commitPaths } from './lifecycleUtils'
 
 interface PageData {
   id: number
@@ -60,24 +54,6 @@ interface PageData {
 
 interface Event {
   result?: PageData
-}
-
-/**
- * Returns true when the request originates from the sync script.
- * The sync script sets `x-skip-mdx-export: true` so we don't re-write
- * MDX files that were the source of the import in the first place.
- *
- * strapi.requestContext uses AsyncLocalStorage — safe inside lifecycle hooks.
- */
-export function shouldSkipMdxExport(): boolean {
-  try {
-    const ctx = strapi.requestContext.get() as {
-      request?: { headers?: Record<string, string> }
-    } | null
-    return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
-  } catch {
-    return false
-  }
 }
 
 export interface PageLifecycleConfig {
@@ -260,12 +236,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
       )
       const filepaths = await exportAllLocales(config, result.documentId)
-      if (filepaths.length > 0) {
-        await gitCommitAndPush(
-          filepaths,
-          `${uidToLogLabel(config.contentTypeUid)}: create ${result.slug}`
-        )
-      }
+      await commitPaths(
+        filepaths,
+        `${uidToLogLabel(config.contentTypeUid)}: create ${result.slug}`
+      )
     },
 
     async afterUpdate(event: Event) {
@@ -299,13 +273,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         }
       }
 
-      const allPaths = [...filepaths, ...deletedPaths]
-      if (allPaths.length > 0) {
-        await gitCommitAndPush(
-          allPaths,
-          `${uidToLogLabel(config.contentTypeUid)}: update ${result.slug}`
-        )
-      }
+      await commitPaths(
+        [...filepaths, ...deletedPaths],
+        `${uidToLogLabel(config.contentTypeUid)}: update ${result.slug}`
+      )
     },
 
     async afterDelete(event: Event) {
@@ -338,12 +309,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         }
       }
 
-      if (deletedPaths.length > 0) {
-        await gitCommitAndPush(
-          deletedPaths,
-          `${uidToLogLabel(config.contentTypeUid)}: delete ${result.slug}`
-        )
-      }
+      await commitPaths(
+        deletedPaths,
+        `${uidToLogLabel(config.contentTypeUid)}: delete ${result.slug}`
+      )
     }
   }
 }

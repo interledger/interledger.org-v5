@@ -9,6 +9,7 @@ export {
   type PageLifecycleConfig
 } from '../utils/pageLifecycle'
 export { createNavigationLifecycle } from '../utils/navigationLifecycle'
+export { createBlogLifecycle } from '../utils/blogLifecycle'
 export {
   getProjectRoot,
   getContentPath,

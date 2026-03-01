@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { getProjectRoot } from './paths'
-import { gitCommitAndPush } from './gitSync'
 import { uidToLogLabel } from './mdx'
+import { commitPaths } from './lifecycleUtils'
 
 // Strapi v5 Document API types
 interface StrapiDocumentAPI {
@@ -158,8 +158,8 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
         return
       }
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        outputPath,
+      await commitPaths(
+        [outputPath],
         `${uidToLogLabel(config.contentTypeUid)}: update navigation`
       )
     },
@@ -170,18 +170,16 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
 
       if (!navigation) {
         const deletedPath = await deleteNavigationFile(config)
-        if (deletedPath) {
-          await gitCommitAndPush(
-            deletedPath,
-            `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
-          )
-        }
+        await commitPaths(
+          deletedPath ? [deletedPath] : [],
+          `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
+        )
         return
       }
 
       const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        outputPath,
+      await commitPaths(
+        [outputPath],
         `${uidToLogLabel(config.contentTypeUid)}: update navigation`
       )
     },
@@ -189,12 +187,10 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
     async afterDelete(_event: Event) {
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
-      if (deletedPath) {
-        await gitCommitAndPush(
-          deletedPath,
-          `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
-        )
-      }
+      await commitPaths(
+        deletedPath ? [deletedPath] : [],
+        `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
+      )
     }
   }
 }
