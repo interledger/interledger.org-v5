@@ -1,5 +1,5 @@
 ---
-import CommunityLinks from '@/components/blog/CommunityLinks.astro'
+import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import { fetchStrapi } from '@/utils/fetchStrapi'
 import { marked } from 'marked'
@@ -37,5 +37,5 @@ const bodyHtml = marked.parse(article.content ? article.content : '')
 
 <FoundationBlogLayout frontmatter={frontmatter}>
   <article set:html={bodyHtml} />
-  <CommunityLinks />
+  <CommunityLinksFoundation />
 </FoundationBlogLayout>

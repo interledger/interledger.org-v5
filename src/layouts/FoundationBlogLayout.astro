@@ -4,34 +4,20 @@
  * Grants, policy, announcements - distinct from Tech Blog.
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
-
+import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 interface Props {
-  frontmatter: {
-    title: string
-    description?: string
-    date: Date | string
-    ogImageUrl?: string
-    external_url?: string
-    featureImage?: string
-    featureImageAlt?: string
-  }
+  frontmatter: FoundationBlogFrontmatterType
   canonicalURL?: string
 }
 
 const { frontmatter, canonicalURL } = Astro.props
 
 const site = Astro.site!
-const ogImageUrl = frontmatter.ogImageUrl
-  ? new URL(frontmatter.ogImageUrl, site).href
-  : new URL('/img/blog/og-ilf.png', site).href
+const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
 
 const dateObj = new Date(frontmatter.date)
 const isoDate = dateObj.toISOString().slice(0, 10)
 const longDate = dateObj.toDateString().substring(4)
-
-const rawHTMLString = frontmatter.external_url
-  ? `This article was originally published at <a href=${frontmatter.external_url}>${frontmatter.external_url}</a>.`
-  : null
 ---
 
 <FoundationPageLayout
@@ -42,50 +28,29 @@ const rawHTMLString = frontmatter.external_url
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
 >
-  <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
+  <main
+    class="flex flex-col bg-white/70 pt-space-m pb-space-xl"
+    data-category={frontmatter.pillar}
+  >
     <article
       itemscope
       itemtype="http://schema.org/Article"
-      class="mx-auto flex-1 max-w-prose min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s [&_ol]:mb-space-s [&_ul]:mb-space-s [&_figure]:mb-space-s [&_hr]:mb-space-s [&_h2]:mb-space-xs [&_h3]:mb-space-xs [&_h4]:mb-space-xs [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto"
+      class="mx-auto flex-1 max-w-[1100px] min-w-[360px] max-[1324px]:px-[5%] [&_p]:mb-space-s
+      [&_ol]:list-decimal [&_ol]:ps-10 [&_ol]:mb-space-s
+      [&_ul]:list-disc [&_li>ul]:list-[circle] [&_ul]:mb-space-s [&_ul]:ps-10 [&_ul_li]:mb-space-2xs
+      [&_figure]:mb-space-s [&_hr]:mb-space-s
+      [&_h1]:text-[var(--accent-color)]
+      [&_h2]:text-step-2 [&_h2]:font-bold [&_h2]:mb-space-xs
+      [&_h3]:text-step-1 [&_h3]:font-bold [&_h3]:mb-space-xs
+      [&_h4]:font-bold [&_h4]:mb-space-xs
+      [&_h5]:font-bold [&_h5]:text-[0.83em]
+       [&_a]:text-[var(--accent-color)] [&_a]:no-underline [&_a:hover]:underline [&_figcaption]:text-step--1 [&_figcaption]:italic [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere] [&_ul_li]:mb-space-2xs [&_img]:block [&_img]:mx-auto [&_strong]:text-inherit
+       [&_blockquote]:text-step-1 [&_blockquote]:font-light [&_blockquote]:border-s-4 [&_blockquote]:border-[var(--accent-color)] [&_blockquote]:ps-space-s"
     >
-      <ol
-        class="flex list-none ps-0 text-step--1 font-bold pt-space-l"
-        itemscope
-        itemtype="https://schema.org/BreadcrumbList"
-      >
-        <li
-          itemprop="itemListElement"
-          itemscope
-          itemtype="https://schema.org/ListItem"
-        >
-          <a
-            itemprop="item"
-            href="/"
-            data-umami-event="Foundation blog breadcrumb - Home"
-          >
-            <span itemprop="name">Interledger Foundation</span></a
-          >
-          <meta itemprop="position" content="1" />
-        </li>
-        <li
-          itemprop="itemListElement"
-          itemscope
-          itemtype="https://schema.org/ListItem"
-          class="before:content-['>'] before:inline-flex before:ms-space-3xs"
-        >
-          <a
-            itemprop="item"
-            href="/blog"
-            data-umami-event="Foundation blog breadcrumb - Blog"
-          >
-            <span itemprop="name">Blog</span></a
-          >
-          <meta itemprop="position" content="2" />
-        </li>
-      </ol>
       {
         frontmatter.featureImage && (
-          <div>
+          <div class="flex mb-space-xs">
+            <div class="bg-[image:var(--feature-gradient)] w-full" />
             <img
               src={frontmatter.featureImage}
               alt={frontmatter.featureImageAlt || frontmatter.title}
@@ -93,7 +58,9 @@ const rawHTMLString = frontmatter.external_url
           </div>
         )
       }
-      <h1 class="text-primary-fallback text-step-4 leading-tight mb-space-2xs">
+      <h1
+        class="text-primary-fallback font-bold text-step-4 leading-tight mb-space-2xs"
+      >
         {frontmatter.title}
       </h1>
       <time
@@ -104,11 +71,10 @@ const rawHTMLString = frontmatter.external_url
         {longDate}
       </time>
       {
-        rawHTMLString && (
-          <div
-            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
-            set:html={rawHTMLString}
-          />
+        frontmatter.authors && frontmatter.authors.length > 0 && (
+          <address class="text-step-0 mb-space-s">
+            Written by {frontmatter.authors.join(', ')}
+          </address>
         )
       }
       <slot />

@@ -1,5 +1,25 @@
 import { z } from 'zod'
 
+const foundationTags = [
+  'Announcements',
+  'Community & Events',
+  'Grants & Grantee Insights',
+  'Interledger Technology',
+  'Thought Leadership'
+] as const
+
+const developersTags = [
+  'Interledger Protocol',
+  'Open Payments',
+  'Rafiki',
+  'Releases',
+  'Updates',
+  'Web Monetization',
+  'Card Payments'
+  // Please add a matching translation in i18n/ui.ts for any new tag
+] as const
+export type FoundationTag = (typeof foundationTags)[number]
+
 export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -8,20 +28,14 @@ export const developersBlogFrontmatterSchema = z.object({
   locale: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
-  tags: z.array(
-    z.enum([
-      'Interledger Protocol',
-      'Open Payments',
-      'Rafiki',
-      'Releases',
-      'Updates',
-      'Web Monetization',
-      'Card Payments'
-      // Please add a matching translation in i18n/ui.ts for any new tag
-    ])
-  ),
-  ogImageUrl: z.string().optional()
+  tags: z.array(z.enum(developersTags)),
+  ogImageUrl: z.string().optional(),
+  external_url: z.string().optional()
 })
+
+export type DevelopersBlogFrontmatterType = z.infer<
+  typeof developersBlogFrontmatterSchema
+>
 
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
@@ -34,20 +48,16 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
   authors: z.array(z.string()).optional().default([]),
-  tags: z
-    .array(
-      z.enum([
-        'Announcements',
-        'Community & Events',
-        'Grants & Grantee Insights',
-        'Interledger Technology',
-        'Thought Leadership'
-      ])
-    )
-    .default([]),
+  bioTexts: z.array(z.string()).optional(),
+  bioImages: z.array(z.string()).optional(),
+  tags: z.array(z.enum(foundationTags)).default([]),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
+
+export type FoundationBlogFrontmatterType = z.infer<
+  typeof foundationBlogFrontmatterSchema
+>
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
