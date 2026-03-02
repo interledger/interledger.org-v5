@@ -11,7 +11,9 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   path: string
-  posts: CollectionEntry<'developers-blog'>[] | CollectionEntry<'foundation-blog'>[]
+  posts:
+    | CollectionEntry<'developers-blog'>[]
+    | CollectionEntry<'foundation-blog'>[]
   breadcrumbs?: BreadcrumbItem[]
   allTags?: string[]
   selectedTag?: string
@@ -53,6 +55,12 @@ const {
               itemprop="itemListElement"
               itemscope
               itemtype="https://schema.org/ListItem"
+              class:list={[
+                {
+                  "before:content-['>'] before:inline-flex before:ms-space-3xs":
+                    index > 0
+                }
+              ]}
             >
               <a
                 itemprop="item"
@@ -89,7 +97,11 @@ const {
         />
       </a>
     </header>
-    {showTagFilter && <TagFilter allTags={allTags} selectedTag={selectedTag} href={path}/>}
+    {
+      showTagFilter && (
+        <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+      )
+    }
     <ol class="list-none p-0">
       {
         posts.map((blogPostEntry) => {

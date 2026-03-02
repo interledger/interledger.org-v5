@@ -48,18 +48,6 @@ const { page, allTags, selectedTag } = Astro.props
     title="Foundation Blog"
     path="/blog"
     posts={page.data || []}
-    breadcrumbs={[
-      {
-        name: 'Developers Portal',
-        href: '/developers',
-        umamiEvent: 'Devs breadcrumb - Home'
-      },
-      {
-        name: 'Engineering Blog',
-        href: '/blog',
-        umamiEvent: 'Devs breadcrumb - Blog'
-      }
-    ]}
     allTags={allTags}
     selectedTag={selectedTag}
     showTagFilter={true}

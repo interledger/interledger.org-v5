@@ -13,7 +13,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
   )
-// Collect all unique tags
+  // Collect all unique tags
   const allTags = [
     ...new Set(blogEntries.flatMap((entry) => entry.data.tags))
   ].sort()
@@ -35,13 +35,6 @@ const { page, allTags } = Astro.props
     title="Foundation Blog"
     path="/blog"
     posts={page.data || []}
-    breadcrumbs={[
-      {
-        name: 'Developers Portal',
-        href: '/developers',
-        umamiEvent: 'Devs breadcrumb - Home'
-      }
-    ]}
     allTags={allTags}
     showTagFilter={true}
     showPagination={true}
