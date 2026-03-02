@@ -31,7 +31,11 @@ vi.mock('./siteSchemas', async () => {
   }
 })
 
-import { getEntryField, isPageType, mdxToStrapiPayload } from './mdxTransformer'
+import { getEntryField, buildPagePayload } from './mdxTransformer'
+import {
+  foundationPageFrontmatterSchema,
+  summitPageFrontmatterSchema
+} from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
 
@@ -89,50 +93,18 @@ describe('getEntryField', () => {
   })
 })
 
-// Determines if a content type should be treated as a "page" with hero sections
-// and content blocks. Other content types (like blog-posts) aren't supported yet.
-describe('isPageType', () => {
-  it('returns true for foundation-pages', () => {
-    expect(isPageType('foundation-pages')).toBe(true)
-  })
-
-  it('returns true for summit-pages', () => {
-    expect(isPageType('summit-pages')).toBe(true)
-  })
-
-  it('returns false for blog-posts', () => {
-    // @ts-expect-error - testing with invalid content type
-    expect(isPageType('blog-posts')).toBe(false)
-  })
-
-  it('returns false for unknown content types', () => {
-    // @ts-expect-error - testing with invalid content type
-    expect(isPageType('unknown-type')).toBe(false)
-  })
-})
-
 // Core transformation from MDX files to Strapi API payloads.
 // Handles validation, hero section logic, and content block creation.
-describe('mdxToStrapiPayload', () => {
+describe('buildPagePayload', () => {
   describe('error handling', () => {
-    it('throws for unsupported content type', () => {
-      const mdx = createMdxFile({
-        slug: 'test',
-        frontmatter: { title: 'Test' }
-      })
-
-      // @ts-expect-error - testing with invalid content type
-      expect(() => mdxToStrapiPayload('blog-posts', mdx)).toThrow(
-        'Unsupported content type'
-      )
-    })
-
     it('throws when frontmatter fails validation', () => {
       const mdx = createMdxFile({
         slug: 'test'
       })
 
-      expect(() => mdxToStrapiPayload('foundation-pages', mdx, null)).toThrow()
+      expect(() =>
+        buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
+      ).toThrow()
     })
   })
 
@@ -143,7 +115,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About Us' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.title).toBe('About Us')
     })
@@ -154,7 +130,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.slug).toBe('about-page')
     })
@@ -165,7 +145,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'Test' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.publishedAt).toBeDefined()
       expect(typeof payload.publishedAt).toBe('string')
@@ -189,7 +173,11 @@ describe('mdxToStrapiPayload', () => {
         }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.title).toBe('About')
       expect(payload.slug).toBe('about')
@@ -209,7 +197,11 @@ describe('mdxToStrapiPayload', () => {
         }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'Welcome',
@@ -227,7 +219,11 @@ describe('mdxToStrapiPayload', () => {
         }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'About Page',
@@ -244,7 +240,11 @@ describe('mdxToStrapiPayload', () => {
         }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toEqual({
         title: 'Hero Only',
@@ -265,7 +265,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.hero).toEqual({
         title: 'Existing Hero',
@@ -280,7 +284,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.hero).toBeUndefined()
     })
@@ -301,7 +309,11 @@ describe('mdxToStrapiPayload', () => {
         }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.hero).toEqual({
         title: 'New Hero',
@@ -319,7 +331,11 @@ describe('mdxToStrapiPayload', () => {
         content: '## Heading\n\nParagraph text'
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toEqual([
         {
@@ -341,7 +357,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'Existing' }
@@ -361,7 +381,11 @@ describe('mdxToStrapiPayload', () => {
         content: '   \n\n   '
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'Kept' }
@@ -374,7 +398,11 @@ describe('mdxToStrapiPayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toBeUndefined()
     })
@@ -391,7 +419,11 @@ describe('mdxToStrapiPayload', () => {
         content: 'New content'
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, existingEntry)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
 
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'New content' }
@@ -405,7 +437,11 @@ describe('mdxToStrapiPayload', () => {
         content: undefined
       })
 
-      const payload = mdxToStrapiPayload('foundation-pages', mdx, null)
+      const payload = buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.content).toBeUndefined()
     })
@@ -419,7 +455,7 @@ describe('mdxToStrapiPayload', () => {
         content: 'Summit content'
       })
 
-      const payload = mdxToStrapiPayload('summit-pages', mdx, null)
+      const payload = buildPagePayload(summitPageFrontmatterSchema, mdx, null)
 
       expect(payload.title).toBe('Schedule')
       expect(payload.slug).toBe('schedule')

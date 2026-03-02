@@ -10,10 +10,6 @@ import type { ContentTypes } from './config'
 import type { SyncContext, SyncResults } from './types'
 import { createMdxFile } from './test-utils'
 
-vi.mock('./mdxTransformer', () => ({
-  mdxToStrapiPayload: vi.fn(() => ({ title: 'Mocked Payload', slug: 'mocked' }))
-}))
-
 vi.mock('./localeMatch', () => ({
   hasMdxFile: vi.fn(() => false)
 }))
@@ -22,11 +18,9 @@ vi.mock('./scan', () => ({
   getLocalesToCheck: vi.fn(() => ['en', 'es'])
 }))
 
-import { mdxToStrapiPayload } from './mdxTransformer'
 import { hasMdxFile } from './localeMatch'
 import { getLocalesToCheck } from './scan'
 
-const mockedMdxToStrapiPayload = vi.mocked(mdxToStrapiPayload)
 const mockedHasMdxFile = vi.mocked(hasMdxFile)
 const mockedGetLocalesToCheck = vi.mocked(getLocalesToCheck)
 
@@ -41,6 +35,7 @@ function createMockStrapi() {
     request: vi.fn().mockResolvedValue({}),
     getAllEntries: vi.fn().mockResolvedValue([]),
     findBySlug: vi.fn().mockResolvedValue(undefined),
+    findUploadByUrl: vi.fn().mockResolvedValue(null),
     createEntry: vi
       .fn()
       .mockResolvedValue({ data: { documentId: 'new-1', slug: 'test' } }),
@@ -54,15 +49,26 @@ function createMockStrapi() {
   }
 }
 
-const baseConfig: ContentTypes['foundation-pages'] = {
+const buildPayloadMock = vi
+  .fn()
+  .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+
+const baseConfig = {
   dir: '/content/foundation-pages',
-  apiId: 'foundation-pages'
+  apiId: 'foundation-pages',
+  buildPayload: buildPayloadMock
 }
 
-const contentTypes: ContentTypes = {
+const contentTypes = {
   'foundation-pages': baseConfig,
-  'summit-pages': { dir: '/content/summit', apiId: 'summit-pages' }
-}
+  'summit-pages': {
+    dir: '/content/summit',
+    apiId: 'summit-pages',
+    buildPayload: vi
+      .fn()
+      .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+  }
+} as unknown as ContentTypes
 
 function createResults(): SyncResults {
   return { created: 0, updated: 0, deleted: 0, errors: 0 }
@@ -135,9 +141,9 @@ describe('syncEnglishEntry', () => {
     expect(results.updated).toBe(1)
   })
 
-  // Existing entry is passed to transformer so it can preserve hero/content
+  // Existing entry is passed to buildPayload so it can preserve hero/content
   // that wasn't specified in the MDX file
-  it('passes existing entry to mdxToStrapiPayload for hero fallback', async () => {
+  it('passes existing entry to buildPayload for hero fallback', async () => {
     const existing: StrapiEntry = {
       documentId: 'doc-1',
       slug: 'about',
@@ -161,11 +167,7 @@ describe('syncEnglishEntry', () => {
       false
     )
 
-    expect(mockedMdxToStrapiPayload).toHaveBeenCalledWith(
-      'foundation-pages',
-      mdx,
-      existing
-    )
+    expect(buildPayloadMock).toHaveBeenCalledWith(mdx, strapi, existing)
   })
 
   // Dry run mode: count what would happen without actually calling Strapi
