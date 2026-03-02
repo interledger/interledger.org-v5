@@ -1,8 +1,9 @@
 ---
 import { createExcerpt } from '@/utils/create-excerpt'
+import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import Pagination from './Pagination.astro'
-import type { CollectionEntry } from 'astro:content'
+import stripPagination from '@/utils/stripPagination.ts'
 interface BreadcrumbItem {
   name: string
   href: string
@@ -39,6 +40,7 @@ const {
   showPagination = false,
   paginationProps
 } = Astro.props
+const basePath = stripPagination(Astro.url.pathname)
 ---
 
 <main class="pt-space-m pb-space-xl">
@@ -157,7 +159,7 @@ const {
     {
       showPagination && paginationProps && (
         <Pagination
-          baseUrl={path}
+          baseUrl={basePath}
           length={paginationProps.length}
           currentPage={paginationProps.currentPage}
           firstUrl={paginationProps.firstUrl}
