@@ -7,13 +7,15 @@
  *
  * Handles page content types by:
  * - Validating frontmatter against Zod schemas
- * - Importing MDX content as markdown (preserving original format)
- * - Preserving existing Strapi entry data when appropriate
+ * - Parsing MDX body into blocks (<Paragraph>, <AmbassadorGrid>, <Blockquote>, plain text)
+ * - Building Strapi dynamic zone content from parsed blocks
  */
 
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
+import type { ParsedBlock } from './mdxComponentParser'
+import { parseMdxComponents } from './mdxComponentParser'
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -29,24 +31,58 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
 }
 
 /**
+ * Builds a Strapi block from a parsed MDX block.
+ */
+async function buildStrapiBlock(
+  block: ParsedBlock,
+  strapi: StrapiClient
+): Promise<Record<string, unknown>> {
+  switch (block.type) {
+    case 'paragraph':
+      return {
+        __component: 'blocks.paragraph',
+        content: block.content
+      }
+    case 'ambassadors-grid': {
+      const ambassadors = await strapi.findAmbassadorsBySlugs(block.slugs)
+      const documentIds = ambassadors.map((a) => a.documentId)
+      return {
+        __component: 'blocks.ambassadors-grid',
+        heading: block.heading || null,
+        ambassadors:
+          documentIds.length > 0 ? { connect: documentIds } : undefined
+      }
+    }
+    case 'blockquote':
+      return {
+        __component: 'blocks.blockquote',
+        quote: block.quote,
+        source: block.source || null
+      }
+  }
+}
+
+/**
  * Builds a Strapi payload for a page-type MDX file.
  *
  * This function:
  * 1. Validates frontmatter against the provided Zod schema
  * 2. Builds the base payload with required fields (title, slug, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
- * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
+ * 4. Parses MDX body into blocks and builds Strapi dynamic zone content
  *
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param existingEntry - Existing Strapi entry (optional, for updates)
+ * @param strapi - Strapi client for resolving relations (e.g. ambassador slugs)
  * @returns Strapi payload object
  */
-export function buildPagePayload(
+export async function buildPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  existingEntry: StrapiEntry | null = null
-): Record<string, unknown> {
+  existingEntry: StrapiEntry | null = null,
+  strapi: StrapiClient
+): Promise<Record<string, unknown>> {
   // Validate frontmatter against schema (throws if invalid)
   const parsed = schema.parse({
     ...mdx.frontmatter,
@@ -75,18 +111,16 @@ export function buildPagePayload(
     }
   }
 
-  // Handle content import
-  // Import MDX content as markdown (preserve original format, no HTML conversion)
+  // Handle content import: parse MDX blocks and build Strapi dynamic zone
   const mdxBody = (mdx.content || '').trim()
   if (mdxBody.length > 0) {
-    // Store markdown content in a Strapi paragraph block component
-    // Strapi's richtext field can accept markdown and will handle rendering
-    data.content = [
-      {
-        __component: 'blocks.paragraph',
-        content: mdx.content
-      }
-    ]
+    const parsedBlocks = parseMdxComponents(mdx.content || '')
+    const strapiBlocks: Record<string, unknown>[] = []
+    for (const block of parsedBlocks) {
+      const strapiBlock = await buildStrapiBlock(block, strapi)
+      strapiBlocks.push(strapiBlock)
+    }
+    data.content = strapiBlocks
   } else {
     // Preserve existing content if MDX file has no body
     const existingContent = getEntryField(existingEntry, 'content')

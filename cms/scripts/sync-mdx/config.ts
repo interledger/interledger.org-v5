@@ -47,19 +47,19 @@ export interface ContentTypes {
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
   return {
-    // 'foundation-pages': {
-    //   dir: getContentPath(projectRoot, 'foundationPages'),
-    //   apiId: 'foundation-pages',
-    //   schema: foundationPageFrontmatterSchema,
-    //   buildPayload: async (mdx, _strapi, existing) =>
-    //     buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
-    // },
+    'foundation-pages': {
+      dir: getContentPath(projectRoot, 'foundationPages'),
+      apiId: 'foundation-pages',
+      schema: foundationPageFrontmatterSchema,
+      buildPayload: async (mdx, strapi, existing) =>
+        buildPagePayload(foundationPageFrontmatterSchema, mdx, existing, strapi)
+    },
     // 'summit-pages': {
     //   dir: getContentPath(projectRoot, 'summitPages'),
     //   apiId: 'summit-pages',
     //   schema: summitPageFrontmatterSchema,
-    //   buildPayload: async (mdx, _strapi, existing) =>
-    //     buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
+    //   buildPayload: async (mdx, strapi, existing) =>
+    //     buildPagePayload(summitPageFrontmatterSchema, mdx, existing, strapi)
     // },
     // 'foundation-blog-posts': {
     //   dir: getContentPath(projectRoot, 'blog'),
@@ -75,5 +75,5 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       buildPayload: (mdx, strapi, _existing) =>
         buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
     }
-  }
+  } as ContentTypes
 }

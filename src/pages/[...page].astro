@@ -11,6 +11,7 @@ import Ambassador from '../components/ambassadors/Ambassador.astro'
 import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '../components/blockquote/Blockquote.astro'
 import CalloutText from '../components/callout/CalloutText.astro'
+import Paragraph from '../components/paragraph/Paragraph.astro'
 
 export async function getStaticPaths() {
   return getPagePaths('foundation-pages', { excludeSlug: 'home' })
@@ -76,6 +77,7 @@ if (isNotFound) Astro.response.status = 404
               <div class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline">
                 <MdxContent
                   components={{
+                    Paragraph,
                     Ambassador,
                     AmbassadorGrid,
                     Blockquote,

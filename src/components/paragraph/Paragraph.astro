@@ -1,0 +1,32 @@
+---
+/**
+ * Paragraph component for MDX content
+ * Renders markdown/rich text with prose styling.
+ * Usage: <Paragraph>content</Paragraph> or <Paragraph content="..." />
+ */
+import { parseMarkdown } from '@/utils/mdx'
+
+interface Props {
+  /** Markdown content. If omitted, slot content is used (MDX usage). */
+  content?: string
+  alignment?: 'left' | 'center' | 'right'
+}
+
+const { content, alignment = 'left' } = Astro.props
+
+const htmlContent = content ? await parseMarkdown(content) : null
+
+const alignmentClass = `text-${alignment}`
+---
+
+<div
+  class={`${alignmentClass} [&_p]:mb-space-s [&_p]:leading-relaxed [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_ul]:mb-space-s [&_ul]:ps-space-m [&_ol]:mb-space-s [&_ol]:ps-space-m [&_li]:mb-space-xs`}
+>
+  {htmlContent ? <Fragment set:html={htmlContent} /> : <slot />}
+</div>
+
+<style>
+  div :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

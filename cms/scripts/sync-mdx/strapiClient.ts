@@ -15,6 +15,8 @@ export interface StrapiClient {
   ) => Promise<StrapiEntry | undefined>
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, or null. */
   findUploadByUrl: (url: string) => Promise<number | null>
+  /** Resolve ambassador slugs to documentIds for relation fields. */
+  findAmbassadorsBySlugs: (slugs: string[]) => Promise<StrapiEntry[]>
   createLocalization: (
     apiId: string,
     documentId: string,
@@ -214,6 +216,21 @@ export function createStrapiClient({
     return files.length > 0 ? files[0].id : null
   }
 
+  async function findAmbassadorsBySlugs(
+    slugs: string[]
+  ): Promise<StrapiEntry[]> {
+    if (slugs.length === 0) return []
+    const results: StrapiEntry[] = []
+    for (const slug of slugs) {
+      const entry = await findBySlug('ambassadors', slug)
+      if (entry) results.push(entry)
+      else {
+        console.warn(`   ⚠️  Ambassador not found for slug: ${slug}`)
+      }
+    }
+    return results
+  }
+
   async function deleteLocalization(
     apiId: string,
     documentId: string,
@@ -229,6 +246,7 @@ export function createStrapiClient({
     getAllEntries,
     findBySlug,
     findUploadByUrl,
+    findAmbassadorsBySlugs,
     createLocalization,
     updateLocalization,
     createEntry,
