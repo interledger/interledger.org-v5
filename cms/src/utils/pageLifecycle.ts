@@ -185,6 +185,13 @@ async function fetchPublished(
         seo: { populate: '*' },
         content: {
           on: {
+            'blocks.paragraph': {},
+            'blocks.callout-text': {},
+            'blocks.blockquote': {},
+            'blocks.cards-grid': {},
+            'blocks.card-links-grid': {},
+            'blocks.carousel': {},
+            'blocks.cta-banner': {},
             'blocks.ambassador': {
               populate: { ambassador: { populate: { photo: true } } }
             },

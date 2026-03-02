@@ -665,7 +665,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-banner',
         'blocks.ambassador',
         'blocks.ambassadors-grid',
-        'blocks.blockquote'
+        'blocks.blockquote',
+        'blocks.callout-text'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
