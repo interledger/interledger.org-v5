@@ -11,8 +11,9 @@ export function serialize(block: {
     ? htmlToMarkdown(block.content)
     : block.content
 
-  if (block.alignment && block.alignment !== 'left') {
-    return `<div class="text-${block.alignment}">\n\n${content}\n\n</div>`
-  }
-  return content
+  const alignmentAttr =
+    block.alignment && block.alignment !== 'left'
+      ? ` alignment="${block.alignment}"`
+      : ''
+  return `<Paragraph${alignmentAttr}>\n${content}\n</Paragraph>`
 }
