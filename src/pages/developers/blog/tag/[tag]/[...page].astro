@@ -3,7 +3,7 @@ import type { Page, GetStaticPaths } from 'astro'
 import { getCollection } from 'astro:content'
 import { getTagSlug } from '@/utils/tag-url'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import BlogIndex from '@/components/blog/BlogIndex.astro'
+import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 
 type Props = {
   page: Page
@@ -44,7 +44,7 @@ const { page, allTags, selectedTag } = Astro.props
   description={`Engineering Blog posts tagged with ${selectedTag}`}
   ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
 >
-  <BlogIndex
+  <BlogIndexDevelopers
     title="Engineering Blog"
     path="/developers/blog"
     posts={page.data || []}

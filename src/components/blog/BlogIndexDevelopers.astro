@@ -12,9 +12,7 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   path: string
-  posts:
-    | CollectionEntry<'developers-blog'>[]
-    | CollectionEntry<'foundation-blog'>[]
+  posts: CollectionEntry<'developers-blog'>[]
   breadcrumbs?: BreadcrumbItem[]
   allTags?: string[]
   selectedTag?: string
