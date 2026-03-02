@@ -12,7 +12,7 @@ const getPreviewPathname = (
         : '/blog'
     case 'api::foundation-page.foundation-page':
       // documentId comes directly from the handler — no findOne needed
-      return `/page-preview?documentId=${documentId}`
+      return `/preview/page-preview?documentId=${documentId}`
     case 'api::summit-page.summit-page':
       // TODO: create /summit-preview SSR page (similar to /page-preview)
       return `/summit-preview?documentId=${documentId}`
@@ -22,7 +22,7 @@ const getPreviewPathname = (
 }
 
 export default ({ env }) => {
-  const clientUrl = env('CLIENT_URL')
+  const clientUrl = env('ASTRO_PREVIEW_URL')
 
   return {
     auth: {

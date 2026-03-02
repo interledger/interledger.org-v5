@@ -25,7 +25,7 @@ const ambassadors: AmbassadorData[] = await Promise.all(
   strapiAmbassadors.map(async (amb) => ({
     name: amb.name,
     slug: amb.slug,
-    description: await parseMarkdown(amb.description || ''),
+    description: await parseMarkdown(amb.description),
     photo: amb.photo?.url || null,
     photoAlt: amb.name,
     linkedinUrl: amb.linkedinUrl,

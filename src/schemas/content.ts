@@ -5,7 +5,7 @@ export const developersBlogFrontmatterSchema = z.object({
   description: z.string(),
   date: z.date(),
   slug: z.string(),
-  lang: z.string().optional(),
+  locale: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
   tags: z.array(
@@ -28,13 +28,23 @@ export const foundationBlogFrontmatterSchema = z.object({
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
   slug: z.string().min(1, 'slug is required'),
-  pillar: z.string().optional(),
+  pillar: z.enum(['vision', 'mission', 'tech', 'values']),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
   authors: z.array(z.string()).optional().default([]),
-  tags: z.array(z.string()).optional().default([]),
+  tags: z
+    .array(
+      z.enum([
+        'Announcements',
+        'Community & Events',
+        'Grants & Grantee Insights',
+        'Interledger Technology',
+        'Thought Leadership'
+      ])
+    )
+    .default([]),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })

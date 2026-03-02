@@ -471,6 +471,23 @@ export interface NavigationMenuItem extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedArticleBio extends Struct.ComponentSchema {
+  collectionName: 'components_shared_article_bios'
+  info: {
+    displayName: 'Article Bio'
+  }
+  attributes: {
+    profileBio: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
+    profileImage: Schema.Attribute.Media<'images'>
+  }
+}
+
 export interface SharedCtaLink extends Struct.ComponentSchema {
   collectionName: 'components_shared_cta_links'
   info: {
@@ -652,6 +669,24 @@ export interface SharedSeo extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedTags extends Struct.ComponentSchema {
+  collectionName: 'components_shared_tags'
+  info: {
+    displayName: 'Tags'
+  }
+  attributes: {
+    tagValue: Schema.Attribute.Enumeration<
+      [
+        'Announcements',
+        'Community & Events',
+        'Grants & Grantee Insights',
+        'Interledger Technology',
+        'Thought Leadership'
+      ]
+    >
+  }
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -669,11 +704,13 @@ declare module '@strapi/strapi' {
       'blocks.paragraph': BlocksParagraph
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
+      'shared.article-bio': SharedArticleBio
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
       'shared.section': SharedSection
       'shared.seo': SharedSeo
+      'shared.tags': SharedTags
     }
   }
 }

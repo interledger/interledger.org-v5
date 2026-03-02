@@ -15,7 +15,6 @@
 
 import { getCollection } from 'astro:content'
 import Ambassador from './Ambassador.astro'
-import { parseMarkdown } from '@/utils/mdx'
 import type { AmbassadorData } from './types'
 
 interface Props {
@@ -28,7 +27,7 @@ const { ambassadors: propAmbassadors, slugs, heading } = Astro.props
 
 let ambassadors: AmbassadorData[] = []
 
-if (propAmbassadors && propAmbassadors.length > 0) {
+if (propAmbassadors) {
   // Use provided ambassador data directly
   ambassadors = propAmbassadors
 } else if (slugs && slugs.length > 0) {
@@ -39,22 +38,18 @@ if (propAmbassadors && propAmbassadors.length > 0) {
   )
 
   // Maintain the order from the slugs array (reflects Strapi relation order)
-  ambassadors = await Promise.all(
-    slugs
-      .map((slug) => filtered.find((entry) => entry.data.slug === slug))
-      .filter(
-        (entry): entry is NonNullable<typeof entry> => entry !== undefined
-      )
-      .map(async (entry) => ({
-        name: entry.data.name,
-        slug: entry.data.slug,
-        description: await parseMarkdown(entry.data.description),
-        photo: entry.data.photo,
-        photoAlt: entry.data.photoAlt,
-        linkedinUrl: entry.data.linkedinUrl,
-        grantReportUrl: entry.data.grantReportUrl
-      }))
-  )
+  ambassadors = slugs
+    .map((slug) => filtered.find((entry) => entry.data.slug === slug))
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+    .map((entry) => ({
+      name: entry.data.name,
+      slug: entry.data.slug,
+      description: entry.data.description,
+      photo: entry.data.photo,
+      photoAlt: entry.data.photoAlt,
+      linkedinUrl: entry.data.linkedinUrl,
+      grantReportUrl: entry.data.grantReportUrl
+    }))
 }
 ---
 

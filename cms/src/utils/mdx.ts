@@ -9,7 +9,7 @@ import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
-type MediaLike = Pick<MediaFile, 'url'> & { formats?: MediaFile['formats'] }
+type MediaLike = { url?: string; formats?: MediaFile['formats'] }
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
@@ -81,28 +81,6 @@ export function formatBlockquote(quote: string): string {
     )
     .trim()
   return `\u201C${stripped}\u201D`
-}
-
-/**
- * Strips HTML tags and markdown syntax, returning plain text.
- */
-export function toPlainText(text: string): string {
-  if (!text) return ''
-
-  return (
-    text
-      // Remove markdown bold/italic
-      .replace(/\*\*([^*]+)\*\*/g, '$1')
-      .replace(/__([^_]+)__/g, '$1')
-      .replace(/\*([^*]+)\*/g, '$1')
-      .replace(/_([^_]+)_/g, '$1')
-      // Remove markdown links, keep text
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      // Remove HTML tags
-      .replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/gi, ' ')
-      .trim()
-  )
 }
 
 // ── Frontmatter helpers ──────────────────────────────────────────────────────

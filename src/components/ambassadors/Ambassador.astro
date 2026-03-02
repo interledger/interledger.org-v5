@@ -5,6 +5,8 @@
  * Styling matches Drupal v4 ambassador.css
  */
 
+import { parseMarkdown } from '@/utils/mdx'
+
 interface Props {
   name: string
   description: string
@@ -17,6 +19,7 @@ interface Props {
 const { name, description, photo, photoAlt, linkedinUrl, grantReportUrl } =
   Astro.props
 
+const descriptionHtml = await parseMarkdown(description)
 const hasLinks = linkedinUrl || grantReportUrl
 ---
 
@@ -83,6 +86,6 @@ const hasLinks = linkedinUrl || grantReportUrl
   </div>
   <div
     class="ambassador__txt max-w-none [&_strong]:font-bold [&_strong]:text-black"
-    set:html={description}
+    set:html={descriptionHtml}
   />
 </article>

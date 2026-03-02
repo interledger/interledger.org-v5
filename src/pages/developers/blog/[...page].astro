@@ -24,7 +24,7 @@ const { page } = Astro.props
 <FoundationPageLayout
   title="Engineering Blog"
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
-  ogImageUrl={new URL('/img/blog/og-image.png', Astro.site).href}
+  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-[360px] px-[5%] 2xl:px-0">
@@ -82,7 +82,7 @@ const { page } = Astro.props
                   >
                     {blogPostEntry.data.date.toDateString()}
                   </time>
-                  {blogPostEntry.data.lang === 'es' ? (
+                  {blogPostEntry.data.locale === 'es' ? (
                     <div class="flex items-start gap-space-2xs">
                       <h2 class="text-step-1">
                         <a

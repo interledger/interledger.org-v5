@@ -77,7 +77,8 @@ export function createStrapiClient({
 
     const text = await response.text()
     if (!text) {
-      throw new Error(`Empty response from Strapi API: ${url}`)
+      // 204 No Content is a valid success response (e.g. DELETE operations)
+      return null
     }
 
     try {
