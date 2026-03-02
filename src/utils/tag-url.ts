@@ -3,9 +3,9 @@
  * @param {string} tag - The tag name
  * @returns {string} The tag URL path (e.g., "/developers/blog/tag/my-tag")
  */
-export function getTagUrl(tag: string) {
+export function getTagUrl(path: string, tag: string) {
   const slug = tag.toLowerCase().replace(/\s+/g, '-')
-  return `/developers/blog/tag/${slug}`
+  return `${path}/tag/${slug}`
 }
 
 /**

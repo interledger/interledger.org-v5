@@ -12,7 +12,7 @@ type Props = {
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const blogEntries = (await getCollection('developers-blog')).sort(
+  const blogEntries = (await getCollection('foundation-blog')).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
   )
 
@@ -40,13 +40,13 @@ const { page, allTags, selectedTag } = Astro.props
 ---
 
 <FoundationPageLayout
-  title={`Engineering Blog - ${selectedTag}`}
-  description={`Engineering Blog posts tagged with ${selectedTag}`}
-  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
+  title={`Foundation Blog - ${selectedTag}`}
+  description={`Foundation Blog posts tagged with ${selectedTag}`}
+  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
 >
   <BlogIndex
-    title="Engineering Blog"
-    path="/developers/blog"
+    title="Foundation Blog"
+    path="/blog"
     posts={page.data || []}
     breadcrumbs={[
       {
@@ -56,7 +56,7 @@ const { page, allTags, selectedTag } = Astro.props
       },
       {
         name: 'Engineering Blog',
-        href: '/developers/blog',
+        href: '/blog',
         umamiEvent: 'Devs breadcrumb - Blog'
       }
     ]}

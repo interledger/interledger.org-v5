@@ -1,6 +1,5 @@
 ---
 import { createExcerpt } from '@/utils/create-excerpt'
-import stripPagination from '@/utils/stripPagination'
 import TagFilter from './TagFilter.astro'
 import Pagination from './Pagination.astro'
 import type { CollectionEntry } from 'astro:content'
@@ -11,7 +10,8 @@ interface BreadcrumbItem {
 }
 interface Props {
   title: string
-  posts: CollectionEntry<'developers-blog'>[]
+  path: string
+  posts: CollectionEntry<'developers-blog'>[] | CollectionEntry<'foundation-blog'>[]
   breadcrumbs?: BreadcrumbItem[]
   allTags?: string[]
   selectedTag?: string
@@ -28,6 +28,7 @@ interface Props {
 }
 const {
   title,
+  path,
   posts,
   breadcrumbs = [],
   allTags = [],
@@ -36,7 +37,6 @@ const {
   showPagination = false,
   paginationProps
 } = Astro.props
-const basePath = stripPagination(Astro.url.pathname)
 ---
 
 <main class="pt-space-m pb-space-xl">
@@ -74,7 +74,7 @@ const basePath = stripPagination(Astro.url.pathname)
       <h1 class="text-step-3 font-bold">{title}</h1>
       <a
         class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
-        href={basePath}
+        href={path}
       >
         <p
           class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
@@ -89,7 +89,7 @@ const basePath = stripPagination(Astro.url.pathname)
         />
       </a>
     </header>
-    {showTagFilter && <TagFilter allTags={allTags} selectedTag={selectedTag} />}
+    {showTagFilter && <TagFilter allTags={allTags} selectedTag={selectedTag} href={path}/>}
     <ol class="list-none p-0">
       {
         posts.map((blogPostEntry) => {
@@ -107,7 +107,7 @@ const basePath = stripPagination(Astro.url.pathname)
                   <div class="flex items-start gap-space-2xs">
                     <h2 class="text-step-1">
                       <a
-                        href={`${basePath}/${blogPostEntry.id}`}
+                        href={`${path}/${blogPostEntry.id}`}
                         class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                       >
                         {blogPostEntry.data.title}
@@ -115,7 +115,7 @@ const basePath = stripPagination(Astro.url.pathname)
                     </h2>
                     <a
                       class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline"
-                      href={`${basePath}/es`}
+                      href={`${path}/es`}
                     >
                       ES
                     </a>
@@ -123,7 +123,7 @@ const basePath = stripPagination(Astro.url.pathname)
                 ) : (
                   <h2 class="text-step-1">
                     <a
-                      href={`${basePath}/${blogPostEntry.id}`}
+                      href={`${path}/${blogPostEntry.id}`}
                       class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                     >
                       {blogPostEntry.data.title}
@@ -145,7 +145,7 @@ const basePath = stripPagination(Astro.url.pathname)
     {
       showPagination && paginationProps && (
         <Pagination
-          baseUrl={basePath}
+          baseUrl={path}
           length={paginationProps.length}
           currentPage={paginationProps.currentPage}
           firstUrl={paginationProps.firstUrl}
