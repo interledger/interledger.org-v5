@@ -11,10 +11,7 @@ export type ParsedBlock =
 /**
  * Extract string attribute from JSX: heading="value" or heading='value'
  */
-function extractStringAttr(
-  attrs: string,
-  name: string
-): string | undefined {
+function extractStringAttr(attrs: string, name: string): string | undefined {
   const regex = new RegExp(`${name}=["']([^"']*)["']`, 'i')
   const m = attrs.match(regex)
   return m ? m[1] : undefined

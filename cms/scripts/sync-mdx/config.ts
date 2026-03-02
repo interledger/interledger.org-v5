@@ -1,16 +1,10 @@
 import { getContentPath } from '@/utils/paths'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
-import {
-  buildPagePayload,
-  buildBlogPayload,
-  buildAmbassadorPayload
-} from './mdxTransformer'
+import { buildPagePayload, buildAmbassadorPayload } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
-  foundationBlogFrontmatterSchema,
-  foundationPageFrontmatterSchema,
-  summitPageFrontmatterSchema
+  foundationPageFrontmatterSchema
 } from './siteSchemas'
 
 /**
