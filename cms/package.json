@@ -27,7 +27,7 @@
     "gray-matter": "^4.0.3",
     "is-html": "^3.2.0",
     "jsesc": "^3.1.0",
-    "marked": "^17.0.1",
+    "marked": "^17.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.2",
@@ -46,7 +46,10 @@
     "node": ">=18.0.0 <=22.x.x",
     "pnpm": ">=9.0.0"
   },
-  "overrides": {
-    "esbuild": "0.20.2"
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.20.2",
+      "prettier": "3.8.1"
+    }
   }
 }

@@ -52,14 +52,17 @@ export default {
           hover: '#0c9b9b',
           light: 'oklch(74.53% 0.082 202.65)'
         },
+        mission: {
+          DEFAULT: 'oklch(55.27% 0.205 32.62)',
+          fallback: '#c24b3d'
+        },
         frost: 'rgba(255, 255, 255, 0.5)',
         gray: {
           DEFAULT: '#444',
           header: '#eee',
           table: '#f6f7f9',
           'inline-code': '#edeef3'
-        },
-        'tech-light-bg': 'var(--color-tech-light-bg)'
+        }
       },
 
       // Layout constraints

@@ -430,6 +430,60 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
+  collectionName: 'ambassadors'
+  info: {
+    description: 'Grant ambassadors with profiles and social links'
+    displayName: 'Ambassador'
+    pluralName: 'ambassadors'
+    singularName: 'ambassador'
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    grantReportUrl: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500
+      }>
+    linkedinUrl: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ambassador.ambassador'
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255
+      }>
+    photo: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiFoundationBlogPostFoundationBlogPost
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation_blog_posts'
@@ -608,7 +662,10 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cards-grid',
         'blocks.card-links-grid',
         'blocks.carousel',
-        'blocks.cta-banner'
+        'blocks.cta-banner',
+        'blocks.ambassador',
+        'blocks.ambassadors-grid',
+        'blocks.blockquote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1188,6 +1245,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken
       'admin::transfer-token-permission': AdminTransferTokenPermission
       'admin::user': AdminUser
+      'api::ambassador.ambassador': ApiAmbassadorAmbassador
       'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage

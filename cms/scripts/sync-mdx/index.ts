@@ -37,10 +37,10 @@ async function main() {
         `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview, --force to override)`
       )
       console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
+      console.error(`   Use --force to run on any branch (e.g. for local dev)`)
       process.exit(1)
     }
   }
-
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })

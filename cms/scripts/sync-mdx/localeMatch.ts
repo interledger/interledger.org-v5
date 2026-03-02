@@ -6,7 +6,7 @@
  * - Checking if MDX files exist for specific locale/slug combinations
  * - Finding locale files that translate English entries via the `localizes` field
  */
-import type { MDXFile } from './scan'
+import type { MDXFile } from './mdxTypes'
 
 /**
  * Builds a map of all MDX slugs grouped by locale.

@@ -2,17 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import type { ContentTypes } from './config'
-
-export interface MDXFile {
-  file: string
-  filepath: string
-  slug: string
-  locale: string
-  frontmatter: Record<string, unknown>
-  content: string
-  isLocalization: boolean
-  localizes: string | null
-}
+import type { MDXFile } from './mdxTypes'
 
 interface ScanOptions {
   baseDir: string

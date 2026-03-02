@@ -1,0 +1,17 @@
+---
+/**
+ * Blockquote Block for Dynamic Zones (SSR Preview)
+ * Passes quote as slot content; Blockquote.astro handles source markdown parsing
+ */
+
+import Blockquote from '@/components/blockquote/Blockquote.astro'
+
+interface Props {
+  quote: string
+  source?: string
+}
+
+const { quote, source } = Astro.props
+---
+
+<Blockquote quote={quote} source={source} />

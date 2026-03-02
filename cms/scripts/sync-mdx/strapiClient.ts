@@ -13,6 +13,8 @@ export interface StrapiClient {
     slug: string,
     locale?: string
   ) => Promise<StrapiEntry | undefined>
+  /** Look up a Strapi upload file by URL. Returns the file's integer ID, or null. */
+  findUploadByUrl: (url: string) => Promise<number | null>
   createLocalization: (
     apiId: string,
     documentId: string,
@@ -75,7 +77,8 @@ export function createStrapiClient({
 
     const text = await response.text()
     if (!text) {
-      throw new Error(`Empty response from Strapi API: ${url}`)
+      // 204 No Content is a valid success response (e.g. DELETE operations)
+      return null
     }
 
     try {
@@ -188,6 +191,29 @@ export function createStrapiClient({
   }
 
   /** Delete a single locale variant. Keeps other locales. */
+  async function findUploadByUrl(url: string): Promise<number | null> {
+    if (!url || url === 'null') return null
+
+    // For CDN URLs, extract just the path portion (e.g. /uploads/photo.webp)
+    let lookupUrl = url
+    if (url.startsWith('http')) {
+      try {
+        lookupUrl = new URL(url).pathname
+      } catch {
+        // Not a valid absolute URL — use as-is
+      }
+    }
+
+    const result = await request(
+      `upload/files?filters[url][$eq]=${encodeURIComponent(lookupUrl)}`
+    )
+    // Strapi Upload API returns a plain array, not { data: [] }
+    const files = Array.isArray(result)
+      ? (result as { id: number }[])
+      : ((result as { data?: { id: number }[] })?.data ?? [])
+    return files.length > 0 ? files[0].id : null
+  }
+
   async function deleteLocalization(
     apiId: string,
     documentId: string,
@@ -202,6 +228,7 @@ export function createStrapiClient({
     request,
     getAllEntries,
     findBySlug,
+    findUploadByUrl,
     createLocalization,
     updateLocalization,
     createEntry,

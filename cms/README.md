@@ -33,12 +33,21 @@ The CMS is configured via environment variables in the root `.env`. Refer to `en
 
 Key settings:
 
-- `PORT`: CMS runs on port 1337 (default)
-- `DATABASE_CLIENT`: Using better-sqlite3
-- `MDX_OUTPUT_PATH`: Base output path for page MDX files. By default, this resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`
-- `PAGES_MDX_OUTPUT_PATH`: Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)
-- `STRAPI_GIT_SYNC_REPO_PATH`: Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)
-- `FRONTEND_ORIGINS`: Origins allowed for CORS (e.g., local dev, staging, production Astro sites)
+Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://localhost:1103`).
+
+#### Environment variables
+
+| Variable                    | Description                                                                                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
+| `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                   |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
+| `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`                                                                             |
+| `PAGES_MDX_OUTPUT_PATH`     | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)                                                                                                                                     |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
+| `FRONTEND_ORIGINS`          | Origins allowed for CORS (e.g., local dev, staging, production Astro sites)                                                                                                                            |
 
 ### Git Sync Repository Target
 
@@ -186,12 +195,129 @@ The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX fi
 
 - `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
 - `src/content/summit-pages/*.mdx` → `summit-pages` (API ID)
+- `src/content/ambassadors/*.mdx` → `ambassadors` (API ID)
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
+
+#### Page Block Import (current behaviour)
+
+Page MDX files contain dynamic-zone blocks serialized as JSX components in the body (e.g. `<AmbassadorGrid heading="..." slugs={["alice"]} />`). The sync script currently stores the entire MDX body as a single `blocks.paragraph` string — JSX components are not individually parsed or mapped back to their Strapi block types.
+
+#### Future improvement — frontmatter-based block metadata
+
+As the number or complexity of block types grows, storing the body as raw text becomes a round-trip fidelity problem. The recommended upgrade path is to write structured block data into the YAML frontmatter in addition to the JSX body, using `js-yaml` (already available as a Strapi transitive dependency):
+
+```yaml
+---
+slug: 'ambassadors'
+title: 'Ambassadors'
+content:
+  - __component: blocks.ambassadors-grid
+    heading: 'Meet our ambassadors'
+    slugs:
+      - alice
+      - bob
+---
+<AmbassadorGrid heading="Meet our ambassadors" slugs={["alice","bob"]} />
+```
+
+The import script would then read `frontmatter.content` directly — no body parsing, no regex, and the approach scales to any block shape. Relation fields (`slugs`, `slug`) stay as human-readable slugs in YAML; the script resolves them to Strapi `documentId`s at sync time using the existing `findBySlug()` helper. This keeps the MDX body as a rendering-only artifact and the frontmatter as the machine-readable source of truth.
 
 ### Unpublishing Content
 
 TODO: ???
+
+### Content Preview
+
+Content authors can preview draft pages before publishing. The preview system uses server-side rendering (SSR) to fetch draft content directly from Strapi at runtime, bypassing the build-time MDX pipeline entirely.
+
+#### How it works
+
+1. A content author makes changes in the Strapi admin panel
+2. They click **Save / Draft**
+3. They click **Open preview** (the button is disabled until the draft is saved or the content is published)
+4. Strapi calls the `preview.handler` in `config/admin.ts`, which reads the document from the database and builds a preview URL based on the content type (e.g. `/page-preview?documentId=abc123`)
+5. The browser opens `{ASTRO_PREVIEW_URL}/page-preview?documentId=abc123` on the Astro dev/SSR server
+6. The Astro preview route (`src/pages/page-preview.astro`, which has `prerender = false`) fetches the **draft** content from the Strapi API using the `documentId`
+7. The page is rendered at runtime using the `DynamicZone` component, which maps Strapi block types to Astro components
+8. The author can edit, save, and re-preview as many times as needed before publishing
+
+**Note:** Preview requires saving first because Strapi reads the document from its database to generate the preview URL. Unsaved changes only exist in the browser and are not available to the preview handler.
+
+This is intentionally separate from the published content flow. Published pages are statically generated from MDX files at build time and have no runtime dependency on Strapi.
+
+#### Adding preview for a new content type
+
+1. Add a case in `cms/config/admin.ts` `getPreviewPathname()` that returns the preview route path
+2. Create an SSR page in `src/pages/` (e.g. `my-type-preview.astro`) with `export const prerender = false`
+3. In that page, use `fetchStrapi()` with `status=draft` to fetch the draft content and render it
+
+#### Adding a new block to the page dynamic zone
+
+When you add a new block component to the page content dynamic zone, you **must** also add it to the populate params in `src/pages/page-preview.astro`. In Strapi v5, using `on` (component-specific population) for a dynamic zone acts as a filter — only block types listed in `on` clauses are returned in the API response. Unlisted types are silently excluded.
+
+For blocks with only scalar fields (richtext, string, enum):
+
+```js
+'populate[content][on][blocks.my-block][populate]': '*'
+```
+
+For blocks with nested components or relations:
+
+```js
+'populate[content][on][blocks.my-block][populate][myRelation][populate]': '*'
+```
+
+If you forget this step, the block will not appear in the preview even though it exists in Strapi.
+
+#### Component architecture: presentational vs block components
+
+Every Strapi dynamic zone block type needs a corresponding **block component** in `src/components/blocks/` so that the `DynamicZone` component can render it during preview. Whether you also need a separate **presentational component** depends on the data shape.
+
+**When a single component is enough:**
+
+If the Strapi API data can be used directly with minimal transformation, one component can serve both preview and published content. For example, `Paragraph.astro` accepts a `content` string and handles the markdown-to-HTML conversion internally — no separate block adapter needed.
+
+**When you need two components:**
+
+If the Strapi API returns a different shape than what the presentational component expects (nested objects, markdown fields that need conversion, etc.), you need a block adapter to bridge the gap. For example:
+
+- `src/components/ambassadors/Ambassador.astro` — **Presentational component**. Accepts simple, flat props (`name`, `description` as HTML string, `photo` as URL string) and renders the UI. Used by both the published site and preview. Has no knowledge of where the data comes from.
+
+- `src/components/blocks/AmbassadorBlock.astro` — **Block adapter for preview**. Used only by `DynamicZone` during SSR preview. Receives raw Strapi API data (nested `photo` object, markdown `description`) and transforms it into the simple props the presentational component expects (extracts `photo.url`, converts markdown to HTML via `marked`).
+
+For published content, the MDX lifecycle hook in Strapi handles these transformations at publish time, so the presentational component is used directly in the generated MDX. The block adapters are only needed for preview.
+
+**Rule of thumb:** If you need to transform Strapi's API response before rendering (flatten nested objects, convert markdown to HTML, resolve relations), create a block adapter in `src/components/blocks/` that does the transformation and delegates to a presentational component. Otherwise, a single component in `src/components/blocks/` is fine.
+
+#### Styling rendered HTML from `set:html`
+
+Components that render Strapi richtext fields use `set:html` to inject HTML converted from markdown. Since this injected HTML doesn't receive Astro's scoped data attributes, child elements can inherit unwanted styles from page-level prose selectors (e.g. `[&_strong]:text-primary`).
+
+There are two approaches to control styling of `set:html` content:
+
+**Option A — Tailwind arbitrary variants on container elements:**
+
+```html
+<blockquote
+  class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic"
+></blockquote>
+```
+
+Consistent with the pattern used in `[...page].astro` and `Paragraph.astro`. Keeps everything in the template but can get verbose with many overrides.
+
+**Option B — Astro scoped `<style>` with `:global()`:**
+
+```css
+<style>
+  blockquote :global(strong) { color: inherit; }
+  blockquote :global(p) { margin-bottom: 0; }
+</style>
+```
+
+The parent selector (`blockquote`) retains Astro's scoped attribute, so styles only apply within that component — they won't leak to other parts of the page. `:global()` removes scoping from the child selector so it can reach the injected HTML. Cleaner when there are multiple overrides.
+
+See `Blockquote.astro` for an example using Option B.
 
 ## Development Workflow
 
