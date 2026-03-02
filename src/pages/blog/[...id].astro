@@ -30,5 +30,9 @@ const { Content } = await render(entry)
         />
       ))
   }
-  {entry.data.tags?.length > 0 && <ArticleTags tags={entry.data.tags} />}
+  {
+    entry.data.tags?.length > 0 && (
+      <ArticleTags tags={entry.data.tags} path="/blog" />
+    )
+  }
 </FoundationBlogLayout>

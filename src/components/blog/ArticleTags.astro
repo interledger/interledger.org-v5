@@ -1,9 +1,11 @@
 ---
 import type { FoundationTag } from '@/schemas/content'
+import { getTagUrl } from '@/utils/tag-url'
 interface Props {
   tags: FoundationTag[]
+  path: string
 }
-const { tags } = Astro.props
+const { tags, path } = Astro.props
 ---
 
 <footer>
@@ -11,7 +13,7 @@ const { tags } = Astro.props
     {
       tags.map((tag) => (
         <li class="mb-space-xs">
-          <a href="#">#{tag}</a>
+          <a href={getTagUrl(path, tag)}>#{tag}</a>
         </li>
       ))
     }
