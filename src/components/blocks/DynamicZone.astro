@@ -45,6 +45,7 @@ const resolvedBlocks = blocks
   .map((block) => {
     const Component = componentMap[block.__component]
     if (!Component) {
+      // eslint-disable-next-line no-console
       console.warn(`Unknown component type: ${block.__component}`)
       return null
     }

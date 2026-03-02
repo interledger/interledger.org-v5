@@ -15,16 +15,7 @@
 
 import { getCollection } from 'astro:content'
 import Ambassador from './Ambassador.astro'
-
-interface AmbassadorData {
-  name: string
-  slug: string
-  description: string
-  photo?: string | null
-  photoAlt?: string | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
-}
+import type { AmbassadorData } from './types'
 
 interface Props {
   ambassadors?: AmbassadorData[]
@@ -36,7 +27,7 @@ const { ambassadors: propAmbassadors, slugs, heading } = Astro.props
 
 let ambassadors: AmbassadorData[] = []
 
-if (propAmbassadors && propAmbassadors.length > 0) {
+if (propAmbassadors) {
   // Use provided ambassador data directly
   ambassadors = propAmbassadors
 } else if (slugs && slugs.length > 0) {

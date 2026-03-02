@@ -1,5 +1,7 @@
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
+import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import { LOCALES } from './utils/mdx'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -32,22 +34,158 @@ function copySchemas() {
   }
 }
 
+// Strapi instance type for lifecycle functions
+interface StrapiEntityService {
+  findMany: (
+    uid: string,
+    options: Record<string, unknown>
+  ) => Promise<unknown[]>
+  create: (
+    uid: string,
+    options: { data: Record<string, unknown> }
+  ) => Promise<unknown>
+}
+
+interface StrapiLogger {
+  debug: (message: string) => void
+  info: (message: string) => void
+  warn: (message: string) => void
+}
+
+interface FieldMetadata {
+  edit?: {
+    label?: string
+    [key: string]: unknown
+  }
+  list?: {
+    label?: string
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
+interface StrapiContentManagerService {
+  findConfiguration: (options: { uid: string }) => Promise<{
+    metadatas?: Record<string, FieldMetadata>
+  } | null>
+  updateConfiguration: (
+    uidOptions: { uid: string },
+    config: { metadatas: Record<string, FieldMetadata> }
+  ) => Promise<void>
+}
+
+interface StrapiInstance {
+  entityService: StrapiEntityService
+  log: StrapiLogger
+  plugin: (name: string) =>
+    | {
+        service: (serviceName: string) => StrapiContentManagerService
+      }
+    | undefined
+}
+
+/**
+ * Ensures required locales (en, es) are installed in Strapi i18n plugin.
+ * Creates locales if they don't exist.
+ */
+async function ensureLocales(strapi: StrapiInstance) {
+  const localeConfigs: Record<string, string> = {
+    en: 'English (en)',
+    es: 'Spanish (es)'
+  }
+
+  for (const localeCode of LOCALES) {
+    try {
+      // Check if locale already exists
+      const existingLocales = await strapi.entityService.findMany(
+        'plugin::i18n.locale',
+        {
+          filters: { code: localeCode },
+          limit: 1
+        }
+      )
+
+      if (existingLocales && existingLocales.length > 0) {
+        strapi.log.debug(`✅ Locale ${localeCode} already exists`)
+        continue
+      }
+
+      // Create locale if it doesn't exist
+      const displayName =
+        localeConfigs[localeCode] ||
+        `${localeCode.toUpperCase()} (${localeCode})`
+      await strapi.entityService.create('plugin::i18n.locale', {
+        data: {
+          code: localeCode,
+          name: displayName
+        }
+      })
+      strapi.log.info(`✅ Created locale: ${displayName}`)
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      // Handle cases where locale might already exist (race condition, etc.)
+      if (
+        errorMessage?.includes('already exists') ||
+        errorMessage?.includes('duplicate') ||
+        errorMessage?.includes('unique')
+      ) {
+        strapi.log.debug(
+          `Locale ${localeCode} already exists (checked via error)`
+        )
+      } else {
+        strapi.log.warn(
+          `⚠️  Could not create locale ${localeCode}: ${errorMessage}`
+        )
+      }
+    }
+  }
+}
+
 /**
  * Configure pretty labels for field names in the admin panel.
  * This updates the content-manager metadata stored in the database.
  */
-async function configureFieldLabels(strapi: any) {
+async function configureFieldLabels(strapi: StrapiInstance) {
   // Map of content type UIDs to their field label configurations
   // All fields get human-readable labels for better UX
   const labelConfigs: Record<string, Record<string, string>> = {
-    'api::blog-post.blog-post': {
+    'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
       slug: 'URL Slug',
       date: 'Publish Date',
-      lang: 'Language',
-      featuredImage: 'Featured Image',
-      ogImageUrl: 'OG Image URL',
+      pillar: 'Pillar',
+      featureImage: 'Feature Image',
+      thumbnailImage: 'Article Thumbnail',
+      authors: 'Byline',
+      content: 'Content',
+      articleBio: 'Article Bio',
+      tags: 'Tags',
+      language: 'Language',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::foundation-page.foundation-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path (e.g. /grant/ambassadors)',
+      pageType: 'Page Type (Grant, Policy, Developer)',
+      seo: 'SEO',
+      hero: 'Hero',
+      content: 'Content',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      publishedAt: 'Published At'
+    },
+    'api::summit-page.summit-page': {
+      title: 'Title',
+      slug: 'URL Slug',
+      path: 'Route Path',
+      pageType: 'Page Type (Hackathon, Hackathon Resource)',
+      seo: 'SEO',
+      hero: 'Hero',
       content: 'Content',
       createdAt: 'Created At',
       updatedAt: 'Updated At',
@@ -64,15 +202,6 @@ async function configureFieldLabels(strapi: any) {
       content: 'Content',
       featured: 'Featured',
       category: 'Category',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
-    },
-    'api::grant-track.grant-track': {
-      name: 'Grant Name',
-      amount: 'Grant Amount',
-      description: 'Description',
-      order: 'Display Order',
       createdAt: 'Created At',
       updatedAt: 'Updated At',
       publishedAt: 'Published At'
@@ -176,7 +305,7 @@ export default {
       // Ensure directory has write permissions
       try {
         fs.chmodSync(dbDir, 0o775)
-      } catch (error) {
+      } catch {
         // Ignore permission errors if we can't change them
       }
     }
@@ -186,10 +315,16 @@ export default {
     if (fs.existsSync(dbPath)) {
       try {
         fs.chmodSync(dbPath, 0o664)
-      } catch (error) {
+      } catch {
         // Ignore permission errors if we can't change them
       }
     }
+
+    // Ensure git sync points at a valid staging clone before handling content events
+    await validateGitSyncRepoOnStartup()
+
+    // Ensure required locales (en, es) are installed
+    await ensureLocales(strapi)
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)

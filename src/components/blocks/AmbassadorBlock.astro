@@ -5,20 +5,12 @@
  * Converts markdown description to HTML for preview rendering
  */
 
-import Ambassador from '../ambassadors/Ambassador.astro'
-import { marked } from 'marked'
-
-interface AmbassadorData {
-  name: string
-  slug: string
-  description: string
-  photo?: { url: string; alternativeText?: string } | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
-}
+import Ambassador from '@/components/ambassadors/Ambassador.astro'
+import { parseMarkdown } from '@/utils/mdx'
+import type { StrapiAmbassador } from '@/components/ambassadors/types'
 
 interface Props {
-  ambassador?: AmbassadorData
+  ambassador?: StrapiAmbassador
   showLinks?: boolean
 }
 
@@ -32,9 +24,7 @@ if (!ambassador) {
 const photoUrl = ambassador.photo?.url
 const photoAlt = ambassador.photo?.alternativeText || ambassador.name
 // Convert markdown description to HTML for preview
-const descriptionHtml = ambassador.description
-  ? await marked.parse(ambassador.description)
-  : ''
+const descriptionHtml = await parseMarkdown(ambassador.description)
 ---
 
 <Ambassador
@@ -42,6 +32,8 @@ const descriptionHtml = ambassador.description
   description={descriptionHtml}
   photo={photoUrl}
   photoAlt={photoAlt}
-  linkedinUrl={showLinks ? ambassador.linkedinUrl : undefined}
-  grantReportUrl={showLinks ? ambassador.grantReportUrl : undefined}
+  linkedinUrl={showLinks ? (ambassador.linkedinUrl ?? undefined) : undefined}
+  grantReportUrl={showLinks
+    ? (ambassador.grantReportUrl ?? undefined)
+    : undefined}
 />

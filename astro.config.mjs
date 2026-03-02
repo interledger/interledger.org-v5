@@ -1,9 +1,10 @@
 import { defineConfig } from 'astro/config'
+import { fileURLToPath } from 'node:url'
 import starlight from '@astrojs/starlight'
-import starlightLinksValidator from 'starlight-links-validator'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
@@ -36,12 +37,7 @@ export default defineConfig({
         './src/styles/interledger.css',
         './src/styles/atom-one-light.min.css'
       ],
-      plugins: [
-        starlightLinksValidator({
-          exclude: ['/participation-guidelines']
-        }),
-        starlightFullViewMode({ leftSidebarEnabled: false })
-      ],
+      plugins: [starlightFullViewMode({ leftSidebarEnabled: false })],
       head: [
         {
           tag: 'script',
@@ -157,9 +153,20 @@ export default defineConfig({
         }
       }
     }),
-    mdx()
+    mdx(),
+    sitemap({
+      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
+    })
   ],
   vite: {
+    server: {
+      allowedHosts: ['.netlify.app', '.interledger.org']
+    },
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    },
     plugins: [tailwindcss()]
   },
   redirects: {

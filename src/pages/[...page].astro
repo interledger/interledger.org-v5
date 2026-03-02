@@ -5,52 +5,88 @@
  * All pages are pre-rendered at build time
  */
 import { getCollection, render } from 'astro:content'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import { getPagePaths } from '../utils/static-paths'
+import Ambassador from '../components/ambassadors/Ambassador.astro'
+import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
+import Blockquote from '../components/blockquote/Blockquote.astro'
+import CalloutText from '../components/callout/CalloutText.astro'
 
 export async function getStaticPaths() {
-  const pages = await getCollection('foundation-pages')
-  return pages.map((page) => ({
-    params: { page: page.data.slug },
-    props: { page }
-  }))
+  return getPagePaths('foundation-pages', { excludeSlug: 'home' })
 }
 
-const { page } = Astro.props
-const { Content } = await render(page)
+const slugParam = Astro.params.page
+const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 
-const { title, heroTitle, heroDescription, description } = page.data
-const pageTitle = title || page.data.slug
+const pages = await getCollection('foundation-pages')
+const mdxPage = pages.find((page) => page.data.slug === slug)
+let MdxContent: typeof import('astro').AstroComponentFactory | null = null
+let mdxData: (typeof mdxPage)['data'] | null = null
+
+if (mdxPage) {
+  const { Content } = await render(mdxPage)
+  MdxContent = Content
+  mdxData = mdxPage.data
+}
+
+const title = mdxData?.title || slug
+const description = mdxData?.description || null
+const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
+const mdxHeroDescription = mdxData?.heroDescription || ''
+const isNotFound = !MdxContent
+if (isNotFound) Astro.response.status = 404
 ---
 
-<BaseLayout title={pageTitle} description={description}>
+<FoundationPageLayout title={title} description={description}>
   <main class="pb-space-l">
     {
-      heroTitle && (
-        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+      isNotFound ? (
+        <section class="min-h-[50vh] flex items-center justify-center text-center">
           <div class="mx-auto w-full max-w-wide px-space-m">
-            <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
-                {heroTitle}
-              </h1>
-              {heroDescription && (
-                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
-                  {heroDescription}
-                </p>
-              )}
-            </div>
+            <h1 class="text-2xl font-semibold text-primary mb-space-s">404</h1>
+            <p class="text-[var(--sl-color-gray-2)] mb-space-m">
+              The page you requested could not be found.
+            </p>
+            <a href="/" class="text-primary underline hover:no-underline">
+              ← Back to home
+            </a>
           </div>
         </section>
+      ) : (
+        <>
+          {mdxHeroTitle && (
+            <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+              <div class="mx-auto w-full max-w-wide px-space-m">
+                <div class="max-w-narrow">
+                  <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+                    {mdxHeroTitle}
+                  </h1>
+                  {mdxHeroDescription && (
+                    <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                      {mdxHeroDescription}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+          <section class="py-space-xl">
+            <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+              <div class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline">
+                <MdxContent
+                  components={{
+                    Ambassador,
+                    AmbassadorGrid,
+                    Blockquote,
+                    CalloutText
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+        </>
       )
     }
-
-    <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-90 max-[1324px]:px-[5%]">
-        <div
-          class="[&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&>p]:mb-space-s [&>p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline"
-        >
-          <Content />
-        </div>
-      </div>
-    </section>
   </main>
-</BaseLayout>
+</FoundationPageLayout>

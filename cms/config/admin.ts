@@ -1,21 +1,28 @@
-const getPreviewPathname = (uid: string, { document }): string => {
-  // Handle blog posts
+const getPreviewPathname = (
+  uid: string,
+  {
+    documentId,
+    document
+  }: { documentId: string; document: Record<string, unknown> | null }
+): string => {
   switch (uid) {
-    case 'api::blog-post.blog-post': {
-      if (!document?.id) {
-        return '/blog'
-      }
-      return `/blog/preview?slug=${document.documentId}`
-    }
-    case 'api::page.page':
-      return `/page-preview?documentId=${document.documentId}`
+    case 'api::foundation-blog-post.foundation-blog-post':
+      return document?.documentId
+        ? `/blog/preview?slug=${document.documentId}&type=foundation`
+        : '/blog'
+    case 'api::foundation-page.foundation-page':
+      // documentId comes directly from the handler — no findOne needed
+      return `/preview/page-preview?documentId=${documentId}`
+    case 'api::summit-page.summit-page':
+      // TODO: create /summit-preview SSR page (similar to /page-preview)
+      return `/summit-preview?documentId=${documentId}`
     default:
       return null
   }
 }
 
 export default ({ env }) => {
-  const clientUrl = env('CLIENT_URL')
+  const clientUrl = env('ASTRO_PREVIEW_URL')
 
   return {
     auth: {
@@ -42,7 +49,7 @@ export default ({ env }) => {
           const document = await strapi.documents(uid).findOne({ documentId })
 
           // Generate the preview pathname based on content type and document
-          const pathname = getPreviewPathname(uid, { document })
+          const pathname = getPreviewPathname(uid, { documentId, document })
 
           // Disable preview if the pathname is not found
           if (!pathname) {

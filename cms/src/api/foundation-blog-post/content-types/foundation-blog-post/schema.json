@@ -1,0 +1,152 @@
+{
+  "kind": "collectionType",
+  "collectionName": "foundation_blog_posts",
+  "info": {
+    "singularName": "foundation-blog-post",
+    "pluralName": "foundation-blog-posts",
+    "displayName": "Foundation Blog Post",
+    "description": "Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "maxLength": 255,
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "targetField": "title",
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "pillar": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true,
+      "enum": [
+        "vision",
+        "mission",
+        "tech",
+        "values"
+      ]
+    },
+    "featureImage": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "thumbnailImage": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "authors": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "content": {
+      "type": "customField",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "required": true
+    },
+    "articleBio": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.article-bio",
+      "repeatable": true
+    },
+    "tags": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.tags",
+      "repeatable": true
+    },
+    "language": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "default": "en",
+      "enum": [
+        "en",
+        "es"
+      ]
+    }
+  }
+}

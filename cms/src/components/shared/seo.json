@@ -10,22 +10,47 @@
     "metaTitle": {
       "type": "string",
       "required": true,
-      "maxLength": 60
+      "maxLength": 60,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "metaDescription": {
       "type": "text",
-      "maxLength": 160
+      "maxLength": 160,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "metaImage": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": ["images"]
+      "allowedTypes": ["images"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "keywords": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "canonicalUrl": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }
