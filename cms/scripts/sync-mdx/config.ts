@@ -47,27 +47,27 @@ export interface ContentTypes {
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
   return {
-    'foundation-pages': {
-      dir: getContentPath(projectRoot, 'foundationPages'),
-      apiId: 'foundation-pages',
-      schema: foundationPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
-    },
-    'summit-pages': {
-      dir: getContentPath(projectRoot, 'summitPages'),
-      apiId: 'summit-pages',
-      schema: summitPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
-    },
-    'foundation-blog-posts': {
-      dir: getContentPath(projectRoot, 'blog'),
-      apiId: 'foundation-blog-posts',
-      schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
-    },
+    // 'foundation-pages': {
+    //   dir: getContentPath(projectRoot, 'foundationPages'),
+    //   apiId: 'foundation-pages',
+    //   schema: foundationPageFrontmatterSchema,
+    //   buildPayload: async (mdx, _strapi, existing) =>
+    //     buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
+    // },
+    // 'summit-pages': {
+    //   dir: getContentPath(projectRoot, 'summitPages'),
+    //   apiId: 'summit-pages',
+    //   schema: summitPageFrontmatterSchema,
+    //   buildPayload: async (mdx, _strapi, existing) =>
+    //     buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
+    // },
+    // 'foundation-blog-posts': {
+    //   dir: getContentPath(projectRoot, 'blog'),
+    //   apiId: 'foundation-blog-posts',
+    //   schema: foundationBlogFrontmatterSchema,
+    //   buildPayload: async (mdx, _strapi, _existing) =>
+    //     buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+    // },
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
