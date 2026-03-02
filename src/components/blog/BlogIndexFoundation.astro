@@ -86,7 +86,7 @@ const basePath = stripPagination(Astro.url.pathname)
                   <div class="flex items-start gap-space-2xs">
                     <h2 class="text-step-1 mb-space-3xs">
                       <a
-                        href={`${basePath}/${blogPostEntry.id}`}
+                        href={`${path}/${blogPostEntry.id}`}
                         class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
                       >
                         {blogPostEntry.data.title}
@@ -102,7 +102,7 @@ const basePath = stripPagination(Astro.url.pathname)
                 ) : (
                   <h2 class="text-step-1 mb-space-3xs">
                     <a
-                      href={`${basePath}/${blogPostEntry.id}`}
+                      href={`${path}/${blogPostEntry.id}`}
                       class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
                     >
                       {blogPostEntry.data.title}
