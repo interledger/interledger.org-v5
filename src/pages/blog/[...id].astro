@@ -1,9 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content'
-import CommunityLinks from '../../components/blog/CommunityLinks.astro'
-import BlogLayout from '../../layouts/BlogLayout.astro'
-
-export const prerender = true
+import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
+import ArticleTags from '@/components/blog/ArticleTags.astro'
+import ArticleBio from '@/components/blog/ArticleBio.astro'
+import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('foundation-blog')
@@ -17,7 +17,18 @@ const { entry } = Astro.props
 const { Content } = await render(entry)
 ---
 
-<BlogLayout frontmatter={entry.data}>
+<FoundationBlogLayout frontmatter={entry.data}>
   <Content />
-  <CommunityLinks />
-</BlogLayout>
+  <CommunityLinksFoundation />
+  {
+    entry.data.bioTexts &&
+      entry.data.bioTexts.map((bioText, i) => (
+        <ArticleBio
+          text={bioText}
+          imageUrl={entry.data.bioImages?.[i]}
+          imageAlt={entry.data.authors?.[i] ?? ''}
+        />
+      ))
+  }
+  {entry.data.tags?.length > 0 && <ArticleTags tags={entry.data.tags} />}
+</FoundationBlogLayout>

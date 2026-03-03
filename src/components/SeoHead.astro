@@ -1,0 +1,120 @@
+---
+interface Props {
+  title?: string
+  description?: string
+  siteName: string
+  ogType?: string
+  ogImageUrl?: string
+  ogImageAlt?: string
+  ogSiteName?: string
+  ogLocale?: string
+  canonicalURL?: string
+  jsonLdSiteName?: string
+  twitterSite?: string
+  datePublished?: string
+}
+
+const {
+  title,
+  description,
+  siteName,
+  ogType = 'website',
+  ogImageUrl,
+  ogImageAlt,
+  ogSiteName,
+  ogLocale,
+  canonicalURL: canonicalOverride,
+  jsonLdSiteName,
+  twitterSite = '@interledger',
+  datePublished
+} = Astro.props
+
+const site = Astro.site!
+const canonicalURL = canonicalOverride
+  ? new URL(canonicalOverride, site).href
+  : new URL(Astro.url.pathname, site).href
+const ogImage = ogImageUrl
+  ? new URL(ogImageUrl, site).href
+  : new URL('/img/blog/og-ilf.png', site).href
+const resolvedOgSiteName = ogSiteName ?? siteName
+const resolvedOgLocale = ogLocale ?? 'en_US'
+
+const resolvedTitle = title ? `${title} | ${siteName}` : siteName
+const resolvedDescription =
+  description ?? 'Making payments as easy as sending an email'
+const resolvedOgImageAlt = ogImageAlt ?? (title ? title : siteName)
+
+const logoUrl = new URL('/img/logo-interledger.svg', site).href
+
+const isArticle = ogType === 'article'
+
+const jsonLdGraph: object[] = isArticle
+  ? [
+      {
+        '@type': 'Article',
+        headline: title,
+        description: description,
+        datePublished,
+        author: {
+          '@type': 'Organization',
+          name: 'Interledger Foundation'
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Interledger Foundation',
+          logo: {
+            '@type': 'ImageObject',
+            url: logoUrl
+          }
+        }
+      }
+    ]
+  : [
+      {
+        '@type': 'Organization',
+        '@id': `${site.href}#organization`,
+        name: 'Interledger Foundation',
+        url: site.href,
+        logo: logoUrl
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${site.href}#website`,
+        name: jsonLdSiteName ?? siteName,
+        url: site.href,
+        inLanguage: 'en',
+        publisher: { '@id': `${site.href}#organization` }
+      }
+    ]
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': jsonLdGraph
+})
+---
+
+<meta charset="UTF-8" />
+<meta name="author" content="Interledger Foundation" />
+<meta name="description" content={resolvedDescription} />
+<meta name="viewport" content="width=device-width" />
+<meta name="generator" content={Astro.generator} />
+<title>{resolvedTitle}</title>
+
+<meta property="og:title" content={resolvedTitle} />
+<meta property="og:type" content={ogType} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={resolvedOgImageAlt} />
+<meta property="og:site_name" content={resolvedOgSiteName} />
+<meta property="og:locale" content={resolvedOgLocale} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:description" content={resolvedDescription} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={resolvedTitle} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:description" content={resolvedDescription} />
+{twitterSite && <meta name="twitter:site" content={twitterSite} />}
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="canonical" href={canonicalURL} />
+<script type="application/ld+json" set:html={jsonLd} />

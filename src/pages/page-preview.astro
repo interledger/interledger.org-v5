@@ -4,9 +4,9 @@
  * Fetches draft content from Strapi for preview before publishing
  * URL: /page-preview?documentId={documentId}
  */
-import BaseLayout from '../layouts/BaseLayout.astro'
-import DynamicZone from '../components/blocks/DynamicZone.astro'
-import { fetchStrapi } from '../utils/fetchStrapi'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import { fetchStrapi } from '@/utils/fetchStrapi'
 
 export const prerender = false
 
@@ -24,6 +24,7 @@ const populateParams = new URLSearchParams({
   'populate[seo][populate]': '*',
   'populate[content][on][blocks.paragraph][populate]': '*',
   'populate[content][on][blocks.blockquote][populate]': '*',
+  'populate[content][on][blocks.callout-text][populate]': '*',
   'populate[content][on][blocks.cta-banner][populate]': '*',
   'populate[content][on][blocks.cards-grid][populate][cards]': '*',
   'populate[content][on][blocks.card-links-grid][populate][cards]': '*',
@@ -31,11 +32,12 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.ambassador][populate][ambassador][populate]':
     '*',
   'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]':
-    '*'
+    '*',
+  'populate[content][on][blocks.cta-button][populate]': '*'
 })
 
 const response = await fetchStrapi(
-  `api/pages/${documentId}?${populateParams.toString()}`
+  `api/foundation-pages/${documentId}?${populateParams.toString()}`
 )
 
 const page = response?.data

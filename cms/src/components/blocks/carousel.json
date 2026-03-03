@@ -8,20 +8,40 @@
   "options": {},
   "attributes": {
     "heading": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "items": {
       "type": "component",
       "repeatable": true,
-      "component": "blocks.carousel-item"
+      "component": "blocks.carousel-item",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "autoplay": {
       "type": "boolean",
-      "default": true
+      "default": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "interval": {
       "type": "integer",
-      "default": 5000
+      "default": 5000,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

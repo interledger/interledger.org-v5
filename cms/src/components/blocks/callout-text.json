@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_blocks_callout_texts",
+  "info": {
+    "displayName": "Callout Text",
+    "icon": "megaphone",
+    "description": "Highlighted text block with larger font size for emphasis"
+  },
+  "options": {},
+  "attributes": {
+    "content": {
+      "type": "richtext",
+      "required": true
+    }
+  }
+}
