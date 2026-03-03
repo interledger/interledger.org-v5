@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { getPagePaths } from '../../utils/static-paths'
+import { getLocalizedPageHrefs } from '../../utils/language-switcher'
 import type { Locale } from '../../i18/utils'
 
 export const prerender = true
@@ -26,6 +27,9 @@ if (mdxPage) {
   MdxContent = Content
   mdxData = mdxPage.data
 }
+const languageHrefs = mdxPage
+  ? getLocalizedPageHrefs(pages, mdxPage)
+  : undefined
 
 const pageTitle = slug
   .split(/[-/]/)
@@ -41,7 +45,11 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={title}
+  description={description}
+  languageHrefs={languageHrefs}
+>
   <main class="pb-space-l">
     {
       isNotFound ? (

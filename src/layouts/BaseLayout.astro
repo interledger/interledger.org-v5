@@ -1,6 +1,7 @@
 ---
 import FoundationFooter from '../components/pages/FoundationFooter.astro'
 import FoundationHeader from '../components/pages/FoundationHeader.astro'
+import type { Locale } from '../i18/utils'
 import '../styles/tailwind.css'
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   ogType?: string
   ogImageUrl?: string
   canonicalURL?: string
+  languageHrefs?: Partial<Record<Locale, string>>
 }
 
 const {
@@ -17,6 +19,7 @@ const {
   description,
   ogType,
   ogImageUrl,
+  languageHrefs,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href
 } = Astro.props
 ---
@@ -90,7 +93,7 @@ const {
   <body
     class="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden"
   >
-    <FoundationHeader />
+    <FoundationHeader languageHrefs={languageHrefs} />
     <slot />
     <FoundationFooter />
   </body>

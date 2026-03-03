@@ -1,32 +1,30 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n'
-const { url } = Astro.props
-import { getLangFromUrl } from '../../i18/utils.ts'
+import { getLangFromUrl, switcherLocales, type Locale } from '../../i18/utils'
+interface Props {
+  url: URL
+  languageHrefs?: Partial<Record<Locale, string>>
+}
+
+const { url, languageHrefs } = Astro.props as Props
 const currentLang = getLangFromUrl(url)
-// TODO, does the getrelative url work in both directions?
 ---
 
 <ul class="flex items-center p-0 list-none">
-  <li
-    class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-  >
-    <a
-      href={getRelativeLocaleUrl('en', url)}
-      class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-      data-active={currentLang === 'en' ? 'true' : 'false'}
-    >
-      EN
-    </a>
-  </li>
-  <li
-    class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-  >
-    <a
-      href={getRelativeLocaleUrl('es', url)}
-      class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-      data-active={currentLang === 'es' ? 'true' : 'false'}
-    >
-      ES
-    </a>
-  </li>
+  {
+    switcherLocales.map((locale) => {
+      const href = languageHrefs?.[locale] || getRelativeLocaleUrl(locale, url)
+      return (
+        <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
+          <a
+            href={href}
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            data-active={currentLang === locale ? 'true' : 'false'}
+          >
+            {locale.toUpperCase()}
+          </a>
+        </li>
+      )
+    })
+  }
 </ul>

@@ -2,6 +2,7 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
 import LanguageSwitcher from '../shared/LanguageSwitcher.astro'
+import type { Locale } from '../../i18/utils'
 
 interface MenuItem {
   label: string
@@ -14,6 +15,12 @@ interface MenuGroup {
   href?: string
   items?: MenuItem[]
 }
+
+interface Props {
+  languageHrefs?: Partial<Record<Locale, string>>
+}
+
+const { languageHrefs } = Astro.props as Props
 
 const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
@@ -109,7 +116,7 @@ const currentUrl = Astro.url
           </a>
         )
       }
-      <LanguageSwitcher url={currentUrl} />
+      <LanguageSwitcher url={currentUrl} languageHrefs={languageHrefs} />
     </div>
     <button
       type="button"
