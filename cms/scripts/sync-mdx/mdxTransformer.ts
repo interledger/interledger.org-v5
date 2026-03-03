@@ -14,6 +14,7 @@
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
+import { parseMdxToBlocks, resolveBlockRelations } from './mdxBlockParser'
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -40,13 +41,15 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param existingEntry - Existing Strapi entry (optional, for updates)
+ * @param strapi - Strapi client for resolving relations (optional for backward compat)
  * @returns Strapi payload object
  */
-export function buildPagePayload(
+export async function buildPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  existingEntry: StrapiEntry | null = null
-): Record<string, unknown> {
+  existingEntry: StrapiEntry | null = null,
+  strapi?: StrapiClient
+): Promise<Record<string, unknown>> {
   // Validate frontmatter against schema (throws if invalid)
   const parsed = schema.parse({
     ...mdx.frontmatter,
@@ -76,17 +79,11 @@ export function buildPagePayload(
   }
 
   // Handle content import
-  // Import MDX content as markdown (preserve original format, no HTML conversion)
+  // Parse MDX body into structured Strapi blocks (recognises JSX components)
   const mdxBody = (mdx.content || '').trim()
   if (mdxBody.length > 0) {
-    // Store markdown content in a Strapi paragraph block component
-    // Strapi's richtext field can accept markdown and will handle rendering
-    data.content = [
-      {
-        __component: 'blocks.paragraph',
-        content: mdx.content
-      }
-    ]
+    const blocks = parseMdxToBlocks(mdxBody)
+    data.content = strapi ? await resolveBlockRelations(blocks, strapi) : blocks
   } else {
     // Preserve existing content if MDX file has no body
     const existingContent = getEntryField(existingEntry, 'content')

@@ -97,25 +97,25 @@ describe('getEntryField', () => {
 // Handles validation, hero section logic, and content block creation.
 describe('buildPagePayload', () => {
   describe('error handling', () => {
-    it('throws when frontmatter fails validation', () => {
+    it('throws when frontmatter fails validation', async () => {
       const mdx = createMdxFile({
         slug: 'test'
       })
 
-      expect(() =>
+      await expect(
         buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
-      ).toThrow()
+      ).rejects.toThrow()
     })
   })
 
   describe('base payload fields', () => {
-    it('includes title from frontmatter', () => {
+    it('includes title from frontmatter', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About Us' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -124,13 +124,13 @@ describe('buildPagePayload', () => {
       expect(payload.title).toBe('About Us')
     })
 
-    it('includes slug from mdx file', () => {
+    it('includes slug from mdx file', async () => {
       const mdx = createMdxFile({
         slug: 'about-page',
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -139,13 +139,13 @@ describe('buildPagePayload', () => {
       expect(payload.slug).toBe('about-page')
     })
 
-    it('includes publishedAt timestamp', () => {
+    it('includes publishedAt timestamp', async () => {
       const mdx = createMdxFile({
         slug: 'test',
         frontmatter: { title: 'Test' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -155,7 +155,7 @@ describe('buildPagePayload', () => {
       expect(typeof payload.publishedAt).toBe('string')
     })
 
-    it('accepts optional schema fields (description, heroImage, sections)', () => {
+    it('accepts optional schema fields (description, heroImage, sections)', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
@@ -173,7 +173,7 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -187,7 +187,7 @@ describe('buildPagePayload', () => {
   // Hero section can come from MDX frontmatter OR be preserved from existing Strapi entry.
   // This lets us update title/content without losing hero images set in Strapi admin.
   describe('hero fallback logic', () => {
-    it('uses frontmatter heroTitle and heroDescription when provided', () => {
+    it('uses frontmatter heroTitle and heroDescription when provided', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
@@ -197,7 +197,7 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -210,7 +210,7 @@ describe('buildPagePayload', () => {
     })
 
     // If only description is provided, use the page title as hero title
-    it('uses title as hero title when heroTitle not provided but heroDescription is', () => {
+    it('uses title as hero title when heroTitle not provided but heroDescription is', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
@@ -219,7 +219,7 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -231,7 +231,7 @@ describe('buildPagePayload', () => {
       })
     })
 
-    it('uses empty description when heroTitle provided but heroDescription is not', () => {
+    it('uses empty description when heroTitle provided but heroDescription is not', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: {
@@ -240,7 +240,7 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -254,7 +254,7 @@ describe('buildPagePayload', () => {
 
     // Key feature: if MDX doesn't have hero fields, keep whatever's in Strapi.
     // This preserves hero images uploaded via Strapi admin UI.
-    it('preserves existing hero when no hero fields in frontmatter', () => {
+    it('preserves existing hero when no hero fields in frontmatter', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         slug: 'about',
@@ -265,7 +265,7 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         existingEntry
@@ -278,13 +278,13 @@ describe('buildPagePayload', () => {
     })
 
     // No hero in MDX + no existing entry = no hero in payload
-    it('does not include hero when no frontmatter hero and no existing entry', () => {
+    it('does not include hero when no frontmatter hero and no existing entry', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -294,7 +294,7 @@ describe('buildPagePayload', () => {
     })
 
     // MDX hero fields take precedence over Strapi — intentional override
-    it('overrides existing hero when frontmatter has hero fields', () => {
+    it('overrides existing hero when frontmatter has hero fields', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         slug: 'about',
@@ -309,7 +309,7 @@ describe('buildPagePayload', () => {
         }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         existingEntry
@@ -322,16 +322,16 @@ describe('buildPagePayload', () => {
     })
   })
 
-  // Content is stored as a paragraph block component. Empty content preserves existing.
+  // Content is stored as structured blocks. Empty content preserves existing.
   describe('content block handling', () => {
-    it('creates content block with markdown when mdx has body', () => {
+    it('creates content block with markdown when mdx has body', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: '## Heading\n\nParagraph text'
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -346,7 +346,7 @@ describe('buildPagePayload', () => {
     })
 
     // Same fallback logic as hero — empty MDX body preserves Strapi content
-    it('preserves existing content when mdx body is empty', () => {
+    it('preserves existing content when mdx body is empty', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         slug: 'about',
@@ -357,7 +357,7 @@ describe('buildPagePayload', () => {
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         existingEntry
@@ -369,7 +369,7 @@ describe('buildPagePayload', () => {
     })
 
     // Whitespace-only should be treated as empty
-    it('preserves existing content when mdx body is whitespace only', () => {
+    it('preserves existing content when mdx body is whitespace only', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         slug: 'about',
@@ -381,7 +381,7 @@ describe('buildPagePayload', () => {
         content: '   \n\n   '
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         existingEntry
@@ -392,13 +392,13 @@ describe('buildPagePayload', () => {
       ])
     })
 
-    it('does not include content when no mdx body and no existing entry', () => {
+    it('does not include content when no mdx body and no existing entry', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' }
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -407,7 +407,7 @@ describe('buildPagePayload', () => {
       expect(payload.content).toBeUndefined()
     })
 
-    it('overrides existing content when mdx has body', () => {
+    it('overrides existing content when mdx has body', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         slug: 'about',
@@ -419,7 +419,7 @@ describe('buildPagePayload', () => {
         content: 'New content'
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         existingEntry
@@ -430,14 +430,14 @@ describe('buildPagePayload', () => {
       ])
     })
 
-    it('handles content with null existing entry', () => {
+    it('handles content with null existing entry', async () => {
       const mdx = createMdxFile({
         slug: 'about',
         frontmatter: { title: 'About' },
         content: undefined
       })
 
-      const payload = buildPagePayload(
+      const payload = await buildPagePayload(
         foundationPageFrontmatterSchema,
         mdx,
         null
@@ -445,17 +445,42 @@ describe('buildPagePayload', () => {
 
       expect(payload.content).toBeUndefined()
     })
+
+    it('parses JSX components into structured blocks', async () => {
+      const mdx = createMdxFile({
+        slug: 'about',
+        frontmatter: { title: 'About' },
+        content:
+          'Intro text.\n\n<AmbassadorGrid heading="Team" slugs={["alice"]} />\n\nClosing text.'
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
+
+      const content = payload.content as Array<{ __component: string }>
+      expect(content).toHaveLength(3)
+      expect(content[0].__component).toBe('blocks.paragraph')
+      expect(content[1].__component).toBe('blocks.ambassadors-grid')
+      expect(content[2].__component).toBe('blocks.paragraph')
+    })
   })
 
   describe('summit-pages content type', () => {
-    it('processes summit-pages same as foundation-pages', () => {
+    it('processes summit-pages same as foundation-pages', async () => {
       const mdx = createMdxFile({
         slug: 'schedule',
         frontmatter: { title: 'Schedule' },
         content: 'Summit content'
       })
 
-      const payload = buildPagePayload(summitPageFrontmatterSchema, mdx, null)
+      const payload = await buildPagePayload(
+        summitPageFrontmatterSchema,
+        mdx,
+        null
+      )
 
       expect(payload.title).toBe('Schedule')
       expect(payload.slug).toBe('schedule')

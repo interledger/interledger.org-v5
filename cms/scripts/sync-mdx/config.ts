@@ -51,15 +51,15 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       schema: foundationPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
+      buildPayload: async (mdx, strapi, existing) =>
+        buildPagePayload(foundationPageFrontmatterSchema, mdx, existing, strapi)
     },
     'summit-pages': {
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
+      buildPayload: async (mdx, strapi, existing) =>
+        buildPagePayload(summitPageFrontmatterSchema, mdx, existing, strapi)
     },
     'foundation-blog-posts': {
       dir: getContentPath(projectRoot, 'blog'),
