@@ -16,7 +16,6 @@ interface BlogResult {
   publishedAt?: Date
   locale: string
   pillar: 'vision' | 'mission' | 'tech' | 'values'
-  authors?: string
   language?: 'en' | 'es'
   featureImage?: {
     name: string
@@ -28,7 +27,11 @@ interface BlogResult {
     alternativeText?: string
     url: string
   }
-  articleBio?: { profileBio: string; profileImage: string }[]
+  articleBio?: {
+    author: string
+    profileBio?: string
+    profileImage?: { url: string }
+  }[]
   tags?: { tagValue: string }[]
   localizations: []
 }
@@ -46,7 +49,20 @@ function generateFilename({ date, slug }): string {
 }
 
 function generateBlogMDX(post: BlogResult) {
-  console.log('POST: ', post)
+  const articleBios =
+    post.articleBio?.length > 0
+      ? `articleBios:${post.articleBio.map((bio) => {
+          const articleBio = [
+            `\n  - author: ${bio.author}`,
+            bio.profileBio ? `\n    text: '${bio.profileBio}'` : null,
+            bio.profileImage ? `\n    image: '${bio.profileImage.url}'` : null
+          ]
+            .filter(Boolean)
+            .join('')
+          return articleBio
+        })}`
+      : null
+
   const frontmatterLines = [
     `title: '${post.title}'`,
     `description: '${post.description}'`,
@@ -61,13 +77,7 @@ function generateBlogMDX(post: BlogResult) {
     post.thumbnailImage?.alternativeText
       ? `thumbnailImageAlt: '${post.thumbnailImage.alternativeText}'`
       : null,
-    post.authors ? `authors: ${post.authors[0]}` : null, //TODO - group together author + articleBio
-    post.articleBio.length > 0
-      ? `bioTexts: '${post.articleBio[0].profileBio}'`
-      : null,
-    post.articleBio.length > 0
-      ? `bioImages: '${post.articleBio[0].profileImage}'`
-      : null,
+    articleBios,
     post.tags.length > 0
       ? `tags: ${post.tags.map((tag) => `\n  - ${tag.tagValue}`).join('')}`
       : null,

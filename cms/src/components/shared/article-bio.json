@@ -5,6 +5,9 @@
   },
   "options": {},
   "attributes": {
+    "author": {
+      "type": "string"
+    },
     "profileBio": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",

@@ -37,6 +37,12 @@ export type DevelopersBlogFrontmatterType = z.infer<
   typeof developersBlogFrontmatterSchema
 >
 
+const ArticleBioSchema = z.object({
+  author: z.string(),
+  text: z.string().optional(),
+  image: z.string().optional()
+})
+
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
@@ -47,9 +53,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImageAlt: z.string().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().optional(),
-  authors: z.array(z.string()).optional().default([]),
-  bioTexts: z.array(z.string()).optional(),
-  bioImages: z.array(z.string()).optional(),
+  articleBios: z.array(ArticleBioSchema).optional().default([]),
   tags: z.array(z.enum(foundationTags)).default([]),
   localizes: z.string().optional(),
   locale: z.string().optional()
