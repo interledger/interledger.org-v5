@@ -16,7 +16,7 @@ const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 
 const pages = await getCollection('foundation-pages')
 const mdxPage = pages.find(
-  (page) => page.data.slug === slug && page.data.lang === pageLang
+  (page) => page.data.pathSlug === slug && page.data.lang === pageLang
 )
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null

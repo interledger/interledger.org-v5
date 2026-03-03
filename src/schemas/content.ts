@@ -5,7 +5,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
   date: z.date(),
-  slug: z.string(),
+  pathSlug: z.string(),
   pillar: z.string().optional(),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
@@ -17,7 +17,7 @@ export const foundationBlogFrontmatterSchema = z.object({
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'slug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
@@ -45,7 +45,7 @@ export const foundationPageFrontmatterSchema = z.object({
 
 export const summitPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'slug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
