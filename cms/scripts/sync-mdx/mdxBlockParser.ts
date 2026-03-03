@@ -66,7 +66,17 @@ export interface ParserContext {
 // Handler registry
 // ---------------------------------------------------------------------------
 
-/** Map of JSX component name → handler function. */
+/**
+ * Singleton handler registry: JSX component name → handler function.
+ *
+ * This is a module-level object — Node's module cache guarantees only one
+ * instance exists per process. Handler modules (e.g. ambassadorHandler.ts)
+ * call `registerComponentHandler()` at the top level, so importing the
+ * module is enough to populate this map (side-effect registration).
+ *
+ * The pipeline triggers registration via bare imports in config.ts:
+ *   import './ambassadorHandler'  // populates COMPONENT_HANDLERS['Ambassador']
+ */
 const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
 
 // ---------------------------------------------------------------------------
@@ -206,8 +216,11 @@ export async function parseMdxToBlocks(
 // ---------------------------------------------------------------------------
 
 /**
- * Register a component handler. Called by individual handler modules
- * during their initialization.
+ * Register a component handler into the singleton registry.
+ *
+ * Called at the top level of handler modules so that importing the module
+ * is enough to make the handler available to `parseMdxToBlocks()`.
+ * Node's module cache ensures each handler is registered exactly once.
  */
 export function registerComponentHandler(
   name: string,
