@@ -9,21 +9,11 @@ export async function getPagePaths(
   options?: { excludeSlug?: string }
 ) {
   const pages = await getCollection(collection)
-  // to do remove
-  const preview = pages
-    .filter((page) => page.data.lang === lang)
-    .filter(
-      (page) => !options?.excludeSlug || page.data.pathSlug !== options.excludeSlug
-    )
-    .map((page) => ({
-      params: { page: page.data.pathSlug }
-    }))
-    console.log('GETPAGEPATHS: ', preview)
-  //
   return pages
     .filter((page) => page.data.lang === lang)
     .filter(
-      (page) => !options?.excludeSlug || page.data.pathSlug !== options.excludeSlug
+      (page) =>
+        !options?.excludeSlug || page.data.pathSlug !== options.excludeSlug
     )
     .map((page) => ({
       params: { page: page.data.pathSlug }

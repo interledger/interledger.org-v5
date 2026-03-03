@@ -18,7 +18,7 @@ const engBlogCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    slug: z.string(),
+    pathSlug: z.string(),
     lang: localeSchema,
     date: z.date(),
     ogImageUrl: z.string().optional(),

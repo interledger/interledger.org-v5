@@ -2,7 +2,7 @@
 title: 'Simplifying Interledger: The Graveyard of Possible Protocol Features'
 description: As the development of the Interledger Protocol (ILP) nears completion, I thought we should take a moment to remember some of the many core protocol features we’ve killed off along the way.
 date: 2018-01-29
-slug: simplifying-interledger-the-graveyard-of-possible-protocol-features
+pathSlug: simplifying-interledger-the-graveyard-of-possible-protocol-features
 lang: en
 authors:
   - Evan Schwartz

@@ -2,7 +2,7 @@
 title: 'A Simple Guide to the Open Payments Standard'
 description: Learn how the Open Payments standard makes online payments easier and more accessible for everyone.
 date: 2024-07-09
-slug: simple-open-payments-guide
+pathSlug: simple-open-payments-guide
 lang: en
 authors:
   - Sarah Jones
