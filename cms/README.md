@@ -90,7 +90,7 @@ When you publish or update content in Strapi:
 
 ### File Naming
 
-MDX files are named using the pathSlug: `{slug}.mdx`
+MDX files are named using the slug: `{slug}.mdx`
 
 Example: If slug is `interledger-launches-new-platform`, the file will be `interledger-launches-new-platform.mdx`
 
