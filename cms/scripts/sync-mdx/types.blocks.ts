@@ -34,25 +34,25 @@ export interface ParagraphBlock extends StrapiBlockBase {
 /**
  * blocks.ambassador – single ambassador relation block.
  *
- * The `ambassador` field holds a Strapi relation connect payload
- * (documentId resolved from slug at parse time).
+ * The `ambassador` field uses Strapi v5's `connect` syntax for
+ * relations inside dynamic zone components.
  */
 export interface AmbassadorBlock extends StrapiBlockBase {
   __component: 'blocks.ambassador'
-  ambassador: { documentId: string }
+  ambassador: { connect: Array<{ documentId: string }> }
   showLinks?: boolean
 }
 
 /**
  * blocks.ambassadors-grid – ordered grid of ambassador relations.
  *
- * `ambassadors` is an array of relation connect payloads whose order
+ * `ambassadors` uses Strapi v5's `connect` syntax. Order of entries
  * must match the input slug order.
  */
 export interface AmbassadorsGridBlock extends StrapiBlockBase {
   __component: 'blocks.ambassadors-grid'
   heading?: string
-  ambassadors: Array<{ documentId: string }>
+  ambassadors: { connect: Array<{ documentId: string }> }
 }
 
 /** blocks.blockquote – styled quote with optional attribution. */

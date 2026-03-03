@@ -234,33 +234,28 @@ export function getStringArrayAttr(
 
   const raw = attr.value.value.trim()
 
-  // Try JSON parse – handles ["a", "b", "c"]
-  try {
-    const parsed: unknown = JSON.parse(raw)
-    if (
-      Array.isArray(parsed) &&
-      parsed.every((item) => typeof item === 'string')
-    ) {
-      return parsed as string[]
+  // Try JSON parse first (double-quoted strings), then normalize
+  // single quotes to double quotes for JS-style arrays like ['a','b'].
+  for (const candidate of [raw, raw.replace(/'/g, '"')]) {
+    try {
+      const parsed: unknown = JSON.parse(candidate)
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((item) => typeof item === 'string')
+      ) {
+        return parsed as string[]
+      }
+    } catch {
+      // Try next candidate
     }
-    throw new MdxParserError({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      message: `Prop "${name}" must be an array of strings, got ${typeof parsed}.`,
-      component: node.name ?? undefined,
-      prop: name,
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
-  } catch (err) {
-    if (err instanceof MdxParserError) throw err
-
-    throw new MdxParserError({
-      code: ParserErrorCode.DYNAMIC_EXPRESSION,
-      message: `Prop "${name}" contains a dynamic expression that cannot be statically evaluated.`,
-      component: node.name ?? undefined,
-      prop: name,
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
   }
+
+  throw new MdxParserError({
+    code: ParserErrorCode.DYNAMIC_EXPRESSION,
+    message: `Prop "${name}" contains a dynamic expression that cannot be statically evaluated.`,
+    component: node.name ?? undefined,
+    prop: name,
+    line: node.position?.start.line,
+    column: node.position?.start.column
+  })
 }

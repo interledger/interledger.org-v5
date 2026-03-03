@@ -49,6 +49,17 @@ export type ComponentHandler = (
 export interface ParserContext {
   /** Locale of the MDX file being parsed. */
   locale: string
+  /**
+   * Resolve a relation slug to a Strapi document ID.
+   * Provided by the caller for handlers that reference other content types.
+   *
+   * @param apiId - Strapi API identifier (e.g. 'ambassadors')
+   * @param slug  - Content slug to look up
+   */
+  resolveRelation?: (
+    apiId: string,
+    slug: string
+  ) => Promise<{ documentId: string }>
 }
 
 // ---------------------------------------------------------------------------
@@ -139,6 +150,9 @@ export async function parseMdxToBlocks(
 
       const result = await handler(jsxNode, ctx)
       blocks.push(...result)
+      // Skip to next node — don't let handled JSX fall through to
+      // the markdown fallback which would double-emit the source text.
+      continue
     }
     // Bare expressions like {someVar} or {() => fn()} are not allowed.
     if (
@@ -166,10 +180,22 @@ export async function parseMdxToBlocks(
       })
     }
 
-    // Markdown nodes (paragraph, heading, etc.) are handled by the
-    // Paragraph handler once registered. Until then, they pass through
-    // unmatched — the caller (buildPagePayload) only invokes the parser
-    // when JSX components are present in the body.
+    // Markdown nodes (paragraph, heading, thematic break, etc.) —
+    // extract source text and wrap as a paragraph block. Will be
+    // replaced by a dedicated Paragraph component handler.
+    if (
+      node.position &&
+      node.position.start.offset != null &&
+      node.position.end.offset != null
+    ) {
+      const raw = mdxBody.slice(
+        node.position.start.offset,
+        node.position.end.offset
+      )
+      if (raw.trim()) {
+        blocks.push({ __component: 'blocks.paragraph' as const, content: raw })
+      }
+    }
   }
 
   return blocks

@@ -93,6 +93,31 @@ describe('parseMdxToBlocks', () => {
       code: ParserErrorCode.UNSUPPORTED_COMPONENT
     })
   })
+
+  // --- Markdown node fallback ---
+
+  it('converts markdown nodes to paragraph blocks', async () => {
+    const blocks = await parseMdxToBlocks('## Hello\n\nSome text here.', ctx)
+
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0]).toEqual({
+      __component: 'blocks.paragraph',
+      content: '## Hello'
+    })
+    expect(blocks[1]).toEqual({
+      __component: 'blocks.paragraph',
+      content: 'Some text here.'
+    })
+  })
+
+  it('skips whitespace-only markdown nodes', async () => {
+    // A thematic break (---) produces a node with no textual content,
+    // but it still has non-whitespace source so it should be kept
+    const blocks = await parseMdxToBlocks('Hello\n\n---\n\nWorld', ctx)
+
+    expect(blocks.length).toBeGreaterThanOrEqual(2)
+    expect(blocks.every((b) => b.__component === 'blocks.paragraph')).toBe(true)
+  })
 })
 
 // ---------------------------------------------------------------------------
