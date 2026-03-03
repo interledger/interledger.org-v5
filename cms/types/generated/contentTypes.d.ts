@@ -458,10 +458,20 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         }
       }>
     grantReportUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 500
       }>
     linkedinUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 500
       }>
@@ -472,12 +482,29 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     >
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255
       }>
-    photo: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
+    photo: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required
+    slug: Schema.Attribute.UID<'name'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
