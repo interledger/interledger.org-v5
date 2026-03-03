@@ -8,7 +8,7 @@ export const prerender = true
 const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
-  return getPagePaths('foundation-pages', pageLang, { excludeSlug: 'home' })
+  return getPagePaths('foundation-pages', 'en', { excludeSlug: 'home' })
 }
 
 const slugParam = Astro.params.page
