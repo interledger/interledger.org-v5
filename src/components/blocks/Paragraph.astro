@@ -24,8 +24,10 @@ const alignmentClass =
       : ''
 ---
 
-{/* :where(a) keeps specificity low so styled components (e.g. CtaButton)
-    can override these prose defaults with their own Tailwind classes */}
+{
+  /* :where(a) keeps specificity low so styled components (e.g. CtaButton)
+    can override these prose defaults with their own Tailwind classes */
+}
 <div
   data-prose
   class={`mx-auto max-w-narrow ${alignmentClass}`}

@@ -410,7 +410,9 @@ There are two approaches to control styling of `set:html` content:
 **Option A — Tailwind arbitrary variants on container elements:**
 
 ```html
-<blockquote class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic">
+<blockquote
+  class="[&_strong]:text-inherit [&_p]:mb-0 [&_em]:italic"
+></blockquote>
 ```
 
 Consistent with the pattern used in `[...page].astro` and `Paragraph.astro`. Keeps everything in the template but can get verbose with many overrides.
