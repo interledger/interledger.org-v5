@@ -1,33 +1,59 @@
 import { shouldSkipMdxExport } from './pageLifecycle'
-import { uidToLogLabel } from './mdx'
+
+interface BlogResult {
+  id: number,
+  documentId: string,
+  title: string,
+  description: string,
+  slug: string,
+  date: string,
+  content: string,
+  createdAt: string,
+  updatedAt: string,
+  publishedAt?: Date,
+  locale: string,
+  pillar: 'vision' | 'mission' |'tech' | 'values',
+  authors?: string,
+  language?: 'en' | 'es',
+  featureImage: null,
+  thumbnailImage: null,
+  articleBio?: string[],
+  tags?: string[],
+  localizations: []
+}
+
+interface BlogEvent {
+  model: { singularName: string},
+  result: BlogResult
+}
 
 export function createBlogLifecycle() {
   return {
-    async afterCreate(event: Event) {
+    async afterCreate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result) return
       console.log('EVENT: ', event)
       console.log(
-        `📝 Creating ${uidToLogLabel(event.model.uid)} MDX for: ${result.slug}`
+        `📝 Creating ${event.model.singularName} MDX for: ${result.slug}`
       )
     },
 
-    async afterUpdate(event: Event) {
+    async afterUpdate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result) return
       console.log(
-        `📝 Updating ${uidToLogLabel(event.model.uid)} MDX for: ${result.slug}`
+        `📝 Updating ${event.model.singularName} MDX for: ${result.slug}`
       )
     },
 
-    async afterDelete(event: Event) {
+    async afterDelete(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result) return
       console.log(
-        `📝 Deleting ${uidToLogLabel(event.model.uid)} MDX for: ${result.slug}`
+        `📝 Deleting ${event.model.singularName} MDX for: ${result.slug}`
       )
     }
   }
