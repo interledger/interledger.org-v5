@@ -58,6 +58,25 @@ export interface ParserContext {
 /** Map of JSX component name → handler function. */
 const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
 
+interface PositionedNode {
+  position?: Root['position']
+}
+
+function parserError(
+  code: ParserErrorCode,
+  message: string,
+  node?: PositionedNode,
+  extras: { component?: string } = {}
+): MdxParserError {
+  return new MdxParserError({
+    code,
+    message,
+    component: extras.component,
+    line: node?.position?.start.line,
+    column: node?.position?.start.column
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Core parser
 // ---------------------------------------------------------------------------
@@ -117,24 +136,21 @@ export async function parseMdxToBlocks(
       const componentName = jsxNode.name
 
       if (!componentName) {
-        throw new MdxParserError({
-          code: ParserErrorCode.UNSUPPORTED_COMPONENT,
-          message:
-            'Encountered a JSX fragment (<>...</>). Fragments are not supported.',
-          line: jsxNode.position?.start.line,
-          column: jsxNode.position?.start.column
-        })
+        throw parserError(
+          ParserErrorCode.UNSUPPORTED_COMPONENT,
+          'Encountered a JSX fragment (<>...</>). Fragments are not supported.',
+          jsxNode
+        )
       }
 
       const handler = COMPONENT_HANDLERS[componentName]
       if (!handler) {
-        throw new MdxParserError({
-          code: ParserErrorCode.UNSUPPORTED_COMPONENT,
-          message: `Unsupported JSX component "${componentName}".`,
-          component: componentName,
-          line: jsxNode.position?.start.line,
-          column: jsxNode.position?.start.column
-        })
+        throw parserError(
+          ParserErrorCode.UNSUPPORTED_COMPONENT,
+          `Unsupported JSX component "${componentName}".`,
+          jsxNode,
+          { component: componentName }
+        )
       }
 
       const result = await handler(jsxNode, ctx)
@@ -146,24 +162,22 @@ export async function parseMdxToBlocks(
       node.type === 'mdxTextExpression'
     ) {
       const expr = node as { value?: string; position?: Root['position'] }
-      throw new MdxParserError({
-        code: ParserErrorCode.DYNAMIC_EXPRESSION,
-        message: `Top-level expression "{${expr.value ?? '...'}}" is not supported.`,
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
+      throw parserError(
+        ParserErrorCode.DYNAMIC_EXPRESSION,
+        `Top-level expression "{${expr.value ?? '...'}}" is not supported.`,
+        node
+      )
     }
 
     // ESM import/export statements are not allowed — MDX content in this
     // pipeline is converted to Strapi blocks, not executed as JS modules.
     if (node.type === 'mdxjsEsm') {
       const esm = node as { value?: string; position?: Root['position'] }
-      throw new MdxParserError({
-        code: ParserErrorCode.DYNAMIC_EXPRESSION,
-        message: `Import/export statements are not supported: "${esm.value ?? '...'}"`,
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
+      throw parserError(
+        ParserErrorCode.DYNAMIC_EXPRESSION,
+        `Import/export statements are not supported: "${esm.value ?? '...'}"`,
+        node
+      )
     }
 
     // Markdown nodes (paragraph, heading, etc.) are handled by the
