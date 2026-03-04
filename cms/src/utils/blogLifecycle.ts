@@ -42,6 +42,11 @@ interface BlogEvent {
 }
 //TODO: git
 
+function yamlSingleQuote(value: string): string {
+  return `'${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}'`
+}
+const q = yamlSingleQuote
+
 function generateFilename({ date, slug }): string {
   const prefix = date ? `${date}-` : ''
   return `${prefix}${slug}.mdx`
@@ -53,8 +58,8 @@ function generateBlogMDX(post: BlogResult) {
       ? `articleBios:${post.articleBio.map((bio) => {
           const articleBio = [
             `\n  - author: ${bio.author}`,
-            bio.profileBio ? `\n    text: '${bio.profileBio}'` : null,
-            bio.profileImage ? `\n    image: '${bio.profileImage.url}'` : null
+            bio.profileBio ? `\n    text: ${q(bio.profileBio)}` : null,
+            bio.profileImage ? `\n    image: ${q(bio.profileImage.url)}` : null
           ]
             .filter(Boolean)
             .join('')
@@ -63,24 +68,28 @@ function generateBlogMDX(post: BlogResult) {
       : null
 
   const frontmatterLines = [
-    `title: '${post.title}'`,
-    `description: '${post.description}'`,
+    `title: ${q(post.title)}`,
+    `description: ${q(post.description)}`,
     `date: ${post.date}`,
     `slug: ${post.slug}`,
-    `pillar: '${post.pillar}'`,
-    post.featureImage ? `featureImage: '${post.featureImage.url}'` : null,
+    `pillar: ${q(post.pillar)}`,
+    post.featureImage?.url ? `featureImage: ${q(post.featureImage.url)}` : null,
     post.featureImage?.alternativeText
-      ? `featureImageAlt: '${post.featureImage.alternativeText}'`
+      ? `featureImageAlt: ${q(post.featureImage.alternativeText)}`
       : null,
-    post.thumbnailImage ? `thumbnailImage: '${post.thumbnailImage.url}'` : null,
+    post.thumbnailImage?.url
+      ? `thumbnailImage: ${q(post.thumbnailImage.url)}`
+      : null,
     post.thumbnailImage?.alternativeText
-      ? `thumbnailImageAlt: '${post.thumbnailImage.alternativeText}'`
+      ? `thumbnailImageAlt: ${q(post.thumbnailImage.alternativeText)}`
       : null,
     articleBios,
-    post.tags.length > 0
-      ? `tags: ${post.tags.map((tag) => `\n  - ${tag.tagValue}`).join('')}`
+    post.tags
+      ? post.tags.length === 0
+        ? `tags: []`
+        : `tags: ${post.tags.map((tag) => `\n  - ${tag.tagValue}`).join('')}`
       : null,
-    post.language ? `locale: ${post.language}` : null
+    post.language ? `locale: ${q(post.language)}` : null
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
@@ -120,7 +129,7 @@ async function deleteMDXFile({
     console.log(`🗑️  Deleted MDX file: ${filepath}`)
   } catch (err) {
     if (err.code !== 'ENOENT') {
-      console.error(`❌ Failed to delete MDX file: ${filepath}`, err)
+      console.error(`❌ Failed to delete Blog Post MDX file: ${filepath}`, err)
       throw err
     }
   }
