@@ -47,7 +47,13 @@ function yamlSingleQuote(value: string): string {
 }
 const q = yamlSingleQuote
 
-function generateFilename({ date, slug }:{date: string, slug: string}): string {
+function generateFilename({
+  date,
+  slug
+}: {
+  date: string
+  slug: string
+}): string {
   const prefix = date ? `${date}-` : ''
   return `${prefix}${slug}.mdx`
 }
@@ -108,7 +114,7 @@ async function writeMDXFile({
   const filename = generateFilename({ date: post.date, slug: post.slug })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
-  
+
   await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
@@ -129,7 +135,10 @@ async function deleteMDXFile({
     console.log(`🗑️  Deleted MDX file: ${filepath}`)
   } catch (error: unknown) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error(`❌ Failed to delete Blog Post MDX file: ${filepath}`, error)
+      console.error(
+        `❌ Failed to delete Blog Post MDX file: ${filepath}`,
+        error
+      )
       throw error
     }
   }
