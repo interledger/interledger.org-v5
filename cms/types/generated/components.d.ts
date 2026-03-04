@@ -489,6 +489,7 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
     displayName: 'Article Bio'
   }
   attributes: {
+    author: Schema.Attribute.String
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',

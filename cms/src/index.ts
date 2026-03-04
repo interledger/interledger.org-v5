@@ -158,7 +158,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pillar: 'Pillar',
       featureImage: 'Feature Image',
       thumbnailImage: 'Article Thumbnail',
-      authors: 'Byline',
       content: 'Content',
       articleBio: 'Article Bio',
       tags: 'Tags',
