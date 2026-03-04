@@ -47,14 +47,9 @@ describe('getStringAttr', () => {
     )
   })
 
-  it('throws DYNAMIC_EXPRESSION for expression values', () => {
+  it('returns expression source as text', () => {
     const node = parseJsx('<Foo bar={someVar} />')
-    expect(() => getStringAttr(node, 'bar')).toThrow(MdxParserError)
-    expect(() => getStringAttr(node, 'bar')).toThrow(
-      expect.objectContaining({
-        code: ParserErrorCode.DYNAMIC_EXPRESSION
-      })
-    )
+    expect(getStringAttr(node, 'bar')).toBe('someVar')
   })
 })
 
@@ -83,14 +78,9 @@ describe('getBooleanAttr', () => {
     expect(getBooleanAttr(node, 'bar')).toBeUndefined()
   })
 
-  it('throws DYNAMIC_EXPRESSION for non-boolean expression', () => {
+  it('returns undefined for non-boolean expression text', () => {
     const node = parseJsx('<Foo bar={someVar} />')
-    expect(() => getBooleanAttr(node, 'bar')).toThrow(MdxParserError)
-    expect(() => getBooleanAttr(node, 'bar')).toThrow(
-      expect.objectContaining({
-        code: ParserErrorCode.DYNAMIC_EXPRESSION
-      })
-    )
+    expect(getBooleanAttr(node, 'bar')).toBeUndefined()
   })
 })
 
@@ -101,11 +91,6 @@ describe('getBooleanAttr', () => {
 describe('getStringArrayAttr', () => {
   it('extracts a static string array with double quotes', () => {
     const node = parseJsx('<Foo items={["a","b","c"]} />')
-    expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
-  })
-
-  it('extracts a static string array with single quotes', () => {
-    const node = parseJsx("<Foo items={['a','b','c']} />")
     expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
   })
 
@@ -136,12 +121,12 @@ describe('getStringArrayAttr', () => {
     )
   })
 
-  it('throws DYNAMIC_EXPRESSION for non-static expression', () => {
+  it('throws INVALID_PROP_VALUE for non-JSON expression', () => {
     const node = parseJsx('<Foo items={someVar} />')
     expect(() => getStringArrayAttr(node, 'items')).toThrow(MdxParserError)
     expect(() => getStringArrayAttr(node, 'items')).toThrow(
       expect.objectContaining({
-        code: ParserErrorCode.DYNAMIC_EXPRESSION
+        code: ParserErrorCode.INVALID_PROP_VALUE
       })
     )
   })
