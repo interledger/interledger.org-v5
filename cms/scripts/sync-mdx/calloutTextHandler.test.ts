@@ -56,6 +56,33 @@ describe('CalloutText handler', () => {
     expect(content).toContain('Second paragraph.')
   })
 
+  it('preserves links in children', async () => {
+    const mdx = [
+      '<CalloutText>',
+      'Learn more at [Interledger](https://interledger.org).',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    const content = (blocks[0] as { content: string }).content
+    expect(content).toContain('[Interledger](https://interledger.org)')
+  })
+
+  it('preserves inline HTML in children', async () => {
+    const mdx = [
+      '<CalloutText>',
+      'This has <em>html emphasis</em> and <strong>strong</strong>.',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    const content = (blocks[0] as { content: string }).content
+    expect(content).toContain('<em>html emphasis</em>')
+    expect(content).toContain('<strong>strong</strong>')
+  })
+
   it('throws when children are empty (self-closing)', async () => {
     await expect(
       parseMdxToBlocks('<CalloutText />', ctx)

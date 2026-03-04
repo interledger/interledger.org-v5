@@ -71,6 +71,44 @@ describe('Blockquote handler', () => {
     expect(quote).toContain('second paragraph')
   })
 
+  it('preserves markdown in source prop', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<Blockquote source="Vint Cerf is a _good guy_">\nThe Internet is for everyone.\n</Blockquote>',
+      ctx
+    )
+
+    expect(blocks[0]).toMatchObject({
+      source: 'Vint Cerf is a _good guy_'
+    })
+  })
+
+  it('preserves links in children', async () => {
+    const mdx = [
+      '<Blockquote>',
+      'Visit [Interledger](https://interledger.org) for more.',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    const quote = (blocks[0] as { quote: string }).quote
+    expect(quote).toContain('[Interledger](https://interledger.org)')
+  })
+
+  it('preserves inline HTML in children', async () => {
+    const mdx = [
+      '<Blockquote>',
+      'This has <em>html emphasis</em> and <strong>strong</strong>.',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    const quote = (blocks[0] as { quote: string }).quote
+    expect(quote).toContain('<em>html emphasis</em>')
+    expect(quote).toContain('<strong>strong</strong>')
+  })
+
   it('throws when children are empty (self-closing)', async () => {
     await expect(
       parseMdxToBlocks('<Blockquote source="Author" />', ctx)
