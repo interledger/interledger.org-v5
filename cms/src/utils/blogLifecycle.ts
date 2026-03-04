@@ -115,6 +115,7 @@ async function writeMDXFile({
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
 
+  await fs.promises.mkdir(outputPath, { recursive: true })
   await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
@@ -144,10 +145,9 @@ async function deleteMDXFile({
   }
 }
 
-export async function createBlogLifecycle({ outputDir }) {
+export function createBlogLifecycle({ outputDir }) {
   const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, outputDir)
-  await fs.promises.mkdir(outputPath, { recursive: true })
 
   return {
     async afterCreate(event: BlogEvent) {
