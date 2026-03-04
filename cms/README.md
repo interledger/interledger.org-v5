@@ -199,29 +199,19 @@ The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX fi
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
 
-#### Page Block Import (current behaviour)
+#### Page Block Import (current behavior)
 
-Page MDX files contain dynamic-zone blocks serialized as JSX components in the body (e.g. `<AmbassadorGrid heading="..." slugs={["alice"]} />`). The sync script currently stores the entire MDX body as a single `blocks.paragraph` string — JSX components are not individually parsed or mapped back to their Strapi block types.
+For page content types, `sync:mdx` parses MDX body content into ordered dynamic-zone blocks.
 
-#### Future improvement — frontmatter-based block metadata
+- Markdown nodes are imported as `blocks.paragraph`
+- Registered JSX handlers map supported components to block payloads
+- Unknown JSX components fail the sync with a parser error
 
-As the number or complexity of block types grows, storing the body as raw text becomes a round-trip fidelity problem. The recommended upgrade path is to write structured block data into the YAML frontmatter in addition to the JSX body, using `js-yaml` (already available as a Strapi transitive dependency):
+Current handlers are registered through side-effect imports in `scripts/sync-mdx/config.ts`.
 
-```yaml
----
-slug: 'ambassadors'
-title: 'Ambassadors'
-content:
-  - __component: blocks.ambassadors-grid
-    heading: 'Meet our ambassadors'
-    slugs:
-      - alice
-      - bob
----
-<AmbassadorGrid heading="Meet our ambassadors" slugs={["alice","bob"]} />
-```
+When adding a new handler, follow:
 
-The import script would then read `frontmatter.content` directly — no body parsing, no regex, and the approach scales to any block shape. Relation fields (`slugs`, `slug`) stay as human-readable slugs in YAML; the script resolves them to Strapi `documentId`s at sync time using the existing `findBySlug()` helper. This keeps the MDX body as a rendering-only artifact and the frontmatter as the machine-readable source of truth.
+- [`COMPONENT_IMPORT_TEMPLATE.md`](scripts/sync-mdx/COMPONENT_IMPORT_TEMPLATE.md)
 
 ### Unpublishing Content
 

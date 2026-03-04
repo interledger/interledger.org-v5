@@ -1,24 +1,23 @@
 # Adding a New Component to the MDX Import Pipeline
 
-This guide walks you through wiring up a new JSX component so the MDX → Strapi sync pipeline can parse it into the correct dynamic-zone block payload.
+Use this guide to add a JSX component handler for `sync:mdx`.
+Reference implementation: `ambassadorHandler.ts`.
 
-Use the Ambassador handler (`ambassadorHandler.ts`) as the reference implementation.
+## Files to Touch
 
-## Files You Will Touch
+| File                                         | Change |
+| -------------------------------------------- | ------ |
+| `cms/src/components/blocks/<name>.json`      | Ensure Strapi block schema exists |
+| `cms/scripts/sync-mdx/types.blocks.ts`       | Add payload interface and include it in `ParsedBlock` |
+| `cms/scripts/sync-mdx/<name>Handler.ts`      | Add handler and `registerComponentHandler()` call |
+| `cms/scripts/sync-mdx/<name>Handler.test.ts` | Add parser + handler tests |
+| `cms/scripts/sync-mdx/config.ts`             | Add side-effect import: `import './<name>Handler'` |
 
-| File                                         | What to do                                                                             |
-| -------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `cms/src/components/blocks/<name>.json`      | Strapi component schema must exist first                                               |
-| `cms/scripts/sync-mdx/types.blocks.ts`       | Add a payload interface + include it in `ParsedBlock` union                            |
-| `cms/scripts/sync-mdx/<name>Handler.ts`      | Handler function + registration                                                        |
-| `cms/scripts/sync-mdx/<name>Handler.test.ts` | Tests for the handler                                                                  |
-| `cms/scripts/sync-mdx/config.ts`             | Side-effect import if handler self-registers (usually just `import './<name>Handler'`) |
+## Steps
 
-## Step-by-Step
+### 1. Add block payload type
 
-### 1. Define the block payload type
-
-In `types.blocks.ts`, add an interface that describes the **Strapi REST API body** (not the schema type). Every block must extend `StrapiBlockBase` and set `__component`.
+In `types.blocks.ts`, define the REST payload shape:
 
 ```ts
 export interface MyWidgetBlock extends StrapiBlockBase {
@@ -28,27 +27,24 @@ export interface MyWidgetBlock extends StrapiBlockBase {
 }
 ```
 
-Add it to the `ParsedBlock` union at the bottom of the file.
+Add `MyWidgetBlock` to `ParsedBlock`.
 
-### 2. Write the handler (TDD — red first)
+### 2. Start with a red test
 
-Create `<name>Handler.test.ts`. Import `parseMdxToBlocks` and write a test that parses your component's JSX and asserts the expected block output:
+Do not import your handler yet. Assert unregistered JSX fails with `UNSUPPORTED_COMPONENT`:
 
 ```ts
-import './myWidgetHandler' // side-effect: registers handler
-import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { parseMdxToBlocks } from './mdxBlockParser'
+import { ParserErrorCode } from './parserErrors'
 
-const ctx: ParserContext = { locale: 'en' }
-
-it('parses <MyWidget title="Hello" />', async () => {
-  const blocks = await parseMdxToBlocks('<MyWidget title="Hello" />', ctx)
-  expect(blocks).toEqual([{ __component: 'blocks.my-widget', title: 'Hello' }])
+it('fails before MyWidget is registered', async () => {
+  await expect(
+    parseMdxToBlocks('<MyWidget title="Hello" />', { locale: 'en' })
+  ).rejects.toMatchObject({ code: ParserErrorCode.UNSUPPORTED_COMPONENT })
 })
 ```
 
-Run it — it should fail with `UNSUPPORTED_COMPONENT` because no handler is registered yet. That's the RED phase.
-
-### 3. Implement the handler
+### 3. Implement handler
 
 Create `<name>Handler.ts`:
 
@@ -69,58 +65,62 @@ async function handleMyWidget(
     __component: 'blocks.my-widget',
     title
   }
+
   if (description !== undefined) {
     block.description = description
   }
+
   return [block]
 }
 
-// Self-register on import
 registerComponentHandler('MyWidget', handleMyWidget)
 ```
 
-Run tests — they should go GREEN.
+### 4. Update test to green
 
-### 4. Wire the handler into the pipeline
+Import the handler for side-effect registration, then assert output:
 
-In `config.ts`, add the side-effect import so the handler is registered before any sync runs:
+```ts
+import './myWidgetHandler'
+import { parseMdxToBlocks } from './mdxBlockParser'
+
+it('parses <MyWidget />', async () => {
+  const blocks = await parseMdxToBlocks('<MyWidget title="Hello" />', {
+    locale: 'en'
+  })
+
+  expect(blocks).toEqual([
+    { __component: 'blocks.my-widget', title: 'Hello' }
+  ])
+})
+```
+
+### 5. Register for real sync runs
+
+In `config.ts`, add:
 
 ```ts
 import './<name>Handler'
 ```
 
-This goes next to the existing `import './ambassadorHandler'` line. That's all that's needed — `buildParsedPagePayload` already passes the parser context through.
+Handler modules register against the singleton `COMPONENT_HANDLERS` map in `mdxBlockParser.ts`. Importing the module is enough.
 
-**How registration works:** `COMPONENT_HANDLERS` in `mdxBlockParser.ts` is a module-level singleton — Node's module cache guarantees only one instance exists per process. When your handler module calls `registerComponentHandler('MyWidget', handleMyWidget)` at the top level, importing the module is enough to populate the registry. The bare `import './<name>Handler'` in `config.ts` triggers this side-effect before any parsing runs. No explicit init call or factory setup needed.
+## Attribute Helpers
 
-### 5. Write the full test suite
+Use `jsxExtract.ts`. Do not read `node.attributes` directly.
 
-Cover at minimum:
+| Helper | Use |
+| ------ | --- |
+| `getStringAttr(node, 'name')` | Optional string |
+| `getStringAttr(node, 'name', { required: true })` | Required string |
+| `getBooleanAttr(node, 'name')` | Boolean or valueless boolean |
+| `getStringArrayAttr(node, 'name')` | Static string arrays like `slugs={["a","b"]}` |
 
-- [x] Happy path with all required props
-- [x] Optional props present vs absent
-- [x] Missing required prop → `MISSING_REQUIRED_PROP`
-- [x] Dynamic expression in prop → `DYNAMIC_EXPRESSION`
-- [x] Mixed content (your component + markdown) → blocks in document order
+Invalid input must raise `MdxParserError`.
 
-## Attribute Extractors
+## Relation Fields
 
-Use the helpers in `jsxExtract.ts` — do NOT read AST node attributes directly:
-
-| Helper                                            | Use for         | Example JSX                                          |
-| ------------------------------------------------- | --------------- | ---------------------------------------------------- |
-| `getStringAttr(node, 'name')`                     | String props    | `title="Hello"`                                      |
-| `getStringAttr(node, 'name', { required: true })` | Required string | Throws if missing                                    |
-| `getBooleanAttr(node, 'name')`                    | Boolean props   | `showLinks`, `showLinks={true}`, `showLinks={false}` |
-| `getStringArrayAttr(node, 'name')`                | String arrays   | `slugs={["a","b"]}` or `slugs={['a','b']}`           |
-
-All extractors throw `MdxParserError` with the right error code on bad input. They handle single and double quotes in arrays.
-
-## Relation Fields (Gotcha: Strapi v5 Connect Syntax)
-
-If your component has a relation field (e.g. linking to another content type), you **must** wrap the resolved documentId in Strapi v5's `connect` syntax.
-
-**Correct**:
+For relation fields inside blocks, use Strapi v5 `connect` syntax:
 
 ```ts
 ambassador: {
@@ -128,7 +128,7 @@ ambassador: {
 }
 ```
 
-For arrays of relations:
+For arrays:
 
 ```ts
 ambassadors: {
@@ -136,41 +136,39 @@ ambassadors: {
 }
 ```
 
-Use `ctx.resolveRelation!(apiId, slug)` to resolve slugs to document IDs. The resolver handles locale fallback automatically.
+Resolve slugs with `ctx.resolveRelation!(apiId, slug)`:
 
 ```ts
 const { documentId } = await ctx.resolveRelation!('ambassadors', slug)
-const block = {
-  __component: 'blocks.ambassador',
-  ambassador: { connect: [{ documentId }] }
-}
 ```
 
-## Error Handling
+## Error Rules
 
-The parser is **strict by design**. Do not silently skip or default on bad input.
+Do not silently skip bad input.
 
-- Missing required props → throw `MISSING_REQUIRED_PROP`
-- Dynamic expressions → throw `DYNAMIC_EXPRESSION`
-- Unresolved relation slugs → throw `UNRESOLVED_RELATION`
-- Unknown components → throw `UNSUPPORTED_COMPONENT` (handled by the core parser, not your handler)
+- Missing required prop: `MISSING_REQUIRED_PROP`
+- Non-static expression: `DYNAMIC_EXPRESSION`
+- Unresolved relation slug: `UNRESOLVED_RELATION`
+- Unknown JSX component: `UNSUPPORTED_COMPONENT` (core parser)
 
-`buildPagePayload` in `mdxTransformer.ts` catches `MdxParserError` and re-throws with the file slug prepended for easier debugging.
+`buildPagePayload` in `mdxTransformer.ts` rethrows parser errors with the MDX slug in the message.
 
-## Testing Utilities
+## Minimum Test Coverage
 
-- `parseMdxToBlocks(mdxBody, ctx)` — end-to-end: MDX string → block array. Use this for handler integration tests.
-- `createMdxFile({ slug, frontmatter, content })` — from `test-utils.ts`, creates an `MDXFile` object for `buildPagePayload` tests.
-- For resolver tests, create a mock: `async (_apiId, slug) => ({ documentId: \`doc-\${slug}\` })`
+- Happy path
+- Optional prop present and absent
+- Missing required prop
+- Dynamic expression in prop
+- Mixed markdown + JSX order preservation
 
-## Checklist Before Opening PR
+## PR Checklist
 
-- [ ] Block type added to `types.blocks.ts` and included in `ParsedBlock` union
-- [ ] Handler created and self-registers via `registerComponentHandler()`
-- [ ] Side-effect import added in `config.ts`
-- [ ] All attribute extraction uses `jsxExtract.ts` helpers (no raw AST access)
-- [ ] Relation fields use `{ connect: [...] }` syntax
-- [ ] Optional fields omitted from payload when `undefined` (don't send `undefined` — let Strapi schema defaults apply)
-- [ ] Tests cover: happy path, optional props, missing required, dynamic expression, mixed content
-- [ ] `pnpm --dir cms test:sync-mdx` all green
-- [ ] `pnpm --dir cms run sync:mdx:dry-run` no new errors
+- [ ] Added block type in `types.blocks.ts` and `ParsedBlock`
+- [ ] Added handler with `registerComponentHandler()`
+- [ ] Added side-effect import in `config.ts`
+- [ ] Used `jsxExtract.ts` helpers only
+- [ ] Used relation `{ connect: [...] }` shape where needed
+- [ ] Omitted optional fields when `undefined`
+- [ ] Added coverage listed above
+- [ ] `pnpm --dir cms test:sync-mdx` passes
+- [ ] `pnpm --dir cms run sync:mdx:dry-run` has no new errors
