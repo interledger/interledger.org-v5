@@ -61,16 +61,20 @@ function generateFilename({
 function generateBlogMDX(post: BlogResult) {
   const articleBios =
     post.articleBio?.length > 0
-      ? `articleBios:${post.articleBio.map((bio) => {
-          const articleBio = [
-            `\n  - author: ${bio.author}`,
-            bio.profileBio ? `\n    text: ${q(bio.profileBio)}` : null,
-            bio.profileImage ? `\n    image: ${q(bio.profileImage.url)}` : null
-          ]
-            .filter(Boolean)
-            .join('')
-          return articleBio
-        })}`
+      ? `articleBios:${post.articleBio
+          .map((bio) => {
+            const articleBio = [
+              `\n  - author: ${bio.author}`,
+              bio.profileBio ? `\n    text: ${q(bio.profileBio)}` : null,
+              bio.profileImage
+                ? `\n    image: ${q(bio.profileImage.url)}`
+                : null
+            ]
+              .filter(Boolean)
+              .join('')
+            return articleBio
+          })
+          .join('')}`
       : null
 
   const frontmatterLines = [
