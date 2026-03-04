@@ -40,7 +40,6 @@ interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
 }
-//TODO: use documentID, not ID - each entry has draft and published with same documentID, but differents IDs
 //TODO: git
 
 function generateFilename({ date, slug }): string {
@@ -85,15 +84,20 @@ function generateBlogMDX(post: BlogResult) {
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
-  const content = post.content ?? '' //TODO CKEditor format to markdown
+  const content = post.content ?? ''
 
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
-async function writeMDXFile(outputDir: string, post: BlogResult) {
-  const projectRoot = getProjectRoot()
+
+async function writeMDXFile({
+  outputPath,
+  post
+}: {
+  outputPath: string
+  post: BlogResult
+}) {
   const filename = generateFilename({ date: post.date, slug: post.slug })
-  const filepath = path.join(projectRoot, outputDir, filename)
-  console.log('FILEPATH: ', filepath)
+  const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
 
   await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
@@ -101,15 +105,30 @@ async function writeMDXFile(outputDir: string, post: BlogResult) {
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
 }
 
-function updateMDXFile() {
-  //TODO
-}
+async function deleteMDXFile({
+  outputPath,
+  post
+}: {
+  outputPath: string
+  post: BlogResult
+}) {
+  const filename = generateFilename({ date: post.date, slug: post.slug })
+  const filepath = path.join(outputPath, filename)
 
-function deleteMDXFile() {
-  //TODO
+  try {
+    await fs.promises.unlink(filepath)
+    console.log(`🗑️  Deleted MDX file: ${filepath}`)
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      console.error(`❌ Failed to delete MDX file: ${filepath}`, err)
+      throw err
+    }
+  }
 }
 
 export function createBlogLifecycle({ outputDir }) {
+  const projectRoot = getProjectRoot()
+  const outputPath = path.join(projectRoot, outputDir)
   return {
     async afterCreate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
@@ -118,33 +137,17 @@ export function createBlogLifecycle({ outputDir }) {
       console.log(
         `📝 Creating ${event.model.singularName} MDX for: ${result.slug}`
       )
-      writeMDXFile(outputDir, result)
-    },
-
-    async afterUpdate(event: BlogEvent) {
-      if (shouldSkipMdxExport()) return
-      const { result } = event
-      if (!result) return
-      if (result.publishedAt) {
-        updateMDXFile()
-      } else {
-        deleteMDXFile()
-      }
-
-      console.log(
-        `📝 Updating ${event.model.singularName} MDX for: ${result.slug}`
-      )
+      await writeMDXFile({ outputPath, post: result })
     },
 
     async afterDelete(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
-      if (!result) return
-      deleteMDXFile()
-
+      if (!result || !result.publishedAt) return
       console.log(
         `📝 Deleting ${event.model.singularName} MDX for: ${result.slug}`
       )
+      await deleteMDXFile({ outputPath, post: result })
     }
   }
 }
