@@ -5,13 +5,13 @@ Reference implementation: `ambassadorHandler.ts`.
 
 ## Files to Touch
 
-| File                                         | Change |
-| -------------------------------------------- | ------ |
-| `cms/src/components/blocks/<name>.json`      | Ensure Strapi block schema exists |
+| File                                         | Change                                                |
+| -------------------------------------------- | ----------------------------------------------------- |
+| `cms/src/components/blocks/<name>.json`      | Ensure Strapi block schema exists                     |
 | `cms/scripts/sync-mdx/types.blocks.ts`       | Add payload interface and include it in `ParsedBlock` |
-| `cms/scripts/sync-mdx/<name>Handler.ts`      | Add handler and `registerComponentHandler()` call |
-| `cms/scripts/sync-mdx/<name>Handler.test.ts` | Add parser + handler tests |
-| `cms/scripts/sync-mdx/config.ts`             | Add side-effect import: `import './<name>Handler'` |
+| `cms/scripts/sync-mdx/<name>Handler.ts`      | Add handler and `registerComponentHandler()` call     |
+| `cms/scripts/sync-mdx/<name>Handler.test.ts` | Add parser + handler tests                            |
+| `cms/scripts/sync-mdx/config.ts`             | Add side-effect import: `import './<name>Handler'`    |
 
 ## Steps
 
@@ -89,9 +89,7 @@ it('parses <MyWidget />', async () => {
     locale: 'en'
   })
 
-  expect(blocks).toEqual([
-    { __component: 'blocks.my-widget', title: 'Hello' }
-  ])
+  expect(blocks).toEqual([{ __component: 'blocks.my-widget', title: 'Hello' }])
 })
 ```
 
@@ -109,12 +107,12 @@ Handler modules register against the singleton `COMPONENT_HANDLERS` map in `mdxB
 
 Use `jsxExtract.ts`. Do not read `node.attributes` directly.
 
-| Helper | Use |
-| ------ | --- |
-| `getStringAttr(node, 'name')` | Optional string |
-| `getStringAttr(node, 'name', { required: true })` | Required string |
-| `getBooleanAttr(node, 'name')` | Boolean or valueless boolean |
-| `getStringArrayAttr(node, 'name')` | Static string arrays like `slugs={["a","b"]}` |
+| Helper                                            | Use                                           |
+| ------------------------------------------------- | --------------------------------------------- |
+| `getStringAttr(node, 'name')`                     | Optional string                               |
+| `getStringAttr(node, 'name', { required: true })` | Required string                               |
+| `getBooleanAttr(node, 'name')`                    | Boolean or valueless boolean                  |
+| `getStringArrayAttr(node, 'name')`                | Static string arrays like `slugs={["a","b"]}` |
 
 Invalid input must raise `MdxParserError`.
 
