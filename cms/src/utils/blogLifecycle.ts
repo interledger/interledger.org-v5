@@ -40,10 +40,9 @@ interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
 }
-//TODO: git
 
 function yamlSingleQuote(value: string): string {
-  return `'${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}'`
+  return `${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}`
 }
 const q = yamlSingleQuote
 
@@ -64,10 +63,10 @@ function generateBlogMDX(post: BlogResult) {
       ? `articleBios:${post.articleBio
           .map((bio) => {
             const articleBio = [
-              `\n  - author: ${bio.author}`,
-              bio.profileBio ? `\n    text: ${q(bio.profileBio)}` : null,
+              `\n  - author: ${q(bio.author)}`,
+              bio.profileBio ? `\n    text: '${q(bio.profileBio)}'` : null,
               bio.profileImage
-                ? `\n    image: ${q(bio.profileImage.url)}`
+                ? `\n    image: '${q(bio.profileImage.url)}'`
                 : null
             ]
               .filter(Boolean)
@@ -78,26 +77,28 @@ function generateBlogMDX(post: BlogResult) {
       : null
 
   const frontmatterLines = [
-    `title: ${q(post.title)}`,
-    `description: ${q(post.description)}`,
+    `title: '${q(post.title)}'`,
+    `description: '${q(post.description)}'`,
     `date: ${post.date}`,
     `slug: ${post.slug}`,
-    `pillar: ${q(post.pillar)}`,
-    post.featureImage?.url ? `featureImage: ${q(post.featureImage.url)}` : null,
+    `pillar: '${q(post.pillar)}'`,
+    post.featureImage?.url
+      ? `featureImage: '${q(post.featureImage.url)}'`
+      : null,
     post.featureImage?.alternativeText
-      ? `featureImageAlt: ${q(post.featureImage.alternativeText)}`
+      ? `featureImageAlt: '${q(post.featureImage.alternativeText)}'`
       : null,
     post.thumbnailImage?.url
-      ? `thumbnailImage: ${q(post.thumbnailImage.url)}`
+      ? `thumbnailImage: '${q(post.thumbnailImage.url)}'`
       : null,
     post.thumbnailImage?.alternativeText
-      ? `thumbnailImageAlt: ${q(post.thumbnailImage.alternativeText)}`
+      ? `thumbnailImageAlt: '${q(post.thumbnailImage.alternativeText)}'`
       : null,
     articleBios,
     post.tags
       ? post.tags.length === 0
         ? `tags: []`
-        : `tags: ${post.tags.map((tag) => `\n  - ${tag.tagValue}`).join('')}`
+        : `tags: ${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
       : null,
     post.language ? `locale: ${q(post.language)}` : null
   ].filter(Boolean) as string[]
@@ -149,7 +150,7 @@ async function deleteMDXFile({
   }
 }
 
-export function createBlogLifecycle({ outputDir }) {
+export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, outputDir)
 
