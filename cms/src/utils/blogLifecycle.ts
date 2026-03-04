@@ -33,7 +33,7 @@ interface BlogResult {
     profileImage?: { url: string }
   }[]
   tags?: { tagValue: string }[]
-  localizations: []
+  localizations: string[]
 }
 
 interface BlogEvent {
@@ -47,7 +47,7 @@ function yamlSingleQuote(value: string): string {
 }
 const q = yamlSingleQuote
 
-function generateFilename({ date, slug }): string {
+function generateFilename({ date, slug }:{date: string, slug: string}): string {
   const prefix = date ? `${date}-` : ''
   return `${prefix}${slug}.mdx`
 }
@@ -108,7 +108,7 @@ async function writeMDXFile({
   const filename = generateFilename({ date: post.date, slug: post.slug })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
-
+  
   await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
@@ -127,17 +127,19 @@ async function deleteMDXFile({
   try {
     await fs.promises.unlink(filepath)
     console.log(`🗑️  Deleted MDX file: ${filepath}`)
-  } catch (err) {
-    if (err.code !== 'ENOENT') {
-      console.error(`❌ Failed to delete Blog Post MDX file: ${filepath}`, err)
-      throw err
+  } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.error(`❌ Failed to delete Blog Post MDX file: ${filepath}`, error)
+      throw error
     }
   }
 }
 
-export function createBlogLifecycle({ outputDir }) {
+export async function createBlogLifecycle({ outputDir }) {
   const projectRoot = getProjectRoot()
   const outputPath = path.join(projectRoot, outputDir)
+  await fs.promises.mkdir(outputPath, { recursive: true })
+
   return {
     async afterCreate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
