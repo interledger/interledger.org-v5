@@ -134,7 +134,7 @@ export async function parseMdxToBlocks(
   // Walk top-level AST nodes
   for (const node of tree.children) {
     if (node.type === 'mdxJsxFlowElement') {
-      const jsxNode = node as MdxJsxFlowElement
+      const jsxNode = node
       const componentName = jsxNode.name
 
       if (!componentName) {
