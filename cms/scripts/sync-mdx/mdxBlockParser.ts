@@ -18,7 +18,7 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkMdx from 'remark-mdx'
 import type { Root } from 'mdast'
-import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
+import type { MdxJsxFlowElement, MdxJsxTextElement } from 'mdast-util-mdx-jsx'
 
 import type { ParsedBlock } from './types.blocks'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -26,6 +26,15 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+/**
+ * JSX element node that component handlers receive.
+ *
+ * A union of flow elements (tags on separate lines) and text elements
+ * (open+close on the same line). Both share `name`, `attributes`,
+ * `children`, and `position` — handlers never inspect `type`.
+ */
+export type JsxBlockNode = MdxJsxFlowElement | MdxJsxTextElement
 
 /**
  * Handler for a single JSX component.
@@ -37,7 +46,7 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
  * resolution).
  */
 export type ComponentHandler = (
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   ctx: ParserContext
 ) => Promise<ParsedBlock[]>
 
@@ -78,6 +87,33 @@ export interface ParserContext {
  *   import './ambassadorHandler'  // populates COMPONENT_HANDLERS['Ambassador']
  */
 const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Detect a paragraph that wraps a single JSX text element and extract it.
+ *
+ * When opening and closing JSX tags appear on the same line, remark-mdx
+ * produces a `paragraph > mdxJsxTextElement` instead of a top-level
+ * `mdxJsxFlowElement`. For block-level components (Blockquote, CalloutText,
+ * etc.) this is semantically identical — the component fills the entire
+ * paragraph. This helper detects that pattern and returns the inner element
+ * so the main loop can dispatch it to the handler registry.
+ */
+function unwrapTextElement(
+  node: Root['children'][number]
+): JsxBlockNode | undefined {
+  if (
+    node.type === 'paragraph' &&
+    node.children.length === 1 &&
+    node.children[0].type === 'mdxJsxTextElement'
+  ) {
+    return node.children[0]
+  }
+  return undefined
+}
 
 // ---------------------------------------------------------------------------
 // Core parser
@@ -133,8 +169,13 @@ export async function parseMdxToBlocks(
 
   // Walk top-level AST nodes
   for (const node of tree.children) {
-    if (node.type === 'mdxJsxFlowElement') {
-      const jsxNode = node
+    // Check for JSX — either a top-level flow element (tags on separate
+    // lines / self-closing) or a paragraph wrapping a single text element
+    // (open+close tags on the same line).
+    const jsxNode: JsxBlockNode | undefined =
+      node.type === 'mdxJsxFlowElement' ? node : unwrapTextElement(node)
+
+    if (jsxNode) {
       const componentName = jsxNode.name
 
       if (!componentName) {

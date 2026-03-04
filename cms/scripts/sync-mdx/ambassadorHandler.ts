@@ -9,7 +9,7 @@
  * via the generic `resolveRelation` function on ParserContext.
  */
 
-import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
+import type { JsxBlockNode } from './mdxBlockParser'
 import type { StrapiClient } from './strapiClient'
 import type {
   ParsedBlock,
@@ -60,7 +60,7 @@ export function createRelationResolver(
 // ---------------------------------------------------------------------------
 
 async function handleAmbassador(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const slug = getStringAttr(node, 'slug', { required: true })
@@ -85,7 +85,7 @@ async function handleAmbassador(
 // ---------------------------------------------------------------------------
 
 async function handleAmbassadorGrid(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const heading = getStringAttr(node, 'heading')
