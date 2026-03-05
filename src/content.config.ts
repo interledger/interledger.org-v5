@@ -60,3 +60,10 @@ export const collections = {
   'summit-pages': summitPagesCollection,
   ambassadors: ambassadorCollection
 }
+
+export type CollectionType = keyof typeof collections
+
+export type BlogCollectionType = Extract<
+  keyof typeof collections,
+  'developers-blog' | 'foundation-blog'
+>
