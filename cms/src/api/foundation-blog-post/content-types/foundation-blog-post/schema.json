@@ -85,14 +85,6 @@
         "images"
       ]
     },
-    "authors": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "description": {
       "type": "text",
       "pluginOptions": {
