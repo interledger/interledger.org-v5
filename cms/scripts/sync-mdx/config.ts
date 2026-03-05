@@ -47,6 +47,13 @@ export interface ContentTypes {
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
   return {
+    ambassadors: {
+      dir: getContentPath(projectRoot, 'ambassadors'),
+      apiId: 'ambassadors',
+      schema: ambassadorFrontmatterSchema,
+      buildPayload: (mdx, strapi, _existing) =>
+        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
+    },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
@@ -67,13 +74,6 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       schema: foundationBlogFrontmatterSchema,
       buildPayload: async (mdx, _strapi, _existing) =>
         buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
-    },
-    ambassadors: {
-      dir: getContentPath(projectRoot, 'ambassadors'),
-      apiId: 'ambassadors',
-      schema: ambassadorFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing) =>
-        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
     }
   }
 }
