@@ -71,9 +71,10 @@ const longDate = dateObj.toDateString().substring(4)
         {longDate}
       </time>
       {
-        frontmatter.authors && frontmatter.authors.length > 0 && (
+        frontmatter.articleBios && frontmatter.articleBios.length > 0 && (
           <address class="text-step-0 mb-space-s">
-            Written by {frontmatter.authors.join(', ')}
+            Written by{' '}
+            {frontmatter.articleBios.map((bio) => bio.author).join(', ')}
           </address>
         )
       }

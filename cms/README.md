@@ -111,9 +111,11 @@ When content is published or updated in Strapi:
 
 **File Naming**
 
-MDX files are named using the slug: `{slug}.mdx`
+- MDX files for **pages** (e.g., foundation pages, summit pages) are named using the slug: `{slug}.mdx` <br/>
+  Example: If the slug is `interledger-launches-new-platform`, the file will be: `interledger-launches-new-platform.mdx`
 
-Example: If slug is `interledger-launches-new-platform`, the file will be `interledger-launches-new-platform.mdx`
+- MDX files for **blog posts** use a date-prefixed format: `yyyy-mm-dd-{slug}.mdx`<br/>
+  Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
 **Git Commits**
 
@@ -132,6 +134,7 @@ Example: If slug is `interledger-launches-new-platform`, the file will be `inter
 - Scans MDX files in
   - `src/content/foundation-pages`
   - `src/content/summit-pages`
+  - `src/content/foundation-blog-posts`
 - Creates, updates, and deletes Strapi entries to match the MDX file system
 - Supports localized content matching
 - Supports `dry-run` mode to preview changes
@@ -196,6 +199,7 @@ The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX fi
 - `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
 - `src/content/summit-pages/*.mdx` → `summit-pages` (API ID)
 - `src/content/ambassadors/*.mdx` → `ambassadors` (API ID)
+- `src/content/foundation-blog-posts/*mdx` → `foundation-blog-posts` (API ID)
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
 

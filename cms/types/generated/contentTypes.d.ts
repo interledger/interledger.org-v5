@@ -508,12 +508,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    authors: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     content: Schema.Attribute.RichText &
       Schema.Attribute.Required &
       Schema.Attribute.CustomField<
