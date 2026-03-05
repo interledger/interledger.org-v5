@@ -164,28 +164,6 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       )
     },
 
-    async afterUpdate(_event: Event) {
-      console.log(`📝 Updating ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const navigation = await fetchPublishedNavigation(config)
-
-      if (!navigation) {
-        const deletedPath = await deleteNavigationFile(config)
-        if (deletedPath) {
-          await gitCommitAndPush(
-            deletedPath,
-            `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
-          )
-        }
-        return
-      }
-
-      const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        outputPath,
-        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
-      )
-    },
-
     async afterDelete(_event: Event) {
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
