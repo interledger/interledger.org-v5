@@ -99,8 +99,13 @@ describe('getBooleanAttr', () => {
 // ---------------------------------------------------------------------------
 
 describe('getStringArrayAttr', () => {
-  it('extracts a static string array', () => {
+  it('extracts a static string array with double quotes', () => {
     const node = parseJsx('<Foo items={["a","b","c"]} />')
+    expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
+  })
+
+  it('extracts a static string array with single quotes', () => {
+    const node = parseJsx("<Foo items={['a','b','c']} />")
     expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
   })
 

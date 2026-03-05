@@ -12,6 +12,9 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './siteSchemas'
+// Side-effect import: registers Ambassador + AmbassadorGrid handlers
+import './ambassadorHandler'
+import { createRelationResolver } from './ambassadorHandler'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -45,6 +48,20 @@ export interface ContentTypes {
   ambassadors: ContentTypeConfig
 }
 
+/** Build a page payload with the MDX block parser wired in. */
+function buildParsedPagePayload(
+  schema: FrontmatterSchema,
+  mdx: MDXFile,
+  strapi: StrapiClient,
+  existing: StrapiEntry | null
+) {
+  const locale = mdx.locale || 'en'
+  return buildPagePayload(schema, mdx, existing, {
+    locale,
+    resolveRelation: createRelationResolver(strapi, locale)
+  })
+}
+
 export function buildContentTypes(projectRoot: string): ContentTypes {
   return {
     ambassadors: {
@@ -58,15 +75,25 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       schema: foundationPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(foundationPageFrontmatterSchema, mdx, existing)
+      buildPayload: (mdx, strapi, existing) =>
+        buildParsedPagePayload(
+          foundationPageFrontmatterSchema,
+          mdx,
+          strapi,
+          existing
+        )
     },
     'summit-pages': {
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, existing) =>
-        buildPagePayload(summitPageFrontmatterSchema, mdx, existing)
+      buildPayload: (mdx, strapi, existing) =>
+        buildParsedPagePayload(
+          summitPageFrontmatterSchema,
+          mdx,
+          strapi,
+          existing
+        )
     },
     'foundation-blog-posts': {
       dir: getContentPath(projectRoot, 'blog'),

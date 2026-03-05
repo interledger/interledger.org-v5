@@ -14,6 +14,8 @@
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
+import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { MdxParserError } from './parserErrors'
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -40,13 +42,16 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param existingEntry - Existing Strapi entry (optional, for updates)
+ * @param parserCtx - When provided, MDX body is parsed into structured blocks
+ *   via `parseMdxToBlocks`. Without it, the body is stored as a single paragraph.
  * @returns Strapi payload object
  */
-export function buildPagePayload(
+export async function buildPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  existingEntry: StrapiEntry | null = null
-): Record<string, unknown> {
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown>> {
   // Validate frontmatter against schema (throws if invalid)
   const parsed = schema.parse({
     ...mdx.frontmatter,
@@ -76,17 +81,36 @@ export function buildPagePayload(
   }
 
   // Handle content import
-  // Import MDX content as markdown (preserve original format, no HTML conversion)
   const mdxBody = (mdx.content || '').trim()
   if (mdxBody.length > 0) {
-    // Store markdown content in a Strapi paragraph block component
-    // Strapi's richtext field can accept markdown and will handle rendering
-    data.content = [
-      {
-        __component: 'blocks.paragraph',
-        content: mdx.content
+    if (parserCtx) {
+      // Parse MDX body into structured dynamic-zone blocks.
+      // Parser errors (unsupported JSX, missing props, unresolved relations)
+      // are intentional hard failures — re-thrown with file context.
+      try {
+        data.content = await parseMdxToBlocks(mdxBody, parserCtx)
+      } catch (err) {
+        if (err instanceof MdxParserError) {
+          throw new MdxParserError({
+            code: err.code,
+            message: `[${mdx.slug}] ${err.message}`,
+            component: err.component,
+            prop: err.prop,
+            line: err.line,
+            column: err.column
+          })
+        }
+        throw err
       }
-    ]
+    } else {
+      // Fallback: store entire body as a single paragraph block
+      data.content = [
+        {
+          __component: 'blocks.paragraph',
+          content: mdx.content
+        }
+      ]
+    }
   } else {
     // Preserve existing content if MDX file has no body
     const existingContent = getEntryField(existingEntry, 'content')

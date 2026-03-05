@@ -49,33 +49,35 @@ export type ComponentHandler = (
 export interface ParserContext {
   /** Locale of the MDX file being parsed. */
   locale: string
+  /**
+   * Resolve a relation slug to a Strapi document ID.
+   * Provided by the caller for handlers that reference other content types.
+   *
+   * @param apiId - Strapi API identifier (e.g. 'ambassadors')
+   * @param slug  - Content slug to look up
+   */
+  resolveRelation?: (
+    apiId: string,
+    slug: string
+  ) => Promise<{ documentId: string }>
 }
 
 // ---------------------------------------------------------------------------
 // Handler registry
 // ---------------------------------------------------------------------------
 
-/** Map of JSX component name → handler function. */
+/**
+ * Singleton handler registry: JSX component name → handler function.
+ *
+ * This is a module-level object — Node's module cache guarantees only one
+ * instance exists per process. Handler modules (e.g. ambassadorHandler.ts)
+ * call `registerComponentHandler()` at the top level, so importing the
+ * module is enough to populate this map (side-effect registration).
+ *
+ * The pipeline triggers registration via bare imports in config.ts:
+ *   import './ambassadorHandler'  // populates COMPONENT_HANDLERS['Ambassador']
+ */
 const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
-
-interface PositionedNode {
-  position?: Root['position']
-}
-
-function parserError(
-  code: ParserErrorCode,
-  message: string,
-  node?: PositionedNode,
-  extras: { component?: string } = {}
-): MdxParserError {
-  return new MdxParserError({
-    code,
-    message,
-    component: extras.component,
-    line: node?.position?.start.line,
-    column: node?.position?.start.column
-  })
-}
 
 // ---------------------------------------------------------------------------
 // Core parser
@@ -136,25 +138,31 @@ export async function parseMdxToBlocks(
       const componentName = jsxNode.name
 
       if (!componentName) {
-        throw parserError(
-          ParserErrorCode.UNSUPPORTED_COMPONENT,
-          'Encountered a JSX fragment (<>...</>). Fragments are not supported.',
-          jsxNode
-        )
+        throw new MdxParserError({
+          code: ParserErrorCode.UNSUPPORTED_COMPONENT,
+          message:
+            'Encountered a JSX fragment (<>...</>). Fragments are not supported.',
+          line: jsxNode.position?.start.line,
+          column: jsxNode.position?.start.column
+        })
       }
 
       const handler = COMPONENT_HANDLERS[componentName]
       if (!handler) {
-        throw parserError(
-          ParserErrorCode.UNSUPPORTED_COMPONENT,
-          `Unsupported JSX component "${componentName}".`,
-          jsxNode,
-          { component: componentName }
-        )
+        throw new MdxParserError({
+          code: ParserErrorCode.UNSUPPORTED_COMPONENT,
+          message: `Unsupported JSX component "${componentName}".`,
+          component: componentName,
+          line: jsxNode.position?.start.line,
+          column: jsxNode.position?.start.column
+        })
       }
 
       const result = await handler(jsxNode, ctx)
       blocks.push(...result)
+      // Skip to next node — don't let handled JSX fall through to
+      // the markdown fallback which would double-emit the source text.
+      continue
     }
     // Bare expressions like {someVar} or {() => fn()} are not allowed.
     if (
@@ -162,28 +170,42 @@ export async function parseMdxToBlocks(
       node.type === 'mdxTextExpression'
     ) {
       const expr = node as { value?: string; position?: Root['position'] }
-      throw parserError(
-        ParserErrorCode.DYNAMIC_EXPRESSION,
-        `Top-level expression "{${expr.value ?? '...'}}" is not supported.`,
-        node
-      )
+      throw new MdxParserError({
+        code: ParserErrorCode.DYNAMIC_EXPRESSION,
+        message: `Top-level expression "{${expr.value ?? '...'}}" is not supported.`,
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
     }
 
     // ESM import/export statements are not allowed — MDX content in this
     // pipeline is converted to Strapi blocks, not executed as JS modules.
     if (node.type === 'mdxjsEsm') {
       const esm = node as { value?: string; position?: Root['position'] }
-      throw parserError(
-        ParserErrorCode.DYNAMIC_EXPRESSION,
-        `Import/export statements are not supported: "${esm.value ?? '...'}"`,
-        node
-      )
+      throw new MdxParserError({
+        code: ParserErrorCode.DYNAMIC_EXPRESSION,
+        message: `Import/export statements are not supported: "${esm.value ?? '...'}"`,
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
     }
 
-    // Markdown nodes (paragraph, heading, etc.) are handled by the
-    // Paragraph handler once registered. Until then, they pass through
-    // unmatched — the caller (buildPagePayload) only invokes the parser
-    // when JSX components are present in the body.
+    // Markdown nodes (paragraph, heading, thematic break, etc.) —
+    // extract source text and wrap as a paragraph block. Will be
+    // replaced by a dedicated Paragraph component handler.
+    if (
+      node.position &&
+      node.position.start.offset != null &&
+      node.position.end.offset != null
+    ) {
+      const raw = mdxBody.slice(
+        node.position.start.offset,
+        node.position.end.offset
+      )
+      if (raw.trim()) {
+        blocks.push({ __component: 'blocks.paragraph' as const, content: raw })
+      }
+    }
   }
 
   return blocks
@@ -194,8 +216,11 @@ export async function parseMdxToBlocks(
 // ---------------------------------------------------------------------------
 
 /**
- * Register a component handler. Called by individual handler modules
- * during their initialization.
+ * Register a component handler into the singleton registry.
+ *
+ * Called at the top level of handler modules so that importing the module
+ * is enough to make the handler available to `parseMdxToBlocks()`.
+ * Node's module cache ensures each handler is registered exactly once.
  */
 export function registerComponentHandler(
   name: string,
