@@ -8,7 +8,8 @@
  */
 
 import { getImageUrl } from '../../../../utils/mdx'
-import { getContentPath, getProjectRoot } from '../../../../utils/paths'
+import { getContentPath } from '../../../../utils/paths'
+import { getTargetRepoRoot } from '../../../../utils/gitSync'
 import { createFlatLocaleMdxLifecycle } from '../../../../utils/flatContentLifecycle'
 import type { AmbassadorBase } from '../../types'
 
@@ -57,7 +58,7 @@ export default createFlatLocaleMdxLifecycle<Ambassador>({
   contentTypeUid: 'api::ambassador.ambassador',
   label: 'ambassador',
   getBaseDir: (locale) =>
-    getContentPath(getProjectRoot(), 'ambassadors', locale),
+    getContentPath(getTargetRepoRoot(), 'ambassadors', locale),
   generateContent: generateMdxContent,
   populate: { photo: true }
 })

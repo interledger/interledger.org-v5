@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { getProjectRoot } from './paths'
-import { gitCommitAndPush } from './gitSync'
+import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { uidToLogLabel } from './mdx'
 
 // Strapi v5 Document API types
@@ -74,7 +73,7 @@ function writeNavigationFile(
   config: NavigationLifecycleConfig,
   data: NavigationData
 ): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
 
@@ -126,7 +125,7 @@ async function fetchPublishedNavigation(
 async function deleteNavigationFile(
   config: NavigationLifecycleConfig
 ): Promise<string | null> {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   try {
     if (fs.existsSync(outputPath)) {
@@ -159,7 +158,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       }
       const outputPath = writeNavigationFile(config, navigation)
       await gitCommitAndPush(
-        outputPath,
+        [outputPath],
         `${uidToLogLabel(config.contentTypeUid)}: update navigation`
       )
     },
@@ -169,7 +168,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
         await gitCommitAndPush(
-          deletedPath,
+          [deletedPath],
           `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
         )
       }
