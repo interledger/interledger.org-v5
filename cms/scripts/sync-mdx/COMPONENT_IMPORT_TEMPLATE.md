@@ -112,7 +112,7 @@ Use the helpers in `jsxExtract.ts` — do NOT read AST node attributes directly:
 | `getStringAttr(node, 'name')`                     | String props    | `title="Hello"`                                      |
 | `getStringAttr(node, 'name', { required: true })` | Required string | Throws if missing                                    |
 | `getBooleanAttr(node, 'name')`                    | Boolean props   | `showLinks`, `showLinks={true}`, `showLinks={false}` |
-| `getStringArrayAttr(node, 'name')`                | String arrays   | `slugs={["a","b"]}` or `slugs={['a','b']}`           |
+| `getStringArrayAttr(node, 'name')`                | String arrays   | `slugs={["a","b"]}` (double-quoted only)             |
 
 All extractors throw `MdxParserError` with the right error code on bad input. They handle single and double quotes in arrays.
 

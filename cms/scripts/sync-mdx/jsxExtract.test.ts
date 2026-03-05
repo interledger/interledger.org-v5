@@ -104,9 +104,19 @@ describe('getStringArrayAttr', () => {
     expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
   })
 
-  it('extracts a static string array with single quotes', () => {
-    const node = parseJsx("<Foo items={['a','b','c']} />")
-    expect(getStringArrayAttr(node, 'items')).toEqual(['a', 'b', 'c'])
+  it('extracts array with apostrophes in slugs (double-quoted, no escaping needed)', () => {
+    const node = parseJsx('<Foo items={["it\'s-a-slug","other"]} />')
+    expect(getStringArrayAttr(node, 'items')).toEqual(["it's-a-slug", 'other'])
+  })
+
+  it('throws DYNAMIC_EXPRESSION for single-quoted array (not supported)', () => {
+    const node = parseJsx("<Foo items={['a','b']} />")
+    expect(() => getStringArrayAttr(node, 'items')).toThrow(MdxParserError)
+    expect(() => getStringArrayAttr(node, 'items')).toThrow(
+      expect.objectContaining({
+        code: ParserErrorCode.DYNAMIC_EXPRESSION
+      })
+    )
   })
 
   it('returns undefined for missing optional attribute', () => {

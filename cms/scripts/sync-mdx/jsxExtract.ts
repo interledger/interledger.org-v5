@@ -234,25 +234,21 @@ export function getStringArrayAttr(
 
   const raw = attr.value.value.trim()
 
-  // Try JSON parse first (double-quoted strings), then normalize
-  // single quotes to double quotes for JS-style arrays like ['a','b'].
-  for (const candidate of [raw, raw.replace(/'/g, '"')]) {
-    try {
-      const parsed: unknown = JSON.parse(candidate)
-      if (
-        Array.isArray(parsed) &&
-        parsed.every((item) => typeof item === 'string')
-      ) {
-        return parsed as string[]
-      }
-    } catch {
-      // Try next candidate
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (
+      Array.isArray(parsed) &&
+      parsed.every((item) => typeof item === 'string')
+    ) {
+      return parsed as string[]
     }
+  } catch {
+    // JSON.parse failed — may be single-quoted array or dynamic expression
   }
 
   throw new MdxParserError({
     code: ParserErrorCode.DYNAMIC_EXPRESSION,
-    message: `Prop "${name}" contains a dynamic expression that cannot be statically evaluated.`,
+    message: `Prop "${name}" must be a JSON array with double-quoted strings (e.g. {["a","b"]}). Single-quoted arrays are not supported.`,
     component: node.name ?? undefined,
     prop: name,
     line: node.position?.start.line,
