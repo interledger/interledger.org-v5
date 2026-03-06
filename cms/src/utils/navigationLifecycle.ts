@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { uidToLogLabel } from './mdx'
+import { shouldSkipMdxExport } from './pageLifecycle'
 
 // Strapi v5 Document API types
 interface StrapiDocumentAPI {
@@ -148,6 +149,7 @@ async function deleteNavigationFile(
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
   return {
     async afterCreate(_event: Event) {
+      if (shouldSkipMdxExport()) return
       console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const navigation = await fetchPublishedNavigation(config)
       if (!navigation) {
@@ -164,6 +166,7 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
     },
 
     async afterDelete(_event: Event) {
+      if (shouldSkipMdxExport()) return
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
