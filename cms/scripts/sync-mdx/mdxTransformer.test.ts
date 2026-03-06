@@ -524,4 +524,112 @@ describe('buildPagePayload', () => {
       ).rejects.toThrow(/bad-page/)
     })
   })
+
+  describe('buildPagePayload locale context', () => {
+    it('parses locale MDX body with Blockquote into structured blocks', async () => {
+      await import('./blockquoteHandler')
+
+      const parserCtx = { locale: 'es' }
+
+      const mdx = createMdxFile({
+        slug: 'sobre-nosotros',
+        locale: 'es',
+        isLocalization: true,
+        localizes: 'about-us',
+        frontmatter: { title: 'Sobre Nosotros', localizes: 'about-us', locale: 'es' },
+        content: '<Blockquote source="Autor">\nUna cita.\n</Blockquote>'
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect(payload.content).toEqual([
+        {
+          __component: 'blocks.blockquote',
+          quote: 'Una cita.',
+          source: 'Autor'
+        }
+      ])
+    })
+
+    it('passes locale through parserCtx for relation resolution', async () => {
+      await import('./ambassadorHandler')
+
+      const resolveRelation = vi.fn(async (_apiId: string, slug: string) => ({
+        documentId: `doc-${slug}`
+      }))
+
+      const parserCtx = { locale: 'es', resolveRelation }
+
+      const mdx = createMdxFile({
+        slug: 'embajadores',
+        locale: 'es',
+        isLocalization: true,
+        localizes: 'ambassadors-page',
+        frontmatter: { title: 'Embajadores', localizes: 'ambassadors-page', locale: 'es' },
+        content: '<Ambassador slug="alice" />'
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect(resolveRelation).toHaveBeenCalledWith('ambassadors', 'alice')
+      expect(payload.content).toEqual([
+        {
+          __component: 'blocks.ambassador',
+          ambassador: { connect: [{ documentId: 'doc-alice' }] }
+        }
+      ])
+    })
+
+    it('locale MDX with mixed content preserves block order', async () => {
+      await import('./blockquoteHandler')
+      await import('./calloutTextHandler')
+
+      const parserCtx = { locale: 'es' }
+
+      const mdx = createMdxFile({
+        slug: 'sobre-nosotros',
+        locale: 'es',
+        isLocalization: true,
+        localizes: 'about-us',
+        frontmatter: { title: 'Sobre Nosotros', localizes: 'about-us', locale: 'es' },
+        content: [
+          'Texto introductorio.',
+          '',
+          '<Blockquote source="Autor">Una cita.</Blockquote>',
+          '',
+          '<CalloutText>Nota importante.</CalloutText>'
+        ].join('\n')
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      const content = payload.content as Array<Record<string, unknown>>
+      expect(content).toHaveLength(3)
+      expect(content[0]).toMatchObject({ __component: 'blocks.paragraph' })
+      expect(content[1]).toMatchObject({
+        __component: 'blocks.blockquote',
+        quote: 'Una cita.',
+        source: 'Autor'
+      })
+      expect(content[2]).toMatchObject({
+        __component: 'blocks.callout-text',
+        content: 'Nota importante.'
+      })
+    })
+  })
 })

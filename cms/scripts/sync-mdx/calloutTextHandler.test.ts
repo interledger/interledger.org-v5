@@ -101,6 +101,35 @@ describe('CalloutText handler', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Locale context
+// ---------------------------------------------------------------------------
+
+describe('CalloutText handler (locale context)', () => {
+  it('parses CalloutText with locale es and Spanish content', async () => {
+    const esCtx: ParserContext = { locale: 'es' }
+    const blocks = await parseMdxToBlocks(
+      '<CalloutText>\nContenido importante.\n</CalloutText>',
+      esCtx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.callout-text',
+        content: 'Contenido importante.'
+      }
+    ])
+  })
+
+  it('produces identical output for en and es locales', async () => {
+    const mdx = '<CalloutText>\nImportant information.\n</CalloutText>'
+    const enBlocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+    const esBlocks = await parseMdxToBlocks(mdx, { locale: 'es' })
+
+    expect(esBlocks).toEqual(enBlocks)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Integration: CalloutText mixed with markdown
 // ---------------------------------------------------------------------------
 

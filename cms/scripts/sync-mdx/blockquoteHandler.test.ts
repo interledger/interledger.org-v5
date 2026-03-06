@@ -127,6 +127,37 @@ describe('Blockquote handler', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Locale context
+// ---------------------------------------------------------------------------
+
+describe('Blockquote handler (locale context)', () => {
+  it('parses Blockquote with locale es and Spanish content', async () => {
+    const esCtx: ParserContext = { locale: 'es' }
+    const blocks = await parseMdxToBlocks(
+      '<Blockquote source="Autor">\nUna cita importante.\n</Blockquote>',
+      esCtx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.blockquote',
+        quote: 'Una cita importante.',
+        source: 'Autor'
+      }
+    ])
+  })
+
+  it('produces identical output for en and es locales', async () => {
+    const mdx =
+      '<Blockquote source="Einstein">\nImagination is everything.\n</Blockquote>'
+    const enBlocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+    const esBlocks = await parseMdxToBlocks(mdx, { locale: 'es' })
+
+    expect(esBlocks).toEqual(enBlocks)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Integration: Blockquote mixed with markdown
 // ---------------------------------------------------------------------------
 
