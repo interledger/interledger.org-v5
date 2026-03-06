@@ -7,7 +7,8 @@
  * get strict, actionable failures.
  */
 
-import type { MdxJsxFlowElement, MdxJsxAttribute } from 'mdast-util-mdx-jsx'
+import type { MdxJsxAttribute } from 'mdast-util-mdx-jsx'
+import type { JsxBlockNode } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // ---------------------------------------------------------------------------
@@ -19,7 +20,7 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
  * Returns `undefined` when the attribute is absent.
  */
 function findAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string
 ): MdxJsxAttribute | undefined {
   return node.attributes.find(
@@ -52,17 +53,17 @@ function findAttr(
  * @returns The string value, or `undefined` if absent and not required
  */
 export function getStringAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts: { required: true }
 ): string
 export function getStringAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts?: { required?: false }
 ): string | undefined
 export function getStringAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts: { required?: boolean } = {}
 ): string | undefined {
@@ -133,7 +134,7 @@ export function getStringAttr(
  * @returns The boolean value, or `undefined` if absent
  */
 export function getBooleanAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string
 ): boolean | undefined {
   const attr = findAttr(node, name)
@@ -186,17 +187,17 @@ export function getBooleanAttr(
  * @returns The string array, or `undefined` if absent
  */
 export function getStringArrayAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts: { required: true }
 ): string[]
 export function getStringArrayAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts?: { required?: false }
 ): string[] | undefined
 export function getStringArrayAttr(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   name: string,
   opts: { required?: boolean } = {}
 ): string[] | undefined {

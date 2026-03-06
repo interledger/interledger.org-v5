@@ -253,6 +253,62 @@ describe('AmbassadorGrid handler', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Locale import
+// ---------------------------------------------------------------------------
+
+describe('Ambassador handler (locale import)', () => {
+  it('resolves Ambassador slug in es locale via resolveRelation', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<Ambassador slug="alice" />',
+      ctxWith({ alice: 'doc-alice' }, 'es')
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.ambassador',
+        ambassador: { connect: [{ documentId: 'doc-alice' }] }
+      }
+    ])
+  })
+
+  it('resolves AmbassadorGrid slugs in es locale', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<AmbassadorGrid heading="Equipo" slugs={["alice","bob"]} />',
+      ctxWith({ alice: 'doc-alice', bob: 'doc-bob' }, 'es')
+    )
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.ambassadors-grid',
+      heading: 'Equipo',
+      ambassadors: {
+        connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
+      }
+    })
+  })
+
+  it('uses locale-first then en fallback via createRelationResolver', async () => {
+    const strapi = createMockStrapi({
+      'en:alice': { documentId: 'doc-en-alice', locale: 'en' }
+    })
+    const { createRelationResolver } = await import('./ambassadorHandler')
+    const resolve = createRelationResolver(strapi, 'es')
+    const esCtx: ParserContext = { locale: 'es', resolveRelation: resolve }
+
+    const blocks = await parseMdxToBlocks('<Ambassador slug="alice" />', esCtx)
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.ambassador',
+        ambassador: { connect: [{ documentId: 'doc-en-alice' }] }
+      }
+    ])
+    // Tried es first, then fell back to en
+    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'es')
+    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'en')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Integration: mixed markdown + JSX
 // ---------------------------------------------------------------------------
 

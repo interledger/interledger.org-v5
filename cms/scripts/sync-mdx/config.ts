@@ -12,8 +12,10 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './siteSchemas'
-// Side-effect import: registers Ambassador + AmbassadorGrid handlers
+// Side-effect imports: register component handlers
 import './ambassadorHandler'
+import './blockquoteHandler'
+import './calloutTextHandler'
 import { createRelationResolver } from './ambassadorHandler'
 
 /**

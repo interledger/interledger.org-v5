@@ -49,13 +49,16 @@ it('fails before MyWidget is registered', async () => {
 Create `<name>Handler.ts`:
 
 ```ts
-import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import type { ParsedBlock, MyWidgetBlock } from './types.blocks'
 import { getStringAttr } from './jsxExtract'
-import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
+import {
+  registerComponentHandler,
+  type JsxBlockNode,
+  type ParserContext
+} from './mdxBlockParser'
 
 async function handleMyWidget(
-  node: MdxJsxFlowElement,
+  node: JsxBlockNode,
   _ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const title = getStringAttr(node, 'title', { required: true })
