@@ -2,171 +2,71 @@
 import { createExcerpt } from '@/utils/create-excerpt'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
-import Pagination from './Pagination.astro'
-import stripPagination from '@/utils/stripPagination.ts'
+import BlogIndexHeader from './BlogIndexHeader.astro'
 
-interface BreadcrumbItem {
-  name: string
-  href: string
-  umamiEvent: string
-}
 interface Props {
-  title: string
-  path: string
   posts: CollectionEntry<'developers-blog'>[]
-  breadcrumbs?: BreadcrumbItem[]
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
-  showPagination?: boolean
-  paginationProps?: {
-    length: number
-    currentPage: number
-    firstUrl: string | undefined
-    prevUrl: string | undefined
-    nextUrl: string | undefined
-    lastUrl: string | undefined
-  }
 }
-const {
-  title,
-  path,
-  posts,
-  breadcrumbs = [],
-  allTags = [],
-  selectedTag,
-  showTagFilter = false,
-  showPagination = false,
-  paginationProps
-} = Astro.props
-const basePath = stripPagination(Astro.url.pathname)
+const { posts, allTags = [], selectedTag } = Astro.props
+const path = '/developers/blog'
 ---
 
-<main class="pt-space-m pb-space-xl">
-  <div class="mx-auto max-w-content min-w-[360px] px-[5%] 2xl:px-0">
-    {
-      breadcrumbs.length > 0 && (
-        <ol
-          class="flex list-none ps-0 text-step--1 font-bold pt-space-l [&_a]:text-primary [&_a]:no-underline"
-          itemscope
-          itemtype="https://schema.org/BreadcrumbList"
-        >
-          {breadcrumbs.map((crumb, index) => (
-            <li
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-              class:list={[
-                {
-                  "before:content-['>'] before:inline-flex before:ms-space-3xs":
-                    index > 0
-                }
-              ]}
-            >
-              <a
-                itemprop="item"
-                href={crumb.href}
-                data-umami-event={crumb.umamiEvent}
-                data-umami-event="Devs blog breadcrumb - Dev Portal"
-              >
-                <span itemprop="name">{crumb.name}</span>
-              </a>
-              <meta itemprop="position" content={String(index + 1)} />
-            </li>
-          ))}
-        </ol>
-      )
-    }
-    <header
-      class="pt-space-s pb-space-m flex flex-col justify-between items-start gap-space-xs min-[730px]:flex-row min-[730px]:items-center"
-    >
-      <h1 class="text-step-3 font-bold">{title}</h1>
-      <a
-        class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
-        href="/blog"
-      >
-        <p
-          class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
-        >
-          Check out Foundation updates
-        </p>
-        <img
-          src="/img/ernie-purple.svg"
-          alt="Ernie holding an envelope"
-          aria-hidden="true"
-          class="w-[4em]"
-        />
-      </a>
-    </header>
-    {
-      showTagFilter && (
-        <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
-      )
-    }
-    <ol class="list-none p-0">
-      {
-        posts.map((blogPostEntry) => {
-          const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-          return (
-            <li class="mb-space-2xs">
-              <div class="flex flex-col flex-1">
-                <time
-                  class="block text-step--1"
-                  datetime={blogPostEntry.data.date.toISOString()}
-                >
-                  {blogPostEntry.data.date.toDateString()}
-                </time>
-                {blogPostEntry.data.locale === 'es' ? (
-                  <div class="flex items-start gap-space-2xs">
-                    <h2 class="text-step-1">
-                      <a
-                        href={`${path}/${blogPostEntry.id}`}
-                        class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                      >
-                        {blogPostEntry.data.title}
-                      </a>
-                    </h2>
-                    <a
-                      class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline"
-                      href={`${path}/es`}
-                    >
-                      ES
-                    </a>
-                  </div>
-                ) : (
-                  <h2 class="text-step-1">
-                    <a
-                      href={`${path}/${blogPostEntry.id}`}
-                      class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                    >
-                      {blogPostEntry.data.title}
-                    </a>
-                  </h2>
-                )}
+<BlogIndexHeader title="Engineering Blog" />
 
-                <p class="mb-space-2xs grow">
-                  {blogPostEntry.data.description
-                    ? blogPostEntry.data.description
-                    : excerpt}
-                </p>
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+
+<ol class="list-none p-0">
+  {
+    posts.map((blogPostEntry) => {
+      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      return (
+        <li class="mb-space-2xs">
+          <div class="flex flex-col flex-1">
+            <time
+              class="block text-step--1"
+              datetime={blogPostEntry.data.date.toISOString()}
+            >
+              {blogPostEntry.data.date.toDateString()}
+            </time>
+            {blogPostEntry.data.locale === 'es' ? (
+              <div class="flex items-start gap-space-2xs">
+                <h2 class="text-step-1">
+                  <a
+                    href={`${path}/${blogPostEntry.id}`}
+                    class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                  >
+                    {blogPostEntry.data.title}
+                  </a>
+                </h2>
+                <a
+                  class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
+                  href={`${path}/es`}
+                >
+                  ES
+                </a>
               </div>
-            </li>
-          )
-        })
-      }
-    </ol>
-    {
-      showPagination && paginationProps && (
-        <Pagination
-          baseUrl={basePath}
-          length={paginationProps.length}
-          currentPage={paginationProps.currentPage}
-          firstUrl={paginationProps.firstUrl}
-          prevUrl={paginationProps.prevUrl}
-          nextUrl={paginationProps.nextUrl}
-          lastUrl={paginationProps.lastUrl}
-        />
+            ) : (
+              <h2 class="text-step-1">
+                <a
+                  href={`${path}/${blogPostEntry.id}`}
+                  class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                >
+                  {blogPostEntry.data.title}
+                </a>
+              </h2>
+            )}
+
+            <p class="mb-space-2xs grow">
+              {blogPostEntry.data.description
+                ? blogPostEntry.data.description
+                : excerpt}
+            </p>
+          </div>
+        </li>
       )
-    }
-  </div>
-</main>
+    })
+  }
+</ol>

@@ -1,8 +1,11 @@
 ---
 import { paginateAllPosts } from '@/utils/tagFilter'
+import stripPagination from '@/utils/stripPagination.ts'
 import type { GetStaticPaths, Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
+import Pagination from '@/components/blog/Pagination.astro'
 
 type Props = {
   page: Page
@@ -18,6 +21,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 }
 
 const { page, allTags } = Astro.props
+const basePath = stripPagination(Astro.url.pathname)
 ---
 
 <FoundationPageLayout
@@ -25,27 +29,31 @@ const { page, allTags } = Astro.props
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
   ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
 >
-  <BlogIndexDevelopers
-    title="Engineering Blog"
-    path="/developers/blog"
-    posts={page.data || []}
-    breadcrumbs={[
-      {
-        name: 'Developers Portal',
-        href: '/developers',
-        umamiEvent: 'Devs breadcrumb - Home'
-      }
-    ]}
-    allTags={allTags}
-    showTagFilter={true}
-    showPagination={true}
-    paginationProps={{
-      length: page.lastPage,
-      currentPage: page.currentPage,
-      firstUrl: page.url.first,
-      prevUrl: page.url.prev,
-      nextUrl: page.url.next,
-      lastUrl: page.url.last
-    }}
-  />
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
+      <BlogBreadcrumbs
+        breadcrumbs={[
+          {
+            name: 'Developers Portal',
+            href: '/developers',
+            umamiEvent: 'Devs breadcrumb - Home'
+          }
+        ]}
+      />
+      <BlogIndexDevelopers
+        posts={page.data || []}
+        allTags={allTags}
+        showTagFilter={true}
+      />
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        firstUrl={page.url.first}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        lastUrl={page.url.last}
+      />
+    </div>
+  </main>
 </FoundationPageLayout>
