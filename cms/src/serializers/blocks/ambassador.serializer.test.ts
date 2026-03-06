@@ -6,6 +6,7 @@ const baseAmbassador = {
   slug: 'alice-example',
   description: 'A great ambassador.',
   photo: {
+    id: 1,
     url: '/uploads/alice.jpg',
     alternativeText: 'Alice smiling'
   },
@@ -57,6 +58,7 @@ describe('ambassador serializer', () => {
       ambassador: {
         ...baseAmbassador,
         photo: {
+          id: 1,
           url: '/uploads/alice.jpg',
           alternativeText: 'Portrait of Alice'
         }
@@ -70,7 +72,7 @@ describe('ambassador serializer', () => {
     const result = serialize({
       ambassador: {
         ...baseAmbassador,
-        photo: { url: '/uploads/alice.jpg' }
+        photo: { id: 1, url: '/uploads/alice.jpg' }
       }
     })
 
