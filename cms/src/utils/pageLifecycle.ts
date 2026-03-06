@@ -33,6 +33,10 @@ import {
   getPreservedFields,
   uidToLogLabel
 } from './mdx'
+import {
+  deleteLocaleMdxFiles,
+  removeLocalizesFromLocaleFiles
+} from './localeMdxUtils'
 
 interface PageData {
   id: number
@@ -261,38 +265,6 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       await exportAllLocales(config, result.documentId)
     },
 
-    async afterUpdate(event: Event) {
-      const { result } = event
-      if (!result) return
-      if (shouldSkipMdxExport()) return
-
-      console.log(
-        `📝 Updating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
-      )
-      const filepaths = await exportAllLocales(config, result.documentId)
-
-      // Clean up MDX for any locale that is no longer published
-      const deletedPaths: string[] = []
-      for (const locale of LOCALES) {
-        const outputDir = getOutputDir(config, locale)
-        const filepath = path.join(outputDir, `${result.slug}.mdx`)
-        if (!filepaths.includes(filepath) && fs.existsSync(filepath)) {
-          try {
-            fs.unlinkSync(filepath)
-            console.log(
-              `🗑️  Deleted unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`
-            )
-            deletedPaths.push(filepath)
-          } catch (error) {
-            console.error(
-              `Failed to delete unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`,
-              error
-            )
-          }
-        }
-      }
-    },
-
     async afterDelete(event: Event) {
       const { result } = event
       if (!result) return
@@ -301,27 +273,16 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       console.log(
         `🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
       )
-
-      const deletedPaths: string[] = []
-      for (const locale of LOCALES) {
-        const outputDir = getOutputDir(config, locale)
-        const filepath = path.join(outputDir, `${result.slug}.mdx`)
-
-        if (fs.existsSync(filepath)) {
-          try {
-            fs.unlinkSync(filepath)
-            console.log(
-              `🗑️  Deleted ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`
-            )
-            deletedPaths.push(filepath)
-          } catch (error) {
-            console.error(
-              `Failed to delete ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`,
-              error
-            )
-          }
-        }
-      }
+      removeLocalizesFromLocaleFiles(
+        result.slug,
+        (locale) => getOutputDir(config, locale),
+        uidToLogLabel(config.contentTypeUid)
+      )
+      deleteLocaleMdxFiles(
+        (locale) =>
+          path.join(getOutputDir(config, locale), `${result.slug}.mdx`),
+        uidToLogLabel(config.contentTypeUid)
+      )
     }
   }
 }

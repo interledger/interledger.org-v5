@@ -19,12 +19,14 @@
     "name": {
       "type": "string",
       "maxLength": 255,
-      "required": true
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "slug": {
       "type": "uid",
       "targetField": "name",
-      "required": true
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "description": {
       "type": "richtext",
@@ -39,15 +41,18 @@
       "type": "media",
       "multiple": false,
       "required": true,
-      "allowedTypes": ["images"]
+      "allowedTypes": ["images"],
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "linkedinUrl": {
       "type": "string",
-      "maxLength": 500
+      "maxLength": 500,
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "grantReportUrl": {
       "type": "string",
-      "maxLength": 500
+      "maxLength": 500,
+      "pluginOptions": { "i18n": { "localized": true } }
     }
   }
 }

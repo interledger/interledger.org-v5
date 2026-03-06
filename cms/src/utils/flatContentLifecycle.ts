@@ -8,7 +8,11 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport } from './pageLifecycle'
-import { gitCommitAndPush } from './gitSync'
+import { LOCALES } from './mdx'
+import {
+  deleteLocaleMdxFiles,
+  removeLocalizesFromLocaleFiles
+} from './localeMdxUtils'
 
 export interface FlatContentLifecycleConfig<
   T extends {
@@ -26,102 +30,144 @@ export interface FlatContentLifecycleConfig<
   label: string
 }
 
-async function writeMdxFile<
-  T extends {
-    slug: string
-    name?: string
-    locale?: string
-    publishedAt?: string
-  }
->(config: FlatContentLifecycleConfig<T>, entry: T): Promise<string> {
-  const baseDir = config.getBaseDir(entry.locale)
-  const filepath = path.join(baseDir, `${entry.slug}.mdx`)
-  await fs.promises.mkdir(baseDir, { recursive: true })
-  await fs.promises.writeFile(filepath, config.generateContent(entry), 'utf-8')
-  console.log(`✅ Generated ${config.label} MDX file: ${filepath}`)
-  return filepath
-}
+// ── Flat locale MDX lifecycle (export all locales per save) ───────────────────
 
-async function deleteMdxFile<
+interface StrapiDocumentAPI {
+  findOne: (options: {
+    documentId: string
+    locale: string
+    status: string
+    populate: Record<string, unknown>
+  }) => Promise<unknown>
+}
+declare const strapi: { documents: (uid: string) => StrapiDocumentAPI }
+
+export interface FlatLocaleMdxLifecycleConfig<
   T extends {
     slug: string
     name?: string
     locale?: string
+    documentId?: string
     publishedAt?: string
   }
->(config: FlatContentLifecycleConfig<T>, entry: T): Promise<string> {
-  const baseDir = config.getBaseDir(entry.locale)
-  const filepath = path.join(baseDir, `${entry.slug}.mdx`)
-  try {
-    await fs.promises.unlink(filepath)
-    console.log(`🗑️  Deleted ${config.label} MDX file: ${filepath}`)
-  } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error(
-        `❌ Failed to delete ${config.label} MDX file: ${filepath}`,
-        error
-      )
-      throw error
-    }
-  }
-  return filepath
+> {
+  contentTypeUid: string
+  label: string
+  getBaseDir: (locale?: string) => string
+  /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
+  generateContent: (entry: T, englishSlug?: string) => string
+  populate?: Record<string, unknown>
 }
 
 /**
- * Creates Strapi lifecycle hooks for a flat content type.
- * afterCreate: writes MDX + git commit when entry is published.
- * afterUpdate: writes MDX + git commit when published, deletes when unpublished.
- * afterDelete: deletes MDX + git commit.
+ * Creates lifecycle hooks for flat content types that export all locales per save.
+ * Mirrors createPageLifecycle: fetches every locale from Strapi and writes all
+ * locale MDX files in one pass, avoiding i18n "modified" badges on other locales.
  */
-export function createFlatContentLifecycle<
+export function createFlatLocaleMdxLifecycle<
   T extends {
     slug: string
     name?: string
     locale?: string
+    documentId?: string
     publishedAt?: string
   }
->(config: FlatContentLifecycleConfig<T>) {
+>(config: FlatLocaleMdxLifecycleConfig<T>) {
+  const {
+    contentTypeUid,
+    label,
+    getBaseDir,
+    generateContent,
+    populate = {}
+  } = config
+
+  async function fetchPublished(
+    documentId: string,
+    locale: string
+  ): Promise<T | null> {
+    try {
+      const result = await strapi.documents(contentTypeUid).findOne({
+        documentId,
+        locale,
+        status: 'published',
+        populate
+      })
+      return result as T | null
+    } catch (error) {
+      console.error(
+        `Failed to fetch ${label} ${documentId} (${locale}):`,
+        error
+      )
+      return null
+    }
+  }
+
+  async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
+    const baseDir = getBaseDir(entry.locale)
+    const filepath = path.join(baseDir, `${entry.slug}.mdx`)
+    await fs.promises.mkdir(baseDir, { recursive: true })
+    await fs.promises.writeFile(
+      filepath,
+      generateContent(entry, englishSlug),
+      'utf-8'
+    )
+    console.log(`✅ Generated ${label} MDX: ${filepath}`)
+    return filepath
+  }
+
+  async function exportAllLocales(documentId: string): Promise<string[]> {
+    const filepaths: string[] = []
+    const englishEntry = await fetchPublished(documentId, 'en')
+    const englishSlug = englishEntry?.slug
+
+    for (const locale of LOCALES) {
+      try {
+        const entry =
+          locale === 'en'
+            ? englishEntry
+            : await fetchPublished(documentId, locale)
+        if (!entry) {
+          console.log(`⏭️  No published ${locale} ${label} for ${documentId}`)
+          continue
+        }
+        const filepath = await writeMdxFile(entry, englishSlug)
+        filepaths.push(filepath)
+      } catch (error) {
+        console.error(
+          `⚠️  Failed to export ${locale} ${label} for ${documentId}:`,
+          error
+        )
+      }
+    }
+    return filepaths
+  }
+
+  function getFilePath(locale: string, slug: string): string {
+    return path.join(getBaseDir(locale), `${slug}.mdx`)
+  }
+
   return {
     async afterCreate(event: { result?: T }) {
       if (shouldSkipMdxExport()) return
       const { result } = event
-      if (result && result.publishedAt) {
-        const filepath = await writeMdxFile(config, result)
-        await gitCommitAndPush(
-          filepath,
-          `${config.label}: add "${result.name ?? result.slug}"`
-        )
-      }
-    },
+      if (!result?.documentId || !result.publishedAt) return
 
-    async afterUpdate(event: { result?: T }) {
-      if (shouldSkipMdxExport()) return
-      const { result } = event
-      if (!result) return
-      if (result.publishedAt) {
-        const filepath = await writeMdxFile(config, result)
-        await gitCommitAndPush(
-          filepath,
-          `${config.label}: update "${result.name ?? result.slug}"`
-        )
-      } else {
-        const filepath = await deleteMdxFile(config, result)
-        await gitCommitAndPush(
-          filepath,
-          `${config.label}: unpublish "${result.name ?? result.slug}"`
-        )
-      }
+      console.log(`📝 Creating ${label} MDX for all locales: ${result.slug}`)
+      await exportAllLocales(result.documentId)
     },
 
     async afterDelete(event: { result?: T }) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result) return
-      const filepath = await deleteMdxFile(config, result)
-      await gitCommitAndPush(
-        filepath,
-        `${config.label}: delete "${result.name ?? result.slug}"`
+
+      console.log(`🗑️  Deleting ${label} MDX for all locales: ${result.slug}`)
+      removeLocalizesFromLocaleFiles(
+        result.slug,
+        (locale) => getBaseDir(locale),
+        label
       )
+      deleteLocaleMdxFiles((locale) => getFilePath(locale, result.slug), label)
     }
   }
 }
