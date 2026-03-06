@@ -2,157 +2,84 @@
 import { createExcerpt } from '@/utils/create-excerpt'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
-import Pagination from './Pagination.astro'
-import stripPagination from '@/utils/stripPagination.ts'
+import BlogIndexHeader from './BlogIndexHeader.astro'
 
 interface Props {
-  title: string
-  path: string
   posts: CollectionEntry<'foundation-blog'>[]
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
-  showPagination?: boolean
-  paginationProps?: {
-    length: number
-    currentPage: number
-    firstUrl: string | undefined
-    prevUrl: string | undefined
-    nextUrl: string | undefined
-    lastUrl: string | undefined
-  }
 }
-const {
-  title,
-  path,
-  posts,
-  allTags = [],
-  selectedTag,
-  showTagFilter = false,
-  showPagination = false,
-  paginationProps
-} = Astro.props
-const basePath = stripPagination(Astro.url.pathname)
+const { posts, allTags = [], selectedTag } = Astro.props
+const path = '/blog'
 ---
 
-<main class="pt-space-m pb-space-xl">
-  <div class="mx-auto max-w-[1440px] min-w-[360px] px-[5%] min-[1600px]:px-0">
-    <header
-      class="pt-space-s pb-space-m flex flex-col justify-between items-start gap-space-xs min-[730px]:flex-row min-[730px]:items-center"
-    >
-      <h1 class="text-step-3 font-bold">{title}</h1>
-      <a
-        class="group flex items-center gap-space-s rounded bg-radial from-white to-tech-light-bg px-space-2xs py-space-3xs shadow text-step--1 no-underline"
-        href="/developers/blog"
-      >
-        <p
-          class="text-gray underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
-        >
-          Explore our Engineering Blog
-        </p>
-        <img
-          src="/img/ernie-teal.svg"
-          alt="Ernie holding an envelope"
-          aria-hidden="true"
-          class="w-[4em]"
-        />
-      </a>
-    </header>
-    {
-      showTagFilter && (
-        <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+<BlogIndexHeader
+  title="Foundation Blog"
+  href="/developers/blog"
+  message="Explore our Engineering Blog"
+  imgHref="/img/ernie-teal.svg"
+  imgAlt="Ernie holding an envelope"
+/>
+
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+
+<ol class="list-none p-0">
+  {
+    posts.map((blogPostEntry) => {
+      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      return (
+        <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
+          <div class="shrink-0">
+            {blogPostEntry.data.thumbnailImage && (
+              <img
+                loading="lazy"
+                src={blogPostEntry.data.thumbnailImage}
+                width="250"
+                height="250"
+                alt={blogPostEntry.data.thumbnailImageAlt}
+                class="w-62.5 h-62.5 object-cover"
+              />
+            )}
+          </div>
+          <div class="flex flex-col flex-1">
+            <h2 class="text-step-1 mb-space-3xs">
+              <a
+                href={`${path}/${blogPostEntry.id}`}
+                class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
+              >
+                {blogPostEntry.data.title}
+              </a>
+            </h2>
+            <time
+              class="block text-step--1 mb-space-2xs"
+              datetime={blogPostEntry.data.date.toISOString()}
+            >
+              {blogPostEntry.data.date.toDateString().substring(4)}
+            </time>
+            <p class="leading-snug mb-space-2xs grow">
+              {blogPostEntry.data.description
+                ? blogPostEntry.data.description
+                : excerpt}
+            </p>
+            <a
+              href={`/blog/${blogPostEntry.id}`}
+              class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
+            >
+              Read more
+              <svg
+                viewBox="0 0 12 12"
+                class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
+              >
+                <path
+                  d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </div>
+        </li>
       )
-    }
-    <ol class="list-none p-0">
-      {
-        posts.map((blogPostEntry) => {
-          const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-          return (
-            <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
-              <div class="shrink-0">
-                {blogPostEntry.data.thumbnailImage && (
-                  <img
-                    loading="lazy"
-                    src={blogPostEntry.data.thumbnailImage}
-                    width="250"
-                    height="250"
-                    alt={blogPostEntry.data.thumbnailImageAlt}
-                    class="w-[250px] h-[250px] object-cover"
-                  />
-                )}
-              </div>
-              <div class="flex flex-col flex-1">
-                {blogPostEntry.data.locale === 'es' ? (
-                  <div class="flex items-start gap-space-2xs">
-                    <h2 class="text-step-1 mb-space-3xs">
-                      <a
-                        href={`${path}/${blogPostEntry.id}`}
-                        class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
-                      >
-                        {blogPostEntry.data.title}
-                      </a>
-                    </h2>
-                    <a
-                      class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
-                      href="/blog/es"
-                    >
-                      ES
-                    </a>
-                  </div>
-                ) : (
-                  <h2 class="text-step-1 mb-space-3xs">
-                    <a
-                      href={`${path}/${blogPostEntry.id}`}
-                      class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
-                    >
-                      {blogPostEntry.data.title}
-                    </a>
-                  </h2>
-                )}
-                <time
-                  class="block text-step--1 mb-space-2xs"
-                  datetime={blogPostEntry.data.date.toISOString()}
-                >
-                  {blogPostEntry.data.date.toDateString().substring(4)}
-                </time>
-                <p class="leading-snug mb-space-2xs grow">
-                  {blogPostEntry.data.description
-                    ? blogPostEntry.data.description
-                    : excerpt}
-                </p>
-                <a
-                  href={`/blog/${blogPostEntry.id}`}
-                  class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
-                >
-                  Read more
-                  <svg
-                    viewBox="0 0 12 12"
-                    class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
-                  >
-                    <path
-                      d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </a>
-              </div>
-            </li>
-          )
-        })
-      }
-    </ol>
-    {
-      showPagination && paginationProps && (
-        <Pagination
-          baseUrl={basePath}
-          length={paginationProps.length}
-          currentPage={paginationProps.currentPage}
-          firstUrl={paginationProps.firstUrl}
-          prevUrl={paginationProps.prevUrl}
-          nextUrl={paginationProps.nextUrl}
-          lastUrl={paginationProps.lastUrl}
-        />
-      )
-    }
-  </div>
-</main>
+    })
+  }
+</ol>

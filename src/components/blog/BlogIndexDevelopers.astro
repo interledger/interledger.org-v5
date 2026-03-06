@@ -14,7 +14,13 @@ const { posts, allTags = [], selectedTag } = Astro.props
 const path = '/developers/blog'
 ---
 
-<BlogIndexHeader title="Engineering Blog" />
+<BlogIndexHeader
+  title="Engineering Blog"
+  href="/blog"
+  message="Check out Foundation updates"
+  imgHref="/img/ernie-purple.svg"
+  imgAlt="Ernie holding an envelope"
+/>
 
 <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
 
