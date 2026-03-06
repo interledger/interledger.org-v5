@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content'
+import { paginateAllPosts } from '@/utils/tagFilter'
 import type { GetStaticPaths, Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
@@ -10,17 +10,11 @@ type Props = {
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const blogEntries = (await getCollection('developers-blog')).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
-  // Collect all unique tags
-  const allTags = [
-    ...new Set(blogEntries.flatMap((entry) => entry.data.tags))
-  ].sort()
-  return paginate(blogEntries, {
-    pageSize: 10,
-    props: { allTags }
+  const paths = await paginateAllPosts({
+    paginate,
+    collection: 'developers-blog'
   })
+  return paths
 }
 
 const { page, allTags } = Astro.props
