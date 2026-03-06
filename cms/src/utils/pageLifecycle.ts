@@ -137,7 +137,7 @@ function generateMDX(
 
   const content = serializeContent(page.content)
 
-  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
+  return matter.stringify(content ? `\n${content}\n` : '', frontmatterData)
 }
 
 async function writeMDXFile(

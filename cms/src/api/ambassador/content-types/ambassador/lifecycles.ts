@@ -7,7 +7,7 @@
  * only wrote the single event.result locale, leaving other locales' MDX stale.
  */
 
-import { getImageUrl } from '../../../../utils/mdx'
+import { getImageUrl, yamlSingleQuoteScalar } from '../../../../utils/mdx'
 import { getContentPath } from '../../../../utils/paths'
 import { getTargetRepoRoot } from '../../../../utils/gitSync'
 import { createFlatLocaleMdxLifecycle } from '../../../../utils/flatContentLifecycle'
@@ -17,12 +17,6 @@ interface Ambassador extends AmbassadorBase {
   publishedAt?: string
   locale?: string
   documentId?: string
-}
-
-/** Serializes a value as a YAML scalar (double-quoted string or null). */
-function yamlValue(value: string | null | undefined): string {
-  if (value === null || value === undefined) return 'null'
-  return JSON.stringify(value)
 }
 
 function generateMdxContent(
@@ -37,18 +31,17 @@ function generateMdxContent(
       : undefined
   const isLocalized = locale !== undefined
 
+  const q = yamlSingleQuoteScalar
   const fields = [
-    `name: ${yamlValue(ambassador.name)}`,
-    `slug: ${yamlValue(ambassador.slug)}`,
-    `description: ${yamlValue(ambassador.description || '')}`,
-    `photo: ${yamlValue(photoUrl)}`,
-    `photoAlt: ${yamlValue(photoAlt)}`,
-    `linkedinUrl: ${yamlValue(ambassador.linkedinUrl ?? null)}`,
-    `grantReportUrl: ${yamlValue(ambassador.grantReportUrl ?? null)}`,
-    ...(isLocalized && englishSlug
-      ? [`localizes: ${yamlValue(englishSlug)}`]
-      : []),
-    ...(locale ? [`locale: ${yamlValue(locale)}`] : [])
+    `name: ${q(ambassador.name)}`,
+    `slug: ${q(ambassador.slug)}`,
+    `description: ${q(ambassador.description || '')}`,
+    `photo: ${q(photoUrl)}`,
+    `photoAlt: ${q(photoAlt)}`,
+    `linkedinUrl: ${q(ambassador.linkedinUrl ?? null)}`,
+    `grantReportUrl: ${q(ambassador.grantReportUrl ?? null)}`,
+    ...(isLocalized && englishSlug ? [`localizes: ${q(englishSlug)}`] : []),
+    ...(locale ? [`locale: ${q(locale)}`] : [])
   ]
 
   return `---\n${fields.join('\n')}\n---\n`
