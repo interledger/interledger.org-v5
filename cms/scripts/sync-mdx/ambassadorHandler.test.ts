@@ -294,10 +294,7 @@ describe('Ambassador handler (locale import)', () => {
     const resolve = createRelationResolver(strapi, 'es')
     const esCtx: ParserContext = { locale: 'es', resolveRelation: resolve }
 
-    const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" />',
-      esCtx
-    )
+    const blocks = await parseMdxToBlocks('<Ambassador slug="alice" />', esCtx)
 
     expect(blocks).toEqual([
       {

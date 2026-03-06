@@ -56,7 +56,10 @@ describe('ambassador serializer', () => {
     const result = serialize({
       ambassador: {
         ...baseAmbassador,
-        photo: { url: '/uploads/alice.jpg', alternativeText: 'Portrait of Alice' }
+        photo: {
+          url: '/uploads/alice.jpg',
+          alternativeText: 'Portrait of Alice'
+        }
       }
     })
 

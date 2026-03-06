@@ -536,7 +536,11 @@ describe('buildPagePayload', () => {
         locale: 'es',
         isLocalization: true,
         localizes: 'about-us',
-        frontmatter: { title: 'Sobre Nosotros', localizes: 'about-us', locale: 'es' },
+        frontmatter: {
+          title: 'Sobre Nosotros',
+          localizes: 'about-us',
+          locale: 'es'
+        },
         content: '<Blockquote source="Autor">\nUna cita.\n</Blockquote>'
       })
 
@@ -570,7 +574,11 @@ describe('buildPagePayload', () => {
         locale: 'es',
         isLocalization: true,
         localizes: 'ambassadors-page',
-        frontmatter: { title: 'Embajadores', localizes: 'ambassadors-page', locale: 'es' },
+        frontmatter: {
+          title: 'Embajadores',
+          localizes: 'ambassadors-page',
+          locale: 'es'
+        },
         content: '<Ambassador slug="alice" />'
       })
 
@@ -601,7 +609,11 @@ describe('buildPagePayload', () => {
         locale: 'es',
         isLocalization: true,
         localizes: 'about-us',
-        frontmatter: { title: 'Sobre Nosotros', localizes: 'about-us', locale: 'es' },
+        frontmatter: {
+          title: 'Sobre Nosotros',
+          localizes: 'about-us',
+          locale: 'es'
+        },
         content: [
           'Texto introductorio.',
           '',
