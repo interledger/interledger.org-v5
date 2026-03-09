@@ -110,7 +110,9 @@ export default {
       // Hide "Open Entity" from the left nav sidebar
       document.querySelectorAll('div, span').forEach((el) => {
         if (el.textContent?.trim() === 'Open Entity') {
-          const navItem = el.closest('a, li, [role="menuitem"]') as HTMLElement | null
+          const navItem = el.closest(
+            'a, li, [role="menuitem"]'
+          ) as HTMLElement | null
           if (navItem) navItem.style.display = 'none'
         }
       })

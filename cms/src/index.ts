@@ -279,7 +279,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
 
     if (needsUpdate) {
-      await service.updateConfiguration({ uid }, { metadatas: updatedMetadatas })
+      await service.updateConfiguration(
+        { uid },
+        { metadatas: updatedMetadatas }
+      )
       strapi.log.info(`✅ Updated field labels for ${uid}`)
     }
   }
@@ -333,8 +336,14 @@ async function configureLayouts(strapi: StrapiInstance) {
 
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::ambassador.ambassador': [
-      [{ name: 'name', size: 6 }, { name: 'slug', size: 6 }],
-      [{ name: 'linkedinUrl', size: 6 }, { name: 'grantReportUrl', size: 6 }],
+      [
+        { name: 'name', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [
+        { name: 'linkedinUrl', size: 6 },
+        { name: 'grantReportUrl', size: 6 }
+      ],
       [{ name: 'photo', size: 12 }],
       [{ name: 'description', size: 12 }]
     ]
@@ -343,12 +352,21 @@ async function configureLayouts(strapi: StrapiInstance) {
   const componentLayouts: Record<string, EditLayoutField[][]> = {
     'shared.hero': [
       [{ name: 'title', size: 12 }],
-      [{ name: 'description', size: 6 }, { name: 'backgroundImage', size: 6 }],
+      [
+        { name: 'description', size: 6 },
+        { name: 'backgroundImage', size: 6 }
+      ],
       [{ name: 'secondaryCtas', size: 12 }]
     ],
     'shared.seo': [
-      [{ name: 'metaTitle', size: 6 }, { name: 'canonicalUrl', size: 6 }],
-      [{ name: 'metaDescription', size: 6 }, { name: 'keywords', size: 6 }],
+      [
+        { name: 'metaTitle', size: 6 },
+        { name: 'canonicalUrl', size: 6 }
+      ],
+      [
+        { name: 'metaDescription', size: 6 },
+        { name: 'keywords', size: 6 }
+      ],
       [{ name: 'metaImage', size: 12 }]
     ]
   }
