@@ -135,9 +135,9 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
     const recaptchaError = document.getElementById('recaptcha-error')
     const fieldsValid = form.checkValidity()
     const recaptchaDone = !!(
-      document.querySelector('textarea[name="g-recaptcha-response"]') as
-        | HTMLTextAreaElement
-        | null
+      document.querySelector(
+        'textarea[name="g-recaptcha-response"]'
+      ) as HTMLTextAreaElement | null
     )?.value?.trim()
 
     recaptchaError?.classList.add('hidden')
