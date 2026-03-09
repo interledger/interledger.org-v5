@@ -47,12 +47,6 @@ src/styles/
    - Can be overridden by utility classes
    - Must load last
 
-### What Breaks If You Reorder:
-
-**Theme after base** → `@apply text-step-0` fails (utility not yet defined)
-**Components before theme** → Utility overrides fail (component styles wrongly win)
-**Components before base** → Runtime CSS variables are undefined
-
 ## Pillar Theming System
 
 ### How It Works
@@ -64,15 +58,6 @@ Pages can set a `data-pillar` attribute to override the primary color theme:
   <!-- All text-primary, bg-primary, etc. use mission color -->
 </main>
 ```
-
-### Available Pillars
-
-| Pillar    | Color          | Usage                     |
-| --------- | -------------- | ------------------------- |
-| `tech`    | Teal (default) | Technology/protocol pages |
-| `mission` | Red            | Mission-related content   |
-| `vision`  | Purple         | Vision-related content    |
-| `values`  | Pink           | Values-related content    |
 
 ### Implementation
 
