@@ -5,19 +5,21 @@
  */
 
 @layer components {
-  /* Links: hidden underline that reveals on hover */
-  main a {
-    color: var(--color-primary);
-    text-decoration-color: transparent;
-    text-decoration-line: underline;
-    transition: text-decoration-color 200ms ease-in-out;
-  }
-  main a:hover {
-    text-decoration-color: currentColor;
-  }
+  main {
+    /* Links: hidden underline that reveals on hover */
+    & a {
+      color: var(--color-primary);
+      text-decoration-color: transparent;
+      text-decoration-line: underline;
+      transition: text-decoration-color 200ms ease-in-out;
+    }
+    & a:hover {
+      text-decoration-color: currentColor;
+    }
 
-  /* Paragraphs: tighter line-height for body text */
-  main p {
-    line-height: 1.39;
+    /* Paragraphs: tighter line-height for body text */
+    & p {
+      line-height: 1.39;
+    }
   }
 }

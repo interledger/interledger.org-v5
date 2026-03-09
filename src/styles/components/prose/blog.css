@@ -7,89 +7,73 @@
  */
 
 @layer components {
-  /* === Links: no underline by default, underline on hover === */
-  [data-prose-blog] a {
-    color: var(--color-primary);
-    text-decoration-line: none;
-  }
-  [data-prose-blog] a:hover {
-    text-decoration-line: underline;
-  }
+  [data-prose-blog] {
+    /* === Links: no underline by default, underline on hover === */
+    & a {
+      color: var(--color-primary);
+      text-decoration-line: none;
+    }
+    & a:hover {
+      text-decoration-line: underline;
+    }
 
-  /* === Extended element spacing === */
-  [data-prose-blog] ol {
-    margin-block-end: var(--spacing-space-s);
-  }
-  [data-prose-blog] figure {
-    margin-block-end: var(--spacing-space-s);
-  }
-  [data-prose-blog] hr {
-    margin-block-end: var(--spacing-space-s);
-  }
-  [data-prose-blog] h4 {
-    margin-block-end: var(--spacing-space-xs);
-  }
-  [data-prose-blog] figcaption {
-    font-size: var(--text-step--1);
-    font-style: italic;
-  }
-  [data-prose-blog] ul li {
-    margin-block-end: var(--spacing-space-2xs);
-  }
-  [data-prose-blog] img {
-    display: block;
-    margin-inline: auto;
-  }
+    /* === Extended element spacing === */
+    & ol { margin-block-end: var(--spacing-space-s); }
+    & figure { margin-block-end: var(--spacing-space-s); }
+    & hr { margin-block-end: var(--spacing-space-s); }
+    & h4 { margin-block-end: var(--spacing-space-xs); }
 
-  /* === Table styles === */
-  [data-prose-blog] table {
-    display: table;
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    margin-block-end: var(--spacing-space-m);
-  }
-  [data-prose-blog] th {
-    text-align: left;
-    padding-block: var(--spacing-space-3xs);
-    padding-inline: var(--spacing-space-2xs);
-  }
-  [data-prose-blog] td {
-    padding-block: var(--spacing-space-3xs);
-    padding-inline: var(--spacing-space-2xs);
-  }
-  [data-prose-blog] thead tr {
-    background-color: var(--color-table-stripe);
-  }
-  [data-prose-blog] thead tr:first-of-type th:first-of-type {
-    border-start-start-radius: var(--radius);
-  }
-  [data-prose-blog] thead tr:first-of-type th:last-of-type {
-    border-start-end-radius: var(--radius);
-  }
-  [data-prose-blog] thead + tbody tr:nth-child(2n) {
-    background-color: var(--color-table-stripe);
-  }
-  [data-prose-blog] tbody tr:last-of-type td:first-child {
-    border-end-start-radius: var(--radius);
-  }
-  [data-prose-blog] tbody tr:last-of-type td:last-child {
-    border-end-end-radius: var(--radius);
-  }
+    & figcaption {
+      font-size: var(--text-step--1);
+      font-style: italic;
+    }
 
-  /* === Inline code === */
-  [data-prose-blog] :not(pre) > code {
-    border-radius: var(--radius);
-    font-size: var(--text-step--1);
-    background-color: var(--color-bg-inline-code);
-    padding-inline: 0.375rem;
-    padding-block: 0.125rem;
-    overflow-wrap: anywhere;
-  }
+    & ul li { margin-block-end: var(--spacing-space-2xs); }
 
-  /* === Code blocks (expressive-code) === */
-  [data-prose-blog] .expressive-code {
-    margin-block-end: var(--spacing-space-s);
+    & img {
+      display: block;
+      margin-inline: auto;
+    }
+
+    /* === Table styles === */
+    & table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-block-end: var(--spacing-space-m);
+    }
+
+    & th {
+      text-align: left;
+      padding-block: var(--spacing-space-3xs);
+      padding-inline: var(--spacing-space-2xs);
+    }
+
+    & td {
+      padding-block: var(--spacing-space-3xs);
+      padding-inline: var(--spacing-space-2xs);
+    }
+
+    & thead tr { background-color: var(--color-table-stripe); }
+    & thead tr:first-of-type th:first-of-type { border-start-start-radius: var(--radius); }
+    & thead tr:first-of-type th:last-of-type { border-start-end-radius: var(--radius); }
+    & thead + tbody tr:nth-child(2n) { background-color: var(--color-table-stripe); }
+    & tbody tr:last-of-type td:first-child { border-end-start-radius: var(--radius); }
+    & tbody tr:last-of-type td:last-child { border-end-end-radius: var(--radius); }
+
+    /* === Inline code === */
+    & :not(pre) > code {
+      border-radius: var(--radius);
+      font-size: var(--text-step--1);
+      background-color: var(--color-bg-inline-code);
+      padding-inline: 0.375rem;
+      padding-block: 0.125rem;
+      overflow-wrap: anywhere;
+    }
+
+    /* === Code blocks (expressive-code) === */
+    & .expressive-code { margin-block-end: var(--spacing-space-s); }
   }
 }
