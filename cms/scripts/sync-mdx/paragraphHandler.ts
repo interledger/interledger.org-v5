@@ -39,7 +39,8 @@ async function handleParagraph(
           // (e.g. <em>, <strong>) as mdxJsxTextElement nodes, which the base
           // toMarkdown serializer does not understand.
           toMarkdown({ type: 'root', children } as Root, {
-            extensions: [mdxJsxToMarkdown()]
+            extensions: [mdxJsxToMarkdown()],
+            bullet: '-'
           }).trim()
         : ''
   }
