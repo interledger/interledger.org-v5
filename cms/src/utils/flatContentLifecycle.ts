@@ -13,6 +13,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+import { scheduleGitSync } from './gitSync'
 
 export interface FlatContentLifecycleConfig<
   T extends {
@@ -148,26 +149,30 @@ export function createFlatLocaleMdxLifecycle<
 
   return {
     async afterCreate(event: { result?: T }) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
+      if (shouldSkipMdxExport()) return
       if (!result?.documentId || !result.publishedAt) return
 
       console.log(`📝 Creating ${label} MDX for all locales: ${result.slug}`)
       await exportAllLocales(result.documentId)
+      scheduleGitSync(label)
     },
 
     async afterDelete(event: { result?: T }) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
-      if (!result) return
+      if (shouldSkipMdxExport()) return
+      if (!result?.documentId) return
 
       console.log(`🗑️  Deleting ${label} MDX for all locales: ${result.slug}`)
+
       removeLocalizesFromLocaleFiles(
         result.slug,
         (locale) => getBaseDir(locale),
         label
       )
       deleteLocaleMdxFiles((locale) => getFilePath(locale, result.slug), label)
+
+      scheduleGitSync(label)
     }
   }
 }
