@@ -102,7 +102,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
       buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+        buildBlogPayload(foundationBlogFrontmatterSchema, mdx, _strapi)
     }
   }
 }
