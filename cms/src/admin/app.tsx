@@ -100,8 +100,21 @@ export default {
   },
 
   bootstrap(_app: unknown) {
+    // Set minimum height for all textareas in the admin panel
+    const style = document.createElement('style')
+    style.textContent = 'textarea { min-height: 140px !important; }'
+    document.head.appendChild(style)
+
     // Override button labels using DOM manipulation
     const interval = setInterval(() => {
+      // Hide "Open Entity" from the left nav sidebar
+      document.querySelectorAll('div, span').forEach((el) => {
+        if (el.textContent?.trim() === 'Open Entity') {
+          const navItem = el.closest('a, li, [role="menuitem"]') as HTMLElement | null
+          if (navItem) navItem.style.display = 'none'
+        }
+      })
+
       // Find all buttons in the admin panel
       const buttons = document.querySelectorAll('button')
       buttons.forEach((button) => {
