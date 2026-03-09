@@ -26,6 +26,7 @@
     "better-sqlite3": "11.5.0",
     "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
     "is-html": "^3.2.0",
     "jsesc": "^3.1.0",
     "marked": "^17.0.3",

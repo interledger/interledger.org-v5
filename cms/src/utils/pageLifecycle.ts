@@ -31,7 +31,8 @@ import {
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
-  uidToLogLabel
+  uidToLogLabel,
+  MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import {
   deleteLocaleMdxFiles,
@@ -137,7 +138,11 @@ function generateMDX(
 
   const content = serializeContent(page.content)
 
-  return matter.stringify(content ? `\n${content}\n` : '', frontmatterData)
+  return matter.stringify(
+    content ? `\n${content}\n` : '',
+    frontmatterData,
+    MATTER_STRINGIFY_OPTIONS
+  )
 }
 
 async function writeMDXFile(
