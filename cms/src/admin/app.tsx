@@ -117,15 +117,31 @@ export default {
         }
       })
 
+      // Fix single-type page titles that show a raw document ID hash
+      const singleTypeTitles: Record<string, string> = {
+        'foundation-navigation': 'Foundation Navigation',
+        'summit-navigation': 'Summit Navigation'
+      }
+      const url = window.location.pathname
+      for (const [slug, title] of Object.entries(singleTypeTitles)) {
+        if (url.includes(slug)) {
+          const h1 = document.querySelector('h1')
+          if (h1 && /^[a-z0-9]{15,}$/.test(h1.textContent?.trim() ?? '')) {
+            h1.textContent = title
+          }
+          break
+        }
+      }
+
       // Find all buttons in the admin panel
       const buttons = document.querySelectorAll('button')
       buttons.forEach((button) => {
         const span = button.querySelector('span')
-        if (span && span.textContent === 'Save') {
-          span.textContent = 'Save as Draft'
-        }
-        if (span && span.textContent === 'Publish') {
-          span.textContent = 'Save / Update'
+        if (
+          span &&
+          (span.textContent === 'Save' || span.textContent === 'Publish')
+        ) {
+          span.textContent = 'Publish'
         }
       })
     }, 100)

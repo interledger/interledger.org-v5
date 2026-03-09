@@ -216,10 +216,33 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       seo: 'SEO',
       hero: 'Hero',
       content: 'Content'
+    },
+    'api::foundation-navigation.foundation-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
+    },
+    'api::summit-navigation.summit-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
     }
   }
 
   const componentLabels: Record<string, Record<string, string>> = {
+    'navigation.menu-group': {
+      label: 'Group Label',
+      href: 'Link URL',
+      items: 'Menu Items'
+    },
+    'navigation.menu-item': {
+      label: 'Label',
+      href: 'Link URL',
+      openInNewTab: 'Open in New Tab'
+    },
+    'shared.article-bio': {
+      author: 'Author Name',
+      profileBio: 'Author Bio',
+      profileImage: 'Profile Photo'
+    },
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
@@ -247,6 +270,61 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.paragraph': {
       content: 'Content',
       alignment: 'Alignment'
+    },
+    'blocks.cards-grid': {
+      heading: 'Section Heading',
+      subheading: 'Section Description',
+      cards: 'Cards',
+      columns: 'Number of Columns'
+    },
+    'blocks.card': {
+      title: 'Card Title',
+      description: 'Card Description',
+      link: 'Link URL',
+      linkText: 'Link Text',
+      icon: 'Icon',
+      openInNewTab: 'Open in New Tab'
+    },
+    'blocks.card-links-grid': {
+      heading: 'Section Heading',
+      subheading: 'Section Description',
+      cards: 'Cards',
+      columns: 'Number of Columns'
+    },
+    'blocks.card-link': {
+      title: 'Card Title',
+      description: 'Card Description',
+      href: 'Link URL',
+      openInNewTab: 'Open in New Tab'
+    },
+    'blocks.carousel': {
+      heading: 'Section Heading',
+      items: 'Slides',
+      autoplay: 'Autoplay',
+      interval: 'Autoplay Interval (ms)'
+    },
+    'blocks.carousel-item': {
+      quote: 'Quote',
+      author: 'Author Name',
+      role: 'Job Title',
+      organization: 'Organization',
+      image: 'Photo'
+    },
+    'blocks.cta-banner': {
+      heading: 'Heading',
+      text: 'Body Text',
+      primaryButtonText: 'Primary Button Text',
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL',
+      backgroundColor: 'Background Color'
+    },
+    'blocks.image-row': {
+      heading: 'Heading',
+      content: 'Content',
+      image: 'Image',
+      imagePosition: 'Image Position',
+      attribution: 'Image Attribution'
     }
   }
 
@@ -335,6 +413,25 @@ async function configureLayouts(strapi: StrapiInstance) {
   if (!plugin) return
 
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
+    'api::foundation-blog-post.foundation-blog-post': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [
+        { name: 'date', size: 4 },
+        { name: 'pillar', size: 4 },
+        { name: 'language', size: 4 }
+      ],
+      [
+        { name: 'featureImage', size: 6 },
+        { name: 'thumbnailImage', size: 6 }
+      ],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [{ name: 'articleBio', size: 12 }],
+      [{ name: 'tags', size: 12 }]
+    ],
     'api::ambassador.ambassador': [
       [
         { name: 'name', size: 6 },
@@ -346,10 +443,92 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'photo', size: 12 }],
       [{ name: 'description', size: 12 }]
+    ],
+    'api::foundation-page.foundation-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pageType', size: 6 }
+      ],
+      [
+        { name: 'path', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [{ name: 'seo', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
+    'api::summit-page.summit-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pageType', size: 6 }
+      ],
+      [
+        { name: 'path', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [{ name: 'seo', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
     ]
   }
 
   const componentLayouts: Record<string, EditLayoutField[][]> = {
+    'navigation.menu-item': [
+      [
+        { name: 'label', size: 4 },
+        { name: 'href', size: 4 },
+        { name: 'openInNewTab', size: 4 }
+      ]
+    ],
+    'shared.article-bio': [
+      [{ name: 'author', size: 6 }],
+      [
+        { name: 'profileImage', size: 6 },
+        { name: 'profileBio', size: 6 }
+      ]
+    ],
+    'blocks.cards-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subheading', size: 12 }],
+      [{ name: 'cards', size: 12 }],
+      [{ name: 'columns', size: 4 }]
+    ],
+    'blocks.card-links-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subheading', size: 12 }],
+      [{ name: 'cards', size: 12 }],
+      [{ name: 'columns', size: 4 }]
+    ],
+    'blocks.carousel': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }],
+      [
+        { name: 'autoplay', size: 4 },
+        { name: 'interval', size: 4 }
+      ]
+    ],
+    'blocks.image-row': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'image', size: 12 }],
+      [
+        { name: 'attribution', size: 6 },
+        { name: 'imagePosition', size: 6 }
+      ],
+      [{ name: 'content', size: 12 }]
+    ],
+    'blocks.cta-banner': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'text', size: 12 }],
+      [
+        { name: 'primaryButtonText', size: 6 },
+        { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [{ name: 'backgroundColor', size: 4 }]
+    ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],
       [
