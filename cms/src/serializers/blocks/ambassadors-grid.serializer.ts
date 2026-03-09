@@ -14,6 +14,8 @@ export function serialize(block: {
 
   if (slugs.length === 0) return ''
 
-  const headingAttr = block.heading ? ` heading="${escDouble(block.heading)}"` : ''
+  const headingAttr = block.heading
+    ? ` heading="${escDouble(block.heading)}"`
+    : ''
   return `<AmbassadorGrid${headingAttr} slugs={[${slugs.join(',')}]} />`
 }
