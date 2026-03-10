@@ -192,6 +192,6 @@ jobs:
       - name: Sync MDX to Strapi
         working-directory: cms
         env:
-          STRAPI_URL: ${{ secrets.STRAPI_URL }}
-          STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
+          STRAPI_URL: ${{ secrets.STRAPI_PLAYGROUND_URL }}
+          STRAPI_API_TOKEN: ${{ secrets.STRAPI_PLAYGROUND_API_TOKEN }}
         run: pnpm run sync:mdx
