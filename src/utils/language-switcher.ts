@@ -10,6 +10,8 @@ type LocalizedEntry = {
 
 const ROOT_SLUGS = new Set(['', 'home'])
 
+type LocalizedHrefBuilder = (locale: Locale, pathSlug: string) => string
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -26,7 +28,10 @@ function cleanSlug(pathSlug: string): string {
   return pathSlug.replace(/^\/+|\/+$/g, '')
 }
 
-function toLocalizedHref(locale: Locale, pathSlug: string): string {
+export function defaultLocalizedHrefBuilder(
+  locale: Locale,
+  pathSlug: string
+): string {
   const slug = cleanSlug(pathSlug)
   if (ROOT_SLUGS.has(slug)) {
     return locale === defaultLocale ? '/' : `/${locale}/`
@@ -36,7 +41,8 @@ function toLocalizedHref(locale: Locale, pathSlug: string): string {
 
 export function getLocalizedPageHrefs<T extends LocalizedEntry>(
   pages: T[],
-  currentPage: T
+  currentPage: T,
+  buildHref: LocalizedHrefBuilder = defaultLocalizedHrefBuilder
 ): Record<Locale, string> {
   const translationKey = getTranslationKey(currentPage.id)
   const localizedPagesByLang = new Map<Locale, T>()
@@ -51,8 +57,8 @@ export function getLocalizedPageHrefs<T extends LocalizedEntry>(
     (acc, locale) => {
       const localizedPage = localizedPagesByLang.get(locale)
       acc[locale] = localizedPage
-        ? toLocalizedHref(locale, localizedPage.data.pathSlug)
-        : toLocalizedHref(locale, 'home')
+        ? buildHref(locale, localizedPage.data.pathSlug)
+        : buildHref(locale, currentPage.data.pathSlug)
       return acc
     },
     {} as Record<Locale, string>

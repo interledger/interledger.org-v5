@@ -4,7 +4,8 @@ import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import { getPagePaths } from '@/utils/static-paths'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
-import type { Locale } from '../../../utils/i18'
+import { getLocalizedPageHrefs } from '../../../utils/language-switcher'
+import { defaultLocale, type Locale } from '../../../utils/i18'
 
 const pageLang: Locale = 'es'
 
@@ -28,6 +29,14 @@ if (mdxPage) {
   mdxData = mdxPage.data
 }
 
+const languageHrefs = mdxPage
+  ? getLocalizedPageHrefs(pages, mdxPage, (locale, pathSlug) =>
+      locale === defaultLocale
+        ? `/summit/${pathSlug}`
+        : `/${locale}/summit/${pathSlug}`
+    )
+  : undefined
+
 const pageTitle = slug
   .split(/[-/]/)
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -42,7 +51,12 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<SummitPageLayout title={title} description={description} gradient={gradient}>
+<SummitPageLayout
+  title={title}
+  description={description}
+  gradient={gradient}
+  languageHrefs={languageHrefs}
+>
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
