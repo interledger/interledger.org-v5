@@ -1,4 +1,4 @@
-name: playground Merge Workflow
+name: Playground Merge Workflow
 
 on:
   # Run when PRs are merged to playground
