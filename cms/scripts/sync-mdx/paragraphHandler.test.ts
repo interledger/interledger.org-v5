@@ -74,9 +74,9 @@ describe('Paragraph handler', () => {
   })
 
   it('throws when children are empty (self-closing)', async () => {
-    await expect(
-      parseMdxToBlocks('<Paragraph />', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+    await expect(parseMdxToBlocks('<Paragraph />', ctx)).rejects.toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE
+    })
   })
 
   it('throws when children are empty (open/close with no content)', async () => {

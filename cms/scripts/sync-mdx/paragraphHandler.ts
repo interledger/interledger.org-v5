@@ -31,7 +31,8 @@ async function handleParagraph(
   } else {
     // Otherwise extract from children: <Paragraph>...children...</Paragraph>
     const children = node.children
-    content = children && children.length > 0 ? childrenToMarkdown(children) : ''
+    content =
+      children && children.length > 0 ? childrenToMarkdown(children) : ''
   }
 
   if (!content) {

@@ -119,7 +119,6 @@ describe('parseMdxToBlocks', () => {
     expect(blocks.length).toBeGreaterThanOrEqual(2)
     expect(blocks.every((b) => b.__component === 'blocks.paragraph')).toBe(true)
   })
-
 })
 
 // ---------------------------------------------------------------------------
