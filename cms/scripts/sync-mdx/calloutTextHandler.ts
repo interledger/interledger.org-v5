@@ -7,10 +7,8 @@
  * Maps to Strapi blocks.callout-text with `content` from children.
  */
 
-import { toMarkdown } from 'mdast-util-to-markdown'
-import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
-import type { Root } from 'mdast'
 import type { ParsedBlock, CalloutTextBlock } from './types.blocks'
+import { childrenToMarkdown } from './mdastSerialize'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -23,14 +21,7 @@ async function handleCalloutText(
   _ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const content =
-    node.children.length > 0
-      ? // mdxJsxToMarkdown is required because remark-mdx parses HTML tags
-        // (e.g. <em>, <strong>) as mdxJsxTextElement nodes, which the base
-        // toMarkdown serializer does not understand.
-        toMarkdown({ type: 'root', children: node.children } as Root, {
-          extensions: [mdxJsxToMarkdown()]
-        }).trim()
-      : ''
+    node.children.length > 0 ? childrenToMarkdown(node.children) : ''
 
   if (!content) {
     throw new MdxParserError({

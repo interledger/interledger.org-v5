@@ -8,10 +8,8 @@
  * Maps to Strapi blocks.paragraph.
  */
 
-import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
-import { toMarkdown } from 'mdast-util-to-markdown'
-import type { Root } from 'mdast'
 import type { ParsedBlock, ParagraphBlock } from './types.blocks'
+import { childrenToMarkdown } from './mdastSerialize'
 import { getStringAttr } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -33,16 +31,7 @@ async function handleParagraph(
   } else {
     // Otherwise extract from children: <Paragraph>...children...</Paragraph>
     const children = node.children
-    content =
-      children && children.length > 0
-        ? // mdxJsxToMarkdown is required because remark-mdx parses HTML tags
-          // (e.g. <em>, <strong>) as mdxJsxTextElement nodes, which the base
-          // toMarkdown serializer does not understand.
-          toMarkdown({ type: 'root', children } as Root, {
-            extensions: [mdxJsxToMarkdown()],
-            bullet: '-'
-          }).trim()
-        : ''
+    content = children && children.length > 0 ? childrenToMarkdown(children) : ''
   }
 
   if (!content) {
