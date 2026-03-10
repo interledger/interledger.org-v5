@@ -11,13 +11,3 @@ export const switcherLocales = [
   defaultLocale,
   ...locales.filter((locale) => locale !== defaultLocale)
 ] as [Locale, ...Locale[]]
-
-export function getLangFromUrl(url: URL) {
-  const [, lang] = url.pathname.split('/')
-
-  if (locales.includes(lang)) {
-    return lang
-  }
-
-  return defaultLocale
-}

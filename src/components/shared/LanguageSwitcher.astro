@@ -1,13 +1,13 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n'
-import { getLangFromUrl, switcherLocales, type Locale } from '../../utils/i18'
+import { switcherLocales, type Locale } from '../../utils/i18'
 interface Props {
   url: URL
   languageHrefs?: Partial<Record<Locale, string>>
 }
 
 const { url, languageHrefs } = Astro.props as Props
-const currentLang = getLangFromUrl(url)
+const currentLang = Astro.currentLocale
 ---
 
 <ul class="flex items-center p-0 list-none">
