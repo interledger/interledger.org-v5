@@ -16,10 +16,6 @@ import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { hasMdxFile } from './localeMatch'
 
-function getEntryIdentifier(entry: StrapiEntry): string | undefined {
-  return entry.pathSlug
-}
-
 /** Sync a single English entry (create or update). Returns the entry if successful. */
 export async function syncEnglishEntry(
   _contentType: keyof ContentTypes,
@@ -161,14 +157,12 @@ export async function syncUnmatchedLocales(
     const localeLocalizes = localeMdx.localizes
 
     const matchedEnglishEntry = localeLocalizes
-      ? allStrapiEntries.find(
-          (entry) => getEntryIdentifier(entry) === localeLocalizes
-        )
+      ? allStrapiEntries.find((entry) => entry.pathSlug === localeLocalizes)
       : undefined
 
     if (matchedEnglishEntry) {
       console.log(
-        `   ✅ Found match in Strapi: ${localeMdx.pathSlug} (${localeCode}) -> ${getEntryIdentifier(matchedEnglishEntry)} (via localizes)`
+        `   Found match in Strapi: ${localeMdx.pathSlug} (${localeCode}) -> ${matchedEnglishEntry.pathSlug} (via localizes)`
       )
       matchedPathSlugs.add(`${localeCode}:${localeMdx.pathSlug}`)
 
@@ -228,14 +222,12 @@ export async function deleteOrphanedEntries(
       const entryLocale = entry.locale || locale
 
       // Skip if this entry has a corresponding MDX file
-      const entryIdentifier = getEntryIdentifier(entry)
-      if (!entryIdentifier) continue
-      if (hasMdxFile(mdxSlugsByLocale, entryLocale, entryIdentifier)) continue
+      if (hasMdxFile(mdxSlugsByLocale, entryLocale, entry.pathSlug)) continue
 
       try {
         if (dryRun) {
           console.log(
-            `   🗑️  [DRY-RUN] Would delete: ${entryIdentifier} (${entryLocale})`
+            `   🗑️  [DRY-RUN] Would delete: ${entry.pathSlug} (${entryLocale})`
           )
         } else {
           await ctx.strapi.deleteLocalization(
@@ -243,12 +235,12 @@ export async function deleteOrphanedEntries(
             entry.documentId,
             entryLocale
           )
-          console.log(`   🗑️  Deleted: ${entryIdentifier} (${entryLocale})`)
+          console.log(`   🗑️  Deleted: ${entry.pathSlug} (${entryLocale})`)
         }
         results.deleted++
       } catch (error) {
         console.error(
-          `   ❌ Error deleting ${entryIdentifier} (${entryLocale}): ${(error as Error).message}`
+          `   ❌ Error deleting ${entry.pathSlug} (${entryLocale}): ${(error as Error).message}`
         )
         results.errors++
       }
