@@ -42,7 +42,7 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 | `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
 | `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                   |
 | `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
-| `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages`                                                                             |
+| `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages` for English pages, with localizations written under `src/content/foundation-pages/{locale}/` |
 | `PAGES_MDX_OUTPUT_PATH`     | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)                                                                                                                                     |
 | `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
 | `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
@@ -106,7 +106,7 @@ When content is published or updated in Strapi:
 
 1. Lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered automatically
 2. The content is converted to MDX format with frontmatter
-3. An MDX file is created/updated in the staging clone of Astro with the slug as the filename (e.g., `../src/content/foundation-pages/{slug}.mdx`)
+3. An MDX file is created/updated in the staging clone of Astro with the slug as the filename (e.g., `../src/content/foundation-pages/{slug}.mdx` for English or `../src/content/foundation-pages/{locale}/{slug}.mdx` for localizations)
 4. Astro automatically picks up the new content
 
 **File Naming**
@@ -135,6 +135,7 @@ When content is published or updated in Strapi:
   - `src/content/foundation-pages`
   - `src/content/summit-pages`
   - `src/content/foundation-blog-posts`
+  - localized files under each content-type directory, e.g. `src/content/foundation-pages/es`
 - Creates, updates, and deletes Strapi entries to match the MDX file system
 - Supports localized content matching
 - Supports `dry-run` mode to preview changes
@@ -196,10 +197,10 @@ The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX fi
 
 **Content Type Mappings**
 
-- `src/content/foundation-pages/*.mdx` → `foundation-pages` (API ID)
-- `src/content/summit-pages/*.mdx` → `summit-pages` (API ID)
-- `src/content/ambassadors/*.mdx` → `ambassadors` (API ID)
-- `src/content/foundation-blog-posts/*mdx` → `foundation-blog-posts` (API ID)
+- `src/content/foundation-pages/**/*.mdx` → `foundation-pages` (API ID)
+- `src/content/summit-pages/**/*.mdx` → `summit-pages` (API ID)
+- `src/content/ambassadors/**/*.mdx` → `ambassadors` (API ID)
+- `src/content/foundation-blog-posts/**/*.{md,mdx}` → `foundation-blog-posts` (API ID)
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
 

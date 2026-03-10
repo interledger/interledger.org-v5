@@ -56,11 +56,11 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 ├── src/                       # Main Astro site
 │   ├── pages/                 # Route pages (catch-all in [...page].astro)
 │   ├── content/               # MDX content organized by section
-│   │   ├── blog/              # Blog posts (developers section)
-│   │   ├── developers/        # Developer documentation
+│   │   ├── foundation-blog-posts/ # Foundation blog posts (+ optional locale subdirs)
+│   │   ├── developers-blog-posts/ # Developer blog posts (+ optional locale subdirs)
 │   │   ├── docs/              # Specification documents
-│   │   ├── foundation-pages/  # Pages managed by Strapi CMS
-│   │   └── summit/            # Summit-specific content
+│   │   ├── foundation-pages/  # Pages managed by Strapi CMS (+ optional locale subdirs)
+│   │   └── summit-pages/      # Summit-specific content (+ optional locale subdirs)
 │   ├── layouts/               # Astro layout components
 │   ├── components/            # Reusable Astro components
 │   │   ├── blocks/            # Content blocks
@@ -151,7 +151,7 @@ pnpm run build    # Production build
 - Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
 - Automatically restarts the `strapi.service` after rebuild
 
-Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
+Content published in the CMS automatically generates MDX files in collection directories such as `src/content/foundation-pages/`, with localizations nested under the type directory (for example `src/content/foundation-pages/es/`). MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
 
 For pages and blog posts, lifecycle hooks may trigger git synchronization for preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
 
