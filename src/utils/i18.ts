@@ -7,6 +7,7 @@ export const locales = localeCodes as [string, ...string[]]
 export type Locale = (typeof locales)[number]
 export const localeSchema = z.enum(locales as [Locale, ...Locale[]])
 export const defaultLocale = i18n!.defaultLocale as Locale
+// Forces defaultLocale to display first for the LanguageSwitcher
 export const switcherLocales = [
   defaultLocale,
   ...locales.filter((locale) => locale !== defaultLocale)
