@@ -155,14 +155,14 @@ jobs:
 
           cd /home/strapi/interledger.org-v5-playground/cms
           # Stop the service while we rebuild
-          sudo systemctl stop strapi.service
+          sudo systemctl stop strapi-playground.service
           # Install dependencies in case there are new ones from the merged PRs
           pnpm install
           # Rebuild with more memory to avoid OOM errors during build
           NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
-          sudo systemctl start strapi.service
+          sudo systemctl start strapi-playground.service
           sleep 5
-          sudo systemctl status strapi.service
+          sudo systemctl status strapi-playground.service
 
   sync-mdx-to-strapi:
     needs: [check-pr-merge, rebuild-strapi]
