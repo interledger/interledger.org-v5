@@ -24,7 +24,6 @@ declare const strapi: {
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { PATHS } from './paths'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
@@ -89,25 +88,19 @@ export interface PageLifecycleConfig {
   contentTypeUid: string
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string
-  /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
-  localizedOutputDir: string
   /** Return extra frontmatter fields for content-type-specific data */
   extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
   const projectRoot = getTargetRepoRoot()
+  const baseOutputDir = path.join(projectRoot, config.outputDir)
 
   if (locale === 'en') {
-    return path.join(projectRoot, config.outputDir)
+    return baseOutputDir
   }
 
-  return path.join(
-    projectRoot,
-    PATHS.CONTENT_ROOT,
-    locale,
-    config.localizedOutputDir
-  )
+  return path.join(baseOutputDir, locale)
 }
 
 function generateMDX(

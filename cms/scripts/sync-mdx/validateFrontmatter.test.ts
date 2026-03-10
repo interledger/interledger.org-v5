@@ -204,7 +204,7 @@ describe('validateMdxFiles', () => {
         frontmatter: { title: 'English Page' }
       }),
       createMdxFile({
-        filepath: '/content/es/page.mdx',
+        filepath: '/content/foundation-pages/es/page.mdx',
         pathSlug: 'pagina',
         locale: 'es'
       }),
