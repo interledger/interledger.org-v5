@@ -1,0 +1,30 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import { getLangFromUrl, switcherLocales, type Locale } from '../../utils/i18'
+interface Props {
+  url: URL
+  languageHrefs?: Partial<Record<Locale, string>>
+}
+
+const { url, languageHrefs } = Astro.props as Props
+const currentLang = getLangFromUrl(url)
+---
+
+<ul class="flex items-center p-0 list-none">
+  {
+    switcherLocales.map((locale) => {
+      const href = languageHrefs?.[locale] || getRelativeLocaleUrl(locale, url)
+      return (
+        <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
+          <a
+            href={href}
+            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+            data-active={currentLang === locale ? 'true' : 'false'}
+          >
+            {locale.toUpperCase()}
+          </a>
+        </li>
+      )
+    })
+  }
+</ul>

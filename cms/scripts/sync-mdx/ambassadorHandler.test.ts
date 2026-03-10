@@ -7,20 +7,20 @@ import type { StrapiClient } from './strapiClient'
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Create a minimal mock StrapiClient with a controllable findBySlug. */
+/** Create a minimal mock StrapiClient with a controllable findByPathSlug. */
 function createMockStrapi(
   entries: Record<string, { documentId: string; locale: string }>
 ): StrapiClient {
   return {
-    findBySlug: vi.fn(
+    findByPathSlug: vi.fn(
       async (
         _apiId: string,
-        slug: string,
+        pathSlug: string,
         locale?: string
-      ): Promise<{ documentId: string; slug: string } | undefined> => {
-        const key = `${locale}:${slug}`
+      ): Promise<{ documentId: string; pathSlug: string } | undefined> => {
+        const key = `${locale}:${pathSlug}`
         const entry = entries[key]
-        return entry ? { documentId: entry.documentId, slug } : undefined
+        return entry ? { documentId: entry.documentId, pathSlug } : undefined
       }
     ),
     // Unused methods — stub to satisfy the interface
@@ -48,7 +48,7 @@ describe('createRelationResolver', () => {
     createRelationResolver = mod.createRelationResolver
   })
 
-  it('resolves slug in the target locale', async () => {
+  it('resolves pathSlug in the target locale', async () => {
     const strapi = createMockStrapi({
       'es:alice': { documentId: 'doc-es-alice', locale: 'es' }
     })
@@ -57,7 +57,11 @@ describe('createRelationResolver', () => {
     const result = await resolve('ambassadors', 'alice')
 
     expect(result).toEqual({ documentId: 'doc-es-alice' })
-    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'es')
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'ambassadors',
+      'alice',
+      'es'
+    )
   })
 
   it('falls back to en when not found in target locale', async () => {
@@ -69,8 +73,16 @@ describe('createRelationResolver', () => {
     const result = await resolve('ambassadors', 'alice')
 
     expect(result).toEqual({ documentId: 'doc-en-alice' })
-    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'es')
-    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'en')
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'ambassadors',
+      'alice',
+      'es'
+    )
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'ambassadors',
+      'alice',
+      'en'
+    )
   })
 
   it('throws UNRESOLVED_RELATION when not found in any locale', async () => {
@@ -93,7 +105,7 @@ describe('createRelationResolver', () => {
       MdxParserError
     )
     // Should only call once (no fallback to same locale)
-    expect(strapi.findBySlug).toHaveBeenCalledTimes(1)
+    expect(strapi.findByPathSlug).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -101,7 +113,7 @@ describe('createRelationResolver', () => {
 // Helpers for handler tests
 // ---------------------------------------------------------------------------
 
-/** Mock resolver that returns a predictable documentId from the slug. */
+/** Mock resolver that returns a predictable documentId from the pathSlug. */
 function mockResolver(
   knownSlugs: Record<string, string> = {}
 ): (apiId: string, slug: string) => Promise<{ documentId: string }> {
@@ -129,9 +141,9 @@ function ctxWith(slugs: Record<string, string>, locale = 'en'): ParserContext {
 import './ambassadorHandler'
 
 describe('Ambassador handler', () => {
-  it('parses <Ambassador slug="alice" /> into AmbassadorBlock', async () => {
+  it('parses <Ambassador pathSlug="alice" /> into AmbassadorBlock', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" />',
+      '<Ambassador pathSlug="alice" />',
       ctxWith({ alice: 'doc-alice' })
     )
 
@@ -145,7 +157,7 @@ describe('Ambassador handler', () => {
 
   it('parses showLinks={false}', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" showLinks={false} />',
+      '<Ambassador pathSlug="alice" showLinks={false} />',
       ctxWith({ alice: 'doc-alice' })
     )
 
@@ -154,7 +166,7 @@ describe('Ambassador handler', () => {
 
   it('parses showLinks={true}', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" showLinks={true} />',
+      '<Ambassador pathSlug="alice" showLinks={true} />',
       ctxWith({ alice: 'doc-alice' })
     )
 
@@ -163,7 +175,7 @@ describe('Ambassador handler', () => {
 
   it('parses valueless showLinks as true', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" showLinks />',
+      '<Ambassador pathSlug="alice" showLinks />',
       ctxWith({ alice: 'doc-alice' })
     )
 
@@ -172,14 +184,14 @@ describe('Ambassador handler', () => {
 
   it('omits showLinks when not specified', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" />',
+      '<Ambassador pathSlug="alice" />',
       ctxWith({ alice: 'doc-alice' })
     )
 
     expect(blocks[0]).not.toHaveProperty('showLinks')
   })
 
-  it('throws MISSING_REQUIRED_PROP when slug is missing', async () => {
+  it('throws MISSING_REQUIRED_PROP when pathSlug is missing', async () => {
     await expect(
       parseMdxToBlocks('<Ambassador />', ctxWith({}))
     ).rejects.toMatchObject({
@@ -193,9 +205,9 @@ describe('Ambassador handler', () => {
 // ---------------------------------------------------------------------------
 
 describe('AmbassadorGrid handler', () => {
-  it('parses <AmbassadorGrid> with heading and slugs', async () => {
+  it('parses <AmbassadorGrid> with heading and pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<AmbassadorGrid heading="Our Team" slugs={["alice","bob"]} />',
+      '<AmbassadorGrid heading="Our Team" pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' })
     )
 
@@ -210,9 +222,9 @@ describe('AmbassadorGrid handler', () => {
     ])
   })
 
-  it('preserves slug order in resolved ambassadors', async () => {
+  it('preserves pathSlug order in resolved ambassadors', async () => {
     const blocks = await parseMdxToBlocks(
-      '<AmbassadorGrid slugs={["bob","alice"]} />',
+      '<AmbassadorGrid pathSlugs={["bob","alice"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' })
     )
 
@@ -225,14 +237,14 @@ describe('AmbassadorGrid handler', () => {
 
   it('heading is optional', async () => {
     const blocks = await parseMdxToBlocks(
-      '<AmbassadorGrid slugs={["alice"]} />',
+      '<AmbassadorGrid pathSlugs={["alice"]} />',
       ctxWith({ alice: 'doc-alice' })
     )
 
     expect(blocks[0]).not.toHaveProperty('heading')
   })
 
-  it('throws MISSING_REQUIRED_PROP when slugs is missing', async () => {
+  it('throws MISSING_REQUIRED_PROP when pathSlugs is missing', async () => {
     await expect(
       parseMdxToBlocks('<AmbassadorGrid heading="Team" />', ctxWith({}))
     ).rejects.toMatchObject({
@@ -243,7 +255,7 @@ describe('AmbassadorGrid handler', () => {
   it('throws UNRESOLVED_RELATION when any slug is unresolved', async () => {
     await expect(
       parseMdxToBlocks(
-        '<AmbassadorGrid slugs={["alice","ghost"]} />',
+        '<AmbassadorGrid pathSlugs={["alice","ghost"]} />',
         ctxWith({ alice: 'doc-alice' })
       )
     ).rejects.toMatchObject({
@@ -257,9 +269,9 @@ describe('AmbassadorGrid handler', () => {
 // ---------------------------------------------------------------------------
 
 describe('Ambassador handler (locale import)', () => {
-  it('resolves Ambassador slug in es locale via resolveRelation', async () => {
+  it('resolves Ambassador pathSlug in es locale via resolveRelation', async () => {
     const blocks = await parseMdxToBlocks(
-      '<Ambassador slug="alice" />',
+      '<Ambassador pathSlug="alice" />',
       ctxWith({ alice: 'doc-alice' }, 'es')
     )
 
@@ -271,9 +283,9 @@ describe('Ambassador handler (locale import)', () => {
     ])
   })
 
-  it('resolves AmbassadorGrid slugs in es locale', async () => {
+  it('resolves AmbassadorGrid pathSlugs in es locale', async () => {
     const blocks = await parseMdxToBlocks(
-      '<AmbassadorGrid heading="Equipo" slugs={["alice","bob"]} />',
+      '<AmbassadorGrid heading="Equipo" pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' }, 'es')
     )
 
@@ -294,7 +306,10 @@ describe('Ambassador handler (locale import)', () => {
     const resolve = createRelationResolver(strapi, 'es')
     const esCtx: ParserContext = { locale: 'es', resolveRelation: resolve }
 
-    const blocks = await parseMdxToBlocks('<Ambassador slug="alice" />', esCtx)
+    const blocks = await parseMdxToBlocks(
+      '<Ambassador pathSlug="alice" />',
+      esCtx
+    )
 
     expect(blocks).toEqual([
       {
@@ -303,8 +318,16 @@ describe('Ambassador handler (locale import)', () => {
       }
     ])
     // Tried es first, then fell back to en
-    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'es')
-    expect(strapi.findBySlug).toHaveBeenCalledWith('ambassadors', 'alice', 'en')
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'ambassadors',
+      'alice',
+      'es'
+    )
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'ambassadors',
+      'alice',
+      'en'
+    )
   })
 })
 
@@ -317,7 +340,7 @@ describe('mixed markdown and JSX content', () => {
     const mdx = [
       'Here are our ambassadors:',
       '',
-      '<Ambassador slug="alice" />',
+      '<Ambassador pathSlug="alice" />',
       '',
       'More text below.'
     ].join('\n')

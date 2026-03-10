@@ -24,7 +24,7 @@ const { heading, ambassadors: strapiAmbassadors = [] } = Astro.props
 const ambassadors: AmbassadorData[] = await Promise.all(
   strapiAmbassadors.map(async (amb) => ({
     name: amb.name,
-    slug: amb.slug,
+    pathSlug: amb.pathSlug,
     description: await parseMarkdown(amb.description),
     photo: amb.photo?.url || null,
     photoAlt: amb.name,

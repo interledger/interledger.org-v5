@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { localeSchema } from '../utils/i18'
 
 const foundationTags = [
   'Announcements',
@@ -24,8 +25,8 @@ export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
   date: z.date(),
-  slug: z.string(),
-  locale: z.string().optional(),
+  pathSlug: z.string(),
+  locale: localeSchema,
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
   tags: z.array(z.enum(developersTags)),
@@ -47,7 +48,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   pillar: z.enum(['vision', 'mission', 'tech', 'values']),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
@@ -56,7 +57,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   articleBios: z.array(ArticleBioSchema).optional().default([]),
   tags: z.array(z.enum(foundationTags)).default([]),
   localizes: z.string().optional(),
-  locale: z.string().optional()
+  locale: localeSchema
 })
 
 export type FoundationBlogFrontmatterType = z.infer<
@@ -65,7 +66,7 @@ export type FoundationBlogFrontmatterType = z.infer<
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
@@ -87,12 +88,12 @@ export const foundationPageFrontmatterSchema = z.object({
     )
     .optional(),
   localizes: z.string().optional(),
-  locale: z.string().optional()
+  locale: localeSchema
 })
 
 export const summitPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
@@ -114,11 +115,11 @@ export const summitPageFrontmatterSchema = z.object({
     )
     .optional(),
   localizes: z.string().optional(),
-  locale: z.string().optional()
+  locale: localeSchema
 })
 
 export const ambassadorFrontmatterSchema = z.object({
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   name: z.string().min(1, 'name is required'),
   description: z.string().min(1, 'description is required'),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
@@ -126,7 +127,7 @@ export const ambassadorFrontmatterSchema = z.object({
   photoAlt: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
   grantReportUrl: z.string().nullable().optional(),
-  locale: z.string().optional(),
+  locale: localeSchema,
   localizes: z.string().optional()
 })
 

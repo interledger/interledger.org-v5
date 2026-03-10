@@ -1,6 +1,8 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
+import LanguageSwitcher from '../shared/LanguageSwitcher.astro'
+import type { Locale } from '../../utils/i18'
 
 interface MenuItem {
   label: string
@@ -14,15 +16,19 @@ interface MenuGroup {
   items?: MenuItem[]
 }
 
+interface Props {
+  languageHrefs?: Partial<Record<Locale, string>>
+}
+
+const { languageHrefs } = Astro.props as Props
+
 const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
 
 // Determine current language from URL path
-const currentPath = Astro.url.pathname
-const isSpanish = currentPath.startsWith('/es')
-const currentLang = isSpanish ? 'es' : 'en-gb'
+const currentUrl = Astro.url
 ---
 
 <header
@@ -110,42 +116,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
           </a>
         )
       }
-      <ul class="flex items-center p-0 list-none">
-        <li
-          hreflang="en-gb"
-          data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-          aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-        >
-          <a
-            href="/"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-            hreflang="en-gb"
-            data-drupal-link-system-path="<front>"
-            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-            data-active={currentLang === 'en-gb' ? 'true' : 'false'}
-          >
-            EN
-          </a>
-        </li>
-        <li
-          hreflang="es"
-          data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-          aria-current={currentLang === 'es' ? 'page' : undefined}
-        >
-          <a
-            href="/es"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-            hreflang="es"
-            data-drupal-link-system-path="<front>"
-            aria-current={currentLang === 'es' ? 'page' : undefined}
-            data-active={currentLang === 'es' ? 'true' : 'false'}
-          >
-            ES
-          </a>
-        </li>
-      </ul>
+      <LanguageSwitcher url={currentUrl} languageHrefs={languageHrefs} />
     </div>
     <button
       type="button"

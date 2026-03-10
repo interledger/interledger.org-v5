@@ -4,16 +4,21 @@ import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import { getPagePaths } from '@/utils/static-paths'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
+import type { Locale } from '../../utils/i18'
+
+const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
-  return getPagePaths('summit-pages')
+  return getPagePaths('summit-pages', 'en')
 }
 
 const slugParam = Astro.params.page
 const slug = Array.isArray(slugParam) ? slugParam.join('/') : (slugParam ?? '')
 
 const pages = await getCollection('summit-pages')
-const mdxPage = pages.find((page) => page.data.slug === slug)
+const mdxPage = pages.find(
+  (page) => page.data.pathSlug === slug && page.data.locale === pageLang
+)
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null
 

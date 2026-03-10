@@ -153,7 +153,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       date: 'Publish Date',
       pillar: 'Pillar',
       featureImage: 'Feature Image',
@@ -168,7 +168,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Title',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       path: 'Route Path (e.g. /grant/ambassadors)',
       pageType: 'Page Type (Grant, Policy, Developer)',
       seo: 'SEO',
@@ -180,7 +180,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       path: 'Route Path',
       pageType: 'Page Type (Hackathon, Hackathon Resource)',
       seo: 'SEO',

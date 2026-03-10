@@ -490,6 +490,13 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255
       }>
+    pathSlug: Schema.Attribute.UID<'name'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     photo: Schema.Attribute.Media<'images'> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -498,13 +505,6 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'name'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -583,6 +583,13 @@ export interface ApiFoundationBlogPostFoundationBlogPost
       'oneToMany',
       'api::foundation-blog-post.foundation-blog-post'
     >
+    pathSlug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     pillar: Schema.Attribute.Enumeration<
       ['vision', 'mission', 'tech', 'values']
     > &
@@ -593,13 +600,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     tags: Schema.Attribute.Component<'shared.tags', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -722,15 +722,15 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
-    publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
+    pathSlug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
+    publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -841,15 +841,15 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
-    publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
+    pathSlug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
+    publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

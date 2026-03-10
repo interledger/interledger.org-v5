@@ -7,7 +7,7 @@
 export interface MDXFile {
   file: string
   filepath: string
-  slug: string
+  pathSlug: string
   locale: string
   frontmatter: Record<string, unknown>
   content: string

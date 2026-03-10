@@ -6,7 +6,7 @@ import { createMdxFile } from './test-utils'
 
 const pageSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'slug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
@@ -36,7 +36,7 @@ describe('validateFrontmatter', () => {
   it('returns null for valid foundation-pages frontmatter', () => {
     const mdx = createMdxFile({
       filepath: '/content/about.mdx',
-      slug: 'about-us',
+      pathSlug: 'about-us',
       frontmatter: { title: 'About Us' }
     })
 
@@ -48,7 +48,7 @@ describe('validateFrontmatter', () => {
   it('returns null for valid summit-pages frontmatter', () => {
     const mdx = createMdxFile({
       filepath: '/content/schedule.mdx',
-      slug: 'schedule',
+      pathSlug: 'schedule',
       frontmatter: { title: 'Schedule' }
     })
 
@@ -60,7 +60,7 @@ describe('validateFrontmatter', () => {
   it('returns error with filepath when title is missing', () => {
     const mdx = createMdxFile({
       filepath: '/content/invalid.mdx',
-      slug: 'invalid'
+      pathSlug: 'invalid'
     })
 
     const result = validateFrontmatter(foundationConfig, mdx)
@@ -70,12 +70,12 @@ describe('validateFrontmatter', () => {
   })
 
   it('returns error with slug from mdx file', () => {
-    const mdx = createMdxFile({ slug: 'test-slug' })
+    const mdx = createMdxFile({ pathSlug: 'test-slug' })
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
     expect(result).not.toBeNull()
-    expect(result!.slug).toBe('test-slug')
+    expect(result!.pathSlug).toBe('test-slug')
   })
 
   it('returns error with locale from mdx file', () => {
@@ -114,7 +114,7 @@ describe('validateFrontmatter', () => {
   // Slug comes from MDX file metadata, not frontmatter, but we still validate it
   it('returns error when slug is empty in mdx file', () => {
     const mdx = createMdxFile({
-      slug: '',
+      pathSlug: '',
       frontmatter: { title: 'Valid Title' }
     })
 
@@ -134,12 +134,12 @@ describe('validateMdxFiles', () => {
     const files = [
       createMdxFile({
         filepath: '/content/good.mdx',
-        slug: 'good',
+        pathSlug: 'good',
         frontmatter: { title: 'Good' }
       }),
       createMdxFile({
         filepath: '/content/bad.mdx',
-        slug: 'bad'
+        pathSlug: 'bad'
       })
     ]
 
@@ -153,12 +153,12 @@ describe('validateMdxFiles', () => {
     const files = [
       createMdxFile({
         filepath: '/content/page1.mdx',
-        slug: 'page1',
+        pathSlug: 'page1',
         frontmatter: { title: 'Page 1' }
       }),
       createMdxFile({
         filepath: '/content/page2.mdx',
-        slug: 'page2',
+        pathSlug: 'page2',
         frontmatter: { title: 'Page 2' }
       })
     ]
@@ -166,8 +166,8 @@ describe('validateMdxFiles', () => {
     const { valid, invalid } = validateMdxFiles(foundationConfig, files)
 
     expect(valid).toHaveLength(2)
-    expect(valid[0].slug).toBe('page1')
-    expect(valid[1].slug).toBe('page2')
+    expect(valid[0].pathSlug).toBe('page1')
+    expect(valid[1].pathSlug).toBe('page2')
     expect(invalid).toHaveLength(0)
   })
 
@@ -175,7 +175,7 @@ describe('validateMdxFiles', () => {
     const files = [
       createMdxFile({
         filepath: '/content/missing-title.mdx',
-        slug: 'missing-title'
+        pathSlug: 'missing-title'
       })
     ]
 
@@ -183,7 +183,7 @@ describe('validateMdxFiles', () => {
 
     expect(valid).toHaveLength(0)
     expect(invalid).toHaveLength(1)
-    expect(invalid[0].slug).toBe('missing-title')
+    expect(invalid[0].pathSlug).toBe('missing-title')
     expect(invalid[0].errors.length).toBeGreaterThan(0)
   })
 
@@ -200,17 +200,17 @@ describe('validateMdxFiles', () => {
     const files = [
       createMdxFile({
         filepath: '/content/en/page.mdx',
-        slug: 'page',
+        pathSlug: 'page',
         frontmatter: { title: 'English Page' }
       }),
       createMdxFile({
         filepath: '/content/es/page.mdx',
-        slug: 'pagina',
+        pathSlug: 'pagina',
         locale: 'es'
       }),
       createMdxFile({
         filepath: '/content/de/page.mdx',
-        slug: 'seite',
+        pathSlug: 'seite',
         locale: 'de',
         frontmatter: { title: 'Deutsche Seite' }
       })

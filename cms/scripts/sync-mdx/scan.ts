@@ -61,13 +61,13 @@ function scanDirectory({
     const { data: frontmatter, content } = matter(fileContent)
     const trimmedContent = content.trim()
 
-    // Extract slug: prefer frontmatter, otherwise derive from filename
-    let slug: string
-    if (frontmatter.slug && typeof frontmatter.slug === 'string') {
-      slug = frontmatter.slug
+    // Extract pathSlug: prefer frontmatter.pathSlug, otherwise derive from filename
+    let pathSlug: string
+    if (frontmatter.pathSlug && typeof frontmatter.pathSlug === 'string') {
+      pathSlug = frontmatter.pathSlug
     } else {
       // Remove .mdx extension and date prefix (e.g., "2025-01-15-") if present
-      slug = filename
+      pathSlug = filename
         .replace(/\.(mdx|md)$/, '')
         .replace(/^\d{4}-\d{2}-\d{2}-/, '')
     }
@@ -81,7 +81,7 @@ function scanDirectory({
     mdxFiles.push({
       file: filename,
       filepath,
-      slug,
+      pathSlug,
       locale: fileLocale,
       frontmatter,
       content: trimmedContent,

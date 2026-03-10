@@ -126,8 +126,8 @@ function unwrapTextElement(
  * @example
  * ```ts
  * // Given MDX body:
- * //   <Ambassador slug="caroline-sinders" showLinks={false} />
- * //   <AmbassadorGrid heading="Our Team" slugs={["alice","bob"]} />
+ * //   <Ambassador pathSlug="caroline-sinders" showLinks={false} />
+ * //   <AmbassadorGrid heading="Our Team" pathSlugs={["alice","bob"]} />
  * //
  * // Returns (once handlers are registered):
  * // [
