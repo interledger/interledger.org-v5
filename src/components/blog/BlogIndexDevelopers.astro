@@ -1,0 +1,78 @@
+---
+import { createExcerpt } from '@/utils/create-excerpt'
+import type { CollectionEntry } from 'astro:content'
+import TagFilter from './TagFilter.astro'
+import BlogIndexHeader from './BlogIndexHeader.astro'
+
+interface Props {
+  posts: CollectionEntry<'developers-blog'>[]
+  allTags?: string[]
+  selectedTag?: string
+  showTagFilter?: boolean
+}
+const { posts, allTags = [], selectedTag } = Astro.props
+const path = '/developers/blog'
+---
+
+<BlogIndexHeader
+  title="Engineering Blog"
+  href="/blog"
+  message="Check out Foundation updates"
+  imgHref="/img/ernie-purple.svg"
+  imgAlt="Ernie holding an envelope"
+/>
+
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+
+<ol class="list-none p-0">
+  {
+    posts.map((blogPostEntry) => {
+      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      return (
+        <li class="mb-space-2xs">
+          <div class="flex flex-col flex-1">
+            <time
+              class="block text-step--1"
+              datetime={blogPostEntry.data.date.toISOString()}
+            >
+              {blogPostEntry.data.date.toDateString()}
+            </time>
+            {blogPostEntry.data.locale === 'es' ? (
+              <div class="flex items-start gap-space-2xs">
+                <h2 class="text-step-1">
+                  <a
+                    href={`${path}/${blogPostEntry.id}`}
+                    class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                  >
+                    {blogPostEntry.data.title}
+                  </a>
+                </h2>
+                <a
+                  class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
+                  href={`${path}/es`}
+                >
+                  ES
+                </a>
+              </div>
+            ) : (
+              <h2 class="text-step-1">
+                <a
+                  href={`${path}/${blogPostEntry.id}`}
+                  class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                >
+                  {blogPostEntry.data.title}
+                </a>
+              </h2>
+            )}
+
+            <p class="mb-space-2xs grow">
+              {blogPostEntry.data.description
+                ? blogPostEntry.data.description
+                : excerpt}
+            </p>
+          </div>
+        </li>
+      )
+    })
+  }
+</ol>

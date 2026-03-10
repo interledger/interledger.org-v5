@@ -1,0 +1,44 @@
+---
+interface BreadcrumbItem {
+  name: string
+  href: string
+  umamiEvent: string
+}
+interface Props {
+  breadcrumbs: BreadcrumbItem[]
+}
+
+const { breadcrumbs } = Astro.props
+---
+
+<ol
+  class="flex list-none ps-0 text-step--1 font-bold pt-space-l [&_a]:text-primary [&_a]:no-underline"
+  itemscope
+  itemtype="https://schema.org/BreadcrumbList"
+>
+  {
+    breadcrumbs.map((crumb, index) => (
+      <li
+        itemprop="itemListElement"
+        itemscope
+        itemtype="https://schema.org/ListItem"
+        class:list={[
+          {
+            "before:content-['>'] before:inline-flex before:ms-space-3xs":
+              index > 0
+          }
+        ]}
+      >
+        <a
+          itemprop="item"
+          href={crumb.href}
+          data-umami-event={crumb.umamiEvent}
+          data-umami-event="Devs blog breadcrumb - Dev Portal"
+        >
+          <span itemprop="name">{crumb.name}</span>
+        </a>
+        <meta itemprop="position" content={String(index + 1)} />
+      </li>
+    ))
+  }
+</ol>
