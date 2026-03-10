@@ -13,7 +13,7 @@ const currentLang = Astro.currentLocale
 <ul class="flex items-center p-0 list-none">
   {
     switcherLocales.map((locale) => {
-      const href = languageHrefs?.[locale] || getRelativeLocaleUrl(locale, url)
+      const href = languageHrefs?.[locale] || getRelativeLocaleUrl(locale, url.toString())
       return (
         <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
           <a
