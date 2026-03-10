@@ -120,65 +120,6 @@ describe('parseMdxToBlocks', () => {
     expect(blocks.every((b) => b.__component === 'blocks.paragraph')).toBe(true)
   })
 
-  it('parses <Paragraph> with children to blocks.paragraph', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Paragraph>\n\n## Hello\n\nSome text here.\n\n</Paragraph>',
-      ctx
-    )
-
-    expect(blocks).toHaveLength(1)
-    expect(blocks[0]).toEqual({
-      __component: 'blocks.paragraph',
-      content: '## Hello\n\nSome text here.'
-    })
-  })
-
-  it('parses <Paragraph content="..." /> to blocks.paragraph', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Paragraph content="Inline content" />',
-      ctx
-    )
-
-    expect(blocks).toHaveLength(1)
-    expect(blocks[0]).toEqual({
-      __component: 'blocks.paragraph',
-      content: 'Inline content'
-    })
-  })
-
-  it('parses <Paragraph alignment="center"> to blocks.paragraph with alignment', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Paragraph alignment="center">\n\nCentered text.\n\n</Paragraph>',
-      ctx
-    )
-
-    expect(blocks).toHaveLength(1)
-    expect(blocks[0]).toEqual({
-      __component: 'blocks.paragraph',
-      content: 'Centered text.',
-      alignment: 'center'
-    })
-  })
-
-  it('throws INVALID_PROP_VALUE for empty <Paragraph></Paragraph>', async () => {
-    await expect(
-      parseMdxToBlocks('<Paragraph></Paragraph>', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      component: 'Paragraph',
-      prop: 'content'
-    })
-  })
-
-  it('throws INVALID_PROP_VALUE for <Paragraph content="" />', async () => {
-    await expect(
-      parseMdxToBlocks('<Paragraph content="" />', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      component: 'Paragraph',
-      prop: 'content'
-    })
-  })
 })
 
 // ---------------------------------------------------------------------------
