@@ -17,7 +17,7 @@ interface MenuGroup {
 }
 
 interface Props {
-  languageHrefs?: Partial<Record<Locale, string>>
+  languageHrefs: Record<Locale, string>
 }
 
 const { languageHrefs } = Astro.props as Props
@@ -26,9 +26,6 @@ const { mainMenu, ctaButton } = summitNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
-
-// Determine current language from URL path
-const currentUrl = Astro.url
 
 const navWrapperClass =
   'xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full'
@@ -155,7 +152,7 @@ const ctaLinkClass = rightNavBase
       >
         Interledger Foundation
       </a>
-      <LanguageSwitcher url={currentUrl} languageHrefs={languageHrefs} />
+      <LanguageSwitcher languageHrefs={languageHrefs} />
     </div>
     <button
       type="button"

@@ -4,20 +4,36 @@ import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
-import { buildBlogPostLanguageHrefs } from '@/utils/blog-language-hrefs'
+import {
+  buildBlogPostLanguageHrefs,
+  stripLocaleFromEntryId
+} from '@/utils/blog-language-hrefs'
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection(
-    'foundation-blog',
-    ({ data }) => data.locale === 'en'
+  const blogEntries = await getCollection('foundation-blog')
+  const ids = Array.from(
+    new Set(blogEntries.map((entry) => stripLocaleFromEntryId(entry.id)))
   )
-  return blogEntries.map((entry) => ({
-    params: { id: entry.id },
-    props: { entry }
+
+  return ids.map((id) => ({
+    params: { id }
   }))
 }
 
-const { entry } = Astro.props
+const id = Astro.params.id
+if (!id) {
+  throw new Error('Missing foundation blog id.')
+}
+
+const blogEntries = await getCollection('foundation-blog')
+const entry =
+  blogEntries.find((candidate) => candidate.id === `es/${id}`) ??
+  blogEntries.find((candidate) => candidate.id === id)
+
+if (!entry) {
+  throw new Error(`Foundation blog entry "${id}" was not found.`)
+}
+
 const { Content } = await render(entry)
 const languageHrefs = buildBlogPostLanguageHrefs('/blog', entry.id)
 ---

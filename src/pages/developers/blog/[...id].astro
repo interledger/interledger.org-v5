@@ -2,9 +2,13 @@
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
+import { buildBlogPostLanguageHrefs } from '@/utils/blog-language-hrefs'
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('developers-blog')
+  const blogEntries = await getCollection(
+    'developers-blog',
+    ({ data }) => data.locale === 'en'
+  )
   return blogEntries.map((entry) => ({
     params: { id: entry.id },
     props: { entry }
@@ -13,9 +17,10 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props
 const { Content } = await render(entry)
+const languageHrefs = buildBlogPostLanguageHrefs('/developers/blog', entry.id)
 ---
 
-<DevelopersBlogLayout frontmatter={entry.data}>
+<DevelopersBlogLayout frontmatter={entry.data} languageHrefs={languageHrefs}>
   <Content />
   <CommunityLinksDevelopers />
 </DevelopersBlogLayout>

@@ -17,7 +17,7 @@ interface MenuGroup {
 }
 
 interface Props {
-  languageHrefs?: Partial<Record<Locale, string>>
+  languageHrefs: Record<Locale, string>
 }
 
 const { languageHrefs } = Astro.props as Props
@@ -26,9 +26,6 @@ const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
-
-// Determine current language from URL path
-const currentUrl = Astro.url
 ---
 
 <header
@@ -116,7 +113,7 @@ const currentUrl = Astro.url
           </a>
         )
       }
-      <LanguageSwitcher url={currentUrl} languageHrefs={languageHrefs} />
+      <LanguageSwitcher languageHrefs={languageHrefs} />
     </div>
     <button
       type="button"

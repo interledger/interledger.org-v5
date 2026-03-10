@@ -5,12 +5,14 @@
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import type { Locale } from '@/utils/i18'
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
+  languageHrefs: Record<Locale, string>
   canonicalURL?: string
 }
 
-const { frontmatter, canonicalURL } = Astro.props
+const { frontmatter, languageHrefs, canonicalURL } = Astro.props
 
 const site = Astro.site!
 const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
@@ -27,6 +29,7 @@ const longDate = dateObj.toDateString().substring(4)
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
+  languageHrefs={languageHrefs}
 >
   <main
     class="flex flex-col bg-white/70 pt-space-m pb-space-xl"

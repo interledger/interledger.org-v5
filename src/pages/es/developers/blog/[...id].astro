@@ -1,0 +1,42 @@
+---
+import { getCollection, render } from 'astro:content'
+import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
+import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
+import {
+  buildBlogPostLanguageHrefs,
+  stripLocaleFromEntryId
+} from '@/utils/blog-language-hrefs'
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('developers-blog')
+  const ids = Array.from(
+    new Set(blogEntries.map((entry) => stripLocaleFromEntryId(entry.id)))
+  )
+
+  return ids.map((id) => ({
+    params: { id }
+  }))
+}
+
+const id = Astro.params.id
+if (!id) {
+  throw new Error('Missing developers blog id.')
+}
+
+const blogEntries = await getCollection('developers-blog')
+const entry =
+  blogEntries.find((candidate) => candidate.id === `es/${id}`) ??
+  blogEntries.find((candidate) => candidate.id === id)
+
+if (!entry) {
+  throw new Error(`Developers blog entry "${id}" was not found.`)
+}
+
+const { Content } = await render(entry)
+const languageHrefs = buildBlogPostLanguageHrefs('/developers/blog', entry.id)
+---
+
+<DevelopersBlogLayout frontmatter={entry.data} languageHrefs={languageHrefs}>
+  <Content />
+  <CommunityLinksDevelopers />
+</DevelopersBlogLayout>

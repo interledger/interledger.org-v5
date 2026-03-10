@@ -1,18 +1,23 @@
 ---
 import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import {
+  stripLocaleFromEntryId,
+  buildBlogIndexLanguageHrefs
+} from '@/utils/blog-language-hrefs'
 import { createExcerpt } from '@/utils/create-excerpt'
 
-// Only return posts with `draft: true` in the frontmatter
 const esEntries = await getCollection('foundation-blog', ({ data }) => {
   return data.locale === 'es'
 })
+const languageHrefs = buildBlogIndexLanguageHrefs('/blog')
 ---
 
 <FoundationPageLayout
   title="Blog de Ingeniería"
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
+  languageHrefs={languageHrefs}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
@@ -81,7 +86,7 @@ const esEntries = await getCollection('foundation-blog', ({ data }) => {
                   {blogPostEntry.data.date.toDateString()}
                 </time>
                 <a
-                  href={`/blog/${blogPostEntry.id}`}
+                  href={`/es/blog/${stripLocaleFromEntryId(blogPostEntry.id)}`}
                   class="font-semibold text-primary no-underline underline-offset-4 decoration-transparent transition-[text-decoration-color,color] duration-300 hover:decoration-current"
                 >
                   {blogPostEntry.data.title}

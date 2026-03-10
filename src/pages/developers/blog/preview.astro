@@ -1,14 +1,17 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { buildBlogIndexLanguageHrefs } from '@/utils/blog-language-hrefs'
 
 // Developers blog is not in Strapi (phase 1). Content is rendered from MDX files.
 // Preview from Strapi is not available until developers-blog-posts is added to the CMS.
 export const prerender = false
+const languageHrefs = buildBlogIndexLanguageHrefs('/developers/blog')
 ---
 
 <FoundationPageLayout
   title="Preview not available"
   description="Developers blog content is rendered from MDX files in the repository. Strapi preview is not available for this content type."
+  languageHrefs={languageHrefs}
 >
   <main class="mx-auto max-w-content px-[5%] py-space-xl">
     <p class="text-step-0">

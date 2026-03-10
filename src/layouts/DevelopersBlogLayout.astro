@@ -1,12 +1,14 @@
 ---
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
+import type { Locale } from '@/utils/i18'
 
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType
+  languageHrefs: Record<Locale, string>
   canonicalURL?: string
 }
-const { frontmatter, canonicalURL } = Astro.props
+const { frontmatter, languageHrefs, canonicalURL } = Astro.props
 
 const site = Astro.site!
 const ogImageUrl = frontmatter.ogImageUrl
@@ -27,6 +29,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
+  languageHrefs={languageHrefs}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article

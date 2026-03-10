@@ -12,7 +12,7 @@ interface Props {
   title: string
   description?: string
   gradient?: string
-  languageHrefs?: Partial<Record<Locale, string>>
+  languageHrefs: Record<Locale, string>
 }
 
 const { title, description, gradient = 'option1', languageHrefs } = Astro.props

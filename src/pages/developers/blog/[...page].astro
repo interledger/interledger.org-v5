@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content'
 import type { GetStaticPaths, Page } from 'astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { buildBlogIndexLanguageHrefs } from '@/utils/blog-language-hrefs'
 import { createExcerpt } from '@/utils/create-excerpt'
 import stripPagination from '@/utils/stripPagination'
 
@@ -11,20 +12,22 @@ type Props = {
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const blogEntries = (await getCollection('developers-blog')).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
+  const blogEntries = (
+    await getCollection('developers-blog', ({ data }) => data.locale === 'en')
+  ).sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   return paginate(blogEntries, { pageSize: 10 })
 }
 
 const basePath = stripPagination(Astro.url.pathname)
 const { page } = Astro.props
+const languageHrefs = buildBlogIndexLanguageHrefs('/developers/blog')
 ---
 
 <FoundationPageLayout
   title="Engineering Blog"
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
   ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
+  languageHrefs={languageHrefs}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-[360px] px-[5%] 2xl:px-0">
@@ -82,33 +85,14 @@ const { page } = Astro.props
                   >
                     {blogPostEntry.data.date.toDateString()}
                   </time>
-                  {blogPostEntry.data.locale === 'es' ? (
-                    <div class="flex items-start gap-space-2xs">
-                      <h2 class="text-step-1">
-                        <a
-                          href={`${basePath}/${blogPostEntry.id}`}
-                          class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                        >
-                          {blogPostEntry.data.title}
-                        </a>
-                      </h2>
-                      <a
-                        class="mt-space-3xs rounded border-[1.5px] bg-white px-[4px] text-step--1 no-underline"
-                        href={`${basePath}/es`}
-                      >
-                        ES
-                      </a>
-                    </div>
-                  ) : (
-                    <h2 class="text-step-1">
-                      <a
-                        href={`${basePath}/${blogPostEntry.id}`}
-                        class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                      >
-                        {blogPostEntry.data.title}
-                      </a>
-                    </h2>
-                  )}
+                  <h2 class="text-step-1">
+                    <a
+                      href={`${basePath}/${blogPostEntry.id}`}
+                      class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                    >
+                      {blogPostEntry.data.title}
+                    </a>
+                  </h2>
 
                   <p class="mb-space-2xs flex-grow">
                     {blogPostEntry.data.description

@@ -2,6 +2,7 @@
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import { fetchStrapi } from '@/utils/fetchStrapi'
+import { buildBlogIndexLanguageHrefs } from '@/utils/blog-language-hrefs'
 import { marked } from 'marked'
 
 // Get the documentId from the query string
@@ -33,9 +34,10 @@ const frontmatter = {
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')
+const languageHrefs = buildBlogIndexLanguageHrefs('/blog')
 ---
 
-<FoundationBlogLayout frontmatter={frontmatter}>
+<FoundationBlogLayout frontmatter={frontmatter} languageHrefs={languageHrefs}>
   <article set:html={bodyHtml} />
   <CommunityLinksFoundation />
 </FoundationBlogLayout>
