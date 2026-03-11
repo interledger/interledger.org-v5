@@ -55,6 +55,7 @@ interface StrapiLogger {
 interface FieldMetadata {
   edit?: {
     label?: string
+    description?: string
     [key: string]: unknown
   }
   list?: {
@@ -227,6 +228,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
+  const contentTypeDescriptions: Record<string, Record<string, string>> = {
+    'api::foundation-page.foundation-page': {
+      path: 'Route path for file placement, e.g. /grant/ambassadors. Astro uses this to determine where the page lives.'
+    },
+    'api::summit-page.summit-page': {
+      path: 'Route path for file placement. Astro uses this to determine where the page lives.'
+    }
+  }
+
   const componentLabels: Record<string, Record<string, string>> = {
     'navigation.menu-group': {
       label: 'Group Label',
@@ -342,7 +352,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   async function applyLabels(
     service: CmContentTypesService | CmComponentsService,
     uid: string,
-    labels: Record<string, string>
+    labels: Record<string, string>,
+    descriptions?: Record<string, string>
   ) {
     const configuration = await service.findConfiguration({ uid })
     if (!configuration?.metadatas) return
@@ -356,11 +367,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       const meta = updatedMetadatas[fieldName]
       if (!meta) continue
       const currentLabel = meta.edit?.label
-      if (currentLabel !== label) {
+      const description = descriptions?.[fieldName]
+      const currentDescription = meta.edit?.description
+      const labelChanged = currentLabel !== label
+      const descriptionChanged =
+        description !== undefined && currentDescription !== description
+      if (labelChanged || descriptionChanged) {
         updatedMetadatas[fieldName] = {
           ...meta,
-          edit: { ...meta.edit, label },
-          list: { ...meta.list, label }
+          edit: {
+            ...meta.edit,
+            ...(labelChanged && { label }),
+            ...(descriptionChanged && { description })
+          },
+          ...(labelChanged && { list: { ...meta.list, label } })
         }
         needsUpdate = true
       }
@@ -389,7 +409,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
 
   for (const [uid, labels] of Object.entries(contentTypeLabels)) {
     try {
-      await applyLabels(contentTypeService, uid, labels)
+      await applyLabels(
+        contentTypeService,
+        uid,
+        labels,
+        contentTypeDescriptions[uid]
+      )
     } catch (error) {
       strapi.log.debug(
         `Could not update labels for ${uid}: ${(error as Error).message}`
