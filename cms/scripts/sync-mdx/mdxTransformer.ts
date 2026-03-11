@@ -89,9 +89,9 @@ async function uploadImageToStrapi(
 // Returns existing Strapi image ID or uploads a new image
 async function getImageFromStrapi(
   { strapi, STRAPI_URL, STRAPI_TOKEN }: StrapiUploadContext,
-  { url, alt }: { url: string | undefined; alt: string | undefined }
+  { image, alt }: { image: string | undefined; alt: string | undefined }
 ): Promise<number | null> {
-  const photoUrl = nullOrValue(url)
+  const photoUrl = nullOrValue(image)
   if (!photoUrl) return null
   const name = path.basename(photoUrl)
 
@@ -106,7 +106,7 @@ async function getImageFromStrapi(
     })
     return uploaded
   } catch (err) {
-    console.error(`Error getting image from Strapi for "${url}":`, err)
+    console.error(`Error getting image from Strapi for "${image}":`, err)
     return null
   }
 }
@@ -278,11 +278,11 @@ export async function buildBlogPayload(
 
   const date = new Date(parsed.date || Date.now())
   const featureImage = await getImageFromStrapi(strapiUploadContext, {
-    url: parsed.featureImage,
+    image: parsed.featureImage,
     alt: parsed.featureImageAlt
   })
   const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
-    url: parsed.thumbnailImage,
+    image: parsed.thumbnailImage,
     alt: parsed.thumbnailImageAlt
   })
 
@@ -294,7 +294,7 @@ export async function buildBlogPayload(
       profileBio: bio.text || null,
       profileImage:
         (await getImageFromStrapi(strapiUploadContext, {
-          url: bio.image,
+          image: bio.image,
           alt: bio.author
         })) || null
     }))

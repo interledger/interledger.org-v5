@@ -30,7 +30,7 @@ interface BlogResult {
   articleBio?: {
     author: string
     profileBio?: string
-    profileImage?: { url: string }
+    profileImage?: { url: string; name: string }
   }[]
   tags?: { tagValue: string }[]
   localizations: string[]
@@ -42,7 +42,7 @@ interface BlogEvent {
 }
 
 function yamlSingleQuote(value: string): string {
-  return `${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}`
+  return `${value.replace(/'/g, '’').replace(/\r\n/g, '\n')}`
 }
 const q = yamlSingleQuote
 
@@ -66,7 +66,7 @@ function generateBlogMDX(post: BlogResult) {
               `\n  - author: ${q(bio.author)}`,
               bio.profileBio ? `\n    text: '${q(bio.profileBio)}'` : null,
               bio.profileImage
-                ? `\n    image: '${q(bio.profileImage.url)}'`
+                ? `\n    image: '${q(bio.profileImage.name)}'`
                 : null
             ]
               .filter(Boolean)
@@ -82,14 +82,14 @@ function generateBlogMDX(post: BlogResult) {
     `date: ${post.date}`,
     `slug: ${post.slug}`,
     `pillar: '${q(post.pillar)}'`,
-    post.featureImage?.url
-      ? `featureImage: '${q(post.featureImage.url)}'`
+    post.featureImage?.name
+      ? `featureImage: '${q(post.featureImage.name)}'`
       : null,
     post.featureImage?.alternativeText
       ? `featureImageAlt: '${q(post.featureImage.alternativeText)}'`
       : null,
-    post.thumbnailImage?.url
-      ? `thumbnailImage: '${q(post.thumbnailImage.url)}'`
+    post.thumbnailImage?.name
+      ? `thumbnailImage: '${q(post.thumbnailImage.name)}'`
       : null,
     post.thumbnailImage?.alternativeText
       ? `thumbnailImageAlt: '${q(post.thumbnailImage.alternativeText)}'`
@@ -98,7 +98,7 @@ function generateBlogMDX(post: BlogResult) {
     post.tags
       ? post.tags.length === 0
         ? `tags: []`
-        : `tags: ${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
+        : `tags:${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
       : null,
     post.language ? `locale: ${q(post.language)}` : null
   ].filter(Boolean) as string[]
