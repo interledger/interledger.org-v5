@@ -129,6 +129,11 @@ export default {
           if (h1 && /^[a-z0-9]{15,}$/.test(h1.textContent?.trim() ?? '')) {
             h1.textContent = title
           }
+          // Fix browser tab title (document.title) when it shows document ID
+          const docIdPattern = /^[a-z0-9]{15,}\s*\|/
+          if (docIdPattern.test(document.title)) {
+            document.title = `${title} | Strapi`
+          }
           break
         }
       }
