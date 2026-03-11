@@ -18,6 +18,7 @@ vi.mock('./siteSchemas', async () => {
     title: z.string().min(1, 'title is required'),
     slug: z.string().min(1, 'slug is required'),
     description: z.string().optional(),
+    pillar: z.enum(['vision', 'mission', 'tech', 'values']).optional(),
     heroTitle: z.string().optional(),
     heroDescription: z.string().optional(),
     heroImage: z.string().optional(),
@@ -25,14 +26,27 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const blogSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    description: z.string().min(1, 'description is required'),
+    date: z.coerce.date(),
+    slug: z.string().min(1, 'slug is required'),
+    pillar: z.enum(['vision', 'mission', 'tech', 'values'])
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
-    summitPageFrontmatterSchema: pageSchema
+    summitPageFrontmatterSchema: pageSchema,
+    foundationBlogFrontmatterSchema: blogSchema
   }
 })
 
-import { getEntryField, buildPagePayload } from './mdxTransformer'
 import {
+  getEntryField,
+  buildBlogPayload,
+  buildPagePayload
+} from './mdxTransformer'
+import {
+  foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './siteSchemas'
@@ -153,6 +167,39 @@ describe('buildPagePayload', () => {
 
       expect(payload.publishedAt).toBeDefined()
       expect(typeof payload.publishedAt).toBe('string')
+    })
+
+    it('includes pillar when frontmatter provides it', async () => {
+      const mdx = createMdxFile({
+        slug: 'about',
+        frontmatter: {
+          title: 'About',
+          pillar: 'vision'
+        }
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
+
+      expect(payload.pillar).toBe('vision')
+    })
+
+    it('omits pillar when frontmatter does not provide it', async () => {
+      const mdx = createMdxFile({
+        slug: 'about',
+        frontmatter: { title: 'About' }
+      })
+
+      const payload = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
+
+      expect(payload).not.toHaveProperty('pillar')
     })
 
     it('accepts optional schema fields (description, heroImage, sections)', async () => {
@@ -643,5 +690,46 @@ describe('buildPagePayload', () => {
         content: 'Nota importante.'
       })
     })
+  })
+})
+
+describe('buildBlogPayload', () => {
+  it('includes the required pillar field in the Strapi payload', () => {
+    const mdx = createMdxFile({
+      slug: 'post',
+      frontmatter: {
+        title: 'Post title',
+        description: 'Post description',
+        date: '2026-03-11',
+        pillar: 'mission'
+      },
+      content: 'Blog body'
+    })
+
+    const payload = buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+
+    expect(payload).toMatchObject({
+      title: 'Post title',
+      description: 'Post description',
+      slug: 'post',
+      pillar: 'mission',
+      date: '2026-03-11',
+      content: 'Blog body'
+    })
+  })
+
+  it('throws when pillar is missing from blog frontmatter', () => {
+    const mdx = createMdxFile({
+      slug: 'post',
+      frontmatter: {
+        title: 'Post title',
+        description: 'Post description',
+        date: '2026-03-11'
+      }
+    })
+
+    expect(() =>
+      buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+    ).toThrow()
   })
 })

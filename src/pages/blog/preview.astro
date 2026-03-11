@@ -26,10 +26,13 @@ if (!article) {
 const frontmatter = {
   title: article.title,
   description: article.description,
+  slug: article.slug,
   date: article.publishedAt,
+  pillar: article.pillar,
   featureImage: article.featuredImage?.url,
   featureImageAlt: article.featuredImage?.alternativeText,
-  ogImageUrl: article.ogImageUrl
+  articleBios: [],
+  tags: []
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')

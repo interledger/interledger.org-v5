@@ -48,6 +48,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
   slug: z.string().min(1, 'slug is required'),
+  pillar: z.enum(['vision', 'mission', 'tech', 'values']),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
   thumbnailImage: z.string().optional(),

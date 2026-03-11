@@ -65,6 +65,10 @@ export async function buildPagePayload(
     publishedAt: new Date().toISOString()
   }
 
+  if (parsed.pillar) {
+    data.pillar = parsed.pillar
+  }
+
   // Handle hero section
   // If hero fields exist in frontmatter, use them
   // Otherwise, preserve existing hero data if updating an entry
@@ -184,6 +188,7 @@ export function buildBlogPayload(
     title: parsed.title,
     description: parsed.description,
     slug: parsed.slug,
+    pillar: parsed.pillar,
     date: date.toISOString().split('T')[0],
     publishedAt: date.toISOString(),
     content: mdx.content || ''
