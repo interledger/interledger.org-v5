@@ -308,8 +308,8 @@ export async function buildBlogPayload(
     pillar: parsed.pillar,
     featureImage: featureImage,
     thumbnailImage: thumbnailImage,
-    articleBio,
-    tags,
+    articleBio: articleBio,
+    tags: tags,
     locale: parsed.locale,
     content: mdx.content || '',
     publishedAt: date.toISOString()
