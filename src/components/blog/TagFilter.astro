@@ -1,0 +1,38 @@
+---
+import { getTagUrl } from '@/utils/tagFilter'
+interface Props {
+  allTags: string[]
+  selectedTag?: string
+  href: string
+}
+const { allTags, selectedTag, href } = Astro.props
+const activeClass = ['bg-primary', 'text-white']
+const inactiveClass = ['bg-white']
+---
+
+<div class="mb-space-m bg-transparent rounded-[var(--border-radius)]">
+  <div class="font-semibold mb-3xs text-step--1">Filter by tag:</div>
+  <div
+    class="flex flex-wrap gap-space-3xs
+  [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
+  >
+    <a
+      href={href}
+      class:list={!selectedTag ? activeClass : inactiveClass}
+      data-umami-event="Blog tag filter - All"
+    >
+      All
+    </a>
+    {
+      allTags.map((tag) => (
+        <a
+          href={getTagUrl(href, tag)}
+          class:list={selectedTag === tag ? activeClass : inactiveClass}
+          data-umami-event={`Blog tag filter - ${tag}`}
+        >
+          {tag}
+        </a>
+      ))
+    }
+  </div>
+</div>

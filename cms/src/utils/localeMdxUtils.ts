@@ -6,7 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { LOCALES } from './mdx'
+import { LOCALES, MATTER_STRINGIFY_OPTIONS } from './mdx'
 
 /**
  * Removes the `localizes` field from locale MDX files that reference the given
@@ -33,7 +33,11 @@ export function removeLocalizesFromLocaleFiles(
           if (frontmatter.localizes === englishSlug) {
             const rest = { ...(frontmatter as Record<string, unknown>) }
             delete rest.localizes
-            fs.writeFileSync(filepath, matter.stringify(content, rest), 'utf-8')
+            fs.writeFileSync(
+              filepath,
+              matter.stringify(content, rest, MATTER_STRINGIFY_OPTIONS),
+              'utf-8'
+            )
             console.log(
               `✏️  Removed localizes from ${locale} ${label} MDX: ${filepath}`
             )

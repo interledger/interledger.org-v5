@@ -24,19 +24,21 @@ declare const strapi: {
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { getProjectRoot, PATHS } from './paths'
+import { PATHS } from './paths'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
-  uidToLogLabel
+  uidToLogLabel,
+  MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
 
 interface PageData {
   id: number
@@ -93,7 +95,7 @@ export interface PageLifecycleConfig {
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
 
   if (locale === 'en') {
     return path.join(projectRoot, config.outputDir)
@@ -134,7 +136,11 @@ function generateMDX(
 
   const content = serializeContent(page.content)
 
-  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
+  return matter.stringify(
+    content ? `\n${content}\n` : '',
+    frontmatterData,
+    MATTER_STRINGIFY_OPTIONS
+  )
 }
 
 async function writeMDXFile(
@@ -257,10 +263,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
-      console.log(
-        `📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
-      )
+      const label = uidToLogLabel(config.contentTypeUid)
+      console.log(`📝 Creating ${label} MDX for all locales: ${result.slug}`)
       await exportAllLocales(config, result.documentId)
+      scheduleGitSync(label)
     },
 
     async afterDelete(event: Event) {
@@ -268,19 +274,21 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
-      console.log(
-        `🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
-      )
+      const label = uidToLogLabel(config.contentTypeUid)
+      console.log(`🗑️  Deleting ${label} MDX for all locales: ${result.slug}`)
+
       removeLocalizesFromLocaleFiles(
         result.slug,
         (locale) => getOutputDir(config, locale),
-        uidToLogLabel(config.contentTypeUid)
+        label
       )
       deleteLocaleMdxFiles(
         (locale) =>
           path.join(getOutputDir(config, locale), `${result.slug}.mdx`),
-        uidToLogLabel(config.contentTypeUid)
+        label
       )
+
+      scheduleGitSync(label)
     }
   }
 }

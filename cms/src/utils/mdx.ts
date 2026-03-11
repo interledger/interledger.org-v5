@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs'
+import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import { marked } from 'marked'
 import TurndownService from 'turndown'
@@ -18,6 +19,12 @@ const turndown = new TurndownService({
   emDelimiter: '*'
 })
 
+// Preserve <u> (underline) - Turndown strips unknown tags by default
+turndown.addRule('underline', {
+  filter: 'u',
+  replacement: (content) => `<u>${content}</u>`
+})
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 export const LOCALES = ['en', 'es']
@@ -28,6 +35,33 @@ export const LOCALES = ['en', 'es']
 export function uidToLogLabel(uid: string): string {
   const parts = uid.split('.')
   return parts[parts.length - 1] ?? uid
+}
+
+/**
+ * Options for gray-matter stringify to output single-quoted YAML strings.
+ * Uses a custom YAML engine with js-yaml 4's forceQuotes (gray-matter's
+ * bundled js-yaml 3.x does not support this option).
+ */
+const YAML_QUOTE_OPTS = { forceQuotes: true, quotingType: "'" as const }
+
+export const MATTER_STRINGIFY_OPTIONS = {
+  engines: {
+    yaml: {
+      parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+      stringify: (data: object) => yaml.dump(data, YAML_QUOTE_OPTS)
+    }
+  }
+} as Record<string, unknown>
+
+/**
+ * Serializes a value as a YAML scalar: single-quoted string or 'null'.
+ * Escapes internal single quotes per YAML spec ('').
+ */
+export function yamlSingleQuoteScalar(
+  value: string | null | undefined
+): string {
+  if (value === null || value === undefined) return 'null'
+  return `'${String(value).replace(/'/g, "''")}'`
 }
 
 /**

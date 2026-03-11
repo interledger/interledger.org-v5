@@ -2,19 +2,17 @@
 import MarkdownIt from 'markdown-it'
 
 interface Props {
-  content: string
+  content?: string
   alignment?: 'left' | 'center' | 'right'
 }
 
 const { content, alignment = 'left' } = Astro.props
 
-// Convert markdown to HTML
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true
 })
-const htmlContent = md.render(content || '')
 
 const alignmentClass =
   alignment === 'center'
@@ -22,14 +20,17 @@ const alignmentClass =
     : alignment === 'right'
       ? 'text-right'
       : ''
+
+const hasContent = content != null && content !== ''
+const className = alignmentClass || undefined
 ---
 
 {
-  /* :where(a) keeps specificity low so styled components (e.g. CtaButton)
-    can override these prose defaults with their own Tailwind classes */
+  hasContent ? (
+    <div class={className} set:html={md.render(content)} />
+  ) : (
+    <div class={className}>
+      <slot />
+    </div>
+  )
 }
-<div
-  data-prose
-  class={`mx-auto max-w-narrow ${alignmentClass}`}
-  set:html={htmlContent}
-/>

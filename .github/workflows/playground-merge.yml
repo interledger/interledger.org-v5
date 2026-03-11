@@ -1,19 +1,19 @@
-name: Staging Merge Workflow
+name: Playground Merge Workflow
 
 on:
-  # Run when PRs are merged to staging
+  # Run when PRs are merged to playground
   # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
-  # and pull_request events run for forks. This workflow should only run on push to staging.
+  # and pull_request events run for forks. This workflow should only run on push to playground.
   push:
     branches:
-      - staging
+      - playground
 
   # Manual trigger for sync operations from any branch
   workflow_dispatch:
 
 concurrency:
   # Ensure only one instance of this workflow runs at a time to avoid conflicts
-  group: staging-merge
+  group: playground-merge
   cancel-in-progress: false
 
 jobs:
@@ -30,19 +30,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate manual trigger is on staging branch
+      - name: Validate manual trigger is on playground branch
         if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
           
           CURRENT_BRANCH="${GITHUB_REF##*/}"
-          if [ "$CURRENT_BRANCH" != "staging" ]; then
-            echo "❌ Error: Manual workflow dispatch is only allowed on 'staging' branch"
+          if [ "$CURRENT_BRANCH" != "playground" ]; then
+            echo "❌ Error: Manual workflow dispatch is only allowed on 'playground' branch"
             echo "   Current branch: $CURRENT_BRANCH"
             exit 1
           fi
-          echo "✓ Manual trigger validated on staging branch"
+          echo "✓ Manual trigger validated on playground branch"
 
       - name: Check if push is from merged PR
         id: pr_merge_check
@@ -60,7 +60,7 @@ jobs:
             const repo = context.repo.repo
             const sha = context.sha
 
-            // Check via API for associated PRs merged into staging
+            // Check via API for associated PRs merged into playground
             const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner,
               repo,
@@ -68,8 +68,8 @@ jobs:
               per_page: 100
             })
 
-            const mergedPRIntoStaging = prs.some((pr) =>
-              pr.merged_at && pr.base && pr.base.ref === 'staging'
+            const mergedPRIntoplayground = prs.some((pr) =>
+              pr.merged_at && pr.base && pr.base.ref === 'playground'
             )
 
             // Also check commit message for merge commit pattern
@@ -82,13 +82,13 @@ jobs:
             const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/) &&
               commit.parents.length > 1
 
-            const mergedIntoStaging = mergedPRIntoStaging || isMergeCommit
+            const mergedIntoplayground = mergedPRIntoplayground || isMergeCommit
 
-            core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
-            if (!mergedIntoStaging) {
-              core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+            core.setOutput('merged_pr', mergedIntoplayground ? 'true' : 'false')
+            if (!mergedIntoplayground) {
+              core.notice('No merged PR into playground found for this commit; workflow steps will be skipped.')
             } else {
-              core.notice('Merged PR detected into staging.')
+              core.notice('Merged PR detected into playground.')
             }
 
       - name: Detect changed paths
@@ -141,7 +141,7 @@ jobs:
           export PNPM_HOME="/home/strapi/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
 
-          cd /home/strapi/interledger.org-v5-staging
+          cd /home/strapi/interledger.org-v5-playground
 
           # Ensure pull fails instead of creating merge commits
           git fetch
@@ -153,7 +153,7 @@ jobs:
             exit 1
           fi
 
-          cd /home/strapi/interledger.org-v5-staging/cms
+          cd /home/strapi/interledger.org-v5-playground/cms
           # Stop the service while we rebuild
           sudo systemctl stop strapi.service
           # Install dependencies in case there are new ones from the merged PRs
@@ -195,28 +195,3 @@ jobs:
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
         run: pnpm run sync:mdx
-
-  notify-slack:
-    runs-on: ubuntu-latest
-    needs: [check-pr-merge, rebuild-strapi, sync-mdx-to-strapi]
-    if: ${{ always() && failure() }}
-    steps:
-      - name: Notify Slack on failure
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            {
-              "channel": "frontend-team",
-              "text": "❌ Pipeline failed in *${{ github.repository }}*",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "❌ *Pipeline Failed*\n*Repo:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Workflow:* ${{ github.workflow }}\n*Author:* ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-                  }
-                }
-              ]
-            }

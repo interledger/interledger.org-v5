@@ -149,6 +149,13 @@ export function createStrapiClient({
     const localization = await findBySlug(apiId, data.slug as string, locale)
 
     if (localization) {
+      // In Strapi v5, linked locales share the same documentId. If the found
+      // entry has a different documentId, it's an orphan (created standalone)
+      // and won't show in "AVAILABLE IN". Delete and recreate to properly link.
+      if (localization.documentId !== documentId) {
+        await deleteLocalization(apiId, localization.documentId, locale)
+        return await createLocalization(apiId, documentId, locale, data)
+      }
       return await updateEntry(apiId, localization.documentId, data, locale)
     }
     return await createLocalization(apiId, documentId, locale, data)
