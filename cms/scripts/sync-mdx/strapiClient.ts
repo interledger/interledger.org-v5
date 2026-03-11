@@ -215,9 +215,9 @@ export function createStrapiClient({
     return files.length > 0 ? files[0].id : null
   }
 
-  async function findUploadByName (name: string) {
+  async function findUploadByName(name: string) {
     const result = await request(`upload/files?filters[name][$eq]=${name}`)
-        const files = Array.isArray(result)
+    const files = Array.isArray(result)
       ? (result as { id: number }[])
       : ((result as { data?: { id: number }[] })?.data ?? [])
 

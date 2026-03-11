@@ -14,12 +14,19 @@
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
+import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import fs from 'fs/promises'
 import path from 'path'
 import { getProjectRoot } from '@/utils/paths'
 import mime from 'mime-types'
+
+interface StrapiUploadContext {
+  strapi: StrapiClient
+  STRAPI_URL: string
+  STRAPI_TOKEN: string
+}
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -32,6 +39,56 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   if (!entry) return null
   const entryRecord = entry as Record<string, unknown>
   return entryRecord[key] ?? null
+}
+
+async function uploadImageToStrapi(
+  STRAPI_URL: string,
+  STRAPI_TOKEN: string,
+  { filePath, alt }: { filePath: string; alt: string | undefined }
+): Promise<number | null> {
+  if (!filePath) return null
+
+  const rootDir = getProjectRoot()
+  const fullPath = `${rootDir}/public${filePath}`
+
+  const fileBuffer = await fs.readFile(fullPath)
+  const mimeType = mime.lookup(fullPath) || 'application/octet-stream'
+  const formData = new FormData()
+  const blob = new Blob([fileBuffer], { type: mimeType })
+
+  formData.append('files', blob, path.basename(fullPath))
+  formData.append('fileInfo', JSON.stringify({ alternativeText: alt ?? null }))
+
+  const res = await fetch(`${STRAPI_URL}/api/upload`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${STRAPI_TOKEN}`
+    },
+    body: formData
+  })
+
+  const data: Array<{ id: number }> = await res.json()
+  return data[0]?.id || null
+}
+
+// Gets image ID if image already existing in Strapi, else it uploads image to strapi and returns ID
+async function getImageFromStrapi(
+  { strapi, STRAPI_URL, STRAPI_TOKEN }: StrapiUploadContext,
+  { url, alt }: { url: string | undefined; alt: string | undefined }
+): Promise<number | null> {
+  const photoUrl = nullOrValue(url)
+  if (!photoUrl) return null
+
+  const name = path.basename(photoUrl)
+  const existing = await strapi.findUploadByName(name)
+  if (existing) {
+    return existing
+  }
+  const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
+    filePath: photoUrl,
+    alt
+  })
+  return uploaded
 }
 
 /**
@@ -174,103 +231,63 @@ export async function buildAmbassadorPayload(
  * @returns Strapi payload object
  */
 export async function buildBlogPayload(
-  schema: FrontmatterSchema,
+  schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient
 ): Promise<Record<string, unknown>> {
-
   const STRAPI_URL = process.env.STRAPI_URL
   const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN
 
-  async function uploadImageToStrapi(filePath: string | null ) {
-    if(!filePath) return null
-
-    const rootDir = getProjectRoot()
-    const fullPath = `${rootDir}/public${filePath}`
-
-    const fileBuffer = await fs.readFile(fullPath)
-    const mimeType = mime.lookup(fullPath) || "application/octet-stream"
-    const formData = new FormData()
-    const blob = new Blob([fileBuffer], { type: mimeType })
-
-    formData.append("files", blob, path.basename(fullPath))
-    formData.append("fileInfo", JSON.stringify({
-      alternativeText: "My alt text"
-    }))
-
-    const res = await fetch(`${STRAPI_URL}/api/upload`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${STRAPI_TOKEN}`
-      },
-      body: formData
-    })
-
-    const data = await res.json()
-    return data[0]?.id || null
+  if (!STRAPI_URL || !STRAPI_TOKEN) {
+    throw new Error(
+      'STRAPI_URL and STRAPI_API_TOKEN must be set when syncing blog post images'
+    )
   }
-
-
-  async function getImageFromStrapi(value){
-    const photoUrl = nullOrValue(value)
-    const photoId = photoUrl
-      ? await (async () => {
-          const name = path.basename(photoUrl);
-
-          const existing = await strapi.findUploadByName(name);
-          if (existing) {
-            return existing;
-          }
-
-          const uploaded = await uploadImageToStrapi(photoUrl);
-          return uploaded;
-        })()
-      : null;
-  
-    
-    if (photoUrl && !photoId) {
-      console.warn(
-        `   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${photoUrl}`
-      )
-    }
-    return photoId;
-  }
+  const strapiUploadContext = { strapi, STRAPI_URL, STRAPI_TOKEN }
 
   const parsed = schema.parse({
     ...mdx.frontmatter,
     slug: mdx.slug
-  }) as Record<string, unknown>
-  
-  const date = parsed.date as Date
-  const featureImage = await getImageFromStrapi(parsed.featureImage)
-  const thumbnailImage = await getImageFromStrapi(parsed.thumbnailImage)
+  })
 
-  const tags = parsed.tags.length > 0 
-    ? (parsed.tags as string[]).map(tag => {
-      return {tagValue: tag}
-    })
-    : []
-  const articleBio = parsed.articleBios.length > 0 ? await Promise.all((parsed.articleBios as any[]).map(async (bio) => {
-    return {
-      author: bio.author || null,
+  const date = new Date(parsed.date || Date.now())
+  const featureImage = await getImageFromStrapi(strapiUploadContext, {
+    url: parsed.featureImage,
+    alt: parsed.featureImageAlt
+  })
+  const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
+    url: parsed.thumbnailImage,
+    alt: parsed.thumbnailImageAlt
+  })
+
+  const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
+
+  const articleBio = await Promise.all(
+    (parsed.articleBios ?? []).map(async (bio) => ({
+      author: bio.author,
       profileBio: bio.text || null,
-      profileImage: await getImageFromStrapi(bio.image) || null
-    }})) : []
-  
+      profileImage:
+        (await getImageFromStrapi(strapiUploadContext, {
+          url: bio.image,
+          alt: bio.author
+        })) || null
+    }))
+  )
+
   const dataObj = {
     title: parsed.title,
     description: parsed.description,
     date: date.toISOString().split('T')[0],
     slug: parsed.slug,
     pillar: parsed.pillar,
-    featureImage: featureImage ?? {url:parsed.featureImage, alternativeText: parsed.featureImageAlt || null}, 
-    thumbnailImage: thumbnailImage ?? {url:parsed.featureImage, alternativeText: parsed.featureImageAlt || null},
-    articleBio: articleBio,
-    tags: tags,
+    featureImage,
+    thumbnailImage,
+    articleBio,
+    tags,
     locale: parsed.locale,
     content: mdx.content || '',
-    publishedAt: date.toISOString(),
+    publishedAt: date.toISOString()
   }
 
-  return dataObj;
+  return dataObj
 }
