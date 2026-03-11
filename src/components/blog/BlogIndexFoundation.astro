@@ -1,0 +1,85 @@
+---
+import { createExcerpt } from '@/utils/create-excerpt'
+import type { CollectionEntry } from 'astro:content'
+import TagFilter from './TagFilter.astro'
+import BlogIndexHeader from './BlogIndexHeader.astro'
+
+interface Props {
+  posts: CollectionEntry<'foundation-blog'>[]
+  allTags?: string[]
+  selectedTag?: string
+  showTagFilter?: boolean
+}
+const { posts, allTags = [], selectedTag } = Astro.props
+const path = '/blog'
+---
+
+<BlogIndexHeader
+  title="Foundation Blog"
+  href="/developers/blog"
+  message="Explore our Engineering Blog"
+  imgHref="/img/ernie-teal.svg"
+  imgAlt="Ernie holding an envelope"
+/>
+
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+
+<ol class="list-none p-0">
+  {
+    posts.map((blogPostEntry) => {
+      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      return (
+        <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
+          <div class="shrink-0">
+            {blogPostEntry.data.thumbnailImage && (
+              <img
+                loading="lazy"
+                src={blogPostEntry.data.thumbnailImage}
+                width="250"
+                height="250"
+                alt={blogPostEntry.data.thumbnailImageAlt}
+                class="w-62.5 h-62.5 object-cover"
+              />
+            )}
+          </div>
+          <div class="flex flex-col flex-1">
+            <h2 class="text-step-1 mb-space-3xs">
+              <a
+                href={`${path}/${blogPostEntry.id}`}
+                class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
+              >
+                {blogPostEntry.data.title}
+              </a>
+            </h2>
+            <time
+              class="block text-step--1 mb-space-2xs"
+              datetime={blogPostEntry.data.date.toISOString()}
+            >
+              {blogPostEntry.data.date.toDateString().substring(4)}
+            </time>
+            <p class="leading-snug mb-space-2xs grow">
+              {blogPostEntry.data.description
+                ? blogPostEntry.data.description
+                : excerpt}
+            </p>
+            <a
+              href={`/blog/${blogPostEntry.id}`}
+              class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
+            >
+              Read more
+              <svg
+                viewBox="0 0 12 12"
+                class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
+              >
+                <path
+                  d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </div>
+        </li>
+      )
+    })
+  }
+</ol>

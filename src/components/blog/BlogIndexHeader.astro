@@ -1,0 +1,27 @@
+---
+interface Props {
+  title: string
+  href: string
+  message: string
+  imgHref: string
+  imgAlt: string
+}
+const { title, href, message, imgHref, imgAlt } = Astro.props
+---
+
+<header
+  class="pt-space-s pb-space-m flex flex-col justify-between items-start gap-space-xs min-[730px]:flex-row min-[730px]:items-center"
+>
+  <h1 class="text-step-3 font-bold">{title}</h1>
+  <a
+    class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
+    href={href}
+  >
+    <p
+      class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"
+    >
+      {message}
+    </p>
+    <img src={imgHref} alt={imgAlt} aria-hidden="true" class="w-[4em]" />
+  </a>
+</header>

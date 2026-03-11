@@ -31,6 +31,17 @@ export function uidToLogLabel(uid: string): string {
 }
 
 /**
+ * Serializes a value as a YAML scalar: single-quoted string or 'null'.
+ * Escapes internal single quotes per YAML spec ('').
+ */
+export function yamlSingleQuoteScalar(
+  value: string | null | undefined
+): string {
+  if (value === null || value === undefined) return 'null'
+  return `'${String(value).replace(/'/g, "''")}'`
+}
+
+/**
  * Gets the resolved URL for a Strapi media field.
  * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
  * falling back to the original URL if that format is unavailable.

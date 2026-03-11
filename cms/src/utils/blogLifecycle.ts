@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport } from './pageLifecycle'
-import { getProjectRoot } from './paths'
+import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
 
 interface BlogResult {
   id: number
@@ -115,7 +115,7 @@ async function writeMDXFile({
 }: {
   outputPath: string
   post: BlogResult
-}) {
+}): Promise<string> {
   const filename = generateFilename({ date: post.date, slug: post.slug })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
@@ -124,6 +124,7 @@ async function writeMDXFile({
   await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
+  return filepath
 }
 
 async function deleteMDXFile({
@@ -132,13 +133,14 @@ async function deleteMDXFile({
 }: {
   outputPath: string
   post: BlogResult
-}) {
+}): Promise<string | null> {
   const filename = generateFilename({ date: post.date, slug: post.slug })
   const filepath = path.join(outputPath, filename)
 
   try {
     await fs.promises.unlink(filepath)
     console.log(`🗑️  Deleted MDX file: ${filepath}`)
+    return filepath
   } catch (error: unknown) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
       console.error(
@@ -147,11 +149,12 @@ async function deleteMDXFile({
       )
       throw error
     }
+    return null
   }
 }
 
 export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, outputDir)
 
   return {
@@ -159,20 +162,20 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
-      console.log(
-        `📝 Creating ${event.model.singularName} MDX for: ${result.slug}`
-      )
+      const label = event.model.singularName
+      console.log(`📝 Creating ${label} MDX for: ${result.slug}`)
       await writeMDXFile({ outputPath, post: result })
+      scheduleGitSync(label)
     },
 
     async afterDelete(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
-      console.log(
-        `📝 Deleting ${event.model.singularName} MDX for: ${result.slug}`
-      )
+      const label = event.model.singularName
+      console.log(`📝 Deleting ${label} MDX for: ${result.slug}`)
       await deleteMDXFile({ outputPath, post: result })
+      scheduleGitSync(label)
     }
   }
 }
