@@ -256,9 +256,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       keywords: 'Keywords',
       canonicalUrl: 'Canonical URL'
     },
+    'blocks.ambassador': {
+      ambassador: 'Ambassador',
+      showLinks: 'Show Social Links'
+    },
     'blocks.ambassadors-grid': {
       heading: 'Heading',
       ambassadors: 'Ambassadors'
+    },
+    'blocks.blockquote': {
+      quote: 'Quote',
+      source: 'Source'
+    },
+    'blocks.callout-text': {
+      content: 'Content'
     },
     'shared.cta-link': {
       link: 'Link',
@@ -515,6 +526,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'imagePosition', size: 6 }
       ],
       [{ name: 'content', size: 12 }]
+    ],
+    'blocks.blockquote': [
+      [{ name: 'quote', size: 12 }],
+      [{ name: 'source', size: 12 }]
     ],
     'blocks.cta-banner': [
       [{ name: 'heading', size: 12 }],
