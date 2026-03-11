@@ -48,47 +48,67 @@ async function uploadImageToStrapi(
 ): Promise<number | null> {
   if (!filePath) return null
 
-  const rootDir = getProjectRoot()
-  const fullPath = `${rootDir}/public${filePath}`
+  try {
+    const rootDir = getProjectRoot()
+    const fullPath = `${rootDir}/public${filePath}`
 
-  const fileBuffer = await fs.readFile(fullPath)
-  const mimeType = mime.lookup(fullPath) || 'application/octet-stream'
-  const formData = new FormData()
-  const blob = new Blob([fileBuffer], { type: mimeType })
+    const fileBuffer = await fs.readFile(fullPath)
+    const mimeType = mime.lookup(fullPath) || 'application/octet-stream'
+    const formData = new FormData()
+    const blob = new Blob([fileBuffer], { type: mimeType })
 
-  formData.append('files', blob, path.basename(fullPath))
-  formData.append('fileInfo', JSON.stringify({ alternativeText: alt ?? null }))
+    formData.append('files', blob, path.basename(fullPath))
+    formData.append(
+      'fileInfo',
+      JSON.stringify({ alternativeText: alt ?? null })
+    )
 
-  const res = await fetch(`${STRAPI_URL}/api/upload`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${STRAPI_TOKEN}`
-    },
-    body: formData
-  })
+    const res = await fetch(`${STRAPI_URL}/api/upload`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${STRAPI_TOKEN}`
+      },
+      body: formData
+    })
 
-  const data: Array<{ id: number }> = await res.json()
-  return data[0]?.id || null
+    if (!res.ok) {
+      console.error(
+        `Failed to upload image: ${filePath} (status ${res.status})`
+      )
+      return null
+    }
+
+    const data: Array<{ id: number }> = await res.json()
+    return data[0]?.id || null
+  } catch (err) {
+    console.error(`Error uploading image "${filePath}: "`, err)
+    return null
+  }
 }
 
-// Gets image ID if image already existing in Strapi, else it uploads image to strapi and returns ID
+// Returns existing Strapi image ID or uploads a new image
 async function getImageFromStrapi(
   { strapi, STRAPI_URL, STRAPI_TOKEN }: StrapiUploadContext,
   { url, alt }: { url: string | undefined; alt: string | undefined }
 ): Promise<number | null> {
   const photoUrl = nullOrValue(url)
   if (!photoUrl) return null
-
   const name = path.basename(photoUrl)
-  const existing = await strapi.findUploadByName(name)
-  if (existing) {
-    return existing
+
+  try {
+    const existing = await strapi.findUploadByName(name)
+    if (existing) {
+      return existing
+    }
+    const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
+      filePath: photoUrl,
+      alt
+    })
+    return uploaded
+  } catch (err) {
+    console.error(`Error getting image from Strapi for "${url}":`, err)
+    return null
   }
-  const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
-    filePath: photoUrl,
-    alt
-  })
-  return uploaded
 }
 
 /**
@@ -245,10 +265,16 @@ export async function buildBlogPayload(
   }
   const strapiUploadContext = { strapi, STRAPI_URL, STRAPI_TOKEN }
 
-  const parsed = schema.parse({
-    ...mdx.frontmatter,
-    slug: mdx.slug
-  })
+  let parsed
+  try {
+    parsed = schema.parse({
+      ...mdx.frontmatter,
+      slug: mdx.slug
+    })
+  } catch (err) {
+    console.error('Error parsing Blog MDX frontmatter:', err)
+    throw err
+  }
 
   const date = new Date(parsed.date || Date.now())
   const featureImage = await getImageFromStrapi(strapiUploadContext, {
@@ -280,8 +306,8 @@ export async function buildBlogPayload(
     date: date.toISOString().split('T')[0],
     slug: parsed.slug,
     pillar: parsed.pillar,
-    featureImage,
-    thumbnailImage,
+    featureImage: featureImage,
+    thumbnailImage: thumbnailImage,
     articleBio,
     tags,
     locale: parsed.locale,
