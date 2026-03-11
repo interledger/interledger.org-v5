@@ -100,14 +100,19 @@ export default {
   },
 
   bootstrap(_app: unknown) {
-    // Set minimum height for all textareas in the admin panel
+    // TEMP UI Fix: inject styles until Strapi supports proper theming
     const style = document.createElement('style')
-    style.textContent = 'textarea { min-height: 140px !important; }'
+    style.textContent = `
+      /* TEMP UI Fix: minimum textarea height */
+      textarea { min-height: 140px !important; }
+      /* TEMP UI Fix: hide Preview aside */
+      aside[aria-labelledby="additional-information"] { display: none !important; }
+    `
     document.head.appendChild(style)
 
-    // Override button labels using DOM manipulation
+    // TEMP UI Fix: DOM polling for UI tweaks until Strapi exposes better extension points
     const interval = setInterval(() => {
-      // Hide "Open Entity" from the left nav sidebar
+      // TEMP UI Fix: hide "Open Entity" from the left nav sidebar
       document.querySelectorAll('div, span').forEach((el) => {
         if (el.textContent?.trim() === 'Open Entity') {
           const navItem = el.closest(
@@ -117,7 +122,7 @@ export default {
         }
       })
 
-      // Fix single-type page titles that show a raw document ID hash
+      // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
         'summit-navigation': 'Summit Navigation'
@@ -138,7 +143,7 @@ export default {
         }
       }
 
-      // Find all buttons in the admin panel
+      // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')
       buttons.forEach((button) => {
         const span = button.querySelector('span')
