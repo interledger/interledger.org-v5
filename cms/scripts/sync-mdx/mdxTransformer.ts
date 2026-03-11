@@ -19,7 +19,7 @@ import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import fs from 'fs/promises'
 import path from 'path'
-import { getProjectRoot } from '@/utils/paths'
+import { getTargetRepoRoot } from '@/utils/gitSync'
 import mime from 'mime-types'
 
 interface StrapiUploadContext {
@@ -49,7 +49,7 @@ async function uploadImageToStrapi(
   if (!filePath) return null
 
   try {
-    const rootDir = getProjectRoot()
+    const rootDir = getTargetRepoRoot()
     const fullPath = `${rootDir}/public${filePath}`
 
     const fileBuffer = await fs.readFile(fullPath)
