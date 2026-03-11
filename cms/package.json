@@ -22,7 +22,7 @@
     "@_sh/strapi-plugin-ckeditor": "^6.0.3",
     "@ckeditor/strapi-plugin-ckeditor": "^1.1.1",
     "@notum-cz/strapi-plugin-record-locking": "^2.1.0",
-    "@strapi/strapi": "5.31.3",
+    "@strapi/strapi": "5.38.0",
     "better-sqlite3": "11.5.0",
     "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
@@ -51,11 +51,5 @@
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
     "pnpm": ">=9.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "esbuild": "0.20.2",
-      "prettier": "3.8.1"
-    }
   }
 }
