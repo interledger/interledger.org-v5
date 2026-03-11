@@ -356,8 +356,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       const meta = updatedMetadatas[fieldName]
       if (!meta) continue
       const currentLabel = meta.edit?.label
-      const isDefault = !currentLabel || currentLabel === fieldName
-      if (isDefault && currentLabel !== label) {
+      if (currentLabel !== label) {
         updatedMetadatas[fieldName] = {
           ...meta,
           edit: { ...meta.edit, label },
