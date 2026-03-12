@@ -44,11 +44,11 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
 function normalizeStrapiFilename(filename: string) {
   // Strapi adds hash to media name: name_<10 hex chars>.ext
   // and replaces `-` and spaces with `_` when generating image url
-  return (normalizedFilename = filename
+  return filename
     .replace(/_[a-f0-9]{10}(?=\.)/i, '') // remove hash
     .replace(/-/g, '_')
     .replace(/\s+/g, '_')
-    .replace(/[^\w_.]/g, ''))
+    .replace(/[^\w_.]/g, '')
 }
 
 async function uploadImageToStrapi(
