@@ -28,7 +28,7 @@
     "sharp": "^0.34.5",
     "showdown": "^2.1.0",
     "starlight-fullview-mode": "^0.2.6",
-    "starlight-links-validator": "^0.19.1",
+    "starlight-links-validator": "^0.20.0",
     "tailwindcss": "^4.2.1",
     "turndown": "^7.2.2",
     "zod": "^4.3.6"

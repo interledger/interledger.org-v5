@@ -23,7 +23,7 @@
     "@ckeditor/strapi-plugin-ckeditor": "^1.1.1",
     "@notum-cz/strapi-plugin-record-locking": "^2.1.0",
     "@strapi/strapi": "5.39.0",
-    "better-sqlite3": "11.5.0",
+    "better-sqlite3": "12.6.2",
     "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
@@ -42,11 +42,11 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^25.4.0",
     "@types/turndown": "^5.0.6",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.0"
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
