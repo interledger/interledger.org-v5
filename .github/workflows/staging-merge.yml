@@ -93,6 +93,12 @@ jobs:
     runs-on: strapi-vm
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Rebuild Strapi CMS
         shell: bash
         run: |
@@ -143,8 +149,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Install dependencies
         run: pnpm install
