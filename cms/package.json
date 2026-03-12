@@ -2,6 +2,7 @@
   "name": "interledger-cms",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "pnpm@10.27.0",
   "description": "Strapi CMS for Interledger developer portal",
   "scripts": {
     "develop": "ENV_PATH=../.env strapi develop",
