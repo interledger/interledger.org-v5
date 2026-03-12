@@ -100,17 +100,46 @@ jobs:
                 changedFiles = (commit.data.files ?? []).map((file) => file.filename)
               }
             } else {
-              const files = await github.paginate(
-                github.rest.repos.compareCommitsWithBasehead,
-                {
+              core.info(`Comparing commits ${before}...${after} via GitHub API`)
+              try {
+                const response = await github.rest.repos.compareCommitsWithBasehead({
                   owner,
                   repo,
                   basehead: `${before}...${after}`,
                   per_page: 100
-                },
-                (response) => (response.data.files ?? []).map((file) => file.filename)
-              )
-              changedFiles = files
+                })
+                const compare = response.data
+                const files = compare.files ?? []
+
+                // The compare endpoint caps the files list; it is not truly paginated.
+                // If the response is truncated or reports too many files, fail safe by
+                // forcing a rebuild/sync instead of risking missing relevant changes.
+                const tooManyFilesFlag =
+                  typeof compare.too_many_files === 'boolean'
+                    ? compare.too_many_files
+                    : false
+                const filesLikelyTruncated = files.length >= 300
+
+                if (tooManyFilesFlag || filesLikelyTruncated) {
+                  core.warning(
+                    'GitHub compareCommitsWithBasehead response may be truncated due to too many changed files; ' +
+                      'treating CMS and content as changed to avoid missing updates.'
+                  )
+                  core.setOutput('cms_changed', 'true')
+                  core.setOutput('content_changed', 'true')
+                  return
+                }
+
+                changedFiles = files.map((file) => file.filename)
+              } catch (error) {
+                core.warning(
+                  `Failed to compare commits ${before}...${after}: ${error}`
+                )
+                // On API failure, err on the side of caution and assume relevant changes occurred.
+                core.setOutput('cms_changed', 'true')
+                core.setOutput('content_changed', 'true')
+                return
+              }
             }
 
             changedFiles = [...new Set(changedFiles)]
@@ -155,10 +184,11 @@ jobs:
           set -euo pipefail
 
           nvm use 22
+          PNPM_VERSION=10.27.0
           corepack enable
-          corepack prepare pnpm@10.27.0 --activate
+          corepack prepare pnpm@$PNPM_VERSION --activate
           pnpm --version
-          test "$(pnpm --version)" = "10.27.0"
+          test "$(pnpm --version)" = "$PNPM_VERSION"
 
           # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
           export PNPM_HOME="/home/strapi/.local/share/pnpm"
@@ -201,12 +231,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Install dependencies
         run: pnpm install
