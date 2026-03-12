@@ -123,6 +123,12 @@ jobs:
         run: |
           set -euo pipefail
 
+          nvm use 22
+          corepack enable
+          corepack prepare pnpm@10.27.0 --activate
+          pnpm --version
+          test "$(pnpm --version)" = "10.27.0"
+
           # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
           export PNPM_HOME="/home/strapi/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
