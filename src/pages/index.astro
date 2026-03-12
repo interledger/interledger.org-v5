@@ -11,10 +11,25 @@ if (!homePage) {
 }
 
 const { Content } = await render(homePage)
-const { title, heroTitle, heroDescription } = homePage.data
+const {
+  title,
+  metaTitle,
+  metaDescription,
+  metaImage,
+  canonicalUrl,
+  heroTitle,
+  heroDescription
+} = homePage.data
+const pageTitle = metaTitle || title || 'Interledger Foundation'
+const pageDescription = metaDescription || undefined
 ---
 
-<FoundationPageLayout title={title || 'Interledger Foundation'}>
+<FoundationPageLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImageUrl={metaImage}
+  canonicalURL={canonicalUrl}
+>
   <main class="pb-space-l">
     <section
       class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[50vh] py-space-xl text-white flex items-center"
