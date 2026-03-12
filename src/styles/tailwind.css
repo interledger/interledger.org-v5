@@ -1,210 +1,52 @@
-/* Tailwind CSS v4 import */
-@import "tailwindcss";
+/**
+ * Main Tailwind CSS Entry Point
+ *
+ * IMPORT ORDER MATTERS
+ *
+ * Tailwind v4 uses CSS @layer to control cascade:
+ *   @layer theme < base < components < utilities
+ *
+ * This means layer order trumps specificity entirely. A rule in @layer components
+ * will ALWAYS lose to a utility class, regardless of specificity.
+ *
+ * Why this order is required:
+ *
+ * 1. theme.css MUST load first (after tailwindcss core)
+ *    - Defines design token VALUES in @theme (font-size, spacing, animations)
+ *    - Generates dynamic utilities (text-primary) via @theme inline
+ *    - Must be processed before any @apply that uses these utilities
+ *
+ * 2. base/* files load next
+ *    - typography.css defines @font-face declarations
+ *    - reset.css extends Preflight + defines keyframes + uses @apply (needs theme)
+ *    - variables.css defines short aliases and color/layout tokens
+ *
+ * 3. components/* files load last
+ *    - Prose styles, navigation styles, etc. in @layer components
+ *    - Can be overridden by utility classes (e.g., text-white beats component color)
+ *
+ * DO NOT REORDER THESE IMPORTS without understanding the layer system.
+ */
+
+/* Tailwind CSS v4 core
+   NOTE: @config must come AFTER @import because it configures the
+   Tailwind engine that was just imported. You can't configure
+   something before it's loaded. */
+@import 'tailwindcss';
 @config "../../tailwind.config.mjs";
 
-/* Font face declarations from pages.css */
-@font-face {
-  font-family: 'Titillium';
-  src: url('/fonts/titilliumweb-regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Theme layer - @theme tokens must be processed before @apply in base files */
+@import './theme.css';
 
-@font-face {
-  font-family: 'Titillium';
-  src: url('/fonts/titilliumweb-italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
+/* Base layer - Preflight reset + custom styles, fonts, CSS variable aliases */
+@import './base/typography.css';
+@import './base/reset.css';
+@import './base/variables.css';
 
-@font-face {
-  font-family: 'Titillium';
-  src: url('/fonts/titilliumweb-bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Titillium';
-  src: url('/fonts/titilliumweb-semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Titillium';
-  src: url('/fonts/titilliumweb-extralight.woff2') format('woff2');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Base layer customizations */
-@layer base {
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes zoom {
-    0% {
-      transform: scale(0);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-
-  @keyframes clockwise {
-    0% {
-      transform-origin: 50%;
-      transform: rotate(0);
-    }
-    to {
-      transform-origin: 50%;
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes anticlockwise {
-    0% {
-      transform-origin: 50%;
-      transform: rotate(0);
-    }
-    to {
-      transform-origin: 50%;
-      transform: rotate(-360deg);
-    }
-  }
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  * {
-    margin: 0;
-  }
-
-  html {
-    height: 100%;
-    overflow-x: clip;
-  }
-
-  body {
-    font-family: 'Titillium', Arial, sans-serif;
-    overflow-x: clip;
-  }
-
-  img,
-  picture,
-  video,
-  canvas,
-  svg {
-    max-width: 100%;
-  }
-
-  input,
-  button,
-  textarea,
-  select {
-    font: inherit;
-  }
-
-  /* Preserve CSS custom properties for compatibility */
-  :root {
-    --color-primary-fallback: #007777;
-    --color-primary: oklch(51.54% 0.088 194.77);
-    --color-primary-bg-fallback: rgba(7, 121, 114, 0.1);
-    --color-primary-bg: oklch(51.95% 0.089 187.7 / 0.1);
-    --border-radius: 6px;
-    --max-content-width: 1160px;
-    --site-header-height: 4.375rem;
-    --box-shadow: 0px 1px 1px hsla(0, 0%, 0%, 0.06),
-      0px 2px 2px hsla(0, 0%, 0%, 0.06);
-    --color-white: #fff;
-    --color-black: #000;
-    --color-gray: #444;
-    --color-frost: rgba(255, 255, 255, 0.5);
-    --color-header-bg: var(--color-white);
-    --color-header-accent: #eee;
-    --color-table-stripe: #f6f7f9;
-    --color-bg-inline-code: #edeef3;
-    --color-tech-light-bg: oklch(98.21% 0.021 193.19);
-    --color-tech-primary: oklch(51.54% 0.088 194.77);
-    --color-mission-primary: oklch(55.27% 0.205 32.62);
-    --color-vision-primary: oklch(46.08% 0.258 291.47);
-    --color-values-primary:  oklch(56.84% 0.229 3.717);
-    --option1: linear-gradient(
-      to bottom,
-      hsla(162, 86%, 12%, 1),
-      hsla(176, 100%, 30%, 1)
-    );
-  }
-
-  [data-theme='dark'] {
-    --color-bg: var(--color-black);
-    --color-text: var(--color-white);
-  }
-
-  /* Category-based theming */
-  [data-category='tech'] {
-    --accent-color: var(--color-tech-primary); 
-    --feature-gradient: linear-gradient(
-    to right,
-    var(--color-tech-primary),
-    oklch(74.53% 0.082 202.65)
-  );
-  }
-
-  [data-category='mission'] {
-    --accent-color: var(--color-mission-primary);
-    --feature-gradient: linear-gradient(
-    to right,
-    var(--color-mission-primary),
-    oklch(76.1% 0.164 65)
-  );
-  }
-
-  [data-category='vision'] {
-    --accent-color: var(--color-vision-primary);
-    --feature-gradient: linear-gradient(
-    to right,
-    var(--color-vision-primary),
-    oklch(68.24% 0.206 303.127)
-  );
-  }
-
-  [data-category='values'] {
-    --accent-color: var(--color-values-primary);
-    --feature-gradient: linear-gradient(
-    to right,
-     var(--color-values-primary),
-    oklch(73% 0.158 351.42)
-  );
-  }
-
-  main {
-    @apply flex-1 text-step-0;
-  }
-
-  strong {
-    color: var(--color-primary);
-  }
-
-  a {
-    @apply text-current transition-colors duration-slow;
-  }
-
-  a:hover {
-    color: var(--color-primary);
-  }
-}
+/* Components layer - prose styles (by variant), navigation */
+@import './components/prose/default.css';
+@import './components/prose/base-typography.css';
+@import './components/prose/foundation.css';
+@import './components/prose/blog.css';
+@import './components/prose/summit.css';
+@import './components/navigation.css';

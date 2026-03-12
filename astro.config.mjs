@@ -146,7 +146,7 @@ export default defineConfig({
         themes: ['github-dark-dimmed'],
         styleOverrides: {
           borderColor: 'transparent',
-          borderRadius: 'var(--border-radius)'
+          borderRadius: 'var(--radius)'
         },
         defaultProps: {
           wrap: true

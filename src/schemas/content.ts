@@ -67,6 +67,7 @@ export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   slug: z.string().min(1, 'slug is required'),
   description: z.string().optional(),
+  pillar: z.enum(['vision', 'mission', 'tech', 'values']).optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),

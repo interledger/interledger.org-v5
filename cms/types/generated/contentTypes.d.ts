@@ -722,6 +722,14 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
+    pillar: Schema.Attribute.Enumeration<
+      ['vision', 'mission', 'tech', 'values']
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false> &
       Schema.Attribute.SetPluginOptions<{

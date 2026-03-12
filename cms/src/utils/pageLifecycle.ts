@@ -92,8 +92,6 @@ export interface PageLifecycleConfig {
   outputDir: string
   /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
   localizedOutputDir: string
-  /** Return extra frontmatter fields for content-type-specific data */
-  extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
@@ -129,7 +127,7 @@ function generateMDX(
     ...restPreserved,
     slug: page.slug,
     title: page.title,
-    ...(config.extraFrontmatter?.(page) ?? {}),
+    ...(page.pillar ? { pillar: page.pillar } : {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
     ...(localizesValue ? { localizes: localizesValue } : {}),
