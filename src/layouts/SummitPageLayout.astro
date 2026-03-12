@@ -15,8 +15,13 @@ interface Props {
   canonicalURL?: string
 }
 
-const { title, description, gradient = 'option1', ogImageUrl, canonicalURL } =
-  Astro.props
+const {
+  title,
+  description,
+  gradient = 'option1',
+  ogImageUrl,
+  canonicalURL
+} = Astro.props
 ---
 
 <BaseLayout
