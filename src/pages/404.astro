@@ -1,0 +1,26 @@
+---
+/**
+ * Custom 404 page for static hosting (Netlify serves 404.html).
+ */
+import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+---
+
+<FoundationPageLayout
+  title="Page not found"
+  description="The page you requested could not be found."
+>
+  <main class="flex-1 flex items-center justify-center py-space-xl">
+    <section class="text-center px-space-m">
+      <h1 class="text-6xl font-semibold text-primary mb-space-s">404</h1>
+      <p class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-md mx-auto">
+        The page you requested could not be found.
+      </p>
+      <a
+        href="/"
+        class="inline-block text-primary font-medium underline hover:no-underline"
+      >
+        ← Back to home
+      </a>
+    </section>
+  </main>
+</FoundationPageLayout>
