@@ -184,8 +184,8 @@ export function buildBlogPayload(
     title: parsed.title,
     description: parsed.description,
     slug: parsed.slug,
-    pillar: parsed.pillar,
     date: date.toISOString().split('T')[0],
+    pillar: parsed.pillar,
     publishedAt: date.toISOString(),
     content: mdx.content || ''
   }
