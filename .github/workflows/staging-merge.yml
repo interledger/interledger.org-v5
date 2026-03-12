@@ -61,13 +61,44 @@ jobs:
             let changedFiles = []
 
             if (!before || before === zeroSha) {
-              core.info('No valid "before" SHA available; using head commit files as fallback')
-              const commit = await github.rest.repos.getCommit({
-                owner,
-                repo,
-                ref: after
-              })
-              changedFiles = (commit.data.files ?? []).map((file) => file.filename)
+              core.info('No valid "before" SHA available; using push payload commits to detect changes')
+
+              const payloadCommits = Array.isArray(context.payload.commits)
+                ? context.payload.commits
+                : []
+
+              if (payloadCommits.length > 0) {
+                const changedFilesSet = new Set()
+
+                for (const commit of payloadCommits) {
+                  for (const file of commit.added || []) {
+                    changedFilesSet.add(file)
+                  }
+                  for (const file of commit.modified || []) {
+                    changedFilesSet.add(file)
+                  }
+                  for (const file of commit.removed || []) {
+                    changedFilesSet.add(file)
+                  }
+                }
+
+                changedFiles = [...changedFilesSet]
+
+                if (changedFiles.length === 0) {
+                  core.info('Push payload commits found but produced no changed files; falling back to head commit files')
+                }
+              } else {
+                core.info('No commits found in push payload; falling back to head commit files')
+              }
+
+              if (changedFiles.length === 0) {
+                const commit = await github.rest.repos.getCommit({
+                  owner,
+                  repo,
+                  ref: after
+                })
+                changedFiles = (commit.data.files ?? []).map((file) => file.filename)
+              }
             } else {
               const files = await github.paginate(
                 github.rest.repos.compareCommitsWithBasehead,
