@@ -65,10 +65,6 @@ export async function buildPagePayload(
     publishedAt: new Date().toISOString()
   }
 
-  if (parsed.pillar) {
-    data.pillar = parsed.pillar
-  }
-
   // Handle hero section
   // If hero fields exist in frontmatter, use them
   // Otherwise, preserve existing hero data if updating an entry

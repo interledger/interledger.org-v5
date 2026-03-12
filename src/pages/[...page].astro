@@ -31,8 +31,10 @@ if (mdxPage) {
   mdxData = mdxPage.data
 }
 
-const title = mdxData?.title || slug
-const description = mdxData?.description || null
+const title = mdxData?.metaTitle || mdxData?.title || slug
+const description = mdxData?.metaDescription || mdxData?.description || null
+const ogImageUrl = mdxData?.metaImage || undefined
+const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 const pillar = mdxData?.pillar || undefined
@@ -40,7 +42,12 @@ const isNotFound = !MdxContent
 if (isNotFound) Astro.response.status = 404
 ---
 
-<FoundationPageLayout title={title} description={description}>
+<FoundationPageLayout
+  title={title}
+  description={description}
+  ogImageUrl={ogImageUrl}
+  canonicalURL={canonicalURL}
+>
   <main class="pb-space-l" data-pillar={pillar}>
     {
       isNotFound ? (
