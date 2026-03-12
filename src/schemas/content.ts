@@ -70,6 +70,10 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   sections: z
     .array(
       z.object({
@@ -97,6 +101,10 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   sections: z
     .array(
       z.object({

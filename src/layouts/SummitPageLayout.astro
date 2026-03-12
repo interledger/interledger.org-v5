@@ -11,16 +11,20 @@ interface Props {
   title: string
   description?: string
   gradient?: string
+  ogImageUrl?: string
+  canonicalURL?: string
 }
 
-const { title, description, gradient = 'option1' } = Astro.props
+const { title, description, gradient = 'option1', ogImageUrl, canonicalURL } =
+  Astro.props
 ---
 
 <BaseLayout
   title={title}
   titleSuffix="Interledger Summit"
   description={description}
-  ogImageUrl="/img/og-summit.png"
+  ogImageUrl={ogImageUrl ?? '/img/og-summit.png'}
+  canonicalURL={canonicalURL}
   theme="dark"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat font-titillium text-step-0 text-white"
   bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
