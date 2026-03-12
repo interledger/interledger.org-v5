@@ -291,8 +291,8 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 - **`staging`**:
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
-  - Every merge to `staging` that contains changes **outside the `/cms` folder** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
-  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin panel.
+  - Any push to `staging` that modifies files in `/cms` triggers a rebuild of the Strapi Admin panel on the GCP VM.
+  - Any push to `staging` that modifies MD/MDX files in `src/content/foundation-pages` or `src/content/summit-pages` triggers `sync:mdx`, which updates Strapi content from Astro files.
 
 ### Hosting Architecture
 

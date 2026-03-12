@@ -1,7 +1,7 @@
 name: Staging Merge Workflow
 
 on:
-  # Run when PRs are merged to staging
+  # Run on pushes to staging
   # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
   # and pull_request events run for forks. This workflow should only run on push to staging.
   push:
@@ -17,10 +17,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-pr-merge:
+  detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      is_merged_pr: ${{ steps.pr_merge_check.outputs.merged_pr }}
       cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
     
@@ -44,56 +43,8 @@ jobs:
           fi
           echo "✓ Manual trigger validated on staging branch"
 
-      - name: Check if push is from merged PR
-        id: pr_merge_check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // Skip PR check for manual dispatch
-            if (context.eventName === 'workflow_dispatch') {
-              core.setOutput('merged_pr', 'manual')
-              core.notice('Manually triggered workflow; PR check skipped.')
-              return
-            }
-
-            const owner = context.repo.owner
-            const repo = context.repo.repo
-            const sha = context.sha
-
-            // Check via API for associated PRs merged into staging
-            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner,
-              repo,
-              commit_sha: sha,
-              per_page: 100
-            })
-
-            const mergedPRIntoStaging = prs.some((pr) =>
-              pr.merged_at && pr.base && pr.base.ref === 'staging'
-            )
-
-            // Also check commit message for merge commit pattern
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: sha
-            })
-            
-            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/) &&
-              commit.parents.length > 1
-
-            const mergedIntoStaging = mergedPRIntoStaging || isMergeCommit
-
-            core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
-            if (!mergedIntoStaging) {
-              core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
-            } else {
-              core.notice('Merged PR detected into staging.')
-            }
-
       - name: Detect changed paths
         id: detect_changes
-        if: steps.pr_merge_check.outputs.merged_pr != 'false'
         shell: bash
         run: |
           set -euo pipefail
@@ -125,10 +76,9 @@ jobs:
           echo "content_changed=$content_changed" >> "$GITHUB_OUTPUT"
 
   rebuild-strapi:
-    needs: check-pr-merge
+    needs: detect-changes
     if: |
-      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+      needs.detect-changes.outputs.cms_changed == 'true'
     runs-on: strapi-vm
 
     steps:
@@ -165,11 +115,10 @@ jobs:
           sudo systemctl status strapi.service
 
   sync-mdx-to-strapi:
-    needs: [check-pr-merge, rebuild-strapi]
+    needs: [detect-changes, rebuild-strapi]
     if: |
       always() &&
-      ((needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual')
+      needs.detect-changes.outputs.content_changed == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -198,7 +147,7 @@ jobs:
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [check-pr-merge, rebuild-strapi, sync-mdx-to-strapi]
+    needs: [detect-changes, rebuild-strapi, sync-mdx-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure
