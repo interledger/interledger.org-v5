@@ -111,7 +111,7 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 - **Branches**: `staging` is the preview environment, `main` is production.
 - **Strapi publishing**: Lifecycle hooks generate MDX and commit/push to `staging`.
 - **Netlify**: Auto-builds `staging` to preview and `main` to production.
-- **Self-hosted runner**: The `.github/workflows/main-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS if cms/ directory changes are detected, using `bun install && bun run build`.
+- **Self-hosted runner**: The `.github/workflows/staging-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS when `cms/` changes are detected, and syncs MDX to Strapi when `.md` or `.mdx` files change in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors`, including localized mirrors under `src/content/<locale>/...`.
 - **Promotion**: Content moves from `staging` to `main` via PR approval.
 - **Preview drafts**: Drafts can be previewed via SSR without publishing.
 
@@ -147,7 +147,7 @@ pnpm run build    # Production build
 ```
 
 **Production builds** (self-hosted runner on `staging` push):
-- Uses `bun install && bun run build` via `.github/workflows/main-merge.yml`
+- Uses `pnpm install && pnpm run build` via `.github/workflows/staging-merge.yml`
 - Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
 - Automatically restarts the `strapi.service` after rebuild
 

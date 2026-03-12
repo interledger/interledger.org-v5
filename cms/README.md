@@ -127,18 +127,20 @@ When content is published or updated in Strapi:
 
 - This allows Astro content (blog posts, events, navigation, etc.) to remain the source of truth while keeping the Strapi database synchronized.
 
-- Every merge to `staging` that contains changes **outside the `/cms` directory** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
+- On pushes to `staging`, changes to `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors` trigger the `sync:mdx` workflow job, including localized files under `src/content/<locale>/...`.
 
 **Features**
 
 - Scans MDX files in
+  - `src/content/ambassadors`
   - `src/content/foundation-pages`
   - `src/content/summit-pages`
   - `src/content/foundation-blog-posts`
+- Also scans localized content under `src/content/<locale>/...` for those same content roots
 - Creates, updates, and deletes Strapi entries to match the MDX file system
 - Supports localized content matching
 - Supports `dry-run` mode to preview changes
-- Automatically runs on merges to the `staging` branch
+- Automatically runs on pushes to `staging` when supported content paths change
 
 **Setup**
 

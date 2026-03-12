@@ -1,7 +1,7 @@
-name: Staging Merge Workflow
+name: Staging Push Workflow
 
 on:
-  # Run when PRs are merged to staging
+  # Run on pushes to staging
   # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
   # and pull_request events run for forks. This workflow should only run on push to staging.
   push:
@@ -13,23 +13,17 @@ on:
 
 concurrency:
   # Ensure only one instance of this workflow runs at a time to avoid conflicts
-  group: staging-merge
+  group: staging-push
   cancel-in-progress: false
 
 jobs:
-  check-pr-merge:
+  detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      is_merged_pr: ${{ steps.pr_merge_check.outputs.merged_pr }}
       cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Validate manual trigger is on staging branch
         if: github.event_name == 'workflow_dispatch'
         shell: bash
@@ -44,91 +38,58 @@ jobs:
           fi
           echo "✓ Manual trigger validated on staging branch"
 
-      - name: Check if push is from merged PR
-        id: pr_merge_check
+      - name: Detect changed paths
+        id: detect_changes
         uses: actions/github-script@v7
         with:
           script: |
-            // Skip PR check for manual dispatch
+            const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
+
             if (context.eventName === 'workflow_dispatch') {
-              core.setOutput('merged_pr', 'manual')
-              core.notice('Manually triggered workflow; PR check skipped.')
+              core.info('Manual trigger - will rebuild CMS and sync content')
+              core.setOutput('cms_changed', 'true')
+              core.setOutput('content_changed', 'true')
               return
             }
 
-            const owner = context.repo.owner
-            const repo = context.repo.repo
-            const sha = context.sha
+            const changedFiles = [...new Set(
+              (context.payload.commits ?? []).flatMap((commit) => [
+                ...(commit.added ?? []),
+                ...(commit.modified ?? []),
+                ...(commit.removed ?? [])
+              ])
+            )]
 
-            // Check via API for associated PRs merged into staging
-            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner,
-              repo,
-              commit_sha: sha,
-              per_page: 100
-            })
+            const fallbackToAllChanged = changedFiles.length === 0
 
-            const mergedPRIntoStaging = prs.some((pr) =>
-              pr.merged_at && pr.base && pr.base.ref === 'staging'
-            )
-
-            // Also check commit message for merge commit pattern
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: sha
-            })
-            
-            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/) &&
-              commit.parents.length > 1
-
-            const mergedIntoStaging = mergedPRIntoStaging || isMergeCommit
-
-            core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
-            if (!mergedIntoStaging) {
-              core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+            if (fallbackToAllChanged) {
+              core.info(
+                'No changed files were available in the push payload; treating tracked areas as changed'
+              )
             } else {
-              core.notice('Merged PR detected into staging.')
+              core.info(`Detected ${changedFiles.length} changed file(s) from push payload`)
             }
 
-      - name: Detect changed paths
-        id: detect_changes
-        if: steps.pr_merge_check.outputs.merged_pr != 'false'
-        shell: bash
-        run: |
-          set -euo pipefail
+            const cmsChanged =
+              fallbackToAllChanged || changedFiles.some((file) => file.startsWith('cms/'))
+            const contentChanged =
+              fallbackToAllChanged || changedFiles.some((file) => contentPattern.test(file))
 
-          cms_changed=false
-          content_changed=false
+            if (cmsChanged) {
+              core.info('CMS changes detected')
+            }
 
-          # For manual dispatch, always rebuild CMS and sync content
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "Manual trigger - will rebuild CMS and sync content"
-            cms_changed=true
-            content_changed=true
-          else
-            # Check what changed in this push
-            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
-            
-            if echo "$changed_files" | grep -q '^cms/'; then
-              cms_changed=true
-              echo "CMS changes detected"
-            fi
-            
-            if echo "$changed_files" | grep -qE '^src/content/(foundation-pages|summit-pages)/.*\.(md|mdx)$'; then
-              content_changed=true
-              echo "Content changes detected"
-            fi
-          fi
+            if (contentChanged) {
+              core.info('Content changes detected')
+            }
 
-          echo "cms_changed=$cms_changed" >> "$GITHUB_OUTPUT"
-          echo "content_changed=$content_changed" >> "$GITHUB_OUTPUT"
+            core.setOutput('cms_changed', String(cmsChanged))
+            core.setOutput('content_changed', String(contentChanged))
 
   rebuild-strapi:
-    needs: check-pr-merge
+    needs: detect-changes
     if: |
-      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+      needs.detect-changes.outputs.cms_changed == 'true'
     runs-on: strapi-vm
 
     steps:
@@ -165,11 +126,10 @@ jobs:
           sudo systemctl status strapi.service
 
   sync-mdx-to-strapi:
-    needs: [check-pr-merge, rebuild-strapi]
+    needs: [detect-changes, rebuild-strapi]
     if: |
       always() &&
-      ((needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual')
+      needs.detect-changes.outputs.content_changed == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -198,7 +158,7 @@ jobs:
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [check-pr-merge, rebuild-strapi, sync-mdx-to-strapi]
+    needs: [detect-changes, rebuild-strapi, sync-mdx-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure
