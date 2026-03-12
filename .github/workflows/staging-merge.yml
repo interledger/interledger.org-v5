@@ -44,6 +44,7 @@ jobs:
         with:
           script: |
             const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
+            const zeroSha = '0000000000000000000000000000000000000000'
 
             if (context.eventName === 'workflow_dispatch') {
               core.info('Manual trigger - will rebuild CMS and sync content')
@@ -52,28 +53,52 @@ jobs:
               return
             }
 
-            const changedFiles = [...new Set(
-              (context.payload.commits ?? []).flatMap((commit) => [
-                ...(commit.added ?? []),
-                ...(commit.modified ?? []),
-                ...(commit.removed ?? [])
-              ])
-            )]
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const before = context.payload.before
+            const after = context.sha
 
-            const fallbackToAllChanged = changedFiles.length === 0
+            let changedFiles = []
 
-            if (fallbackToAllChanged) {
-              core.info(
-                'No changed files were available in the push payload; treating tracked areas as changed'
-              )
+            if (!before || before === zeroSha) {
+              core.info('No valid "before" SHA available; using head commit files as fallback')
+              const commit = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: after
+              })
+              changedFiles = (commit.data.files ?? []).map((file) => file.filename)
             } else {
-              core.info(`Detected ${changedFiles.length} changed file(s) from push payload`)
+              const files = await github.paginate(
+                github.rest.repos.compareCommitsWithBasehead,
+                {
+                  owner,
+                  repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100
+                },
+                (response) => (response.data.files ?? []).map((file) => file.filename)
+              )
+              changedFiles = files
+            }
+
+            changedFiles = [...new Set(changedFiles)]
+            core.info(`Detected ${changedFiles.length} changed file(s) via GitHub API`)
+
+            if (changedFiles.length === 0) {
+              core.info('Changed files list is empty')
+            } else {
+              core.startGroup('Changed files')
+              for (const file of changedFiles) {
+                core.info(file)
+              }
+              core.endGroup()
             }
 
             const cmsChanged =
-              fallbackToAllChanged || changedFiles.some((file) => file.startsWith('cms/'))
+              changedFiles.some((file) => file.startsWith('cms/'))
             const contentChanged =
-              fallbackToAllChanged || changedFiles.some((file) => contentPattern.test(file))
+              changedFiles.some((file) => contentPattern.test(file))
 
             if (cmsChanged) {
               core.info('CMS changes detected')
@@ -93,12 +118,6 @@ jobs:
     runs-on: strapi-vm
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Rebuild Strapi CMS
         shell: bash
         run: |
@@ -145,10 +164,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Install dependencies
         run: pnpm install
