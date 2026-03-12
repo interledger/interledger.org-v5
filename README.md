@@ -211,6 +211,18 @@ git clone https://github.com/interledger/interledger.org-v5.git
 pnpm install
 ```
 
+> **Note on lockfiles:** This repo has two `pnpm-lock.yaml` files:
+>
+> - `/pnpm-lock.yaml` — root workspace lockfile, used locally and in CI
+> - `/cms/pnpm-lock.yaml` — standalone lockfile used by the GCP VM when deploying Strapi (`cd cms && pnpm install`)
+>
+> When `cms/package.json` changes (e.g. upgrading Strapi), regenerate **both**:
+>
+> ```sh
+> pnpm install --no-frozen-lockfile          # from repo root
+> cd cms && pnpm install --no-frozen-lockfile # for GCP deployment
+> ```
+
 3. Build and start the site:
 
 ```sh
