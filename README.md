@@ -292,7 +292,7 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
   - Any push to `staging` that modifies files in `/cms` triggers a rebuild of the Strapi Admin panel on the GCP VM.
-  - Any push to `staging` that modifies MD/MDX files in `src/content/foundation-pages` or `src/content/summit-pages` triggers `sync:mdx`, which updates Strapi content from Astro files.
+  - Any push to `staging` that modifies `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors` also triggers `sync:mdx`, including their localized mirrors under `src/content/<locale>/...`.
 
 ### Hosting Architecture
 

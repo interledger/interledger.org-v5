@@ -1,4 +1,4 @@
-name: Staging Merge Workflow
+name: Staging Push Workflow
 
 on:
   # Run on pushes to staging
@@ -13,7 +13,7 @@ on:
 
 concurrency:
   # Ensure only one instance of this workflow runs at a time to avoid conflicts
-  group: staging-merge
+  group: staging-push
   cancel-in-progress: false
 
 jobs:
@@ -24,11 +24,6 @@ jobs:
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Validate manual trigger is on staging branch
         if: github.event_name == 'workflow_dispatch'
         shell: bash
@@ -45,35 +40,51 @@ jobs:
 
       - name: Detect changed paths
         id: detect_changes
-        shell: bash
-        run: |
-          set -euo pipefail
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
 
-          cms_changed=false
-          content_changed=false
+            if (context.eventName === 'workflow_dispatch') {
+              core.info('Manual trigger - will rebuild CMS and sync content')
+              core.setOutput('cms_changed', 'true')
+              core.setOutput('content_changed', 'true')
+              return
+            }
 
-          # For manual dispatch, always rebuild CMS and sync content
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "Manual trigger - will rebuild CMS and sync content"
-            cms_changed=true
-            content_changed=true
-          else
-            # Check what changed in this push
-            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
-            
-            if echo "$changed_files" | grep -q '^cms/'; then
-              cms_changed=true
-              echo "CMS changes detected"
-            fi
-            
-            if echo "$changed_files" | grep -qE '^src/content/(foundation-pages|summit-pages)/.*\.(md|mdx)$'; then
-              content_changed=true
-              echo "Content changes detected"
-            fi
-          fi
+            const changedFiles = [...new Set(
+              (context.payload.commits ?? []).flatMap((commit) => [
+                ...(commit.added ?? []),
+                ...(commit.modified ?? []),
+                ...(commit.removed ?? [])
+              ])
+            )]
 
-          echo "cms_changed=$cms_changed" >> "$GITHUB_OUTPUT"
-          echo "content_changed=$content_changed" >> "$GITHUB_OUTPUT"
+            const fallbackToAllChanged = changedFiles.length === 0
+
+            if (fallbackToAllChanged) {
+              core.info(
+                'No changed files were available in the push payload; treating tracked areas as changed'
+              )
+            } else {
+              core.info(`Detected ${changedFiles.length} changed file(s) from push payload`)
+            }
+
+            const cmsChanged =
+              fallbackToAllChanged || changedFiles.some((file) => file.startsWith('cms/'))
+            const contentChanged =
+              fallbackToAllChanged || changedFiles.some((file) => contentPattern.test(file))
+
+            if (cmsChanged) {
+              core.info('CMS changes detected')
+            }
+
+            if (contentChanged) {
+              core.info('Content changes detected')
+            }
+
+            core.setOutput('cms_changed', String(cmsChanged))
+            core.setOutput('content_changed', String(contentChanged))
 
   rebuild-strapi:
     needs: detect-changes
