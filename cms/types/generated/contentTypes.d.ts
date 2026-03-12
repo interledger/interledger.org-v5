@@ -713,6 +713,7 @@ export interface ApiFoundationPageFoundationPage
       Schema.Attribute.DefaultTo<'grant'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -834,6 +835,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'hackathon'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
