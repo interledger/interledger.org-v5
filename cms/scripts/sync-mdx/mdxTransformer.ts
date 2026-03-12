@@ -41,10 +41,24 @@ export function getEntryField(entry: StrapiEntry | null, key: string): unknown {
   return entryRecord[key] ?? null
 }
 
+function normalizeStrapiFilename(filename: string) {
+  // Strapi adds hash to media name: name_<10 hex chars>.ext
+  // and replaces `-` and spaces with `_` when generating image url
+  return (normalizedFilename = filename
+    .replace(/_[a-f0-9]{10}(?=\.)/i, '') // remove hash
+    .replace(/-/g, '_')
+    .replace(/\s+/g, '_')
+    .replace(/[^\w_.]/g, ''))
+}
+
 async function uploadImageToStrapi(
   STRAPI_URL: string,
   STRAPI_TOKEN: string,
-  { filePath, alt }: { filePath: string; alt: string | undefined }
+  {
+    filePath,
+    name,
+    alt
+  }: { filePath: string; name: string; alt: string | undefined }
 ): Promise<number | null> {
   if (!filePath) return null
 
@@ -60,7 +74,7 @@ async function uploadImageToStrapi(
     formData.append('files', blob, path.basename(fullPath))
     formData.append(
       'fileInfo',
-      JSON.stringify({ alternativeText: alt ?? null })
+      JSON.stringify({ name: name ?? undefined, alternativeText: alt ?? null })
     )
 
     const res = await fetch(`${STRAPI_URL}/api/upload`, {
@@ -93,7 +107,8 @@ async function getImageFromStrapi(
 ): Promise<number | null> {
   const photoUrl = nullOrValue(image)
   if (!photoUrl) return null
-  const name = path.basename(photoUrl)
+
+  const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   try {
     const existing = await strapi.findUploadByName(name)
@@ -102,6 +117,7 @@ async function getImageFromStrapi(
     }
     const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
       filePath: photoUrl,
+      name,
       alt
     })
     return uploaded

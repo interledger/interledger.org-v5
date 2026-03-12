@@ -66,7 +66,7 @@ function generateBlogMDX(post: BlogResult) {
               `\n  - author: ${q(bio.author)}`,
               bio.profileBio ? `\n    text: '${q(bio.profileBio)}'` : null,
               bio.profileImage
-                ? `\n    image: '${q(bio.profileImage.name)}'`
+                ? `\n    image: '${q(bio.profileImage.url)}'`
                 : null
             ]
               .filter(Boolean)
@@ -82,14 +82,14 @@ function generateBlogMDX(post: BlogResult) {
     `date: ${post.date}`,
     `slug: ${post.slug}`,
     `pillar: '${q(post.pillar)}'`,
-    post.featureImage?.name
-      ? `featureImage: '${q(post.featureImage.name)}'`
+    post.featureImage?.url
+      ? `featureImage: '${q(post.featureImage.url)}'`
       : null,
     post.featureImage?.alternativeText
       ? `featureImageAlt: '${q(post.featureImage.alternativeText)}'`
       : null,
-    post.thumbnailImage?.name
-      ? `thumbnailImage: '${q(post.thumbnailImage.name)}'`
+    post.thumbnailImage?.url
+      ? `thumbnailImage: '${q(post.thumbnailImage.url)}'`
       : null,
     post.thumbnailImage?.alternativeText
       ? `thumbnailImageAlt: '${q(post.thumbnailImage.alternativeText)}'`
