@@ -190,7 +190,7 @@ jobs:
   sync-mdx-to-strapi:
     needs: [detect-changes, rebuild-strapi]
     if: |
-      always() &&
+      (needs.rebuild-strapi.result == 'success' || needs.rebuild-strapi.result == 'skipped') &&
       needs.detect-changes.outputs.content_changed == 'true'
     runs-on: ubuntu-latest
 
