@@ -64,14 +64,14 @@ function isClickOutside(
   nodeList: NodeListOf<Element>
 ): boolean {
   const eventTarget = event.target as Element
-  return !Array.from(nodeList).some((element) =>
-    element.contains(eventTarget)
-  )
+  return !Array.from(nodeList).some((element) => element.contains(eventTarget))
 }
 
 /** Sets up submenu button toggling, Escape key, and click-outside closing. */
 function initSubmenuToggle() {
-  const navList = document.querySelector('[data-nav-list]') as HTMLElement | null
+  const navList = document.querySelector(
+    '[data-nav-list]'
+  ) as HTMLElement | null
 
   if (!navList || !document.contains(navList)) return
 
