@@ -8,14 +8,14 @@ export function serialize(block: {
   heading?: string
   ambassadors?: AmbassadorBase[]
 }): string {
-  const slugs = (block.ambassadors || [])
-    .filter((amb) => amb?.slug)
-    .map((amb) => `'${escSingle(amb.slug)}'`)
+  const pathSlugs = (block.ambassadors || [])
+    .filter((amb) => amb?.pathSlug)
+    .map((amb) => `'${escSingle(amb.pathSlug)}'`)
 
-  if (slugs.length === 0) return ''
+  if (pathSlugs.length === 0) return ''
 
   const headingAttr = block.heading
     ? ` heading="${escDouble(block.heading)}"`
     : ''
-  return `<AmbassadorGrid${headingAttr} slugs={[${slugs.join(',')}]} />`
+  return `<AmbassadorGrid${headingAttr} pathSlugs={[${pathSlugs.join(',')}]} />`
 }

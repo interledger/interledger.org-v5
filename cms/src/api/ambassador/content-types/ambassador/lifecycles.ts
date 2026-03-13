@@ -34,7 +34,7 @@ function generateMdxContent(
   const q = yamlSingleQuoteScalar
   const fields = [
     `name: ${q(ambassador.name)}`,
-    `slug: ${q(ambassador.slug)}`,
+    `pathSlug: ${q(ambassador.pathSlug)}`,
     `description: ${q(ambassador.description || '')}`,
     `photo: ${q(photoUrl)}`,
     `photoAlt: ${q(photoAlt)}`,

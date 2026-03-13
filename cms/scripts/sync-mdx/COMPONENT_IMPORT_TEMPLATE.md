@@ -110,12 +110,12 @@ Handler modules register against the singleton `COMPONENT_HANDLERS` map in `mdxB
 
 Use `jsxExtract.ts`. Do not read `node.attributes` directly.
 
-| Helper                                            | Use                                           |
-| ------------------------------------------------- | --------------------------------------------- |
-| `getStringAttr(node, 'name')`                     | Optional string                               |
-| `getStringAttr(node, 'name', { required: true })` | Required string                               |
-| `getBooleanAttr(node, 'name')`                    | Boolean or valueless boolean                  |
-| `getStringArrayAttr(node, 'name')`                | Static string arrays like `slugs={["a","b"]}` |
+| Helper                                            | Use                                               |
+| ------------------------------------------------- | ------------------------------------------------- |
+| `getStringAttr(node, 'name')`                     | Optional string                                   |
+| `getStringAttr(node, 'name', { required: true })` | Required string                                   |
+| `getBooleanAttr(node, 'name')`                    | Boolean or valueless boolean                      |
+| `getStringArrayAttr(node, 'name')`                | Static string arrays like `pathSlugs={["a","b"]}` |
 
 Invalid input must raise `MdxParserError`.
 
@@ -137,10 +137,10 @@ ambassadors: {
 }
 ```
 
-Resolve slugs with `ctx.resolveRelation!(apiId, slug)`:
+Resolve pathSlugs with `ctx.resolveRelation!(apiId, pathSlug)`:
 
 ```ts
-const { documentId } = await ctx.resolveRelation!('ambassadors', slug)
+const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
 ```
 
 ## Error Rules
@@ -149,10 +149,10 @@ Do not silently skip bad input.
 
 - Missing required prop: `MISSING_REQUIRED_PROP`
 - Non-static expression: `DYNAMIC_EXPRESSION`
-- Unresolved relation slug: `UNRESOLVED_RELATION`
+- Unresolved relation pathSlug: `UNRESOLVED_RELATION`
 - Unknown JSX component: `UNSUPPORTED_COMPONENT` (core parser)
 
-`buildPagePayload` in `mdxTransformer.ts` rethrows parser errors with the MDX slug in the message.
+`buildPagePayload` in `mdxTransformer.ts` rethrows parser errors with the MDX pathSlug in the message.
 
 ## Minimum Test Coverage
 

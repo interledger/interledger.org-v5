@@ -6,7 +6,7 @@ import { marked } from 'marked'
 
 // Get the documentId from the query string
 export const prerender = false
-const documentId = Astro.url.searchParams.get('slug')
+const documentId = Astro.url.searchParams.get('pathSlug')
 if (!documentId) {
   throw new Error('Missing documentId in preview URL')
 }
@@ -26,7 +26,7 @@ if (!article) {
 const frontmatter = {
   title: article.title,
   description: article.description,
-  slug: article.slug,
+  pathSlug: article.pathSlug,
   date: article.publishedAt,
   pillar: article.pillar,
   featureImage: article.featuredImage?.url,

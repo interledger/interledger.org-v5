@@ -8,7 +8,7 @@ import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 export async function getStaticPaths() {
   const blogEntries = await getCollection('foundation-blog')
   return blogEntries.map((entry) => ({
-    params: { id: entry.id },
+    params: { id: entry.data.pathSlug },
     props: { entry }
   }))
 }

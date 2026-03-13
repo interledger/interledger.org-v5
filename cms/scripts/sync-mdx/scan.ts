@@ -61,13 +61,13 @@ function scanDirectory({
     const { data: frontmatter, content } = matter(fileContent)
     const trimmedContent = content.trim()
 
-    // Extract slug: prefer frontmatter, otherwise derive from filename
-    let slug: string
-    if (frontmatter.slug && typeof frontmatter.slug === 'string') {
-      slug = frontmatter.slug
+    // Extract pathSlug: prefer frontmatter.pathSlug, otherwise derive from filename
+    let pathSlug: string
+    if (frontmatter.pathSlug && typeof frontmatter.pathSlug === 'string') {
+      pathSlug = frontmatter.pathSlug
     } else {
       // Remove .mdx extension and date prefix (e.g., "2025-01-15-") if present
-      slug = filename
+      pathSlug = filename
         .replace(/\.(mdx|md)$/, '')
         .replace(/^\d{4}-\d{2}-\d{2}-/, '')
     }
@@ -81,7 +81,7 @@ function scanDirectory({
     mdxFiles.push({
       file: filename,
       filepath,
-      slug,
+      pathSlug,
       locale: fileLocale,
       frontmatter,
       content: trimmedContent,
@@ -98,7 +98,7 @@ function scanDirectory({
  *
  * Scans:
  * - Base directory: src/content/<contentTypeDir>/ (English files)
- * - Locale directories: src/content/<locale>/<contentTypeDir>/ (localized files)
+ * - Locale directories: src/content/<contentTypeDir>/<locale>/ (localized files)
  *
  * @param contentType - Content type to scan (e.g., 'foundation-pages')
  * @param contentTypes - Content type configurations
@@ -121,18 +121,17 @@ export function scanMDXFiles(
   mdxFiles.push(...englishFiles)
 
   // Scan locale directories for translated files
-  // Structure: src/content/<locale>/<contentTypeDir>/
-  const contentDir = path.dirname(baseDir)
-  if (!fs.existsSync(contentDir)) {
+  // Structure: src/content/<contentTypeDir>/<locale>/
+  if (!fs.existsSync(baseDir)) {
     return mdxFiles
   }
 
   // Read all directories in the content folder
   let localeDirs: fs.Dirent[]
   try {
-    localeDirs = fs.readdirSync(contentDir, { withFileTypes: true })
+    localeDirs = fs.readdirSync(baseDir, { withFileTypes: true })
   } catch (error) {
-    console.error(`Failed to read content directory: ${contentDir}`, error)
+    console.error(`Failed to read content directory: ${baseDir}`, error)
     return mdxFiles
   }
 
@@ -143,19 +142,9 @@ export function scanMDXFiles(
       continue
     }
 
-    // Skip the base content type directory itself (e.g., don't scan "foundation-pages" as a locale)
-    const contentTypeDirName = path.basename(baseDir)
-    if (localeDir.name === contentTypeDirName) {
-      continue
-    }
-
     // Build path to locale-specific content directory
-    // Example: src/content/es/foundation-pages/
-    const localeContentDir = path.join(
-      contentDir,
-      localeDir.name,
-      contentTypeDirName
-    )
+    // Example: src/content/foundation-pages/es/
+    const localeContentDir = path.join(baseDir, localeDir.name)
 
     // Skip if locale directory doesn't have this content type
     if (!fs.existsSync(localeContentDir)) {
@@ -180,7 +169,7 @@ export function scanMDXFiles(
  * This ensures we check for orphaned entries in all locales, even if a specific
  * content type's locale directory was removed.
  *
- * Example: If es/foundation-pages/ is removed but es/summit-pages/ still exists,
+ * Example: If foundation-pages/es/ is removed but summit-pages/es/ still exists,
  * we still check for orphaned "es" entries in Strapi.
  *
  * @param _contentType - Content type (unused, kept for API consistency)
@@ -199,15 +188,14 @@ export function getLocalesToCheck(
   >) {
     const config = contentTypes[contentType]
     const baseDir = config.dir
-    const contentDir = path.dirname(baseDir)
 
-    if (!fs.existsSync(contentDir)) {
+    if (!fs.existsSync(baseDir)) {
       continue
     }
 
     try {
       // Read all directories in the content folder
-      const entries = fs.readdirSync(contentDir, { withFileTypes: true })
+      const entries = fs.readdirSync(baseDir, { withFileTypes: true })
 
       for (const entry of entries) {
         // Skip files, only process directories
@@ -215,19 +203,9 @@ export function getLocalesToCheck(
           continue
         }
 
-        // Skip the content type directory itself (e.g., "foundation-pages")
-        const contentTypeDirName = path.basename(baseDir)
-        if (entry.name === contentTypeDirName) {
-          continue
-        }
-
         // Check if this locale has content for this content type
-        // Example: src/content/es/foundation-pages/
-        const localeContentDir = path.join(
-          contentDir,
-          entry.name,
-          contentTypeDirName
-        )
+        // Example: src/content/foundation-pages/es/
+        const localeContentDir = path.join(baseDir, entry.name)
         if (fs.existsSync(localeContentDir)) {
           locales.add(entry.name)
         }
