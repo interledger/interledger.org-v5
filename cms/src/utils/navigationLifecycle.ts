@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { getProjectRoot } from './paths'
-import { gitCommitAndPush } from './gitSync'
+import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { uidToLogLabel } from './mdx'
+import { shouldSkipMdxExport } from './pageLifecycle'
 
 // Strapi v5 Document API types
 interface StrapiDocumentAPI {
@@ -74,7 +74,7 @@ function writeNavigationFile(
   config: NavigationLifecycleConfig,
   data: NavigationData
 ): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   const outputDir = path.dirname(outputPath)
 
@@ -126,7 +126,7 @@ async function fetchPublishedNavigation(
 async function deleteNavigationFile(
   config: NavigationLifecycleConfig
 ): Promise<string | null> {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
   try {
     if (fs.existsSync(outputPath)) {
@@ -149,6 +149,7 @@ async function deleteNavigationFile(
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
   return {
     async afterCreate(_event: Event) {
+      if (shouldSkipMdxExport()) return
       console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const navigation = await fetchPublishedNavigation(config)
       if (!navigation) {
@@ -159,39 +160,18 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
       }
       const outputPath = writeNavigationFile(config, navigation)
       await gitCommitAndPush(
-        outputPath,
-        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
-      )
-    },
-
-    async afterUpdate(_event: Event) {
-      console.log(`📝 Updating ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const navigation = await fetchPublishedNavigation(config)
-
-      if (!navigation) {
-        const deletedPath = await deleteNavigationFile(config)
-        if (deletedPath) {
-          await gitCommitAndPush(
-            deletedPath,
-            `${uidToLogLabel(config.contentTypeUid)}: unpublish navigation`
-          )
-        }
-        return
-      }
-
-      const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        outputPath,
+        [outputPath],
         `${uidToLogLabel(config.contentTypeUid)}: update navigation`
       )
     },
 
     async afterDelete(_event: Event) {
+      if (shouldSkipMdxExport()) return
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
       const deletedPath = await deleteNavigationFile(config)
       if (deletedPath) {
         await gitCommitAndPush(
-          deletedPath,
+          [deletedPath],
           `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
         )
       }

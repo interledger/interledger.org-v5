@@ -19,7 +19,7 @@ export async function syncContentType(
   console.log(`\n📁 Syncing ${contentType}...`)
 
   const scanned = scanMDXFiles(contentType, ctx.contentTypes)
-  const { valid: mdxFiles, invalid } = validateMdxFiles(contentType, scanned)
+  const { valid: mdxFiles, invalid } = validateMdxFiles(config, scanned)
 
   if (invalid.length > 0) {
     for (const err of invalid) {
@@ -41,19 +41,19 @@ export async function syncContentType(
     errors: invalid.length
   }
 
-  // Build map of all MDX slugs by locale (valid + invalid) to prevent deletion
+  // Build map of all MDX pathSlugs by locale (valid + invalid) to prevent deletion
   const mdxSlugsByLocale = buildMdxSlugsByLocale(mdxFiles)
-  // Add invalid MDX slugs so we don't delete Strapi entries that have MDX files (even if invalid)
+  // Add invalid MDX pathSlugs so we don't delete Strapi entries that have MDX files (even if invalid)
   for (const err of invalid) {
     const locale = err.locale || 'en'
     const slugSet = mdxSlugsByLocale.get(locale) ?? new Set()
-    slugSet.add(err.slug)
+    slugSet.add(err.pathSlug)
     mdxSlugsByLocale.set(locale, slugSet)
   }
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
-  const processedLocaleSlugs = new Set<string>()
+  const processedLocalePathSlugs = new Set<string>()
 
   for (const englishMdx of englishFiles) {
     try {
@@ -71,10 +71,12 @@ export async function syncContentType(
 
         for (const candidate of matchingLocales) {
           const localeCode = candidate.localeMdx.locale || 'en'
-          processedLocaleSlugs.add(`${localeCode}:${candidate.localeMdx.slug}`)
+          processedLocalePathSlugs.add(
+            `${localeCode}:${candidate.localeMdx.pathSlug}`
+          )
 
           console.log(
-            `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.slug} (${localeCode})`
+            `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.pathSlug} (${localeCode})`
           )
 
           try {
@@ -89,7 +91,7 @@ export async function syncContentType(
             )
           } catch (error) {
             console.error(
-              `      ❌ Error processing localization ${candidate.localeMdx.slug} (${localeCode}): ${(error as Error).message}`
+              `      ❌ Error processing localization ${candidate.localeMdx.pathSlug} (${localeCode}): ${(error as Error).message}`
             )
             results.errors++
           }
@@ -97,7 +99,7 @@ export async function syncContentType(
       }
     } catch (error) {
       console.error(
-        `   ❌ Error processing ${englishMdx.slug} (${englishMdx.locale || 'en'}): ${(error as Error).message}`
+        `   ❌ Error processing ${englishMdx.pathSlug} (${englishMdx.locale || 'en'}): ${(error as Error).message}`
       )
       results.errors++
     }
@@ -118,7 +120,7 @@ export async function syncContentType(
     contentType,
     config,
     localeFiles,
-    processedLocaleSlugs,
+    processedLocalePathSlugs,
     ctx,
     results,
     dryRun

@@ -121,7 +121,8 @@ async function updateNavigation({
   }
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'x-skip-mdx-export': 'true' // Skip lifecycle git sync - sync script is import-only
   }
 
   if (token) {

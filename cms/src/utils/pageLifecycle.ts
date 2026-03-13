@@ -24,7 +24,6 @@ declare const strapi: {
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { getProjectRoot, PATHS } from './paths'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
@@ -33,12 +32,17 @@ import {
   getPreservedFields,
   uidToLogLabel
 } from './mdx'
+import {
+  deleteLocaleMdxFiles,
+  removeLocalizesFromLocaleFiles
+} from './localeMdxUtils'
+import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
 
 interface PageData {
   id: number
   documentId: string
   title: string
-  slug: string
+  pathSlug: string
   locale?: string
   hero?: {
     title?: string
@@ -61,6 +65,13 @@ interface Event {
   result?: PageData
 }
 
+/**
+ * Returns true when the request originates from the sync script.
+ * The sync script sets `x-skip-mdx-export: true` so we don't re-write
+ * MDX files that were the source of the import in the first place.
+ *
+ * strapi.requestContext uses AsyncLocalStorage — safe inside lifecycle hooks.
+ */
 export function shouldSkipMdxExport(): boolean {
   try {
     const ctx = strapi.requestContext.get() as {
@@ -77,25 +88,19 @@ export interface PageLifecycleConfig {
   contentTypeUid: string
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string
-  /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
-  localizedOutputDir: string
   /** Return extra frontmatter fields for content-type-specific data */
   extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
-  const projectRoot = getProjectRoot()
+  const projectRoot = getTargetRepoRoot()
+  const baseOutputDir = path.join(projectRoot, config.outputDir)
 
   if (locale === 'en') {
-    return path.join(projectRoot, config.outputDir)
+    return baseOutputDir
   }
 
-  return path.join(
-    projectRoot,
-    PATHS.CONTENT_ROOT,
-    locale,
-    config.localizedOutputDir
-  )
+  return path.join(baseOutputDir, locale)
 }
 
 function generateMDX(
@@ -107,25 +112,25 @@ function generateMDX(
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
-  // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
+  // Use englishSlug (current English pathSlug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
   // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
-    slug: page.slug,
+    pathSlug: page.pathSlug,
     title: page.title,
     ...(config.extraFrontmatter?.(page) ?? {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
     ...(localizesValue ? { localizes: localizesValue } : {}),
-    ...(isLocalized ? { locale } : {})
+    locale
   }
 
   const content = serializeContent(page.content)
 
-  return matter.stringify(content ? `\n${content}\n` : '\n', frontmatterData)
+  return matter.stringify(content ? `\n${content}\n` : '', frontmatterData)
 }
 
 async function writeMDXFile(
@@ -135,7 +140,7 @@ async function writeMDXFile(
 ): Promise<string> {
   const locale = page.locale || 'en'
   const outputDir = getOutputDir(config, locale)
-  const filepath = path.join(outputDir, `${page.slug}.mdx`)
+  const filepath = path.join(outputDir, `${page.pathSlug}.mdx`)
 
   try {
     if (!fs.existsSync(outputDir)) {
@@ -176,7 +181,23 @@ async function fetchPublished(
       populate: {
         hero: { populate: '*' },
         seo: { populate: '*' },
-        content: { populate: '*' }
+        content: {
+          on: {
+            'blocks.paragraph': {},
+            'blocks.callout-text': {},
+            'blocks.blockquote': {},
+            'blocks.cards-grid': {},
+            'blocks.card-links-grid': {},
+            'blocks.carousel': {},
+            'blocks.cta-banner': {},
+            'blocks.ambassador': {
+              populate: { ambassador: { populate: { photo: true } } }
+            },
+            'blocks.ambassadors-grid': {
+              populate: { ambassadors: true }
+            }
+          }
+        }
       }
     })
     return page as PageData | null
@@ -195,7 +216,7 @@ async function exportAllLocales(
 ): Promise<string[]> {
   const filepaths: string[] = []
   const englishPage = await fetchPublished(config, documentId, 'en')
-  const englishSlug = englishPage?.slug
+  const englishSlug = englishPage?.pathSlug
 
   for (const locale of LOCALES) {
     try {
@@ -232,42 +253,12 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
+      const label = uidToLogLabel(config.contentTypeUid)
       console.log(
-        `📝 Creating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
+        `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-    },
-
-    async afterUpdate(event: Event) {
-      const { result } = event
-      if (!result) return
-      if (shouldSkipMdxExport()) return
-
-      console.log(
-        `📝 Updating ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
-      )
-      const filepaths = await exportAllLocales(config, result.documentId)
-
-      // Clean up MDX for any locale that is no longer published
-      const deletedPaths: string[] = []
-      for (const locale of LOCALES) {
-        const outputDir = getOutputDir(config, locale)
-        const filepath = path.join(outputDir, `${result.slug}.mdx`)
-        if (!filepaths.includes(filepath) && fs.existsSync(filepath)) {
-          try {
-            fs.unlinkSync(filepath)
-            console.log(
-              `🗑️  Deleted unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`
-            )
-            deletedPaths.push(filepath)
-          } catch (error) {
-            console.error(
-              `Failed to delete unpublished ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`,
-              error
-            )
-          }
-        }
-      }
+      scheduleGitSync(label)
     },
 
     async afterDelete(event: Event) {
@@ -275,30 +266,23 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (!result) return
       if (shouldSkipMdxExport()) return
 
+      const label = uidToLogLabel(config.contentTypeUid)
       console.log(
-        `🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} MDX for all locales: ${result.slug}`
+        `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
       )
 
-      const deletedPaths: string[] = []
-      for (const locale of LOCALES) {
-        const outputDir = getOutputDir(config, locale)
-        const filepath = path.join(outputDir, `${result.slug}.mdx`)
+      removeLocalizesFromLocaleFiles(
+        result.pathSlug,
+        (locale) => getOutputDir(config, locale),
+        label
+      )
+      deleteLocaleMdxFiles(
+        (locale) =>
+          path.join(getOutputDir(config, locale), `${result.pathSlug}.mdx`),
+        label
+      )
 
-        if (fs.existsSync(filepath)) {
-          try {
-            fs.unlinkSync(filepath)
-            console.log(
-              `🗑️  Deleted ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`
-            )
-            deletedPaths.push(filepath)
-          } catch (error) {
-            console.error(
-              `Failed to delete ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`,
-              error
-            )
-          }
-        }
-      }
+      scheduleGitSync(label)
     }
   }
 }

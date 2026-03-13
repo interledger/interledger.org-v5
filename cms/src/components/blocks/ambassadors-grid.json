@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_ambassadors_grids",
+  "info": {
+    "displayName": "Ambassadors Grid",
+    "icon": "user",
+    "description": "Displays selected ambassadors in a grid layout"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "ambassadors": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ambassador.ambassador"
+    }
+  }
+}

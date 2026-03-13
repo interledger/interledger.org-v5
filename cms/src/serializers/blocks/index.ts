@@ -9,6 +9,10 @@ import { serialize as carousel } from './carousel.serializer'
 import { serialize as ctaBanner } from './cta-banner.serializer'
 import { serialize as imageRow } from './image-row.serializer'
 import { serialize as paragraph } from './paragraph.serializer'
+import { serialize as ambassador } from './ambassador.serializer'
+import { serialize as ambassadorsGrid } from './ambassadors-grid.serializer'
+import { serialize as blockquote } from './blockquote.serializer'
+import { serialize as calloutText } from './callout-text.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cards-grid': cardsGrid,
@@ -16,7 +20,11 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.carousel': carousel,
   'blocks.cta-banner': ctaBanner,
   'blocks.image-row': imageRow,
-  'blocks.paragraph': paragraph
+  'blocks.paragraph': paragraph,
+  'blocks.ambassador': ambassador,
+  'blocks.ambassadors-grid': ambassadorsGrid,
+  'blocks.blockquote': blockquote,
+  'blocks.callout-text': calloutText
 }
 
 export function serializeContent(

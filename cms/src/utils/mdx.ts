@@ -1,11 +1,15 @@
 /**
  * Shared MDX utilities for Strapi lifecycle hooks.
- * Serializers and helpers used across page, summit-page, and blog-post.
+ * Serializers and helpers used across page and summit-page.
  */
 
 import fs from 'fs'
 import matter from 'gray-matter'
+import { marked } from 'marked'
 import TurndownService from 'turndown'
+import type { MediaFile } from '../../types/shared/types'
+
+type MediaLike = { url?: string; formats?: MediaFile['formats'] }
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
@@ -26,24 +30,68 @@ export function uidToLogLabel(uid: string): string {
   return parts[parts.length - 1] ?? uid
 }
 
+/**
+ * Serializes a value as a YAML scalar: single-quoted string or 'null'.
+ * Escapes internal single quotes per YAML spec ('').
+ */
+export function yamlSingleQuoteScalar(
+  value: string | null | undefined
+): string {
+  if (value === null || value === undefined) return 'null'
+  return `'${String(value).replace(/'/g, "''")}'`
+}
+
+/**
+ * Gets the resolved URL for a Strapi media field.
+ * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
+ * falling back to the original URL if that format is unavailable.
+ */
 export function getImageUrl(
-  media: { url?: string } | undefined
+  media: MediaLike | undefined | null,
+  preferredFormat?: 'thumbnail' | 'small' | 'medium' | 'large'
 ): string | undefined {
   if (!media?.url) return undefined
 
-  if (media.url.startsWith('/uploads/')) {
-    const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
-    return uploadsBase
-      ? `${uploadsBase.replace(/\/$/, '')}${media.url}`
-      : media.url
+  function resolve(url: string): string {
+    if (url.startsWith('/uploads/')) {
+      const uploadsBase = process.env.STRAPI_UPLOADS_BASE_URL
+      return uploadsBase ? `${uploadsBase.replace(/\/$/, '')}${url}` : url
+    }
+    return url
   }
 
-  return media.url
+  if (preferredFormat && media.formats?.[preferredFormat]?.url) {
+    return resolve(media.formats[preferredFormat].url)
+  }
+
+  return resolve(media.url)
 }
 
 export function htmlToMarkdown(html: string): string {
   if (!html) return ''
   return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
+}
+
+// ── Text helpers ─────────────────────────────────────────────────────────────
+
+export function markdownToHtml(markdown: string): string {
+  if (!markdown) return ''
+  return marked.parse(markdown) as string
+}
+
+/**
+ * Strips any surrounding straight or curly quotes from a blockquote string
+ * and wraps the result in curly double quotes for consistent styling.
+ */
+export function formatBlockquote(quote: string): string {
+  const stripped = quote
+    .trim()
+    .replace(
+      /^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu,
+      ''
+    )
+    .trim()
+  return `\u201C${stripped}\u201D`
 }
 
 // ── Frontmatter helpers ──────────────────────────────────────────────────────

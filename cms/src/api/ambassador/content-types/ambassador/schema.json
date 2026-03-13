@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ambassadors",
+  "info": {
+    "singularName": "ambassador",
+    "pluralName": "ambassadors",
+    "displayName": "Ambassador",
+    "description": "Grant ambassadors with profiles and social links"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "maxLength": 255,
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "pathSlug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "description": {
+      "type": "richtext",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "photo": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"],
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "linkedinUrl": {
+      "type": "string",
+      "maxLength": 500,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "grantReportUrl": {
+      "type": "string",
+      "maxLength": 500,
+      "pluginOptions": { "i18n": { "localized": true } }
+    }
+  }
+}

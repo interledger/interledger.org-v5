@@ -4,12 +4,12 @@ import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  // TODO Translation work goes here
   // i18n: {
   //   locales: ['es', 'en'],
   //   defaultLocale: 'en',
@@ -152,9 +152,15 @@ export default defineConfig({
         }
       }
     }),
-    mdx()
+    mdx(),
+    sitemap({
+      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
+    })
   ],
   vite: {
+    server: {
+      allowedHosts: ['.netlify.app', '.interledger.org']
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))

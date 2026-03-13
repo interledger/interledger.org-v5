@@ -20,26 +20,18 @@ export function getCmsDir(): string {
   return path.join(getProjectRoot(), 'cms')
 }
 
-/** Exits if not run from cms directory. */
-export function assertRunFromCms(): void {
-  if (path.basename(getCwd()) !== 'cms') {
-    console.error('❌ Error: run this script from the cms directory')
-    console.error('   Example: cd cms && pnpm run <command>')
-    process.exit(1)
-  }
-}
-
 /** Path segments relative to project root (Astro site root when cms runs from cms/). */
 export const PATHS = {
   CONTENT_ROOT: 'src/content',
   CONFIG_ROOT: 'src/config',
   UPLOADS: 'public/uploads',
-  /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/{locale}/). */
+  /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/<type>/{locale}). */
   CONTENT: {
-    blog: 'blog',
-    developersBlog: 'developers/blog',
+    ambassadors: 'ambassadors',
+    blog: 'foundation-blog-posts',
+    developersBlog: 'developers-blog-posts',
     foundationPages: 'foundation-pages',
-    summit: 'summit'
+    summitPages: 'summit-pages'
   },
   /** Public asset paths. */
   PUBLIC: 'public',
@@ -61,7 +53,7 @@ export function getContentPath(
 ): string {
   const subdir = PATHS.CONTENT[contentType]
   if (locale && locale !== 'en') {
-    return path.join(projectRoot, PATHS.CONTENT_ROOT, locale, subdir)
+    return path.join(projectRoot, PATHS.CONTENT_ROOT, subdir, locale)
   }
   return path.join(projectRoot, PATHS.CONTENT_ROOT, subdir)
 }

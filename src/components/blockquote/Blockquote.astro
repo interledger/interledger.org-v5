@@ -1,0 +1,50 @@
+---
+import { parseMarkdownInline } from '@/utils/mdx'
+
+interface Props {
+  source?: string
+  /** Plain-text quote. If omitted, slot content is used (MDX usage). */
+  quote?: string
+}
+
+const { source, quote } = Astro.props
+const htmlSource = parseMarkdownInline(source)
+---
+
+<div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">
+  <blockquote class="text-step-1">
+    {quote ?? <slot />}
+  </blockquote>
+  {
+    htmlSource && (
+      <p>
+        — <cite class="text-step-1" set:html={htmlSource} />
+      </p>
+    )
+  }
+</div>
+
+<!--
+  Styling rendered HTML from set:html
+
+  Since set:html injects raw HTML that doesn't receive Astro's scoped data
+  attributes, we use :global() to target injected child elements while keeping
+  the parent selector scoped to this component.
+-->
+<style>
+  /* Reset inherited prose styles for rendered HTML inside cite */
+  cite {
+    font-weight: 200;
+    font-style: normal;
+  }
+
+  cite :global(strong) {
+    color: inherit;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  cite :global(em) {
+    font-style: italic;
+  }
+</style>

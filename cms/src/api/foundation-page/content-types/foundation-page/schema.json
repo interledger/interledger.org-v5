@@ -5,7 +5,7 @@
     "singularName": "foundation-page",
     "pluralName": "foundation-pages",
     "displayName": "Foundation Page",
-    "description": "Website pages with dynamic content blocks"
+    "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting."
   },
   "options": {
     "draftAndPublish": true
@@ -19,41 +19,37 @@
     "title": {
       "type": "string",
       "required": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "targetField": "title",
       "required": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "path": {
+      "type": "string",
+      "pluginOptions": { "i18n": { "localized": true } },
+      "description": "Route path e.g. /grant/ambassadors. Astro uses for file placement."
+    },
+    "pageType": {
+      "type": "enumeration",
+      "enum": ["grant", "policy", "developer"],
+      "default": "grant",
+      "pluginOptions": { "i18n": { "localized": false } },
+      "description": "Grant Page, Policy Page, or Developer Page"
     },
     "seo": {
       "type": "component",
       "repeatable": false,
       "component": "shared.seo",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "hero": {
       "type": "component",
       "repeatable": false,
       "component": "shared.hero",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "content": {
       "type": "dynamiczone",
@@ -62,13 +58,13 @@
         "blocks.cards-grid",
         "blocks.card-links-grid",
         "blocks.carousel",
-        "blocks.cta-banner"
+        "blocks.cta-banner",
+        "blocks.ambassador",
+        "blocks.ambassadors-grid",
+        "blocks.blockquote",
+        "blocks.callout-text"
       ],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": { "i18n": { "localized": true } }
     }
   }
 }

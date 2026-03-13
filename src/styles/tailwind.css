@@ -139,6 +139,10 @@
     --color-table-stripe: #f6f7f9;
     --color-bg-inline-code: #edeef3;
     --color-tech-light-bg: oklch(98.21% 0.021 193.19);
+    --color-tech-primary: oklch(51.54% 0.088 194.77);
+    --color-mission-primary: oklch(55.27% 0.205 32.62);
+    --color-vision-primary: oklch(46.08% 0.258 291.47);
+    --color-values-primary:  oklch(56.84% 0.229 3.717);
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),
@@ -149,6 +153,43 @@
   [data-theme='dark'] {
     --color-bg: var(--color-black);
     --color-text: var(--color-white);
+  }
+
+  /* Category-based theming */
+  [data-category='tech'] {
+    --accent-color: var(--color-tech-primary); 
+    --feature-gradient: linear-gradient(
+    to right,
+    var(--color-tech-primary),
+    oklch(74.53% 0.082 202.65)
+  );
+  }
+
+  [data-category='mission'] {
+    --accent-color: var(--color-mission-primary);
+    --feature-gradient: linear-gradient(
+    to right,
+    var(--color-mission-primary),
+    oklch(76.1% 0.164 65)
+  );
+  }
+
+  [data-category='vision'] {
+    --accent-color: var(--color-vision-primary);
+    --feature-gradient: linear-gradient(
+    to right,
+    var(--color-vision-primary),
+    oklch(68.24% 0.206 303.127)
+  );
+  }
+
+  [data-category='values'] {
+    --accent-color: var(--color-values-primary);
+    --feature-gradient: linear-gradient(
+    to right,
+     var(--color-values-primary),
+    oklch(73% 0.158 351.42)
+  );
   }
 
   main {

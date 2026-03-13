@@ -1,0 +1,24 @@
+---
+import { parseMarkdown } from '@/utils/mdx'
+
+interface Props {
+  content?: string
+}
+
+const { content } = Astro.props
+
+const htmlContent = content ? await parseMarkdown(content) : null
+---
+
+<div
+  class="mb-space-s text-step-2 [&_p]:text-step-2 [&_p]:mb-space-xs [&_strong]:font-semibold [&_em]:italic [&_a]:text-primary [&_a]:underline"
+>
+  {htmlContent ? <Fragment set:html={htmlContent} /> : <slot />}
+</div>
+
+<style>
+  /* Astro automatically scopes this to divs in THIS component only */
+  div :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

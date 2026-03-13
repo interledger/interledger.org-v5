@@ -1,5 +1,62 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
+export interface BlocksAmbassador extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_ambassadors'
+  info: {
+    description: 'Display a single ambassador from the collection'
+    displayName: 'Ambassador'
+    icon: 'user'
+  }
+  attributes: {
+    ambassador: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::ambassador.ambassador'
+    >
+    showLinks: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
+  }
+}
+
+export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_ambassadors_grids'
+  info: {
+    description: 'Displays selected ambassadors in a grid layout'
+    displayName: 'Ambassadors Grid'
+    icon: 'user'
+  }
+  attributes: {
+    ambassadors: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ambassador.ambassador'
+    >
+    heading: Schema.Attribute.String
+  }
+}
+
+export interface BlocksBlockquote extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_blockquotes'
+  info: {
+    description: 'A styled blockquote with optional attribution'
+    displayName: 'Blockquote'
+    icon: 'quote'
+  }
+  attributes: {
+    quote: Schema.Attribute.Text & Schema.Attribute.Required
+    source: Schema.Attribute.RichText
+  }
+}
+
+export interface BlocksCalloutText extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_callout_texts'
+  info: {
+    description: 'Highlighted text block with larger font size for emphasis'
+    displayName: 'Callout Text'
+    icon: 'megaphone'
+  }
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required
+  }
+}
+
 export interface BlocksCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cards'
   info: {
@@ -426,6 +483,24 @@ export interface NavigationMenuItem extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedArticleBio extends Struct.ComponentSchema {
+  collectionName: 'components_shared_article_bios'
+  info: {
+    displayName: 'Article Bio'
+  }
+  attributes: {
+    author: Schema.Attribute.String
+    profileBio: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
+    profileImage: Schema.Attribute.Media<'images'>
+  }
+}
+
 export interface SharedCtaLink extends Struct.ComponentSchema {
   collectionName: 'components_shared_cta_links'
   info: {
@@ -607,9 +682,31 @@ export interface SharedSeo extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedTags extends Struct.ComponentSchema {
+  collectionName: 'components_shared_tags'
+  info: {
+    displayName: 'Tags'
+  }
+  attributes: {
+    tagValue: Schema.Attribute.Enumeration<
+      [
+        'Announcements',
+        'Community & Events',
+        'Grants & Grantee Insights',
+        'Interledger Technology',
+        'Thought Leadership'
+      ]
+    >
+  }
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blocks.ambassador': BlocksAmbassador
+      'blocks.ambassadors-grid': BlocksAmbassadorsGrid
+      'blocks.blockquote': BlocksBlockquote
+      'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid
@@ -621,11 +718,13 @@ declare module '@strapi/strapi' {
       'blocks.paragraph': BlocksParagraph
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
+      'shared.article-bio': SharedArticleBio
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
       'shared.section': SharedSection
       'shared.seo': SharedSeo
+      'shared.tags': SharedTags
     }
   }
 }
