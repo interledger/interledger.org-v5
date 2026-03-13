@@ -205,6 +205,9 @@ async function fetchPublished(
             },
             'blocks.ambassadors-grid': {
               populate: { ambassadors: true }
+            },
+            'blocks.pdf-embed': {
+              populate: { file: true }
             }
           }
         }

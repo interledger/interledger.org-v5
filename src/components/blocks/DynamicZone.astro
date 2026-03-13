@@ -16,6 +16,7 @@ import AmbassadorBlock from './AmbassadorBlock.astro'
 import AmbassadorsGridBlock from './AmbassadorsGridBlock.astro'
 import BlockquoteBlock from './BlockquoteBlock.astro'
 import CalloutTextBlock from './CalloutTextBlock.astro'
+import PdfEmbedBlock from './PdfEmbedBlock.astro'
 
 interface Block {
   __component: string
@@ -38,7 +39,8 @@ const componentMap: Record<string, any> = {
   'blocks.ambassador': AmbassadorBlock,
   'blocks.ambassadors-grid': AmbassadorsGridBlock,
   'blocks.blockquote': BlockquoteBlock,
-  'blocks.callout-text': CalloutTextBlock
+  'blocks.callout-text': CalloutTextBlock,
+  'blocks.pdf-embed': PdfEmbedBlock
 }
 
 const resolvedBlocks = blocks

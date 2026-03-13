@@ -1,0 +1,21 @@
+---
+interface Props {
+  url: string
+  label?: string
+  analyticsEvent: string
+}
+const { url, label = 'Download PDF', analyticsEvent } = Astro.props
+---
+
+<div class="w-full mt-4">
+  <object
+    data={url}
+    type="application/pdf"
+    width="100%"
+    class="min-h-150 w-full"
+  >
+    <a href={url} class="cta--btn__link" data-umami-event={analyticsEvent}>
+      {label}
+    </a>
+  </object>
+</div>

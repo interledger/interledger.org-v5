@@ -17,7 +17,9 @@ import './ambassadorHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
 import './paragraphHandler'
+import './pdfEmbedHandler'
 import { createRelationResolver } from './ambassadorHandler'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -61,7 +63,17 @@ function buildParsedPagePayload(
   const locale = mdx.locale || 'en'
   return buildPagePayload(schema, mdx, existing, {
     locale,
-    resolveRelation: createRelationResolver(strapi, locale)
+    resolveRelation: createRelationResolver(strapi, locale),
+    resolveMediaUpload: async (url: string) => {
+      const id = await strapi.findUploadByUrl(url)
+      if (!id) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+        })
+      }
+      return id
+    }
   })
 }
 

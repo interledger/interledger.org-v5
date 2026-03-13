@@ -68,6 +68,18 @@ export interface CalloutTextBlock extends StrapiBlockBase {
   content: string
 }
 
+/** blocks.pdf-embed — inline PDF viewer with download fallback. */
+export interface PdfEmbedBlock extends StrapiBlockBase {
+  __component: 'blocks.pdf-embed'
+  source: 'media_library' | 'external_url'
+  /** Strapi upload file integer ID — set when source is 'upload'. */
+  file?: number
+  /** Set when source is 'external'. */
+  externalUrl?: string
+  label?: string
+  analyticsEvent: string
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -79,3 +91,4 @@ export type ParsedBlock =
   | AmbassadorsGridBlock
   | BlockquoteBlock
   | CalloutTextBlock
+  | PdfEmbedBlock
