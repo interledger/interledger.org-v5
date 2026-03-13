@@ -1,0 +1,2562 @@
+[
+  {
+    "groupId": null,
+    "groupName": "All",
+    "sessions": [
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Esta ponencia marca el tono de una cumbre llena de conversaciones audaces, colaboraciones significativas y una celebración compartida de lo que es posible cuando construimos juntos un futuro financiero abierto e inclusivo.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Ponencia",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995867",
+        "title": "Keynote Speaker",
+        "description": "Speaker: Briana Marbury, President & CEO, Interledger Foundation\r\n\r\nThis keynote sets the stage for a Summit filled with bold conversations, meaningful collaborations, and a shared celebration of what’s possible when we build an open, inclusive financial future, together.",
+        "startsAt": "2025-11-05T10:00:00",
+        "endsAt": "2025-11-05T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "daa019af-2d28-46a0-96b5-f98444e8a9f7",
+            "name": "Briana Marbury"
+          },
+          {
+            "id": "d0c28aa3-f2ca-4af8-abc1-1f561b9e4408",
+            "name": "Stefan Thomas"
+          },
+          {
+            "id": "0e20465e-b9bb-4348-9732-2c67874188ef",
+            "name": "Evan Schwartz"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "A medida que la infraestructura pública digital se convierte en la columna vertebral de los sistemas financieros mundiales, nos encontramos en una encrucijada crítica: ¿estas tecnologías fundamentales amplificarán las desigualdades existentes o se convertirán en motores de inclusión? Este panel examinará cómo se pueden poner en práctica los principios de derechos humanos dentro de la infraestructura financiera pública digital. Aprovechando la experiencia en materia de inclusión financiera, desarrollo de infraestructura pública digital y defensa de la justicia racial, el debate abordará cuestiones fundamentales como: ¿Cómo se traducen las normas mundiales de derechos humanos en especificaciones técnicas? ¿Dónde suelen frustrar los retos de implementación las buenas intenciones? ¿Cómo es cuando la justicia no es una idea secundaria, sino un principio básico del diseño? Y, lo que es más importante, ¿quién toma estas decisiones y cómo garantizamos que los más afectados tengan voz en la configuración de los sistemas que les servirán?",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Derechos humanos por diseño: una infraestructura financiera que funciona para todos",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995871",
+        "title": "Human Rights by Design: Financial Infrastructure that Works for Everyone",
+        "description": "As digital public infrastructure becomes the backbone of global financial systems, we stand at a critical juncture: will these foundational technologies amplify existing inequalities or become engines of inclusion? This panel will examine how human rights principles can be operationalized within digital public financial infrastructure. Drawing on expertise from financial inclusion, digital public infrastructure development, and racial justice advocacy, the discussion will tackle critical questions: How do global human rights norms translate into technical specifications? Where do implementation challenges most often derail good intentions? What does it look like when justice isn't an afterthought but a core design principle? And critically, who gets to make these decisions, and how do we ensure those most affected have a voice in shaping the systems that will serve them?",
+        "startsAt": "2025-11-05T11:30:00",
+        "endsAt": "2025-11-05T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "d55a0ff7-8857-4713-96a3-3898a61d0de6",
+            "name": "Ayden Férdeline"
+          },
+          {
+            "id": "ad2c458b-64a4-401b-aa98-05944bb9f7dd",
+            "name": "Ed Cable"
+          },
+          {
+            "id": "6dc84f36-6462-4938-ad3d-00abf3ae6952",
+            "name": "Hannah Draper"
+          },
+          {
+            "id": "925df3a9-96d7-4a3a-8b45-fed2d08718d3",
+            "name": "Nasser Eledroos"
+          },
+          {
+            "id": "1b1f8571-7e4f-40fe-8940-81c16be6efe2",
+            "name": "Alix Dunn"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Step into the shoes of innovators and regulators in this fast-paced, 90-minute simulation. \r\n\r\nParticipants will form small teams, either pitching bold new fintech solutions and serving on a regulatory panel that debates, challenges, and decides whether these ideas should move forward.\r\n\r\nArmed with innovation cards and guided briefings, FinTech teams will craft their proposals while Regulators prepare their oversight lens. The energy builds as proposals are pitched, regulators deliberate, and tough Q&A unfolds—culminating in real-time decisions that shape the fate of each innovation.\r\n\r\nThe session closes with an open reflection, inviting both sides to step back, share insights, and explore the balance between innovation, inclusion, and responsible regulation.\r\n\r\nFast. Interactive. Insightful. This is not just a session—it’s an immersive experience in the future of digital finance.\r\n\r\n__\r\n\r\nPonte en los zapatos de innovadores y reguladores en esta simulación trepidante de 90 minutos. Los participantes formarán pequeños equipos, ya sea para presentar nuevas y audaces soluciones fintech o para formar parte de un panel regulador que debate, cuestiona y decide si estas ideas deben seguir adelante. Armados con tarjetas de innovación y sesiones informativas guiadas, los equipos FinTech elaborarán sus propuestas mientras los reguladores preparan su perspectiva de supervisión. La energía va en aumento a medida que se presentan las propuestas, los reguladores deliberan y se desarrollan duras sesiones de preguntas y respuestas, que culminan en decisiones en tiempo real que determinan el destino de cada innovación. La sesión concluye con una reflexión abierta, en la que se invita a ambas partes a dar un paso atrás, compartir ideas y explorar el equilibrio entre la innovación, la inclusión y la regulación responsable. Rápida. Interactiva. Perspicaz. No se trata solo de una sesión, sino de una experiencia inmersiva en el futuro de las finanzas digitales.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "El dilema del regulador es un juego de rol atractivo y basado en el debate que sitúa a los participantes en la compleja encrucijada de permitir la innovación financiera y garantizar al mismo tiempo la protección de los consumidores. Los jugadores interpretarán el papel de innovadores FinTech o equipos reguladores, simulando las tensiones reales a las que se enfrentan los responsables políticos. Los equipos debatirán... y finalmente decidirán: si aprobar, aprobar con condiciones o rechazar las tecnologías financieras emergentes. El juego está diseñado para promover un debate reflexivo, cuestionar estereotipos y sacar a la luz las compensaciones éticas y estructurales inherentes a la toma de decisiones reguladoras.\r\nFormato de la sesión: Laboratorio de aprendizaje",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "El dilema del regulador",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995376",
+        "title": "The Regulator's Dilemma",
+        "description": "The Regulator’s Dilemma is an engaging, debate-driven role-playing game that places participants in the complex intersection of enabling financial innovation while ensuring consumer protection. Players will role-play being FinTech Innovators or Regulatory Teams, simulating the real-world tensions faced by policymakers. Teams will debate...and ultimately decide: whether to approve, conditionally approve, or reject emerging financial technologies. The game is designed to promote thoughtful discussion, challenge assumptions, and surface the ethical and structural trade-offs embedded in regulatory decision-making.\r\n",
+        "startsAt": "2025-11-05T11:30:00",
+        "endsAt": "2025-11-05T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+            "name": "Nandini Harihareswara"
+          },
+          {
+            "id": "d35ddcb5-3563-4cca-b731-6845dc0d406f",
+            "name": "Rafe Mazer"
+          },
+          {
+            "id": "83cc3863-e48d-42e4-8055-86c53c9ef693",
+            "name": "Jeremiah Lee"
+          },
+          {
+            "id": "c6428e78-fd0c-4348-bca1-4a4d81b7e81f",
+            "name": "Pablo Antón Díaz"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383932,
+                "name": "Learning Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69442,
+        "room": "Learn Together Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This session opens up the process behind Kanzu’s interoperable credit engine, how we built it, what broke along the way, and what we learned about scaling inclusion through infrastructure. \r\nWe’ll share current progress and outline what lies ahead as we prepare for user testing and nationwide rollout.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Finanzas Kanzu",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1033568",
+        "title": "Kanzu Finance",
+        "description": "The Infrastructure of Inclusion: Inside Kanzu Finance’s ILP Microloan Engine.",
+        "startsAt": "2025-11-05T11:30:00",
+        "endsAt": "2025-11-05T11:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8bb62141-31b1-4635-9f57-324d4eb0dcd5",
+            "name": "Maria Gorrettie Namuddu"
+          },
+          {
+            "id": "d31924a5-5e58-419e-a57f-13c9b9de7c48",
+            "name": "Lincon Ssebugwawo [ Kanzu Finance ]"
+          },
+          {
+            "id": "f05f5ce1-24b4-4f8f-b644-357305ebf3fd",
+            "name": "Peter Kakoma"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": " In this workshop we will cover:\r\n\r\n-Customer Needs and existing challenges while receiving remittances in Pakistan\r\n-Regulatory Compliance Requirements (KYC-AML-CFT for Inward Remittances to Pakistan)\r\n- A demonstration of receiving remittances via ILP\r\n",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Paysys Labs, una empresa líder en tecnología financiera conocida por sus innovadoras soluciones de pago digital y servicios financieros, se ha asociado con Allied Bank Limited para transformar el panorama de las remesas en Pakistán. Los bancos de Pakistán se enfrentan actualmente a retos como los altos costes y los retrasos en los pagos transfronterizos, lo que repercute en la satisfacción de los clientes. Este acuerdo permitirá a ABL ofrecer servicios de remesas más rápidos y rentables, mejorando la experiencia del cliente y ampliando la inclusión financiera en Pakistán.\r\nEste proyecto tiene como objetivo revolucionar los pagos transfronterizos mediante la integración de ABL en la red global Interledger Protocol  a través de la implementación de Open Connect Middleware por parte de Paysys Labs. Esto establecerá el nodo de ABL en la red ILP, lo que permitirá que las cuentas de los clientes funcionen como monederos digitales dentro del ecosistema ILP.\r\n\r\nDetalles de la sesión: En este taller trataremos los siguientes temas: -Las necesidades de los clientes y los retos actuales a la hora de recibir remesas en Pakistán. -Requisitos de cumplimiento normativo (KYC-AML-CFT para remesas entrantes en Pakistán). -Una demostración de cómo recibir remesas a través de ILP.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Acompañando a los bancos de Pakistán para ofrecer servicios de envío de remesas más rápidos y rentables a través de ILP.",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1033766",
+        "title": "Enabling Banks in Pakistan to offer faster, cost-effective remittance services via ILP",
+        "description": "Paysys Labs, a leading fintech company known for its innovative digital payment and financial service solutions, is partnering with Allied Bank Limited to transform the remittance landscape in Pakistan. Banks in Pakistan currently face challenges such as high costs and delays in cross-border payments, which impact customer satisfaction. This arrangement will enable ABL to offer faster, more cost-effective remittance services, enhancing customer experience and expanding financial inclusion in Pakistan.\r\n\r\nThis project aims to revolutionize cross-border payments by integrating ABL into the global Interledger Protocol  network through the implementation of Open Connect Middleware by Paysys Labs. This will establish ABL's node on the ILP network, allowing customer accounts to function as digital wallets within the ILP ecosystem.",
+        "startsAt": "2025-11-05T11:55:00",
+        "endsAt": "2025-11-05T12:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "58ec7ac2-d517-43a8-a12c-e73a381735da",
+            "name": "Karim Jindani"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Agenda (20 minutes):\r\n1.\tBessPay Plugin Introduction & Context – 2 min\r\n2.\tTechnical Overview: Open Payments Integration – 3 min\r\n3.\tLive Demo Part 1: Marketplace Owner Onboarding – 3 min\r\n4.\tLive Demo Part 2: Seller Onboarding – 4 min\r\n5.\tLive Demo Part 3: Buyer Checkout Experience – 5 min\r\n6.\tQ&A – 3 min",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "El complemento BessPay para Sharetribe integra el estándar de pagos abiertos de Interledger, lo que permite a las micro, pequeñas y medianas empresas realizar transacciones a nivel mundial en monedas locales de forma más rápida, económica y segura. En este laboratorio de demostración, los participantes verán una presentación en directo de SouthLink Marketplace, que abarca la configuración del propietario del mercado, la incorporación de vendedores, la vinculación de carteras y los flujos de pago de los compradores.\r\n\r\n\r\nLa demostración muestra cómo Open Payments hace que los pagos en los mercados sean interoperables e inclusivos. Los participantes aprenderán cómo los vendedores de micro, pequeñas y medianas empresas (MIPYMES) se unen a los ecosistemas de comercio digital, mientras que los propietarios de los mercados configuran carteras y gestionan transacciones transparentes. Con 440 millones de MIPYMES en el Sur Global que emplean a 1000 millones de personas (Banco Mundial), esta innovación impulsa el comercio transfronterizo, la inclusión financiera y el crecimiento sostenible.\r\n\r\n\r\nDetalles de la sesión: \r\nAgenda (20 minutes): 1.Introducción y contexto del complemento BessPay: 2 min. \r\n2. Descripción técnica general: integración de Open Payments: 3 min. \r\n3. Demostración en vivo, parte 1: incorporación del propietario del mercado: 3 min. \r\n4. Demostración en vivo, parte 2: incorporación del vendedor: 4 min. \r\n5. Demostración en vivo, parte 3: experiencia de pago del comprador: 5 min. \r\n6. Preguntas y respuestas: 3 min.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "BessPay Plugin: impulsando los mercados de micro, pequeñas y medianas empresas en Sharetribe con pagos abiertos Interledger",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1033769",
+        "title": "BessPay Plugin: Powering MSME Marketplaces on Sharetribe with Interledger Open Payments",
+        "description": "The BessPay Plugin for Sharetribe integrates Interledger’s Open Payments standard, enabling MSMEs to transact globally in local currencies, faster, cheaper, and more securely. In this Demo Lab, participants will see a live walkthrough of SouthLink Marketplace, covering marketplace owner setup, seller onboarding, wallet linking, and buyer checkout flows.\r\n\r\nThe demo shows how Open Payments make marketplace payments interoperable and inclusive. Participants will learn how MSME sellers join digital trade ecosystems while marketplace owners configure wallets and manage transparent transactions. With 440 million MSMEs in the Global South employing 1 billion people (World Bank), this innovation drives cross-border trade, financial inclusion, and sustainable growth.",
+        "startsAt": "2025-11-05T12:20:00",
+        "endsAt": "2025-11-05T12:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "569cb03f-bb7c-4ab2-957e-859bc047dc28",
+            "name": "Douglas Davidson"
+          },
+          {
+            "id": "9673d6a9-cea3-42a7-afa6-aefc0414a472",
+            "name": "Darnell Garcia"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Fireside chat\r\n\r\nPossible focus areas for prep:\r\n\r\n- Lessons from Mexico’s national inclusion strategy and Fintech Law\r\n- The role of open, interoperable infrastructure in enabling last-mile access\r\n- How community and cooperative finance institutions are digitizing responsibly\r\n- Opportunities for collaboration between policymakers, innovators, and local actors\r\n\r\n--\r\n\r\nDetalles de la sesión:  Charla informal. Posibles áreas de interés para la preparación: - Lecciones de la estrategia nacional de inclusión de México y la Ley Fintech - El papel de la infraestructura abierta e interoperable para permitir el acceso de última milla - Cómo las instituciones financieras comunitarias y cooperativas están digitalizando de forma responsable - Oportunidades de colaboración entre responsables políticos, innovadores y actores locales.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "La inclusión financiera ya no se limita a la apertura de cuentas, sino que consiste en garantizar una participación significativa en la economía digital. Esta sesión reúne a líderes de los sectores financiero público, privado y comunitario de México para debatir cómo los objetivos de las políticas nacionales se traducen en un impacto local.\r\nCon aportaciones del gobierno, las fintech y las redes comunitarias, la conversación explorará lo que se necesita para pasar de la inclusión sobre el papel a la inclusión en la práctica: los facilitadores normativos, la infraestructura tecnológica y las redes humanas que la hacen realidad. Juntos, los panelistas reflexionarán sobre el panorama financiero digital en evolución de México y las oportunidades para tender puentes entre las políticas públicas, las finanzas comunitarias y la innovación con el fin de lograr un sistema financiero más conectado e inclusivo.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "De la Política a la práctica: Inclusión financiera en México ",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995890",
+        "title": "From Policy to Practice: Financial Inclusion in Mexico",
+        "description": "Financial inclusion is no longer just about opening accounts, it’s about ensuring meaningful participation in the digital economy. This session brings together leaders from across Mexico’s public, private, and community finance sectors to discuss how national policy goals translate into local impact.\r\n\r\nWith insights from government, fintech, and community networks, the conversation will explore what it takes to move from inclusion on paper to inclusion in practice: the regulatory enablers, the technology infrastructure, and the human networks that make it real. Together, panelists will reflect on Mexico’s evolving digital finance landscape and the opportunities to bridge public policy, community finance, and innovation for a more connected, inclusive financial system.\r\n",
+        "startsAt": "2025-11-05T12:30:00",
+        "endsAt": "2025-11-05T13:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e23853f1-0524-4b73-8661-77afaecf8c1e",
+            "name": "Rocío Mejía Flores"
+          },
+          {
+            "id": "4971741e-f209-4d85-aa6a-0e7d77e0a0d8",
+            "name": "Lizette Neme Bechara"
+          },
+          {
+            "id": "dd156dfc-6371-4203-8473-284175d8bd53",
+            "name": "Erick Huerta Velázquez"
+          },
+          {
+            "id": "bbbb1a45-cd4c-416f-a84a-147b751b5d1a",
+            "name": "Natalia Cueto"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388271,
+                "name": "Spanish"
+              },
+              {
+                "id": 402870,
+                "name": "English Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "miPlata es una empresa fintech con sede en EE. UU. que colabora con empresas de obreros para ayudar a los empleados a acceder, gastar y enviar sus nóminas de forma más eficiente. Al integrar sistemas de nóminas, productos de tarjetas de débito estadounidenses, transferencias internacionales de dinero y monedas estables, miPlata hace que sea más rápido, barato y seguro para los empleados mantener a sus familias al otro lado de la frontera.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "miPlata: nóminas que llegan a casa",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1033772",
+        "title": "miPlata - Payroll that reaches home",
+        "description": "miPlata is a US-based fintech working with blue-collar businesses to help employees access, spend, and send their paycheck more efficiently. By integrating payroll systems, US debit card products, international money transfer, and stablecoins, miPlata makes it faster, cheaper and safer for employees to support their families across borders. ",
+        "startsAt": "2025-11-05T12:45:00",
+        "endsAt": "2025-11-05T13:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "df71ae97-3d07-4f93-a0d9-2a22d96cc6e6",
+            "name": "Miguel Alecio"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Imagine federated Uber, where groups of drivers organise themselves, set their own coverage and hours and bill using open payments, without intermediary or platform fees, and where you can choose from amongst a group of drivers you know. Imagine federated Amazon, where every Amazon 'shop' is a different website all sharing a common interface and search engine. Or federated Booking.com, where hotels use their websites as they were originally intended, but still get to offer an interoperable single booking system.\r\n\r\nHop Sauna is about reimagining e-commerce and social media. A place where communities set up their own creator and product spaces running software built on Hop Sauna, moderate their own content, establish their own rules, and own their own means of distribution.\r\n\r\nJoin me as I demo the current state of Hop Sauna and the roadmap to fully independent, federated and community-moderated commerce.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Hop Sauna reinventa el comercio electrónico y las redes sociales. Acompáñame mientras muestro la versión actual del software y la hoja de ruta hacia un comercio totalmente independiente, federado y moderado por la comunidad.\r\nDetalles de la sesión: Imagínese un Uber sindical, en el que grupos de conductores se organizan, establecen su propia cobertura y horarios y facturan mediante pagos abiertos, sin intermediarios ni comisiones de plataforma, y en el que se puede elegir entre un grupo de conductores que se conocen. Imagina un Amazon federal, donde cada «tienda» de Amazon es un sitio web diferente que comparte una interfaz y un motor de búsqueda comunes. O una Booking.com federal, donde los hoteles utilizan sus sitios web tal y como se concibió originalmente, pero siguen ofreciendo un sistema de reservas único e interoperable. Hop Sauna consiste en reinventar el comercio electrónico y las redes sociales. Un lugar donde las comunidades crean sus propios espacios de creadores y productos con software basado en Hop Sauna, moderan su propio contenido, establecen sus propias reglas y son dueños de sus propios medios de distribución. Acompáñeme en la demostración del estado actual de Hop Sauna y la hoja de ruta hacia un comercio totalmente independiente, federado y moderado por la comunidad.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Hop Sauna para el comercio federal moderado por la comunidad",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1033789",
+        "title": "Hop Sauna for federated community-moderated commerce",
+        "description": "Hop Sauna reimagines e-commerce and social media. Join me as I demo the current software build, and the roadmap to fully independent, federated and community-moderated commerce.",
+        "startsAt": "2025-11-05T13:10:00",
+        "endsAt": "2025-11-05T13:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "179ba8c7-f00e-448f-8002-6f2d3e349096",
+            "name": "Gavin Chait"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Del acceso al bienestar: diseño de herramientas financieras que las mujeres pueden utilizar y en las que puedan confiar\r\n\r\nAmérica Latina ha reducido las brechas de género en la titularidad de cuentas, pero las mujeres siguen siendo un 9,4 % menos propensas a utilizar los servicios financieros formales. El acceso por sí solo no es suficiente; los productos deben ser fáciles de usar, fiables y relevantes para la vida cotidiana. En México, el debate se está desplazando hacia el bienestar financiero y la resiliencia, vinculando el dinero a prioridades como la salud, la estabilidad familiar y la educación. En esta sesión se examina cómo una perspectiva centrada en el bienestar puede ofrecer un punto de partida más atractivo y cómo los pagos abiertos e interoperables pueden apoyar ese cambio.\r\nNos preguntaremos cómo las instituciones y las fintech pueden diseñar para la usabilidad y la agencia, no solo para el acceso; qué papel desempeñan la confianza, las barreras culturales y la educación financiera en la adopción en el mundo real; y si vincular los servicios a resultados como la atención sanitaria, la escolarización o la seguridad familiar puede desbloquear una participación más amplia.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Del acceso al bienestar: diseño de herramientas financieras que las mujeres pueden utilizar y en las que puedan confiar",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995902",
+        "title": "From Access to Wellbeing: Designing Financial Tools Women Can Trust and Use",
+        "description": "Latin America has narrowed gender gaps in account ownership, yet women remain 9.4% less likely to use formal financial services. Access alone is not enough; products must be usable, trustworthy, and relevant to daily life. In Mexico the conversation is shifting toward financial wellbeing and resilience, linking money to priorities such as health, family stability, and education. This session examines how a wellbeing lens can offer a more compelling entry point and how open, interoperable payments can support that shift.\r\n\r\nWe will ask how institutions and fintechs can design for usability and agency, not only access; what roles trust, cultural barriers, and financial literacy play in real-world uptake; and whether tying services to outcomes like healthcare, schooling, or family security can unlock broader participation.\r\n",
+        "startsAt": "2025-11-05T14:30:00",
+        "endsAt": "2025-11-05T15:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "32e79d82-db5e-4380-8af2-3b84001442cd",
+            "name": "Carolina Trivelli"
+          },
+          {
+            "id": "d28aade5-16d6-4682-aa4b-92fdf2c66fd9",
+            "name": "María José Roa"
+          },
+          {
+            "id": "d5f742a7-2e15-4515-9364-91970db523f0",
+            "name": "Pilar Islas Rodríguez"
+          },
+          {
+            "id": "bdfa2c7f-2c92-4eae-a7eb-24c0e8fa4052",
+            "name": "Jeffrey Bower"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388271,
+                "name": "Spanish"
+              },
+              {
+                "id": 402870,
+                "name": "English Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In this interactive workshop, Interledger Foundation Ambassador Caroline Sinders will present findings from their ambassadorship research project on harmful design patterns and create space to ideate with policymakers, experts, designers, technologists, and advocacy-focused solutions and mitigations to address these patterns. Harmful design patterns (often called ‘deceptive design’ or ‘dark patterns’) are design patterns that nudge, confuse, exploit, manipulate, or trick the user into making a decision that they might not have meant to. Different countries, regions, and regulatory blocks have recently codified legislation to curb and mitigate harmful design patterns. Other countries will utilize pre-existing laws and regulations, as seen in the US with the FTC's definitions of deception and as seen in the UK under GDPR and competition law, to combat harmful design practices and patterns. \r\n\r\n\r\nIn 90 minutes, this workshop will provide a brief presentation of the research project's findings, including the current state of regulation related to harmful design patterns, a breakdown of what they are, and suggestions for next steps. Following the presentation will be space for lively discussion, questions, and answers. After that, the room will then be divided into small working groups to discuss a series of questions related to harmful design patterns, including: public awareness, support for technologists/designers/product teams who are building products for people, gaps/barriers in regulation, mitigation tactics, and any outstanding questions surfaced from the previous Q&A. \r\n\r\nThe workshop will conclude with information on how to stay in touch (including the possibility of forming a working group for the Interledger Foundation community) and outline the next steps for the project.\r\n",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "¿Qué es el diseño perjudicial y cómo afecta a los usuarios? ¿Cómo puede afectar a la seguridad de los consumidores? ¡Ven a este taller para obtener más información!\r\nLos patrones de diseño perjudiciales, a menudo denominados «patrones oscuros» o «diseño engañoso», son diseños que pueden influir, manipular, confundir o engañar a los usuarios para que tomen decisiones que no tenían intención de tomar. En California, la UE y la India existen normativas específicas contra los patrones de diseño perjudiciales, pero muchos países utilizan normativas preexistentes para combatirlos. Este taller se centrará en el proyecto embajador de Caroline Sinders sobre la investigación de patrones de diseño perjudiciales en los servicios financieros, proporcionará consejos y trucos sobre cómo identificar y evitar los patrones de diseño perjudiciales, y desentrañará cómo se entrecruzan el diseño y la política, todo ello centrándose en cómo diseñar para proteger a los consumidores marginados y vulnerables.\r\nFormato de la sesión Laboratorio de aprendizaje\r\nDetalles de la sesión: En este taller interactivo, Caroline Sinders, embajadora de la Fundación Interledger, presentará los resultados de su proyecto de investigación sobre patrones de diseño perjudiciales y creará un espacio para intercambiar ideas con responsables políticos, expertos, diseñadores y tecnólogos, así como soluciones y medidas de mitigación centradas en la defensa de los derechos para abordar estos patrones. Los patrones de diseño perjudiciales (a menudo denominados «diseño engañoso» o «patrones oscuros») son patrones de diseño que empujan, confunden, explotan, manipulan o engañan al usuario para que tome una decisión que tal vez no tenía intención de tomar. Diferentes países, regiones y bloques reguladores han codificado recientemente la legislación para frenar y mitigar los patrones de diseño perjudiciales. Otros países utilizan leyes y reglamentos preexistentes, como se observa en los Estados Unidos con las definiciones de engaño de la FTC y en el Reino Unido con el RGPD y la ley de competencia, para combatir las prácticas y patrones de diseño perjudiciales. En 90 minutos, este taller ofrecerá una breve presentación de los resultados del proyecto de investigación, incluyendo el estado actual de la regulación relacionada con los patrones de diseño perjudiciales, un desglose de lo que son y sugerencias para los próximos pasos. Tras la presentación, habrá espacio para un animado debate, preguntas y respuestas. A continuación, la sala se dividirá en pequeños grupos de trabajo para debatir una serie de cuestiones relacionadas con los patrones de diseño perjudiciales, entre las que se incluyen: la concienciación pública, el apoyo a los tecnólogos/diseñadores/equipos de producto que crean productos para las personas, las lagunas/barreras en la normativa, las tácticas de mitigación y cualquier cuestión pendiente que haya surgido en la ronda anterior de preguntas y respuestas. El taller concluirá con información sobre cómo mantenerse en contacto (incluida la posibilidad de formar un grupo de trabajo para la comunidad de la Fundación Interledger) y se esbozarán los próximos pasos del proyecto.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Combatir contra los diseños peligrosos para la seguridad de los consumidores",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "996920",
+        "title": "Combatting Harmful Design for Consumer Safety",
+        "description": "What is harmful design and how does it impact users? How can does impact consumer safety? Come to this workshop to find out more! \r\n\r\nHarmful design patterns, often called dark patterns or deceptive design, is design that can nudge, manipulate, confuse or deceive users into making decisions they didn't intend to make. In California, the EU, and India, there is specific regulation against harmful design patterns but many countries use pre-existing regulation to combat harmful design patterns. This workshop will focus on Caroline Sinders' ambassador project on researching harmful design patterns in financial services, provide tips and tricks on how to identify and avoid harmful design patterns, and unpack how design and policy intersect, all while centering how to design to protect marginalized and vulnerable consumers. \r\n",
+        "startsAt": "2025-11-05T14:30:00",
+        "endsAt": "2025-11-05T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "4bc0f1d5-3ad9-4cc2-ae85-d7f317578716",
+            "name": "Caroline Sinders"
+          },
+          {
+            "id": "d5bc736d-6b83-44b9-9b4c-bcb71535a4ff",
+            "name": "Antonia Valencia"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383932,
+                "name": "Learning Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 388271,
+                "name": "Spanish"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69442,
+        "room": "Learn Together Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "tbd",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Cartera Interledger ",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1018847",
+        "title": "Interledger Wallet ",
+        "description": null,
+        "startsAt": "2025-11-05T14:30:00",
+        "endsAt": "2025-11-05T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "22270cdd-1a5d-499e-9a2c-d45834d20e10",
+            "name": "Vlad Daneliuc"
+          },
+          {
+            "id": "5defb85a-6d82-4e67-9ad5-e1661067ff0d",
+            "name": "Raul Ranete"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In this live demo, we will showcase the future of open, interoperable payments with the Interledger Card. The card is powered by a custom chip we designed, enabling seamless transactions across ILP network. We will demonstrate a payment initiated on a POS device running our KaiOS-based application, which securely communicates with the card and initiates the transaction.\r\nOn the backend, the payment is routed through Rafiki and underlying ASE where authorization is handled in real-time.\r\nThis session highlights the complete payment flow we developed end-to-end: from the chip inside the card, to the POS terminal experience, to the processing infrastructure. Participants will get a first-hand look at how Interledger technology enables fast, secure, and universal payments, and why it's a game-changer for financial inclusion and global commerce.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "En esta demostración en directo, mostraremos el futuro de los pagos abiertos e interoperables con la tarjeta Interledger. La tarjeta funciona con un chip personalizado que hemos diseñado, lo que permite realizar transacciones fluidas a través de la red ILP. Mostraremos un pago iniciado en un dispositivo POS que ejecuta nuestra aplicación basada en KaiOS, que se comunica de forma segura con la tarjeta e inicia la transacción. En el backend, el pago se enruta a través de Rafiki y el ASE subyacente, donde la autorización se gestiona en tiempo real. Esta sesión destaca el flujo de pago completo que hemos desarrollado de principio a fin: desde el chip dentro de la tarjeta, hasta la experiencia del terminal POS, pasando por la infraestructura de procesamiento. Los participantes podrán ver de primera mano cómo la tecnología Interledger permite pagos rápidos, seguros y universales, y por qué supone un cambio revolucionario para la inclusión financiera y el comercio global.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Tarjetas Interledger y puntos de venta",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1037916",
+        "title": "Interledger Cards and POS ",
+        "description": null,
+        "startsAt": "2025-11-05T15:00:00",
+        "endsAt": "2025-11-05T15:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+            "name": "Tadej Golobic"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Mexico’s payment ecosystem remains fragmented, costly, and highly dependent on cash. According to our joint study with Finnovista, 92% of adults still use cash for daily transactions, remittances lose an average of 5% in fees, and only 13.5% of microenterprises can afford to accept digital payments. At the same time, Mexico has one of the most vibrant fintech ecosystems in Latin America - yet the benefits of innovation are blocked by silos, regulatory uncertainty, and market concentration.\r\n\r\nThis panel will unpack the findings of \"El Internet de las Oportunidades: Desbloqueando la interoperabilidad financiera en América Latina\", highlighting the opportunities and barriers to building a truly interoperable financial system. The discussion will explore lessons from Brazil’s Pix and India’s UPI, the potential to reduce merchant costs by up to 85%, and how greater interoperability could unlock over $1 billion USD annually in remittance savings for Mexican households.\r\n\r\nModerated by Beatriz Durán, the conversation will feature principal researcher Jordi Puig, Finnosummit, and industry leaders. Together, they will debate the role of regulators, incumbents, and innovators in transforming Mexico’s “archipelago” of financial systems into a seamless Internet of Opportunity.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "El ecosistema de pagos en México sigue estando fragmentado, es costoso y depende en gran medida del efectivo. Según nuestro estudio conjunto con Finnovista, el 92 % de los adultos sigue utilizando efectivo para las transacciones diarias, las remesas pierden una media del 5 % en comisiones y solo el 13,5 % de las microempresas puede permitirse aceptar pagos digitales. Al mismo tiempo, México tiene uno de los ecosistemas fintech más dinámicos de América Latina, pero los beneficios de la innovación se ven bloqueados por los silos, la incertidumbre regulatoria y la concentración del mercado.\r\n\r\nEste panel analizará las conclusiones de «El Internet de las Oportunidades: Desbloqueando la interoperabilidad financiera en América Latina», destacando las oportunidades y las barreras para construir un sistema financiero verdaderamente interoperable. El debate explorará las lecciones aprendidas de Pix en Brasil y UPI en la India, el potencial de reducir los costes de los comerciantes hasta en un 85 % y cómo una mayor interoperabilidad podría suponer un ahorro de más de 1000 millones de dólares anuales en remesas para los hogares mexicanos.\r\n\r\nModerada por Beatriz Durán, la conversación contará con la participación del investigador principal Jordi Puig, Finnosummit y líderes del sector. Juntos debatirán el papel de los reguladores, los operadores tradicionales y los innovadores en la transformación del «archipiélago» de sistemas financieros de México en una Internet de oportunidades sin fisuras.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Desbloqueando la interoperabilidad financiera en América Latina",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995886",
+        "title": "Unlocking Financial Interoperability in Latin America",
+        "description": "Mexico’s payment ecosystem remains fragmented, costly, and highly dependent on cash. According to our joint study with Finnovista, 92% of adults still use cash for daily transactions, remittances lose an average of 5% in fees, and only 13.5% of microenterprises can afford to accept digital payments. At the same time, Mexico has one of the most vibrant fintech ecosystems in Latin America - yet the benefits of innovation are blocked by silos, regulatory uncertainty, and market concentration.\r\n\r\nThis panel will unpack the findings of \"El Internet de las Oportunidades: Desbloqueando la interoperabilidad financiera en América Latina\", highlighting the opportunities and barriers to building a truly interoperable financial system. The discussion will explore lessons from Brazil’s Pix and India’s UPI, the potential to reduce merchant costs by up to 85%, and how greater interoperability could unlock over $1 billion USD annually in remittance savings for Mexican households.\r\n\r\nModerated by Beatriz Durán, the conversation will feature principal researcher Jordi Puig, Finnosummit, and industry leaders. Together, they will debate the role of regulators, incumbents, and innovators in transforming Mexico’s “archipelago” of financial systems into a seamless Internet of Opportunity.\r\n",
+        "startsAt": "2025-11-05T15:15:00",
+        "endsAt": "2025-11-05T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8f8b1d5e-b76b-4e33-9959-508c0d85cb1e",
+            "name": "Beatriz Durán Serrano"
+          },
+          {
+            "id": "5360141a-45a1-4cd4-9dbe-a25b2031daec",
+            "name": "Jordi Puig"
+          },
+          {
+            "id": "ac1ceac1-f843-4904-b8c9-2f5021010d44",
+            "name": "Iñigo Rumayor"
+          },
+          {
+            "id": "139a555e-27a4-4640-af06-afe3b0cfc6e9",
+            "name": "Andres Alban"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388271,
+                "name": "Spanish"
+              },
+              {
+                "id": 402870,
+                "name": "English Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In this session, Ioana and Rabeb will walk you through the latest implementation in the Web Monetization world. From the standard work, to its in browser implementation and all the work done to support our publishers with the right tools! \r\n",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "La economía de los contenidos digitales está evolucionando rápidamente, con previsiones que alcanzan los 69 800 millones de dólares para 2030 (Grand View Research). A medida que este panorama crece, los creadores de contenidos, los editores y los usuarios buscan formas más flexibles e intuitivas de conectarse y realizar transacciones. Si bien los anuncios, las suscripciones y los muros de pago siguen siendo herramientas esenciales, el futuro pasa por ampliar las posibilidades y potenciar las opciones.\r\nÚnase a nosotros para descubrir la monetización web, una nueva forma de ofrecer a los editores más opciones de ingresos y al público más formas de mantener los contenidos que les gustan. El apoyo puede adoptar muchas formas, desde una contribución única hasta un modelo continuo de pago por uso. Todo fluye a la perfección mientras las personas interactúan con los contenidos que les gustan. Los editores ganan dinero en el momento en que alguien interactúa, mientras que el público contribuye en tiempo real, utilizando un saldo que ellos mismos controlan.\r\n\r\nEn esta sesión, Ioana y Rabeb te guiarán a través de las últimas novedades en el mundo de la monetización web. Desde el trabajo estándar hasta su implementación en el navegador, pasando por todo el trabajo realizado para apoyar a nuestros editores con las herramientas adecuadas.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Todo sobre la monetización web",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1018846",
+        "title": "All about Web Monetization ",
+        "description": "The digital content economy is evolving rapidly with projections reaching $69.8 billion by 2030 (Grand View Research). As this landscape grows, content creators, publishers and users alike are looking for more flexible, intuitive ways to connect and transact. While ads, subscriptions and paywalls remain essential tools, the future is about expanding possibilities and empowering choice.\r\n\r\nJoin us to discover Web Monetization, a new way to give publishers more revenue options and audiences more ways to sustain the content they love. Support can take many forms, from a one-time contribution to a continuous, pay-as-you-browse model. It all flows seamlessly while people engage with the content they love. Publishers earn the moment someone engages, while audiences contribute in real time, using a balance they control.",
+        "startsAt": "2025-11-05T15:30:00",
+        "endsAt": "2025-11-05T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "297fd54b-f93c-4996-89bc-f96b3b7f8258",
+            "name": "Ioana Chiorean"
+          },
+          {
+            "id": "57a0f0dd-9b26-4559-bc3d-7d9b0b094799",
+            "name": "Rabeb Othmani"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Descubra cómo People’s Clearinghouse, una infraestructura de pagos digitales de propiedad comunitaria basada en Interledger, está permitiendo a los bancos comunitarios y cooperativas de crédito de México recibir remesas, liquidar pagos a nivel local y fortalecer la autodeterminación económica en las regiones rurales.\r\nEsta sesión incluye el estreno de The People’s Code, una fascinante película que da vida a las voces de los productores rurales, sus comunidades y el equipo de AMUCSS mientras navegan por la intersección entre la tradición, la confianza y la infraestructura.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "The People's Clearinghouse ",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1031403",
+        "title": "The People's Clearinghouse ",
+        "description": "Discover how the People’s Clearinghouse a community-owned digital payments infrastructure built on Interledger is enabling community banks and credit unions in Mexico to receive remittances, clear payments locally, and strengthen economic self-determination across rural regions.\r\nThis session features the premiere of The People’s Code, a compelling film that brings to life the voices of rural producers, their communities, and the AMUCSS team as they navigate the intersection of tradition, trust, and infrastructure",
+        "startsAt": "2025-11-05T16:15:00",
+        "endsAt": "2025-11-05T17:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "a161a1e8-e360-49cc-bb09-b5fa5ebfc5ef",
+            "name": "Pedro Sousa Barreto"
+          },
+          {
+            "id": "a695b8c9-13c1-40e7-bacb-223332c6f998",
+            "name": "Roberto Valdovinos"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "At the Interledger Summit, hear directly from rural producers and the AMUCSS team as they spotlight how community banks and open payment systems—like the People’s Clearing House app—are reshaping economic self-determination in rural Mexico, in a celebration of resilience, culture, and community-led innovation.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "En la Interledger Summit, escucha directamente a los productores rurales y al equipo de AMUCSS mientras destacan cómo los bancos comunitarios y los sistemas de pago abiertos, como la aplicación People's Clearing House, están remodelando la autodeterminación económica en las zonas rurales de México, en una celebración de la resiliencia, la cultura y la innovación impulsada por la comunidad.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Presentación comunitaria",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1037913",
+        "title": "Community Showcase",
+        "description": "At the Interledger Summit, hear directly from rural producers and the AMUCSS team as they spotlight how community banks and open payment systems—like the People’s Clearing House app—are reshaping economic self-determination in rural Mexico, in a celebration of resilience, culture, and community-led innovation.",
+        "startsAt": "2025-11-05T18:00:00",
+        "endsAt": "2025-11-05T21:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "ecdf7e19-f808-4042-8e05-48349d72805b",
+            "name": "Isabel Cruz Hernandez"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388271,
+                "name": "Spanish"
+              },
+              {
+                "id": 402870,
+                "name": "English Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69444,
+        "room": "Community Hall",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Liquidity is the lifeblood of the global economy — essential, invisible, and often misunderstood. In this talk, Stefan Thomas, who led the team that created Interledger, reveals what liquidity truly is, how it has shaped the rise and fall of nations, economies, and empires, and why it remains one of the most powerful yet overlooked forces shaping our world today. He then explores how Interledger redefines global liquidity — and what this transformation means for the future of payments, markets, and money itself.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "La liquidez es el alma de la economía global: esencial, invisible y, a menudo, incomprendida. En esta charla, Stefan Thomas, que dirigió el equipo que creó Interledger, revela qué es realmente la liquidez, cómo ha influido en el auge y la caída de naciones, economías e imperios, y por qué sigue siendo una de las fuerzas más poderosas, aunque a menudo ignoradas, que dan forma a nuestro mundo actual. A continuación, explora cómo Interledger redefine la liquidez global y qué significa esta transformación para el futuro de los pagos, los mercados y el dinero mismo.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Tema clave: Liquidez",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1046412",
+        "title": "Keynote: Liquidity",
+        "description": "Liquidity is the lifeblood of the global economy — essential, invisible, and often misunderstood. In this talk, Stefan Thomas, who led the team that created Interledger, reveals what liquidity truly is, how it has shaped the rise and fall of nations, economies, and empires, and why it remains one of the most powerful yet overlooked forces shaping our world today. He then explores how Interledger redefines global liquidity — and what this transformation means for the future of payments, markets, and money itself.",
+        "startsAt": "2025-11-06T10:00:00",
+        "endsAt": "2025-11-06T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "d0c28aa3-f2ca-4af8-abc1-1f561b9e4408",
+            "name": "Stefan Thomas"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "As digital finance expands across Latin America, public confidence in these systems remains fragile. From embedded fintechs to traditional banks, trust is increasingly shaped by transparency, accountability, and user control, not just access. This session brings together financial leaders and innovators working at the intersection of technology, regulation, and consumer protection to explore what it takes to earn and sustain trust in a digital-first economy.\r\n\r\nPanelists will discuss how the next generation of digital financial services can build trust through interoperability, data privacy, and responsible innovation. Drawing on experiences from banks, fintechs, and associations across the region, this conversation will look at what it means to design systems people actually want to use and how open, standards-based infrastructure can make that possible.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "A medida que las finanzas digitales se expanden por América Latina, la confianza del público en estos sistemas sigue siendo frágil. Desde las fintech integradas hasta los bancos tradicionales, la confianza se ve cada vez más determinada por la transparencia, la rendición de cuentas y el control de los usuarios, y no solo por el acceso. Esta sesión reúne a líderes financieros, innovadores y defensores que trabajan en la intersección entre la tecnología, la regulación y la protección del consumidor para explorar qué se necesita para ganarse y mantener la confianza en una economía digital.\r\nLos panelistas debatirán cómo la próxima generación de servicios financieros digitales puede generar confianza a través de la interoperabilidad, la privacidad y la protección de datos, y la innovación responsable. Basándose en las experiencias de bancos, fintechs y asociaciones de toda la región, esta conversación analizará lo que significa diseñar sistemas que la gente realmente quiera utilizar y cómo una infraestructura abierta y basada en estándares puede hacerlo posible.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Confiable por default: diseñar finanzas digitales que la gente elija utilizar",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1049783",
+        "title": "Trustworthy by Default: Designing Digital Finance People Choose to Use ",
+        "description": "As digital finance expands across Latin America, public confidence in these systems remains fragile. From embedded fintechs to traditional banks, trust is increasingly shaped by transparency, accountability, and user control, not just access. This session brings together financial leaders, innovators and advocates working at the intersection of technology, regulation, and consumer protection to explore what it takes to earn and sustain trust in a digital-first economy.\r\n\r\nPanelists will discuss how the next generation of digital financial services can build trust through interoperability, privacy and data protection, and responsible innovation. Drawing on experiences from banks, fintechs, and associations across the region, this conversation will look at what it means to design systems people actually want to use and how open, standards-based infrastructure can make that possible.",
+        "startsAt": "2025-11-06T11:30:00",
+        "endsAt": "2025-11-06T12:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "98c9897c-e8b2-4924-8f9d-928b3d75daa3",
+            "name": "Sarah Corley"
+          },
+          {
+            "id": "4de52905-07df-44b1-8068-5951aef6db9f",
+            "name": "Alejandro Maldonado Viveros"
+          },
+          {
+            "id": "69435364-304f-4884-ab47-e0c84e57c4be",
+            "name": "Fiorentina García Miramón"
+          },
+          {
+            "id": "66da924e-03b5-4d5b-8d91-ecf74d4d495a",
+            "name": "Alejandra Cullen Benítez"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Part 1: Introductory Exercises on Gig Workers' Dilemma and Reality Check (25 minutes)\r\nPart 2: Interactive Presentations: Case studies of Mexico City & Berlin, Financial Inclusion to Financial Justice; (35 minutes)\r\nPart 3: Collective re-imagining workshop. (30 minutes)",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "¿Cómo sería el futuro de un sistema financiero justo, equitativo y equitativo desde la perspectiva de un repartidor que vive en condiciones precarias? ¿En qué condiciones se puede hacer realidad ese futuro? ¿Cuál puede ser el papel de los pagos abiertos en el futuro?\r\n\r\nA medida que continúa la expansión de las plataformas de trabajo temporal, millones de trabajadores de todo el mundo están recurriendo al trabajo basado en plataformas en sectores como la entrega de paquetes y los servicios domésticos. Las plataformas de trabajo temporal se están convirtiendo cada vez más en un salvavidas para los trabajadores con bajos ingresos y marginados. Sin embargo, la realidad de los trabajadores afectados se caracteriza por horarios irregulares, ingresos volátiles, falta de prestaciones y protecciones laborales limitadas. El acceso limitado a los servicios financieros que satisfacen sus necesidades contribuye de manera significativa a sus condiciones actuales.\r\n\r\nEn el taller, tomamos las desigualdades estructurales a las que se enfrentan estos trabajadores como punto de partida para el debate y la reinvención colectiva de nuestras estrategias para adaptarnos a las economías cambiantes en el marco de las plataformas mediadas digitalmente: más allá de la inclusión financiera, ¿cómo podemos aprovechar la oportunidad de diseñar un mundo de justicia financiera?\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "De la inclusión financiera a la justicia financiera: cómo lograr un futuro equitativo en la economía gig",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995904",
+        "title": "From Financial Inclusion to Financial Justice: How to Enable an Equitable Future in the Gig Economy ",
+        "description": "What would the future of a fair, just, and equitable financial system look like from the perspective of a delivery driver living under precarity? In what conditions can that future be enabled? What can be the roles of open payments in the future?\r\n\r\nAs the expansion of the gig platform continues, millions of workers across the world are turning to platform-based work in sectors like delivery and domestic services. Gig platforms increasingly serve as a lifeline for low-income and marginalized workers. However, the realities of the workers involved are shaped by irregular hours, income volatility, lack of benefits, and limited labor protections. Limited access to financial services that serve their needs contributes significantly to their current conditions.\r\n\r\nIn the workshop, we take the structural inequalities these workers face as a starting point for the discussion and collective re-imagining of our strategies to adapt to the changing economies under digitally mediated platforms: beyond financial inclusion, how can we take the chance of designing for a world of financial justice? \r\n",
+        "startsAt": "2025-11-06T11:30:00",
+        "endsAt": "2025-11-06T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          },
+          {
+            "id": "e64492fe-c013-45f7-995a-a2c01065d0e6",
+            "name": "Aju John"
+          },
+          {
+            "id": "ae6d657c-14d3-4c22-8dac-ef5719273219",
+            "name": "Mariana Jiménez Hernández"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383932,
+                "name": "Learning Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69442,
+        "room": "Learn Together Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "A year ago at the Interledger Summit in Cape Town, Chimoney showcased a developer-focused demo of ILP-powered P2P transfers using the Chimoney App. This year, we return to demonstrate a significant leap forward: a seamless, user-centric Web Monetization experience that works with real money, for real users, right now.\r\n\r\nFaheed and Uchi will guide the audience through the evolution of the Chimoney App, highlighting key advancements including direct funding & cashouts to Mexico via SPEI, MoMo payouts to 14 African countries, and the introduction of a new fiat-backed MXN-pegged wallet (MXNB). The core of this session will be a live, end-to-end Web Monetization demo featuring a \"Supporter\" (Faheed, Head of Product at Chimoney) and a \"Creator\" (Uchi Uchibeke, CEO of Chimoney).\r\n\r\nWe will demonstrate how a creator can effortlessly embed their Chimoney App issued Interledger Wallet on their webpage, and instantly begin receiving streaming of micropayments from a supporter using the Interledger Web Monetization extension. The audience will see the transactions happen in real-time, from the supporter's wallet being debited to the creator's wallet being credited, complete with transaction histories. \r\n\r\nThis session will show that with a focus on user experience and robust infrastructure, real-world Web Monetization and usage of the Interledger Web Monetization Extension  is not just a future possibility, but a present-day reality.\r\n\r\nKey Takeaways for the Audience:\r\n- From Theory to Utility: Witness a live demonstration of a complete, real-world Interledger Web Monetization extension payment flow, from a supporter's wallet to a creator's webpage and back to their wallet.\r\n- Product Evolution: Learn how Chimoney has evolved its interledger-enabled app over the past year, adding multi-jurisdictional payout options like SPEI in Mexico and MoMo in Africa to create real utility for creators receiving ILP payments.\r\n- User-Centric Design: Gain insights from our 1-on-1 community testing sessions, understanding the key UI/UX challenges (like wallet address complexity) and successes (like the ease of setup) in making Web Monetization accessible to non-technical users.\r\n- A Path to Adoption: Understand how Chimoney's infrastructure provides a practical and scalable model for activating the Web Monetization ecosystem and empowering the global creator economy.\r\n",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Únete a Faheed Alli-Balogun (jefe de producto) y Uchi Uchibeke (director ejecutivo de Chimoney) para una demostración en vivo y completa de la monetización web en acción. Basándose en su trabajo del año pasado, mostrarán la evolución de la aplicación Chimoney, que ahora permite pagos multijurisdiccionales y una experiencia de usuario fluida. Sea testigo de un micropago en tiempo real con dinero real de un seguidor a un creador utilizando la extensión de monetización web Interledger y la cartera de la aplicación Chimoney. Descubra cómo Chimoney está convirtiendo la promesa de una monetización web con pagos abiertos en una realidad actual.\r\n\r\n\r\nDetalles de la sesión: Hace un año, en la Cumbre Interledger celebrada en Ciudad del Cabo, Chimoney presentó una demostración centrada en los desarrolladores de las transferencias P2P impulsadas por ILP utilizando la aplicación Chimoney. Este año, volvemos para mostrar un importante avance: una experiencia de monetización web fluida y centrada en el usuario que funciona con dinero real, para usuarios reales, en este mismo momento. Faheed y Uchi guiarán al público a través de la evolución de la aplicación Chimoney, destacando avances clave como la financiación directa y los retiros de efectivo a México a través de SPEI, los pagos MoMo a 14 países africanos y la introducción de una nueva cartera respaldada por moneda fiduciaria y vinculada al MXN (MXNB). El núcleo de esta sesión será una demostración en vivo y de principio a fin de la monetización web con un «seguidor» (Faheed, jefe de producto de Chimoney) y un «creador» (Uchi Uchibeke, director ejecutivo de Chimoney). Demostraremos cómo un creador puede integrar fácilmente en su página web la cartera Interledger emitida por la aplicación Chimoney y comenzar a recibir al instante micropagos de un colaborador utilizando la extensión Interledger Web Monetization. La audiencia verá cómo se realizan las transacciones en tiempo real, desde el cargo en la cartera del colaborador hasta el abono en la cartera del creador, con el historial de transacciones completo. Esta sesión demostrará que, centrándose en la experiencia del usuario y en una infraestructura sólida, la monetización web en el mundo real y el uso de la extensión Interledger Web Monetization no son solo una posibilidad futura, sino una realidad actual. Puntos clave para el público: - De la teoría a la utilidad: sea testigo de una demostración en vivo de un flujo de pago completo y real de la extensión de monetización web Interledger, desde la cartera de un colaborador hasta la página web del creador y de vuelta a su cartera. - Evolución del producto: descubra cómo Chimoney ha evolucionado su aplicación habilitada para Interledger durante el último año, añadiendo opciones de pago multijurisdiccionales como SPEI en México y MoMo en África para crear una utilidad real para los creadores que reciben pagos ILP. - Diseño centrado en el usuario: obtenga información valiosa de nuestras sesiones de pruebas comunitarias individuales y comprenda los principales retos (como la complejidad de las direcciones de las carteras) y éxitos (como la facilidad de configuración) de la interfaz de usuario y la experiencia de usuario a la hora de hacer que la monetización web sea accesible para usuarios sin conocimientos técnicos. - El camino hacia la adopción: comprenda cómo la infraestructura de Chimoney proporciona un modelo práctico y escalable para activar el ecosistema de monetización web y potenciar la economía global de los creadores.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Del prototipo a la producción: activación de la monetización web en el mundo real con la aplicación Chimoney",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1018855",
+        "title": "Chimoney's ILP Stack & Chimoney App Updates",
+        "description": "Join Faheed Alli-Balogun (Head of Product) and Uchi Uchibeke (CEO of Chimoney) for a live, end-to-end demonstration of Web Monetization in action. Building on their work from last year, they will showcase the evolution of the Chimoney App, now enabled with multi-jurisdictional payouts and a seamless user experience. Witness a real-money, real-time micropayment from a supporter to a creator using the Interledger Web Monetization Extension and Chimoney App wallet. Learn how Chimoney is turning the promise of a web monetization with open payments into a present-day reality.\r\n\r\n\r\n\r\n",
+        "startsAt": "2025-11-06T11:30:00",
+        "endsAt": "2025-11-06T11:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+            "name": "Uchi Uchibeke"
+          },
+          {
+            "id": "1b090fa6-f61e-4f24-92e3-d2f41c174946",
+            "name": "Faheed Alli-Balogun"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Open Payments provides a modern, interoperable way to move money across networks currently using only the Interledger Protocol. But in order to bridge the gap between traditional finance and the open payments ecosystem, we need to connect to established rails like SEPA. In this talk, we'll explore what it takes to add SEPA support to Open Payments, or better to say, how we added support for SEPA to Open Payments. Attendees will get deeper insight into the new payment method of Open Payments and how to support this payment rail through Open Payments",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Open Payments ofrece una forma moderna e interoperable de transferir dinero a través de redes que actualmente solo utilizan el protocolo Interledger. Sin embargo, para salvar la brecha entre las finanzas tradicionales y el ecosistema de pagos abiertos, necesitamos conectarnos a sistemas establecidos como SEPA. En esta charla, exploraremos lo que se necesita para añadir compatibilidad con SEPA a Open Payments o, mejor dicho, cómo hemos añadido compatibilidad con SEPA a Open Payments. Los asistentes obtendrán una visión más profunda del nuevo método de pago de Open Payments y de cómo dar soporte a este canal de pago a través de Open Payments.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Sumando apoyo a SEPA en Open Payments",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1018856",
+        "title": "Payment Pointers to SEPA",
+        "description": "Open Payments provides a modern, interoperable way to move money across networks currently using only the Interledger Protocol. But in order to bridge the gap between traditional finance and the open payments ecosystem, we need to connect to established rails like SEPA. In this talk, we'll explore what it takes to add SEPA support to Open Payments, or better to say, how we added support for SEPA to Open Payments. Attendees will get deeper insight into the new payment method of Open Payments and how to support this payment rail through Open Payments",
+        "startsAt": "2025-11-06T11:55:00",
+        "endsAt": "2025-11-06T12:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+            "name": "Tadej Golobic"
+          },
+          {
+            "id": "a9867c99-c0fb-4338-9a8b-cea0f5ab9bdb",
+            "name": "Ana Šemrov"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Una conversación sincera sobre las tensiones filosóficas y operativas entre la velocidad/escala de la tecnología financiera y la misión/responsabilidad de las instituciones financieras de desarrollo comunitario (CDFI). ¿Qué modelos han funcionado? ¿Dónde han fracasado las asociaciones? ¿Qué se necesita para generar confianza? Este debate se centrará en conversaciones reales y cuestiones prácticas.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "De la misión al mercado: dónde coinciden y chocan las fintech y las CDFI",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995900",
+        "title": "From Mission to Market: Where Fintech and CDFIs Align and Clash",
+        "description": "A candid conversation about the philosophical and operational tensions between fintech speed/scale and Community Development Financial Institutions (CDFI) mission/responsibility. What models have worked? Where have partnerships failed? What’s needed to build trust? This discussion will be centered on real talk and practical issues.",
+        "startsAt": "2025-11-06T12:15:00",
+        "endsAt": "2025-11-06T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "ac4d0d30-bf16-4f00-bc03-7cedd2a41695",
+            "name": "Casey Dike’"
+          },
+          {
+            "id": "e6a50e12-85dd-40ff-b041-bfe0ded30bf7",
+            "name": "Shaundra Jacobs"
+          },
+          {
+            "id": "42127c6c-f9ec-48e1-a603-4171c838deeb",
+            "name": "Feintz Pierre"
+          },
+          {
+            "id": "47f35bcf-71d5-4e11-8a5d-c967ab08ede1",
+            "name": "Sheena Allen"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Join us to see what we've been working on in Rafiki and Open Payments over the last year. We'll cover how the projects have evolved in 2025, what new features we have released, our plans for the future, and how Rafiki & Open Payments leverage the Interledger Protocol to simplify payments between integrators.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Únete a nosotros para ver en qué hemos estado trabajando en Rafiki y Open Payments durante el último año. Hablaremos de cómo han evolucionado los proyectos en 2025, qué nuevas funciones hemos lanzado, nuestros planes para el futuro y cómo Rafiki y Open Payments aprovechan el protocolo Interledger para simplificar los pagos entre integradores.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Evolución de Rafiki y Open Payments en 2025",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1051900",
+        "title": "Evolution of Rafiki & Open Payments in 2025",
+        "description": "Join us to see what we've been working on in Rafiki and Open Payments over the last year. We'll cover how the projects have evolved in 2025, what new features we have released, our plans for the future, and how Rafiki & Open Payments leverage the Interledger Protocol to simplify payments between integrators.",
+        "startsAt": "2025-11-06T12:15:00",
+        "endsAt": "2025-11-06T12:35:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "a63af0da-3b51-42ad-9775-ff52212884ba",
+            "name": "Max Kurapov"
+          },
+          {
+            "id": "c0cdf5ec-604b-48fa-a88d-475fe89a8932",
+            "name": "Nathan Lie"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "- Enable Real-Time Payments (RTP): Ensure instant settlement between partner institutions.\r\n\r\n- Interoperability Across Networks: Facilitate payments between core banking systems, digital wallets, and payment rails without requiring proprietary integrations.\r\n\r\n- Reduce Costs & Friction: Lower transaction fees by removing intermediaries and supporting direct settlement.\r\n\r\n- Improve Transparency: Enable traceability of payment flows through ILP and programmable settlement rules.\r\n\r\n- Scalability & Extensibility: Create a framework that can expand to national, regional, and cross-border ecosystems.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Esta propuesta describe la integración de PCH con Mifos X, una solución bancaria central de código abierto, para permitir pagos seguros, interoperables y en tiempo real entre instituciones financieras. Al aprovechar las capacidades de PCH, las instituciones pueden interconectarse sin problemas entre diferentes sistemas de pago, monedas y carteras digitales, lo que reduce los tiempos de liquidación, disminuye los costos de transacción y mejora el acceso a los servicios financieros.\r\nLa iniciativa apoya la colaboración entre instituciones, al tiempo que se alinea con los objetivos de inclusión financiera, liquidación instantánea y cumplimiento normativo.\r\n\r\nHabilitar pagos en tiempo real (RTP): garantizar la liquidación instantánea entre instituciones asociadas. - Interoperabilidad entre redes: facilite los pagos entre sistemas bancarios centrales, carteras digitales y vías de pago sin necesidad de integraciones propietarias. - Reduzca los costos y las fricciones: reduzca las comisiones por transacción eliminando los intermediarios y admitiendo la liquidación directa. - Mejore la transparencia: permita la trazabilidad de los flujos de pago a través de ILP y reglas de liquidación programables. - Escalabilidad y extensibilidad: cree un marco que pueda expandirse a ecosistemas nacionales, regionales y transfronterizos.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "PCH - Integración de Mifos X para pagos en tiempo real entre instituciones",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1037917",
+        "title": "Brief Architecture - Mifos PCH Switch Connector",
+        "description": "This proposal outlines the integration of PCH with Mifos X, an open-source Core Banking solution, to enable secure, interoperable, and real-time payments between financial institutions. By leveraging PCH’s capabilities, institutions can interconnect seamlessly across different payment systems, currencies, and digital wallets—reducing settlement times, lowering transaction costs, and improving access to financial services.\r\n\r\nThe initiative supports cross-institutional collaboration while aligning with financial inclusion, instant settlement, and regulatory compliance goals.",
+        "startsAt": "2025-11-06T12:40:00",
+        "endsAt": "2025-11-06T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8344beef-93f2-448d-aaa7-de1df719d89f",
+            "name": "Víctor Manuel Romero Rodríguez"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 388271,
+                "name": "Spanish"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The 2026 FIFA World Cup represents a once-in-a-generation opportunity to accelerate digital payments adoption in Mexico. The National Digital Payments Strategy leverages the massive influx of international visitors, cross-border wallets, and real-time commerce to promote interoperability, inclusion, and innovation. By connecting local merchants, fintechs, and global payment systems, the initiative aims to transform everyday transactions—turning each purchase into a gateway for financial inclusion and digital empowerment across the country.",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "La Copa Mundial de la FIFA 2026 representa una oportunidad única para acelerar la adopción de los pagos digitales en México. La Estrategia Nacional de Pagos Digitales aprovecha la afluencia masiva de visitantes internacionales, las carteras transfronterizas y el comercio en tiempo real para promover la interoperabilidad, la inclusión y la innovación. Al conectar a los comerciantes locales, las fintech y los sistemas de pago globales, la iniciativa tiene como objetivo transformar las transacciones cotidianas, convirtiendo cada compra en una puerta de entrada a la inclusión financiera y el empoderamiento digital en todo el país.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Estrategia de pagos digitales",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1058096",
+        "title": "Digital Payments Strategy",
+        "description": "The 2026 FIFA World Cup represents a once-in-a-generation opportunity to accelerate digital payments adoption in Mexico. The National Digital Payments Strategy leverages the massive influx of international visitors, cross-border wallets, and real-time commerce to promote interoperability, inclusion, and innovation. By connecting local merchants, fintechs, and global payment systems, the initiative aims to transform everyday transactions—turning each purchase into a gateway for financial inclusion and digital empowerment across the country.",
+        "startsAt": "2025-11-06T14:00:00",
+        "endsAt": "2025-11-06T14:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "076b027b-dab7-41b4-b8f9-f51ff076d523",
+            "name": "Jorge Ortiz"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388271,
+                "name": "Spanish"
+              },
+              {
+                "id": 402870,
+                "name": "English Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": null,
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1065719",
+        "title": "The UPI Story",
+        "description": "The UPI Story - How India became a leader in interoperable payments and what the future holds.",
+        "startsAt": "2025-11-06T14:30:00",
+        "endsAt": "2025-11-06T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "ca7796ea-d481-4fd2-8f80-e5c721f4244b",
+            "name": "Maria Francis"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "Este panel analiza los enfoques pedagógicos y las innovaciones curriculares que están surgiendo en las universidades que han recibido subvenciones de la Fundación Interledger para integrar las tecnologías de Open Payments en sus programas académicos. Los representantes del cuerpo docente presentarán sus metodologías para enseñar conceptos complejos como el protocolo Interledger y su relación con la API de Open Payments, la mecánica de los pagos transfronterizos y la infraestructura financiera descentralizada dentro de los cursos existentes de informática, economía y tecnología financiera. El debate se centrará en los retos del diseño curricular, las estrategias de evaluación y la integración de los marcos teóricos con la experiencia práctica de implementación.",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Del aula al código: cómo las universidades forman a la próxima generación de talentos en pagos abiertos",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995879",
+        "title": "From Classroom to Codebase: How Universities Cultivate the Next Generation of Open Payments Talent",
+        "description": "This panel  examines the pedagogical approaches and curricular innovations emerging from universities that have received Interledger Foundation grants to integrate Open Payments technologies into their academic programs. Faculty representatives will present their methodologies for teaching complex concepts such as the Interledger Protocol and its relationship to the Open Payments API, cross-border payment mechanics, and decentralized financial infrastructure within existing computer science, economics, and financial technology coursework. The discussion will focus on curriculum design challenges, assessment strategies, and the integration of theoretical frameworks with hands-on implementation experience.",
+        "startsAt": "2025-11-06T15:15:00",
+        "endsAt": "2025-11-06T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+            "name": "Smriti Parsheera"
+          },
+          {
+            "id": "6faa6639-4789-4c4b-968f-995c86a7531e",
+            "name": "Andrew Mangle"
+          },
+          {
+            "id": "50398579-1d0f-45c2-a540-d22c6bd1ff28",
+            "name": "Allan Davids"
+          },
+          {
+            "id": "5ec11732-1afe-4386-8643-1fad38dd1640",
+            "name": "Aleksandra Asscheman"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Step into the shoes of innovators and regulators in this fast-paced, 60-minute simulation. Participants will form small teams, alternating between pitching bold new fintech solutions and serving on a regulatory panel that debates, challenges, and decides whether these ideas should move forward.\r\n\r\nArmed with innovation cards and guided briefings, FinTech teams will craft their proposals while Regulators prepare their oversight lens. The energy builds as proposals are pitched, regulators deliberate, and tough Q&A unfolds—culminating in real-time decisions that shape the fate of each innovation.\r\n\r\nThe session closes with an open reflection, inviting both sides to step back, share insights, and explore the balance between innovation, inclusion, and responsible regulation.\r\n\r\nFast. Interactive. Insightful. This is not just a session—it’s a front-row experience in the future of digital finance.\r\n\r\nWould you like me to make a shorter punchier version (2–3 sentences) that could be read out loud as an opening hook for the session?",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "El dilema del regulador es un juego de rol atractivo y basado en el debate que sitúa a los participantes en la compleja encrucijada de permitir la innovación financiera y garantizar al mismo tiempo la protección de los consumidores. Los jugadores interpretarán el papel de innovadores FinTech o equipos reguladores, simulando las tensiones reales a las que se enfrentan los responsables políticos. Los equipos debatirán... y finalmente decidirán: si aprobar, aprobar con condiciones o rechazar las tecnologías financieras emergentes. El juego está diseñado para promover un debate reflexivo, cuestionar estereotipos y sacar a la luz las compensaciones éticas y estructurales inherentes a la toma de decisiones reguladoras.\r\nFormato de la sesión: Laboratorio de aprendizaje\r\n\r\nDetalles de la sesión: \r\nPonte en los zapatos de innovadores y reguladores en esta simulación trepidante de 90 minutos. Los participantes formarán pequeños equipos, ya sea para presentar nuevas y audaces soluciones fintech o para formar parte de un panel regulador que debate, cuestiona y decide si estas ideas deben seguir adelante. Armados con tarjetas de innovación y sesiones informativas guiadas, los equipos FinTech elaborarán sus propuestas mientras los reguladores preparan su perspectiva de supervisión. La energía va en aumento a medida que se presentan las propuestas, los reguladores deliberan y se desarrollan duras sesiones de preguntas y respuestas, que culminan en decisiones en tiempo real que determinan el destino de cada innovación. La sesión concluye con una reflexión abierta, en la que se invita a ambas partes a dar un paso atrás, compartir ideas y explorar el equilibrio entre la innovación, la inclusión y la regulación responsable. Rápida. Interactiva. Perspicaz. No se trata solo de una sesión, sino de una experiencia inmersiva en el futuro de las finanzas digitales.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "El dilema del regulador (sesión repetida)",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1037939",
+        "title": "The Regulator's Dilemma (repeat session)",
+        "description": "The Regulator’s Dilemma is an engaging, debate-driven role-playing game that places participants in the complex intersection of financial innovation and consumer protection. Players role-play as FinTech innovators or Regulatory Panels, simulating the real-world tensions faced by Policymakers and FinTechs in an emerging market. Teams debate whether to approve, conditionally approve, or reject emerging financial technologies. The game is designed to promote thoughtful discussion, challenge assumptions, and surface the ethical and structural trade-offs embedded in regulatory decision-making.",
+        "startsAt": "2025-11-06T15:15:00",
+        "endsAt": "2025-11-06T16:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+            "name": "Nandini Harihareswara"
+          },
+          {
+            "id": "d35ddcb5-3563-4cca-b731-6845dc0d406f",
+            "name": "Rafe Mazer"
+          },
+          {
+            "id": "83cc3863-e48d-42e4-8055-86c53c9ef693",
+            "name": "Jeremiah Lee"
+          },
+          {
+            "id": "c6428e78-fd0c-4348-bca1-4a4d81b7e81f",
+            "name": "Pablo Antón Díaz"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383932,
+                "name": "Learning Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 388271,
+                "name": "Spanish"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69442,
+        "room": "Learn Together Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This will be a session organized as an unconference, a participant-driven slot. Participants will be able to propose and vote on session topics on the first day of the event, resulting in a dynamic agenda that reflects the collective wisdom and interests of those in attendance. The core idea is to create a collaborative, strengths-focused environment where anyone can contribute, share knowledge, and learn from others, and to address topics that were not in the formal agenda. ",
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "¿Alguna vez has querido proponer un tema en una conferencia porque sentías que faltaba o querías llamar la atención sobre él? ¡Ahora tienes la oportunidad! ¡Vamos a celebrar una sesión no convencional en la que todos podréis proponer y votar temas relacionados con el mundo Interledger!\r\n\r\nEsta sesión se organizará como una «no conferencia», es decir, un espacio impulsado por los participantes. Estos podrán proponer y votar temas para la sesión el primer día del evento, lo que dará lugar a una agenda dinámica que reflejará la sabiduría colectiva y los intereses de los asistentes. La idea central es crear un entorno colaborativo y centrado en las fortalezas, en el que cualquiera pueda contribuir, compartir conocimientos y aprender de los demás, así como abordar temas que no figuraban en la agenda formal.\r\n",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Pagos abiertos, micrófono abierto",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995909",
+        "title": "Open Payments, Open Mic",
+        "description": "Ever wanted to be able to propose a topic at a conference cause you felt it was missing or you wanted to bring it into attention? Now you have the chance! We are doing an unconference session where you all can propose and vote topics from all Interledger world! ",
+        "startsAt": "2025-11-06T15:15:00",
+        "endsAt": "2025-11-06T16:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "297fd54b-f93c-4996-89bc-f96b3b7f8258",
+            "name": "Ioana Chiorean"
+          },
+          {
+            "id": "b8c6942f-d96e-491b-bdef-0afc64456c9b",
+            "name": "Yiannis Giannelos"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383933,
+                "name": "Demo Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69443,
+        "room": "Demo Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "La inclusión financiera no comienza con una cuenta bancaria, sino con la posibilidad de que las personas puedan conectarse a Internet, confiar en lo que utilizan y mover sus ganancias en la moneda local sin intermediarios. Esta sesión aporta tres perspectivas complementarias a una conversación centrada en los financiadores: (1) tecnología de código abierto e infraestructura compartida que reducen el bloqueo y mantienen bajos los costes para las ONG; (2) enfoques de financiación de la ingeniería y la ciencia de interés público que dan prioridad a la interoperabilidad, la seguridad y el mantenimiento a largo plazo; y (3) la unión entre el lugar de trabajo y los pagos, donde las nóminas y los pagos de las plataformas se encuentran con las herramientas financieras y donde las prácticas de datos pueden ampliar o cerrar las puertas a la inclusión. Discutiremos la formación en equidad digital que se necesita para reducir los temores bien fundados en torno a las herramientas financieras, los nuevos estándares de datos y el cambio hacia pagos más pequeños y rápidos (incluidas las remesas y la ayuda mutua, pero también la gig-economización de más industrias). El objetivo de este panel es presentar una exploración equilibrada y en lenguaje sencillo de las posibles opciones de financiación para los próximos 12 meses: qué deben cofinanciar los financiadores, qué deben dejar de duplicar y cómo realizar un seguimiento del progreso sin incentivos perversos. ",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Derechos y vías: cómo la filantropía vincula el acceso, la capacidad y los sistemas de pago inclusivos",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "995876",
+        "title": "Rights & Rails: How Philanthropy Links Access, Capacity & Inclusive Payment Systems",
+        "description": "Financial inclusion doesn’t start with a bank account; it starts with people being able to get online, trust what they’re using, and move earnings in local currency without gatekeepers. This session brings three complementary lenses to a funder-focused conversation: (1) open source tech and shared infrastructure that reduce lock-in and keep costs low for NGOs; (2) public interest engineering and science funding approaches that prioritize interoperability, security, and long-term maintenance; and (3) the workplace/payments junction, where payroll and platform payouts meet financial tools and where data practices can either widen or close doors to inclusion. We’ll discuss the digital equity training that is needed to lower well-founded fears around financial tools, emerging data standards, and the shift toward smaller and faster payouts (including remittances and mutual aid, but also the gig-economification of more industries). The aim for this panel is to present a balanced, plain-language exploration of potential portfolio choices for the next 12 months: what funders should co-finance, what to stop duplicating, and how to track progress without perverse incentives.",
+        "startsAt": "2025-11-06T16:00:00",
+        "endsAt": "2025-11-06T16:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+            "name": "Chris Lawrence"
+          },
+          {
+            "id": "5897fd4a-a09b-4352-b7f8-d150bd4b0736",
+            "name": "Wilneida Negrón"
+          },
+          {
+            "id": "7f1a2e6f-e78e-4713-9e1c-83a396083805",
+            "name": "Amy Sample Ward"
+          },
+          {
+            "id": "ad86c689-2742-4fac-8d13-f38eb8a09312",
+            "name": "Afua Bruce"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 383931,
+                "name": "Listening Lab"
+              }
+            ],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 106566,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          },
+          {
+            "id": 114099,
+            "question": "Descripción",
+            "questionType": "Long_Text",
+            "answer": "¡Acompáñanos en la sesión de clausura de la Summit Interledger del 2025! ",
+            "sort": 36,
+            "answerExtra": null
+          },
+          {
+            "id": 114105,
+            "question": "Título de la sesión",
+            "questionType": "Short_Text",
+            "answer": "Sesión Plenaria de clausura",
+            "sort": 35,
+            "answerExtra": null
+          }
+        ],
+        "id": "1031417",
+        "title": "Closing Plenary",
+        "description": "Join us in the closing session of the Interledger Summit 2025!",
+        "startsAt": "2025-11-06T17:00:00",
+        "endsAt": "2025-11-06T17:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "daa019af-2d28-46a0-96b5-f98444e8a9f7",
+            "name": "Briana Marbury"
+          }
+        ],
+        "categories": [
+          {
+            "id": 106558,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          },
+          {
+            "id": 107734,
+            "name": "Will this session be in Spanish, English or Both?",
+            "categoryItems": [
+              {
+                "id": 388270,
+                "name": "English"
+              },
+              {
+                "id": 402871,
+                "name": "Spanish Translation available"
+              }
+            ],
+            "sort": 7
+          }
+        ],
+        "roomId": 69441,
+        "room": "Listening Lab",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      }
+    ],
+    "isDefault": false
+  }
+]
