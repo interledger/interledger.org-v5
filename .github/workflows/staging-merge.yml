@@ -184,7 +184,9 @@ jobs:
           set -euo pipefail
 
           source ~/.bashrc
-
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm not installed at $NVM_DIR"; exit 1; }
+          . "$NVM_DIR/nvm.sh"
           nvm use 22
           PNPM_VERSION=10.27.0
           corepack enable
