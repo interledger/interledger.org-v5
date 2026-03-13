@@ -4,7 +4,7 @@ import path from 'node:path'
 const projectRoot = process.cwd()
 const imgFilePath = '/public/img/foundation-blog'
 const imgReferencePath = '/img/foundation-blog/'
-const mdxFilePath = '/src/content/blog'
+const mdxFilePath = '/src/content/foundation-blog-posts'
 const drupalMediaUrl =
   'https://staging.interledger.org/sites/default/files/image-uploads/'
 

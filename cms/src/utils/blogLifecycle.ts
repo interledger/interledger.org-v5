@@ -155,7 +155,10 @@ async function deleteMDXFile({
 
 export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   const projectRoot = getTargetRepoRoot()
-  const outputPath = path.join(projectRoot, outputDir)
+  const getOutputPath = (locale?: string) =>
+    locale && locale !== 'en'
+      ? path.join(projectRoot, outputDir, locale)
+      : path.join(projectRoot, outputDir)
 
   return {
     async afterCreate(event: BlogEvent) {
@@ -164,7 +167,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${result.pathSlug}`)
-      await writeMDXFile({ outputPath, post: result })
+      await writeMDXFile({ outputPath: getOutputPath(result.locale), post: result })
       scheduleGitSync(label)
     },
 
@@ -174,7 +177,10 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
       console.log(`📝 Deleting ${label} MDX for: ${result.pathSlug}`)
-      await deleteMDXFile({ outputPath, post: result })
+      await deleteMDXFile({
+        outputPath: getOutputPath(result.locale),
+        post: result
+      })
       scheduleGitSync(label)
     }
   }

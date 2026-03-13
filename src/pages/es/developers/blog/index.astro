@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import { createExcerpt } from '@/utils/create-excerpt'
 
-// Only return posts with `draft: true` in the frontmatter
 const esEntries = await getCollection('developers-blog', ({ data }) => {
   return data.locale === 'es'
 })
@@ -82,7 +81,7 @@ const esEntries = await getCollection('developers-blog', ({ data }) => {
                   {blogPostEntry.data.date.toDateString()}
                 </time>
                 <a
-                  href={`es/developers/blog/${blogPostEntry.id}`}
+                  href={`/es/developers/blog/${blogPostEntry.data.pathSlug}`}
                   class="font-semibold text-primary no-underline underline-offset-4 decoration-transparent transition-[text-decoration-color,color] duration-300 hover:decoration-current"
                 >
                   {blogPostEntry.data.title}

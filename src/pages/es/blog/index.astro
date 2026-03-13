@@ -3,9 +3,7 @@ import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import { createExcerpt } from '@/utils/create-excerpt'
 
-// Only return posts with `draft: true` in the frontmatter
-// TO DO get fopundation blog collection.
-const esEntries = await getCollection('developers-blog', ({ data }) => {
+const esEntries = await getCollection('foundation-blog', ({ data }) => {
   return data.locale === 'es'
 })
 ---
@@ -13,7 +11,7 @@ const esEntries = await getCollection('developers-blog', ({ data }) => {
 <FoundationPageLayout
   title="Blog de Ingeniería"
   description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
-  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
+  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
@@ -83,7 +81,7 @@ const esEntries = await getCollection('developers-blog', ({ data }) => {
                   {blogPostEntry.data.date.toDateString()}
                 </time>
                 <a
-                  href={`/es/blog/${blogPostEntry.id}`}
+                  href={`/es/blog/${blogPostEntry.data.pathSlug}`}
                   class="font-semibold text-primary no-underline underline-offset-4 decoration-transparent transition-[text-decoration-color,color] duration-300 hover:decoration-current"
                 >
                   {blogPostEntry.data.title}
