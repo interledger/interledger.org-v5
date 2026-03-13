@@ -213,6 +213,10 @@ jobs:
           cd /home/strapi/interledger.org-v5-staging/cms
           # Stop the service while we rebuild
           sudo systemctl stop strapi.service
+
+          # nuclear option to ensure no old dependencies or build artifacts interfere with the new build after merging changess
+          rm -rf cms/node_modules
+
           # Install dependencies in case there are new ones from the merged PRs
           pnpm install
           # Rebuild with more memory to avoid OOM errors during build
