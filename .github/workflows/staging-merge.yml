@@ -183,6 +183,8 @@ jobs:
         run: |
           set -euo pipefail
 
+          source ~/.bashrc
+
           nvm use 22
           PNPM_VERSION=10.27.0
           corepack enable
