@@ -9,7 +9,7 @@ import type { MDXFile } from './mdxTypes'
 
 export interface ValidationError {
   filepath: string
-  slug: string
+  pathSlug: string
   locale: string
   errors: string[]
 }
@@ -23,7 +23,7 @@ export function validateFrontmatter(
 
   const result = schema.safeParse({
     ...mdx.frontmatter,
-    slug: mdx.slug
+    pathSlug: mdx.pathSlug
   })
 
   if (!result.success && result.error) {
@@ -33,7 +33,7 @@ export function validateFrontmatter(
     })
     return {
       filepath: mdx.filepath,
-      slug: mdx.slug,
+      pathSlug: mdx.pathSlug,
       locale: mdx.locale,
       errors
     }

@@ -21,7 +21,7 @@ describe('buildMdxSlugsByLocale', () => {
   })
 
   it('groups single file by locale', () => {
-    const mdx = createMdxFile({ slug: 'about-us' })
+    const mdx = createMdxFile({ pathSlug: 'about-us' })
 
     const map = buildMdxSlugsByLocale([mdx])
 
@@ -30,9 +30,9 @@ describe('buildMdxSlugsByLocale', () => {
 
   it('groups multiple files by their locales', () => {
     const files = [
-      createMdxFile({ slug: 'about' }),
-      createMdxFile({ slug: 'home' }),
-      createMdxFile({ slug: 'sobre-nosotros', locale: 'es' })
+      createMdxFile({ pathSlug: 'about' }),
+      createMdxFile({ pathSlug: 'home' }),
+      createMdxFile({ pathSlug: 'sobre-nosotros', locale: 'es' })
     ]
 
     const map = buildMdxSlugsByLocale(files)
@@ -45,7 +45,7 @@ describe('buildMdxSlugsByLocale', () => {
   // English files often have empty string locale from the scanner. We need to normalize
   // these to 'en' so they match how Strapi stores the default locale.
   it('defaults locale to en when locale is empty string', () => {
-    const mdx = createMdxFile({ slug: 'page', locale: '' })
+    const mdx = createMdxFile({ pathSlug: 'page', locale: '' })
 
     const map = buildMdxSlugsByLocale([mdx])
 
@@ -56,7 +56,7 @@ describe('buildMdxSlugsByLocale', () => {
 
   // Same as above, but for undefined instead of empty string
   it('defaults locale to en when locale is undefined', () => {
-    const mdx = createMdxFile({ slug: 'page', locale: undefined })
+    const mdx = createMdxFile({ pathSlug: 'page', locale: undefined })
 
     const map = buildMdxSlugsByLocale([mdx])
 
@@ -65,9 +65,9 @@ describe('buildMdxSlugsByLocale', () => {
 
   it('handles multiple slugs in same locale', () => {
     const files = [
-      createMdxFile({ slug: 'page-1', locale: 'de' }),
-      createMdxFile({ slug: 'page-2', locale: 'de' }),
-      createMdxFile({ slug: 'page-3', locale: 'de' })
+      createMdxFile({ pathSlug: 'page-1', locale: 'de' }),
+      createMdxFile({ pathSlug: 'page-2', locale: 'de' }),
+      createMdxFile({ pathSlug: 'page-3', locale: 'de' })
     ]
 
     const map = buildMdxSlugsByLocale(files)
@@ -113,10 +113,10 @@ describe('hasMdxFile', () => {
 // then sync their translations.
 describe('findMatchingLocales', () => {
   it('matches locale file via localizes field', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [
       createMdxFile({
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         locale: 'es',
         localizes: 'about-us'
       })
@@ -125,17 +125,17 @@ describe('findMatchingLocales', () => {
     const matches = findMatchingLocales(englishMdx, localeFiles)
 
     expect(matches).toHaveLength(1)
-    expect(matches[0].localeMdx.slug).toBe('sobre-nosotros')
+    expect(matches[0].localeMdx.pathSlug).toBe('sobre-nosotros')
     expect(matches[0].matchReason).toBe('localizes: about-us')
   })
 
   // If localizes points to a different slug, it's not a match for this English entry.
   // It might be a valid translation of a different page.
   it('returns empty array when localizes points to different slug', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [
       createMdxFile({
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         locale: 'es',
         localizes: 'other-page'
       })
@@ -147,9 +147,13 @@ describe('findMatchingLocales', () => {
   })
 
   it('returns empty array when localizes is null', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [
-      createMdxFile({ slug: 'sobre-nosotros', locale: 'es', localizes: null })
+      createMdxFile({
+        pathSlug: 'sobre-nosotros',
+        locale: 'es',
+        localizes: null
+      })
     ]
 
     const matches = findMatchingLocales(englishMdx, localeFiles)
@@ -158,7 +162,7 @@ describe('findMatchingLocales', () => {
   })
 
   it('returns empty array for empty locale files', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
 
     const matches = findMatchingLocales(englishMdx, [])
 
@@ -167,21 +171,29 @@ describe('findMatchingLocales', () => {
 
   // A single English page can have translations in multiple languages
   it('matches multiple locale files for same English entry', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [
       createMdxFile({
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         locale: 'es',
         localizes: 'about-us'
       }),
-      createMdxFile({ slug: 'uber-uns', locale: 'de', localizes: 'about-us' }),
-      createMdxFile({ slug: 'a-propos', locale: 'fr', localizes: 'about-us' })
+      createMdxFile({
+        pathSlug: 'uber-uns',
+        locale: 'de',
+        localizes: 'about-us'
+      }),
+      createMdxFile({
+        pathSlug: 'a-propos',
+        locale: 'fr',
+        localizes: 'about-us'
+      })
     ]
 
     const matches = findMatchingLocales(englishMdx, localeFiles)
 
     expect(matches).toHaveLength(3)
-    expect(matches.map((m) => m.localeMdx.slug)).toEqual([
+    expect(matches.map((m) => m.localeMdx.pathSlug)).toEqual([
       'sobre-nosotros',
       'uber-uns',
       'a-propos'
@@ -190,16 +202,16 @@ describe('findMatchingLocales', () => {
 
   // Must be exact match — "about" should not match "about-us" or "aboutpage"
   it('only matches files where localizes equals english slug exactly', () => {
-    const englishMdx = createMdxFile({ slug: 'about' })
+    const englishMdx = createMdxFile({ pathSlug: 'about' })
     const localeFiles = [
-      createMdxFile({ slug: 'match', locale: 'es', localizes: 'about' }),
+      createMdxFile({ pathSlug: 'match', locale: 'es', localizes: 'about' }),
       createMdxFile({
-        slug: 'no-match-1',
+        pathSlug: 'no-match-1',
         locale: 'de',
         localizes: 'about-us'
       }),
       createMdxFile({
-        slug: 'no-match-2',
+        pathSlug: 'no-match-2',
         locale: 'fr',
         localizes: 'aboutpage'
       })
@@ -208,15 +220,15 @@ describe('findMatchingLocales', () => {
     const matches = findMatchingLocales(englishMdx, localeFiles)
 
     expect(matches).toHaveLength(1)
-    expect(matches[0].localeMdx.slug).toBe('match')
+    expect(matches[0].localeMdx.pathSlug).toBe('match')
   })
 
   // Locale files without localizes are "orphans" — they'll be handled separately
   // by syncUnmatchedLocales which tries to find their English parent in Strapi
   it('returns empty array when localizes is undefined', () => {
-    const englishMdx = createMdxFile({ slug: 'about-us' })
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [
-      createMdxFile({ slug: 'orphan', locale: 'es', localizes: undefined })
+      createMdxFile({ pathSlug: 'orphan', locale: 'es', localizes: undefined })
     ]
 
     const matches = findMatchingLocales(englishMdx, localeFiles)

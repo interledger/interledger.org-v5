@@ -38,13 +38,13 @@ function findAttr(
  *
  * @example
  * ```ts
- * // <Ambassador slug="caroline-sinders" />
- * getStringAttr(node, 'slug')                        // → "caroline-sinders"
+ * // <Ambassador pathSlug="caroline-sinders" />
+ * getStringAttr(node, 'pathSlug')                    // → "caroline-sinders"
  * getStringAttr(node, 'bio')                          // → undefined
- * getStringAttr(node, 'slug', { required: true })     // → "caroline-sinders"
+ * getStringAttr(node, 'pathSlug', { required: true }) // → "caroline-sinders"
  * getStringAttr(node, 'bio', { required: true })      // → throws MISSING_REQUIRED_PROP
- * // <Ambassador slug={dynamicVar} />
- * getStringAttr(node, 'slug')                         // → throws DYNAMIC_EXPRESSION
+ * // <Ambassador pathSlug={dynamicVar} />
+ * getStringAttr(node, 'pathSlug')                     // → throws DYNAMIC_EXPRESSION
  * ```
  *
  * @param node - JSX AST node
@@ -178,10 +178,10 @@ export function getBooleanAttr(
  *
  * @example
  * ```ts
- * // <AmbassadorGrid slugs={["caroline-sinders","alex-smith"]} />
- * getStringArrayAttr(node, 'slugs')  // → ["caroline-sinders", "alex-smith"]
- * // <AmbassadorGrid slugs={myArray} />
- * getStringArrayAttr(node, 'slugs')  // → throws DYNAMIC_EXPRESSION
+ * // <AmbassadorGrid pathSlugs={["caroline-sinders","alex-smith"]} />
+ * getStringArrayAttr(node, 'pathSlugs')  // → ["caroline-sinders", "alex-smith"]
+ * // <AmbassadorGrid pathSlugs={myArray} />
+ * getStringArrayAttr(node, 'pathSlugs')  // → throws DYNAMIC_EXPRESSION
  * ```
  *
  * @returns The string array, or `undefined` if absent
@@ -217,7 +217,7 @@ export function getStringArrayAttr(
     return undefined
   }
 
-  // Must be an expression: slugs={["a","b"]}
+  // Must be an expression: pathSlugs={["a","b"]}
   if (
     !attr.value ||
     typeof attr.value !== 'object' ||

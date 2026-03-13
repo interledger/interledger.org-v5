@@ -19,10 +19,10 @@ export async function getStaticPaths() {
 }
 
 const slugParam = Astro.params.page
-const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
+const pathSlug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 
 const pages = await getCollection('foundation-pages')
-const mdxPage = pages.find((page) => page.data.slug === slug)
+const mdxPage = pages.find((page) => page.data.pathSlug === pathSlug)
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null
 
@@ -32,7 +32,7 @@ if (mdxPage) {
   mdxData = mdxPage.data
 }
 
-const title = mdxData?.metaTitle || mdxData?.title || slug
+const title = mdxData?.metaTitle || mdxData?.title || pathSlug
 const description = mdxData?.metaDescription || mdxData?.description || null
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined

@@ -1,0 +1,2582 @@
+[
+  {
+    "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+    "firstName": "Adrian",
+    "lastName": "Hope-Bailie",
+    "fullName": "Adrian Hope-Bailie",
+    "bio": "Adrian is a co-inventor of the Interledger protocol stack and the Open Payments standards and payment pointers. He is a co-founder of Fynbos where he is building the first account that will issue payment pointers and support Open Payments.",
+    "tagLine": "Founder at Fynbos",
+    "profilePicture": "https://sessionize.com/image/e5b2-400o400o1-UNKX2DhHQEuyQwrn2Xx1vb.png",
+    "sessions": [
+      {
+        "id": 695522,
+        "name": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fynbos",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "256e1583-4245-4529-bd87-6fa39846b5a7",
+    "firstName": "Akshat",
+    "lastName": "Sharma",
+    "fullName": "Akshat Sharma",
+    "bio": "\r\nMy name is Akshat Sharma, and I've been actively participating in research conferences and presentations from my first few months of college.I have a solid foundation in programming languages, machine learning,cybersecurity,economics as well as an understanding of Financial Technology. I Am also an open source contributor which is available at my GitHub profile (https://github.com/Akshat111111). \r\nThis academic year I also attended to the 2023 International Conference on Advanced Communication and Intelligent Systems (ICACIS), the International Seminar on Artificial Intelligence's Impact on Technological Development (IAITD), hosted by Dambi Dollo University in Ethiopia, and the ACM Chapter's webinar on Bringing Artificial Intelligence to the Edge,Recent Advancement in Communication,Computing and Artificial intelligence (RACCAI 2023) and Third International Conference on Network Security and Blockchain Technology (ICNSBT 2024).\r\nI am well-versed in the fundamentals of computer science,economics and financial technology.I have two research internships under my belt: one at University of California in 2024 and another IIT Indore in 2023 . \r\n\r\nSince high school, I've been a meritorious student.Cabinet officials, non-governmental organizations, and communities in my state have all recognized me for my academic achievements.I had the opportunity to meet with Pranjal Kamra, India's largest financial analyst (subscribers: 5.8 million), after he saw my interest in and expertise in fintech.I was among the top 2% of candidates and was able to secure a summer research internship at IIT Indore.Only 5% of candidates were picked for the Math of Machine Learning Spring School at IIT Kharagpur, where I was also accepted.I've been chosen to join in the Google Summer of Code 2024 program. I am thrilled to be one of 1,220 GSoC contributors chosen for this great opportunity out of 43,984 applicants from 172 countries.\r\n\r\n I have also mentored 1000+ individuals in different regional and national open source program.Some of them are Girlscript summer of code 2024,Kharagpur winter of code 2024,Winter of code 2024 and Vinyasa Summer of code 2024.\r\n",
+    "tagLine": "Open Source contributor and Fintech Researcher",
+    "profilePicture": "https://sessionize.com/image/5e59-400o400o1-9p73kduYoC4PfAfCHJyoxv.jpg",
+    "sessions": [
+      {
+        "id": 732644,
+        "name": "Advancing Secure and Intelligent Transactions: Integrating AI and Cybersecurity in Open Payments"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mifos Initiative, an American financial software nonprofit",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Google summer of Code Intern",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "aa3deed9-666b-4a27-8a26-b2c792a42663",
+    "firstName": "Alex",
+    "lastName": "Lakatos",
+    "fullName": "Alex Lakatos",
+    "bio": "Alex has spent the past 11 years working on the Open Web within Browser, Communications, and FinTech organizations. With a background in web technologies and developer advocacy, he’s helped organizations build developer-friendly products while engaging with the developer community at large. As the CTO for the Interledger Foundation, he focuses on lowering the barrier to entry into the Interledger ecosystem and drive the adoption of the web standards powering the Interledger Protocol.",
+    "tagLine": "Chief Technology Officer",
+    "profilePicture": "https://sessionize.com/image/ae6f-400o400o1-mj9fUM3LZvGpUXqSy5VYT.jpg",
+    "sessions": [
+      {
+        "id": 754678,
+        "name": "Codius Fireside Chat"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "b030bca8-340c-46fc-945c-dfb865e65b63",
+    "firstName": "Alex",
+    "lastName": "Mozeak",
+    "fullName": "Alex Mozeak",
+    "bio": "Hailing from Queens, NY, Alex Mozeak is an entrepreneurial software engineer with a rich background in both corporate and consulting environments. As a passionate netizen, Alex has witnessed the web's evolution from its early days to the exciting possibilities of Web3. Known for effective communication and his knack for collaboration, Alex has made significant contributions to the web presence of some of the world's most renowned cultural institutions and has championed innovations that make the web more inclusive and accessible.",
+    "tagLine": "Co-Founder, aStar Digital",
+    "profilePicture": "https://sessionize.com/image/5305-400o400o1-WUP7DcGa7rHRfrUwMDAC2f.jpg",
+    "sessions": [
+      {
+        "id": 732580,
+        "name": "Sharing is Caring – Using Web Monetization to Expand Access and Engagement with Gib"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "A* Digital LLC",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e0a4be86-c4c7-4374-a728-a331170307cf",
+    "firstName": "Allan",
+    "lastName": "Davids",
+    "fullName": "Allan Davids",
+    "bio": "Dr. Allan Davids is a Senior Lecturer in the School of Economics and the Director of the Financial Innovation Hub, both at the University of Cape Town. In collaboration with the Interledger Foundation, the Financial Innovation Hub brings together the brightest minds on the African continent to spearhead education, research and innovation in financial technologies. At UCT, Allan also convenes the MPhil in Financial Technology, the only Master’s degree specializing in Financial Technology on the African continent. Allan holds a PhD in Economics, has spent time as a visiting researcher at several leading universities, including New York University, the University of Oxford and Imperial College London, and until 2023, held the South African Reserve Bank Research Chair in Financial Stability. Allan’s research spans topics from housing, household and consumer finance, and public finance. ",
+    "tagLine": "Director, Financial Innovation Hub at UCT",
+    "profilePicture": "https://sessionize.com/image/4eda-400o400o1-DTdLYwcBCv3i9GqWx2hXcL.jpg",
+    "sessions": [
+      {
+        "id": 761242,
+        "name": "Towards an inclusive cashless society: the digital payments landscape in South Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Financial Innovation Hub, University of Cape Town",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Senior Lecturer and Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a8e2cd00-2d08-41b0-a6c3-4f43640d2276",
+    "firstName": "Andres",
+    "lastName": "Calderon Lopez",
+    "fullName": "Andres Calderon Lopez",
+    "bio": "Professor of Competition Law and Information Law at PUCP (Peru). PhD Candidate at Universidad Catolica of Chile. Legal Advisor to the Board of Directors of Peru's Central Bank.",
+    "tagLine": "Pontificia Universidad Catolica del Peru",
+    "profilePicture": "https://sessionize.com/image/fea1-400o400o1-RAoApHfzH3nz4192vqFbjE.jpg",
+    "sessions": [
+      {
+        "id": 732747,
+        "name": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Pontificia Universidad Catolica del Peru",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Law Professor",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9230b0cd-1da1-4214-a323-d5d553038b02",
+    "firstName": "Aung Mon",
+    "lastName": "Ko",
+    "fullName": "Aung Mon Ko",
+    "bio": "Aung is the Software Engineering Manager at ThitsaWorks, overseeing the Microfinance Credit Information Exchange platform and Thitsa Payment Portal. With over 10 years of experience, he is responsible for product vision, planning, launching, and performance analysis, as well as technical execution and team management. Aung Mon Ko specializes in Extract, Transform & Load (ETL) processes and SQL, collaborating with stakeholders to design custom Business Intelligence (BI) dashboards and reports. Aung manages a data-sharing platform called MCIX and is responsible for product vision, planning, launching, and performance analysis. He also has experience developing core banking systems, ensuring the successful delivery of software products through strong problem-solving skills and effective project management.\r\n\r\n\r\n",
+    "tagLine": "ThitsaWorks, Software Engineering Manager",
+    "profilePicture": "https://sessionize.com/image/a28f-400o400o1-as3k7d2WgQb4FjLjPHXaf6.jpg",
+    "sessions": [
+      {
+        "id": 695511,
+        "name": "ThitsaX: Interconnected Nodes to Bridge Worlds"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ThitsaWorks Pte. Ltd.",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Software Engineering Manager",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "27429f38-3846-488f-9e53-58837c0b6842",
+    "firstName": "Ayden",
+    "lastName": "Férdeline",
+    "fullName": "Ayden Férdeline",
+    "bio": "Ayden Férdeline is a public interest technologist who has worked directly with governments, industry, and civil society organizations to support responsible technological innovation with a focus on social impact. \r\n\r\nHe is currently an Interledger Ambassador. Previously, he was a Landecker Democracy Fellow with Humanity in Action, in collaboration with the Alfred Landecker Foundation, where he worked to bring traditionally-excluded voices from the labor organizing space into Internet governance arenas. \r\n\r\nHe serves on the Steering Committee of the joint Ford Foundation-Mozilla Foundation Public Interest Technologists Network, where he cultivates an empowered community of civic minded stakeholders who share a meaningful and actionable camaraderie to keep the Internet working for everyone. \r\n\r\nIn addition, he is a Fellow with the Internet Law and Policy Foundry in Washington D.C. \r\n\r\nHe previously represented European civil society organizations on ICANN’s GNSO Council, the body which makes binding policy for generic top-level domain names like .COM and .ORG, and was a technology policy fellow with the Mozilla Foundation. He also hosted the Internet governance history podcast POWER PLAYS, which shined a spotlight on many pioneers from within the Internet governance community, and has worked for an array of philanthropic organizations, including the National Endowment for Democracy, the National Democratic Institute, and the New Venture Fund.\r\n\r\nHe is an alumnus of the London School of Economics.",
+    "tagLine": "Public Interest Technologist",
+    "profilePicture": "https://sessionize.com/image/2c55-400o400o1-hJy2kMjNEEXKu4ZRZva7bT.jpg",
+    "sessions": [
+      {
+        "id": 731902,
+        "name": "Parliamentarian Perspectives: Fostering Inclusive Open Payments in Africa"
+      },
+      {
+        "id": 732187,
+        "name": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Ambassador",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "60ca230a-ed4a-492b-b423-f4fbd279c871",
+    "firstName": "Briana",
+    "lastName": "Marbury",
+    "fullName": "Briana Marbury",
+    "bio": "Briana is passionate about promoting open payments and financial interoperability solutions for the world's population that need it most.  As Executive Director of the Interledger Foundation, her goal is to expand the public’s awareness of the Interledger Protocol's immense potential to improve lives.",
+    "tagLine": "President & CEO, Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/4335-400o400o1-GKsWsXx4ZqJ8jfn8knpqX2.jpg",
+    "sessions": [
+      {
+        "id": 753024,
+        "name": "Interledger Foundation Keynote with President & CEO Briana Marbury"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "President & CEO ",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "b64bb83c-8afd-4452-a083-34b183001afd",
+    "firstName": "Caroline",
+    "lastName": "Sinders",
+    "fullName": "Caroline Sinders",
+    "bio": "Caroline Sinders is a critical designer and artist. For the past few years, she has been examining the intersections of artificial intelligence, abuse, and politics in digital conversational spaces. She has worked with the United Nations, Amnesty International, IBM Watson, the Wikimedia Foundation and others. Sinders has held fellowships with the Harvard Kennedy School, Google's PAIR (People and Artificial Intelligence Research group), the Mozilla Foundation, Pioneer Works, Eyebeam, Ars Electronica, the Yerba Buena Center for the Arts, the Sci Art Resonances program with the European Commission, and the International Center of Photography. Currently, she is a fellow with Ars Electronica AI Lab with the Edinburgh Futures Institute and a visiting fellow with the Weizenbaum Institute looking at labor and systems in AI and platforms. Her work has been featured in the Tate Exchange in Tate Modern, Victoria and Albert Museum, MoMA PS1, LABoral, Wired, Slate, Quartz, the Channels Festival and others. Sinders holds a Masters from New York University's Interactive Telecommunications Program.\r\n",
+    "tagLine": "principal and cofounder, focusing on how design can solve complex tech problems, from community health to AI.",
+    "profilePicture": "https://sessionize.com/image/4e54-400o400o1-cd5cfb7f-f6da-4622-a1f7-8616db25a0ae.jpg",
+    "sessions": [
+      {
+        "id": 732187,
+        "name": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Convocation Research + Design",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Executive Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+    "firstName": "Chris",
+    "lastName": "Lawrence",
+    "fullName": "Chris Lawrence",
+    "bio": "Chris is an experienced nonprofit professional who has spent the last 15 years as a dedicated educator, network builder, and advocate for non-profit organizations. Chris is currently the Head of Programs at the Interledger Foundation. He oversees all aspects of the programatic activity of the foundation.",
+    "tagLine": "Chief Program Officer, Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/2bdb-400o400o1-SNinwiRmUVgy57CYVWjhqE.jpg",
+    "sessions": [
+      {
+        "id": 753052,
+        "name": "Interledger Summit Closing Plenary"
+      }
+    ],
+    "isTopSpeaker": true,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Chief Program Officer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "5f635035-6608-4d43-a0fe-e64717a742b3",
+    "firstName": "Daphnee",
+    "lastName": "Prates Iglesias",
+    "fullName": "Daphnee Prates Iglesias",
+    "bio": "Daphnee is digitisation specialist who holds a Master in Public Policy from the Hertie School and a B.A. in International Relations from the Pontifical Catholic University of Goiás, Brazil (PUC-GO). She is also trained in Social Innovation and Leadership by the United Nations University for Peace (UPEACE). Her field of work analyses the connections between the increasing use or misuse of new technologies and its implications to countries' digital policies: in privacy regulation, government transparency, and human rights protection. Currently she is an independent UN-IGF Consultant/Advisor for Access and Connectivity, being a rapporteur of said multistakeholder discussions. Previously, Daphnee has led the build-up of a few coalitions around digital governance, including acting as a Policy Officer for Financial Inclusion at the International Rescue Committee and a Policy Manager at the Web Foundation. She is fluent in Portuguese, English, Spanish and German, and has become an Alexander von Humboldt Foundation recipient in 2018, being awarded as a German Chancellor Fellow for her leadership trajectory.",
+    "tagLine": "Independent Expert on Digital Policies & Governance | Coalition-builder",
+    "profilePicture": "https://sessionize.com/image/157f-400o400o1-SxWER9Z9ULNjLvVTtoCGZK.jpg",
+    "sessions": [
+      {
+        "id": 732187,
+        "name": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion"
+      },
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Independent",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Policy Advisor / Consultant ",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "73a6f00b-8686-436b-9eeb-6d9b2bd5b12a",
+    "firstName": "David",
+    "lastName": "Higgins",
+    "fullName": "David Higgins",
+    "bio": "David has over 23 years experience in managing Enterprise IT and large scale development programmes in the Telecommunications, Financial Services and Fintech sectors. For the past 16 months David has been leading Mifos work with the ITU GovStack programme;  helping them specify a Payment Building Block, and supplying a working Payment Building Block instance based on Mifos DPGs and working on Mifos work for DPIs.  This has included project management of the Interledger Grant funded work on how \"ILP for DPI\".",
+    "tagLine": "Director of Programs - Mifos",
+    "profilePicture": "https://sessionize.com/image/0ae4-400o400o1-MhahaJTuj7p8pkFNLSLwTa.png",
+    "sessions": [
+      {
+        "id": 731179,
+        "name": "Shared Infrastructure to unlock Last-Mile Financial Inclusion using the Mifos DPGs for Core Banking"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mifos Initiative",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Director of Programs",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "2b7c7fbf-fcc7-4303-948b-7368602778e2",
+    "firstName": "Dre",
+    "lastName": "Ngare",
+    "fullName": "Dre Ngare",
+    "bio": "Andrew Ngare is the Co-founder, Head of Innovation at Snake Nation, a culture, content, and technology company in Cape Town, South Africa connecting young creators with the creative economy, partnering with NGOs, corporates, brands, and governments. ",
+    "tagLine": "Head of Innovation",
+    "profilePicture": "https://sessionize.com/image/927c-400o400o1-V4TyCCDYgaEnX5C1qfGQWz.jpg",
+    "sessions": [
+      {
+        "id": 732595,
+        "name": "Building Trust and Advancing Open Payments in Africa’s Regulatory Ecosystem"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Snake Nation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Head of Innovation",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "621798be-4ae6-4e5b-9345-fa3ceec50333",
+    "firstName": "Edward",
+    "lastName": "Cable",
+    "fullName": "Edward Cable",
+    "bio": "As the President/CEO of the Mifos Initiative and founding member of the Apache Fineract PMC, Edward Cable is a leader in technology-enabled financial inclusion and open service financial services innovation. Since his time at the Wharton School at the University of Pennsylvania, Edward has understood and proven the catalytic power of communities – first through the cooperative movement, then through financial inclusion, and now through open source for financial services. Edward joined the Mifos project in 2007, incubating the open source community as part of the initial team guiding the project within the Grameen Technology Center. He led the spinout of the Mifos Initiative in 2011, overseeing the evolution of both the platform as well as the open source community as a transformative force for microfinance, financial inclusion and now digital financial services. Edward’s strategic vision and foresight has enabled the community to keep pace with rapid fintech innovation and nurtured the growth of a vibrant ecosystem of solution providers reaching nearly 20 million clients through solutions built on top of the open-source Mifos and Fineract APIs. When he’s not focused on cultivating innovative fintech solutions, Edward tends to his menagerie of animals including goats, dogs, rabbits, and chickens in the majestic Redwoods. Edward has spoken at numerous open source and fintech events including a keynote and LF Open Source Summit in Europe, and workshops/talks at Fintech DevCon hosted by Moov and OSCON.",
+    "tagLine": "President/CEO - Mifos",
+    "profilePicture": "https://sessionize.com/image/d3d3-400o400o1-BHN3j4GMXzKdPrL9tsipvD.jpg",
+    "sessions": [
+      {
+        "id": 731179,
+        "name": "Shared Infrastructure to unlock Last-Mile Financial Inclusion using the Mifos DPGs for Core Banking"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "The Mifos Initiative",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "President/CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "ccda5cd7-aeb2-4dd1-97a9-87979237f62f",
+    "firstName": "Enej",
+    "lastName": "Pungercar",
+    "fullName": "Enej Pungercar",
+    "bio": "Enej is the founder and CEO of GateHub, which is the largest wallet and gateway provider on XRP Ledger serving more than 1.3 million customers. For the last 11 years Enej has been working for various crypto asset companies including Bitstamp, one of the largest crypto exchanges, where he served as Chief Design Officer for 4 years, before founding GateHub in 2014. As a trained architect, his passion is building cutting edge products and services using decentralized ledger technologies. ",
+    "tagLine": "Founder and CEO of GateHub",
+    "profilePicture": "https://sessionize.com/image/31f2-400o400o1-siunwuA99mqaMivmgCb4Ve.png",
+    "sessions": [
+      {
+        "id": 695522,
+        "name": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "GateHub",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "596d5e24-c923-4716-adfa-2c18d07d9e43",
+    "firstName": "Esther",
+    "lastName": "Mwema",
+    "fullName": "Esther Mwema",
+    "bio": "Esther Mwema is an artist and a digital inequalities practitioner with expertise in internet governance, digital transformation, and innovation. She has over ten years commitment to social impact at the intersection of youth, technology, and gender and holds extensive experience at the United Nations. Esther is an Open Internet leader who prioritises African feminist and decolonial practices. She has been awarded the Mozilla Creative Media Awards, the Interledger Foundation Future|Money award, the C/Change R&D arts and culture awards, among more. Esther graduated with an MSc in Inequalities and Social Science from the London School of Economics.",
+    "tagLine": "Future|Money Awardee / Sikhula Sonke: Living Archives of Afrofuturist Village Banking",
+    "profilePicture": "https://sessionize.com/image/e0be-400o400o1-sCJqFUXGZ5TyEDNv6sgtWM.jpg",
+    "sessions": [
+      {
+        "id": 695881,
+        "name": "Views from the Grassroots: Village Banking and Financial Inclusion in Southern Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Sikhula Sonke: Living Archives of Afrofuturist Village Banking",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Artist",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "836d5658-b522-46f2-a032-6cd7debf0101",
+    "firstName": "Eunice",
+    "lastName": "de Asis",
+    "fullName": "Eunice de Asis",
+    "bio": "Eunice de Asis is a dedicated community organizer with over 10 years of experience, originally from the Philippines and now based in the Netherlands. Her work has focused on advocating for undocumented migrants and refugees, having witnessed firsthand the challenges they face in accessing basic rights like banking and social services.\r\n\r\nBefore migrating to the Netherlands, she was a filmmaker, producing impactful, award-winning  films and documentaries that highlighted critical social issues and gave voice to marginalized communities.\r\n\r\nShe is  actively involved in several migrant organization such as Right to Create, de Asis  also function as the chairperson of MiGreat, and Migrante Amsterdam, and serves on the International Coordinating Body of the International Migrant Alliance. In addition to these roles, de Asis is part of the Amsterdam municipality’s sounding board for the undocumented community, advising the city council on policies affecting undocumented migrants in the city.\r\n\r\nMs. de Asis is presently working with the Stichting Here to Support initiative on the Financial Inclusion of the Undocumented Migrant project, where she continues her efforts to empower migrant communities in the Netherlands.",
+    "tagLine": "Activist, Filmmaker, Community Organizer",
+    "profilePicture": "https://sessionize.com/image/74a0-400o400o1-DWCY4Mdep2Ti8P7tDGLexP.jpg",
+    "sessions": [
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Stichting Here to Support",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Community Organizer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "93026eb0-f1ab-4c49-9ba8-3e63f26a4bee",
+    "firstName": "Fernanda",
+    "lastName": "Pizarro",
+    "fullName": "Fernanda Pizarro",
+    "bio": "Master of Law in Business and Regulation Affairs, with a Solid Track Record in National and International Fintech, Specializing in the Intersection of Law, Technology, and Regulation",
+    "tagLine": "Lawyer, Payment Specialist - LLM Business and Regulatory Affairs",
+    "profilePicture": "https://sessionize.com/image/6176-400o400o1-VGoReypbTo2spzrsCQ3QmN.jpg",
+    "sessions": [
+      {
+        "id": 732747,
+        "name": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ProntoPaga",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Compliance Analyst",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "5e27eb01-d22e-4db5-b6ad-0ce26d1a3a22",
+    "firstName": "Fernando",
+    "lastName": "Almiñana",
+    "fullName": "Fernando Almiñana",
+    "bio": "Fernando's entrepreneurial journey spans across various industries, including real estate development and operations, food manufacturing, financial consulting, electronic security and telecommunications. With over 16 years of experience in mission-critical communications, he has gained a comprehensive understanding of telecom infrastructure design and operations. Fernando is a co-founder of Wallet Guru and has been instrumental in guiding the company's strategic planning and software development.\r\n",
+    "tagLine": "Wallet Guru Co-Founder. Pioneering streaming payments and subscription-less services.",
+    "profilePicture": "https://sessionize.com/image/a40e-400o400o1-GXZwbe6JaGshGUNTbkxop1.jpg",
+    "sessions": [
+      {
+        "id": 695709,
+        "name": "Wallet Guru: Revolutionizing the Streaming Industry with Interledger’s Streaming Payments"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Wallet Guru",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1118e56c-d6bd-4b8e-ae6a-80a58932e45a",
+    "firstName": "Greg",
+    "lastName": "McCormick",
+    "fullName": "Greg McCormick",
+    "bio": "Greg McCormick, Project Executive Director, is a 30 year tech industry veteran. Starting out as a network engineer, developer, and architect he has held various roles including CEO, CTO. He is focused on inclusive financial systems and how to protect emerging markets by providing trust in the financial system.  Mr. McCormick leads a yet-to-be-named nonprofit that produces the OSS Fraud Risk Management System providing knowledge and tools to solve financial crime and improve financial inclusion.",
+    "tagLine": "Linux real-time fraud detection, from the Project Executive Director",
+    "profilePicture": "https://sessionize.com/image/a106-400o400o1-KHEiiC2iK8QAXbxjoYVsuG.jpg",
+    "sessions": [
+      {
+        "id": 684918,
+        "name": "Tazama Real-Time Open Source Software for Fraud Detection"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Linux Foundation -Tazama Project",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Executive Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3bce59a9-7f72-4005-b442-1fae30119442",
+    "firstName": "Hannah",
+    "lastName": "Draper",
+    "fullName": "Hannah Draper",
+    "bio": "Hannah Draper advises Consumers International on its digital rights strategy. Since 2022, she has directed Payne & Routledge, Ltd. (payneroutledge.com), a consultancy firm working in the areas of digital & information rights, public security, and social innovation. Draper previously worked as a program manager for the Open Society Foundations’ Information Program, where she led the organization's global digital rights program for almost a decade. She also co-founded and directed INDELA.fund — an initiative dedicated to advancing digital rights in Latin America.\r\n\r\nDraper holds a common law degree from the University of Ottawa, with a specialization in technology law, and a BA from the University of Guelph, with a focus on international development. ",
+    "tagLine": "Hannah Draper advises Consumers International on its digital rights strategy.",
+    "profilePicture": "https://sessionize.com/image/1afe-400o400o1-HVzMSpKArkycGkfcdeBwbm.png",
+    "sessions": [
+      {
+        "id": 732747,
+        "name": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Consumers International",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Advisor",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "53ba9e9d-d014-4133-bd50-4d7c97a470fd",
+    "firstName": "Hon. Esther",
+    "lastName": "Passaris",
+    "fullName": "Hon. Esther Passaris",
+    "bio": "Delegate in the Interledger Summit 2024 Parliamentarian Track",
+    "tagLine": "Member of Parliament, Kenya",
+    "profilePicture": "https://sessionize.com/image/2186-400o400o1-VRVFAYcXMP9z7Fm5SHGHue.jpg",
+    "sessions": [
+      {
+        "id": 731902,
+        "name": "Parliamentarian Perspectives: Fostering Inclusive Open Payments in Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "f1cbe4f1-29f8-4ac1-9fc3-06d7851bf338",
+    "firstName": "Jason",
+    "lastName": "Bruwer",
+    "fullName": "Jason Bruwer",
+    "bio": "Settlement workstream technical lead.",
+    "tagLine": "ILF, previously Coil",
+    "profilePicture": "https://sessionize.com/image/cd94-400o400o1-re5p7j5XGmmhJDRQRyhXd.jpg",
+    "sessions": [
+      {
+        "id": 695515,
+        "name": "Cross-border inter-scheme transfer demo: from Rafiki to a Mojaloop switch"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ILF Staff",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Engineer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "715acb29-2834-4d55-b102-d75ec3e3136d",
+    "firstName": "Jeremiah",
+    "lastName": "Lee",
+    "fullName": "Jeremiah Lee",
+    "bio": "Jeremiah Lee develops monetization tools for digital creators. He previously worked on cloud payment infrastructure at Stripe, hardware integrations at Spotify, and web APIs at Fitbit. He grew up under the California sun, but now calls Stockholm home.",
+    "tagLine": "Software Engineer",
+    "profilePicture": "https://sessionize.com/image/69da-400o400o1-StfibW1MiqBiRMQSMBQMVe.jpg",
+    "sessions": [
+      {
+        "id": 732187,
+        "name": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Restoration.software",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e8d66139-9a11-471d-8feb-060d95b32f04",
+    "firstName": "Jon Adam",
+    "lastName": "Chen",
+    "fullName": "Jon Adam Chen",
+    "bio": "Jon Adam Chen is a strategic communications specialist with a background in social impact, storytelling, and African development. He thrives as an editor, writer, and researcher. Jon Adam holds a master’s degree in media studies from the University of Cape Town and was an Engineers Without Borders Canada long-term fellow. He has supported grassroots organizations in Canada, South Africa, Kenya and Nigeria. He currently works with the Assembly of First Nations and previously held roles with the Ontario Ministry of Health and the Canadian Red Cross.",
+    "tagLine": "Researcher and Co-Lead, Sikhula Sonke: Living Archives of Afrofuturist Village Banking",
+    "profilePicture": "https://sessionize.com/image/ffd4-400o400o1-4n9GQeRp1aS7ytWbKe3fs1.jpeg",
+    "sessions": [
+      {
+        "id": 695881,
+        "name": "Views from the Grassroots: Village Banking and Financial Inclusion in Southern Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Sikhula Sonke Project",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Researcher and Co-Lead, ",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "30b3c3bc-2196-4f86-be96-4578358d8818",
+    "firstName": "Joran",
+    "lastName": "Greef",
+    "fullName": "Joran Greef",
+    "bio": "Joran bumped into Coil (and the idea of Interledger) in 2020 on a soccer field in Cape Town. This led to analysis of the Mojaloop payments switch, and the idea for “an accounting database” called TigerBeetle to move the performance needle by three orders of magnitude, as part of providing infrastructure for Interledger and Rafiki. TigerBeetle, Inc. was spun out of Coil as a startup in August 2022.",
+    "tagLine": "Founder & CEO of TigerBeetle",
+    "profilePicture": "https://sessionize.com/image/a875-400o400o1-7fHzM1twg3S8UgpjqsTHia.jpg",
+    "sessions": [
+      {
+        "id": 718166,
+        "name": "The Next 30 Years of Transaction Processing"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "TigerBeetle",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8ed6a7c6-1361-4416-87b7-69471b062704",
+    "firstName": "Julian",
+    "lastName": "Kanjere",
+    "fullName": "Julian Kanjere",
+    "bio": "Julian Kanjere is a founder at Mandla Money, a stablecoin mobile money wallet for emerging markets that is accessible via WhatsApp, USSD and SMS. Julian has experience leading software implementations and blockchain projects, and regularly speaks at technology conferences on building inclusive solutions & blockchain in emerging markets. He has successfully raised innovation funding from various sources and won prestigious awards such as the Schmidt Futures Reimagine Challenge by former Google CEO Eric Schmidt - all testament to his drive to advance society using innovation and technology. ",
+    "tagLine": "Founder - Mandla Money",
+    "profilePicture": "https://sessionize.com/image/9573-400o400o1-EutGdkn9Tbb2AVXVnnVhyv.jpg",
+    "sessions": [
+      {
+        "id": 761242,
+        "name": "Towards an inclusive cashless society: the digital payments landscape in South Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mandla Money",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "be411f3c-9578-4b55-9b6b-63511ad8e986",
+    "firstName": "Julie",
+    "lastName": "Guetta",
+    "fullName": "Julie Guetta",
+    "bio": "Julie has worked in the global payments industry since 2013, winning leadership roles with firms like Dovetail, RedCompass Labs, and Partior. She has led the functional implementation of several payment systems for banks and has helped with their payments strategy. She has been an active Mojaloop Community member for several years before recently joining them. She is a regular speaker at conferences worldwide. ",
+    "tagLine": "Mojaloop Foundation, Technical Solutions lead",
+    "profilePicture": "https://sessionize.com/image/e041-400o400o1-HTKLgT9CKwzf5aiWJ7N4bd.jpg",
+    "sessions": [
+      {
+        "id": 695522,
+        "name": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "The Mojaloop Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Technical Solutions Lead",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a6783a70-11c2-49e1-8b9c-c30c6dc929cd",
+    "firstName": "Jurgen",
+    "lastName": "Kuhnel",
+    "fullName": "Jurgen Kuhnel",
+    "bio": "As a surfer, trader, founder, and trustworthy entrepreneur, I earned a reputation for dedication and trustworthiness, always adapting to the changing and evolving landscape of the industry and staying ahead on the curve of innovation.",
+    "tagLine": "CEO",
+    "profilePicture": "https://sessionize.com/image/8338-400o400o1-D9V4V7VBNiUXA7d8Sw97dH.jpg",
+    "sessions": [
+      {
+        "id": 732595,
+        "name": "Building Trust and Advancing Open Payments in Africa’s Regulatory Ecosystem"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Xago",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "dcf728ce-db55-4b40-8d9c-942473b14715",
+    "firstName": "Justus",
+    "lastName": "Ortlepp",
+    "fullName": "Justus Ortlepp",
+    "bio": "With more than 20 years’ experience in the Business Analysis field, Justus has honed his skills in problem solving and system building in South Africa in companies such as IBM, First National Bank (FNB) and Deloitte.\r\n\r\nAt FNB he designed a mainframe-based graph database for customer networks as well as a third-party fund management platform for which the project team earned an FNB Innovators first place award.\r\n\r\nAt Deloitte, Justus attended client projects for the South African Reserve Bank and the Bill & Melinda Gates Foundation from where he pursued full-time the design and development of an Open Source Software Financial Crime Risk Management solution focused on real-time transaction monitoring. That software is now called Tazama, a project of the Linux Foundation.\r\n",
+    "tagLine": "Product Manager",
+    "profilePicture": "https://sessionize.com/image/1ada-400o400o1-BDe3vmn4fs154dXR8WYPuq.jpg",
+    "sessions": [
+      {
+        "id": 684918,
+        "name": "Tazama Real-Time Open Source Software for Fraud Detection"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Tazama.org",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Product Manager",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "26fd7f35-0010-4bf0-895d-a732dd4546f7",
+    "firstName": "Kosta",
+    "lastName": "Peric",
+    "fullName": "Kosta Peric",
+    "bio": "Experienced executive at the intersection of technology, finance and innovation. Digital financial inclusion at the Gates Foundation. Board chair at the Mojaloop Foundation and member of the Board at the Interledger Foundation. Former Chief Architect SWIFTNet. Author. ",
+    "tagLine": "Deputy Director, Inclusive Financial Systems",
+    "profilePicture": "https://sessionize.com/image/fee4-400o400o1-NJgErRS3h54gfCHos1Yw1b.jpg",
+    "sessions": [
+      {
+        "id": 749717,
+        "name": "The History & Future of Digital Financial Inclusion "
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Bill & Melinda Gates Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Deputy Director, Inclusive Financial Systems",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a2eb66ef-7238-4800-bf4d-6091cb46e62b",
+    "firstName": "Kungela",
+    "lastName": "Mzuku",
+    "fullName": "Kungela Mzuku",
+    "bio": "Kungela is a platform owner at Nedbank, tasked with bringing sustainable principles and practices to Group Technology. She is also a post-graduate lecturer at the University of Cape Town. ",
+    "tagLine": "Platform Owner, Green Engineering at Nedbank",
+    "profilePicture": "https://sessionize.com/image/c24f-400o400o1-LPstTLszX8o8cceRBXkfWB.jpg",
+    "sessions": [
+      {
+        "id": 761242,
+        "name": "Towards an inclusive cashless society: the digital payments landscape in South Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Nedbank",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Platform Owner",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "23dfc112-b8df-4e82-968c-0b6e9fba3041",
+    "firstName": "Liz",
+    "lastName": "Steininger",
+    "fullName": "Liz Steininger",
+    "bio": "Liz Steininger is the CEO/Managing Director of Least Authority, a leading Web3 security consulting company and builder of privacy enhancing technology products, including Private.Storage and Winden.App. Least Authority specializes in securing Web3 products, capability-based security and implementing advanced cryptography, especially zero-knowledge proofs (ZK) and multi-party computations (MPC). Beyond security audits for new technologies, Least Authority has also released the MoonMath Manual, a practical guide for developers to understand zero-knowledge proofs. The company focuses on cutting-edge security and empowering users to control their right to privacy.",
+    "tagLine": "CEO of Least Authority",
+    "profilePicture": "https://sessionize.com/image/46e0-400o400o1-VP8wWCXpCZQgyGDr2qG7Mg.jpg",
+    "sessions": [
+      {
+        "id": 732719,
+        "name": "Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Least Authority",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO/Managing Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a6ac7ec7-a053-486c-8778-7294f707c0ab",
+    "firstName": "Lukonga",
+    "lastName": "Lindunda",
+    "fullName": "Lukonga Lindunda",
+    "bio": "Lukonga Lindunda is an innovation leader and entrepreneur with over 17 years of experience in driving digital transformation and fostering entrepreneurship in Zambia and across Africa. As the Executive Director and Co-founder of BongoHive, Zambia’s first technology and innovation hub, he has supported over 2,000 startups and MSMEs, empowering them with the resources, mentorship, and networks needed for success. Lukonga is also at the forefront of advancing Digital Public Infrastructure (DPI) and Artificial Intelligence (AI) in Zambia, having led the State of AI in Zambia Survey in collaboration with ZICTA and Ubuntu AI, and contributing to the development of the country’s National AI Strategy.\r\n\r\nA strong advocate for DPI, Lukonga promotes the use of technology to enhance public services and community well-being. He has contributed as a Digital Economy Country Assessment (DECA) expert for both Zambia and Zimbabwe, working to strengthen their digital economies. He also serves as a trusted advisor to the public sector, collaborating with SmartZambia to ensure that digital infrastructure is inclusive and accessible to the startup and business communities. Lukonga’s work emphasizes customer-centric innovation, and he is a passionate advocate for gender inclusivity in tech, shaping the future of business and digital transformation in Zambia and beyond.\r\n\r\nLukonga holds a Bachelor’s degree in Information Technology from Nelson Mandela Metropolitan University, and an MBA from the African Leadership University. He remains dedicated to leveraging technology for societal growth and economic development.",
+    "tagLine": "Leader in Innovation and Digital Transformation | Advocate for Inclusive Technology and Sustainable Growth",
+    "profilePicture": "https://sessionize.com/image/5aa3-400o400o1-KndMWfydVHtd5KhaQwfMfK.png",
+    "sessions": [
+      {
+        "id": 696099,
+        "name": "Immersive Debate: Is DPI Inherently \"Gender Neutral\"?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "BongoHive",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-founder and Executive Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a055a6cf-45d9-4cd2-8273-435ad54d5baf",
+    "firstName": "Malou",
+    "lastName": "Lintmeijer",
+    "fullName": "Malou Lintmeijer",
+    "bio": " Co-director of Stichting Here to Support since 2018, Malou is experienced in the strategy, entrepreneurship and finance of non-governmental organisations. She fights for human rights and advocates for municipalism. ",
+    "tagLine": "Co-director Stichting Here to Support",
+    "profilePicture": "https://sessionize.com/image/bd73-400o400o1-JWNLhE6YDd5NU8YHuYgVNV.jpeg",
+    "sessions": [
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Stichting Here to Support",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "co-director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1b08a1e6-d254-420d-b70f-e7f6a198b165",
+    "firstName": "Mardiya",
+    "lastName": "Siba Yahaya",
+    "fullName": "Mardiya Siba Yahaya",
+    "bio": "Mardiya is digital sociologist, researcher, and community\r\nmovement builder. They are the Global Community Manager at Team CommUNITY. Working at the intersection of digital labour, gender and cybersecurity, surveillance, counter-publics and digital identities, she investigates pathways to address surveillance, violence and censorship against minoritized communities in the global South. ",
+    "tagLine": "Team Community, Community Manager",
+    "profilePicture": "https://sessionize.com/image/ed56-400o400o1-K7iqWctNJtqoyzAr49ZKvQ.png",
+    "sessions": [
+      {
+        "id": 726153,
+        "name": "Getting the Money to Public Interest Technologists Building A Feminist Internet"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Team Community",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Community Manager",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "4e4c1bab-cfb7-4170-b88e-38681cad10fe",
+    "firstName": "Maria Gorrettie",
+    "lastName": "Namuddu",
+    "fullName": "Maria Gorrettie Namuddu",
+    "bio": "I love technology. I have seen firsthand how access to technology/digital services has transformed a community. My mission is to harness and leverage community social capital to promote financial inclusion. \r\n\r\nCurrently, I I play a key role in the implementation of Kanzu Banking, a core banking platform designed to streamline and enhance the operations of VSLAs, MFIs, and SACCOs. I focus on ensuring seamless onboarding, efficient data migration, and exceptional customer service. \r\n\r\nHonoured by HiPipo as one of the “40 Women Under 40” pioneering change in the fintech space in Africa and beyond, my innovative strategies have significantly improved the customer experience and driven a product-led approach within our team. \r\n\r\nI am driven by a passion for continuous improvement and innovation, always seeking ways to optimize processes and enhance the value we deliver to our clients.\r\n\r\n",
+    "tagLine": "Kanzu Code Limited, Product & Customer Success",
+    "profilePicture": "https://sessionize.com/image/b230-400o400o1-RtPADhnLGZRSXdbi3WEekf.jpg",
+    "sessions": [
+      {
+        "id": 682327,
+        "name": "Empowering Women: Bridging the Gender Gap in Digital Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Kanzu Code Limited",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Product & Customer Success",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a63af0da-3b51-42ad-9775-ff52212884ba",
+    "firstName": "Max",
+    "lastName": "Kurapov",
+    "fullName": "Max Kurapov",
+    "bio": "As a software developer at the Interledger Foundation, Max builds open source tools and APIs that provide developers & institutions access to the Interledger network. Before joining the Foundation, Max spent 5 years working at startups: one of which a Fintech company, where he was one of the leads on the card payments processing team.",
+    "tagLine": "Software Developer @ Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/14a7-400o400o1-NdHoFbJ4brYyf1Hk94hbpW.jpg",
+    "sessions": [
+      {
+        "id": 735787,
+        "name": "Rafiki & Ecosystem Updates"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6caa3775-97c0-4972-827a-f10d7ee0f426",
+    "firstName": "Michael",
+    "lastName": "Mbuthia",
+    "fullName": "Michael Mbuthia",
+    "bio": "Michael is a financial services professional with 15+ years of experience cutting across digital financial services, strategy formulation, project Management and business development. His working knowledge spans across Banking, Aviation, Agriculture, and impact development covering multiple geographies in Africa.\r\n\r\nMichael was the project lead for Rwanda National Digital Payments Platform working directly with Access to Finance Rwanda (AFR) and National Bank Rwanda (BNR) spear-heading Interoperability blueprint development and rollout. Prior to this he served as Pesalink Chief Information Officer (CIO) and Ag-Chief Executive Officer (CEO) for Kenya Bankers Association payments services company - Integrated Payment Services Limited (IPSL) and was instrumental in leading the industry towards launching real-time interoperable payment platform.\r\n\r\nHe holds two Masters degrees, MBA in Strategic Management from United States International University and M.Sc. in Information Technology from Nairobi University respectively and is currently undertaking a PhD in Information Systems at Cape Town University South Africa with research interests in Payments Interoperability, Making Markets Work for the Poor (M4P) and ICT for development (ICT4D). \r\n\r\nWhen he is not studying or deploying payment solutions, Michael is the Secretary at his alma mater “United States International University” and is passionate about youth mentorship. He is also an avid CrossFit enthusiast. \r\n",
+    "tagLine": "DPI Evangelist",
+    "profilePicture": "https://sessionize.com/image/e597-400o400o1-PvFh9Aya17wuithUosyqvP.jpg",
+    "sessions": [
+      {
+        "id": 687327,
+        "name": "Building Digital Public Infrastructure (DPI)  -  BankServAfrica TCIB and PayShap"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Cape Town University",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "PhD Candidate/Researcher",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e6fbde75-b240-4dcb-a6c5-a65c4fa42cfc",
+    "firstName": "Michael",
+    "lastName": "Richards",
+    "fullName": "Michael Richards",
+    "bio": "Michael has worked in the payments industry for the past fifteen years, initially on Kenya's M-Pesa mobile money system, where he became chief architect. Since then, he has worked on other mobile money systems and, since its foundation, with the Mojaloop Foundation. He is a member of the Design Authority, the Product Council and the Community Council, and is the rapporteur of the Change Control Board, which oversees the Mojaloop family of APIs. In addition, he is the Mojaloop Foundation's representative for the ISO 20022 standards organisation, where he is deeply engaged in aligning the standard more closely with the requirements of Emerging Markets and Developing Economies (EMDE); he is also vice-convenor of the ISO 20022 API group. ",
+    "tagLine": "Mojaloop expert, standards practitioner, payments aficionado",
+    "profilePicture": "https://sessionize.com/image/adcd-400o400o1-THJRjoXtmvbgMdbdnz8i71.jpg",
+    "sessions": [
+      {
+        "id": 690760,
+        "name": "Cross-border payments and standards"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Infitx",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Fnance Services Principal",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+    "firstName": "Nandini",
+    "lastName": "Harihareswara",
+    "fullName": "Nandini Harihareswara",
+    "bio": "Nandini Harihareswara is a Digital Finance, FinTech, Digital Development and Inclusive Digital Economies expert. She previously served as Senior Advisor on Inclusive Digital Economies, Gender Equality and Women’s Economic Empowerment for the UN Capital Development Fund. She also served as the Digital Finance Regional Technical Specialist from 2015-2019, responsible for the creation & implementation of the UNCDF Digital Economy Strategy in Zambia and Malawi. She also helped to author the Inclusive Digital Economies and Gender Equality Playbook, launched in 2021. In these roles, she worked with more 20 FinTechs, Banks, Telcos and e-commerce companies to successfully increase their women customers and partner MSME businesses, and increase their financial return on investment.\r\n\r\nShe was a founding member of the United States Agency for International Development (USAID) Digital Development Division. Prior to working for the Digital Development team, Nandini worked as an Investment Officer for the USAID Development Credit Authority Office, and a Presidential Management Fellow at the US Department of Transportation as well as the Urban Transport Division of the World Bank.\r\n\r\nShe is the author of numerous publications on the intersection of finance, technology and international development. Nandini has an MBA and a Masters in International Trade and Investment Policy from the George Washington University. She also holds a BS in Psychology and a BA in Political Science from the University of California at San Diego. \r\n",
+    "tagLine": "Digital Payments, Infrastructure & Inclusion Expert",
+    "profilePicture": "https://sessionize.com/image/9f4e-400o400o1-Hk3DaUGDCh6U66aJekcRv4.jpg",
+    "sessions": [
+      {
+        "id": 696099,
+        "name": "Immersive Debate: Is DPI Inherently \"Gender Neutral\"?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Contigo Global LLC",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Digital Payments, Infrastructure & Inclusion Expert",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1044e43b-8deb-46f3-8fab-e20275044ef2",
+    "firstName": "Neema",
+    "lastName": "Lugangira",
+    "fullName": "Neema Lugangira",
+    "bio": "Hon. Neema Lugangira (MP) is a Member of Parliament in Tanzania who bring forward extensive experience and successful track record in championing policy advocacy and legislative reforms across different sectors. \r\n\r\nNationally, Hon. Lugangira founded two NGOs; Agri Thamani, which is committed to ending malnutrition, address climate action and hosts the World Food Forum Tanzania Chapter; and Omuka Hub, focused on accelerating digital development, combat online violence on women in politics and hosts the African Parliamentary Network on Internet Governance (APNIG).\r\n\r\nInternationally, Hon. Lugangira is a Member of the Multi-Stakeholder Advisory Group of the United National Internet Governance Forum; Africa Representative to the Global Board of the Parliamentary Network on the World Bank and IMF; Member of the Executive Committee of the Scaling Up Nutrition (SUN) Movement, Africa Representative to Global Executive Board of the International Parliamentary Network on Education (IPNEd); Member of the Women Parliamentarians Network on Foreign and Security Policy for Development under the Munich Security Conference; among others. \r\n\r\nNotably, Hon. Neema Lugangira has advocated for nutrition to be a priority national agenda prior to being a Member of Parliament and has continued to do so as a Member of Parliament. To mention a few, her key achievements in this sphere include nutrition recognised as a key success factor for human capital development, nutrition being prioritized in 2020-2025 Election Manifestos of Three Political Parties in Tanzania, the Ministry of Agriculture launching the National Nutrition-Sensitive Action Plan, the Ministry of Education launching the National School Feeding Guidelines, Tanzania joining the School Meals Coalition, and mobilizing fellow Parliamentarians in Tanzania and across Africa to prioritise nutrition in their advocacy efforts. \r\n",
+    "tagLine": "Chair, African Parliamentary Network on Internet Governance (APNIG) and Member of Parliament Tanzania",
+    "profilePicture": "https://sessionize.com/image/14ad-400o400o1-J6kGsdEvFJ9GJ8wvHskNoU.jpg",
+    "sessions": [
+      {
+        "id": 731902,
+        "name": "Parliamentarian Perspectives: Fostering Inclusive Open Payments in Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "African Parliamentary Network on Internet Governance (APNIG)",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Chairperson",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "526711d3-3681-4fa1-aca6-d962efa1bb30",
+    "firstName": "Nicolo",
+    "lastName": "Zingales",
+    "fullName": "Nicolo Zingales",
+    "bio": "Nicolo Zingales is Professor of Information Law and Regulation at the law school of the Fundação Getulio Vargas in Rio de Janeiro. Fascinated by the interaction of law, technology and markets, he researches on a range of issues revolving around the roles and responsibilities of digital platforms and intermediaries in the online ecosystem.His research has been cited, among others, by the OCDE, THE UN Special Rapporteur for the Protection and Promotion of Freedom of Opinion and Expression, the UK House of Lords, and the European Parliament. ",
+    "tagLine": "Fundação Getulio Vargas ",
+    "profilePicture": "https://sessionize.com/image/7bd0-400o400o1-BRUxzhK94F9WwRLTEP5oS1.png",
+    "sessions": [
+      {
+        "id": 732747,
+        "name": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fundação Getulio Vargas",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Professor",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "555b62a8-ce3b-4bb1-a549-5e008fb8a037",
+    "firstName": "Nyi Nyein",
+    "lastName": "Aye",
+    "fullName": "Nyi Nyein Aye",
+    "bio": "In 2016, Nyi established ThitsaWorks to develop data-driven solutions that enable financial institutions to efficiently manage payment, data and mi gate risks.  \r\n\r\nNyi has 28+ years of experience in public administration on, finance, fintech, software development, and financial inclusion. Prior to founding ThitsaWorks, Nyi had over 20 years of experience at the United Nations Headquarters in New York in finance and technology where he led a team of information technology professionals and software developers as Chief of Information Systems in the Department for General Assembly and Conference Management in his last position. ",
+    "tagLine": "ThitsaWorks, CEO",
+    "profilePicture": "https://sessionize.com/image/12b8-400o400o1-N175oq6wT7WFeksyWdoTeS.png",
+    "sessions": [
+      {
+        "id": 695511,
+        "name": "ThitsaX: Interconnected Nodes to Bridge Worlds"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ThitsaWorks Pte. Ltd.",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Chief Executive Officer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1ef13e51-23b5-44c7-bfb1-a82af3b5a7a2",
+    "firstName": "Pedro",
+    "lastName": "Sousa Barreto",
+    "fullName": "Pedro Sousa Barreto",
+    "bio": "Have been doing software development, architecture and senior IT leadership positions teams for the last 30 years.\r\nSpecialized in large scale distributed systems for the past 12+ years.\r\nHelped several companies in multiple industries achieve higher scales and/or improve organizational performance.",
+    "tagLine": "Developer / Architect / Consultant for Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/3e74-400o400o1-PrrH5EwLcwab1q1DMivJqv.jpg",
+    "sessions": [
+      {
+        "id": 695515,
+        "name": "Cross-border inter-scheme transfer demo: from Rafiki to a Mojaloop switch"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ILF / Cyberbones",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Developer/Architect",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "63e10977-23e9-4138-8d46-47351565ca2b",
+    "firstName": "Philip",
+    "lastName": "Green",
+    "fullName": "Philip Green",
+    "bio": "Philip Green is an experienced Technology Lead with a demonstrated history of working in the telecommunications, investment banking and aquaculture industries. He is skilled in Equities Trading Systems, Mobile Financial Systems, Aquaculture, Agriculture and Software Development. He is a well-rounded and strong information technology professional graduated from INSEAD. ",
+    "tagLine": "Technical Solutions Consultant, Mojaloop Foundation",
+    "profilePicture": "https://sessionize.com/image/6d3f-400o400o1-VeSEtx2ruhiSyAxo44hkDh.jpg",
+    "sessions": [
+      {
+        "id": 681475,
+        "name": "Empowering Emerging Economies: Mojaloop's Role in Inclusive Financial Access"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mojaloop Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Technical Solutions Consultant",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8c583b1f-4911-40e5-9c5a-3fdfc14c1181",
+    "firstName": "Pourya",
+    "lastName": "Omidi",
+    "fullName": "Pourya Omidi",
+    "bio": "Pourya Omidi works as a project developer for Waag’s Future Internet Lab and Commons Lab. He was eighteen years old when he moved to the Netherlands from Iran to study electrical engineering at TU Delft while mastering Dutch. After his study, he started his professional journey in the commercial climate and gained a lot of experience in the high-tech software and (embedded) hardware domain. For a period of four years, he co-founded a medical startup and worked on the development of a diagnostic tool for cardiac patients. Gradually, his interest in the ethics and impact of technology grew and for that reason he joined Waag to pursue this ambition. ",
+    "tagLine": "Waag futurelab, Project lead",
+    "profilePicture": "https://sessionize.com/image/7874-400o400o1-XqB86xSQjg38t837vG4gNx.jpg",
+    "sessions": [
+      {
+        "id": 732729,
+        "name": "Trust-based banking technical session"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Waag Futurelab",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Programme devoper",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "731d2f66-78b0-42fa-b5c4-fc7735a1a343",
+    "firstName": "Prudence",
+    "lastName": "Kalunga",
+    "fullName": "Prudence Kalunga",
+    "bio": "Prudence Chilufya Kalunga is a lecturer at ZCAS University in the School of Computing, Technology, and Applied Sciences, Computer Science Department. Prudence lectures Programming courses being C, C++, C#, Java, and Python. She also lectures courses in Software Engineering, Artificial Intelligence, IoT, Software Research Tools and Techniques, and the development of websites. She is a researcher and has published some journals and conference papers in ICT journals. She coordinates and prepares students who take part in hackathons and competitions that bring about innovation in the country of Zambia. Prudence sits as an Expert judge at the ZICTA innovation competition that is held every year. \r\n\r\nPrudence earned an MEng in software engineering from Nankai University and, a BSc Honors degree in Computing from Greenwich University. Currently, she is pursuing, a master’s in Data Science at Manipal University in India and her PhD in Computer Science at ZCAS University Zambia.",
+    "tagLine": " Lecturer at ZCAS University",
+    "profilePicture": "https://sessionize.com/image/4869-400o400o1-RrE2QE7n7ztoRRRbDq77Dh.jpg",
+    "sessions": [
+      {
+        "id": 695881,
+        "name": "Views from the Grassroots: Village Banking and Financial Inclusion in Southern Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ZCAS UNIVERSITY",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "LECTURER",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "295582aa-8c62-450c-a296-6c45573ea0fd",
+    "firstName": "Raashi ",
+    "lastName": "Saxena ",
+    "fullName": "Raashi Saxena",
+    "bio": "Raashi Saxena is a renowned public interest technologist, trainer,  consultant and carries a wealth of experience in open-source technology, social impact, and practice. She holds several advisory positions, including with The Internet Rights & Principles Dynamic Coalition, Missions Publiques’s “We, the Internet” Project, and Threading Change, a sustainable fashion non-profit. As a consultant, her clients include Digital Communication Network, Accessibility Lab, studio intO, Superbloom, Accessibility Lab, The Innovation for Policy Foundation, Internews, Gapminder Foundation, and the IO Foundation. As a highly sought-after international speaker, Raashi has spoken on panels and conferences across Africa, Asia, Latin America, and Europe. Her expertise has been recognized in prominent publications such as the Mozilla 2022 Internet Health Report and Pew Research Center’s 2021 Report on Digital Spaces. The World Economic Forum has honored Raashi as one of the Six Inspirational Young Female Leaders, and a member of the Expert Network. She currently holds the position of Curator of the Global Shapers Bengaluru Hub. Additionally, she was recognized by Women Deliver as a Young Leader. Based in Bangalore, India, Raashi works tirelessly towards creating a positive social impact through her various global endeavours.\r\n\r\n",
+    "tagLine": "Public Interest Technologist ",
+    "profilePicture": "https://sessionize.com/image/99c0-400o400o1-NWoModDPsjoJDuxs9P1Y5D.jpg",
+    "sessions": [
+      {
+        "id": 732719,
+        "name": "Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Parabl ",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founding team",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3500dc3a-9dcb-4ff0-b6df-b5926071c3b0",
+    "firstName": "Rabeb",
+    "lastName": "Othmani",
+    "fullName": "Rabeb Othmani",
+    "bio": " Rabeb is a developer advocate  focusing on cloud communication APIs and conversational AI.  \r\n\r\nOther than writing code for a living, Rabeb advocates to bring more women and minorities into tech. She is leading the Women Who Code Network in Bristol.",
+    "tagLine": "Making Tech a better place for everyone ",
+    "profilePicture": "https://sessionize.com/image/25a9-400o400o1-3a-9dcb-4ff0-b6df-b5926071c3b0.e97ec69f-4162-4c00-b877-20b5ed3911a3.png",
+    "sessions": [
+      {
+        "id": 735788,
+        "name": "Pay the Web Forward with Web Monetization!"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": " Employee ",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Senior Product Manager",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "2156f39a-1a60-4c76-a328-ad3dcf22e8b7",
+    "firstName": "Radu",
+    "lastName": "Popa",
+    "fullName": "Radu Popa",
+    "bio": "-",
+    "tagLine": "Software Engineer - Web Monetization Extension",
+    "profilePicture": "https://sessionize.com/image/12a4-400o400o1-HNiM93iBqaj9fY4iGC9zYi.jpg",
+    "sessions": [
+      {
+        "id": 735788,
+        "name": "Pay the Web Forward with Web Monetization!"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "BreakPointIT, Interledger Foundation ",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Software Engineer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6b847b73-a655-43ec-9771-d7d2f557944b",
+    "firstName": "Ritu",
+    "lastName": "David",
+    "fullName": "Ritu David",
+    "bio": "Ritu David is a global creative solutionist who merges data, design, human behaviour and technology to solve problems across industries.   As the founder of The Data Duck, she has established herself as a driving force in creative strategy, digital financial services, and technological innovation for social impact. Ritu's journey in fintech began serendipitously. She was in Nairobi on a consumer banking feasibility study when Safaricom, a groundbreaking mobile money service, revolutionized financial inclusion in Kenya. Collaborating with Safaricom laid the foundation for her continued work in digital payments and financial accessibility across the globe.\r\nRitu has consistently pushed the boundaries of what's possible in financial technology. She has been instrumental in designing voice interfaces for banking. Under her guidance, The Data Duck team has contributed to developing Africa's largest mobile banking systems and pioneering innovative payment methods, including tokenising voice using sound waves. \r\nHer work extends beyond traditional banking, encompassing projects that merge finance with sustainable development. Ritu personally designed the UX/UI for the Trailstone platform to aggregate energy from renewable energy farms and trade it in open markets, helping grids across the world increase the proportion of renewable energy.\r\n At The Data Duck, she leads creative strategies in brand storytelling and guerrilla marketing, focusing on crafting omnichannel customer experiences. Her approach is deeply rooted in data-driven insights, leveraging consumer behavior analysis to enhance customer lifetime value (CLV) and create memorable brand engagements. This multifaceted background allows her to bring a unique perspective to financial inclusion projects, blending user-centric design with cutting-edge technology.\r\nRitu's impact is particularly significant in emerging markets. In 2012, The Data Duck's collaboration with Leapfrog to price micro-insurance in Southeast Asia helped bring affordable financial products to underserved communities. By developing accessible digital infrastructure and secure payment systems, she has played a crucial role in expanding financial services to vulnerable populations across Africa, Asia, and the Middle East.\r\nRitu's multidisciplinary approach, which seamlessly integrates finance, technology, and consumer experiences, has established her as a sought-after expert in creating resilient and inclusive digital ecosystems. Her work consistently demonstrates a deep understanding of the delicate balance between innovation and accessibility, making her insights invaluable in the ongoing dialogue about the future of inclusive and accessible digital financial services.\r\nAs a speaker at the Interledger Summit 2024, Ritu brings a wealth of practical experience and innovative thinking to the discussion on \"Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services.\" Her unique blend of creative strategy, technological innovation, and commitment to financial inclusion offers fresh perspectives on creating equitable and accessible financial systems in an increasingly digital world.",
+    "tagLine": "Founder, The Data Duck and Code for Climate",
+    "profilePicture": "https://sessionize.com/image/6cb2-400o400o1-MtxvCRQwCBbvgMZ3Gshf41.jpg",
+    "sessions": [
+      {
+        "id": 732719,
+        "name": "Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "The Data Duck",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "94599097-db2a-45a0-b950-f31019f13891",
+    "firstName": "Rob",
+    "lastName": "Reeve",
+    "fullName": "Rob Reeve",
+    "bio": "CEO of LexTego, one of the founding companies building Tazama - an Open Source Transaction Monitoring Platform. Rob is a senior Executive with a track record of delivering innovative Digital Financial Services. Experience in defining and delivering new financial products, combined with a deep understanding of the subsequent legal, technical and operational implications. Experience in more than 50 countries, across five continents in developed and developing markets.",
+    "tagLine": "CEO - LexTego, putting you in control of your payments",
+    "profilePicture": "https://sessionize.com/image/48d6-400o400o1-fqFkyxb4t6zNhdveppgEA1.jpg",
+    "sessions": [
+      {
+        "id": 695522,
+        "name": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "LexTego Ltd",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+    "firstName": "Roberto",
+    "lastName": "Valdovinos",
+    "fullName": "Roberto Valdovinos",
+    "bio": "B.A. and M.A. in Logic and Philosophy (Pantheon-Sorbonne University), M.Phil. in Comparative Studies (Columbia University). Directed a migrant organization in the US and a national institute in Mexico. Works with migrants and marginalized communities in social justice and financial inclusion projects.",
+    "tagLine": "People's Clearinghouse, CFO",
+    "profilePicture": "https://sessionize.com/image/6f03-400o400o1-nBYkL9ViRZpwWWNKTJmPXY.png",
+    "sessions": [
+      {
+        "id": 695522,
+        "name": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities"
+      },
+      {
+        "id": 695515,
+        "name": "Cross-border inter-scheme transfer demo: from Rafiki to a Mojaloop switch"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "People's Clearinghouse",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CFO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3e80acea-13f9-4fd2-8e9a-e4b715297d9a",
+    "firstName": "Sabine",
+    "lastName": "Schaller",
+    "fullName": "Sabine Schaller",
+    "bio": "Sabine has always been interested in Data Ownership and the Internet of Value. She works on the specification and implementation of open standards like the Interledger Protocol, Open Payments, and Web Monetization to allow for a Web where content can be paid for with hard currency instead of data.\r\nPrior to joining the Interledger Foundation, Sabine was the Research & Development Lead at Coil.",
+    "tagLine": "Engineering Manager @ Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/ce1c-400o400o1-GuPeZz64P4TsrKfKMVxrc7.jpg",
+    "sessions": [
+      {
+        "id": 754678,
+        "name": "Codius Fireside Chat"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Engineering Manager",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "677f8255-1bd2-40b9-8441-3acd0f1c829f",
+    "firstName": "Sarah",
+    "lastName": "Habib",
+    "fullName": "Sarah Habib",
+    "bio": "A recognised fintech for good  advocate, Sarah drives sustainable and impactful digital financial solutions through her deep customer research and product expertise",
+    "tagLine": "Fintech Strategist ",
+    "profilePicture": "https://sessionize.com/image/2a6e-400o400o1-4iYKYU7JVYREcYy1CUHryY.jpg",
+    "sessions": [
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Independent Consultant ",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Venture Strategist ",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3578cfa6-cd36-463c-a879-fe3df6f819c2",
+    "firstName": "Sarel ",
+    "lastName": "Myburgh",
+    "fullName": "Sarel Myburgh",
+    "bio": "Strategy and Research Officer & Africa Strategic Business Development BankservAfrica\r\n\r\nAs a Business and Strategy Management Consultant, Sarel has worked in a wide range of industries. He applied most of his knowledge to the financial sector, specifically to the payment and banking sectors. He is an accredited Chartered Management Accountant and holds multiple degrees.\r\n \r\nHe joined BankservAfrica Growth and Transformation Division in 2018 and responsible for multiple business and product innovations and interventions as part of BankservAfrica’s growth endeavours including but not limited to domestic processing hubs and domestic cash start-ups. \r\n\r\nMost prominently, he was responsible as lead designer of the cross-border payment scheme, TCIB (Transactions Cleared on an Immediate Basis) in 2019. More recently he headed the Strategy Business Development for the BankservAfrica’s Africa Business Development Division driving the TCIB mobilization and growth efforts.  \r\n",
+    "tagLine": "BankservAfrica",
+    "profilePicture": "https://sessionize.com/image/07eb-400o400o1-QSAcznJx1t3ghr31iw4NZW.png",
+    "sessions": [
+      {
+        "id": 687327,
+        "name": "Building Digital Public Infrastructure (DPI)  -  BankServAfrica TCIB and PayShap"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6b4980b6-a70f-413d-884d-28c3dd8daf16",
+    "firstName": "Savannah",
+    "lastName": "Koolen",
+    "fullName": "Savannah Koolen",
+    "bio": "Savannah Aleksandra Koolen (1985) is the founder and co-director of the Here to Support Foundation. Koolen studied at the dance academy but unfortunately she had to stop dancing early because of injuries. Her full life she is involved in politics, activism and art and after her study Art & Culture at the University in Maastricht she moved to Amsterdam. For ten years she has been working on how artists and artistic projects can support the struggle of minorities and refugees to equal rights, and strengthen the self-organised-,grassroots- movements. In 2007 she was a coordinator of the Nationwide campaign for funding for the arts, and since the start (2012) of refugee collective We Are Here in Amsterdam she supports their struggle organising educational, artistic projects to gain visibility and work on innovative plans. In 2013 she founded the Here to Support Foundation. In 2016,  the Here to Support Foundation won the Ab Harrewijn Prize under her leadership and in May 2017 Here to Support won the European Citizenship Award with the project We Are Here Media Academy. From June 2017, she was also campaign leader of GroenLinks Amsterdam for the winning, local elections in 2018 in Amsterdam and later joined the board of GroenLinks Amsterdam as president of the board in 2019.",
+    "tagLine": "Activist, Founder & CEO Here to Support Foundation",
+    "profilePicture": "https://sessionize.com/image/dc53-400o400o1-HhZSdEYvoSNVnDAX7xuPyh.jpg",
+    "sessions": [
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Here to Support",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder & Co-Director",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8a02eb2a-7947-4028-831b-b6dac7ea51fd",
+    "firstName": "Sen. Catherine",
+    "lastName": "Mumma",
+    "fullName": "Sen. Catherine Mumma",
+    "bio": "Delegate in the Interledger Summit 2024 Parliamentarian Track ",
+    "tagLine": "Senator, Kenya",
+    "profilePicture": "https://sessionize.com/image/1a91-400o400o1-F4Hd9Q5trP5yTHhgVyDU4.jpg",
+    "sessions": [
+      {
+        "id": 731902,
+        "name": "Parliamentarian Perspectives: Fostering Inclusive Open Payments in Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+    "firstName": "Smriti",
+    "lastName": "Parsheera",
+    "fullName": "Smriti Parsheera",
+    "bio": "Smriti Parsheera is lawyer and public policy researcher focused on issues at the intersection of technology and society. She is a current Interledger Research Ambassador working on a project to understand the lived experiences of digital and financial inclusion in the remote Himalayan district of Lahaul-Spiti in northern India. She is also a Non-Resident Fellow with the CyberBRICS Project at FGV Law School, Brazil and serves on the board of Point of View, an organization that explores digital technologies through a feminist lens.\r\n\r\nSmriti has contributed to numerous research publications and book projects on topics that include privacy and data governance, digital public infrastructure and competition policy. Her edited book, Private and Controversial: When Public Health and Privacy Meet in India, was published by HarperCollins in 2023. \r\n\r\nSmriti studied law at the National Law School of India University, Bangalore followed by a LLM from the University of Pennsylvania School of Law. She is currently pursuing a PhD in policy studies from the Indian Institute of Technology Delhi. ",
+    "tagLine": "Research Ambassador, Interledger Foundatin",
+    "profilePicture": "https://sessionize.com/image/7c9c-400o400o1-fJ4fuK7KHgfkU7Eacv4pug.png",
+    "sessions": [
+      {
+        "id": 729556,
+        "name": "The promise and peril of DPI for competition policy: 'Alt big tech' in the making?"
+      },
+      {
+        "id": 732187,
+        "name": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion"
+      },
+      {
+        "id": 732747,
+        "name": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Research Ambassador",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "b136ab7f-e6f9-41ce-9e6c-935c5f0a5a3d",
+    "firstName": "Stefan",
+    "lastName": "Thomas",
+    "fullName": "Stefan Thomas",
+    "bio": "Stefan Thomas is the Co-Creator of the Interledger Protocol and Chairperson of the Board at the Interledger Foundation. He currently works on Dassie, an open-source, peer-to-peer implementation of Interledger.\r\n\r\nHe is also the Founder and CEO of Coil, a startup which created a \"subscription to the whole Web\" and the Open Web Monetization standard. Over the course of almost five years, Coil made about 78 billion payments over Interledger, providing the first proof- of-concept for the technology at scale.\r\n\r\nStefan was a prominent figure in the blockchain movement. As an early Bitcoin contributor, he produced the popular “What is Bitcoin?” video, introducing millions of users to Bitcoin, and created BitcoinJS, the first implementation of Bitcoin cryptography in the browser.\r\n\r\nAs CTO and one of the first employees at Ripple, Stefan designed new protocols for cross-border payments, now used by banks all over the world. As part of this work, he led the team that created Interledger, an open, Internet-like protocol for value transfer.\r\n\r\nStefan is a passionate supporter of financial access and worked with the Bill & Melinda Gates Foundation to develop Mojaloop, an open-source national payment switch that connects mobile wallets in developing markets.",
+    "tagLine": "Co-Creator of the Interledger Protocol",
+    "profilePicture": "https://sessionize.com/image/f90c-400o400o1-MxFVGBPu6HeUWJ74vEH7R9.jpg",
+    "sessions": [
+      {
+        "id": 762716,
+        "name": "How I Learned to Love Packetization"
+      },
+      {
+        "id": 754678,
+        "name": "Codius Fireside Chat"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Coil",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-Creator of the Interledger Protocol",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a86caa8f-cb2e-41a9-ac38-2ee2a6b5f0a0",
+    "firstName": "Taco",
+    "lastName": "van Dijk",
+    "fullName": "Taco van Dijk",
+    "bio": "Taco van Dijk is software developer at Waag Futurelab. Since 2008, he has been developing apps, installations and other software within the various labs and projects of Waag.",
+    "tagLine": "software developer at Waag Futurelab",
+    "profilePicture": "https://sessionize.com/image/f542-400o400o1-wL1AXtVu2cQmeLoBkJsVbV.png",
+    "sessions": [
+      {
+        "id": 732729,
+        "name": "Trust-based banking technical session"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Waag Futurelab",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Developer",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+    "firstName": "Tadej",
+    "lastName": "Golobic",
+    "fullName": "Tadej Golobic",
+    "bio": "At 10 years old, I began my coding journey with VB6, setting the course for a lifelong tech odyssey. Graduating from the Faculty of Computer and Information Science at the University of Ljubljana, I delved into remote support software with a local enterprise. The 2017 crypto boom lured me into the crypto realm, leading to my pivotal role as a backend developer at GateHub in 2020. Today, I proudly serve as Infrastructure Team Lead, steering projects that power our digital future.",
+    "tagLine": "Technical Lead @ GateHub & DevOps Engineer / Consultant for Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/aeeb-400o400o1-HXBuaj6u1eQ7eETh4ykG6u.jpg",
+    "sessions": [
+      {
+        "id": 687571,
+        "name": "The Future of Payments in Your Pocket"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "I am employed by GateHub and I act as a DevOps consultant for Interledger Foundation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Technical Lead @ GateHub and DevOps Engineer / Consultant for Interledger Foundation",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e9505ac1-28e7-4bba-8be0-04c5a346a30c",
+    "firstName": "Tawanda",
+    "lastName": "Brandon",
+    "fullName": "Tawanda Brandon",
+    "bio": "Tawanda Brandon is a technology leader and developer with expertise in building software solutions, particularly at the intersection of technology and payments. He has worked on various projects across different industries, developing mobile apps and digital platforms that integrate seamless payment experiences. With a focus on innovation and delivering products from concept to market, Tawanda is passionate about creating impactful technology that simplifies financial transactions and enhances user experiences.",
+    "tagLine": "Tech Founder, CTO",
+    "profilePicture": "https://sessionize.com/image/2fc0-400o400o1-W97m8hM6dZuE34HQJotWPS.png",
+    "sessions": [
+      {
+        "id": 732595,
+        "name": "Building Trust and Advancing Open Payments in Africa’s Regulatory Ecosystem"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Snake Nation",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CTO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "dadc8857-a4a4-459a-b484-bc803bde197d",
+    "firstName": "Timea",
+    "lastName": "Nagy",
+    "fullName": "Timea Nagy",
+    "bio": "Timea has been a software developer for many years, mainly passionate about developing frontend and user experience. She has been part of the interesting world of Interledger since the end of 2022.\r\n\r\nTogether with her team, she has built the Interledger Tesnet testing network, in order to help people better understand the possibilities of Open Payments.\r\n\r\nHer passion is travelling, discovering as much as possible about this wonderful world we live in. Her flex is that she has travelled to all 7 continents.",
+    "tagLine": "Engineering Manager & Frontend Developer, BreakPointIT - Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/9842-400o400o1-HfGvB5bBgGDQTHvfYHCGz7.jpg",
+    "sessions": [
+      {
+        "id": 735787,
+        "name": "Rafiki & Ecosystem Updates"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "BreakPoint IT",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Engineering Manager and Frontend Developer for Interledger",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+    "firstName": "Uchi",
+    "lastName": "Uchibeke",
+    "fullName": "Uchi Uchibeke",
+    "bio": "Developer, and Founder. DevRel leader with track record growing communities around the globe",
+    "tagLine": "Founder and CEO Chimoney.",
+    "profilePicture": "https://sessionize.com/image/79d3-400o400o1-Jfmm3fGu2fRS45EHq3ZcFq.jpg",
+    "sessions": [
+      {
+        "id": 723325,
+        "name": "Introducing Chimoney App: The Interledger App bridging Canada and Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Chimoney",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "f6fc2063-f026-473a-9f14-8a016824c3a0",
+    "firstName": "Unathi",
+    "lastName": "Pukwana",
+    "fullName": "Unathi Pukwana",
+    "bio": "Unathi Pukwana Mantakana is an entrepreneur, event host and a speaker.  She is passionate about programmes that empower society, particularly women. She is a leader of society and a Chief Executive Officer of Imizamo Yomfazi stokvels and burial society.",
+    "tagLine": "Entrepreneur and CEO of Imizamo Yomfazi",
+    "profilePicture": "https://sessionize.com/image/e352-400o400o1-QiazdCFtyinxDXMrytE8dk.jpg",
+    "sessions": [
+      {
+        "id": 695881,
+        "name": "Views from the Grassroots: Village Banking and Financial Inclusion in Southern Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "56d4c506-d323-41b0-9854-605d76121d86",
+    "firstName": "Victoria",
+    "lastName": "Coker",
+    "fullName": "Victoria Coker",
+    "bio": "Victoria Coker is a multi-disciplinary artist and entrepreneur. She graduated from St. John’s University with a Bachelor’s in communication arts. Ms. Coker has more than ten years of design and marketing experience and has worked for organizations such as Carnegie Hall, Bric Arts Media, and Oxford University Press.\r\n\r\nIn 2017, she launched the Black Web Fest, an organization dedicated to celebrating Black creatives and digital content. Her goal is to build a legacy to empower her community. ",
+    "tagLine": "Black Web Fest, Founder",
+    "profilePicture": "https://sessionize.com/image/7a0f-400o400o1-wwBD1JwXq6tqFKvnCvUVTi.jpg",
+    "sessions": [
+      {
+        "id": 732724,
+        "name": "Unbanked in America: Exploring the Financial Divide"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Black Web Fest",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "07f391c3-1f00-4c7d-a8f8-162d5a2dce73",
+    "firstName": "Victory",
+    "lastName": "Brown",
+    "fullName": "Victory Brown",
+    "bio": "Victory Brown is a researcher, community builder, strategist, and designer who interacts with designers and software owners about the state of digital design. At Design Matters, she works as an organizer for their yearly digital design event. She is also an open-source community leader at sustain OSS, a researcher, and a design coach on Superbloom's coaching program with the German Prototype Fund, She is also a full-time design researcher at Superbloom, working on diverse projects at the intersection of community, open source, and design. With over four years of experience spanning these roles, she has carved out a niche as a multidisciplinary designer, designing experiences for communities, conferences, and projects through content, experience, or sustainability.\r\n\r\n\r\n\r\n\r\n\r\n",
+    "tagLine": "DESIGN RESEARCHER @Superbloom",
+    "profilePicture": "https://sessionize.com/image/f61d-400o400o1-Y9Gu6xyrTCpvwcikgJxTji.png",
+    "sessions": [
+      {
+        "id": 732719,
+        "name": "Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Superbloomdesign",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "design researcher",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+    "firstName": "Xiaoji",
+    "lastName": "Song",
+    "fullName": "Xiaoji Song",
+    "bio": "Xiaoji Song (she/they) is an artist, (interdisciplinary) researcher, and creative practitioner based in Berlin. Growing up in China and trained in Europe, Xiaoji works on socially relevant and community-specific experiences, often with the local networks, NGOs, and local cultural and political institutions, mediated by texts, images, games, and performances. Working in the liminal spaces of political theory, practice, and art, Xiaoji's interests include techno-politics, networked social movement, border practices, and the performative aspect of political memory. ",
+    "tagLine": "Artist and Interdisciplinary researcher ",
+    "profilePicture": "https://sessionize.com/image/8cc7-400o400o1-KBYLpKTMU3b2xjrwJF8dZT.png",
+    "sessions": [
+      {
+        "id": 732717,
+        "name": "Financial Inclusion for Undocumented Communities: From Strategies to Practices"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 70799,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Independent",
+        "sort": 24,
+        "answerExtra": null
+      },
+      {
+        "id": 70800,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Artist and Researcher",
+        "sort": 25,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  }
+]

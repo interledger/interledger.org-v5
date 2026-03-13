@@ -1,0 +1,657 @@
+[
+  {
+    "groupId": null,
+    "groupName": "All",
+    "sessions": [
+      {
+        "questionAnswers": [],
+        "id": "370173",
+        "title": "State of Interledger",
+        "description": "We'll take a look back at the origins of the Interledger Protocol, where the ecosystem is today, and the illuminous future we're looking forward to.",
+        "startsAt": "2022-11-12T09:45:00",
+        "endsAt": "2022-11-12T10:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "60ca230a-ed4a-492b-b423-f4fbd279c871",
+            "name": "Briana Marbury"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "383066",
+        "title": "Meet your new friend - Rafiki.",
+        "description": "Rafiki is a software package that bundles Interledger infrastructure with the powerful accounting database Tigerbeetle and the Open Payments APIs to send money programmatically. \r\nAnd that is just what first meets the eye. Rafiki has a bunch of hidden qualities, which this session will formally introduce and show off during a live demo. \r\n",
+        "startsAt": "2022-11-12T10:15:00",
+        "endsAt": "2022-11-12T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "79191886-f727-428b-b584-0eabb4e9587a",
+            "name": "Sabine Schaller"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "385579",
+        "title": "TigerBeetle, a Financial Accounting Database for Interledger",
+        "description": "How Interledger gave rise to TigerBeetle, the open source distributed database for mission critical safety and performance.",
+        "startsAt": "2022-11-12T11:15:00",
+        "endsAt": "2022-11-12T11:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "30b3c3bc-2196-4f86-be96-4578358d8818",
+            "name": "Joran Greef"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "390999",
+        "title": "Introducing Dassie: An Interledger Peer-to-peer Network",
+        "description": "For the past several years, Interledger has been used very effectively among a small group of early adopters. However, it wasn't possible for many developers to gain access to the network due to the difficulty of peering with an existing participant.\r\n\r\nIn this talk, Stefan announces Dassie, a new open-source project which combines Interledger and peer-to-peer technology to dramatically lower the barrier to entry for developers looking to experiment with or build on ILP.",
+        "startsAt": "2022-11-12T11:45:00",
+        "endsAt": "2022-11-12T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9348bc41-12c2-4f51-9ee0-f611108e9936",
+            "name": "Stefan Thomas"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": "https://www.youtube.com/watch?v=Whp4RfW3K_U",
+        "recordingUrl": "https://www.youtube.com/watch?v=FRVkkWTb5V8",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "374390",
+        "title": "Broadening Financial Inclusion…what does that mean?",
+        "description": "What does Financial Inclusion mean? What does addressing economic disadvantage look like for people with different focus areas, communities, and geographical locations?\r\n\r\nThis panel will discuss considerations, barriers and progress around expanding Financial Inclusion, bringing together perspectives from various backgrounds.",
+        "startsAt": "2022-11-12T13:30:00",
+        "endsAt": "2022-11-12T14:10:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "959a4893-5d5e-4540-be3c-9584185a3e23",
+            "name": "Sharon Wang"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "369807",
+        "title": "Open Knowledge and Web Monetization GAP Analysis",
+        "description": "The Open Knowledge community is built by people all over the world, contributing their time, knowledge, and expertise to platforms like Curationist and Wikipedia. Although these platforms are and should be free to access, paying Open Knowledge contributors for their work would help develop the overall Open movement by further incentivizing and supporting the people who make it run. \r\n\r\nIn this working session, participants will collaborate on a GAP analysis of the Open Knowledge movement to determine if current web monetization practices and strategies could help meet the need to support contributors, and what steps could be taken. The session will result in the creation of a one-page document detailing the points raised in the analysis that can be shared widely within both the web monetization and Open Knowledge communities.",
+        "startsAt": "2022-11-12T13:30:00",
+        "endsAt": "2022-11-12T14:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "b403c048-01ab-4dfa-8a2e-312751966eb3",
+            "name": "Amanda Figueroa"
+          }
+        ],
+        "categories": [],
+        "roomId": 27380,
+        "room": "Breakout Room",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "395414",
+        "title": "An Interlude of Interfacing with Interledger",
+        "description": "A journey of implementing Interledger as the default payment protocol.",
+        "startsAt": "2022-11-12T14:10:00",
+        "endsAt": "2022-11-12T14:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "7481c61c-4cb9-45c9-b4ba-44d077496927",
+            "name": "Todd W"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "382765",
+        "title": "Sharing Funds - Sharing Values? - Web Monetization as a catalyst for social change",
+        "description": "What are the effects of online content monetization models on users' behavior and content consumption choices? Does users' awareness that their browsing time actively funds creators make them become more socially aware consumers? And how might Web Monetization help grassroots initiatives and activists who struggle with “converting” users from clicks to monetary support for their content and causes? In the past few months, we conducted several behavioral studies to examine these questions (and a few more) as part of a research project supported by Grant for the Web. Our project—informed by theories from cognitive and social psychology and studies on the role of online civic engagement in the last decade—investigates if joining web monetization initiatives and actively supporting web monetized content affects the pattern of users' online activism. The session will focus on presenting the studies and sharing the results and the lessons we learned. Our findings so far show that people are, in fact, mindful of the values and beliefs of the creators and outlets of the content they consume. We also learned that people see online content consumption as a means to support causes and creators they care for and that increased awareness of the monetization of online content affects people's willingness to consume content associated with societal and ideological causes.",
+        "startsAt": "2022-11-12T14:40:00",
+        "endsAt": "2022-11-12T15:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "2baf70da-a2f6-4b5c-ab1c-1e89c6a4c7fa",
+            "name": "Yotam Liel"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "373822",
+        "title": "Life After the Grant : Let’s talk sustainability!",
+        "description": "Grant funding is great. It can kickstart projects and innovation, creating a lifeline for startups, but it can't sustain a project forever. Join us in exploring the post-grant challenges and possible solutions and pathways to sustainability. In the process, we will look to examples from projects in the Interledger and Creative Equity Communities that are at different stages of crafting their sustainable pathways.",
+        "startsAt": "2022-11-12T14:40:00",
+        "endsAt": "2022-11-12T15:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+            "name": "Chris Lawrence"
+          },
+          {
+            "id": "01fa1826-488a-4034-b76e-5be85cd84a3f",
+            "name": "Lawil Karama"
+          },
+          {
+            "id": "42d693ee-0efe-46fe-ac5c-c18349128166",
+            "name": "Erica Hargreave"
+          }
+        ],
+        "categories": [],
+        "roomId": 27380,
+        "room": "Breakout Room",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "374219",
+        "title": "Chimoney:  Financial Inclusion, Accessibility, and Monetization",
+        "description": "Chimoney is working towards a more equitable and creative global society through an open payments network that connects and benefits each human, regardless of identity, geography, or income.\r\n\r\nPayment systems are fragmented and with new ledgers and protocols, interoperability and utility are non-existent.\r\n\r\nIn this session, Uchi will talk about interoperability between offline and decentralized payment systems and how Chimoney is unleashing utility and increasing financial inclusion by enabling people with crypto to spend it on Mobile money like Mpesa, Airtime, and more global options that enhance financial inclusion. He will highlight how developers use Chimoney's API to win their payout gateway and unlock the full potential of the payment chain.\r\n\r\nUchi will guide the summit participants to interact with the Chimoney platform by sending out Chimoney for participants to redeem and have the Chi experience. And share opportunities for integrating with Interledger wallets so that anyone with funds in their interledger-enabled wallet can spend them on real-world products and services.\r\n",
+        "startsAt": "2022-11-12T15:05:00",
+        "endsAt": "2022-11-12T15:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+            "name": "Uchi Uchibeke"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "383990",
+        "title": "Monetization Patterns: Jump-start your paywall with the Monet Pattern Library",
+        "description": "Building user experiences for premium content involves design patterns that may be unfamiliar to web developers. This session introduces one pattern library, Monet, to help developers build paywalls and premium experiences that open for Web Monetization users. ",
+        "startsAt": "2022-11-12T16:00:00",
+        "endsAt": "2022-11-12T16:20:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "19463a94-4746-4eb6-8003-11aacd94ba0f",
+            "name": "Matt Mankins"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "373825",
+        "title": "Community Building for Innovation and Sustainability",
+        "description": "If you build it, go forth and seek your community, and engage that community, then they will come. Community building is not a field of dreams, at least not in the way of the movie. It takes work and a welcoming, open approach to encourage innovation and invite your community to adopt the space as their own, experimenting with what is possible beyond what you’ve thought of. There is an art to it that takes more than just advertising dollars. Join us as we explore the fine art of community building, pitfalls to avoid, and approaches to consider.",
+        "startsAt": "2022-11-12T16:00:00",
+        "endsAt": "2022-11-12T17:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+            "name": "Chris Lawrence"
+          },
+          {
+            "id": "01fa1826-488a-4034-b76e-5be85cd84a3f",
+            "name": "Lawil Karama"
+          },
+          {
+            "id": "42d693ee-0efe-46fe-ac5c-c18349128166",
+            "name": "Erica Hargreave"
+          }
+        ],
+        "categories": [],
+        "roomId": 27380,
+        "room": "Breakout Room",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "383803",
+        "title": "Podcasters, unlock your true creative potential with Web Monetization",
+        "description": "Podcasting is booming all over the world, but only a minority of podcasts are monetized.\r\n\r\nPodcasters who want to make money are facing a cruel dilemma:\r\n- Draw away their audience by erecting a paywall.\r\n- Expose themselves to censorship by partnering with brands or closed distribution platforms.\r\n\r\nThanks to decentralized protocols, Interledger and Web Monetization allow podcasters to sell content, not their soul.\r\n\r\nDuring this showcase, we will show you how to set up a podcast with Web Monetization and Castopod, an open-source podcast hosting platform. You will see that podcasting is the perfect candidate for time-based pricing.",
+        "startsAt": "2022-11-12T16:20:00",
+        "endsAt": "2022-11-12T16:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "213fae9a-c3ba-44de-8fa8-ab1062a95818",
+            "name": "Benjamin Bellamy"
+          },
+          {
+            "id": "18b0324d-30b3-4bc3-975d-474182063ee8",
+            "name": "Yassine Doghri"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "369753",
+        "title": "Get Paid. For Real. Right Now.",
+        "description": "We're connecting ILP to your bank account, and more.  This talk will expose the details of our project, and how we're connecting to ILP.  We will talk about how ILP enables instant payments anywhere, which is almost unknown in the payments industry.",
+        "startsAt": "2022-11-12T16:40:00",
+        "endsAt": "2022-11-12T17:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9816f454-6b5a-4ba7-b6b2-444176513cfb",
+            "name": "David Benoit"
+          },
+          {
+            "id": "4b689e03-a280-47f6-b763-d62a103b042a",
+            "name": "Christina Kinney"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "389267",
+        "title": "An Open Regulated Global Payment Inter-Network",
+        "description": "The infrastructure to achieve total interoperability already exists to a great extent but needs to be better harnessed. By creating an open regulated global payments inter-network, leveraging and cultivating existing infrastructure, any regulated service provider will be able to send money to anyone, anywhere in the inter-network, speeding up total interoper­ability, reducing the cost of transactions, and providing migrants with an easy and efficient way to digitally transfer money to their home countries.\r\n\r\nExploratory paper: https://migrantmoney.uncdf.org/docs/open-regulated-global-payments-inter-network",
+        "startsAt": "2022-11-13T09:45:00",
+        "endsAt": "2022-11-13T10:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "619c6703-1d3c-443e-a176-46c7e66a8b23",
+            "name": "Arunjay Katakam"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "383527",
+        "title": "Making Digital Payments Affordable and Simple for Everyone, Everywhere",
+        "description": "While mobile money services exist in nearly 100 countries, 1.4 billion people still lack access to digital financial services, despite most owning a mobile phone, according to the World Bank's Global Findex. By providing a model for how to simplify and reduce the cost of designing interoperability between individual payment services, countries working with the banks, and mobile money and digital payment providers can develop connected instant payment systems that meet the digital financial services needs of emerging markets - especially the financially excluded. \r\n\r\nBuilt upon the Interledger protocol, Mojaloop is an open source platform for helping hub operators with instant payments clearing. Mojaloop's API protocol does more than just move money: the software helps network participants to interact robustly with each other, helping to bring some financial inclusion principles to life. \r\n\r\nMojaloop is reliant on its community of supporters, contributors, evangelists, developers, and others to make its work possible and help achieve the Foundation’s mission of providing universal financial inclusion to all. This session will go into detail about Mojaloop’s work with Interledger’s Rafiki API work and the need to upgrade to Interledger v4.\r\n",
+        "startsAt": "2022-11-13T10:15:00",
+        "endsAt": "2022-11-13T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e94ceef0-e969-4034-82f5-0f6a39ae26d1",
+            "name": "Michael Richards"
+          },
+          {
+            "id": "a922404b-f903-47cf-954f-770d29bed360",
+            "name": "Paula Hunter"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "393412",
+        "title": "The 5Ps of Diversity, Equity, and Inclusion (DEI)",
+        "description": "Diversity, Equity, and Inclusion (DEI) is a hot topic across multiple industries and sectors, especially since the untimely death of George Floyd in 2020.  While strategies, tools, and techniques to drive development of inclusive financial systems is the focus of the Interledger Summit, is that goal possible without a strong focus on diversity, equity, and inclusion by actors in the financial inclusion space across all aspects of their operations? In this talk, you will hear from Erin Brown, former Acting Chief Diversity Officer at the United States Agency for International Development (USAID) as she discusses the 5 Ps of Diversity, Equity, and Inclusion, and how she used a focus on the 5 Ps of DEI to build USAID's Diversity, Equity, Inclusion, and Accessibility (DEIA) program. Through these 5Ps, you will gain awareness as to how our ability to achieve equity and financial inclusion may not be possible until that same focus and intention is used to increase diversity, equity, and inclusion within our own organizations (i.e., it starts at home). Erin will also cover a few foundational strategies to \"level up\" on our DEI efforts so that it both benefits our organizations internally and improved our ability to promote greater financial equity and inclusion outcomes. ",
+        "startsAt": "2022-11-13T11:30:00",
+        "endsAt": "2022-11-13T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "59dd02ef-66e9-41ec-9335-e2d226665ea1",
+            "name": "Erin Brown"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "373700",
+        "title": "DFS Lab work in Sub-Saharan Africa",
+        "description": "Research Share-out",
+        "startsAt": "2022-11-13T12:00:00",
+        "endsAt": "2022-11-13T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "b0a14d9b-376a-48e2-9a43-75ee8855c9f4",
+            "name": "Jake Kendall"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "383792",
+        "title": "Payment pointers - the universal payment instrument",
+        "description": "An overview of payment pointers and open payments and how these will create an open and inclusive application layer on the Internet of Value",
+        "startsAt": "2022-11-13T12:30:00",
+        "endsAt": "2022-11-13T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+            "name": "Adrian Hope-Bailie"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "383892",
+        "title": "Can web monetization protocols bring about a fairer digital future?",
+        "description": "Our current, advertiser-supported Internet is broken. The business models underpinning data brokers, tracking, and programmatic advertising are predatory, and the tiny percentage of revenue that flows back to content creators often makes their work unsustainable. New technologies, like open payment networks that support micropayments and drip-style donations, are fostering more equitable alternatives for funding the work of individual creators and collectives. More democratic governance mechanisms and processes are able, or have the potential, to scale and support new forms of collective decision-making and digital participation. But how can early adopters ensure that these technologies are used for the public good, rather than supporting hyper-capitalist systems that have made the current digital landscape so inequitable? And what best practices can be learned from existing open source projects that operate in the public interest?\r\n \r\nThis session includes panelists from industry, civil society, and academia who will discuss the challenges and opportunities that exist in an alternatively-funded online world.\r\n \r\nModerator:\r\n \r\nAyden Férdeline, public interest technologist \r\n \r\nPanelists:\r\n \r\nXiaoji Song, interdisciplinary researcher and artist \r\n \r\nDr Stephanie Perrin, past winner of the Electronic Frontier Foundation ‘Pioneer Award’ \r\n\r\nEllen Magallanes, counsel, Wikimedia Foundation",
+        "startsAt": "2022-11-13T14:00:00",
+        "endsAt": "2022-11-13T14:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "27429f38-3846-488f-9e53-58837c0b6842",
+            "name": "Ayden Férdeline"
+          },
+          {
+            "id": "9ba11e2e-9aa7-4b7b-80e8-ba22562b90d0",
+            "name": "Ellen Magallanes"
+          },
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "384019",
+        "title": "Central Bank RTGS and ILP implementation: Mexico's SPEI and the People's Clearinghouse",
+        "description": "SPEI is the RTGS platform of the Central Bank of Mexico, currently serving most financial entities in the country, either directly or through intermediary entities. In this group, we will introduce and discuss the structure of a SPEI-oriented Clearinghouse, based on our development of the People's Clearinghouse, which is meant to serve as an intermediary access point to SPEI for indirect participants. Our goal in this discussion is to collectively identify possible points of intersection with ILP functions. Could such a Clearinghouse serve as both a SPEI node and an ILP node, promoting the interoperability of both structures and thus extending the reach of the ILP network (perhaps in a similar way as Rafiki could eventually interconnect the ILP network with a Mojaloop scheme)? How could an ILP-based remittance order flow platform interact with such a Clearinghouse? We invite all people to learn about this financial inclusion project from a technical perspective and discuss how the ILP could enrich it.",
+        "startsAt": "2022-11-13T14:00:00",
+        "endsAt": "2022-11-13T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+            "name": "Roberto Valdovinos"
+          },
+          {
+            "id": "e485ce69-cfcc-49d4-8d31-dda1c45a362d",
+            "name": "Juan francisco Manzano garcia"
+          },
+          {
+            "id": "ea1a7e8e-53b1-4178-850d-c9e5c331d492",
+            "name": "Andrés Arauz"
+          }
+        ],
+        "categories": [],
+        "roomId": 27380,
+        "room": "Breakout Room",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "368493",
+        "title": "The value of Interledger Protocol in Latin America now and in the future",
+        "description": "This session is to share how Latin America has evolved in terms of financial access, but how this has not yet reduced the gap with people with less financial access, and at what point the Interledger Protocol can be the support to provide greater and equitable opportunities for all in the region.",
+        "startsAt": "2022-11-13T14:40:00",
+        "endsAt": "2022-11-13T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c9e83da7-c881-4eed-8e59-01beb295b8f8",
+            "name": "Néstor Campos"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "384007",
+        "title": "Revenue Sharing Language (RSL): a human and machine-readable syntax for profit-sharing and royalties",
+        "description": "Revenue Sharing Language (RSL) is a human and machine readable language for describing complex multiple-step revenue-sharing agreements between multiple parties in an open and interoperable way. RSL agreements are Ricardian contracts – a human and machine readable document – unlike a smart contract, which is only readable by software and developers. Created with Interledger Foundation funding as part of the OpenVideo.tech project, RSL was conceived to make it easier for independent creators to get fair payouts from anyone monetizing their work.\r\n\r\nThis session will look at how revenue sharing and payout agreements and schedules are normally used. Participants will be introduced to the syntax, and revenue sharing agreements expressed as RSL. We will look at some of the current RSL implementations (standalone JS, Svelte.js & CiviCRM), exploring RSL’s relevance to the Web Monetization, digital payments and Interledger ecosystems\r\n\r\nThis should lead to a discussion with participants (who don't need to be technical or legal experts) around potential uses – both promising and challenging. We'll consider some of the possible issues for tools built using RSL, before exploring the draft Variable RSL Syntax which would expand RSL to more complex, dynamic agreements.",
+        "startsAt": "2022-11-13T15:30:00",
+        "endsAt": "2022-11-13T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "996c2e33-414c-448e-938f-ea987b311373",
+            "name": "Nic Wistreich"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "373702",
+        "title": "Including GenZ in Digital Affairs: Bowie State University Share-Out",
+        "description": "Banking the unbanked population through digitized financial inclusion may bring positive change in the lives of underprivileged populations and economies globally. What better way to prepare for such change than engaging future change makers, thought leaders and activists to be informed and equipped with the knowledge to enable a more equitable digital financial ecosystem?\r\n \r\nBowie State University has received 25K in grant funding from the Interledger Foundation to execute an undergraduate course with students exploring open payments technologies, digital financial systems and issues in eCommerce. BSU will also create content for the community and other institutions to help increase equitable and inclusive participation.\r\n\r\nThe eCommerce course will be offered through the Management Information Systems Department in the College of Business to students enrolled in Information Systems, Marketing, Entrepreneurship, Management, and Accounting Computer Science, Security, and Technology. Each student will be able to interact with mentors, practitioners, and open web payment advocates. The course model is a funnel from broad foundation concepts to the role of web payments to foster more efficient and equitable commerce.\r\n\r\nProposed Format:\r\nThe proposed duration for this session is 1 hour, broken down as follows:\r\n- Opening Circle (25 minutes): \r\n5-minute introduction session providing an overview and context of the current collaboration between Bowie State University and the Interledger Foundation and the objectives of the revamped eCommerce course. - Dr Andrew Mangle – Bowie State University \r\n- 20-minute Conversation with two Grantees involved in engaging youths on principles relating to open payment systems, web monetization and microfinance/tipping. \r\n- 35-minute Poster Session showcasing student progress on incorporating open payments in eCommerce. Students will hoist posters around the room and give short pitches on their vision for the capstone project and their progress to date. The session will be interactive with audience members having the opportunity to engage with students about their ideas and unique perspectives.\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+        "startsAt": "2022-11-13T15:30:00",
+        "endsAt": "2022-11-13T16:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "2d15432a-4cdb-43ff-a339-a4108822482d",
+            "name": "Andrew Mangle"
+          },
+          {
+            "id": "ceea3685-37aa-4cf0-bf1c-9527930f2232",
+            "name": "Julaire Hall"
+          }
+        ],
+        "categories": [],
+        "roomId": 27380,
+        "room": "Breakout Room",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "383809",
+        "title": "Web Monetization & Creative Culture",
+        "description": "Exploring the intersection of emerging web monetization technologies and how these technologies impact creator's lives and their creative freedom.  How do these new technologies unlock new business models that enable more creative and economic freedom. Will these technologies live up to the hype? From the Crypto winter, to the Interledger Protocol,  the terrain is constantly changing. Hear from some of the leading minds in creativity, innovation and the next wave of digital monetization. With the intersection of culture, creativity and community. New business models are being unleashed thanks to the creation of NFT's,  DAO's and community driven technologies. What does the future hold for creators? Meet some of the faces leading this charge here in Africa and the diaspora and hear their perspectives. \r\n*What does the future of Africa look like as it relates to Web3 Compatibility. Internet penetration, Data cost, VR/AR hardware, Dev communities etc\r\n",
+        "startsAt": "2022-11-13T16:00:00",
+        "endsAt": "2022-11-13T17:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c9e6ec6a-09b1-4802-8adb-3a85d6651ec0",
+            "name": "Karl Carter"
+          }
+        ],
+        "categories": [],
+        "roomId": 27379,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      }
+    ],
+    "isDefault": false
+  }
+]

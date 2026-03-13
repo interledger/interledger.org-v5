@@ -11,10 +11,12 @@ export async function getStaticPaths() {
 }
 
 const slugParam = Astro.params.page
-const slug = Array.isArray(slugParam) ? slugParam.join('/') : (slugParam ?? '')
+const pathSlug = Array.isArray(slugParam)
+  ? slugParam.join('/')
+  : (slugParam ?? '')
 
 const pages = await getCollection('summit-pages')
-const mdxPage = pages.find((page) => page.data.slug === slug)
+const mdxPage = pages.find((page) => page.data.pathSlug === pathSlug)
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null
 
@@ -24,7 +26,7 @@ if (mdxPage) {
   mdxData = mdxPage.data
 }
 
-const pageTitle = slug
+const pageTitle = pathSlug
   .split(/[-/]/)
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ')

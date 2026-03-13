@@ -1,0 +1,1750 @@
+[
+  {
+    "groupId": null,
+    "groupName": "All",
+    "sessions": [
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "753024",
+        "title": "Interledger Foundation Keynote with President & CEO Briana Marbury",
+        "description": "Briana Marbury will open the Summit with an overview of the year the Interledger Community has had and a look at where it is going.",
+        "startsAt": "2024-10-26T09:30:00",
+        "endsAt": "2024-10-26T10:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "60ca230a-ed4a-492b-b423-f4fbd279c871",
+            "name": "Briana Marbury"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Aiming for about 20 minutes of slides followed by 5-10 minutes of questions.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "762716",
+        "title": "How I Learned to Love Packetization",
+        "description": "One aspect that consistently perplexes Interledger newcomers: Packetization. In this talk, Stefan explains the choice to break large payments down into tiny packets and how this approach makes protocols hyper-efficient, scalable, and flexible.",
+        "startsAt": "2024-10-26T10:00:00",
+        "endsAt": "2024-10-26T10:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "b136ab7f-e6f9-41ce-9e6c-935c5f0a5a3d",
+            "name": "Stefan Thomas"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Several key players of account-serving entities interested in using Rafiki for remittances will discuss the value of using DPI, the challenges of the remittances’ market, its policies and regulations, and the impact digital financial services can have for underrepresented groups such as migrants in the United States and their families in other countries.\r\n\r\nThis panel will be a useful introduction to the complexities of remittances’ regulation and how new technologies such as Rafiki can adapt to it and have a thorough social impact.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "695522",
+        "title": "Bridging communities with Rafiki: the migrant/remittances market for account-serving entities",
+        "description": "This panel will bring together CEOs of account-serving entities in the US interested in implementing Rafiki so that their users may send remittances, along with specialists in remittances’ regulation, in a provocative discussion around remittances, migrant populations and the use of Rafiki.",
+        "startsAt": "2024-10-26T11:00:00",
+        "endsAt": "2024-10-26T11:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+            "name": "Roberto Valdovinos"
+          },
+          {
+            "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+            "name": "Adrian Hope-Bailie"
+          },
+          {
+            "id": "94599097-db2a-45a0-b950-f31019f13891",
+            "name": "Rob Reeve"
+          },
+          {
+            "id": "be411f3c-9578-4b55-9b6b-63511ad8e986",
+            "name": "Julie Guetta"
+          },
+          {
+            "id": "ccda5cd7-aeb2-4dd1-97a9-87979237f62f",
+            "name": "Enej Pungercar"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "TBD",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "735787",
+        "title": "Rafiki & Ecosystem Updates",
+        "description": "Join us for an update on Rafiki: the current integrators, additions over the last year, future plans, and the growing Rafiki-powered Test Network. In this session, we will demo the Test Wallet, the Test eCommerce application and Interledger Pay.",
+        "startsAt": "2024-10-26T11:00:00",
+        "endsAt": "2024-10-26T11:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "dadc8857-a4a4-459a-b484-bc803bde197d",
+            "name": "Timea Nagy"
+          },
+          {
+            "id": "a63af0da-3b51-42ad-9775-ff52212884ba",
+            "name": "Max Kurapov"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The talk will draw upon India's experience with the UPI system to outline the promise and peril of DPIs in the payments sector from a competition policy perspective. This discussion is also connected with the global trend towards the adoption of DPI and building suitable safeguards around it, including in forums like the G20 and the UN interim report. \r\n\r\nDrawing upon previously published work on this subject, I will present the rationale for the use of the term 'alt big tech' in this context and invite feedback from the participants on this framing. The overall goal of the session would be to collectively reflect on the competition policy implications of payment DPIs and the path toward building inclusive, innovation-friendly and competitive payment infrastructures.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "729556",
+        "title": "The promise and peril of DPI for competition policy: 'Alt big tech' in the making?",
+        "description": "Many countries have reaped the benefits of financial inclusion, efficiency and scale from building DPIs in the field of digital payments. India's Unified Payments Interface (UPI) and the Brazilian PIX system are among the commonly cited examples. A large part of the success of such systems can be attributed to the design principle of pursuing interoperability among market players through the use of standardized protocols and common infrastructure. This makes for an interesting point of intersection between the rise of DPIs and their competition policy implications. The United Nation's interim report on digital public infrastructure (DPI) also recognizes the importance of fair market competition as one of the foundational principles for safe and inclusive DPI. \r\n\r\nAn exploration of the competition effects of DPI would include both the pro-competitive gains from interoperability and innovation and possible threats to competition. For instance, certain DPIs models could give rise to issues of market concentration, infrastructural lock-in, gatekeeping by DPI operators and the use of regulatory coercion to shape market outcomes. Many of these concerns are reminiscent of the challenges posed by the big tech industry, prompting the exploration of whether DPI giants could end up emerging as the new 'alt big tech'?",
+        "startsAt": "2024-10-26T11:00:00",
+        "endsAt": "2024-10-26T11:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+            "name": "Smriti Parsheera"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "We will start with a walk through the product side of Web Monetization. After we get a grip of the why, we will cover the how part, the technical implementation. ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "735788",
+        "title": "Pay the Web Forward with Web Monetization!",
+        "description": "The ability to transfer money has been a long-standing omission from the web platform. As a result, the web suffers from a flood of advertising and broken business models. Web Monetization provides an open, native, efficient, and automatic way to compensate creators, pay for content, and support crucial web infrastructure.  \r\n\r\nIn this session, we will cover the latest updates of the Web Monetization implementation. The team will also demo the Web Monetization Extension, now in a private beta testing phase.",
+        "startsAt": "2024-10-26T11:30:00",
+        "endsAt": "2024-10-26T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "3500dc3a-9dcb-4ff0-b6df-b5926071c3b0",
+            "name": "Rabeb Othmani"
+          },
+          {
+            "id": "2156f39a-1a60-4c76-a328-ad3dcf22e8b7",
+            "name": "Radu Popa"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "I will address the following main topics in my talk:\r\nKEY TOPICS:\r\n1)Introduction to Interledger and Open Payments:\r\n2)What a high-level overview of Interledger protocol entails.\r\n3)The importance of open payments for digital economy.\r\n4)Role of AI in Enhancing Payment Security:\r\n5)Continuous monitoring as well as real-time risk mitigation.\r\n6)AI algorithms that learn from new threats to ensure tight security.\r\n7)AI-Driven Smart Contracts:\r\n8)How smart contracts enforce security protocols.\r\n9)Dynamic adaptation of transaction rules according to real-time threat assessments\r\n10)Case studies: Application in digital content platforms.\r\n11)Real-Time Threat Assessment:\r\n12)Using AI to analyze IP addresses and transaction patterns\r\n13)Detecting irregularities and preventing frauds\r\n14)Creating a Trustworthy Environment:\r\n15)Secure financial interactions that build trust between users and developers.\r\n16)Strengthening safety and efficacy of digital transactions\r\n\r\n\r\nFuture of FinTech:\r\nSetting new standards for secure and intelligent financial transactions.\r\nThe evolving landscape of FinTech with AI and cybersecurity integration.\r\nLearning Outcomes: Integrate artificial intelligence (AI) with cybersecurity within the framework of the Interledger protocol. Have an understanding about how artificial intelligence (AI) is able to mitigate real time risks automatically. Know-how about various ways by which security based on open payments can be enhanced through smart contracts powered by AI. Future directions, implications, etc.\r\n\r\nSession Format:\r\nFormat: Talk or Demos/workshops followed by Q&A\r\nAudience: Professionals and enthusiasts in FinTech, AI, cybersecurity, and digital payments.\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732644",
+        "title": "Advancing Secure and Intelligent Transactions: Integrating AI and Cybersecurity in Open Payments",
+        "description": "I will demonstrate how artificial intelligence (AI) and cybersecurity can be integrated into open payments for Interledger.I also have 2 publications in the related field. It has started a new period of secure and smart monetary transaction processes. AI-driven algorithms are capable of keeping an eye on payment activities continuously to detect and mitigate risks in real-time. Thus, this additional security layer guarantees not only protecting users or digital authors from fraud but also securing the integrity as well as confidentiality of their deals. This means that using advanced models, the system can learn from new threats making it a strong defense mechanism that is constantly evolving along with cyber threats. \r\n\r\n\r\nOne of the major innovations in this space is AI-driven smart contracts that enforce security protocols by themselves. These contracts allow dynamic adaptation of transaction rules depending on real-time threat assessments thereby making sure only genuine and authorized payments are processed. For instance, a digital content platform may apply these smart contracts to automatically verify users and creators’ authenticity protecting the system from ill-willed individuals who could exploit it. Additionally, taking into account also IP addresses, AI algorithms analyse transaction patterns so as to identify any irregularities which would provide an additional layer of safety. This combination of open payments with AI and cybersecurity creates an environment filled with trust that allows users and developers to interact with confidence knowing that their financial interactions are secured by advanced technology. By doing this, it not only boosts the security and effectiveness of digital transactions but also sets a new standard for the future of FinTech.\r\n",
+        "startsAt": "2024-10-26T11:30:00",
+        "endsAt": "2024-10-26T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "256e1583-4245-4529-bd87-6fa39846b5a7",
+            "name": "Akshat Sharma"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              },
+              {
+                "id": 268001,
+                "name": "Interledger Innovation Exhibition"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Discussing real world opportunities and challenges for deploying DPI infrastructure in Africa ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "687327",
+        "title": "Building Digital Public Infrastructure (DPI)  -  BankServAfrica TCIB and PayShap",
+        "description": "Immediate cross-border payments across the SADC region and beyond",
+        "startsAt": "2024-10-26T11:45:00",
+        "endsAt": "2024-10-26T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "6caa3775-97c0-4972-827a-f10d7ee0f426",
+            "name": "Michael Mbuthia"
+          },
+          {
+            "id": "3578cfa6-cd36-463c-a879-fe3df6f819c2",
+            "name": "Sarel Myburgh"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "1.- Introduction to Wallet Guru and Paystreme:\r\nBrief overview of our company and the Paystreme platform.\r\nObjectives of the session.\r\n\r\n2.- Enhancing User Experience:\r\nReal-time payments for content consumption.\r\nElimination of rigid subscription models.\r\nEnabling unbanked or underbanked consumers access streaming services.\r\n\r\n3.- Personalization and Flexibility:\r\nEnabling streaming companies to offer hyper-personalized services.\r\nTailored content and pricing options based on user preferences.\r\n\r\n4.- Impact on Business Model:\r\nDriving increased user engagement and satisfaction.\r\nReducing customer churn.\r\nOpening new revenue streams for streaming services.\r\nExpand customer base \r\n\r\n5.- Technical Aspects:\r\nOverview of Paystreme's basic architecture and back-end design.\r\nIntegration challenges faced and solutions implemented.\r\nAddressing utility company architecture limitations.\r\n\r\n6.- Interactive Q&A:\r\nAudience engagement and feedback.\r\nDiscussion on the potential of Paystreme to reshape the streaming industry.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "695709",
+        "title": "Wallet Guru: Revolutionizing the Streaming Industry with Interledger’s Streaming Payments",
+        "description": "Join us for a compelling session on Wallet Guru’s Paystreme, an innovative payment streaming platform designed to revolutionize the video streaming industry using the Interledger Protocol. Discover how Paystreme enables real-time, secure microtransactions, providing a flexible and efficient payment solution for services such as mobile phone coverage, broadband internet, pay-TV, and streaming content. This session will explore the transformative potential of Paystreme, highlighting its impact on user experience and business models in the streaming industry.",
+        "startsAt": "2024-10-26T12:00:00",
+        "endsAt": "2024-10-26T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "5e27eb01-d22e-4db5-b6ad-0ce26d1a3a22",
+            "name": "Fernando Almiñana"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Introduction – Why Sharing Matters\r\n- Alex will briefly discuss the past and present state of hyperlinks and sharing on the Internet.\r\n\r\nUnderstanding Gib\r\n- Alex will briefly discuss how Gib works with Web Monetization to enhance the capabilities of hyperlinks.\r\n\r\nDemo 1 – Speed Matters\r\n- Audience will participate in a first-come-first-served link share.\r\n\r\nDemo 2 – Fair Shot\r\n- Audience will participate in an equitable link share.\r\n\r\nPartnering with Gib\r\n- Alex will highlight opportunities for community collaboration, integration, and partnership with Gib.\r\n\r\nQ&A\r\n- Brief question and answer session.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732580",
+        "title": "Sharing is Caring – Using Web Monetization to Expand Access and Engagement with Gib",
+        "description": "Join Alex from Gib and learn how Web Monetization enables content creators to earn money online through paid sharing. He’ll explain why this type of sharing matters and how it compares to current methods.\r\n\r\nYou'll get to try out Gib, a Grant for the Web project, right there in the session. See for yourself how it works with a live audience demo! You can test two different ways of accessing this content - one where speed counts, and another that gives everyone a fair shot.\r\n\r\nAlex will also demonstrate how Gib brings together new sharing methods and easy-to-use payment features. This combination makes earning from your content simpler than ever.\r\n\r\nIf you're interested in working with Gib, they are also looking for partners and new ways to use their system. Don't miss this chance to see the future of online content earning.\r\n",
+        "startsAt": "2024-10-26T12:00:00",
+        "endsAt": "2024-10-26T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "b030bca8-340c-46fc-945c-dfb865e65b63",
+            "name": "Alex Mozeak"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "1. Opening Remarks and Introduction (3 minutes)\r\n* Welcome and introduction to the session.\r\n* Overview of the session’s objectives and key themes.\r\n* Introduction of each Parliamentarian.\r\n\r\n2. Opportunities and Challenges of Open Payments (15 minutes)\r\n* Discuss the adoption and implementation by banks, digital wallet providers, and mobile money providers of Open Payments in Africa.\r\n* Promising use cases of Open Payments for SMEs, nonprofits, and individuals.\r\n\r\n3. Aligning Open Payments with Human Rights Principles (8 minutes)\r\n* Examination of how Open Payments deployments serve the public good.\r\n* Importance of alignment with the United Nations Guiding Principles on Business and Human Rights.\r\n* Ensuring ethical practices and preventing human rights abuses.\r\n\r\n4. Advancing Digital Financial Inclusion and Economic Growth (8 minutes)\r\n* Strategies for fostering pan-African innovation in digital financial services.\r\n* Importance of regulatory frameworks that support inclusive digital financial services.\r\n* Ensuring accessibility for underrepresented groups and vulnerable populations.\r\n* Recent regional political developments impacting digital financial inclusion.\r\n\r\n5. Closing Remarks and Summary (7 minutes)\r\n* Summarization of key points discussed during the session.\r\n* One minute closing remark from each Parliamentarian. “Final thoughts on the future of digital public infrastructure and financial inclusion in Africa.”\r\n* Thank you, and closing of the session.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "731902",
+        "title": "Parliamentarian Perspectives: Fostering Inclusive Open Payments in Africa",
+        "description": "This session will bring together four Members of Parliament from various African countries for a mainstage discussion on the role of policy and regulation in developing responsible, ethical, open payment systems in Africa to enhance digital financial inclusion.\r\n\r\n​​In a world increasingly reliant on digital connectivity, access to digital financial services remains a crucial determinant of economic empowerment and social development. Unfortunately, 400 million African adults are excluded from the formal financial system. This gap has left people reliant on cash or informal providers, which is costly and risky and leaves them vulnerable to economic instability. Interledger is unlocking access to the formal financial system and digital financial services for the financially excluded through collaborations with governments, central banks, the private sector, and development institutions.\r\n\r\nThis discussion will explore the opportunities and challenges associated with adopting Open Payments, an open API standard that can be implemented by account servicing entities such as banks, digital wallet providers, and mobile money providers. The discussion will cover how Interledger-enabled Open Payments facilitate interoperability in the setup and completion of payments for various use cases that are of interest to small and medium-sized enterprises, nonprofit organizations, and individuals. \r\n\r\nIn particular, the parliamentarians will discuss (1) how and why deployments of the Open Payments standard serve the public good, (2) whether these efforts align with human rights principles as guided by the United Nations Guiding Principles on Business and Human Rights, and (3) how advancing digital financial inclusion fosters economic participation and growth in their respective country.\r\n\r\nThe parliamentarians will provide insights into recent, relevant, regional, and national political developments and explore strategies for fostering pan-African innovation in digital financial services. They will also discuss the importance of regulatory frameworks that support ethical practices and prevent human rights abuses, drawing on examples from their respective countries, and emphasize the importance of digital financial services being accessible to underrepresented groups and vulnerable populations. \r\n\r\nIntended for a general audience, this session will provide a platform for African parliamentarians to share their perspectives on how regulatory frameworks can support the development of inclusive and ethical digital payment systems. For the broader Interledger ecosystem, this session will offer attendees insights into the regulatory landscape and policy considerations that drive the development and adoption of digital financial infrastructure.\r\n\r\nNeema K. Lugangira, a Member of Parliament from Tanzania, will co-curate the panelists for this mainstage discussion with the involvement of the Interledger Foundation.",
+        "startsAt": "2024-10-26T13:30:00",
+        "endsAt": "2024-10-26T14:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "27429f38-3846-488f-9e53-58837c0b6842",
+            "name": "Ayden Férdeline"
+          },
+          {
+            "id": "1044e43b-8deb-46f3-8fab-e20275044ef2",
+            "name": "Neema Lugangira"
+          },
+          {
+            "id": "53ba9e9d-d014-4133-bd50-4d7c97a470fd",
+            "name": "Hon. Esther Passaris"
+          },
+          {
+            "id": "8a02eb2a-7947-4028-831b-b6dac7ea51fd",
+            "name": "Sen. Catherine Mumma"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The session will both outline a practical case study of grassroots financial inclusion, centring the voices of those directly involved in the practice, and highlight the perspectives shared through the F|M award recipient, 'Sikhula Sonke.'\r\n\r\nThe agenda is as follows:\r\n\r\n1. (6-7 minutes:) Introduction and Context\r\n\r\na) Briefly introduce the members of Masibebanye village bank from Khayelitsha, South Africa, including a description of the community of Makhaza, Khayelitsha.\r\n \r\n b) Incorporate audio storytelling with interviews with the village banking members from the Sikhula Sonke creative project. \r\n\r\nc) Outline attitudes around financial institutions in context of historic financial exclusion.\r\n\r\nd) Situate village banks as a grassroots form of financial inclusion and open payments, bolstering communities’  cultural and financial resilience.\r\n\r\n2. Conversation with the Village Bankers (15 minutes)\r\n\r\na) In conversation between Jon Adam Chen, Esther Mwema and leaders of Masibebanye, discuss the context behind the creation of the village bank.\r\n\r\nb) Discuss how the group became involved with the Sikhua Sonke project and the key insights that were shared.\r\n\r\nc). Where are they now? How has the village bank evolved in the last year and what have their savings been used towards?\r\n\r\nd) How do the members define wealth?\r\n\r\ne) What is the future of village banking and financial inclusion? How can we better bridge the world between the grassroots and innovative practices?\r\n\r\n3. Two minutes: Play original music recording (“Makabongwe”) created for the Sikhula Project\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "695881",
+        "title": "Views from the Grassroots: Village Banking and Financial Inclusion in Southern Africa",
+        "description": "The session builds upon 2023 Interledger F|M awardees, Esther Mwema and Jon Adam Chen’s creative project, 'Sikhula Sonke: Living Archives of Afrofuturist Village Banking.’\r\n \r\nThrough exploring the  practice of village banking in southern Africa, the session will introduce audiences to the grassroots, locally embedded approach to financial inclusion and open payments. Providing a rare opportunity for audiences to learn from community leaders of village banks in South Africa and village banking experts from Lusaka, Zambia, the session will be host to novel perspectives rooted in African practices of financial inclusion.\r\n \r\nThe session will provide an opportunity for the village banking community members featured in Sikhula Sonke to share their knowledge and achievements through participation in the Indigenous system of a rotating savings and credit association, including how it has empowered themselves and their communities to improve their quality of life. In addition, community leaders will share their involvement in the unique Sikhula Sonke project. The discussion with community leaders from Khayelitsha and Lusaka, Zambia will be combined with audio storytelling and will promote the knowledge that already exists within communities in the host city of Cape Town, South Africa. The session will prompt listeners to re-evaluate how to think about money and wealth.\r\n\r\nFor more information on the Sikhula Sonke project, visit the website: https://www.sikhulasonke.net/\r\n",
+        "startsAt": "2024-10-26T14:30:00",
+        "endsAt": "2024-10-26T15:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e8d66139-9a11-471d-8feb-060d95b32f04",
+            "name": "Jon Adam Chen"
+          },
+          {
+            "id": "596d5e24-c923-4716-adfa-2c18d07d9e43",
+            "name": "Esther Mwema"
+          },
+          {
+            "id": "731d2f66-78b0-42fa-b5c4-fc7735a1a343",
+            "name": "Prudence Kalunga"
+          },
+          {
+            "id": "f6fc2063-f026-473a-9f14-8a016824c3a0",
+            "name": "Unathi Pukwana"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Financial Crime, and in particular Fraud, is top-of-mind for Financial Service Providers of all sizes and levels of maturity. The solution space is dominated by expensive commercial products and smaller and emerging operators rarely have access to effective solutions. Service providers may be one major fraud incident away from crippling customer attrition or devastating regulatory fines.\r\n\r\nTazama offers an open source answer to what has traditionally been a very costly problem to solve, and possibly an even more costly problem to ignore. Tazama aims to help organizations protect their customers against fraud, especially the most vulnerable of their customers.\r\n\r\nThe Interledger Foundation is a crucial platform from which to reach a vast and influential Web 3.0 finance-focused audience and through their support, democratize effective fraud detection and prevention for the benefit of all.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "684918",
+        "title": "Tazama Real-Time Open Source Software for Fraud Detection",
+        "description": "Tazama is a recently launched project in the Linux Foundation. Tazama offers open source real-time transaction monitoring software for fraud and money-laundering detection.\r\n\r\nOur presentation introduces the product and its origin story, from its ideation as one of the Bill & Melinda Gates Foundation's Level One principles, to its MVP launch in April 2022 and ultimately its integration into the Linux Foundation.\r\n\r\nWe will provide an overview of our mission, specifically to enable financial inclusion by promoting trust in digital financial ecosystems.\r\n\r\nWe will also provide insight into our adjacent work in establishing a standards body that will collect and publish standards for reporting, sharing and actioning information on Financial Crime.\r\n\r\nFinally we will present the product itself to give the audience an overview of the features, capabilities and context within their own ecosystems.",
+        "startsAt": "2024-10-26T14:30:00",
+        "endsAt": "2024-10-26T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "1118e56c-d6bd-4b8e-ae6a-80a58932e45a",
+            "name": "Greg McCormick"
+          },
+          {
+            "id": "dcf728ce-db55-4b40-8d9c-942473b14715",
+            "name": "Justus Ortlepp"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Taking a group of people through an immersive debate where they themselves have to make convincing arguments either for or against the “neutrality” of DPI infrastructure (including ID, data systems and payment systems). This fast paced session will help session participants live the real debates happening around the world as governments and private sector are building various parts of their national digital public infrastructure both piecemeal and collectively. This debate will require participants to actively speak, share their experiences and knowledge to try to “win” the debate. There will be reflections at the end to better understand how to build more inclusive DPI in the countries participants work. \r\nThe Brief Run of Show is Below (80 minutes):\r\n9 minutes set up - Sharing the Debate Prompt, Context for both sides\r\n5 minutes - Random Division of Groups to Pro/Con/Judge\r\n15 minutes - Prep time for Each Group, with Expert Consultations from Facilitators\r\n1 minute - Flip a coin to see who goes first\r\n10 minutes - Side 1 Presents Arguments\r\n10 minutes - Side 2 Presents Arguments\r\n15 minutes - Q&A from Judges to both sides\r\n5 minutes - Judges Confer, announce winner\r\n10 minutes - Reflections from at least one Pro, one Con, and one Judge\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "696099",
+        "title": "Immersive Debate: Is DPI Inherently \"Gender Neutral\"?",
+        "description": "The best way to learn is sometimes to argue both sides of a question. In this session, we offer participants an opportunity to get up out of their seats and actively debate each other on the topic of whether Digital Public Infrastructure is Inherently Gender Neutral.  \r\n\r\nYou will be randomly assigned to be on the side of “Pro”, “Con”, or a judge. With the help of DPI Expert Facilitators, you will make arguments and ask questions to see who “wins”. You will better understand the reality of building inclusive DPI, issues for policy makers, regulators, and private sector; as well as how to build social capital and capacity for those that need the benefits of DPI the most. \r\n\r\nWhatever your assumptions coming in, we promise a fun, fast-paced ride that will leave you walking out the door knowing more than when you walk in.\r\n",
+        "startsAt": "2024-10-26T14:30:00",
+        "endsAt": "2024-10-26T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+            "name": "Nandini Harihareswara"
+          },
+          {
+            "id": "a6ac7ec7-a053-486c-8778-7294f707c0ab",
+            "name": "Lukonga Lindunda"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 268000,
+                "name": "Workshop (80 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "1. Brief introduction of ThitsaX connectors (Nyi Nyein Aye)\r\n2. ThitsaX demonstration (Aung Mon Ko)\r\n3. Q&A ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "695511",
+        "title": "ThitsaX: Interconnected Nodes to Bridge Worlds",
+        "description": "ThitsaX connectors are interconnected nodes that facilitate cross-ledger transactions. They leverage the Interledger Protocol to route and process payments across various payment systems and core back-end systems of different types of financial institutions, enabling transfers between diverse ledgers and networks. This network expansion promotes financial inclusion and creates an easily accessible and interconnected financial ecosystem. ThitsaX connectors will enable secure transactions across diverse payment networks, promoting efficiency and cost-effectiveness. During this session, cross-ledger transactions through ThitsaX connectors will be demonstrated.\r\n \r\n",
+        "startsAt": "2024-10-26T15:00:00",
+        "endsAt": "2024-10-26T15:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "555b62a8-ce3b-4bb1-a549-5e008fb8a037",
+            "name": "Nyi Nyein Aye"
+          },
+          {
+            "id": "9230b0cd-1da1-4214-a323-d5d553038b02",
+            "name": "Aung Mon Ko"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Welcome and Introduction (5 minutes)\r\n\r\nOpening Remarks from Panelists (10 minutes)\r\n- Panelist 1: Overview of financial exclusion and its global impact\r\n- Panelist 2: The potential of open, interoperable payment networks\r\n- Panelist 3: Status of the work of the Dynamic Coalition\r\n\r\nInteractive Discussion (22 minutes)\r\n- Moderated Q&A with panelists and the audience\r\n- Sharing of case studies and experiences from the audience\r\n- Discussion on key barriers and opportunities for financial inclusion\r\n\r\nClosing Remarks and Next Steps (3 minutes)\r\n- Summary of key points discussed\r\n- Outline of the next steps for the Dynamic Coalition\r\n- Invitation to engage in ongoing dialogue and future actions",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732187",
+        "title": "Meet the UN IGF Dynamic Coalition on Digital Financial Inclusion",
+        "description": "Financial exclusion remains a significant barrier to sustainable development and equitable growth, and is an under-explored topic in United Nations policymaking fora. This in-person convening of the Dynamic Coalition on Digital Financial Inclusion - an intersessional working group convened under the auspices of the UN Internet Governance Forum - will offer the Interledger community an opportunity to substantively feed into the work of the Dynamic Coalition as it explores how the adoption of open, global interoperable payment networks can overcome existing barriers and leverage opportunities to enhance financial inclusion across diverse stakeholder groups. We invite participation from the Interledger community to engage with select members of the Dynamic Coalition and outside experts, and to share case studies on how ILP-driven solutions are contributing towards economic participation and growth. Inputs will later be shared with the entire Dynamic Coalition and will feed into its final report, thus setting the stage for ongoing dialogue and action which contributes to the broader objectives of the Sustainable Development Goals. ",
+        "startsAt": "2024-10-26T15:15:00",
+        "endsAt": "2024-10-26T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "27429f38-3846-488f-9e53-58837c0b6842",
+            "name": "Ayden Férdeline"
+          },
+          {
+            "id": "b64bb83c-8afd-4452-a083-34b183001afd",
+            "name": "Caroline Sinders"
+          },
+          {
+            "id": "715acb29-2834-4d55-b102-d75ec3e3136d",
+            "name": "Jeremiah Lee"
+          },
+          {
+            "id": "5f635035-6608-4d43-a0fe-e64717a742b3",
+            "name": "Daphnee Prates Iglesias"
+          },
+          {
+            "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+            "name": "Smriti Parsheera"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267999,
+                "name": "Workshop (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "We will explain this link between shared infrastructure for core banking and the digital enablement of SACCOs, MFIs, fintechs and any organization reaching the last-mile. \r\n* The pathway to universal financial health and meaningful financial inclusion starts with core digitization which becomes the engine and foundation for digital transformation - digital payments, digital channels, digital onboarding/decisioning, data-driven insights via AI, fraud detection, advanced reporting, and more.\r\nWe will showcase how this can be achieved through existing solutions powered by Mifos DPGs that have been proven at scale for private and public sector use cases ranging from microfinance to digital lending to wallets to G2P, P2G, and P2P, and C2B payment flows. \r\n* Mifos DPGs provide a set of reusable and composable building blocks for banking  to enable DFSPs to modernize core systems to connect into IIPS, enable the delivery of G2P payments into functional wallets & transaction accounts with the capability to layer on additional inclusive financial services\r\nWe will demonstrate how these inclusive fintech solutions are being developed, innovated, scaled, and sustained across the globe by a vibrant ecosystem of local system integrators.\r\nWe will propose how we can fuel widespread adoption of the ILF tech stack by leveraging these widely adopted Mifos DPGs and the local support ecosystem. \r\n* Harnessing our DPGs for managing modern wallets and transactional accounts and connecting to digital payments, we can build connectors to Rafiki and adopt open payment protocols to accelerate adoption of the ILF stack for advancing financial inclusion not only within the DPI space but far beyond to other use cases. \r\nWe will highlight case studies underpinning this.\r\n* We will showcase real-life case studies of these solutions and reference PCH or similar implementations and draw the line between commoditized core banking and shared infrastructure platforms enabling money to stay local \r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "731179",
+        "title": "Shared Infrastructure to unlock Last-Mile Financial Inclusion using the Mifos DPGs for Core Banking",
+        "description": "In this talk we will present our vision for shared infrastructure powered by the Mifos DPGs for core banking and payment orchestration. By enabling access to modern core banking in the cloud for last-mile financial institutions, we can fuel adoption of the ILF technology stack and enable the meaningful usage of digital financial services by under-represented groups and vulnerable populations.",
+        "startsAt": "2024-10-26T15:30:00",
+        "endsAt": "2024-10-26T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "621798be-4ae6-4e5b-9345-fa3ceec50333",
+            "name": "Edward Cable"
+          },
+          {
+            "id": "73a6f00b-8686-436b-9eeb-6d9b2bd5b12a",
+            "name": "David Higgins"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Plenary talk",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "749717",
+        "title": "The History & Future of Digital Financial Inclusion ",
+        "description": "Join the Bill & Melinda Gates Foundation's Deputy Director, Inclusive Financial Systems and ILF Board Member, Kosta Peric as he brings his perspective on the trends, innovations and projects that are shaping digital financial inclusion and what we can do together to shape it. ",
+        "startsAt": "2024-10-27T10:00:00",
+        "endsAt": "2024-10-27T10:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "26fd7f35-0010-4bf0-895d-a732dd4546f7",
+            "name": "Kosta Peric"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "While ILP and Rafiki offer a solution to peer an infinite number of nodes, their capacity to interoperate with independent networks and protocols can extend their reach and promote adoption.\r\n\r\nPeople’s Clearinghouse has spent the last year working on an inter-scheme solution that would allow a Rafiki transfer to be routed to participants of a Mojaloop network in a quick, efficient and safe manner, so that Rafiki implementers in one country can route a transfer towards a Mojaloop switch in another country using a single entry point.\r\n\r\nThis solution intends to extend ILP and Rafiki’s reach beyond individual implementers, towards networks of rural and semi-rural banks with a social mission of financial inclusion and sustainable development, building a model that starts with Mexico and continues in more countries with similar social-financial contexts.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "695515",
+        "title": "Cross-border inter-scheme transfer demo: from Rafiki to a Mojaloop switch",
+        "description": "This demo will present the architecture behind People’s Clearinghouse solution and showcase a demo in which the audience will be able to send mock money from their Rafiki instances at rafiki.money towards a community bank’s account that doesn’t implement Rafiki.",
+        "startsAt": "2024-10-27T10:30:00",
+        "endsAt": "2024-10-27T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+            "name": "Roberto Valdovinos"
+          },
+          {
+            "id": "f1cbe4f1-29f8-4ac1-9fc3-06d7851bf338",
+            "name": "Jason Bruwer"
+          },
+          {
+            "id": "1ef13e51-23b5-44c7-bfb1-a82af3b5a7a2",
+            "name": "Pedro Sousa Barreto"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The panel discussion will involve 3 speakers from\r\n\r\n- A bank in South Africa\r\n- A mobile money provider in South Africa\r\n- The South African Reserve Bank\r\n\r\nand will be chaired by Allan Davids. The panel will follow a Q&A structure.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "761242",
+        "title": "Towards an inclusive cashless society: the digital payments landscape in South Africa",
+        "description": "Unlike many of its peers, South Africa has made great progress towards financial inclusion, with 82% of the adult population having access to a bank account and 94% being financially included. Despite this, cash remains king and the adoption and utilization of digital payments are slow.  This panel discussion will explore the barriers to increased adoption of digital payments in South Africa and what is needed to overcome these barriers to facilitate the transition to an inclusive cashless society.\r\n",
+        "startsAt": "2024-10-27T11:30:00",
+        "endsAt": "2024-10-27T12:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e0a4be86-c4c7-4374-a728-a331170307cf",
+            "name": "Allan Davids"
+          },
+          {
+            "id": "8ed6a7c6-1361-4416-87b7-69471b062704",
+            "name": "Julian Kanjere"
+          },
+          {
+            "id": "a2eb66ef-7238-4800-bf4d-6091cb46e62b",
+            "name": "Kungela Mzuku"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "20 mins talk followed by 5 mins Q&A",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "718166",
+        "title": "The Next 30 Years of Transaction Processing",
+        "description": "In the last 7 years, the “transactions of everyday life” have increased 100x to 1,000x, even 10,000x across several sectors (e.g. cloud computing, energy, real time payments). Yet popular transaction databases are 20-30 years old, and even newer cloud databases are circa 2012, designed for a different workload and scale.\r\n\r\nResearch into maximizing durability (and therefore availability) has advanced since 2018 (e.g. storage fault-tolerance, high frequency trading architectures, deterministic simulation testing) but can be hard to retrofit. At the same time, extracting transaction performance from general purpose database designs is becoming more and more expensive.\r\n\r\nHow can we reset transaction infrastructure for the next 30 years? To adapt and apply specialization to unlock three orders of magnitude more performance? How can we evolve our engineering methodologies for tighter tolerances and stricter safety standards?\r\n\r\nJoin us to look at what the world needs, and how these needs invent and predict the future of transaction processing, in the context of micro transactions and Interledger.",
+        "startsAt": "2024-10-27T11:30:00",
+        "endsAt": "2024-10-27T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "30b3c3bc-2196-4f86-be96-4578358d8818",
+            "name": "Joran Greef"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Panel Structure:\r\n\r\n- Introduction by Victoria Coker: Providing context about the documentary and its relevance to financial inclusion.\r\n- Short Trailer Screening: Offering a powerful visual insight into the stories and issues explored in the documentary.\r\n- Panel Discussion: Featuring select documentary participants who are working on the ground to support unbanked individuals. The discussion will cover:\r\n1) Solutions for increasing access to digital financial services.\r\n2) Initiatives aimed at advancing financial literacy and digital equity.\r\n3) Success stories of economic empowerment and inclusion.\r\n4) Collaborative approaches and partnerships to drive systemic change.\r\n- Question & Answer",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732724",
+        "title": "Unbanked in America: Exploring the Financial Divide",
+        "description": "The proposed session, which will be led by the documentary's director, Victoria Coker, will delve into the complex issues that contribute to the significant number of unbanked and underbanked individuals in the United States, specifically people in Mississippi, New Orleans, and the NYC Metro area, and how these factors highly impact Black and Brown communities.\r\n\r\nThe panel will begin with an introduction by Victoria Coker, who will provide an overview of the documentary's key themes and objectives. Attendees will then view the documentary trailer, offering a glimpse into the stories and insights captured during the film's production.\r\n\r\nFollowing the trailer, the discussion will feature select participants from the documentary who are actively working to support unbanked populations across the country. These participants include community leaders, financial literacy educators, tech innovators, and non-profit representatives. Each panelist will bring a unique perspective and firsthand experience in addressing the barriers to financial inclusion and promoting economic empowerment.\r\n\r\nThe panel aims to illuminate the multifaceted challenges and innovative solutions being implemented to increase financial inclusion. It will provide a platform for discussing best practices, sharing success stories, and exploring collaborative approaches to foster greater financial inclusion.\r\n\r\nPanel Objectives:\r\n- Highlight the core factors contributing to the unbanked and underbanked populations in the United States.\r\n- Showcase real-world examples and success stories from across the country.\r\n- Foster dialogue on innovative solutions and collaborative efforts to tackle the problem.\r\n- Engage with summit attendees to inspire and inform them about their work in the field.\r\n",
+        "startsAt": "2024-10-27T11:30:00",
+        "endsAt": "2024-10-27T12:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "56d4c506-d323-41b0-9854-605d76121d86",
+            "name": "Victoria Coker"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              },
+              {
+                "id": 267999,
+                "name": "Workshop (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "ISO 20022 is the banking world's standard for payment messages. Recent developments have meant that ISO payment instructions will be able to include ILP V4 packets, opening up the prospect of interactions between very large traditional institutions and very small ones. This session explores the prospects and the ways in which the two worlds might interact with each other, and with last-mile payment systems.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "690760",
+        "title": "Cross-border payments and standards",
+        "description": "Discusses how different protocols can interact with each other to collaborate on making cross-border payments cheaper, simpler and available to everybody",
+        "startsAt": "2024-10-27T12:00:00",
+        "endsAt": "2024-10-27T12:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e6fbde75-b240-4dcb-a6c5-a65c4fa42cfc",
+            "name": "Michael Richards"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "A. Introduction (2 minutes)\r\nB. The Real-World Complexities of access to digital financial services for at risk communities (10 minutes)\r\nC. Audience Interaction Part 1 (5 minutes):\r\n-- Moderator will pose thought-provoking questions to the audience and collect a show of hands. Briefly discuss the responses.\r\nD.  Redefining access to DFS in restrictive environments (10 minutes):\r\n--Discuss resources, case studies and that aims to bridge accessibility, usability, and security as core principles to consider for designing inclusive digital financial services. \r\nE. Audience Interaction Part 2 (3 minutes):\r\nF. Taking Stock of ILF Community’s Standards and Protocols and compatibility with existing digital infrastructure (8 minutes)\r\nG. Closing Remarks and Q&A (2 minutes)\r\n\r\nModerator\r\n \r\nRaashi Saxena, Public Interest Technologist, studio intO\r\n  \r\nSpeakers\r\n \r\n* Esra'a Al Shafei is the founder of Majal.org, a network of online platforms that amplify under-reported and marginalized voices in West Asia and North Africa. She currently serves on the Board of Trustees at the Wikimedia Foundation, the nonprofit which hosts Wikipedia, as well as Mastodon, the free and open-source software for running self-hosted social networking services. She is also on the Board of the Tor Project, developers of one of the world’s strongest tools for privacy and freedom online. Previously, she served on the Board of Directors of Access Now, an international non-profit dedicated to an open and free Internet. Esra'a was an Echoing Green Fellow, MIT Media Lab Director’s Fellow, and Shuttleworth Foundation Fellow. \r\n  \r\n* Victory Brown – Victory is a user experience designer with Superbloom. She is the founder of Dezignhers a female led design community focused on creating a network among female designers in Africa, focused on creating inclusive and accessible designs across platforms. Brown is a member of the diversity, inclusion, and equity community on the IEEE SA Open community.\r\n \r\n* Liz Steininger – For over 16 years, Liz has supported the advancement of digital rights, access to information, freedom of expression and open source software, including managing funding with the Open Technology Fund. She currently serves as the CEO/Managing Director of Least Authority in Berlin, a company supporting people’s right to privacy through security consulting and building secure solutions.\r\n \r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732719",
+        "title": "Existing Ecosystem Approaches to Inclusive and Accessible Digital Financial Services",
+        "description": "In today’s landscape of increasingly riskier digital experiences and the recent Crowdstrike related IT global outage, universal access to digital financial services is seen as a critical infrastructural resource.  Taking a decentralized approach that incorporates ethical design principles to safeguard the privacy, security, and autonomy of users is vital, that the  Interledger Protocol seeks to facilitate globally. By prioritising transparency, accountability, and consent in eminent aspects of development of digital financial services (DFS), we ensure alignment with human rights principles and international standards, as enshrined in the Universal Declaration of Human Rights. Drawing from a range of real-world examples and grounded in experiential knowledge from open source evangelists, this panel will illustrate the diverse use cases of the development and dissemination of digital public goods that support financial inclusion that facilitate access to financial services for underserved communities, while carefully addressing potential harms and respecting human rights. Recognizing the global nature of the DFS, our approach takes into account regional differences and cultural contexts from regions with internet blackouts, shutdowns and censorship across Africa, Asia and Europe. \r\n\r\nThe Interledger Protocol seeks to facilitate open, standard, and interoperable payment systems across the globe. The session discusses the very crux of this mission – the development and deployment usable, accessible and secure technical standards and protocols that pave way for decentralised digital infrastructure – by offering a nuanced view of adoption that can help shape the community’s strategy and ensure efforts align with the broader mission of inclusivity, community, and Open Tech.\r\n\r\nThis panel will also address the need for increased investment in resilient and trustworthy digital infrastructure that support the delivery of financial services, especially in rural and remote areas, among traditionally-excluded communities, and among low-income and/or disability communities, elderly people. The absence of of performing regular security, accessibility audits and privacy enhancing technologies as distinct categories in many grant program descriptions, despite the crucial role they play in the ecosystems, is a key to a long term sustainable ecosystem — especially when these systems are managing digital money and assets.\r\n\r\nThe adoption of secure decentralized solutions becomes not just advantageous, but essential for robust, reliable, and resilient operations in our interconnected ILP ecosystem. \r\n\r\n\r\n",
+        "startsAt": "2024-10-27T12:15:00",
+        "endsAt": "2024-10-27T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "295582aa-8c62-450c-a296-6c45573ea0fd",
+            "name": "Raashi Saxena"
+          },
+          {
+            "id": "23dfc112-b8df-4e82-968c-0b6e9fba3041",
+            "name": "Liz Steininger"
+          },
+          {
+            "id": "07f391c3-1f00-4c7d-a8f8-162d5a2dce73",
+            "name": "Victory Brown"
+          },
+          {
+            "id": "6b847b73-a655-43ec-9771-d7d2f557944b",
+            "name": "Ritu David"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The 40 minute session will include an interactive , circle-style workshop with participants of the summit. The workshop will serve as a co-learning space, where participants share their perspectives, what is being done, identify the gaps in financial services related to the digital rights, and brainstorm a way forward. \r\n\r\nThe session will begin by exploring the problem and gaps to access. It will subsequently move to identify potential solutions, approaches and perspectives to inclusive financial services, and cross-border remittances that would benefit HRDs. \r\n\r\nAt the end of the session  we hope each participant will be able to: \r\n1. Have a clear mapping of what is needed to build, and advocate for secure financial services that enhance remittances to activists working in at-risk locations in the global majority. \r\n2. Identify points of collaborations , and resources required to promote and support work on sustainable financial inclusion. \r\n\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "726153",
+        "title": "Getting the Money to Public Interest Technologists Building A Feminist Internet",
+        "description": "This is an interactive session that brings together  technologists, and digital rights defenders to map out contextual accessible financial service challenges while identifying possible inclusive technology solutions to advance financial access within the technology and human rights space.\r\n\r\nA significant aspect of Team Community’s work with digital rights defenders includes providing equity support to marginalised communities of colour, Africans, women, LGBTQ groups and indigenous people. Getting funding to most of these communities has been challenging, posing a structural barrier to accessing network and security resources.  For the most part, there is no way to get the money to the communities that need them.  Financial pathways have either been blocked or have extra layers of difficulty. Thus , increasing marginalities within digital rights defenders who work at the grassroots in the global majority.\r\n\r\nThe session’s goal is to collectively brainstorm and potentially answer the following questions:\r\n\r\n1. What are the key challenges and barriers digital rights defenders in the global majority experience with receiving funding that advance their work? \r\n2. What resources and efforts are needed to improve financial inclusivity? ",
+        "startsAt": "2024-10-27T12:15:00",
+        "endsAt": "2024-10-27T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "1b08a1e6-d254-420d-b70f-e7f6a198b165",
+            "name": "Mardiya Siba Yahaya"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267999,
+                "name": "Workshop (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "1. An introduction to Kanzu Banking and SACCOs digitised\r\n2. Understanding the Gender Gap in Financial Inclusion\r\n3. Women-centred design in Digital Financial Services. Financial Inclusion as a Driver of Gender Equality\r\n4. Before, during and after digitisation. \r\n5. Fauzia's story\r\n6. The impact at the grassroots levels\r\n7. Q&A\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "682327",
+        "title": "Empowering Women: Bridging the Gender Gap in Digital Financial Inclusion",
+        "description": "The importance of gender-sensitive approaches in promoting digital financial inclusion. It will highlight the unique barriers faced by women in accessing financial services and explore strategies for empowering women economically through innovative digital solutions.",
+        "startsAt": "2024-10-27T12:30:00",
+        "endsAt": "2024-10-27T13:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "4e4c1bab-cfb7-4170-b88e-38681cad10fe",
+            "name": "Maria Gorrettie Namuddu"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "5-person panel including host. \r\n\r\n1. Introduction (3 minutes)\r\n-Welcome and objectives of the session\r\n-Brief overview of the FinTech landscape in Africa\r\n-Importance of trust and open payments in financial inclusion\r\n2.Keynote Presentation (5 minutes)\r\n-Overview of current challenges and opportunities in Africa’s FinTech sector\r\n-The role of financial compliance in building trust and enabling open payments\r\n3. Panel Discussion (22 minutes)\r\n\r\n-Introduction of Panelists (2 minutes)\r\n-Brief bios and roles of each panelist\r\n\r\nDiscussion (15 minutes)\r\nKey topics: Overcoming compliance barriers, enhancing transparency, fostering collaboration.\r\nPanelists share insights, experiences, and innovative solutions\r\n\r\nModerator Q&A (8 minutes)\r\nModerator poses targeted questions to panelists to highlight specific points\r\n\r\n4. Audience Q&A (5 minutes)\r\n-Open floor for questions from the audience\r\n-Panelists provide responses and additional insights\r\n\r\n5. Closing Remarks (3 minutes)\r\n-Recap of key takeaways\r\n-Call to action for continued engagement and collaboration\r\n-Information on follow-up resources or next steps\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732595",
+        "title": "Building Trust and Advancing Open Payments in Africa’s Regulatory Ecosystem",
+        "description": "Fostering Trust and Advancing Open Payments in Africa's Regulatory Ecosystem panel explores strategies for fostering trust and advancing open payments within Africa’s FinTech ecosystem. Our focus will be on shaping inclusive financial compliance frameworks that can bridge gaps and facilitate broader participation in the global financial system.",
+        "startsAt": "2024-10-27T14:00:00",
+        "endsAt": "2024-10-27T14:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "2b7c7fbf-fcc7-4303-948b-7368602778e2",
+            "name": "Dre Ngare"
+          },
+          {
+            "id": "a6783a70-11c2-49e1-8b9c-c30c6dc929cd",
+            "name": "Jurgen Kuhnel"
+          },
+          {
+            "id": "e9505ac1-28e7-4bba-8be0-04c5a346a30c",
+            "name": "Tawanda Brandon"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The session will feature a series of snapshot presentations (5 mins each) about each country's path to open payments: starting with pioneering India, and then illustrating how Latin America is following a similar trajectory by focusing on the cases of Brazil, Peru and Chile. After the introductory remarks, we will open it up for questions, and conclude with a final round of reactions by all speakers (including to each other's comments) focusing on what lessons their country-study can offer to other countries that are planning to introduce or expand payment DPIs. ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732747",
+        "title": "Competition and financial inclusion: competing or complementing goals in DPI & interoperability",
+        "description": "Interoperability in the payments ecosystem and the implementation of a digital public infrastructure (DPI) for digital payments have the potential of fostering two separate goals: market competition and financial inclusion. Nevertheless, depending on the authority advancing each measure and the legal mandate it has been entrusted with, those objectives could be regarded as competing (one is considered, and the other one is neglected) or complementing (both are taken into account, even though one might be more prevalent).\r\nWe analyze how these two targets are considered by antitrust authorities, the central bank, and other relevant authorities in Brazil, India, Peru and Chile. These countries from the Global South share a similar path in terms of legal measures adopted in the digital payments ecosystem consisting of voluntary/ mandatory interoperability. However, some differences also exist, such as the industry-led ownership of India's United Payments Interface (UPI), whereas the Brazilian DPI is owned by its central bank. Furthermore, the countries are at different stages of implementation. India is seen as a pioneer in the field with its UPI being launched in 2016, while Brazil’s PIX has been active since 2020. Peru’s Central Bank first ordered mandatory interoperability in payments in 2022, and this year reached an agreement with the international arm of the National Payments Corporation of Payments, which runs India's UPI, to deploy a similar system in Peru. Chile seems to be at the beginning of a long path, where the Supreme Court declared the mandatory nature of interoperability this year and the Commission for Financial Markets introduced new regulations on the matter, following intense discussions (some still pending) with competition authorities.\r\nA number of actors play a role in pursuing the dual goals of furthering financial inclusion and market competition. This may include national competition authorities, central banks, government departments and industry associations. The institutional arrangements between these actors and coordination among them is paramount to providing predictability to all economic actors in the payment ecosystem and to the seamless attainment of the public interest goals of payment DPIs.",
+        "startsAt": "2024-10-27T15:00:00",
+        "endsAt": "2024-10-27T15:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "526711d3-3681-4fa1-aca6-d962efa1bb30",
+            "name": "Nicolo Zingales"
+          },
+          {
+            "id": "a8e2cd00-2d08-41b0-a6c3-4f43640d2276",
+            "name": "Andres Calderon Lopez"
+          },
+          {
+            "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+            "name": "Smriti Parsheera"
+          },
+          {
+            "id": "93026eb0-f1ab-4c49-9ba8-3e63f26a4bee",
+            "name": "Fernanda Pizarro"
+          },
+          {
+            "id": "3bce59a9-7f72-4005-b442-1fae30119442",
+            "name": "Hannah Draper"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Phil will give a presentation/talk with slides (or not if that's not possible) on Mojaloop's role in inclusive financial access. Outline can be seen in the description.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "681475",
+        "title": "Empowering Emerging Economies: Mojaloop's Role in Inclusive Financial Access",
+        "description": "Imagine a world where microledgers empower the 1.4 billion underserved in emerging economies to gain access to financial services, and a payment hub facilitates lower-cost instant fund transfers across nations' participating banks. This presentation will unveil how Mojaloop is turning this vision into reality, revolutionizing the accessibility of financial services in emerging economies. With national deployments in Rwanda, Mexico, and the Philippines, a regional deployment across the Common Market for Eastern and Southern Africa (COMESA) and promising proofs of concept underway in five diverse nations, Mojaloop has been actively expanding its reach. Given that the Interledger Protocol is a key part of Mojaloop’s tech stack, through Mojaloop, participants on the Interledger Network can access entire countries and regions. Mojaloop also empowers hub operators with instant, inclusive payment systems (IIPS) to connect thrift banks, rural banks, and microfinance institutions - ones currently excluded from payment networks due to high switching and on-ramp costs.  Furthermore, the presentation will explore how Mojaloop-enabled IIPS allows financial institutions to competitively price instant transactions, thus advancing inclusive financial access. Additionally, we'll illuminate Mojaloop's role as a catalyst for the emergence of new market players, enabling the aggressive development and marketing of innovative payment services to both consumers and merchants.\r\n",
+        "startsAt": "2024-10-27T15:00:00",
+        "endsAt": "2024-10-27T15:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "63e10977-23e9-4138-8d46-47351565ca2b",
+            "name": "Philip Green"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In this workshop, we want to present our current understanding of the problem and challenges, discuss technical possibilities  for the development of a solution based on ILP and build a network with other technical experts attending to the summit for a longer term collaboration.  \r\n\r\nWe do this in the following format: \r\n\r\n1. Introduction of the Project:A brief presentation of the project and its objectives.\r\n2. Co-creation Workshop: In subgroups, we will translate current project requirements into a technical architecture based on the Interledger Protocol (ILP).\r\n3. Presentation of Results and Reflection: The subgroups will present their findings, followed by a collective reflection.\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732729",
+        "title": "Trust-based banking technical session",
+        "description": "Undocumented people are excluded from many governmental services and cannot open a bank account in the Netherlands. This exclusion becomes more severe each day, as it is nearly impossible to survive with only cash. Shops and services in the city are rapidly moving towards accepting only card payments.\r\nWe have now been granted funding from Interledger, together our partner Here to Support, and with the support of the Municipality of Amsterdam and various partners in the Netherlands.",
+        "startsAt": "2024-10-27T15:00:00",
+        "endsAt": "2024-10-27T15:45:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "8c583b1f-4911-40e5-9c5a-3fdfc14c1181",
+            "name": "Pourya Omidi"
+          },
+          {
+            "id": "a86caa8f-cb2e-41a9-ac38-2ee2a6b5f0a0",
+            "name": "Taco van Dijk"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267999,
+                "name": "Workshop (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The outline for the talk/demo is:\r\n- Why an Interledger App for Canada and comparisons with CashApp\r\n- Key Features\r\n- The Development Story of the App and lessons for the community\r\n- Inteledger-enabled APIs for other Developers to integrate with\r\n- Demo\r\n- Conclusion",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "723325",
+        "title": "Introducing Chimoney App: The Interledger App bridging Canada and Africa",
+        "description": "This talk introduces the Chimoney App with features like Interledger Payment Pointer Creation, Funding, transfers to other Payment Pointers, and Web Monetization Support. Attendees will have an opportunity to see the App in action and create their own Payment Pointers. The talk will conclude with instructions on how to create a Chimoney Payment Pointer via API",
+        "startsAt": "2024-10-27T15:30:00",
+        "endsAt": "2024-10-27T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+            "name": "Uchi Uchibeke"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "1) (hopefully): a video/drawing that shows the complexity of our research in a understandable way\r\n2) explaining on the route to finding stakeholders (Here to Support)\r\n3) explaining the importance of the collaboration between tech&social work (de Waag(\r\n4) Talking about how to get the undocumented communities \r\ninvolved\r\n5) conclusion and questions from audience",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "732717",
+        "title": "Financial Inclusion for Undocumented Communities: From Strategies to Practices",
+        "description": "Undocumented communities such as refugees, asylum seekers, and migrants often face significant barriers to accessing digital financial services involuntarily, despite affordable and accessible digital financial services being crucial for their economic integration and empowerment. In order to gain some successful solutions against this exclusion, we needed to build a strong coalition of different partners in different sectors. \r\nWhat strategies can be leveraged to advance financial inclusion for underrepresented communities like these? Which coalitions should be built, what kind of technologies are needed, and what movements should be connected to?\r\nThis panel features diverse experts: Malou Lintmeijer, Savannah Koolen, and Eunice de Asis, all from Stichting Here to Support, a current grantee of Interledger Foundation, working on increasing financial inclusion of refugees and undocumented migrants in the Netherlands together with De Waag and the support of Municipality of Amsterdam; Daphnee Prates Iglesias, policy advisor at UN-IGF, currently leading a working group on digital access, and previously Financial Inclusion Policy Officer at International Rescue Committee;and Sarah Habib, a FinTech Strategies from London that has worked with several FinTech Startups that focuses on supporting refugees. Together, we ask the question: What is the combined role of NGO’s, institutions and communities to create innovative solutions to make social and policy change? They will offer perspectives from their past work and provide a potential blueprint for advancing digital financial rights for refugees, asylum seekers, and migrants.\r\n\r\n\r\n\r\n",
+        "startsAt": "2024-10-27T15:45:00",
+        "endsAt": "2024-10-27T16:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "a055a6cf-45d9-4cd2-8273-435ad54d5baf",
+            "name": "Malou Lintmeijer"
+          },
+          {
+            "id": "6b4980b6-a70f-413d-884d-28c3dd8daf16",
+            "name": "Savannah Koolen"
+          },
+          {
+            "id": "677f8255-1bd2-40b9-8441-3acd0f1c829f",
+            "name": "Sarah Habib"
+          },
+          {
+            "id": "836d5658-b522-46f2-a032-6cd7debf0101",
+            "name": "Eunice de Asis"
+          },
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          },
+          {
+            "id": "5f635035-6608-4d43-a0fe-e64717a742b3",
+            "name": "Daphnee Prates Iglesias"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267998,
+                "name": "Panel (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "754678",
+        "title": "Codius Fireside Chat",
+        "description": "Join us for a panel discussion about Codius and Interledger - the namesakes of Coil that remain interconnected.\r\n\r\nCoil’s latest approach to Codius takes learnings from previous iterations that were constrained by limitations of ILP at the time.",
+        "startsAt": "2024-10-27T15:45:00",
+        "endsAt": "2024-10-27T16:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "3e80acea-13f9-4fd2-8e9a-e4b715297d9a",
+            "name": "Sabine Schaller"
+          },
+          {
+            "id": "aa3deed9-666b-4a27-8a26-b2c792a42663",
+            "name": "Alex Lakatos"
+          },
+          {
+            "id": "b136ab7f-e6f9-41ce-9e6c-935c5f0a5a3d",
+            "name": "Stefan Thomas"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267999,
+                "name": "Workshop (40 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48362,
+        "room": "Room 11: Workshops & Talks",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "* Introduction to the Interledger Card\r\n* How the Card Works\r\n* Unique Features and Limitations\r\n* Memorabilia and Privacy\r\n* Future Vision for Payment Networks\r\n* Q&A",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "687571",
+        "title": "The Future of Payments in Your Pocket",
+        "description": "Developed as a joint venture between GateHub and the Interledger Foundation, this card integrates a real payment pointer and links directly to your wallet, unlocking new possibilities for transactions, interoperability, and global financial access. Learn how this innovative piece of memorabilia is not just a symbol but a functional tool for driving the future of payments.",
+        "startsAt": "2024-10-27T16:00:00",
+        "endsAt": "2024-10-27T16:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+            "name": "Tadej Golobic"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 267997,
+                "name": "Talk or demos (25 mins)"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 48361,
+        "room": "Hall C: Talks & Demos",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 70801,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "753052",
+        "title": "Interledger Summit Closing Plenary",
+        "description": null,
+        "startsAt": "2024-10-27T17:00:00",
+        "endsAt": "2024-10-27T17:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": true,
+        "speakers": [
+          {
+            "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+            "name": "Chris Lawrence"
+          }
+        ],
+        "categories": [
+          {
+            "id": 70793,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 48360,
+        "room": "Hall A: Mainstage & Panels",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      }
+    ],
+    "isDefault": false
+  }
+]

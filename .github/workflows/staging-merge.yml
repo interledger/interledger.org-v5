@@ -183,6 +183,10 @@ jobs:
         run: |
           set -euo pipefail
 
+          source ~/.bashrc
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm not installed at $NVM_DIR"; exit 1; }
+          . "$NVM_DIR/nvm.sh"
           nvm use 22
           PNPM_VERSION=10.27.0
           corepack enable
@@ -206,13 +210,26 @@ jobs:
             exit 1
           fi
 
-          cd /home/strapi/interledger.org-v5-staging/cms
           # Stop the service while we rebuild
           sudo systemctl stop strapi.service
-          # Install dependencies in case there are new ones from the merged PRs
+
+          cd /home/strapi/interledger.org-v5-staging
+
+          # nuclear option to ensure no old dependencies or build artifacts interfere with the new build after merging changess
+          rm -rf cms/node_modules
+          rm -rf cms/dist
+          rm -rf node_modules
           pnpm install
+          cd cms
+          pnpm install
+
+          cd /home/strapi/interledger.org-v5-staging
           # Rebuild with more memory to avoid OOM errors during build
           NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
+          cd /home/strapi/interledger.org-v5-staging/cms
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
           sudo systemctl start strapi.service
           sleep 5
           sudo systemctl status strapi.service

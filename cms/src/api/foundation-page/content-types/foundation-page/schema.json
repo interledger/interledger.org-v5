@@ -21,7 +21,7 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "targetField": "title",
       "required": true,

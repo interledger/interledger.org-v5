@@ -4,7 +4,7 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
 
 const pages = await getCollection('foundation-pages')
-const homePage = pages.find((page) => page.data.slug === 'home')
+const homePage = pages.find((page) => page.data.pathSlug === 'home')
 
 if (!homePage) {
   throw new Error('Homepage not found in foundation-pages collection')

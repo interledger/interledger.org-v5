@@ -42,7 +42,7 @@ export type JsxBlockNode = MdxJsxFlowElement | MdxJsxTextElement
  * Receives the AST node and an opaque context (for relation resolution
  * etc.) and returns one or more block payloads.
  *
- * Handlers are async to support relation lookups (e.g. ambassador slug
+ * Handlers are async to support relation lookups (e.g. ambassador pathSlug
  * resolution).
  */
 export type ComponentHandler = (
@@ -59,15 +59,15 @@ export interface ParserContext {
   /** Locale of the MDX file being parsed. */
   locale: string
   /**
-   * Resolve a relation slug to a Strapi document ID.
+   * Resolve a relation pathSlug to a Strapi document ID.
    * Provided by the caller for handlers that reference other content types.
    *
    * @param apiId - Strapi API identifier (e.g. 'ambassadors')
-   * @param slug  - Content slug to look up
+   * @param pathSlug  - Content pathSlug to look up
    */
   resolveRelation?: (
     apiId: string,
-    slug: string
+    pathSlug: string
   ) => Promise<{ documentId: string }>
   /**
    * Resolve an internal upload path to a Strapi upload file integer ID.
@@ -133,8 +133,8 @@ function unwrapTextElement(
  * @example
  * ```ts
  * // Given MDX body:
- * //   <Ambassador slug="caroline-sinders" showLinks={false} />
- * //   <AmbassadorGrid heading="Our Team" slugs={["alice","bob"]} />
+ * //   <Ambassador pathSlug="caroline-sinders" showLinks={false} />
+ * //   <AmbassadorGrid heading="Our Team" pathSlugs={["alice","bob"]} />
  * //
  * // Returns (once handlers are registered):
  * // [
