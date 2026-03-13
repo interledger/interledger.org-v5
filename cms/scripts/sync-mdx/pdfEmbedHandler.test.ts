@@ -145,10 +145,7 @@ describe('PdfEmbed handler — all props present', () => {
 describe('PdfEmbed handler — errors', () => {
   it('throws MISSING_REQUIRED_PROP when url is missing', async () => {
     await expect(
-      parseMdxToBlocks(
-        '<PdfEmbed analyticsEvent="report" />',
-        ctxWith()
-      )
+      parseMdxToBlocks('<PdfEmbed analyticsEvent="report" />', ctxWith())
     ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
   })
 
