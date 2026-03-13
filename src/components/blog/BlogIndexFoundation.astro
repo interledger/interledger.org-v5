@@ -28,6 +28,10 @@ const path = '/blog'
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      const postPath =
+        blogPostEntry.data.locale && blogPostEntry.data.locale !== 'en'
+          ? `/${blogPostEntry.data.locale}${path}/${blogPostEntry.data.pathSlug}`
+          : `${path}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
           <div class="shrink-0">
@@ -45,7 +49,7 @@ const path = '/blog'
           <div class="flex flex-col flex-1">
             <h2 class="text-step-1 mb-space-3xs">
               <a
-                href={`${path}/${blogPostEntry.id}`}
+                href={postPath}
                 class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
               >
                 {blogPostEntry.data.title}
@@ -63,7 +67,7 @@ const path = '/blog'
                 : excerpt}
             </p>
             <a
-              href={`/blog/${blogPostEntry.id}`}
+              href={postPath}
               class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
             >
               Read more

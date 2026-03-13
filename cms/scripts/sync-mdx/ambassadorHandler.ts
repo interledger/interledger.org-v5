@@ -2,10 +2,10 @@
  * Ambassador + AmbassadorGrid component handlers for the MDX block parser.
  *
  * Handles:
- * - <Ambassador slug="..." showLinks={true|false} />
- * - <AmbassadorGrid heading="..." slugs={["a","b"]} />
+ * - <Ambassador pathSlug="..." showLinks={true|false} />
+ * - <AmbassadorGrid heading="..." pathSlugs={["a","b"]} />
  *
- * Both handlers resolve ambassador slugs to Strapi document IDs
+ * Both handlers resolve ambassador pathSlugs to Strapi document IDs
  * via the generic `resolveRelation` function on ParserContext.
  */
 
@@ -38,19 +38,19 @@ import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 export function createRelationResolver(
   strapi: StrapiClient,
   locale: string
-): (apiId: string, slug: string) => Promise<{ documentId: string }> {
-  return async (apiId: string, slug: string) => {
-    const entry = await strapi.findBySlug(apiId, slug, locale)
+): (apiId: string, pathSlug: string) => Promise<{ documentId: string }> {
+  return async (apiId: string, pathSlug: string) => {
+    const entry = await strapi.findByPathSlug(apiId, pathSlug, locale)
     if (entry) return { documentId: entry.documentId }
 
     if (locale !== 'en') {
-      const fallback = await strapi.findBySlug(apiId, slug, 'en')
+      const fallback = await strapi.findByPathSlug(apiId, pathSlug, 'en')
       if (fallback) return { documentId: fallback.documentId }
     }
 
     throw new MdxParserError({
       code: ParserErrorCode.UNRESOLVED_RELATION,
-      message: `Slug "${slug}" could not be resolved for "${apiId}" in locale "${locale}" or "en".`
+      message: `pathSlug "${pathSlug}" could not be resolved for "${apiId}" in locale "${locale}" or "en".`
     })
   }
 }
@@ -63,10 +63,10 @@ async function handleAmbassador(
   node: JsxBlockNode,
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
-  const slug = getStringAttr(node, 'slug', { required: true })
+  const pathSlug = getStringAttr(node, 'pathSlug', { required: true })
   const showLinks = getBooleanAttr(node, 'showLinks')
 
-  const { documentId } = await ctx.resolveRelation!('ambassadors', slug)
+  const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
 
   const block: AmbassadorBlock = {
     __component: 'blocks.ambassador',
@@ -89,10 +89,10 @@ async function handleAmbassadorGrid(
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const heading = getStringAttr(node, 'heading')
-  const slugs = getStringArrayAttr(node, 'slugs', { required: true })
+  const pathSlugs = getStringArrayAttr(node, 'pathSlugs', { required: true })
 
   const resolved = await Promise.all(
-    slugs.map((slug) => ctx.resolveRelation!('ambassadors', slug))
+    pathSlugs.map((pathSlug) => ctx.resolveRelation!('ambassadors', pathSlug))
   )
 
   const block: AmbassadorsGridBlock = {

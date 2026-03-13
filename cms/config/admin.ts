@@ -8,7 +8,7 @@ const getPreviewPathname = (
   switch (uid) {
     case 'api::foundation-blog-post.foundation-blog-post':
       return document?.documentId
-        ? `/blog/preview?slug=${document.documentId}&type=foundation`
+        ? `/blog/preview?pathSlug=${document.documentId}&type=foundation`
         : '/blog'
     case 'api::foundation-page.foundation-page':
       // documentId comes directly from the handler — no findOne needed

@@ -2,7 +2,7 @@
 title: 'The Telemetry Tale: A Journey into the Metrics of Interledger'
 description: When simple metrics are paired with complex cloud solutions and important privacy considerations, the implementation process becomes significantly more complicated.
 date: 2024-04-10
-slug: the-telemetry-tale
+pathSlug: the-telemetry-tale
 locale: en
 authors:
   - Sarah Jones

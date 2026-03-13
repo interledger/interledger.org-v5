@@ -9,7 +9,7 @@ import type { MediaFile } from '../../../types/shared/types'
 export interface AmbassadorBase {
   id?: number
   documentId?: string
-  slug: string
+  pathSlug: string
   name: string
   description?: string
   photo?: MediaFile | null
