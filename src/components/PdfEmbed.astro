@@ -14,7 +14,7 @@ const { url, label = 'Download PDF', analyticsEvent } = Astro.props
     width="100%"
     class="min-h-150 w-full"
   >
-    <a href={url} class="cta--btn__link" data-umami-event={analyticsEvent}>
+    <a href={url} download class="cta--btn__link" data-umami-event={analyticsEvent}>
       {label}
     </a>
   </object>
