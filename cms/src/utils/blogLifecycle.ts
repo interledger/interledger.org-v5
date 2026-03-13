@@ -116,7 +116,10 @@ async function writeMDXFile({
   outputPath: string
   post: BlogResult
 }): Promise<string> {
-  const filename = generateFilename({ date: post.date, pathSlug: post.pathSlug })
+  const filename = generateFilename({
+    date: post.date,
+    pathSlug: post.pathSlug
+  })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
 
@@ -134,7 +137,10 @@ async function deleteMDXFile({
   outputPath: string
   post: BlogResult
 }): Promise<string | null> {
-  const filename = generateFilename({ date: post.date, pathSlug: post.pathSlug })
+  const filename = generateFilename({
+    date: post.date,
+    pathSlug: post.pathSlug
+  })
   const filepath = path.join(outputPath, filename)
 
   try {
@@ -167,7 +173,10 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${result.pathSlug}`)
-      await writeMDXFile({ outputPath: getOutputPath(result.locale), post: result })
+      await writeMDXFile({
+        outputPath: getOutputPath(result.locale),
+        post: result
+      })
       scheduleGitSync(label)
     },
 
