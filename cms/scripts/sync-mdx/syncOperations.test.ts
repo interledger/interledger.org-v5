@@ -34,14 +34,14 @@ function createMockStrapi() {
   return {
     request: vi.fn().mockResolvedValue({}),
     getAllEntries: vi.fn().mockResolvedValue([]),
-    findBySlug: vi.fn().mockResolvedValue(undefined),
+    findByPathSlug: vi.fn().mockResolvedValue(undefined),
     findUploadByUrl: vi.fn().mockResolvedValue(null),
     createEntry: vi
       .fn()
-      .mockResolvedValue({ data: { documentId: 'new-1', slug: 'test' } }),
+      .mockResolvedValue({ data: { documentId: 'new-1', pathSlug: 'test' } }),
     updateEntry: vi
       .fn()
-      .mockResolvedValue({ data: { documentId: '1', slug: 'test' } }),
+      .mockResolvedValue({ data: { documentId: '1', pathSlug: 'test' } }),
     createLocalization: vi.fn().mockResolvedValue({}),
     updateLocalization: vi.fn().mockResolvedValue({}),
     deleteEntry: vi.fn().mockResolvedValue({}),
@@ -51,7 +51,7 @@ function createMockStrapi() {
 
 const buildPayloadMock = vi
   .fn()
-  .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+  .mockResolvedValue({ title: 'Mocked Payload', pathSlug: 'mocked' })
 
 const baseConfig = {
   dir: '/content/foundation-pages',
@@ -66,7 +66,7 @@ const contentTypes = {
     apiId: 'summit-pages',
     buildPayload: vi
       .fn()
-      .mockResolvedValue({ title: 'Mocked Payload', slug: 'mocked' })
+      .mockResolvedValue({ title: 'Mocked Payload', pathSlug: 'mocked' })
   }
 } as unknown as ContentTypes
 
@@ -79,16 +79,16 @@ function createResults(): SyncResults {
 describe('syncEnglishEntry', () => {
   it('creates entry when no existing entry found', async () => {
     const strapi = createMockStrapi()
-    // findBySlug returns undefined = no existing entry, so we create
-    strapi.findBySlug.mockResolvedValue(undefined)
+    // findByPathSlug returns undefined = no existing entry, so we create
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     strapi.createEntry.mockResolvedValue({
-      data: { documentId: 'created-1', slug: 'about' }
+      data: { documentId: 'created-1', pathSlug: 'about' }
     })
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'about',
-      frontmatter: { title: 'About', slug: 'about' },
+      pathSlug: 'about',
+      frontmatter: { title: 'About', pathSlug: 'about' },
       content: 'Body'
     })
 
@@ -112,15 +112,15 @@ describe('syncEnglishEntry', () => {
 
   it('updates entry when existing entry found', async () => {
     // Simulate finding an existing entry in Strapi
-    const existing: StrapiEntry = { documentId: 'doc-1', slug: 'about' }
+    const existing: StrapiEntry = { documentId: 'doc-1', pathSlug: 'about' }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existing)
+    strapi.findByPathSlug.mockResolvedValue(existing)
     strapi.updateEntry.mockResolvedValue({ data: existing })
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'about',
-      frontmatter: { title: 'About', slug: 'about' }
+      pathSlug: 'about',
+      frontmatter: { title: 'About', pathSlug: 'about' }
     })
 
     await syncEnglishEntry(
@@ -146,16 +146,16 @@ describe('syncEnglishEntry', () => {
   it('passes existing entry to buildPayload for hero fallback', async () => {
     const existing: StrapiEntry = {
       documentId: 'doc-1',
-      slug: 'about',
+      pathSlug: 'about',
       hero: { url: '/existing-hero.jpg' }
     }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existing)
+    strapi.findByPathSlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'about',
-      frontmatter: { title: 'About', slug: 'about' }
+      pathSlug: 'about',
+      frontmatter: { title: 'About', pathSlug: 'about' }
     })
 
     await syncEnglishEntry(
@@ -173,12 +173,12 @@ describe('syncEnglishEntry', () => {
   // Dry run mode: count what would happen without actually calling Strapi
   it('dry run increments created counter without calling createEntry', async () => {
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'about',
-      frontmatter: { title: 'About', slug: 'about' }
+      pathSlug: 'about',
+      frontmatter: { title: 'About', pathSlug: 'about' }
     })
 
     await syncEnglishEntry(
@@ -196,14 +196,14 @@ describe('syncEnglishEntry', () => {
   })
 
   it('dry run increments updated counter without calling updateEntry', async () => {
-    const existing: StrapiEntry = { documentId: 'doc-1', slug: 'about' }
+    const existing: StrapiEntry = { documentId: 'doc-1', pathSlug: 'about' }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existing)
+    strapi.findByPathSlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'about',
-      frontmatter: { title: 'About', slug: 'about' }
+      pathSlug: 'about',
+      frontmatter: { title: 'About', pathSlug: 'about' }
     })
 
     await syncEnglishEntry(
@@ -220,12 +220,12 @@ describe('syncEnglishEntry', () => {
   })
 
   it('returns existing entry on dry run update', async () => {
-    const existing: StrapiEntry = { documentId: 'doc-1', slug: 'about' }
+    const existing: StrapiEntry = { documentId: 'doc-1', pathSlug: 'about' }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existing)
+    strapi.findByPathSlug.mockResolvedValue(existing)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = createMdxFile({ slug: 'about' })
+    const mdx = createMdxFile({ pathSlug: 'about' })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -242,10 +242,10 @@ describe('syncEnglishEntry', () => {
   // Dry run creates need to return something so locale sync can continue
   it('returns dry run placeholder entry on dry run create', async () => {
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
-    const mdx = createMdxFile({ slug: 'new-page' })
+    const mdx = createMdxFile({ pathSlug: 'new-page' })
 
     const entry = await syncEnglishEntry(
       'foundation-pages',
@@ -257,7 +257,7 @@ describe('syncEnglishEntry', () => {
     )
 
     expect(entry?.documentId).toBe('dry-run-id')
-    expect(entry?.slug).toBe('new-page')
+    expect(entry?.pathSlug).toBe('new-page')
   })
 })
 
@@ -266,23 +266,23 @@ describe('syncEnglishEntry', () => {
 describe('syncLocaleEntry', () => {
   const englishEntry: StrapiEntry = {
     documentId: 'en-1',
-    slug: 'about',
+    pathSlug: 'about',
     locale: 'en'
   }
 
   it('creates localization when none exists', async () => {
     const strapi = createMockStrapi()
     // No existing locale entry = create new localization
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       frontmatter: {
         title: 'Sobre',
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         localizes: 'about'
       }
     })
@@ -310,20 +310,20 @@ describe('syncLocaleEntry', () => {
     // Simulate existing Spanish localization
     const existingLocale: StrapiEntry = {
       documentId: 'es-1',
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es'
     }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existingLocale)
+    strapi.findByPathSlug.mockResolvedValue(existingLocale)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       frontmatter: {
         title: 'Sobre',
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         localizes: 'about'
       }
     })
@@ -350,13 +350,13 @@ describe('syncLocaleEntry', () => {
   // Same locale defaulting as buildMdxSlugsByLocale — keeps behavior consistent
   it('defaults locale to en when mdx.locale is undefined', async () => {
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'some-page',
+      pathSlug: 'some-page',
       locale: undefined,
-      frontmatter: { title: 'Some', slug: 'some-page' }
+      frontmatter: { title: 'Some', pathSlug: 'some-page' }
     })
 
     await syncLocaleEntry(
@@ -369,7 +369,7 @@ describe('syncLocaleEntry', () => {
       false
     )
 
-    expect(strapi.findBySlug).toHaveBeenCalledWith(
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
       'foundation-pages',
       'some-page',
       'en'
@@ -378,11 +378,11 @@ describe('syncLocaleEntry', () => {
 
   it('dry run increments created counter without calling createLocalization', async () => {
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es'
     })
 
@@ -403,15 +403,15 @@ describe('syncLocaleEntry', () => {
   it('dry run increments updated counter without calling updateLocalization', async () => {
     const existingLocale: StrapiEntry = {
       documentId: 'es-1',
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es'
     }
     const strapi = createMockStrapi()
-    strapi.findBySlug.mockResolvedValue(existingLocale)
+    strapi.findByPathSlug.mockResolvedValue(existingLocale)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es'
     })
 
@@ -439,7 +439,7 @@ describe('deleteOrphanedEntries', () => {
     mockedHasMdxFile.mockReturnValue(false)
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: '1', slug: 'orphan', locale: 'en' }
+      { documentId: '1', pathSlug: 'orphan', locale: 'en' }
     ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -469,7 +469,7 @@ describe('deleteOrphanedEntries', () => {
     mockedHasMdxFile.mockReturnValue(true)
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: '2', slug: 'kept', locale: 'en' }
+      { documentId: '2', pathSlug: 'kept', locale: 'en' }
     ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -496,10 +496,10 @@ describe('deleteOrphanedEntries', () => {
     const strapi = createMockStrapi()
     strapi.getAllEntries
       .mockResolvedValueOnce([
-        { documentId: '1', slug: 'orphan-en', locale: 'en' }
+        { documentId: '1', pathSlug: 'orphan-en', locale: 'en' }
       ])
       .mockResolvedValueOnce([
-        { documentId: '2', slug: 'orphan-es', locale: 'es' }
+        { documentId: '2', pathSlug: 'orphan-es', locale: 'es' }
       ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -527,7 +527,7 @@ describe('deleteOrphanedEntries', () => {
     const strapi = createMockStrapi()
     // Querying 'en' but entry has locale 'fr' — use 'fr' for operations
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: '1', slug: 'test', locale: 'fr' }
+      { documentId: '1', pathSlug: 'test', locale: 'fr' }
     ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -560,7 +560,7 @@ describe('deleteOrphanedEntries', () => {
     mockedHasMdxFile.mockReturnValue(false)
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: '1', slug: 'orphan', locale: 'en' }
+      { documentId: '1', pathSlug: 'orphan', locale: 'en' }
     ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -586,7 +586,7 @@ describe('deleteOrphanedEntries', () => {
     mockedHasMdxFile.mockReturnValue(false)
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: '1', slug: 'failing', locale: 'en' }
+      { documentId: '1', pathSlug: 'failing', locale: 'en' }
     ])
     strapi.deleteLocalization.mockRejectedValue(new Error('Delete failed'))
     const ctx: SyncContext = { contentTypes, strapi }
@@ -613,23 +613,23 @@ describe('deleteOrphanedEntries', () => {
 describe('syncUnmatchedLocales', () => {
   it('creates localization when match found in Strapi', async () => {
     const localeMdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us',
       frontmatter: {
         title: 'Sobre',
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         localizes: 'about-us'
       }
     })
     // Simulate English entry existing in Strapi (but not in MDX)
     const allStrapiEntries: StrapiEntry[] = [
-      { documentId: 'en-1', slug: 'about-us', locale: 'en' }
+      { documentId: 'en-1', pathSlug: 'about-us', locale: 'en' }
     ]
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue(allStrapiEntries)
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const matchedSlugs = new Set<string>()
@@ -656,16 +656,16 @@ describe('syncUnmatchedLocales', () => {
   // Track which locales we've processed to avoid duplicates
   it('adds matched locale to matchedSlugs set', async () => {
     const localeMdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
     })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: 'en-1', slug: 'about-us', locale: 'en' }
+      { documentId: 'en-1', pathSlug: 'about-us', locale: 'en' }
     ])
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const matchedSlugs = new Set<string>()
@@ -686,7 +686,7 @@ describe('syncUnmatchedLocales', () => {
   // Can't create a localization without an English parent
   it('does not create when no matching English entry in Strapi', async () => {
     const localeMdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'nonexistent'
@@ -715,7 +715,7 @@ describe('syncUnmatchedLocales', () => {
   // Skip locales already processed in the main sync loop
   it('skips already matched locale slugs', async () => {
     const localeMdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
@@ -761,16 +761,16 @@ describe('syncUnmatchedLocales', () => {
 
   it('defaults locale to en when mdx.locale is undefined', async () => {
     const localeMdx = createMdxFile({
-      slug: 'some-page',
+      pathSlug: 'some-page',
       locale: undefined,
       isLocalization: true,
       localizes: 'english-page'
     })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: 'en-1', slug: 'english-page', locale: 'en' }
+      { documentId: 'en-1', pathSlug: 'english-page', locale: 'en' }
     ])
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const matchedSlugs = new Set<string>()
@@ -790,16 +790,16 @@ describe('syncUnmatchedLocales', () => {
 
   it('increments errors counter when syncLocaleEntry fails', async () => {
     const localeMdx = createMdxFile({
-      slug: 'sobre-nosotros',
+      pathSlug: 'sobre-nosotros',
       locale: 'es',
       isLocalization: true,
       localizes: 'about-us'
     })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: 'en-1', slug: 'about-us', locale: 'en' }
+      { documentId: 'en-1', pathSlug: 'about-us', locale: 'en' }
     ])
-    strapi.findBySlug.mockResolvedValue(undefined)
+    strapi.findByPathSlug.mockResolvedValue(undefined)
     strapi.createLocalization.mockRejectedValue(new Error('API error'))
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
@@ -821,14 +821,14 @@ describe('syncUnmatchedLocales', () => {
   // localizes: null means this locale file doesn't know which English page it translates
   it('does not match when localizes is null', async () => {
     const localeMdx = createMdxFile({
-      slug: 'orphan-page',
+      pathSlug: 'orphan-page',
       locale: 'es',
       isLocalization: true,
       localizes: null
     })
     const strapi = createMockStrapi()
     strapi.getAllEntries.mockResolvedValue([
-      { documentId: 'en-1', slug: 'about-us', locale: 'en' }
+      { documentId: 'en-1', pathSlug: 'about-us', locale: 'en' }
     ])
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()

@@ -10,7 +10,6 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  // TODO Translation work goes here
   // i18n: {
   //   locales: ['es', 'en'],
   //   defaultLocale: 'en',

@@ -5,9 +5,9 @@ describe('MdxParserError', () => {
   it('sets code, message, and component', () => {
     const err = new MdxParserError({
       code: ParserErrorCode.MISSING_REQUIRED_PROP,
-      message: 'Required prop "slug" is missing.',
+      message: 'Required prop "pathSlug" is missing.',
       component: 'Ambassador',
-      prop: 'slug'
+      prop: 'pathSlug'
     })
 
     expect(err).toBeInstanceOf(Error)
@@ -15,9 +15,9 @@ describe('MdxParserError', () => {
     expect(err.name).toBe('MdxParserError')
     expect(err.code).toBe(ParserErrorCode.MISSING_REQUIRED_PROP)
     expect(err.component).toBe('Ambassador')
-    expect(err.prop).toBe('slug')
+    expect(err.prop).toBe('pathSlug')
     expect(err.message).toContain('Ambassador')
-    expect(err.message).toContain('slug')
+    expect(err.message).toContain('pathSlug')
   })
 
   it('includes line/column in message when provided', () => {

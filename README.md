@@ -333,7 +333,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
+  - Example: Creating a foundation page in Strapi generates `src/content/foundation-pages/{pathSlug}.mdx` for English and `src/content/foundation-pages/{locale}/{pathSlug}.mdx` for localizations.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -356,6 +356,7 @@ Astro automatically picks up these files, registers them in the appropriate cont
 **Foundation Blog posts**
 
 - Location: `src/content/foundation-blog-posts`
+- Localizations: `src/content/foundation-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Foundation news, updates, announcements, thought leadership.
@@ -363,6 +364,7 @@ Used for: Foundation news, updates, announcements, thought leadership.
 **Tech Blog posts**
 
 - Location: `src/content/developers-blog-posts`
+- Localizations: `src/content/developers-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Technical deep dives, implementation updates, engineering insights.
@@ -370,6 +372,7 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
+- Localizations: `src/content/foundation-pages/{locale}`
 - Filename format: `slug.mdx`
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
@@ -377,6 +380,7 @@ Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants
 **Summit Pages**
 
 - Location: `src/content/summit-pages`
+- Localizations: `src/content/summit-pages/{locale}`
 - Filename format: `slug.mdx`
 
 Used for: Summit landing pages, schedules, speaker lists, event resources.

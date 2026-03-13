@@ -17,7 +17,7 @@ import { scheduleGitSync } from './gitSync'
 
 export interface FlatContentLifecycleConfig<
   T extends {
-    slug: string
+    pathSlug: string
     name?: string
     locale?: string
     publishedAt?: string
@@ -45,7 +45,7 @@ declare const strapi: { documents: (uid: string) => StrapiDocumentAPI }
 
 export interface FlatLocaleMdxLifecycleConfig<
   T extends {
-    slug: string
+    pathSlug: string
     name?: string
     locale?: string
     documentId?: string
@@ -67,7 +67,7 @@ export interface FlatLocaleMdxLifecycleConfig<
  */
 export function createFlatLocaleMdxLifecycle<
   T extends {
-    slug: string
+    pathSlug: string
     name?: string
     locale?: string
     documentId?: string
@@ -105,7 +105,7 @@ export function createFlatLocaleMdxLifecycle<
 
   async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
     const baseDir = getBaseDir(entry.locale)
-    const filepath = path.join(baseDir, `${entry.slug}.mdx`)
+    const filepath = path.join(baseDir, `${entry.pathSlug}.mdx`)
     await fs.promises.mkdir(baseDir, { recursive: true })
     await fs.promises.writeFile(
       filepath,
@@ -119,7 +119,7 @@ export function createFlatLocaleMdxLifecycle<
   async function exportAllLocales(documentId: string): Promise<string[]> {
     const filepaths: string[] = []
     const englishEntry = await fetchPublished(documentId, 'en')
-    const englishSlug = englishEntry?.slug
+    const englishSlug = englishEntry?.pathSlug
 
     for (const locale of LOCALES) {
       try {
@@ -143,8 +143,8 @@ export function createFlatLocaleMdxLifecycle<
     return filepaths
   }
 
-  function getFilePath(locale: string, slug: string): string {
-    return path.join(getBaseDir(locale), `${slug}.mdx`)
+  function getFilePath(locale: string, pathSlug: string): string {
+    return path.join(getBaseDir(locale), `${pathSlug}.mdx`)
   }
 
   return {
@@ -153,7 +153,9 @@ export function createFlatLocaleMdxLifecycle<
       if (shouldSkipMdxExport()) return
       if (!result?.documentId || !result.publishedAt) return
 
-      console.log(`📝 Creating ${label} MDX for all locales: ${result.slug}`)
+      console.log(
+        `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
+      )
       await exportAllLocales(result.documentId)
       scheduleGitSync(label)
     },
@@ -163,14 +165,19 @@ export function createFlatLocaleMdxLifecycle<
       if (shouldSkipMdxExport()) return
       if (!result?.documentId) return
 
-      console.log(`🗑️  Deleting ${label} MDX for all locales: ${result.slug}`)
+      console.log(
+        `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
+      )
 
       removeLocalizesFromLocaleFiles(
-        result.slug,
+        result.pathSlug,
         (locale) => getBaseDir(locale),
         label
       )
-      deleteLocaleMdxFiles((locale) => getFilePath(locale, result.slug), label)
+      deleteLocaleMdxFiles(
+        (locale) => getFilePath(locale, result.pathSlug),
+        label
+      )
 
       scheduleGitSync(label)
     }

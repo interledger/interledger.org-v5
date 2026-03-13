@@ -8,7 +8,7 @@ interface BlogResult {
   documentId: string
   title: string
   description: string
-  slug: string
+  pathSlug: string
   date: string
   content: string
   createdAt: Date
@@ -48,13 +48,13 @@ const q = yamlSingleQuote
 
 function generateFilename({
   date,
-  slug
+  pathSlug
 }: {
   date: string
-  slug: string
+  pathSlug: string
 }): string {
   const prefix = date ? `${date}-` : ''
-  return `${prefix}${slug}.mdx`
+  return `${prefix}${pathSlug}.mdx`
 }
 
 function generateBlogMDX(post: BlogResult) {
@@ -80,7 +80,7 @@ function generateBlogMDX(post: BlogResult) {
     `title: '${q(post.title)}'`,
     `description: '${q(post.description)}'`,
     `date: ${post.date}`,
-    `slug: ${post.slug}`,
+    `pathSlug: ${post.pathSlug}`,
     `pillar: '${q(post.pillar)}'`,
     post.featureImage?.url
       ? `featureImage: '${q(post.featureImage.url)}'`
@@ -116,7 +116,7 @@ async function writeMDXFile({
   outputPath: string
   post: BlogResult
 }): Promise<string> {
-  const filename = generateFilename({ date: post.date, slug: post.slug })
+  const filename = generateFilename({ date: post.date, pathSlug: post.pathSlug })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
 
@@ -134,7 +134,7 @@ async function deleteMDXFile({
   outputPath: string
   post: BlogResult
 }): Promise<string | null> {
-  const filename = generateFilename({ date: post.date, slug: post.slug })
+  const filename = generateFilename({ date: post.date, pathSlug: post.pathSlug })
   const filepath = path.join(outputPath, filename)
 
   try {
@@ -163,7 +163,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
-      console.log(`📝 Creating ${label} MDX for: ${result.slug}`)
+      console.log(`📝 Creating ${label} MDX for: ${result.pathSlug}`)
       await writeMDXFile({ outputPath, post: result })
       scheduleGitSync(label)
     },
@@ -173,7 +173,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
-      console.log(`📝 Deleting ${label} MDX for: ${result.slug}`)
+      console.log(`📝 Deleting ${label} MDX for: ${result.pathSlug}`)
       await deleteMDXFile({ outputPath, post: result })
       scheduleGitSync(label)
     }
