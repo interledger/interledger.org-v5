@@ -3,9 +3,10 @@ import { paginateAllPosts } from '@/utils/tagFilter'
 import stripPagination from '@/utils/stripPagination.ts'
 import type { GetStaticPaths, Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
+import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/blog/Pagination.astro'
-import type { Locale } from '../../../utils/i18'
+import type { Locale } from '../../../../utils/i18'
 
 const pageLang: Locale = 'es'
 
@@ -17,7 +18,7 @@ type Props = {
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const paths = await paginateAllPosts({
     paginate,
-    collection: 'foundation-blog',
+    collection: 'developers-blog',
     lang: pageLang
   })
   return paths
@@ -28,13 +29,22 @@ const basePath = stripPagination(Astro.url.pathname)
 ---
 
 <FoundationPageLayout
-  title="Foundation Blog"
-  description="Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers."
-  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
+  title="Engineering Blog"
+  description="Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality."
+  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
-    <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
-      <BlogIndexFoundation
+    <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
+      <BlogBreadcrumbs
+        breadcrumbs={[
+          {
+            name: 'Developers Portal',
+            href: '/developers',
+            umamiEvent: 'Devs breadcrumb - Home'
+          }
+        ]}
+      />
+      <BlogIndexDevelopers
         posts={page.data || []}
         allTags={allTags}
         showTagFilter={true}

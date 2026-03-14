@@ -1,0 +1,69 @@
+---
+import type { Page, GetStaticPaths } from 'astro'
+import { paginatePostsByTag } from '@/utils/tagFilter'
+import stripPagination from '@/utils/stripPagination.ts'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
+import Pagination from '@/components/blog/Pagination.astro'
+import type { Locale } from '../../../../../../utils/i18'
+
+const pageLang: Locale = 'es'
+
+type Props = {
+  page: Page
+  allTags: string[]
+  selectedTag: string
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const paths = await paginatePostsByTag({
+    paginate,
+    collection: 'developers-blog',
+    lang: pageLang
+  })
+  return paths
+}
+
+const { page, allTags, selectedTag } = Astro.props
+const basePath = stripPagination(Astro.url.pathname)
+---
+
+<FoundationPageLayout
+  title={`Engineering Blog - ${selectedTag}`}
+  description={`Engineering Blog posts tagged with ${selectedTag}`}
+  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
+>
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
+      <BlogBreadcrumbs
+        breadcrumbs={[
+          {
+            name: 'Developers Portal',
+            href: '/developers',
+            umamiEvent: 'Devs breadcrumb - Home'
+          },
+          {
+            name: 'Engineering Blog',
+            href: '/developers/blog',
+            umamiEvent: 'Devs breadcrumb - Blog'
+          }
+        ]}
+      />
+      <BlogIndexDevelopers
+        posts={page.data || []}
+        allTags={allTags}
+        selectedTag={selectedTag}
+      />
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        firstUrl={page.url.first}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        lastUrl={page.url.last}
+      />
+    </div>
+  </main>
+</FoundationPageLayout>

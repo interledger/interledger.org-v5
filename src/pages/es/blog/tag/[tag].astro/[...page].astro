@@ -1,21 +1,22 @@
 ---
-import { paginateAllPosts } from '@/utils/tagFilter'
+import type { Page, GetStaticPaths } from 'astro'
+import { paginatePostsByTag } from '@/utils/tagFilter'
 import stripPagination from '@/utils/stripPagination.ts'
-import type { GetStaticPaths, Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import Pagination from '@/components/blog/Pagination.astro'
-import type { Locale } from '../../../utils/i18'
+import type { Locale } from '../../../../../utils/i18'
 
 const pageLang: Locale = 'es'
 
 type Props = {
   page: Page
   allTags: string[]
+  selectedTag: string
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const paths = await paginateAllPosts({
+  const paths = await paginatePostsByTag({
     paginate,
     collection: 'foundation-blog',
     lang: pageLang
@@ -23,13 +24,13 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   return paths
 }
 
-const { page, allTags } = Astro.props
+const { page, allTags, selectedTag } = Astro.props
 const basePath = stripPagination(Astro.url.pathname)
 ---
 
 <FoundationPageLayout
-  title="Foundation Blog"
-  description="Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers."
+  title={`Foundation Blog - ${selectedTag}`}
+  description={`Foundation Blog posts tagged with ${selectedTag}`}
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
@@ -37,6 +38,7 @@ const basePath = stripPagination(Astro.url.pathname)
       <BlogIndexFoundation
         posts={page.data || []}
         allTags={allTags}
+        selectedTag={selectedTag}
         showTagFilter={true}
       />
       <Pagination
