@@ -12,16 +12,21 @@ import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '../components/blockquote/Blockquote.astro'
 import CalloutText from '../components/callout/CalloutText.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
+import type { Locale } from '../utils/i18'
+
+const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
-  return getPagePaths('foundation-pages', { excludeSlug: 'home' })
+  return getPagePaths('foundation-pages', 'en', { excludeSlug: 'home' })
 }
 
 const slugParam = Astro.params.page
 const pathSlug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam
 
 const pages = await getCollection('foundation-pages')
-const mdxPage = pages.find((page) => page.data.pathSlug === pathSlug)
+const mdxPage = pages.find(
+  (page) => page.data.pathSlug === pathSlug && page.data.locale === pageLang
+)
 let MdxContent: typeof import('astro').AstroComponentFactory | null = null
 let mdxData: (typeof mdxPage)['data'] | null = null
 
