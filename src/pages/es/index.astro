@@ -1,10 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content'
-import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
-import Paragraph from '../components/blocks/Paragraph.astro'
-import { type Locale } from '../utils/i18'
+import FoundationPageLayout from '../../layouts/FoundationPageLayout.astro'
+import Paragraph from '../../components/blocks/Paragraph.astro'
+import { type Locale } from '../../utils/i18'
 
-const pageLang: Locale = 'en'
+const pageLang: Locale = 'es'
 
 const pages = await getCollection('foundation-pages')
 const homePage = pages.find(
