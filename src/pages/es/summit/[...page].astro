@@ -5,12 +5,12 @@ import { getPagePaths } from '@/utils/static-paths'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
-import { type Locale } from '../../utils/i18'
+import { type Locale } from '../../../utils/i18'
 
-const pageLang: Locale = 'en'
+const pageLang: Locale = 'es'
 
 export async function getStaticPaths() {
-  return getPagePaths('summit-pages', 'en')
+  return getPagePaths('summit-pages', 'es')
 }
 
 const slugParam = Astro.params.page
