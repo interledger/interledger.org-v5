@@ -1,6 +1,7 @@
 import type { PaginateFunction } from 'astro'
 import { getCollection } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
+import type { Locale } from './i18'
 
 export function getTagUrl(path: string, tag: string) {
   const pathSlug = tag.toLowerCase().replace(/\s+/g, '-')
@@ -11,10 +12,10 @@ export function getTagSlug(tag: string) {
   return tag.toLowerCase().replace(/\s+/g, '-')
 }
 
-async function fetchPostsAndTags(collection: BlogCollectionType) {
-  const blogEntries = (await getCollection(collection)).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
+async function fetchPostsAndTags(collection: BlogCollectionType, lang: Locale) {
+  const blogEntries = (
+    await getCollection(collection, ({ data }) => data.locale === lang)
+  ).sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   // Collect all unique tags
   const allTags = [
     ...new Set(blogEntries.flatMap((entry) => entry.data.tags))
@@ -25,12 +26,14 @@ async function fetchPostsAndTags(collection: BlogCollectionType) {
 
 export async function paginateAllPosts({
   paginate,
-  collection
+  collection,
+  lang
 }: {
   paginate: PaginateFunction
   collection: BlogCollectionType
+  lang: Locale
 }) {
-  const { blogEntries, allTags } = await fetchPostsAndTags(collection)
+  const { blogEntries, allTags } = await fetchPostsAndTags(collection, lang)
   return paginate(blogEntries, {
     pageSize: 10,
     props: { allTags }
@@ -39,12 +42,14 @@ export async function paginateAllPosts({
 
 export async function paginatePostsByTag({
   paginate,
-  collection
+  collection,
+  lang
 }: {
   paginate: PaginateFunction
   collection: BlogCollectionType
+  lang: Locale
 }) {
-  const { blogEntries, allTags } = await fetchPostsAndTags(collection)
+  const { blogEntries, allTags } = await fetchPostsAndTags(collection, lang)
   // Create pages for each tag
   return allTags.flatMap((tag) => {
     const tagSlug = getTagSlug(tag)
