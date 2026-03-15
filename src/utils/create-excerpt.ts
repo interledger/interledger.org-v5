@@ -3,7 +3,7 @@ import MarkdownIt from 'markdown-it'
 
 const parser = new MarkdownIt()
 
-export const createExcerpt = (body) => {
+export const createExcerpt = (body: unknown): string => {
   const safeBody = typeof body === 'string' ? body : ''
   const html = parser.render(safeBody)
   const options = {

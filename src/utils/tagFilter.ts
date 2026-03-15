@@ -3,8 +3,8 @@ import { getCollection } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
 
 export function getTagUrl(path: string, tag: string) {
-  const slug = tag.toLowerCase().replace(/\s+/g, '-')
-  return `${path}/tag/${slug}`
+  const pathSlug = tag.toLowerCase().replace(/\s+/g, '-')
+  return `${path}/tag/${pathSlug}`
 }
 
 export function getTagSlug(tag: string) {

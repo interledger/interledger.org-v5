@@ -28,6 +28,10 @@ const path = '/developers/blog'
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      const postPath =
+        blogPostEntry.data.locale && blogPostEntry.data.locale !== 'en'
+          ? `/${blogPostEntry.data.locale}${path}/${blogPostEntry.data.pathSlug}`
+          : `${path}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="mb-space-2xs">
           <div class="flex flex-col flex-1">
@@ -41,7 +45,7 @@ const path = '/developers/blog'
               <div class="flex items-start gap-space-2xs">
                 <h2 class="text-step-1">
                   <a
-                    href={`${path}/${blogPostEntry.id}`}
+                    href={postPath}
                     class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                   >
                     {blogPostEntry.data.title}
@@ -49,7 +53,7 @@ const path = '/developers/blog'
                 </h2>
                 <a
                   class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
-                  href={`${path}/es`}
+                  href={`/es${path}`}
                 >
                   ES
                 </a>
@@ -57,7 +61,7 @@ const path = '/developers/blog'
             ) : (
               <h2 class="text-step-1">
                 <a
-                  href={`${path}/${blogPostEntry.id}`}
+                  href={postPath}
                   class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
                 >
                   {blogPostEntry.data.title}

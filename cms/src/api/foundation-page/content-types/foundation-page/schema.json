@@ -21,7 +21,7 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "targetField": "title",
       "required": true,
@@ -38,6 +38,12 @@
       "default": "grant",
       "pluginOptions": { "i18n": { "localized": false } },
       "description": "Grant Page, Policy Page, or Developer Page"
+    },
+    "pillar": {
+      "type": "enumeration",
+      "enum": ["vision", "mission", "tech", "values"],
+      "pluginOptions": { "i18n": { "localized": false } },
+      "description": "Content pillar — controls page-level colour theming via data-pillar attribute"
     },
     "seo": {
       "type": "component",

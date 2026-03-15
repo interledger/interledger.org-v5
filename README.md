@@ -211,6 +211,18 @@ git clone https://github.com/interledger/interledger.org-v5.git
 pnpm install
 ```
 
+> **Note on lockfiles:** This repo has two `pnpm-lock.yaml` files:
+>
+> - `/pnpm-lock.yaml` — root workspace lockfile, used locally and in CI
+> - `/cms/pnpm-lock.yaml` — standalone lockfile used by the GCP VM when deploying Strapi (`cd cms && pnpm install`)
+>
+> When `cms/package.json` changes (e.g. upgrading Strapi), regenerate **both**:
+>
+> ```sh
+> pnpm install --no-frozen-lockfile          # from repo root
+> cd cms && pnpm install --no-frozen-lockfile # for GCP deployment
+> ```
+
 3. Build and start the site:
 
 ```sh
@@ -291,8 +303,8 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 - **`staging`**:
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
-  - Every merge to `staging` that contains changes **outside the `/cms` folder** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
-  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin panel.
+  - Any push to `staging` that modifies files in `/cms` triggers a rebuild of the Strapi Admin panel on the GCP VM.
+  - Any push to `staging` that modifies `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors` also triggers `sync:mdx`, including their localized mirrors under `src/content/<locale>/...`.
 
 ### Hosting Architecture
 
@@ -321,7 +333,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
+  - Example: Creating a foundation page in Strapi generates `src/content/foundation-pages/{pathSlug}.mdx` for English and `src/content/foundation-pages/{locale}/{pathSlug}.mdx` for localizations.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -344,6 +356,7 @@ Astro automatically picks up these files, registers them in the appropriate cont
 **Foundation Blog posts**
 
 - Location: `src/content/foundation-blog-posts`
+- Localizations: `src/content/foundation-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Foundation news, updates, announcements, thought leadership.
@@ -351,6 +364,7 @@ Used for: Foundation news, updates, announcements, thought leadership.
 **Tech Blog posts**
 
 - Location: `src/content/developers-blog-posts`
+- Localizations: `src/content/developers-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Technical deep dives, implementation updates, engineering insights.
@@ -358,6 +372,7 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
+- Localizations: `src/content/foundation-pages/{locale}`
 - Filename format: `slug.mdx`
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
@@ -365,6 +380,7 @@ Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants
 **Summit Pages**
 
 - Location: `src/content/summit-pages`
+- Localizations: `src/content/summit-pages/{locale}`
 - Filename format: `slug.mdx`
 
 Used for: Summit landing pages, schedules, speaker lists, event resources.

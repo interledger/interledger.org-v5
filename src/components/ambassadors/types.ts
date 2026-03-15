@@ -22,7 +22,7 @@
  */
 export interface AmbassadorData {
   name: string
-  slug: string
+  pathSlug: string
   description: string
   photo?: string | null
   photoAlt?: string | null
@@ -38,7 +38,7 @@ export interface AmbassadorData {
  */
 export interface StrapiAmbassador {
   name: string
-  slug: string
+  pathSlug: string
   description?: string
   photo?: { url: string; alternativeText?: string } | null
   linkedinUrl?: string | null

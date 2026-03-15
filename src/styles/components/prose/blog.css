@@ -1,0 +1,123 @@
+/**
+ * Blog Article Prose Styles
+ * Applied via [data-prose-blog] attribute
+ * Part of @layer components - can be overridden by utility classes
+ *
+ * Blog articles include extended spacing, table styles, and code styling
+ */
+
+@layer components {
+  [data-prose-blog] {
+    & h4,
+    & h5 {
+      font-weight: 700;
+    }
+
+    & h5 {
+      font-size: 0.83em;
+    }
+
+    /* === Links: no underline by default, underline on hover === */
+    & a {
+      color: var(--color-primary);
+      text-decoration-line: none;
+    }
+    & a:hover {
+      text-decoration-line: underline;
+    }
+
+    /* === Extended element spacing === */
+    & ol {
+      margin-block-end: var(--spacing-space-s);
+    }
+    & figure {
+      margin-block-end: var(--spacing-space-s);
+    }
+    & hr {
+      margin-block-end: var(--spacing-space-s);
+    }
+    & h4 {
+      margin-block-end: var(--spacing-space-xs);
+    }
+
+    & figcaption {
+      font-size: var(--text-step--1);
+      font-style: italic;
+    }
+
+    & blockquote {
+      border-inline-start: 4px solid var(--color-primary);
+      padding-inline-start: var(--spacing-space-s);
+      font-size: var(--text-step-1);
+      font-weight: 300;
+    }
+
+    & strong {
+      color: inherit;
+    }
+
+    & ul li {
+      margin-block-end: var(--spacing-space-2xs);
+    }
+
+    & img {
+      display: block;
+      margin-inline: auto;
+    }
+
+    /* === Table styles === */
+    & table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-block-end: var(--spacing-space-m);
+    }
+
+    & th {
+      text-align: left;
+      padding-block: var(--spacing-space-3xs);
+      padding-inline: var(--spacing-space-2xs);
+    }
+
+    & td {
+      padding-block: var(--spacing-space-3xs);
+      padding-inline: var(--spacing-space-2xs);
+    }
+
+    & thead tr {
+      background-color: var(--color-table-stripe);
+    }
+    & thead tr:first-of-type th:first-of-type {
+      border-start-start-radius: var(--radius);
+    }
+    & thead tr:first-of-type th:last-of-type {
+      border-start-end-radius: var(--radius);
+    }
+    & thead + tbody tr:nth-child(2n) {
+      background-color: var(--color-table-stripe);
+    }
+    & tbody tr:last-of-type td:first-child {
+      border-end-start-radius: var(--radius);
+    }
+    & tbody tr:last-of-type td:last-child {
+      border-end-end-radius: var(--radius);
+    }
+
+    /* === Inline code === */
+    & :not(pre) > code {
+      border-radius: var(--radius);
+      font-size: var(--text-step--1);
+      background-color: var(--color-bg-inline-code);
+      padding-inline: 0.375rem;
+      padding-block: 0.125rem;
+      overflow-wrap: anywhere;
+    }
+
+    /* === Code blocks (expressive-code) === */
+    & .expressive-code {
+      margin-block-end: var(--spacing-space-s);
+    }
+  }
+}

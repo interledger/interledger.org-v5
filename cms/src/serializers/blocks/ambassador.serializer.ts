@@ -16,7 +16,7 @@ export function serialize(block: {
 
   return `<Ambassador
   name="${esc(amb.name)}"
-  slug="${esc(amb.slug)}"
+  pathSlug="${esc(amb.pathSlug)}"
   description="${esc(amb.description || '')}"
   photo="${esc(photo)}"
   photoAlt="${esc(amb.photo?.alternativeText || '')}"

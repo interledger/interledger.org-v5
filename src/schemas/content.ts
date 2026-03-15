@@ -24,7 +24,7 @@ export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
   date: z.date(),
-  slug: z.string(),
+  pathSlug: z.string(),
   locale: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
@@ -47,7 +47,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   pillar: z.enum(['vision', 'mission', 'tech', 'values']),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
@@ -65,11 +65,16 @@ export type FoundationBlogFrontmatterType = z.infer<
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   description: z.string().optional(),
+  pillar: z.enum(['vision', 'mission', 'tech', 'values']).optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   sections: z
     .array(
       z.object({
@@ -92,11 +97,15 @@ export const foundationPageFrontmatterSchema = z.object({
 
 export const summitPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
   sections: z
     .array(
       z.object({
@@ -118,7 +127,7 @@ export const summitPageFrontmatterSchema = z.object({
 })
 
 export const ambassadorFrontmatterSchema = z.object({
-  slug: z.string().min(1, 'slug is required'),
+  pathSlug: z.string().min(1, 'pathSlug is required'),
   name: z.string().min(1, 'name is required'),
   description: z.string().min(1, 'description is required'),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */

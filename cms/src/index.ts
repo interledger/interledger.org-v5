@@ -190,7 +190,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       date: 'Publish Date',
       pillar: 'Pillar',
       featureImage: 'Feature Image',

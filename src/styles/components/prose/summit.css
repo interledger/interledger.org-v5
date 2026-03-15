@@ -1,0 +1,28 @@
+/**
+ * Summit Page Prose Styles
+ * Applied via [data-prose-summit] attribute
+ * Part of @layer components - can be overridden by utility classes
+ *
+ * Summit pages only normalize heading sizes and weights,
+ * inheriting most other styles from defaults
+ */
+
+@layer components {
+  [data-prose-summit] {
+    & h1 { font-size: var(--text-step-4); }
+
+    & h2,
+    & h3 {
+      margin-block: 0;
+      font-weight: inherit;
+    }
+
+    & h2 {
+      font-size: var(--text-step-2);
+      color: inherit;
+    }
+
+    & h3 { font-size: var(--text-step-1); }
+    & h4 { font-size: var(--text-step-0); }
+  }
+}

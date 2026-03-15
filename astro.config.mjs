@@ -10,7 +10,6 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  // TODO Translation work goes here
   // i18n: {
   //   locales: ['es', 'en'],
   //   defaultLocale: 'en',
@@ -146,7 +145,7 @@ export default defineConfig({
         themes: ['github-dark-dimmed'],
         styleOverrides: {
           borderColor: 'transparent',
-          borderRadius: 'var(--border-radius)'
+          borderRadius: 'var(--radius)'
         },
         defaultProps: {
           wrap: true
