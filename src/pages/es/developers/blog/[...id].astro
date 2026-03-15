@@ -6,7 +6,7 @@ import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 export async function getStaticPaths() {
   const blogEntries = await getCollection(
     'developers-blog',
-    ({ data }) => data.locale === 'en'
+    ({ data }) => data.locale === 'es'
   )
 
   return blogEntries.map((entry) => ({

@@ -8,7 +8,7 @@ import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 export async function getStaticPaths() {
   const blogEntries = await getCollection(
     'foundation-blog',
-    ({ data }) => data.locale === 'en'
+    ({ data }) => data.locale === 'es'
   )
 
   return blogEntries.map((entry) => ({
