@@ -105,8 +105,8 @@ export default {
     style.textContent = `
       /* TEMP UI Fix: minimum textarea height */
       textarea { min-height: 140px !important; }
-      /* TEMP UI Fix: hide Preview aside */
-      aside[aria-labelledby="additional-information"] { display: none !important; }
+      /* TEMP UI Fix: hide only the Preview aside (last one), not the one above */
+      aside[aria-labelledby="additional-information"]:last-of-type { display: none !important; }
     `
     document.head.appendChild(style)
 
