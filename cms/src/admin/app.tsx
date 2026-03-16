@@ -41,6 +41,10 @@ interface CKEditor {
   data: CKEditorData
 }
 
+// Strapi document IDs: lowercase alphanumeric, typically 24 chars
+const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
+const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
+
 const myCustomPreset: Preset = {
   ...defaultMarkdownPreset,
   description: 'Markdown editor without H1',
@@ -130,11 +134,10 @@ export default {
       for (const [slug, title] of Object.entries(singleTypeTitles)) {
         if (url.includes(slug)) {
           const h1 = document.querySelector('h1')
-          if (h1 && /^[a-z0-9]{15,}$/.test(h1.textContent?.trim() ?? '')) {
+          if (h1 && DOC_ID_PATTERN.test(h1.textContent?.trim() ?? '')) {
             h1.textContent = title
           }
-          const docIdPattern = /^[a-z0-9]{15,}\s*\|/
-          if (docIdPattern.test(document.title)) {
+          if (DOC_ID_TITLE_PATTERN.test(document.title)) {
             document.title = `${title} | Strapi`
           }
           break
