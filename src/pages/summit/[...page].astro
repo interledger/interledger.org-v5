@@ -39,7 +39,7 @@ const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 const gradient = mdxData?.gradient || 'option1'
 const isNotFound = !MdxContent
-if (isNotFound) Astro.response.status = 404
+if (isNotFound) return Astro.redirect('/404')
 ---
 
 <SummitPageLayout
@@ -52,21 +52,7 @@ if (isNotFound) Astro.response.status = 404
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
-    {
-      isNotFound ? (
-        <section class="min-h-[50vh] flex items-center justify-center text-center">
-          <div class="mx-auto w-full max-w-wide px-space-m">
-            <h1 class="text-2xl font-semibold mb-space-s text-white">404</h1>
-            <p class="mb-space-m text-white/80">
-              The page you requested could not be found.
-            </p>
-            <a href="/" class="text-white underline hover:no-underline">
-              ← Back to home
-            </a>
-          </div>
-        </section>
-      ) : (
-        <>
+    <>
           {mdxHeroTitle && (
             <section class="min-h-[40vh] py-space-xl flex items-center text-white">
               <div class="mx-auto w-full max-w-wide px-space-m">
@@ -92,8 +78,6 @@ if (isNotFound) Astro.response.status = 404
               </div>
             </div>
           </section>
-        </>
-      )
-    }
+    </>
   </main>
 </SummitPageLayout>

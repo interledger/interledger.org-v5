@@ -39,7 +39,7 @@ const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 const pillar = mdxData?.pillar || undefined
 const isNotFound = !MdxContent
-if (isNotFound) Astro.response.status = 404
+if (isNotFound) return Astro.redirect('/404')
 ---
 
 <FoundationPageLayout
@@ -49,21 +49,7 @@ if (isNotFound) Astro.response.status = 404
   canonicalURL={canonicalURL}
 >
   <main class="pb-space-l" data-pillar={pillar}>
-    {
-      isNotFound ? (
-        <section class="min-h-[50vh] flex items-center justify-center text-center">
-          <div class="mx-auto w-full max-w-wide px-space-m">
-            <h1 class="text-2xl font-semibold text-primary mb-space-s">404</h1>
-            <p class="text-[var(--sl-color-gray-2)] mb-space-m">
-              The page you requested could not be found.
-            </p>
-            <a href="/" class="text-primary underline hover:no-underline">
-              ← Back to home
-            </a>
-          </div>
-        </section>
-      ) : (
-        <>
+    <>
           {mdxHeroTitle && (
             <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
               <div class="mx-auto w-full max-w-wide px-space-m">
@@ -95,8 +81,6 @@ if (isNotFound) Astro.response.status = 404
               </div>
             </div>
           </section>
-        </>
-      )
-    }
+    </>
   </main>
 </FoundationPageLayout>
