@@ -2,8 +2,10 @@
 import type { Page, GetStaticPaths } from 'astro'
 import { paginateSummitTalks } from '@/utils/summit-talks-speakers.ts'
 import type { Talk } from '@/utils/summit-talks-speakers.ts'
-import Pagination from '@/components/blog/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import SessionCard from '@/components/summit/SessionCard.astro'
+import Pagination from '@/components/blog/Pagination.astro'
 
 type Props = {
   page: Page
@@ -18,32 +20,33 @@ const { year } = Astro.params
 const { page } = Astro.props
 const talks: Talk[] | undefined = page.data
 const basePath = stripPagination(Astro.url.pathname)
+const title = `${year} Summit Sessions`
 ---
 
-<div>
-  <div>This is summit TALKS page for the year: {year}</div>
+<SummitPageLayout
+  title={title}
+  description="The Interledger Foundation is a global nonprofit grantmaking foundation, leading the next revolution in payments through Interledger, the global network for inclusive digital financial service providers."
+>
+  <main class="p-4">
+    <h1>{title}</h1>
+    <section>
+      <ul class="flex flex-col gap-4">
+        {talks.map((talk) => <SessionCard talk={talk} />)}
+      </ul>
+    </section>
 
-  <ul>
     {
-      talks.map((talk) => (
-        <li>
-          <h2>{talk.title}</h2>
-        </li>
-      ))
+      page.lastPage && page.lastPage > 1 && (
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          firstUrl={page.url.first}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          lastUrl={page.url.last}
+        />
+      )
     }
-  </ul>
-
-  {
-    page.lastPage && page.lastPage > 1 && (
-      <Pagination
-        baseUrl={basePath}
-        length={page.lastPage}
-        currentPage={page.currentPage}
-        firstUrl={page.url.first}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        lastUrl={page.url.last}
-      />
-    )
-  }
-</div>
+  </main>
+</SummitPageLayout>

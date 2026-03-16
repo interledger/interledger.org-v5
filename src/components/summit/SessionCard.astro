@@ -1,0 +1,13 @@
+---
+import type { Talk } from '@/utils/summit-talks-speakers.ts'
+
+interface Props {
+  talk: Talk
+}
+
+const { talk } = Astro.props
+---
+
+<li class="min-h-[200px] bg-black/10">
+  <h2>{talk.title}</h2>
+</li>

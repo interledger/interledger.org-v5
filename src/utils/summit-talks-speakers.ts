@@ -28,14 +28,15 @@ export function getAllTalks(year: string): Talk[] {
         ' 2023 TigerBeetle, a Financial Accounting Database for Interledger'
     }
   ]
-  // let sessionsToReturn : Talk[] ;
   switch (year) {
     case '2022':
       return sessions2022
     case '2023':
       return sessions2023
     default:
-      console.error('Year is not correct or we do not have data for that year')
+      console.error(
+        'Year is not correct or data is not available for that year'
+      )
       return []
   }
 }
