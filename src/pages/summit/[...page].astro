@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import { getPagePaths } from '@/utils/static-paths'
+import { getLocalizedPaths } from '@/utils/static-paths'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -10,7 +10,7 @@ import { type Locale } from '@/utils/i18'
 const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
-  return getPagePaths('summit-pages', 'en')
+  return getLocalizedPaths('summit-pages', 'page', 'en')
 }
 
 const slugParam = Astro.params.page

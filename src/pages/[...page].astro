@@ -5,19 +5,21 @@
  * All pages are pre-rendered at build time
  */
 import { getCollection, render } from 'astro:content'
-import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
-import { getPagePaths } from '../utils/static-paths'
-import Ambassador from '../components/ambassadors/Ambassador.astro'
-import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
-import Blockquote from '../components/blockquote/Blockquote.astro'
-import CalloutText from '../components/callout/CalloutText.astro'
-import Paragraph from '../components/blocks/Paragraph.astro'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { getLocalizedPaths } from '@/utils/static-paths'
+import Ambassador from '@/components/ambassadors/Ambassador.astro'
+import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
+import Blockquote from '@/components/blockquote/Blockquote.astro'
+import CalloutText from '@/components/callout/CalloutText.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
 import type { Locale } from '@/utils/i18'
 
 const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
-  return getPagePaths('foundation-pages', 'en', { excludeSlug: 'home' })
+  return getLocalizedPaths('foundation-pages', 'en', 'page', {
+    excludeSlug: 'home'
+  })
 }
 
 const slugParam = Astro.params.page

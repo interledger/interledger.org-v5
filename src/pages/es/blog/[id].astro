@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content'
+import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
+import ArticleTags from '@/components/blog/ArticleTags.astro'
+import ArticleBio from '@/components/blog/ArticleBio.astro'
+import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { getLocalizedPaths } from '@/utils/static-paths'
+import type { Locale } from '@/utils/i18'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+
+const pageLang: Locale = 'es'
+
+export async function getStaticPaths() {
+  return getLocalizedPaths('foundation-blog', 'es', 'id')
+}
+
+const pathSlug = Astro.params.id
+
+const posts = await getCollection('foundation-blog')
+
+const mdxPost = posts.find(
+  (post) => post.data.pathSlug === pathSlug && post.data.locale === pageLang
+)
+
+let MdxContent: typeof import('astro').AstroComponentFactory | null = null
+let mdxData: (typeof mdxPost)['data'] | null = null
+
+if (mdxPost) {
+  const { Content } = await render(mdxPost)
+  MdxContent = Content
+  mdxData = mdxPost.data
+}
+
+const isNotFound = !MdxContent
+
+if (isNotFound) Astro.response.status = 404
+---
+
+{
+  isNotFound ? (
+    <FoundationPageLayout title={'404'}>
+      <section class="min-h-[50vh] flex items-center justify-center text-center">
+        <div class="mx-auto w-full max-w-wide px-space-m">
+          <h1 class="text-2xl font-semibold text-primary mb-space-s">404</h1>
+          <p class="text-[var(--sl-color-gray-2)] mb-space-m">
+            The page you requested could not be found.
+          </p>
+          <a href="/" class="text-primary underline hover:no-underline">
+            ← Back to home
+          </a>
+        </div>
+      </section>
+    </FoundationPageLayout>
+  ) : (
+    <FoundationBlogLayout frontmatter={mdxData}>
+      <MdxContent />
+
+      <CommunityLinksFoundation />
+
+      {mdxData?.articleBios?.map((bio) => {
+        if (!bio.text) return
+        return (
+          <ArticleBio
+            text={bio.text}
+            imageUrl={bio.image}
+            imageAlt={bio.author}
+          />
+        )
+      })}
+
+      {mdxData?.tags?.length > 0 && (
+        <ArticleTags tags={mdxData.tags} path="/blog" />
+      )}
+    </FoundationBlogLayout>
+  )
+}

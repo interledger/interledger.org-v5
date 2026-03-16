@@ -1,21 +1,26 @@
 import { getCollection } from 'astro:content'
 import type { Locale } from '@/utils/i18'
 
-type PageCollection = 'foundation-pages' | 'summit-pages'
+type collectionType =
+  | 'foundation-pages'
+  | 'summit-pages'
+  | 'foundation-blog'
+  | 'developers-blog'
 
-export async function getPagePaths(
-  collection: PageCollection,
+export async function getLocalizedPaths(
+  collection: collectionType,
   lang: Locale,
+  paramName: string,
   options?: { excludeSlug?: string }
 ) {
-  const pages = await getCollection(collection)
-  return pages
-    .filter((page) => page.data.locale === lang)
+  const entries = await getCollection(collection)
+  return entries
+    .filter((entry) => entry.data.locale === lang)
     .filter(
-      (page) =>
-        !options?.excludeSlug || page.data.pathSlug !== options.excludeSlug
+      (entry) =>
+        !options?.excludeSlug || entry.data.pathSlug !== options.excludeSlug
     )
-    .map((page) => ({
-      params: { page: page.data.pathSlug }
+    .map((entry) => ({
+      params: { [paramName]: entry.data.pathSlug }
     }))
 }
