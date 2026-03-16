@@ -16,6 +16,7 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
+import { normalizeInlineImages } from './normalizeImages'
 
 /**
  * Extracts a field value from a Strapi entry.
@@ -165,14 +166,21 @@ export async function buildAmbassadorPayload(
 /**
  * Builds a Strapi payload for a blog-post-type MDX file.
  *
+ * - Normalizes inline <img> tags to markdown before sending to Strapi so
+ *   CKEditor doesn't escape JSX attributes as literal text.
+ * - Resolves featureImage / thumbnailImage URLs to Strapi upload IDs and
+ *   patches their alternativeText when alt frontmatter fields are present.
+ *
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
+ * @param strapi - Strapi client for media lookups and alt-text updates
  * @returns Strapi payload object
  */
-export function buildBlogPayload(
+export async function buildBlogPayload(
   schema: FrontmatterSchema,
-  mdx: MDXFile
-): Record<string, unknown> {
+  mdx: MDXFile,
+  strapi: StrapiClient
+): Promise<Record<string, unknown>> {
   const parsed = schema.parse({
     ...mdx.frontmatter,
     pathSlug: mdx.pathSlug
@@ -180,13 +188,45 @@ export function buildBlogPayload(
 
   const date = parsed.date as Date
 
-  return {
+  const payload: Record<string, unknown> = {
     title: parsed.title,
     description: parsed.description,
     pathSlug: parsed.pathSlug,
     date: date.toISOString().split('T')[0],
     pillar: parsed.pillar,
     publishedAt: date.toISOString(),
-    content: mdx.content || ''
+    content: normalizeInlineImages(mdx.content || '')
   }
+
+  // Resolve featureImage URL → upload ID, and patch alt text if provided
+  const featureImageUrl = parsed.featureImage as string | undefined
+  if (featureImageUrl) {
+    const id = await strapi.findUploadByUrl(featureImageUrl)
+    if (id) {
+      payload.featureImage = id
+      const alt = parsed.featureImageAlt as string | undefined
+      if (alt) await strapi.updateUploadAlt(id, alt)
+    } else {
+      console.warn(
+        `   ⚠️  featureImage not found in Strapi uploads for "${mdx.pathSlug}": ${featureImageUrl}`
+      )
+    }
+  }
+
+  // Resolve thumbnailImage URL → upload ID, and patch alt text if provided
+  const thumbnailImageUrl = parsed.thumbnailImage as string | undefined
+  if (thumbnailImageUrl) {
+    const id = await strapi.findUploadByUrl(thumbnailImageUrl)
+    if (id) {
+      payload.thumbnailImage = id
+      const alt = parsed.thumbnailImageAlt as string | undefined
+      if (alt) await strapi.updateUploadAlt(id, alt)
+    } else {
+      console.warn(
+        `   ⚠️  thumbnailImage not found in Strapi uploads for "${mdx.pathSlug}": ${thumbnailImageUrl}`
+      )
+    }
+  }
+
+  return payload
 }

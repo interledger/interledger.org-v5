@@ -102,8 +102,8 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+      buildPayload: (mdx, strapi, _existing) =>
+        buildBlogPayload(foundationBlogFrontmatterSchema, mdx, strapi)
     }
   }
 }
