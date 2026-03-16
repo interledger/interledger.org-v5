@@ -110,18 +110,25 @@ export default {
     `
     document.head.appendChild(style)
 
-    // TEMP UI Fix: DOM polling for UI tweaks until Strapi exposes better extension points
-    const interval = setInterval(() => {
-      // TEMP UI Fix: hide "Open Entity" from the left nav sidebar
-      document.querySelectorAll('div, span').forEach((el) => {
-        if (el.textContent?.trim() === 'Open Entity') {
-          const navItem = el.closest(
-            'a, li, [role="menuitem"]'
-          ) as HTMLElement | null
-          if (navItem) navItem.style.display = 'none'
-        }
-      })
+    // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
+    function hideOpenEntity() {
+      const link = document.querySelector<HTMLAnchorElement>(
+        'li a[href*="plugin::record-locking.open-entity"]'
+      )
+      const li = link?.closest('li')
+      if (li && li.style.display !== 'none') {
+        li.style.display = 'none'
+      }
+    }
+    hideOpenEntity()
+    const navObserver = new MutationObserver(() => hideOpenEntity())
+    navObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
 
+    // TEMP UI Fix: DOM polling for remaining UI tweaks until Strapi exposes better extension points
+    const interval = setInterval(() => {
       // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
