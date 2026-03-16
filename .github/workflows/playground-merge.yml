@@ -22,6 +22,7 @@ jobs:
     outputs:
       cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
+      navigation_changed: ${{ steps.detect_changes.outputs.navigation_changed }}
     
     steps:
       - name: Validate manual trigger is on playground branch
@@ -44,6 +45,7 @@ jobs:
         with:
           script: |
             const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
+            const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
             const zeroSha = '0000000000000000000000000000000000000000'
 
             if (context.eventName === 'workflow_dispatch') {
@@ -159,6 +161,8 @@ jobs:
               changedFiles.some((file) => file.startsWith('cms/'))
             const contentChanged =
               changedFiles.some((file) => contentPattern.test(file))
+            const navigationChanged =
+              changedFiles.some((file) => navigationPattern.test(file))
 
             if (cmsChanged) {
               core.info('CMS changes detected')
@@ -168,8 +172,13 @@ jobs:
               core.info('Content changes detected')
             }
 
+            if (navigationChanged) {
+              core.info('Navigation changes detected')
+            }
+
             core.setOutput('cms_changed', String(cmsChanged))
             core.setOutput('content_changed', String(contentChanged))
+            core.setOutput('navigation_changed', String(navigationChanged))
 
   rebuild-strapi:
     needs: detect-changes
@@ -234,11 +243,11 @@ jobs:
           sleep 5
           sudo systemctl status strapi.service
 
-  sync-mdx-to-strapi:
+  sync-to-strapi:
     needs: [detect-changes, rebuild-strapi]
     if: |
       (needs.rebuild-strapi.result == 'success' || needs.rebuild-strapi.result == 'skipped') &&
-      needs.detect-changes.outputs.content_changed == 'true'
+      (needs.detect-changes.outputs.content_changed == 'true' || needs.detect-changes.outputs.navigation_changed == 'true')
     runs-on: ubuntu-latest
 
     steps:
@@ -256,16 +265,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Sync MDX to Strapi
+      - name: Sync MDX and navigation to Strapi
         working-directory: cms
         env:
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
-        run: pnpm run sync:mdx
+        run: pnpm run sync:all
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [detect-changes, rebuild-strapi, sync-mdx-to-strapi]
+    needs: [detect-changes, rebuild-strapi, sync-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure
