@@ -1,6 +1,6 @@
 export interface StrapiEntry {
   documentId: string
-  slug: string
+  pathSlug: string
   locale?: string
   [key: string]: unknown
 }
@@ -8,9 +8,9 @@ export interface StrapiEntry {
 export interface StrapiClient {
   request: (endpoint: string, options?: RequestInit) => Promise<unknown>
   getAllEntries: (apiId: string, locale?: string) => Promise<StrapiEntry[]>
-  findBySlug: (
+  findByPathSlug: (
     apiId: string,
-    slug: string,
+    pathSlug: string,
     locale?: string
   ) => Promise<StrapiEntry | undefined>
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, or null. */
@@ -105,12 +105,12 @@ export function createStrapiClient({
     return data.data || []
   }
 
-  async function findBySlug(
+  async function findByPathSlug(
     apiId: string,
-    slug: string,
+    pathSlug: string,
     locale?: string
   ): Promise<StrapiEntry | undefined> {
-    let endpoint = `${apiId}?filters[slug][$eq]=${slug}`
+    let endpoint = `${apiId}?filters[pathSlug][$eq]=${pathSlug}`
     if (locale) {
       endpoint += `&locale=${locale}`
     }
@@ -147,9 +147,17 @@ export function createStrapiClient({
     locale: string,
     data: Record<string, unknown>
   ): Promise<unknown> {
-    const localization = await findBySlug(apiId, data.slug as string, locale)
+    const pathSlug = data.pathSlug as string
+    const localization = await findByPathSlug(apiId, pathSlug, locale)
 
     if (localization) {
+      // In Strapi v5, linked locales share the same documentId. If the found
+      // entry has a different documentId, it's an orphan (created standalone)
+      // and won't show in "AVAILABLE IN". Delete and recreate to properly link.
+      if (localization.documentId !== documentId) {
+        await deleteLocalization(apiId, localization.documentId, locale)
+        return await createLocalization(apiId, documentId, locale, data)
+      }
       return await updateEntry(apiId, localization.documentId, data, locale)
     }
     return await createLocalization(apiId, documentId, locale, data)
@@ -237,7 +245,7 @@ export function createStrapiClient({
   return {
     request,
     getAllEntries,
-    findBySlug,
+    findByPathSlug,
     findUploadByUrl,
     findUploadByName,
     createLocalization,

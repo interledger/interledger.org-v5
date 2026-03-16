@@ -3,7 +3,7 @@ import { serialize } from './ambassador.serializer'
 
 const baseAmbassador = {
   name: 'Alice Example',
-  slug: 'alice-example',
+  pathSlug: 'alice-example',
   description: 'A great ambassador.',
   photo: {
     id: 1,
@@ -19,7 +19,7 @@ describe('ambassador serializer', () => {
     const result = serialize({ ambassador: baseAmbassador })
 
     expect(result).toContain('name="Alice Example"')
-    expect(result).toContain('slug="alice-example"')
+    expect(result).toContain('pathSlug="alice-example"')
     expect(result).toContain('description="A great ambassador."')
     expect(result).toContain('photo="')
     expect(result).toContain('photoAlt="Alice smiling"')
@@ -83,7 +83,7 @@ describe('ambassador serializer', () => {
     const result = serialize({
       ambassador: {
         name: 'Bob',
-        slug: 'bob',
+        pathSlug: 'bob',
         photo: null,
         linkedinUrl: null,
         grantReportUrl: null
@@ -91,7 +91,7 @@ describe('ambassador serializer', () => {
     })
 
     expect(result).toContain('name="Bob"')
-    expect(result).toContain('slug="bob"')
+    expect(result).toContain('pathSlug="bob"')
     expect(result).toContain('linkedinUrl=""')
     expect(result).toContain('grantReportUrl=""')
   })

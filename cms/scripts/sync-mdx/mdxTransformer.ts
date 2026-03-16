@@ -132,7 +132,7 @@ async function getImageFromStrapi(
  *
  * This function:
  * 1. Validates frontmatter against the provided Zod schema
- * 2. Builds the base payload with required fields (title, slug, publishedAt)
+ * 2. Builds the base payload with required fields (title, pathSlug, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  *
@@ -152,13 +152,13 @@ export async function buildPagePayload(
   // Validate frontmatter against schema (throws if invalid)
   const parsed = schema.parse({
     ...mdx.frontmatter,
-    slug: mdx.slug
+    pathSlug: mdx.pathSlug
   }) as Record<string, unknown>
 
   // Build base payload with required fields
   const data: Record<string, unknown> = {
     title: parsed.title,
-    slug: parsed.slug,
+    pathSlug: parsed.pathSlug,
     publishedAt: new Date().toISOString()
   }
 
@@ -190,7 +190,7 @@ export async function buildPagePayload(
         if (err instanceof MdxParserError) {
           throw new MdxParserError({
             code: err.code,
-            message: `[${mdx.slug}] ${err.message}`,
+            message: `[${mdx.pathSlug}] ${err.message}`,
             component: err.component,
             prop: err.prop,
             line: err.line,
@@ -238,19 +238,19 @@ export async function buildAmbassadorPayload(
   mdx: MDXFile,
   strapi: StrapiClient
 ): Promise<Record<string, unknown>> {
-  schema.parse({ ...mdx.frontmatter, slug: mdx.slug })
+  schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
   const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
   const photoId = photoUrl ? await strapi.findUploadByUrl(photoUrl) : null
   if (photoUrl && !photoId) {
     console.warn(
-      `   ⚠️  Photo not found in Strapi uploads for "${mdx.slug}": ${photoUrl}`
+      `   ⚠️  Photo not found in Strapi uploads for "${mdx.pathSlug}": ${photoUrl}`
     )
   }
 
   return {
     name: nullOrValue(mdx.frontmatter.name),
-    slug: mdx.slug,
+    pathSlug: mdx.pathSlug,
     description: nullOrValue(mdx.frontmatter.description),
     ...(photoId ? { photo: photoId } : {}),
     linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
@@ -319,8 +319,8 @@ export async function buildBlogPayload(
   const dataObj = {
     title: parsed.title,
     description: parsed.description,
+    pathSlug: parsed.pathSlug,
     date: date.toISOString().split('T')[0],
-    slug: parsed.slug,
     pillar: parsed.pillar,
     featureImage: featureImage,
     thumbnailImage: thumbnailImage,

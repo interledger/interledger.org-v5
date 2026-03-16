@@ -40,7 +40,7 @@ const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
       {
         items.map((item, index) => (
           <div
-            class="hidden animate-[fadeIn_500ms_ease-in-out] data-[active=true]:block"
+            class="hidden animate-fade-in data-[active=true]:block"
             data-index={index}
             data-carousel-slide
             data-active={index === 0 ? 'true' : 'false'}

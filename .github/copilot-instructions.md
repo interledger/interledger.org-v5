@@ -56,11 +56,11 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 ├── src/                       # Main Astro site
 │   ├── pages/                 # Route pages (catch-all in [...page].astro)
 │   ├── content/               # MDX content organized by section
-│   │   ├── blog/              # Blog posts (developers section)
-│   │   ├── developers/        # Developer documentation
+│   │   ├── foundation-blog-posts/ # Foundation blog posts (+ optional locale subdirs)
+│   │   ├── developers-blog-posts/ # Developer blog posts (+ optional locale subdirs)
 │   │   ├── docs/              # Specification documents
-│   │   ├── foundation-pages/  # Pages managed by Strapi CMS
-│   │   └── summit/            # Summit-specific content
+│   │   ├── foundation-pages/  # Pages managed by Strapi CMS (+ optional locale subdirs)
+│   │   └── summit-pages/      # Summit-specific content (+ optional locale subdirs)
 │   ├── layouts/               # Astro layout components
 │   ├── components/            # Reusable Astro components
 │   │   ├── blocks/            # Content blocks
@@ -111,7 +111,7 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 - **Branches**: `staging` is the preview environment, `main` is production.
 - **Strapi publishing**: Lifecycle hooks generate MDX and commit/push to `staging`.
 - **Netlify**: Auto-builds `staging` to preview and `main` to production.
-- **Self-hosted runner**: The `.github/workflows/main-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS if cms/ directory changes are detected, using `bun install && bun run build`.
+- **Self-hosted runner**: The `.github/workflows/staging-merge.yml` runs on push to `staging` via a self-hosted runner (`strapi-vm`). It automatically rebuilds Strapi CMS when `cms/` changes are detected, and syncs MDX to Strapi when `.md` or `.mdx` files change in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors`, including localized mirrors under `src/content/<locale>/...`.
 - **Promotion**: Content moves from `staging` to `main` via PR approval.
 - **Preview drafts**: Drafts can be previewed via SSR without publishing.
 
@@ -147,11 +147,11 @@ pnpm run build    # Production build
 ```
 
 **Production builds** (self-hosted runner on `staging` push):
-- Uses `bun install && bun run build` via `.github/workflows/main-merge.yml`
+- Uses `pnpm install && pnpm run build` via `.github/workflows/staging-merge.yml`
 - Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
 - Automatically restarts the `strapi.service` after rebuild
 
-Content published in the CMS automatically generates MDX files in `src/content/foundation-pages/` via lifecycle hooks. MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
+Content published in the CMS automatically generates MDX files in collection directories such as `src/content/foundation-pages/`, with localizations nested under the type directory (for example `src/content/foundation-pages/es/`). MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
 
 For pages and blog posts, lifecycle hooks may trigger git synchronization for preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
 

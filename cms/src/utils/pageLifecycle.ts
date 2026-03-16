@@ -24,14 +24,14 @@ declare const strapi: {
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { PATHS } from './paths'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
-  uidToLogLabel
+  uidToLogLabel,
+  MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import {
   deleteLocaleMdxFiles,
@@ -43,7 +43,7 @@ interface PageData {
   id: number
   documentId: string
   title: string
-  slug: string
+  pathSlug: string
   locale?: string
   hero?: {
     title?: string
@@ -91,23 +91,17 @@ export interface PageLifecycleConfig {
   outputDir: string
   /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
   localizedOutputDir: string
-  /** Return extra frontmatter fields for content-type-specific data */
-  extraFrontmatter?: (page: PageData) => Record<string, unknown>
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
   const projectRoot = getTargetRepoRoot()
+  const baseOutputDir = path.join(projectRoot, config.outputDir)
 
   if (locale === 'en') {
-    return path.join(projectRoot, config.outputDir)
+    return baseOutputDir
   }
 
-  return path.join(
-    projectRoot,
-    PATHS.CONTENT_ROOT,
-    locale,
-    config.localizedOutputDir
-  )
+  return path.join(baseOutputDir, locale)
 }
 
 function generateMDX(
@@ -119,25 +113,29 @@ function generateMDX(
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
-  // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
+  // Use englishSlug (current English pathSlug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
   // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
-    slug: page.slug,
+    pathSlug: page.pathSlug,
     title: page.title,
-    ...(config.extraFrontmatter?.(page) ?? {}),
+    ...(page.pillar ? { pillar: page.pillar } : {}),
     ...heroFrontmatter(page.hero),
     ...seoFrontmatter(page.seo),
     ...(localizesValue ? { localizes: localizesValue } : {}),
-    ...(isLocalized ? { locale } : {})
+    locale
   }
 
   const content = serializeContent(page.content)
 
-  return matter.stringify(content ? `\n${content}\n` : '', frontmatterData)
+  return matter.stringify(
+    content ? `\n${content}\n` : '',
+    frontmatterData,
+    MATTER_STRINGIFY_OPTIONS
+  )
 }
 
 async function writeMDXFile(
@@ -147,7 +145,7 @@ async function writeMDXFile(
 ): Promise<string> {
   const locale = page.locale || 'en'
   const outputDir = getOutputDir(config, locale)
-  const filepath = path.join(outputDir, `${page.slug}.mdx`)
+  const filepath = path.join(outputDir, `${page.pathSlug}.mdx`)
 
   try {
     if (!fs.existsSync(outputDir)) {
@@ -223,7 +221,7 @@ async function exportAllLocales(
 ): Promise<string[]> {
   const filepaths: string[] = []
   const englishPage = await fetchPublished(config, documentId, 'en')
-  const englishSlug = englishPage?.slug
+  const englishSlug = englishPage?.pathSlug
 
   for (const locale of LOCALES) {
     try {
@@ -261,7 +259,9 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
-      console.log(`📝 Creating ${label} MDX for all locales: ${result.slug}`)
+      console.log(
+        `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
+      )
       await exportAllLocales(config, result.documentId)
       scheduleGitSync(label)
     },
@@ -272,16 +272,18 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
-      console.log(`🗑️  Deleting ${label} MDX for all locales: ${result.slug}`)
+      console.log(
+        `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
+      )
 
       removeLocalizesFromLocaleFiles(
-        result.slug,
+        result.pathSlug,
         (locale) => getOutputDir(config, locale),
         label
       )
       deleteLocaleMdxFiles(
         (locale) =>
-          path.join(getOutputDir(config, locale), `${result.slug}.mdx`),
+          path.join(getOutputDir(config, locale), `${result.pathSlug}.mdx`),
         label
       )
 

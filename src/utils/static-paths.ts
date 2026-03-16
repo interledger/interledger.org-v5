@@ -9,9 +9,10 @@ export async function getPagePaths(
   const pages = await getCollection(collection)
   return pages
     .filter(
-      (page) => !options?.excludeSlug || page.data.slug !== options.excludeSlug
+      (page) =>
+        !options?.excludeSlug || page.data.pathSlug !== options.excludeSlug
     )
     .map((page) => ({
-      params: { page: page.data.slug }
+      params: { page: page.data.pathSlug }
     }))
 }

@@ -55,6 +55,7 @@ interface StrapiLogger {
 interface FieldMetadata {
   edit?: {
     label?: string
+    description?: string
     [key: string]: unknown
   }
   list?: {
@@ -64,13 +65,37 @@ interface FieldMetadata {
   [key: string]: unknown
 }
 
-interface StrapiContentManagerService {
-  findConfiguration: (options: { uid: string }) => Promise<{
+interface EditLayoutField {
+  name: string
+  size: number
+}
+
+interface CmContentTypesService {
+  findConfiguration: (obj: { uid: string }) => Promise<{
     metadatas?: Record<string, FieldMetadata>
+    layouts?: { edit?: EditLayoutField[][] }
   } | null>
   updateConfiguration: (
-    uidOptions: { uid: string },
-    config: { metadatas: Record<string, FieldMetadata> }
+    obj: { uid: string },
+    config: {
+      metadatas?: Record<string, FieldMetadata>
+      layouts?: { edit?: EditLayoutField[][] }
+    }
+  ) => Promise<void>
+}
+
+interface CmComponentsService {
+  findComponent: (uid: string) => { uid: string } | null
+  findConfiguration: (component: { uid: string }) => Promise<{
+    metadatas?: Record<string, FieldMetadata>
+    layouts?: { edit?: EditLayoutField[][] }
+  } | null>
+  updateConfiguration: (
+    component: { uid: string },
+    config: {
+      metadatas?: Record<string, FieldMetadata>
+      layouts?: { edit?: EditLayoutField[][] }
+    }
   ) => Promise<void>
 }
 
@@ -79,7 +104,9 @@ interface StrapiInstance {
   log: StrapiLogger
   plugin: (name: string) =>
     | {
-        service: (serviceName: string) => StrapiContentManagerService
+        service: (
+          name: string
+        ) => CmContentTypesService | CmComponentsService | undefined
       }
     | undefined
 }
@@ -145,15 +172,25 @@ async function ensureLocales(strapi: StrapiInstance) {
 /**
  * Configure pretty labels for field names in the admin panel.
  * This updates the content-manager metadata stored in the database.
+ *
+ * Content types use service('content-types'); components use service('components').
+ * Both services store configuration under different key prefixes, so the correct
+ * service must be used for each.
  */
 async function configureFieldLabels(strapi: StrapiInstance) {
-  // Map of content type UIDs to their field label configurations
-  // All fields get human-readable labels for better UX
-  const labelConfigs: Record<string, Record<string, string>> = {
+  const contentTypeLabels: Record<string, Record<string, string>> = {
+    'api::ambassador.ambassador': {
+      name: 'Name',
+      slug: 'URL Slug',
+      description: 'Description',
+      photo: 'Photo',
+      linkedinUrl: 'LinkedIn URL',
+      grantReportUrl: 'Grant Report URL'
+    },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       date: 'Publish Date',
       pillar: 'Pillar',
       featureImage: 'Feature Image',
@@ -161,116 +198,434 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content',
       articleBio: 'Article Bio',
       tags: 'Tags',
-      language: 'Language',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
+      language: 'Language'
     },
     'api::foundation-page.foundation-page': {
-      title: 'Title',
+      title: 'Page Title',
       slug: 'URL Slug',
-      path: 'Route Path (e.g. /grant/ambassadors)',
-      pageType: 'Page Type (Grant, Policy, Developer)',
+      path: 'Directory Structure',
+      pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
-      content: 'Content',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
+      content: 'Page Content'
     },
     'api::summit-page.summit-page': {
       title: 'Title',
       slug: 'URL Slug',
-      path: 'Route Path',
-      pageType: 'Page Type (Hackathon, Hackathon Resource)',
+      path: 'Directory Structure',
+      pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
-      content: 'Content',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
+      content: 'Content'
     },
-    'api::press-item.press-item': {
-      title: 'Title',
-      description: 'Description',
-      publishDate: 'Publish Date',
-      slug: 'URL Slug',
-      publication: 'Publication Name',
-      publicationLogo: 'Publication Logo URL',
-      externalUrl: 'External URL',
-      content: 'Content',
-      featured: 'Featured',
-      category: 'Category',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
+    'api::foundation-navigation.foundation-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
     },
-    'api::info-item.info-item': {
-      title: 'Title',
-      content: 'Content',
-      order: 'Display Order',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
-      publishedAt: 'Published At'
+    'api::summit-navigation.summit-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
     }
   }
 
-  for (const [uid, labels] of Object.entries(labelConfigs)) {
-    if (Object.keys(labels).length === 0) continue
+  const contentTypeDescriptions: Record<string, Record<string, string>> = {
+    'api::foundation-page.foundation-page': {
+      path: 'Route path for file placement, e.g. /grant/ambassadors. Astro uses this to determine where the page lives.'
+    },
+    'api::summit-page.summit-page': {
+      path: 'Route path for file placement. Astro uses this to determine where the page lives.'
+    }
+  }
 
-    try {
-      // Get the content-manager plugin service
-      const contentManagerService = strapi
-        .plugin('content-manager')
-        ?.service('content-types')
-      if (!contentManagerService) continue
+  const componentLabels: Record<string, Record<string, string>> = {
+    'navigation.menu-group': {
+      label: 'Group Label',
+      href: 'Link URL',
+      items: 'Menu Items'
+    },
+    'navigation.menu-item': {
+      label: 'Label',
+      href: 'Link URL',
+      openInNewTab: 'Open in New Tab'
+    },
+    'shared.article-bio': {
+      author: 'Author Name',
+      profileBio: 'Author Bio',
+      profileImage: 'Profile Photo'
+    },
+    'shared.hero': {
+      title: 'Hero Title',
+      description: 'Hero Description',
+      backgroundImage: 'Background Image',
+      secondaryCtas: 'Secondary Buttons'
+    },
+    'shared.seo': {
+      metaTitle: 'Meta Title',
+      metaDescription: 'Meta Description',
+      metaImage: 'Social Share Image',
+      keywords: 'Keywords',
+      canonicalUrl: 'Canonical URL'
+    },
+    'blocks.ambassador': {
+      ambassador: 'Ambassador',
+      showLinks: 'Show Social Links'
+    },
+    'blocks.ambassadors-grid': {
+      heading: 'Heading',
+      ambassadors: 'Ambassadors'
+    },
+    'blocks.blockquote': {
+      quote: 'Quote',
+      source: 'Source'
+    },
+    'blocks.callout-text': {
+      content: 'Content'
+    },
+    'shared.cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      style: 'Style',
+      external: 'External Link',
+      analytics_event_label: 'Analytics Event Label'
+    },
+    'blocks.paragraph': {
+      content: 'Content',
+      alignment: 'Alignment'
+    },
+    'blocks.cards-grid': {
+      heading: 'Section Heading',
+      subheading: 'Section Description',
+      cards: 'Cards',
+      columns: 'Number of Columns'
+    },
+    'blocks.card': {
+      title: 'Card Title',
+      description: 'Card Description',
+      link: 'Link URL',
+      linkText: 'Link Text',
+      icon: 'Icon',
+      openInNewTab: 'Open in New Tab'
+    },
+    'blocks.card-links-grid': {
+      heading: 'Section Heading',
+      subheading: 'Section Description',
+      cards: 'Cards',
+      columns: 'Number of Columns'
+    },
+    'blocks.card-link': {
+      title: 'Card Title',
+      description: 'Card Description',
+      href: 'Link URL',
+      openInNewTab: 'Open in New Tab'
+    },
+    'blocks.carousel': {
+      heading: 'Section Heading',
+      items: 'Slides',
+      autoplay: 'Autoplay',
+      interval: 'Autoplay Interval (ms)'
+    },
+    'blocks.carousel-item': {
+      quote: 'Quote',
+      author: 'Author Name',
+      role: 'Job Title',
+      organization: 'Organization',
+      image: 'Photo'
+    },
+    'blocks.cta-banner': {
+      heading: 'Heading',
+      text: 'Body Text',
+      primaryButtonText: 'Primary Button Text',
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL',
+      backgroundColor: 'Background Color'
+    },
+    'blocks.image-row': {
+      heading: 'Heading',
+      content: 'Content',
+      image: 'Image',
+      imagePosition: 'Image Position',
+      attribution: 'Image Attribution'
+    }
+  }
 
-      // Get current configuration
-      const configuration = await contentManagerService.findConfiguration({
-        uid
-      })
-      if (!configuration?.metadatas) continue
+  async function applyLabels(
+    service: CmContentTypesService | CmComponentsService,
+    uid: string,
+    labels: Record<string, string>,
+    descriptions?: Record<string, string>
+  ) {
+    const configuration = await service.findConfiguration({ uid })
+    if (!configuration?.metadatas) return
 
-      let needsUpdate = false
-      const updatedMetadatas = { ...configuration.metadatas }
+    let needsUpdate = false
+    const updatedMetadatas = JSON.parse(
+      JSON.stringify(configuration.metadatas)
+    ) as Record<string, FieldMetadata>
 
-      for (const [fieldName, label] of Object.entries(labels)) {
-        if (updatedMetadatas[fieldName]) {
-          const currentEditLabel = updatedMetadatas[fieldName]?.edit?.label
-
-          // Update if label is default (same as field name, case-insensitive), empty, or not set
-          const isDefaultLabel =
-            !currentEditLabel ||
-            currentEditLabel === fieldName ||
-            currentEditLabel.toLowerCase() === fieldName.toLowerCase()
-
-          if (isDefaultLabel && currentEditLabel !== label) {
-            updatedMetadatas[fieldName] = {
-              ...updatedMetadatas[fieldName],
-              edit: {
-                ...updatedMetadatas[fieldName]?.edit,
-                label
-              },
-              list: {
-                ...updatedMetadatas[fieldName]?.list,
-                label
-              }
-            }
-            needsUpdate = true
-          }
+    for (const [fieldName, label] of Object.entries(labels)) {
+      const meta = updatedMetadatas[fieldName]
+      if (!meta) continue
+      const currentLabel = meta.edit?.label
+      const description = descriptions?.[fieldName]
+      const currentDescription = meta.edit?.description
+      const labelChanged = currentLabel !== label
+      const descriptionChanged =
+        description !== undefined && currentDescription !== description
+      if (labelChanged || descriptionChanged) {
+        updatedMetadatas[fieldName] = {
+          ...meta,
+          edit: {
+            ...meta.edit,
+            ...(labelChanged && { label }),
+            ...(descriptionChanged && { description })
+          },
+          ...(labelChanged && { list: { ...meta.list, label } })
         }
+        needsUpdate = true
       }
+    }
 
-      if (needsUpdate) {
-        await contentManagerService.updateConfiguration(
-          { uid },
-          { metadatas: updatedMetadatas }
-        )
-        strapi.log.info(`✅ Updated field labels for ${uid}`)
-      }
+    if (needsUpdate) {
+      await service.updateConfiguration(
+        { uid },
+        { metadatas: updatedMetadatas }
+      )
+      strapi.log.info(`✅ Updated field labels for ${uid}`)
+    }
+  }
+
+  const plugin = strapi.plugin('content-manager')
+  if (!plugin) return
+
+  const contentTypeService = plugin.service('content-types') as
+    | CmContentTypesService
+    | undefined
+  const componentService = plugin.service('components') as
+    | CmComponentsService
+    | undefined
+
+  if (!contentTypeService || !componentService) return
+
+  for (const [uid, labels] of Object.entries(contentTypeLabels)) {
+    try {
+      await applyLabels(
+        contentTypeService,
+        uid,
+        labels,
+        contentTypeDescriptions[uid]
+      )
     } catch (error) {
-      // Log but don't fail - configuration might not exist yet
-      strapi.log.debug(`Could not update labels for ${uid}: ${error.message}`)
+      strapi.log.debug(
+        `Could not update labels for ${uid}: ${(error as Error).message}`
+      )
+    }
+  }
+
+  for (const [uid, labels] of Object.entries(componentLabels)) {
+    try {
+      const component = componentService.findComponent(uid)
+      if (!component) {
+        strapi.log.debug(`Component ${uid} not found, skipping labels`)
+        continue
+      }
+      await applyLabels(componentService, uid, labels)
+    } catch (error) {
+      strapi.log.debug(
+        `Could not update labels for ${uid}: ${(error as Error).message}`
+      )
+    }
+  }
+}
+
+/**
+ * Configure edit view layouts for content types and components where the
+ * default auto-layout isn't ideal. Rows are arrays of { name, size } with
+ * max row size 12 (12 = full width, 6 = half, 3 = quarter, etc.).
+ */
+async function configureLayouts(strapi: StrapiInstance) {
+  const plugin = strapi.plugin('content-manager')
+  if (!plugin) return
+
+  const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
+    'api::foundation-blog-post.foundation-blog-post': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [
+        { name: 'date', size: 4 },
+        { name: 'pillar', size: 4 },
+        { name: 'language', size: 4 }
+      ],
+      [
+        { name: 'featureImage', size: 6 },
+        { name: 'thumbnailImage', size: 6 }
+      ],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [{ name: 'articleBio', size: 12 }],
+      [{ name: 'tags', size: 12 }]
+    ],
+    'api::ambassador.ambassador': [
+      [
+        { name: 'name', size: 6 },
+        { name: 'slug', size: 6 }
+      ],
+      [
+        { name: 'linkedinUrl', size: 6 },
+        { name: 'grantReportUrl', size: 6 }
+      ],
+      [{ name: 'photo', size: 12 }],
+      [{ name: 'description', size: 12 }]
+    ],
+    'api::foundation-page.foundation-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pageType', size: 6 }
+      ],
+      [
+        { name: 'slug', size: 6 },
+        { name: 'path', size: 6 }
+      ],
+      [{ name: 'seo', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
+    'api::summit-page.summit-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pageType', size: 6 }
+      ],
+      [
+        { name: 'slug', size: 6 },
+        { name: 'path', size: 6 }
+      ],
+      [{ name: 'seo', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ]
+  }
+
+  const componentLayouts: Record<string, EditLayoutField[][]> = {
+    'navigation.menu-item': [
+      [
+        { name: 'label', size: 4 },
+        { name: 'href', size: 4 },
+        { name: 'openInNewTab', size: 4 }
+      ]
+    ],
+    'shared.article-bio': [
+      [{ name: 'author', size: 6 }],
+      [
+        { name: 'profileImage', size: 6 },
+        { name: 'profileBio', size: 6 }
+      ]
+    ],
+    'blocks.cards-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subheading', size: 12 }],
+      [{ name: 'cards', size: 12 }],
+      [{ name: 'columns', size: 4 }]
+    ],
+    'blocks.card-links-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subheading', size: 12 }],
+      [{ name: 'cards', size: 12 }],
+      [{ name: 'columns', size: 4 }]
+    ],
+    'blocks.carousel': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }],
+      [
+        { name: 'autoplay', size: 4 },
+        { name: 'interval', size: 4 }
+      ]
+    ],
+    'blocks.image-row': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'image', size: 12 }],
+      [
+        { name: 'attribution', size: 6 },
+        { name: 'imagePosition', size: 6 }
+      ],
+      [{ name: 'content', size: 12 }]
+    ],
+    'blocks.blockquote': [
+      [{ name: 'quote', size: 12 }],
+      [{ name: 'source', size: 12 }]
+    ],
+    'blocks.cta-banner': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'text', size: 12 }],
+      [
+        { name: 'primaryButtonText', size: 6 },
+        { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [{ name: 'backgroundColor', size: 4 }]
+    ],
+    'shared.hero': [
+      [{ name: 'title', size: 12 }],
+      [
+        { name: 'description', size: 6 },
+        { name: 'backgroundImage', size: 6 }
+      ],
+      [{ name: 'secondaryCtas', size: 12 }]
+    ],
+    'shared.seo': [
+      [
+        { name: 'metaTitle', size: 6 },
+        { name: 'canonicalUrl', size: 6 }
+      ],
+      [
+        { name: 'metaDescription', size: 6 },
+        { name: 'keywords', size: 6 }
+      ],
+      [{ name: 'metaImage', size: 12 }]
+    ]
+  }
+
+  const contentTypeService = plugin.service('content-types') as
+    | CmContentTypesService
+    | undefined
+  const componentService = plugin.service('components') as
+    | CmComponentsService
+    | undefined
+
+  for (const [uid, editLayout] of Object.entries(contentTypeLayouts)) {
+    try {
+      // Preserve existing layouts (e.g. list) — only replace the edit layout.
+      // setModelConfiguration replaces the entire `layouts` key, so we must
+      // read the current value and spread it to avoid wiping out `list`.
+      const current = await contentTypeService?.findConfiguration({ uid })
+      await contentTypeService?.updateConfiguration(
+        { uid },
+        { layouts: { ...current?.layouts, edit: editLayout } }
+      )
+      strapi.log.info(`✅ Updated layout for ${uid}`)
+    } catch (error) {
+      strapi.log.debug(
+        `Could not update layout for ${uid}: ${(error as Error).message}`
+      )
+    }
+  }
+
+  for (const [uid, editLayout] of Object.entries(componentLayouts)) {
+    try {
+      const current = await componentService?.findConfiguration({ uid })
+      await componentService?.updateConfiguration(
+        { uid },
+        { layouts: { ...current?.layouts, edit: editLayout } }
+      )
+      strapi.log.info(`✅ Updated layout for ${uid}`)
+    } catch (error) {
+      strapi.log.debug(
+        `Could not update layout for ${uid}: ${(error as Error).message}`
+      )
     }
   }
 }
@@ -327,5 +682,6 @@ export default {
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
+    await configureLayouts(strapi)
   }
 }

@@ -16,6 +16,7 @@ import {
 import './ambassadorHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
+import './paragraphHandler'
 import { createRelationResolver } from './ambassadorHandler'
 
 /**

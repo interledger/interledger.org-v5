@@ -8,7 +8,7 @@
     "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -21,7 +21,7 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "targetField": "title",
       "required": true,
@@ -38,6 +38,12 @@
       "default": "grant",
       "pluginOptions": { "i18n": { "localized": false } },
       "description": "Grant Page, Policy Page, or Developer Page"
+    },
+    "pillar": {
+      "type": "enumeration",
+      "enum": ["vision", "mission", "tech", "values"],
+      "pluginOptions": { "i18n": { "localized": false } },
+      "description": "Content pillar — controls page-level colour theming via data-pillar attribute"
     },
     "seo": {
       "type": "component",

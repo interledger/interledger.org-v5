@@ -130,6 +130,72 @@ describe('CalloutText handler (locale context)', () => {
 })
 
 // ---------------------------------------------------------------------------
+// CalloutText handler — lists and images
+// ---------------------------------------------------------------------------
+
+describe('CalloutText handler — lists and images', () => {
+  it('normalizes unordered list bullets to dash regardless of input marker', async () => {
+    const mdx = [
+      '<CalloutText>',
+      '* First item',
+      '* Second item',
+      '* Third item',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const content = (blocks[0] as { content: string }).content
+
+    expect(content).toContain('- First item')
+    expect(content).toContain('- Second item')
+    expect(content).not.toMatch(/^\* /m)
+  })
+
+  it('preserves ordered list numbers', async () => {
+    const mdx = [
+      '<CalloutText>',
+      '1. First step',
+      '2. Second step',
+      '3. Third step',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const content = (blocks[0] as { content: string }).content
+
+    expect(content).toContain('1.')
+    expect(content).toContain('2.')
+    expect(content).toContain('3.')
+  })
+
+  it('preserves images', async () => {
+    const mdx = [
+      '<CalloutText>',
+      '![Diagram](https://example.com/diagram.png)',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const content = (blocks[0] as { content: string }).content
+
+    expect(content).toContain('![Diagram](https://example.com/diagram.png)')
+  })
+
+  it('preserves strikethrough text', async () => {
+    const mdx = [
+      '<CalloutText>',
+      'This is ~~struck~~ text.',
+      '</CalloutText>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const content = (blocks[0] as { content: string }).content
+
+    expect(content).toContain('~~struck~~')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Integration: CalloutText mixed with markdown
 // ---------------------------------------------------------------------------
 
