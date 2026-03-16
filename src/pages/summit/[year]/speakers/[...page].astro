@@ -1,10 +1,10 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
-import { paginateSummitTalks } from '@/utils/summit-talks-speakers.ts'
-import type { Talk } from '@/utils/summit-talks-speakers.ts'
+import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers.ts'
+import type { Speaker } from '@/utils/summit-talks-speakers.ts'
 import stripPagination from '@/utils/stripPagination'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import SessionCard from '@/components/summit/SessionCard.astro'
+import SpeakerCard from '@/components/summit/SpeakerCard.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 
 type Props = {
@@ -12,23 +12,23 @@ type Props = {
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const paths = await paginateSummitTalks(paginate)
+  const paths = await paginateSummitSpeakers(paginate)
   return paths
 }
 
 const { year } = Astro.params
 const { page } = Astro.props
-const talks: Talk[] = page.data
+const speakers: Speaker[] = page.data
 const basePath = stripPagination(Astro.url.pathname)
-const title = `${year} Summit Sessions`
+const title = `${year} Summit Speakers`
 ---
 
 <SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
     <h1>{title}</h1>
     <section>
-      <ul class="flex flex-col gap-4">
-        {talks.map((talk) => <SessionCard talk={talk} />)}
+      <ul class="flex flex-wrap gap-4">
+        {speakers.map((speaker) => <SpeakerCard speaker={speaker} />)}
       </ul>
     </section>
 

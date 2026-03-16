@@ -1,0 +1,13 @@
+---
+import type { Speaker } from '@/utils/summit-talks-speakers.ts'
+
+interface Props {
+  speaker: Speaker
+}
+
+const { speaker } = Astro.props
+---
+
+<li class="min-h-50 w-50 bg-black/10">
+  <h2>{speaker.name}</h2>
+</li>
