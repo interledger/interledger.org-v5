@@ -110,25 +110,17 @@ export default {
     `
     document.head.appendChild(style)
 
-    // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
-    function hideOpenEntity() {
-      const link = document.querySelector<HTMLAnchorElement>(
+    // TEMP UI Fix: apply DOM tweaks (MutationObserver, no polling)
+    function applyUITweaks() {
+      // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
+      const openEntityLink = document.querySelector<HTMLAnchorElement>(
         'li a[href*="plugin::record-locking.open-entity"]'
       )
-      const li = link?.closest('li')
-      if (li && li.style.display !== 'none') {
-        li.style.display = 'none'
+      const openEntityLi = openEntityLink?.closest('li')
+      if (openEntityLi && openEntityLi.style.display !== 'none') {
+        openEntityLi.style.display = 'none'
       }
-    }
-    hideOpenEntity()
-    const navObserver = new MutationObserver(() => hideOpenEntity())
-    navObserver.observe(document.body, {
-      childList: true,
-      subtree: true
-    })
 
-    // TEMP UI Fix: DOM polling for remaining UI tweaks until Strapi exposes better extension points
-    const interval = setInterval(() => {
       // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
@@ -141,7 +133,6 @@ export default {
           if (h1 && /^[a-z0-9]{15,}$/.test(h1.textContent?.trim() ?? '')) {
             h1.textContent = title
           }
-          // Fix browser tab title (document.title) when it shows document ID
           const docIdPattern = /^[a-z0-9]{15,}\s*\|/
           if (docIdPattern.test(document.title)) {
             document.title = `${title} | Strapi`
@@ -161,11 +152,20 @@ export default {
           span.textContent = 'Publish'
         }
       })
-    }, 100)
-
-    // Store interval for cleanup if needed
-    ;(
-      window as unknown as { __strapiButtonInterval: NodeJS.Timeout }
-    ).__strapiButtonInterval = interval
+    }
+    applyUITweaks()
+    let tweakScheduled = false
+    const uiObserver = new MutationObserver(() => {
+      if (tweakScheduled) return
+      tweakScheduled = true
+      requestAnimationFrame(() => {
+        applyUITweaks()
+        tweakScheduled = false
+      })
+    })
+    uiObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
   }
 }
