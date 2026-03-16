@@ -271,7 +271,6 @@ export async function buildBlogPayload(
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext
 ): Promise<Record<string, unknown>> {
-
   let parsed
   try {
     parsed = schema.parse({

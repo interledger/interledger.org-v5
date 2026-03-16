@@ -113,7 +113,11 @@ export function buildContentTypes(
           STRAPI_URL: strapiUrl,
           STRAPI_TOKEN: strapiToken
         }
-        return buildBlogPayload(foundationBlogFrontmatterSchema, mdx, uploadContext)
+        return buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          uploadContext
+        )
       }
     }
   }
