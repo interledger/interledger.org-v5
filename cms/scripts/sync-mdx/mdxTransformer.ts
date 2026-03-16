@@ -22,7 +22,7 @@ import path from 'path'
 import { getTargetRepoRoot } from '@/utils/gitSync'
 import mime from 'mime-types'
 
-interface StrapiUploadContext {
+export interface StrapiUploadContext {
   strapi: StrapiClient
   STRAPI_URL: string
   STRAPI_TOKEN: string
@@ -269,17 +269,8 @@ export async function buildAmbassadorPayload(
 export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
-  strapi: StrapiClient
+  strapiUploadContext: StrapiUploadContext
 ): Promise<Record<string, unknown>> {
-  const STRAPI_URL = process.env.STRAPI_URL
-  const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN
-
-  if (!STRAPI_URL || !STRAPI_TOKEN) {
-    throw new Error(
-      'STRAPI_URL and STRAPI_API_TOKEN must be set when syncing blog post images'
-    )
-  }
-  const strapiUploadContext = { strapi, STRAPI_URL, STRAPI_TOKEN }
 
   let parsed
   try {
