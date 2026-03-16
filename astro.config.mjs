@@ -154,7 +154,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
+      filter: (url) => !new URL(url).pathname.includes('/preview')
     })
   ],
   vite: {
