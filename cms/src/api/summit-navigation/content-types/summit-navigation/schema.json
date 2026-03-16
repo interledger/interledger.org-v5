@@ -8,7 +8,7 @@
     "description": "Summit pages navigation menu"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
