@@ -1,0 +1,49 @@
+---
+import type { Page, GetStaticPaths } from 'astro'
+import { paginateSummitTalks } from '@/utils/summit-talks-speakers.ts'
+import type { Talk } from '@/utils/summit-talks-speakers.ts'
+import Pagination from '@/components/blog/Pagination.astro'
+import stripPagination from '@/utils/stripPagination'
+
+type Props = {
+  page: Page
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const paths = await paginateSummitTalks(paginate)
+  return paths
+}
+
+const { year } = Astro.params
+const { page } = Astro.props
+const talks: Talk[] | undefined = page.data
+const basePath = stripPagination(Astro.url.pathname)
+---
+
+<div>
+  <div>This is summit TALKS page for the year: {year}</div>
+
+  <ul>
+    {
+      talks.map((talk) => (
+        <li>
+          <h2>{talk.title}</h2>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    page.lastPage && page.lastPage > 1 && (
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        firstUrl={page.url.first}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        lastUrl={page.url.last}
+      />
+    )
+  }
+</div>
