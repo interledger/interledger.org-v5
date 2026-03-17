@@ -11,7 +11,7 @@ export interface Speaker {
 
 export const YEARS = ['2022', '2023', '2024', '2025']
 
-export function getSpeakers(year: string): Speaker[] {
+export function getSpeakers(year: string, lang: string): Speaker[] {
   const baseSpeakers: Speaker[] = [
     {
       id: '370w173',
@@ -22,11 +22,26 @@ export function getSpeakers(year: string): Speaker[] {
       name: 'Ioana Chiorean'
     }
   ]
+  const baseSpanishSpeakers: Speaker[] = [
+    {
+      id: '12342',
+      name: 'Lupita'
+    },
+    {
+      id: '020231',
+      name: 'Jose Armando'
+    }
+  ]
   //get 22 speakers to see pagination
   const speakers2022 = Array.from({ length: 11 }).flatMap(() => baseSpeakers)
-  switch (year) {
-    case '2022':
+  const spanishSpeakers2022 = Array.from({ length: 5 }).flatMap(
+    () => baseSpanishSpeakers
+  )
+  switch (true) {
+    case year === '2022' && lang === 'en':
       return speakers2022
+    case year === '2022' && lang === 'es':
+      return spanishSpeakers2022
     default:
       console.error(
         'Year is not correct or speakers data is not available for that year'
@@ -35,7 +50,7 @@ export function getSpeakers(year: string): Speaker[] {
   }
 }
 
-export function getTalks(year: string): Talk[] {
+export function getTalks(year: string, lang): Talk[] {
   const baseSessions: Talk[] = [
     {
       id: '370173',
@@ -46,12 +61,27 @@ export function getTalks(year: string): Talk[] {
       title: `${year} TigerBeetle, a Financial Accounting Database for Interledger`
     }
   ]
+  const baseSpanishSessions: Talk[] = [
+    {
+      id: '3da173',
+      title: `${year} En espagnol: State of Interledger`
+    },
+    {
+      id: '38ad79',
+      title: `${year} En espagnol: TigerBeetle, a Financial Accounting Database for Interledger`
+    }
+  ]
   const sessions2022 = Array.from({ length: 10 }).flatMap(() => baseSessions)
+  const spanishSessions2022 = Array.from({ length: 6 }).flatMap(
+    () => baseSpanishSessions
+  )
   const sessions2023 = Array.from({ length: 3 }).flatMap(() => baseSessions)
-  switch (year) {
-    case '2022':
+  switch (true) {
+    case year === '2022' && lang === 'en':
       return sessions2022
-    case '2023':
+    case year === '2022' && lang === 'es':
+      return spanishSessions2022
+    case year === '2023' && lang === 'en':
       return sessions2023
     default:
       console.error(
@@ -61,9 +91,12 @@ export function getTalks(year: string): Talk[] {
   }
 }
 
-export async function paginateSummitTalks(paginate: PaginateFunction) {
+export async function paginateSummitTalks(
+  paginate: PaginateFunction,
+  lang: string
+) {
   return YEARS.flatMap((year) => {
-    const talksForYear = getTalks(year)
+    const talksForYear = getTalks(year, lang)
     return paginate(talksForYear, {
       params: { year },
       pageSize: 10
@@ -71,9 +104,12 @@ export async function paginateSummitTalks(paginate: PaginateFunction) {
   })
 }
 
-export async function paginateSummitSpeakers(paginate: PaginateFunction) {
+export async function paginateSummitSpeakers(
+  paginate: PaginateFunction,
+  lang: string
+) {
   return YEARS.flatMap((year) => {
-    const speakersForYear = getSpeakers(year)
+    const speakersForYear = getSpeakers(year, lang)
     return paginate(speakersForYear, {
       params: { year },
       pageSize: 20

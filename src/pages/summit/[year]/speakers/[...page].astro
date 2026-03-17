@@ -12,7 +12,7 @@ type Props = {
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const paths = await paginateSummitSpeakers(paginate)
+  const paths = await paginateSummitSpeakers(paginate, 'en')
   return paths
 }
 
