@@ -89,8 +89,6 @@ export interface PageLifecycleConfig {
   contentTypeUid: string
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string
-  /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
-  localizedOutputDir: string
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {

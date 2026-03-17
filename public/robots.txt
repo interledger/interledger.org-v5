@@ -1,3 +1,5 @@
 User-agent: *
 Disallow: /blog/preview
+Disallow: /developers/blog/preview
+Disallow: /preview/
 Sitemap: https://interledger.org/sitemap-index.xml

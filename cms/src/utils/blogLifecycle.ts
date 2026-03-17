@@ -30,7 +30,7 @@ interface BlogResult {
   articleBio?: {
     author: string
     profileBio?: string
-    profileImage?: { url: string }
+    profileImage?: { url: string; name: string }
   }[]
   tags?: { tagValue: string }[]
   localizations: string[]
@@ -42,7 +42,7 @@ interface BlogEvent {
 }
 
 function yamlSingleQuote(value: string): string {
-  return `${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}`
+  return `${value.replace(/'/g, '’').replace(/\r\n/g, '\n')}`
 }
 const q = yamlSingleQuote
 
@@ -98,7 +98,7 @@ function generateBlogMDX(post: BlogResult) {
     post.tags
       ? post.tags.length === 0
         ? `tags: []`
-        : `tags: ${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
+        : `tags:${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
       : null,
     post.language ? `locale: ${q(post.language)}` : null
   ].filter(Boolean) as string[]

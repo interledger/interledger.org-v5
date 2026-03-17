@@ -439,7 +439,7 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     singularName: 'ambassador'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -521,7 +521,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
     singularName: 'foundation-blog-post'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -638,7 +638,7 @@ export interface ApiFoundationNavigationFoundationNavigation
     singularName: 'foundation-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -669,7 +669,7 @@ export interface ApiFoundationPageFoundationPage
     singularName: 'foundation-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -768,7 +768,7 @@ export interface ApiSummitNavigationSummitNavigation
     singularName: 'summit-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -798,7 +798,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     singularName: 'summit-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {

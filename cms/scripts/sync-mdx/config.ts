@@ -4,7 +4,8 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {
   buildPagePayload,
   buildBlogPayload,
-  buildAmbassadorPayload
+  buildAmbassadorPayload,
+  type StrapiUploadContext
 } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
@@ -77,7 +78,11 @@ function buildParsedPagePayload(
   })
 }
 
-export function buildContentTypes(projectRoot: string): ContentTypes {
+export function buildContentTypes(
+  projectRoot: string,
+  strapiUrl: string,
+  strapiToken: string
+): ContentTypes {
   return {
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
@@ -114,8 +119,18 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+      buildPayload: async (mdx, strapi, _existing) => {
+        const uploadContext: StrapiUploadContext = {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken
+        }
+        return buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          uploadContext
+        )
+      }
     }
   }
 }
