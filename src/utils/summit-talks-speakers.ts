@@ -1,5 +1,6 @@
 import type { PaginateFunction } from 'astro'
 
+export type Language = 'en' | 'es'
 export interface Talk {
   id: string
   title: string
@@ -11,7 +12,8 @@ export interface Speaker {
 
 export const YEARS = ['2022', '2023', '2024', '2025']
 
-export function getSpeakers(year: string, lang: string): Speaker[] {
+//Dummy function - ignore this for now, will be implemented in a follow up PR
+export function getSpeakers(year: string, lang: Language): Speaker[] {
   const baseSpeakers: Speaker[] = [
     {
       id: '370w173',
@@ -49,8 +51,8 @@ export function getSpeakers(year: string, lang: string): Speaker[] {
       return []
   }
 }
-
-export function getTalks(year: string, lang): Talk[] {
+//Dummy function - ignore this for now, will be implemented in a follow up PR
+export function getTalks(year: string, lang: Language): Talk[] {
   const baseSessions: Talk[] = [
     {
       id: '370173',
@@ -93,7 +95,7 @@ export function getTalks(year: string, lang): Talk[] {
 
 export async function paginateSummitTalks(
   paginate: PaginateFunction,
-  lang: string
+  lang: Language
 ) {
   return YEARS.flatMap((year) => {
     const talksForYear = getTalks(year, lang)
@@ -106,7 +108,7 @@ export async function paginateSummitTalks(
 
 export async function paginateSummitSpeakers(
   paginate: PaginateFunction,
-  lang: string
+  lang: Language
 ) {
   return YEARS.flatMap((year) => {
     const speakersForYear = getSpeakers(year, lang)
