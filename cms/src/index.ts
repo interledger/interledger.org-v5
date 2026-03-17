@@ -181,7 +181,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::ambassador.ambassador': {
       name: 'Name',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       description: 'Description',
       photo: 'Photo',
       linkedinUrl: 'LinkedIn URL',
@@ -202,7 +202,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       path: 'Directory Structure',
       pageType: 'Brand Pillar',
       seo: 'SEO',
@@ -211,7 +211,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      slug: 'URL Slug',
+      pathSlug: 'URL Slug',
       path: 'Directory Structure',
       pageType: 'Brand Pillar',
       seo: 'SEO',
@@ -470,7 +470,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::ambassador.ambassador': [
       [
         { name: 'name', size: 6 },
-        { name: 'slug', size: 6 }
+        { name: 'pathSlug', size: 6 }
       ],
       [
         { name: 'linkedinUrl', size: 6 },
@@ -485,7 +485,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pageType', size: 6 }
       ],
       [
-        { name: 'slug', size: 6 },
+        { name: 'pathSlug', size: 6 },
         { name: 'path', size: 6 }
       ],
       [{ name: 'seo', size: 12 }],
@@ -498,7 +498,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pageType', size: 6 }
       ],
       [
-        { name: 'slug', size: 6 },
+        { name: 'pathSlug', size: 6 },
         { name: 'path', size: 6 }
       ],
       [{ name: 'seo', size: 12 }],
