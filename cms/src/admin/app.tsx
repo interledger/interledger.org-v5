@@ -110,7 +110,7 @@ export default {
       /* TEMP UI Fix: minimum textarea height */
       textarea { min-height: 140px !important; }
       /* TEMP UI Fix: hide only the Preview aside (last one), not the one above */
-      aside[aria-labelledby="additional-information"]:last-of-type { display: none !important; }
+      aside[aria-labelledby="additional-information"]:nth-child(2) { display: none !important; }
     `
     document.head.appendChild(style)
 
