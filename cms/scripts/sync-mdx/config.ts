@@ -4,7 +4,8 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {
   buildPagePayload,
   buildBlogPayload,
-  buildAmbassadorPayload
+  buildAmbassadorPayload,
+  type StrapiUploadContext
 } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
@@ -65,7 +66,11 @@ function buildParsedPagePayload(
   })
 }
 
-export function buildContentTypes(projectRoot: string): ContentTypes {
+export function buildContentTypes(
+  projectRoot: string,
+  strapiUrl: string,
+  strapiToken: string
+): ContentTypes {
   // One Set per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
   const ambassadorAltIds = new Set<number>()
@@ -107,8 +112,19 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx, strapi, blogAltIds)
+      buildPayload: async (mdx, strapi, _existing) => {
+        const uploadContext: StrapiUploadContext = {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken
+        }
+        return buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          uploadContext,
+          blogAltIds
+        )
+      }
     }
   }
 }

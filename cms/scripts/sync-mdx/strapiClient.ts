@@ -17,6 +17,7 @@ export interface StrapiClient {
   findUploadByUrl: (url: string) => Promise<number | null>
   /** Update the alternativeText (alt text) on a Strapi upload file record. */
   updateUploadAlt: (id: number, alternativeText: string) => Promise<void>
+  findUploadByName: (name: string) => Promise<number | null>
   createLocalization: (
     apiId: string,
     documentId: string,
@@ -231,6 +232,15 @@ export function createStrapiClient({
     return files.length > 0 ? files[0].id : null
   }
 
+  async function findUploadByName(name: string) {
+    const result = await request(`upload/files?filters[name][$eq]=${name}`)
+    const files = Array.isArray(result)
+      ? (result as { id: number }[])
+      : ((result as { data?: { id: number }[] })?.data ?? [])
+
+    return files.length > 0 ? files[0].id : null
+  }
+
   async function deleteLocalization(
     apiId: string,
     documentId: string,
@@ -247,6 +257,7 @@ export function createStrapiClient({
     findByPathSlug,
     findUploadByUrl,
     updateUploadAlt,
+    findUploadByName,
     createLocalization,
     updateLocalization,
     createEntry,
