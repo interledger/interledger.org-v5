@@ -1,11 +1,9 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
-import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers.ts'
 import type { Speaker } from '@/utils/summit-talks-speakers.ts'
+import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers.ts'
 import stripPagination from '@/utils/stripPagination'
-import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import SpeakerCard from '@/components/summit/SpeakerCard.astro'
-import Pagination from '@/components/blog/Pagination.astro'
+import SpeakersListPage from '@/components/summit/SpeakersListPage.astro'
 
 type Props = {
   page: Page
@@ -20,30 +18,12 @@ const { year } = Astro.params
 const { page } = Astro.props
 const speakers: Speaker[] = page.data
 const basePath = stripPagination(Astro.url.pathname)
-const title = `${year} Summit Speakers`
+const title = `Oradores de la Cumbre ${year}`
 ---
 
-<SummitPageLayout title={title}>
-  <main class="p-4 max-w-275 m-auto">
-    <h1>{title}</h1>
-    <section>
-      <ul class="flex flex-wrap gap-4">
-        {speakers.map((speaker) => <SpeakerCard speaker={speaker} />)}
-      </ul>
-    </section>
-
-    {
-      page.lastPage && page.lastPage > 1 && (
-        <Pagination
-          baseUrl={basePath}
-          length={page.lastPage}
-          currentPage={page.currentPage}
-          firstUrl={page.url.first}
-          prevUrl={page.url.prev}
-          nextUrl={page.url.next}
-          lastUrl={page.url.last}
-        />
-      )
-    }
-  </main>
-</SummitPageLayout>
+<SpeakersListPage
+  speakers={speakers}
+  basePath={basePath}
+  title={title}
+  page={page}
+/>
