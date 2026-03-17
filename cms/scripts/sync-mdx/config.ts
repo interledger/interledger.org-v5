@@ -82,7 +82,12 @@ export function buildContentTypes(
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
       buildPayload: (mdx, strapi, _existing) =>
-        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi, ambassadorAltIds)
+        buildAmbassadorPayload(
+          ambassadorFrontmatterSchema,
+          mdx,
+          strapi,
+          ambassadorAltIds
+        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),

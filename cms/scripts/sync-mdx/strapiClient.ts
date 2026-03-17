@@ -201,7 +201,10 @@ export function createStrapiClient({
     })
   }
 
-  async function updateUploadAlt(id: number, alternativeText: string): Promise<void> {
+  async function updateUploadAlt(
+    id: number,
+    alternativeText: string
+  ): Promise<void> {
     await request(`upload/files/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ alternativeText })

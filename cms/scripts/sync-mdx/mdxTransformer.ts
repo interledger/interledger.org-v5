@@ -279,7 +279,13 @@ export async function buildAmbassadorPayload(
   if (photoId) {
     const photoAlt = nullOrValue(mdx.frontmatter.photoAlt as string)
     if (photoAlt) {
-      await updateUploadAltOnce(strapi, photoId, photoAlt, updatedAltIds, mdx.pathSlug)
+      await updateUploadAltOnce(
+        strapi,
+        photoId,
+        photoAlt,
+        updatedAltIds,
+        mdx.pathSlug
+      )
     }
   }
 

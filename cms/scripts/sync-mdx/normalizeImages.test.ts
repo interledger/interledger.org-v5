@@ -3,9 +3,9 @@ import { normalizeInlineImages } from './normalizeImages'
 
 describe('normalizeInlineImages', () => {
   it('converts HTML img tag to markdown', () => {
-    expect(normalizeInlineImages('<img src="/img/test.png" alt="A photo" />')).toBe(
-      '![A photo](/img/test.png)'
-    )
+    expect(
+      normalizeInlineImages('<img src="/img/test.png" alt="A photo" />')
+    ).toBe('![A photo](/img/test.png)')
   })
 
   it('converts JSX img tag with style prop to markdown, dropping style', () => {
@@ -17,9 +17,9 @@ describe('normalizeInlineImages', () => {
   })
 
   it('converts non-self-closing HTML img tag', () => {
-    expect(normalizeInlineImages('<img src="/img/test.png" alt="A photo">')).toBe(
-      '![A photo](/img/test.png)'
-    )
+    expect(
+      normalizeInlineImages('<img src="/img/test.png" alt="A photo">')
+    ).toBe('![A photo](/img/test.png)')
   })
 
   it('uses empty string for missing alt', () => {
