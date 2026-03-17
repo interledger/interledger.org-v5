@@ -1,0 +1,16 @@
+---
+import PdfEmbed from '@/components/PdfEmbed.astro'
+
+interface Props {
+  file?: { url: string }
+  externalUrl?: string
+  label?: string
+  analyticsEvent: string
+}
+
+const { file, externalUrl, label, analyticsEvent } = Astro.props
+
+const url = file?.url ?? externalUrl
+---
+
+{url && <PdfEmbed url={url} label={label} analyticsEvent={analyticsEvent} />}

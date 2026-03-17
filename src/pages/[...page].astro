@@ -12,6 +12,7 @@ import AmbassadorGrid from '../components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '../components/blockquote/Blockquote.astro'
 import CalloutText from '../components/callout/CalloutText.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
+import PdfEmbed from '../components/PdfEmbed.astro'
 
 export async function getStaticPaths() {
   return getPagePaths('foundation-pages', { excludeSlug: 'home' })
@@ -76,7 +77,8 @@ if (isNotFound) return Astro.redirect('/404')
               AmbassadorGrid,
               Blockquote,
               CalloutText,
-              Paragraph
+              Paragraph,
+              PdfEmbed
             }}
           />
         </div>

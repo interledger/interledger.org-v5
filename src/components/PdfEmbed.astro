@@ -1,0 +1,77 @@
+---
+interface Props {
+  url: string
+  label?: string
+  analyticsEvent: string
+}
+const { url, label = 'Download PDF', analyticsEvent } = Astro.props
+
+// Unique ID per instance so multiple PdfEmbeds on the same page don't collide
+const id = `pdf-${Math.random().toString(36).slice(2, 9)}`
+---
+
+<div class="w-full mt-4">
+  <object
+    id={id}
+    data={url}
+    type="application/pdf"
+    width="100%"
+    class="min-h-150 w-full"></object>
+
+  <!--
+    Fallback download link — hidden by default via inline style (not a Tailwind class)
+    so it can't be overridden by other display utilities like `inline-flex`.
+    JS shows it only if the <object> fails to render the PDF.
+  -->
+  <a
+    id={`${id}-fallback`}
+    href={url}
+    download
+    style={{ display: 'none' }}
+    class="group inline-flex items-center gap-space-2xs rounded-pill px-space-s py-space-xs text-step-0 font-medium no-underline bg-primary text-btn-txt transition-all duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:underline"
+    data-umami-event={analyticsEvent}
+  >
+    {label}
+    <!-- Arrow icon (icon-link-arrow.svg inlined) — slides right on hover via group-hover -->
+    <svg
+      class="h-[0.75em] w-[0.75em] transition-transform duration-fast group-hover:translate-x-0.5"
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+    >
+      <path
+        d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+        fill="currentColor"></path>
+    </svg>
+  </a>
+</div>
+
+<script is:inline define:vars={{ id }}>
+  const obj = document.getElementById(id)
+  const fallback = document.getElementById(`${id}-fallback`)
+
+  function showFallback() {
+    // Hide the <object> and reveal the download link
+    obj.style.display = 'none'
+    fallback.style.display = 'inline-flex'
+  }
+
+  // Fired when the browser can't load or render the embedded content at all
+  obj.addEventListener('error', showFallback)
+
+  // Some browsers (e.g. Firefox without a PDF plugin) fire load but render a
+  // blank or "plugin not supported" page inside the object. Inspect the content
+  // document text to catch that case.
+  obj.addEventListener('load', () => {
+    try {
+      if (obj.contentDocument && obj.contentDocument.body) {
+        const text = obj.contentDocument.body.innerText || ''
+        if (text.includes('Plugin') || text.includes('not supported')) {
+          showFallback()
+        }
+      }
+    } catch {
+      // contentDocument access throws for cross-origin content (e.g. a CDN URL).
+      // If we can't read it, the PDF almost certainly loaded fine — do nothing.
+    }
+  })
+</script>
