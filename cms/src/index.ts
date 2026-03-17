@@ -451,7 +451,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': [
       [
         { name: 'title', size: 6 },
-        { name: 'slug', size: 6 }
+        { name: 'pathSlug', size: 6 }
       ],
       [
         { name: 'date', size: 4 },
