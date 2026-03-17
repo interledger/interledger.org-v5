@@ -37,15 +37,15 @@ async function handlePdfEmbed(
 
   if (block.source === 'media_library') {
     // Internal Strapi media upload — resolve to integer file ID
-    const fileId = await ctx.resolveMediaUpload!(url)
-    if (!fileId) {
+    if (!ctx.resolveMediaUpload) {
       throw new MdxParserError({
         code: ParserErrorCode.UNRESOLVED_RELATION,
-        message: `Upload "${url}" could not be resolved to a Strapi file ID.`,
+        message:
+          'resolveMediaUpload is required for internal PdfEmbed URLs but was not provided.',
         component: 'PdfEmbed'
       })
     }
-    block.file = fileId
+    block.file = await ctx.resolveMediaUpload(url)
   } else {
     block.externalUrl = url
   }

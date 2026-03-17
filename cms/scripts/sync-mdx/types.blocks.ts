@@ -72,9 +72,9 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 export interface PdfEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.pdf-embed'
   source: 'media_library' | 'external_url'
-  /** Strapi upload file integer ID — set when source is 'upload'. */
+  /** Strapi upload file integer ID — set when source is 'media_library'. */
   file?: number
-  /** Set when source is 'external'. */
+  /** Set when source is 'external_url'. */
   externalUrl?: string
   label?: string
   analyticsEvent: string

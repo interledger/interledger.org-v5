@@ -175,6 +175,14 @@ describe('PdfEmbed handler — errors', () => {
       )
     ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
   })
+
+  it('throws UNRESOLVED_RELATION when resolveMediaUpload is not in context', async () => {
+    await expect(
+      parseMdxToBlocks('<PdfEmbed url="/uploads/file.pdf" analyticsEvent="report" />', {
+        locale: 'en'
+      })
+    ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+  })
 })
 
 // ---------------------------------------------------------------------------

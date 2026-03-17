@@ -1,3 +1,7 @@
+import jsesc from 'jsesc'
+
+const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
+
 export function serialize(block: {
   file?: { url: string }
   externalUrl?: string
@@ -8,10 +12,10 @@ export function serialize(block: {
   if (!url) throw new Error('PdfEmbed block has neither file nor externalUrl')
 
   const attrs: string[] = [
-    `url="${url}"`,
-    `analyticsEvent="${block.analyticsEvent}"`
+    `url="${esc(url)}"`,
+    `analyticsEvent="${esc(block.analyticsEvent)}"`
   ]
-  if (block.label) attrs.push(`label="${block.label}"`)
+  if (block.label) attrs.push(`label="${esc(block.label)}"`)
 
   return `<PdfEmbed ${attrs.join(' ')} />`
 }
