@@ -66,13 +66,18 @@ function buildParsedPagePayload(
 }
 
 export function buildContentTypes(projectRoot: string): ContentTypes {
+  // One Set per content type per sync run — guards against updating the same
+  // upload file's alt text multiple times with potentially different values.
+  const ambassadorAltIds = new Set<number>()
+  const blogAltIds = new Set<number>()
+
   return {
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
       buildPayload: (mdx, strapi, _existing) =>
-        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
+        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi, ambassadorAltIds)
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
@@ -103,7 +108,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
       buildPayload: (mdx, strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx, strapi)
+        buildBlogPayload(foundationBlogFrontmatterSchema, mdx, strapi, blogAltIds)
     }
   }
 }

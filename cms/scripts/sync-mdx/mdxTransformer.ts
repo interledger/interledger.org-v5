@@ -130,17 +130,44 @@ function nullOrValue(v: unknown): string | null {
 }
 
 /**
+ * Calls updateUploadAlt only if this upload ID hasn't been patched yet in
+ * the current sync run. Prevents last-write-wins corruption when the same
+ * image file is referenced by multiple entries with different alt values.
+ */
+async function updateUploadAltOnce(
+  strapi: StrapiClient,
+  id: number,
+  alt: string,
+  updatedAltIds: Set<number>,
+  pathSlug: string
+): Promise<void> {
+  if (updatedAltIds.has(id)) {
+    console.warn(
+      `   ⚠️  Skipping alt update for upload #${id} in "${pathSlug}" — already updated this run (shared image). Update alt text via Strapi Media Library instead.`
+    )
+    return
+  }
+  await strapi.updateUploadAlt(id, alt)
+  updatedAltIds.add(id)
+}
+
+/**
  * Builds a Strapi payload for an ambassador MDX file.
+ *
+ * Also patches the photo upload file's alternativeText when photoAlt is
+ * present in frontmatter, so alt text survives re-exports.
  *
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param strapi - Strapi client for resolving photo upload IDs
+ * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
  * @returns Strapi payload object
  */
 export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  strapi: StrapiClient
+  strapi: StrapiClient,
+  updatedAltIds: Set<number> = new Set()
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
@@ -150,6 +177,13 @@ export async function buildAmbassadorPayload(
     console.warn(
       `   ⚠️  Photo not found in Strapi uploads for "${mdx.pathSlug}": ${photoUrl}`
     )
+  }
+
+  if (photoId) {
+    const photoAlt = nullOrValue(mdx.frontmatter.photoAlt as string)
+    if (photoAlt) {
+      await updateUploadAltOnce(strapi, photoId, photoAlt, updatedAltIds, mdx.pathSlug)
+    }
   }
 
   return {
@@ -174,12 +208,14 @@ export async function buildAmbassadorPayload(
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param strapi - Strapi client for media lookups and alt-text updates
+ * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
  * @returns Strapi payload object
  */
 export async function buildBlogPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  strapi: StrapiClient
+  strapi: StrapiClient,
+  updatedAltIds: Set<number> = new Set()
 ): Promise<Record<string, unknown>> {
   const parsed = schema.parse({
     ...mdx.frontmatter,
@@ -205,7 +241,7 @@ export async function buildBlogPayload(
     if (id) {
       payload.featureImage = id
       const alt = parsed.featureImageAlt as string | undefined
-      if (alt) await strapi.updateUploadAlt(id, alt)
+      if (alt) await updateUploadAltOnce(strapi, id, alt, updatedAltIds, mdx.pathSlug)
     } else {
       console.warn(
         `   ⚠️  featureImage not found in Strapi uploads for "${mdx.pathSlug}": ${featureImageUrl}`
@@ -220,7 +256,7 @@ export async function buildBlogPayload(
     if (id) {
       payload.thumbnailImage = id
       const alt = parsed.thumbnailImageAlt as string | undefined
-      if (alt) await strapi.updateUploadAlt(id, alt)
+      if (alt) await updateUploadAltOnce(strapi, id, alt, updatedAltIds, mdx.pathSlug)
     } else {
       console.warn(
         `   ⚠️  thumbnailImage not found in Strapi uploads for "${mdx.pathSlug}": ${thumbnailImageUrl}`
