@@ -159,7 +159,16 @@ export function createFlatLocaleMdxLifecycle<
       await exportAllLocales(result.documentId)
       scheduleGitSync(label)
     },
-
+    async afterUpdate(event: { result?: T }) {
+      const { result } = event
+      if (shouldSkipMdxExport()) return
+      if (!result?.documentId || !result.publishedAt) return
+      console.log(
+        `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
+      )
+      await exportAllLocales(result.documentId)
+      scheduleGitSync(label)
+    },
     async afterDelete(event: { result?: T }) {
       const { result } = event
       if (shouldSkipMdxExport()) return
