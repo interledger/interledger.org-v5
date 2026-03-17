@@ -100,7 +100,7 @@ function generateBlogMDX(post: BlogResult) {
         : `tags:${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
       : null,
     post.locale ? `locale: ${q(post.locale)}` : null,
-    post.locale && post.locale != 'en'
+    post.localizations?.[0]?.pathSlug
       ? `localizes: ${post.localizations[0].pathSlug}`
       : null
   ].filter(Boolean) as string[]
