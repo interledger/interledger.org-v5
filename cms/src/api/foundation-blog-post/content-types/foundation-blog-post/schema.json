@@ -126,19 +126,6 @@
       },
       "component": "shared.tags",
       "repeatable": true
-    },
-    "language": {
-      "type": "enumeration",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "default": "en",
-      "enum": [
-        "en",
-        "es"
-      ]
     }
   }
 }
