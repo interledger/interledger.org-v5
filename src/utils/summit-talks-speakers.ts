@@ -66,11 +66,11 @@ export function getTalks(year: string, lang: Language): Talk[] {
   const baseSpanishSessions: Talk[] = [
     {
       id: '3da173',
-      title: `${year} En espagnol: State of Interledger`
+      title: `${year} En español: State of Interledger`
     },
     {
       id: '38ad79',
-      title: `${year} En espagnol: TigerBeetle, a Financial Accounting Database for Interledger`
+      title: `${year} En español: TigerBeetle, a Financial Accounting Database for Interledger`
     }
   ]
   const sessions2022 = Array.from({ length: 10 }).flatMap(() => baseSessions)
