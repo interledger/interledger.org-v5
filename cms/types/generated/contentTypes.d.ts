@@ -571,13 +571,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    language: Schema.Attribute.Enumeration<['en', 'es']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'en'>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -687,7 +680,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote',
-        'blocks.callout-text'
+        'blocks.callout-text',
+        'blocks.pdf-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
