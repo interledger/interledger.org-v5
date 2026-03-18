@@ -23,7 +23,7 @@ function generateMdxContent(
   ambassador: Ambassador,
   englishSlug?: string
 ): string {
-  const photoUrl = getImageUrl(ambassador.photo, 'thumbnail') || null
+  const photoUrl = getImageUrl(ambassador.photo) || null
   const photoAlt = ambassador.photo?.alternativeText || ambassador.name
   const locale =
     ambassador.locale && ambassador.locale !== 'en'
