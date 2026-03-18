@@ -205,10 +205,23 @@ export function createStrapiClient({
     id: number,
     alternativeText: string
   ): Promise<void> {
-    await request(`upload/files/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ alternativeText })
+    const formData = new FormData()
+    formData.append('fileInfo', JSON.stringify({ alternativeText }))
+
+    const url = `${baseUrl}/api/upload?id=${id}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-skip-mdx-export': 'true'
+      },
+      body: formData
     })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Strapi API error (${response.status}): ${text}`)
+    }
   }
 
   /** Delete a single locale variant. Keeps other locales. */

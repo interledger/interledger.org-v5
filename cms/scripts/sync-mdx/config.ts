@@ -71,10 +71,10 @@ export function buildContentTypes(
   strapiUrl: string,
   strapiToken: string
 ): ContentTypes {
-  // One Set per content type per sync run — guards against updating the same
+  // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const ambassadorAltIds = new Set<number>()
-  const blogAltIds = new Set<number>()
+  const ambassadorAltIds = new Map<number, string>()
+  const blogAltIds = new Map<number, string>()
 
   return {
     ambassadors: {

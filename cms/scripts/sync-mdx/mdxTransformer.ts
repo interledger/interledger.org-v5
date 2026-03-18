@@ -235,17 +235,20 @@ async function updateUploadAltOnce(
   strapi: StrapiClient,
   id: number,
   alt: string,
-  updatedAltIds: Set<number>,
+  updatedAltIds: Map<number, string>,
   pathSlug: string
 ): Promise<void> {
-  if (updatedAltIds.has(id)) {
-    console.warn(
-      `   ⚠️  Skipping alt update for upload #${id} in "${pathSlug}" — already updated this run (shared image). Update alt text via Strapi Media Library instead.`
-    )
+  const existing = updatedAltIds.get(id)
+  if (existing !== undefined) {
+    if (existing !== alt) {
+      console.warn(
+        `   ⚠️  Alt text conflict for upload #${id} in "${pathSlug}" — already set to "${existing}" by another entry this run. Update alt text via Strapi Media Library instead.`
+      )
+    }
     return
   }
   await strapi.updateUploadAlt(id, alt)
-  updatedAltIds.add(id)
+  updatedAltIds.set(id, alt)
 }
 
 /**
@@ -264,7 +267,7 @@ export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  updatedAltIds: Set<number> = new Set()
+  updatedAltIds: Map<number, string> = new Map()
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
@@ -318,7 +321,7 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Set<number> = new Set()
+  updatedAltIds: Map<number, string> = new Map()
 ): Promise<Record<string, unknown>> {
   let parsed
   try {
