@@ -1,0 +1,11 @@
+---
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+
+const { entry, year } = Astro.props
+---
+
+<SummitPageLayout title={entry.name}>
+  <p>This is a speaker page for year {year}</p>
+  <p>The speaker id is: {entry.id}</p>
+  <p>Speaker name: {entry.name}</p>
+</SummitPageLayout>

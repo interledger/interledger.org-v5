@@ -118,3 +118,23 @@ export async function paginateSummitSpeakers(
     })
   })
 }
+
+export async function getSpeakerPages(lang: Language) {
+  return YEARS.flatMap((year) => {
+    const speakersForYear = getSpeakers(year, lang)
+    return speakersForYear.map((entry) => ({
+      params: { year: year, id: entry.id },
+      props: { entry }
+    }))
+  })
+}
+
+export async function getSessionPages(lang: Language) {
+  return YEARS.flatMap((year) => {
+    const talksForYear = getTalks(year, lang)
+    return talksForYear.map((entry) => ({
+      params: { year: year, id: entry.id },
+      props: { entry }
+    }))
+  })
+}
