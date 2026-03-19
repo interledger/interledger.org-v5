@@ -22,23 +22,3 @@ export async function paginateSummitSpeakers(paginate: PaginateFunction) {
     })
   })
 }
-
-export async function getSpeakerPages() {
-  return YEARS.flatMap((year) => {
-    const speakersForYear = getSpeakers(year)
-    return speakersForYear.map((entry) => ({
-      params: { year, id: generateSlug(entry.name) },
-      props: { entry }
-    }))
-  })
-}
-
-export async function getSessionPages() {
-  return YEARS.flatMap((year) => {
-    const talksForYear = getTalks(year)
-    return talksForYear.map((entry) => ({
-      params: { year, id: generateSlug(entry.title) },
-      props: { entry }
-    }))
-  })
-}
