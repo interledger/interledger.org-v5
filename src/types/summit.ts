@@ -9,7 +9,7 @@ export interface Talk {
     name: string
   }[]
   translations: string[]
-  es: {
+  es?: {
     title: string
     description: string
   }
@@ -21,7 +21,7 @@ export interface Speaker {
   bio: string
   tagLine: string
   profilePicture: string
-  es: {
+  es?: {
     bio: string
   }
   sessions: {

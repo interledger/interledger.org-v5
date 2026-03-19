@@ -1,9 +1,7 @@
 import type { Talk, Speaker } from '@/types/summit'
-import type { Language } from '@/types/i18n'
 
 //Dummy function - ignore this for now, will be implemented in a follow up PR
-export function getSpeakers(year: string, lang: Language): Speaker[] {
-  console.log(lang)
+export function getSpeakers(year: string): Speaker[] {
   const baseSpeakers: Speaker[] = [
     {
       id: 'd55a0ff7-8857-4713-96a3-3898a61d0de6',
@@ -62,8 +60,7 @@ export function getSpeakers(year: string, lang: Language): Speaker[] {
   }
 }
 //Dummy function - ignore this for now, will be implemented in a follow up PR
-export function getTalks(year: string, lang: Language): Talk[] {
-  console.log(lang)
+export function getTalks(year: string): Talk[] {
   const baseSessions: Talk[] = [
     {
       id: '995871',
