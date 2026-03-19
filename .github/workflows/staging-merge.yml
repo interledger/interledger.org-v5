@@ -49,9 +49,10 @@ jobs:
             const zeroSha = '0000000000000000000000000000000000000000'
 
             if (context.eventName === 'workflow_dispatch') {
-              core.info('Manual trigger - will rebuild CMS and sync content')
+              core.info('Manual trigger - will rebuild CMS and sync content and navigation')
               core.setOutput('cms_changed', 'true')
               core.setOutput('content_changed', 'true')
+              core.setOutput('navigation_changed', 'true')
               return
             }
 
@@ -125,10 +126,11 @@ jobs:
                 if (tooManyFilesFlag || filesLikelyTruncated) {
                   core.warning(
                     'GitHub compareCommitsWithBasehead response may be truncated due to too many changed files; ' +
-                      'treating CMS and content as changed to avoid missing updates.'
+                      'treating CMS, content, and navigation as changed to avoid missing updates.'
                   )
                   core.setOutput('cms_changed', 'true')
                   core.setOutput('content_changed', 'true')
+                  core.setOutput('navigation_changed', 'true')
                   return
                 }
 
@@ -140,6 +142,7 @@ jobs:
                 // On API failure, err on the side of caution and assume relevant changes occurred.
                 core.setOutput('cms_changed', 'true')
                 core.setOutput('content_changed', 'true')
+                core.setOutput('navigation_changed', 'true')
                 return
               }
             }
