@@ -1,10 +1,38 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import { currentYear } from '@/utils/summit-talks-speakers'
+import type { Language } from '@/types/i18n'
+import type { Talk } from '@/types/summit'
 
-const { entry, year } = Astro.props
+interface Props {
+  entry: Talk
+  year: string
+  lang: Language
+}
+const { entry, year, lang } = Astro.props
+
+const isCurrentYear = currentYear === year
+const baseHref = lang !== 'en' ? `/${lang}/summit` : '/summit'
+const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
+const sessionsHref = `${baseHref}/${year}/talks`
 ---
 
 <SummitPageLayout title={entry.title}>
+  <BlogBreadcrumbs
+    breadcrumbs={[
+      {
+        name: `${year} Summit`,
+        href: summitHref,
+        umamiEvent: `Session Detail Page - ${year} Summit`
+      },
+      {
+        name: 'Sessions',
+        href: sessionsHref,
+        umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+      }
+    ]}
+  />
   <p>This is a Session page for year {year}</p>
   <p>The Session id is: {entry.id}</p>
   <p>Session title: {entry.title}</p>
