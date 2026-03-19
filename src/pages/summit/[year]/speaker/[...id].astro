@@ -4,7 +4,7 @@ import { getSpeakerPages } from '@/utils/summit-talks-speakers'
 import SpeakerDetailPage from '@/components/summit/SpeakerDetailPage.astro'
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = await getSpeakerPages('en')
+  const entries = await getSpeakerPages()
   return entries
 }
 

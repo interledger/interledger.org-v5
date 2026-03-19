@@ -5,7 +5,7 @@ import SessionDetailPage from '@/components/summit/SessionDetailPage.astro'
 
 const lang = 'en'
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = await getSessionPages(lang)
+  const entries = await getSessionPages()
   return entries
 }
 
