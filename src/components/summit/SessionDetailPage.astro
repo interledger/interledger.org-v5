@@ -28,6 +28,20 @@ const description =
 ---
 
 <SummitPageLayout title={entry.title}>
+  <BlogBreadcrumbs
+    breadcrumbs={[
+      {
+        name: `${year} Summit`,
+        href: summitHref,
+        umamiEvent: `Session Detail Page - ${year} Summit`
+      },
+      {
+        name: 'Sessions',
+        href: sessionsHref,
+        umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+      }
+    ]}
+  />
   <p>This is a Session page for year {year}</p>
   <p>The Session id is: {entry.id}</p>
   <p>Session title: {entry.title}</p>

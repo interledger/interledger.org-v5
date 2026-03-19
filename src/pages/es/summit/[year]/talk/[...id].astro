@@ -3,8 +3,9 @@ import type { GetStaticPaths } from 'astro'
 import { getSessionPages } from '@/utils/summit-talks-speakers'
 import SessionDetailPage from '@/components/summit/SessionDetailPage.astro'
 
+const lang = 'es'
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = await getSessionPages('es')
+  const entries = await getSessionPages(lang)
   return entries
 }
 
@@ -12,4 +13,4 @@ const { year } = Astro.params
 const { entry } = Astro.props
 ---
 
-<SessionDetailPage entry={entry} year={year} />
+<SessionDetailPage entry={entry} year={year} lang={lang} />
