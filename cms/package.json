@@ -52,5 +52,11 @@
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
     "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@strapi/design-system": "2.2.0",
+      "@strapi/icons": "2.2.0"
+    }
   }
 }

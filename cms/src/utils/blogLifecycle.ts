@@ -16,7 +16,6 @@ interface BlogResult {
   publishedAt?: Date
   locale: string
   pillar: 'vision' | 'mission' | 'tech' | 'values'
-  language?: 'en' | 'es'
   featureImage?: {
     name: string
     alternativeText?: string
@@ -30,10 +29,10 @@ interface BlogResult {
   articleBio?: {
     author: string
     profileBio?: string
-    profileImage?: { url: string }
+    profileImage?: { url: string; name: string }
   }[]
   tags?: { tagValue: string }[]
-  localizations: string[]
+  localizations: { pathSlug: string }[]
 }
 
 interface BlogEvent {
@@ -42,7 +41,7 @@ interface BlogEvent {
 }
 
 function yamlSingleQuote(value: string): string {
-  return `${value.replace(/'/g, "''").replace(/\r\n/g, '\n')}`
+  return `${value.replace(/'/g, '’').replace(/\r\n/g, '\n')}`
 }
 const q = yamlSingleQuote
 
@@ -98,9 +97,12 @@ function generateBlogMDX(post: BlogResult) {
     post.tags
       ? post.tags.length === 0
         ? `tags: []`
-        : `tags: ${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
+        : `tags:${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
       : null,
-    post.language ? `locale: ${q(post.language)}` : null
+    post.locale ? `locale: ${q(post.locale)}` : null,
+    post.localizations?.[0]?.pathSlug
+      ? `localizes: ${post.localizations[0].pathSlug}`
+      : null
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
@@ -179,7 +181,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       })
       scheduleGitSync(label)
     },
-
+    async afterUpdate(event: BlogEvent) {
+      if (shouldSkipMdxExport()) return
+      const { result } = event
+      if (!result || !result.publishedAt) return
+      const label = event.model.singularName
+      console.log(`📝 Updating ${label} MDX for: ${result.pathSlug}`)
+      await writeMDXFile({
+        outputPath: getOutputPath(result.locale),
+        post: result
+      })
+      scheduleGitSync(label)
+    },
     async afterDelete(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event

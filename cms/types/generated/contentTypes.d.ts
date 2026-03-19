@@ -439,7 +439,7 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     singularName: 'ambassador'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -521,7 +521,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
     singularName: 'foundation-blog-post'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -571,13 +571,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    language: Schema.Attribute.Enumeration<['en', 'es']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'en'>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -638,7 +631,7 @@ export interface ApiFoundationNavigationFoundationNavigation
     singularName: 'foundation-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -669,7 +662,7 @@ export interface ApiFoundationPageFoundationPage
     singularName: 'foundation-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -687,7 +680,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote',
-        'blocks.callout-text'
+        'blocks.callout-text',
+        'blocks.pdf-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -767,7 +761,7 @@ export interface ApiSummitNavigationSummitNavigation
     singularName: 'summit-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -797,7 +791,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     singularName: 'summit-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {

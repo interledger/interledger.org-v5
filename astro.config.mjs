@@ -30,6 +30,7 @@ export default defineConfig({
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
+      disable404Route: true,
       customCss: [
         './node_modules/@interledger/docs-design-system/src/styles/teal-theme.css',
         './node_modules/@interledger/docs-design-system/src/styles/ilf-docs.css',
@@ -154,7 +155,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
+      filter: (url) => !new URL(url).pathname.includes('/preview')
     })
   ],
   vite: {
