@@ -2,14 +2,19 @@
 // NOTE: This component is a temporary placeholder component.
 // It contains minimal markup for now and will be fully implemented in a follow-up PR.
 import type { Speaker } from '@/types/summit'
+import { generateSlug } from '@/utils/slug'
 
 interface Props {
   speaker: Speaker
+  basePath: string
 }
 
-const { speaker } = Astro.props
+const { speaker, basePath } = Astro.props
+const href = `${basePath}/${generateSlug(speaker.name)}`
 ---
 
 <li class="min-h-50 w-50 bg-black/10">
-  <h2>{speaker.name}</h2>
+  <a href={href}>
+    <h2>{speaker.name}</h2>
+  </a>
 </li>

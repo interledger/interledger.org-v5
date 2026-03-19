@@ -23,7 +23,7 @@ const { speakers, basePath, title, page } = Astro.props
         speakers.length > 0 ? (
           <ul class="flex flex-wrap gap-4">
             {speakers.map((speaker) => (
-              <SpeakerCard speaker={speaker} />
+              <SpeakerCard speaker={speaker} basePath={basePath.slice(0, -1)} />
             ))}
           </ul>
         ) : (
