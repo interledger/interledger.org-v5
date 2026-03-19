@@ -1,15 +1,20 @@
 ---
 // NOTE: This component is a temporary placeholder component.
 // It contains minimal markup for now and will be fully implemented in a follow-up PR.
-import type { Talk } from '@/utils/summit-talks-speakers'
+import type { Talk } from '@/types/summit'
+import { generateSlug } from '@/utils/slug'
 
 interface Props {
   talk: Talk
+  basePath: string
 }
 
-const { talk } = Astro.props
+const { talk, basePath } = Astro.props
+const href = `${basePath}/${generateSlug(talk.title)}`
 ---
 
 <li class="min-h-50 bg-black/10">
-  <h2>{talk.title}</h2>
+  <a href={href}>
+    <h2>{talk.title}</h2>
+  </a>
 </li>
