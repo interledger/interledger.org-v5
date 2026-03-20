@@ -1,34 +1,37 @@
-import type { Talk, Speaker } from '@/types/summit'
+import type { Talk, Speaker, SessionizeSpeaker } from '@/types/summit'
 
 export async function getSpeakers(
   year: string,
   articleId?: string
 ): Promise<Speaker[]> {
-  const data = await import('@/data/sessionize/2025-speakers.json')
+  const data = await import(`../data/sessionize/${year}-speakers.json`)
   if (!data) return []
 
-  const speakers: Speaker[] = data.default.map((speaker) => {
-    const sessions = (speaker.sessions || []).map((session) => ({
+  // Question ID for Spanish bio in Sessionize
+  const SPANISH_BIO_QUESTION_ID = 114100
+  const speakers: Speaker[] = data.default.map((speaker: SessionizeSpeaker) => {
+    const sessions = speaker.sessions.map((session) => ({
       id: String(session.id),
       title: session.name
     }))
-    //Sessionize id for Spanish bio field
-    const esObj = speaker.questionAnswers?.find((q) => q.id === 114100)
-    const esBio = esObj?.answer
+
+    const spanishBioAnswer = speaker.questionAnswers.find(
+      (q) => q.id === SPANISH_BIO_QUESTION_ID
+    )
+    const spanishBio = spanishBioAnswer?.answer
     return {
       id: speaker.id,
       name: speaker.fullName,
-      bio: speaker.bio ?? undefined,
-      tagLine: speaker.tagLine ?? undefined,
-      profilePicture: speaker.profilePicture ?? undefined,
-      es: esBio ? { bio: esBio } : undefined,
+      bio: speaker.bio,
+      tagLine: speaker.tagLine,
+      profilePicture: speaker.profilePicture,
+      es: spanishBio ? { bio: spanishBio } : null,
       sessions
     }
   })
 
   if (articleId) {
     return speakers.filter((speaker) => {
-      if (!speaker.sessions) return []
       return speaker.sessions.some((session) => session.id === articleId)
     })
   }

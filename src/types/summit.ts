@@ -18,12 +18,12 @@ export interface Talk {
 export interface Speaker {
   id: string
   name: string
-  bio?: string
-  tagLine?: string
-  profilePicture?: string
-  es?: {
+  bio: string | null
+  tagLine: string | null
+  profilePicture: string | null
+  es: {
     bio: string
-  }
+  } | null
   sessions: {
     id: string
     title: string
