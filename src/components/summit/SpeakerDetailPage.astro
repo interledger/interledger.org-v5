@@ -20,14 +20,14 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
 
 <SummitPageLayout title={entry.name}>
   <main class="max-w-250 p-4 m-auto">
-    <header class="flex justify-between mb-4">
+    <header class="flex justify-between mb-4 items-end">
       <div>
         <h1>{entry.name}</h1>
         <p>{entry.tagLine}</p>
       </div>
-      <figure>Image here</figure>
+      <figure class="w-100 h-100 bg-black/50">Image here</figure>
     </header>
-    <section aria-label="Biography" class="mb-8">
+    <section aria-label="Biography" class="my-8">
       <p>{bio}</p>
     </section>
     <section aria-label="Sessions" class="border border-teal-300 p-8">
