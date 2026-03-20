@@ -18,9 +18,9 @@ export interface Talk {
 export interface Speaker {
   id: string
   name: string
-  bio: string
-  tagLine: string
-  profilePicture: string
+  bio?: string
+  tagLine?: string
+  profilePicture?: string
   es?: {
     bio: string
   }

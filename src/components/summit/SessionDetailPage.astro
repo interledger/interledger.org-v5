@@ -19,7 +19,7 @@ const isCurrentYear = currentSummitYear === year
 const baseHref = lang !== 'en' ? `/${lang}/summit` : '/summit'
 const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
 const sessionsHref = `${baseHref}/${year}/talks`
-const speakers = getSpeakers(year, entry.id)
+const speakers = await getSpeakers(year, entry.id)
 const title = lang == 'es' ? entry.es?.title : entry.title
 const description =
   lang == 'es'

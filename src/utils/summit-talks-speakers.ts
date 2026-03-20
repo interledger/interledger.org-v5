@@ -14,23 +14,29 @@ export async function paginateSummitTalks(paginate: PaginateFunction) {
 }
 
 export async function paginateSummitSpeakers(paginate: PaginateFunction) {
-  return YEARS.flatMap((year) => {
-    const speakersForYear = getSpeakers(year)
-    return paginate(speakersForYear, {
-      params: { year },
-      pageSize: 20
+  const paths = await Promise.all(
+    YEARS.map(async (year) => {
+      const speakersForYear = await getSpeakers(year)
+      return paginate(speakersForYear, {
+        params: { year },
+        pageSize: 20
+      })
     })
-  })
+  )
+  return paths.flat()
 }
 
 export async function getSpeakerPages() {
-  return YEARS.flatMap((year) => {
-    const speakersForYear = getSpeakers(year)
-    return speakersForYear.map((entry) => ({
-      params: { year, id: generateSlug(entry.name) },
-      props: { entry }
-    }))
-  })
+  const paths = await Promise.all(
+    YEARS.map(async (year) => {
+      const speakersForYear = await getSpeakers(year)
+      return speakersForYear.map((entry) => ({
+        params: { year, id: generateSlug(entry.name) },
+        props: { entry }
+      }))
+    })
+  )
+  return paths.flat()
 }
 
 export async function getSessionPages() {
