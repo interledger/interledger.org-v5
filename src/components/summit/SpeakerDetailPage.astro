@@ -1,16 +1,21 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import type { Language } from '@/types/i18n'
 import type { Speaker } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
+import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
 
 interface Props {
   entry: Speaker
   year: string
+  sessionBaseHref: string
+  lang: Language
 }
 
-const { entry, year } = Astro.props
+const { entry, year, sessionBaseHref, lang } = Astro.props
 const sessions = getTalks(year, entry.id)
+const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
 ---
 
 <SummitPageLayout title={entry.name}>
@@ -23,7 +28,7 @@ const sessions = getTalks(year, entry.id)
       <figure>Image here</figure>
     </header>
     <section aria-label="Biography" class="mb-8">
-      <p>{entry.bio}</p>
+      <p>{bio}</p>
     </section>
     <section aria-label="Sessions" class="border border-teal-300 p-8">
       <ul>
@@ -31,8 +36,18 @@ const sessions = getTalks(year, entry.id)
           sessions.map((session) => (
             <li>
               <article>
-                <h2 class="text-teal-300">{session.title}</h2>
-                <p>{truncateText(session.description)}</p>
+                <h2 class="text-teal-300">
+                  <a href={`${sessionBaseHref}/${generateSlug(session.title)}`}>
+                    {lang === 'es' && session.es?.title
+                      ? session.es.title
+                      : session.title}
+                  </a>
+                </h2>
+                <p>
+                  {lang === 'es' && session.es?.description
+                    ? truncateText(session.es.description)
+                    : truncateText(session.description)}
+                </p>
               </article>
             </li>
           ))

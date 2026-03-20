@@ -2,14 +2,22 @@
 import type { GetStaticPaths } from 'astro'
 import { getSpeakerPages } from '@/utils/summit-talks-speakers'
 import SpeakerDetailPage from '@/components/summit/SpeakerDetailPage.astro'
+import type { Language } from '@/types/i18n'
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getSpeakerPages()
   return entries
 }
 
+const lang: Language = 'es'
 const { year } = Astro.params
 const { entry } = Astro.props
+const sessionBaseHref = `/${lang}/summit/${year}/talk`
 ---
 
-<SpeakerDetailPage entry={entry} year={year} />
+<SpeakerDetailPage
+  entry={entry}
+  year={year}
+  sessionBaseHref={sessionBaseHref}
+  lang={lang}
+/>
