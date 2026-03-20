@@ -25,7 +25,7 @@ export interface Speaker {
     bio: string
   }
   sessions: {
-    id: number
+    id: string
     title: string
   }[]
 }

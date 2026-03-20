@@ -1,7 +1,7 @@
 import type { Talk, Speaker } from '@/types/summit'
 
 //Dummy function - ignore this for now, will be implemented in a follow up PR
-export function getSpeakers(year: string): Speaker[] {
+export function getSpeakers(year: string, articleId?: string): Speaker[] {
   const baseSpeakers: Speaker[] = [
     {
       id: 'd55a0ff7-8857-4713-96a3-3898a61d0de6',
@@ -15,7 +15,25 @@ export function getSpeakers(year: string): Speaker[] {
       },
       sessions: [
         {
-          id: 995871,
+          id: '995871',
+          title:
+            'Human Rights by Design: Financial Infrastructure that Works for Everyone'
+        }
+      ]
+    },
+    {
+      id: 'ad2c458b-64a4-401b-aa98-05944bb9f7dd',
+      name: 'Ed Cable',
+      bio: 'Edward Cable is the President and CEO of the Mifos Initiative, and a founding member of the Apache Fineract PMC. He is a recognized leader in technology-enabled financial inclusion and open service financial services innovation. Edward has been deeply involved in open source fintech solutions since 2007, particularly for emerging markets, and leads the Mifos Initiative in its mission to build innovative financial services with open-source tools. He is passionate about community-driven financial inclusion and oversees a global ecosystem of fintechs and financial institutions. Outside of work, Edward tends to his menagerie of animals in the majestic Redwoods.',
+      tagLine: 'Mifos Initiative',
+      profilePicture:
+        'https://sessionize.com/image/0f26-400o400o1-BjYufp23D8atM3U3ZM8BGM.jpg',
+      es: {
+        bio: 'Edward Cable es presidente y director ejecutivo de Mifos Initiative, y miembro fundador de Apache Fineract PMC. Es un reconocido líder en inclusión financiera basada en la tecnología e innovación en servicios financieros abiertos. Edward lleva desde 2007 profundamente involucrado en soluciones fintech de código abierto, especialmente para mercados emergentes, y lidera la Iniciativa Mifos en su misión de crear servicios financieros innovadores con herramientas de código abierto. Es un apasionado de la inclusión financiera impulsada por la comunidad y supervisa un ecosistema global de fintechs e instituciones financieras. Fuera del trabajo, Edward se dedica a cuidar de su colección de animales en los majestuosos bosques Redwoods.'
+      },
+      sessions: [
+        {
+          id: '995871',
           title:
             'Human Rights by Design: Financial Infrastructure that Works for Everyone'
         }
@@ -33,7 +51,7 @@ export function getSpeakers(year: string): Speaker[] {
       },
       sessions: [
         {
-          id: 1033766,
+          id: '1033766',
           title:
             'Enabling Banks in Pakistan to offer faster, cost-effective remittance services via ILP'
         }
@@ -42,6 +60,12 @@ export function getSpeakers(year: string): Speaker[] {
   ]
   //get 22 speakers to see pagination
   const speakers2022 = Array.from({ length: 11 }).flatMap(() => baseSpeakers)
+
+  if (articleId) {
+    return baseSpeakers.filter((speaker) =>
+      speaker.sessions.some((session) => session.id === articleId)
+    )
+  }
 
   switch (year) {
     case '2022':
