@@ -17,6 +17,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
 const lang: Language = 'es'
 const { year } = Astro.params
 const { entry } = Astro.props
+if (!year) {
+  throw new Error('Year param is required')
+}
 const sessionBaseHref = `/${lang}/summit/${year}/talk`
 ---
 
