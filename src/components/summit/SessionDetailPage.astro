@@ -63,14 +63,14 @@ const description =
         </p>
       </header>
       <div class="flex flex-row">
-        <section>
+        <section aria-label="Session Description">
           {
             lang == 'es'
               ? (entry.es?.description ?? entry.description)
               : entry.description
           }
         </section>
-        <aside>
+        <aside aria-label="Speakers">
           <ul class="flex flex-col gap-1">
             {
               speakers.map((speaker) => (
