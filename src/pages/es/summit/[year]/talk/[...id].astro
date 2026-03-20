@@ -16,6 +16,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const { year } = Astro.params
 const { entry } = Astro.props
+if (!year) {
+  throw new Error('Year param is required')
+}
 ---
 
 <SessionDetailPage entry={entry} year={year} lang={lang} />
