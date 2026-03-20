@@ -2,6 +2,7 @@
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import type { Speaker } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
+import { truncateText } from '@/utils/text'
 
 interface Props {
   entry: Speaker
@@ -31,7 +32,7 @@ const sessions = getTalks(year, entry.id)
             <li>
               <article>
                 <h2 class="text-teal-300">{session.title}</h2>
-                <p>{session.description}</p>
+                <p>{truncateText(session.description)}</p>
               </article>
             </li>
           ))
