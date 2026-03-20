@@ -45,7 +45,7 @@ const description =
     />
     <article>
       <header>
-        <h1>{entry.title}</h1>
+        <h1>{lang == 'es' ? entry.es?.title : entry.title}</h1>
         <p>
           <time datetime={entry.startsAt}
             >{formatDate(entry.startsAt, lang)}
@@ -73,7 +73,7 @@ const description =
         <aside>
           <ul class="flex flex-col gap-1">
             {
-              entry.speakers.map((speaker) => (
+              speakers.map((speaker) => (
                 <SpeakerCard
                   speaker={speaker}
                   basePath={`${baseHref}/${year}/speaker`}
