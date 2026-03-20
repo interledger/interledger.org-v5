@@ -84,7 +84,7 @@ export function getSpeakers(year: string, articleId?: string): Speaker[] {
   }
 }
 //Dummy function - ignore this for now, will be implemented in a follow up PR
-export function getTalks(year: string): Talk[] {
+export function getTalks(year: string, authorId?: string): Talk[] {
   const baseSessions: Talk[] = [
     {
       id: '995871',
@@ -136,14 +136,17 @@ export function getTalks(year: string): Talk[] {
     }
   ]
 
-  const sessions2022 = Array.from({ length: 10 }).flatMap(() => baseSessions)
+  if (authorId) {
+    return baseSessions.filter((session) =>
+      session.speakers.some((speaker) => speaker.id === authorId)
+    )
+  }
 
-  const sessions2023 = Array.from({ length: 3 }).flatMap(() => baseSessions)
   switch (year) {
     case '2022':
-      return sessions2022
+      return Array.from({ length: 10 }).flatMap(() => baseSessions)
     case '2023':
-      return sessions2023
+      return Array.from({ length: 3 }).flatMap(() => baseSessions)
     case '2024':
       return Array.from({ length: 4 }).flatMap(() => baseSessions)
     case '2025':

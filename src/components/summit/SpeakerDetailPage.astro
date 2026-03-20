@@ -1,11 +1,42 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import type { Speaker } from '@/types/summit'
+import { getTalks } from '@/utils/extractSessionize'
+
+interface Props {
+  entry: Speaker
+  year: string
+}
 
 const { entry, year } = Astro.props
+const sessions = getTalks(year, entry.id)
 ---
 
 <SummitPageLayout title={entry.name}>
-  <p>This is a speaker page for year {year}</p>
-  <p>The speaker id is: {entry.id}</p>
-  <p>Speaker name: {entry.name}</p>
+  <main class="max-w-250 p-4 m-auto">
+    <header class="flex justify-between mb-4">
+      <div>
+        <h1>{entry.name}</h1>
+        <p>{entry.tagLine}</p>
+      </div>
+      <figure>Image here</figure>
+    </header>
+    <section aria-label="Biography" class="mb-8">
+      <p>{entry.bio}</p>
+    </section>
+    <section aria-label="Sessions" class="border border-teal-300 p-8">
+      <ul>
+        {
+          sessions.map((session) => (
+            <li>
+              <article>
+                <h2 class="text-teal-300">{session.title}</h2>
+                <p>{session.description}</p>
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
 </SummitPageLayout>
