@@ -2,6 +2,11 @@
 import type { GetStaticPaths } from 'astro'
 import { getSessionPages } from '@/utils/summit-talks-speakers'
 import SessionDetailPage from '@/components/summit/SessionDetailPage.astro'
+import type { Talk } from '@/types/summit'
+
+interface Props {
+  entry: Talk
+}
 
 const lang = 'en'
 export const getStaticPaths: GetStaticPaths = async () => {

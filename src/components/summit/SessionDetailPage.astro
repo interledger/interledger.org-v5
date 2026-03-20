@@ -44,8 +44,8 @@ const description =
       ]}
     />
     <article>
-      <header>
-        <h1>{lang == 'es' ? entry.es?.title : entry.title}</h1>
+      <header class="mb-8">
+        <h1>{title}</h1>
         <p>
           <time datetime={entry.startsAt}
             >{formatDate(entry.startsAt, lang)}
@@ -62,16 +62,12 @@ const description =
           }
         </p>
       </header>
-      <div class="flex flex-row">
+      <div class="flex flex-row gap-8">
         <section aria-label="Session Description">
-          {
-            lang == 'es'
-              ? (entry.es?.description ?? entry.description)
-              : entry.description
-          }
+          {description}
         </section>
         <aside aria-label="Speakers">
-          <ul class="flex flex-col gap-1">
+          <ul class="flex flex-col gap-4">
             {
               speakers.map((speaker) => (
                 <SpeakerCard
