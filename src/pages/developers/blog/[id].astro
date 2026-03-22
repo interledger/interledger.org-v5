@@ -5,7 +5,7 @@ import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('developers-blog', 'es', 'id')
+  return getLocalizedPaths('developers-blog', 'en', 'id')
 }
 
 const { slug, locale } = Astro.props
