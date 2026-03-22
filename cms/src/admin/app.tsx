@@ -41,6 +41,10 @@ interface CKEditor {
   data: CKEditorData
 }
 
+// Strapi document IDs: lowercase alphanumeric, typically 24 chars
+const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
+const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
+
 const myCustomPreset: Preset = {
   ...defaultMarkdownPreset,
   description: 'Markdown editor without H1',
@@ -100,24 +104,71 @@ export default {
   },
 
   bootstrap(_app: unknown) {
-    // Override button labels using DOM manipulation
-    const interval = setInterval(() => {
-      // Find all buttons in the admin panel
+    // TEMP UI Fix: inject styles until Strapi supports proper theming
+    const style = document.createElement('style')
+    style.textContent = `
+      /* TEMP UI Fix: minimum textarea height */
+      textarea { min-height: 140px !important; }
+      /* TEMP UI Fix: hide only the Preview aside (last one), not the one above */
+      aside[aria-labelledby="additional-information"]:nth-child(2) { display: none !important; }
+    `
+    document.head.appendChild(style)
+
+    // TEMP UI Fix: apply DOM tweaks (MutationObserver, no polling)
+    function applyUITweaks() {
+      // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
+      const openEntityLink = document.querySelector<HTMLAnchorElement>(
+        'li a[href*="plugin::record-locking.open-entity"]'
+      )
+      const openEntityLi = openEntityLink?.closest('li')
+      if (openEntityLi && openEntityLi.style.display !== 'none') {
+        openEntityLi.style.display = 'none'
+      }
+
+      // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
+      const singleTypeTitles: Record<string, string> = {
+        'foundation-navigation': 'Foundation Navigation',
+        'summit-navigation': 'Summit Navigation'
+      }
+      const url = window.location.pathname
+      for (const [slug, title] of Object.entries(singleTypeTitles)) {
+        if (url.includes(slug)) {
+          const h1 = document.querySelector('h1')
+          if (h1 && DOC_ID_PATTERN.test(h1.textContent?.trim() ?? '')) {
+            h1.textContent = title
+          }
+          if (DOC_ID_TITLE_PATTERN.test(document.title)) {
+            document.title = `${title} | Strapi`
+          }
+          break
+        }
+      }
+
+      // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')
       buttons.forEach((button) => {
         const span = button.querySelector('span')
-        if (span && span.textContent === 'Save') {
-          span.textContent = 'Save as Draft'
-        }
-        if (span && span.textContent === 'Publish') {
-          span.textContent = 'Save / Update'
+        if (
+          span &&
+          (span.textContent === 'Save' || span.textContent === 'Publish')
+        ) {
+          span.textContent = 'Publish'
         }
       })
-    }, 100)
-
-    // Store interval for cleanup if needed
-    ;(
-      window as unknown as { __strapiButtonInterval: NodeJS.Timeout }
-    ).__strapiButtonInterval = interval
+    }
+    applyUITweaks()
+    let tweakScheduled = false
+    const uiObserver = new MutationObserver(() => {
+      if (tweakScheduled) return
+      tweakScheduled = true
+      requestAnimationFrame(() => {
+        applyUITweaks()
+        tweakScheduled = false
+      })
+    })
+    uiObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
   }
 }

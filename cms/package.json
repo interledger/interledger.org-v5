@@ -13,6 +13,8 @@
     "sync:mdx:dry-run": "tsx scripts/sync-mdx/index.ts --dry-run",
     "sync:navigation": "tsx scripts/sync-navigation.ts",
     "sync:navigation:dry-run": "tsx scripts/sync-navigation.ts --dry-run",
+    "sync:all": "pnpm run sync:mdx && pnpm run sync:navigation",
+    "sync:all:dry-run": "pnpm run sync:mdx:dry-run && pnpm run sync:navigation:dry-run",
     "test:sync-mdx": "vitest run scripts/sync-mdx",
     "test:serializers": "vitest run src/serializers"
   },
@@ -52,5 +54,11 @@
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
     "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@strapi/design-system": "2.2.0",
+      "@strapi/icons": "2.2.0"
+    }
   }
 }

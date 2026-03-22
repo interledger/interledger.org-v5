@@ -1,0 +1,49 @@
+---
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import SpeakerCard from '@/components/summit/SpeakerCard.astro'
+import Pagination from '@/components/blog/Pagination.astro'
+import type { Page } from 'astro'
+import type { Speaker } from '@/utils/summit-talks-speakers'
+
+interface Props {
+  speakers: Speaker[]
+  basePath: string
+  title: string
+  page: Page
+}
+
+const { speakers, basePath, title, page } = Astro.props
+---
+
+<SummitPageLayout title={title}>
+  <main class="p-4 max-w-275 m-auto">
+    <h1>{title}</h1>
+    <section>
+      {
+        speakers.length > 0 ? (
+          <ul class="flex flex-wrap gap-4">
+            {speakers.map((speaker) => (
+              <SpeakerCard speaker={speaker} />
+            ))}
+          </ul>
+        ) : (
+          <p>No data available for {title}</p>
+        )
+      }
+    </section>
+
+    {
+      page.lastPage && page.lastPage > 1 && (
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          firstUrl={page.url.first}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          lastUrl={page.url.last}
+        />
+      )
+    }
+  </main>
+</SummitPageLayout>

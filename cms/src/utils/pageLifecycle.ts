@@ -89,8 +89,6 @@ export interface PageLifecycleConfig {
   contentTypeUid: string
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string
-  /** Directory name used inside src/content/{locale}/, e.g. 'foundation-pages' */
-  localizedOutputDir: string
 }
 
 function getOutputDir(config: PageLifecycleConfig, locale: string): string {
@@ -200,6 +198,9 @@ async function fetchPublished(
             },
             'blocks.ambassadors-grid': {
               populate: { ambassadors: true }
+            },
+            'blocks.pdf-embed': {
+              populate: { file: true }
             }
           }
         }
@@ -265,7 +266,17 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       await exportAllLocales(config, result.documentId)
       scheduleGitSync(label)
     },
-
+    async afterUpdate(event: Event) {
+      const { result } = event
+      if (!result) return
+      if (shouldSkipMdxExport()) return
+      const label = uidToLogLabel(config.contentTypeUid)
+      console.log(
+        `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
+      )
+      await exportAllLocales(config, result.documentId)
+      scheduleGitSync(label)
+    },
     async afterDelete(event: Event) {
       const { result } = event
       if (!result) return

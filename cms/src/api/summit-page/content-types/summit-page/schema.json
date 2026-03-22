@@ -8,7 +8,7 @@
     "description": "Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {

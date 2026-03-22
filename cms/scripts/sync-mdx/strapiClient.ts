@@ -15,6 +15,7 @@ export interface StrapiClient {
   ) => Promise<StrapiEntry | undefined>
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, or null. */
   findUploadByUrl: (url: string) => Promise<number | null>
+  findUploadByName: (name: string) => Promise<number | null>
   createLocalization: (
     apiId: string,
     documentId: string,
@@ -222,6 +223,15 @@ export function createStrapiClient({
     return files.length > 0 ? files[0].id : null
   }
 
+  async function findUploadByName(name: string) {
+    const result = await request(`upload/files?filters[name][$eq]=${name}`)
+    const files = Array.isArray(result)
+      ? (result as { id: number }[])
+      : ((result as { data?: { id: number }[] })?.data ?? [])
+
+    return files.length > 0 ? files[0].id : null
+  }
+
   async function deleteLocalization(
     apiId: string,
     documentId: string,
@@ -237,6 +247,7 @@ export function createStrapiClient({
     getAllEntries,
     findByPathSlug,
     findUploadByUrl,
+    findUploadByName,
     createLocalization,
     updateLocalization,
     createEntry,

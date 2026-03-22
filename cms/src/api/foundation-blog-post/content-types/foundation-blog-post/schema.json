@@ -8,7 +8,7 @@
     "description": "Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -126,19 +126,6 @@
       },
       "component": "shared.tags",
       "repeatable": true
-    },
-    "language": {
-      "type": "enumeration",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "default": "en",
-      "enum": [
-        "en",
-        "es"
-      ]
     }
   }
 }

@@ -8,7 +8,7 @@
     "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -68,7 +68,8 @@
         "blocks.ambassador",
         "blocks.ambassadors-grid",
         "blocks.blockquote",
-        "blocks.callout-text"
+        "blocks.callout-text",
+        "blocks.pdf-embed"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }
