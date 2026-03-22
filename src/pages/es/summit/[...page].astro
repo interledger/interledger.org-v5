@@ -1,75 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content'
-import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import SummitContentPage from '@/components/pages/SummitContentPage.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
-import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
-import Blockquote from '@/components/blockquote/Blockquote.astro'
-import Paragraph from '@/components/blocks/Paragraph.astro'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('summit-pages', 'es', 'page')
 }
 
-// TODO add fallback disclaimer
-// const { slug, locale, isFallback } = Astro.props
 const { slug, locale } = Astro.props
-
-const pages = await getCollection('summit-pages')
-
-const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === locale
-)
-
-if (!mdxPage) return Astro.redirect('/404')
-
-const { Content: MdxContent } = await render(mdxPage)
-const mdxData = mdxPage.data
-
-const title = mdxData?.metaTitle || mdxData?.title // || pageTitle TODO page title should simply be a required field in the frontmatter
-const description = mdxData?.metaDescription || mdxData?.description || null
-const ogImageUrl = mdxData?.metaImage || undefined
-const canonicalURL = mdxData?.canonicalUrl || undefined
-const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
-const mdxHeroDescription = mdxData?.heroDescription || ''
-const gradient = mdxData?.gradient || 'option1'
 ---
 
-<SummitPageLayout
-  title={title}
-  description={description}
-  gradient={gradient}
-  ogImageUrl={ogImageUrl}
-  canonicalURL={canonicalURL}
->
-  <main
-    class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
-  >
-    {
-      mdxHeroTitle && (
-        <section class="min-h-[40vh] py-space-xl flex items-center text-white">
-          <div class="mx-auto w-full max-w-wide px-space-m">
-            <div class="max-w-narrow">
-              <h1 class="max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
-                {mdxHeroTitle}
-              </h1>
-              {mdxHeroDescription && (
-                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
-                  {mdxHeroDescription}
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-      )
-    }
-    <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div
-          class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:underline [&_a:hover]:no-underline"
-        >
-          <MdxContent components={{ AmbassadorGrid, Blockquote, Paragraph }} />
-        </div>
-      </div>
-    </section>
-  </main>
-</SummitPageLayout>
+<SummitContentPage slug={slug} locale={locale} />
