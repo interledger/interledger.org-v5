@@ -7,7 +7,7 @@ import Blockquote from '@/components/blockquote/Blockquote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('summit-pages', 'en')
+  return getLocalizedPaths('summit-pages', 'en', 'page')
 }
 
 const { slug, locale } = Astro.props
