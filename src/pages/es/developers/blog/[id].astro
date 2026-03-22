@@ -2,31 +2,26 @@
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
-import type { Locale } from '@/utils/i18'
 import { getLocalizedPaths } from '@/utils/static-paths'
-
-const pageLang: Locale = 'es'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('developers-blog', 'es', 'id')
 }
 
-const pathSlug = Astro.params.id
+// TODO add fallback disclaimer
+// const { slug, locale, isFallback } = Astro.props
+const { slug, locale } = Astro.props
 
 const posts = await getCollection('developers-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === pathSlug && post.data.locale === pageLang
+  (post) => post.data.pathSlug === slug && post.data.locale === locale
 )
 
-let MdxContent: typeof import('astro').AstroComponentFactory | null = null
-let mdxData: (typeof mdxPost)['data'] | null = null
+if (!mdxPost) return Astro.redirect('/404')
 
-if (mdxPost) {
-  const { Content } = await render(mdxPost)
-  MdxContent = Content
-  mdxData = mdxPost.data
-}
+const { Content: MdxContent } = await render(mdxPost)
+const mdxData = mdxPost.data
 ---
 
 <DevelopersBlogLayout frontmatter={mdxData}>

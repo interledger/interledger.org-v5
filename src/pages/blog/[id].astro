@@ -5,72 +5,46 @@ import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
-import type { Locale } from '@/utils/i18'
-import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-
-const pageLang: Locale = 'en'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('foundation-blog', 'en', 'id')
 }
 
-const pathSlug = Astro.params.id
+const { slug, locale } = Astro.props
 
 const posts = await getCollection('foundation-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === pathSlug && post.data.locale === pageLang
+  (post) => post.data.pathSlug === slug && post.data.locale === locale
 )
 
-let MdxContent: typeof import('astro').AstroComponentFactory | null = null
-let mdxData: (typeof mdxPost)['data'] | null = null
+if (!mdxPost) return Astro.redirect('/404')
 
-if (mdxPost) {
-  const { Content } = await render(mdxPost)
-  MdxContent = Content
-  mdxData = mdxPost.data
-}
-
-const isNotFound = !MdxContent
-
-if (isNotFound) Astro.response.status = 404
+const { Content: MdxContent } = await render(mdxPost)
+const mdxData = mdxPost.data
 ---
 
-{
-  isNotFound ? (
-    <FoundationPageLayout title={'404'}>
-      <section class="min-h-[50vh] flex items-center justify-center text-center">
-        <div class="mx-auto w-full max-w-wide px-space-m">
-          <h1 class="text-2xl font-semibold text-primary mb-space-s">404</h1>
-          <p class="text-[var(--sl-color-gray-2)] mb-space-m">
-            The page you requested could not be found.
-          </p>
-          <a href="/" class="text-primary underline hover:no-underline">
-            ← Back to home
-          </a>
-        </div>
-      </section>
-    </FoundationPageLayout>
-  ) : (
-    <FoundationBlogLayout frontmatter={mdxData}>
-      <MdxContent />
+<FoundationBlogLayout frontmatter={mdxData}>
+  <MdxContent />
 
-      <CommunityLinksFoundation />
+  <CommunityLinksFoundation />
 
-      {mdxData?.articleBios?.map((bio) => {
-        if (!bio.text) return
-        return (
-          <ArticleBio
-            text={bio.text}
-            imageUrl={bio.image}
-            imageAlt={bio.author}
-          />
-        )
-      })}
+  {
+    mdxData?.articleBios?.map((bio) => {
+      if (!bio.text) return
+      return (
+        <ArticleBio
+          text={bio.text}
+          imageUrl={bio.image}
+          imageAlt={bio.author}
+        />
+      )
+    })
+  }
 
-      {mdxData?.tags?.length > 0 && (
-        <ArticleTags tags={mdxData.tags} path="/blog" />
-      )}
-    </FoundationBlogLayout>
-  )
-}
+  {
+    mdxData?.tags?.length > 0 && (
+      <ArticleTags tags={mdxData.tags} path="/blog" />
+    )
+  }
+</FoundationBlogLayout>

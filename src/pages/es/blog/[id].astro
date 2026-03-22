@@ -5,53 +5,46 @@ import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
-import type { Locale } from '@/utils/i18'
-
-const pageLang: Locale = 'es'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('foundation-blog', 'es', 'id')
 }
 
-const pathSlug = Astro.params.id
+const { slug, locale } = Astro.props
 
 const posts = await getCollection('foundation-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === pathSlug && post.data.locale === pageLang
+  (post) => post.data.pathSlug === slug && post.data.locale === locale
 )
 
-let MdxContent: typeof import('astro').AstroComponentFactory | null = null
-let mdxData: (typeof mdxPost)['data'] | null = null
+if (!mdxPost) return Astro.redirect('/404')
 
-if (mdxPost) {
-  const { Content } = await render(mdxPost)
-  MdxContent = Content
-  mdxData = mdxPost.data
-}
+const { Content: MdxContent } = await render(mdxPost)
+const mdxData = mdxPost.data
 ---
 
-{
-  (
-    <FoundationBlogLayout frontmatter={mdxData}>
-      <MdxContent />
+<FoundationBlogLayout frontmatter={mdxData}>
+  <MdxContent />
 
-      <CommunityLinksFoundation />
+  <CommunityLinksFoundation />
 
-      {mdxData?.articleBios?.map((bio) => {
-        if (!bio.text) return
-        return (
-          <ArticleBio
-            text={bio.text}
-            imageUrl={bio.image}
-            imageAlt={bio.author}
-          />
-        )
-      })}
+  {
+    mdxData?.articleBios?.map((bio) => {
+      if (!bio.text) return
+      return (
+        <ArticleBio
+          text={bio.text}
+          imageUrl={bio.image}
+          imageAlt={bio.author}
+        />
+      )
+    })
+  }
 
-      {mdxData?.tags?.length > 0 && (
-        <ArticleTags tags={mdxData.tags} path="/blog" />
-      )}
-    </FoundationBlogLayout>
-  )
-}
+  {
+    mdxData?.tags?.length > 0 && (
+      <ArticleTags tags={mdxData.tags} path="/blog" />
+    )
+  }
+</FoundationBlogLayout>
