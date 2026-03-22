@@ -1,33 +1,31 @@
 ---
-import type { Page, GetStaticPaths } from 'astro'
-import { paginatePostsByTag } from '@/utils/tagFilter'
-import stripPagination from '@/utils/stripPagination.ts'
+import type { Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import Pagination from '@/components/blog/Pagination.astro'
+import stripPagination from '@/utils/stripPagination'
 
-type Props = {
+interface Props {
   page: Page
   allTags: string[]
-  selectedTag: string
+  selectedTag?: string
+  blogPath: string
 }
 
-export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const paths = await paginatePostsByTag({
-    paginate,
-    collection: 'foundation-blog',
-    lang: 'es'
-  })
-  return paths
-}
-
-const { page, allTags, selectedTag } = Astro.props
+const { page, allTags, selectedTag, blogPath } = Astro.props
 const basePath = stripPagination(Astro.url.pathname)
+const title = selectedTag
+  ? `Foundation Blog - ${selectedTag}`
+  : 'Foundation Blog'
+const description = selectedTag
+  ? `Foundation Blog posts tagged with ${selectedTag}`
+  : 'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.'
+const developersBlogPath = blogPath.replace(/\/blog$/, '/developers/blog')
 ---
 
 <FoundationPageLayout
-  title={`Foundation Blog - ${selectedTag}`}
-  description={`Foundation Blog posts tagged with ${selectedTag}`}
+  title={title}
+  description={description}
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
 >
   <main class="pt-space-m pb-space-xl">
@@ -37,6 +35,8 @@ const basePath = stripPagination(Astro.url.pathname)
         allTags={allTags}
         selectedTag={selectedTag}
         showTagFilter={true}
+        path={blogPath}
+        developersHref={developersBlogPath}
       />
       <Pagination
         baseUrl={basePath}

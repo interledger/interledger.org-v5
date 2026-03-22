@@ -1,9 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content'
-import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
-import ArticleTags from '@/components/blog/ArticleTags.astro'
-import ArticleBio from '@/components/blog/ArticleBio.astro'
-import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import FoundationBlogPostPage from '@/components/pages/FoundationBlogPostPage.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
 
 export async function getStaticPaths() {
@@ -11,40 +7,6 @@ export async function getStaticPaths() {
 }
 
 const { slug, locale } = Astro.props
-
-const posts = await getCollection('foundation-blog')
-
-const mdxPost = posts.find(
-  (post) => post.data.pathSlug === slug && post.data.locale === locale
-)
-
-if (!mdxPost) return Astro.redirect('/404')
-
-const { Content: MdxContent } = await render(mdxPost)
-const mdxData = mdxPost.data
 ---
 
-<FoundationBlogLayout frontmatter={mdxData}>
-  <MdxContent />
-
-  <CommunityLinksFoundation />
-
-  {
-    mdxData?.articleBios?.map((bio) => {
-      if (!bio.text) return
-      return (
-        <ArticleBio
-          text={bio.text}
-          imageUrl={bio.image}
-          imageAlt={bio.author}
-        />
-      )
-    })
-  }
-
-  {
-    mdxData?.tags?.length > 0 && (
-      <ArticleTags tags={mdxData.tags} path="/blog" />
-    )
-  }
-</FoundationBlogLayout>
+<FoundationBlogPostPage slug={slug} locale={locale} />
