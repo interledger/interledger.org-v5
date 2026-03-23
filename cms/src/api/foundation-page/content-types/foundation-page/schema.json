@@ -5,7 +5,7 @@
     "singularName": "foundation-page",
     "pluralName": "foundation-pages",
     "displayName": "Foundation Page",
-    "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting."
+    "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Full path slug sets the URL and file location."
   },
   "options": {
     "draftAndPublish": false
@@ -22,15 +22,10 @@
       "pluginOptions": { "i18n": { "localized": true } }
     },
     "pathSlug": {
-      "type": "uid",
-      "targetField": "title",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "path": {
       "type": "string",
+      "required": true,
       "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Route path e.g. /grant/ambassadors. Astro uses for file placement."
+      "description": "Full URL path of this page (no leading slash), e.g. grant/grant-for-web or about-us for /about-us."
     },
     "pageType": {
       "type": "enumeration",

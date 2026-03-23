@@ -44,6 +44,7 @@ interface PageData {
   documentId: string
   title: string
   pathSlug: string
+  path?: string
   locale?: string
   hero?: {
     title?: string
@@ -91,15 +92,48 @@ export interface PageLifecycleConfig {
   outputDir: string
 }
 
-function getOutputDir(config: PageLifecycleConfig, locale: string): string {
-  const projectRoot = getTargetRepoRoot()
-  const baseOutputDir = path.join(projectRoot, config.outputDir)
-
-  if (locale === 'en') {
-    return baseOutputDir
+/**
+ * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
+ * Segments before the last `/` are directories; the last segment is the filename stem.
+ *
+ * Legacy: if `path` is set (old Strapi), uses {outputDir}/{path}/{locale?}/{pathSlug}.mdx.
+ *
+ * English: grant/ambassadors → {outputDir}/grant/ambassadors.mdx
+ * Spanish: grant/ambassadors → {outputDir}/grant/es/ambassadors.mdx
+ * English: about-us         → {outputDir}/about-us.mdx
+ */
+function resolvePageFilepath(
+  outputDir: string,
+  page: Pick<PageData, 'pathSlug' | 'path'>,
+  locale: string = 'en'
+): string {
+  const legacyPrefix = (page.path ?? '').replace(/^\/+|\/+$/g, '').trim()
+  if (legacyPrefix) {
+    const localeSuffix = locale !== 'en' ? locale : ''
+    return path.join(
+      outputDir,
+      legacyPrefix,
+      localeSuffix,
+      `${page.pathSlug}.mdx`
+    )
   }
 
-  return path.join(baseOutputDir, locale)
+  const normalized = page.pathSlug.replace(/^\/+|\/+$/g, '').trim()
+  if (!normalized) {
+    throw new Error('pathSlug is required')
+  }
+  const segments = normalized.split('/').filter(Boolean)
+  const fileBase = segments[segments.length - 1]!
+  const parentDirs = segments.slice(0, -1)
+  if (locale !== 'en') {
+    return path.join(outputDir, ...parentDirs, locale, `${fileBase}.mdx`)
+  }
+  return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
+}
+
+function getOutputDir(config: PageLifecycleConfig): string {
+  const projectRoot = getTargetRepoRoot()
+  return path.join(projectRoot, config.outputDir)
 }
 
 function generateMDX(
@@ -111,7 +145,8 @@ function generateMDX(
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
-  // Use englishSlug (current English pathSlug) if provided, otherwise fall back to preserved localizes
+  delete restPreserved.path
+  // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
@@ -142,12 +177,13 @@ async function writeMDXFile(
   englishSlug?: string
 ): Promise<string> {
   const locale = page.locale || 'en'
-  const outputDir = getOutputDir(config, locale)
-  const filepath = path.join(outputDir, `${page.pathSlug}.mdx`)
+  const outputDir = getOutputDir(config)
+  const filepath = resolvePageFilepath(outputDir, page, locale)
 
   try {
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true })
+    const fileDir = path.dirname(filepath)
+    if (!fs.existsSync(fileDir)) {
+      fs.mkdirSync(fileDir, { recursive: true })
     }
 
     // Preserve fields that exist in MDX but not in Strapi
@@ -287,14 +323,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
       )
 
-      removeLocalizesFromLocaleFiles(
-        result.pathSlug,
-        (locale) => getOutputDir(config, locale),
-        label
-      )
+      const outputDir = getOutputDir(config)
+      removeLocalizesFromLocaleFiles(result.pathSlug, () => outputDir, label)
       deleteLocaleMdxFiles(
-        (locale) =>
-          path.join(getOutputDir(config, locale), `${result.pathSlug}.mdx`),
+        (locale) => resolvePageFilepath(outputDir, result, locale),
         label
       )
 

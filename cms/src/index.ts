@@ -202,8 +202,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
-      path: 'Directory Structure',
+      pathSlug: 'Full Path Slug',
       pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
@@ -211,8 +210,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      pathSlug: 'URL Slug',
-      path: 'Directory Structure',
+      pathSlug: 'Full Path Slug',
       pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
@@ -230,10 +228,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::foundation-page.foundation-page': {
-      path: 'Route path for file placement, e.g. /grant/ambassadors. Astro uses this to determine where the page lives.'
+      pathSlug:
+        'This is the full URL of this page, for example /grant/grant-for-web or simply about-us for /about-us.'
     },
     'api::summit-page.summit-page': {
-      path: 'Route path for file placement. Astro uses this to determine where the page lives.'
+      pathSlug:
+        'This is the full URL of this page, for example /grant/grant-for-web or simply about-us for /about-us.'
     }
   }
 
@@ -484,10 +484,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 6 },
         { name: 'pageType', size: 6 }
       ],
-      [
-        { name: 'pathSlug', size: 6 },
-        { name: 'path', size: 6 }
-      ],
+      [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -497,10 +494,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 6 },
         { name: 'pageType', size: 6 }
       ],
-      [
-        { name: 'pathSlug', size: 6 },
-        { name: 'path', size: 6 }
-      ],
+      [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
