@@ -19,7 +19,8 @@ const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
 const title = mdxData?.metaTitle || mdxData?.title
-const description = mdxData?.metaDescription || mdxData?.description || undefined
+const description =
+  mdxData?.metaDescription || mdxData?.description || undefined
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
