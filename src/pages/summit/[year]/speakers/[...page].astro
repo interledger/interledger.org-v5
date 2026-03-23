@@ -1,0 +1,29 @@
+---
+import type { Page, GetStaticPaths } from 'astro'
+import type { Speaker } from '@/utils/summit-talks-speakers'
+import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers'
+import stripPagination from '@/utils/stripPagination'
+import SpeakersListPage from '@/components/summit/SpeakersListPage.astro'
+
+type Props = {
+  page: Page
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const paths = await paginateSummitSpeakers(paginate, 'en')
+  return paths
+}
+
+const { year } = Astro.params
+const { page } = Astro.props
+const speakers: Speaker[] = page.data
+const basePath = stripPagination(Astro.url.pathname)
+const title = `${year} Summit Speakers`
+---
+
+<SpeakersListPage
+  speakers={speakers}
+  basePath={basePath}
+  title={title}
+  page={page}
+/>

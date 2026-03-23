@@ -422,6 +422,24 @@ export interface BlocksParagraph extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksPdfEmbed extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_pdf_embeds'
+  info: {
+    description: 'Inline PDF viewer with download fallback'
+    displayName: 'PDF Embed'
+    icon: 'file-pdf'
+  }
+  attributes: {
+    analyticsEvent: Schema.Attribute.String & Schema.Attribute.Required
+    externalUrl: Schema.Attribute.String
+    file: Schema.Attribute.Media<'files'>
+    label: Schema.Attribute.String & Schema.Attribute.DefaultTo<'Download file'>
+    source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'media_library'>
+  }
+}
+
 export interface NavigationMenuGroup extends Struct.ComponentSchema {
   collectionName: 'components_navigation_menu_groups'
   info: {
@@ -716,6 +734,7 @@ declare module '@strapi/strapi' {
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
+      'blocks.pdf-embed': BlocksPdfEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
       'shared.article-bio': SharedArticleBio

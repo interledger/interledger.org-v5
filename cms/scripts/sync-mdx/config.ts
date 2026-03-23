@@ -4,7 +4,8 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {
   buildPagePayload,
   buildBlogPayload,
-  buildAmbassadorPayload
+  buildAmbassadorPayload,
+  type StrapiUploadContext
 } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
@@ -17,7 +18,9 @@ import './ambassadorHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
 import './paragraphHandler'
+import './pdfEmbedHandler'
 import { createRelationResolver } from './ambassadorHandler'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -61,11 +64,25 @@ function buildParsedPagePayload(
   const locale = mdx.locale || 'en'
   return buildPagePayload(schema, mdx, existing, {
     locale,
-    resolveRelation: createRelationResolver(strapi, locale)
+    resolveRelation: createRelationResolver(strapi, locale),
+    resolveMediaUpload: async (url: string) => {
+      const id = await strapi.findUploadByUrl(url)
+      if (!id) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+        })
+      }
+      return id
+    }
   })
 }
 
-export function buildContentTypes(projectRoot: string): ContentTypes {
+export function buildContentTypes(
+  projectRoot: string,
+  strapiUrl: string,
+  strapiToken: string
+): ContentTypes {
   return {
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
@@ -102,8 +119,18 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+      buildPayload: async (mdx, strapi, _existing) => {
+        const uploadContext: StrapiUploadContext = {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken
+        }
+        return buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          uploadContext
+        )
+      }
     }
   }
 }

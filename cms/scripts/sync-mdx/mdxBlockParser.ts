@@ -69,6 +69,13 @@ export interface ParserContext {
     apiId: string,
     pathSlug: string
   ) => Promise<{ documentId: string }>
+  /**
+   * Resolve an internal upload path to a Strapi upload file integer ID.
+   * Same pattern as resolveRelation — wraps strapi.findUploadByUrl.
+   *
+   * @param url - Internal path (e.g. '/uploads/file.pdf')
+   */
+  resolveMediaUpload?: (url: string) => Promise<number>
 }
 
 // ---------------------------------------------------------------------------

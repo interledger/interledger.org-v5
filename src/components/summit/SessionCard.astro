@@ -1,0 +1,15 @@
+---
+// NOTE: This component is a temporary placeholder component.
+// It contains minimal markup for now and will be fully implemented in a follow-up PR.
+import type { Talk } from '@/utils/summit-talks-speakers'
+
+interface Props {
+  talk: Talk
+}
+
+const { talk } = Astro.props
+---
+
+<li class="min-h-50 bg-black/10">
+  <h2>{talk.title}</h2>
+</li>
