@@ -5,6 +5,7 @@ import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
@@ -24,7 +25,7 @@ if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = contentLocale === 'es' ? '/es/blog' : '/blog'
+const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData} routeLocale={routeLocale}>
