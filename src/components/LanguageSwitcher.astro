@@ -43,11 +43,11 @@ function toSectionHref(locale: Locale, basePath: string): string {
   return locale === 'en' ? normalizedBasePath : `/es${normalizedBasePath}`
 }
 
-const fallbackEnHref = toSectionHref('en', currentBasePath)
-const fallbackEsHref = toSectionHref('es', currentBasePath)
+const defaultSectionEnHref = toSectionHref('en', currentBasePath)
+const defaultSectionEsHref = toSectionHref('es', currentBasePath)
 
-const resolvedEnHref = entry ? enHref : fallbackEnHref
-const resolvedEsHref = entry ? esHref : fallbackEsHref
+const resolvedEnHref = entry ? enHref : defaultSectionEnHref
+const resolvedEsHref = entry ? esHref : defaultSectionEsHref
 
 const hrefs: Record<Locale, string> = { en: resolvedEnHref, es: resolvedEsHref }
 ---

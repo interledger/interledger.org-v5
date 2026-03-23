@@ -378,7 +378,7 @@ The main source files for this setup are:
 - `src/utils/routes.ts`
   Defines `ROUTE_BASES`, the URL base path for each content collection. Use this when building links, language-switcher URLs, or other route-aware behavior.
 - `src/utils/static-paths.ts`
-  Builds localized static paths for collection-backed routes, including fallback behavior for untranslated pages.
+  Builds localized static paths for collection-backed routes. EN is canonical; ES routes may render EN content when no ES translation exists.
 - `src/utils/i18.ts`
   Centralizes locale definitions and language-switcher ordering.
 

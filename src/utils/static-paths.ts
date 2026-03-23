@@ -29,9 +29,14 @@ type Options = {
  *
  * ES routes: one path per EN entry, resolved as follows:
  *   - If an ES entry exists with `localizes === enEntry.pathSlug`,
- *     emit the ES slug with locale 'es'.
- *   - Otherwise, emit the EN slug with locale defaultLocale, flagged as a fallback.
- *     This ensures no EN-only page produces a 404 under /es/.
+ *     emit the ES slug with locale 'es' and `isFallback: false`.
+ *   - Otherwise, emit the EN slug with locale defaultLocale.
+ *     Mark that path with `isFallback: true`.
+ *
+ * This is intentionally one-way:
+ *   - EN is canonical
+ *   - ES may fall back to EN content
+ *   - EN never falls back to ES content
  */
 export async function getLocalizedPaths(
   collection: CollectionType,
