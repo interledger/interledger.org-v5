@@ -22,9 +22,9 @@ export function removeLocalizesFromLocaleFiles(
   for (const locale of nonEnLocales) {
     const dir = getLocaleDir(locale)
     if (fs.existsSync(dir)) {
-      const mdxFiles = fs
-        .readdirSync(dir)
-        .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
+      const mdxFiles = (
+        fs.readdirSync(dir, { recursive: true }) as string[]
+      ).filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
       for (const filename of mdxFiles) {
         const filepath = path.join(dir, filename)
         try {
