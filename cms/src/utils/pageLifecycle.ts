@@ -43,7 +43,8 @@ interface PageData {
   id: number
   documentId: string
   title: string
-  pathSlug: string
+  /** May be null on afterDelete in some Strapi versions / payloads */
+  pathSlug: string | null
   path?: string
   locale?: string
   hero?: {
@@ -107,18 +108,25 @@ function resolvePageFilepath(
   page: Pick<PageData, 'pathSlug' | 'path'>,
   locale: string = 'en'
 ): string {
+  const normalized =
+    page.pathSlug == null
+      ? ''
+      : String(page.pathSlug).replace(/^\/+|\/+$/g, '').trim()
+
   const legacyPrefix = (page.path ?? '').replace(/^\/+|\/+$/g, '').trim()
   if (legacyPrefix) {
     const localeSuffix = locale !== 'en' ? locale : ''
+    if (!normalized) {
+      throw new Error('pathSlug is required when legacy path is set')
+    }
     return path.join(
       outputDir,
       legacyPrefix,
       localeSuffix,
-      `${page.pathSlug}.mdx`
+      `${normalized}.mdx`
     )
   }
 
-  const normalized = page.pathSlug.replace(/^\/+|\/+$/g, '').trim()
   if (!normalized) {
     throw new Error('pathSlug is required')
   }
@@ -319,12 +327,23 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
-      console.log(
-        `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
-      )
+
+      const slug =
+        result.pathSlug == null
+          ? ''
+          : String(result.pathSlug).replace(/^\/+|\/+$/g, '').trim()
+      if (!slug) {
+        strapi.log.warn(
+          `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
+        )
+        scheduleGitSync(label)
+        return
+      }
+
+      console.log(`🗑️  Deleting ${label} MDX for all locales: ${slug}`)
 
       const outputDir = getOutputDir(config)
-      removeLocalizesFromLocaleFiles(result.pathSlug, () => outputDir, label)
+      removeLocalizesFromLocaleFiles(slug, () => outputDir, label)
       deleteLocaleMdxFiles(
         (locale) => resolvePageFilepath(outputDir, result, locale),
         label
