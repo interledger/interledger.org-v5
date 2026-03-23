@@ -4,11 +4,11 @@ import { switcherLocales, type Locale } from '@/utils/i18'
 
 interface Props {
   routeLocale: Locale
-  currentSlug: string
+  currentSlug?: string
   currentBasePath?: string
 }
 
-const { routeLocale, currentSlug, currentBasePath = '' } = Astro.props
+const { routeLocale, currentSlug = '', currentBasePath = '' } = Astro.props
 
 const map = await buildTranslationMap()
 const entry = map[currentSlug]
@@ -33,7 +33,23 @@ function toHref(locale: Locale, slug: string, basePath: string): string {
 const enHref = entry ? toHref('en', entry.en, currentBasePath) : '/'
 const esHref = entry ? toHref('es', entry.es, currentBasePath) : '/es'
 
-const hrefs: Record<Locale, string> = { en: enHref, es: esHref }
+function toSectionHref(locale: Locale, basePath: string): string {
+  const normalizedBasePath = normalizeBasePath(basePath)
+
+  if (!normalizedBasePath) {
+    return locale === 'en' ? '/' : '/es'
+  }
+
+  return locale === 'en' ? normalizedBasePath : `/es${normalizedBasePath}`
+}
+
+const fallbackEnHref = toSectionHref('en', currentBasePath)
+const fallbackEsHref = toSectionHref('es', currentBasePath)
+
+const resolvedEnHref = entry ? enHref : fallbackEnHref
+const resolvedEsHref = entry ? esHref : fallbackEsHref
+
+const hrefs: Record<Locale, string> = { en: resolvedEnHref, es: resolvedEsHref }
 ---
 
 <ul class="flex items-center p-0 list-none">
