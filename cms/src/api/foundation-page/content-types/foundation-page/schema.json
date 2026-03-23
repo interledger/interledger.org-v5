@@ -25,7 +25,7 @@
       "type": "string",
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Full URL path of this page (no leading slash), e.g. grant/grant-for-web or about-us for /about-us."
+      "description": "Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash."
     },
     "pageType": {
       "type": "enumeration",

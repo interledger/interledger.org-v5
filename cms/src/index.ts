@@ -190,7 +190,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Full Path Slug',
       date: 'Publish Date',
       pillar: 'Pillar',
       featureImage: 'Feature Image',
@@ -229,11 +229,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::foundation-page.foundation-page': {
       pathSlug:
-        'This is the full URL of this page, for example /grant/grant-for-web or simply about-us for /about-us.'
+        'Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash.'
     },
     'api::summit-page.summit-page': {
       pathSlug:
-        'This is the full URL of this page, for example /grant/grant-for-web or simply about-us for /about-us.'
+        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+    },
+    'api::foundation-blog-post.foundation-blog-post': {
+      pathSlug:
+        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.'
     }
   }
 
@@ -449,10 +453,8 @@ async function configureLayouts(strapi: StrapiInstance) {
 
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::foundation-blog-post.foundation-blog-post': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pathSlug', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
       [
         { name: 'date', size: 4 },
         { name: 'pillar', size: 4 },
