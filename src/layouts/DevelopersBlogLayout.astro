@@ -5,8 +5,15 @@ import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType
   canonicalURL?: string
+  developersHomePath?: string
+  blogPath?: string
 }
-const { frontmatter, canonicalURL } = Astro.props
+const {
+  frontmatter,
+  canonicalURL,
+  developersHomePath = '/developers',
+  blogPath = '/developers/blog'
+} = Astro.props
 
 const site = Astro.site!
 const ogImageUrl = frontmatter.ogImageUrl
@@ -60,7 +67,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
         >
           <a
             itemprop="item"
-            href="/developers"
+            href={developersHomePath}
             data-umami-event="Devs breadcrumb - Home"
           >
             <span itemprop="name">Developers Portal</span></a
@@ -75,7 +82,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
         >
           <a
             itemprop="item"
-            href="/developers/blog"
+            href={blogPath}
             data-umami-event="Devs breadcrumb - Blog"
           >
             <span itemprop="name">Engineering Blog</span></a
