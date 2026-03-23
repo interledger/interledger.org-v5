@@ -106,13 +106,13 @@ When content is published or updated in Strapi:
 
 1. Lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered automatically
 2. The content is converted to MDX format with frontmatter
-3. An MDX file is created/updated in the staging clone of Astro with the slug as the filename (e.g., `../src/content/foundation-pages/{pathSlug}.mdx` for English or `../src/content/foundation-pages/{locale}/{pathSlug}.mdx` for localizations)
+3. An MDX file is created/updated under the Astro content tree: for **foundation/summit pages**, the **full path slug** is split on `/` so parent segments become directories and the **last segment** is the `.mdx` filename (English). Localized locales use the same parent folders with a `/{locale}/` segment before the file (see `pageLifecycle` in the CMS).
 4. Astro automatically picks up the new content
 
 **File Naming**
 
-- MDX files for **pages** (e.g., foundation pages, summit pages) are named using the slug: `{pathSlug}.mdx` <br/>
-  Example: If the slug is `interledger-launches-new-platform`, the file will be: `interledger-launches-new-platform.mdx`
+- MDX files for **pages** (e.g., foundation pages, summit pages) use the **full path slug** from Strapi: segments before the last `/` become directories; the filename is `{lastSegment}.mdx`. <br/>
+  Example: slug `interledger-launches-new-platform` → `interledger-launches-new-platform.mdx` at the collection root. Slug `grant/my-page` → `grant/my-page.mdx` under the collection folder.
 
 - MDX files for **blog posts** use a date-prefixed format: `yyyy-mm-dd-{pathSlug}.mdx`<br/>
   Example: `2025-01-15-interledger-launches-new-platform.mdx`

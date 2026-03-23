@@ -333,7 +333,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a foundation page in Strapi generates `src/content/foundation-pages/{pathSlug}.mdx` for English and `src/content/foundation-pages/{locale}/{pathSlug}.mdx` for localizations.
+  - Example: Creating a foundation page writes MDX under `src/content/foundation-pages/` using **nested folders from the full path slug** (see below): English uses the last segment as the filename; localized pages use the same folder structure with `/{locale}/` before the filename.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -408,18 +408,53 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
-- Localizations: `src/content/foundation-pages/{locale}`
-- Filename format: `slug.mdx`
+- Localizations: `src/content/foundation-pages/{parent...}/{locale}/` (see path slug rules below)
+- Filename: last segment of the full path slug + `.mdx` (nested segments become parent directories)
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
 
 **Summit Pages**
 
 - Location: `src/content/summit-pages`
-- Localizations: `src/content/summit-pages/{locale}`
-- Filename format: `slug.mdx`
+- Localizations: same nesting pattern as foundation pages
+- Filename: last segment of the full path slug + `.mdx`
 
 Used for: Summit landing pages, schedules, speaker lists, event resources.
+
+#### Foundation & Summit routes: **Full Path Slug** (`pathSlug`)
+
+In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **without a leading slash**. The same value is stored in MDX frontmatter as `pathSlug`. The **live site URL** is `/{pathSlug}` (normalized, no duplicate slashes).
+
+Examples:
+
+| `pathSlug` (frontmatter / Strapi) | Public URL             |
+| --------------------------------- | ---------------------- |
+| `about-us`                        | `/about-us`            |
+| `grant/grant-for-web`             | `/grant/grant-for-web` |
+
+**On disk (English):** split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
+
+- `about-us` → `foundation-pages/about-us.mdx`
+- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+
+**Localized pages** use the same folder layout, with the locale folder inserted before the file (e.g. `foundation-pages/grant/es/…mdx` for Spanish).
+
+**Example (nested grant page):**
+
+```yaml
+---
+pathSlug: 'grant/grant-for-web'
+---
+```
+
+→ public URL: `/grant/grant-for-web`
+
+**Key rules:**
+
+- `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
+- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
+- If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 
 **⚠️ Important (Schema Validation)**
 
