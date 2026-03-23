@@ -14,7 +14,7 @@ interface Props {
   gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
-  currentLocale?: Locale
+  routeLocale?: Locale
   currentSlug?: string
   currentBasePath?: string
 }
@@ -25,7 +25,7 @@ const {
   gradient = 'option1',
   ogImageUrl,
   canonicalURL,
-  currentLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
+  routeLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
   currentSlug = '',
   currentBasePath = '/summit'
 } = Astro.props
@@ -43,7 +43,7 @@ const {
 >
   <SummitHeader
     slot="header"
-    currentLocale={currentLocale}
+    routeLocale={routeLocale}
     currentSlug={currentSlug}
     currentBasePath={currentBasePath}
   />

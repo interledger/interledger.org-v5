@@ -8,26 +8,26 @@ import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 
 interface Props {
   slug: string
-  locale: Locale
-  currentLocale?: Locale
+  contentLocale: Locale
+  routeLocale?: Locale
 }
 
-const { slug, locale, currentLocale = locale } = Astro.props
+const { slug, contentLocale, routeLocale = contentLocale } = Astro.props
 
 const posts = await getCollection('foundation-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === slug && post.data.locale === locale
+  (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
 if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = locale === 'es' ? '/es/blog' : '/blog'
+const blogPath = contentLocale === 'es' ? '/es/blog' : '/blog'
 ---
 
-<FoundationBlogLayout frontmatter={mdxData} currentLocale={currentLocale}>
+<FoundationBlogLayout frontmatter={mdxData} routeLocale={routeLocale}>
   <MdxContent />
 
   <CommunityLinksFoundation />

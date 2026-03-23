@@ -8,16 +8,16 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 
 interface Props {
   slug: string
-  locale: Locale
-  currentLocale?: Locale
+  contentLocale: Locale
+  routeLocale?: Locale
 }
 
-const { slug, locale, currentLocale = locale } = Astro.props
+const { slug, contentLocale, routeLocale = contentLocale } = Astro.props
 
 const pages = await getCollection('summit-pages')
 
 const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === locale
+  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
 if (!mdxPage) return Astro.redirect('/404')
@@ -41,7 +41,7 @@ const gradient = mdxData?.gradient || 'option1'
   gradient={gradient}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
-  currentLocale={currentLocale}
+  routeLocale={routeLocale}
   currentSlug={mdxData.pathSlug}
 >
   <main

@@ -6,7 +6,11 @@ export async function getStaticPaths() {
   return getLocalizedPaths('foundation-blog', 'es', 'id')
 }
 
-const { slug, locale } = Astro.props
+const { slug, locale: contentLocale } = Astro.props
 ---
 
-<FoundationBlogPostPage slug={slug} locale={locale} currentLocale="es" />
+<FoundationBlogPostPage
+  slug={slug}
+  contentLocale={contentLocale}
+  routeLocale="es"
+/>

@@ -15,7 +15,7 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   datePublished?: string
-  currentLocale?: Locale
+  routeLocale?: Locale
   currentSlug?: string
   currentBasePath?: string
 }
@@ -27,7 +27,7 @@ const {
   ogImageUrl,
   canonicalURL,
   datePublished,
-  currentLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
+  routeLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
   currentSlug = '',
   currentBasePath = ''
 } = Astro.props
@@ -47,7 +47,7 @@ const {
   </Fragment>
   <FoundationHeader
     slot="header"
-    currentLocale={currentLocale}
+    routeLocale={routeLocale}
     currentSlug={currentSlug}
     currentBasePath={currentBasePath}
   />

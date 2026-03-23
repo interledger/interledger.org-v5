@@ -8,14 +8,14 @@ interface Props {
   canonicalURL?: string
   developersHomePath?: string
   blogPath?: string
-  currentLocale?: Locale
+  routeLocale?: Locale
 }
 const {
   frontmatter,
   canonicalURL,
   developersHomePath = '/developers',
   blogPath = '/developers/blog',
-  currentLocale = frontmatter.locale === 'es' ? 'es' : 'en'
+  routeLocale = frontmatter.locale === 'es' ? 'es' : 'en'
 } = Astro.props
 
 const site = Astro.site!
@@ -37,7 +37,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
-  currentLocale={currentLocale}
+  routeLocale={routeLocale}
   currentSlug={frontmatter.pathSlug}
   currentBasePath="/developers/blog"
 >

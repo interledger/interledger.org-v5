@@ -11,16 +11,16 @@ import PdfEmbed from '@/components/PdfEmbed.astro'
 
 interface Props {
   slug: string
-  locale: Locale
-  currentLocale?: Locale
+  contentLocale: Locale
+  routeLocale?: Locale
 }
 
-const { slug, locale, currentLocale = locale } = Astro.props
+const { slug, contentLocale, routeLocale = contentLocale } = Astro.props
 
 const pages = await getCollection('foundation-pages')
 
 const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === locale
+  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
 if (!mdxPage) return Astro.redirect('/404')
@@ -46,7 +46,7 @@ if (isNotFound) return Astro.redirect('/404')
   description={description}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
-  currentLocale={currentLocale}
+  routeLocale={routeLocale}
   currentSlug={mdxData.pathSlug}
 >
   <main class="pb-space-l" data-pillar={pillar}>

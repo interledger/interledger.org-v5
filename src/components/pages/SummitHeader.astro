@@ -22,13 +22,13 @@ const { mainMenu, ctaButton } = summitNavigation as {
 }
 
 interface Props {
-  currentLocale?: Locale
+  routeLocale?: Locale
   currentSlug?: string
   currentBasePath?: string
 }
 
 const {
-  currentLocale = 'en',
+  routeLocale = 'en',
   currentSlug = '',
   currentBasePath = '/summit'
 } = Astro.props
@@ -159,7 +159,7 @@ const ctaLinkClass = rightNavBase
         Interledger Foundation
       </a>
       <LanguageSwitcher
-        currentLocale={currentLocale}
+        routeLocale={routeLocale}
         currentSlug={currentSlug}
         currentBasePath={currentBasePath}
       />

@@ -9,13 +9,13 @@ import type { Locale } from '@/utils/translationMap'
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
   canonicalURL?: string
-  currentLocale?: Locale
+  routeLocale?: Locale
 }
 
 const {
   frontmatter,
   canonicalURL,
-  currentLocale = frontmatter.locale === 'es' ? 'es' : 'en'
+  routeLocale = frontmatter.locale === 'es' ? 'es' : 'en'
 } = Astro.props
 
 const site = Astro.site!
@@ -33,7 +33,7 @@ const longDate = dateObj.toDateString().substring(4)
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
-  currentLocale={currentLocale}
+  routeLocale={routeLocale}
   currentSlug={frontmatter.pathSlug}
   currentBasePath="/blog"
 >

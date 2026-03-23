@@ -22,13 +22,13 @@ const { mainMenu, ctaButton } = foundationNavigation as {
 }
 
 interface Props {
-  currentLocale?: Locale
+  routeLocale?: Locale
   currentSlug?: string
   currentBasePath?: string
 }
 
 const {
-  currentLocale = 'en',
+  routeLocale = 'en',
   currentSlug = '',
   currentBasePath = ''
 } = Astro.props
@@ -120,7 +120,7 @@ const {
         )
       }
       <LanguageSwitcher
-        currentLocale={currentLocale}
+        routeLocale={routeLocale}
         currentSlug={currentSlug}
         currentBasePath={currentBasePath}
       />
