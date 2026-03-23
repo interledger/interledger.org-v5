@@ -244,6 +244,9 @@ jobs:
 
           sudo systemctl start strapi.service
           sleep 5
+          echo "::group::strapi.service journal (last 200 lines)"
+          sudo journalctl -u strapi.service -n 200 --no-pager -o short-precise
+          echo "::endgroup::"
           sudo systemctl status strapi.service
 
   sync-to-strapi:
