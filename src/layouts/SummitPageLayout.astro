@@ -7,6 +7,7 @@ import BaseLayout from './BaseLayout.astro'
 import SummitFooter from '../components/pages/SummitFooter.astro'
 import SummitHeader from '../components/pages/SummitHeader.astro'
 import type { Locale } from '@/utils/i18'
+import { ROUTE_BASES } from '@/utils/routes'
 
 interface Props {
   title: string
@@ -27,7 +28,7 @@ const {
   canonicalURL,
   routeLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
   currentSlug = '',
-  currentBasePath = '/summit'
+  currentBasePath = ROUTE_BASES['summit-pages']
 } = Astro.props
 ---
 

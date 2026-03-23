@@ -2,6 +2,7 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import type { Locale } from '@/utils/i18'
+import { ROUTE_BASES } from '@/utils/routes'
 import summitNavigation from '@/config/summit-navigation.json'
 
 interface MenuItem {
@@ -30,7 +31,7 @@ interface Props {
 const {
   routeLocale = 'en',
   currentSlug = '',
-  currentBasePath = '/summit'
+  currentBasePath = ROUTE_BASES['summit-pages']
 } = Astro.props
 
 const navWrapperClass =
@@ -69,7 +70,7 @@ const ctaLinkClass = rightNavBase
   >
     <h2 class="sr-only" id="block-summit-navigation-menu">Summit navigation</h2>
     <a
-      href="/summit"
+      href={ROUTE_BASES['summit-pages']}
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
       aria-label="Interledger Summit"
       data-umami-event="Summit Nav - Logo"

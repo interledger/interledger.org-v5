@@ -6,6 +6,7 @@
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import type { Locale } from '@/utils/i18'
+import { ROUTE_BASES } from '@/utils/routes'
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
   canonicalURL?: string
@@ -35,7 +36,7 @@ const longDate = dateObj.toDateString().substring(4)
   datePublished={dateObj.toISOString()}
   routeLocale={routeLocale}
   currentSlug={frontmatter.pathSlug}
-  currentBasePath="/blog"
+  currentBasePath={ROUTE_BASES['foundation-blog']}
 >
   <main
     class="flex flex-col bg-white/70 pt-space-m pb-space-xl"

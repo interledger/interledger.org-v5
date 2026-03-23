@@ -1,27 +1,17 @@
 import { getCollection } from 'astro:content'
+import { ROUTE_BASES, type RouteCollection } from '@/utils/routes'
 
 export interface TranslationEntry {
   en: string
   es: string
 }
 
-type TranslationCollection =
-  | 'foundation-pages'
-  | 'foundation-blog'
-  | 'developers-blog'
-  | 'summit-pages'
-
 // Returns a map of pathSlug -> { en: slug, es: slug }
 // Works from both sides: en slugs and es slugs are both indexed.
 export async function buildTranslationMap(): Promise<
   Record<string, TranslationEntry>
 > {
-  const collectionNames: TranslationCollection[] = [
-    'foundation-pages',
-    'foundation-blog',
-    'developers-blog',
-    'summit-pages'
-  ]
+  const collectionNames = Object.keys(ROUTE_BASES) as RouteCollection[]
 
   const map: Record<string, TranslationEntry> = {}
 

@@ -4,6 +4,7 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
+import { ROUTE_BASES } from '@/utils/routes'
 
 interface Props {
   page: Page
@@ -27,7 +28,7 @@ const developersBlogPath = blogPath.replace(/\/blog$/, '/developers/blog')
   title={title}
   description={description}
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
-  currentBasePath="/blog"
+  currentBasePath={ROUTE_BASES['foundation-blog']}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
