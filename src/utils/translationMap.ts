@@ -1,7 +1,5 @@
 import { getCollection } from 'astro:content'
 
-export type Locale = 'en' | 'es'
-
 export interface TranslationEntry {
   en: string
   es: string

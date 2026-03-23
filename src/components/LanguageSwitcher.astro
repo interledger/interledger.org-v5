@@ -1,6 +1,6 @@
 ---
 import { buildTranslationMap } from '../utils/translationMap'
-import type { Locale } from '../utils/translationMap'
+import { switcherLocales, type Locale } from '@/utils/i18'
 
 interface Props {
   routeLocale: Locale
@@ -34,12 +34,11 @@ const enHref = entry ? toHref('en', entry.en, currentBasePath) : '/'
 const esHref = entry ? toHref('es', entry.es, currentBasePath) : '/es'
 
 const hrefs: Record<Locale, string> = { en: enHref, es: esHref }
-const locales: Locale[] = ['en', 'es']
 ---
 
 <ul class="flex items-center p-0 list-none">
   {
-    locales.map((locale) => (
+    switcherLocales.map((locale) => (
       <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
         <a
           href={hrefs[locale]}
