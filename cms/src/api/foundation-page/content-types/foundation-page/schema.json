@@ -69,7 +69,8 @@
         "blocks.ambassadors-grid",
         "blocks.blockquote",
         "blocks.callout-text",
-        "blocks.pdf-embed"
+        "blocks.pdf-embed",
+        "blocks.video-embed"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }

@@ -1,0 +1,29 @@
+---
+import { YouTube } from '@astro-community/astro-embed-youtube'
+import { Vimeo } from '@astro-community/astro-embed-vimeo'
+import { detectVideoProvider } from '@/utils/video'
+
+interface Props {
+  url: string
+  title: string
+}
+
+const { url, title } = Astro.props
+const provider = detectVideoProvider(url)
+---
+
+{
+  provider === 'youtube' ? (
+    <div class="aspect-video w-full">
+      <YouTube id={url} playlabel={title} />
+    </div>
+  ) : provider === 'vimeo' ? (
+    <div class="aspect-video w-full">
+      <Vimeo id={url} playlabel={title} />
+    </div>
+  ) : (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      {title}
+    </a>
+  )
+}

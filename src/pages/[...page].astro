@@ -13,6 +13,7 @@ import Blockquote from '../components/blockquote/Blockquote.astro'
 import CalloutText from '../components/callout/CalloutText.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
 import PdfEmbed from '../components/PdfEmbed.astro'
+import VideoEmbed from '../components/blocks/VideoEmbed.astro'
 
 export async function getStaticPaths() {
   return getPagePaths('foundation-pages', { excludeSlug: 'home' })
@@ -78,7 +79,8 @@ if (isNotFound) return Astro.redirect('/404')
               Blockquote,
               CalloutText,
               Paragraph,
-              PdfEmbed
+              PdfEmbed,
+              VideoEmbed
             }}
           />
         </div>

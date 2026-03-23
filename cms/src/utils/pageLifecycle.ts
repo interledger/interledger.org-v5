@@ -201,7 +201,8 @@ async function fetchPublished(
             },
             'blocks.pdf-embed': {
               populate: { file: true }
-            }
+            },
+            'blocks.video-embed': {}
           }
         }
       }

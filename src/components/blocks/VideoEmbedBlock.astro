@@ -1,0 +1,12 @@
+---
+import VideoEmbed from './VideoEmbed.astro'
+
+interface Props {
+  url: string
+  title: string
+}
+
+const { url, title } = Astro.props
+---
+
+{url && title && <VideoEmbed url={url} title={title} />}
