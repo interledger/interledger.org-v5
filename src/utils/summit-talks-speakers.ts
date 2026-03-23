@@ -4,13 +4,16 @@ import { generateSlug } from './slug'
 import { YEARS } from './sessionize'
 
 export async function paginateSummitTalks(paginate: PaginateFunction) {
-  return YEARS.flatMap((year) => {
-    const talksForYear = getTalks(year)
-    return paginate(talksForYear, {
-      params: { year },
-      pageSize: 10
+  const paths = await Promise.all(
+    YEARS.map(async (year) => {
+      const talksForYear = await getTalks(year)
+      return paginate(talksForYear, {
+        params: { year },
+        pageSize: 10
+      })
     })
-  })
+  )
+  return paths.flat()
 }
 
 export async function paginateSummitSpeakers(paginate: PaginateFunction) {
@@ -40,11 +43,14 @@ export async function getSpeakerPages() {
 }
 
 export async function getSessionPages() {
-  return YEARS.flatMap((year) => {
-    const talksForYear = getTalks(year)
-    return talksForYear.map((entry) => ({
-      params: { year, id: generateSlug(entry.title) },
-      props: { entry }
-    }))
-  })
+  const paths = await Promise.all(
+    YEARS.map(async (year) => {
+      const talksForYear = await getTalks(year)
+      return talksForYear.map((entry) => ({
+        params: { year, id: generateSlug(entry.title) },
+        props: { entry }
+      }))
+    })
+  )
+  return paths.flat()
 }
