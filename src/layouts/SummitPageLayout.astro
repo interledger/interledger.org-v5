@@ -6,6 +6,7 @@
 import BaseLayout from './BaseLayout.astro'
 import SummitFooter from '../components/pages/SummitFooter.astro'
 import SummitHeader from '../components/pages/SummitHeader.astro'
+import type { Locale } from '@/utils/translationMap'
 
 interface Props {
   title: string
@@ -13,6 +14,9 @@ interface Props {
   gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
+  currentLocale?: Locale
+  currentSlug?: string
+  currentBasePath?: string
 }
 
 const {
@@ -20,7 +24,10 @@ const {
   description,
   gradient = 'option1',
   ogImageUrl,
-  canonicalURL
+  canonicalURL,
+  currentLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
+  currentSlug = '',
+  currentBasePath = '/summit'
 } = Astro.props
 ---
 
@@ -34,7 +41,12 @@ const {
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat font-titillium text-step-0 text-white"
   bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
 >
-  <SummitHeader slot="header" />
+  <SummitHeader
+    slot="header"
+    currentLocale={currentLocale}
+    currentSlug={currentSlug}
+    currentBasePath={currentBasePath}
+  />
   <div
     class="flex-1 text-step-0 [&>section]:w-full [&>section]:py-space-m [&_h1]:text-step-4 [&_h2]:text-step-2 [&_h3]:text-step-1 [&_h4]:text-step-0 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]"
   >

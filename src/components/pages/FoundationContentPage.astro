@@ -1,4 +1,5 @@
 ---
+import type { Locale } from '@/utils/translationMap'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
@@ -8,7 +9,13 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 
-const { slug, locale } = Astro.props
+interface Props {
+  slug: string
+  locale: Locale
+  currentLocale?: Locale
+}
+
+const { slug, locale, currentLocale = locale } = Astro.props
 
 const pages = await getCollection('foundation-pages')
 
@@ -39,6 +46,8 @@ if (isNotFound) return Astro.redirect('/404')
   description={description}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
+  currentLocale={currentLocale}
+  currentSlug={mdxData.pathSlug}
 >
   <main class="pb-space-l" data-pillar={pillar}>
     {

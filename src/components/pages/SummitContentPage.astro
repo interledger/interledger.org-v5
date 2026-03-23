@@ -1,11 +1,18 @@
 ---
+import type { Locale } from '@/utils/translationMap'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 
-const { slug, locale } = Astro.props
+interface Props {
+  slug: string
+  locale: Locale
+  currentLocale?: Locale
+}
+
+const { slug, locale, currentLocale = locale } = Astro.props
 
 const pages = await getCollection('summit-pages')
 
@@ -34,6 +41,8 @@ const gradient = mdxData?.gradient || 'option1'
   gradient={gradient}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
+  currentLocale={currentLocale}
+  currentSlug={mdxData.pathSlug}
 >
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"

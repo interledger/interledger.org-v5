@@ -1,0 +1,55 @@
+---
+import { buildTranslationMap } from '../utils/translationMap'
+import type { Locale } from '../utils/translationMap'
+
+interface Props {
+  currentLocale: Locale
+  currentSlug: string
+  currentBasePath?: string
+}
+
+const { currentLocale, currentSlug, currentBasePath = '' } = Astro.props
+
+const map = await buildTranslationMap()
+const entry = map[currentSlug]
+
+function normalizeBasePath(basePath: string): string {
+  if (!basePath || basePath === '/') return ''
+  return basePath.startsWith('/') ? basePath : `/${basePath}`
+}
+
+function toHref(locale: Locale, slug: string, basePath: string): string {
+  const normalizedBasePath = normalizeBasePath(basePath)
+
+  if (slug === 'home' && normalizedBasePath === '') {
+    return locale === 'en' ? '/' : '/es'
+  }
+
+  return locale === 'en'
+    ? `${normalizedBasePath}/${slug}`
+    : `/es${normalizedBasePath}/${slug}`
+}
+
+const enHref = entry ? toHref('en', entry.en, currentBasePath) : '/'
+const esHref = entry ? toHref('es', entry.es, currentBasePath) : '/es'
+
+const hrefs: Record<Locale, string> = { en: enHref, es: esHref }
+const locales: Locale[] = ['en', 'es']
+---
+
+<ul class="flex items-center p-0 list-none">
+  {
+    locales.map((locale) => (
+      <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
+        <a
+          href={hrefs[locale]}
+          class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+          data-active={currentLocale === locale ? 'true' : 'false'}
+          hreflang={locale}
+        >
+          {locale.toUpperCase()}
+        </a>
+      </li>
+    ))
+  }
+</ul>

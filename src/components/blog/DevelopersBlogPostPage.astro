@@ -1,14 +1,16 @@
 ---
+import type { Locale } from '@/utils/translationMap'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 
 interface Props {
   slug: string
-  locale: string
+  locale: Locale
+  currentLocale?: Locale
 }
 
-const { slug, locale } = Astro.props
+const { slug, locale, currentLocale = locale } = Astro.props
 
 const posts = await getCollection('developers-blog')
 
@@ -26,6 +28,7 @@ const blogPath = locale === 'es' ? '/es/developers/blog' : '/developers/blog'
 
 <DevelopersBlogLayout
   frontmatter={mdxData}
+  currentLocale={currentLocale}
   developersHomePath={developersHomePath}
   blogPath={blogPath}
 >
