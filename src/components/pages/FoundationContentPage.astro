@@ -1,4 +1,5 @@
 ---
+import type { Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
@@ -8,12 +9,17 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 
-const { slug, locale } = Astro.props
+interface Props {
+  slug: string
+  contentLocale: Locale
+}
+
+const { slug, contentLocale } = Astro.props
 
 const pages = await getCollection('foundation-pages')
 
 const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === locale
+  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
 if (!mdxPage) return Astro.redirect('/404')
