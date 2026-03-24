@@ -111,7 +111,9 @@ function resolvePageFilepath(
   const normalized =
     page.pathSlug == null
       ? ''
-      : String(page.pathSlug).replace(/^\/+|\/+$/g, '').trim()
+      : String(page.pathSlug)
+          .replace(/^\/+|\/+$/g, '')
+          .trim()
 
   const legacyPrefix = (page.path ?? '').replace(/^\/+|\/+$/g, '').trim()
   if (legacyPrefix) {
@@ -119,12 +121,7 @@ function resolvePageFilepath(
     if (!normalized) {
       throw new Error('pathSlug is required when legacy path is set')
     }
-    return path.join(
-      outputDir,
-      legacyPrefix,
-      localeSuffix,
-      `${normalized}.mdx`
-    )
+    return path.join(outputDir, legacyPrefix, localeSuffix, `${normalized}.mdx`)
   }
 
   if (!normalized) {
@@ -331,7 +328,9 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       const slug =
         result.pathSlug == null
           ? ''
-          : String(result.pathSlug).replace(/^\/+|\/+$/g, '').trim()
+          : String(result.pathSlug)
+              .replace(/^\/+|\/+$/g, '')
+              .trim()
       if (!slug) {
         strapi.log.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
