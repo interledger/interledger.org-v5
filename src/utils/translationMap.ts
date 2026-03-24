@@ -1,13 +1,19 @@
 import { getCollection } from 'astro:content'
+import { defaultLocale, switcherLocales, type Locale } from '@/utils/i18'
 import { ROUTE_BASES, type RouteCollection } from '@/utils/routes'
 
-export interface TranslationEntry {
-  en: string
-  es: string
+export type TranslationEntry = Record<Locale, string>
+
+function createFallbackEntry(defaultSlug: string): TranslationEntry {
+  return Object.fromEntries(
+    switcherLocales.map((locale) => [locale, defaultSlug])
+  ) as TranslationEntry
 }
 
-// Returns a map of pathSlug -> { en: slug, es: slug }
-// Works from both sides: en slugs and es slugs are both indexed.
+// Returns a map of pathSlug -> { [locale]: slug }.
+// Every EN entry is indexed for all locales using the EN slug as the fallback URL.
+// Localized entries overwrite that fallback for their own locale and are indexed
+// from both the localized slug and the EN slug they translate.
 export async function buildTranslationMap(): Promise<
   Record<string, TranslationEntry>
 > {
@@ -17,23 +23,27 @@ export async function buildTranslationMap(): Promise<
 
   for (const name of collectionNames) {
     const entries = await getCollection(name)
-    const enEntries = entries.filter((entry) => entry.data.locale === 'en')
-    const esEntries = entries.filter((entry) => entry.data.locale === 'es')
+    const defaultEntries = entries.filter(
+      (entry) => entry.data.locale === defaultLocale
+    )
+    const localizedEntries = entries.filter(
+      (entry) => entry.data.locale && entry.data.locale !== defaultLocale
+    )
 
-    for (const esEntry of esEntries) {
-      const { pathSlug, localizes } = esEntry.data
-      if (!localizes) continue
-
-      const pair: TranslationEntry = { en: localizes, es: pathSlug }
-      map[pathSlug] = pair
-      map[localizes] = pair
+    for (const defaultEntry of defaultEntries) {
+      const { pathSlug } = defaultEntry.data
+      map[pathSlug] = createFallbackEntry(pathSlug)
     }
 
-    for (const enEntry of enEntries) {
-      const { pathSlug } = enEntry.data
-      if (!map[pathSlug]) {
-        map[pathSlug] = { en: pathSlug, es: pathSlug }
-      }
+    for (const localizedEntry of localizedEntries) {
+      const { pathSlug, localizes, locale } = localizedEntry.data
+      if (!localizes) continue
+      if (!locale) continue
+
+      const pair = map[localizes] ?? createFallbackEntry(localizes)
+      pair[locale as Locale] = pathSlug
+      map[pathSlug] = pair
+      map[localizes] = pair
     }
   }
 

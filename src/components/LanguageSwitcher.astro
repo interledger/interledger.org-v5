@@ -1,6 +1,7 @@
 ---
 import { buildTranslationMap } from '../utils/translationMap'
 import { switcherLocales, type Locale } from '@/utils/i18'
+import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   routeLocale: Locale
@@ -18,38 +19,29 @@ function normalizeBasePath(basePath: string): string {
   return basePath.startsWith('/') ? basePath : `/${basePath}`
 }
 
-function toHref(locale: Locale, slug: string, basePath: string): string {
+function buildRoutePath(basePath: string, slug: string): string {
   const normalizedBasePath = normalizeBasePath(basePath)
 
   if (slug === 'home' && normalizedBasePath === '') {
-    return locale === 'en' ? '/' : '/es'
+    return ''
   }
 
-  return locale === 'en'
-    ? `${normalizedBasePath}/${slug}`
-    : `/es${normalizedBasePath}/${slug}`
+  return `${normalizedBasePath}/${slug}`
 }
 
-const enHref = entry ? toHref('en', entry.en, currentBasePath) : '/'
-const esHref = entry ? toHref('es', entry.es, currentBasePath) : '/es'
-
-function toSectionHref(locale: Locale, basePath: string): string {
-  const normalizedBasePath = normalizeBasePath(basePath)
-
-  if (!normalizedBasePath) {
-    return locale === 'en' ? '/' : '/es'
-  }
-
-  return locale === 'en' ? normalizedBasePath : `/es${normalizedBasePath}`
+function toDefaultSectionHref(locale: Locale, basePath: string): string {
+  return localizeRoute(normalizeBasePath(basePath), locale)
 }
 
-const defaultSectionEnHref = toSectionHref('en', currentBasePath)
-const defaultSectionEsHref = toSectionHref('es', currentBasePath)
-
-const resolvedEnHref = entry ? enHref : defaultSectionEnHref
-const resolvedEsHref = entry ? esHref : defaultSectionEsHref
-
-const hrefs: Record<Locale, string> = { en: resolvedEnHref, es: resolvedEsHref }
+const hrefs = Object.fromEntries(
+  switcherLocales.map((locale) => {
+    const slug = entry?.[locale]
+    const href = slug
+      ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)
+      : toDefaultSectionHref(locale, currentBasePath)
+    return [locale, href]
+  })
+) as Record<Locale, string>
 ---
 
 <ul class="flex items-center p-0 list-none">
