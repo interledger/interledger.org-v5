@@ -1,5 +1,6 @@
 import type {
   Talk,
+  TalkPreview,
   Speaker,
   SessionizeSpeaker,
   SessionizeTalk
@@ -96,4 +97,23 @@ export async function getTalks(
   }
 
   return talks
+}
+
+export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
+  const [talks, sessionizeSpeakers] = await Promise.all([
+    getTalks(year),
+    import(`../data/sessionize/${year}-speakers.json`) as Promise<{
+      default: SessionizeSpeaker[]
+    }>
+  ])
+  const allSpeakers = sessionizeSpeakers.default
+
+  return talks.map(({ speakers, ...talk }) => {
+    const speaker = allSpeakers.find((s) => s.id === speakers[0]?.id)
+
+    return {
+      ...talk,
+      speakerImage: speaker?.profilePicture ?? null
+    }
+  })
 }

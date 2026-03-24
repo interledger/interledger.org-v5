@@ -1,12 +1,12 @@
 import type { PaginateFunction } from 'astro'
-import { getSpeakers, getTalks } from './extractSessionize'
+import { getSpeakers, getTalks, getTalkPreviews } from './extractSessionize'
 import { generateSlug } from './slug'
 import { YEARS } from './sessionize'
 
 export async function paginateSummitTalks(paginate: PaginateFunction) {
   const paths = await Promise.all(
     YEARS.map(async (year) => {
-      const talksForYear = await getTalks(year)
+      const talksForYear = await getTalkPreviews(year)
       return paginate(talksForYear, {
         params: { year },
         pageSize: 10

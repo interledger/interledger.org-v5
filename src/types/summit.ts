@@ -15,6 +15,10 @@ export interface Talk {
   } | null
 }
 
+export type TalkPreview = Omit<Talk, 'speakers'> & {
+  speakerImage: string | null
+}
+
 export interface Speaker {
   id: string
   name: string
