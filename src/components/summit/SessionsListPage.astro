@@ -4,6 +4,7 @@ import Pagination from '@/components/blog/Pagination.astro'
 import SessionCard from './SessionCard.astro'
 import type { Talk } from '@/utils/summit-talks-speakers'
 import type { Page } from 'astro'
+import { defaultLocale, type Locale } from '@/utils/i18'
 
 interface Props {
   talks: Talk[]
@@ -12,9 +13,10 @@ interface Props {
   page: Page
 }
 const { talks, basePath, title, page } = Astro.props
+const routeLocale = (Astro.currentLocale ?? defaultLocale) as Locale
 ---
 
-<SummitPageLayout title={title}>
+<SummitPageLayout title={title} routeLocale={routeLocale}>
   <main class="p-4 max-w-275 m-auto">
     <h1>{title}</h1>
     <section>

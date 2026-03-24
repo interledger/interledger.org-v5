@@ -1,10 +1,14 @@
 ---
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import { defaultLocale, type Locale } from '@/utils/i18'
+
+const routeLocale = (Astro.currentLocale ?? defaultLocale) as Locale
 ---
 
 <FoundationPageLayout
   title="Contact"
   description="Get in touch with the Interledger Foundation."
+  routeLocale={routeLocale}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-[1440px] min-w-[360px] px-[5%] min-[1600px]:px-0">

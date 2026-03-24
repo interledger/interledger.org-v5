@@ -15,7 +15,7 @@ interface Props {
   gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
-  routeLocale?: Locale
+  routeLocale: Locale
   currentSlug?: string
   currentBasePath?: string
 }
@@ -26,7 +26,7 @@ const {
   gradient = 'option1',
   ogImageUrl,
   canonicalURL,
-  routeLocale = Astro.url.pathname.startsWith('/es') ? 'es' : 'en',
+  routeLocale,
   currentSlug = '',
   currentBasePath = ROUTE_BASES['summit-pages']
 } = Astro.props
