@@ -5,19 +5,13 @@
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
-import type { Locale } from '@/utils/i18'
-import { ROUTE_BASES } from '@/utils/routes'
+
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
   canonicalURL?: string
-  routeLocale?: Locale
 }
 
-const {
-  frontmatter,
-  canonicalURL,
-  routeLocale = frontmatter.locale === 'es' ? 'es' : 'en'
-} = Astro.props
+const { frontmatter, canonicalURL } = Astro.props
 
 const site = Astro.site!
 const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
@@ -34,9 +28,6 @@ const longDate = dateObj.toDateString().substring(4)
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
-  routeLocale={routeLocale}
-  currentSlug={frontmatter.pathSlug}
-  currentBasePath={ROUTE_BASES['foundation-blog']}
 >
   <main
     class="flex flex-col bg-white/70 pt-space-m pb-space-xl"

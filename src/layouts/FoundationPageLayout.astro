@@ -6,7 +6,6 @@
 import BaseLayout from './BaseLayout.astro'
 import FoundationFooter from '../components/pages/FoundationFooter.astro'
 import FoundationHeader from '../components/pages/FoundationHeader.astro'
-import type { Locale } from '@/utils/i18'
 
 interface Props {
   title: string
@@ -15,22 +14,10 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   datePublished?: string
-  routeLocale: Locale
-  currentSlug?: string
-  currentBasePath?: string
 }
 
-const {
-  title,
-  description,
-  ogType,
-  ogImageUrl,
-  canonicalURL,
-  datePublished,
-  routeLocale,
-  currentSlug = '',
-  currentBasePath = ''
-} = Astro.props
+const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
+  Astro.props
 ---
 
 <BaseLayout
@@ -45,12 +32,7 @@ const {
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <FoundationHeader
-    slot="header"
-    routeLocale={routeLocale}
-    currentSlug={currentSlug}
-    currentBasePath={currentBasePath}
-  />
+  <FoundationHeader slot="header" />
   <slot />
   <FoundationFooter slot="footer" />
 </BaseLayout>

@@ -4,7 +4,6 @@ import SpeakerCard from '@/components/summit/SpeakerCard.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/utils/summit-talks-speakers'
-import { defaultLocale, type Locale } from '@/utils/i18'
 
 interface Props {
   speakers: Speaker[]
@@ -14,10 +13,9 @@ interface Props {
 }
 
 const { speakers, basePath, title, page } = Astro.props
-const routeLocale = (Astro.currentLocale ?? defaultLocale) as Locale
 ---
 
-<SummitPageLayout title={title} routeLocale={routeLocale}>
+<SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
     <h1>{title}</h1>
     <section>

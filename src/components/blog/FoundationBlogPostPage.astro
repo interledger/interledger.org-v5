@@ -10,10 +10,9 @@ import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 interface Props {
   slug: string
   contentLocale: Locale
-  routeLocale?: Locale
 }
 
-const { slug, contentLocale, routeLocale = contentLocale } = Astro.props
+const { slug, contentLocale } = Astro.props
 
 const posts = await getCollection('foundation-blog')
 
@@ -28,7 +27,7 @@ const mdxData = mdxPost.data
 const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 ---
 
-<FoundationBlogLayout frontmatter={mdxData} routeLocale={routeLocale}>
+<FoundationBlogLayout frontmatter={mdxData}>
   <MdxContent />
 
   <CommunityLinksFoundation />

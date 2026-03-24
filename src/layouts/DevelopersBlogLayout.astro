@@ -1,7 +1,6 @@
 ---
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
-import type { Locale } from '@/utils/i18'
 import { ROUTE_BASES } from '@/utils/routes'
 
 interface Props {
@@ -9,14 +8,12 @@ interface Props {
   canonicalURL?: string
   developersHomePath?: string
   blogPath?: string
-  routeLocale?: Locale
 }
 const {
   frontmatter,
   canonicalURL,
   developersHomePath = '/developers',
-  blogPath = ROUTE_BASES['developers-blog'],
-  routeLocale = frontmatter.locale === 'es' ? 'es' : 'en'
+  blogPath = ROUTE_BASES['developers-blog']
 } = Astro.props
 
 const site = Astro.site!
@@ -38,9 +35,6 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
-  routeLocale={routeLocale}
-  currentSlug={frontmatter.pathSlug}
-  currentBasePath={ROUTE_BASES['developers-blog']}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
     <article

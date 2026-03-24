@@ -5,8 +5,6 @@ import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
-import { ROUTE_BASES } from '@/utils/routes'
-import { defaultLocale, type Locale } from '@/utils/i18'
 
 interface Props {
   page: Page
@@ -48,15 +46,12 @@ if (selectedTag) {
     umamiEvent: 'Devs breadcrumb - Blog'
   })
 }
-const routeLocale = (Astro.currentLocale ?? defaultLocale) as Locale
 ---
 
 <FoundationPageLayout
   title={title}
   description={description}
   ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
-  routeLocale={routeLocale}
-  currentBasePath={ROUTE_BASES['developers-blog']}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">

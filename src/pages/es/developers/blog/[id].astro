@@ -9,8 +9,4 @@ export async function getStaticPaths() {
 const { slug, locale: contentLocale } = Astro.props
 ---
 
-<DevelopersBlogPostPage
-  slug={slug}
-  contentLocale={contentLocale}
-  routeLocale="es"
-/>
+<DevelopersBlogPostPage slug={slug} contentLocale={contentLocale} />

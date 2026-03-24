@@ -1,7 +1,6 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import type { Locale } from '@/utils/i18'
 import foundationNavigation from '@/config/foundation-navigation.json'
 
 interface MenuItem {
@@ -21,17 +20,6 @@ const { mainMenu, ctaButton } = foundationNavigation as {
   ctaButton?: MenuItem
 }
 
-interface Props {
-  routeLocale?: Locale
-  currentSlug?: string
-  currentBasePath?: string
-}
-
-const {
-  routeLocale = 'en',
-  currentSlug = '',
-  currentBasePath = ''
-} = Astro.props
 ---
 
 <header
@@ -119,11 +107,7 @@ const {
           </a>
         )
       }
-      <LanguageSwitcher
-        routeLocale={routeLocale}
-        currentSlug={currentSlug}
-        currentBasePath={currentBasePath}
-      />
+      <LanguageSwitcher />
     </div>
     <button
       type="button"
