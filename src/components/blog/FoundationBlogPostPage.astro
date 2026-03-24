@@ -4,6 +4,8 @@ import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 
 interface Props {
   slug: string
@@ -26,7 +28,7 @@ const blogPath = locale === 'es' ? '/es/blog' : '/blog'
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>
-  <MdxContent />
+  <MdxContent components={{ Paragraph, VideoEmbed }} />
 
   <CommunityLinksFoundation />
 
