@@ -19,6 +19,7 @@ import './blockquoteHandler'
 import './calloutTextHandler'
 import './paragraphHandler'
 import './pdfEmbedHandler'
+import './videoEmbedHandler'
 import { createRelationResolver } from './ambassadorHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
