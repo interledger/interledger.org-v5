@@ -1,6 +1,6 @@
 import type { Talk, Speaker } from '@/types/summit'
 
-//Dummy function - ignore this for now, will be implemented in a follow up PR
+//TODO: Dummy function - ignore this for now, will be implemented in a follow up PR
 export function getSpeakers(year: string, articleId?: string): Speaker[] {
   const baseSpeakers: Speaker[] = [
     {
@@ -83,7 +83,7 @@ export function getSpeakers(year: string, articleId?: string): Speaker[] {
       return []
   }
 }
-//Dummy function - ignore this for now, will be implemented in a follow up PR
+//TODO: Dummy function - ignore this for now, will be implemented in a follow up PR
 export function getTalks(year: string, authorId?: string): Talk[] {
   const baseSessions: Talk[] = [
     {

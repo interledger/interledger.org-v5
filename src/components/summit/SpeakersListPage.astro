@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { speakers, basePath, title, page } = Astro.props
+const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 ---
 
 <SummitPageLayout title={title}>
@@ -23,7 +24,7 @@ const { speakers, basePath, title, page } = Astro.props
         speakers.length > 0 ? (
           <ul class="flex flex-wrap gap-4">
             {speakers.map((speaker) => (
-              <SpeakerCard speaker={speaker} basePath={basePath.slice(0, -1)} />
+              <SpeakerCard speaker={speaker} basePath={speakerBasePath} />
             ))}
           </ul>
         ) : (

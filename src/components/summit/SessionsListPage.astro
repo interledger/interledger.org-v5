@@ -12,6 +12,7 @@ interface Props {
   page: Page
 }
 const { talks, basePath, title, page } = Astro.props
+const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
 ---
 
 <SummitPageLayout title={title}>
@@ -22,7 +23,7 @@ const { talks, basePath, title, page } = Astro.props
         talks.length > 0 ? (
           <ul class="flex flex-col gap-4">
             {talks.map((talk) => (
-              <SessionCard talk={talk} basePath={basePath.slice(0, -1)} />
+              <SessionCard talk={talk} basePath={sessionBasePath} />
             ))}
           </ul>
         ) : (

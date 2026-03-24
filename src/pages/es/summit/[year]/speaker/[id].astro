@@ -20,6 +20,9 @@ const { entry } = Astro.props
 if (!year) {
   throw new Error('Year param is required')
 }
+if (!entry) {
+  return Astro.redirect('/404')
+}
 const sessionBaseHref = `/${lang}/summit/${year}/talk`
 ---
 

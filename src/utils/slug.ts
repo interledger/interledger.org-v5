@@ -1,6 +1,4 @@
 /**
- * Generates a URL slug following Drupal Pathauto settings.
- *
  * Settings applied:
  *  - Separator: hyphen (-)
  *  - Maximum text length: 100
@@ -126,7 +124,7 @@ export function generateSlug(input: string) {
     .join(separator)
 
   //6. Remove duplicate separators
-  // slug = slug.replace(new RegExp(`${separator}+`, 'g'), separator);
+  slug = slug.replace(new RegExp(`${separator}+`, 'g'), separator)
 
   // 7. Trim separators from ends
   slug = slug.replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')

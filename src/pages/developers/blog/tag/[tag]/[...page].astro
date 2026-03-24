@@ -3,7 +3,7 @@ import type { Page, GetStaticPaths } from 'astro'
 import { paginatePostsByTag } from '@/utils/tagFilter'
 import stripPagination from '@/utils/stripPagination.ts'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 
@@ -32,7 +32,7 @@ const basePath = stripPagination(Astro.url.pathname)
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
-      <BlogBreadcrumbs
+      <Breadcrumbs
         breadcrumbs={[
           {
             name: 'Developers Portal',
