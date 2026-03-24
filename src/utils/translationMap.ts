@@ -14,9 +14,7 @@ function createFallbackEntry(defaultSlug: string): TranslationEntry {
 // Every EN entry is indexed for all locales using the EN slug as the fallback URL.
 // Localized entries overwrite that fallback for their own locale and are indexed
 // from both the localized slug and the EN slug they translate.
-export async function buildTranslationMap(): Promise<
-  Record<string, TranslationEntry>
-> {
+export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   const collectionNames = Object.keys(ROUTE_BASES) as RouteCollection[]
 
   const map: Record<string, TranslationEntry> = {}

@@ -1,5 +1,5 @@
 ---
-import { buildTranslationMap } from '@/utils/translationMap'
+import { translationMap } from '@/utils/translationMapData'
 import { switcherLocales, type Locale } from '@/utils/i18'
 import { HOME_SLUG, localizeRoute } from '@/utils/routes'
 
@@ -11,8 +11,7 @@ interface Props {
 
 const { routeLocale, currentSlug = '', currentBasePath = '' } = Astro.props
 
-const map = await buildTranslationMap()
-const entry = map[currentSlug]
+const entry = translationMap[currentSlug]
 
 function normalizeBasePath(basePath: string): string {
   if (!basePath || basePath === '/') return ''
