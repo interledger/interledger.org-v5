@@ -1,7 +1,7 @@
 ---
 import type { Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
@@ -55,7 +55,7 @@ if (selectedTag) {
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
-      <BlogBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
       <BlogIndexDevelopers
         posts={page.data || []}
         allTags={allTags}
