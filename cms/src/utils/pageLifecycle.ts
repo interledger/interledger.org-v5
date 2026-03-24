@@ -45,7 +45,6 @@ interface PageData {
   title: string
   /** May be null on afterDelete in some Strapi versions / payloads */
   pathSlug: string | null
-  path?: string
   locale?: string
   hero?: {
     title?: string
@@ -97,15 +96,13 @@ export interface PageLifecycleConfig {
  * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
  * Segments before the last `/` are directories; the last segment is the filename stem.
  *
- * Legacy: if `path` is set (old Strapi), uses {outputDir}/{path}/{locale?}/{pathSlug}.mdx.
- *
  * English: grant/ambassadors → {outputDir}/grant/ambassadors.mdx
  * Spanish: grant/ambassadors → {outputDir}/es/grant/ambassadors.mdx
  * English: about-us         → {outputDir}/about-us.mdx
  */
 export function resolvePageFilepath(
   outputDir: string,
-  page: Pick<PageData, 'pathSlug' | 'path'>,
+  page: Pick<PageData, 'pathSlug'>,
   locale: string = 'en'
 ): string {
   const normalized =
@@ -114,15 +111,6 @@ export function resolvePageFilepath(
       : String(page.pathSlug)
           .replace(/^\/+|\/+$/g, '')
           .trim()
-
-  const legacyPrefix = (page.path ?? '').replace(/^\/+|\/+$/g, '').trim()
-  if (legacyPrefix) {
-    const localeSuffix = locale !== 'en' ? locale : ''
-    if (!normalized) {
-      throw new Error('pathSlug is required when legacy path is set')
-    }
-    return path.join(outputDir, legacyPrefix, localeSuffix, `${normalized}.mdx`)
-  }
 
   if (!normalized) {
     throw new Error('pathSlug is required')
@@ -150,7 +138,6 @@ function generateMDX(
   const locale = page.locale || 'en'
   const isLocalized = locale !== 'en'
   const { localizes, ...restPreserved } = preservedFields
-  delete restPreserved.path
   // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
@@ -398,7 +385,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
           `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
         )
         const outputDir = getOutputDir(config)
-        const oldPage = { pathSlug: oldPathSlug, path: result.path }
+        const oldPage = { pathSlug: oldPathSlug }
         const oldFilepath = resolvePageFilepath(outputDir, oldPage, locale)
         deleteMdxIfExists(oldFilepath, locale, label)
       }
