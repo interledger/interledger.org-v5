@@ -1,7 +1,7 @@
 ---
-import { buildTranslationMap } from '../utils/translationMap'
+import { buildTranslationMap } from '@/utils/translationMap'
 import { switcherLocales, type Locale } from '@/utils/i18'
-import { localizeRoute } from '@/utils/routes'
+import { HOME_SLUG, localizeRoute } from '@/utils/routes'
 
 interface Props {
   routeLocale: Locale
@@ -22,7 +22,7 @@ function normalizeBasePath(basePath: string): string {
 function buildRoutePath(basePath: string, slug: string): string {
   const normalizedBasePath = normalizeBasePath(basePath)
 
-  if (slug === 'home' && normalizedBasePath === '') {
+  if (slug === HOME_SLUG && normalizedBasePath === '') {
     return ''
   }
 

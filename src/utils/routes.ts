@@ -1,5 +1,7 @@
 import { defaultLocale, type Locale } from '@/utils/i18'
 
+export const HOME_SLUG = 'home'
+
 export const ROUTE_BASES = {
   'foundation-pages': '',
   'foundation-blog': '/blog',

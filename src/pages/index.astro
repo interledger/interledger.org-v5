@@ -3,12 +3,13 @@ import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
 import { type Locale } from '@/utils/i18'
+import { HOME_SLUG } from '@/utils/routes'
 
 const pageLang: Locale = 'en'
 
 const pages = await getCollection('foundation-pages')
 const homePage = pages.find(
-  (page) => page.data.pathSlug === 'home' && page.data.locale === pageLang
+  (page) => page.data.pathSlug === HOME_SLUG && page.data.locale === pageLang
 )
 
 if (!homePage) {
