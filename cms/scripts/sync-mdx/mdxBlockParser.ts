@@ -174,6 +174,20 @@ export async function parseMdxToBlocks(
 
   const blocks: ParsedBlock[] = []
 
+  // Buffer for consecutive markdown nodes. Flushed as a single
+  // blocks.paragraph when a JSX component interrupts or EOF is reached.
+  // This prevents a post with 80 markdown nodes from producing 80 blocks.
+  const pendingMarkdown: string[] = []
+
+  function flushPending(): void {
+    if (pendingMarkdown.length === 0) return
+    const merged = pendingMarkdown.join('\n\n')
+    if (merged.trim()) {
+      blocks.push({ __component: 'blocks.paragraph' as const, content: merged })
+    }
+    pendingMarkdown.length = 0
+  }
+
   // Walk top-level AST nodes
   for (const node of tree.children) {
     // Check for JSX — either a top-level flow element (tags on separate
@@ -183,6 +197,9 @@ export async function parseMdxToBlocks(
       node.type === 'mdxJsxFlowElement' ? node : unwrapTextElement(node)
 
     if (jsxNode) {
+      // Flush accumulated markdown before handling the JSX component
+      flushPending()
+
       const componentName = jsxNode.name
 
       if (!componentName) {
@@ -239,8 +256,8 @@ export async function parseMdxToBlocks(
     }
 
     // Markdown nodes (paragraph, heading, thematic break, etc.) —
-    // extract source text and wrap as a paragraph block. Will be
-    // replaced by a dedicated Paragraph component handler.
+    // accumulate source text into the pending buffer. Will be flushed
+    // as a single blocks.paragraph when a JSX node or EOF interrupts.
     if (
       node.position &&
       node.position.start.offset != null &&
@@ -251,10 +268,13 @@ export async function parseMdxToBlocks(
         node.position.end.offset
       )
       if (raw.trim()) {
-        blocks.push({ __component: 'blocks.paragraph' as const, content: raw })
+        pendingMarkdown.push(raw)
       }
     }
   }
+
+  // Flush any trailing markdown after the last node
+  flushPending()
 
   return blocks
 }
