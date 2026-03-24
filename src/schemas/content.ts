@@ -26,6 +26,7 @@ export const developersBlogFrontmatterSchema = z.object({
   date: z.date(),
   pathSlug: z.string(),
   locale: z.string().optional(),
+  localizes: z.string().optional(),
   authors: z.array(z.string()).optional(),
   author_urls: z.array(z.string()).optional(),
   tags: z.array(z.enum(developersTags)),
