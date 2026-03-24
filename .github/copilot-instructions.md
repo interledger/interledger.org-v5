@@ -151,7 +151,7 @@ pnpm run build    # Production build
 - Includes `NODE_OPTIONS="--max-old-space-size=4096"` to handle OOM errors during build
 - Automatically restarts the `strapi.service` after rebuild
 
-Content published in the CMS automatically generates MDX files in collection directories such as `src/content/foundation-pages/`, with localizations nested under the type directory (for example `src/content/foundation-pages/es/`). MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
+Content published in the CMS automatically generates MDX files in collection directories such as `src/content/foundation-pages/`, with page localizations grouped under a single collection-level locale directory (for example `src/content/foundation-pages/es/grant/grant-web.mdx`). MDX generation is handled by `cms/scripts/sync-mdx/index.ts`.
 
 For pages and blog posts, lifecycle hooks may trigger git synchronization for preview builds. Set `STRAPI_DISABLE_GIT_SYNC=true` to disable the git sync.
 

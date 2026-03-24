@@ -116,8 +116,6 @@ flowchart
 │   │   └── server.ts
 │   ├── database/                      # Database files
 │   │   └── migrations/
-│   ├── public/                        # Static assets
-│   │   └── uploads/                   # User-uploaded media
 │   ├── scripts/              # e.g., sync:mdx, sync-navigation
 │   ├── src/         # Astro frontend application
 │   │   ├── admin/      # Admin UI customizations
@@ -149,7 +147,8 @@ flowchart
 │   ├── tsconfig.json
 │   ├── copy-schemas.js
 │   └── README.md
-├── public/           # Static assets (images, favicons)
+├── public/           # Static assets (images, favicons, uploads)
+│   └── uploads/      # User-uploaded media for Strapi local storage
 ├── src/              # Astro project
 │   ├── components/    # Astro components
 │   ├── config/        # JSON configs (navigation, etc.)
@@ -333,7 +332,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a foundation page writes MDX under `src/content/foundation-pages/` using **nested folders from the full path slug** (see below): English uses the last segment as the filename; localized pages use the same folder structure with `/{locale}/` before the filename.
+  - Example: Creating a foundation page writes MDX under `src/content/foundation-pages/` using **nested folders from the full path slug** (see below): English uses the last segment as the filename; localized pages are written under the collection-level `/{locale}/` directory with the nested slug folders beneath it.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -408,7 +407,7 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
-- Localizations: `src/content/foundation-pages/{parent...}/{locale}/` (see path slug rules below)
+- Localizations: `src/content/foundation-pages/{locale}/{parent...}/` (see path slug rules below)
 - Filename: last segment of the full path slug + `.mdx` (nested segments become parent directories)
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
@@ -437,7 +436,7 @@ Examples:
 - `about-us` → `foundation-pages/about-us.mdx`
 - `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
 
-**Localized pages** use the same folder layout, with the locale folder inserted before the file (e.g. `foundation-pages/grant/es/…mdx` for Spanish).
+**Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
 
 **Example (nested grant page):**
 

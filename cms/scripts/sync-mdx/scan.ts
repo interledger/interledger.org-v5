@@ -10,7 +10,7 @@ const LOCALE_DIR_NAMES = new Set(['es'])
 
 /**
  * Rightmost locale directory segment in a path (before the filename); defaults to `en`.
- * Examples: `es/page.mdx` → es; `grants/es/page.mdx` → es; `grants/page.mdx` → en.
+ * Examples: `es/page.mdx` → es; `es/grants/page.mdx` → es; `grants/page.mdx` → en.
  */
 function inferLocaleFromRelativePath(relPath: string): string {
   const parts = relPath.split(/[/\\]/).filter(Boolean)
@@ -42,7 +42,7 @@ function pathSlugFallbackFromRelativePath(relPath: string): string {
  * resolved locale (frontmatter wins for unusual placements).
  *
  * English files may live at any depth (e.g. `grant/page.mdx`). Localized files use
- * `es/` either at the collection root or nested under path segments (`grant/es/...`).
+ * a collection-level locale directory such as `es/grant/...`.
  */
 export function scanMDXFiles(
   contentType: keyof ContentTypes,
@@ -120,7 +120,6 @@ export function scanMDXFiles(
  * we still check for orphaned "es" entries in Strapi.
  *
  * Only directories whose names are in LOCALE_DIR_NAMES are treated as locale dirs.
- * Path-segment dirs (e.g. grants/) are also checked for locale subdirs within them.
  *
  * @param _contentType - Content type (unused, kept for API consistency)
  * @param contentTypes - All content type configurations
@@ -152,25 +151,6 @@ export function getLocalesToCheck(
         if (LOCALE_DIR_NAMES.has(entry.name)) {
           // Direct locale dir: e.g., foundation-pages/es/
           locales.add(entry.name)
-        } else {
-          // Path-segment dir: look for locale subdirs within it.
-          // e.g., foundation-pages/grants/es/
-          const subDirPath = path.join(baseDir, entry.name)
-          try {
-            const subEntries = fs.readdirSync(subDirPath, {
-              withFileTypes: true
-            })
-            for (const subEntry of subEntries) {
-              if (
-                subEntry.isDirectory() &&
-                LOCALE_DIR_NAMES.has(subEntry.name)
-              ) {
-                locales.add(subEntry.name)
-              }
-            }
-          } catch {
-            // Ignore errors reading path-segment subdirs
-          }
         }
       }
     } catch {

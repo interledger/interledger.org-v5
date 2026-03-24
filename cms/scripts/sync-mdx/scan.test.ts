@@ -92,13 +92,9 @@ describe('scanMDXFiles', () => {
     expect(files[0].localizes).toBe('about')
   })
 
-  // Core regression test for the reported bug.
-  // A Spanish file at grants/es/ was completely invisible to the old scan because
-  // the old code only scanned one level of subdirectories and treated each subdir
-  // name (e.g. "grants") as the locale, never descending into grants/es/.
-  it('finds Spanish file nested inside a path-segment dir (grants/es/) — the bug case', () => {
+  it('finds Spanish file inside the collection-level locale dir for a nested slug', () => {
     const base = path.join(tempDir, 'foundation-pages')
-    writeMdx(path.join(base, 'grants', 'es', 'grant-for-web-es.mdx'), {
+    writeMdx(path.join(base, 'es', 'grants', 'grant-for-web-es.mdx'), {
       pathSlug: 'grant-for-web-es',
       locale: 'es',
       localizes: 'grant-for-web'
@@ -156,7 +152,7 @@ describe('scanMDXFiles', () => {
       pathSlug: 'grant-for-web',
       locale: 'en'
     })
-    writeMdx(path.join(base, 'grants', 'es', 'grant-for-web-es.mdx'), {
+    writeMdx(path.join(base, 'es', 'grants', 'grant-for-web-es.mdx'), {
       pathSlug: 'grant-for-web-es',
       locale: 'es',
       localizes: 'grant-for-web'
@@ -218,9 +214,9 @@ describe('getLocalesToCheck', () => {
     expect(locales).toContain('es')
   })
 
-  it('includes locale code from a nested locale dir inside a path-segment dir (grants/es/)', () => {
+  it('includes locale code from a collection-level locale dir that contains nested pages', () => {
     const base = path.join(tempDir, 'foundation-pages')
-    fs.mkdirSync(path.join(base, 'grants', 'es'), { recursive: true })
+    fs.mkdirSync(path.join(base, 'es', 'grants'), { recursive: true })
 
     const locales = getLocalesToCheck(
       'foundation-pages',
@@ -240,10 +236,9 @@ describe('getLocalesToCheck', () => {
     expect(locales).not.toContain('grants')
   })
 
-  it('deduplicates locale codes across content types and nested dirs', () => {
+  it('deduplicates locale codes across content types', () => {
     const base = path.join(tempDir, 'foundation-pages')
     fs.mkdirSync(path.join(base, 'es'), { recursive: true })
-    fs.mkdirSync(path.join(base, 'grants', 'es'), { recursive: true })
 
     const locales = getLocalesToCheck(
       'foundation-pages',

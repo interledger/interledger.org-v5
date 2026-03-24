@@ -106,7 +106,7 @@ When content is published or updated in Strapi:
 
 1. Lifecycle hooks in `src/api/.../content-types/.../lifecycles.ts` are triggered automatically
 2. The content is converted to MDX format with frontmatter
-3. An MDX file is created/updated under the Astro content tree: for **foundation/summit pages**, the **full path slug** is split on `/` so parent segments become directories and the **last segment** is the `.mdx` filename (English). Localized locales use the same parent folders with a `/{locale}/` segment before the file (see `pageLifecycle` in the CMS).
+3. An MDX file is created/updated under the Astro content tree: for **foundation/summit pages**, the **full path slug** is split on `/` so parent segments become directories and the **last segment** is the `.mdx` filename (English). Localized pages are written under the collection-level `/{locale}/` directory, followed by the same nested slug folders (see `pageLifecycle` in the CMS).
 4. Astro automatically picks up the new content
 
 **File Naming**

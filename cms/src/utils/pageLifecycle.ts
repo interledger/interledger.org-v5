@@ -100,10 +100,10 @@ export interface PageLifecycleConfig {
  * Legacy: if `path` is set (old Strapi), uses {outputDir}/{path}/{locale?}/{pathSlug}.mdx.
  *
  * English: grant/ambassadors → {outputDir}/grant/ambassadors.mdx
- * Spanish: grant/ambassadors → {outputDir}/grant/es/ambassadors.mdx
+ * Spanish: grant/ambassadors → {outputDir}/es/grant/ambassadors.mdx
  * English: about-us         → {outputDir}/about-us.mdx
  */
-function resolvePageFilepath(
+export function resolvePageFilepath(
   outputDir: string,
   page: Pick<PageData, 'pathSlug' | 'path'>,
   locale: string = 'en'
@@ -131,7 +131,7 @@ function resolvePageFilepath(
   const fileBase = segments[segments.length - 1]!
   const parentDirs = segments.slice(0, -1)
   if (locale !== 'en') {
-    return path.join(outputDir, ...parentDirs, locale, `${fileBase}.mdx`)
+    return path.join(outputDir, locale, ...parentDirs, `${fileBase}.mdx`)
   }
   return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
 }
