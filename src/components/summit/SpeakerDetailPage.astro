@@ -1,6 +1,6 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import type { Language } from '@/types/i18n'
+import type { Locale } from '@/utils/i18'
 import type { Speaker } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
 import { generateSlug } from '@/utils/slug'
@@ -10,7 +10,7 @@ interface Props {
   entry: Speaker
   year: string
   sessionBaseHref: string
-  lang: Language
+  lang: Locale
 }
 
 const { entry, year, sessionBaseHref, lang } = Astro.props

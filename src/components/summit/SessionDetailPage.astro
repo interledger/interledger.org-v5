@@ -1,5 +1,5 @@
 ---
-import type { Language } from '@/types/i18n'
+import type { Locale } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
 import { currentYear } from '@/utils/summit-talks-speakers'
 import { getSpeakers } from '@/utils/extractSessionize'
@@ -11,7 +11,7 @@ import SpeakerCard from './SpeakerCard.astro'
 interface Props {
   entry: Talk
   year: string
-  lang: Language
+  lang: Locale
 }
 
 const { entry, year, lang } = Astro.props

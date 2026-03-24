@@ -2,7 +2,7 @@
 import type { GetStaticPaths } from 'astro'
 import { getSpeakerPages } from '@/utils/summit-talks-speakers'
 import SpeakerDetailPage from '@/components/summit/SpeakerDetailPage.astro'
-import type { Language } from '@/types/i18n'
+import type { Locale } from '@/utils/i18'
 import type { Speaker } from '@/types/summit'
 
 interface Props {
@@ -14,7 +14,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return entries
 }
 
-const lang: Language = 'en'
+const lang: Locale = 'en'
 const { year } = Astro.params
 const { entry } = Astro.props
 if (!year) {
