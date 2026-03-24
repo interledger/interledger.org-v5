@@ -9,14 +9,21 @@ interface Props {
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
+  path?: string
+  developersHref?: string
 }
-const { posts, allTags = [], selectedTag } = Astro.props
-const path = '/blog'
+const {
+  posts,
+  allTags = [],
+  selectedTag,
+  path = '/blog',
+  developersHref = '/developers/blog'
+} = Astro.props
 ---
 
 <BlogIndexHeader
   title="Foundation Blog"
-  href="/developers/blog"
+  href={developersHref}
   message="Explore our Engineering Blog"
   imgHref="/img/ernie-teal.svg"
   imgAlt="Ernie holding an envelope"
@@ -28,10 +35,7 @@ const path = '/blog'
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath =
-        blogPostEntry.data.locale && blogPostEntry.data.locale !== 'en'
-          ? `/${blogPostEntry.data.locale}${path}/${blogPostEntry.data.pathSlug}`
-          : `${path}/${blogPostEntry.data.pathSlug}`
+      const postPath = `${path}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
           <div class="shrink-0">

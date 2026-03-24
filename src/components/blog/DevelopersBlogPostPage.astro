@@ -1,0 +1,34 @@
+---
+import { getCollection, render } from 'astro:content'
+import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
+import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
+
+interface Props {
+  slug: string
+  locale: string
+}
+
+const { slug, locale } = Astro.props
+
+const posts = await getCollection('developers-blog')
+
+const mdxPost = posts.find(
+  (post) => post.data.pathSlug === slug && post.data.locale === locale
+)
+
+if (!mdxPost) return Astro.redirect('/404')
+
+const { Content: MdxContent } = await render(mdxPost)
+const mdxData = mdxPost.data
+const developersHomePath = locale === 'es' ? '/es/developers' : '/developers'
+const blogPath = locale === 'es' ? '/es/developers/blog' : '/developers/blog'
+---
+
+<DevelopersBlogLayout
+  frontmatter={mdxData}
+  developersHomePath={developersHomePath}
+  blogPath={blogPath}
+>
+  <MdxContent />
+  <CommunityLinksDevelopers />
+</DevelopersBlogLayout>

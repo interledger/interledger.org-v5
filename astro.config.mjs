@@ -10,17 +10,14 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  // i18n: {
-  //   locales: ['es', 'en'],
-  //   defaultLocale: 'en',
-  //   routing: {
-  //     prefixDefaultLocale: false,
-  //     fallbackType: 'rewrite'
-  //   },
-  //   fallback: {
-  //     es: 'en'
-  //   }
-  // },
+  i18n: {
+    locales: ['es', 'en'],
+    defaultLocale: 'en',
+    routing: {
+      prefixDefaultLocale: false,
+      fallbackType: 'rewrite'
+    }
+  },
   output: 'static',
   prerender: {
     default: true
@@ -30,7 +27,6 @@ export default defineConfig({
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
-      disable404Route: true,
       customCss: [
         './node_modules/@interledger/docs-design-system/src/styles/teal-theme.css',
         './node_modules/@interledger/docs-design-system/src/styles/ilf-docs.css',
@@ -64,8 +60,8 @@ export default defineConfig({
         }
       ],
       components: {
-        Header: './src/components/Header.astro',
-        PageSidebar: './src/components/PageSidebar.astro'
+        Header: './src/components/docs/Header.astro',
+        PageSidebar: './src/components/docs/PageSidebar.astro'
       },
       social: [
         {
