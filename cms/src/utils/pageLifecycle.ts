@@ -290,6 +290,44 @@ async function exportAllLocales(
   return filepaths
 }
 
+/** Cache old pathSlug before update so we can delete old files if it changes (per locale). */
+const pendingPathSlugChanges = new Map<string, string>()
+
+function pendingPathSlugKey(documentId: string, locale: string): string {
+  return `${documentId}:${locale}`
+}
+
+/** Exported for unit tests — Strapi passes locale on localized document updates. */
+export function readLocaleFromUpdateEvent(event: {
+  params?: {
+    locale?: string
+    documentId?: string
+    data?: { documentId?: string; locale?: string }
+    where?: Record<string, unknown>
+  }
+}): string {
+  const whereLocale = event.params?.where?.locale
+  const locale =
+    event.params?.locale ??
+    event.params?.data?.locale ??
+    (typeof whereLocale === 'string' ? whereLocale : undefined)
+  return typeof locale === 'string' && locale.length > 0 ? locale : 'en'
+}
+
+function deleteMdxIfExists(
+  filepath: string,
+  locale: string,
+  label: string
+): void {
+  if (!fs.existsSync(filepath)) return
+  try {
+    fs.unlinkSync(filepath)
+    console.log(`🗑️  Deleted ${locale} ${label} MDX: ${filepath}`)
+  } catch (error) {
+    console.error(`Failed to delete ${locale} ${label} MDX: ${filepath}`, error)
+  }
+}
+
 /**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
@@ -307,11 +345,64 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       await exportAllLocales(config, result.documentId)
       scheduleGitSync(label)
     },
+    async beforeUpdate(event: {
+      params?: {
+        locale?: string
+        documentId?: string
+        data?: { documentId?: string; locale?: string; pathSlug?: string }
+      }
+    }) {
+      if (shouldSkipMdxExport()) return
+      // Strapi v5: documentId is in params.data.documentId
+      const documentId =
+        event.params?.documentId ?? event.params?.data?.documentId
+      if (!documentId) return
+
+      const locale = readLocaleFromUpdateEvent(event)
+
+      // Per-locale pathSlug: only the updated locale's file moves. Using English
+      // here caused Spanish-only slug edits to stash the EN slug, so we deleted
+      // the wrong paths and left stale es/.../page.mdx files on every rename.
+      const existing = await fetchPublished(config, documentId, locale)
+      if (!existing?.pathSlug) return
+
+      const outputDir = getOutputDir(config)
+      const currentFilepath = resolvePageFilepath(outputDir, existing, locale)
+      let oldSlug = existing.pathSlug
+      if (fs.existsSync(currentFilepath)) {
+        const content = fs.readFileSync(currentFilepath, 'utf-8')
+        const { data } = matter(content)
+        if (data.pathSlug && typeof data.pathSlug === 'string') {
+          oldSlug = data.pathSlug
+        }
+      }
+      pendingPathSlugChanges.set(
+        pendingPathSlugKey(documentId, locale),
+        oldSlug
+      )
+    },
     async afterUpdate(event: Event) {
       const { result } = event
       if (!result) return
       if (shouldSkipMdxExport()) return
+
       const label = uidToLogLabel(config.contentTypeUid)
+      const locale = result.locale ?? 'en'
+      const pendingKey = pendingPathSlugKey(result.documentId, locale)
+      const oldPathSlug = pendingPathSlugChanges.get(pendingKey)
+      pendingPathSlugChanges.delete(pendingKey)
+
+      // If this locale's pathSlug changed, remove only that locale's old file
+      if (oldPathSlug && oldPathSlug !== result.pathSlug) {
+        console.log(
+          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
+        )
+        const outputDir = getOutputDir(config)
+        const oldPage = { pathSlug: oldPathSlug, path: result.path }
+        const oldFilepath = resolvePageFilepath(outputDir, oldPage, locale)
+        deleteMdxIfExists(oldFilepath, locale, label)
+      }
+
       console.log(
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )

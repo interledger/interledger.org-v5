@@ -1,6 +1,6 @@
 import path from 'path'
 import { describe, expect, it } from 'vitest'
-import { resolvePageFilepath } from './pageLifecycle'
+import { readLocaleFromUpdateEvent, resolvePageFilepath } from './pageLifecycle'
 
 describe('resolvePageFilepath', () => {
   const outputDir = path.join('/repo', 'src', 'content', 'foundation-pages')
@@ -21,5 +21,37 @@ describe('resolvePageFilepath', () => {
     expect(resolvePageFilepath(outputDir, { pathSlug: 'home' }, 'es')).toBe(
       path.join(outputDir, 'es', 'home.mdx')
     )
+  })
+})
+
+describe('readLocaleFromUpdateEvent', () => {
+  it('defaults to en when locale is absent', () => {
+    expect(readLocaleFromUpdateEvent({ params: { documentId: 'x' } })).toBe(
+      'en'
+    )
+  })
+
+  it('uses params.locale', () => {
+    expect(
+      readLocaleFromUpdateEvent({
+        params: { locale: 'es', documentId: 'x' }
+      })
+    ).toBe('es')
+  })
+
+  it('uses params.data.locale when params.locale is missing', () => {
+    expect(
+      readLocaleFromUpdateEvent({
+        params: { data: { documentId: 'x', locale: 'fr' } }
+      })
+    ).toBe('fr')
+  })
+
+  it('uses params.where.locale as fallback', () => {
+    expect(
+      readLocaleFromUpdateEvent({
+        params: { where: { locale: 'de' }, documentId: 'x' }
+      })
+    ).toBe('de')
   })
 })
