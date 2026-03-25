@@ -1,15 +1,15 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { LOCALES, defaultLang } from '@/utils/mdx'
 import type { ContentTypes } from './config'
 import type { MDXFile } from './mdxTypes'
 
-// Non-English locale dir names. Mirrors LOCALES (excluding 'en') in src/utils/mdx.ts.
-// Update this set when new locales are added to the project.
-const LOCALE_DIR_NAMES = new Set(['es'])
+/** Top-level MDX directory names that denote a non-default locale (e.g. `es/`). */
+const LOCALE_DIR_NAMES = new Set(LOCALES.filter((l) => l !== defaultLang))
 
 /**
- * Rightmost locale directory segment in a path (before the filename); defaults to `en`.
+ * Rightmost locale directory segment in a path (before the filename); defaults to {@link defaultLang}.
  * Examples: `es/page.mdx` → es; `es/grants/page.mdx` → es; `grants/page.mdx` → en.
  */
 function inferLocaleFromRelativePath(relPath: string): string {
@@ -19,7 +19,7 @@ function inferLocaleFromRelativePath(relPath: string): string {
     const part = dirs[i]!
     if (LOCALE_DIR_NAMES.has(part)) return part
   }
-  return 'en'
+  return defaultLang
 }
 
 /**
@@ -84,7 +84,7 @@ export function scanMDXFiles(
 
     const inferredLocale = inferLocaleFromRelativePath(rel)
     const fileLocale = (frontmatter.locale as string) || inferredLocale
-    const isLocalization = fileLocale !== 'en'
+    const isLocalization = fileLocale !== defaultLang
 
     let pathSlug: string
     if (frontmatter.pathSlug && typeof frontmatter.pathSlug === 'string') {
@@ -129,7 +129,7 @@ export function getLocalesToCheck(
   _contentType: keyof ContentTypes,
   contentTypes: ContentTypes
 ): string[] {
-  const locales = new Set<string>(['en'])
+  const locales = new Set<string>([defaultLang])
 
   // Check all content types to find all locales that exist
   for (const contentType of Object.keys(contentTypes) as Array<
