@@ -4,7 +4,7 @@
 import path from 'node:path'
 import fs from 'fs/promises'
 import type { SessionizeSpeaker } from '@/types/summit'
-import { currentYear } from '@/utils/summit-talks-speakers'
+import { currentYear, YEARS } from '@/utils/summit-talks-speakers'
 import { generateSlug } from '@/utils/slug'
 
 //Step 2: import Sessionize images into `/public/img/sessionize-speakers/{year}` folder
@@ -14,10 +14,18 @@ import { generateSlug } from '@/utils/slug'
 const rawArgs = process.argv.slice(2)
 const args = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs
 
-const YEAR = args[0] ? Number(args[0]) : currentYear
+const YEAR = Number(args[0] ?? currentYear)
 if (isNaN(YEAR)) {
   console.error(
     '❌ Invalid YEAR provided. Must be a number. E.g.: pnpm run sync:sessionize -- 2024'
+  )
+  process.exit(1)
+}
+
+const yearStr = String(YEAR)
+if (!YEARS.includes(yearStr)) {
+  console.error(
+    `❌ Invalid YEAR: ${YEAR}. Allowed years are: ${YEARS.join(', ')}`
   )
   process.exit(1)
 }
