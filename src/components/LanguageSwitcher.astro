@@ -1,0 +1,55 @@
+---
+import { translationMap } from '@/utils/translationMapData'
+import { switcherLocales, type Locale } from '@/utils/i18'
+import { HOME_SLUG, localizeRoute } from '@/utils/routes'
+
+const { routeLocale, currentSlug, currentBasePath } = Astro.locals
+
+const entry = translationMap[currentSlug]
+
+function normalizeBasePath(basePath: string): string {
+  if (!basePath || basePath === '/') return ''
+  return basePath.startsWith('/') ? basePath : `/${basePath}`
+}
+
+function buildRoutePath(basePath: string, slug: string): string {
+  const normalizedBasePath = normalizeBasePath(basePath)
+
+  if (slug === HOME_SLUG && normalizedBasePath === '') {
+    return ''
+  }
+
+  return `${normalizedBasePath}/${slug}`
+}
+
+function toDefaultSectionHref(locale: Locale, basePath: string): string {
+  return localizeRoute(normalizeBasePath(basePath), locale)
+}
+
+const hrefs = Object.fromEntries(
+  switcherLocales.map((locale) => {
+    const slug = entry?.[locale]
+    const href = slug
+      ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)
+      : toDefaultSectionHref(locale, currentBasePath)
+    return [locale, href]
+  })
+) as Record<Locale, string>
+---
+
+<ul class="flex items-center p-0 list-none">
+  {
+    switcherLocales.map((locale) => (
+      <li class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none">
+        <a
+          href={hrefs[locale]}
+          class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
+          data-active={routeLocale === locale ? 'true' : 'false'}
+          hreflang={locale}
+        >
+          {locale.toUpperCase()}
+        </a>
+      </li>
+    ))
+  }
+</ul>

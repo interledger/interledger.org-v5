@@ -353,6 +353,42 @@ Developers can add multiple types of content directly to the repository. Each co
 
 Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates.
 
+#### Content paths vs URL routes
+
+This project has two related but separate pieces of configuration:
+
+- Filesystem content paths: where MDX files live under `src/content/...`
+- URL route bases: where those collections are exposed under `src/pages/...`
+
+These should not be treated as interchangeable.
+
+Examples:
+
+- `src/content/foundation-pages` maps to site routes at `/...`
+- `src/content/foundation-blog-posts` maps to `/blog/...`
+- `src/content/developers-blog-posts` maps to `/developers/blog/...`
+- `src/content/summit-pages` maps to `/summit/...`
+
+The main source files for this setup are:
+
+- `src/content.config.ts`
+  Defines Astro collection ids such as `'foundation-pages'`, `'foundation-blog'`, `'developers-blog'`, and `'summit-pages'`.
+- `src/utils/paths.ts`
+  Defines filesystem paths and folder names used to load content from disk.
+- `src/utils/routes.ts`
+  Defines `ROUTE_BASES`, the URL base path for each content collection. Use this when building links, language-switcher URLs, or other route-aware behavior.
+- `src/utils/static-paths.ts`
+  Builds localized static paths for collection-backed routes. EN is canonical; ES routes may render EN content when no ES translation exists.
+- `src/utils/i18.ts`
+  Centralizes locale definitions and language-switcher ordering.
+
+Rule of thumb:
+
+- If you are working with folders or files on disk, use `src/utils/paths.ts`
+- If you are working with browser URLs or route generation, use `src/utils/routes.ts`
+
+When adding a new localized collection or changing route structure, review all of the files above together. They form the core configuration for how content is loaded and how URLs are generated.
+
 **Foundation Blog posts**
 
 - Location: `src/content/foundation-blog-posts`

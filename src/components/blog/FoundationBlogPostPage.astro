@@ -1,0 +1,53 @@
+---
+import type { Locale } from '@/utils/i18'
+import { getCollection, render } from 'astro:content'
+import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
+import ArticleTags from '@/components/blog/ArticleTags.astro'
+import ArticleBio from '@/components/blog/ArticleBio.astro'
+import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+}
+
+const { slug, contentLocale } = Astro.props
+
+const posts = await getCollection('foundation-blog')
+
+const mdxPost = posts.find(
+  (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
+)
+
+if (!mdxPost) return Astro.redirect('/404')
+
+const { Content: MdxContent } = await render(mdxPost)
+const mdxData = mdxPost.data
+const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
+---
+
+<FoundationBlogLayout frontmatter={mdxData}>
+  <MdxContent />
+
+  <CommunityLinksFoundation />
+
+  {
+    mdxData?.articleBios?.map((bio) => {
+      if (!bio.text) return
+      return (
+        <ArticleBio
+          text={bio.text}
+          imageUrl={bio.image}
+          imageAlt={bio.author}
+        />
+      )
+    })
+  }
+
+  {
+    mdxData?.tags?.length > 0 && (
+      <ArticleTags tags={mdxData.tags} path={blogPath} />
+    )
+  }
+</FoundationBlogLayout>

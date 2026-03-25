@@ -1,0 +1,78 @@
+---
+import type { Page } from 'astro'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import BlogBreadcrumbs from '@/components/blog/BlogBreadcrumbs.astro'
+import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
+import Pagination from '@/components/blog/Pagination.astro'
+import stripPagination from '@/utils/stripPagination'
+
+interface Props {
+  page: Page
+  allTags: string[]
+  selectedTag?: string
+  blogPath: string
+  developersHomePath: string
+  foundationBlogPath: string
+}
+
+const {
+  page,
+  allTags,
+  selectedTag,
+  blogPath,
+  developersHomePath,
+  foundationBlogPath
+} = Astro.props
+
+const basePath = stripPagination(Astro.url.pathname)
+const title = selectedTag
+  ? `Engineering Blog - ${selectedTag}`
+  : 'Engineering Blog'
+const description = selectedTag
+  ? `Engineering Blog posts tagged with ${selectedTag}`
+  : 'Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality.'
+const breadcrumbs = [
+  {
+    name: 'Developers Portal',
+    href: developersHomePath,
+    umamiEvent: 'Devs breadcrumb - Home'
+  }
+]
+
+if (selectedTag) {
+  breadcrumbs.push({
+    name: 'Engineering Blog',
+    href: blogPath,
+    umamiEvent: 'Devs breadcrumb - Blog'
+  })
+}
+---
+
+<FoundationPageLayout
+  title={title}
+  description={description}
+  ogImageUrl={new URL('/img/blog/og-developers.png', Astro.site).href}
+>
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-content min-w-90 px-[5%] 2xl:px-0">
+      <BlogBreadcrumbs breadcrumbs={breadcrumbs} />
+      <BlogIndexDevelopers
+        posts={page.data || []}
+        allTags={allTags}
+        selectedTag={selectedTag}
+        showTagFilter={true}
+        path={blogPath}
+        foundationHref={foundationBlogPath}
+      />
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        firstUrl={page.url.first}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        lastUrl={page.url.last}
+      />
+    </div>
+  </main>
+</FoundationPageLayout>
