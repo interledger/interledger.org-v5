@@ -287,14 +287,18 @@ async function exportAllLocales(
 export type StrapiDocumentServiceUpdateWhere = Record<string, unknown>
 
 /**
- * Normalizes `locale` from a lifecycle `event.params` object.
+ * Read the active locale from a lifecycle `event.params` object.
  *
- * Strapi v5 varies by **caller**:
- * - **Document Service API** (`strapi.documents().findOne` / `update` / …): you pass `locale` as a **top-level** argument — not inside `data`.
- * - **Bulk / plugin-style** flows: locale often appears as **`params.data.locale`**.
- * - **Update filters** (document-service shape): locale may appear only on **`params.where.locale`**.
+ * Strapi v5 puts `locale` in different places depending on who triggered the
+ * request — you cannot assume a single shape. In practice:
  *
- * Precedence here: `params.locale` → `params.data.locale` → `params.where.locale` → {@link defaultLang}.
+ * - **Document Service API** → `params.locale`
+ * - **Bulk / plugin-style** flows → `params.data.locale`
+ * - **Update filter** (document-service / DB-style) → `params.where.locale`
+ *
+ * This helper applies that precedence, then falls back to {@link defaultLang}
+ * when the coalesced value is missing or empty (empty string on `params.locale`
+ * still skips to `params.data.locale` / `params.where`, matching `??`).
  *
  * @see cms/docs/STRAPI_I18N_LOCALE.md
  */
@@ -306,12 +310,36 @@ export function readLocaleFromUpdateEvent(event: {
     where?: StrapiDocumentServiceUpdateWhere
   }
 }): string {
-  const updateWhere = event.params?.where
-  const localeFromUpdateWhere =
-    typeof updateWhere?.locale === 'string' ? updateWhere.locale : undefined
-  const locale =
-    event.params?.locale ?? event.params?.data?.locale ?? localeFromUpdateWhere
-  return typeof locale === 'string' && locale.length > 0 ? locale : defaultLang
+  const p = event.params
+  const localeFromWhere =
+    typeof p?.where?.locale === 'string' ? p.where.locale : undefined
+
+  const fromLocale = p?.locale
+  const fromDataLocale = p?.data?.locale
+  const combined = fromLocale ?? fromDataLocale ?? localeFromWhere
+  const resolved =
+    typeof combined === 'string' && combined.length > 0 ? combined : defaultLang
+
+  let source: 'params.locale' | 'params.data.locale' | 'params.where.locale' | 'default'
+  if (!(typeof combined === 'string' && combined.length > 0)) {
+    source = 'default'
+  } else if (fromLocale != null && fromLocale === combined) {
+    source = 'params.locale'
+  } else if (fromDataLocale != null && (fromLocale ?? fromDataLocale) === combined) {
+    source = 'params.data.locale'
+  } else {
+    source = 'params.where.locale'
+  }
+
+  console.debug('[pageLifecycle] readLocaleFromUpdateEvent', {
+    source,
+    resolved,
+    'params.locale': fromLocale,
+    'params.data.locale': fromDataLocale,
+    'params.where.locale': localeFromWhere
+  })
+
+  return resolved
 }
 
 function deleteMdxIfExists(
