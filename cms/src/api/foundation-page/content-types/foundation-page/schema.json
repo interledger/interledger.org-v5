@@ -24,6 +24,7 @@
     "pathSlug": {
       "type": "string",
       "required": true,
+      "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
       "description": "Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash."
     },

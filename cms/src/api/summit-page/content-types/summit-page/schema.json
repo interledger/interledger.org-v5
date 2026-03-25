@@ -24,6 +24,7 @@
     "pathSlug": {
       "type": "string",
       "required": true,
+      "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
       "description": "Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash."
     },
