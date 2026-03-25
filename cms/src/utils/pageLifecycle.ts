@@ -286,7 +286,18 @@ async function exportAllLocales(
  */
 export type StrapiDocumentServiceUpdateWhere = Record<string, unknown>
 
-/** Exported for unit tests — Strapi passes locale on localized document updates. */
+/**
+ * Normalizes `locale` from a lifecycle `event.params` object.
+ *
+ * Strapi v5 varies by **caller**:
+ * - **Document Service API** (`strapi.documents().findOne` / `update` / …): you pass `locale` as a **top-level** argument — not inside `data`.
+ * - **Bulk / plugin-style** flows: locale often appears as **`params.data.locale`**.
+ * - **Update filters** (document-service shape): locale may appear only on **`params.where.locale`**.
+ *
+ * Precedence here: `params.locale` → `params.data.locale` → `params.where.locale` → {@link defaultLang}.
+ *
+ * @see cms/docs/STRAPI_I18N_LOCALE.md
+ */
 export function readLocaleFromUpdateEvent(event: {
   params?: {
     locale?: string

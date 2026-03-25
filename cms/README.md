@@ -11,6 +11,10 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
   - Strapi stores draft content, and Astro renders previews on demand via an SSR route that fetches the latest data directly from Strapi.
   - TODO ??
 
+## Strapi v5 developer notes
+
+- **i18n `locale` on APIs vs lifecycle `params`**: Document Service calls use top-level `locale`; bulk/plugin updates often use `params.data.locale`; update filters may use `params.where.locale`. See [`docs/STRAPI_I18N_LOCALE.md`](docs/STRAPI_I18N_LOCALE.md) and `readLocaleFromUpdateEvent` in `src/utils/pageLifecycle.ts`.
+
 ## Getting Started
 
 ### Prerequisites
