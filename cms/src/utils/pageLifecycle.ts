@@ -368,6 +368,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         const { data } = matter(content)
         if (data.pathSlug && typeof data.pathSlug === 'string') {
           oldSlug = data.pathSlug
+        } else {
+          console.warn(
+            `⚠️  MDX file exists at ${currentFilepath} but has no pathSlug in frontmatter — falling back to Strapi value "${oldSlug}"`
+          )
         }
       }
       event.state.oldPathSlug = oldSlug
