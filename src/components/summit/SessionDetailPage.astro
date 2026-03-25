@@ -1,0 +1,84 @@
+---
+import type { Locale } from '@/utils/i18'
+import type { Talk } from '@/types/summit'
+import { currentYear } from '@/utils/summit-talks-speakers'
+import { getSpeakers } from '@/utils/extractSessionize'
+import { formatDate, getDurationInMinutes } from '@/utils/time'
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import SpeakerCard from './SpeakerCard.astro'
+
+interface Props {
+  entry: Talk
+  year: string
+  lang: Locale
+}
+
+const { entry, year, lang } = Astro.props
+const isCurrentYear = currentYear === year
+const baseHref = lang !== 'en' ? `/${lang}/summit` : '/summit'
+const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
+const sessionsHref = `${baseHref}/${year}/talks`
+const speakers = getSpeakers(year, entry.id)
+const title = lang == 'es' ? entry.es?.title : entry.title
+const description =
+  lang == 'es'
+    ? (entry.es?.description ?? entry.description)
+    : entry.description
+---
+
+<SummitPageLayout title={entry.title}>
+  <main class="max-w-275 m-auto p-4">
+    <Breadcrumbs
+      breadcrumbs={[
+        {
+          name: `${year} Summit`,
+          href: summitHref,
+          umamiEvent: `Session Detail Page - ${year} Summit`
+        },
+        {
+          name: 'Sessions',
+          href: sessionsHref,
+          umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+        }
+      ]}
+    />
+    <article>
+      <header class="mb-8">
+        <h1>{title}</h1>
+        <p>
+          <time datetime={entry.startsAt}
+            >{formatDate(entry.startsAt, lang)}
+          </time><span>
+            - {getDurationInMinutes(entry.startsAt, entry.endsAt)} min</span
+          >
+        </p>
+        <p
+          class="flex flex-row gap-2 text-base [&_span]:bg-black/20 [&_span]:p-1 [&_span]:rounded"
+        >
+          {
+            entry.translations &&
+              entry.translations.map((language) => <span>{language}</span>)
+          }
+        </p>
+      </header>
+      <div class="flex flex-row gap-8">
+        <section aria-label="Session Description">
+          {description}
+        </section>
+        <aside aria-label="Speakers">
+          <ul class="flex flex-col gap-4">
+            {
+              speakers.map((speaker) => (
+                <SpeakerCard
+                  speaker={speaker}
+                  basePath={`${baseHref}/${year}/speaker`}
+                />
+              ))
+            }
+          </ul>
+        </aside>
+      </div>
+    </article>
+  </main>
+</SummitPageLayout>

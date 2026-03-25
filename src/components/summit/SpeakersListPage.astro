@@ -3,7 +3,7 @@ import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import SpeakerCard from '@/components/summit/SpeakerCard.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import type { Page } from 'astro'
-import type { Speaker } from '@/utils/summit-talks-speakers'
+import type { Speaker } from '@/types/summit'
 
 interface Props {
   speakers: Speaker[]
@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { speakers, basePath, title, page } = Astro.props
+const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 ---
 
 <SummitPageLayout title={title}>
@@ -23,7 +24,7 @@ const { speakers, basePath, title, page } = Astro.props
         speakers.length > 0 ? (
           <ul class="flex flex-wrap gap-4">
             {speakers.map((speaker) => (
-              <SpeakerCard speaker={speaker} />
+              <SpeakerCard speaker={speaker} basePath={speakerBasePath} />
             ))}
           </ul>
         ) : (
