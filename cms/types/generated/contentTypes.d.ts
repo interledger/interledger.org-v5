@@ -535,14 +535,21 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      > &
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.cards-grid',
+        'blocks.card-links-grid',
+        'blocks.carousel',
+        'blocks.cta-banner',
+        'blocks.ambassador',
+        'blocks.ambassadors-grid',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.pdf-embed',
+        'blocks.video-embed'
+      ]
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
