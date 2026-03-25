@@ -453,7 +453,11 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       console.log(`🗑️  Deleting ${label} MDX for all locales: ${slug}`)
 
       const outputDir = getOutputDir(config)
-      removeLocalizesFromLocaleFiles(slug, () => outputDir, label)
+      removeLocalizesFromLocaleFiles(
+        slug,
+        (locale) => path.join(outputDir, locale),
+        label
+      )
       deleteLocaleMdxFiles(
         (locale) => resolvePageFilepath(outputDir, result, locale),
         label
