@@ -353,9 +353,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
 
       const locale = readLocaleFromUpdateEvent(event)
 
-      // Per-locale pathSlug: only the updated locale's file moves. Using English
-      // here caused Spanish-only slug edits to stash the EN slug, so we deleted
-      // the wrong paths and left stale es/.../page.mdx files on every rename.
+      // Runs on every save (draft or publish). We only stash a prior slug when this
+      // locale has a published version — export writes MDX from published data, so
+      // a pathSlug change must remove the old file. Draft-only / never-published /
+      // missing slug: no MDX path to reconcile, so skip.
       const existing = await fetchPublished(config, documentId, locale)
       if (!existing?.pathSlug) return
 
