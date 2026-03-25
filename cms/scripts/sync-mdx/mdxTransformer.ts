@@ -321,7 +321,8 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string> = new Map()
+  updatedAltIds: Map<number, string> = new Map(),
+  parserCtx?: ParserContext
 ): Promise<Record<string, unknown>> {
   let parsed
   try {
@@ -379,6 +380,30 @@ export async function buildBlogPayload(
     )
   }
 
+  // Parse MDX body into structured blocks when parser context is provided.
+  // Falls back to normalized markdown string for backwards compatibility.
+  const mdxBody = (mdx.content || '').trim()
+  let content: unknown
+  if (parserCtx && mdxBody.length > 0) {
+    try {
+      content = await parseMdxToBlocks(mdxBody, parserCtx)
+    } catch (err) {
+      if (err instanceof MdxParserError) {
+        throw new MdxParserError({
+          code: err.code,
+          message: `[${mdx.pathSlug}] ${err.message}`,
+          component: err.component,
+          prop: err.prop,
+          line: err.line,
+          column: err.column
+        })
+      }
+      throw err
+    }
+  } else {
+    content = normalizeInlineImages(mdxBody)
+  }
+
   return {
     title: parsed.title,
     description: parsed.description,
@@ -390,7 +415,7 @@ export async function buildBlogPayload(
     articleBio,
     tags,
     locale: parsed.locale,
-    content: normalizeInlineImages(mdx.content || ''),
+    content,
     publishedAt: date.toISOString()
   }
 }
