@@ -1,5 +1,6 @@
 import path from 'path'
 import { describe, expect, it } from 'vitest'
+import { defaultLang } from './mdx'
 import { readLocaleFromUpdateEvent, resolvePageFilepath } from './pageLifecycle'
 
 describe('resolvePageFilepath', () => {
@@ -7,7 +8,7 @@ describe('resolvePageFilepath', () => {
 
   it('keeps English nested pages under slug parent directories', () => {
     expect(
-      resolvePageFilepath(outputDir, { pathSlug: 'grant/grant-web' }, 'en')
+      resolvePageFilepath(outputDir, { pathSlug: 'grant/grant-web' }, defaultLang)
     ).toBe(path.join(outputDir, 'grant', 'grant-web.mdx'))
   })
 
@@ -27,7 +28,7 @@ describe('resolvePageFilepath', () => {
 describe('readLocaleFromUpdateEvent', () => {
   it('defaults to en when locale is absent', () => {
     expect(readLocaleFromUpdateEvent({ params: { documentId: 'x' } })).toBe(
-      'en'
+      defaultLang
     )
   })
 

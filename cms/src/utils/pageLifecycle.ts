@@ -27,6 +27,7 @@ import matter from 'gray-matter'
 import { serializeContent } from '../serializers/blocks'
 import {
   LOCALES,
+  defaultLang,
   heroFrontmatter,
   seoFrontmatter,
   getPreservedFields,
@@ -103,7 +104,7 @@ export interface PageLifecycleConfig {
 export function resolvePageFilepath(
   outputDir: string,
   page: Pick<PageData, 'pathSlug'>,
-  locale: string = 'en'
+  locale: string = defaultLang
 ): string {
   const normalized =
     page.pathSlug == null
@@ -118,7 +119,7 @@ export function resolvePageFilepath(
   const segments = normalized.split('/').filter(Boolean)
   const fileBase = segments[segments.length - 1]!
   const parentDirs = segments.slice(0, -1)
-  if (locale !== 'en') {
+  if (locale !== defaultLang) {
     return path.join(outputDir, locale, ...parentDirs, `${fileBase}.mdx`)
   }
   return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
@@ -135,8 +136,8 @@ function generateMDX(
   preservedFields: Record<string, unknown> = {},
   englishSlug?: string
 ): string {
-  const locale = page.locale || 'en'
-  const isLocalized = locale !== 'en'
+  const locale = page.locale || defaultLang
+  const isLocalized = locale !== defaultLang
   const { localizes, ...restPreserved } = preservedFields
   // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
@@ -168,7 +169,7 @@ async function writeMDXFile(
   page: PageData,
   englishSlug?: string
 ): Promise<string> {
-  const locale = page.locale || 'en'
+  const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
   const filepath = resolvePageFilepath(outputDir, page, locale)
 
@@ -249,13 +250,13 @@ async function exportAllLocales(
   documentId: string
 ): Promise<string[]> {
   const filepaths: string[] = []
-  const englishPage = await fetchPublished(config, documentId, 'en')
+  const englishPage = await fetchPublished(config, documentId, defaultLang)
   const englishSlug = englishPage?.pathSlug
 
   for (const locale of LOCALES) {
     try {
       const page =
-        locale === 'en'
+        locale === defaultLang
           ? englishPage
           : await fetchPublished(config, documentId, locale)
       if (!page) {
@@ -298,7 +299,7 @@ export function readLocaleFromUpdateEvent(event: {
     event.params?.locale ??
     event.params?.data?.locale ??
     (typeof whereLocale === 'string' ? whereLocale : undefined)
-  return typeof locale === 'string' && locale.length > 0 ? locale : 'en'
+  return typeof locale === 'string' && locale.length > 0 ? locale : defaultLang
 }
 
 function deleteMdxIfExists(
@@ -374,7 +375,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
-      const locale = result.locale ?? 'en'
+      const locale = result.locale ?? defaultLang
       const pendingKey = pendingPathSlugKey(result.documentId, locale)
       const oldPathSlug = pendingPathSlugChanges.get(pendingKey)
       pendingPathSlugChanges.delete(pendingKey)
