@@ -66,6 +66,7 @@ interface PageData {
 
 interface Event {
   result?: PageData
+  state: { oldPathSlug?: string; locale?: string }
 }
 
 /**
@@ -278,13 +279,6 @@ async function exportAllLocales(
   return filepaths
 }
 
-/** Cache old pathSlug before update so we can delete old files if it changes (per locale). */
-const pendingPathSlugChanges = new Map<string, string>()
-
-function pendingPathSlugKey(documentId: string, locale: string): string {
-  return `${documentId}:${locale}`
-}
-
 /**
  * Strapi document service: `event.params.where` is the filter that selects
  * which row to update (often includes `locale` for i18n). Same “where” idea as
@@ -349,6 +343,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         data?: { documentId?: string; locale?: string; pathSlug?: string }
         where?: StrapiDocumentServiceUpdateWhere
       }
+      state: { oldPathSlug?: string; locale?: string }
     }) {
       if (shouldSkipMdxExport()) return
       // Strapi v5: documentId is in params.data.documentId
@@ -374,10 +369,8 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
           oldSlug = data.pathSlug
         }
       }
-      pendingPathSlugChanges.set(
-        pendingPathSlugKey(documentId, locale),
-        oldSlug
-      )
+      event.state.oldPathSlug = oldSlug
+      event.state.locale = locale
     },
     async afterUpdate(event: Event) {
       const { result } = event
@@ -386,9 +379,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
 
       const label = uidToLogLabel(config.contentTypeUid)
       const locale = result.locale ?? defaultLang
-      const pendingKey = pendingPathSlugKey(result.documentId, locale)
-      const oldPathSlug = pendingPathSlugChanges.get(pendingKey)
-      pendingPathSlugChanges.delete(pendingKey)
+      const { oldPathSlug } = event.state
 
       // If this locale's pathSlug changed, remove only that locale's old file
       if (oldPathSlug && oldPathSlug !== result.pathSlug) {
