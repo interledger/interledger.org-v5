@@ -397,21 +397,10 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
       const existing = await fetchPublished(config, documentId, locale)
       if (!existing?.pathSlug) return
 
-      const outputDir = getOutputDir(config)
-      const currentFilepath = resolvePageFilepath(outputDir, existing, locale)
-      let oldSlug = existing.pathSlug
-      if (fs.existsSync(currentFilepath)) {
-        const content = fs.readFileSync(currentFilepath, 'utf-8')
-        const { data } = matter(content)
-        if (data.pathSlug && typeof data.pathSlug === 'string') {
-          oldSlug = data.pathSlug
-        } else {
-          console.warn(
-            `⚠️  MDX file exists at ${currentFilepath} but has no pathSlug in frontmatter — falling back to Strapi value "${oldSlug}"`
-          )
-        }
-      }
-      event.state.oldPathSlug = oldSlug
+      // Use Strapi’s published pathSlug only. Export always writes that value into
+      // frontmatter and resolves the filepath from it, so disk should match; manual
+      // MDX edits or a bad export are not special-cased here (avoids disk I/O every save).
+      event.state.oldPathSlug = existing.pathSlug
       event.state.locale = locale
     },
     async afterUpdate(event: Event) {
