@@ -320,12 +320,19 @@ export function readLocaleFromUpdateEvent(event: {
   const resolved =
     typeof combined === 'string' && combined.length > 0 ? combined : defaultLang
 
-  let source: 'params.locale' | 'params.data.locale' | 'params.where.locale' | 'default'
+  let source:
+    | 'params.locale'
+    | 'params.data.locale'
+    | 'params.where.locale'
+    | 'default'
   if (!(typeof combined === 'string' && combined.length > 0)) {
     source = 'default'
   } else if (fromLocale != null && fromLocale === combined) {
     source = 'params.locale'
-  } else if (fromDataLocale != null && (fromLocale ?? fromDataLocale) === combined) {
+  } else if (
+    fromDataLocale != null &&
+    (fromLocale ?? fromDataLocale) === combined
+  ) {
     source = 'params.data.locale'
   } else {
     source = 'params.where.locale'
