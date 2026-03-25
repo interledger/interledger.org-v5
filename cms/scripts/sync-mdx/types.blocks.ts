@@ -80,6 +80,13 @@ export interface PdfEmbedBlock extends StrapiBlockBase {
   analyticsEvent: string
 }
 
+/** blocks.video-embed — embedded YouTube or Vimeo video. */
+export interface VideoEmbedBlock extends StrapiBlockBase {
+  __component: 'blocks.video-embed'
+  url: string
+  title: string
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -92,3 +99,4 @@ export type ParsedBlock =
   | BlockquoteBlock
   | CalloutTextBlock
   | PdfEmbedBlock
+  | VideoEmbedBlock
