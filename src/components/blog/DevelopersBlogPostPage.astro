@@ -1,27 +1,29 @@
 ---
+import type { Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
+import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
-  locale: string
+  contentLocale: Locale
 }
 
-const { slug, locale } = Astro.props
+const { slug, contentLocale } = Astro.props
 
 const posts = await getCollection('developers-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === slug && post.data.locale === locale
+  (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
 if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const developersHomePath = locale === 'es' ? '/es/developers' : '/developers'
-const blogPath = locale === 'es' ? '/es/developers/blog' : '/developers/blog'
+const developersHomePath = localizeRoute('/developers', contentLocale)
+const blogPath = localizeRoute(ROUTE_BASES['developers-blog'], contentLocale)
 ---
 
 <DevelopersBlogLayout

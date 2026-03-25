@@ -1,6 +1,7 @@
 ---
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
+import { ROUTE_BASES } from '@/utils/routes'
 
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType
@@ -12,7 +13,7 @@ const {
   frontmatter,
   canonicalURL,
   developersHomePath = '/developers',
-  blogPath = '/developers/blog'
+  blogPath = ROUTE_BASES['developers-blog']
 } = Astro.props
 
 const site = Astro.site!

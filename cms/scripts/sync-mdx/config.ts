@@ -83,13 +83,23 @@ export function buildContentTypes(
   strapiUrl: string,
   strapiToken: string
 ): ContentTypes {
+  // One Map per content type per sync run — guards against updating the same
+  // upload file's alt text multiple times with potentially different values.
+  const ambassadorAltIds = new Map<number, string>()
+  const blogAltIds = new Map<number, string>()
+
   return {
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
       buildPayload: (mdx, strapi, _existing) =>
-        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
+        buildAmbassadorPayload(
+          ambassadorFrontmatterSchema,
+          mdx,
+          strapi,
+          ambassadorAltIds
+        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
@@ -128,7 +138,8 @@ export function buildContentTypes(
         return buildBlogPayload(
           foundationBlogFrontmatterSchema,
           mdx,
-          uploadContext
+          uploadContext,
+          blogAltIds
         )
       }
     }

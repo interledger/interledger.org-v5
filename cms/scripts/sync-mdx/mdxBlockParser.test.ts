@@ -97,27 +97,126 @@ describe('parseMdxToBlocks', () => {
 
   // --- Markdown node fallback ---
 
-  it('converts markdown nodes to paragraph blocks', async () => {
+  it('merges consecutive markdown nodes into a single paragraph block', async () => {
     const blocks = await parseMdxToBlocks('## Hello\n\nSome text here.', ctx)
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toEqual({
+      __component: 'blocks.paragraph',
+      content: '## Hello\n\nSome text here.'
+    })
+  })
+
+  it('merges thematic breaks with surrounding markdown', async () => {
+    const blocks = await parseMdxToBlocks('Hello\n\n---\n\nWorld', ctx)
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].__component).toBe('blocks.paragraph')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Paragraph merging
+// ---------------------------------------------------------------------------
+
+describe('paragraph merging', () => {
+  const ctx = { locale: 'en' }
+
+  it('splits on JSX component: markdown before and after', async () => {
+    const mdx = [
+      'Intro paragraph.',
+      '',
+      '<Paragraph>Rich content.</Paragraph>',
+      '',
+      'Outro paragraph.'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toHaveLength(3)
+    expect(blocks[0]).toEqual({
+      __component: 'blocks.paragraph',
+      content: 'Intro paragraph.'
+    })
+    expect(blocks[1]).toMatchObject({ __component: 'blocks.paragraph' })
+    expect((blocks[1] as { content: string }).content).toBe('Rich content.')
+    expect(blocks[2]).toEqual({
+      __component: 'blocks.paragraph',
+      content: 'Outro paragraph.'
+    })
+  })
+
+  it('merges heading + paragraph + list into one block', async () => {
+    const mdx = [
+      '## Section title',
+      '',
+      'A paragraph of text.',
+      '',
+      '- item one',
+      '- item two'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].__component).toBe('blocks.paragraph')
+    const content = (blocks[0] as { content: string }).content
+    expect(content).toContain('## Section title')
+    expect(content).toContain('A paragraph of text.')
+    expect(content).toContain('- item one')
+  })
+
+  it('handles markdown only at the end (trailing flush)', async () => {
+    const mdx = [
+      '<Paragraph>First block.</Paragraph>',
+      '',
+      'Trailing markdown.'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toHaveLength(2)
+    expect(blocks[1]).toEqual({
+      __component: 'blocks.paragraph',
+      content: 'Trailing markdown.'
+    })
+  })
+
+  it('handles markdown only at the start (flush before JSX)', async () => {
+    const mdx = [
+      'Leading markdown.',
+      '',
+      '<Paragraph>Second block.</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
 
     expect(blocks).toHaveLength(2)
     expect(blocks[0]).toEqual({
       __component: 'blocks.paragraph',
-      content: '## Hello'
-    })
-    expect(blocks[1]).toEqual({
-      __component: 'blocks.paragraph',
-      content: 'Some text here.'
+      content: 'Leading markdown.'
     })
   })
 
-  it('skips whitespace-only markdown nodes', async () => {
-    // A thematic break (---) produces a node with no textual content,
-    // but it still has non-whitespace source so it should be kept
-    const blocks = await parseMdxToBlocks('Hello\n\n---\n\nWorld', ctx)
+  it('produces one block for a long post with no JSX', async () => {
+    const mdx = [
+      '# Title',
+      '',
+      'Paragraph one.',
+      '',
+      'Paragraph two.',
+      '',
+      '## Subtitle',
+      '',
+      '- list item',
+      '',
+      'Final paragraph.'
+    ].join('\n')
 
-    expect(blocks.length).toBeGreaterThanOrEqual(2)
-    expect(blocks.every((b) => b.__component === 'blocks.paragraph')).toBe(true)
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].__component).toBe('blocks.paragraph')
   })
 })
 

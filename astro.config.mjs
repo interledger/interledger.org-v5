@@ -147,7 +147,8 @@ export default defineConfig({
         defaultProps: {
           wrap: true
         }
-      }
+      },
+      disable404Route: true
     }),
     mdx(),
     sitemap({

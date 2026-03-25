@@ -6,7 +6,7 @@ export async function getStaticPaths() {
   return getLocalizedPaths('summit-pages', 'es', 'page')
 }
 
-const { slug, locale } = Astro.props
+const { slug, locale: contentLocale } = Astro.props
 ---
 
-<SummitContentPage slug={slug} locale={locale} />
+<SummitContentPage slug={slug} contentLocale={contentLocale} />

@@ -1,4 +1,5 @@
 ---
+import type { Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
@@ -6,25 +7,26 @@ import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
+import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
-  locale: string
+  contentLocale: Locale
 }
 
-const { slug, locale } = Astro.props
+const { slug, contentLocale } = Astro.props
 
 const posts = await getCollection('foundation-blog')
 
 const mdxPost = posts.find(
-  (post) => post.data.pathSlug === slug && post.data.locale === locale
+  (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
 if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = locale === 'es' ? '/es/blog' : '/blog'
+const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>

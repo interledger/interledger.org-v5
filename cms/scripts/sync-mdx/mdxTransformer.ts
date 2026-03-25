@@ -17,6 +17,7 @@ import type { FrontmatterSchema } from './config'
 import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
+import { normalizeInlineImages } from './normalizeImages'
 import fs from 'fs/promises'
 import path from 'path'
 import { getTargetRepoRoot } from '@/utils/gitSync'
@@ -226,17 +227,47 @@ function nullOrValue(v: unknown): string | null {
 }
 
 /**
+ * Calls updateUploadAlt only if this upload ID hasn't been patched yet in
+ * the current sync run. Prevents last-write-wins corruption when the same
+ * image file is referenced by multiple entries with different alt values.
+ */
+async function updateUploadAltOnce(
+  strapi: StrapiClient,
+  id: number,
+  alt: string,
+  updatedAltIds: Map<number, string>,
+  pathSlug: string
+): Promise<void> {
+  const existing = updatedAltIds.get(id)
+  if (existing !== undefined) {
+    if (existing !== alt) {
+      console.warn(
+        `   ⚠️  Alt text conflict for upload #${id} in "${pathSlug}" — already set to "${existing}" by another entry this run. Update alt text via Strapi Media Library instead.`
+      )
+    }
+    return
+  }
+  await strapi.updateUploadAlt(id, alt)
+  updatedAltIds.set(id, alt)
+}
+
+/**
  * Builds a Strapi payload for an ambassador MDX file.
+ *
+ * Also patches the photo upload file's alternativeText when photoAlt is
+ * present in frontmatter, so alt text survives re-exports.
  *
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
  * @param strapi - Strapi client for resolving photo upload IDs
+ * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
  * @returns Strapi payload object
  */
 export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  strapi: StrapiClient
+  strapi: StrapiClient,
+  updatedAltIds: Map<number, string> = new Map()
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
@@ -246,6 +277,19 @@ export async function buildAmbassadorPayload(
     console.warn(
       `   ⚠️  Photo not found in Strapi uploads for "${mdx.pathSlug}": ${photoUrl}`
     )
+  }
+
+  if (photoId) {
+    const photoAlt = nullOrValue(mdx.frontmatter.photoAlt as string)
+    if (photoAlt) {
+      await updateUploadAltOnce(
+        strapi,
+        photoId,
+        photoAlt,
+        updatedAltIds,
+        mdx.pathSlug
+      )
+    }
   }
 
   return {
@@ -262,20 +306,28 @@ export async function buildAmbassadorPayload(
 /**
  * Builds a Strapi payload for a blog-post-type MDX file.
  *
+ * - Normalizes inline <img> tags to markdown before sending to Strapi so
+ *   CKEditor doesn't escape JSX attributes as literal text.
+ * - Resolves featureImage / thumbnailImage URLs to Strapi upload IDs and
+ *   patches their alternativeText when alt frontmatter fields are present.
+ *
  * @param schema - Zod schema to validate/parse the frontmatter
  * @param mdx - MDX file data with frontmatter and content
+ * @param strapi - Strapi client for media lookups and alt-text updates
+ * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
  * @returns Strapi payload object
  */
 export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
-  strapiUploadContext: StrapiUploadContext
+  strapiUploadContext: StrapiUploadContext,
+  updatedAltIds: Map<number, string> = new Map()
 ): Promise<Record<string, unknown>> {
   let parsed
   try {
     parsed = schema.parse({
       ...mdx.frontmatter,
-      slug: mdx.slug
+      pathSlug: mdx.pathSlug
     })
   } catch (err) {
     console.error('Error parsing Blog MDX frontmatter:', err)
@@ -306,20 +358,39 @@ export async function buildBlogPayload(
     }))
   )
 
-  const dataObj = {
+  // getImageFromStrapi only sets alt text on newly uploaded files.
+  // For existing files (found by name), patch alt text explicitly.
+  if (featureImage && parsed.featureImageAlt) {
+    await updateUploadAltOnce(
+      strapiUploadContext.strapi,
+      featureImage,
+      parsed.featureImageAlt,
+      updatedAltIds,
+      mdx.pathSlug
+    )
+  }
+  if (thumbnailImage && parsed.thumbnailImageAlt) {
+    await updateUploadAltOnce(
+      strapiUploadContext.strapi,
+      thumbnailImage,
+      parsed.thumbnailImageAlt,
+      updatedAltIds,
+      mdx.pathSlug
+    )
+  }
+
+  return {
     title: parsed.title,
     description: parsed.description,
     pathSlug: parsed.pathSlug,
     date: date.toISOString().split('T')[0],
     pillar: parsed.pillar,
-    featureImage: featureImage,
-    thumbnailImage: thumbnailImage,
-    articleBio: articleBio,
-    tags: tags,
+    featureImage,
+    thumbnailImage,
+    articleBio,
+    tags,
     locale: parsed.locale,
-    content: mdx.content || '',
+    content: normalizeInlineImages(mdx.content || ''),
     publishedAt: date.toISOString()
   }
-
-  return dataObj
 }

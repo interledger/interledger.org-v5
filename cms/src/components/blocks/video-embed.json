@@ -9,7 +9,8 @@
   "attributes": {
     "url": {
       "type": "string",
-      "required": true
+      "required": true,
+      "regex": "^https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/"
     },
     "title": {
       "type": "string",
