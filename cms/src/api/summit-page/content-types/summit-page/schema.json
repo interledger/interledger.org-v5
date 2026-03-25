@@ -5,7 +5,7 @@
     "singularName": "summit-page",
     "pluralName": "summit-pages",
     "displayName": "Summit Page",
-    "description": "Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting."
+    "description": "Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Full path slug sets the URL and file location."
   },
   "options": {
     "draftAndPublish": false
@@ -22,15 +22,11 @@
       "pluginOptions": { "i18n": { "localized": true } }
     },
     "pathSlug": {
-      "type": "uid",
-      "targetField": "title",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "path": {
       "type": "string",
+      "required": true,
+      "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Route path. Astro uses for file placement."
+      "description": "Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash."
     },
     "pageType": {
       "type": "enumeration",

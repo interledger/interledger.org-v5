@@ -27,7 +27,8 @@ turndown.addRule('underline', {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-export const LOCALES = ['en', 'es']
+export const defaultLang = 'en'
+export const LOCALES = [defaultLang, 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
 

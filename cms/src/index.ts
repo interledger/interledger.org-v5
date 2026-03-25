@@ -190,7 +190,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Description',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Full Path Slug',
       date: 'Publish Date',
       pillar: 'Pillar',
       featureImage: 'Feature Image',
@@ -202,8 +202,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
-      path: 'Directory Structure',
+      pathSlug: 'Full Path Slug',
       pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
@@ -211,8 +210,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      pathSlug: 'URL Slug',
-      path: 'Directory Structure',
+      pathSlug: 'Full Path Slug',
       pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
@@ -230,10 +228,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::foundation-page.foundation-page': {
-      path: 'Route path for file placement, e.g. /grant/ambassadors. Astro uses this to determine where the page lives.'
+      pathSlug:
+        'Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash.'
     },
     'api::summit-page.summit-page': {
-      path: 'Route path for file placement. Astro uses this to determine where the page lives.'
+      pathSlug:
+        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+    },
+    'api::foundation-blog-post.foundation-blog-post': {
+      pathSlug:
+        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.'
     }
   }
 
@@ -449,10 +453,8 @@ async function configureLayouts(strapi: StrapiInstance) {
 
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::foundation-blog-post.foundation-blog-post': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pathSlug', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
       [
         { name: 'date', size: 4 },
         { name: 'pillar', size: 4 },
@@ -484,10 +486,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 6 },
         { name: 'pageType', size: 6 }
       ],
-      [
-        { name: 'pathSlug', size: 6 },
-        { name: 'path', size: 6 }
-      ],
+      [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -497,10 +496,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 6 },
         { name: 'pageType', size: 6 }
       ],
-      [
-        { name: 'pathSlug', size: 6 },
-        { name: 'path', size: 6 }
-      ],
+      [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]

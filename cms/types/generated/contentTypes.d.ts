@@ -656,7 +656,7 @@ export interface ApiFoundationPageFoundationPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation-pages'
   info: {
-    description: 'Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting.'
+    description: 'Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Full path slug sets the URL and file location.'
     displayName: 'Foundation Page'
     pluralName: 'foundation-pages'
     singularName: 'foundation-page'
@@ -711,13 +711,7 @@ export interface ApiFoundationPageFoundationPage
         }
       }> &
       Schema.Attribute.DefaultTo<'grant'>
-    path: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    pathSlug: Schema.Attribute.UID<'title'> &
+    pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -786,7 +780,7 @@ export interface ApiSummitNavigationSummitNavigation
 export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
   collectionName: 'summit_pages'
   info: {
-    description: 'Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting.'
+    description: 'Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Full path slug sets the URL and file location.'
     displayName: 'Summit Page'
     pluralName: 'summit-pages'
     singularName: 'summit-page'
@@ -838,13 +832,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'hackathon'>
-    path: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    pathSlug: Schema.Attribute.UID<'title'> &
+    pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
