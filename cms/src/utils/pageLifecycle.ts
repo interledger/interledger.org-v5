@@ -299,9 +299,7 @@ export function readLocaleFromUpdateEvent(event: {
   const localeFromUpdateWhere =
     typeof updateWhere?.locale === 'string' ? updateWhere.locale : undefined
   const locale =
-    event.params?.locale ??
-    event.params?.data?.locale ??
-    localeFromUpdateWhere
+    event.params?.locale ?? event.params?.data?.locale ?? localeFromUpdateWhere
   return typeof locale === 'string' && locale.length > 0 ? locale : defaultLang
 }
 

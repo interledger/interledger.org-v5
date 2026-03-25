@@ -8,7 +8,11 @@ describe('resolvePageFilepath', () => {
 
   it('keeps English nested pages under slug parent directories', () => {
     expect(
-      resolvePageFilepath(outputDir, { pathSlug: 'grant/grant-web' }, defaultLang)
+      resolvePageFilepath(
+        outputDir,
+        { pathSlug: 'grant/grant-web' },
+        defaultLang
+      )
     ).toBe(path.join(outputDir, 'grant', 'grant-web.mdx'))
   })
 
