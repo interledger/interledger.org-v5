@@ -285,20 +285,29 @@ function pendingPathSlugKey(documentId: string, locale: string): string {
   return `${documentId}:${locale}`
 }
 
+/**
+ * Strapi document service: `event.params.where` is the filter that selects
+ * which row to update (often includes `locale` for i18n). Same “where” idea as
+ * a query clause; the key name is Strapi’s, not ours.
+ */
+export type StrapiDocumentServiceUpdateWhere = Record<string, unknown>
+
 /** Exported for unit tests — Strapi passes locale on localized document updates. */
 export function readLocaleFromUpdateEvent(event: {
   params?: {
     locale?: string
     documentId?: string
     data?: { documentId?: string; locale?: string }
-    where?: Record<string, unknown>
+    where?: StrapiDocumentServiceUpdateWhere
   }
 }): string {
-  const whereLocale = event.params?.where?.locale
+  const updateWhere = event.params?.where
+  const localeFromUpdateWhere =
+    typeof updateWhere?.locale === 'string' ? updateWhere.locale : undefined
   const locale =
     event.params?.locale ??
     event.params?.data?.locale ??
-    (typeof whereLocale === 'string' ? whereLocale : undefined)
+    localeFromUpdateWhere
   return typeof locale === 'string' && locale.length > 0 ? locale : defaultLang
 }
 
@@ -338,6 +347,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         locale?: string
         documentId?: string
         data?: { documentId?: string; locale?: string; pathSlug?: string }
+        where?: StrapiDocumentServiceUpdateWhere
       }
     }) {
       if (shouldSkipMdxExport()) return

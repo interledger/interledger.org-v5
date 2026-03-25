@@ -48,7 +48,7 @@ describe('readLocaleFromUpdateEvent', () => {
     ).toBe('fr')
   })
 
-  it('uses params.where.locale as fallback', () => {
+  it('falls back to locale on params.where (document-service update filter)', () => {
     expect(
       readLocaleFromUpdateEvent({
         params: { where: { locale: 'de' }, documentId: 'x' }
