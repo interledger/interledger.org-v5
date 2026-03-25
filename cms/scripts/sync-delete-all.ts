@@ -10,9 +10,9 @@
  *   STRAPI_URL, STRAPI_API_TOKEN
  *
  * Usage:
- *   pnpm run sync:delete-all              Delete all (default collections)
- *   pnpm run sync:delete-all -- --dry-run Preview only
- *   pnpm run sync:delete-all -- foundation-pages
+ *   pnpm run sync:delete-all -- --dry-run              Preview only
+ *   pnpm run sync:delete-all -- --confirm              Delete all (default collections)
+ *   pnpm run sync:delete-all -- --confirm foundation-pages
  */
 
 import fs from 'fs'
@@ -36,12 +36,15 @@ const DEFAULT_COLLECTIONS = [
 
 function parseArgs(argv: string[]): {
   dryRun: boolean
+  confirm: boolean
   collections: string[]
 } {
   const dryRun = argv.includes('--dry-run')
+  const confirm = argv.includes('--confirm')
   const collectionIds = argv.filter((a) => !a.startsWith('--'))
   return {
     dryRun,
+    confirm,
     collections:
       collectionIds.length > 0 ? collectionIds : [...DEFAULT_COLLECTIONS]
   }
@@ -130,16 +133,30 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2)
   if (argv.includes('--help') || argv.includes('-h')) {
     console.log(`Usage:
-  pnpm run sync:delete-all                 Delete all (default collections)
-  pnpm run sync:delete-all -- --dry-run    List what would be deleted
-  pnpm run sync:delete-all -- foundation-pages
+  pnpm run sync:delete-all -- --dry-run              List what would be deleted
+  pnpm run sync:delete-all -- --confirm              Delete all (default collections)
+  pnpm run sync:delete-all -- --confirm <api-id>…    Delete only listed REST plural ids
 
 Default collections: ${DEFAULT_COLLECTIONS.join(', ')}
+
+Destructive mode requires --confirm (omit for --dry-run only).
 `)
     process.exit(0)
   }
 
-  const { dryRun, collections } = parseArgs(argv)
+  const { dryRun, confirm, collections } = parseArgs(argv)
+
+  if (!dryRun && !confirm) {
+    console.error(`Refusing to delete: pass --dry-run to preview, or --confirm to delete.
+
+  pnpm run sync:delete-all -- --dry-run
+  pnpm run sync:delete-all -- --confirm
+  pnpm run sync:delete-all -- --confirm foundation-pages
+
+Default collections: ${DEFAULT_COLLECTIONS.join(', ')}
+`)
+    process.exit(1)
+  }
 
   const projectRoot = getProjectRoot()
   const envPath = path.join(projectRoot, '.env')
