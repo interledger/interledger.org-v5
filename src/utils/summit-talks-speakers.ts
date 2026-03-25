@@ -1,9 +1,7 @@
 import type { PaginateFunction } from 'astro'
 import { getSpeakers, getTalks } from './extractSessionize'
 import { generateSlug } from './slug'
-
-export const YEARS = ['2022', '2023', '2024', '2025'].sort()
-export const currentYear = YEARS.at(-1)
+import { YEARS } from './sessionize'
 
 export async function paginateSummitTalks(paginate: PaginateFunction) {
   return YEARS.flatMap((year) => {

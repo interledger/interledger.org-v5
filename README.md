@@ -238,14 +238,49 @@ pnpm run start
 
 All commands are run from the root of the project, from a terminal:
 
-| Command            | Action                                       |
-| :----------------- | :------------------------------------------- |
-| `pnpm install`     | Installs dependencies                        |
-| `pnpm run start`   | Starts local dev server at `localhost:1103`  |
-| `pnpm run build`   | Build your production site to `./dist/`      |
-| `pnpm run preview` | Preview your build locally, before deploying |
-| `pnpm run format`  | Format code and fix linting issues           |
-| `pnpm run lint`    | Check code formatting and linting            |
+| Command                              | Action                                                         |
+| :----------------------------------- | :------------------------------------------------------------- |
+| `pnpm install`                       | Installs dependencies                                          |
+| `pnpm run start`                     | Starts local dev server at `localhost:1103`                    |
+| `pnpm run build`                     | Build your production site to `./dist/`                        |
+| `pnpm run preview`                   | Preview your build locally, before deploying                   |
+| `pnpm run format`                    | Format code and fix linting issues                             |
+| `pnpm run lint`                      | Check code formatting and linting                              |
+| `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
+
+### Sync Sessionize Data
+
+Fetches summit data from Sessionize and stores it locally.
+
+```sh
+pnpm run sync:sessionize -- <YEAR>
+```
+
+Example:
+
+```sh
+pnpm run sync:sessionize -- 2022
+pnpm run sync:sessionize  #defaults to currentSummitYear
+```
+
+**What is does:**
+
+- Defaults to `currentSummitYear` if no year is provided
+- Downloads speaker and talk data into:
+  - `src/data/sessionize/{YEAR}-speakers.json`
+  - `src/data/sessionize/{YEAR}-talks.json`
+- Downloads speaker images into:
+  - `public/img/sessionize-speakers/{YEAR}`
+- Clears the image folder before downloading
+- Validates the year against the allowed `YEARS` list
+
+**Using it for future summits:**
+
+- Add the new year to the `YEARS` array in `src/utils/sessionize.ts`.
+- Add the new Sessionize API URLs to the `sessionizeApiMap` in `src/utils/sessionize.ts`.
+- `currentSummitYear` will automatically default to the latest year.
+
+Once updated, `pnpm run sync:sessionize` will fetch data and images for the new summit automatically.
 
 ### 🔍 Code Formatting
 

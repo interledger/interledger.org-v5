@@ -1,7 +1,7 @@
 ---
 import type { Locale } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
-import { currentYear } from '@/utils/summit-talks-speakers'
+import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
 import { formatDate, getDurationInMinutes } from '@/utils/time'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
@@ -15,7 +15,7 @@ interface Props {
 }
 
 const { entry, year, lang } = Astro.props
-const isCurrentYear = currentYear === year
+const isCurrentYear = currentSummitYear === year
 const baseHref = lang !== 'en' ? `/${lang}/summit` : '/summit'
 const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
 const sessionsHref = `${baseHref}/${year}/talks`

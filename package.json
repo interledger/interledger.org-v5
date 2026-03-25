@@ -10,7 +10,7 @@
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
-    "sync:sessionize": "tsx ./scripts/import-sessionize.ts"
+    "sync:sessionize": "tsx ./scripts/sync-sessionize.ts"
   },
   "dependencies": {
     "@astro-community/astro-embed-vimeo": "^0.3.12",
