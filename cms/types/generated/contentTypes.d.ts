@@ -681,7 +681,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.ambassadors-grid',
         'blocks.blockquote',
         'blocks.callout-text',
-        'blocks.pdf-embed'
+        'blocks.pdf-embed',
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

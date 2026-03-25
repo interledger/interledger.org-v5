@@ -12,6 +12,8 @@
     "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 ."
   },
   "dependencies": {
+    "@astro-community/astro-embed-vimeo": "^0.3.12",
+    "@astro-community/astro-embed-youtube": "^0.5.10",
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/netlify": "^7.0.1",
     "@astrojs/sitemap": "^3.7.1",

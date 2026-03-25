@@ -440,6 +440,19 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksVideoEmbed extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_video_embeds'
+  info: {
+    description: 'Embedded YouTube or Vimeo video'
+    displayName: 'Video Embed'
+    icon: 'play'
+  }
+  attributes: {
+    title: Schema.Attribute.String & Schema.Attribute.Required
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface NavigationMenuGroup extends Struct.ComponentSchema {
   collectionName: 'components_navigation_menu_groups'
   info: {
@@ -735,6 +748,7 @@ declare module '@strapi/strapi' {
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
+      'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
       'shared.article-bio': SharedArticleBio
