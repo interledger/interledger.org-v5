@@ -4,11 +4,26 @@
 import path from 'node:path'
 import fs from 'fs/promises'
 import type { SessionizeSpeaker } from '@/types/summit'
+import { currentYear } from '@/utils/summit-talks-speakers'
 import { generateSlug } from '@/utils/slug'
 
 //Step 2: import Sessionize images into `/public/img/sessionize-speakers/{year}` folder
 
-const YEAR = 2022
+//read YEAR from command-line arguments
+// or defaults to current year
+const rawArgs = process.argv.slice(2)
+const args = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs
+
+const YEAR = args[0] ? Number(args[0]) : currentYear
+if (isNaN(YEAR)) {
+  console.error(
+    '❌ Invalid YEAR provided. Must be a number. E.g.: pnpm run sync:sessionize -- 2024'
+  )
+  process.exit(1)
+}
+
+console.log(`📅 Running import for YEAR: ${YEAR}`)
+
 const imgUrlFileSource = path.resolve(
   `./src/data/sessionize/${YEAR}-speakers.json`
 )
@@ -41,11 +56,30 @@ async function fetchSaveImage(url: string, name: string) {
   console.log(`✅ Saved image: ${name}`)
 }
 
+async function clearFolder(folderPath: string) {
+  try {
+    await fs.rm(folderPath, { recursive: true, force: true })
+    await fs.mkdir(folderPath, { recursive: true })
+    console.log(`🗑️ Cleared folder: ${folderPath}`)
+  } catch (err) {
+    console.error(`❌ Failed to clear folder: ${folderPath}`, err)
+  }
+}
+
 async function getImageUrlsFromSessionize() {
+  try {
+    await fs.access(imgUrlFileSource)
+  } catch {
+    console.error(
+      `❌ Speaker JSON not found for YEAR ${YEAR}: ${imgUrlFileSource}`
+    )
+    process.exit(1)
+  }
+
   const rawData = await fs.readFile(imgUrlFileSource, 'utf-8')
   const speakersData: SessionizeSpeaker[] = JSON.parse(rawData)
 
-  await fs.mkdir(imgFilePath, { recursive: true })
+  await clearFolder(imgFilePath)
 
   await Promise.all(
     speakersData.map(async (speaker) => {
