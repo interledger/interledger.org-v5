@@ -8,9 +8,9 @@ import { generateSlug } from '@/utils/slug'
 const rawArgs = process.argv.slice(2)
 const args = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs
 
-const YEAR = Number(args[0] ?? currentSummitYear)
+const YEAR = args[0] ?? currentSummitYear
 
-if (isNaN(YEAR) || !YEARS.includes(String(YEAR))) {
+if (!YEARS.includes(YEAR)) {
   console.error(
     `❌ Invalid YEAR: ${args[0]}. Must be one of: ${YEARS.join(', ')}`
   )
@@ -98,32 +98,43 @@ async function clearFolder(folderPath: string) {
   }
 }
 
+async function batchPromises<T>(
+  items: T[],
+  batchSize: number,
+  fn: (item: T) => Promise<void>
+) {
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize)
+    await Promise.all(batch.map(fn))
+  }
+}
+
 async function getImageUrlsFromSessionize() {
+  let speakersData: SessionizeSpeaker[] = []
+
   try {
-    await fs.access(imgUrlFileSource)
-  } catch {
+    const rawData = await fs.readFile(imgUrlFileSource, 'utf-8')
+    speakersData = JSON.parse(rawData)
+  } catch (err) {
     console.error(
-      `❌ Speaker JSON not found for YEAR ${YEAR}: ${imgUrlFileSource}`
+      `❌ Failed to read or parse speaker JSON for YEAR ${YEAR}:`,
+      err instanceof Error ? err.message : err
     )
     process.exit(1)
   }
 
-  const rawData = await fs.readFile(imgUrlFileSource, 'utf-8')
-  const speakersData: SessionizeSpeaker[] = JSON.parse(rawData)
-
   await clearFolder(imgFilePath)
 
-  await Promise.all(
-    speakersData.map(async (speaker) => {
-      const sessionizeUrl = speaker.profilePicture
-      if (!sessionizeUrl) {
-        console.log(`⚠️ Missing image for speaker: ${speaker.fullName} `)
-        return
-      }
-      const name = generateSlug(speaker.fullName)
-      await fetchAndSaveImage(sessionizeUrl, name)
-    })
-  )
+  await batchPromises(speakersData, 5, async (speaker) => {
+    const sessionizeUrl = speaker.profilePicture
+    if (!sessionizeUrl) {
+      console.log(`⚠️ Missing image for speaker: ${speaker.fullName} `)
+      return
+    }
+    const name = generateSlug(speaker.fullName)
+    await fetchAndSaveImage(sessionizeUrl, name)
+  })
+
   console.log(`✅ Finished downloading the images for the ${YEAR} speakers`)
 }
 
