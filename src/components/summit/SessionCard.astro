@@ -1,20 +1,26 @@
 ---
 // TODO: This component is a temporary placeholder component.
 // It contains minimal markup for now and will be fully implemented in a follow-up PR.
-import type { Talk } from '@/types/summit'
+import type { TalkPreview } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
 
 interface Props {
-  talk: Talk
+  talkPreview: TalkPreview
   basePath: string
 }
 
-const { talk, basePath } = Astro.props
-const href = `${basePath}/${generateSlug(talk.title)}`
+const { talkPreview, basePath } = Astro.props
+const href = `${basePath}/${generateSlug(talkPreview.title)}`
 ---
 
-<li class="min-h-50 bg-black/10">
-  <a href={href}>
-    <h2>{talk.title}</h2>
-  </a>
+<li class="min-h-50 bg-black/10 flex">
+  <figure>
+    <img src={talkPreview.speakerImage} alt={talkPreview.speakerName} />
+  </figure>
+  <div>
+    <a href={href}>
+      <h2>{talkPreview.title}</h2>
+    </a>
+    <p>{talkPreview.description}</p>
+  </div>
 </li>
