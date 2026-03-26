@@ -9,6 +9,11 @@ import path from 'node:path'
 import { generateSlug } from './slug'
 
 const profilePictureBase = '/img/sessionize-speakers'
+// IDs for the object that contain Spanish translations in Sessionize
+const TRANSLATION_ID = 107734
+const SPANISH_TITLE_ID = 114105
+const SPANISH_DESC_ID = 114099
+const SPANISH_BIO_ID = 114100
 
 function getLocalSpeakerImagePath(
   imageUrl: string,
@@ -19,15 +24,18 @@ function getLocalSpeakerImagePath(
   return `${profilePictureBase}/${summitYear}/${generateSlug(speakerName)}${extension}`
 }
 
+async function getSpeakersData(year: string) {
+  const data = await import(`../data/sessionize/${year}-speakers.json`)
+  return data.default
+}
+
 export async function getSpeakers(
   year: string,
   articleId?: string
 ): Promise<Speaker[]> {
-  const data = await import(`../data/sessionize/${year}-speakers.json`)
+  const data = await getSpeakersData(year)
 
-  // Question ID for Spanish bio in Sessionize
-  const SPANISH_BIO_ID = 114100
-  const speakers: Speaker[] = data.default.map((speaker: SessionizeSpeaker) => {
+  const speakers: Speaker[] = data.map((speaker: SessionizeSpeaker) => {
     const sessions = speaker.sessions.map((session) => ({
       id: String(session.id),
       title: session.name
@@ -66,10 +74,6 @@ export async function getTalks(
   authorId?: string
 ): Promise<Talk[]> {
   const data = await import(`../data/sessionize/${year}-talks.json`)
-
-  const TRANSLATION_ID = 107734
-  const SPANISH_TITLE_ID = 114105
-  const SPANISH_DESC_ID = 114099
 
   // Filter out sessions without speakers before mapping
   // These are non-talk events (e.g. coffee breaks, group photos, social events)
@@ -116,13 +120,10 @@ export async function getTalks(
 }
 
 export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
-  const [talks, sessionizeSpeakers] = await Promise.all([
+  const [talks, allSpeakers] = await Promise.all([
     getTalks(year),
-    import(`../data/sessionize/${year}-speakers.json`) as Promise<{
-      default: SessionizeSpeaker[]
-    }>
+    getSpeakersData(year)
   ])
-  const allSpeakers = sessionizeSpeakers.default
 
   return talks.map(({ speakers, ...talk }) => {
     const speaker = allSpeakers.find((s) => s.id === speakers[0]?.id)
