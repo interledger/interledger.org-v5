@@ -25,7 +25,9 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
         <h1>{entry.name}</h1>
         <p>{entry.tagLine}</p>
       </div>
-      <figure class="w-100 h-100 bg-black/50">Image here</figure>
+      <figure class="w-100 h-100 bg-black/50">
+        <img src={entry.profilePicture} alt={entry.name} />
+      </figure>
     </header>
     <section aria-label="Biography" class="my-8">
       <p>{bio}</p>

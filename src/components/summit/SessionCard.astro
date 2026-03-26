@@ -14,7 +14,9 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
 ---
 
 <li class="min-h-50 bg-black/10 flex">
-  <figure>{talkPreview.speakerImage}</figure>
+  <figure>
+    <img src={talkPreview.speakerImage} alt={talkPreview.speakerName} />
+  </figure>
   <div>
     <a href={href}>
       <h2>{talkPreview.title}</h2>

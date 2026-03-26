@@ -5,6 +5,19 @@ import type {
   SessionizeSpeaker,
   SessionizeTalk
 } from '@/types/summit'
+import path from 'node:path'
+import { generateSlug } from './slug'
+
+const profilePictureBase = '/img/sessionize-speakers'
+
+function getLocalSpeakerImagePath(
+  imageUrl: string,
+  speakerName: string,
+  summitYear: string
+) {
+  const extension = path.extname(new URL(imageUrl).pathname) || '.jpg'
+  return `${profilePictureBase}/${summitYear}/${generateSlug(speakerName)}${extension}`
+}
 
 export async function getSpeakers(
   year: string,
@@ -24,12 +37,16 @@ export async function getSpeakers(
       (q) => q.id === SPANISH_BIO_ID
     )
     const spanishBio = spanishBioAnswer?.answer
+    const profilePicture = speaker.profilePicture
+      ? getLocalSpeakerImagePath(speaker.profilePicture, speaker.fullName, year)
+      : null
+
     return {
       id: speaker.id,
       name: speaker.fullName,
       bio: speaker.bio,
       tagLine: speaker.tagLine,
-      profilePicture: speaker.profilePicture,
+      profilePicture,
       es: spanishBio ? { bio: spanishBio } : null,
       sessions
     }
@@ -77,17 +94,16 @@ export async function getTalks(
             }
           : null
 
-      if (talk.speakers.length)
-        return {
-          id: talk.id,
-          title: talk.title,
-          description: talk.description,
-          startsAt: talk.startsAt,
-          endsAt: talk.endsAt,
-          speakers: talk.speakers,
-          translations,
-          es
-        }
+      return {
+        id: talk.id,
+        title: talk.title,
+        description: talk.description,
+        startsAt: talk.startsAt,
+        endsAt: talk.endsAt,
+        speakers: talk.speakers,
+        translations,
+        es
+      }
     })
 
   if (authorId) {
@@ -110,10 +126,13 @@ export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
 
   return talks.map(({ speakers, ...talk }) => {
     const speaker = allSpeakers.find((s) => s.id === speakers[0]?.id)
-
+    const speakerImage = speaker?.profilePicture
+      ? getLocalSpeakerImagePath(speaker.profilePicture, speaker.fullName, year)
+      : null
     return {
       ...talk,
-      speakerImage: speaker?.profilePicture ?? null
+      speakerImage,
+      speakerName: speaker?.fullName ?? null
     }
   })
 }

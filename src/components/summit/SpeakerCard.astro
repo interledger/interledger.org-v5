@@ -14,6 +14,7 @@ const href = `${basePath}/${generateSlug(speaker.name)}`
 ---
 
 <li class="min-h-50 w-50 bg-black/10">
+  <figure><img src={speaker.profilePicture} alt={speaker.name} /></figure>
   <a href={href}>
     <h2>{speaker.name}</h2>
     <p>{speaker.tagLine}</p>
