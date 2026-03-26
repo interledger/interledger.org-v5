@@ -45,14 +45,7 @@ export interface SessionizeSpeaker {
     id: number
     name: string
   }[]
-  questionAnswers: {
-    id: number
-    question: string
-    questionType: string
-    answer: string | null
-    sort: number
-    answerExtra: null
-  }[]
+  questionAnswers: QuestionAnswers[]
 }
 
 export interface SessionizeTalk {
@@ -65,21 +58,24 @@ export interface SessionizeTalk {
     id: string
     name: string
   }[]
-  categories: {
+  categories: Categories[]
+  questionAnswers: QuestionAnswers[]
+}
+
+interface Categories {
+  id: number
+  name: string
+  categoryItems: {
     id: number
     name: string
-    categoryItems: {
-      id: number
-      name: string
-    }[]
-    sort: number
   }[]
-  questionAnswers: {
-    id: number
-    question: string
-    questionType: string
-    answer: string | null
-    sort: number
-    answerExtra: null
-  }[]
+  sort: number
+}
+interface QuestionAnswers {
+  id: number
+  question: string
+  questionType: string
+  answer: string | null
+  sort: number
+  answerExtra: null
 }

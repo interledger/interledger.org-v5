@@ -24,7 +24,7 @@ function getLocalSpeakerImagePath(
   return `${profilePictureBase}/${summitYear}/${generateSlug(speakerName)}${extension}`
 }
 
-async function getSpeakersData(year: string) {
+async function getSpeakersData(year: string): Promise<SessionizeSpeaker[]> {
   const data = await import(`../data/sessionize/${year}-speakers.json`)
   return data.default
 }
