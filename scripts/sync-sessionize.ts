@@ -73,7 +73,7 @@ async function fetchAndSaveImage(url: string, name: string) {
       )
     }
 
-    const ext = path.extname(url) || '.jpg'
+    const ext = path.extname(new URL(url).pathname) || '.jpg'
     const filePath = path.join(imgFilePath, name + ext)
 
     const buffer = await response.arrayBuffer()
