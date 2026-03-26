@@ -127,13 +127,5 @@ async function getImageUrlsFromSessionize() {
   console.log(`✅ Finished downloading the images for the ${YEAR} speakers`)
 }
 
-try {
-  await getSessionizeData(speakersUrl, talksUrl)
-  await getImageUrlsFromSessionize()
-} catch (err) {
-  console.error(
-    '❌ Unexpected error while importing Sessionize data or images:',
-    err instanceof Error ? err.message : err
-  )
-  process.exit(1)
-}
+await getSessionizeData(speakersUrl, talksUrl)
+await getImageUrlsFromSessionize()
