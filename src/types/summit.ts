@@ -29,3 +29,23 @@ export interface Speaker {
     title: string
   }[]
 }
+
+export interface SessionizeSpeaker {
+  id: string
+  fullName: string
+  bio: string | null
+  tagLine: string | null
+  profilePicture: string | null
+  sessions: {
+    id: number
+    name: string
+  }[]
+  questionAnswers: {
+    id: number
+    question: string
+    questionType: string
+    answer: string | null
+    sort: number
+    answerExtra: null
+  }[]
+}
