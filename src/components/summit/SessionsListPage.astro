@@ -2,16 +2,16 @@
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import SessionCard from './SessionCard.astro'
-import type { Talk } from '@/types/summit'
+import type { TalkPreview } from '@/types/summit'
 import type { Page } from 'astro'
 
 interface Props {
-  talks: Talk[]
+  talkPreviews: TalkPreview[]
   basePath: string
   title: string
   page: Page
 }
-const { talks, basePath, title, page } = Astro.props
+const { talkPreviews, basePath, title, page } = Astro.props
 const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
 ---
 
@@ -20,10 +20,10 @@ const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
     <h1>{title}</h1>
     <section>
       {
-        talks.length > 0 ? (
+        talkPreviews.length > 0 ? (
           <ul class="flex flex-col gap-4">
-            {talks.map((talk) => (
-              <SessionCard talk={talk} basePath={sessionBasePath} />
+            {talkPreviews.map((talk) => (
+              <SessionCard talkPreview={talk} basePath={sessionBasePath} />
             ))}
           </ul>
         ) : (

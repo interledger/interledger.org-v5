@@ -1,5 +1,15 @@
 import { z } from 'zod'
 
+// Normalizes pathSlug by stripping any leading or trailing slashes so that
+// "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
+// "/grants/web-grant/" all resolve to the same route.
+const pathSlugSchema = (required = true) => {
+  const base = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
+  return required
+    ? base.refine((s) => s.length > 0, 'pathSlug is required')
+    : base
+}
+
 const foundationTags = [
   'Announcements',
   'Community & Events',
@@ -24,7 +34,7 @@ export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
   description: z.string(),
   date: z.date(),
-  pathSlug: z.string(),
+  pathSlug: pathSlugSchema(),
   locale: z.string().optional(),
   localizes: z.string().optional(),
   authors: z.array(z.string()).optional(),
@@ -48,7 +58,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
-  pathSlug: z.string().min(1, 'pathSlug is required'),
+  pathSlug: pathSlugSchema(),
   pillar: z.enum(['vision', 'mission', 'tech', 'values']),
   featureImage: z.string().optional(),
   featureImageAlt: z.string().optional(),
@@ -66,7 +76,7 @@ export type FoundationBlogFrontmatterType = z.infer<
 
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  pathSlug: z.string().min(1, 'pathSlug is required'),
+  pathSlug: pathSlugSchema(),
   description: z.string().optional(),
   pillar: z.enum(['vision', 'mission', 'tech', 'values']).optional(),
   heroTitle: z.string().optional(),
@@ -98,7 +108,7 @@ export const foundationPageFrontmatterSchema = z.object({
 
 export const summitPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  pathSlug: z.string().min(1, 'pathSlug is required'),
+  pathSlug: pathSlugSchema(),
   description: z.string().optional(),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
@@ -128,7 +138,7 @@ export const summitPageFrontmatterSchema = z.object({
 })
 
 export const ambassadorFrontmatterSchema = z.object({
-  pathSlug: z.string().min(1, 'pathSlug is required'),
+  pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
   description: z.string().min(1, 'description is required'),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */

@@ -34,7 +34,8 @@
         }
       },
       "targetField": "title",
-      "required": true
+      "required": true,
+      "description": "Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash."
     },
     "date": {
       "type": "date",

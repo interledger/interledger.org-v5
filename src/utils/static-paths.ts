@@ -54,7 +54,12 @@ export async function getLocalizedPaths(
 
   if (lang === defaultLocale) {
     return defaultEntries.map((entry) =>
-      toPath(paramName, entry.data.pathSlug, defaultLocale, false)
+      toPath(
+        paramName,
+        routeSegmentForCollection(entry.data),
+        defaultLocale,
+        false
+      )
     )
   }
 
@@ -68,19 +73,37 @@ export async function getLocalizedPaths(
       enEntry.data.pathSlug
     )
     return localizedEntry
-      ? toPath(paramName, localizedEntry.data.pathSlug, lang, false)
-      : toPath(paramName, enEntry.data.pathSlug, defaultLocale, true)
+      ? toPath(
+          paramName,
+          routeSegmentForCollection(localizedEntry.data),
+          lang,
+          false
+        )
+      : toPath(
+          paramName,
+          routeSegmentForCollection(enEntry.data),
+          defaultLocale,
+          true
+        )
   })
+}
+
+/** URL segment from collection entry (`pathSlug` is normalized by content schemas). */
+function routeSegmentForCollection(data: Entry['data']): string {
+  return (data as { pathSlug: string }).pathSlug
 }
 
 function getEntriesForDefaultLocale(
   entries: Entry[],
   locale: Locale,
-  excludeSlug?: string
+  excludeSlug: string | undefined
 ): Entry[] {
   return entries
     .filter((e) => e.data.locale === locale)
-    .filter((e) => !excludeSlug || e.data.pathSlug !== excludeSlug)
+    .filter((e) => {
+      if (!excludeSlug) return true
+      return routeSegmentForCollection(e.data) !== excludeSlug
+    })
 }
 
 /**

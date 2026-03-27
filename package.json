@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 --fix .",
-    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 ."
+    "lint": "prettier --check '**/*.{js,mjs,ts,tsx,json,md,mdx,astro}' && eslint --max-warnings=0 .",
+    "sync:sessionize": "tsx ./scripts/sync-sessionize.ts"
   },
   "dependencies": {
     "@astro-community/astro-embed-vimeo": "^0.3.12",
@@ -54,6 +55,7 @@
     "globals": "^17.4.0",
     "prettier": "3.8.1",
     "prettier-plugin-astro": "0.14.1",
+    "tsx": "^4.21.0",
     "typescript-eslint": "^8.57.0"
   }
 }

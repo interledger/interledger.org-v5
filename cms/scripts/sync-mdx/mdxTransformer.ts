@@ -160,7 +160,8 @@ export async function buildPagePayload(
   const data: Record<string, unknown> = {
     title: parsed.title,
     pathSlug: parsed.pathSlug,
-    publishedAt: new Date().toISOString()
+    publishedAt: new Date().toISOString(),
+    ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
   // Handle hero section

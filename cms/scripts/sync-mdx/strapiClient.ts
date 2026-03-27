@@ -58,11 +58,13 @@ export function createStrapiClient({
   baseUrl,
   token
 }: StrapiClientOptions): StrapiClient {
+  const apiRoot = `${baseUrl.replace(/\/+$/, '')}/api`
+
   async function request(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<unknown> {
-    const url = `${baseUrl}/api/${endpoint}`
+    const url = `${apiRoot}/${endpoint.replace(/^\/+/, '')}`
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -94,17 +96,50 @@ export function createStrapiClient({
     }
   }
 
+  /** Strapi 5 defaults to pageSize 25; `pagination[limit]=-1` is not reliable. Page until done. */
   async function getAllEntries(
     apiId: string,
     locale = 'all'
   ): Promise<StrapiEntry[]> {
     const localeParam =
       locale === 'all' ? 'locale=all' : locale ? `locale=${locale}` : ''
-    const paginationParam = 'pagination[limit]=-1' // -1 disables pagination, returns all entries
-    const endpoint = `${apiId}?${paginationParam}${localeParam ? `&${localeParam}` : ''}`
+    const PAGE_SIZE = 100
+    const out: StrapiEntry[] = []
+    let page = 1
+    const maxPages = 500
 
-    const data = (await request(endpoint)) as { data: StrapiEntry[] }
-    return data.data || []
+    for (;;) {
+      const qs = [
+        `pagination[page]=${page}`,
+        `pagination[pageSize]=${PAGE_SIZE}`,
+        localeParam
+      ]
+        .filter(Boolean)
+        .join('&')
+      const endpoint = `${apiId}?${qs}`
+
+      const res = (await request(endpoint)) as {
+        data?: StrapiEntry[]
+        meta?: {
+          pagination?: { page?: number; pageCount?: number; pageSize?: number }
+        }
+      }
+      const batch = res.data ?? []
+      out.push(...batch)
+
+      const pageCount = res.meta?.pagination?.pageCount
+      if (batch.length === 0) break
+      if (pageCount != null && page >= pageCount) break
+      if (batch.length < PAGE_SIZE) break
+      page += 1
+      if (page > maxPages) {
+        throw new Error(
+          `getAllEntries(${apiId}): exceeded ${maxPages} pages — refine query or raise limit`
+        )
+      }
+    }
+
+    return out
   }
 
   async function findByPathSlug(
@@ -208,7 +243,7 @@ export function createStrapiClient({
     const formData = new FormData()
     formData.append('fileInfo', JSON.stringify({ alternativeText }))
 
-    const url = `${baseUrl}/api/upload?id=${id}`
+    const url = `${apiRoot}/upload?id=${id}`
     const response = await fetch(url, {
       method: 'POST',
       headers: {

@@ -116,8 +116,6 @@ flowchart
 │   │   └── server.ts
 │   ├── database/                      # Database files
 │   │   └── migrations/
-│   ├── public/                        # Static assets
-│   │   └── uploads/                   # User-uploaded media
 │   ├── scripts/              # e.g., sync:mdx, sync-navigation
 │   ├── src/         # Astro frontend application
 │   │   ├── admin/      # Admin UI customizations
@@ -149,7 +147,8 @@ flowchart
 │   ├── tsconfig.json
 │   ├── copy-schemas.js
 │   └── README.md
-├── public/           # Static assets (images, favicons)
+├── public/           # Static assets (images, favicons, uploads)
+│   └── uploads/      # User-uploaded media for Strapi local storage
 ├── src/              # Astro project
 │   ├── components/    # Astro components
 │   ├── config/        # JSON configs (navigation, etc.)
@@ -239,14 +238,49 @@ pnpm run start
 
 All commands are run from the root of the project, from a terminal:
 
-| Command            | Action                                       |
-| :----------------- | :------------------------------------------- |
-| `pnpm install`     | Installs dependencies                        |
-| `pnpm run start`   | Starts local dev server at `localhost:1103`  |
-| `pnpm run build`   | Build your production site to `./dist/`      |
-| `pnpm run preview` | Preview your build locally, before deploying |
-| `pnpm run format`  | Format code and fix linting issues           |
-| `pnpm run lint`    | Check code formatting and linting            |
+| Command                              | Action                                                         |
+| :----------------------------------- | :------------------------------------------------------------- |
+| `pnpm install`                       | Installs dependencies                                          |
+| `pnpm run start`                     | Starts local dev server at `localhost:1103`                    |
+| `pnpm run build`                     | Build your production site to `./dist/`                        |
+| `pnpm run preview`                   | Preview your build locally, before deploying                   |
+| `pnpm run format`                    | Format code and fix linting issues                             |
+| `pnpm run lint`                      | Check code formatting and linting                              |
+| `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
+
+### Sync Sessionize Data
+
+Fetches summit data from Sessionize and stores it locally.
+
+```sh
+pnpm run sync:sessionize -- <YEAR>
+```
+
+Example:
+
+```sh
+pnpm run sync:sessionize -- 2022
+pnpm run sync:sessionize  #defaults to currentSummitYear
+```
+
+**What is does:**
+
+- Defaults to `currentSummitYear` if no year is provided
+- Downloads speaker and talk data into:
+  - `src/data/sessionize/{YEAR}-speakers.json`
+  - `src/data/sessionize/{YEAR}-talks.json`
+- Downloads speaker images into:
+  - `public/img/sessionize-speakers/{YEAR}`
+- Clears the image folder before downloading
+- Validates the year against the allowed `YEARS` list
+
+**Using it for future summits:**
+
+- Add the new year to the `YEARS` array in `src/utils/sessionize.ts`.
+- Add the new Sessionize API URLs to the `sessionizeApiMap` in `src/utils/sessionize.ts`.
+- `currentSummitYear` will automatically default to the latest year.
+
+Once updated, `pnpm run sync:sessionize` will fetch data and images for the new summit automatically.
 
 ### 🔍 Code Formatting
 
@@ -333,7 +367,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a foundation page in Strapi generates `src/content/foundation-pages/{pathSlug}.mdx` for English and `src/content/foundation-pages/{locale}/{pathSlug}.mdx` for localizations.
+  - Example: Creating a foundation page writes MDX under `src/content/foundation-pages/` using **nested folders from the full path slug** (see below): English uses the last segment as the filename; localized pages are written under the collection-level `/{locale}/` directory with the nested slug folders beneath it.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -408,18 +442,53 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
-- Localizations: `src/content/foundation-pages/{locale}`
-- Filename format: `slug.mdx`
+- Localizations: `src/content/foundation-pages/{locale}/{parent...}/` (see path slug rules below)
+- Filename: last segment of the full path slug + `.mdx` (nested segments become parent directories)
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
 
 **Summit Pages**
 
 - Location: `src/content/summit-pages`
-- Localizations: `src/content/summit-pages/{locale}`
-- Filename format: `slug.mdx`
+- Localizations: same nesting pattern as foundation pages
+- Filename: last segment of the full path slug + `.mdx`
 
 Used for: Summit landing pages, schedules, speaker lists, event resources.
+
+#### Foundation & Summit routes: **Full Path Slug** (`pathSlug`)
+
+In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **without a leading slash**. The same value is stored in MDX frontmatter as `pathSlug`. The **live site URL** is `/{pathSlug}` (normalized, no duplicate slashes).
+
+Examples:
+
+| `pathSlug` (frontmatter / Strapi) | Public URL             |
+| --------------------------------- | ---------------------- |
+| `about-us`                        | `/about-us`            |
+| `grant/grant-for-web`             | `/grant/grant-for-web` |
+
+**On disk (English):** split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
+
+- `about-us` → `foundation-pages/about-us.mdx`
+- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+
+**Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
+
+**Example (nested grant page):**
+
+```yaml
+---
+pathSlug: 'grant/grant-for-web'
+---
+```
+
+→ public URL: `/grant/grant-for-web`
+
+**Key rules:**
+
+- `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
+- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
+- If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 
 **⚠️ Important (Schema Validation)**
 

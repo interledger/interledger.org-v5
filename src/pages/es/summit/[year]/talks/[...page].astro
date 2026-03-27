@@ -1,6 +1,6 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
-import type { Talk } from '@/types/summit'
+import type { TalkPreview } from '@/types/summit'
 import { paginateSummitTalks } from '@/utils/summit-talks-speakers'
 import stripPagination from '@/utils/stripPagination'
 import SessionsListPage from '@/components/summit/SessionsListPage.astro'
@@ -16,9 +16,14 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 
 const { year } = Astro.params
 const { page } = Astro.props
-const talks: Talk[] = page.data
+const talkPreviews: TalkPreview[] = page.data
 const basePath = stripPagination(Astro.url.pathname)
 const title = `Sesiones de la Cumbre ${year}`
 ---
 
-<SessionsListPage talks={talks} basePath={basePath} title={title} page={page} />
+<SessionsListPage
+  talkPreviews={talkPreviews}
+  basePath={basePath}
+  title={title}
+  page={page}
+/>
