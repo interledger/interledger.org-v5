@@ -6,9 +6,9 @@ An ADR captures a single technical decision: the context that forced it, what wa
 
 ## Decisions
 
-| #   | Title                                              | Status   | Date       |
-| --- | -------------------------------------------------- | -------- | ---------- |
-| 001 | Path handling for Astro content collections        | Accepted | 2026-03-27 |
+| #   | Title                                       | Status   | Date       |
+| --- | ------------------------------------------- | -------- | ---------- |
+| 001 | Path handling for Astro content collections | Accepted | 2026-03-27 |
 
 ## Writing a new ADR
 
