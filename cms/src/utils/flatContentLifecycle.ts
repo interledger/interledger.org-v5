@@ -33,15 +33,9 @@ export interface FlatContentLifecycleConfig<
 
 // ── Flat locale MDX lifecycle (export all locales per save) ───────────────────
 
-interface StrapiDocumentAPI {
-  findOne: (options: {
-    documentId: string
-    locale: string
-    status: string
-    populate: Record<string, unknown>
-  }) => Promise<unknown>
-}
-declare const strapi: { documents: (uid: string) => StrapiDocumentAPI }
+import type { StrapiGlobal } from './strapiTypes'
+
+declare const strapi: StrapiGlobal
 
 export interface FlatLocaleMdxLifecycleConfig<
   T extends {

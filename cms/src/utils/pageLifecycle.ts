@@ -4,22 +4,9 @@
  * Used by page and summit-page content types.
  */
 
-// Strapi v5 Document API types
-interface StrapiDocumentAPI {
-  findOne: (options: {
-    documentId: string
-    locale: string
-    status: string
-    populate: Record<string, unknown>
-  }) => Promise<unknown>
-}
+import type { StrapiGlobal } from './strapiTypes'
 
-declare const strapi: {
-  documents: (uid: string) => StrapiDocumentAPI
-  requestContext: {
-    get: () => { request?: { headers?: Record<string, string> } } | null
-  }
-}
+declare const strapi: StrapiGlobal
 
 import fs from 'fs'
 import path from 'path'

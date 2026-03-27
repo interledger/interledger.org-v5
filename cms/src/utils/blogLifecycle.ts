@@ -1,7 +1,13 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport } from './pageLifecycle'
+import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import type { StrapiGlobal } from './strapiTypes'
+
+declare const strapi: StrapiGlobal
+
+const BLOG_UID = 'api::foundation-blog-post.foundation-blog-post'
 
 interface BlogResult {
   id: number
@@ -10,7 +16,7 @@ interface BlogResult {
   description: string
   pathSlug: string
   date: string
-  content: string
+  content: Array<{ __component: string; [key: string]: unknown }>
   createdAt: Date
   updatedAt: Date
   publishedAt?: Date
@@ -38,6 +44,41 @@ interface BlogResult {
 interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
+}
+
+/**
+ * Re-fetch blog post with full populate for dynamiczone content.
+ * Lifecycle event.result doesn't populate dynamiczone `on` params —
+ * same pattern as pageLifecycle.ts fetchPublished().
+ */
+async function fetchBlogPost(
+  documentId: string,
+  locale: string
+): Promise<BlogResult | null> {
+  try {
+    const post = await strapi.documents(BLOG_UID).findOne({
+      documentId,
+      locale,
+      status: 'published',
+      populate: {
+        featureImage: true,
+        thumbnailImage: true,
+        articleBio: { populate: { profileImage: true } },
+        tags: true,
+        localizations: true,
+        content: {
+          on: {
+            'blocks.paragraph': {},
+            'blocks.video-embed': {}
+          }
+        }
+      }
+    })
+    return post as BlogResult | null
+  } catch (error) {
+    console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
+    return null
+  }
 }
 
 function yamlSingleQuote(value: string): string {
@@ -106,7 +147,7 @@ function generateBlogMDX(post: BlogResult) {
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
-  const content = post.content ?? ''
+  const content = serializeContent(post.content)
 
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
@@ -174,10 +215,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
-      console.log(`📝 Creating ${label} MDX for: ${result.pathSlug}`)
+      const post = await fetchBlogPost(result.documentId, result.locale)
+      if (!post) return
+      console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({
-        outputPath: getOutputPath(result.locale),
-        post: result
+        outputPath: getOutputPath(post.locale),
+        post
       })
       scheduleGitSync(label)
     },
@@ -186,10 +229,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
-      console.log(`📝 Updating ${label} MDX for: ${result.pathSlug}`)
+      const post = await fetchBlogPost(result.documentId, result.locale)
+      if (!post) return
+      console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({
-        outputPath: getOutputPath(result.locale),
-        post: result
+        outputPath: getOutputPath(post.locale),
+        post
       })
       scheduleGitSync(label)
     },
