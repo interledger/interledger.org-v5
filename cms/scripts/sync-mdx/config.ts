@@ -21,6 +21,7 @@ import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
 import { createRelationResolver } from './ambassadorHandler'
+import { type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
@@ -136,11 +137,27 @@ export function buildContentTypes(
           STRAPI_URL: strapiUrl,
           STRAPI_TOKEN: strapiToken
         }
+        const locale = mdx.locale || 'en'
+        const parserCtx: ParserContext = {
+          locale,
+          resolveRelation: createRelationResolver(strapi, locale),
+          resolveMediaUpload: async (url: string) => {
+            const id = await strapi.findUploadByUrl(url)
+            if (!id) {
+              throw new MdxParserError({
+                code: ParserErrorCode.UNRESOLVED_RELATION,
+                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+              })
+            }
+            return id
+          }
+        }
         return buildBlogPayload(
           foundationBlogFrontmatterSchema,
           mdx,
           uploadContext,
-          blogAltIds
+          blogAltIds,
+          parserCtx
         )
       }
     }
