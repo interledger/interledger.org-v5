@@ -3,11 +3,17 @@ import path from 'path'
 import { shouldSkipMdxExport } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { CONTENT_BLOCK_POPULATE } from './contentPopulate'
 import type { StrapiGlobal } from './strapiTypes'
 
 declare const strapi: StrapiGlobal
 
 const BLOG_UID = 'api::foundation-blog-post.foundation-blog-post'
+
+interface ContentBlock {
+  __component: string
+  [key: string]: unknown
+}
 
 interface BlogResult {
   id: number
@@ -16,7 +22,7 @@ interface BlogResult {
   description: string
   pathSlug: string
   date: string
-  content: Array<{ __component: string; [key: string]: unknown }>
+  content: ContentBlock[] | string
   createdAt: Date
   updatedAt: Date
   publishedAt?: Date
@@ -66,12 +72,7 @@ async function fetchBlogPost(
         articleBio: { populate: { profileImage: true } },
         tags: true,
         localizations: true,
-        content: {
-          on: {
-            'blocks.paragraph': {},
-            'blocks.video-embed': {}
-          }
-        }
+        content: CONTENT_BLOCK_POPULATE
       }
     })
     return post as BlogResult | null
@@ -147,7 +148,9 @@ function generateBlogMDX(post: BlogResult) {
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
-  const content = serializeContent(post.content)
+  const content = Array.isArray(post.content)
+    ? serializeContent(post.content)
+    : (post.content ?? '')
 
   return `---\n${frontmatter}\n---\n\n${content}\n`
 }
@@ -218,10 +221,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const post = await fetchBlogPost(result.documentId, result.locale)
       if (!post) return
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
-      await writeMDXFile({
-        outputPath: getOutputPath(post.locale),
-        post
-      })
+      await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
       scheduleGitSync(label)
     },
     async afterUpdate(event: BlogEvent) {
@@ -232,10 +232,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const post = await fetchBlogPost(result.documentId, result.locale)
       if (!post) return
       console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
-      await writeMDXFile({
-        outputPath: getOutputPath(post.locale),
-        post
-      })
+      await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
       scheduleGitSync(label)
     },
     async afterDelete(event: BlogEvent) {

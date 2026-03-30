@@ -26,6 +26,7 @@ import {
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { CONTENT_BLOCK_POPULATE } from './contentPopulate'
 
 interface PageData {
   id: number
@@ -201,27 +202,7 @@ async function fetchPublished(
       populate: {
         hero: { populate: '*' },
         seo: { populate: '*' },
-        content: {
-          on: {
-            'blocks.paragraph': {},
-            'blocks.callout-text': {},
-            'blocks.blockquote': {},
-            'blocks.cards-grid': {},
-            'blocks.card-links-grid': {},
-            'blocks.carousel': {},
-            'blocks.cta-banner': {},
-            'blocks.ambassador': {
-              populate: { ambassador: { populate: { photo: true } } }
-            },
-            'blocks.ambassadors-grid': {
-              populate: { ambassadors: true }
-            },
-            'blocks.pdf-embed': {
-              populate: { file: true }
-            },
-            'blocks.video-embed': {}
-          }
-        }
+        content: CONTENT_BLOCK_POPULATE
       }
     })
     return page as PageData | null
