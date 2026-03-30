@@ -538,10 +538,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote',
