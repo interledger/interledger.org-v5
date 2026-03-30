@@ -20,6 +20,7 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
   <div>
     <a href={href}>
       <h2>{talkPreview.title}</h2>
+      {talkPreview.recordingUrl && <p>(Recording available)</p>}
     </a>
     <p>{talkPreview.description}</p>
   </div>

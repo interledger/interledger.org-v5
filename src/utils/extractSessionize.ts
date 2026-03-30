@@ -104,6 +104,7 @@ export async function getTalks(
         description: talk.description,
         startsAt: talk.startsAt,
         endsAt: talk.endsAt,
+        recordingUrl: talk.recordingUrl,
         speakers: talk.speakers,
         translations,
         es
