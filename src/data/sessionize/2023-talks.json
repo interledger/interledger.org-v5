@@ -114,7 +114,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=8MabOgGbYMo",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -154,7 +154,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=cH08dF5wS2I",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -234,7 +234,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=PdcbdRzF3TM",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -414,7 +414,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=HjSTOmOxwJg",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -471,7 +471,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=MzLFfIs5dFE",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -569,7 +569,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=mGBZEhRgUKA",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -637,7 +637,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=at4LOwIraC8",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -694,7 +694,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=HJrHmE76ASI",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -792,7 +792,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=Wmjrb_HX7RA",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -856,7 +856,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=2P4Bhj2IMtM",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -901,7 +901,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=RrQeHd0rdek",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -957,7 +957,7 @@
             "id": 54547,
             "question": "Session Details",
             "questionType": "Long_Text",
-            "answer": "\r\n- Introduction to UPI: A brief overview of UPI's inception, growth, and impact on the Indian financial ecosystem.\r\n- Global Context of Open Payments: Setting the stage by explaining the significance of open payments and the drive towards interoperable and inclusive financial systems.\r\n- Unpacking UPI's Success:\r\nUPI's Architecture: Examination of UPI's technical design, including its simplicity, accessibility, and security features.\r\n- Adoption and Growth: Analyzing the factors that contributed to UPI's widespread adoption, such as government support, collaboration with banks, and user-centric design.\r\n- Challenges and Lessons Learned: A candid discussion of the hurdles faced by UPI and the lessons that can be drawn from overcoming them.\r\n- Open Payments - Interledger Protocol (ILP): Introduction to ILP and its role in enabling global interoperability in payments.\r\n- Open Payments Ecosystem: Exploration of the global initiatives and trends shaping open payment systems, including regulatory landscapes, innovations, and key players.\r\n- Bridging UPI and ILP: Potential Synergies: \r\nIdentifying the commonalities and complementary aspects between UPI and ILP, such as their shared goals of accessibility and efficiency.\r\n- Integration Possibilities: A discussion on how UPI could be integrated with ILP, including technical, regulatory, and business considerations.\r\n- Use Cases and Benefits: Illustrating potential use cases that could emerge from this integration, such as cross-border remittances, and their benefits to various stakeholders.\r\n- Future Prospects & Opportunities: Discussing the broader opportunities that this integration can unlock, including financial inclusion, innovation, and economic growth.\r\n- Potential Roadblocks: Addressing potential challenges, including technological complexities, regulatory hurdles, and stakeholder alignment.\r\n- Strategies for Success: Offering actionable strategies to navigate these challenges and realize the potential of this integration.\r\n- Call to Action: Encouraging collaboration, innovation, and concerted efforts across regulators, technologists, and financial institutions to realize this vision.",
+            "answer": "- Introduction to UPI: A brief overview of UPI's inception, growth, and impact on the Indian financial ecosystem.\r\n- Global Context of Open Payments: Setting the stage by explaining the significance of open payments and the drive towards interoperable and inclusive financial systems.\r\n- Unpacking UPI's Success:\r\nUPI's Architecture: Examination of UPI's technical design, including its simplicity, accessibility, and security features.\r\n- Adoption and Growth: Analyzing the factors that contributed to UPI's widespread adoption, such as government support, collaboration with banks, and user-centric design.\r\n- Challenges and Lessons Learned: A candid discussion of the hurdles faced by UPI and the lessons that can be drawn from overcoming them.\r\n- Open Payments - Interledger Protocol (ILP): Introduction to ILP and its role in enabling global interoperability in payments.\r\n- Open Payments Ecosystem: Exploration of the global initiatives and trends shaping open payment systems, including regulatory landscapes, innovations, and key players.\r\n- Bridging UPI and ILP: Potential Synergies: \r\nIdentifying the commonalities and complementary aspects between UPI and ILP, such as their shared goals of accessibility and efficiency.\r\n- Integration Possibilities: A discussion on how UPI could be integrated with ILP, including technical, regulatory, and business considerations.\r\n- Use Cases and Benefits: Illustrating potential use cases that could emerge from this integration, such as cross-border remittances, and their benefits to various stakeholders.\r\n- Future Prospects & Opportunities: Discussing the broader opportunities that this integration can unlock, including financial inclusion, innovation, and economic growth.\r\n- Potential Roadblocks: Addressing potential challenges, including technological complexities, regulatory hurdles, and stakeholder alignment.\r\n- Strategies for Success: Offering actionable strategies to navigate these challenges and realize the potential of this integration.\r\n- Call to Action: Encouraging collaboration, innovation, and concerted efforts across regulators, technologists, and financial institutions to realize this vision.",
             "sort": 1,
             "answerExtra": null
           }
@@ -991,7 +991,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=QvvtCIL_mRM",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1044,7 +1044,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=lpnZ0XArQGM",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1093,7 +1093,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=YtiICJzG6vE",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1138,7 +1138,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=_T9bdhcOOKU",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -1187,7 +1187,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=ULruv2692Ok",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1232,7 +1232,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=WTOVHyU2A9c",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1285,7 +1285,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=0j-jNcOJBtY",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1334,7 +1334,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=hz3fwZHoPvU",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1379,7 +1379,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=0QBFPnMNQNI",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1476,7 +1476,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=5rxwdGf3pUo",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -1535,7 +1535,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=sXtJkLEYWzw",
         "status": "Accepted",
         "isInformed": false,
         "isConfirmed": false
@@ -1596,7 +1596,7 @@
         "roomId": 35977,
         "room": "Main Stage",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=-iHlNXv37Q0",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1802,7 +1802,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=NGv95XR3T_c",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1859,7 +1859,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=n2VQH-bNDh0",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -1953,7 +1953,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=OizNKWS9hb8",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -2062,7 +2062,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=AVkBVgF0WTk",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -2119,7 +2119,7 @@
         "roomId": 39259,
         "room": "Breakout 2 - Alcazar",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=2KKdSLUw1F8",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -2213,7 +2213,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=IKLRNt8ju5o",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
@@ -2258,7 +2258,7 @@
         "roomId": 35978,
         "room": "Breakout 1 - Cabildos",
         "liveUrl": null,
-        "recordingUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=j7WFqNL0L_A",
         "status": "Accepted",
         "isInformed": true,
         "isConfirmed": true
