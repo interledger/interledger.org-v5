@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { ParserErrorCode } from './parserErrors'
 
-// Side-effect import: registers Paragraph handler
+// Side-effect imports: register handlers
 import './paragraphHandler'
+import './blockquoteHandler'
+import './calloutTextHandler'
 
 const ctx: ParserContext = { locale: 'en' }
 
@@ -199,6 +201,95 @@ describe('Paragraph handler — rich markdown content', () => {
     expect(content).toContain('*italic*')
     expect(content).toContain('- Bullet one')
     expect(content).toContain('[link](https://example.com)')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Integration: Paragraph mixed with bare markdown
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Paragraph handler — nested JSX guard
+// ---------------------------------------------------------------------------
+
+describe('Paragraph handler — nested JSX guard', () => {
+  it('throws on nested flow JSX element', async () => {
+    const mdx = [
+      '<Paragraph>',
+      'Some text.',
+      '',
+      '<Blockquote source="Someone">Smart quote</Blockquote>',
+      '',
+      '</Paragraph>'
+    ].join('\n')
+
+    await expect(parseMdxToBlocks(mdx, ctx)).rejects.toMatchObject({
+      code: ParserErrorCode.NESTED_JSX,
+      message: expect.stringContaining('<Blockquote>')
+    })
+  })
+
+  it('throws on nested text JSX element', async () => {
+    const mdx = [
+      '<Paragraph>',
+      'Text before <CalloutText content="notice" /> text after.',
+      '</Paragraph>'
+    ].join('\n')
+
+    await expect(parseMdxToBlocks(mdx, ctx)).rejects.toMatchObject({
+      code: ParserErrorCode.NESTED_JSX,
+      message: expect.stringContaining('<CalloutText>')
+    })
+  })
+
+  it('allows Paragraph with only markdown content', async () => {
+    const mdx = [
+      '<Paragraph>',
+      '',
+      '## Heading',
+      '',
+      'Some **bold** text and a [link](https://example.com).',
+      '',
+      '- List item',
+      '',
+      '</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
+  })
+
+  it('allows JSX-like text inside fenced code blocks', async () => {
+    const mdx = [
+      '<Paragraph>',
+      '',
+      'Some text.',
+      '',
+      '```jsx',
+      '<Blockquote source="Someone">example</Blockquote>',
+      '```',
+      '',
+      '</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
+  })
+
+  it('allows HTML elements like <br> and <span>', async () => {
+    const mdx = [
+      '<Paragraph>',
+      'Line one<br />Line two',
+      '',
+      '<span>some styled text</span>',
+      '</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
   })
 })
 

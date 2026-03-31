@@ -20,6 +20,40 @@ import {
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
+ * Walk AST children looking for nested JSX elements (flow or text).
+ * Returns the first match with its name and position, or undefined if clean.
+ */
+function findNestedJsx(
+  children: RootContent[]
+): { name: string; line?: number; column?: number } | undefined {
+  for (const child of children) {
+    if (
+      child.type === 'mdxJsxFlowElement' ||
+      child.type === 'mdxJsxTextElement'
+    ) {
+      const jsx = child as { name?: string; position?: RootContent['position'] }
+      const name = jsx.name ?? ''
+      // Only flag custom JSX components (capital letter) — skip HTML elements like <br>, <span>
+      if (name && /^[A-Z]/.test(name)) {
+        return {
+          name,
+          line: jsx.position?.start.line,
+          column: jsx.position?.start.column
+        }
+      }
+    }
+    // Recurse into paragraph nodes which may wrap text-level JSX
+    if (child.type === 'paragraph' && 'children' in child) {
+      const found = findNestedJsx(
+        (child as { children: RootContent[] }).children
+      )
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
+/**
  * Extract content from Paragraph children, preferring raw source slicing
  * over AST re-serialization to avoid lossy transformations.
  */
@@ -61,9 +95,24 @@ async function handleParagraph(
     content = contentAttr
   } else {
     // Extract from children: <Paragraph>...children...</Paragraph>
+    const children = node.children
+
+    // Guard: detect nested JSX before extracting content
+    if (children && children.length > 0) {
+      const nestedJsx = findNestedJsx(children)
+      if (nestedJsx) {
+        throw new MdxParserError({
+          code: ParserErrorCode.NESTED_JSX,
+          message: `Paragraph contains nested JSX component \`<${nestedJsx.name}>\` at line ${nestedJsx.line ?? '?'}. Move it to a top-level sibling, or wrap it in a code block if it's meant to be literal text.`,
+          component: 'Paragraph',
+          line: nestedJsx.line,
+          column: nestedJsx.column
+        })
+      }
+    }
+
     // Prefer raw source slicing when available to avoid lossy AST
     // re-serialization (HTML entity decoding, bracket escaping).
-    const children = node.children
     content = extractChildrenContent(children, ctx) ?? ''
   }
 

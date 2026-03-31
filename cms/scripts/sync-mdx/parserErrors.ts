@@ -30,7 +30,10 @@ export const ParserErrorCode = {
   UNRESOLVED_RELATION: 'UNRESOLVED_RELATION',
 
   /** Conflicting props (e.g. both children and content on Paragraph). */
-  CONFLICTING_PROPS: 'CONFLICTING_PROPS'
+  CONFLICTING_PROPS: 'CONFLICTING_PROPS',
+
+  /** Nested JSX inside a Paragraph block (silent content corruption). */
+  NESTED_JSX: 'NESTED_JSX'
 } as const
 
 export type ParserErrorCode =
