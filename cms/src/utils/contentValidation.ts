@@ -21,9 +21,7 @@ function stripFencedCodeBlocks(text: string): string {
  * fenced code blocks in any blocks.paragraph content field. Strapi surfaces
  * ValidationError with the message visible in the admin UI.
  */
-export function validateNoNestedJsx(
-  content: unknown
-): void {
+export function validateNoNestedJsx(content: unknown): void {
   if (!Array.isArray(content)) return
 
   for (const block of content) {
