@@ -3,7 +3,7 @@ import path from 'path'
 import { shouldSkipMdxExport } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
-import { CONTENT_BLOCK_POPULATE } from './contentPopulate'
+import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { StrapiGlobal } from './strapiTypes'
 
 declare const strapi: StrapiGlobal
@@ -72,7 +72,7 @@ async function fetchBlogPost(
         articleBio: { populate: { profileImage: true } },
         tags: true,
         localizations: true,
-        content: CONTENT_BLOCK_POPULATE
+        content: BLOG_CONTENT_POPULATE
       }
     })
     return post as BlogResult | null
