@@ -14,11 +14,8 @@ const { talk, showRecordingLabel = false, lang } = Astro.props
 
 <>
   <p class="mb-4">
-    <time datetime={talk.startsAt}
-      >{formatDate(talk.startsAt, lang)}
-    </time><span>
-      - {getDurationInMinutes(talk.startsAt, talk.endsAt)} min</span
-    >
+    <time datetime={talk.startsAt}>{formatDate(talk.startsAt, lang)} </time>
+    - {getDurationInMinutes(talk.startsAt, talk.endsAt)} min
     {
       talk.recordingUrl && showRecordingLabel && (
         <span> (recording available)</span>
@@ -27,11 +24,14 @@ const { talk, showRecordingLabel = false, lang } = Astro.props
   </p>
   {
     talk.translations.length > 0 && (
-      <p class="flex flex-row gap-2 mb-3 [&_span]:bg-white/20 [&_span]:py-0.5 [&_span]:px-1 [&_span]:rounded-sm [&_span]:text-step--2 [&_span]:font-bold">
+      <ul
+        aria-label="Available translations"
+        class="flex flex-row gap-2 mb-3 [&_li]:bg-white/20 [&_li]:py-0.5 [&_li]:px-1 [&_li]:rounded-sm [&_li]:text-step--2 [&_li]:font-bold"
+      >
         {talk.translations.map((language) => (
-          <span>{language}</span>
+          <li>{language}</li>
         ))}
-      </p>
+      </ul>
     )
   }
 </>

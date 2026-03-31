@@ -14,16 +14,14 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
 ---
 
 <li class="flex flex-col gap-space-m mb-6 md:flex-row">
-  <figure>
-    <img
-      class="max-w-[200px] max-h-[200px] rounded-full border-2 border-[var(--color-primary)]"
-      src={talkPreview.speakerImage}
-      alt={talkPreview.speakerName}
-      width="200"
-      height="200"
-      loading="lazy"
-    />
-  </figure>
+  <img
+    class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
+    src={talkPreview.speakerImage}
+    alt={talkPreview.speakerName}
+    width="200"
+    height="200"
+    loading="lazy"
+  />
   <div class="[&_p]:text-step--1">
     <h2 class="text-[var(--color-primary)]">
       <a href={href}>{talkPreview.title}</a>
