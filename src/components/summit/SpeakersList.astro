@@ -1,0 +1,25 @@
+---
+import type { Speaker } from '@/types/summit'
+import SpeakerCard from './SpeakerCard.astro'
+
+interface Props {
+  speakers: Speaker[]
+  basePath: string
+  extraClass?: string
+}
+
+const { speakers, basePath, extraClass } = Astro.props
+const listClass = `flex flex-wrap gap-4 ${extraClass ?? ''}`.trim()
+---
+
+{
+  speakers.length > 0 ? (
+    <ul class={listClass}>
+      {speakers.map((speaker) => (
+        <SpeakerCard speaker={speaker} basePath={basePath} />
+      ))}
+    </ul>
+  ) : (
+    <p>No speakers to display</p>
+  )
+}
