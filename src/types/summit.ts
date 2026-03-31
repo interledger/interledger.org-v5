@@ -4,6 +4,7 @@ export interface Talk {
   description: string | null
   startsAt: string
   endsAt: string
+  recordingUrl: string | null
   speakers: {
     id: string
     name: string
@@ -54,6 +55,7 @@ export interface SessionizeTalk {
   description: string | null
   startsAt: string
   endsAt: string
+  recordingUrl: string | null
   speakers: {
     id: string
     name: string
