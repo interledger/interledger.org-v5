@@ -49,7 +49,7 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph", "blocks.cards-grid", "blocks.card-links-grid", "blocks.carousel", "blocks.cta-banner", "blocks.image-row"],
+      "components": ["blocks.paragraph"],
       "pluginOptions": { "i18n": { "localized": true } }
     }
   }

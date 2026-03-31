@@ -11,7 +11,7 @@
  */
 
 /** Blocks shared by all content types. */
-const SHARED_BLOCKS = {
+const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.ambassador': {
     populate: { ambassador: { populate: { photo: true } } }
@@ -27,20 +27,17 @@ const SHARED_BLOCKS = {
   'blocks.video-embed': {}
 } as const
 
-/** Page-only blocks (not available in blog posts). */
-const PAGE_ONLY_BLOCKS = {
-  'blocks.cards-grid': {},
-  'blocks.card-links-grid': {},
-  'blocks.carousel': {},
-  'blocks.cta-banner': {}
+const FOUNDATION_BLOG_BLOCKS = {
+  'blocks.paragraph': {},
+  'blocks.video-embed': {}
 } as const
 
 /** Populate config for foundation-page and summit-page content fields. */
-export const PAGE_CONTENT_POPULATE = {
-  on: { ...SHARED_BLOCKS, ...PAGE_ONLY_BLOCKS }
+export const FOUNDATION_PAGE_CONTENT_POPULATE = {
+  on: { ...FOUNDATION_PAGE_BLOCKS }
 } as const
 
 /** Populate config for foundation-blog-post content fields. */
 export const BLOG_CONTENT_POPULATE = {
-  on: { ...SHARED_BLOCKS }
+  on: { ...FOUNDATION_BLOG_BLOCKS }
 } as const
