@@ -3,10 +3,10 @@ import type { Locale } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
 import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
-import { formatDate, getDurationInMinutes } from '@/utils/time'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import SpeakerCard from './SpeakerCard.astro'
+import SessionSubheader from './SessionSubheader.astro'
 import VideoEmbed from '../blocks/VideoEmbed.astro'
 
 interface Props {
@@ -47,21 +47,7 @@ const description =
     <article>
       <header class="mb-8">
         <h1>{title}</h1>
-        <p>
-          <time datetime={entry.startsAt}
-            >{formatDate(entry.startsAt, lang)}
-          </time><span>
-            - {getDurationInMinutes(entry.startsAt, entry.endsAt)} min</span
-          >
-        </p>
-        <p
-          class="flex flex-row gap-2 text-base [&_span]:bg-black/20 [&_span]:p-1 [&_span]:rounded"
-        >
-          {
-            entry.translations &&
-              entry.translations.map((language) => <span>{language}</span>)
-          }
-        </p>
+        <SessionSubheader talk={entry} lang={lang} />
       </header>
       <section aria-label="Session Details">
         {
