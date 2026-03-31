@@ -100,14 +100,10 @@ async function main() {
       const newContent = header + serialized + '\n'
 
       if (DRY_RUN) {
-        console.log(
-          `   🔍 ${file} — ${blocks.length} block(s), would rewrite`
-        )
+        console.log(`   🔍 ${file} — ${blocks.length} block(s), would rewrite`)
       } else {
         fs.writeFileSync(filepath, newContent, 'utf-8')
-        console.log(
-          `   ✅ ${file} — ${blocks.length} block(s), migrated`
-        )
+        console.log(`   ✅ ${file} — ${blocks.length} block(s), migrated`)
       }
 
       migrated++
