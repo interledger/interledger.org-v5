@@ -30,6 +30,7 @@ const description =
   lang == 'es'
     ? (entry.es?.description ?? entry.description)
     : entry.description
+const paragraphs = description?.split(/\r?\n/).filter(Boolean) ?? []
 const breadcrumbs = [
   {
     name: `${year} Summit`,
@@ -60,8 +61,8 @@ const breadcrumbs = [
         )
       }
       <div class="flex flex-row gap-8">
-        <section aria-label="Session Description">
-          {description}
+        <section aria-label="Session Description" class="[&_p]:mb-6">
+          {paragraphs.map((para) => <p>{para}</p>)}
         </section>
         <aside aria-label="Speakers">
           <SpeakersList
