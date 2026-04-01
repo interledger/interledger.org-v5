@@ -59,6 +59,12 @@ export interface ParserContext {
   /** Locale of the MDX file being parsed. */
   locale: string
   /**
+   * Original MDX source text. When provided, handlers can use AST position
+   * offsets to extract raw content instead of re-serializing from the AST,
+   * avoiding lossy transformations (HTML entity decoding, bracket escaping).
+   */
+  sourceText?: string
+  /**
    * Resolve a relation pathSlug to a Strapi document ID.
    * Provided by the caller for handlers that reference other content types.
    *

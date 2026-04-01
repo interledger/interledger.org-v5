@@ -84,7 +84,7 @@ async function main() {
     }
 
     try {
-      const blocks = await parseMdxToBlocks(body, ctx)
+      const blocks = await parseMdxToBlocks(body, { ...ctx, sourceText: body })
 
       if (blocks.length === 0) {
         console.log(`   ⏭️  ${file} — no blocks produced, skipping`)
@@ -94,8 +94,8 @@ async function main() {
 
       const serialized = serializeContent(blocks)
 
-      // Rebuild: original frontmatter (byte-for-byte) + serialized body
-      const newContent = header + serialized + '\n'
+      // Rebuild: original frontmatter (byte-for-byte) + blank line + serialized body
+      const newContent = header + '\n' + serialized + '\n'
 
       if (DRY_RUN) {
         console.log(`   🔍 ${file} — ${blocks.length} block(s), would rewrite`)
