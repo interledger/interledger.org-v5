@@ -29,6 +29,9 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
         <img
           src={entry.profilePicture}
           alt={`Profile image of ${entry.name}`}
+          width="400"
+          height="400"
+          loading="lazy"
         />
       </div>
     </header>
@@ -36,9 +39,16 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
       <section aria-label="Biography" class="my-8">
         <TextParagraphs text={bio} />
       </section>
-      <section aria-label="Sessions" class="border border-teal-300 p-8">
-        <SessionsList sessions={sessions} sessionBaseHref={sessionBaseHref} />
-      </section>
+      {
+        sessions.length > 0 && (
+          <section aria-label="Sessions" class="border border-teal-300 p-8">
+            <SessionsList
+              sessions={sessions}
+              sessionBaseHref={sessionBaseHref}
+            />
+          </section>
+        )
+      }
     </div>
   </main>
 </SummitPageLayout>
