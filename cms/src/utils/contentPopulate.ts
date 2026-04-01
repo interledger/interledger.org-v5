@@ -1,27 +1,43 @@
 /**
- * Shared populate configuration for dynamic zone `content` fields.
+ * Shared populate configurations for dynamic zone `content` fields.
  *
- * Used by both page and blog lifecycles to ensure all block types
+ * Used by page and blog lifecycles to ensure all block types
  * and their nested relations are fully populated when fetching from Strapi.
+ *
+ * Keep these in sync with the component lists in the content-type schemas:
+ * - foundation-page/schema.json
+ * - summit-page/schema.json
+ * - foundation-blog-post/schema.json
  */
-export const CONTENT_BLOCK_POPULATE = {
-  on: {
-    'blocks.paragraph': {},
-    'blocks.callout-text': {},
-    'blocks.blockquote': {},
-    'blocks.cards-grid': {},
-    'blocks.card-links-grid': {},
-    'blocks.carousel': {},
-    'blocks.cta-banner': {},
-    'blocks.ambassador': {
-      populate: { ambassador: { populate: { photo: true } } }
-    },
-    'blocks.ambassadors-grid': {
-      populate: { ambassadors: true }
-    },
-    'blocks.pdf-embed': {
-      populate: { file: true }
-    },
-    'blocks.video-embed': {}
-  }
+
+/** Blocks shared by all content types. */
+const FOUNDATION_PAGE_BLOCKS = {
+  'blocks.paragraph': {},
+  'blocks.ambassador': {
+    populate: { ambassador: { populate: { photo: true } } }
+  },
+  'blocks.ambassadors-grid': {
+    populate: { ambassadors: true }
+  },
+  'blocks.blockquote': {},
+  'blocks.callout-text': {},
+  'blocks.pdf-embed': {
+    populate: { file: true }
+  },
+  'blocks.video-embed': {}
+} as const
+
+const FOUNDATION_BLOG_BLOCKS = {
+  'blocks.paragraph': {},
+  'blocks.video-embed': {}
+} as const
+
+/** Populate config for foundation-page and summit-page content fields. */
+export const FOUNDATION_PAGE_CONTENT_POPULATE = {
+  on: { ...FOUNDATION_PAGE_BLOCKS }
+} as const
+
+/** Populate config for foundation-blog-post content fields. */
+export const BLOG_CONTENT_POPULATE = {
+  on: { ...FOUNDATION_BLOG_BLOCKS }
 } as const

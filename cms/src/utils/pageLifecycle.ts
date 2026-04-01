@@ -26,7 +26,7 @@ import {
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
-import { CONTENT_BLOCK_POPULATE } from './contentPopulate'
+import { FOUNDATION_PAGE_CONTENT_POPULATE } from './contentPopulate'
 
 interface PageData {
   id: number
@@ -202,7 +202,7 @@ async function fetchPublished(
       populate: {
         hero: { populate: '*' },
         seo: { populate: '*' },
-        content: CONTENT_BLOCK_POPULATE
+        content: FOUNDATION_PAGE_CONTENT_POPULATE
       }
     })
     return page as PageData | null

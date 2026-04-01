@@ -536,19 +536,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }>
     content: Schema.Attribute.DynamicZone<
-      [
-        'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
-        'blocks.ambassador',
-        'blocks.ambassadors-grid',
-        'blocks.blockquote',
-        'blocks.callout-text',
-        'blocks.pdf-embed',
-        'blocks.video-embed'
-      ]
+      ['blocks.paragraph', 'blocks.video-embed']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -680,10 +668,6 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote',
@@ -805,11 +789,12 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
-        'blocks.image-row'
+        'blocks.ambassador',
+        'blocks.ambassadors-grid',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.pdf-embed',
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

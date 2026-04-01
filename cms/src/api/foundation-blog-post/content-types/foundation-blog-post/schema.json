@@ -99,15 +99,6 @@
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
-        "blocks.cards-grid",
-        "blocks.card-links-grid",
-        "blocks.carousel",
-        "blocks.cta-banner",
-        "blocks.ambassador",
-        "blocks.ambassadors-grid",
-        "blocks.blockquote",
-        "blocks.callout-text",
-        "blocks.pdf-embed",
         "blocks.video-embed"
       ],
       "pluginOptions": { "i18n": { "localized": true } }

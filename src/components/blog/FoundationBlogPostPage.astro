@@ -5,10 +5,9 @@ import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
-import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
-
 interface Props {
   slug: string
   contentLocale: Locale
