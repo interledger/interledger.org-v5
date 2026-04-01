@@ -3,8 +3,8 @@ import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import type { Locale } from '@/utils/i18'
 import type { Speaker } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
-import { generateSlug } from '@/utils/slug'
-import { truncateText } from '@/utils/text'
+import TextParagraphs from './TextParagraphs.astro'
+import SessionsList from './SessionsList.astro'
 
 interface Props {
   entry: Speaker
@@ -19,42 +19,36 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
 ---
 
 <SummitPageLayout title={entry.name}>
-  <main class="max-w-250 p-4 m-auto">
-    <header class="flex justify-between mb-4 items-end">
-      <div>
-        <h1>{entry.name}</h1>
-        <p>{entry.tagLine}</p>
+  <main>
+    <header class="bg-black/20">
+      <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
+        <div>
+          <h1>{entry.name}</h1>
+          <p class="mb-6">{entry.tagLine}</p>
+        </div>
+        <img
+          src={entry.profilePicture}
+          alt={`Profile image of ${entry.name}`}
+          width="400"
+          height="400"
+          loading="lazy"
+        />
       </div>
-      <figure class="w-100 h-100 bg-black/50">
-        <img src={entry.profilePicture} alt={entry.name} />
-      </figure>
     </header>
-    <section aria-label="Biography" class="my-8">
-      <p>{bio}</p>
-    </section>
-    <section aria-label="Sessions" class="border border-teal-300 p-8">
-      <ul>
-        {
-          sessions.map((session) => (
-            <li>
-              <article>
-                <h2 class="text-teal-300">
-                  <a href={`${sessionBaseHref}/${generateSlug(session.title)}`}>
-                    {lang === 'es' && session.es?.title
-                      ? session.es.title
-                      : session.title}
-                  </a>
-                </h2>
-                <p>
-                  {lang === 'es' && session.es?.description
-                    ? truncateText(session.es.description)
-                    : truncateText(session.description ?? '')}
-                </p>
-              </article>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+    <div class="max-w-250 m-auto my-4">
+      <section aria-label="Biography" class="my-8">
+        <TextParagraphs text={bio} />
+      </section>
+      {
+        sessions.length > 0 && (
+          <section aria-label="Sessions" class="border border-teal-300 p-8">
+            <SessionsList
+              sessions={sessions}
+              sessionBaseHref={sessionBaseHref}
+            />
+          </section>
+        )
+      }
+    </div>
   </main>
 </SummitPageLayout>

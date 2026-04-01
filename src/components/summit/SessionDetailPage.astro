@@ -1,12 +1,13 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { defaultLocale, type Locale } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
 import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
-import { formatDate, getDurationInMinutes } from '@/utils/time'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import SpeakerCard from './SpeakerCard.astro'
+import SpeakersList from './SpeakersList.astro'
+import SessionSubheader from './SessionSubheader.astro'
+import TextParagraphs from './TextParagraphs.astro'
 import VideoEmbed from '../blocks/VideoEmbed.astro'
 
 interface Props {
@@ -16,79 +17,61 @@ interface Props {
 }
 
 const { entry, year, lang } = Astro.props
+const speakers = await getSpeakers(year, entry.id)
+
 const isCurrentYear = currentSummitYear === year
-const baseHref = lang !== 'en' ? `/${lang}/summit` : '/summit'
+const langPrefix = lang === defaultLocale ? '' : `/${lang}`
+const baseHref = `${langPrefix}/summit`
 const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
 const sessionsHref = `${baseHref}/${year}/talks`
-const speakers = await getSpeakers(year, entry.id)
+const speakersBasePath = `${baseHref}/${year}/speaker`
+
 const title = lang == 'es' ? (entry.es?.title ?? entry.title) : entry.title
 const description =
   lang == 'es'
     ? (entry.es?.description ?? entry.description)
     : entry.description
+const breadcrumbs = [
+  {
+    name: `${year} Summit`,
+    href: summitHref,
+    umamiEvent: `Session Detail Page - ${year} Summit`
+  },
+  {
+    name: 'Sessions',
+    href: sessionsHref,
+    umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+  }
+]
 ---
 
 <SummitPageLayout title={entry.title}>
   <main class="max-w-275 m-auto p-4">
-    <Breadcrumbs
-      breadcrumbs={[
-        {
-          name: `${year} Summit`,
-          href: summitHref,
-          umamiEvent: `Session Detail Page - ${year} Summit`
-        },
-        {
-          name: 'Sessions',
-          href: sessionsHref,
-          umamiEvent: `Session Detail Page - ${year} Summit Sessions`
-        }
-      ]}
-    />
+    <Breadcrumbs breadcrumbs={breadcrumbs} />
     <article>
       <header class="mb-8">
         <h1>{title}</h1>
-        <p>
-          <time datetime={entry.startsAt}
-            >{formatDate(entry.startsAt, lang)}
-          </time><span>
-            - {getDurationInMinutes(entry.startsAt, entry.endsAt)} min</span
-          >
-        </p>
-        <p
-          class="flex flex-row gap-2 text-base [&_span]:bg-black/20 [&_span]:p-1 [&_span]:rounded"
-        >
-          {
-            entry.translations &&
-              entry.translations.map((language) => <span>{language}</span>)
-          }
-        </p>
+        <SessionSubheader talk={entry} lang={lang} />
       </header>
-      <section aria-label="Session Details">
-        {
-          entry.recordingUrl && (
-            <section aria-label="Session Recording">
-              <VideoEmbed url={entry.recordingUrl} title={entry.title} />
-            </section>
-          )
-        }
-        <div class="flex flex-row gap-8">
-          <section aria-label="Session Description">
-            {description}
+      {
+        entry.recordingUrl && (
+          <section aria-label="Session Recording">
+            <VideoEmbed url={entry.recordingUrl} title={entry.title} />
           </section>
-          <aside aria-label="Speakers">
-            <ul class="flex flex-col gap-4">
-              {
-                speakers.map((speaker) => (
-                  <SpeakerCard
-                    speaker={speaker}
-                    basePath={`${baseHref}/${year}/speaker`}
-                  />
-                ))
-              }
-            </ul>
-          </aside>
-        </div>
-      </section>
+        )
+      }
+      <div class="flex flex-row gap-8">
+        <section aria-label="Session Description">
+          <TextParagraphs text={description} />
+        </section>
+        <aside aria-label="Speakers">
+          <SpeakersList
+            speakers={speakers}
+            basePath={speakersBasePath}
+            extraClass="flex-col"
+          />
+        </aside>
+      </div>
     </article>
   </main>
 </SummitPageLayout>

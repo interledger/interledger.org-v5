@@ -1,6 +1,6 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import SpeakerCard from '@/components/summit/SpeakerCard.astro'
+import SpeakersList from './SpeakersList.astro'
 import Pagination from '@/components/blog/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
@@ -19,18 +19,8 @@ const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 <SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
     <h1>{title}</h1>
-    <section>
-      {
-        speakers.length > 0 ? (
-          <ul class="flex flex-wrap gap-4">
-            {speakers.map((speaker) => (
-              <SpeakerCard speaker={speaker} basePath={speakerBasePath} />
-            ))}
-          </ul>
-        ) : (
-          <p>No data available for {title}</p>
-        )
-      }
+    <section aria-label="Speakers">
+      <SpeakersList speakers={speakers} basePath={speakerBasePath} />
     </section>
 
     {

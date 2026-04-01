@@ -47,7 +47,7 @@ export async function getSpeakers(
     const spanishBio = spanishBioAnswer?.answer
     const profilePicture = speaker.profilePicture
       ? getLocalSpeakerImagePath(speaker.profilePicture, speaker.fullName, year)
-      : null
+      : `${profilePictureBase}/no-photo.svg`
 
     return {
       id: speaker.id,
@@ -130,7 +130,7 @@ export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
     const speaker = allSpeakers.find((s) => s.id === speakers[0]?.id)
     const speakerImage = speaker?.profilePicture
       ? getLocalSpeakerImagePath(speaker.profilePicture, speaker.fullName, year)
-      : null
+      : `${profilePictureBase}/no-photo.svg`
     return {
       ...talk,
       speakerImage,

@@ -1,8 +1,8 @@
 ---
-// TODO: This component is a temporary placeholder component.
-// It contains minimal markup for now and will be fully implemented in a follow-up PR.
 import type { TalkPreview } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
+import { truncateText } from '@/utils/text'
+import SessionSubheader from './SessionSubheader.astro'
 
 interface Props {
   talkPreview: TalkPreview
@@ -13,15 +13,20 @@ const { talkPreview, basePath } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
 ---
 
-<li class="min-h-50 bg-black/10 flex">
-  <figure>
-    <img src={talkPreview.speakerImage} alt={talkPreview.speakerName} />
-  </figure>
-  <div>
-    <a href={href}>
-      <h2>{talkPreview.title}</h2>
-      {talkPreview.recordingUrl && <p>(Recording available)</p>}
-    </a>
-    <p>{talkPreview.description}</p>
+<li class="flex flex-col gap-space-m mb-6 md:flex-row">
+  <img
+    class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
+    src={talkPreview.speakerImage}
+    alt={talkPreview.speakerName}
+    width="200"
+    height="200"
+    loading="lazy"
+  />
+  <div class="[&_p]:text-step--1">
+    <h2 class="text-[var(--color-primary)]">
+      <a href={href}>{talkPreview.title}</a>
+    </h2>
+    <SessionSubheader talk={talkPreview} showRecordingLabel={true} lang="en" />
+    {talkPreview.description && <p>{truncateText(talkPreview.description)}</p>}
   </div>
 </li>

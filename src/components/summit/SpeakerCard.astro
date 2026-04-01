@@ -1,6 +1,4 @@
 ---
-// TODO: This component is a temporary placeholder component.
-// It contains minimal markup for now and will be fully implemented in a follow-up PR.
 import type { Speaker } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
 
@@ -13,10 +11,16 @@ const { speaker, basePath } = Astro.props
 const href = `${basePath}/${generateSlug(speaker.name)}`
 ---
 
-<li class="min-h-50 w-50 bg-black/10">
-  <figure><img src={speaker.profilePicture} alt={speaker.name} /></figure>
+<li class="flex-1 min-w-[8em]">
   <a href={href}>
-    <h2>{speaker.name}</h2>
-    <p>{speaker.tagLine}</p>
+    <img
+      src={speaker.profilePicture}
+      alt={speaker.name}
+      width="240"
+      height="240"
+      loading="lazy"
+    />
+    <h2 class="text-step-0! font-bold">{speaker.name}</h2>
+    <p class="text-step--1">{speaker.tagLine}</p>
   </a>
 </li>
