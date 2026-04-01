@@ -8,6 +8,7 @@
  * Maps to Strapi blocks.paragraph.
  */
 
+import type { RootContent } from 'mdast'
 import type { ParsedBlock, ParagraphBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
 import { getStringAttr } from './jsxExtract'
@@ -18,9 +19,39 @@ import {
 } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
+/**
+ * Extract content from Paragraph children, preferring raw source slicing
+ * over AST re-serialization to avoid lossy transformations.
+ */
+function extractChildrenContent(
+  children: RootContent[] | undefined,
+  ctx: ParserContext
+): string | undefined {
+  if (!children || children.length === 0) return undefined
+
+  // When sourceText is available and children have position info,
+  // slice the raw source to preserve original formatting byte-for-byte.
+  if (ctx.sourceText) {
+    const first = children[0]
+    const last = children[children.length - 1]
+    if (
+      first.position?.start.offset != null &&
+      last.position?.end.offset != null
+    ) {
+      const raw = ctx.sourceText
+        .slice(first.position.start.offset, last.position.end.offset)
+        .trim()
+      if (raw) return raw
+    }
+  }
+
+  // Fallback: re-serialize from AST
+  return childrenToMarkdown(children)
+}
+
 async function handleParagraph(
   node: JsxBlockNode,
-  _ctx: ParserContext
+  ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   // Prefer content prop if present: <Paragraph content="..." />
   const contentAttr = getStringAttr(node, 'content')
@@ -29,10 +60,11 @@ async function handleParagraph(
   if (contentAttr !== undefined) {
     content = contentAttr
   } else {
-    // Otherwise extract from children: <Paragraph>...children...</Paragraph>
+    // Extract from children: <Paragraph>...children...</Paragraph>
+    // Prefer raw source slicing when available to avoid lossy AST
+    // re-serialization (HTML entity decoding, bracket escaping).
     const children = node.children
-    content =
-      children && children.length > 0 ? childrenToMarkdown(children) : ''
+    content = extractChildrenContent(children, ctx) ?? ''
   }
 
   if (!content) {

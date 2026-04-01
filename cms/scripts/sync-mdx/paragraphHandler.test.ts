@@ -224,4 +224,26 @@ describe('mixed content with Paragraph', () => {
     expect((blocks[1] as { content: string }).content).toContain('**Rich**')
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
   })
+
+  it('preserves HTML entities and brackets when sourceText is provided', async () => {
+    const mdx = [
+      '<Paragraph>',
+      '',
+      'Data &amp; AI; The Green &amp; Blue Economy; Creative Digital Economy',
+      '',
+      '1. Yurning content into currency \\[submitted by Mieska F. 👏 🙌]',
+      '',
+      '</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, {
+      locale: 'en',
+      sourceText: mdx
+    })
+
+    expect(blocks).toHaveLength(1)
+    const content = (blocks[0] as { content: string }).content
+    expect(content).toContain('&amp;')
+    expect(content).toContain('\\[submitted')
+  })
 })

@@ -18,6 +18,7 @@
 /** Discriminator present on every Strapi dynamic-zone block payload. */
 export interface StrapiBlockBase {
   __component: string
+  [key: string]: unknown
 }
 
 // ---------------------------------------------------------------------------

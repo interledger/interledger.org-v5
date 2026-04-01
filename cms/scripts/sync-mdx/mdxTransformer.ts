@@ -187,7 +187,10 @@ export async function buildPagePayload(
       // Parser errors (unsupported JSX, missing props, unresolved relations)
       // are intentional hard failures — re-thrown with file context.
       try {
-        data.content = await parseMdxToBlocks(mdxBody, parserCtx)
+        data.content = await parseMdxToBlocks(mdxBody, {
+          ...parserCtx,
+          sourceText: mdxBody
+        })
       } catch (err) {
         if (err instanceof MdxParserError) {
           throw new MdxParserError({
@@ -387,7 +390,10 @@ export async function buildBlogPayload(
   let content: unknown
   if (parserCtx && mdxBody.length > 0) {
     try {
-      content = await parseMdxToBlocks(mdxBody, parserCtx)
+      content = await parseMdxToBlocks(mdxBody, {
+        ...parserCtx,
+        sourceText: mdxBody
+      })
     } catch (err) {
       if (err instanceof MdxParserError) {
         throw new MdxParserError({
