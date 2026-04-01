@@ -786,7 +786,17 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.ambassador',
+        'blocks.ambassadors-grid',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.pdf-embed',
+        'blocks.video-embed'
+      ]
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
