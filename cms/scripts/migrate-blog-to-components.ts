@@ -92,9 +92,7 @@ async function main() {
         continue
       }
 
-      const serialized = serializeContent(
-        blocks as Array<{ __component: string; [key: string]: unknown }>
-      )
+      const serialized = serializeContent(blocks)
 
       // Rebuild: original frontmatter (byte-for-byte) + serialized body
       const newContent = header + serialized + '\n'
