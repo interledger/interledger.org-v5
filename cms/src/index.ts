@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import { validateNoNestedJsx } from './utils/contentValidation'
 import { LOCALES } from './utils/mdx'
 
 function copySchemas() {
@@ -645,7 +646,51 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  async bootstrap({ strapi }) {
+  async bootstrap({
+    strapi
+  }: {
+    strapi: StrapiInstance & {
+      server?: { use?: (middleware: unknown) => void }
+    }
+  }) {
+    // Validate paragraph content on save — reject nested JSX before it reaches the DB.
+    // Registered as Koa middleware so errors return a proper 400 with message in the UI.
+    const CONTENT_MANAGER_PATTERN =
+      /^\/content-manager\/collection-types\/api::/
+    strapi.server?.use?.(
+      async (
+        ctx: {
+          method?: string
+          url?: string
+          request?: { body?: { content?: unknown } }
+          status?: number
+          body?: unknown
+        },
+        next: () => Promise<void>
+      ) => {
+        if (
+          (ctx.method === 'PUT' || ctx.method === 'POST') &&
+          CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
+        ) {
+          try {
+            validateNoNestedJsx(ctx.request?.body?.content)
+          } catch (err: unknown) {
+            ctx.status = 400
+            ctx.body = {
+              data: null,
+              error: {
+                status: 400,
+                name: 'ValidationError',
+                message: err instanceof Error ? err.message : String(err)
+              }
+            }
+            return
+          }
+        }
+        await next()
+      }
+    )
+
     // Ensure database directory exists with proper permissions
     // Default database path is .tmp/data.db relative to process.cwd()
     const dbDir = path.resolve(process.cwd(), '.tmp')
