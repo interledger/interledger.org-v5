@@ -55,6 +55,7 @@ const {
               <a
                 href={postPath}
                 class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
+                data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
               >
                 {blogPostEntry.data.title}
               </a>
@@ -72,7 +73,8 @@ const {
             </p>
             <a
               href={postPath}
-              class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit "
+              class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
+              data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (read more)`}
             >
               Read more
               <svg
