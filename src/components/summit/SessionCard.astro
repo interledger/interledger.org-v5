@@ -3,14 +3,22 @@ import type { TalkPreview } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
 import SessionSubheader from './SessionSubheader.astro'
+import { defaultLocale, type Locale } from '@/utils/i18'
 
 interface Props {
   talkPreview: TalkPreview
   basePath: string
+  lang: Locale
 }
 
-const { talkPreview, basePath } = Astro.props
+const { talkPreview, basePath, lang } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
+const needsTranslation = lang !== defaultLocale
+const description =
+  (needsTranslation && talkPreview[lang]?.description) ||
+  talkPreview.description
+const title =
+  (needsTranslation && talkPreview[lang]?.title) || talkPreview.title
 ---
 
 <li class="flex flex-col gap-space-m mb-6 md:flex-row">
@@ -24,9 +32,13 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
   />
   <div class="[&_p]:text-step--1">
     <h2 class="text-[var(--color-primary)]">
-      <a href={href}>{talkPreview.title}</a>
+      <a href={href}>{title}</a>
     </h2>
-    <SessionSubheader talk={talkPreview} showRecordingLabel={true} lang="en" />
-    {talkPreview.description && <p>{truncateText(talkPreview.description)}</p>}
+    <SessionSubheader
+      talk={talkPreview}
+      showRecordingLabel={true}
+      lang={lang}
+    />
+    {description && <p>{truncateText(description)}</p>}
   </div>
 </li>

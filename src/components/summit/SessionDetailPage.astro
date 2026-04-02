@@ -1,5 +1,5 @@
 ---
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { defaultLocale } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
 import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
@@ -13,24 +13,25 @@ import VideoEmbed from '../blocks/VideoEmbed.astro'
 interface Props {
   entry: Talk
   year: string
-  lang: Locale
 }
 
-const { entry, year, lang } = Astro.props
+const { routeLocale: lang, currentBasePath } = Astro.locals
+const { entry, year } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
-const isCurrentYear = currentSummitYear === year
+// the path for current summit is /summit, instead of /summit/{year}
 const langPrefix = lang === defaultLocale ? '' : `/${lang}`
-const baseHref = `${langPrefix}/summit`
+const baseHref = `${langPrefix}${currentBasePath}`
+const isCurrentYear = currentSummitYear === year
 const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
 const sessionsHref = `${baseHref}/${year}/talks`
 const speakersBasePath = `${baseHref}/${year}/speaker`
 
-const title = lang == 'es' ? (entry.es?.title ?? entry.title) : entry.title
+const needsTranslation = lang !== defaultLocale
+const title = (needsTranslation && entry[lang]?.title) || entry.title
 const description =
-  lang == 'es'
-    ? (entry.es?.description ?? entry.description)
-    : entry.description
+  (needsTranslation && entry[lang]?.description) || entry.description
+
 const breadcrumbs = [
   {
     name: `${year} Summit`,
