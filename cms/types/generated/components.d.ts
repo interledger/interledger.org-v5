@@ -692,7 +692,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.SetMinMaxLength<{
-        maxLength: 160
+        maxLength: 300
       }>
     metaImage: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
