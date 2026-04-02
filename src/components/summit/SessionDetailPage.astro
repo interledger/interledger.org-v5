@@ -1,6 +1,6 @@
 ---
 import { defaultLocale } from '@/utils/i18'
-import type { Talk } from '@/types/summit'
+import type { SessionizeSupportedLocale, Talk } from '@/types/summit'
 import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
@@ -29,10 +29,12 @@ const sessionsHref = `${baseHref}/${year}/talks`
 const speakersBasePath = `${baseHref}/${year}/speaker`
 
 const needsTranslation = lang !== defaultLocale
-const hasTranslation = !!(entry[lang]?.title || entry[lang]?.description)
-const title = (needsTranslation && entry[lang]?.title) || entry.title
-const description =
-  (needsTranslation && entry[lang]?.description) || entry.description
+const translation = needsTranslation
+  ? entry[lang as SessionizeSupportedLocale]
+  : null
+const hasTranslation = !!(translation?.title || translation?.description)
+const title = translation?.title ?? entry.title
+const description = translation?.description ?? entry.description
 
 const breadcrumbs = [
   {

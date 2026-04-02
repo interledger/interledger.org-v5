@@ -1,3 +1,5 @@
+export type SessionizeSupportedLocale = 'es'
+
 export interface Talk {
   id: string
   title: string
