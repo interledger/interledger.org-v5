@@ -5,6 +5,7 @@ import type { Speaker } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
 import TextParagraphs from './TextParagraphs.astro'
 import SessionsList from './SessionsList.astro'
+import TranslationDisclaimer from '../shared/TranslationDisclaimer.astro'
 
 interface Props {
   entry: Speaker
@@ -16,11 +17,13 @@ interface Props {
 const { entry, year, sessionBaseHref, lang } = Astro.props
 const sessions = await getTalks(year, entry.id)
 const needsTranslation = lang !== defaultLocale
-const bio = (needsTranslation && entry.es?.bio) || entry.bio
+const hasTranslation = !!entry[lang]?.bio
+const bio = (needsTranslation && entry[lang]?.bio) || entry.bio
 ---
 
 <SummitPageLayout title={entry.name}>
   <main>
+    {needsTranslation && !hasTranslation && <TranslationDisclaimer />}
     <header class="bg-black/20">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>

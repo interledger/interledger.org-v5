@@ -5,6 +5,7 @@ import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SpeakersList from './SpeakersList.astro'
 import SessionSubheader from './SessionSubheader.astro'
 import TextParagraphs from './TextParagraphs.astro'
@@ -28,6 +29,7 @@ const sessionsHref = `${baseHref}/${year}/talks`
 const speakersBasePath = `${baseHref}/${year}/speaker`
 
 const needsTranslation = lang !== defaultLocale
+const hasTranslation = !!(entry[lang]?.title || entry[lang]?.description)
 const title = (needsTranslation && entry[lang]?.title) || entry.title
 const description =
   (needsTranslation && entry[lang]?.description) || entry.description
@@ -48,6 +50,7 @@ const breadcrumbs = [
 
 <SummitPageLayout title={entry.title}>
   <main class="max-w-275 m-auto p-4">
+    {needsTranslation && !hasTranslation && <TranslationDisclaimer />}
     <Breadcrumbs breadcrumbs={breadcrumbs} />
     <article>
       <header class="mb-8">
