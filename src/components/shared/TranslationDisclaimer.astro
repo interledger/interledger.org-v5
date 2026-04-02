@@ -1,0 +1,35 @@
+---
+import type { Locale } from '@/utils/i18'
+
+interface Props {
+  locale: Locale
+  isVisible?: boolean
+  appearance?: 'default' | 'inverse'
+}
+
+const { locale, isVisible = false, appearance = 'default' } = Astro.props
+
+const disclaimerByLocale: Partial<Record<Locale, string>> = {
+  es: 'Esta página aún no está disponible en español.'
+}
+
+const copy = disclaimerByLocale[locale]
+const appearanceClass = {
+  default: 'text-primary',
+  inverse: 'text-white/80'
+}[appearance]
+---
+
+{
+  isVisible && copy && (
+    <section class="py-space-s" aria-label="Translation disclaimer">
+      <div class="mx-auto w-full max-w-wide px-space-m">
+        <p
+          class={`translation-disclaimer max-w-fit px-space-s py-space-2xs text-step--1 ${appearanceClass}`}
+        >
+          {copy}
+        </p>
+      </div>
+    </section>
+  )
+}

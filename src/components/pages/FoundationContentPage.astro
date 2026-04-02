@@ -9,13 +9,16 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
 
 const pages = await getCollection('foundation-pages')
 
@@ -48,6 +51,7 @@ if (isNotFound) return Astro.redirect('/404')
   canonicalURL={canonicalURL}
 >
   <main class="pb-space-l" data-pillar={pillar}>
+    <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
     {
       mdxHeroTitle && (
         <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">

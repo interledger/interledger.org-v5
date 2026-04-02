@@ -13,12 +13,15 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
 
 const posts = await getCollection('foundation-blog')
 
@@ -34,6 +37,9 @@ const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>
+  <Fragment slot="topNotice">
+    <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
+  </Fragment>
   <MdxContent
     components={{
       Ambassador,
