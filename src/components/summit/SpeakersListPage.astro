@@ -10,9 +10,10 @@ interface Props {
   basePath: string
   title: string
   page: Page
+  year: string
 }
 
-const { speakers, basePath, title, page } = Astro.props
+const { speakers, basePath, title, page, year } = Astro.props
 const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 ---
 
@@ -20,7 +21,11 @@ const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
   <main class="p-4 max-w-275 m-auto">
     <h1>{title}</h1>
     <section aria-label="Speakers">
-      <SpeakersList speakers={speakers} basePath={speakerBasePath} />
+      <SpeakersList
+        speakers={speakers}
+        basePath={speakerBasePath}
+        year={year}
+      />
     </section>
 
     {
