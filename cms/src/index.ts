@@ -265,11 +265,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryCtas: 'Secondary Buttons'
     },
     'shared.seo': {
-      metaTitle: 'Meta Title',
-      metaDescription: 'Meta Description',
-      metaImage: 'Social Share Image',
-      keywords: 'Keywords',
-      canonicalUrl: 'Canonical URL'
+      metaDescription: 'Meta Description'
     },
     'blocks.ambassador': {
       ambassador: 'Ambassador',
@@ -573,17 +569,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'secondaryCtas', size: 12 }]
     ],
-    'shared.seo': [
-      [
-        { name: 'metaTitle', size: 6 },
-        { name: 'canonicalUrl', size: 6 }
-      ],
-      [
-        { name: 'metaDescription', size: 6 },
-        { name: 'keywords', size: 6 }
-      ],
-      [{ name: 'metaImage', size: 12 }]
-    ]
+    'shared.seo': [[{ name: 'metaDescription', size: 12 }]]
   }
 
   const contentTypeService = plugin.service('content-types') as

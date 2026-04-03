@@ -7,50 +7,14 @@
   },
   "options": {},
   "attributes": {
-    "metaTitle": {
-      "type": "string",
-      "required": true,
-      "maxLength": 60,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "metaDescription": {
       "type": "text",
-      "maxLength": 300,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
-    },
-    "metaImage": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": ["images"],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "keywords": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "canonicalUrl": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      },
+      "maxLength": 300
     }
   }
 }

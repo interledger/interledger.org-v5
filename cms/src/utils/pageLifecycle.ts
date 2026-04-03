@@ -41,11 +41,7 @@ interface PageData {
     backgroundImage?: { url?: string }
   }
   seo?: {
-    metaTitle?: string
     metaDescription?: string
-    metaImage?: { url?: string }
-    keywords?: string
-    canonicalUrl?: string
   }
   content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
