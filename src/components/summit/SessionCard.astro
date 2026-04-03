@@ -7,9 +7,10 @@ import SessionSubheader from './SessionSubheader.astro'
 interface Props {
   talkPreview: TalkPreview
   basePath: string
+  year: string
 }
 
-const { talkPreview, basePath } = Astro.props
+const { talkPreview, basePath, year } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
 ---
 
@@ -24,7 +25,11 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
   />
   <div class="[&_p]:text-step--1">
     <h2 class="text-[var(--color-primary)]">
-      <a href={href}>{talkPreview.title}</a>
+      <a
+        href={href}
+        data-umami-event={`${year} Summit Sessions - Session: ${talkPreview.title}`}
+        >{talkPreview.title}</a
+      >
     </h2>
     <SessionSubheader talk={talkPreview} showRecordingLabel={true} lang="en" />
     {talkPreview.description && <p>{truncateText(talkPreview.description)}</p>}

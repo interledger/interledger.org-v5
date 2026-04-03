@@ -6,8 +6,9 @@ import { truncateText } from '@/utils/text'
 interface Props {
   sessions: Talk[]
   sessionBaseHref: string
+  year: string
 }
-const { sessions, sessionBaseHref } = Astro.props
+const { sessions, sessionBaseHref, year } = Astro.props
 const sessionsWithLinks = sessions.map((session) => ({
   ...session,
   href: `${sessionBaseHref}/${generateSlug(session.title)}`
@@ -20,7 +21,12 @@ const sessionsWithLinks = sessions.map((session) => ({
       <li>
         <article>
           <h2 class="text-teal-300">
-            <a href={session.href}>{session.title}</a>
+            <a
+              href={session.href}
+              data-umami-event={`${year} Speaker page - Session: ${session.title}`}
+            >
+              {session.title}
+            </a>
           </h2>
           {session.description && <p>{truncateText(session.description)}</p>}
         </article>
