@@ -1,7 +1,7 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import SpeakersList from './SpeakersList.astro'
-import Pagination from '@/components/blog/Pagination.astro'
+import Pagination from '@/components/shared/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
 
@@ -15,6 +15,7 @@ interface Props {
 
 const { speakers, basePath, title, page, year } = Astro.props
 const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
+const label = `${year} Summit Speakers`
 ---
 
 <SummitPageLayout title={title}>
@@ -38,6 +39,7 @@ const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
           prevUrl={page.url.prev}
           nextUrl={page.url.next}
           lastUrl={page.url.last}
+          label={label}
         />
       )
     }

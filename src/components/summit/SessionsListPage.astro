@@ -1,6 +1,6 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import Pagination from '@/components/blog/Pagination.astro'
+import Pagination from '@/components/shared/Pagination.astro'
 import SessionCard from './SessionCard.astro'
 import type { TalkPreview } from '@/types/summit'
 import type { Page } from 'astro'
@@ -14,6 +14,7 @@ interface Props {
 }
 const { talkPreviews, basePath, title, page, year } = Astro.props
 const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
+const label = `${year} Summit Talks`
 ---
 
 <SummitPageLayout title={title}>
@@ -47,6 +48,7 @@ const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
           prevUrl={page.url.prev}
           nextUrl={page.url.next}
           lastUrl={page.url.last}
+          label={label}
         />
       )
     }
