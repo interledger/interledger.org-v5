@@ -51,6 +51,7 @@ const {
                   <a
                     href={postPath}
                     class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                    data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
                   >
                     {blogPostEntry.data.title}
                   </a>
@@ -67,6 +68,7 @@ const {
                 <a
                   href={postPath}
                   class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                  data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
                 >
                   {blogPostEntry.data.title}
                 </a>

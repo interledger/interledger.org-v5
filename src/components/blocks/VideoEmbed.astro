@@ -22,7 +22,12 @@ const provider = detectVideoProvider(url)
       <Vimeo id={url} playlabel={title} />
     </div>
   ) : (
-    <a href={url} target="_blank" rel="noopener noreferrer">
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-umami-event={`Video link - ${title}`}
+    >
       {title}
     </a>
   )
