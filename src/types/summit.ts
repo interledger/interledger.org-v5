@@ -1,4 +1,7 @@
-export type SessionizeSupportedLocale = 'es'
+export const SESSIONIZE_SUPPORTED_LOCALES = ['es'] as const
+
+export type SessionizeSupportedLocale =
+  (typeof SESSIONIZE_SUPPORTED_LOCALES)[number]
 
 export interface Talk {
   id: string

@@ -1,9 +1,10 @@
 ---
-import type { SessionizeSupportedLocale, TalkPreview } from '@/types/summit'
+import type { TalkPreview } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
 import SessionSubheader from './SessionSubheader.astro'
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { type Locale } from '@/utils/i18'
+import { getTranslation } from '@/utils/summit-talks-speakers'
 
 interface Props {
   talkPreview: TalkPreview
@@ -13,10 +14,7 @@ interface Props {
 
 const { talkPreview, basePath, lang } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
-const needsTranslation = lang !== defaultLocale
-const translation = needsTranslation
-  ? talkPreview[lang as SessionizeSupportedLocale]
-  : null
+const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
 const title = translation?.title ?? talkPreview.title
 ---

@@ -1,8 +1,9 @@
 ---
-import { type Talk, type SessionizeSupportedLocale } from '@/types/summit'
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { type Talk } from '@/types/summit'
+import { type Locale } from '@/utils/i18'
 import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
+import { getTranslation } from '@/utils/summit-talks-speakers'
 
 interface Props {
   sessions: Talk[]
@@ -10,12 +11,9 @@ interface Props {
   lang: Locale
 }
 const { sessions, sessionBaseHref, lang } = Astro.props
-const needsTranslation = lang !== defaultLocale
 
 const sessionsWithLinks = sessions.map((session) => {
-  const translation = needsTranslation
-    ? session[lang as SessionizeSupportedLocale]
-    : null
+  const translation = getTranslation(session, lang)
   const title = translation?.title ?? session.title
   const description = translation?.description ?? session.description
   return {
