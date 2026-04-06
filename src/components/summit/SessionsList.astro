@@ -1,18 +1,29 @@
 ---
 import { type Talk } from '@/types/summit'
+import { type Locale } from '@/utils/i18'
 import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
+import { getTranslation } from '@/utils/summit-talks-speakers'
 
 interface Props {
   sessions: Talk[]
   sessionBaseHref: string
+  lang: Locale
   year: string
 }
-const { sessions, sessionBaseHref, year } = Astro.props
-const sessionsWithLinks = sessions.map((session) => ({
-  ...session,
-  href: `${sessionBaseHref}/${generateSlug(session.title)}`
-}))
+const { sessions, sessionBaseHref, lang, year } = Astro.props
+
+const sessionsWithLinks = sessions.map((session) => {
+  const translation = getTranslation(session, lang)
+  const title = translation?.title ?? session.title
+  const description = translation?.description ?? session.description
+  return {
+    ...session,
+    title,
+    description,
+    href: `${sessionBaseHref}/${generateSlug(session.title)}`
+  }
+})
 ---
 
 <ul>

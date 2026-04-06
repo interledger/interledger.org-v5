@@ -3,15 +3,21 @@ import type { TalkPreview } from '@/types/summit'
 import { generateSlug } from '@/utils/slug'
 import { truncateText } from '@/utils/text'
 import SessionSubheader from './SessionSubheader.astro'
+import { type Locale } from '@/utils/i18'
+import { getTranslation } from '@/utils/summit-talks-speakers'
 
 interface Props {
   talkPreview: TalkPreview
   basePath: string
+  lang: Locale
   year: string
 }
 
-const { talkPreview, basePath, year } = Astro.props
+const { talkPreview, basePath, lang, year } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
+const translation = getTranslation(talkPreview, lang)
+const description = translation?.description ?? talkPreview.description
+const title = translation?.title ?? talkPreview.title
 ---
 
 <li class="flex flex-col gap-space-m mb-6 md:flex-row">
@@ -28,10 +34,14 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
       <a
         href={href}
         data-umami-event={`${year} Summit Sessions - Session: ${talkPreview.title}`}
-        >{talkPreview.title}</a
+        >{title}</a
       >
     </h2>
-    <SessionSubheader talk={talkPreview} showRecordingLabel={true} lang="en" />
-    {talkPreview.description && <p>{truncateText(talkPreview.description)}</p>}
+    <SessionSubheader
+      talk={talkPreview}
+      showRecordingLabel={true}
+      lang={lang}
+    />
+    {description && <p>{truncateText(description)}</p>}
   </div>
 </li>

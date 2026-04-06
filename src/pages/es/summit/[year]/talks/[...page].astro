@@ -2,7 +2,6 @@
 import type { Page, GetStaticPaths } from 'astro'
 import type { TalkPreview } from '@/types/summit'
 import { paginateSummitTalks } from '@/utils/summit-talks-speakers'
-import stripPagination from '@/utils/stripPagination'
 import SessionsListPage from '@/components/summit/SessionsListPage.astro'
 
 type Props = {
@@ -23,13 +22,11 @@ if (!page) {
   return Astro.redirect('/404')
 }
 const talkPreviews: TalkPreview[] = page.data
-const basePath = stripPagination(Astro.url.pathname)
 const title = `Sesiones de la Cumbre ${year}`
 ---
 
 <SessionsListPage
   talkPreviews={talkPreviews}
-  basePath={basePath}
   title={title}
   page={page}
   year={year}

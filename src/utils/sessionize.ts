@@ -1,6 +1,3 @@
-export const YEARS = ['2022', '2023', '2024', '2025'].sort()
-export const currentSummitYear = YEARS.at(-1)
-
 export const sessionizeApiMap: Record<
   string,
   { speakersUrl: string; talksUrl: string }
@@ -22,3 +19,6 @@ export const sessionizeApiMap: Record<
     talksUrl: 'https://sessionize.com/api/v2/lbapz770/view/Sessions'
   }
 }
+
+export const YEARS = Object.keys(sessionizeApiMap).sort()
+export const currentSummitYear = YEARS.at(-1)
