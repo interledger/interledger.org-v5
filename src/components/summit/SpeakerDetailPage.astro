@@ -13,9 +13,10 @@ interface Props {
 }
 
 const { entry, year } = Astro.props
-const { routeLocale: lang } = Astro.locals
-const langPrefix = lang !== defaultLocale ? `/${lang}` : ''
-const sessionBaseHref = `${langPrefix}/summit/${year}/talk`
+const { routeLocale: lang, currentBasePath } = Astro.locals
+const langPrefix = lang === defaultLocale ? '' : `/${lang}`
+const baseHref = `${langPrefix}${currentBasePath}`
+const sessionBaseHref = `${baseHref}/${year}/talk`
 const sessions = await getTalks(year, entry.id)
 const translation = getTranslation(entry, lang)
 const bio = translation?.bio ?? entry.bio
