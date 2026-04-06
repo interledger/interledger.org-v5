@@ -682,6 +682,18 @@ The following IDs are hardcoded in `src/utils/extractSessionize.ts`:
 
 When importing data for a new summit, verify that these IDs have not changed in the Sessionize export. If they have, update the constants in `extractSessionize.ts` accordingly.
 
+#### Adding Support for a New Language
+
+To add a new language to the Sessionize data pipeline:
+
+1. Add the locale code to `SESSIONIZE_SUPPORTED_LOCALES` in `src/types/summit.ts`:
+
+```typescript
+export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
+```
+
+2. Update the utility functions in `src/utils/extractSessionize.ts` to extract the new language's fields from `questionAnswers`, following the same pattern used for Spanish. Each function should add a new key to the returned translations object (e.g. `fr: { title, description }`) alongside the existing `es: {}` entry. You will also need to add the corresponding Sessionize question IDs as constants (same as `SPANISH_TITLE_ID`, `SPANISH_DESC_ID`, etc.).
+
 ### Image Handling
 
 - Speaker images are downloaded locally during sync

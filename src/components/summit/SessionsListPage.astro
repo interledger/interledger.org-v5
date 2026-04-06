@@ -28,12 +28,9 @@ const label = `${year} Summit Talks`
           <ul class="flex flex-col gap-4">
             {talkPreviews.map((talk) => (
               <SessionCard
-               
                 talkPreview={talk}
-               
                 basePath={sessionBasePath}
                 lang={lang}
-             
                 year={year}
               />
             ))}
