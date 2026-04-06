@@ -5,7 +5,6 @@ import type { Speaker, SessionizeSupportedLocale } from '@/types/summit'
 import { getTalks } from '@/utils/extractSessionize'
 import TextParagraphs from './TextParagraphs.astro'
 import SessionsList from './SessionsList.astro'
-import TranslationDisclaimer from '../shared/TranslationDisclaimer.astro'
 
 interface Props {
   entry: Speaker
@@ -21,13 +20,11 @@ const needsTranslation = lang !== defaultLocale
 const translation = needsTranslation
   ? entry[lang as SessionizeSupportedLocale]
   : null
-const hasTranslation = !!translation?.bio
 const bio = translation?.bio ?? entry.bio
 ---
 
 <SummitPageLayout title={entry.name}>
   <main>
-    {needsTranslation && !hasTranslation && <TranslationDisclaimer />}
     <header class="bg-black/20">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>
