@@ -36,15 +36,9 @@ function copySchemas() {
 }
 
 // Strapi instance type for lifecycle functions
-interface StrapiEntityService {
-  findMany: (
-    uid: string,
-    options: Record<string, unknown>
-  ) => Promise<unknown[]>
-  create: (
-    uid: string,
-    options: { data: Record<string, unknown> }
-  ) => Promise<unknown>
+interface StrapiDocumentService {
+  findMany: (options: Record<string, unknown>) => Promise<unknown[]>
+  create: (options: { data: Record<string, unknown> }) => Promise<unknown>
 }
 
 interface StrapiLogger {
@@ -101,7 +95,7 @@ interface CmComponentsService {
 }
 
 interface StrapiInstance {
-  entityService: StrapiEntityService
+  documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
   plugin: (name: string) =>
     | {
@@ -125,13 +119,12 @@ async function ensureLocales(strapi: StrapiInstance) {
   for (const localeCode of LOCALES) {
     try {
       // Check if locale already exists
-      const existingLocales = await strapi.entityService.findMany(
-        'plugin::i18n.locale',
-        {
+      const existingLocales = await strapi
+        .documents('plugin::i18n.locale')
+        .findMany({
           filters: { code: localeCode },
           limit: 1
-        }
-      )
+        })
 
       if (existingLocales && existingLocales.length > 0) {
         strapi.log.debug(`✅ Locale ${localeCode} already exists`)
@@ -142,7 +135,7 @@ async function ensureLocales(strapi: StrapiInstance) {
       const displayName =
         localeConfigs[localeCode] ||
         `${localeCode.toUpperCase()} (${localeCode})`
-      await strapi.entityService.create('plugin::i18n.locale', {
+      await strapi.documents('plugin::i18n.locale').create({
         data: {
           code: localeCode,
           name: displayName
