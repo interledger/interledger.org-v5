@@ -1,13 +1,25 @@
 ---
-const { baseUrl, length, currentPage, firstUrl, prevUrl, nextUrl, lastUrl } =
-  Astro.props
+const {
+  baseUrl,
+  length,
+  currentPage,
+  firstUrl,
+  prevUrl,
+  nextUrl,
+  lastUrl,
+  label
+} = Astro.props
 const paginationList = Array.from({ length }, (_, i) => i + 1)
 ---
 
-<nav aria-label="Blog pages" class="flex justify-center my-space-m">
+<nav aria-label={`${label} pages`} class="flex justify-center my-space-m">
   {
     firstUrl ? (
-      <a href={`${firstUrl}`} class="px-space-s py-space-xs">
+      <a
+        href={`${firstUrl}`}
+        class="px-space-s py-space-xs"
+        data-umami-event={`${label} pagination - first`}
+      >
         &#171;
       </a>
     ) : (
@@ -19,7 +31,11 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
 
   {
     prevUrl ? (
-      <a href={`${prevUrl}`} class="px-space-s py-space-xs">
+      <a
+        href={`${prevUrl}`}
+        class="px-space-s py-space-xs"
+        data-umami-event={`${label} pagination - prev`}
+      >
         &#8249;
       </a>
     ) : (
@@ -34,6 +50,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
       <a
         href={`${baseUrl}${num == 1 ? '' : '/' + num}`}
         class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
+        data-umami-event={`${label} pagination - ${num}`}
       >
         {num}
       </a>
@@ -46,7 +63,11 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
         &#8250;
       </span>
     ) : (
-      <a href={`${nextUrl}`} class="px-space-s py-space-xs">
+      <a
+        href={`${nextUrl}`}
+        class="px-space-s py-space-xs"
+        data-umami-event={`${label} pagination - next`}
+      >
         &#8250;
       </a>
     )
@@ -54,7 +75,11 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
 
   {
     lastUrl ? (
-      <a href={`${lastUrl}`} class="px-space-s py-space-xs">
+      <a
+        href={`${lastUrl}`}
+        class="px-space-s py-space-xs"
+        data-umami-event={`${label} pagination - last`}
+      >
         &#187;
       </a>
     ) : (

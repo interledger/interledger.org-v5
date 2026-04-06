@@ -3,7 +3,7 @@ import type { Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
-import Pagination from '@/components/blog/Pagination.astro'
+import Pagination from '@/components/shared/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
 
 interface Props {
@@ -72,6 +72,7 @@ if (selectedTag) {
         prevUrl={page.url.prev}
         nextUrl={page.url.next}
         lastUrl={page.url.last}
+        label={title}
       />
     </div>
   </main>

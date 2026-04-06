@@ -10,9 +10,10 @@ interface Props {
   talkPreview: TalkPreview
   basePath: string
   lang: Locale
+  year: string
 }
 
-const { talkPreview, basePath, lang } = Astro.props
+const { talkPreview, basePath, lang, year } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
 const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
@@ -30,7 +31,11 @@ const title = translation?.title ?? talkPreview.title
   />
   <div class="[&_p]:text-step--1">
     <h2 class="text-[var(--color-primary)]">
-      <a href={href}>{title}</a>
+      <a
+        href={href}
+        data-umami-event={`${year} Summit Sessions - Session: ${talkPreview.title}`}
+        >{title}</a
+      >
     </h2>
     <SessionSubheader
       talk={talkPreview}

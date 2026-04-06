@@ -3,18 +3,20 @@ import type { Page } from 'astro'
 import type { TalkPreview } from '@/types/summit'
 import stripPagination from '@/utils/stripPagination'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import Pagination from '@/components/blog/Pagination.astro'
+import Pagination from '@/components/shared/Pagination.astro'
 import SessionCard from './SessionCard.astro'
 
 interface Props {
   talkPreviews: TalkPreview[]
   title: string
   page: Page
+  year: string
 }
 const { routeLocale: lang } = Astro.locals
-const { talkPreviews, title, page } = Astro.props
+const { talkPreviews, title, page, year } = Astro.props
 const basePath = stripPagination(Astro.url.pathname)
 const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
+const label = `${year} Summit Talks`
 ---
 
 <SummitPageLayout title={title}>
@@ -26,9 +28,13 @@ const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
           <ul class="flex flex-col gap-4">
             {talkPreviews.map((talk) => (
               <SessionCard
+               
                 talkPreview={talk}
+               
                 basePath={sessionBasePath}
                 lang={lang}
+             
+                year={year}
               />
             ))}
           </ul>
@@ -48,6 +54,7 @@ const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
           prevUrl={page.url.prev}
           nextUrl={page.url.next}
           lastUrl={page.url.last}
+          label={label}
         />
       )
     }

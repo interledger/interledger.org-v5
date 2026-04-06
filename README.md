@@ -23,7 +23,15 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [2. Developer Flow - Website content](#2-developer-flow---website-content-astro-content-collections)
    - [3. Developer Flow - Documentation](#3-developer-flow---documentation-starlight)
    - [Writing guidelines for developers](#writing-guidelines-for-developers)
-8. [More Info](#more-info)
+8. [Summit Data (Sessionize Integration)](#summit-data-sessionize-integration)
+   - [Overview](#overview)
+   - [Syncing Data from Sessionize](#syncing-data-from-sessionize)
+   - [How the Data is Used](#how-the-data-is-used)
+   - [Adding a New Summit Year](#adding-a-new-summit-year)
+   - [Translations](#translations)
+   - [Image Handling](#image-handling)
+
+9. [More Info](#more-info)
 
 ## About the Project
 
@@ -31,7 +39,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 
 - **Starlight** adds a ready-made documentation system, including layouts, navigation, and styling, making it easy to write and maintain docs.
 
-- **Strapi** is the headless CMS for content management. Custom lifecycles hooks have been added to automatically synchronize content with the Astro project.
+- **Strapi** is the headless CMS for content management. Custom lifecycle hooks have been added to automatically synchronize content with the Astro project.
 
 ### Styling
 
@@ -247,40 +255,6 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run format`                    | Format code and fix linting issues                             |
 | `pnpm run lint`                      | Check code formatting and linting                              |
 | `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
-
-### Sync Sessionize Data
-
-Fetches summit data from Sessionize and stores it locally.
-
-```sh
-pnpm run sync:sessionize -- <YEAR>
-```
-
-Example:
-
-```sh
-pnpm run sync:sessionize -- 2022
-pnpm run sync:sessionize  #defaults to currentSummitYear
-```
-
-**What is does:**
-
-- Defaults to `currentSummitYear` if no year is provided
-- Downloads speaker and talk data into:
-  - `src/data/sessionize/{YEAR}-speakers.json`
-  - `src/data/sessionize/{YEAR}-talks.json`
-- Downloads speaker images into:
-  - `public/img/sessionize-speakers/{YEAR}`
-- Clears the image folder before downloading
-- Validates the year against the allowed `YEARS` list
-
-**Using it for future summits:**
-
-- Add the new year to the `YEARS` array in `src/utils/sessionize.ts`.
-- Add the new Sessionize API URLs to the `sessionizeApiMap` in `src/utils/sessionize.ts`.
-- `currentSummitYear` will automatically default to the latest year.
-
-Once updated, `pnpm run sync:sessionize` will fetch data and images for the new summit automatically.
 
 ### 🔍 Code Formatting
 
@@ -602,6 +576,120 @@ Finalizing:
 - Check with Ioana to confirm the publishing date and keep a consistent posting schedule. Ioana will also handle social media promotion.
 - Run `pnpm run build` locally to verify that the page builds correctly.
 - Run `pnpm run format` and `pnpm run lint` to format your code and check for any issues before creating a pull request.
+
+## Summit Data (Sessionize Integration)
+
+### Overview
+
+The Interledger Summit has taken place annually since 2022. Each edition has its own pages on the website — sessions(talks), speakers, and their individual detail pages — all scoped by year (e.g. `/summit/2024/speakers`, `/summit/2024/talks`).
+
+All summit data originates from **Sessionize**. A sync script fetches that data and stores it locally in the project as JSON files. Utility functions then read those files to populate Astro components and generate all summit-related pages for every year automatically.
+
+### Syncing Data from Sessionize
+
+Run the following script to fetch summit data for a given year:
+
+```sh
+pnpm run sync:sessionize -- <YEAR>
+```
+
+Example:
+
+```sh
+pnpm run sync:sessionize -- 2022
+pnpm run sync:sessionize  # defaults to currentSummitYear
+```
+
+**What is does:**
+
+- Defaults to `currentSummitYear` if no year is provided
+- Downloads speaker and talk data into:
+  - `src/data/sessionize/{YEAR}-speakers.json`
+  - `src/data/sessionize/{YEAR}-talks.json`
+- Downloads speaker images into:
+  - `public/img/sessionize-speakers/{YEAR}`
+- Clears the image folder before downloading
+- Validates the year against the allowed `YEARS` list
+
+### How the Data Is Used
+
+Once the JSON files are in place, two utility files handle all data access and page generation — no manual wiring is needed.
+
+`extractSessionize.ts`
+
+Responsible for:
+
+- Reading local Sessionize JSON files
+- Normalizing data into internal types (Talk, Speaker, etc.)
+- Linking talks and speakers
+- Handling translations
+- Generating local image paths for speakers and adding a fallback image when missing
+
+`summit-talks-speakers.ts`
+
+Responsible for connecting processed data to Astro routing.
+
+It generates:
+
+- Paginated listing pages
+  - Talks → `/summit/{year}/talks`
+  - Speakers → `/summit/{year}/speakers`
+- Dynamic detail pages
+  - Talk pages → `/summit/{year}/talk/{talk-title}`
+  - Speaker pages → `/summit/{year}/speaker/{speaker-name}`
+
+All of these functions iterate over every year in the `YEARS` list automatically, so new summit data is picked up without any changes to page templates.
+
+### Adding a New Summit Year
+
+1. Add a new entry to `sessionizeApiMap` in `src/utils/sessionize.ts`, using the summit year as the key (e.g. `'2026'`) and the corresponding Sessionize API URLs as values:
+
+```typescript
+  '2026': {
+    speakersUrl: 'https://sessionize.com/api/v2/.../view/Speakers',
+    talksUrl: 'https://sessionize.com/api/v2/.../view/Sessions'
+  }
+```
+
+- `YEARS` and `currentSummitYear` will update automatically — no other changes needed.
+
+2. Run the script `pnpm run sync:sessionize` to fetch data and images for the new summit.
+
+**After syncing, it is recommended to check:**
+
+- That the fields in the new JSON files match those from previous years. In practice, they have always matched, but it is a good habit to verify.
+- The hardcoded IDs used for translations (see [Translations](#translations) below), in case Sessionize has changed them.
+
+### Translations
+
+From 2025 onwards, summit content includes Spanish translations. These are stored by Sessionize inside a `questionAnswers` array, present on both speaker and talk objects, using a structure like:
+
+```json
+{
+  "id": 114105,
+  "answer": "Título en español"
+}
+```
+
+The following IDs are hardcoded in `src/utils/extractSessionize.ts`:
+
+| Constant         | ID     | Used for                                   |
+| ---------------- | ------ | ------------------------------------------ |
+| SPANISH_TITLE_ID | 114105 | Spanish title of a talk                    |
+| SPANISH_DESC_ID  | 114099 | Spanish description of a talk              |
+| SPANISH_BIO_ID   | 114100 | Spanish bio of a speaker                   |
+| TRANSLATION_ID   | 107734 | Available translation languages for a talk |
+
+When importing data for a new summit, verify that these IDs have not changed in the Sessionize export. If they have, update the constants in `extractSessionize.ts` accordingly.
+
+### Image Handling
+
+- Speaker images are downloaded locally during sync
+- Stored under:
+  `public/img/sessionize-speakers/{YEAR}/`
+- Filenames are generated using a slugified speaker name
+- If no image is available, a fallback is used:
+  `/img/sessionize-speakers/no-photo.svg`
 
 ## More Info
 

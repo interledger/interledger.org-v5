@@ -9,8 +9,9 @@ interface Props {
   sessions: Talk[]
   sessionBaseHref: string
   lang: Locale
+  year: string
 }
-const { sessions, sessionBaseHref, lang } = Astro.props
+const { sessions, sessionBaseHref, lang, year } = Astro.props
 
 const sessionsWithLinks = sessions.map((session) => {
   const translation = getTranslation(session, lang)
@@ -31,7 +32,12 @@ const sessionsWithLinks = sessions.map((session) => {
       <li>
         <article>
           <h2 class="text-teal-300">
-            <a href={session.href}>{session.title}</a>
+            <a
+              href={session.href}
+              data-umami-event={`${year} Speaker page - Session: ${session.title}`}
+            >
+              {session.title}
+            </a>
           </h2>
           {session.description && <p>{truncateText(session.description)}</p>}
         </article>
