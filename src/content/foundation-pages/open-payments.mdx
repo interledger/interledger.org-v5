@@ -1,0 +1,75 @@
+---
+pathSlug: 'open-payments'
+title: 'Open Payments'
+heroTitle: 'Open Payments'
+heroDescription: 'Payments made easy'
+locale: 'en'
+---
+
+<CalloutText>
+Sending a payment should be as easy as sending an email. The Open Payments standard brings this vision to life.
+</CalloutText>
+
+<Paragraph>
+
+Open Payments enables applications to interact directly with users' accounts. It simplifies online payments for e-commerce purchases, subscription fees, donations, and more.
+
+## Introducing Wallet Addresses
+
+When you open an account with an Open Payments-enabled provider, you’ll receive a wallet address — a URL that acts as a public alias for your account.
+
+Wallet addresses are like email addresses in three important ways:
+
+- Clear and memorable: The same way your email address may contain your name or nickname that’s something your wallet address could contain as well, for example, https://my-wallet/alice. This is much easier to use than the long list of numbers that typically identify accounts.
+- Publicly shareable: It acts as an alias for your account, containing no sensitive financial information. The same way you could give your email address to a new acquaintance, you could give them your wallet address as well, but certainly not a credit card number.
+- Interoperable: Like email, Open Payments works across providers using a shared standard. This enables transactions between account types (mobile money, bank accounts, or digital wallets), across currencies and borders, as long as both accounts are Open Payments-enabled. As with email, both sender and recipient need wallet addresses to transact.
+
+## How Wallet Addresses Work
+
+Since the wallet address is a URL, applications can interact with it just like your browser interacts with a website. But instead of loading a webpage, the wallet address responds with information that tells apps:
+
+- Where to reach your account provider
+- How to request permission to initiate a payment
+
+Your provider then maps the alias (your wallet address) to your actual account behind the scenes. Your information — such as your name, ID, and balance — are never exposed and remain under the care of your provider.
+
+## A Better Way to Pay Online
+
+-  Simplicity: All you need to send a payment online is your wallet address.
+-  Enhanced Privacy and Security: Wallet addresses don’t reveal sensitive financial information, minimizing the risk of it falling into the wrong hands or being misused.
+-  Transparency: You approve transactions directly with your account provider, gaining full visibility of fees and currency conversions in your local currency.
+-  Control: You decide how much money is accessible, who can access it, for how long, and how often.
+
+## The Payment Journey
+
+1. The App Talks to Both Wallets
+3. The application sends a request to both the sender's and recipient's wallet addresses. This allows it to contact each account provider directly to coordinate the transaction.
+5. The Recipient’s Provider Is Notified
+7. The app starts by telling the recipient’s account provider that money is expected.
+9. A Quote Is Requested from Your Provider
+11. Your provider calculates a quote, including all applicable fees and currency conversions — and shows the total in your currency, so you know exactly what you’re agreeing to.
+13. You Approve the Payment
+    iBefore anything happens, you’re asked to approve:
+    i. On mobile, your payment app might send you a push notification asking for confirmation.
+    ii. On the web, you may be redirected to your account provider’s website to log in and approve.
+19. This step ensures the integrity of your account —it's a conversation between you and your account provider, who can verify your identity (with a password, fingerprint, etc.). No one can access your account without your knowledge or permission.
+
+## The Final Step: How the Money Moves
+
+Once you’ve given consent, Open Payments has done its job. This signals the creation of a payment obligation between the two account providers, who now handle the actual transfer of funds from sender to recipient.
+
+## Try It Out
+
+Explore what it's like to use Open Payments with our Test Wallet which is a demo version of an Open Payments-enabled account provider.
+
+Sign up, get your own wallet address, and head over to our Test Boutique to make a mock online payment. It’s a hands-on way to experience just how easy and transparent Open Payments can be.
+
+You can also check out Interledger Pay, a live app that lets you send real payments using wallet addresses.
+
+## Want to Build with Open Payments?
+
+Whether you're a developer, startup, or financial service provider, Open Payments is designed to be open and easy to integrate.
+
+Visit our Developer Portal to explore the documentation, tools, resources, and open source repositories on GitHub. You may also be interested in checking out our Digital Financial Services Grant opportunities to support your work.
+
+</Paragraph>
