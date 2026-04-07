@@ -33,7 +33,8 @@ export async function syncEnglishEntry(
   const englishData = await config.buildPayload(
     englishMdx,
     ctx.strapi,
-    existingByIdentifier ?? null
+    existingByIdentifier ?? null,
+    dryRun
   )
 
   if (existingByIdentifier) {
@@ -88,7 +89,8 @@ export async function syncLocaleEntry(
   const localeData = await config.buildPayload(
     localeMdx,
     ctx.strapi,
-    existingLocale ?? null
+    existingLocale ?? null,
+    dryRun
   )
 
   if (existingLocale) {
