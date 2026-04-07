@@ -15,7 +15,8 @@ function slugBase(filenameWithExt: string): string {
 export function storageNameFromRelativeImagePath(
   relativePosix: string
 ): string {
-  const basename = relativePosix.split('/').filter(Boolean).pop() ?? relativePosix
+  const basename =
+    relativePosix.split('/').filter(Boolean).pop() ?? relativePosix
   return basename
 }
 

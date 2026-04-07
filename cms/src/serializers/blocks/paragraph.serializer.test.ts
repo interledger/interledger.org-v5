@@ -28,8 +28,7 @@ describe('paragraph serializer', () => {
 
   it('strips https host from inline image URLs', () => {
     const result = serialize({
-      content:
-        '![img](https://cms.example.com/uploads/img/original/foo.png)'
+      content: '![img](https://cms.example.com/uploads/img/original/foo.png)'
     })
     expect(result).toContain('/uploads/img/original/foo.png')
     expect(result).not.toContain('https://cms.example.com')
