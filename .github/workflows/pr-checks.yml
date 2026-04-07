@@ -1,9 +1,9 @@
-name: Lint and Build
+name: PR Checks
 
 on:
   pull_request:
-  push:
-    branches: [main]
+      branches:
+        - staging
 
 jobs:
   lint:
@@ -23,7 +23,7 @@ jobs:
 
       - run: pnpm run lint
 
-  build:
+  build-and-dryrun:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,6 +36,14 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm run build
+      - name: Build and Dry Run
+        env:
+          STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+        run: |
+          pnpm install --frozen-lockfile      
+          pnpm run build
+          cd cms
+          pnpm install --frozen-lockfile
+          pnpm run build
+          pnpm run sync:mdx:dry-run
