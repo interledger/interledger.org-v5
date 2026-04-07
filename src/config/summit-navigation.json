@@ -13,11 +13,11 @@
         },
         {
           "label": "Sessions",
-          "href": "/summit/sessions"
+          "href": "/summit/2025/talks"
         },
         {
           "label": "Speakers",
-          "href": "/summit/speakers"
+          "href": "/summit/2025/speakers"
         },
         {
           "label": "FAQ",
@@ -31,14 +31,6 @@
         {
           "label": "Overview",
           "href": "/summit/hackathon"
-        },
-        {
-          "label": "Resources",
-          "href": "/summit/hackathon/resources"
-        },
-        {
-          "label": "FAQ",
-          "href": "/summit/hackathon/faq"
         },
         {
           "label": "Participation requirements",
