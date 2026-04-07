@@ -19,7 +19,7 @@
     "@astrojs/netlify": "^7.0.1",
     "@astrojs/sitemap": "^3.7.1",
     "@astrojs/starlight": "^0.38.0",
-    "@interledger/docs-design-system": "github:interledger/docs-design-system#2ceb179",
+    "@interledger/docs-design-system": "github:interledger/docs-design-system#bd836d7",
     "@tailwindcss/vite": "^4.2.1",
     "@types/showdown": "^2.0.6",
     "astro": "^6.0.2",
