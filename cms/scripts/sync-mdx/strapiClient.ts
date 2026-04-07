@@ -18,6 +18,8 @@ export interface StrapiClient {
   /** Update the alternativeText (alt text) on a Strapi upload file record. */
   updateUploadAlt: (id: number, alternativeText: string) => Promise<void>
   findUploadByName: (name: string) => Promise<number | null>
+  /** All upload file ids whose `name` matches (pagination-safe; use for bulk delete before re-import). */
+  findUploadIdsByName: (name: string) => Promise<number[]>
   /** Remove a media library file by numeric id (also deletes files on disk via upload provider). */
   deleteUploadFile: (id: number) => Promise<void>
   createLocalization: (
@@ -54,6 +56,23 @@ export interface StrapiClient {
 interface StrapiClientOptions {
   baseUrl: string
   token: string
+}
+
+function parseUploadFilesList(result: unknown): { id: number }[] {
+  const rows: unknown[] = Array.isArray(result)
+    ? result
+    : result &&
+        typeof result === 'object' &&
+        'data' in result &&
+        Array.isArray((result as { data: unknown }).data)
+      ? ((result as { data: unknown[] }).data as unknown[])
+      : []
+  return rows.filter(
+    (r): r is { id: number } =>
+      r !== null &&
+      typeof r === 'object' &&
+      typeof (r as { id: unknown }).id === 'number'
+  )
 }
 
 export function createStrapiClient({
@@ -278,21 +297,45 @@ export function createStrapiClient({
     const result = await request(
       `upload/files?filters[url][$eq]=${encodeURIComponent(lookupUrl)}`
     )
-    // Strapi Upload API returns a plain array, not { data: [] }
-    const files = Array.isArray(result)
-      ? (result as { id: number }[])
-      : ((result as { data?: { id: number }[] })?.data ?? [])
+    const files = parseUploadFilesList(result)
     return files.length > 0 ? files[0].id : null
+  }
+
+  async function findUploadIdsByName(name: string): Promise<number[]> {
+    const encoded = encodeURIComponent(name)
+    const ids: number[] = []
+    let page = 1
+    const pageSize = 100
+    for (;;) {
+      const result = await request(
+        `upload/files?filters[name][$eq]=${encoded}&pagination[page]=${page}&pagination[pageSize]=${pageSize}`
+      )
+      const files = parseUploadFilesList(result)
+      for (const f of files) {
+        ids.push(f.id)
+      }
+      if (files.length === 0) break
+      const pagination = (
+        result as {
+          meta?: { pagination?: { page?: number; pageCount?: number } }
+        }
+      )?.meta?.pagination
+      const pageCount = pagination?.pageCount
+      if (pageCount != null) {
+        if (page >= pageCount) break
+      } else if (files.length < pageSize) {
+        break
+      }
+      page += 1
+    }
+    return ids
   }
 
   async function findUploadByName(name: string) {
     const result = await request(
-      `upload/files?filters[name][$eq]=${encodeURIComponent(name)}`
+      `upload/files?filters[name][$eq]=${encodeURIComponent(name)}&pagination[pageSize]=1`
     )
-    const files = Array.isArray(result)
-      ? (result as { id: number }[])
-      : ((result as { data?: { id: number }[] })?.data ?? [])
-
+    const files = parseUploadFilesList(result)
     return files.length > 0 ? files[0].id : null
   }
 
@@ -328,6 +371,7 @@ export function createStrapiClient({
     findUploadByUrl,
     updateUploadAlt,
     findUploadByName,
+    findUploadIdsByName,
     deleteUploadFile,
     createLocalization,
     updateLocalization,

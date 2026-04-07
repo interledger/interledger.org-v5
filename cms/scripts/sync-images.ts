@@ -8,10 +8,13 @@
  *
  * Flow (admin uploads also copy masters to img/original/; this script bulk re-imports):
  * 1. Recursively walk public/uploads/img/original/; filenames are the slugged basename only
- *    (e.g. blog/hero.jpg → storageName hero.jpg). Delete existing media with that name
- *    (optional; default on) so DB + disk stay aligned.
+ *    (e.g. blog/hero.jpg → storageName hero.jpg). Delete **all** Strapi media rows with that
+ *    `name` (optional; default on) so DB + disk stay aligned — then POST /api/upload replaces them.
  * 2. Remove public/uploads/img/optimized/ (optional; default on).
  * 3. Upload each original via POST /api/upload; optimized derivatives go under img/optimized/.
+ *
+ * `--no-replace`: do **not** delete existing media; **skip upload** for names already in Strapi
+ * (only imports files that are missing). Use this to avoid re-adding duplicates on every run.
  *
  * Requires .env at repo root: STRAPI_URL, STRAPI_API_TOKEN (full access to upload API).
  *
@@ -173,6 +176,7 @@ async function main(): Promise<void> {
 
   const dryRun = process.argv.includes('--dry-run')
   const noWipe = process.argv.includes('--no-wipe')
+  /** When set: never delete existing uploads; skip upload if that filename already exists. */
   const noReplace = process.argv.includes('--no-replace')
   const force = process.argv.includes('--force')
 
@@ -241,24 +245,24 @@ async function main(): Promise<void> {
     token: STRAPI_TOKEN
   })
 
-  // 1) Remove existing Strapi rows that share the same media `name` (and their files)
+  // 1) Remove every Strapi row with the same media `name` (clears accidental duplicates too)
   if (!noReplace) {
     for (const { relPosix } of originals) {
       const storageName = storageNameFromRelativeImagePath(relPosix)
       if (dryRun) {
-        const existing = await strapi.findUploadByName(storageName)
-        if (existing != null) {
+        const ids = await strapi.findUploadIdsByName(storageName)
+        for (const id of ids) {
           console.log(
-            `  [dry-run] would delete Strapi upload id=${existing} (${storageName})`
+            `  [dry-run] would delete Strapi upload id=${id} (${storageName})`
           )
         }
         continue
       }
-      const existing = await strapi.findUploadByName(storageName)
-      if (existing != null) {
-        await strapi.deleteUploadFile(existing)
+      const ids = await strapi.findUploadIdsByName(storageName)
+      for (const id of ids) {
+        await strapi.deleteUploadFile(id)
         console.log(
-          `🗑️  Deleted existing Strapi media id=${existing} (${storageName})`
+          `🗑️  Deleted existing Strapi media id=${id} (${storageName})`
         )
       }
     }
@@ -274,8 +278,20 @@ async function main(): Promise<void> {
   // 3) Upload each original (Strapi writes to img/optimized/ via custom provider)
   let uploaded = 0
   let failed = 0
+  let skippedExisting = 0
   for (const { abs, relPosix } of originals) {
     const storageName = storageNameFromRelativeImagePath(relPosix)
+    if (noReplace) {
+      const existingId = await strapi.findUploadByName(storageName)
+      if (existingId != null) {
+        skippedExisting += 1
+        const suffix = dryRun ? ' [dry-run]' : ''
+        console.log(
+          `⏭️  Skipping ${relPosix} (${storageName}) — already in Strapi${suffix}`
+        )
+        continue
+      }
+    }
     try {
       const result = await uploadOriginal({
         filePath: abs,
@@ -305,10 +321,17 @@ async function main(): Promise<void> {
   }
 
   console.log('='.repeat(50))
+  const summaryParts = [
+    dryRun ? `${uploaded} file(s) would be uploaded` : `${uploaded} uploaded`,
+    failed > 0 ? `${failed} failed` : null,
+    skippedExisting > 0
+      ? `${skippedExisting} skipped (already in Strapi)`
+      : null
+  ].filter(Boolean)
   console.log(
     dryRun
-      ? `Done (dry-run). ${originals.length} file(s) would be uploaded.`
-      : `Done. ${uploaded} ok, ${failed} failed.`
+      ? `Done (dry-run). ${summaryParts.join(', ')}.`
+      : `Done. ${summaryParts.join(', ')}.`
   )
   if (failed > 0) process.exit(1)
 }
