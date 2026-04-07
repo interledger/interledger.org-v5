@@ -98,6 +98,18 @@ export function htmlToMarkdown(html: string): string {
   return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
 }
 
+/**
+ * Strip the Strapi host from any `/uploads/` URL in a content string.
+ *
+ * CKEditor (running inside the Strapi admin) inserts absolute image URLs like
+ * `http://localhost:1337/uploads/img/original/foo.png`. This normalizes them
+ * to root-relative paths (`/uploads/img/original/foo.png`) so the exported
+ * MDX works consistently across dev, staging, and production environments.
+ */
+export function normalizeUploadsUrls(content: string): string {
+  return content.replace(/https?:\/\/[^/\s"']+\/uploads\//g, '/uploads/')
+}
+
 // ── Text helpers ─────────────────────────────────────────────────────────────
 
 export function markdownToHtml(markdown: string): string {

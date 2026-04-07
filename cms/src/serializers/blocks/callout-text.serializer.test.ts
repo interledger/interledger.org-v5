@@ -34,4 +34,14 @@ describe('callout-text serializer', () => {
     expect(result).toContain('Informacion importante.')
     expect(result).toContain('</CalloutText>')
   })
+
+  it('strips Strapi host from inline image URLs', () => {
+    const result = serialize({
+      content:
+        'See ![diagram](http://localhost:1337/uploads/img/original/diagram.png) above.'
+    })
+
+    expect(result).toContain('/uploads/img/original/diagram.png')
+    expect(result).not.toContain('http://localhost:1337')
+  })
 })

@@ -1,3 +1,5 @@
+import { normalizeUploadsUrls } from '../../utils/mdx'
+
 export function serialize(block: {
   content: string
   alignment?: string
@@ -6,5 +8,6 @@ export function serialize(block: {
     block.alignment && block.alignment !== 'left'
       ? ` alignment="${block.alignment}"`
       : ''
-  return `<Paragraph${alignmentAttr}>\n\n${block.content}\n\n</Paragraph>`
+  const content = normalizeUploadsUrls(block.content)
+  return `<Paragraph${alignmentAttr}>\n\n${content}\n\n</Paragraph>`
 }

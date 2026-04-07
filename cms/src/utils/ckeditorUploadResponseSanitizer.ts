@@ -48,18 +48,54 @@ function normalizeOptimizedUrlsInString(s: string): string {
 }
 
 /**
- * CKEditor (@_sh/strapi-plugin-ckeditor) builds `srcset` from `formats[].width` + `formats[].url`
- * on the upload XHR response. Our main `url` is under `img/original/` (masters) while
- * Strapi derivatives normally live under `img/optimized/`. If `formats[].url` incorrectly
- * points at `.../original/thumbnail_*` etc., the browser prefers `srcset` → 404 → broken
- * in-editor preview until reload (saved HTML often has no `srcset`).
+ * Sanitizes Strapi upload API responses before they reach CKEditor.
  *
- * When we detect that mismatch, drop `formats` from this **response body only** so the
- * adapter sends CKEditor `{ default: mainUrl }` and preview uses `src`. Correct optimized
- * `formats` (if ever present) are left intact.
+ * 1. Strips the host from absolute `url` fields so CKEditor inserts root-relative
+ *    paths (`/uploads/...`) instead of `http://localhost:1337/uploads/...`. This
+ *    keeps the stored content portable across environments.
+ *
+ * 2. CKEditor builds `srcset` from `formats[].width` + `formats[].url`. Our main
+ *    `url` is under `img/original/` while derivatives live under `img/optimized/`.
+ *    If `formats[].url` incorrectly points at `.../original/thumbnail_*` etc., the
+ *    browser prefers `srcset` → 404 → broken in-editor preview. When that mismatch
+ *    is detected, drop `formats` so the adapter sends `{ default: mainUrl }` only.
  */
 const DERIVATIVE_UNDER_ORIGINAL =
   /\/img\/original\/(thumbnail|small|medium|large|xlarge)_/i
+
+function toRelativeUploadsUrl(url: string): string {
+  if (!url.startsWith('http')) return url
+  // Strip scheme + host, keep path from /uploads/ onward
+  return url.replace(/^https?:\/\/[^/]+(?=\/uploads\/)/, '')
+}
+
+/**
+ * Recursively walk a request body object and normalize any absolute Strapi
+ * upload URL found in a string value to a root-relative path.
+ *
+ * CKEditor constructs `http://localhost:1337/uploads/...` in the browser before
+ * the content is sent to the server. Normalizing on write ensures the DB always
+ * stores root-relative paths, regardless of which host the admin was accessed from.
+ */
+export function deepNormalizeUploadsUrls(obj: unknown): void {
+  if (!obj || typeof obj !== 'object') return
+  if (Array.isArray(obj)) {
+    for (const item of obj) deepNormalizeUploadsUrls(item)
+    return
+  }
+  const record = obj as Record<string, unknown>
+  for (const key of Object.keys(record)) {
+    const value = record[key]
+    if (typeof value === 'string') {
+      record[key] = value.replace(
+        /https?:\/\/[^/\s"']+\/uploads\//g,
+        '/uploads/'
+      )
+    } else {
+      deepNormalizeUploadsUrls(value)
+    }
+  }
+}
 
 export function sanitizeStrapiImageUploadResponseForCke(body: unknown): void {
   if (!Array.isArray(body) || body.length === 0) return
@@ -70,6 +106,11 @@ export function sanitizeStrapiImageUploadResponseForCke(body: unknown): void {
     const mime = typeof file.mime === 'string' ? file.mime : ''
     const url = typeof file.url === 'string' ? file.url : ''
     if (!mime.startsWith('image/')) continue
+    if (!url.includes('/uploads/')) continue
+
+    // Normalize main URL to root-relative
+    file.url = toRelativeUploadsUrl(url)
+
     if (!url.includes('/img/original/')) continue
     const formats = file.formats
     if (!formats || typeof formats !== 'object') continue
