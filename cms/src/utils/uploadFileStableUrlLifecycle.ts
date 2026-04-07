@@ -5,9 +5,15 @@
  * sufficient on its own for inserts.
  *
  * Also covers **replace** flows that might persist an optimized URL before a follow-up read.
+ *
+ * On delete: removes the corresponding original from disk and schedules a git sync so that
+ * sync:images does not re-import it on the next run.
  */
+import fs from 'fs'
 import path from 'path'
 import { originalPublicUrlFromOriginalFilename } from './uploadSplitImages'
+import { originalMasterUploadsRelFromStorageName } from './imageLayoutPaths'
+import { scheduleGitSync } from './gitSync'
 
 const FILE_UID = 'plugin::upload.file' as const
 
@@ -18,18 +24,15 @@ type UploadFileRow = {
   url?: string | null
 }
 
+function isMainImage(file: UploadFileRow): boolean {
+  return (
+    !!file.mime?.startsWith('image/') &&
+    !/^(thumbnail|large|medium|small|xlarge)_/i.test(file.name || '')
+  )
+}
+
 function shouldPointAtOriginalMaster(file: UploadFileRow): boolean {
-  if (
-    !file.mime?.startsWith('image/') ||
-    !file.url?.includes('/uploads/img/optimized/')
-  ) {
-    return false
-  }
-  // Thumbnails / breakpoints keep optimized URLs
-  if (/^(thumbnail|large|medium|small|xlarge)_/i.test(file.name || '')) {
-    return false
-  }
-  return true
+  return isMainImage(file) && !!file.url?.includes('/uploads/img/optimized/')
 }
 
 /** Strip Strapi hash suffix from basename. */
@@ -41,6 +44,7 @@ function cleanedStorageName(strapiName: string): string {
 }
 
 export function registerUploadFileStableUrlLifecycle(strapi: {
+  dirs: { static: { public: string } }
   db: {
     lifecycles: { subscribe: (sub: Record<string, unknown>) => void }
     query: (uid: string) => {
@@ -70,6 +74,27 @@ export function registerUploadFileStableUrlLifecycle(strapi: {
     }
   }
 
+  function deleteOriginalIfExists(result: UploadFileRow): void {
+    if (!isMainImage(result)) return
+    const rel = originalMasterUploadsRelFromStorageName(
+      cleanedStorageName(result.name)
+    )
+    const filePath = path.join(
+      strapi.dirs.static.public,
+      'uploads',
+      ...rel.split('/').filter(Boolean)
+    )
+    if (!fs.existsSync(filePath)) return
+    try {
+      fs.unlinkSync(filePath)
+      scheduleGitSync(`media: delete ${result.name}`)
+    } catch (e) {
+      strapi.log?.warn(
+        `[upload] Could not delete original for ${result.name}: ${e instanceof Error ? e.message : String(e)}`
+      )
+    }
+  }
+
   strapi.db.lifecycles.subscribe({
     models: [FILE_UID],
     async afterCreate(event) {
@@ -77,6 +102,9 @@ export function registerUploadFileStableUrlLifecycle(strapi: {
     },
     async afterUpdate(event) {
       await rewriteIfNeeded(event.result as UploadFileRow)
+    },
+    afterDelete(event) {
+      deleteOriginalIfExists(event.result as UploadFileRow)
     }
   })
 }

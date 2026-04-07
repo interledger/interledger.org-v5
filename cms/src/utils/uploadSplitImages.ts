@@ -70,11 +70,7 @@ type UploadPayload = {
 
 type StrapiForUploadSplit = {
   dirs: { static: { public: string } }
-  plugin: (name: string) => {
-    service: (name: string) => {
-      upload: (payload: UploadPayload, opts?: unknown) => Promise<unknown>
-    }
-  }
+  plugin: (name: string) => { service: (name: string) => unknown }
 }
 
 export function patchUploadServiceForOriginalImages(

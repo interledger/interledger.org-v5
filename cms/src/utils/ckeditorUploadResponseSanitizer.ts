@@ -1,3 +1,52 @@
+import path from 'path'
+import { originalMasterPublicUrlFromStorageName } from './imageLayoutPaths'
+
+/** Strip Strapi hash suffix from basename (same idea as upload lifecycle). */
+function cleanedStorageName(strapiName: string): string {
+  const ext = path.extname(strapiName) || '.bin'
+  const base = path.basename(strapiName, ext)
+  const cleanedBase = base.replace(/_[a-f0-9]{10}$/i, '')
+  return `${cleanedBase}${ext}`
+}
+
+/**
+ * Rewrite `/uploads/img/optimized/...` URLs in nested request bodies to stable
+ * `/uploads/img/original/...` so saved content matches media library URLs.
+ */
+export function deepNormalizeUploadsUrls(body: unknown): void {
+  if (body === null || body === undefined) return
+  if (typeof body === 'string') return
+  if (Array.isArray(body)) {
+    for (let i = 0; i < body.length; i++) {
+      const v = body[i]
+      if (typeof v === 'string') {
+        body[i] = normalizeOptimizedUrlsInString(v)
+      } else if (v && typeof v === 'object') {
+        deepNormalizeUploadsUrls(v)
+      }
+    }
+    return
+  }
+  if (typeof body === 'object') {
+    const o = body as Record<string, unknown>
+    for (const k of Object.keys(o)) {
+      const v = o[k]
+      if (typeof v === 'string') {
+        o[k] = normalizeOptimizedUrlsInString(v)
+      } else if (v && typeof v === 'object') {
+        deepNormalizeUploadsUrls(v)
+      }
+    }
+  }
+}
+
+function normalizeOptimizedUrlsInString(s: string): string {
+  const re = /\/uploads\/img\/optimized\/([^/?#'"\s<>]+)/g
+  return s.replace(re, (_match, filename: string) =>
+    originalMasterPublicUrlFromStorageName(cleanedStorageName(filename))
+  )
+}
+
 /**
  * CKEditor (@_sh/strapi-plugin-ckeditor) builds `srcset` from `formats[].width` + `formats[].url`
  * on the upload XHR response. Our main `url` is under `img/original/` (masters) while

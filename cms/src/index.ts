@@ -4,7 +4,10 @@ import { validateGitSyncRepoOnStartup } from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
 import { patchUploadServiceForOriginalImages } from './utils/uploadSplitImages'
 import { registerUploadFileStableUrlLifecycle } from './utils/uploadFileStableUrlLifecycle'
-import { sanitizeStrapiImageUploadResponseForCke } from './utils/ckeditorUploadResponseSanitizer'
+import {
+  sanitizeStrapiImageUploadResponseForCke,
+  deepNormalizeUploadsUrls
+} from './utils/ckeditorUploadResponseSanitizer'
 import { LOCALES } from './utils/mdx'
 
 function copySchemas() {
@@ -39,9 +42,15 @@ function copySchemas() {
 }
 
 // Strapi instance type for lifecycle functions
-interface StrapiDocumentService {
-  findMany: (options: Record<string, unknown>) => Promise<unknown[]>
-  create: (options: { data: Record<string, unknown> }) => Promise<unknown>
+interface StrapiEntityService {
+  findMany: (
+    uid: string,
+    options: Record<string, unknown>
+  ) => Promise<unknown[]>
+  create: (
+    uid: string,
+    options: { data: Record<string, unknown> }
+  ) => Promise<unknown>
 }
 
 interface StrapiLogger {
@@ -98,15 +107,19 @@ interface CmComponentsService {
 }
 
 interface StrapiInstance {
-  documents: (uid: string) => StrapiDocumentService
+  dirs: { static: { public: string } }
+  entityService: StrapiEntityService
   log: StrapiLogger
-  plugin: (name: string) =>
-    | {
-        service: (
-          name: string
-        ) => CmContentTypesService | CmComponentsService | undefined
-      }
-    | undefined
+  db: {
+    lifecycles: { subscribe: (sub: Record<string, unknown>) => void }
+    query: (uid: string) => {
+      update: (args: {
+        where: { id: number }
+        data: Record<string, unknown>
+      }) => Promise<unknown>
+    }
+  }
+  plugin: (name: string) => { service: (name: string) => unknown } | undefined
 }
 
 /**
@@ -122,12 +135,13 @@ async function ensureLocales(strapi: StrapiInstance) {
   for (const localeCode of LOCALES) {
     try {
       // Check if locale already exists
-      const existingLocales = await strapi
-        .documents('plugin::i18n.locale')
-        .findMany({
+      const existingLocales = await strapi.entityService.findMany(
+        'plugin::i18n.locale',
+        {
           filters: { code: localeCode },
           limit: 1
-        })
+        }
+      )
 
       if (existingLocales && existingLocales.length > 0) {
         strapi.log.debug(`✅ Locale ${localeCode} already exists`)
@@ -138,7 +152,7 @@ async function ensureLocales(strapi: StrapiInstance) {
       const displayName =
         localeConfigs[localeCode] ||
         `${localeCode.toUpperCase()} (${localeCode})`
-      await strapi.documents('plugin::i18n.locale').create({
+      await strapi.entityService.create('plugin::i18n.locale', {
         data: {
           code: localeCode,
           name: displayName
@@ -667,6 +681,7 @@ export default {
           (ctx.method === 'PUT' || ctx.method === 'POST') &&
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
+          deepNormalizeUploadsUrls(ctx.request?.body)
           try {
             validateNoNestedJsx(ctx.request?.body?.content)
           } catch (err: unknown) {
