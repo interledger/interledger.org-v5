@@ -578,7 +578,7 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
 export interface SharedHero extends Struct.ComponentSchema {
   collectionName: 'components_shared_heroes'
   info: {
-    description: 'Hero section with title, description and CTAs'
+    description: 'Hero section with title, description and background image'
     displayName: 'Hero'
     icon: 'star'
   }
@@ -590,12 +590,6 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
