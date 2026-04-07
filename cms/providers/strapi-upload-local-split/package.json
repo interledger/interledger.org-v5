@@ -1,0 +1,6 @@
+{
+  "name": "@interledger/strapi-upload-local-split",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js"
+}

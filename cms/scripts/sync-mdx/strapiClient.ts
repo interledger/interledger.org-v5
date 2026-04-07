@@ -18,6 +18,8 @@ export interface StrapiClient {
   /** Update the alternativeText (alt text) on a Strapi upload file record. */
   updateUploadAlt: (id: number, alternativeText: string) => Promise<void>
   findUploadByName: (name: string) => Promise<number | null>
+  /** Remove a media library file by numeric id (also deletes files on disk via upload provider). */
+  deleteUploadFile: (id: number) => Promise<void>
   createLocalization: (
     apiId: string,
     documentId: string,
@@ -284,12 +286,29 @@ export function createStrapiClient({
   }
 
   async function findUploadByName(name: string) {
-    const result = await request(`upload/files?filters[name][$eq]=${name}`)
+    const result = await request(
+      `upload/files?filters[name][$eq]=${encodeURIComponent(name)}`
+    )
     const files = Array.isArray(result)
       ? (result as { id: number }[])
       : ((result as { data?: { id: number }[] })?.data ?? [])
 
     return files.length > 0 ? files[0].id : null
+  }
+
+  async function deleteUploadFile(id: number): Promise<void> {
+    const url = `${baseUrl}/api/upload/files/${id}`
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-skip-mdx-export': 'true'
+      }
+    })
+    if (!response.ok && response.status !== 404) {
+      const text = await response.text()
+      throw new Error(`Strapi API error (${response.status}): ${text}`)
+    }
   }
 
   async function deleteLocalization(
@@ -309,6 +328,7 @@ export function createStrapiClient({
     findUploadByUrl,
     updateUploadAlt,
     findUploadByName,
+    deleteUploadFile,
     createLocalization,
     updateLocalization,
     createEntry,

@@ -67,8 +67,10 @@ export function yamlSingleQuoteScalar(
 
 /**
  * Gets the resolved URL for a Strapi media field.
- * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
- * falling back to the original URL if that format is unavailable.
+ *
+ * For library images, `media.url` is the stable master path (`/uploads/img/original/...`).
+ * Pass `preferredFormat` only when you explicitly want a derivative under `img/optimized/`
+ * (e.g. admin previews); prefer the default for MDX export so sync/re-import keeps working.
  */
 export function getImageUrl(
   media: MediaLike | undefined | null,

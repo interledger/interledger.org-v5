@@ -53,5 +53,14 @@ export default defineConfig([
       '@typescript-eslint/no-require-imports': 'off'
     }
   },
+  {
+    files: ['cms/providers/strapi-upload-local-split/**/*.js'],
+    languageOptions: {
+      globals: { strapi: 'readonly' }
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  },
   eslintConfigPrettier
 ])

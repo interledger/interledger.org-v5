@@ -2,6 +2,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { validateGitSyncRepoOnStartup } from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
+import { patchUploadServiceForOriginalImages } from './utils/uploadSplitImages'
+import { registerUploadFileStableUrlLifecycle } from './utils/uploadFileStableUrlLifecycle'
+import { sanitizeStrapiImageUploadResponseForCke } from './utils/ckeditorUploadResponseSanitizer'
 import { LOCALES } from './utils/mdx'
 
 function copySchemas() {
@@ -613,9 +616,22 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi } */) {
+  register({ strapi }: { strapi: { server: { use: (fn: unknown) => void } } }) {
     // Copy schema JSON files after TypeScript compilation
     copySchemas()
+
+    // CKEditor upload adapter builds srcset from formats[]; strip formats on this response
+    // when the main file uses img/original/ so the editor does not request fake original/thumbnail_* URLs.
+    strapi.server.use(
+      async (
+        ctx: { status?: number; body?: unknown },
+        next: () => Promise<void>
+      ) => {
+        await next()
+        if (ctx.status != null && ctx.status >= 400) return
+        sanitizeStrapiImageUploadResponseForCke(ctx.body)
+      }
+    )
   },
 
   /**
@@ -696,6 +712,11 @@ export default {
 
     // Ensure git sync points at a valid staging clone before handling content events
     await validateGitSyncRepoOnStartup()
+
+    // Save incoming image bytes to public/uploads/img/original/ (overwrite same slugged name)
+    patchUploadServiceForOriginalImages(strapi)
+    // Point media library `url` at original/ so MDX + sync:mdx stay stable (also covers replace)
+    registerUploadFileStableUrlLifecycle(strapi)
 
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)
