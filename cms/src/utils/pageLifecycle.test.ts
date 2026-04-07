@@ -20,7 +20,11 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       title: 'Test Page',
       pathSlug: 'test',
       locale: 'en',
-      hero: { title: 'Hero Title', description: undefined, backgroundImage: undefined }
+      hero: {
+        title: 'Hero Title',
+        description: undefined,
+        backgroundImage: undefined
+      }
     }
     const preservedFields = {
       heroImage: 'https://example.com/old-image.jpg',
