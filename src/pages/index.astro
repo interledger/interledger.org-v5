@@ -19,14 +19,13 @@ if (!homePage) {
 const { Content } = await render(homePage)
 const {
   title,
-  metaTitle,
   metaDescription,
   metaImage,
   canonicalUrl,
   heroTitle,
   heroDescription
 } = homePage.data
-const pageTitle = metaTitle || title || 'Interledger Foundation'
+const pageTitle = title || 'Interledger Foundation'
 const pageDescription = metaDescription || undefined
 ---
 

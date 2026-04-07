@@ -165,31 +165,12 @@ export function heroFrontmatter(
 export function seoFrontmatter(
   seo:
     | {
-        metaTitle?: string
         metaDescription?: string
-        metaImage?: { url?: string }
-        keywords?: string
-        canonicalUrl?: string
       }
     | undefined
 ): Record<string, string> {
   const data: Record<string, string> = {}
-  if (!seo) return data
-  if (seo.metaTitle) {
-    data.metaTitle = seo.metaTitle
-  }
-  if (seo.metaDescription) {
-    data.metaDescription = seo.metaDescription
-  }
-  const metaImage = getImageUrl(seo.metaImage)
-  if (metaImage) {
-    data.metaImage = metaImage
-  }
-  if (seo.keywords) {
-    data.keywords = seo.keywords
-  }
-  if (seo.canonicalUrl) {
-    data.canonicalUrl = seo.canonicalUrl
-  }
+  if (!seo || !seo.metaDescription) return data
+  data.metaDescription = seo.metaDescription
   return data
 }

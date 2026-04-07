@@ -43,7 +43,7 @@ if (!page) {
   return Astro.redirect('/404')
 }
 
-const title = page.seo?.metaTitle || page.title || 'Preview'
+const title = page.title || 'Preview'
 const description = page.seo?.metaDescription || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description
