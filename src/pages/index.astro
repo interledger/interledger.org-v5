@@ -4,6 +4,7 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
 import { type Locale } from '@/utils/i18'
 import { HOME_SLUG } from '@/utils/routes'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 
 const pageLang: Locale = 'en'
 
@@ -23,10 +24,12 @@ const {
   metaImage,
   canonicalUrl,
   heroTitle,
-  heroDescription
+  heroDescription,
+  heroImage
 } = homePage.data
 const pageTitle = title || 'Interledger Foundation'
 const pageDescription = metaDescription || undefined
+const heroSectionStyle = getHeroSectionStyle(heroImage)
 ---
 
 <FoundationPageLayout
@@ -37,7 +40,13 @@ const pageDescription = metaDescription || undefined
 >
   <main class="pb-space-l">
     <section
-      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[50vh] py-space-xl text-white flex items-center"
+      class:list={[
+        'min-h-[50vh] py-space-xl text-white flex items-center',
+        heroSectionStyle
+          ? 'bg-no-repeat bg-cover bg-center'
+          : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+      ]}
+      style={heroSectionStyle}
     >
       <div class="mx-auto w-full max-w-wide px-space-m">
         <div class="max-w-narrow">
