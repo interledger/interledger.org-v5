@@ -28,7 +28,14 @@ const SCAN_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
 ]
 
 const IMAGE_EXTENSIONS = new Set([
-  '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.avif', '.tiff'
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.svg',
+  '.webp',
+  '.avif',
+  '.tiff'
 ])
 
 async function strapiGet<T>(endpoint: string): Promise<T> {
@@ -129,9 +136,7 @@ async function main() {
     console.log(
       '\n💡 Missing files will be auto-seeded on next Strapi startup (bootstrap).'
     )
-    console.log(
-      '   Or restart Strapi now: cd cms && pnpm run develop'
-    )
+    console.log('   Or restart Strapi now: cd cms && pnpm run develop')
   }
 }
 

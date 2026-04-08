@@ -436,7 +436,9 @@ function collectImagePaths(dir: string): string[] {
       const full = path.join(current, entry.name)
       if (entry.isDirectory()) {
         walk(full)
-      } else if (SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      } else if (
+        SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+      ) {
         results.push(full)
       }
     }
