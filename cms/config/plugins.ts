@@ -8,5 +8,11 @@ export default () => ({
       showTakeoverButton: true,
       transports: ['websocket']
     }
+  },
+  upload: {
+    config: {
+      provider: 'local',
+      breakpoints: {}
+    }
   }
 })

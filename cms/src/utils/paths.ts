@@ -33,7 +33,7 @@ export function assertRunFromCms(): void {
 export const PATHS = {
   CONTENT_ROOT: 'src/content',
   CONFIG_ROOT: 'src/config',
-  UPLOADS: 'public/uploads',
+  UPLOADS: 'public/uploads/img/original',
   /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/<type>/{locale}). */
   CONTENT: {
     ambassadors: 'ambassadors',
