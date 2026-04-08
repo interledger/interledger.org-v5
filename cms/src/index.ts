@@ -515,6 +515,11 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'profileBio', size: 6 }
       ]
     ],
+    'blocks.ambassadors-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'category', size: 12 }],
+      [{ name: 'ambassadors', size: 12 }]
+    ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'subheading', size: 12 }],
