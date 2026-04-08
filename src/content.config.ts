@@ -58,7 +58,7 @@ export const collections = {
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'summit-pages': summitPagesCollection,
-  ambassadors: ambassadorCollection
+  'ambassadors': ambassadorCollection
 }
 
 export type CollectionType = keyof typeof collections

@@ -53,7 +53,7 @@ export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
-  ambassadors: ContentTypeConfig
+  'ambassadors': ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -91,7 +91,7 @@ export function buildContentTypes(
   const blogAltIds = new Map<number, string>()
 
   return {
-    ambassadors: {
+    'ambassadors': {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,

@@ -48,7 +48,7 @@ function makeContentTypes(dir: string): ContentTypes {
       apiId: 'foundation-blog-posts',
       buildPayload: vi.fn()
     },
-    ambassadors: {
+    'ambassadors': {
       dir: '/nonexistent-ambassadors',
       apiId: 'ambassadors',
       buildPayload: vi.fn()
