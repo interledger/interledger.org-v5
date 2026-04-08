@@ -7,5 +7,11 @@
 @layer components {
   [data-prose] a {
     color: var(--color-primary);
+    text-decoration-line: underline;
+    text-decoration-color: currentColor;
+    transition: text-decoration-color 200ms ease-in-out;
+  }
+  [data-prose] a:hover {
+    text-decoration-color: transparent;
   }
 }
