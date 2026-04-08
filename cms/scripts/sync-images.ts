@@ -1,13 +1,13 @@
 /**
- * Check which images in public/uploads/img/original/ are registered in Strapi's
- * media library. Optionally uploads unregistered files via the Strapi API.
+ * Check which images in public/uploads/img/original/ and public/img/ are
+ * registered in Strapi's media library.
  *
  * The primary seeding mechanism lives in bootstrap (cms/src/index.ts) and runs
- * on every Strapi start. This script is for diagnostics and manual imports.
+ * on every Strapi start. This script is for diagnostics.
  *
  * Usage:
- *   cd cms && pnpm run sync:images              # report + import missing
- *   cd cms && pnpm run sync:images --dry-run     # report only
+ *   cd cms && pnpm run sync:images              # full report
+ *   cd cms && pnpm run sync:images --dry-run     # same (read-only either way)
  *
  * Requires STRAPI_URL and STRAPI_API_TOKEN in ../.env
  */
@@ -21,7 +21,11 @@ config({ path: path.resolve(process.cwd(), '../.env') })
 
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337'
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? ''
-const DRY_RUN = process.argv.includes('--dry-run')
+
+const SCAN_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
+  { dir: PATHS.UPLOADS, urlPrefix: `/${PATHS.UPLOADS.replace('public/', '')}` },
+  { dir: 'public/img', urlPrefix: '/img' }
+]
 
 const IMAGE_EXTENSIONS = new Set([
   '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.avif', '.tiff'
@@ -78,51 +82,50 @@ async function main() {
   }
 
   const projectRoot = getProjectRoot()
-  const uploadsDir = path.join(projectRoot, PATHS.UPLOADS)
+  let totalRegistered = 0
+  let totalMissing = 0
+  let totalFailed = 0
 
-  console.log(`📁 Scanning: ${uploadsDir}`)
-  if (DRY_RUN) console.log('🏜️  Dry run — no changes will be made\n')
+  for (const { dir, urlPrefix } of SCAN_DIRS) {
+    const absDir = path.join(projectRoot, dir)
+    console.log(`\n📁 Scanning: ${absDir}`)
 
-  const files = collectImageFiles(uploadsDir)
-  if (files.length === 0) {
-    console.log('No image files found.')
-    return
-  }
+    const files = collectImageFiles(absDir)
+    if (files.length === 0) {
+      console.log('   No image files found.')
+      continue
+    }
 
-  console.log(`Found ${files.length} image file(s)\n`)
+    console.log(`   Found ${files.length} image file(s)\n`)
 
-  let registered = 0
-  let missing = 0
-  let failed = 0
+    for (const filePath of files) {
+      const relativePath = path.relative(absDir, filePath)
+      const expectedUrl = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
 
-  for (const filePath of files) {
-    const publicDir = path.join(projectRoot, 'public')
-    const relativePath = path.relative(publicDir, filePath)
-    const expectedUrl = `/${relativePath.replace(/\\/g, '/')}`
-
-    try {
-      const existing = await findByUrl(expectedUrl)
-      if (existing) {
-        console.log(`  ✅ Registered: ${expectedUrl} (id: ${existing.id})`)
-        registered++
-      } else {
-        console.log(`  ❌ Missing:    ${expectedUrl}`)
-        missing++
+      try {
+        const existing = await findByUrl(expectedUrl)
+        if (existing) {
+          console.log(`  ✅ ${expectedUrl} (id: ${existing.id})`)
+          totalRegistered++
+        } else {
+          console.log(`  ❌ ${expectedUrl}`)
+          totalMissing++
+        }
+      } catch (err) {
+        console.error(
+          `  ⚠️  Error: ${expectedUrl}:`,
+          err instanceof Error ? err.message : err
+        )
+        totalFailed++
       }
-    } catch (err) {
-      console.error(
-        `  ⚠️  Error checking ${expectedUrl}:`,
-        err instanceof Error ? err.message : err
-      )
-      failed++
     }
   }
 
   console.log(
-    `\nSummary: ${registered} registered, ${missing} missing, ${failed} errors`
+    `\nSummary: ${totalRegistered} registered, ${totalMissing} missing, ${totalFailed} errors`
   )
 
-  if (missing > 0) {
+  if (totalMissing > 0) {
     console.log(
       '\n💡 Missing files will be auto-seeded on next Strapi startup (bootstrap).'
     )

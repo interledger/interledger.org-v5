@@ -361,10 +361,16 @@ const MIME_BY_EXT: Record<string, string> = {
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
 
 /**
- * Scan `public/uploads/img/original/` for image files that are on disk but
- * not registered in Strapi's media library. Creates a DB record for each so
- * existing MDX URL references remain valid after a fresh database.
+ * Directories under `public/` to scan for seedable images.
+ * Each entry maps a disk path (relative to public/) to the URL prefix it's
+ * served at. Files found on disk but missing from Strapi's `upload_file`
+ * table are inserted so MDX references remain valid after a fresh database.
  */
+const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
+  { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
+  { dir: 'img', urlPrefix: '/img' }
+]
+
 async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   const query = strapi.db?.query('plugin::upload.file')
   if (!query) {
@@ -373,50 +379,47 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   }
 
   const publicDir = strapi.dirs.static.public
-  const uploadsDir = path.join(publicDir, 'uploads', UPLOAD_SUBDIR)
-
-  if (!fs.existsSync(uploadsDir)) return
-
-  const files = collectImagePaths(uploadsDir)
-  if (files.length === 0) return
-
   let seeded = 0
 
-  for (const filePath of files) {
-    const ext = path.extname(filePath).toLowerCase()
-    const basename = path.basename(filePath, ext)
-    const relativePath = path.relative(
-      path.join(publicDir, 'uploads'),
-      filePath
-    )
-    const url = `/uploads/${relativePath.replace(/\\/g, '/')}`
+  for (const { dir, urlPrefix } of SEED_DIRS) {
+    const absDir = path.join(publicDir, dir)
+    if (!fs.existsSync(absDir)) continue
 
-    const existing = await query.findOne({
-      where: { url },
-      select: ['id']
-    })
-    if (existing) continue
+    const files = collectImagePaths(absDir)
 
-    const stat = fs.statSync(filePath)
-    const sizeKB = Number((stat.size / 1024).toFixed(2))
-    const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+    for (const filePath of files) {
+      const ext = path.extname(filePath).toLowerCase()
+      const basename = path.basename(filePath, ext)
+      const relativePath = path.relative(absDir, filePath)
+      const url = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
 
-    await query.create({
-      data: {
-        name: path.basename(filePath),
-        hash: basename,
-        ext,
-        mime,
-        size: sizeKB,
-        url,
-        provider: 'local',
-        width: null,
-        height: null,
-        formats: null,
-        folderPath: '/'
-      }
-    })
-    seeded++
+      const existing = await query.findOne({
+        where: { url },
+        select: ['id']
+      })
+      if (existing) continue
+
+      const stat = fs.statSync(filePath)
+      const sizeKB = Number((stat.size / 1024).toFixed(2))
+      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+
+      await query.create({
+        data: {
+          name: path.basename(filePath),
+          hash: basename,
+          ext,
+          mime,
+          size: sizeKB,
+          url,
+          provider: 'local',
+          width: null,
+          height: null,
+          formats: null,
+          folderPath: '/'
+        }
+      })
+      seeded++
+    }
   }
 
   if (seeded > 0) {
