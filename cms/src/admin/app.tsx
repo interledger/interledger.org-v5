@@ -111,6 +111,8 @@ export default {
       textarea { min-height: 140px !important; }
       /* TEMP UI Fix: hide only the Preview aside (last one), not the one above */
       aside[aria-labelledby="additional-information"]:nth-child(2) { display: none !important; }
+      /* TEMP UI Fix: enum dropdowns should show all options without scrolling */
+      [role="listbox"] { max-height: none !important; }
     `
     document.head.appendChild(style)
 
