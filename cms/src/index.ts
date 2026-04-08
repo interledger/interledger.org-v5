@@ -1,8 +1,12 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import {
+  scheduleGitSync,
+  validateGitSyncRepoOnStartup
+} from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
 import { LOCALES } from './utils/mdx'
+import { shouldSkipMdxExport } from './utils/pageLifecycle'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -97,6 +101,15 @@ interface CmComponentsService {
 interface StrapiInstance {
   documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
+  db?: {
+    lifecycles?: {
+      subscribe: (subscription: {
+        models: string[]
+        afterCreate?: (event: { result?: Record<string, unknown> }) => void
+        afterDelete?: (event: { result?: Record<string, unknown> }) => void
+      }) => void
+    }
+  }
   plugin: (name: string) =>
     | {
         service: (
@@ -104,6 +117,30 @@ interface StrapiInstance {
         ) => CmContentTypesService | CmComponentsService | undefined
       }
     | undefined
+}
+
+function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
+  strapi.db?.lifecycles?.subscribe({
+    models: ['plugin::upload.file'],
+    afterCreate(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🖼️  Upload created, scheduling git sync')
+      scheduleGitSync('upload')
+    },
+    afterDelete(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🗑️  Upload deleted, scheduling git sync')
+      scheduleGitSync('upload')
+    }
+  })
 }
 
 /**
@@ -701,5 +738,8 @@ export default {
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
     await configureLayouts(strapi)
+
+    // Auto-commit uploaded image changes in public/uploads via git sync.
+    registerUploadGitSyncLifecycle(strapi)
   }
 }
