@@ -64,7 +64,7 @@
         }
       },
       "required": true,
-      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      "regex": "^[a-z0-9]+(?:[-/][a-z0-9]+)*$"
     },
     "tagline": {
       "type": "string",
@@ -81,6 +81,7 @@
           "localized": true
         }
       },
+      "default": "Fellows - 2026",
       "enum": [
         "Fellows - 2026"
       ]

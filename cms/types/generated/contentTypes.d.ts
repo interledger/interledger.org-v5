@@ -452,7 +452,8 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         i18n: {
           localized: true
         }
-      }>
+      }> &
+      Schema.Attribute.DefaultTo<'Fellows - 2026'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
