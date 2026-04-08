@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Hero",
     "icon": "star",
-    "description": "Hero section with title, description and CTAs"
+    "description": "Hero section with title, description and background image"
   },
   "options": {},
   "attributes": {
@@ -28,16 +28,6 @@
       "type": "media",
       "multiple": false,
       "allowedTypes": ["images"],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "secondaryCtas": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.cta-link",
       "pluginOptions": {
         "i18n": {
           "localized": true
