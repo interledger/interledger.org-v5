@@ -5,7 +5,7 @@
     "singularName": "summit-page",
     "pluralName": "summit-pages",
     "displayName": "Summit Page",
-    "description": "Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Full path slug sets the URL and file location."
+    "description": "Summit pages with dark theme. Full path slug sets the URL and file location."
   },
   "options": {
     "draftAndPublish": false
@@ -27,13 +27,6 @@
       "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
       "description": "Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash."
-    },
-    "pageType": {
-      "type": "enumeration",
-      "enum": ["hackathon", "hackathon-resource"],
-      "default": "hackathon",
-      "pluginOptions": { "i18n": { "localized": false } },
-      "description": "Hackathon or Hackathon Resource"
     },
     "seo": {
       "type": "component",
