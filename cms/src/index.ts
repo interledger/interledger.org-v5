@@ -1,10 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { pipeline } from 'stream/promises'
-import {
-  scheduleGitSync,
-  validateGitSyncRepoOnStartup
-} from './utils/gitSync'
+import { scheduleGitSync, validateGitSyncRepoOnStartup } from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
 import { LOCALES } from './utils/mdx'
 import { shouldSkipMdxExport } from './utils/pageLifecycle'
@@ -316,7 +313,9 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   if (imgService) {
     imgService.generateThumbnail = async () => null
     imgService.generateResponsiveFormats = async () => []
-    strapi.log.info('✅ Image manipulation: thumbnail & responsive formats disabled')
+    strapi.log.info(
+      '✅ Image manipulation: thumbnail & responsive formats disabled'
+    )
   }
 }
 
