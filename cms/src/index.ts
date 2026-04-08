@@ -168,7 +168,6 @@ interface DbQueryApi {
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
 }
-
 interface StrapiInstance {
   documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
