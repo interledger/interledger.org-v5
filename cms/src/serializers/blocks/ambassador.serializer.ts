@@ -22,5 +22,6 @@ export function serialize(block: {
   photoAlt="${esc(amb.photo?.alternativeText || '')}"
   linkedinUrl="${esc(amb.linkedinUrl || '')}"
   grantReportUrl="${esc(amb.grantReportUrl || '')}"${showLinksAttr}
+  category="${esc(amb.category)}"
 />`
 }

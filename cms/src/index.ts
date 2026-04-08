@@ -179,7 +179,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description',
       photo: 'Photo',
       linkedinUrl: 'LinkedIn URL',
-      grantReportUrl: 'Grant Report URL'
+      grantReportUrl: 'Grant Report URL',
+      category: 'Category'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
@@ -270,7 +271,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.ambassadors-grid': {
       heading: 'Heading',
-      ambassadors: 'Ambassadors'
+      ambassadors: 'Ambassadors',
+      category: 'Category'
     },
     'blocks.blockquote': {
       quote: 'Quote',
@@ -472,6 +474,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'linkedinUrl', size: 6 },
         { name: 'grantReportUrl', size: 6 }
       ],
+      [{ name: 'category', size: 6 }],
       [{ name: 'photo', size: 12 }],
       [{ name: 'description', size: 12 }]
     ],

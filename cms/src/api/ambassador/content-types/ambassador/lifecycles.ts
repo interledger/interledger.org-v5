@@ -40,6 +40,7 @@ function generateMdxContent(
     `photoAlt: ${q(photoAlt)}`,
     `linkedinUrl: ${q(ambassador.linkedinUrl ?? null)}`,
     `grantReportUrl: ${q(ambassador.grantReportUrl ?? null)}`,
+    `category: ${q(ambassador.category)}`,
     ...(isLocalized && englishSlug ? [`localizes: ${q(englishSlug)}`] : []),
     ...(locale ? [`locale: ${q(locale)}`] : [])
   ]

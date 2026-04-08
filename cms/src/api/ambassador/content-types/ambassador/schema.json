@@ -18,41 +18,77 @@
   "attributes": {
     "name": {
       "type": "string",
-      "maxLength": 255,
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "pathSlug": {
-      "type": "uid",
-      "targetField": "name",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "description": {
-      "type": "richtext",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "maxLength": 255,
+      "required": true
+    },
+    "pathSlug": {
+      "type": "uid",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "targetField": "name",
+      "required": true
+    },
+    "description": {
+      "type": "richtext",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
     },
     "photo": {
       "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "multiple": false,
       "required": true,
-      "allowedTypes": ["images"],
-      "pluginOptions": { "i18n": { "localized": true } }
+      "allowedTypes": [
+        "images"
+      ]
     },
     "linkedinUrl": {
       "type": "string",
-      "maxLength": 500,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "maxLength": 500
     },
     "grantReportUrl": {
       "type": "string",
-      "maxLength": 500,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "maxLength": 500
+    },
+    "category": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true,
+      "default": "Fellows - 2026",
+      "enum": [
+        "Fellows - 2025",
+        "Fellows - 2026"
+      ]
     }
   }
 }

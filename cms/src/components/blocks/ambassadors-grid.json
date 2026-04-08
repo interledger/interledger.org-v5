@@ -14,6 +14,12 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::ambassador.ambassador"
+    },
+    "category": {
+      "type": "enumeration",
+      "required": true,
+      "default": "Fellows - 2026",
+      "enum": ["Fellows - 2025", "Fellows - 2026"]
     }
   }
 }

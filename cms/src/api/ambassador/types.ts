@@ -16,4 +16,5 @@ export interface AmbassadorBase {
   photoAlt?: string | null
   linkedinUrl?: string | null
   grantReportUrl?: string | null
+  category: string
 }
