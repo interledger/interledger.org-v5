@@ -138,7 +138,7 @@ export const summitPageFrontmatterSchema = z.object({
 })
 
 export const ambassadorFrontmatterSchema = z.object({
-  pathSlug: pathSlugSchema(),
+  pathSlug: pathSlugSchema(false),
   name: z.string().min(1, 'name is required'),
   description: z.string().min(1, 'description is required'),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */

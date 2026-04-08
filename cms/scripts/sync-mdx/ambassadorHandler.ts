@@ -89,19 +89,36 @@ async function handleAmbassadorGrid(
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const heading = getStringAttr(node, 'heading')
-  const pathSlugs = getStringArrayAttr(node, 'pathSlugs', { required: true })
+  const pathSlugs = getStringArrayAttr(node, 'pathSlugs')
+  const category = getStringAttr(node, 'category')
 
-  const resolved = await Promise.all(
-    pathSlugs.map((pathSlug) => ctx.resolveRelation!('ambassadors', pathSlug))
-  )
+  if (!pathSlugs && !category) {
+    throw new MdxParserError({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP,
+      message: 'AmbassadorGrid requires either "pathSlugs" or "category".',
+      component: node.name ?? undefined,
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
 
   const block: AmbassadorsGridBlock = {
-    __component: 'blocks.ambassadors-grid',
-    ambassadors: { connect: resolved }
+    __component: 'blocks.ambassadors-grid'
   }
 
   if (heading !== undefined) {
     block.heading = heading
+  }
+
+  if (category !== undefined) {
+    block.category = category
+  }
+
+  if (pathSlugs && pathSlugs.length > 0) {
+    const resolved = await Promise.all(
+      pathSlugs.map((pathSlug) => ctx.resolveRelation!('ambassadors', pathSlug))
+    )
+    block.ambassadors = { connect: resolved }
   }
 
   return [block]
