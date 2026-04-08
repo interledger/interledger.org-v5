@@ -143,6 +143,31 @@ interface StrapiPlugin {
   provider?: UploadProvider
 }
 
+interface UploadFileRecord {
+  id: number
+  name: string
+  hash: string
+  ext: string
+  mime: string
+  size: number
+  url: string
+  provider: string
+  width?: number | null
+  height?: number | null
+  formats?: Record<string, unknown> | null
+  folderPath?: string
+}
+
+interface DbQueryApi {
+  findOne: (params: {
+    where: Record<string, unknown>
+    select?: string[]
+  }) => Promise<UploadFileRecord | null>
+  create: (params: {
+    data: Omit<UploadFileRecord, 'id'>
+  }) => Promise<UploadFileRecord>
+  count: (params: { where: Record<string, unknown> }) => Promise<number>
+}
 interface StrapiInstance {
   documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
@@ -155,7 +180,9 @@ interface StrapiInstance {
         afterDelete?: (event: { result?: Record<string, unknown> }) => void
       }) => void
     }
+    query: (uid: string) => DbQueryApi
   }
+  config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
 }
 
@@ -279,8 +306,16 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   provider.delete = async (file: UploadFile) => {
-    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
-    if (fs.existsSync(dest)) fs.unlinkSync(dest)
+    const candidates = [
+      path.join(uploadPath, `${file.hash}${file.ext}`),
+      ...(file.url ? [path.join(publicDir, file.url)] : [])
+    ]
+    for (const dest of candidates) {
+      if (fs.existsSync(dest)) {
+        fs.unlinkSync(dest)
+        return
+      }
+    }
   }
 
   strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
@@ -317,6 +352,107 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
       '✅ Image manipulation: thumbnail & responsive formats disabled'
     )
   }
+}
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+  '.tiff': 'image/tiff'
+}
+
+const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
+
+/**
+ * Directories under `public/` to scan for seedable images.
+ * Each entry maps a disk path (relative to public/) to the URL prefix it's
+ * served at. Files found on disk but missing from Strapi's `upload_file`
+ * table are inserted so MDX references remain valid after a fresh database.
+ */
+const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
+  { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
+  { dir: 'img', urlPrefix: '/img' }
+]
+
+async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
+  const query = strapi.db?.query('plugin::upload.file')
+  if (!query) {
+    strapi.log.warn('⚠️  DB query API unavailable — skipping upload seeding')
+    return
+  }
+
+  const publicDir = strapi.dirs.static.public
+  let seeded = 0
+
+  for (const { dir, urlPrefix } of SEED_DIRS) {
+    const absDir = path.join(publicDir, dir)
+    if (!fs.existsSync(absDir)) continue
+
+    const files = collectImagePaths(absDir)
+
+    for (const filePath of files) {
+      const ext = path.extname(filePath).toLowerCase()
+      const basename = path.basename(filePath, ext)
+      const relativePath = path.relative(absDir, filePath)
+      const url = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
+
+      const existing = await query.findOne({
+        where: { url },
+        select: ['id']
+      })
+      if (existing) continue
+
+      const stat = fs.statSync(filePath)
+      const sizeKB = Number((stat.size / 1024).toFixed(2))
+      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+
+      await query.create({
+        data: {
+          name: path.basename(filePath),
+          hash: basename,
+          ext,
+          mime,
+          size: sizeKB,
+          url,
+          provider: 'local',
+          width: null,
+          height: null,
+          formats: null,
+          folderPath: '/'
+        }
+      })
+      seeded++
+    }
+  }
+
+  if (seeded > 0) {
+    strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
+  }
+}
+
+function collectImagePaths(dir: string): string[] {
+  const results: string[] = []
+
+  function walk(current: string) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name.startsWith('.')) continue
+      const full = path.join(current, entry.name)
+      if (entry.isDirectory()) {
+        walk(full)
+      } else if (
+        SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+      ) {
+        results.push(full)
+      }
+    }
+  }
+
+  walk(dir)
+  return results
 }
 
 /**
@@ -869,6 +1005,9 @@ export default {
     // Redirect uploads to public/uploads/img/original/ and disable image variants
     overrideUploadProvider(strapi)
     await disableImageVariants(strapi)
+
+    // Register any on-disk images that are missing from the DB (fresh DB scenario)
+    await seedUploadsFromDisk(strapi)
 
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)

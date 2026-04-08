@@ -113,10 +113,11 @@ async function getImageFromStrapi(
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   try {
-    const existing = await strapi.findUploadByName(name)
-    if (existing) {
-      return existing
-    }
+    const byUrl = await strapi.findUploadByUrl(photoUrl)
+    if (byUrl) return byUrl
+
+    const byName = await strapi.findUploadByName(name)
+    if (byName) return byName
 
     if (dryRun) {
       console.log(
