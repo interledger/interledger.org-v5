@@ -151,7 +151,11 @@ export function createFlatLocaleMdxLifecycle<
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(result.documentId)
-      const ctx: SyncContext = { slug: result.pathSlug, action: 'create', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'create',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     },
     async afterUpdate(event: { result?: T }) {
@@ -162,7 +166,11 @@ export function createFlatLocaleMdxLifecycle<
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(result.documentId)
-      const ctx: SyncContext = { slug: result.pathSlug, action: 'update', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'update',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     },
     async afterDelete(event: { result?: T }) {
@@ -184,7 +192,11 @@ export function createFlatLocaleMdxLifecycle<
         label
       )
 
-      const ctx: SyncContext = { slug: result.pathSlug, action: 'delete', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'delete',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     }
   }

@@ -69,14 +69,13 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
-export function getAdminAuthor():
-  | { name: string; email: string }
-  | undefined {
+export function getAdminAuthor(): { name: string; email: string } | undefined {
   try {
     const ctx = strapi.requestContext.get()
     const user = ctx?.state?.user
     if (!user?.email) return undefined
-    const name = [user.firstname, user.lastname].filter(Boolean).join(' ') || 'Strapi'
+    const name =
+      [user.firstname, user.lastname].filter(Boolean).join(' ') || 'Strapi'
     return { name, email: user.email }
   } catch {
     return undefined

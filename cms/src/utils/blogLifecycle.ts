@@ -222,7 +222,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!post) return
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
-      const ctx: SyncContext = { slug: post.pathSlug, action: 'create', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: post.pathSlug,
+        action: 'create',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     },
     async afterUpdate(event: BlogEvent) {
@@ -234,7 +238,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!post) return
       console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
-      const ctx: SyncContext = { slug: post.pathSlug, action: 'update', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: post.pathSlug,
+        action: 'update',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     },
     async afterDelete(event: BlogEvent) {
@@ -247,7 +255,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         outputPath: getOutputPath(result.locale),
         post: result
       })
-      const ctx: SyncContext = { slug: result.pathSlug, action: 'delete', author: getAdminAuthor() }
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'delete',
+        author: getAdminAuthor()
+      }
       scheduleGitSync(label, ctx)
     }
   }

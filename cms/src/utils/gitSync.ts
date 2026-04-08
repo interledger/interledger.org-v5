@@ -281,10 +281,7 @@ async function flushGitSync(
  * are coalesced into a single commit. The commit message is inferred from
  * actual git status rather than the caller.
  */
-export function scheduleGitSync(
-  label: string,
-  context?: SyncContext
-): void {
+export function scheduleGitSync(label: string, context?: SyncContext): void {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
     console.log('⏭️  Git sync scheduling skipped via STRAPI_DISABLE_GIT_SYNC')
     return
