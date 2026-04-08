@@ -56,16 +56,6 @@
         }
       }
     },
-    "pathSlug": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "required": true,
-      "regex": "^[a-z0-9]+(?:[-/][a-z0-9]+)*$"
-    },
     "tagline": {
       "type": "string",
       "pluginOptions": {
@@ -74,6 +64,15 @@
         }
       }
     },
+    "pathSlug": {
+      "type": "uid",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "targetField": "name"
+    },
     "category": {
       "type": "enumeration",
       "pluginOptions": {
@@ -81,9 +80,9 @@
           "localized": true
         }
       },
-      "default": "Fellows - 2026",
+      "default": "Fellows 2026",
       "enum": [
-        "Fellows - 2026"
+        "Fellows 2026"
       ]
     }
   }

@@ -28,7 +28,7 @@ export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
       'oneToMany',
       'api::ambassador.ambassador'
     >
-    category: Schema.Attribute.Enumeration<['Fellows - 2026']>
+    category: Schema.Attribute.Enumeration<['Fellows 2026']>
     heading: Schema.Attribute.String
   }
 }

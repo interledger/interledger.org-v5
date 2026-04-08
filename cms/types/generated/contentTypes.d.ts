@@ -447,13 +447,13 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    category: Schema.Attribute.Enumeration<['Fellows - 2026']> &
+    category: Schema.Attribute.Enumeration<['Fellows 2026']> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }> &
-      Schema.Attribute.DefaultTo<'Fellows - 2026'>
+      Schema.Attribute.DefaultTo<'Fellows 2026'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -478,8 +478,7 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255
       }>
-    pathSlug: Schema.Attribute.String &
-      Schema.Attribute.Required &
+    pathSlug: Schema.Attribute.UID<'name'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

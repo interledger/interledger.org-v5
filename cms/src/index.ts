@@ -467,7 +467,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::ambassador.ambassador': {
       name: 'Name',
-      pathSlug: 'Full Path Slug',
+      pathSlug: 'URL Slug',
       description: 'Description',
       photo: 'Photo',
       quote: 'Quote',
@@ -525,10 +525,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.'
-    },
-    'api::ambassador.ambassador': {
-      pathSlug:
-        'Path relative to the site root (/). Examples: ambassadors → /ambassadors; grant/fellowship → /grant/fellowship. No leading slash.'
     }
   }
 
@@ -779,10 +775,12 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::ambassador.ambassador': [
       [
         { name: 'name', size: 6 },
-        { name: 'category', size: 6 }
+        { name: 'pathSlug', size: 6 }
       ],
-      [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'photo', size: 12 }],
+      [
+        { name: 'category', size: 6 },
+        { name: 'photo', size: 6 }
+      ],
       [{ name: 'tagline', size: 12 }],
       [{ name: 'quote', size: 12 }],
       [{ name: 'description', size: 12 }]
