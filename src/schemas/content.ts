@@ -146,6 +146,7 @@ export const ambassadorFrontmatterSchema = z.object({
   photoAlt: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
   grantReportUrl: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
   locale: z.string().optional(),
   localizes: z.string().optional()
 })

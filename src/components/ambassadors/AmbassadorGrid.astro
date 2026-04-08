@@ -21,9 +21,15 @@ interface Props {
   ambassadors?: AmbassadorData[]
   pathSlugs?: string[]
   heading?: string
+  category: string
 }
 
-const { ambassadors: propAmbassadors, pathSlugs, heading } = Astro.props
+const {
+  ambassadors: propAmbassadors,
+  pathSlugs,
+  heading,
+  category
+} = Astro.props
 
 let ambassadors: AmbassadorData[] = []
 
@@ -50,7 +56,25 @@ if (propAmbassadors) {
       photo: entry.data.photo,
       photoAlt: entry.data.photoAlt,
       linkedinUrl: entry.data.linkedinUrl,
-      grantReportUrl: entry.data.grantReportUrl
+      grantReportUrl: entry.data.grantReportUrl,
+      category: entry.data.category
+    }))
+} else if (category) {
+  const allAmbassadors = await getCollection('ambassadors')
+  const filtered = allAmbassadors.filter(
+    (entry) => entry.data.category === category
+  )
+  ambassadors = filtered
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+    .map((entry) => ({
+      name: entry.data.name,
+      pathSlug: entry.data.pathSlug,
+      description: entry.data.description,
+      photo: entry.data.photo,
+      photoAlt: entry.data.photoAlt,
+      linkedinUrl: entry.data.linkedinUrl,
+      grantReportUrl: entry.data.grantReportUrl,
+      category: entry.data.category
     }))
 }
 ---
