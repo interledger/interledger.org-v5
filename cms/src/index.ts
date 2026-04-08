@@ -489,7 +489,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
       pathSlug: 'Full Path Slug',
-      pageType: 'Brand Pillar',
+      pillar: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
       content: 'Page Content'
@@ -497,7 +497,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       title: 'Title',
       pathSlug: 'Full Path Slug',
-      pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
       content: 'Content'
@@ -780,7 +779,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::foundation-page.foundation-page': [
       [
         { name: 'title', size: 6 },
-        { name: 'pageType', size: 6 }
+        { name: 'pillar', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
@@ -788,10 +787,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'api::summit-page.summit-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pageType', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
