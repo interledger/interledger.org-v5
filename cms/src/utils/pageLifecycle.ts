@@ -415,7 +415,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
               .replace(/^\/+|\/+$/g, '')
               .trim()
       if (!slug) {
-        strapi.log.warn(
+        console.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
         )
         scheduleGitSync(label)
