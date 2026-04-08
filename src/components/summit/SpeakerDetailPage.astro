@@ -1,7 +1,8 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import type { Locale } from '@/utils/i18'
+import { defaultLocale } from '@/utils/i18'
 import type { Speaker } from '@/types/summit'
+import { getTranslation } from '@/utils/summit-talks-speakers'
 import { getTalks } from '@/utils/extractSessionize'
 import TextParagraphs from './TextParagraphs.astro'
 import SessionsList from './SessionsList.astro'
@@ -9,13 +10,16 @@ import SessionsList from './SessionsList.astro'
 interface Props {
   entry: Speaker
   year: string
-  sessionBaseHref: string
-  lang: Locale
 }
 
-const { entry, year, sessionBaseHref, lang } = Astro.props
+const { entry, year } = Astro.props
+const { routeLocale: lang, currentBasePath } = Astro.locals
+const langPrefix = lang === defaultLocale ? '' : `/${lang}`
+const baseHref = `${langPrefix}${currentBasePath}`
+const sessionBaseHref = `${baseHref}/${year}/talk`
 const sessions = await getTalks(year, entry.id)
-const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
+const translation = getTranslation(entry, lang)
+const bio = translation?.bio ?? entry.bio
 ---
 
 <SummitPageLayout title={entry.name}>
@@ -45,6 +49,8 @@ const bio = lang === 'es' && entry.es?.bio ? entry.es.bio : entry.bio
             <SessionsList
               sessions={sessions}
               sessionBaseHref={sessionBaseHref}
+              lang={lang}
+              year={year}
             />
           </section>
         )

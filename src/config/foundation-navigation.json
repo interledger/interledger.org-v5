@@ -26,7 +26,7 @@
       "items": [
         {
           "label": "Overview",
-          "href": "/technology"
+          "href": "/open-standards"
         },
         {
           "label": "Interledger",
@@ -55,19 +55,15 @@
       "items": [
         {
           "label": "Digital Financial Services",
-          "href": "/grants/dfs"
+          "href": "/grant/financial-services"
         },
         {
           "label": "Higher Education",
-          "href": "/grants/education"
-        },
-        {
-          "label": "Ambassadors",
-          "href": "/grants/ambassadors"
+          "href": "/grant/education"
         },
         {
           "label": "Grant for Web",
-          "href": "/grants-for-web"
+          "href": "grant/grant-web"
         }
       ]
     },
@@ -83,10 +79,6 @@
           "href": "/developers/blog"
         },
         {
-          "label": "Podcast",
-          "href": "/podcast"
-        },
-        {
           "label": "Community Forum",
           "href": "https://forum.interledger.org",
           "openInNewTab": true
@@ -99,14 +91,6 @@
         {
           "label": "Get Involved",
           "href": "/get-involved"
-        },
-        {
-          "label": "Events",
-          "href": "/events"
-        },
-        {
-          "label": "Guidelines",
-          "href": "/participation-guidelines"
         }
       ]
     }

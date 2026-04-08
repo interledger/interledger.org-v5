@@ -16,6 +16,12 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 
 const { year } = Astro.params
 const { page } = Astro.props
+if (!year) {
+  throw new Error('Year param is required')
+}
+if (!page) {
+  return Astro.redirect('/404')
+}
 const speakers: Speaker[] = page.data
 const basePath = stripPagination(Astro.url.pathname)
 const title = `Oradores de la Cumbre ${year}`
@@ -26,4 +32,5 @@ const title = `Oradores de la Cumbre ${year}`
   basePath={basePath}
   title={title}
   page={page}
+  year={year}
 />

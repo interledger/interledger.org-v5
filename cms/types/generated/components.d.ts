@@ -673,18 +673,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search'
   }
   attributes: {
-    canonicalUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    keywords: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     metaDescription: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -693,22 +681,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
       }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 300
-      }>
-    metaImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    metaTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 60
       }>
   }
 }

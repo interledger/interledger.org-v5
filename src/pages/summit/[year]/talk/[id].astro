@@ -8,7 +8,6 @@ interface Props {
   entry: Talk
 }
 
-const lang = 'en'
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getSessionPages()
   return entries
@@ -24,4 +23,4 @@ if (!entry) {
 }
 ---
 
-<SessionDetailPage entry={entry} year={year} lang={lang} />
+<SessionDetailPage entry={entry} year={year} />

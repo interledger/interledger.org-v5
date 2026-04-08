@@ -2,6 +2,22 @@ import type { PaginateFunction } from 'astro'
 import { getSpeakers, getTalks, getTalkPreviews } from './extractSessionize'
 import { generateSlug } from './slug'
 import { YEARS } from './sessionize'
+import {
+  type SessionizeSupportedLocale,
+  SESSIONIZE_SUPPORTED_LOCALES
+} from '@/types/summit'
+
+function isSessionizeSupportedLocale(
+  lang: string
+): lang is SessionizeSupportedLocale {
+  return (SESSIONIZE_SUPPORTED_LOCALES as readonly string[]).includes(lang)
+}
+
+export function getTranslation<
+  T extends Record<SessionizeSupportedLocale, unknown>
+>(entry: T, lang: string): T[SessionizeSupportedLocale] | null {
+  return isSessionizeSupportedLocale(lang) ? entry[lang] : null
+}
 
 export async function paginateSummitTalks(paginate: PaginateFunction) {
   const paths = await Promise.all(

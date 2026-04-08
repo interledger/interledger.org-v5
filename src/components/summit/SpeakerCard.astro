@@ -5,14 +5,18 @@ import { generateSlug } from '@/utils/slug'
 interface Props {
   speaker: Speaker
   basePath: string
+  year: string
 }
 
-const { speaker, basePath } = Astro.props
+const { speaker, basePath, year } = Astro.props
 const href = `${basePath}/${generateSlug(speaker.name)}`
 ---
 
 <li class="flex-1 min-w-[8em]">
-  <a href={href}>
+  <a
+    href={href}
+    data-umami-event={`${year} Speaker Card - Speaker: ${speaker.name}`}
+  >
     <img
       src={speaker.profilePicture}
       alt={speaker.name}
