@@ -32,7 +32,10 @@ import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
 import mime from 'mime-types'
 import { getProjectRoot } from '@/utils/paths'
-import { storageNameFromRelativeImagePath } from '@/utils/imageLayoutPaths'
+import {
+  storageNameFromRelativeImagePath,
+  originalMasterUploadsRelFromStorageName
+} from '@/utils/imageLayoutPaths'
 import { createStrapiClient } from './sync-mdx/strapiClient'
 
 const IMAGE_EXT = new Set([
@@ -77,7 +80,29 @@ async function collectOriginalImages(
   }
 
   await walk(originalDir)
-  return out.sort((a, b) => a.relPosix.localeCompare(b.relPosix))
+  out.sort((a, b) => a.relPosix.localeCompare(b.relPosix))
+
+  // Deduplicate by canonical slug URL. Two files (e.g. a legacy subdir file and a
+  // flat copy created by the upload hook) may map to the same img/original/<slug>.ext
+  // target. Keep the flat root-level file when there's a collision — it's the
+  // canonical form. If no flat file exists, keep whichever was found first.
+  const seen = new Map<string, OriginalEntry>()
+  for (const entry of out) {
+    const storageName = storageNameFromRelativeImagePath(entry.relPosix)
+    const canonicalUrl = originalMasterUploadsRelFromStorageName(storageName)
+    const existing = seen.get(canonicalUrl)
+    if (!existing) {
+      seen.set(canonicalUrl, entry)
+    } else {
+      // Prefer the flat file (no `/` in relPosix) over a subdir file
+      const entryIsFlat = !entry.relPosix.includes('/')
+      if (entryIsFlat) {
+        seen.set(canonicalUrl, entry)
+      }
+      // else keep existing
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.relPosix.localeCompare(b.relPosix))
 }
 
 async function wipeOptimized(
