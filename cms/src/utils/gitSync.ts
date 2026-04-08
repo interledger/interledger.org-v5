@@ -7,7 +7,7 @@ import { getProjectRoot } from './paths'
 const STAGE_CANDIDATES = [
   'src/content/',
   'src/data/',
-  'public/uploads'
+  'public/uploads/img/original'
 ] as const
 const CONTENT_PATH_PREFIXES = ['src/content/', 'src/data/'] as const
 const DEBOUNCE_MS = 300
@@ -299,7 +299,7 @@ export async function gitCommitAndPush(
     .map((fp) => toGitPath(repoRoot, fp))
     .filter((p): p is string => Boolean(p))
 
-  const uploadsDir = path.join(repoRoot, 'public', 'uploads')
+  const uploadsDir = path.join(repoRoot, 'public', 'uploads', 'img', 'original')
   if (fs.existsSync(uploadsDir)) {
     const uploadsPath = toGitPath(repoRoot, uploadsDir)
     if (uploadsPath) normalizedPaths.push(uploadsPath)

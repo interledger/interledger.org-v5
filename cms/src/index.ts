@@ -1,8 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import { pipeline } from 'stream/promises'
+import { scheduleGitSync, validateGitSyncRepoOnStartup } from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
 import { LOCALES } from './utils/mdx'
+import { shouldSkipMdxExport } from './utils/pageLifecycle'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -94,16 +96,91 @@ interface CmComponentsService {
   ) => Promise<void>
 }
 
+interface UploadSettings {
+  responsiveDimensions: boolean
+  sizeOptimization: boolean
+  autoOrientation: boolean
+  aiMetadata: boolean
+}
+
+interface UploadProvider {
+  upload: (file: UploadFile) => Promise<void>
+  uploadStream: (file: UploadFile) => Promise<void>
+  delete: (file: UploadFile) => Promise<void>
+  checkFileSize: (file: UploadFile, options?: unknown) => void
+}
+
+interface UploadFile {
+  hash: string
+  ext: string
+  url?: string
+  buffer?: Buffer
+  stream?: NodeJS.ReadableStream
+  getStream?: () => NodeJS.ReadableStream
+  [key: string]: unknown
+}
+
+interface UploadService {
+  getSettings: () => Promise<UploadSettings>
+  setSettings: (value: UploadSettings) => Promise<void>
+}
+
+interface ImageManipulationService {
+  generateThumbnail: (file: unknown) => Promise<unknown>
+  generateResponsiveFormats: (file: unknown) => Promise<unknown[]>
+  [key: string]: unknown
+}
+
+interface StrapiPlugin {
+  service: (
+    name: string
+  ) =>
+    | CmContentTypesService
+    | CmComponentsService
+    | UploadService
+    | ImageManipulationService
+    | undefined
+  provider?: UploadProvider
+}
+
 interface StrapiInstance {
   documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
-  plugin: (name: string) =>
-    | {
-        service: (
-          name: string
-        ) => CmContentTypesService | CmComponentsService | undefined
-      }
-    | undefined
+  dirs: { static: { public: string } }
+  db?: {
+    lifecycles?: {
+      subscribe: (subscription: {
+        models: string[]
+        afterCreate?: (event: { result?: Record<string, unknown> }) => void
+        afterDelete?: (event: { result?: Record<string, unknown> }) => void
+      }) => void
+    }
+  }
+  plugin: (name: string) => StrapiPlugin | undefined
+}
+
+function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
+  strapi.db?.lifecycles?.subscribe({
+    models: ['plugin::upload.file'],
+    afterCreate(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🖼️  Upload created, scheduling git sync')
+      scheduleGitSync('upload')
+    },
+    afterDelete(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🗑️  Upload deleted, scheduling git sync')
+      scheduleGitSync('upload')
+    }
+  })
 }
 
 /**
@@ -160,6 +237,85 @@ async function ensureLocales(strapi: StrapiInstance) {
         )
       }
     }
+  }
+}
+
+// ── Upload overrides ──────────────────────────────────────────────────────────
+const UPLOAD_SUBDIR = 'img/original'
+const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
+
+/**
+ * Redirect the local upload provider so files land in
+ * `public/uploads/img/original/` and URLs reflect the new path.
+ */
+function overrideUploadProvider(strapi: StrapiInstance): void {
+  const uploadPlugin = strapi.plugin('upload')
+  if (!uploadPlugin?.provider) {
+    strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
+    return
+  }
+
+  const publicDir = strapi.dirs.static.public
+  const uploadPath = path.join(publicDir, 'uploads', UPLOAD_SUBDIR)
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true })
+  }
+
+  const provider = uploadPlugin.provider
+
+  provider.uploadStream = async (file: UploadFile) => {
+    const stream = file.stream ?? file.getStream?.()
+    if (!stream) throw new Error('Missing file stream')
+    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
+    await pipeline(stream, fs.createWriteStream(dest))
+    file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
+  }
+
+  provider.upload = async (file: UploadFile) => {
+    if (!file.buffer) throw new Error('Missing file buffer')
+    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
+    fs.writeFileSync(dest, file.buffer)
+    file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
+  }
+
+  provider.delete = async (file: UploadFile) => {
+    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
+    if (fs.existsSync(dest)) fs.unlinkSync(dest)
+  }
+
+  strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
+}
+
+/**
+ * Disable all image variant generation (thumbnails, responsive formats,
+ * size optimization). Only the original file is kept.
+ */
+async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
+  const uploadPlugin = strapi.plugin('upload')
+  if (!uploadPlugin) return
+
+  const uploadService = uploadPlugin.service('upload') as
+    | UploadService
+    | undefined
+  if (uploadService) {
+    await uploadService.setSettings({
+      responsiveDimensions: false,
+      sizeOptimization: false,
+      autoOrientation: false,
+      aiMetadata: false
+    })
+    strapi.log.info('✅ Upload settings: variants disabled')
+  }
+
+  const imgService = uploadPlugin.service('image-manipulation') as
+    | ImageManipulationService
+    | undefined
+  if (imgService) {
+    imgService.generateThumbnail = async () => null
+    imgService.generateResponsiveFormats = async () => []
+    strapi.log.info(
+      '✅ Image manipulation: thumbnail & responsive formats disabled'
+    )
   }
 }
 
@@ -695,11 +851,18 @@ export default {
     // Ensure git sync points at a valid staging clone before handling content events
     await validateGitSyncRepoOnStartup()
 
+    // Redirect uploads to public/uploads/img/original/ and disable image variants
+    overrideUploadProvider(strapi)
+    await disableImageVariants(strapi)
+
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
     await configureLayouts(strapi)
+
+    // Auto-commit uploaded image changes in public/uploads via git sync.
+    registerUploadGitSyncLifecycle(strapi)
   }
 }
