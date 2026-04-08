@@ -607,7 +607,7 @@ pnpm run sync:sessionize  # defaults to currentSummitYear
   - `src/data/sessionize/{YEAR}-speakers.json`
   - `src/data/sessionize/{YEAR}-talks.json`
 - Downloads speaker images into:
-  - `public/img/sessionize-speakers/{YEAR}`
+  - `public/sessionize-speakers/img/{YEAR}`
 - Clears the image folder before downloading
 - Validates the year against the allowed `YEARS` list
 
@@ -698,10 +698,10 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 - Speaker images are downloaded locally during sync
 - Stored under:
-  `public/img/sessionize-speakers/{YEAR}/`
+  `public/sessionize-speakers/img/{YEAR}/`
 - Filenames are generated using a slugified speaker name
 - If no image is available, a fallback is used:
-  `/img/sessionize-speakers/no-photo.svg`
+  `public/sessionize-speakers/img/no-photo.svg`
 
 ## More Info
 
