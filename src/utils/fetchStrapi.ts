@@ -12,6 +12,7 @@ export async function fetchStrapi(endpoint: string) {
       ? endpoint
       : `${base.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`
     const res = await fetch(url, {
+      cache: 'no-store',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
