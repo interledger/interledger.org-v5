@@ -18,41 +18,72 @@
   "attributes": {
     "name": {
       "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "maxLength": 255,
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "pathSlug": {
-      "type": "uid",
-      "targetField": "name",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "required": true
     },
     "description": {
       "type": "richtext",
-      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false
+    },
+    "photo": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "quote": {
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       }
     },
-    "photo": {
-      "type": "media",
-      "multiple": false,
+    "pathSlug": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "required": true,
-      "allowedTypes": ["images"],
-      "pluginOptions": { "i18n": { "localized": true } }
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
-    "linkedinUrl": {
+    "tagline": {
       "type": "string",
-      "maxLength": 500,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
-    "grantReportUrl": {
-      "type": "string",
-      "maxLength": 500,
-      "pluginOptions": { "i18n": { "localized": true } }
+    "category": {
+      "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "enum": [
+        "Fellows - 2026"
+      ]
     }
   }
 }
