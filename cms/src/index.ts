@@ -433,7 +433,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         strapi.log.debug(`Component ${uid} not found, skipping labels`)
         continue
       }
-      await applyLabels(componentService, uid, labels, componentDescriptions[uid])
+      await applyLabels(
+        componentService,
+        uid,
+        labels,
+        componentDescriptions[uid]
+      )
     } catch (error) {
       strapi.log.debug(
         `Could not update labels for ${uid}: ${(error as Error).message}`
