@@ -16,7 +16,10 @@ function ensureUploadDirs(publicDir: string): void {
         console.log(`✅ Created upload folder: ${dir}`)
       }
     } catch (err) {
-      console.warn(`[Strapi] Could not ensure upload folder exists: ${dir}`, err)
+      console.warn(
+        `[Strapi] Could not ensure upload folder exists: ${dir}`,
+        err
+      )
     }
   }
 }
