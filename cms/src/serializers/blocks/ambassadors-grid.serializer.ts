@@ -7,7 +7,7 @@ const escSingle = (v: string) => (v ? jsesc(v, { quotes: 'single' }) : '')
 export function serialize(block: {
   heading?: string
   ambassadors?: AmbassadorBase[]
-  category: string
+  category?: string
 }): string {
   const pathSlugs = (block.ambassadors || [])
     .filter((amb) => amb?.pathSlug)
@@ -19,7 +19,9 @@ export function serialize(block: {
   const headingAttr = block.heading
     ? ` heading="${escDouble(block.heading)}"`
     : ''
+  const categoryAttr = block.category
+    ? ` category="${escDouble(block.category)}"`
+    : ''
 
-  const category = `"${escDouble(block.category)}"`
-  return `<AmbassadorGrid${headingAttr}${pathSlugsAttr} category=${category} />`
+  return `<AmbassadorGrid${headingAttr}${pathSlugsAttr}${categoryAttr} />`
 }

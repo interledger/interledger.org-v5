@@ -89,7 +89,7 @@ describe('ambassador serializer', () => {
         photo: null,
         linkedinUrl: null,
         grantReportUrl: null,
-        category: 'Fellows - 2026'
+        category: null
       }
     })
 
@@ -97,6 +97,6 @@ describe('ambassador serializer', () => {
     expect(result).toContain('pathSlug="bob"')
     expect(result).toContain('linkedinUrl=""')
     expect(result).toContain('grantReportUrl=""')
-    expect(result).toContain('category="Fellows - 2026"')
+    expect(result).toContain('category=""')
   })
 })

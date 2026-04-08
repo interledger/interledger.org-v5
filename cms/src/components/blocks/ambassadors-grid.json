@@ -17,8 +17,7 @@
     },
     "category": {
       "type": "enumeration",
-      "required": true,
-      "default": "Fellows - 2026",
+      "required": false,
       "enum": ["Fellows - 2025", "Fellows - 2026"]
     }
   }

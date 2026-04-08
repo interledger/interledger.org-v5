@@ -450,13 +450,11 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     category: Schema.Attribute.Enumeration<
       ['Fellows - 2025', 'Fellows - 2026']
     > &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
-      }> &
-      Schema.Attribute.DefaultTo<'Fellows - 2026'>
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
