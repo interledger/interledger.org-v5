@@ -495,6 +495,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       image: 'Image',
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
+    },
+    'shared.tags': {
+      tagValue: 'Tag'
+    }
+  }
+
+  const componentDescriptions: Record<string, Record<string, string>> = {
+    'shared.tags': {
+      tagValue:
+        'You can select multiple tags — click "+ Add an entry" for each tag'
     }
   }
 
@@ -578,7 +588,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         strapi.log.debug(`Component ${uid} not found, skipping labels`)
         continue
       }
-      await applyLabels(componentService, uid, labels)
+      await applyLabels(
+        componentService,
+        uid,
+        labels,
+        componentDescriptions[uid]
+      )
     } catch (error) {
       strapi.log.debug(
         `Could not update labels for ${uid}: ${(error as Error).message}`
