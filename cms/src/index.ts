@@ -307,8 +307,16 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   provider.delete = async (file: UploadFile) => {
-    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
-    if (fs.existsSync(dest)) fs.unlinkSync(dest)
+    const candidates = [
+      path.join(uploadPath, `${file.hash}${file.ext}`),
+      ...(file.url ? [path.join(publicDir, file.url)] : [])
+    ]
+    for (const dest of candidates) {
+      if (fs.existsSync(dest)) {
+        fs.unlinkSync(dest)
+        return
+      }
+    }
   }
 
   strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
