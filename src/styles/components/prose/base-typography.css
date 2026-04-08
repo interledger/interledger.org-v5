@@ -29,16 +29,23 @@
       line-height: 1.6;
     }
 
-    /* Lists: indented with spacing */
-    & ul,
+    /* Lists: indented with spacing and markers */
+    & ul {
+      margin-block-end: var(--spacing-space-s);
+      padding-inline-start: var(--spacing-space-m);
+      list-style-type: disc;
+    }
+
     & ol {
       margin-block-end: var(--spacing-space-s);
       padding-inline-start: var(--spacing-space-m);
+      list-style-type: decimal;
     }
 
-    /* List items: spaced */
+    /* List items: spaced, with line-height matching paragraphs */
     & li {
       margin-block-end: var(--spacing-space-xs);
+      line-height: 1.6;
     }
   }
 }
