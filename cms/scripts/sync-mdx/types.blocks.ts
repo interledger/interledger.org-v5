@@ -49,6 +49,9 @@ export interface AmbassadorBlock extends StrapiBlockBase {
  *
  * `ambassadors` uses Strapi v5's `connect` syntax. Order of entries
  * must match the input slug order.
+ *
+ * Either `ambassadors` (explicit slugs) or `category` (dynamic filter)
+ * must be provided;
  */
 export interface AmbassadorsGridBlock extends StrapiBlockBase {
   __component: 'blocks.ambassadors-grid'
