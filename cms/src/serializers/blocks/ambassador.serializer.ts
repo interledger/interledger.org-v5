@@ -1,8 +1,7 @@
-import jsesc from 'jsesc'
 import { getImageUrl } from '../../utils/mdx'
 import type { AmbassadorBase } from '../../api/ambassador/types'
 
-const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
+const escAttr = (v: string) => v.replace(/"/g, '&quot;')
 
 export function serialize(block: {
   ambassador?: AmbassadorBase | null
@@ -15,12 +14,10 @@ export function serialize(block: {
   const showLinksAttr = block.showLinks === false ? '\n  showLinks={false}' : ''
 
   return `<Ambassador
-  name="${esc(amb.name)}"
-  pathSlug="${esc(amb.pathSlug)}"
-  description="${esc(amb.description || '')}"
-  photo="${esc(photo)}"
-  photoAlt="${esc(amb.photo?.alternativeText || '')}"
-  linkedinUrl="${esc(amb.linkedinUrl || '')}"
-  grantReportUrl="${esc(amb.grantReportUrl || '')}"${showLinksAttr}
+  name="${escAttr(amb.name)}"
+  pathSlug="${escAttr(amb.pathSlug)}"
+  photo="${escAttr(photo)}"
+  photoAlt="${escAttr(amb.photo?.alternativeText || '')}"
+  quote="${escAttr(amb.quote || '')}"${showLinksAttr}
 />`
 }

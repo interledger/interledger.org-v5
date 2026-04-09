@@ -470,8 +470,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'URL Slug',
       description: 'Description',
       photo: 'Photo',
-      linkedinUrl: 'LinkedIn URL',
-      grantReportUrl: 'Grant Report URL'
+      quote: 'Quote',
+      tagline: 'Tag line',
+      category: 'Category'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
@@ -556,6 +557,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.ambassadors-grid': {
       heading: 'Heading',
+      category: 'Category',
       ambassadors: 'Ambassadors'
     },
     'blocks.blockquote': {
@@ -640,6 +642,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.tags': {
       tagValue:
         'You can select multiple tags — click "+ Add an entry" for each tag'
+    },
+    'blocks.ambassadors-grid': {
+      category:
+        'Option A: show ambassadors by category (leave ambassadors empty)',
+      ambassadors: 'Option B: pick ambassadors manually (leave category empty)'
     }
   }
 
@@ -770,10 +777,11 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pathSlug', size: 6 }
       ],
       [
-        { name: 'linkedinUrl', size: 6 },
-        { name: 'grantReportUrl', size: 6 }
+        { name: 'category', size: 6 },
+        { name: 'photo', size: 6 }
       ],
-      [{ name: 'photo', size: 12 }],
+      [{ name: 'tagline', size: 12 }],
+      [{ name: 'quote', size: 12 }],
       [{ name: 'description', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
@@ -809,6 +817,11 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'profileImage', size: 6 },
         { name: 'profileBio', size: 6 }
       ]
+    ],
+    'blocks.ambassadors-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'category', size: 12 }],
+      [{ name: 'ambassadors', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
