@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs'
+import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import { marked } from 'marked'
 import TurndownService from 'turndown'
@@ -18,9 +19,16 @@ const turndown = new TurndownService({
   emDelimiter: '*'
 })
 
+// Preserve <u> (underline) - Turndown strips unknown tags by default
+turndown.addRule('underline', {
+  filter: 'u',
+  replacement: (content) => `<u>${content}</u>`
+})
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
-export const LOCALES = ['en', 'es']
+export const defaultLang = 'en'
+export const LOCALES = [defaultLang, 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
 
@@ -29,6 +37,22 @@ export function uidToLogLabel(uid: string): string {
   const parts = uid.split('.')
   return parts[parts.length - 1] ?? uid
 }
+
+/**
+ * Options for gray-matter stringify to output single-quoted YAML strings.
+ * Uses a custom YAML engine with js-yaml 4's forceQuotes (gray-matter's
+ * bundled js-yaml 3.x does not support this option).
+ */
+const YAML_QUOTE_OPTS = { forceQuotes: true, quotingType: "'" as const }
+
+export const MATTER_STRINGIFY_OPTIONS = {
+  engines: {
+    yaml: {
+      parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+      stringify: (data: object) => yaml.dump(data, YAML_QUOTE_OPTS)
+    }
+  }
+} as Record<string, unknown>
 
 /**
  * Serializes a value as a YAML scalar: single-quoted string or 'null'.
@@ -141,31 +165,12 @@ export function heroFrontmatter(
 export function seoFrontmatter(
   seo:
     | {
-        metaTitle?: string
         metaDescription?: string
-        metaImage?: { url?: string }
-        keywords?: string
-        canonicalUrl?: string
       }
     | undefined
 ): Record<string, string> {
   const data: Record<string, string> = {}
-  if (!seo) return data
-  if (seo.metaTitle) {
-    data.metaTitle = seo.metaTitle
-  }
-  if (seo.metaDescription) {
-    data.metaDescription = seo.metaDescription
-  }
-  const metaImage = getImageUrl(seo.metaImage)
-  if (metaImage) {
-    data.metaImage = metaImage
-  }
-  if (seo.keywords) {
-    data.keywords = seo.keywords
-  }
-  if (seo.canonicalUrl) {
-    data.canonicalUrl = seo.canonicalUrl
-  }
+  if (!seo || !seo.metaDescription) return data
+  data.metaDescription = seo.metaDescription
   return data
 }

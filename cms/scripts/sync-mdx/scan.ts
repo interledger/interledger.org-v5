@@ -1,54 +1,76 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { LOCALES, defaultLang } from '@/utils/mdx'
 import type { ContentTypes } from './config'
 import type { MDXFile } from './mdxTypes'
 
-interface ScanOptions {
-  baseDir: string
-  locale: string
-  isLocalization: boolean
+/** Top-level MDX directory names that denote a non-default locale (e.g. `es/`). */
+const LOCALE_DIR_NAMES = new Set(LOCALES.filter((l) => l !== defaultLang))
+
+/**
+ * Rightmost locale directory segment in a path (before the filename); defaults to {@link defaultLang}.
+ * Examples: `es/page.mdx` → es; `es/grants/page.mdx` → es; `grants/page.mdx` → en.
+ */
+function inferLocaleFromRelativePath(relPath: string): string {
+  const parts = relPath.split(/[/\\]/).filter(Boolean)
+  const dirs = parts.slice(0, -1)
+  for (let i = dirs.length - 1; i >= 0; i--) {
+    const part = dirs[i]!
+    if (LOCALE_DIR_NAMES.has(part)) return part
+  }
+  return defaultLang
 }
 
 /**
- * Scans a directory for MDX files and extracts their metadata and content.
- *
- * @param baseDir - Directory path to scan for MDX files
- * @param locale - Default locale for files in this directory
- * @param isLocalization - Whether files in this directory are localizations (not English)
- * @returns Array of parsed MDX file objects
+ * Path slug fallback from relative path: drop locale folder segments, strip extension.
+ * Used when frontmatter has no pathSlug.
  */
-function scanDirectory({
-  baseDir,
-  locale,
-  isLocalization
-}: ScanOptions): MDXFile[] {
+function pathSlugFallbackFromRelativePath(relPath: string): string {
+  const withoutExt = relPath.replace(/\.(mdx|md)$/i, '')
+  return withoutExt
+    .split(/[/\\]/)
+    .filter((p) => !LOCALE_DIR_NAMES.has(p))
+    .join('/')
+}
+
+/**
+ * Scans MDX files for a content type: one recursive walk from the collection root.
+ *
+ * Locale is inferred from directory structure (rightmost `es/` segment before the file),
+ * overridden by `locale` in frontmatter when present. `isLocalization` follows the
+ * resolved locale (frontmatter wins for unusual placements).
+ *
+ * English files may live at any depth (e.g. `grant/page.mdx`). Localized files use
+ * a collection-level locale directory such as `es/grant/...`.
+ */
+export function scanMDXFiles(
+  contentType: keyof ContentTypes,
+  contentTypes: ContentTypes
+): MDXFile[] {
+  const config = contentTypes[contentType]
+  const baseDir = config.dir
   const mdxFiles: MDXFile[] = []
 
-  // Skip if directory doesn't exist
   if (!fs.existsSync(baseDir)) {
     return mdxFiles
   }
 
-  // Read all files in the directory
-  let files: string[]
+  let relPaths: string[]
   try {
-    files = fs.readdirSync(baseDir)
+    relPaths = fs.readdirSync(baseDir, { recursive: true }) as string[]
   } catch (error) {
-    console.error(`Failed to read directory: ${baseDir}`, error)
+    console.error(`Failed to read content directory: ${baseDir}`, error)
     return mdxFiles
   }
 
-  // Process each file
-  for (const filename of files) {
-    // Skip non-MD/MDX files
-    if (!filename.endsWith('.mdx') && !filename.endsWith('.md')) {
+  for (const rel of relPaths) {
+    if (!rel.endsWith('.mdx') && !rel.endsWith('.md')) {
       continue
     }
 
-    const filepath = path.join(baseDir, filename)
+    const filepath = path.join(baseDir, rel)
 
-    // Read file content
     let fileContent: string
     try {
       fileContent = fs.readFileSync(filepath, 'utf-8')
@@ -57,31 +79,26 @@ function scanDirectory({
       continue
     }
 
-    // Parse frontmatter and content from MDX file
     const { data: frontmatter, content } = matter(fileContent)
     const trimmedContent = content.trim()
 
-    // Extract slug: prefer frontmatter, otherwise derive from filename
-    let slug: string
-    if (frontmatter.slug && typeof frontmatter.slug === 'string') {
-      slug = frontmatter.slug
+    const inferredLocale = inferLocaleFromRelativePath(rel)
+    const fileLocale = (frontmatter.locale as string) || inferredLocale
+    const isLocalization = fileLocale !== defaultLang
+
+    let pathSlug: string
+    if (frontmatter.pathSlug && typeof frontmatter.pathSlug === 'string') {
+      pathSlug = frontmatter.pathSlug.replace(/^\/+|\/+$/g, '')
     } else {
-      // Remove .mdx extension and date prefix (e.g., "2025-01-15-") if present
-      slug = filename
-        .replace(/\.(mdx|md)$/, '')
-        .replace(/^\d{4}-\d{2}-\d{2}-/, '')
+      pathSlug = pathSlugFallbackFromRelativePath(rel)
     }
 
-    // Extract locale: prefer frontmatter, otherwise use directory locale
-    const fileLocale = (frontmatter.locale as string) || locale
-
-    // Extract localizes field (which English entry this localizes)
     const localizesValue = (frontmatter.localizes as string) || null
 
     mdxFiles.push({
-      file: filename,
+      file: rel.split(/[/\\]/).join('/'),
       filepath,
-      slug,
+      pathSlug,
       locale: fileLocale,
       frontmatter,
       content: trimmedContent,
@@ -94,94 +111,15 @@ function scanDirectory({
 }
 
 /**
- * Scans MDX files for a specific content type from base directory and all locale directories.
- *
- * Scans:
- * - Base directory: src/content/<contentTypeDir>/ (English files)
- * - Locale directories: src/content/<locale>/<contentTypeDir>/ (localized files)
- *
- * @param contentType - Content type to scan (e.g., 'foundation-pages')
- * @param contentTypes - Content type configurations
- * @returns Array of all MDX files found (English + all locales)
- */
-export function scanMDXFiles(
-  contentType: keyof ContentTypes,
-  contentTypes: ContentTypes
-): MDXFile[] {
-  const config = contentTypes[contentType]
-  const baseDir = config.dir
-  const mdxFiles: MDXFile[] = []
-
-  // Scan base directory for English files (default locale)
-  const englishFiles = scanDirectory({
-    baseDir,
-    locale: 'en',
-    isLocalization: false
-  })
-  mdxFiles.push(...englishFiles)
-
-  // Scan locale directories for translated files
-  // Structure: src/content/<locale>/<contentTypeDir>/
-  const contentDir = path.dirname(baseDir)
-  if (!fs.existsSync(contentDir)) {
-    return mdxFiles
-  }
-
-  // Read all directories in the content folder
-  let localeDirs: fs.Dirent[]
-  try {
-    localeDirs = fs.readdirSync(contentDir, { withFileTypes: true })
-  } catch (error) {
-    console.error(`Failed to read content directory: ${contentDir}`, error)
-    return mdxFiles
-  }
-
-  // Process each locale directory
-  for (const localeDir of localeDirs) {
-    // Skip files (only process directories)
-    if (!localeDir.isDirectory()) {
-      continue
-    }
-
-    // Skip the base content type directory itself (e.g., don't scan "foundation-pages" as a locale)
-    const contentTypeDirName = path.basename(baseDir)
-    if (localeDir.name === contentTypeDirName) {
-      continue
-    }
-
-    // Build path to locale-specific content directory
-    // Example: src/content/es/foundation-pages/
-    const localeContentDir = path.join(
-      contentDir,
-      localeDir.name,
-      contentTypeDirName
-    )
-
-    // Skip if locale directory doesn't have this content type
-    if (!fs.existsSync(localeContentDir)) {
-      continue
-    }
-
-    // Scan locale directory for translated files
-    const localeFiles = scanDirectory({
-      baseDir: localeContentDir,
-      locale: localeDir.name,
-      isLocalization: true
-    })
-    mdxFiles.push(...localeFiles)
-  }
-
-  return mdxFiles
-}
-
-/**
  * Gets all locales that exist across ALL content types for orphan deletion.
  *
  * This ensures we check for orphaned entries in all locales, even if a specific
  * content type's locale directory was removed.
  *
- * Example: If es/foundation-pages/ is removed but es/summit-pages/ still exists,
+ * Example: If foundation-pages/es/ is removed but summit-pages/es/ still exists,
  * we still check for orphaned "es" entries in Strapi.
+ *
+ * Only directories whose names are in LOCALE_DIR_NAMES are treated as locale dirs.
  *
  * @param _contentType - Content type (unused, kept for API consistency)
  * @param contentTypes - All content type configurations
@@ -191,7 +129,7 @@ export function getLocalesToCheck(
   _contentType: keyof ContentTypes,
   contentTypes: ContentTypes
 ): string[] {
-  const locales = new Set<string>(['en'])
+  const locales = new Set<string>([defaultLang])
 
   // Check all content types to find all locales that exist
   for (const contentType of Object.keys(contentTypes) as Array<
@@ -199,36 +137,19 @@ export function getLocalesToCheck(
   >) {
     const config = contentTypes[contentType]
     const baseDir = config.dir
-    const contentDir = path.dirname(baseDir)
 
-    if (!fs.existsSync(contentDir)) {
+    if (!fs.existsSync(baseDir)) {
       continue
     }
 
     try {
-      // Read all directories in the content folder
-      const entries = fs.readdirSync(contentDir, { withFileTypes: true })
+      const entries = fs.readdirSync(baseDir, { withFileTypes: true })
 
       for (const entry of entries) {
-        // Skip files, only process directories
-        if (!entry.isDirectory()) {
-          continue
-        }
+        if (!entry.isDirectory()) continue
 
-        // Skip the content type directory itself (e.g., "foundation-pages")
-        const contentTypeDirName = path.basename(baseDir)
-        if (entry.name === contentTypeDirName) {
-          continue
-        }
-
-        // Check if this locale has content for this content type
-        // Example: src/content/es/foundation-pages/
-        const localeContentDir = path.join(
-          contentDir,
-          entry.name,
-          contentTypeDirName
-        )
-        if (fs.existsSync(localeContentDir)) {
+        if (LOCALE_DIR_NAMES.has(entry.name)) {
+          // Direct locale dir: e.g., foundation-pages/es/
           locales.add(entry.name)
         }
       }

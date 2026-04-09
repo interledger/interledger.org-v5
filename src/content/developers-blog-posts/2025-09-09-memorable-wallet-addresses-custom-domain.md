@@ -2,7 +2,7 @@
 title: 'Memorable wallet addresses on your own domain'
 description: 'If you own a domain, you can set your Open Payments wallet address to be the same as your domain!'
 date: 2025-09-09
-slug: memorable-wallet-addresses-custom-domain
+pathSlug: memorable-wallet-addresses-custom-domain
 locale: en
 authors:
   - Sid Vishnoi

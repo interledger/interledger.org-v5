@@ -68,6 +68,7 @@ const secondaryButtonClasses = {
             <a
               href={primaryButtonLink}
               class={primaryButtonClasses[backgroundColor]}
+              data-umami-event={`CTA Banner - ${primaryButtonText}`}
             >
               {primaryButtonText}
             </a>
@@ -76,6 +77,7 @@ const secondaryButtonClasses = {
             <a
               href={secondaryButtonLink}
               class={secondaryButtonClasses[backgroundColor]}
+              data-umami-event={`CTA Banner - ${secondaryButtonText}`}
             >
               {secondaryButtonText}
             </a>

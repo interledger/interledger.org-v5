@@ -16,7 +16,7 @@ vi.mock('./siteSchemas', async () => {
   })
   const pageSchema = z.object({
     title: z.string().min(1, 'title is required'),
-    slug: z.string().min(1, 'slug is required'),
+    pathSlug: z.string().min(1, 'slug is required'),
     description: z.string().optional(),
     heroTitle: z.string().optional(),
     heroDescription: z.string().optional(),
@@ -54,7 +54,7 @@ describe('getEntryField', () => {
   it('returns field value when field exists on entry', () => {
     const entry: StrapiEntry = {
       documentId: '1',
-      slug: 'test',
+      pathSlug: 'test',
       title: 'My Title'
     }
 
@@ -62,7 +62,7 @@ describe('getEntryField', () => {
   })
 
   it('returns null when field does not exist on entry', () => {
-    const entry: StrapiEntry = { documentId: '1', slug: 'test' }
+    const entry: StrapiEntry = { documentId: '1', pathSlug: 'test' }
 
     expect(getEntryField(entry, 'hero')).toBeNull()
   })
@@ -70,7 +70,7 @@ describe('getEntryField', () => {
   it('returns complex objects as-is', () => {
     const entry: StrapiEntry = {
       documentId: '1',
-      slug: 'test',
+      pathSlug: 'test',
       hero: { title: 'Hero Title', description: 'Hero Desc' }
     }
 
@@ -83,7 +83,7 @@ describe('getEntryField', () => {
   it('returns arrays as-is', () => {
     const entry: StrapiEntry = {
       documentId: '1',
-      slug: 'test',
+      pathSlug: 'test',
       content: [{ __component: 'blocks.paragraph', content: 'text' }]
     }
 
@@ -99,7 +99,7 @@ describe('buildPagePayload', () => {
   describe('error handling', () => {
     it('throws when frontmatter fails validation', async () => {
       const mdx = createMdxFile({
-        slug: 'test'
+        pathSlug: 'test'
       })
 
       await expect(
@@ -111,7 +111,7 @@ describe('buildPagePayload', () => {
   describe('base payload fields', () => {
     it('includes title from frontmatter', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About Us' }
       })
 
@@ -126,7 +126,7 @@ describe('buildPagePayload', () => {
 
     it('includes slug from mdx file', async () => {
       const mdx = createMdxFile({
-        slug: 'about-page',
+        pathSlug: 'about-page',
         frontmatter: { title: 'About' }
       })
 
@@ -136,12 +136,12 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.slug).toBe('about-page')
+      expect(payload.pathSlug).toBe('about-page')
     })
 
     it('includes publishedAt timestamp', async () => {
       const mdx = createMdxFile({
-        slug: 'test',
+        pathSlug: 'test',
         frontmatter: { title: 'Test' }
       })
 
@@ -157,7 +157,7 @@ describe('buildPagePayload', () => {
 
     it('accepts optional schema fields (description, heroImage, sections)', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: {
           title: 'About',
           description: 'Page description',
@@ -180,7 +180,7 @@ describe('buildPagePayload', () => {
       )
 
       expect(payload.title).toBe('About')
-      expect(payload.slug).toBe('about')
+      expect(payload.pathSlug).toBe('about')
     })
   })
 
@@ -189,7 +189,7 @@ describe('buildPagePayload', () => {
   describe('hero fallback logic', () => {
     it('uses frontmatter heroTitle and heroDescription when provided', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'Welcome',
@@ -212,7 +212,7 @@ describe('buildPagePayload', () => {
     // If only description is provided, use the page title as hero title
     it('uses title as hero title when heroTitle not provided but heroDescription is', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: {
           title: 'About Page',
           heroDescription: 'Description only'
@@ -233,7 +233,7 @@ describe('buildPagePayload', () => {
 
     it('uses empty description when heroTitle provided but heroDescription is not', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'Hero Only'
@@ -257,11 +257,11 @@ describe('buildPagePayload', () => {
     it('preserves existing hero when no hero fields in frontmatter', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
-        slug: 'about',
+        pathSlug: 'about',
         hero: { title: 'Existing Hero', description: 'Kept intact' }
       }
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' }
       })
 
@@ -280,7 +280,7 @@ describe('buildPagePayload', () => {
     // No hero in MDX + no existing entry = no hero in payload
     it('does not include hero when no frontmatter hero and no existing entry', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' }
       })
 
@@ -297,11 +297,11 @@ describe('buildPagePayload', () => {
     it('overrides existing hero when frontmatter has hero fields', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
-        slug: 'about',
+        pathSlug: 'about',
         hero: { title: 'Old Hero', description: 'Old desc' }
       }
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: {
           title: 'About',
           heroTitle: 'New Hero',
@@ -326,7 +326,7 @@ describe('buildPagePayload', () => {
   describe('content block handling', () => {
     it('creates content block with markdown when mdx has body', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' },
         content: '## Heading\n\nParagraph text'
       })
@@ -349,11 +349,11 @@ describe('buildPagePayload', () => {
     it('preserves existing content when mdx body is empty', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
-        slug: 'about',
+        pathSlug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Existing' }]
       }
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' }
       })
 
@@ -372,11 +372,11 @@ describe('buildPagePayload', () => {
     it('preserves existing content when mdx body is whitespace only', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
-        slug: 'about',
+        pathSlug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Kept' }]
       }
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' },
         content: '   \n\n   '
       })
@@ -394,7 +394,7 @@ describe('buildPagePayload', () => {
 
     it('does not include content when no mdx body and no existing entry', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' }
       })
 
@@ -410,11 +410,11 @@ describe('buildPagePayload', () => {
     it('overrides existing content when mdx has body', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
-        slug: 'about',
+        pathSlug: 'about',
         content: [{ __component: 'blocks.paragraph', content: 'Old content' }]
       }
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' },
         content: 'New content'
       })
@@ -432,7 +432,7 @@ describe('buildPagePayload', () => {
 
     it('handles content with null existing entry', async () => {
       const mdx = createMdxFile({
-        slug: 'about',
+        pathSlug: 'about',
         frontmatter: { title: 'About' },
         content: undefined
       })
@@ -450,7 +450,7 @@ describe('buildPagePayload', () => {
   describe('summit-pages content type', () => {
     it('processes summit-pages same as foundation-pages', async () => {
       const mdx = createMdxFile({
-        slug: 'schedule',
+        pathSlug: 'schedule',
         frontmatter: { title: 'Schedule' },
         content: 'Summit content'
       })
@@ -462,7 +462,7 @@ describe('buildPagePayload', () => {
       )
 
       expect(payload.title).toBe('Schedule')
-      expect(payload.slug).toBe('schedule')
+      expect(payload.pathSlug).toBe('schedule')
       expect(payload.content).toEqual([
         { __component: 'blocks.paragraph', content: 'Summit content' }
       ])
@@ -478,15 +478,15 @@ describe('buildPagePayload', () => {
 
       const parserCtx = {
         locale: 'en',
-        resolveRelation: async (_apiId: string, slug: string) => ({
-          documentId: `doc-${slug}`
+        resolveRelation: async (_apiId: string, pathSlug: string) => ({
+          documentId: `doc-${pathSlug}`
         })
       }
 
       const mdx = createMdxFile({
-        slug: 'ambassadors-page',
+        pathSlug: 'ambassadors-page',
         frontmatter: { title: 'Ambassadors' },
-        content: '<Ambassador slug="alice" showLinks={false} />'
+        content: '<Ambassador pathSlug="alice" showLinks={false} />'
       })
 
       const payload = await buildPagePayload(
@@ -514,7 +514,7 @@ describe('buildPagePayload', () => {
       }
 
       const mdx = createMdxFile({
-        slug: 'bad-page',
+        pathSlug: 'bad-page',
         frontmatter: { title: 'Bad' },
         content: '<UnknownWidget />'
       })
@@ -532,7 +532,7 @@ describe('buildPagePayload', () => {
       const parserCtx = { locale: 'es' }
 
       const mdx = createMdxFile({
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         locale: 'es',
         isLocalization: true,
         localizes: 'about-us',
@@ -563,14 +563,16 @@ describe('buildPagePayload', () => {
     it('passes locale through parserCtx for relation resolution', async () => {
       await import('./ambassadorHandler')
 
-      const resolveRelation = vi.fn(async (_apiId: string, slug: string) => ({
-        documentId: `doc-${slug}`
-      }))
+      const resolveRelation = vi.fn(
+        async (_apiId: string, pathSlug: string) => ({
+          documentId: `doc-${pathSlug}`
+        })
+      )
 
       const parserCtx = { locale: 'es', resolveRelation }
 
       const mdx = createMdxFile({
-        slug: 'embajadores',
+        pathSlug: 'embajadores',
         locale: 'es',
         isLocalization: true,
         localizes: 'ambassadors-page',
@@ -579,7 +581,7 @@ describe('buildPagePayload', () => {
           localizes: 'ambassadors-page',
           locale: 'es'
         },
-        content: '<Ambassador slug="alice" />'
+        content: '<Ambassador pathSlug="alice" />'
       })
 
       const payload = await buildPagePayload(
@@ -605,7 +607,7 @@ describe('buildPagePayload', () => {
       const parserCtx = { locale: 'es' }
 
       const mdx = createMdxFile({
-        slug: 'sobre-nosotros',
+        pathSlug: 'sobre-nosotros',
         locale: 'es',
         isLocalization: true,
         localizes: 'about-us',

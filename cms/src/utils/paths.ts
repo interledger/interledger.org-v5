@@ -33,8 +33,8 @@ export function assertRunFromCms(): void {
 export const PATHS = {
   CONTENT_ROOT: 'src/content',
   CONFIG_ROOT: 'src/config',
-  UPLOADS: 'public/uploads',
-  /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/{locale}/). */
+  UPLOADS: 'public/uploads/img/original',
+  /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/<type>/{locale}). */
   CONTENT: {
     ambassadors: 'ambassadors',
     blog: 'foundation-blog-posts',
@@ -62,7 +62,7 @@ export function getContentPath(
 ): string {
   const subdir = PATHS.CONTENT[contentType]
   if (locale && locale !== 'en') {
-    return path.join(projectRoot, PATHS.CONTENT_ROOT, locale, subdir)
+    return path.join(projectRoot, PATHS.CONTENT_ROOT, subdir, locale)
   }
   return path.join(projectRoot, PATHS.CONTENT_ROOT, subdir)
 }

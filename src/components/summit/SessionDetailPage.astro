@@ -1,0 +1,79 @@
+---
+import { defaultLocale } from '@/utils/i18'
+import type { Talk } from '@/types/summit'
+import { getTranslation } from '@/utils/summit-talks-speakers'
+import { currentSummitYear } from '@/utils/sessionize'
+import { getSpeakers } from '@/utils/extractSessionize'
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import SpeakersList from './SpeakersList.astro'
+import SessionSubheader from './SessionSubheader.astro'
+import TextParagraphs from './TextParagraphs.astro'
+import VideoEmbed from '../blocks/VideoEmbed.astro'
+
+interface Props {
+  entry: Talk
+  year: string
+}
+
+const { routeLocale: lang, currentBasePath } = Astro.locals
+const { entry, year } = Astro.props
+const speakers = await getSpeakers(year, entry.id)
+
+// the path for current summit is /summit, instead of /summit/{year}
+const langPrefix = lang === defaultLocale ? '' : `/${lang}`
+const baseHref = `${langPrefix}${currentBasePath}`
+const isCurrentYear = currentSummitYear === year
+const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
+const sessionsHref = `${baseHref}/${year}/talks`
+const speakersBasePath = `${baseHref}/${year}/speaker`
+
+const translation = getTranslation(entry, lang)
+const title = translation?.title ?? entry.title
+const description = translation?.description ?? entry.description
+
+const breadcrumbs = [
+  {
+    name: `${year} Summit`,
+    href: summitHref,
+    umamiEvent: `Session Detail Page - ${year} Summit`
+  },
+  {
+    name: 'Sessions',
+    href: sessionsHref,
+    umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+  }
+]
+---
+
+<SummitPageLayout title={entry.title}>
+  <main class="max-w-275 m-auto p-4">
+    <Breadcrumbs breadcrumbs={breadcrumbs} />
+    <article>
+      <header class="mb-8">
+        <h1>{title}</h1>
+        <SessionSubheader talk={entry} lang={lang} />
+      </header>
+      {
+        entry.recordingUrl && (
+          <section aria-label="Session Recording">
+            <VideoEmbed url={entry.recordingUrl} title={entry.title} />
+          </section>
+        )
+      }
+      <div class="flex flex-row gap-8">
+        <section aria-label="Session Description">
+          <TextParagraphs text={description} />
+        </section>
+        <aside aria-label="Speakers">
+          <SpeakersList
+            speakers={speakers}
+            basePath={speakersBasePath}
+            extraClass="flex-col"
+            year={year}
+          />
+        </aside>
+      </div>
+    </article>
+  </main>
+</SummitPageLayout>

@@ -1,0 +1,47 @@
+---
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import SpeakersList from './SpeakersList.astro'
+import Pagination from '@/components/shared/Pagination.astro'
+import type { Page } from 'astro'
+import type { Speaker } from '@/types/summit'
+
+interface Props {
+  speakers: Speaker[]
+  basePath: string
+  title: string
+  page: Page
+  year: string
+}
+
+const { speakers, basePath, title, page, year } = Astro.props
+const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
+const label = `${year} Summit Speakers`
+---
+
+<SummitPageLayout title={title}>
+  <main class="p-4 max-w-275 m-auto">
+    <h1>{title}</h1>
+    <section aria-label="Speakers">
+      <SpeakersList
+        speakers={speakers}
+        basePath={speakerBasePath}
+        year={year}
+      />
+    </section>
+
+    {
+      page.lastPage && page.lastPage > 1 && (
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          firstUrl={page.url.first}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          lastUrl={page.url.last}
+          label={label}
+        />
+      )
+    }
+  </main>
+</SummitPageLayout>

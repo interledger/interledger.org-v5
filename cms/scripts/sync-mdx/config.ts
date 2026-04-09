@@ -4,7 +4,8 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {
   buildPagePayload,
   buildBlogPayload,
-  buildAmbassadorPayload
+  buildAmbassadorPayload,
+  type StrapiUploadContext
 } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
@@ -16,7 +17,12 @@ import {
 import './ambassadorHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
+import './paragraphHandler'
+import './pdfEmbedHandler'
+import './videoEmbedHandler'
 import { createRelationResolver } from './ambassadorHandler'
+import { type ParserContext } from './mdxBlockParser'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -39,7 +45,8 @@ export interface ContentTypeConfig {
   buildPayload: (
     mdx: MDXFile,
     strapi: StrapiClient,
-    existing: StrapiEntry | null
+    existing: StrapiEntry | null,
+    dryRun: boolean
   ) => Promise<Record<string, unknown>>
 }
 
@@ -60,24 +67,49 @@ function buildParsedPagePayload(
   const locale = mdx.locale || 'en'
   return buildPagePayload(schema, mdx, existing, {
     locale,
-    resolveRelation: createRelationResolver(strapi, locale)
+    resolveRelation: createRelationResolver(strapi, locale),
+    resolveMediaUpload: async (url: string) => {
+      const id = await strapi.findUploadByUrl(url)
+      if (!id) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+        })
+      }
+      return id
+    }
   })
 }
 
-export function buildContentTypes(projectRoot: string): ContentTypes {
+export function buildContentTypes(
+  projectRoot: string,
+  strapiUrl: string,
+  strapiToken: string
+): ContentTypes {
+  // One Map per content type per sync run — guards against updating the same
+  // upload file's alt text multiple times with potentially different values.
+  const ambassadorAltIds = new Map<number, string>()
+  const blogAltIds = new Map<number, string>()
+
   return {
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing) =>
-        buildAmbassadorPayload(ambassadorFrontmatterSchema, mdx, strapi)
+      buildPayload: (mdx, strapi, _existing, dryRun) =>
+        buildAmbassadorPayload(
+          ambassadorFrontmatterSchema,
+          mdx,
+          strapi,
+          ambassadorAltIds,
+          dryRun
+        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       schema: foundationPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing) =>
+      buildPayload: (mdx, strapi, existing, _dryRun) =>
         buildParsedPagePayload(
           foundationPageFrontmatterSchema,
           mdx,
@@ -89,7 +121,7 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing) =>
+      buildPayload: (mdx, strapi, existing, _dryRun) =>
         buildParsedPagePayload(
           summitPageFrontmatterSchema,
           mdx,
@@ -101,8 +133,37 @@ export function buildContentTypes(projectRoot: string): ContentTypes {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, _strapi, _existing) =>
-        buildBlogPayload(foundationBlogFrontmatterSchema, mdx)
+      buildPayload: async (mdx, strapi, _existing, dryRun) => {
+        const uploadContext: StrapiUploadContext = {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken,
+          dryRun
+        }
+        const locale = mdx.locale || 'en'
+        const parserCtx: ParserContext = {
+          locale,
+          resolveRelation: createRelationResolver(strapi, locale),
+          resolveMediaUpload: async (url: string) => {
+            const id = await strapi.findUploadByUrl(url)
+            if (!id) {
+              throw new MdxParserError({
+                code: ParserErrorCode.UNRESOLVED_RELATION,
+                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+              })
+            }
+            return id
+          }
+        }
+        return buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          uploadContext,
+          blogAltIds,
+          parserCtx,
+          dryRun
+        )
+      }
     }
   }
 }

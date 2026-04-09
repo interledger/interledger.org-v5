@@ -1,7 +1,7 @@
-name: Staging Merge Workflow
+name: Staging Push Workflow
 
 on:
-  # Run when PRs are merged to staging
+  # Run on pushes to staging
   # WARNING: Do not trigger on pull_request events. We do not want forks to run code on our self-hosted runner,
   # and pull_request events run for forks. This workflow should only run on push to staging.
   push:
@@ -13,23 +13,18 @@ on:
 
 concurrency:
   # Ensure only one instance of this workflow runs at a time to avoid conflicts
-  group: staging-merge
+  group: staging-push
   cancel-in-progress: false
 
 jobs:
-  check-pr-merge:
+  detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      is_merged_pr: ${{ steps.pr_merge_check.outputs.merged_pr }}
       cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
+      navigation_changed: ${{ steps.detect_changes.outputs.navigation_changed }}
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Validate manual trigger is on staging branch
         if: github.event_name == 'workflow_dispatch'
         shell: bash
@@ -44,91 +39,154 @@ jobs:
           fi
           echo "✓ Manual trigger validated on staging branch"
 
-      - name: Check if push is from merged PR
-        id: pr_merge_check
+      - name: Detect changed paths
+        id: detect_changes
         uses: actions/github-script@v7
         with:
           script: |
-            // Skip PR check for manual dispatch
+            const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
+            const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
+            const zeroSha = '0000000000000000000000000000000000000000'
+
             if (context.eventName === 'workflow_dispatch') {
-              core.setOutput('merged_pr', 'manual')
-              core.notice('Manually triggered workflow; PR check skipped.')
+              core.info('Manual trigger - will rebuild CMS and sync content and navigation')
+              core.setOutput('cms_changed', 'true')
+              core.setOutput('content_changed', 'true')
+              core.setOutput('navigation_changed', 'true')
               return
             }
 
             const owner = context.repo.owner
             const repo = context.repo.repo
-            const sha = context.sha
+            const before = context.payload.before
+            const after = context.sha
 
-            // Check via API for associated PRs merged into staging
-            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner,
-              repo,
-              commit_sha: sha,
-              per_page: 100
-            })
+            let changedFiles = []
 
-            const mergedPRIntoStaging = prs.some((pr) =>
-              pr.merged_at && pr.base && pr.base.ref === 'staging'
-            )
+            if (!before || before === zeroSha) {
+              core.info('No valid "before" SHA available; using push payload commits to detect changes')
 
-            // Also check commit message for merge commit pattern
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: sha
-            })
-            
-            const isMergeCommit = commit.commit.message.match(/^Merge pull request #(\d+)/) &&
-              commit.parents.length > 1
+              const payloadCommits = Array.isArray(context.payload.commits)
+                ? context.payload.commits
+                : []
 
-            const mergedIntoStaging = mergedPRIntoStaging || isMergeCommit
+              if (payloadCommits.length > 0) {
+                const changedFilesSet = new Set()
 
-            core.setOutput('merged_pr', mergedIntoStaging ? 'true' : 'false')
-            if (!mergedIntoStaging) {
-              core.notice('No merged PR into staging found for this commit; workflow steps will be skipped.')
+                for (const commit of payloadCommits) {
+                  for (const file of commit.added || []) {
+                    changedFilesSet.add(file)
+                  }
+                  for (const file of commit.modified || []) {
+                    changedFilesSet.add(file)
+                  }
+                  for (const file of commit.removed || []) {
+                    changedFilesSet.add(file)
+                  }
+                }
+
+                changedFiles = [...changedFilesSet]
+
+                if (changedFiles.length === 0) {
+                  core.info('Push payload commits found but produced no changed files; falling back to head commit files')
+                }
+              } else {
+                core.info('No commits found in push payload; falling back to head commit files')
+              }
+
+              if (changedFiles.length === 0) {
+                const commit = await github.rest.repos.getCommit({
+                  owner,
+                  repo,
+                  ref: after
+                })
+                changedFiles = (commit.data.files ?? []).map((file) => file.filename)
+              }
             } else {
-              core.notice('Merged PR detected into staging.')
+              core.info(`Comparing commits ${before}...${after} via GitHub API`)
+              try {
+                const response = await github.rest.repos.compareCommitsWithBasehead({
+                  owner,
+                  repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100
+                })
+                const compare = response.data
+                const files = compare.files ?? []
+
+                // The compare endpoint caps the files list; it is not truly paginated.
+                // If the response is truncated or reports too many files, fail safe by
+                // forcing a rebuild/sync instead of risking missing relevant changes.
+                const tooManyFilesFlag =
+                  typeof compare.too_many_files === 'boolean'
+                    ? compare.too_many_files
+                    : false
+                const filesLikelyTruncated = files.length >= 300
+
+                if (tooManyFilesFlag || filesLikelyTruncated) {
+                  core.warning(
+                    'GitHub compareCommitsWithBasehead response may be truncated due to too many changed files; ' +
+                      'treating CMS, content, and navigation as changed to avoid missing updates.'
+                  )
+                  core.setOutput('cms_changed', 'true')
+                  core.setOutput('content_changed', 'true')
+                  core.setOutput('navigation_changed', 'true')
+                  return
+                }
+
+                changedFiles = files.map((file) => file.filename)
+              } catch (error) {
+                core.warning(
+                  `Failed to compare commits ${before}...${after}: ${error}`
+                )
+                // On API failure, err on the side of caution and assume relevant changes occurred.
+                core.setOutput('cms_changed', 'true')
+                core.setOutput('content_changed', 'true')
+                core.setOutput('navigation_changed', 'true')
+                return
+              }
             }
 
-      - name: Detect changed paths
-        id: detect_changes
-        if: steps.pr_merge_check.outputs.merged_pr != 'false'
-        shell: bash
-        run: |
-          set -euo pipefail
+            changedFiles = [...new Set(changedFiles)]
+            core.info(`Detected ${changedFiles.length} changed file(s) via GitHub API`)
 
-          cms_changed=false
-          content_changed=false
+            if (changedFiles.length === 0) {
+              core.info('Changed files list is empty')
+            } else {
+              core.startGroup('Changed files')
+              for (const file of changedFiles) {
+                core.info(file)
+              }
+              core.endGroup()
+            }
 
-          # For manual dispatch, always rebuild CMS and sync content
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "Manual trigger - will rebuild CMS and sync content"
-            cms_changed=true
-            content_changed=true
-          else
-            # Check what changed in this push
-            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
-            
-            if echo "$changed_files" | grep -q '^cms/'; then
-              cms_changed=true
-              echo "CMS changes detected"
-            fi
-            
-            if echo "$changed_files" | grep -qE '^src/content/(foundation-pages|summit-pages)/.*\.(md|mdx)$'; then
-              content_changed=true
-              echo "Content changes detected"
-            fi
-          fi
+            const cmsChanged =
+              changedFiles.some((file) => file.startsWith('cms/'))
+            const contentChanged =
+              changedFiles.some((file) => contentPattern.test(file))
+            const navigationChanged =
+              changedFiles.some((file) => navigationPattern.test(file))
 
-          echo "cms_changed=$cms_changed" >> "$GITHUB_OUTPUT"
-          echo "content_changed=$content_changed" >> "$GITHUB_OUTPUT"
+            if (cmsChanged) {
+              core.info('CMS changes detected')
+            }
+
+            if (contentChanged) {
+              core.info('Content changes detected')
+            }
+
+            if (navigationChanged) {
+              core.info('Navigation changes detected')
+            }
+
+            core.setOutput('cms_changed', String(cmsChanged))
+            core.setOutput('content_changed', String(contentChanged))
+            core.setOutput('navigation_changed', String(navigationChanged))
 
   rebuild-strapi:
-    needs: check-pr-merge
+    needs: detect-changes
     if: |
-      (needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.cms_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual'
+      needs.detect-changes.outputs.cms_changed == 'true'
     runs-on: strapi-vm
 
     steps:
@@ -136,6 +194,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          source ~/.bashrc
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm not installed at $NVM_DIR"; exit 1; }
+          . "$NVM_DIR/nvm.sh"
+          nvm use 22
+          PNPM_VERSION=10.27.0
+          corepack enable
+          corepack prepare pnpm@$PNPM_VERSION --activate
+          pnpm --version
+          test "$(pnpm --version)" = "$PNPM_VERSION"
 
           # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
           export PNPM_HOME="/home/strapi/.local/share/pnpm"
@@ -153,23 +222,35 @@ jobs:
             exit 1
           fi
 
-          cd /home/strapi/interledger.org-v5-staging/cms
           # Stop the service while we rebuild
           sudo systemctl stop strapi.service
-          # Install dependencies in case there are new ones from the merged PRs
+
+          cd /home/strapi/interledger.org-v5-staging
+
+          # nuclear option to ensure no old dependencies or build artifacts interfere with the new build after merging changess
+          rm -rf cms/node_modules
+          rm -rf cms/dist
+          rm -rf node_modules
           pnpm install
+          cd cms
+          pnpm install
+
+          cd /home/strapi/interledger.org-v5-staging
           # Rebuild with more memory to avoid OOM errors during build
           NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
+          cd /home/strapi/interledger.org-v5-staging/cms
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
           sudo systemctl start strapi.service
           sleep 5
           sudo systemctl status strapi.service
 
-  sync-mdx-to-strapi:
-    needs: [check-pr-merge, rebuild-strapi]
+  sync-to-strapi:
+    needs: [detect-changes, rebuild-strapi]
     if: |
-      always() &&
-      ((needs.check-pr-merge.outputs.is_merged_pr == 'true' && needs.check-pr-merge.outputs.content_changed == 'true') ||
-      needs.check-pr-merge.outputs.is_merged_pr == 'manual')
+      (needs.rebuild-strapi.result == 'success' || needs.rebuild-strapi.result == 'skipped') &&
+      (needs.detect-changes.outputs.content_changed == 'true' || needs.detect-changes.outputs.navigation_changed == 'true')
     runs-on: ubuntu-latest
 
     steps:
@@ -179,26 +260,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Sync MDX to Strapi
+      - name: Sync MDX and navigation to Strapi
         working-directory: cms
         env:
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
-        run: pnpm run sync:mdx
+        run: pnpm run sync:all
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [check-pr-merge, rebuild-strapi, sync-mdx-to-strapi]
+    needs: [detect-changes, rebuild-strapi, sync-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure

@@ -8,7 +8,7 @@
     "description": "Grant ambassadors with profiles and social links"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -22,7 +22,7 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "targetField": "name",
       "required": true,

@@ -1,11 +1,13 @@
 ---
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { applyPreviewNoStore } from '@/utils/cache'
 import { fetchStrapi } from '@/utils/fetchStrapi'
 import { marked } from 'marked'
 
 // Get the documentId from the query string
 export const prerender = false
+applyPreviewNoStore(Astro.response.headers)
 const documentId = Astro.url.searchParams.get('slug')
 if (!documentId) {
   throw new Error('Missing documentId in preview URL')
@@ -26,10 +28,14 @@ if (!article) {
 const frontmatter = {
   title: article.title,
   description: article.description,
+  pathSlug: article.pathSlug,
+  locale: article.locale,
   date: article.publishedAt,
+  pillar: article.pillar,
   featureImage: article.featuredImage?.url,
   featureImageAlt: article.featuredImage?.alternativeText,
-  ogImageUrl: article.ogImageUrl
+  articleBios: [],
+  tags: []
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')

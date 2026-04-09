@@ -1,0 +1,2326 @@
+[
+  {
+    "groupId": null,
+    "groupName": "All",
+    "sessions": [
+      {
+        "questionAnswers": [],
+        "id": "07ff2684-f7e9-4ca9-be26-7ec390c85ae4",
+        "title": "Registration",
+        "description": null,
+        "startsAt": "2023-11-05T17:30:00",
+        "endsAt": "2023-11-05T18:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 41189,
+        "room": "Bar La Castilla",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "7967fe1f-6474-4bb1-8646-8e980149181d",
+        "title": "Cocktail Party",
+        "description": null,
+        "startsAt": "2023-11-05T18:00:00",
+        "endsAt": "2023-11-05T22:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 41189,
+        "room": "Bar La Castilla",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "dce8886e-c1d1-453b-ae41-25a91f3be06e",
+        "title": "Registration",
+        "description": null,
+        "startsAt": "2023-11-06T09:00:00",
+        "endsAt": "2023-11-06T09:30:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "c68a8ca0-dad1-4147-b979-1d5766788df5",
+        "title": "Welcome to ILP Summit",
+        "description": null,
+        "startsAt": "2023-11-06T09:30:00",
+        "endsAt": "2023-11-06T09:45:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552327",
+        "title": "Keynote Speaker | Briana Marbury CEO & President Interledger Foundation",
+        "description": null,
+        "startsAt": "2023-11-06T09:45:00",
+        "endsAt": "2023-11-06T10:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "12e36289-504e-46ce-94a8-b8e9debdd5b1",
+            "name": "Briana Marbury"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=8MabOgGbYMo",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552343",
+        "title": "Launching Dassie: An Interledger Peer-to-peer Network",
+        "description": "Over the last year, Stefan has been working on a new, fully peer-to-peer implementation of Interledger. The Interledger Protocol (ILP) was originally designed for network with explicit peering relationships such as contractual agreements between companies. However, Dassie is intended as an open network which is accessible to anyone with an internet connection. In his talk, Stefan will explain these issues and his approach to solving them. As part of his progress report, he will announce the launch of the Dassie testnet and explain how developers can use it to build and test Interledger applications today.",
+        "startsAt": "2023-11-06T10:15:00",
+        "endsAt": "2023-11-06T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "d77b86a5-6c8c-4976-947b-d2d8424325c5",
+            "name": "Stefan Thomas"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=cH08dF5wS2I",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "d4ca7b91-c7e9-48fe-9bc1-3bcb22a13d43",
+        "title": "Coffee Break",
+        "description": null,
+        "startsAt": "2023-11-06T11:00:00",
+        "endsAt": "2023-11-06T11:15:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The session will engage participants to thoroughly discuss  the two challenges facing instant cross-border payments:\r\n1. Sanction Screening for instant cross-border payments,\r\n2. Variances in the data requirements and formats of multiple regions/countries,\r\n3. Availing instant digital cross-border payments to non-bank FIs' customers (optional).\r\nthen the session will shift to brainstorming potential solutions to overcome those challenges.\r\nDepending on the number of confirmed attendees, the session will have working groups to discuss and challenge the possibility and applicability of the proposed solutions, aspiring to reach a common ground of solution(s) implementation, or potential innovative solution(s).",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "525073",
+        "title": "Cross Border Payments in the Instant Era",
+        "description": "The session aims to engage a fruitful conversation regarding challenges facing INSTANT cross-border payments",
+        "startsAt": "2023-11-06T11:15:00",
+        "endsAt": "2023-11-06T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "bf792c2c-09fd-453b-92a7-42772fa1da1d",
+            "name": "Layanah AlWreikat"
+          },
+          {
+            "id": "286b01c1-9dad-4415-a115-78e99ba93ec0",
+            "name": "Bruna Cataldo"
+          },
+          {
+            "id": "15b842af-2bc2-4844-8f35-c31872cb8c84",
+            "name": "Nyi Aye"
+          },
+          {
+            "id": "63b68cad-6917-4297-95a4-08fdfa0fd51d",
+            "name": "Shelley Anderson"
+          },
+          {
+            "id": "624f1540-059e-4db1-90b4-b17156b94ff8",
+            "name": "Jayshree Venkatesan"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=PdcbdRzF3TM",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "b1a2877d-bb59-41b6-91f1-a9cb8701e744",
+        "title": "Group Photograph",
+        "description": null,
+        "startsAt": "2023-11-06T12:00:00",
+        "endsAt": "2023-11-06T12:15:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "29314a21-bea0-4933-b09c-2aa532a9f7bb",
+        "title": "Lunch",
+        "description": null,
+        "startsAt": "2023-11-06T12:15:00",
+        "endsAt": "2023-11-06T13:15:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "551406",
+        "title": "Future|Money Open Studio",
+        "description": "FUTURE|MONEY Was the first open grant opportunity for 2023. The goal was to seek artists of any discipline to reimagine outdated financial systems that currently exclude 1.7 billion people from accessing essential services to make and receive payments.\r\nImagining the Future is often based on our own memories and imaginations of our surroundings. We asked the artists to dive into their imagination and envision a world where financial systems were built to serve everyone, everywhere, always. Where borders aren’t barriers to supporting each other financially and emotionally.\r\n\r\nThe Future|Money space is open for the attendees of the Interledger Summit, The space is designed to convene with the artist to reflect on their practise and your own. \r\n\r\nArtist presenting their work \r\nXiaoji Song: The Parallel Society is a cyber-drama that explores financial inclusion and equity by featuring the parallel fate of two characters, a Lebanese migrant in Barcelona and a villager in rural China's Henan province. The game sheds light on financial traumas, such as behavior patterns and psychological impacts as results of financial exclusions experienced by these two characters, and radically imagines a world where such barriers no longer exist, but the characters are still trapped in the old pattern.\r\n\r\nLena Ghaninejad: Liminal Matter is a mixed-media installation combining grains (barley), black obsidian/coltan, and 3D hologram technology. The installation aims to illustrate the evolution of money from tangible matter that originates directly from the Earth (grains, food & stones), into an increasingly immaterial entity that leaves more people behind as financial systems complexify and access to technology remains limited -thus asking the question: how can we best share the planet's resources?\r\n\r\nMia Wright-Ross: Loose Change (CHAINS) is a series of large-scale multi-media tapestries (primarily leather & paper lottery tickets) as a reflection/projection of the reimagination of Hope that has become a lethal tool of capitalism within the community-rich centers of Black & Brown neighborhoods throughout the United States of America. \r\n\r\nSubhashish Panigrahi and Arky for O Foundation (OFDN) :\r\nBringing Down A Mountain is set in a city in India where everything and everyone is superior, including the internet. The tall mountain surrounds a rural village, stopping the internet and everything online. People from the city climb the mountain to make [Insta] reels with a backdrop of the village, where dreams are tall. residents of the latter dream of mobile data, digital payment, and relief from menial work. Does that dream ever end?\r\n\r\nEsther Mwema and Jon Adam: Sikhula Sonke is an isiXhosa phrase which means 'we grow together.' The project seeks to amplify voices from the margins, with a focus on women in South Africa and Zambia. In recognition of the wisdom that already exists within communities but that may be little understood outside of them, our focus will be on building and documenting the living archives of village banking as a decentralized economic model.\r\n\r\nJuan Carlos, Felipe Brugues, Ana Rodrirequez: RE/SIMULATE Economic agendas to (get rich and) stop worrying about the future Juan Carlos León Felipe Brugués Ana Rodríguez Mixed media, 3D clay printer, ceramic objects, infographic sheets, information receiver.\r\n\r\nCarlijn Kingma, Martijn Jeroen van der Linden, Thomas Bollen: The Waterworks of money, If you think of money as water, then our financial system is like an irrigation system, watering the economy. And just as irrigation helps crops grow, money allows the economy to flourish. As long as the money keeps flowing, society will thrive—or at least that’s the idea. In reality, large swaths of society remain parched, while a small group of people is swimming in money.  \r\n\r\n ",
+        "startsAt": "2023-11-06T12:15:00",
+        "endsAt": "2023-11-06T13:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "2be62447-6e04-4f88-9dfa-13e73a759bf4",
+            "name": "Lawil Karama"
+          },
+          {
+            "id": "596d5e24-c923-4716-adfa-2c18d07d9e43",
+            "name": "Esther Mwema"
+          },
+          {
+            "id": "e2f09125-c1ee-4d7f-ab94-b989a449f1e2",
+            "name": "Mia Wright- Ross"
+          },
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          },
+          {
+            "id": "4ec77047-4f16-4b3b-9381-9385fbc21e28",
+            "name": "Felipe Brugues"
+          },
+          {
+            "id": "6f694114-7102-4f53-b180-585d5409afa0",
+            "name": "Ana Rodriguez"
+          },
+          {
+            "id": "9c41b58c-011e-4729-817e-b5e3d5d1e6a1",
+            "name": "Juan Carlos Leon"
+          },
+          {
+            "id": "e8d66139-9a11-471d-8feb-060d95b32f04",
+            "name": "Jon Adam Chen"
+          },
+          {
+            "id": "26639585-017e-434e-8f11-42933e1c9cad",
+            "name": "Martijn Jeroen van der Linden"
+          },
+          {
+            "id": "8c35105d-a6aa-47b9-aa63-0bf2103af42b",
+            "name": "Kokayi Walker"
+          },
+          {
+            "id": "1678fa40-6634-440b-9133-1525f93064ef",
+            "name": "Subhashish Panigrahi"
+          },
+          {
+            "id": "6acc0bce-61ef-4ccc-9419-735d16c0f0b7",
+            "name": "Lena Ghaninejad"
+          },
+          {
+            "id": "0676e0b4-c743-457a-885f-ec8722bb6a13",
+            "name": "Hollis Wong-Wear"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 41140,
+        "room": "Future | Money Open Studio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Join us for an update on Rafiki, our open-source software designed to facilitate instant payments across different networks. Following our previous talk, we'll explore how Rafiki, together with Open Payments, has evolved over the past year to enable new capabilities for account servicing entities and third parties. We’ll also showcase a new part of the friend group: our test network, Rafiki.money.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552259",
+        "title": "Rafiki - Our friend has grown",
+        "description": "Join us for an update on Rafiki, our open-source software designed to facilitate instant payments across different networks. Following our previous talk, we'll explore how Rafiki, together with Open Payments, has evolved over the past year to enable new capabilities for account servicing entities and third parties. We’ll also showcase a new part of the friend group: our test network, Rafiki.money.",
+        "startsAt": "2023-11-06T13:15:00",
+        "endsAt": "2023-11-06T13:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "3e80acea-13f9-4fd2-8e9a-e4b715297d9a",
+            "name": "Sabine Schaller"
+          },
+          {
+            "id": "a63af0da-3b51-42ad-9775-ff52212884ba",
+            "name": "Max Kurapov"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=HjSTOmOxwJg",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Structure:\r\n\r\nA. Introduction (2 minutes)\r\nB. The Real-World Complexities of Standardization (10 minutes)\r\nC. Audience Interaction Part 1 (5 minutes):\r\n-- Moderator will pose thought-provoking questions to the audience and collect a show of hands. Briefly discuss the responses.\r\nD. Re-defining Standardization Success (15 minutes):\r\n-- Introduce the idea of measuring success not by traditional implementation metrics, but by whether participants achieved their goals.\r\nE. Audience Interaction Part 2 (5 minutes):\r\nF. Broadening the Standardization Perspective (8 minutes)\r\nG. Closing Remarks and Q&A (5 minutes)",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "523092",
+        "title": "Harvesting Hope from Hiccups: Overcoming Standardization Hurdles",
+        "description": "Standardization is an art, not a science. After Meta launched Threads, which promised to interoperate with the fediverse and Mastodon, some in the Interledger community became enchanted by the promise that further down the line this could positively impact the adoption of the Interledger Protocol and the W3C web monetization standard. Cynics, however, have noted that the reality of standards adoption is quite different: the developers of standards work amidst differing economic incentives, a bias towards short-term thinking, and imperfect knowledge. Standards fail even if they are technically brilliant, as large players adopt strategies like “Embrace, Extend, Extinguish” to kill off standards that threaten their business models. This panel will challenge the conventional manner of assessing the success or failure of standards. Rather than solely considering whether a standard was widely adopted, the discussion redirects attention towards evaluating if the participants in the process met their objectives through their involvement in the standardization process. Drawing from a range of real-world examples and grounded in experiential knowledge from those who have participated in multistakeholder dialogues and negotiations, the panel will illustrate the diverse expectations which are embedded within standardization processes. In doing so, it proposes the idea that what might at first glance appear as a market failure could potentially be viewed as a success, particularly for some traditionally-excluded communities. Standards might not always be widely adopted, but when they’re thoughtfully developed, they can truly serve the needs of some communities.",
+        "startsAt": "2023-11-06T13:15:00",
+        "endsAt": "2023-11-06T14:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "27429f38-3846-488f-9e53-58837c0b6842",
+            "name": "Ayden Férdeline"
+          },
+          {
+            "id": "9d47cf6f-7cb7-4b1a-8d29-8682da2faf14",
+            "name": "Stephanie Perrin"
+          },
+          {
+            "id": "3a7cbafd-ef2c-432b-ba43-2ea4920af3d1",
+            "name": "Chris Buckridge"
+          },
+          {
+            "id": "715acb29-2834-4d55-b102-d75ec3e3136d",
+            "name": "Jeremiah Lee"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=MzLFfIs5dFE",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The session is designed as a 70-minute session. Participants will be assigned to round tables, and each table will be assigned a ‘hat’ (representing a different lens for analysis, each with their own focus). Each table will spend 10 minutes per challenge approaching the issues below from their assigned perspective, which together will produce well-rounded analysis and brainstorming of these issues. \r\n\r\nThese will each be introduced with a brief case study or client story to give context and illuminate these issues as they are experienced by consumers. The discussions will be anchored around the needs of consumers, but reflect the different needs and incentives of stakeholders in the industry. Table 1 in the attachment shows an overview of the issues to be discussed.\r\n\r\nAs we prepare the case studies for this session, we will determine targeted questions to be discussed for each issue (overview questions included in Table 1 of attachment). We will also be determining the ideal arrangement, order, and rotation to implement the ‘six-thinking hats’ method to maximize the benefits of this ‘parallel thinking’ approach to brainstorming.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530057",
+        "title": "Exploring Risks and Consumer Trust in the Shift from Traditional to Open Finance",
+        "description": "Does open finance always lead to consumer empowerment? What if you’re poor? What if you’re already vulnerable? What if your data is misused? This session will examine these questions and more through a parallel thinking methodology. \r\n\r\nOpen finance ecosystems have been viewed in the past decade as potential answers to solve inclusion challenges- they can break the hegemony of traditional financial institutions, enable competition between incumbents and entrants, lower costs for consumers and help offer more personalized services based on consumer data trails, and innovative business models can help deliver services to hitherto excluded consumer segments at a fraction of the costs incurred by more traditional players.  Open ecosystems in financial services are designed to make things simpler, faster, and more convenient for consumers. \r\n\r\nHowever, the transition from traditional finance to open finance ecosystems is not without its pitfalls and complexities, as it introduces new risks that may undermine consumer confidence. In emerging markets and developing economies with weak regulatory frameworks in areas such as data sharing protocols, data protection, and consumer rights legislation, the shift towards open finance can be fraught with danger. In more regulated markets like the UK, where legislation specific to open finance exists, trust remains a significant issue. For example, research has found that about 84 percent of users did not trust open banking, signaling deep-seated concerns about security and the potential for harm. The novelty of these ecosystems, coupled with a lack of understanding and transparent regulations, may further exacerbate consumers' mistrust, creating barriers to adoption and potentially leaving more vulnerable individuals unprotected. \r\n\r\nJoin us to explore the risks, opportunities, and co-develop potential solutions to make open finance more responsible.",
+        "startsAt": "2023-11-06T13:15:00",
+        "endsAt": "2023-11-06T14:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "554229dd-72f1-4f68-afe7-cf6a0bd1d79a",
+            "name": "Colin Rice"
+          },
+          {
+            "id": "624f1540-059e-4db1-90b4-b17156b94ff8",
+            "name": "Jayshree Venkatesan"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35979,
+        "room": "Breakout 3 - San Antonio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Agenda\r\n- User Agents and the Web\r\n- Digital Wallets and the Interledger\r\n- Embedded payments\r\n- Programmable money\r\n- Pay people not accounts\r\n- Use cases of the future",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "527825",
+        "title": "Digital Wallets - Our financial \"user agents\"",
+        "description": "Presenting Fynbos, the model digital wallet of the future, offering payment pointers as a universal payment instrument and Interledger as a universal payment rail.\r\n\r\nThis presentation will show what is possible with a digital wallet that connects your existing accounts and identities and exposes them via the Open Payments APIs.",
+        "startsAt": "2023-11-06T13:40:00",
+        "endsAt": "2023-11-06T14:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+            "name": "Adrian Hope-Bailie"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              },
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=mGBZEhRgUKA",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "4d486e89-4536-4586-8982-bfe61c3f79c6",
+        "title": "Break",
+        "description": null,
+        "startsAt": "2023-11-06T14:05:00",
+        "endsAt": "2023-11-06T14:25:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "- GateHub and team intro (Tadej)\r\n- Wallet overview (Tadej)\r\n- Rafiki integration (Enej Mlinaric)\r\n- QA (Enej Mlinaric & Tadej)",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530042",
+        "title": "GateHub Payments via ILP - Integration with Rafiki",
+        "description": "This talk will give an overview of GateHub Technical integration of Rafiki for the purpose of enabling ILP Payments",
+        "startsAt": "2023-11-06T14:25:00",
+        "endsAt": "2023-11-06T14:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+            "name": "Tadej Golobic"
+          },
+          {
+            "id": "1dad474f-5f51-4aac-9144-304631f40e63",
+            "name": "Enej Mlinarič"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=at4LOwIraC8",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This 60-minute session will feature panelists to share information about each financial inclusion and digital finance strategies, efforts to be more inclusive of new and underrepresented actors as companies, programming implementing partners, and how session participants can better access partnership opportunities with these organizations. Erin Brown will serve as the panel moderator. Panelists will each have 8 minutes to provide summaries of each of their organization's investments into financial inclusion/digital finance efforts before beginning a 30-minute moderated panel discussion with 10 minutes for audience Q&A. ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "509293",
+        "title": "Partnering for Growth Leveraging Donors and Investors",
+        "description": "Donor organizations, foundations, and some venture capital firms are key actors in the financial inclusion ecosystem and are now increasing efforts to engage and partner with new and underrepresented local actors to design and implement programs with sustainable outcomes (actors such as Interledger Foundation grantees). The purpose of this panel is to highlight the efforts of bilateral and multilateral donor organizations, foundations, and VCs to engage with underrepresented actors, such as many of Interledger's grantees, and provide practical information on how session attendees can prepare themselves to pursue awards and investments from these diverse funders successfully.",
+        "startsAt": "2023-11-06T14:25:00",
+        "endsAt": "2023-11-06T15:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "59dd02ef-66e9-41ec-9335-e2d226665ea1",
+            "name": "Erin Brown"
+          },
+          {
+            "id": "3d6be742-b26a-4da9-b8f4-eda7bd532ba0",
+            "name": "Ruth Buckley"
+          },
+          {
+            "id": "c0b28c32-9164-4cef-b80a-3668f84956e3",
+            "name": "Jennifer Fenwick"
+          },
+          {
+            "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+            "name": "Chris Lawrence"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=HJrHmE76ASI",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In the Netherlands, undocumented people are denied access to social services from the government. Estimates say that over 30.000- 60.000undocumented people live in Amsterdam; the capital city. They are not allowed to work, to rent a house, to register in the municipality, or to open a bank account. Opening a bank account is restricted to people with valid identifying documents and a proof of residency in the Netherlands. Despite this, many people have irregular work; unfortunately most often they are exploited. People are often in danger because they are denied access to bank accounts: they can only be paid in cash, which results in people carrying large amounts of money when they go out. They are refused by banks because of the KYC, Know Your Customers principle. This check is the mandatory process of identifying and verifying the client's identity when opening an account and periodically over time. In other words, banks must ensure that their clients are genuinely who they claim to be. In the Netherlands, most undocumented migrants have a proof of identity (from their home countries), but can not obtain the necessary proof of residency, only given out by the state/municipality.\r\n\r\nMoreover, more and more services in the Netherlands can only be paid for by card. Supermarkets, most cafés and public transport are moving towards digital payments and refuse cash payments. During COVID-19, all shops besides supermarkets were closed. It was only possible to order products. For undocumented people however, not being able to pay online, this was impossible to survive without help from people with a bank account.\r\n\r\nMany undocumented people support their families back home. For them, only being able to pay in cash, transferring money is difficult. They have to go through a middle-man, who will take a large percentage of the money to facilitate the transaction. WesternUnion facilitates payments across countries, yet is only available to those with passports and with access to online banking.\r\n\r\nTo make banking and online payments accessible to undocumented people, de Waag Society, Here to Support and (hopefully) Interledger will join forces. A proposal for collaborative research is at the moment being written and on the planning to be executed in 2024. In this research we aim to develop an e-wallet mobile app for the users which uses Interledger protocol in its core. This system is a showcase that makes it possible for the users to login with Yivi, show balance and perform transactions between the users that use the same e-wallet using ILP. \r\nWe aim to develop a prototype for undocumented citizens that consists of two major components: A proof of residency and second an e-wallet that works with the Interledger protocol in the core.\r\n\r\nAt the moment, when a user aims to use an e-wallet like Uphold, they need to identify themselves with a passport and need to already have a bank account.. However, this approach is not always viable, particularly for individuals without a formal residency documentation. Our objective in this part is to establish an inclusive collective proof of residency system based on Yivi (https://www.yivi.app/en) by enabling access to the forthcoming e-wallet that we intend to create as a part of this initiative.\r\nThe residency validation system draws parallel with the New York City ID Card, IDNYC (https://www.nyc.gov/site/idnyc/card/documentation.page). Functioning on a scoring mechanism, the system stipulates a minimum threshold of points required for eligibility to access the e-wallet. Many undocumented individuals are known in different support organisations in their residing city. By including these support organisations, we can architect a dependable framework that verifies locally the proof of residency of citizens. \r\nImportant to take into consideration  is privacy. Undocumented people in the Netherlands work irregular jobs, where they are currently paid in cash. To protect their livelihoods, the cash flows that come through their work should not be visible to the police or authorities. If employers can be identified through this medium, thousands of people will be left without a job, and thousands of employers will risk fines. On the other hand, it should be a protected and safe environment. If anyone can use the wallet, we are afraid it will be used for money laundering. \r\n\r\nWe aim to integrate technological solutions, with political action. Providing alternatives to existing payment structures will include those that lack access to banking, and will prevent people from being exploited and endangered. Yet by providing alternatives, we do not solve the underlying issue: exclusion of undocumented citizens in the Netherlands and in other European countries is a political choice. By providing alternative ways of identifying people, and proving that undocumented citizens can be part of online payment systems, we aim to change the exclusion policies that restrict people from being part of monetary interactions.\r\nDuring the participatory session: We will give a brief introduction. (We also want to make the introduction podcast episode available for all participants). \r\n We will host three tables for the sharing of good practices and insights by the participants of the summit and the interledger community and experiences from all over the world: \r\n- Political action connected to marginalized communities and the access to banking (building alliances of trust using technical innovation)\r\n- Matrix for proof of residency\r\n- Balancing security and privacy\r\nWe think it would be good to have 3 facilitators. Savannah Koolen, Mohamed Bah (who has lived experience as an undocumented migrant) and Taco van Dijk (who is a Tech Developer at the Waag).  We would love to see some initial designs, and to receive input on which parties, experiences and practices we have to involve in the process of our research.\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530246",
+        "title": "Financial inclusion for undocumented people",
+        "description": "In this participatory creative session we are asking the Interledger community to brainstorm along on making banking, and money transferring accessible for undocumented people in the Netherlands. Undocumented people, are excluded from many governmental services, but can also not open a bank account in the Netherlands. This makes the exclusion every day more extreme because with only cash money it is almost impossible to survive. The shops and services in the city are rapidly only accepting payments with card.  We are interested in the insides, experiences, and good practices the Interledger community can share with us during this session. Two podcast episodes will be a tangible output; one with voices of undocumented people we hope we can bring to the attention about the exclusion they face and one with the input gathered at the summit with knowledge and ideas from the participants.\r\n This session is a follow up, on the conversation Here to Support and Interledger Foundation had in Amsterdam during MozFest Amsterdam in July 2023.\r\n https://www.youtube.com/watch?v=9bFwAqL3S8Q",
+        "startsAt": "2023-11-06T14:25:00",
+        "endsAt": "2023-11-06T15:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "6b4980b6-a70f-413d-884d-28c3dd8daf16",
+            "name": "Savannah Koolen"
+          },
+          {
+            "id": "a055a6cf-45d9-4cd2-8273-435ad54d5baf",
+            "name": "Malou Lintmeijer"
+          },
+          {
+            "id": "6f3d6b3c-458a-4c80-9e0d-99752456339e",
+            "name": "Eunice de Asis"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35979,
+        "room": "Breakout 3 - San Antonio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The session will start with a refresher on what TigerBeetle is, and the high level issues it's solving. We'll then jump into specifics of how TigerBeetle solves particular pain points (with a focus on the Open Payments ecosystem) as well as some comparisons with the existing state-of-the-art.\r\n\r\nThese include:\r\n* High velocity payments\r\n* Highly contended accounts\r\n* Ease of operation and deployment\r\n* Safety and correctness guarantees\r\n\r\nThere will be live demos mixed in throughout the session; but mostly kept at a high level.\r\n\r\nLastly, there'll be ~5 minutes reserved for Q&A at the end.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530276",
+        "title": "Where the Beetle meets the Road.",
+        "description": "At last year's ILP Summit, Joran introduced TigerBeetle - an Open Source Financial Accounting Database for Interledger and a few of the high level principles that guided our design philosophy. Now, we're excited to show off how TigerBeetle measures up, and how it enables all manners of high velocity, high contention use cases for the open payments ecosystem!",
+        "startsAt": "2023-11-06T14:50:00",
+        "endsAt": "2023-11-06T15:15:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "3e15c776-358b-4f72-838e-b29fa956182a",
+            "name": "Federico Lorenzi"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=Wmjrb_HX7RA",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "d8d3dac7-67b2-4418-8122-d9cbd0e0f415",
+        "title": "Break",
+        "description": null,
+        "startsAt": "2023-11-06T15:15:00",
+        "endsAt": "2023-11-06T15:35:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Agenda 1 (5 min): Overview of ThitsaNet and where we will go from here.\r\nAgenda 2 (10 min): Product Demo \r\nAgenda 3 (10 min): Q&A\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "528935",
+        "title": "ILP Enabled ThitsaNet Inclusive Payment Network",
+        "description": "In this session, we will provide an overview of the inclusive payment network that is underway of development to serve at least 5 million clients, including 3 million women in Myanmar.",
+        "startsAt": "2023-11-06T15:35:00",
+        "endsAt": "2023-11-06T16:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "15b842af-2bc2-4844-8f35-c31872cb8c84",
+            "name": "Nyi Aye"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=2P4Bhj2IMtM",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "- 5 minutes explanation of the PIX revolution in Brazil (numbers, facts, and context).\r\n\r\n- 5 minutes explanation of how ILP can connect to PIX and its consequences.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "528726",
+        "title": "How PIX is revolutionizing financial inclusion in Brazil and what ILP has to do with it",
+        "description": "In 2020, during the pandemic, the Brazilian government created the PIX payment method, which is revolutionizing digital payments in Brazil and opening a whole new world of possibilities for more financial inclusion. Only in 2022, PIX moved 12 trillion reais (around 2.5 trillion USD) between people and companies in Brazil.\r\n\r\nEspecially for small business owners/entrepreneurs and content creators, the PIX solution facilitates quick transactions, with no fees and high liquidity rates. It helps the entire ecosystem to thrive – from supplier to company to client. PIX has an open API that is constantly under improvement, encouraging open innovation.\r\n\r\nOur goal as Grantees is to connect such an amazing technology with ILP, aiming to unlock a huge financial revolution. In this panel, we will talk about the changes that PIX caused in Brazil, and how ILP can be the bridge that connects open payments worldwide.",
+        "startsAt": "2023-11-06T15:35:00",
+        "endsAt": "2023-11-06T15:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "e08233ef-99fc-4e39-b298-3db97b2abba6",
+            "name": "Helena Tude & Patrick Rahy"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=RrQeHd0rdek",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Participants will be introduced to:\r\n\r\nHistorical Context: An overview of HBCUs, their unique challenges, strengths, and potential to contribute diversely to open communities.\r\n\r\nCurrent Landscape: Discuss present participation and qualitative insights into why HBCU students may or may not participate in open communities. This includes past and current interventions.\r\n\r\nBarriers & Bridges: A collaborative brainstorming session to identify the obstacles hindering HBCU student participation and potential solutions to overcome them. \r\n\r\nEmpowering Participation: Interactive group work on developing strategies and action plans to engage HBCU students in open communities actively. This session will engage community participants and HBCU students in a crucial conversation.\r\n\r\nSharing Best Practices: Invite participants and students who have successfully engaged HBCU students to share their experiences, successes, and lessons learned.\r\n\r\nNetworking: Opportunities for participants to forge meaningful connections and collaborations that lead to impactful action.\r\n\r\nThis session is ideal for educators, community leaders, open-web advocates, and anyone interested in fostering a more inclusive, diverse, and enriched open community ecosystem.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "529141",
+        "title": "Engaging HBCU Students in Open Communities",
+        "description": "This interactive session seeks to explore, understand, and amplify the engagement of students from Historically Black Colleges and Universities (HBCUs) within open communities. Whether it’s open-source software, open web, or open protocols, open communities play a pivotal role in today's global digital era. ",
+        "startsAt": "2023-11-06T15:35:00",
+        "endsAt": "2023-11-06T16:25:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "2d15432a-4cdb-43ff-a339-a4108822482d",
+            "name": "Andrew Mangle"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35979,
+        "room": "Breakout 3 - San Antonio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "- Introduction to UPI: A brief overview of UPI's inception, growth, and impact on the Indian financial ecosystem.\r\n- Global Context of Open Payments: Setting the stage by explaining the significance of open payments and the drive towards interoperable and inclusive financial systems.\r\n- Unpacking UPI's Success:\r\nUPI's Architecture: Examination of UPI's technical design, including its simplicity, accessibility, and security features.\r\n- Adoption and Growth: Analyzing the factors that contributed to UPI's widespread adoption, such as government support, collaboration with banks, and user-centric design.\r\n- Challenges and Lessons Learned: A candid discussion of the hurdles faced by UPI and the lessons that can be drawn from overcoming them.\r\n- Open Payments - Interledger Protocol (ILP): Introduction to ILP and its role in enabling global interoperability in payments.\r\n- Open Payments Ecosystem: Exploration of the global initiatives and trends shaping open payment systems, including regulatory landscapes, innovations, and key players.\r\n- Bridging UPI and ILP: Potential Synergies: \r\nIdentifying the commonalities and complementary aspects between UPI and ILP, such as their shared goals of accessibility and efficiency.\r\n- Integration Possibilities: A discussion on how UPI could be integrated with ILP, including technical, regulatory, and business considerations.\r\n- Use Cases and Benefits: Illustrating potential use cases that could emerge from this integration, such as cross-border remittances, and their benefits to various stakeholders.\r\n- Future Prospects & Opportunities: Discussing the broader opportunities that this integration can unlock, including financial inclusion, innovation, and economic growth.\r\n- Potential Roadblocks: Addressing potential challenges, including technological complexities, regulatory hurdles, and stakeholder alignment.\r\n- Strategies for Success: Offering actionable strategies to navigate these challenges and realize the potential of this integration.\r\n- Call to Action: Encouraging collaboration, innovation, and concerted efforts across regulators, technologists, and financial institutions to realize this vision.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "529371",
+        "title": "Bridging Two Worlds: How India's UPI Informs the Future of Open Payments",
+        "description": "This session explores the revolutionary development of India's Unified Payments Interface (UPI) and its implications on the global open payments landscape. By investigating the successes, challenges, and unique characteristics of UPI, we talk about the potential pathways for integrating systems like UPI with the Interledger Protocol (ILP), setting the stage for a new era in cross-border payments and financial inclusion.",
+        "startsAt": "2023-11-06T15:50:00",
+        "endsAt": "2023-11-06T16:05:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c1653fc3-507d-4ae8-9541-7e7c03e61fd5",
+            "name": "Saloni Garg"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=QvvtCIL_mRM",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "We'll quickly introduce PCH's mission. Then we'll compare how Rafiki's and PCH's recording of financial obligations work. After displaying an interoperability solution between both systems, we'll present the flow for a remittance transfer involving a US-based Wallet implementing Rafiki as sending party, a Mexico-based account in a community bank as receiving party, and PCH's platform as middleman between the two, including a Mojaloop hub and a sub-entity of PCH's platform implementing Rafiki and responsible for communicating with the US Wallet. We'll conclude by commenting the results of this flow with respect to our initial expectations and introduce the audience to the other great challenge (and our proposed solution) for an effective remittances' use case: the settlement process. The remaining time will be allocated to Q&A.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "519348",
+        "title": "Rafiki's “Corridor”: Mexico's PCH remittance use case",
+        "description": "The People's Clearinghouse (PCH) is a community-owned tech platform for payments and financial services, that interconnects community banks and savings coops. By implementing Rafiki, PCH will use ILP to record financial obligations that correspond to incoming remittances sent from US-based wallets (which also implement Rafiki) towards PCH's participants. This demo aims to demonstrate the technical viability of the model, namely the interoperability between Rafiki's decentralized system and the clearinghouse's centralized system, which involves the routing, quoting and recoding of obligations between both systems. The settlement process involved in this remittances' use case is out of the scope of the demo, but we'll present our solution in its main lines.",
+        "startsAt": "2023-11-06T16:00:00",
+        "endsAt": "2023-11-06T16:25:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "bf608549-addb-43ca-88c1-fc564a8c038f",
+            "name": "Andres Arauz"
+          },
+          {
+            "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+            "name": "Roberto Valdovinos"
+          },
+          {
+            "id": "e4ebed56-56d5-4326-8aee-4d86ddea84ac",
+            "name": "Juan Carlos Ditmeyer"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=lpnZ0XArQGM",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Key takeaways:\r\n\r\n1. Why micropayments will work this time and why federated social networks need it\r\n\r\n2. Direct fan-support of digital creators is possible, preferable, and plausible \r\n\r\n3. The W3C enabled Mastodon’s rise when it standardized the Web platform’s social layer 5 years ago. Now, the W3C and Interledger are defining the payment layer for the Web platform.\r\n\r\nNote: I could present this with either a future of Interledger framing or a product showcase from the perspective of Mastodon.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "524247",
+        "title": "Mastodon, micropayments, and the next era of the creator economy",
+        "description": "Changes at Twitter and Reddit in 2023 caused millions people to rebuild their online communities on new platforms. Many chose products like Mastodon, Pixelfed, and Lemmy that were built on the Web platform’s social APIs. Instead of a single company controlling everything, thousands of independently managed communities joined together to create a social web.\r\n\r\nDigital creators can now own their social network presences, distribution, and relationships with their audiences. It’s a significant change from a few billionaires dictating what billions of people globally can and cannot do online. The next big power shift will be changing the primary form of content monetization online from privacy-invasive advertising to direct fan-support. This change will be even bigger and bring economic opportunity to more people than ever before.\r\n\r\nThis session will cover the financial aspects of the creator economy and demonstrate how Interledger’s global payment network works within federated social network apps.",
+        "startsAt": "2023-11-06T16:05:00",
+        "endsAt": "2023-11-06T16:20:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "715acb29-2834-4d55-b102-d75ec3e3136d",
+            "name": "Jeremiah Lee"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              },
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=YtiICJzG6vE",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Explanation on how GNAP is used within Open Payments to authorize an account servicer's access to:\r\n* Incoming Payments\r\n* Outgoing Payments\r\n* Quotes",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552501",
+        "title": "Authorizing Payments with GNAP & Open Payments",
+        "description": "Learn how to authorize payments in Rafiki!",
+        "startsAt": "2023-11-06T16:25:00",
+        "endsAt": "2023-11-06T16:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c0cdf5ec-604b-48fa-a88d-475fe89a8932",
+            "name": "Nathan Lie"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=_T9bdhcOOKU",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "- I will present situation in Ukraine/war - I can be politically correct and play unbias even though I am not\r\n- I will present peak moment - realizing how hard it is for those fleeing too. \r\n- I will present solutions\r\n\r\n- if this will be a creative conversation will create 3 situations for brainstorming, sharing experiences, and debating.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530314",
+        "title": "Diversity in war times / knowledge as safe place",
+        "description": "With the Ukrainian war next door, and myself being Romanian, many things changed. Lots of Ukrainians got refuge in Romania and I got to experience first hand their stories.\r\n\r\nWhat surprised me the first time, was the fact that some women struggled with technology - with maps, with exchanges etc. They were the ones fleeing with kids as the husbands (mostly male) remained home/got blocked by the army in their motherland. But they were never the head of the house, they were never the main driver, they were never those paying big things - or at least not alone. And that got me thinking about how an unexpected situation challenges the default system to the ground.\r\n\r\nSo while we create different solutions to empower the world's financial transactions, we need to be more conscious of the blockers that some might have. \r\n\r\nWe have to imagine the unimaginable in 2023. \r\n\r\n",
+        "startsAt": "2023-11-06T16:25:00",
+        "endsAt": "2023-11-06T16:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "297fd54b-f93c-4996-89bc-f96b3b7f8258",
+            "name": "Ioana Chiorean"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              },
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=ULruv2692Ok",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The proposed outline is:\r\n- Introduction to Chimoney's new Wallet as a Service (WaaS) product\r\n- Connecting Payment pointers to Wallets\r\n- Scaling interledger with open source tools and API for other developers to integrate with\r\n- The future",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "502677",
+        "title": "Integrating Interledger to Chimoney's Wallet as a Service Platform",
+        "description": "In this talk, Uchi introduces Chimoney's Wallet integration with Interledger and how it connects traditional financial systems like Bank accounts to emerging payment systems like the XRP ledger to unlock economic opportunities for everyone, everywhere and enhance financial inclusion\r\n\r\nThe talk showcases real-world products using the integration and shares stories of use cases in Africa and North America that have payment pointers in their wallets",
+        "startsAt": "2023-11-06T16:40:00",
+        "endsAt": "2023-11-06T16:55:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+            "name": "Uchi Uchibeke"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=WTOVHyU2A9c",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The main topics of the presentations shall be around;\r\n1. What is Mobile Money? (A bank in the palm of you hands driving Instant Payments)\r\n2. The impact (Where are we?)\r\n3. Where are we going?\r\n4. Regulations\r\n5. Where does ILP come in?",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "516839",
+        "title": "Mobile Money 2.0: Mainstream Financial Service",
+        "description": "Mobile Money as a Financial Inclusion Tool",
+        "startsAt": "2023-11-06T16:40:00",
+        "endsAt": "2023-11-06T16:55:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "edf0d8b1-3504-4478-ab79-e0c215a4e382",
+            "name": "Malcolm Kastiro"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              },
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              },
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=0j-jNcOJBtY",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Our company, SpendTheBits, is a fintech start-up that specializes in developing user-friendly interoperable multi-currency payment solutions (P2P/P2B). We are excited about the possibilities offered by Interledger Protocol (ILP) and would like to showcase our work that will drive innovation in this\r\nspace.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "501847",
+        "title": "Interoperable Payments",
+        "description": "I want to demonstrate our expertise in interoperability and emphasize the significance of real-time payments to the audience.",
+        "startsAt": "2023-11-06T16:55:00",
+        "endsAt": "2023-11-06T17:10:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "a770436d-860a-4937-8c24-2cafa4f460fd",
+            "name": "Jaskaran (Jay) Kambo"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              },
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=hz3fwZHoPvU",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Agenda:\r\n- What is inclusive, secure user research?\r\n- Key aspects of a potential platform.\r\n- How open payments can help.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530357",
+        "title": "Open Payments For More Inclusive and Secure Research",
+        "description": "This talk explores ways open payments can help in productizing secure user research (and applied research) into a platform. Therefore enabling more remote, distributed research, reducing barriers to entry for conducting research, and promoting more diversity and inclusion among researchers and participants.",
+        "startsAt": "2023-11-06T16:55:00",
+        "endsAt": "2023-11-06T17:10:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "38c7b62e-ee36-407f-ad07-86ab1d5f3a5f",
+            "name": "Philliph Drummond"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=0QBFPnMNQNI",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "b11ab0e1-d000-4023-85b0-c697c0ce7846",
+        "title": "Drinks",
+        "description": null,
+        "startsAt": "2023-11-06T18:30:00",
+        "endsAt": "2023-11-06T19:10:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "8313e225-6ed6-4f27-8580-c6666e1b36cf",
+        "title": "Dinner",
+        "description": null,
+        "startsAt": "2023-11-06T19:45:00",
+        "endsAt": "2023-11-07T00:05:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "091bea8e-e855-4521-829c-ec1596bdf4b0",
+        "title": "Welcome to Day 2",
+        "description": null,
+        "startsAt": "2023-11-07T09:45:00",
+        "endsAt": "2023-11-07T10:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552344",
+        "title": "Keynote Speaker | Maha Bahou, CEO of Jordan Payments and Clearing Company (JoPACC)",
+        "description": null,
+        "startsAt": "2023-11-07T10:00:00",
+        "endsAt": "2023-11-07T10:30:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c0195cc3-97eb-47fc-96d0-7222b7c61381",
+            "name": "Maha Bahou"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=5rxwdGf3pUo",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "a7b3c9b7-fcb8-4f6c-9808-d54cd2b1b46f",
+        "title": "Break",
+        "description": null,
+        "startsAt": "2023-11-07T10:30:00",
+        "endsAt": "2023-11-07T10:45:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552349",
+        "title": "Keynote Speaker | Isabel Cruz Hernandez, CEO Mexican Association of Social Sector Credit Unions",
+        "description": null,
+        "startsAt": "2023-11-07T10:45:00",
+        "endsAt": "2023-11-07T11:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "99cf8d10-170e-4e92-a873-e32e8a39c7e8",
+            "name": "Isabel Cruz Hernandez"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=sXtJkLEYWzw",
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "The panel will include the following participants: \r\n- Isabel Cruz, CEO of the Mexican Association of Social Sector Credit Unions;\r\n- Juan Carlos Urgiles, CEO of Jardín Azuayo, the largest savings coop from Ecuador;\r\n- Elizabeth Campos, Vice-president (Vicegerente General) of Financiera FDL, the largest popular institution of Nicaragua;\r\n- José Isidro Tzunún, General Advisor of Federural, main federation of savings coops of Guatemala \r\n\r\nThis panel will be interesting for audiences interested in grassroots financial inclusion, social justice, popular finances, and regional development through technology.\r\n\r\nSpecific subjects will include:\r\n1) Limits of financial inclusion in their region\r\n2) Effect of digital payments in their communities\r\n3) New opportunities for financial inclusion brought by open source digital payments technologies",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "519137",
+        "title": "Building Digital Financial Inclusion from Below",
+        "description": "Executives from four leading Latin American organizations dedicated to grassroots financial inclusion in poor and marginalized regions of Mexico, Guatemala, Nicaragua and Ecuador, will discuss what real financial inclusion means, how payment digitalization is transforming their regions and why new open source technologies like ILP can become important allies in expanding their mission for real financial inclusion and social justice.",
+        "startsAt": "2023-11-07T11:00:00",
+        "endsAt": "2023-11-07T12:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+            "name": "Roberto Valdovinos"
+          },
+          {
+            "id": "8d38241a-5a24-49e2-808a-acedb34bb1e7",
+            "name": "Juan Carlos Urgilés"
+          },
+          {
+            "id": "9487c937-a599-4e9d-90ad-c1ea7e7a0888",
+            "name": "José Isidro Tzunún"
+          },
+          {
+            "id": "0e2ffbe0-a8d3-4543-975b-a219f431a76a",
+            "name": "Elizabeth Campos"
+          },
+          {
+            "id": "99cf8d10-170e-4e92-a873-e32e8a39c7e8",
+            "name": "Isabel Cruz Hernandez"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=-iHlNXv37Q0",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "614c0a36-2c73-41d7-adfc-50dc70a9b606",
+        "title": "Lunch",
+        "description": null,
+        "startsAt": "2023-11-07T12:00:00",
+        "endsAt": "2023-11-07T13:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": null,
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "554064",
+        "title": "Future|Money Open Studio Day 2",
+        "description": "FUTURE|MONEY Was the first open grant opportunity for 2023. The goal was to seek artists of any discipline to reimagine outdated financial systems that currently exclude 1.7 billion people from accessing essential services to make and receive payments.\r\nImagining the Future is often based on our own memories and imaginations of our surroundings. We asked the artists to dive into their imagination and envision a world where financial systems were built to serve everyone, everywhere, always. Where borders aren’t barriers to supporting each other financially and emotionally.\r\n\r\nThe Future|Money space is open for the attendees of the Interledger Summit, The space is designed to convene with the artist to reflect on their practice and your own. \r\n\r\nMia Wright-Ross: Loose Change (CHAINS) is a series of large-scale multi-media tapestries (primarily leather & paper lottery tickets) as a reflection/projection of the reimagination of Hope that has become a lethal tool of capitalism within the community-rich centers of Black & Brown neighborhoods throughout the United States of America. \r\n\r\nXiaoji Song: The Parallel Society is a cyber-drama that explores financial inclusion and equity by featuring the parallel fate of two characters, a Lebanese migrant in Barcelona and a villager in rural China's Henan province. The game sheds light on financial traumas, such as behavior patterns and psychological impacts as results of financial exclusions experienced by these two characters, and radically imagines a world where such barriers no longer exist, but the characters are still trapped in the old pattern.\r\n\r\nLena Ghaninejad: Liminal Matter is a mixed-media installation combining grains (barley), black obsidian, and 3D hologram technology. The installation aims to illustrate the evolution of money from tangible matter that originates directly from the Earth (grains, food & stones), into an increasingly immaterial entity that leaves more people behind as financial systems complexify and access to technology remains limited -thus asking the question: how can we best share the planet's resources?\r\n\r\nSubhashish Panigrahi and Arky for O Foundation (OFDN) :\r\nBringing Down A Mountain is set in a city in India where everything and everyone is superior, including the internet. The tall mountain surrounds a rural village, stopping the internet and everything online. People from the city climb the mountain to make [Insta] reels with a backdrop of the village, where dreams are tall. residents of the latter dream of mobile data, digital payment, and relief from menial work. Does that dream ever end?\r\n\r\nEsther Mwema and Jon Adam: Sikhula Sonke is an isiXhosa phrase which means 'we grow together.' The project seeks to amplify voices from the margins, with a focus on women in South Africa and Zambia. In recognition of the wisdom that already exists within communities but that may be little understood outside of them, our focus will be on building and documenting the living archives of village banking as a decentralized economic model.\r\n\r\nJuan Carlos, Felipe Brugues, Ana Rodrirequez: RE/SIMULATE Economic agendas to (get rich and) stop worrying about the future Juan Carlos León Felipe Brugués Ana Rodríguez Mixed media, 3D clay printer, ceramic objects, infographic sheets, information receiver.\r\n\r\nCarlijn Kingma, Martijn Jeroen van der Linden, Thomas Bollen: The Waterworks of money, If you think of money as water, then our financial system is like an irrigation system, watering the economy. And just as irrigation helps crops grow, money allows the economy to flourish. As long as the money keeps flowing, society will thrive—or at least that’s the idea. In reality, large swaths of society remain parched, while a small group of people is swimming in money.  ",
+        "startsAt": "2023-11-07T12:00:00",
+        "endsAt": "2023-11-07T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "2be62447-6e04-4f88-9dfa-13e73a759bf4",
+            "name": "Lawil Karama"
+          },
+          {
+            "id": "209d595a-a261-487f-a5f8-7ec09f179989",
+            "name": "Lena Ghaninejad"
+          },
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          },
+          {
+            "id": "4ec77047-4f16-4b3b-9381-9385fbc21e28",
+            "name": "Felipe Brugues"
+          },
+          {
+            "id": "6f694114-7102-4f53-b180-585d5409afa0",
+            "name": "Ana Rodriguez"
+          },
+          {
+            "id": "9c41b58c-011e-4729-817e-b5e3d5d1e6a1",
+            "name": "Juan Carlos Leon"
+          },
+          {
+            "id": "e8d66139-9a11-471d-8feb-060d95b32f04",
+            "name": "Jon Adam Chen"
+          },
+          {
+            "id": "26639585-017e-434e-8f11-42933e1c9cad",
+            "name": "Martijn Jeroen van der Linden"
+          },
+          {
+            "id": "8c35105d-a6aa-47b9-aa63-0bf2103af42b",
+            "name": "Kokayi Walker"
+          },
+          {
+            "id": "1678fa40-6634-440b-9133-1525f93064ef",
+            "name": "Subhashish Panigrahi"
+          },
+          {
+            "id": "596d5e24-c923-4716-adfa-2c18d07d9e43",
+            "name": "Esther Mwema"
+          },
+          {
+            "id": "0676e0b4-c743-457a-885f-ec8722bb6a13",
+            "name": "Hollis Wong-Wear"
+          },
+          {
+            "id": "0b78c79b-f15d-4659-b6f1-bd5c00b2a733",
+            "name": "Mia Wright-Ross"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 41140,
+        "room": "Future | Money Open Studio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "A rural village never wanted to be a city’s landfill or a distant blur in Reels but rather home to new imaginations.\r\n\r\nBringing Down a Mountain dissects the intersecting themes of access, abolition and caste through the experiences of residents of a rural village and that of a hyper-urban city. The film follows the village residents’ dreams—of mobile data, digital payment and relief from menial work. What happens when the landfill is full, and dreams want to break free?\r\n\r\nWhile underlining that all digital barriers are social, the film exposes the plurality of tech innovations and challenges the extractivist and ableist tech.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "552412",
+        "title": "Première of Bringing Down a Mountain",
+        "description": "Bringing Down a Mountain, a speculative film centered around the push and pull between caste abolition and the Unified Payment Interface of India, will be premiered at the Interledger (ILP) Summit 2023.",
+        "startsAt": "2023-11-07T13:00:00",
+        "endsAt": "2023-11-07T13:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "1678fa40-6634-440b-9133-1525f93064ef",
+            "name": "Subhashish Panigrahi"
+          },
+          {
+            "id": "b0a618f4-fe76-4f41-9548-bf07b94260aa",
+            "name": "Arky AR"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Step into the future of Interledger at the ILP Summit! Explore networks through a unique lens—inspired by nature's intricate workings, from rhizomes to ecosystems, drawing fascinating parallels with our tech world. We'll journey through the evolution of networks—railroads, mobile networks, DLTs—and how they can revolutionize our perception of value. As we zoom in on ILP's potential as a rhizome for ledgers, we'll unveil subtle hints to tackle the adoption challenges we collectively face—practical, emotional, economic, legal, governance, and political. AgnostiPay envisions the end-user as a pivotal connecting node, anchoring 'inter-est' within a vibrant stakeholder community. Join us at the ILP Summit, where we'll unravel this perspective and its potential to reframe network dynamics. See you at the ILP Summit for a session that could alter the course of your networked journey!",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "529671",
+        "title": "AgnostiPay's ecosystem perspective, a different networked view",
+        "description": "Empowering the individual End-user to become their own 'Payment Service Provider', reducing transaction fees (with ILP), and increasing payment convenience to create a fairer and more inclusive world.",
+        "startsAt": "2023-11-07T13:00:00",
+        "endsAt": "2023-11-07T13:25:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "c1cb76f8-806a-4b13-8a99-ab7b3c24c350",
+            "name": "Jasper Voorendonk"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=NGv95XR3T_c",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This session will provide an overview of the highly successful approach taken by India and Brazil towards the provision of digital public infrastructure through the standardization of payment interfaces. This is particularly timely as the most recent G20 Digital Economy Ministers meeting held in India recognized the growth of digital public infrastructures, including in the sphere of digital payments, as a key enabler of digital inclusion and innovation. \r\n\r\nThe session will begin by outlining the background, growth story and path to development of digital payments infrastructures in the context of Brazil’s PIX and India’s Unified Payment Interface (UPI). Using a comparative lens, we will take a deep dive into the characteristics of these systems, nature of system participants, and the ownership and governance model. Besides casting the spotlight on these systems, the session will also explore what lessons the experience from PIX and UPI may hold for the development of digital payments infrastructures in other parts of the world. We will open the floor to debate on issues such as the role of public-private partnership models, participation in the framing of payments standards, allocation of costs and responsibilities between participants, and accountability structures for digital payments infrastructures.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530375",
+        "title": "Standardized Payment Interfaces as Digital Public Infrastructures: Learning from India and Brazil",
+        "description": "This session will provide an overview of the highly successful approach taken by India and Brazil towards the provision of digital public infrastructure through the standardization of payment interfaces. This is particularly timely as the most recent G20 Digital Economy Ministers meeting held in India recognized the growth of digital public infrastructures, including in the sphere of digital payments, as a key enabler of digital inclusion and innovation. \r\n\r\nThe session will begin by outlining the background, growth story and path to development of digital payments infrastructures in the context of Brazil’s PIX and India’s Unified Payment Interface (UPI). Using a comparative lens, we will take a deep dive into the characteristics of these systems, nature of system participants, and the ownership and governance model. Besides casting the spotlight on these systems, the session will also explore what lessons the experience from PIX and UPI may hold for the development of digital payments infrastructures in other parts of the world. We will open the floor to debate on issues such as the role of public-private partnership models, participation in the framing of payments standards, allocation of costs and responsibilities between participants, and accountability structures for digital payments infrastructures.",
+        "startsAt": "2023-11-07T13:00:00",
+        "endsAt": "2023-11-07T13:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "526711d3-3681-4fa1-aca6-d962efa1bb30",
+            "name": "Nicolo Zingales"
+          },
+          {
+            "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+            "name": "Smriti Parsheera"
+          },
+          {
+            "id": "a18620f0-bc47-46f7-9b02-2b74a3223836",
+            "name": "Larissa Magalhães"
+          },
+          {
+            "id": "286b01c1-9dad-4415-a115-78e99ba93ec0",
+            "name": "Bruna Cataldo"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=n2VQH-bNDh0",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "In a fast-paced 60 minute scenario-based exercise, participants will be forced to make decisions on how to support their family - whether it is by paying for their mother in law’s medication, their children’s school fees, or ensuring that there is food on the table. Participants’ access to money to finance these livelihood decisions will change depending on their access to DFS and how they manage their DFS accounts. Participants will get to experience first-hand the benefits and trade offs of DFS vs non-digital finance systems, and how it might impact their lives - particularly as women who are presented with intersectional life challenges.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530162",
+        "title": "Digital Finance – a Woman’s Immersive Experience",
+        "description": "Had enough power point presentations? \r\n\r\nOpt for a get-out-of-your seats Immersive Experience where you can “walk in the shoes” of a woman in a rural geography of a developing country, experiencing the challenges and benefits of a digital wallet in their daily life. \r\n\r\nYou'll laugh, you might cry, and you'll definitely learn something new. \r\n",
+        "startsAt": "2023-11-07T13:00:00",
+        "endsAt": "2023-11-07T13:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+            "name": "Nandini Harihareswara"
+          },
+          {
+            "id": "1bd3a54f-3b2c-4af7-928d-f36540049037",
+            "name": "Ariel Frankel"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35979,
+        "room": "Breakout 3 - San Antonio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Mifos began as a system of record for retail microfinance. Since 2018 Mifos has developed an open source payment HUB that serves as a gateway to Mojaloop or other payment switches.  This is being commercial implemented in a number of countries and locations.  Meanwhile ExtoLab developed hardware involving biometric validation, identity offline, and payments security. PaymentHUB natively connects to Apache Fineract and can be configured as a gateway to an eCurrency as is being done in a European country.   The demo starts by showing how the different open source components connect and empower use cases and projects like OpenG2P.   Then, we go further into envisioning the use of secure offline capabilities.  \r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "529931",
+        "title": "PaymentHUB: Connecting to eCurrencies and legacy payment systems",
+        "description": "PaymentHUB is a payments orchestration \"gateway\" that connects legacy banking systems to modern payment infrastructure and is open source.  ExtoPay is a new offline biometric driven hardware solution that is being piloted as part of India's Reserve Bank of India (RBI) Harbinger project to enable secure transactions across a range of use cases.  The demo is about linking these two concepts in a production environment. ",
+        "startsAt": "2023-11-07T13:25:00",
+        "endsAt": "2023-11-07T13:50:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "9361292e-40bf-49e3-b82d-679273214a81",
+            "name": "James Dailey"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190032,
+                "name": "Product Showcase Demo"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=OizNKWS9hb8",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "a186ea9e-fc98-4daa-9f12-d4e99539f578",
+        "title": "Break",
+        "description": null,
+        "startsAt": "2023-11-07T13:50:00",
+        "endsAt": "2023-11-07T14:10:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This sessions consists of three parts. First, van der Linden will explain The Waterworks project and show a part of the video titled 'private profits, public costs'. Second, two future scenarios will be presented. Third, there will be a conversation how open payments fit in and how the scenarios could be develop further, could be made more concrete.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "554174",
+        "title": "The Waterworks of Money and Future Scenarios for the Monetary System",
+        "description": "The Waterworks of Money is a metaphorical representation of our money system, made by cartographer Carlijn Kingma, financial journalist Thomas Bollen, and professor New Finance Martijn Jeroen van der Linden. The Waterworks of Money is an artistic attempt to demystify the financial world, boost ‘systemic financial literacy’ and explore alternative future architectures of the monetary system.\r\n\r\nThe Waterworks of Money was exhibited in Rijksmuseum Twenthe, Kunstmuseum Den Haag, and reproductions are currently on display at the Architecture Biennale in Venice, the Dutch Design Week, the Rabobank and The Hague University of Applied Sciences, and will also be shown at the summit. In October 2023, the Waterworks of Money received the Amsterdam Art Prize and the Dutch Design Award in the category Design Research.\r\n",
+        "startsAt": "2023-11-07T14:10:00",
+        "endsAt": "2023-11-07T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "26639585-017e-434e-8f11-42933e1c9cad",
+            "name": "Martijn Jeroen van der Linden"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "I will start by explaining the concept of digital ecosystems and  how their nature informs value creation and value appropriation. Following that, I will illustrate the key enabling role of payment interoperability for the development of alternative and overlapping value ecosystems, which can be built around the interest of keystone innovators. I will suggest that a toolkit approach to interoperability (a progressive approach based on different layers) is the right way to stimulate the creation of these alternative ecosystems: it promotes resource mobility while also recognizing that bundling of different components  can be necessary to develop welfare-enhancing solutions in specific contexts (for instance, addressing market failures).",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530369",
+        "title": "Equitable Interoperability For Ecosystem Value Creation",
+        "description": "The coalescence of competitive forces around few major digital platforms has given rise to a new type of competitive environment, which is characterized by the co-existence and interdependence of multiple economic actors with a shared interest in value creation. These dynamics can be explained by some of the characteristic features of the platform economy, namely interconnectedness, modularity, and network effects. These characteristics have given rise to the so-called “inverted firm” phenomenon: digital platforms choosing to innovate and achieve scale by bringing together large numbers of interdependent user groups, and using open external contracts in preference to closed vertical integration or subcontracts within the same production chain. Instead of integrating functionalities inside the firm, these actors achieve growth by externalizing production to so-called “complementors”, which fosters the creation of rich ecosystem and yet allows them to maintain some control over it through contractual rules and technical standards. Their role as regulators of this ecosystem, or more specifically of orchestrators of value creation, is crucial to avoid negative externalities. At the same time, however, it provides them with opportunities for abuse in a way that may hinder competition, innovation, and the effectiveness of public policies. \r\nAccordingly, some authors have called regulators to take a closer look at how value is generated and distributed across different actors in the digital value chain. Indeed, orchestrators may impose rules that allow them to appropriate a substantial share of the “pie” of value that is created within their ecosystems: for instance, taking a substantial cut on the transactions they enable, and favoring their own products and services whenever they decide to enter the secondary market that has been created by one of those complementors. \r\nPayment systems are a key complementor market, not only because they are essential to enable a large variety of economic activities, but also because they are used by orchestrators as a mechanism to extract fees related to a host of orchestrator activities. The antitrust disputes involving Apple in California, Brazil and Europe, and Google and Apple in India, Japan and Korea in relation to the mandatory use of their own payment system for in-app purchases have demonstrated that the restrictions imposed to penalize competing payment systems are not justified by security concerns. This means that mandated interoperability with third party payments provides an effective remedy against undue value extraction, and promotes competition by allowing the development of alternative approaches to ecosystem value creation: for instance, approaches that are more advantageous for content creators and delivery workers, rather than gravitating around platform affordances.  \r\nIn this lightening talk, I would like to illustrate the benefits of applying this remedy to dominant digital ecosystems like the app stores using a toolkit approach. To do that, I will refer to different degrees of interoperability that go beyond merely technical interconnection, and ensures that third parties not only are able to offer services on top of the orchestrator’s platform, but also can do so on qualitatively equal terms (also known as “equitable interoperability”).\r\n",
+        "startsAt": "2023-11-07T14:10:00",
+        "endsAt": "2023-11-07T14:25:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "526711d3-3681-4fa1-aca6-d962efa1bb30",
+            "name": "Nicolo Zingales"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=AVkBVgF0WTk",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "A. Introduction (2 minutes)\r\n\r\nB. Barriers to access and participation: Economic perspective on care labor and emotional labor\r\n (10 minutes)\r\n\r\nC. Audience Interaction Part 1 (5 minutes):\r\n-- The Moderator provides for the audience to ask pressing questions and explore interesting overlaps and intersections between disciplines. The facilitator will span a broad scope of topic areas, and participants will be involved through live Q&A, chat, and polls offered by the system.\r\n\r\nD. Re-defining Financial Inclusion (15 minutes):\r\n-- Contrasting socialist infrastructure on bridging gender gap and grassroot women’s movement in the context of financial inclusion practices\r\n--Specific legal training on financial accountability in marriage and partnership constellation\r\n\r\n\r\nE. Audience Interaction Part 2 (5 minutes):\r\n\r\nF. Measuring Success: Community-Centric Approach (10 minutes)\r\n\r\n>How can the Interledger Foundation and the Open payment systems contribute to support these initiatives?\r\n>Acknolwedge and raise awareness on the gender bias and gendered gap in the discourse around financial inclusion\r\n>Promote tools and instruments that take into account of unpaid labor\r\n\r\nG. Closing Remarks and Q&A (5 minutes)\r\n\r\n\r\nTogether, their session will attempt to answer the questions: \r\n\r\n1) What are the most important topics to bring to the table when we apply a gender lens to financial inclusion and equity practices? \r\n2) From financial literacy training, gender informed financial services to targeted legal aid, they will cover a wide range of relevant discourses such as gendered expectation of unpaid and unaccounted emotional and care labor, intersecting other forms of marginalization with gender disparity, diasporic experiences and specific need for diasporic women.  \r\n\r\n\r\n",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530396",
+        "title": "Payment Parity Perspectives: Women of Color Reshaping Financial Inclusion",
+        "description": "The session will feature perspectives from three women of color from diverse sociocultural backgrounds on their situated knowledge related to problems, impacts, and potential solutions to financial inclusion and equity. The panelists have a longstanding background of working with the ILP community and will comment on best practices and open payment standards to enable seamless interoperability between different financial institutions, platforms, and technologies. Thus resulting in greater accessibility and affordability of financial services as both a driver and a gauge of gender equality. \r\n\r\n\r\nModerator:\r\n \r\n---Raashi Saxena – Strategy Consultant & Trainer, Accessibility Lab\r\n \r\nSpeakers: \r\n---Victoria Coker – Founder of Black Web Fest \r\n \r\n---Xiaoji Song – Interdisciplinary Artist, Researcher and Entrepreneur \r\n\r\n--- Julaire Hall -Julaire is a highly accomplished project and program management professional with 10+ years of extensive experience in planning, executing, and overseeing the successful delivery of programs in government and the global services sector. She’s previously worked for Jamaica’s investment and promotions agency and the private sector-led industry outsourcing association.As Programs Outreach Manager for the Interledger Foundation, Julaire will help build the programmatic aspects of the Foundation.\r\n\r\n\r\n",
+        "startsAt": "2023-11-07T14:10:00",
+        "endsAt": "2023-11-07T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "295582aa-8c62-450c-a296-6c45573ea0fd",
+            "name": "Raashi Saxena"
+          },
+          {
+            "id": "56d4c506-d323-41b0-9854-605d76121d86",
+            "name": "Victoria Coker"
+          },
+          {
+            "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+            "name": "Xiaoji Song"
+          },
+          {
+            "id": "ceea3685-37aa-4cf0-bf1c-9527930f2232",
+            "name": "Julaire Hall"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 177655,
+                "name": "Panel"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 39259,
+        "room": "Breakout 2 - Alcazar",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=2KKdSLUw1F8",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This session will kick off with context setting for the group: What is Digital Public Infrastructure and why does it matter? And what are the current available methods for building and funding a tech project that is owned by a commons? \r\n\r\nWe'll then transition into breakout group exercises where we'll collaboratively envision the types of technology institutions that are needed to support a more open, fairer Web, and discuss some of the various funding options for these projects (examples may include DAOs, Exit 2 Community models, stewardship-ownership, capped-returns investment, etc).\r\n\r\nParticipants will then be led through a collaborative brainstorming exercise to determine which of these new financial innovations could be rebuilt with ILP at its core and what these new funding/business models might look like. \r\n\r\nI hope this will inspire attendees to think more creatively about the large-scale applications for ILP as an economic power lever and how it may foster a global ecosystem of technology that is built for public benefit.",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530313",
+        "title": "Reimagining Tech Platforms of the Future - How to build Digital Public Infrastructure using ILP",
+        "description": "If ILP can potentially unlock economic power on the Web, how can that economic power be directed towards building Digital Public Infrastructure? In this collaborative world-building workshop, we’ll introduce the idea of DPI and reimagine what our tech institutions of the future could look like, and walk participants through a series of exercises to co-design ways that ILP can be used to bring these institutions to life. \r\n﻿\r\n﻿We’ll investigate possibilities for alternative capital funding models, as well as new innovations in online business models, to produce a set of ideas for how ILP-enabled ecosystems can be sustainably built, funded, and maintained, without needing to resort to extractive resources like venture capital.",
+        "startsAt": "2023-11-07T14:10:00",
+        "endsAt": "2023-11-07T15:00:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "bfee4ab9-933d-4e4b-8e5b-7d69f723e225",
+            "name": "Tani Olhanoski"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190033,
+                "name": "Creative Conversations"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35979,
+        "room": "Breakout 3 - San Antonio",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "This will be designed for up to 15 minutes with minimal slides, and sufficient time for audience Q&A if welcomed. This talk is intended to feel personal, as I will be sharing some of my experiences as a 3rd generation Deaf person, and as a community advocate - I will share the possibilities and yet the realistic barriers - then map possible directions 'financial equity' can go towards. This talk is intended to provide insightful perspective from a language minority group, part of the disabled community, on how we should think about capacity building, access, and designing the technology that can help with community agency, rather than build a whole new model of gatekeeping. ",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530359",
+        "title": "Redefining the cost of access: financial equity in the Deaf Community",
+        "description": "The Deaf and disabled communities are among the poorest in regard to financial wealth, or having healthy finances. Unemployment is high, and access to financial information poses multiple barriers. Yet there is untapped value. The sign language economy is estimated to be worth 3 billion in the U.S. alone. There are 430 million Deaf people in the world. How much of this value/potential goes straight to the community? Practically nothing.\r\n\r\nThe open payments system suggests a revolution in how we can take the agency into our hands. But when we are talking about financial inclusion - we need to think about access to language to gain access to information, community networking, and capacity building that includes trust and knowledge. \r\n\r\nThis session will outline how we can think about community partnerships, especially in terms of capacity building, and how we can think ahead in creating opportunities for underrepresented communities and how they can become active participants in community wealth creation. How can the open payments systems principle disrupt the current model, by eliminating the ‘banking’ gatekeepers in transactions? How can we assign community agency to data? How can financial equity impact and shape accessibility? \r\n\r\nThis talk will lay possible avenues for the future of financial inclusion, equity, and access from the perspective of the Deaf community, if we are aiming for a world that is equitable, how do we get there and not leave anyone behind? \r\n",
+        "startsAt": "2023-11-07T14:25:00",
+        "endsAt": "2023-11-07T14:40:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "dc2dd614-d811-4155-862f-b23bf9b0eb5e",
+            "name": "Melissa Malzkuhn"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190031,
+                "name": "Lightning Talks"
+              },
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=IKLRNt8ju5o",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [
+          {
+            "id": 54547,
+            "question": "Session Details",
+            "questionType": "Long_Text",
+            "answer": "Agenda:\r\n\r\n1.- The current issues with prepaid services\r\n2.-  Our vision of future of streaming payments\r\n3.- Q&A",
+            "sort": 1,
+            "answerExtra": null
+          }
+        ],
+        "id": "530265",
+        "title": "Subscription Services in the Age of Streaming Payments: Embracing Disruption",
+        "description": "Discover how Interledger is poised to enable subscription-less services, addressing the long-standing hurdle of prepaid payment methods in the service industry. Join us to delve into how this groundbreaking technology will not only overcome existing challenges, promote inclusivity, but also pave the way for improved business models and sweeping disruptions across entire industries.",
+        "startsAt": "2023-11-07T14:40:00",
+        "endsAt": "2023-11-07T14:55:00",
+        "isServiceSession": false,
+        "isPlenumSession": false,
+        "speakers": [
+          {
+            "id": "5e27eb01-d22e-4db5-b6ad-0ce26d1a3a22",
+            "name": "Fernando Almiñana"
+          }
+        ],
+        "categories": [
+          {
+            "id": 51669,
+            "name": "Session format",
+            "categoryItems": [
+              {
+                "id": 190034,
+                "name": "Future of Interledger Talk"
+              }
+            ],
+            "sort": 0
+          }
+        ],
+        "roomId": 35978,
+        "room": "Breakout 1 - Cabildos",
+        "liveUrl": null,
+        "recordingUrl": "https://www.youtube.com/watch?v=j7WFqNL0L_A",
+        "status": "Accepted",
+        "isInformed": true,
+        "isConfirmed": true
+      },
+      {
+        "questionAnswers": [],
+        "id": "74b0ca1c-b596-4e04-9acd-17e570fea21f",
+        "title": "Break",
+        "description": null,
+        "startsAt": "2023-11-07T15:10:00",
+        "endsAt": "2023-11-07T15:30:00",
+        "isServiceSession": true,
+        "isPlenumSession": true,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "1f5bd8e5-159c-4df9-8655-8a4984884331",
+        "title": "Closing",
+        "description": null,
+        "startsAt": "2023-11-07T15:30:00",
+        "endsAt": "2023-11-07T16:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      },
+      {
+        "questionAnswers": [],
+        "id": "ab3c788a-4716-4996-81f8-ba7edde75187",
+        "title": "Hackathon",
+        "description": null,
+        "startsAt": "2023-11-08T09:00:00",
+        "endsAt": "2023-11-08T18:00:00",
+        "isServiceSession": true,
+        "isPlenumSession": false,
+        "speakers": [],
+        "categories": [],
+        "roomId": 35977,
+        "room": "Main Stage",
+        "liveUrl": null,
+        "recordingUrl": null,
+        "status": null,
+        "isInformed": false,
+        "isConfirmed": false
+      }
+    ],
+    "isDefault": false
+  }
+]

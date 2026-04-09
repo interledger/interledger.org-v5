@@ -1,0 +1,3458 @@
+[
+  {
+    "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+    "firstName": "Adrian",
+    "lastName": "Hope-Bailie",
+    "fullName": "Adrian Hope-Bailie",
+    "bio": "Adrian is a co-inventor of the Interledger protocol stack and the Open Payments standards and payment pointers. He is a co-founder of Fynbos where he is building the first account that will issue payment pointers and support Open Payments.",
+    "tagLine": "Founder at Fynbos",
+    "profilePicture": "https://sessionize.com/image/e5b2-400o400o1-UNKX2DhHQEuyQwrn2Xx1vb.png",
+    "sessions": [
+      {
+        "id": 527825,
+        "name": "Digital Wallets - Our financial \"user agents\""
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/ahopebailie",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/adrianhopebailie/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://fynbos.dev",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fynbos",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6f694114-7102-4f53-b180-585d5409afa0",
+    "firstName": "Ana",
+    "lastName": "Rodriguez",
+    "fullName": "Ana Rodriguez",
+    "bio": "Ana Rodríguez (Quito, Ecuador) is a curator, researcher, and professor. Rodríguez served as Minister and Vice-minister of Culture of Ecuador, directed the City Museums Foundation, and the Contemporary Art Center, all in Quito. She was part of CENEDET (National Strategy Center for the Right to the Territory) at the IAEN,  and CITE (Center for Public Policies and Territory Research) in FLACSO-Ecuador. She studied fine arts and aesthetics at Université Paris 1-Panthéon-Sorbonne in France, and cultural studies at the Universidad Andina Simón Bolivar in Quito, Ecuador. Among her main fields of research and publication on urban issues, there are gangs studies and violence, food systems / popular markets, and intercultural tools for public management.\r\n",
+    "tagLine": "Future|Money Awardee",
+    "profilePicture": "https://sessionize.com/image/4961-400o400o1-7ExfJQJfcYzhwdjqqVbb35.jpg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Company Website",
+        "url": "https://www.urban-front.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "URBAN FRONT",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Researcher, Project Coordinator for LATAM",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "bf608549-addb-43ca-88c1-fc564a8c038f",
+    "firstName": "Andres",
+    "lastName": "Arauz",
+    "fullName": "Andres Arauz",
+    "bio": "Economist, former central banker, policymaker and politician, with a Ph.D. in cross-border payment systems.",
+    "tagLine": "People's Clearinghouse, CEO",
+    "profilePicture": "https://sessionize.com/image/7136-400o400o1-9dXV7R2XNbCSzmZYFmSFW1.jpg",
+    "sessions": [
+      {
+        "id": 519348,
+        "name": "Rafiki's “Corridor”: Mexico's PCH remittance use case"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/ecuarauz",
+        "linkType": "Twitter"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "The People’s Clearinghouse",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "2d15432a-4cdb-43ff-a339-a4108822482d",
+    "firstName": "Andrew",
+    "lastName": "Mangle",
+    "fullName": "Andrew Mangle",
+    "bio": "Dr. Mangle is an Assistant Professor in Management Information Systems at Maryland's oldest HBCU Bowie State University.  ",
+    "tagLine": "Assistant Professor - Bowie State University",
+    "profilePicture": "https://sessionize.com/image/c6a4-400o400o1-WTxvQ9dZLpwN4M1MHNW7Vr.jpg",
+    "sessions": [
+      {
+        "id": 529141,
+        "name": "Engaging HBCU Students in Open Communities"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/amangle",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/andrew-mangle",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://andrewmangle.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Bowie State University",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Associate Professor",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1bd3a54f-3b2c-4af7-928d-f36540049037",
+    "firstName": "Ariel",
+    "lastName": "Frankel",
+    "fullName": "Ariel Frankel",
+    "bio": "Ariel is the Director of Public Health at TechChange. She helped establish the Public Health division at TechChange in 2021, and leads a team of public health managers and associates who create, manage and deliver engaging and interactive health-focused training experiences around the world. She is a public health professional with 8+ years of experience in human-centered design, monitoring and evaluation (M&E), and international project management. She has led the development of course content and capacity building programs on some of the largest Public Health team initiatives, including the Digital Health: Planning National Systems course offerings – the flagship foundational course on digital health for the World Health Organization. Ariel holds an MSPH from Johns Hopkins Bloomberg School of Public Health in Social and Behavioral Interventions within the Global Health Department.\r\n",
+    "tagLine": "Senior Director of Public Health, TechChange",
+    "profilePicture": "https://sessionize.com/image/1b47-400o400o1-NuV27czoP2xe9cr6T87hxs.jpeg",
+    "sessions": [
+      {
+        "id": 530162,
+        "name": "Digital Finance – a Woman’s Immersive Experience"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/ariel-frankel-21012942/",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "TechChange",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Sr. Director of Public Health",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "b0a618f4-fe76-4f41-9548-bf07b94260aa",
+    "firstName": "Arky",
+    "lastName": "AR",
+    "fullName": "Arky AR",
+    "bio": "Arky is a technologist and a visual storyteller, who helps non-profits, social enterprises use Information and communication technology (ICT). He has been involved in Free and Open Source communities for over an decade and worked with various non-profits: Braille Without Borders (BWB), NGO Resource Center and Mozilla in Asia, SE. Asia and Africa. ",
+    "tagLine": "Technologist and Visual Storyteller",
+    "profilePicture": "https://sessionize.com/image/a8ea-400o400o1-NUfeT9X4rP1P8ZCsLXm4gZ.jpg",
+    "sessions": [
+      {
+        "id": 552412,
+        "name": "Première of Bringing Down a Mountain"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/playingwithsid",
+        "linkType": "Instagram"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": " Civil Societies in SE. Asia and Africa",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Independent Technology Consultant",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "27429f38-3846-488f-9e53-58837c0b6842",
+    "firstName": "Ayden",
+    "lastName": "Férdeline",
+    "fullName": "Ayden Férdeline",
+    "bio": "Ayden Férdeline is a public interest technologist who has worked directly with governments, industry, and civil society organizations to support responsible technological innovation with a focus on social impact. \r\n\r\nHe is currently a Landecker Democracy Fellow with Humanity in Action, in collaboration with the Alfred Landecker Foundation, where he works to bring traditionally-excluded voices from the labor organizing space into Internet governance arenas. \r\n\r\nHe serves on the Steering Committee of the joint Ford Foundation-Mozilla Foundation Public Interest Technologists Network, where he cultivates an empowered community of civic minded stakeholders who share a meaningful and actionable camaraderie to keep the Internet working for everyone. \r\n\r\nIn addition, he is a Fellow with the Internet Law and Policy Foundry in Washington D.C. \r\n\r\nHe previously represented European civil society organizations on ICANN’s GNSO Council, the body which makes binding policy for generic top-level domain names like .COM and .ORG, and was a technology policy fellow with the Mozilla Foundation. He also hosted the Internet governance history podcast POWER PLAYS, which shined a spotlight on many pioneers from within the Internet governance community, and has worked for an array of philanthropic organizations, including the National Endowment for Democracy, the National Democratic Institute, and the New Venture Fund.\r\n\r\nHe is an alumnus of the London School of Economics.",
+    "tagLine": "Landecker Democracy Fellow, Humanity in Action",
+    "profilePicture": "https://sessionize.com/image/5098-400o400o1-B3DT1cQHVhmE35x2YFcGMs.jpg",
+    "sessions": [
+      {
+        "id": 523092,
+        "name": "Harvesting Hope from Hiccups: Overcoming Standardization Hurdles"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Humanity in Action",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Landecker Democracy Fellow",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "12e36289-504e-46ce-94a8-b8e9debdd5b1",
+    "firstName": "Briana ",
+    "lastName": "Marbury ",
+    "fullName": "Briana Marbury",
+    "bio": "Briana Marbury is the CEO of the Interledger Foundation (ILF), a nonprofit organization committed to expanding digital financial inclusion to vulnerable populations. ILF invests in organizations, communities, and entrepreneurs working towards the shared goal of enabling interoperable and frictionless payments around the globe.\r\n\r\nAs CEO of ILF, Briana leads the strategic vision of the organization and has grown ILF from a small team of three to a global workforce of changemakers. Bringing her own firsthand experience with navigating the challenges associated with the lack of equitable financial access,\r\nBriana brings her skills, values and lived experience to the crucial work of enabling communities to create and lead their own financial futures.\r\n\r\nBefore joining ILF, she consulted for 350.org and held financial leadership roles at Repair the World, Uncommon Schools, and the Jack Kent Cooke Foundation. At each organization, Briana built and grew the financial and operational systems that enabled significant progress towards achieving their mission. Additionally, Briana served as an Education Pioneer Graduate Fellow, exploring ways to increase positive educational outcomes in the nation’s most underserved schools.\r\n\r\nBriana holds a BA in Accounting from the University of Michigan, an MBA from Wayne State University, and has completed post-graduate work in strategic leadership at Stanford University. Originally from Detroit, Briana has lived in many cities across the US and has even spent a brief\r\nperiod as a digital nomad. When she’s not exploring new cities, she’s spending time with her pup, Seamus.",
+    "tagLine": "CEO & President of Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/67c6-400o400o1-W5Y7Ccp4Fcdo2kWGMzfN2c.jpg",
+    "sessions": [
+      {
+        "id": 552327,
+        "name": "Keynote Speaker | Briana Marbury CEO & President Interledger Foundation"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/bmarbury",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/brianamarbury/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://twitter.com/bmarbury",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "286b01c1-9dad-4415-a115-78e99ba93ec0",
+    "firstName": "Bruna",
+    "lastName": "Cataldo",
+    "fullName": "Bruna Cataldo",
+    "bio": "Msc and Phd candidate in Economics. Current member of the Research Group in Institutional Design and Regulatory Efficiency at FGV-Rio Law School and Head of Research at Propague Institute, focusing on financial innovation and regulation. ",
+    "tagLine": "Head of Research (Propague Institute)",
+    "profilePicture": "https://sessionize.com/image/920e-400o400o1-hwkznVbhipP2sbdWdrTu26.jpg",
+    "sessions": [
+      {
+        "id": 525073,
+        "name": "Cross Border Payments in the Instant Era"
+      },
+      {
+        "id": 530375,
+        "name": "Standardized Payment Interfaces as Digital Public Infrastructures: Learning from India and Brazil"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/bruna-cataldo-630b02a7/?locale=en_US",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://institutopropague.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Instituto Propague",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Head of Research",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3a7cbafd-ef2c-432b-ba43-2ea4920af3d1",
+    "firstName": "Chris",
+    "lastName": "Buckridge",
+    "fullName": "Chris Buckridge",
+    "bio": "Chris Buckridge is an independent advisor, consultant, and commentator more than two decades of experience in the Internet technical governance space. Currently a member of the Internet Governance Forum Multistakeholder Advisory Group, and an incoming member of the ICANN Board of Directors, he is involved in discussions around global digital cooperation and EU digital policy. ",
+    "tagLine": "Independent Internet governance expert",
+    "profilePicture": "https://sessionize.com/image/669a-400o400o1-sbq1p59expwkQDCDh8dfQB.jpg",
+    "sessions": [
+      {
+        "id": 523092,
+        "name": "Harvesting Hope from Hiccups: Overcoming Standardization Hurdles"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/chrisbuckridge/",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Independent",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Advisor",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+    "firstName": "Chris",
+    "lastName": "Lawrence",
+    "fullName": "Chris Lawrence",
+    "bio": null,
+    "tagLine": null,
+    "profilePicture": "https://sessionize.com/image/fce0-400o400o1-0095eaf2-329e-4ba4-8ad1-7c500a4414c4.jpg",
+    "sessions": [
+      {
+        "id": 509293,
+        "name": "Partnering for Growth Leveraging Donors and Investors"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/chrislarry/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://interledger.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "554229dd-72f1-4f68-afe7-cf6a0bd1d79a",
+    "firstName": "Colin",
+    "lastName": "Rice",
+    "fullName": "Colin Rice",
+    "bio": "Colin is a Research Specialist at CFI, working on the Consumer Protection and Data Risk and Opportunities work streams, in addition to supporting the Responsible Finance Forum.\r\n\r\nColin previously worked as the Social Performance Manager at Small Enterprise Foundation, the largest MFI in South Africa, where he led a team responsible for gathering and analyzing insights on client progress, satisfaction, and challenges. He also reviewed and developed the organization’s social performance practices, in addition to working on the design, monitoring, and evaluation of financial education and savings projects.\r\n\r\nPrior to that, Colin spent time developing M&E tools for BancoSol in Bolivia, consulted with nonprofits and family philanthropic foundations in the DC area to strengthen internal operations, and was an intern on the Bankers without Borders team at Grameen Foundation.\r\n\r\nHe has an M.A. in social enterprise from American University: School of International Service and a B.A. in anthropology from Sewanee.",
+    "tagLine": "Research Specialist, CFI at Accion",
+    "profilePicture": "https://sessionize.com/image/24b5-400o400o1-pAu6XjyFoPckfrhih2WC9C.jpg",
+    "sessions": [
+      {
+        "id": 530057,
+        "name": "Exploring Risks and Consumer Trust in the Shift from Traditional to Open Finance"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/colinmrice/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.centerforfinancialinclusion.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Center for Financial Inclusion at Accion",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Research Specialist",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "0e2ffbe0-a8d3-4543-975b-a219f431a76a",
+    "firstName": "Elizabeth",
+    "lastName": "Campos",
+    "fullName": "Elizabeth Campos",
+    "bio": "Elizabeth has spent most of her life fighting for financial inclusion in rural Nicaragua.",
+    "tagLine": "Vicegerente general, Financiera FDL",
+    "profilePicture": "https://sessionize.com/image/fe4d-400o400o1-p1dgeKjvzZ2QTAJBc7gdEi.jpg",
+    "sessions": [
+      {
+        "id": 519137,
+        "name": "Building Digital Financial Inclusion from Below"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1dad474f-5f51-4aac-9144-304631f40e63",
+    "firstName": "Enej",
+    "lastName": "Mlinarič",
+    "fullName": "Enej Mlinarič",
+    "bio": "Backend Engineer @ GateHub, dedicated to building the backbone of secure and efficient blockchain financial services. I'm passionate about crafting robust solutions that empower the future of digital asset management.",
+    "tagLine": "GateHub, Backend Engineer",
+    "profilePicture": "https://sessionize.com/image/65c4-400o400o1-1f9a0614-13ca-4dfb-b9b9-14e6c09037bd.jpg",
+    "sessions": [
+      {
+        "id": 530042,
+        "name": "GateHub Payments via ILP - Integration with Rafiki"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://si.linkedin.com/in/enej-mlinari%C4%8D-74988098",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://gatehub.net",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "GateHub",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Backend Engineer",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "59dd02ef-66e9-41ec-9335-e2d226665ea1",
+    "firstName": "Erin",
+    "lastName": "Brown",
+    "fullName": "Erin Brown",
+    "bio": "Erin Brown is the Deputy Director of the Management Bureau’s Office of Management Policy, Budget and Performance (M/MPBP) at the United States Agency for International Development (USAID).  Prior to serving as Deputy Director of M/MPBP, she launched USAID’s new Diversity, Equity, Inclusion, and Accessibility (DEIA) agenda as the Agency’s Acting Chief DEIA Officer in the Office of the Administrator, including development of its 2021 DEIA Strategic Plan and an Equity Action Plan. Ms. Brown joined the USAID in 2012 after 13 years in the private sector. Prior to joining USAID, Ms. Brown was a Senior Principal at the Hay Group, a global management consulting firm, where she led the Building Effective Organizations Practice in the Federal Sector. \r\n\r\nA two-time Gears of Government award-winner at USAID, Ms. Brown helped establish a new Safeguarding Unit to help protect recipients of USAID assistance from sexual exploitation and abuse, and launched a new Organizational Health Index to gauge the strength of USAID’s internal operations and mission readiness. \r\n\r\nShe holds a bachelor of arts (BA) degree in Political Science from the Loyola University of New Orleans, a master’s degree in public policy (MPP) from the University of Chicago and a master of arts (MA) in organizational sciences from The George Washington University. \r\n\r\n",
+    "tagLine": "Equity and Partnerships",
+    "profilePicture": "https://sessionize.com/image/c06c-400o400o1-nv5dQQydeGDphfMZAKidmg.jpg",
+    "sessions": [
+      {
+        "id": 509293,
+        "name": "Partnering for Growth Leveraging Donors and Investors"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/erinbrown1913/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.usaid.gov",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "USAID",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Panel moderator",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "596d5e24-c923-4716-adfa-2c18d07d9e43",
+    "firstName": "Esther",
+    "lastName": "Mwema",
+    "fullName": "Esther Mwema",
+    "bio": "Esther Mwema is an artist and a digital inequalities practitioner with expertise in internet governance, digital transformation, and innovation. She has over ten years commitment to social impact at the intersection of youth, technology, and gender and holds extensive experience at the United Nations. Esther is an Open Internet leader who prioritises African feminist and decolonial practices. She has been awarded the Mozilla Creative Media Awards, the Interledger Foundation Future|Money award, the C/Change R&D arts and culture awards, among more. Esther graduated with an MSc in Inequalities and Social Science from the London School of Economics.",
+    "tagLine": "Future|Money Awardee,  / Sikhula Sonke: Living Archives of Afrofuturist Village Banking",
+    "profilePicture": "https://sessionize.com/image/d427-400o400o1-724804c5-1271-4121-968a-8b26e442e89e.jpg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Blog",
+        "url": "http://esthermwema.persona.co",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "http://esthermwema.persona.co",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Future|Money awardee",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Artist and Digital Inequalities Practitioner",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6f3d6b3c-458a-4c80-9e0d-99752456339e",
+    "firstName": "Eunice",
+    "lastName": "de Asis",
+    "fullName": "Eunice de Asis",
+    "bio": "Eunice de Asis - activist, community organizer and  filmmaker known for producing several documentaries that shed light on important social issues. She has also taken on leadership roles, serving as the Chairwoman of Migrante Amsterdam, a grassroots organization created by and for irregular migrants, as well as spokesperson/member of Amsterdam City Rights.\r\n",
+    "tagLine": "Activist, community orgganizer and chair woman MIgrante Netherlands",
+    "profilePicture": "https://sessionize.com/image/8adc-400o400o1-fb8UdpD3jHSJfAeCroehAw.jpeg",
+    "sessions": [
+      {
+        "id": 530246,
+        "name": "Financial inclusion for undocumented people"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/amsterdamcityrights",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.amsterdamcityrights.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Amsterdam City Rights/ Migrante Netherlands/ International MIgrant Alliance Europe",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "spokesperson/ Chairwoman/ International Coordinating Body",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3e15c776-358b-4f72-838e-b29fa956182a",
+    "firstName": "Federico",
+    "lastName": "Lorenzi",
+    "fullName": "Federico Lorenzi",
+    "bio": "Federico started off wearing a sysadmin hat, before moving to web development and founding an online education startup along the way. He now works at TigerBeetle, and keeps himself busy by thinking about operator experience, ensuring the CI is green, and optimizing LSM tree compaction.",
+    "tagLine": "Staff Software Engineer at TigerBeetle",
+    "profilePicture": "https://sessionize.com/image/7855-400o400o1-fZMovB2wmtM4B3YKfhwBfP.jpg",
+    "sessions": [
+      {
+        "id": 530276,
+        "name": "Where the Beetle meets the Road."
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/fedcb22",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/federico-l-8a129180/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://tigerbeetle.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "TigerBeetle",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Staff Software Engineer",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "4ec77047-4f16-4b3b-9381-9385fbc21e28",
+    "firstName": "Felipe",
+    "lastName": "Brugues",
+    "fullName": "Felipe Brugues",
+    "bio": "Felipe Brugués is a Mexico City-based researcher specializing in development economics, using interdisciplinary methods to analyze decision-making in weak institutional settings, with a particular focus on the physical ramifications of his work. ",
+    "tagLine": "Future|Money Awardee, Assistant Professor, ITAM",
+    "profilePicture": "https://sessionize.com/image/6b3c-400o400o1-KVSZ4XDfJgLEyVNbcf1wWM.png",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Company Website",
+        "url": "https://www.felipebrugues.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ITAM",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Assistant Professor",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "5e27eb01-d22e-4db5-b6ad-0ce26d1a3a22",
+    "firstName": "Fernando",
+    "lastName": "Almiñana",
+    "fullName": "Fernando Almiñana",
+    "bio": "Fernando's entrepreneurial journey spans across various industries, including real estate development and operations, food manufacturing, financial consulting, electronic security and telecommunications. With over 16 years of experience in mission-critical communications, he has gained a comprehensive understanding of telecom infrastructure design and operations. Fernando is a co-founder of Wallet Guru and has been instrumental in guiding the company's strategic planning and software development.\r\n",
+    "tagLine": "Wallet Guru Co-Founder. Pioneering streaming payments and subscription-less services.",
+    "profilePicture": "https://sessionize.com/image/433b-400o400o1-wirVqRWfk1cBJ6AMgbBhUE.jpg",
+    "sessions": [
+      {
+        "id": 530265,
+        "name": "Subscription Services in the Age of Streaming Payments: Embracing Disruption"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/WalletGuruLLC",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/company/mywalletguru/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.mywalletguru.com/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Wallet Guru",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e08233ef-99fc-4e39-b298-3db97b2abba6",
+    "firstName": "Helena Tude",
+    "lastName": "& Patrick Rahy",
+    "fullName": "Helena Tude & Patrick Rahy",
+    "bio": "Helena Tude & Patrick Rahy are the co-founders of Kult, a community-centered platform for cultural content curation. Kult is aiming to build an open-source digital wallet that connects ILP to PIX – an instant and free payment method created by the Brazilian government. ",
+    "tagLine": "Co-founders of Kult, ILP Grantees",
+    "profilePicture": "https://sessionize.com/image/7a52-400o400o1-UKCCnSDjQQ9EaDtDBquicJ.png",
+    "sessions": [
+      {
+        "id": 528726,
+        "name": "How PIX is revolutionizing financial inclusion in Brazil and what ILP has to do with it"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/kult_app",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://kult.pt",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Kult (Paginas Esbeltas Lda)",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Co-founders",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "0676e0b4-c743-457a-885f-ec8722bb6a13",
+    "firstName": "Hollis ",
+    "lastName": "Wong-Wear ",
+    "fullName": "Hollis Wong-Wear",
+    "bio": null,
+    "tagLine": "Interledger Ambassador ",
+    "profilePicture": "https://sessionize.com/image/217b-400o400o1-9iGYVSdAb6mLxYqBVisGc4.jpg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Ambassador",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "297fd54b-f93c-4996-89bc-f96b3b7f8258",
+    "firstName": "Ioana",
+    "lastName": "Chiorean",
+    "fullName": "Ioana Chiorean",
+    "bio": "Ioana is an engineer manager flavored in communities, and devrel, that has more than 14 years of experience in tech with a specialization in all things web and mobile apps.  Besides her daily job, she dedicates her time to building tech communities and improving access to education. She is the Module Owner for Mozilla Reps, one of the alumna of MozTechSpeakers, and stands as an ambassador for CodeWeek at the European Commission. She is an advisor and board member for Women in Tech Cluj. In her free time, she contributes to Open Source and different volunteering programs, while enjoying a coffee or a good wine. ",
+    "tagLine": "Engineering Manager ",
+    "profilePicture": "https://sessionize.com/image/44c8-400o400o1-4b-f93c-4996-89bc-f96b3b7f8258.62f36cf5-e00c-4169-a68f-a1e0ab2a41a7.jpg",
+    "sessions": [
+      {
+        "id": 530314,
+        "name": "Diversity in war times / knowledge as safe place"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/ioana_cis",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/ioanachiorean/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/ioana_cis",
+        "linkType": "Instagram"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "-",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "-",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "99cf8d10-170e-4e92-a873-e32e8a39c7e8",
+    "firstName": "Isabel ",
+    "lastName": "Cruz Hernandez",
+    "fullName": "Isabel Cruz Hernandez",
+    "bio": "Mexican anthropologist, social finance activist and builder of community financial systems. For four decades she has worked in diverse regions of her country with peasant and indigenous organizations to promote grassroots financial inclusion. She is the CEO of the Mexican Association of Social Sector Credit Unions (AMUCSS).\r\n\r\nIsabel studied Anthropology at the National School of Anthropology and History, Financial Administration at Tecnológico de Monterrey and Business Management at the Technology Institute of Mexico (ITAM). She has made multiple international trips in Latin America, Europe,\r\nNorth America and Africa, to discover the most important popular financial experiences around the world and implement their solutions in Mexico.\r\n\r\nThroughout her career, Isabel has supported the construction of multiple local financial institutions and services for marginalized communities. She designed and implemented micro-savings methodologies for remote communities, including the creation of models for agricultural and non-agricultural productive credits, and financial methodologies for social housing development combining savings, credit, subsidies and assistance technique. She has also developed social strategies for strengthening binational communities and fostering the social impact of remittances.\r\n\r\nBecause of her work for financial inclusion, Isabel has received various international awards in the last 20 years. She is currently dedicated to producing strategic community banks (SOFINCOs) in rural and indigenous areas of Oaxaca, Chiapas, Puebla, Hidalgo, among others\r\nregions, and to the development of the Peoples Clearinghouse, an innovative financial network\r\nfor connecting social financial institutions between them and with international networks. \r\n\r\nShe writes at \"El Financiero\" newspaper and has published several public policy books.",
+    "tagLine": "CEO of the Mexican Association of Social Sector Credit Unions (AMUCSS).",
+    "profilePicture": "https://sessionize.com/image/873e-400o400o1-WAzprMTgpxiL7Qn3SWgUAJ.png",
+    "sessions": [
+      {
+        "id": 552349,
+        "name": "Keynote Speaker | Isabel Cruz Hernandez, CEO Mexican Association of Social Sector Credit Unions"
+      },
+      {
+        "id": 519137,
+        "name": "Building Digital Financial Inclusion from Below"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9361292e-40bf-49e3-b82d-679273214a81",
+    "firstName": "James",
+    "lastName": "Dailey",
+    "fullName": "James Dailey",
+    "bio": "James Dailey is a founding member and Chief Executive Officer of BaasFlow.com.  A serial entrepreneur, James has worked on or launched a number of initiatives including OpenG2P, GovStack, openLMIS, and Mifos. He is, alongside Orang Dialemah and Tim Dorcey, a member of the ExtoPay team.  James is a fintech expert in emerging markets focused on banking and payment interoperability; over the past few decades he has been on the ground in dozens of countries and on multiple payments and banking projects for a range of international organizations, including Bill & Melinda Gates Foundation, World Bank, IFC, and the Asian Development Bank. Previously he built a venture-funded company linking carbon markets to microfinance.  He lives in Seattle, Washington State in the US.",
+    "tagLine": "CEO of BaaSFlow, VP of Apache Fineract, financial inclusion advocate.  ",
+    "profilePicture": "https://sessionize.com/image/8646-400o400o1-hoyJnvakb6H2fY1XypZByx.jpg",
+    "sessions": [
+      {
+        "id": 529931,
+        "name": "PaymentHUB: Connecting to eCurrencies and legacy payment systems"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/jamespdailey/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.baasflow.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "BaaSFlow",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a770436d-860a-4937-8c24-2cafa4f460fd",
+    "firstName": "Jaskaran (Jay)",
+    "lastName": "Kambo",
+    "fullName": "Jaskaran (Jay) Kambo",
+    "bio": "My Name is Jaskaran (Jay) Kambo & I am based in Edmonton, Canada. I am the CEO & Founder at spendthebits. I have over ten years of working experience in I.T across multiple domains & technologies.",
+    "tagLine": "SpendTheBits Inc. CEO & Founder",
+    "profilePicture": "https://sessionize.com/image/197f-400o400o1-QZbcm5Ut2r54GWwnXfxnsb.jpg",
+    "sessions": [
+      {
+        "id": 501847,
+        "name": "Interoperable Payments"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/Jay_SpendDBits",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/jaskaran-k-0bb250a9/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/spendthebits",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/spendthebits/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://spendthebits.com/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "SpendTheBits Inc.",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "c1cb76f8-806a-4b13-8a99-ab7b3c24c350",
+    "firstName": "Jasper",
+    "lastName": "Voorendonk",
+    "fullName": "Jasper Voorendonk",
+    "bio": "Background in Philosophy and Tech Startups.\r\n\r\nInterested in Networks, Ecosystems, and Abundance.\r\n",
+    "tagLine": "AgnostiPay",
+    "profilePicture": "https://sessionize.com/image/9506-400o400o1-PEzRd8EqBnCpwCB6EseF53.jpeg",
+    "sessions": [
+      {
+        "id": 529671,
+        "name": "AgnostiPay's ecosystem perspective, a different networked view"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/agnostipay",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/company/agnostipay",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://agnostipay.io/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "AgnostiPay",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Lead Evangelist",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "624f1540-059e-4db1-90b4-b17156b94ff8",
+    "firstName": "Jayshree",
+    "lastName": "Venkatesan",
+    "fullName": "Jayshree Venkatesan",
+    "bio": "Jayshree leads research on fintechs, platforms and other DFS providers to understand their incentives, practices, and how/if they serve low-income consumers; contribute to advocacy on consumer protection and other policy priorities for inclusive finance and co-lead the development of influence strategies and campaigns with the communications team. She joined CFI after working for eight years as an independent global consultant to several partners including: CGAP, World Bank, JICA, and ITAD. As a consultant, she worked on customer centric business models, and challenges faced by customers in accessing and using financial services. \r\n\r\nFrom 2009 to 2013, Jayshree was part of the founding team at IFMR Trust (now Dvara Trust), where she led a mezzanine fund that invested in microfinance institutions in India. She began her career at ICICI Bank in India.\r\n \r\nJayshree is a senior policy fellow at the Leir Institute housed within the Fletcher school of Law and Diplomacy, where she works on challenges faced by vulnerable segments such as migrants/refugees in accessing financial services. In 2014, she received the Chevening fellowship for leadership by the Foreign and Commonwealth Office, UK.\r\n\r\nShe earned an MA in International Relations from the Fletcher School of Law and Diplomacy, MBA from MDI Gurgaon (India) and a Bachelor’s in Mathematics from Mumbai University, graduating at the top of her class.",
+    "tagLine": "Senior Director, Consumer Protection & Responsible Finance",
+    "profilePicture": "https://sessionize.com/image/a288-400o400o1-HVWxBCEXEjTBbmoEp3NDmM.jpg",
+    "sessions": [
+      {
+        "id": 525073,
+        "name": "Cross Border Payments in the Instant Era"
+      },
+      {
+        "id": 530057,
+        "name": "Exploring Risks and Consumer Trust in the Shift from Traditional to Open Finance"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/jayshreevenkatesan/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.centerforfinancialinclusion.org",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Center for Financial Inclusion at Accion",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Senior Director",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "c0b28c32-9164-4cef-b80a-3668f84956e3",
+    "firstName": "Jennifer",
+    "lastName": "Fenwick",
+    "fullName": "Jennifer Fenwick",
+    "bio": "Jen Fenwick brings 23 years of nonprofit experience in fundraising, educational programming, administration, operations, and social science research. She has worked at organizations such as California Science Center, Lawrence Berkeley National Lab, and New York Hall of Science. She served as the Director of Institutional Giving for the public radio producer and science education nonprofit Science Friday from 2012-2022. ",
+    "tagLine": "Consultant to nonprofit organizations seeking to make impact at the intersection of science and technology and society.",
+    "profilePicture": "https://sessionize.com/image/c337-400o400o1-WsbJrQnKprLmCuTKDBHY8H.png",
+    "sessions": [
+      {
+        "id": 509293,
+        "name": "Partnering for Growth Leveraging Donors and Investors"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/jentunefenwick/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://fenwicknonprofitstrategies.com/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fenwick Nonprofit Strategies",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "715acb29-2834-4d55-b102-d75ec3e3136d",
+    "firstName": "Jeremiah",
+    "lastName": "Lee",
+    "fullName": "Jeremiah Lee",
+    "bio": "Jeremiah Lee is an Interledger technology ambassador grant recipient working on Web Monetization support within Mastodon and other federated social network apps. He previously worked as a software engineer and product manager at Stripe, Spotify, and Fitbit among other places. He grew up under the California sun, but now calls Stockholm home.",
+    "tagLine": "Humanist & Technologist",
+    "profilePicture": "https://sessionize.com/image/69da-400o400o1-StfibW1MiqBiRMQSMBQMVe.jpg",
+    "sessions": [
+      {
+        "id": 523092,
+        "name": "Harvesting Hope from Hiccups: Overcoming Standardization Hurdles"
+      },
+      {
+        "id": 524247,
+        "name": "Mastodon, micropayments, and the next era of the creator economy"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://linkedin.com/in/jeremiah-x-lee/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://www.jeremiahlee.com/posts/",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://restoration.software/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "(Stealth)",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e8d66139-9a11-471d-8feb-060d95b32f04",
+    "firstName": "Jon Adam",
+    "lastName": "Chen",
+    "fullName": "Jon Adam Chen",
+    "bio": "Jon Adam Chen is a strategic communications specialist with a background in social impact, storytelling, and African development. He thrives as an editor, writer, and researcher. Jon Adam holds a master’s degree in media studies from the University of Cape Town and was an Engineers Without Borders Canada long-term fellow. He has supported grassroots organizations in Canada, South Africa, Kenya and Nigeria. Most recently, he has worked with the Ontario Ministry of Health and the Canadian Red Cross.",
+    "tagLine": "Future|Money Awardee, Researcher and Co-Lead, Sikhula Sonke: Living Archives of Afrofuturist Village Banking",
+    "profilePicture": "https://sessionize.com/image/ffd4-400o400o1-4n9GQeRp1aS7ytWbKe3fs1.jpeg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/JonAdam_Chen",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://ca.linkedin.com/in/jonadamchen",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.sikhulasonke.net",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": " Future Money Arts and Culture Awardee",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Researcher and Co-Lead",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9487c937-a599-4e9d-90ad-c1ea7e7a0888",
+    "firstName": "José Isidro",
+    "lastName": "Tzunún",
+    "fullName": "José Isidro Tzunún",
+    "bio": "With many years working in communities of Guatemala, José Isidro is the main advisor of the growing network of savings coops Federural.",
+    "tagLine": "General Advisor, Federural",
+    "profilePicture": "https://sessionize.com/image/64ec-400o400o1-KSWHYLtuN5AE5RVoJUFKVa.jpeg",
+    "sessions": [
+      {
+        "id": 519137,
+        "name": "Building Digital Financial Inclusion from Below"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e4ebed56-56d5-4326-8aee-4d86ddea84ac",
+    "firstName": "Juan Carlos",
+    "lastName": "Ditmeyer",
+    "fullName": "Juan Carlos Ditmeyer",
+    "bio": "Trained as software engineer, Juan Carlos has spent several decades building technological services for regional financial institutions of Latin America, from offline ATMs and offline smart cards with biometric authentication for rural areas, to transactional switches and core banking systems.",
+    "tagLine": "People's Clearinghouse, Acting CTO",
+    "profilePicture": "https://sessionize.com/image/4b58-400o400o1-72fhyPcypWGKKQxyYPzN4R.png",
+    "sessions": [
+      {
+        "id": 519348,
+        "name": "Rafiki's “Corridor”: Mexico's PCH remittance use case"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "People's Clearinghouse",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Acting CTO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8d38241a-5a24-49e2-808a-acedb34bb1e7",
+    "firstName": "Juan Carlos",
+    "lastName": "Urgilés",
+    "fullName": "Juan Carlos Urgilés",
+    "bio": "CEO of the largest savings coop in Ecuador, with decades working for financial inclusion and financial technologies for rural areas",
+    "tagLine": "CEO, Cooperativa Jardín Azuayo",
+    "profilePicture": "https://sessionize.com/image/006a-400o400o1-J7a8hRU4mq4xqyVjtRJpu8.jpeg",
+    "sessions": [
+      {
+        "id": 519137,
+        "name": "Building Digital Financial Inclusion from Below"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9c41b58c-011e-4729-817e-b5e3d5d1e6a1",
+    "firstName": "Juan Carlos ",
+    "lastName": "Leon",
+    "fullName": "Juan Carlos Leon",
+    "bio": null,
+    "tagLine": "Future|Money Awardee",
+    "profilePicture": "https://sessionize.com/image/f4f5-400o400o1-fsJekYCisspg21sJ64edwC.png",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "ceea3685-37aa-4cf0-bf1c-9527930f2232",
+    "firstName": "Julaire",
+    "lastName": "Hall",
+    "fullName": "Julaire Hall",
+    "bio": "TBC",
+    "tagLine": "Program Outreach Manager - Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/b1c9-400o400o1-BPpS53MhqrSXKnunM3uM6B.jpg",
+    "sessions": [
+      {
+        "id": 530396,
+        "name": "Payment Parity Perspectives: Women of Color Reshaping Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/JulaireHall",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/julairefhall/?originalSubdomain=jm",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "http://www.interledger.org",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation ",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Programs Outreach Manager",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "8c35105d-a6aa-47b9-aa63-0bf2103af42b",
+    "firstName": "Kokayi",
+    "lastName": "Walker",
+    "fullName": "Kokayi Walker",
+    "bio": "Preeminent Improvisational Vocalist, Artist, Producer, GRAMMY-nominated musician, and multi-disciplinary fine artist is a 2023 Guggenheim Fellow for Music Composition, Halcyon Arts Fellow, and Nicholson Arts Fellow, who can be heard on over 60 titles\r\nspanning: Jazz, Hip Hop, Rock, and R&B. KOKAYI serves as art and creative consultant for Grammy Nominated artist GoldLink, Guillermo Brown (James Corden Show) and theInterledger Foundation assisting in designing their FUTURE | Money arts-centered grants and projects around financial equity in the open payments and web 2/3 spaces.",
+    "tagLine": "Ideator|Artist|Designer",
+    "profilePicture": "https://sessionize.com/image/45d9-400o400o1-TNUaPQeZhX1Mj5Cn1sH3FC.JPG",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/kokayi?lang=en",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/kokayi",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/KokayiMusic/",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/kokayi/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Blog",
+        "url": "https://community.interledger.org/kokayi",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.kokayi.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ILF",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Ideator",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a18620f0-bc47-46f7-9b02-2b74a3223836",
+    "firstName": "Larissa",
+    "lastName": "Magalhães",
+    "fullName": "Larissa Magalhães",
+    "bio": "Larissa is a Research Associate at the United Nations University (UNU-EGOV). She is also researcher in Digital Policies at CyberBRICS, School of Law, Getúlio Vargas Foundation. Her research is located between government technology and innovation, with a special focus on open data, smart cities, and digital transformation strategies.",
+    "tagLine": "CyberBRICS Project, Fundação Getúlio Vargas",
+    "profilePicture": "https://sessionize.com/image/816d-400o400o1-9d7982e9-48be-441d-90dd-89890ce253cf.jpg",
+    "sessions": [
+      {
+        "id": 530375,
+        "name": "Standardized Payment Interfaces as Digital Public Infrastructures: Learning from India and Brazil"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/larissamagalhãescsc",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fundação Getúlio Vargas, School of Law, CyberBRICS",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Research Fellow",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "2be62447-6e04-4f88-9dfa-13e73a759bf4",
+    "firstName": "Lawil ",
+    "lastName": "Karama ",
+    "fullName": "Lawil Karama",
+    "bio": "Contemporary Artist, Researcher, Blockchain Strategist, Program Office, little bit of everything ",
+    "tagLine": "Program Officer ",
+    "profilePicture": "https://sessionize.com/image/1e2a-400o400o1-pAQGQvfxhrGDZF89Tgj11p.png",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/lawil-k-03867213b/",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation ",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Program Officer ",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "bf792c2c-09fd-453b-92a7-42772fa1da1d",
+    "firstName": "Layanah",
+    "lastName": "AlWreikat",
+    "fullName": "Layanah AlWreikat",
+    "bio": "Layanah has been working at JoPACC for five years, heading the development and operations department and, recently the FinTech innovation departments. \r\nShe was the project manager for the Instant Payment System (CliQ) deployment in Jordan and the project manager for the JoMoPay upgrade to the ISO20022.\r\nAs part of her role at JoPACC, Layanah is responsible for the high-level component designs and data flows of new services and platforms. Additionally, she is responsible for developing and reviewing system integration documents (Business and Technical ones). She also acts as the focal point for system participants and stakeholders.\r\nLayanah holds a bachelor's degree in telecommunication engineering, a master's degree in Data Science, an MBA, and a master's degree in Communications and Information Systems.",
+    "tagLine": "Business Development and Operations Director @JoPACC",
+    "profilePicture": "https://sessionize.com/image/b074-400o400o1-s7NfnxfNG36Xy7FK64VH3y.png",
+    "sessions": [
+      {
+        "id": 525073,
+        "name": "Cross Border Payments in the Instant Era"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/layanah-al-wreikat-29b7811a/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://jopacc.com/Default/En",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "NA",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Business Development and Operations Director",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "209d595a-a261-487f-a5f8-7ec09f179989",
+    "firstName": "Lena",
+    "lastName": "Ghaninejad",
+    "fullName": "Lena Ghaninejad",
+    "bio": "Lena Ghaninejad uses food as a medium for building bridges between people, places and various fields of knowledge, as well as between past and future scenarios. She has worked with Sainte Anne Gallery, Stedelijk Museum Schiedam & Lafayette Anticipations amongst others, and has collaborated with brands such as Lalique and Acne Studios.",
+    "tagLine": "Future | Money Awardee",
+    "profilePicture": "https://sessionize.com/image/bc5d-400o400o1-BLhytvsuwLNtP4bryoMsF2.JPG",
+    "sessions": [
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/Lena.ghaninejad",
+        "linkType": "Instagram"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Future money grant ",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Artist ",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6acc0bce-61ef-4ccc-9419-735d16c0f0b7",
+    "firstName": "Lena ",
+    "lastName": "Ghaninejad",
+    "fullName": "Lena Ghaninejad",
+    "bio": null,
+    "tagLine": "Future|Money Awardee",
+    "profilePicture": "https://sessionize.com/image/d11e-400o400o1-Y2iEuAHnq7LLJtDHpX7Xmc.JPG",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "c0195cc3-97eb-47fc-96d0-7222b7c61381",
+    "firstName": "Maha ",
+    "lastName": "Bahou ",
+    "fullName": "Maha Bahou",
+    "bio": "Ms. Maha serves as CEO of JoPACC since June 2018. The Company is mandated with enhancing and promoting digital payments in Jordan and is the operator of\r\nseveral payment systems in the country.\r\n \r\nBefore JoPACC, Ms. Maha worked at the Central Bank of Jordan for 30 years, where she was most recently the Executive Manager of the Payment Systems, Domestic Banking Operations and Financial Inclusion Department for 7 years. She has done consulting work in Libya and has\r\nexperience as a lecturer at the University of Jordan and as a trainer in cooperation with Philadelphia Consulting, the Institute of Banking Studies, the Central Bank of Jordan, and different NGOs.\r\n\r\nMs. Maha holds a master’s degree in Banking and Finance, a bachelor’s degree in Economics and Business Administration, in addition to a Leadership and Strategic\r\nManagement certificate from The Royal Military Academy of Sandhurst. She has been honored by King Abdullah II with the Distinguished Government Leader Award for the year 2016.\r\n\r\nMs. Maha has been appointed a member of Jordanian Senate in 2022. She currently sits on several local and international boards, including Innovative Start-\r\nups and SMEs Fund (ISSF), Interledger Foundation in Luxemburg, and the Global Action Network on Forced Displacement. She has served on the board of the\r\nConsultative Group to Assist the Poor (CGAP) of the World Bank from 2017 to 2022.",
+    "tagLine": "CEO of Jordan Payments and Clearing Company (JoPACC)",
+    "profilePicture": "https://sessionize.com/image/d50d-400o400o1-LKXweNqsUDMcX7jvJ21cb3.png",
+    "sessions": [
+      {
+        "id": 552344,
+        "name": "Keynote Speaker | Maha Bahou, CEO of Jordan Payments and Clearing Company (JoPACC)"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "edf0d8b1-3504-4478-ab79-e0c215a4e382",
+    "firstName": "Malcolm",
+    "lastName": "Kastiro",
+    "fullName": "Malcolm Kastiro",
+    "bio": "Passionate about building Fintech systems",
+    "tagLine": "Builder of Fintech and Mobile Payment systems",
+    "profilePicture": "https://sessionize.com/image/6436-400o400o1-EPhnKcACS8feNnaUG85TEY.jpg",
+    "sessions": [
+      {
+        "id": 516839,
+        "name": "Mobile Money 2.0: Mainstream Financial Service"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/maali",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/kastiro-malcolm-5732273/",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "UAP Old Mutual General Uganda Limited",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Innovation & Digital Officer",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a055a6cf-45d9-4cd2-8273-435ad54d5baf",
+    "firstName": "Malou",
+    "lastName": "Lintmeijer",
+    "fullName": "Malou Lintmeijer",
+    "bio": " Co-director of Stichting Here to Support since 2018, Malou is experienced in the strategy, entrepreneurship and finance of non-governmental organisations. She fights for human rights and advocates for municipalism. ",
+    "tagLine": "Co-director Stichting Here to Support",
+    "profilePicture": "https://sessionize.com/image/964f-400o400o1-QUfy8N1rLFae2ubRLEQiGE.jpg",
+    "sessions": [
+      {
+        "id": 530246,
+        "name": "Financial inclusion for undocumented people"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/malou-lintmeijer-6155b960/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/heretosupport",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/here_to_support_amsterdam/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.heretosupport.nl/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Here to Support",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "co-director",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "26639585-017e-434e-8f11-42933e1c9cad",
+    "firstName": "Martijn Jeroen",
+    "lastName": "van der Linden",
+    "fullName": "Martijn Jeroen van der Linden",
+    "bio": "Martijn Jeroen van der Linden explores the digitization of money and new economic structures.\r\n\r\nVan der Linden is a professor of New Finance at The Hague University of Applied Sciences and obtained his Ph.D. from Delft University of Technology in 2022. In his research, he developed design guidelines for the monetary and financial system in the digital age.\r\n\r\nCurrently, his research focuses on public digital money (called central bank digital currencies, CBDCs by central bankers), stablecoins, deposit banks, cryptocurrencies, financial instability, monetary policy, and the liberalization and re-regulation of banking.\r\n\r\nHe regularly publishes, participates in public debates, and gives tens of lectures and keynotes a year.",
+    "tagLine": "Future|Money Awardee, Professor of practice in new finance at The Hague University of Applied Sciences",
+    "profilePicture": "https://sessionize.com/image/1a4a-400o400o1-73PxHeqAfQJyzmnwAHCmv7.jpg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      },
+      {
+        "id": 554174,
+        "name": "The Waterworks of Money and Future Scenarios for the Monetary System"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/MartijnJvdL",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/martijnjeroenvanderlinden/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://mjvdl.com/",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.dehaagsehogeschool.nl/onderzoek/lectoraten/new-finance",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "The Hague University of Applied Sciences",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Professor of practice in new finance",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "a63af0da-3b51-42ad-9775-ff52212884ba",
+    "firstName": "Max",
+    "lastName": "Kurapov",
+    "fullName": "Max Kurapov",
+    "bio": "As a software developer at the Interledger Foundation, Max builds open source tools and APIs that provide developers & institutions access to the Interledger network. Before joining the Foundation, Max spent 5 years working at startups: one of which a Fintech company, where he was one of the leads on the card payments processing team.",
+    "tagLine": "Software Developer @ Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/0f90-400o400o1-badeceef-ae1a-4430-8524-cf1c39854a2e.jpg",
+    "sessions": [
+      {
+        "id": 552259,
+        "name": "Rafiki - Our friend has grown"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Software Developer",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "dc2dd614-d811-4155-862f-b23bf9b0eb5e",
+    "firstName": "Melissa",
+    "lastName": "Malzkuhn",
+    "fullName": "Melissa Malzkuhn",
+    "bio": "Melissa Malzkuhn is an activist, academic, artist, and digital strategist with a love for language play, interactive experiences, and community-based change. She founded and leads creative research and development at Motion Light Lab, at a Gallaudet University research center. The Lab uses creative literature and digital technology techniques to create immersive learning experiences- from storybook apps that have been translated into over 20 international languages to motion-capture projects that build signing avatars- all of which expand the 3D technology landscape for deaf children, visual learners, and more. Melissa is a cofounder of CREST Network, focusing on the equity and inclusion of deaf people in sign language technology. Her production company developed an app to teach American Sign Language, The ASL App, which has been downloaded over 2 million times. Third-generation Deaf, she has organized deaf youth and worked with international deaf youth programs, fostering leadership and self-representation. Now, she collaborates with teams in different countries to support literacy development for deaf children through sign language resources. Melissa started a campaign, Hu - To Sign Is Human, to continue positive advocacy for language access for all deaf children. Her work has been recognized nationally and internationally. Melissa is one of the selected artists part of the CripTech Lab and is building a Deaf Club experience in the Metaverse, exploring inclusion and access in the digital realm. She is an Obama Fellow, inaugural class 2018, and an Ashoka Fellow. She resides in Maryland with her family.",
+    "tagLine": "3rd generation Deaf, artist, advocate, & community changemaker",
+    "profilePicture": "https://sessionize.com/image/2708-400o400o1-K1sTVzwidtZeHLmdPj4eRJ.jpg",
+    "sessions": [
+      {
+        "id": 530359,
+        "name": "Redefining the cost of access: financial equity in the Deaf Community"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/melissamalzkuhn",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/mezmalz",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.mezmalz.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Motion Light Lab",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder & Director ",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "0b78c79b-f15d-4659-b6f1-bd5c00b2a733",
+    "firstName": "Mia",
+    "lastName": "Wright-Ross",
+    "fullName": "Mia Wright-Ross",
+    "bio": "Mia Wright-Ross is a leather artisan who focuses her works in sculptural installations and object design. The leather cording techniques that appear as a signature motif across her luxury design house, MWR Collection, represent Wright-Ross’ art & design philosophy— material as connector of human emotions and the hand as the ultimate tool of dexterous design. \r\nWright-Ross developed this philosophy to revive the importance of the artisan as healer; to educate future designers and audiences about the valuable narrative in craft language that is cultivated with the human hands; and exemplify the emotional, spiritual, structural, and ancestral connections between craft practitioners. \r\nWright-Ross is currently exploring new iterations of leatherwork, including large scale tapestries and lighting installations.\r\nShe has worked in the Footwear & Accessory Industry for over 12 years and been a leading designer for several contemporary designer brands. Brands including Calvin Klein, 3.1 Phillip Lim, and Tibi. She worked as the Senior Footwear & Accessories Designer, where she oversaw all design & development in Italy, Brazil, and China. In 2020, Wright-Ross became the Artist Fellow at the Musuem of Art & Design in New York City. There, she began to exploring new interactions of her work within ancestral and systemic structures in the African Ameri-Indian community.  Currently, she is an Adjunct Professor of Footwear Design at Parsons The New School of Design, Carnegie Hall’s NeON Arts 2023 grantee, and maintains her Art & Design Atelier in New York City. \r\n",
+    "tagLine": "Future|Money Awardee, - Loose Change (Chains)",
+    "profilePicture": "https://sessionize.com/image/5a39-400o400o1-P5qh24keiLrpQ3nwcN5sfB.jpeg",
+    "sessions": [
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Company Website",
+        "url": "HTTPS://Www.Miawrightross.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Grantee",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "e2f09125-c1ee-4d7f-ab94-b989a449f1e2",
+    "firstName": "Mia ",
+    "lastName": "Wright- Ross ",
+    "fullName": "Mia Wright- Ross",
+    "bio": "Mia Wright-Ross: Loose Change (CHAINS) is a series of large-scale multi-media tapestries (primarily leather & paper lottery tickets) as a reflection/projection of the reimagination of Hope that has become a lethal tool of capitalism within the community-rich centers of Black & Brown neighborhoods throughout the United States of America. ",
+    "tagLine": "Future|Money Cohort",
+    "profilePicture": "https://sessionize.com/image/4673-400o400o1-aFbztVPFrLdjzrdxfvAXrK.jpeg",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "42e841a3-7a0b-4a96-86d1-cb0689c47382",
+    "firstName": "Nandini",
+    "lastName": "Harihareswara",
+    "fullName": "Nandini Harihareswara",
+    "bio": "Nandini Harihareswara is a Digital Finance, FinTech, Digital Development and Inclusive Digital Economies expert. She previously served as Senior Advisor on Inclusive Digital Economies, Gender Equality and Women’s Economic Empowerment for the UN Capital Development Fund. She also served as the Digital Finance Regional Technical Specialist from 2015-2019, responsible for the creation & implementation of the UNCDF Digital Economy Strategy in Zambia and Malawi. She also helped to author the Inclusive Digital Economies and Gender Equality Playbook, launched in 2021. In these roles, she worked with more 20 fintechs, banks, telcos and ecommerce companies to successfully increase their women customers and partner MSME businesses, and increase their financial return on investment.\r\n\r\nShe was a founding member of the United States Agency for International Development (USAID) Digital Development Division. Prior to working for the Digital Development team, Nandini worked as an Investment Officer for the USAID Development Credit Authority Office, and a Presidential Management Fellow at the US Department of Transportation as well as the Urban Transport Division of the World Bank.\r\n\r\nShe is the author of numerous publications on the intersection of finance, technology and international development. Nandini has an MBA and a Masters in International Trade and Investment Policy from the George Washington University. She also holds a BS in Psychology and a BA in Political Science from the University of California at San Diego. \r\n",
+    "tagLine": "Digital Development Expert, TechChange",
+    "profilePicture": "https://sessionize.com/image/c37a-400o400o1-W8SDXW1DHj8MeBCoAfoDJB.PNG",
+    "sessions": [
+      {
+        "id": 530162,
+        "name": "Digital Finance – a Woman’s Immersive Experience"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/nandinish",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nandini/",
+        "linkType": "LinkedIn"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "TechChange",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Consultant",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "c0cdf5ec-604b-48fa-a88d-475fe89a8932",
+    "firstName": "Nathan",
+    "lastName": "Lie",
+    "fullName": "Nathan Lie",
+    "bio": "Nathan is a software developer who has been working on technologies built on Interledger since 2018. He now focuses on directly contributing to Interledger and hopes to connect global communities with financial resources and strengthen the creator economy.\r\n\r\nOutside of work Nathan has taken an interest in cooking, sketching, and video games.",
+    "tagLine": "Your friendly neighborhod GNathan",
+    "profilePicture": "https://sessionize.com/image/af36-400o400o1-PNZ9r9hfgdPohSvfTE681i.jpg",
+    "sessions": [
+      {
+        "id": 552501,
+        "name": "Authorizing Payments with GNAP & Open Payments"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nathan-lie-138a73121/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://www.linkedin.com/in/nathan-lie-138a73121/",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://interledger.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Software Engineer",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "526711d3-3681-4fa1-aca6-d962efa1bb30",
+    "firstName": "Nicolo",
+    "lastName": "Zingales",
+    "fullName": "Nicolo Zingales",
+    "bio": "Nicolo Zingales is Professor of Information Law and Regulation at the law school of the Fundação Getulio Vargas in Rio de Janeiro. Fascinated by the interaction of law, technology and markets, he writes and researches on a range of issues revolving around the roles and responsibilities of digital platforms and intermediaries in the online ecosystem. His research has been cited, among others, by the UN Special Rapporteur for the Protection and Promotion of Freedom of Opinion and Expression, the Council of Europe, the Organization for Cooperation and Development, the UK House of Lords, and the European Parliament. ",
+    "tagLine": "Fundação Getulio Vargas ",
+    "profilePicture": "https://sessionize.com/image/199f-400o400o1-GLzmHcpgfFyMwxJSCskRVd.png",
+    "sessions": [
+      {
+        "id": 530375,
+        "name": "Standardized Payment Interfaces as Digital Public Infrastructures: Learning from India and Brazil"
+      },
+      {
+        "id": 530369,
+        "name": "Equitable Interoperability For Ecosystem Value Creation"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/JusTechne",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nicolo-zingales-b926284/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://direitorio.fgv.br/en/pesquisa/centro-de-tecnologia-e-sociedade",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Fundação Getulio Vargas",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Professor of Law",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "15b842af-2bc2-4844-8f35-c31872cb8c84",
+    "firstName": "Nyi",
+    "lastName": "Aye",
+    "fullName": "Nyi Aye",
+    "bio": "Nyi Aye is the CEO of ThitsaWorks.",
+    "tagLine": "CEO",
+    "profilePicture": "https://sessionize.com/image/ce3a-400o400o1-YEWMWKPKWhi7RJPPe3rr4H.jpg",
+    "sessions": [
+      {
+        "id": 525073,
+        "name": "Cross Border Payments in the Instant Era"
+      },
+      {
+        "id": 528935,
+        "name": "ILP Enabled ThitsaNet Inclusive Payment Network"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nyinyeinaye/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.thitsaworks.com",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "ThitsaWorks Pte. Ltd.",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "38c7b62e-ee36-407f-ad07-86ab1d5f3a5f",
+    "firstName": "Philliph",
+    "lastName": "Drummond",
+    "fullName": "Philliph Drummond",
+    "bio": "Philliph is Senior Tech Design Researcher at Superbloom Design, an organization that leverages design as a transformative practice and promotes equity through collaborative design. Philliph has 10+ years of experience as a Creative Technologist / System Admin with a focus on digital security, operations, and product/service design working primarily with non-profits and startups.",
+    "tagLine": "Superbloom Design, Senior Tech Design Researcher",
+    "profilePicture": "https://sessionize.com/image/a239-400o400o1-XHCdCvnrgNoaGmLvUS7MvV.jpg",
+    "sessions": [
+      {
+        "id": 530357,
+        "name": "Open Payments For More Inclusive and Secure Research"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/philliph-drummond/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "http://superbloom.design",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Superbloom Design",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Senior Tech Design Researcher",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "295582aa-8c62-450c-a296-6c45573ea0fd",
+    "firstName": "Raashi ",
+    "lastName": "Saxena ",
+    "fullName": "Raashi Saxena",
+    "bio": "Moderator (Confirmed) \r\n\r\nRaashi Saxena is a renowned public interest technologist, trainer, and strategy consultant with Accessibility Lab and carries a wealth of experience in open-source technology, social impact, and practice. She holds several advisory positions, including with The Internet Rights & Principles Dynamic Coalition, Missions Publiques’s “We, the Internet” Project, and Threading Change, a sustainable fashion non-profit. As a consultant, her clients include Digital Communication Network, Accessibility Lab, studio intO, Superbloom, The Innovation for Policy Foundation, Internews, Gapminder Foundation, and the IO Foundation. As a highly sought-after international speaker, Raashi has spoken on panels and conferences across Africa, Asia, Latin America, and Europe. Her expertise has been recognized in prominent publications such as the Mozilla 2022 Internet Health Report and Pew Research Center’s 2021 Report on Digital Spaces. The World Economic Forum has honored Raashi as one of the Six Inspirational Young Female Leaders, and she currently holds the position of Curator of the Global Shapers Bengaluru Hub. Additionally, she was recognized by Women Deliver as a Young Leader. Based in Bangalore, India, Raashi works tirelessly towards creating a positive social impact through her various global endeavours.\r\n\r\n",
+    "tagLine": "Strategy Consultant & Trainer ",
+    "profilePicture": "https://sessionize.com/image/d0ab-400o400o1-PmkcgnkniLqKJHugvfiv8N.jpg",
+    "sessions": [
+      {
+        "id": 530396,
+        "name": "Payment Parity Perspectives: Women of Color Reshaping Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/RaashiSxn",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/raashi-saxena-18a90684",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/raashi.saxena.3",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/raashisxn/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.a11ylab.com/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Accessibility Lab ",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Strategy Consultant & Trainer ",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+    "firstName": "Roberto",
+    "lastName": "Valdovinos",
+    "fullName": "Roberto Valdovinos",
+    "bio": "B.A. and M.A. in Logic and Philosophy (Pantheon-Sorbonne University), M.Phil. in Comparative Studies (Columbia University). Directed a migrant organization in the US and a national institute in Mexico. Works with migrants and marginalized communities in social justice and financial inclusion projects.",
+    "tagLine": "The People's Clearinghouse, CFO",
+    "profilePicture": "https://sessionize.com/image/50a6-400o400o1-TVUZEfGgJoBQV2E2Fny28S.png",
+    "sessions": [
+      {
+        "id": 519348,
+        "name": "Rafiki's “Corridor”: Mexico's PCH remittance use case"
+      },
+      {
+        "id": 519137,
+        "name": "Building Digital Financial Inclusion from Below"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/CamaraGente",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://mx.linkedin.com/company/pagos-sin-fronteras",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/CamaraDeLaGente",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.amucss.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mexican Association of Social Sector Credit Unions",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CFO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3d6be742-b26a-4da9-b8f4-eda7bd532ba0",
+    "firstName": "Ruth",
+    "lastName": "Buckley",
+    "fullName": "Ruth Buckley",
+    "bio": "Ruth Buckley has 29 years of experience with USAID, both overseas and in Washington, and is a member of the Senior Executive Service.  \r\nAs Performance Improvement Officer, Ms. Buckley provides advice and counsel to Agency leadership on effective management of USAID programs,  operations and budget; oversees implementation of the Government Performance and Results Act Modernization Act; provides executive support for the President’s Management Agenda; and ensures goals of the Agency are achieved through effective results management and efficient use of resources.  As Deputy Assistant Administrator in the Bureau for Management, Ms. Buckley provides oversight and direction for USAID’s operational and regulatory policy, strategic planning, continuous performance improvement, bureau succession planning and is the Senior Agency Official for Privacy (SAOP).  Her executive leadership of business process reviews across eight functions has resulted in implementation of 91 percent of the recommendations and progress reducing process times by as much as 50 percent. She is also a champion on USAID's localization and  burden reduction initiatives.\r\n\r\nPrior to joining the M Bureau, Ms. Buckley held several senior positions in the Africa Bureau. She brought this in-depth experience to develop strategic solutions and continuous improvement to our most intractable operational and organizational problems. \r\n\r\n",
+    "tagLine": "USAID Performance Improvement Officer and Deputy Assistant Administrator for Management",
+    "profilePicture": "https://sessionize.com/image/6b2f-400o400o1-piK49CSbDmYdFXoq8FwLBe.jpg",
+    "sessions": [
+      {
+        "id": 509293,
+        "name": "Partnering for Growth Leveraging Donors and Investors"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://www.twitter.com/usaid",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/company/usaid",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/USAID",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/usaid",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Blog",
+        "url": "https://www.medium.com/@USAID",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.usaid.gov/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "USAID",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Panelist",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3e80acea-13f9-4fd2-8e9a-e4b715297d9a",
+    "firstName": "Sabine",
+    "lastName": "Schaller",
+    "fullName": "Sabine Schaller",
+    "bio": "Sabine has always been interested in Data Ownership and the Internet of Value. She works on the specification and implementation of open standards like the Interledger Protocol, Open Payments, and Web Monetization to allow for a Web where content can be paid for with hard currency instead of data.\r\nPrior to joining the Interledger Foundation, Sabine was the Research & Development Lead at Coil.",
+    "tagLine": "Engineering Lead @ Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/c36e-400o400o1-75ygMJTxH1xvpoPZpuBz1G.jpg",
+    "sessions": [
+      {
+        "id": 552259,
+        "name": "Rafiki - Our friend has grown"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Interledger Foundation",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Engineering Lead",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "c1653fc3-507d-4ae8-9541-7e7c03e61fd5",
+    "firstName": "Saloni",
+    "lastName": "Garg",
+    "fullName": "Saloni Garg",
+    "bio": "International Red Hat Women in Open Source Awardee | Mozilla Open Leader 2019 | a strong open source diversity supporter | Google Venkat Scholarship winner | Speaker",
+    "tagLine": "Software Engineer at Wayfair | International Women in Open Source Award Winner | Google Venkat Scholar | Mozilla Open Leader",
+    "profilePicture": "https://sessionize.com/image/4be9-400o400o1-NPxAJPFz3f4tPGP2hwehmQ.jpeg",
+    "sessions": [
+      {
+        "id": 529371,
+        "name": "Bridging Two Worlds: How India's UPI Informs the Future of Open Payments"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/salonigarg_",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/saloni-garg/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://medium.com/@saloni_garg",
+        "linkType": "Blog"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Affloir",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6b4980b6-a70f-413d-884d-28c3dd8daf16",
+    "firstName": "Savannah",
+    "lastName": "Koolen",
+    "fullName": "Savannah Koolen",
+    "bio": "Savannah Aleksandra Koolen (1985) is the founder and co-director of the Here to Support Foundation. Koolen studied at the dance academy but unfortunately she had to stop dancing early because of injuries. Her full life she is involved in politics, activism and art and after her study Art & Culture at the University in Maastricht she moved to Amsterdam. For ten years she has been working on how artists and artistic projects can support the struggle of minorities and refugees to equal rights, and strengthen the self-organised-,grassroots- movements. In 2007 she was a coordinator of the Nationwide campaign for funding for the arts, and since the start (2012) of refugee collective We Are Here in Amsterdam she supports their struggle organising educational, artistic projects to gain visibility and work on innovative plans. In 2013 she founded the Here to Support Foundation. In 2016,  the Here to Support Foundation won the Ab Harrewijn Prize under her leadership and in May 2017 Here to Support won the European Citizenship Award with the project We Are Here Media Academy. From June 2017, she was also campaign leader of GroenLinks Amsterdam for the winning, local elections in 2018 in Amsterdam and later joined the board of GroenLinks Amsterdam as president of the board in 2019.",
+    "tagLine": "Activist, Founder & CEO Here to Support Foundation",
+    "profilePicture": "https://sessionize.com/image/b65e-400o400o1-SjLujAy3cm5QSSk9CDSnh5.jpeg",
+    "sessions": [
+      {
+        "id": 530246,
+        "name": "Financial inclusion for undocumented people"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/savannahkoolen/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/savannah.k85/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.heretosupport.nl/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Here to Support",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder & CEO Here to Support Foundation",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "63b68cad-6917-4297-95a4-08fdfa0fd51d",
+    "firstName": "Shelley",
+    "lastName": "Anderson",
+    "fullName": "Shelley Anderson",
+    "bio": "A seasoned innovation leader, Shelley spent 16 years at the U.K.’s Financial Conduct Authority before joining AIR in January 2022. Starting in 2015, she was part of the FCA’s Regtech team, designing and leading TechSprints and developing the regulator’s approach to interacting with the global Regtech ecosystem. Specializing in innovation for vulnerable consumers, Shelley has designed programs that look at the barriers faced by digital financial services consumers, and at how both regulators and firms can design better products for inclusion. At AIR, Shelley leads the organization’s program to further expand its global reach through TechSprints and strategic advisory services, and focuses on ways to ignite technology innovation throughout the financial system. In addition, Shelley is co-founder of the Women In Regulatory Innovation (WIRI) network, which is creating a community of women across the globe with the aim of building meaningful diversity and inclusion within the regulatory system. ",
+    "tagLine": "Program Director - Alliance for Innovative Regulation",
+    "profilePicture": "https://sessionize.com/image/55b2-400o400o1-hQHLCk6pJFmRQaYnYpNq3y.jpeg",
+    "sessions": [
+      {
+        "id": 525073,
+        "name": "Cross Border Payments in the Instant Era"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/shelley-anderson-2b79971a/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://regulationinnovation.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Alliance for Innovative Regulation",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Program Director",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "6b0e5bf6-b19d-4a1f-9977-4b4d03b984eb",
+    "firstName": "Smriti",
+    "lastName": "Parsheera",
+    "fullName": "Smriti Parsheera",
+    "bio": "Smriti Parsheera is a lawyer and public policy researcher. Her work spans across the areas of data governance, digital rights, regulatory processes and digital competition. She is currently a Fellow with the CyberBRICS Project at FGV Law School, Brazil and a PhD candidate at Indian Institute of Technology Delhi's School of Public Policy. ",
+    "tagLine": "Fellow, CyberBRICS Project",
+    "profilePicture": "https://sessionize.com/image/da31-400o400o1-66f34c9b-c88c-465a-822d-4f4188f7a920.jpg",
+    "sessions": [
+      {
+        "id": 530375,
+        "name": "Standardized Payment Interfaces as Digital Public Infrastructures: Learning from India and Brazil"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/SmritiParsheera",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/smrpar?originalSubdomain=in",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/smrpar/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://www.smritiparsheera.com/home",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "CyberBRICS Project, FGV Law School",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Fellow",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "d77b86a5-6c8c-4976-947b-d2d8424325c5",
+    "firstName": "Stefan ",
+    "lastName": "Thomas ",
+    "fullName": "Stefan Thomas",
+    "bio": "Stefan Thomas is the Co-Creator of the Interledger Protocol and Chairperson of the Board at the Interledger Foundation. He currently works on Dassie, an open-source, peer-to-peer implementation of Interledger. \r\n\r\nHe is also the Founder and CEO of Coil, a startup which created a \"subscription to the whole Web\" and the Open Web Monetization standard.  Over the course of almost five years, Coil made about 78 billion payments over Interledger, providing the first proof- of-concept for the technology at scale. \r\n\r\nStefan was a prominent figure in the blockchain movement. As an early Bitcoin contributor, he produced the popular “What is Bitcoin?” video, introducing millions of users to Bitcoin, and created BitcoinJS, the first implementation of Bitcoin cryptography in the browser. \r\n\r\nAs CTO and one of the first employees at Ripple, Stefan designed new protocols for cross-border payments, now used by banks all over the world. As part of this work, he led the team that created Interledger, an open, Internet-like protocol for value transfer. \r\n\r\nStefan is a passionate supporter of financial access and worked with the Bill & Melinda Gates Foundation to develop Mojaloop, an open-source national payment switch that connects mobile wallets in developing markets.",
+    "tagLine": "Co-Creator of the Interledger Protocol",
+    "profilePicture": "https://sessionize.com/image/a37e-400o400o1-VrFP9YgrUtSqoDkHGHnzYG.jpg",
+    "sessions": [
+      {
+        "id": 552343,
+        "name": "Launching Dassie: An Interledger Peer-to-peer Network"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": null,
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "9d47cf6f-7cb7-4b1a-8d29-8682da2faf14",
+    "firstName": "Stephanie ",
+    "lastName": "Perrin",
+    "fullName": "Stephanie Perrin",
+    "bio": "\r\nDr. Stephanie Perrin received her doctorate from the University of Toronto Faculty of Information in the spring of 2018.  Her research is on why ICANN, the Internet Corporation of Assigned Names and Numbers that runs critical aspects of the Domain Name System (DNS) for the Internet, does not implement privacy protection for end users in its policies.  She worked for 30 years in the federal government of Canada, mostly on data protection and freedom of information issues in the context of information and communication technologies. Stephanie was the Director of Privacy Policy at Industry Canada in charge of developing PIPEDA, Canada’s privacy legislation for the private sector which passed Parliament in 2000.   She then went to the private sector, where she was the first Chief Privacy Officer in Canada, working for the Montreal start-up Zero Knowledge Systems, promoting their ground breaking anonymous browsing and private credentials products.  Active in domestic and international privacy policy and compliance fora, Stephanie has been involved in privacy issues at the practical, policy and legislative level since 1984.\r\n",
+    "tagLine": "President Digital Discretion",
+    "profilePicture": "https://sessionize.com/image/a259-400o400o1-Yhg86ETArgKvez2ZTmD26g.jpg",
+    "sessions": [
+      {
+        "id": 523092,
+        "name": "Harvesting Hope from Hiccups: Overcoming Standardization Hurdles"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Digital Discretion Inc",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "President",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "1678fa40-6634-440b-9133-1525f93064ef",
+    "firstName": "Subhashish",
+    "lastName": "Panigrahi",
+    "fullName": "Subhashish Panigrahi",
+    "bio": "Subhashish Panigrahi is a filmmaker, researcher and a civil society leader from India. He has directed over 10 non-fiction films including the critically-acclaimed and National Geographic Society-supported documentary Gyani Maiya. He is a National Geographic Explorer, a Digital Identity Fellow at Yoti, a MJ Bear Fellow, a DWeb Fellow and a recipient of Grant for the Web,  Interledger Foundation and Creative Commons grants. As a current Future|Money Artist, he is directing Error 404, a short film around inclusion and digital payment systems in India.",
+    "tagLine": "Future|Money Awardee, Artist / Director, O Foundation",
+    "profilePicture": "https://sessionize.com/image/cc53-400o400o1-Dx3NDeGds2noQwGxc6stWT.JPG",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      },
+      {
+        "id": 552412,
+        "name": "Première of Bringing Down a Mountain"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/subhapa",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/psubhashish/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://theofdn.org",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://theofdn.org",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "O Foundation",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Director",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "585a769b-db7a-4c75-b1ba-4c4fe8015276",
+    "firstName": "Tadej",
+    "lastName": "Golobic",
+    "fullName": "Tadej Golobic",
+    "bio": "At 10 years old, I began my coding journey with VB6, setting the course for a lifelong tech odyssey. Graduating from the Faculty of Computer and Information Science at the University of Ljubljana, I delved into remote support software with a local enterprise. The 2017 crypto boom lured me into the crypto realm, leading to my pivotal role as a backend developer at GateHub in 2020. Today, I proudly serve as Infrastructure Team Lead, steering projects that power our digital future.",
+    "tagLine": "GateHub, Infrastructure Team Lead",
+    "profilePicture": "https://sessionize.com/image/7f43-400o400o1-fhQgnFKeqnsnhfEU3q6qyM.JPG",
+    "sessions": [
+      {
+        "id": 530042,
+        "name": "GateHub Payments via ILP - Integration with Rafiki"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/golobitch",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://linkedin.com/in/tadej-golobic",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://gatehub.net",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "GateHub",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Infrastructure Team Lead",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "bfee4ab9-933d-4e4b-8e5b-7d69f723e225",
+    "firstName": "Tani",
+    "lastName": "Olhanoski",
+    "fullName": "Tani Olhanoski",
+    "bio": "Tani Olhanoski is a serial entrepreneur who has spent the last decade building software companies and community spaces in the Bay Area. They began their career in tech in 2014 as the Director of Operations for the first fully-compliant crypto exchange in the US and brings a deep understanding of financial systems and regulatory compliance to their current product thinking. They consult on a range of startups and decentralized web projects, and have spent the last 5 years diving deep into community-ownership, alternative investment models, and exploring new technologies that enable deeper financial inclusion. As the CEO of Mysilio, they are working towards the future of user-owned platform cooperatives and a more equitable Web built for all.",
+    "tagLine": "Mysilio - Founder, CEO",
+    "profilePicture": "https://sessionize.com/image/af3e-400o400o1-Rt53HJUEBDdtuE8fSAGfZS.jpeg",
+    "sessions": [
+      {
+        "id": 530313,
+        "name": "Reimagining Tech Platforms of the Future - How to build Digital Public Infrastructure using ILP"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "Twitter",
+        "url": "https://twitter.com/inattani",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/taniolhanoski/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Blog",
+        "url": "https://medium.com/@mysilio",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://mysilio.com/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Mysilio",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO, Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+    "firstName": "Uchi",
+    "lastName": "Uchibeke",
+    "fullName": "Uchi Uchibeke",
+    "bio": "Developer, and Founder. DevRel leader with track record growing communities around the globe",
+    "tagLine": "Founder and CEO, Chimoney",
+    "profilePicture": "https://sessionize.com/image/22db-400o400o1-UkR1cntswY3cYVzfSZYLc7.png",
+    "sessions": [
+      {
+        "id": 502677,
+        "name": "Integrating Interledger to Chimoney's Wallet as a Service Platform"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/uchiuchibeke",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nickku",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://facebook.com/uchibeke",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://instagram.com/uchiuchibeke",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Blog",
+        "url": "https://uchibeke.com/blog/",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://chimoney.io/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Chimoney",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "CEO",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "56d4c506-d323-41b0-9854-605d76121d86",
+    "firstName": "Victoria",
+    "lastName": "Coker",
+    "fullName": "Victoria Coker",
+    "bio": "Victoria Coker is a multi-disciplinary artist and entrepreneur. She graduated from St. John’s University with a Bachelor’s in communication arts. Ms. Coker has more than ten years of design and marketing experience and has worked for organizations such as Carnegie Hall, Bric Arts Media, and Oxford University Press.\r\n\r\nIn 2017, she launched the Black Web Fest, an organization dedicated to celebrating Black creatives and digital content. Her goal is to build a legacy to empower her community. ",
+    "tagLine": "Black Web Fest, Founder",
+    "profilePicture": "https://sessionize.com/image/09cf-400o400o1-9nDrg4BC1QcXHD9GWQJznu.jpg",
+    "sessions": [
+      {
+        "id": 530396,
+        "name": "Payment Parity Perspectives: Women of Color Reshaping Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/AddVic_e",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "LinkedIn",
+        "url": "https://www.linkedin.com/in/victoria-coker-2149611b/",
+        "linkType": "LinkedIn"
+      },
+      {
+        "title": "Facebook",
+        "url": "https://www.facebook.com/BlackWebFest",
+        "linkType": "Facebook"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/blackwebfest/",
+        "linkType": "Instagram"
+      },
+      {
+        "title": "Blog",
+        "url": "https://blackwebfest.org/news/",
+        "linkType": "Blog"
+      },
+      {
+        "title": "Company Website",
+        "url": "https://blackwebfest.org/",
+        "linkType": "Company_Website"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Black Web Fest",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Founder",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  },
+  {
+    "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+    "firstName": "Xiaoji",
+    "lastName": "Song",
+    "fullName": "Xiaoji Song",
+    "bio": "Xiaoji Song (she/they) is an artist, (interdisciplinary) researcher, and creative practitioner based in Berlin. Growing up in China and trained in Europe, I work on socially relevant and community-specific experiences, often with the local networks, NGOs, and local cultural and political institutions, mediated by texts, images, games, and performances. My projects have appeared in local or international media or cultural platforms in China (PRC), the UK, Germany, the Netherlands, and Bulgaria. Working in the liminal spaces of political theory, practice, and art, my research interests include techno-politics, networked social movement, border practices, and the performative aspect of political memory. I am now in a residency at Trust Berlin with two other artists/researchers working on modding practice in the gaming community as well as involved in a collective project on a fictional system of speculative emotional future supported by Light Art Space and Callie’s in Berlin. I am in the study group for the AI Anarchies Project at the German Academy of Art (ADK) and am also an alumna of the Open Set Lab research residency and the University of the Underground research program. Currently, I am finishing my master’s in global communication focusing on political communication of border technology at the University of Erfurt while working as a research assistant for the Humboldt University of Berlin.",
+    "tagLine": "Future|Money Awardee - Artist and Interdisciplinary researcher ",
+    "profilePicture": "https://sessionize.com/image/8cc7-400o400o1-KBYLpKTMU3b2xjrwJF8dZT.png",
+    "sessions": [
+      {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
+        "id": 554064,
+        "name": "Future|Money Open Studio Day 2"
+      },
+      {
+        "id": 530396,
+        "name": "Payment Parity Perspectives: Women of Color Reshaping Financial Inclusion"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [
+      {
+        "title": "X (Twitter)",
+        "url": "https://twitter.com/sxj1995",
+        "linkType": "Twitter"
+      },
+      {
+        "title": "Instagram",
+        "url": "https://www.instagram.com/sxj1995/",
+        "linkType": "Instagram"
+      }
+    ],
+    "questionAnswers": [
+      {
+        "id": 51677,
+        "question": "Organizational Affiliation ",
+        "questionType": "Short_Text",
+        "answer": "Talonic.ai",
+        "sort": 22,
+        "answerExtra": null
+      },
+      {
+        "id": 51678,
+        "question": "Role",
+        "questionType": "Short_Text",
+        "answer": "Artist and Communication Strategist",
+        "sort": 23,
+        "answerExtra": null
+      }
+    ],
+    "categories": []
+  }
+]

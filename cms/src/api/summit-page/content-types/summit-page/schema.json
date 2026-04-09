@@ -5,10 +5,10 @@
     "singularName": "summit-page",
     "pluralName": "summit-pages",
     "displayName": "Summit Page",
-    "description": "Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting."
+    "description": "Summit pages with dark theme. Full path slug sets the URL and file location."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -21,23 +21,12 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "title",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "path": {
+    "pathSlug": {
       "type": "string",
+      "required": true,
+      "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Route path. Astro uses for file placement."
-    },
-    "pageType": {
-      "type": "enumeration",
-      "enum": ["hackathon", "hackathon-resource"],
-      "default": "hackathon",
-      "pluginOptions": { "i18n": { "localized": false } },
-      "description": "Hackathon or Hackathon Resource"
+      "description": "Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash."
     },
     "seo": {
       "type": "component",
@@ -53,7 +42,15 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph", "blocks.cards-grid", "blocks.card-links-grid", "blocks.carousel", "blocks.cta-banner", "blocks.image-row"],
+      "components": [
+        "blocks.paragraph",
+        "blocks.ambassador",
+        "blocks.ambassadors-grid",
+        "blocks.blockquote",
+        "blocks.callout-text",
+        "blocks.pdf-embed",
+        "blocks.video-embed"
+      ],
       "pluginOptions": { "i18n": { "localized": true } }
     }
   }

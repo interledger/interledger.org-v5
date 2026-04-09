@@ -1,0 +1,53 @@
+---
+import type { Page } from 'astro'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
+import Pagination from '@/components/shared/Pagination.astro'
+import stripPagination from '@/utils/stripPagination'
+
+interface Props {
+  page: Page
+  allTags: string[]
+  selectedTag?: string
+  blogPath: string
+}
+
+const { page, allTags, selectedTag, blogPath } = Astro.props
+const basePath = stripPagination(Astro.url.pathname)
+const title = selectedTag
+  ? `Foundation Blog - ${selectedTag}`
+  : 'Foundation Blog'
+const description = selectedTag
+  ? `Foundation Blog posts tagged with ${selectedTag}`
+  : 'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.'
+const developersBlogPath = blogPath.replace(/\/blog$/, '/developers/blog')
+---
+
+<FoundationPageLayout
+  title={title}
+  description={description}
+  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
+>
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
+      <BlogIndexFoundation
+        posts={page.data || []}
+        allTags={allTags}
+        selectedTag={selectedTag}
+        showTagFilter={true}
+        path={blogPath}
+        developersHref={developersBlogPath}
+      />
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        firstUrl={page.url.first}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        lastUrl={page.url.last}
+        label={title}
+      />
+    </div>
+  </main>
+</FoundationPageLayout>

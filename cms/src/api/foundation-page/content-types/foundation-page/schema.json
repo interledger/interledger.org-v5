@@ -5,10 +5,10 @@
     "singularName": "foundation-page",
     "pluralName": "foundation-pages",
     "displayName": "Foundation Page",
-    "description": "Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting."
+    "description": "Website pages with dynamic content blocks. Full path slug sets the URL and file location."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -21,23 +21,18 @@
       "required": true,
       "pluginOptions": { "i18n": { "localized": true } }
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "title",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
-    },
-    "path": {
+    "pathSlug": {
       "type": "string",
+      "required": true,
+      "unique": true,
       "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Route path e.g. /grant/ambassadors. Astro uses for file placement."
+      "description": "Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash."
     },
-    "pageType": {
+    "pillar": {
       "type": "enumeration",
-      "enum": ["grant", "policy", "developer"],
-      "default": "grant",
+      "enum": ["vision", "mission", "tech", "values"],
       "pluginOptions": { "i18n": { "localized": false } },
-      "description": "Grant Page, Policy Page, or Developer Page"
+      "description": "Content pillar — controls page-level colour theming via data-pillar attribute"
     },
     "seo": {
       "type": "component",
@@ -55,14 +50,12 @@
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
-        "blocks.cards-grid",
-        "blocks.card-links-grid",
-        "blocks.carousel",
-        "blocks.cta-banner",
         "blocks.ambassador",
         "blocks.ambassadors-grid",
         "blocks.blockquote",
-        "blocks.callout-text"
+        "blocks.callout-text",
+        "blocks.pdf-embed",
+        "blocks.video-embed"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }

@@ -158,6 +158,72 @@ describe('Blockquote handler (locale context)', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Blockquote handler — lists and images
+// ---------------------------------------------------------------------------
+
+describe('Blockquote handler — lists and images', () => {
+  it('normalizes unordered list bullets to dash regardless of input marker', async () => {
+    const mdx = [
+      '<Blockquote>',
+      '* First item',
+      '* Second item',
+      '* Third item',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const quote = (blocks[0] as { quote: string }).quote
+
+    expect(quote).toContain('- First item')
+    expect(quote).toContain('- Second item')
+    expect(quote).not.toMatch(/^\* /m)
+  })
+
+  it('preserves ordered list numbers', async () => {
+    const mdx = [
+      '<Blockquote>',
+      '1. First step',
+      '2. Second step',
+      '3. Third step',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const quote = (blocks[0] as { quote: string }).quote
+
+    expect(quote).toContain('1.')
+    expect(quote).toContain('2.')
+    expect(quote).toContain('3.')
+  })
+
+  it('preserves images', async () => {
+    const mdx = [
+      '<Blockquote>',
+      '![A photo](https://example.com/photo.jpg)',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const quote = (blocks[0] as { quote: string }).quote
+
+    expect(quote).toContain('![A photo](https://example.com/photo.jpg)')
+  })
+
+  it('preserves strikethrough text', async () => {
+    const mdx = [
+      '<Blockquote>',
+      'This is ~~struck~~ text.',
+      '</Blockquote>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const quote = (blocks[0] as { quote: string }).quote
+
+    expect(quote).toContain('~~struck~~')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Integration: Blockquote mixed with markdown
 // ---------------------------------------------------------------------------
 

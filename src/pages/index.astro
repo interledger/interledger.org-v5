@@ -1,22 +1,52 @@
 ---
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import Paragraph from '../components/blocks/Paragraph.astro'
+import { type Locale } from '@/utils/i18'
+import { HOME_SLUG } from '@/utils/routes'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+
+const pageLang: Locale = 'en'
 
 const pages = await getCollection('foundation-pages')
-const homePage = pages.find((page) => page.data.slug === 'home')
+const homePage = pages.find(
+  (page) => page.data.pathSlug === HOME_SLUG && page.data.locale === pageLang
+)
 
 if (!homePage) {
   throw new Error('Homepage not found in foundation-pages collection')
 }
 
 const { Content } = await render(homePage)
-const { title, heroTitle, heroDescription } = homePage.data
+const {
+  title,
+  metaDescription,
+  metaImage,
+  canonicalUrl,
+  heroTitle,
+  heroDescription,
+  heroImage
+} = homePage.data
+const pageTitle = title || 'Interledger Foundation'
+const pageDescription = metaDescription || undefined
+const heroSectionStyle = getHeroSectionStyle(heroImage)
 ---
 
-<FoundationPageLayout title={title || 'Interledger Foundation'}>
+<FoundationPageLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogImageUrl={metaImage}
+  canonicalURL={canonicalUrl}
+>
   <main class="pb-space-l">
     <section
-      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[50vh] py-space-xl text-white flex items-center"
+      class:list={[
+        'min-h-[50vh] py-space-xl text-white flex items-center',
+        heroSectionStyle
+          ? 'bg-no-repeat bg-cover bg-center'
+          : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+      ]}
+      style={heroSectionStyle}
     >
       <div class="mx-auto w-full max-w-wide px-space-m">
         <div class="max-w-narrow">
@@ -37,7 +67,7 @@ const { title, heroTitle, heroDescription } = homePage.data
         <div
           class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h2]:text-primary [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:text-primary [&_a]:underline [&_a:hover]:no-underline [&_.cta-group]:my-space-m [&_.cta-group]:flex [&_.cta-group]:flex-wrap [&_.cta-group]:gap-space-s [&_.cta-group_a]:rounded-pill [&_.cta-group_a]:bg-primary [&_.cta-group_a]:px-space-s [&_.cta-group_a]:py-space-xs [&_.cta-group_a]:text-white [&_.cta-group_a]:no-underline [&_.cta-group_a:hover]:opacity-90"
         >
-          <Content />
+          <Content components={{ Paragraph }} />
         </div>
       </div>
     </section>

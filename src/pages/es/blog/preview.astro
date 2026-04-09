@@ -1,0 +1,45 @@
+---
+import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
+import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import { fetchStrapi } from '@/utils/fetchStrapi'
+import { marked } from 'marked'
+
+// Get the documentId from the query string
+export const prerender = false
+const documentId = Astro.url.searchParams.get('pathSlug')
+if (!documentId) {
+  throw new Error('Missing documentId in preview URL')
+}
+
+// Always fetch draft content for preview
+const response = await fetchStrapi(
+  `api/foundation-blog-posts/${documentId}?status=draft`
+)
+
+const article = response?.data
+
+if (!article) {
+  throw new Error(`Preview: No article found for documentId "${documentId}"`)
+}
+
+// Map Strapi fields to FoundationBlogLayout frontmatter
+const frontmatter = {
+  title: article.title,
+  description: article.description,
+  pathSlug: article.pathSlug,
+  locale: article.locale,
+  date: article.publishedAt,
+  pillar: article.pillar,
+  featureImage: article.featuredImage?.url,
+  featureImageAlt: article.featuredImage?.alternativeText,
+  articleBios: [],
+  tags: []
+}
+
+const bodyHtml = marked.parse(article.content ? article.content : '')
+---
+
+<FoundationBlogLayout frontmatter={frontmatter}>
+  <article set:html={bodyHtml} />
+  <CommunityLinksFoundation />
+</FoundationBlogLayout>

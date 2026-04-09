@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { getSpeakerPages } from '@/utils/summit-talks-speakers'
+import SpeakerDetailPage from '@/components/summit/SpeakerDetailPage.astro'
+import type { Speaker } from '@/types/summit'
+
+interface Props {
+  entry: Speaker
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const entries = await getSpeakerPages()
+  return entries
+}
+
+const { year } = Astro.params
+const { entry } = Astro.props
+if (!year) {
+  throw new Error('Year param is required')
+}
+if (!entry) {
+  return Astro.redirect('/404')
+}
+---
+
+<SpeakerDetailPage entry={entry} year={year} />

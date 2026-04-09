@@ -18,6 +18,7 @@
 /** Discriminator present on every Strapi dynamic-zone block payload. */
 export interface StrapiBlockBase {
   __component: string
+  [key: string]: unknown
 }
 
 // ---------------------------------------------------------------------------
@@ -68,6 +69,25 @@ export interface CalloutTextBlock extends StrapiBlockBase {
   content: string
 }
 
+/** blocks.pdf-embed — inline PDF viewer with download fallback. */
+export interface PdfEmbedBlock extends StrapiBlockBase {
+  __component: 'blocks.pdf-embed'
+  source: 'media_library' | 'external_url'
+  /** Strapi upload file integer ID — set when source is 'media_library'. */
+  file?: number
+  /** Set when source is 'external_url'. */
+  externalUrl?: string
+  label?: string
+  analyticsEvent: string
+}
+
+/** blocks.video-embed — embedded YouTube or Vimeo video. */
+export interface VideoEmbedBlock extends StrapiBlockBase {
+  __component: 'blocks.video-embed'
+  url: string
+  title: string
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -79,3 +99,5 @@ export type ParsedBlock =
   | AmbassadorsGridBlock
   | BlockquoteBlock
   | CalloutTextBlock
+  | PdfEmbedBlock
+  | VideoEmbedBlock

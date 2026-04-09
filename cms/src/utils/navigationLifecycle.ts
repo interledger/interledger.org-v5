@@ -4,17 +4,9 @@ import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 
-// Strapi v5 Document API types
-interface StrapiDocumentAPI {
-  findFirst: (options: {
-    status: string
-    populate: Record<string, unknown>
-  }) => Promise<unknown>
-}
+import type { StrapiGlobal } from './strapiTypes'
 
-declare const strapi: {
-  documents: (uid: string) => StrapiDocumentAPI
-}
+declare const strapi: StrapiGlobal
 
 interface MenuItem {
   label: string

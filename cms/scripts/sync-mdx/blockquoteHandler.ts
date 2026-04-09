@@ -8,10 +8,8 @@
  * and optional `source` from prop.
  */
 
-import { toMarkdown } from 'mdast-util-to-markdown'
-import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
-import type { Root } from 'mdast'
 import type { ParsedBlock, BlockquoteBlock } from './types.blocks'
+import { childrenToMarkdown } from './mdastSerialize'
 import { getStringAttr } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -27,14 +25,7 @@ async function handleBlockquote(
   const source = getStringAttr(node, 'source')
 
   const quote =
-    node.children.length > 0
-      ? // mdxJsxToMarkdown is required because remark-mdx parses HTML tags
-        // (e.g. <em>, <strong>) as mdxJsxTextElement nodes, which the base
-        // toMarkdown serializer does not understand.
-        toMarkdown({ type: 'root', children: node.children } as Root, {
-          extensions: [mdxJsxToMarkdown()]
-        }).trim()
-      : ''
+    node.children.length > 0 ? childrenToMarkdown(node.children) : ''
 
   if (!quote) {
     throw new MdxParserError({

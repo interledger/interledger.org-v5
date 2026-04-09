@@ -1,0 +1,30 @@
+---
+import type { Speaker } from '@/types/summit'
+import { generateSlug } from '@/utils/slug'
+
+interface Props {
+  speaker: Speaker
+  basePath: string
+  year: string
+}
+
+const { speaker, basePath, year } = Astro.props
+const href = `${basePath}/${generateSlug(speaker.name)}`
+---
+
+<li class="flex-1 min-w-[8em]">
+  <a
+    href={href}
+    data-umami-event={`${year} Speaker Card - Speaker: ${speaker.name}`}
+  >
+    <img
+      src={speaker.profilePicture}
+      alt={speaker.name}
+      width="240"
+      height="240"
+      loading="lazy"
+    />
+    <h2 class="text-step-0! font-bold">{speaker.name}</h2>
+    <p class="text-step--1">{speaker.tagLine}</p>
+  </a>
+</li>

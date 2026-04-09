@@ -1,0 +1,660 @@
+[
+  {
+    "id": "69f97e3e-d0c7-4fe3-9373-7cbcd223c6c8",
+    "firstName": "Adrian",
+    "lastName": "Hope-Bailie",
+    "fullName": "Adrian Hope-Bailie",
+    "bio": "Adrian is a co-inventor of the Interledger protocol stack and the Open Payments standards and payment pointers. He is a co-founder of Fynbos where he is building the first account that will issue payment pointers and support Open Payments.",
+    "tagLine": "Founder at Fynbos",
+    "profilePicture": "https://sessionize.com/image/9835-400o400o1-SR3MvKEACLnP4hSvrmn8Py.png",
+    "sessions": [
+      {
+        "id": 383792,
+        "name": "Payment pointers - the universal payment instrument"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "b403c048-01ab-4dfa-8a2e-312751966eb3",
+    "firstName": "Amanda",
+    "lastName": "Figueroa",
+    "fullName": "Amanda Figueroa",
+    "bio": "Amanda Figueora is Curationist’s Community Director. She is based in Boston and was raised at the US-Mexico border. Amanda’s finishing her PhD in American Studies at Harvard and has fifteen years of experience in public programs, content management, and web design. At Curationist, Amanda leads in building awareness, engagement, and encouraging connections between large arts-based institutions and underserved and grassroots cultural heritage communities. The goal is to bring together these different types of stakeholders to inform the future of Curationist.",
+    "tagLine": "Community Directior, Curationist",
+    "profilePicture": "https://sessionize.com/image/0938-400o400o1-4RHuGxYdr6sUHjSeCCYHEg.jpg",
+    "sessions": [
+      {
+        "id": 369807,
+        "name": "Open Knowledge and Web Monetization GAP Analysis"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "ea1a7e8e-53b1-4178-850d-c9e5c331d492",
+    "firstName": "Andrés",
+    "lastName": "Arauz",
+    "fullName": "Andrés Arauz",
+    "bio": "Former central banker and policymaker, PhD in crossborder payment systems.",
+    "tagLine": "The People's Clearinghouse, CEO",
+    "profilePicture": "https://sessionize.com/image/2d71-400o400o1-JAhsagT9rwpLApp1vctj2z.jpg",
+    "sessions": [
+      {
+        "id": 384019,
+        "name": "Central Bank RTGS and ILP implementation: Mexico's SPEI and the People's Clearinghouse"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "2d15432a-4cdb-43ff-a339-a4108822482d",
+    "firstName": "Andrew",
+    "lastName": "Mangle",
+    "fullName": "Andrew Mangle",
+    "bio": "Dr. Mangle is an Assistant Professor in Management Information Systems at Maryland's oldest HBCU Bowie State University.  ",
+    "tagLine": "Assistant Professor - Bowie State University",
+    "profilePicture": "https://sessionize.com/image/a7f2-400o400o1-3e3a6859-c3b0-4228-bf96-7998003f09d4.jpg",
+    "sessions": [
+      {
+        "id": 373702,
+        "name": "Including GenZ in Digital Affairs: Bowie State University Share-Out"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "619c6703-1d3c-443e-a176-46c7e66a8b23",
+    "firstName": "Arunjay",
+    "lastName": "Katakam",
+    "fullName": "Arunjay Katakam",
+    "bio": "Arunjay Katakam is a former EY consultant who has co-founded three startups, one of which eventually sold to Twitter. He works with the likes of the United Nations Capital Development Fund, the GSMA and the Bill & Melinda Gates Foundation to increase financial inclusion through mobile money payments and digital public infrastructure. \r\nArunjay mentored over 20 inclusive fintech startups with DFS Lab and was a venture builder with Catalyst Fund. He diligently advocates for a zero-fee customer payment model in his book, The Power of Micro Money Transfers.",
+    "tagLine": "Digital Finance Advisor, Migration and Remittances, UNCDF",
+    "profilePicture": "https://sessionize.com/image/00b0-400o400o1-saTDG4MgcyXTNYgqbr8XSD.jpg",
+    "sessions": [
+      {
+        "id": 389267,
+        "name": "An Open Regulated Global Payment Inter-Network"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "27429f38-3846-488f-9e53-58837c0b6842",
+    "firstName": "Ayden",
+    "lastName": "Férdeline",
+    "fullName": "Ayden Férdeline",
+    "bio": "Ayden Férdeline is a public interest technologist who has worked directly with activists, academics, civil society organizations, lawmakers and industry to support responsible technological innovation with a focus on social impact. He is inspired by the potential of the decentralized web and is passionate about cultivating an empowered community of civic minded stakeholders who share a meaningful and actionable commodority to make Web3 work for more people than Web 2.0 did. He previously represented European civil society organizations on ICANN’s GNSO Council, the body which makes binding policy for generic top-level domain names like .COM and .ORG, and was a technology policy fellow with the Mozilla Foundation. He now hosts the Internet governance history podcast POWER PLAYS – generously supported by Grant for the Web – and independently researches how Internet governance processes can be made more inclusive, for organizations like the National Democratic Institute and the National Endowment for Democracy. Based in Berlin, he is an alumnus of the London School of Economics.  ",
+    "tagLine": "Public Interest Technologist",
+    "profilePicture": "https://sessionize.com/image/0050-400o400o1-NkTkL7fUWbJHuUThxMdJvL.jpg",
+    "sessions": [
+      {
+        "id": 383892,
+        "name": "Can web monetization protocols bring about a fairer digital future?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "213fae9a-c3ba-44de-8fa8-ab1062a95818",
+    "firstName": "Benjamin",
+    "lastName": "Bellamy",
+    "fullName": "Benjamin Bellamy",
+    "bio": "Benjamin Bellamy is an engineer and entrepreneur.\r\nFor the past twenty years he has led technical and entrepreneurial projects in various industries such as publishing, book distribution, online media, television and e-commerce.\r\nHe is a furious open-source advocate, a podcast lover, and an active contributor to the PodcastIndex community.\r\nBenjamin is the founder and CEO of Ad Aures, a company dedicated to creating fair and sustainable ecosystems for the podcasting industry. In 2020, Ad Aures released Castopod, the first full-fledged open-source podcast hosting solution supporting Web Monetization.",
+    "tagLine": "CEO at Ad Aures",
+    "profilePicture": "https://sessionize.com/image/e562-400o400o1-7z8UQdbBanvVaPS4jZtM3w.jpg",
+    "sessions": [
+      {
+        "id": 383803,
+        "name": "Podcasters, unlock your true creative potential with Web Monetization"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "60ca230a-ed4a-492b-b423-f4fbd279c871",
+    "firstName": "Briana",
+    "lastName": "Marbury",
+    "fullName": "Briana Marbury",
+    "bio": "Briana is passionate about promoting open payments and financial interoperability solutions for the world's population that need it most.  As Executive Director of the Interledger Foundation, her goal is to expand the public’s awareness of the Interledger Protocol's immense potential to improve lives.",
+    "tagLine": "Executive Director, Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/0a57-400o400o1-MMHNmkn9QaterKfaf6qpW1.png",
+    "sessions": [
+      {
+        "id": 370173,
+        "name": "State of Interledger"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "8c31891a-1b90-41c9-9419-cb79cdd7494e",
+    "firstName": "Chris",
+    "lastName": "Lawrence",
+    "fullName": "Chris Lawrence",
+    "bio": null,
+    "tagLine": null,
+    "profilePicture": "https://sessionize.com/image/fce0-400o400o1-0095eaf2-329e-4ba4-8ad1-7c500a4414c4.jpg",
+    "sessions": [
+      {
+        "id": 373822,
+        "name": "Life After the Grant : Let’s talk sustainability!"
+      },
+      {
+        "id": 373825,
+        "name": "Community Building for Innovation and Sustainability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "4b689e03-a280-47f6-b763-d62a103b042a",
+    "firstName": "Christina",
+    "lastName": "Kinney",
+    "fullName": "Christina Kinney",
+    "bio": "Spent 10+ years in the payments & fintech industry across the globe; served as COO of cross-border payments platform Reach; Founded the Global Retail Insights Network; Stanford University graduate. ",
+    "tagLine": "Co-Founder, SumAssembly: Better Payments for Everyone",
+    "profilePicture": "https://sessionize.com/image/8a24-400o400o1-31dc5b6a-ebbb-4dec-8669-4b4a15036138.jpg",
+    "sessions": [
+      {
+        "id": 369753,
+        "name": "Get Paid. For Real. Right Now."
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "9816f454-6b5a-4ba7-b6b2-444176513cfb",
+    "firstName": "David",
+    "lastName": "Benoit",
+    "fullName": "David Benoit",
+    "bio": "20+ year technology leader and mentor with 11+ years in payments, FX, and market data. Invited expert to the W3C Web Payments Working Group. Extensive experience building reliable, scalable services for mission critical applications.",
+    "tagLine": "Founder, SumAssembly: Better Payouts for Everyone",
+    "profilePicture": "https://sessionize.com/image/bf40-400o400o1-nTXNNqiJLvv2FDqiAYvwSk.jpg",
+    "sessions": [
+      {
+        "id": 369753,
+        "name": "Get Paid. For Real. Right Now."
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "9ba11e2e-9aa7-4b7b-80e8-ba22562b90d0",
+    "firstName": "Ellen",
+    "lastName": "Magallanes",
+    "fullName": "Ellen Magallanes",
+    "bio": "Ellen Magallanes a dual-qualified US-Australian attorney, Secretary at the Internet Law and Policy Foundry, and Senior Counsel at the Wikimedia Foundation. Privacy law, like all the best rabbit holes, was something she fell into and never looked back. Now she furthers her interest in privacy with tech law advocacy in both of her homes: Australia and the US. She is currently based in the San Francisco Bay Area.",
+    "tagLine": "Senior Counsel, Wikimedia Foundation",
+    "profilePicture": "https://sessionize.com/image/c70f-400o400o1-YnEPEbv4qy3PnrEBRZQj9Z.jpg",
+    "sessions": [
+      {
+        "id": 383892,
+        "name": "Can web monetization protocols bring about a fairer digital future?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "42d693ee-0efe-46fe-ac5c-c18349128166",
+    "firstName": "Erica",
+    "lastName": "Hargreave",
+    "fullName": "Erica Hargreave",
+    "bio": "I craft stories and engage communities through different mediums. To what goal, you ask?  Simply put, to create laughter and smiles, spark the imagination, provoke thought, improve cultural understanding, and to educate.",
+    "tagLine": "Dreaming of an internet full of whimsy, stories of social good & honest journalism, crafted by diverse voices, thanks to the possibilities that Interledger presents for financial inclusion & equity.",
+    "profilePicture": "https://sessionize.com/image/5798-400o400o1-E6SJMUs3eANun3SDnnkn8r.jpg",
+    "sessions": [
+      {
+        "id": 373822,
+        "name": "Life After the Grant : Let’s talk sustainability!"
+      },
+      {
+        "id": 373825,
+        "name": "Community Building for Innovation and Sustainability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "59dd02ef-66e9-41ec-9335-e2d226665ea1",
+    "firstName": "Erin",
+    "lastName": "Brown",
+    "fullName": "Erin Brown",
+    "bio": "Erin Brown is the Team Leader for the Management Performance Strengthening Team in the Management Bureau’s Office of Management Policy, Budget and Operational Performance.  Before that she launched USAID’s new Diversity, Equity, Inclusion, and Accessibility (DEIA) agenda as the Agency’s Acting Chief DEIA Officer in the Office of the Administrator, including development of its 2021 DEIA Strategic Plan and an Equity Action Plan that highlights the Agency’s key actions to address equity across its programs and partnerships.  A strategy and organizational transformation subject matter expert with 23 years of experience in the public and private sectors, Ms. Brown joined the United States Agency for International Development in 2012 as a Franklin Fellow after 13 years in the private sector where she led medium and large-scale strategic planning, business process improvement, and organizational change management initiatives for defense and civilian government agencies.  Prior to joining USAID, Ms. Brown was a Senior Principal at the Hay Group, a global management consulting firm, where she led the Building Effective Organizations Practice in the Federal Sector. \r\n\r\nA two-time Gears of Government award-winner at USAID, Ms. Brown helped establish a new Safeguarding Unit to help protect recipients of USAID assistance from sexual exploitation and abuse, and launched a new Organizational Health Index to gauge the strength of USAID’s internal operations and mission readiness.  Ms. Brown has also been a dedicated champion for diversity, equity, and inclusion at USAID since joining the Agency, as proven by her service as a collateral duty Equal Employment Opportunity (EEO) Counselor and four years as Chapter President of the USAID Chapter of Blacks in Government (BIG).\r\n\r\nShe holds a bachelor of arts (BA) degree in Political Science from the Loyola University of New Orleans, a master’s degree in public policy (MPP) from the University of Chicago and a master of arts (MA) in organizational sciences from The George Washington University. \r\n\r\n\r\n",
+    "tagLine": "United States Agency for International Development, Former Acting Chief Diversity Officer",
+    "profilePicture": "https://sessionize.com/image/c06c-400o400o1-nv5dQQydeGDphfMZAKidmg.jpg",
+    "sessions": [
+      {
+        "id": 393412,
+        "name": "The 5Ps of Diversity, Equity, and Inclusion (DEI)"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "b0a14d9b-376a-48e2-9a43-75ee8855c9f4",
+    "firstName": "Jake ",
+    "lastName": "Kendall",
+    "fullName": "Jake Kendall",
+    "bio": null,
+    "tagLine": null,
+    "profilePicture": "https://sessionize.com/image/8433-400o400o1-3r2HcFhJGixa2hv8nWEbLQ.svg",
+    "sessions": [
+      {
+        "id": 373700,
+        "name": "DFS Lab work in Sub-Saharan Africa"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "30b3c3bc-2196-4f86-be96-4578358d8818",
+    "firstName": "Joran",
+    "lastName": "Greef",
+    "fullName": "Joran Greef",
+    "bio": "Joran bumped into Coil (and the idea of Interledger) in 2020 on a soccer field in Cape Town. This led to analysis of the Mojaloop payments switch, and the idea for “an accounting database” called TigerBeetle to move the performance needle by three orders of magnitude, as part of providing infrastructure for Interledger and Rafiki. TigerBeetle, Inc. was spun out of Coil as a startup in August 2022.",
+    "tagLine": "Founder & CEO of TigerBeetle",
+    "profilePicture": "https://sessionize.com/image/33b0-400o400o1-7aYQNuj27gu3KEj8usK9dH.jpg",
+    "sessions": [
+      {
+        "id": 385579,
+        "name": "TigerBeetle, a Financial Accounting Database for Interledger"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "e485ce69-cfcc-49d4-8d31-dda1c45a362d",
+    "firstName": "Juan francisco",
+    "lastName": "Manzano garcia",
+    "fullName": "Juan francisco Manzano garcia",
+    "bio": "Software developer for the last 26 years, specialized in BAAS, core banking, digital wallets, and payment systems. With a strong interest in microfinance and socially conscious tech projects.",
+    "tagLine": "The People's Clearinghouse, Tech Partner",
+    "profilePicture": "https://sessionize.com/image/ce4c-400o400o1-D1uZpk2XhyMEYr2yA9DAp3.jpg",
+    "sessions": [
+      {
+        "id": 384019,
+        "name": "Central Bank RTGS and ILP implementation: Mexico's SPEI and the People's Clearinghouse"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "ceea3685-37aa-4cf0-bf1c-9527930f2232",
+    "firstName": "Julaire",
+    "lastName": "Hall",
+    "fullName": "Julaire Hall",
+    "bio": "To be done...",
+    "tagLine": "Program Outreach Manager - Interledger Foundation",
+    "profilePicture": "https://sessionize.com/image/b1c9-400o400o1-BPpS53MhqrSXKnunM3uM6B.jpg",
+    "sessions": [
+      {
+        "id": 373702,
+        "name": "Including GenZ in Digital Affairs: Bowie State University Share-Out"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "c9e6ec6a-09b1-4802-8adb-3a85d6651ec0",
+    "firstName": "Karl",
+    "lastName": "Carter",
+    "fullName": "Karl Carter",
+    "bio": "Karl Carter is Founder and CEO of Snake Nation. Karl is a passionate entrepreneur, with 20 + years expertise in social change, entertainment, innovation, creative, marketing/media platforms and strategic growth. He leads a team of dedicated creators, technologists, producers, strategists, influencers and project managers in 7 countries that are galvanized by Snake Nation’s mission to impact the lives of millions of diverse creators and coders globally.  \r\nSnake Nation is a mission driven culture, content and technology company, HQ in Atlanta, GA and Cape Town, South Africa.  Snake Nation has successfully established partnerships with major innovation hubs in Atlanta and  South Africa.  in 2018, Karl lead Snake Nation to establish its first wholly owned live/work/ launch property in Cape Town, South Africa.  Snake Nation empowers young Multicultural Millennial (M2) creators and coders to enter the global Creative Economy on their own terms and build sustainable careers.  The Snake Nation network encompasses People, Platforms and Places- Snake Nation College Societies, Digital platform and Social Studios to live, work and create throughout Africa and America.  \r\nKarl’s experience in brand and movement building is longstanding and is consistently innovative. From truth.com, the most successful youth social change campaign ever, to Current TV the first user generated TV network, to Master of the Mix, the first DJ competition reality show. Airing on a BET and Vh1 for three seasons, it generated millions of views and over 500 million PR impressions.  \r\nKarl has done award winning work for truth®, P&G, Current TV, Verizon, Nissan, Smirnoff and Guinness. He was awarded the first ever Ad Color Innovator award by a distinguished panel of leaders in the advertising and media industry.  He and his team’s work on Current TV garnered a Best New Network Launch from TV Week, Al Gore Guerrilla Marketer of the Year and an Emmy Award for Best Interactive Television Service. Their work on the Truth team won numerous awards and was recognized by Ad Age as the top 15 campaigns of the 21st century.  \r\nKarl is a GWU School of Business Alum and Goldman Sachs 10kSB Graduate. He is passionate about helping young people and social causes through media and marketing.  Karl's commitment to global youth culture, social change and media innovation make him a force in multiple areas. In 2018,  Karl was awarded the World Award for United Nations Sustainable Development Goals Achievement.  \r\nKarl has been interviewed multiple times regarding the creative economy, space making and technology for millennials and youth. \r\nIn 2021, Snake Nation was awarded induction into the World Wide Web consortium  as an awardee of Grand for the Web inclusion grant. Snake Nation’s purpose will be to influence the governing body for internet standards toward  a more diverse, inclusive  and equitable internet economy for everyone. \r\nKarl currently resides in Atlanta, GA and Cape Town South Africa with his wife and two daughters. His driving forces are the love of his family and the love of community, culture, technology and creativity.\r\n",
+    "tagLine": "Karl Carter, tech visionary, CEO and founder of  Snake Nation.",
+    "profilePicture": "https://sessionize.com/image/5cf1-400o400o1-MQREyDiY3vsCKB8fgRrhTH.png",
+    "sessions": [
+      {
+        "id": 383809,
+        "name": "Web Monetization & Creative Culture"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "01fa1826-488a-4034-b76e-5be85cd84a3f",
+    "firstName": "Lawil",
+    "lastName": "Karama",
+    "fullName": "Lawil Karama",
+    "bio": "- ",
+    "tagLine": "hi there ",
+    "profilePicture": "https://sessionize.com/image/c5a2-400o400o1-TqkTZX8HuDDXnBELpsGso6.jpg",
+    "sessions": [
+      {
+        "id": 373822,
+        "name": "Life After the Grant : Let’s talk sustainability!"
+      },
+      {
+        "id": 373825,
+        "name": "Community Building for Innovation and Sustainability"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "19463a94-4746-4eb6-8003-11aacd94ba0f",
+    "firstName": "Matt",
+    "lastName": "Mankins",
+    "fullName": "Matt Mankins",
+    "bio": "Matt Mankins is a recent Mozilla Fellow, researcher, inventor, and entrepreneur with degrees from the MIT Media Laboratory and the University of Miami. \r\n\r\nMankins is currently studying the economics of creativity which builds on his work in industry. Previously Mankins served as the CTO of Fast Company and Director of Monetization for Condé Nast.  He is co-founder of numerous companies, including Vert, SMTP.com, In-a-Moon and has recently started Lorem Labs to commercialize a new web reward system called Kudos.\r\n\r\nMankins formerly owned the Lorem Ipsum Bookstore in Cambridge, Massachusetts, which has won several awards, including the Boston Phoenix's 2005 award for \"Best Bookstore Trying to Save the World\".",
+    "tagLine": "Founder, Lorem Labs",
+    "profilePicture": "https://sessionize.com/image/8bd4-400o400o1-REkPbGYNnpVFPdkoapRh98.jpg",
+    "sessions": [
+      {
+        "id": 383990,
+        "name": "Monetization Patterns: Jump-start your paywall with the Monet Pattern Library"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "e94ceef0-e969-4034-82f5-0f6a39ae26d1",
+    "firstName": "Michael",
+    "lastName": "Richards",
+    "fullName": "Michael Richards",
+    "bio": "Michael Richards is the rapporteur of the Mojaloop Change Control Board, chair of the Mojaloop Design Authority and Mojaloop’s representative on the ISO 20022 standards group. He is deeply involved in the definition of extensions to Mojaloop functionality. These currently focus on improvements to the settlement process, on support for currency conversion and on opening Mojaloop schemes to cross-border payments.\r\n",
+    "tagLine": "Financial Services Principal at ModusBox",
+    "profilePicture": "https://sessionize.com/image/efdd-400o400o1-Y36A8WcU7JGNBmiViQAsfT.jpg",
+    "sessions": [
+      {
+        "id": 383527,
+        "name": "Making Digital Payments Affordable and Simple for Everyone, Everywhere"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "c9e83da7-c881-4eed-8e59-01beb295b8f8",
+    "firstName": "Néstor",
+    "lastName": "Campos",
+    "fullName": "Néstor Campos",
+    "bio": "Néstor has more than 12 years of experience, from software development to efficient artificial intelligence models. Now working in Web3 and financial inclusion in Techgethr (https://techgethr.com/) and PeerPay (https://peerpayapp.com/)",
+    "tagLine": "Microsoft MVP - Alibaba Cloud MVP - AWS Community Builder.",
+    "profilePicture": "https://sessionize.com/image/1afa-400o400o1-K9ny7zKuPHbdy3iFCmdh6x.png",
+    "sessions": [
+      {
+        "id": 368493,
+        "name": "The value of Interledger Protocol in Latin America now and in the future"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "996c2e33-414c-448e-938f-ea987b311373",
+    "firstName": "Nic",
+    "lastName": "Wistreich",
+    "fullName": "Nic Wistreich",
+    "bio": "Co-founded Netribution.co.uk in 1999 to help indie filmmakers get online. Co-author of the Film Finance Handbook (fundyourfilm.com), web designer for non-profits, CiviCRM community member & occasional filmmaker.",
+    "tagLine": "Author, Rervenue Sharing Language",
+    "profilePicture": "https://sessionize.com/image/625c-400o400o1-U6eC4agMLt6qCsb9YpYBFm.jpg",
+    "sessions": [
+      {
+        "id": 384007,
+        "name": "Revenue Sharing Language (RSL): a human and machine-readable syntax for profit-sharing and royalties"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "a922404b-f903-47cf-954f-770d29bed360",
+    "firstName": "Paula",
+    "lastName": "Hunter",
+    "fullName": "Paula Hunter",
+    "bio": "Paula Hunter is the Executive Director of the Mojaloop Foundation – a charitable nonprofit organization focused on extending the financial inclusion efforts of the Mojaloop open source software project. She leads the organization’s strategic planning and direction; grant, membership and strategic partnership development; and evangelism for the organization and its mission. Ms. Hunter is an open source and technology leader with nearly two decades of executive director-level experience managing industry advocacy groups, open source organizations, and standards associations. ",
+    "tagLine": "Executive Director, Mojaloop Foundation",
+    "profilePicture": "https://sessionize.com/image/3b3c-400o400o1-3f03c95c-16b3-4b8e-a197-e14891425746.jpg",
+    "sessions": [
+      {
+        "id": 383527,
+        "name": "Making Digital Payments Affordable and Simple for Everyone, Everywhere"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "9bd85c6e-88b7-4d06-b8c8-0458dc200746",
+    "firstName": "Roberto",
+    "lastName": "Valdovinos",
+    "fullName": "Roberto Valdovinos",
+    "bio": "B.A. and M.A. in Logic and Philosophy (Pantheon-Sorbonne University), M.Phil. in Comparative Studies (Columbia University). Directed the Institute of Mexicans Abroad in the Mexican Government. Works with migrants and marginalized communities in social justice and financial inclusion projects.",
+    "tagLine": "The People's Clearinghouse, CFO",
+    "profilePicture": "https://sessionize.com/image/ece9-400o400o1-WsqWT97aFSuE5KMCpxxrGx.png",
+    "sessions": [
+      {
+        "id": 384019,
+        "name": "Central Bank RTGS and ILP implementation: Mexico's SPEI and the People's Clearinghouse"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "79191886-f727-428b-b584-0eabb4e9587a",
+    "firstName": "Sabine",
+    "lastName": "Schaller",
+    "fullName": "Sabine Schaller",
+    "bio": "Sabine has always been interested in Data Ownership and the Internet of Value. She works on the specification and implementation of open standards like the Interledger Protocol, Open Payments, and Web Monetization to allow for a Web where content can be paid for with hard currency instead of data.\r\nPrior to joining Coil, Sabine co-founded Registree, a privacy-preserving recruitment platform. She holds a degree in Statistics and Mathematical Finance.",
+    "tagLine": "R&D Lead @ Coil",
+    "profilePicture": "https://sessionize.com/image/0dfc-400o400o1-KMFiRGeu27GC7A1QzKNya.jpg",
+    "sessions": [
+      {
+        "id": 383066,
+        "name": "Meet your new friend - Rafiki."
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "959a4893-5d5e-4540-be3c-9584185a3e23",
+    "firstName": "Sharon",
+    "lastName": "Wang",
+    "fullName": "Sharon Wang",
+    "bio": "Hey! I'm a big fan of open source and building community, and try to regularly find opportunities to get involved. When I'm not getting lost in my browser tabs, I enjoy spending time outdoors, bouldering and doing aerial silks.",
+    "tagLine": "software development + community building",
+    "profilePicture": "https://sessionize.com/image/fe3a-400o400o1-4ByDKZjXgc4YxNghryKDnw.jpg",
+    "sessions": [
+      {
+        "id": 374390,
+        "name": "Broadening Financial Inclusion…what does that mean?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "9348bc41-12c2-4f51-9ee0-f611108e9936",
+    "firstName": "Stefan",
+    "lastName": "Thomas",
+    "fullName": "Stefan Thomas",
+    "bio": "Open-source developer and distributed systems advocate. Currently working to create a better business model for the Web.",
+    "tagLine": null,
+    "profilePicture": "https://sessionize.com/image/6b95-400o400o1-UDemA45zrMevPpgyYYNwFA.jpg",
+    "sessions": [
+      {
+        "id": 390999,
+        "name": "Introducing Dassie: An Interledger Peer-to-peer Network"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "7481c61c-4cb9-45c9-b4ba-44d077496927",
+    "firstName": "Todd",
+    "lastName": "W",
+    "fullName": "Todd W",
+    "bio": "Todd Weaver is a visionary entrepreneur having already challenged Big Media and Big Tech and is happy to be involved challenging Big Finance.",
+    "tagLine": "Founder @ Purism",
+    "profilePicture": "https://sessionize.com/image/041d-400o400o1-R62CuuXQaBXPMpDo1yF5Zr.jpg",
+    "sessions": [
+      {
+        "id": 395414,
+        "name": "An Interlude of Interfacing with Interledger"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "405070c5-a46c-4f12-9b68-5b1ed17e98a1",
+    "firstName": "Uchi",
+    "lastName": "Uchibeke",
+    "fullName": "Uchi Uchibeke",
+    "bio": "Developer, and Founder",
+    "tagLine": "DevRel, Coil. Founder Chimoney",
+    "profilePicture": "https://sessionize.com/image/dbdd-400o400o1-224a67ea-9a82-462c-bd6d-246ec4424151.jpg",
+    "sessions": [
+      {
+        "id": 374219,
+        "name": "Chimoney:  Financial Inclusion, Accessibility, and Monetization"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "3a71dfe5-a936-40b8-853b-46d1652952fe",
+    "firstName": "Xiaoji",
+    "lastName": "Song",
+    "fullName": "Xiaoji Song",
+    "bio": "Xiaoji Song (she/they) is an artist, (interdisciplinary) researcher, and creative practitioner based in Berlin. Growing up in China and trained in Europe, I work on socially relevant and community-specific experiences, often with the local networks, NGOs, and local cultural and political institutions, mediated by texts, images, games, and performances. My projects have appeared in local or international media or cultural platforms in China (PRC), the UK, Germany, the Netherlands, and Bulgaria, to name a few: Worldwide FM, Sofia Art Week, Design Indaba, Goethe Institute Bulgaria, etc.) Working in the liminal spaces of political theory, practice, and art, Xiaoji Song’s research interests include techno-politics, networked social movement, border practices, and the performative aspect of political memory. I am now in a residency at Trust Berlin with two other artists/researchers working on modding practice in the gaming community as well as involved in a collective project on a fictional system of speculative emotional future supported by Light Art Space and Callie’s in Berlin. I am in the study group for the AI Anarchies Project at the German Academy of Art (ADK) and am also an alumna of the Open Set Lab research residency and the University of the Underground research program. Currently, I am finishing my master’s in global communication focusing on political communication of border technology at the University of Erfurt while working as a research assistant for the Humboldt University of Berlin.",
+    "tagLine": "Artist and Interdisciplinary researcher ",
+    "profilePicture": "https://sessionize.com/image/8cc7-400o400o1-KBYLpKTMU3b2xjrwJF8dZT.png",
+    "sessions": [
+      {
+        "id": 383892,
+        "name": "Can web monetization protocols bring about a fairer digital future?"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "18b0324d-30b3-4bc3-975d-474182063ee8",
+    "firstName": "Yassine",
+    "lastName": "Doghri",
+    "fullName": "Yassine Doghri",
+    "bio": "Passionate software engineer with skills ranging from systems architecture and web development to UI / UX design. Open-source contributor and advocate: I've built Castopod and working on making it better!",
+    "tagLine": "Systems Architect at Ad Aures",
+    "profilePicture": null,
+    "sessions": [
+      {
+        "id": 383803,
+        "name": "Podcasters, unlock your true creative potential with Web Monetization"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  },
+  {
+    "id": "2baf70da-a2f6-4b5c-ab1c-1e89c6a4c7fa",
+    "firstName": "Yotam",
+    "lastName": "Liel",
+    "fullName": "Yotam Liel",
+    "bio": "Yotam Liel is a PhD candidate and a lecturer at Tel Aviv University. His research interests focus on studying human behavior in digital environments, ranging from online content consumption to Human-AI interaction and conformity to algorithmic advice. His research has won several awards. Prior to his PhD studies, he worked as a product manager and head of digital in several start-up companies.",
+    "tagLine": "Tel Aviv University, Research Scientist",
+    "profilePicture": "https://sessionize.com/image/01ff-400o400o1-EPiqqDSDnxNveK4NmPF5KR.jpg",
+    "sessions": [
+      {
+        "id": 382765,
+        "name": "Sharing Funds - Sharing Values? - Web Monetization as a catalyst for social change"
+      }
+    ],
+    "isTopSpeaker": false,
+    "links": [],
+    "questionAnswers": [],
+    "categories": []
+  }
+]

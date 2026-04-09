@@ -2,6 +2,7 @@
   "name": "interledger-cms",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "pnpm@10.27.0",
   "description": "Strapi CMS for Interledger developer portal",
   "scripts": {
     "develop": "ENV_PATH=../.env strapi develop",
@@ -12,6 +13,12 @@
     "sync:mdx:dry-run": "tsx scripts/sync-mdx/index.ts --dry-run",
     "sync:navigation": "tsx scripts/sync-navigation.ts",
     "sync:navigation:dry-run": "tsx scripts/sync-navigation.ts --dry-run",
+    "sync:images": "tsx scripts/sync-images.ts",
+    "sync:images:dry-run": "tsx scripts/sync-images.ts --dry-run",
+    "sync:all": "tsx scripts/sync-all.ts",
+    "sync:all:dry-run": "pnpm run sync:images:dry-run && pnpm run sync:mdx:dry-run && pnpm run sync:navigation:dry-run",
+    "sync:delete-all": "tsx scripts/sync-delete-all.ts",
+    "sync:delete-all:dry-run": "tsx scripts/sync-delete-all.ts --dry-run",
     "test:sync-mdx": "vitest run scripts/sync-mdx",
     "test:serializers": "vitest run src/serializers"
   },
@@ -19,14 +26,16 @@
     "uuid": "d5c8f4e2-9a1b-4c3d-8e7f-6a5b4c3d2e1f"
   },
   "dependencies": {
-    "@_sh/strapi-plugin-ckeditor": "^6.0.3",
+    "@_sh/strapi-plugin-ckeditor": "^7.1.0",
     "@ckeditor/strapi-plugin-ckeditor": "^1.1.1",
     "@notum-cz/strapi-plugin-record-locking": "^2.1.0",
-    "@strapi/strapi": "5.31.3",
-    "better-sqlite3": "11.5.0",
+    "@strapi/strapi": "5.41.1",
+    "@strapi/utils": "5.41.1",
+    "better-sqlite3": "12.8.0",
     "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
     "is-html": "^3.2.0",
+    "js-yaml": "^4.1.0",
     "jsesc": "^3.1.0",
     "marked": "^17.0.3",
     "mdast-util-mdx-jsx": "^3.2.0",
@@ -36,16 +45,18 @@
     "react-router-dom": "^6.30.2",
     "remark": "^15.0.1",
     "remark-mdx": "^3.1.1",
+    "remark-parse": "11.0.0",
     "styled-components": "^6.1.19",
     "turndown": "^7.2.2",
+    "unified": "11.0.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^25.4.0",
     "@types/turndown": "^5.0.6",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.0"
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
@@ -53,8 +64,8 @@
   },
   "pnpm": {
     "overrides": {
-      "esbuild": "0.20.2",
-      "prettier": "3.8.1"
+      "@strapi/design-system": "2.2.0",
+      "@strapi/icons": "2.2.0"
     }
   }
 }

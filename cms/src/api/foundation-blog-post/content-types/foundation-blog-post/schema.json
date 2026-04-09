@@ -8,7 +8,7 @@
     "description": "Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -26,7 +26,7 @@
       "maxLength": 255,
       "required": true
     },
-    "slug": {
+    "pathSlug": {
       "type": "uid",
       "pluginOptions": {
         "i18n": {
@@ -34,7 +34,8 @@
         }
       },
       "targetField": "title",
-      "required": true
+      "required": true,
+      "description": "Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash."
     },
     "date": {
       "type": "date",
@@ -95,17 +96,12 @@
       "required": true
     },
     "content": {
-      "type": "customField",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "customField": "plugin::ckeditor5.CKEditor",
-      "options": {
-        "preset": "defaultMarkdown"
-      },
-      "required": true
+      "type": "dynamiczone",
+      "components": [
+        "blocks.paragraph",
+        "blocks.video-embed"
+      ],
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "articleBio": {
       "type": "component",
@@ -126,19 +122,6 @@
       },
       "component": "shared.tags",
       "repeatable": true
-    },
-    "language": {
-      "type": "enumeration",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "default": "en",
-      "enum": [
-        "en",
-        "es"
-      ]
     }
   }
 }

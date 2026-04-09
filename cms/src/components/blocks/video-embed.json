@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_blocks_video_embeds",
+  "info": {
+    "displayName": "Video Embed",
+    "icon": "play",
+    "description": "Embedded YouTube or Vimeo video"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true,
+      "regex": "^https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

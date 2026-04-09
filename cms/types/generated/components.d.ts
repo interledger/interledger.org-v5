@@ -422,6 +422,37 @@ export interface BlocksParagraph extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksPdfEmbed extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_pdf_embeds'
+  info: {
+    description: 'Inline PDF viewer with download fallback'
+    displayName: 'PDF Embed'
+    icon: 'file-pdf'
+  }
+  attributes: {
+    analyticsEvent: Schema.Attribute.String & Schema.Attribute.Required
+    externalUrl: Schema.Attribute.String
+    file: Schema.Attribute.Media<'files'>
+    label: Schema.Attribute.String & Schema.Attribute.DefaultTo<'Download file'>
+    source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'media_library'>
+  }
+}
+
+export interface BlocksVideoEmbed extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_video_embeds'
+  info: {
+    description: 'Embedded YouTube or Vimeo video'
+    displayName: 'Video Embed'
+    icon: 'play'
+  }
+  attributes: {
+    title: Schema.Attribute.String & Schema.Attribute.Required
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface NavigationMenuGroup extends Struct.ComponentSchema {
   collectionName: 'components_navigation_menu_groups'
   info: {
@@ -547,7 +578,7 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
 export interface SharedHero extends Struct.ComponentSchema {
   collectionName: 'components_shared_heroes'
   info: {
-    description: 'Hero section with title, description and CTAs'
+    description: 'Hero section with title, description and background image'
     displayName: 'Hero'
     icon: 'star'
   }
@@ -559,12 +590,6 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -642,18 +667,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search'
   }
   attributes: {
-    canonicalUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    keywords: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     metaDescription: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -661,23 +674,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.SetMinMaxLength<{
-        maxLength: 160
-      }>
-    metaImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    metaTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 60
+        maxLength: 300
       }>
   }
 }
@@ -716,6 +713,8 @@ declare module '@strapi/strapi' {
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
+      'blocks.pdf-embed': BlocksPdfEmbed
+      'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
       'shared.article-bio': SharedArticleBio

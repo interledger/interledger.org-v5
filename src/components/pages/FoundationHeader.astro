@@ -1,5 +1,6 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
+import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
 
 interface MenuItem {
@@ -18,11 +19,6 @@ const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
-
-// Determine current language from URL path
-const currentPath = Astro.url.pathname
-const isSpanish = currentPath.startsWith('/es')
-const currentLang = isSpanish ? 'es' : 'en-gb'
 ---
 
 <header
@@ -71,7 +67,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
                 {group.label}
               </button>
               {group.items && group.items.length > 0 && (
-                <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
+                <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
                   {group.items.map((item) => (
                     <li data-menu-level="2">
                       <a
@@ -110,42 +106,7 @@ const currentLang = isSpanish ? 'es' : 'en-gb'
           </a>
         )
       }
-      <ul class="flex items-center p-0 list-none">
-        <li
-          hreflang="en-gb"
-          data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-          aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-        >
-          <a
-            href="/"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-            hreflang="en-gb"
-            data-drupal-link-system-path="<front>"
-            aria-current={currentLang === 'en-gb' ? 'page' : undefined}
-            data-active={currentLang === 'en-gb' ? 'true' : 'false'}
-          >
-            EN
-          </a>
-        </li>
-        <li
-          hreflang="es"
-          data-drupal-link-system-path="<front>"
-          class="flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-          aria-current={currentLang === 'es' ? 'page' : undefined}
-        >
-          <a
-            href="/es"
-            class="block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]"
-            hreflang="es"
-            data-drupal-link-system-path="<front>"
-            aria-current={currentLang === 'es' ? 'page' : undefined}
-            data-active={currentLang === 'es' ? 'true' : 'false'}
-          >
-            ES
-          </a>
-        </li>
-      </ul>
+      <LanguageSwitcher />
     </div>
     <button
       type="button"

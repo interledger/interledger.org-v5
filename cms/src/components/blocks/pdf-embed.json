@@ -1,0 +1,41 @@
+{
+  "collectionName": "components_blocks_pdf_embeds",
+  "info": {
+    "displayName": "PDF Embed",
+    "icon": "file-pdf",
+    "description": "Inline PDF viewer with download fallback"
+  },
+  "options": {},
+  "attributes": {
+    "source": {
+      "type": "enumeration",
+      "enum": ["media_library", "external_url"],
+      "required": true,
+      "default": "media_library"
+    },
+    "externalUrl": {
+      "type": "string",
+      "required": false,
+      "conditions": {
+        "visible": { "==": [{ "var": "source" }, "external_url"] }
+      }
+    },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"],
+      "conditions": {
+        "visible": { "==": [{ "var": "source" }, "media_library"] }
+      }
+    },
+    "label": {
+      "type": "string",
+      "default": "Download file"
+    },
+    "analyticsEvent": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

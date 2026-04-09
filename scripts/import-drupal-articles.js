@@ -4,7 +4,7 @@ import path from 'node:path'
 const projectRoot = process.cwd()
 const imgFilePath = '/public/img/foundation-blog'
 const imgReferencePath = '/img/foundation-blog/'
-const mdxFilePath = '/src/content/blog'
+const mdxFilePath = '/src/content/foundation-blog-posts'
 const drupalMediaUrl =
   'https://staging.interledger.org/sites/default/files/image-uploads/'
 
@@ -40,12 +40,12 @@ function generateFilename(post) {
   const date = formatDate(post.attributes.created)
   const prefix = date ? `${date}-` : ''
   const alias = post?.attributes.path?.alias ?? ''
-  const slug = alias
+  const pathSlug = alias
     .replace(/^\/news\//, '')
     .replace(/^\/+/, '')
     .toLowerCase()
 
-  return `${prefix}${slug}.mdx`
+  return `${prefix}${pathSlug}.mdx`
 }
 
 async function htmlToMarkdown(html) {
@@ -225,7 +225,7 @@ async function generateMDXContent(post) {
     `title: "${escapeQuotes(post.attributes.title)}"`,
     `description: "${escapeQuotes(post.attributes.body?.summary ?? '')}"`,
     `date: ${formatDate(post.attributes.created)}`,
-    `slug: ${post.attributes.path.alias.replace('/news/', '')}`,
+    `pathSlug: ${post.attributes.path.alias.replace('/news/', '')}`,
     `pillar: "${post.attributes.field_pillar ?? 'tech'}"`,
     featureImage?.url ? `featureImage: "${featureImage.url}"` : undefined,
     `featureImageAlt: "${featureImage?.alt ?? undefined}"`,

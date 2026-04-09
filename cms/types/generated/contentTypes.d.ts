@@ -439,7 +439,7 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     singularName: 'ambassador'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -490,6 +490,13 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 255
       }>
+    pathSlug: Schema.Attribute.UID<'name'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     photo: Schema.Attribute.Media<'images'> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -498,13 +505,6 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'name'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -521,7 +521,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
     singularName: 'foundation-blog-post'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -535,14 +535,9 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      > &
+    content: Schema.Attribute.DynamicZone<
+      ['blocks.paragraph', 'blocks.video-embed']
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -571,18 +566,18 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    language: Schema.Attribute.Enumeration<['en', 'es']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'en'>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::foundation-blog-post.foundation-blog-post'
     >
+    pathSlug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     pillar: Schema.Attribute.Enumeration<
       ['vision', 'mission', 'tech', 'values']
     > &
@@ -593,13 +588,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     tags: Schema.Attribute.Component<'shared.tags', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -638,7 +626,7 @@ export interface ApiFoundationNavigationFoundationNavigation
     singularName: 'foundation-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -663,13 +651,13 @@ export interface ApiFoundationPageFoundationPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation-pages'
   info: {
-    description: 'Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Path controls URL nesting.'
+    description: 'Website pages with dynamic content blocks. Full path slug sets the URL and file location.'
     displayName: 'Foundation Page'
     pluralName: 'foundation-pages'
     singularName: 'foundation-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -680,14 +668,12 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
         'blocks.ambassador',
         'blocks.ambassadors-grid',
         'blocks.blockquote',
-        'blocks.callout-text'
+        'blocks.callout-text',
+        'blocks.pdf-embed',
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -709,28 +695,24 @@ export interface ApiFoundationPageFoundationPage
       'oneToMany',
       'api::foundation-page.foundation-page'
     >
-    pageType: Schema.Attribute.Enumeration<['grant', 'policy', 'developer']> &
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    pillar: Schema.Attribute.Enumeration<
+      ['vision', 'mission', 'tech', 'values']
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false
         }
-      }> &
-      Schema.Attribute.DefaultTo<'grant'>
-    path: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
       }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -759,7 +741,7 @@ export interface ApiSummitNavigationSummitNavigation
     singularName: 'summit-navigation'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
@@ -783,13 +765,13 @@ export interface ApiSummitNavigationSummitNavigation
 export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
   collectionName: 'summit_pages'
   info: {
-    description: 'Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Path controls URL nesting.'
+    description: 'Summit pages with dark theme. Full path slug sets the URL and file location.'
     displayName: 'Summit Page'
     pluralName: 'summit-pages'
     singularName: 'summit-page'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -800,11 +782,12 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.cards-grid',
-        'blocks.card-links-grid',
-        'blocks.carousel',
-        'blocks.cta-banner',
-        'blocks.image-row'
+        'blocks.ambassador',
+        'blocks.ambassadors-grid',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.pdf-embed',
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -826,16 +809,9 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::summit-page.summit-page'
     >
-    pageType: Schema.Attribute.Enumeration<
-      ['hackathon', 'hackathon-resource']
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'hackathon'>
-    path: Schema.Attribute.String &
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -843,13 +819,6 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
       }>
     publishedAt: Schema.Attribute.DateTime
     seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    slug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1166,12 +1135,13 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    alternativeText: Schema.Attribute.String
-    caption: Schema.Attribute.String
+    alternativeText: Schema.Attribute.Text
+    caption: Schema.Attribute.Text
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
     ext: Schema.Attribute.String
+    focalPoint: Schema.Attribute.JSON
     folder: Schema.Attribute.Relation<'manyToOne', 'plugin::upload.folder'> &
       Schema.Attribute.Private
     folderPath: Schema.Attribute.String &
@@ -1191,7 +1161,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private
     mime: Schema.Attribute.String & Schema.Attribute.Required
     name: Schema.Attribute.String & Schema.Attribute.Required
-    previewUrl: Schema.Attribute.String
+    previewUrl: Schema.Attribute.Text
     provider: Schema.Attribute.String & Schema.Attribute.Required
     provider_metadata: Schema.Attribute.JSON
     publishedAt: Schema.Attribute.DateTime
@@ -1200,7 +1170,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    url: Schema.Attribute.String & Schema.Attribute.Required
+    url: Schema.Attribute.Text & Schema.Attribute.Required
     width: Schema.Attribute.Integer
   }
 }

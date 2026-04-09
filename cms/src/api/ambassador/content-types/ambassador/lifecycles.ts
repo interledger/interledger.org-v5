@@ -23,7 +23,7 @@ function generateMdxContent(
   ambassador: Ambassador,
   englishSlug?: string
 ): string {
-  const photoUrl = getImageUrl(ambassador.photo, 'thumbnail') || null
+  const photoUrl = getImageUrl(ambassador.photo) || null
   const photoAlt = ambassador.photo?.alternativeText || ambassador.name
   const locale =
     ambassador.locale && ambassador.locale !== 'en'
@@ -34,7 +34,7 @@ function generateMdxContent(
   const q = yamlSingleQuoteScalar
   const fields = [
     `name: ${q(ambassador.name)}`,
-    `slug: ${q(ambassador.slug)}`,
+    `pathSlug: ${q(ambassador.pathSlug)}`,
     `description: ${q(ambassador.description || '')}`,
     `photo: ${q(photoUrl)}`,
     `photoAlt: ${q(photoAlt)}`,

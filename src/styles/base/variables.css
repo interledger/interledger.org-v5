@@ -1,0 +1,55 @@
+/**
+ * Runtime CSS Custom Properties
+ *
+ * Static design tokens (colors, typography, spacing, radius, shadows)
+ * are defined in theme.css via @theme — the single source of truth.
+ *
+ * This file defines only:
+ * - --color-primary base value (read by @theme inline for pillar theming)
+ * - Dependent vars that reference other vars (can't go in @theme)
+ * - Layout tokens without @theme namespaces
+ * - Dark theme and pillar selector overrides
+ */
+
+@layer base {
+  :root {
+    /* Base value for --color-primary (the pillar theming hook).
+       @theme inline reads this; [data-pillar] selectors override it below. */
+    --color-primary: oklch(51.54% 0.088 194.77);
+
+    /* Dependent color vars — reference other vars, so must live in :root */
+    --color-btn-txt: var(--color-white);
+    --color-header-bg: var(--color-white);
+
+    /* Layout tokens — no @theme namespace available */
+    --site-header-height: 4.375rem;
+    --max-content-width: 1160px;
+    --option1: linear-gradient(
+      to bottom,
+      hsla(162, 86%, 12%, 1),
+      hsla(176, 100%, 30%, 1)
+    );
+  }
+
+  [data-theme='dark'] {
+    --color-bg: var(--color-black);
+    --color-text: var(--color-white);
+    --color-btn-txt: var(--color-white);
+  }
+
+  /* Pillar overrides - set on page wrapper via data-pillar attribute
+     These override --color-primary for the entire page tree, affecting
+     all components, prose styles, and dynamic utilities that read from it. */
+  [data-pillar='tech'] {
+    --color-primary: var(--color-tech-main);
+  }
+  [data-pillar='mission'] {
+    --color-primary: var(--color-mission-main);
+  }
+  [data-pillar='vision'] {
+    --color-primary: var(--color-vision-main);
+  }
+  [data-pillar='values'] {
+    --color-primary: var(--color-values-main);
+  }
+}

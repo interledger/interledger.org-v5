@@ -6,9 +6,11 @@
  */
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import { applyPreviewNoStore } from '@/utils/cache'
 import { fetchStrapi } from '@/utils/fetchStrapi'
 
 export const prerender = false
+applyPreviewNoStore(Astro.response.headers)
 
 const documentId = Astro.url.searchParams.get('documentId')
 if (!documentId) {
@@ -32,7 +34,8 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.ambassador][populate][ambassador][populate]':
     '*',
   'populate[content][on][blocks.ambassadors-grid][populate][ambassadors][populate]':
-    '*'
+    '*',
+  'populate[content][on][blocks.pdf-embed][populate]': '*'
 })
 
 const response = await fetchStrapi(
@@ -44,7 +47,7 @@ if (!page) {
   return Astro.redirect('/404')
 }
 
-const title = page.seo?.metaTitle || page.title || 'Preview'
+const title = page.title || 'Preview'
 const description = page.seo?.metaDescription || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description

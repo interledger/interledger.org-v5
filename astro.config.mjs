@@ -10,18 +10,14 @@ import tailwindcss from '@tailwindcss/vite'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
-  // TODO Translation work goes here
-  // i18n: {
-  //   locales: ['es', 'en'],
-  //   defaultLocale: 'en',
-  //   routing: {
-  //     prefixDefaultLocale: false,
-  //     fallbackType: 'rewrite'
-  //   },
-  //   fallback: {
-  //     es: 'en'
-  //   }
-  // },
+  i18n: {
+    locales: ['es', 'en'],
+    defaultLocale: 'en',
+    routing: {
+      prefixDefaultLocale: false,
+      fallbackType: 'rewrite'
+    }
+  },
   output: 'static',
   prerender: {
     default: true
@@ -64,8 +60,8 @@ export default defineConfig({
         }
       ],
       components: {
-        Header: './src/components/Header.astro',
-        PageSidebar: './src/components/PageSidebar.astro'
+        Header: './src/components/docs/Header.astro',
+        PageSidebar: './src/components/docs/PageSidebar.astro'
       },
       social: [
         {
@@ -146,16 +142,17 @@ export default defineConfig({
         themes: ['github-dark-dimmed'],
         styleOverrides: {
           borderColor: 'transparent',
-          borderRadius: 'var(--border-radius)'
+          borderRadius: 'var(--radius)'
         },
         defaultProps: {
           wrap: true
         }
-      }
+      },
+      disable404Route: true
     }),
     mdx(),
     sitemap({
-      filter: (url) => !new URL(url).pathname.startsWith('/blog/preview')
+      filter: (url) => !new URL(url).pathname.includes('/preview')
     })
   ],
   vite: {

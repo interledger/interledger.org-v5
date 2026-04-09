@@ -23,7 +23,15 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [2. Developer Flow - Website content](#2-developer-flow---website-content-astro-content-collections)
    - [3. Developer Flow - Documentation](#3-developer-flow---documentation-starlight)
    - [Writing guidelines for developers](#writing-guidelines-for-developers)
-8. [More Info](#more-info)
+8. [Summit Data (Sessionize Integration)](#summit-data-sessionize-integration)
+   - [Overview](#overview)
+   - [Syncing Data from Sessionize](#syncing-data-from-sessionize)
+   - [How the Data is Used](#how-the-data-is-used)
+   - [Adding a New Summit Year](#adding-a-new-summit-year)
+   - [Translations](#translations)
+   - [Image Handling](#image-handling)
+
+9. [More Info](#more-info)
 
 ## About the Project
 
@@ -31,7 +39,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 
 - **Starlight** adds a ready-made documentation system, including layouts, navigation, and styling, making it easy to write and maintain docs.
 
-- **Strapi** is the headless CMS for content management. Custom lifecycles hooks have been added to automatically synchronize content with the Astro project.
+- **Strapi** is the headless CMS for content management. Custom lifecycle hooks have been added to automatically synchronize content with the Astro project.
 
 ### Styling
 
@@ -116,8 +124,6 @@ flowchart
 │   │   └── server.ts
 │   ├── database/                      # Database files
 │   │   └── migrations/
-│   ├── public/                        # Static assets
-│   │   └── uploads/                   # User-uploaded media
 │   ├── scripts/              # e.g., sync:mdx, sync-navigation
 │   ├── src/         # Astro frontend application
 │   │   ├── admin/      # Admin UI customizations
@@ -149,7 +155,8 @@ flowchart
 │   ├── tsconfig.json
 │   ├── copy-schemas.js
 │   └── README.md
-├── public/           # Static assets (images, favicons)
+├── public/           # Static assets (images, favicons, uploads)
+│   └── uploads/      # User-uploaded media for Strapi local storage
 ├── src/              # Astro project
 │   ├── components/    # Astro components
 │   ├── config/        # JSON configs (navigation, etc.)
@@ -211,6 +218,18 @@ git clone https://github.com/interledger/interledger.org-v5.git
 pnpm install
 ```
 
+> **Note on lockfiles:** This repo has two `pnpm-lock.yaml` files:
+>
+> - `/pnpm-lock.yaml` — root workspace lockfile, used locally and in CI
+> - `/cms/pnpm-lock.yaml` — standalone lockfile used by the GCP VM when deploying Strapi (`cd cms && pnpm install`)
+>
+> When `cms/package.json` changes (e.g. upgrading Strapi), regenerate **both**:
+>
+> ```sh
+> pnpm install --no-frozen-lockfile          # from repo root
+> cd cms && pnpm install --no-frozen-lockfile # for GCP deployment
+> ```
+
 3. Build and start the site:
 
 ```sh
@@ -227,14 +246,15 @@ pnpm run start
 
 All commands are run from the root of the project, from a terminal:
 
-| Command            | Action                                       |
-| :----------------- | :------------------------------------------- |
-| `pnpm install`     | Installs dependencies                        |
-| `pnpm run start`   | Starts local dev server at `localhost:1103`  |
-| `pnpm run build`   | Build your production site to `./dist/`      |
-| `pnpm run preview` | Preview your build locally, before deploying |
-| `pnpm run format`  | Format code and fix linting issues           |
-| `pnpm run lint`    | Check code formatting and linting            |
+| Command                              | Action                                                         |
+| :----------------------------------- | :------------------------------------------------------------- |
+| `pnpm install`                       | Installs dependencies                                          |
+| `pnpm run start`                     | Starts local dev server at `localhost:1103`                    |
+| `pnpm run build`                     | Build your production site to `./dist/`                        |
+| `pnpm run preview`                   | Preview your build locally, before deploying                   |
+| `pnpm run format`                    | Format code and fix linting issues                             |
+| `pnpm run lint`                      | Check code formatting and linting                              |
+| `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
 
 ### 🔍 Code Formatting
 
@@ -291,8 +311,8 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 - **`staging`**:
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
-  - Every merge to `staging` that contains changes **outside the `/cms` folder** triggers the GCP VM to pull the latest changes and execute the `sync:mdx` script, which updates the Strapi database based on the Astro `.mdx` files.
-  - Any merge to `staging` that modifies files in the `/cms` folder triggers a rebuild of Strapi Admin panel.
+  - Any push to `staging` that modifies files in `/cms` triggers a rebuild of the Strapi Admin panel on the GCP VM.
+  - Any push to `staging` that modifies `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors` also triggers `sync:mdx`, including their localized mirrors under `src/content/<locale>/...`.
 
 ### Hosting Architecture
 
@@ -321,7 +341,7 @@ There are **three contribution paths**, depending on your role and the type of c
 
 - Editors create pages and blog posts via **Strapi Admin**.
 - Each content type in Strapi has lifecycles configured to **generate/update/delete `.mdx` files in the Astro project** automatically.
-  - Example: Creating a blog post in Strapi generates `src/content/blog/{blog-title}.mdx`.
+  - Example: Creating a foundation page writes MDX under `src/content/foundation-pages/` using **nested folders from the full path slug** (see below): English uses the last segment as the filename; localized pages are written under the collection-level `/{locale}/` directory with the nested slug folders beneath it.
 - Content changes are automatically committed and pushed to the `staging` branch by the GitHub App `Interledger Strapi`.
 
 ⚠️ Note: Strapi is set up to be a contributor to our code base. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -341,9 +361,46 @@ Developers can add multiple types of content directly to the repository. Each co
 
 Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates.
 
+#### Content paths vs URL routes
+
+This project has two related but separate pieces of configuration:
+
+- Filesystem content paths: where MDX files live under `src/content/...`
+- URL route bases: where those collections are exposed under `src/pages/...`
+
+These should not be treated as interchangeable.
+
+Examples:
+
+- `src/content/foundation-pages` maps to site routes at `/...`
+- `src/content/foundation-blog-posts` maps to `/blog/...`
+- `src/content/developers-blog-posts` maps to `/developers/blog/...`
+- `src/content/summit-pages` maps to `/summit/...`
+
+The main source files for this setup are:
+
+- `src/content.config.ts`
+  Defines Astro collection ids such as `'foundation-pages'`, `'foundation-blog'`, `'developers-blog'`, and `'summit-pages'`.
+- `src/utils/paths.ts`
+  Defines filesystem paths and folder names used to load content from disk.
+- `src/utils/routes.ts`
+  Defines `ROUTE_BASES`, the URL base path for each content collection. Use this when building links, language-switcher URLs, or other route-aware behavior.
+- `src/utils/static-paths.ts`
+  Builds localized static paths for collection-backed routes. EN is canonical; ES routes may render EN content when no ES translation exists.
+- `src/utils/i18.ts`
+  Centralizes locale definitions and language-switcher ordering.
+
+Rule of thumb:
+
+- If you are working with folders or files on disk, use `src/utils/paths.ts`
+- If you are working with browser URLs or route generation, use `src/utils/routes.ts`
+
+When adding a new localized collection or changing route structure, review all of the files above together. They form the core configuration for how content is loaded and how URLs are generated.
+
 **Foundation Blog posts**
 
 - Location: `src/content/foundation-blog-posts`
+- Localizations: `src/content/foundation-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Foundation news, updates, announcements, thought leadership.
@@ -351,6 +408,7 @@ Used for: Foundation news, updates, announcements, thought leadership.
 **Tech Blog posts**
 
 - Location: `src/content/developers-blog-posts`
+- Localizations: `src/content/developers-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
 Used for: Technical deep dives, implementation updates, engineering insights.
@@ -358,16 +416,53 @@ Used for: Technical deep dives, implementation updates, engineering insights.
 **Foundation Pages**
 
 - Location: `src/content/foundation-pages`
-- Filename format: `slug.mdx`
+- Localizations: `src/content/foundation-pages/{locale}/{parent...}/` (see path slug rules below)
+- Filename: last segment of the full path slug + `.mdx` (nested segments become parent directories)
 
 Used for: Static foundation pages such as About, Policy & Advocacy, Team, Grants, etc.
 
 **Summit Pages**
 
 - Location: `src/content/summit-pages`
-- Filename format: `slug.mdx`
+- Localizations: same nesting pattern as foundation pages
+- Filename: last segment of the full path slug + `.mdx`
 
 Used for: Summit landing pages, schedules, speaker lists, event resources.
+
+#### Foundation & Summit routes: **Full Path Slug** (`pathSlug`)
+
+In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **without a leading slash**. The same value is stored in MDX frontmatter as `pathSlug`. The **live site URL** is `/{pathSlug}` (normalized, no duplicate slashes).
+
+Examples:
+
+| `pathSlug` (frontmatter / Strapi) | Public URL             |
+| --------------------------------- | ---------------------- |
+| `about-us`                        | `/about-us`            |
+| `grant/grant-for-web`             | `/grant/grant-for-web` |
+
+**On disk (English):** split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
+
+- `about-us` → `foundation-pages/about-us.mdx`
+- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+
+**Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
+
+**Example (nested grant page):**
+
+```yaml
+---
+pathSlug: 'grant/grant-for-web'
+---
+```
+
+→ public URL: `/grant/grant-for-web`
+
+**Key rules:**
+
+- `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
+- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
+- If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 
 **⚠️ Important (Schema Validation)**
 
@@ -481,6 +576,132 @@ Finalizing:
 - Check with Ioana to confirm the publishing date and keep a consistent posting schedule. Ioana will also handle social media promotion.
 - Run `pnpm run build` locally to verify that the page builds correctly.
 - Run `pnpm run format` and `pnpm run lint` to format your code and check for any issues before creating a pull request.
+
+## Summit Data (Sessionize Integration)
+
+### Overview
+
+The Interledger Summit has taken place annually since 2022. Each edition has its own pages on the website — sessions(talks), speakers, and their individual detail pages — all scoped by year (e.g. `/summit/2024/speakers`, `/summit/2024/talks`).
+
+All summit data originates from **Sessionize**. A sync script fetches that data and stores it locally in the project as JSON files. Utility functions then read those files to populate Astro components and generate all summit-related pages for every year automatically.
+
+### Syncing Data from Sessionize
+
+Run the following script to fetch summit data for a given year:
+
+```sh
+pnpm run sync:sessionize -- <YEAR>
+```
+
+Example:
+
+```sh
+pnpm run sync:sessionize -- 2022
+pnpm run sync:sessionize  # defaults to currentSummitYear
+```
+
+**What is does:**
+
+- Defaults to `currentSummitYear` if no year is provided
+- Downloads speaker and talk data into:
+  - `src/data/sessionize/{YEAR}-speakers.json`
+  - `src/data/sessionize/{YEAR}-talks.json`
+- Downloads speaker images into:
+  - `public/sessionize-speakers/img/{YEAR}`
+- Clears the image folder before downloading
+- Validates the year against the allowed `YEARS` list
+
+### How the Data Is Used
+
+Once the JSON files are in place, two utility files handle all data access and page generation — no manual wiring is needed.
+
+`extractSessionize.ts`
+
+Responsible for:
+
+- Reading local Sessionize JSON files
+- Normalizing data into internal types (Talk, Speaker, etc.)
+- Linking talks and speakers
+- Handling translations
+- Generating local image paths for speakers and adding a fallback image when missing
+
+`summit-talks-speakers.ts`
+
+Responsible for connecting processed data to Astro routing.
+
+It generates:
+
+- Paginated listing pages
+  - Talks → `/summit/{year}/talks`
+  - Speakers → `/summit/{year}/speakers`
+- Dynamic detail pages
+  - Talk pages → `/summit/{year}/talk/{talk-title}`
+  - Speaker pages → `/summit/{year}/speaker/{speaker-name}`
+
+All of these functions iterate over every year in the `YEARS` list automatically, so new summit data is picked up without any changes to page templates.
+
+### Adding a New Summit Year
+
+1. Add a new entry to `sessionizeApiMap` in `src/utils/sessionize.ts`, using the summit year as the key (e.g. `'2026'`) and the corresponding Sessionize API URLs as values:
+
+```typescript
+  '2026': {
+    speakersUrl: 'https://sessionize.com/api/v2/.../view/Speakers',
+    talksUrl: 'https://sessionize.com/api/v2/.../view/Sessions'
+  }
+```
+
+- `YEARS` and `currentSummitYear` will update automatically — no other changes needed.
+
+2. Run the script `pnpm run sync:sessionize` to fetch data and images for the new summit.
+
+**After syncing, it is recommended to check:**
+
+- That the fields in the new JSON files match those from previous years. In practice, they have always matched, but it is a good habit to verify.
+- The hardcoded IDs used for translations (see [Translations](#translations) below), in case Sessionize has changed them.
+
+### Translations
+
+From 2025 onwards, summit content includes Spanish translations. These are stored by Sessionize inside a `questionAnswers` array, present on both speaker and talk objects, using a structure like:
+
+```json
+{
+  "id": 114105,
+  "answer": "Título en español"
+}
+```
+
+The following IDs are hardcoded in `src/utils/extractSessionize.ts`:
+
+| Constant         | ID     | Used for                                   |
+| ---------------- | ------ | ------------------------------------------ |
+| SPANISH_TITLE_ID | 114105 | Spanish title of a talk                    |
+| SPANISH_DESC_ID  | 114099 | Spanish description of a talk              |
+| SPANISH_BIO_ID   | 114100 | Spanish bio of a speaker                   |
+| TRANSLATION_ID   | 107734 | Available translation languages for a talk |
+
+When importing data for a new summit, verify that these IDs have not changed in the Sessionize export. If they have, update the constants in `extractSessionize.ts` accordingly.
+
+#### Adding Support for a New Language
+
+To add a new language to the Sessionize data pipeline:
+
+1. Add the locale code to `SESSIONIZE_SUPPORTED_LOCALES` in `src/types/summit.ts`:
+
+```typescript
+export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
+```
+
+2. Update the utility functions in `src/utils/extractSessionize.ts` to extract the new language's fields from `questionAnswers`, following the same pattern used for Spanish. Each function should add a new key to the returned translations object (e.g. `fr: { title, description }`) alongside the existing `es: {}` entry. You will also need to add the corresponding Sessionize question IDs as constants (same as `SPANISH_TITLE_ID`, `SPANISH_DESC_ID`, etc.).
+
+### Image Handling
+
+- Speaker images are downloaded locally during sync
+- Stored under:
+  `public/sessionize-speakers/img/{YEAR}/`
+- Filenames are generated using a slugified speaker name
+- If no image is available, a fallback is used:
+  `public/sessionize-speakers/img/no-photo.svg`
 
 ## More Info
 

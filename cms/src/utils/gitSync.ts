@@ -7,7 +7,7 @@ import { getProjectRoot } from './paths'
 const STAGE_CANDIDATES = [
   'src/content/',
   'src/data/',
-  'public/uploads'
+  'public/uploads/img/original'
 ] as const
 const CONTENT_PATH_PREFIXES = ['src/content/', 'src/data/'] as const
 const DEBOUNCE_MS = 300
@@ -161,10 +161,10 @@ function inferCommitMessage(label: string, changes: GitStatusChange[]): string {
 
   if (contentChanges.length === 1) {
     const [change] = contentChanges
-    const slug = extractSlug(change.filepath)
-    if (isDeleted(change.status)) return `${label}: delete ${slug}`
-    if (isModified(change.status)) return `${label}: update ${slug}`
-    return `${label}: create ${slug}`
+    const pathSlug = extractSlug(change.filepath)
+    if (isDeleted(change.status)) return `${label}: delete ${pathSlug}`
+    if (isModified(change.status)) return `${label}: update ${pathSlug}`
+    return `${label}: create ${pathSlug}`
   }
 
   const deletedSlugs = [...new Set(deleted.map((c) => extractSlug(c.filepath)))]
@@ -177,7 +177,7 @@ function inferCommitMessage(label: string, changes: GitStatusChange[]): string {
     }
   }
 
-  // Re-slug as update: 1 delete + 1 add with same slug
+  // Re-slug as update: 1 delete + 1 add with same pathSlug
   if (
     deleted.length === 1 &&
     added.length === 1 &&
@@ -299,7 +299,7 @@ export async function gitCommitAndPush(
     .map((fp) => toGitPath(repoRoot, fp))
     .filter((p): p is string => Boolean(p))
 
-  const uploadsDir = path.join(repoRoot, 'public', 'uploads')
+  const uploadsDir = path.join(repoRoot, 'public', 'uploads', 'img', 'original')
   if (fs.existsSync(uploadsDir)) {
     const uploadsPath = toGitPath(repoRoot, uploadsDir)
     if (uploadsPath) normalizedPaths.push(uploadsPath)
