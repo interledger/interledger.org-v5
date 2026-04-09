@@ -60,19 +60,21 @@ const heroSectionStyle = getHeroSectionStyle(heroImage)
           <p class="mb-space-m text-[1.25rem] max-w-[600px]">
             {heroDescription}
           </p>
-          {heroCtas && heroCtas.length > 0 && (
-            <div class="flex flex-wrap gap-space-s">
-              {heroCtas.map((cta) => (
-                <Link
-                  href={cta.link}
-                  style={cta.style}
-                  umami={cta.analytics_event_label}
-                  external={cta.external}
-                  text={cta.text}
-                />
-              ))}
-            </div>
-          )}
+          {
+            heroCtas && heroCtas.length > 0 && (
+              <div class="flex flex-wrap gap-space-s">
+                {heroCtas.map((cta) => (
+                  <Link
+                    href={cta.link}
+                    style={cta.style}
+                    umami={cta.analytics_event_label}
+                    external={cta.external}
+                    text={cta.text}
+                  />
+                ))}
+              </div>
+            )
+          }
         </div>
       </div>
     </section>

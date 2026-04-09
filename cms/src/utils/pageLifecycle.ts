@@ -229,7 +229,9 @@ async function fetchPublished(
       locale,
       status: 'published',
       populate: {
-        hero: { populate: { backgroundImage: true, hero_call_to_action: true } },
+        hero: {
+          populate: { backgroundImage: true, hero_call_to_action: true }
+        },
         seo: { populate: '*' },
         content: FOUNDATION_PAGE_CONTENT_POPULATE
       }
