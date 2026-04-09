@@ -4,6 +4,7 @@ on:
   pull_request:
       branches:
         - staging
+        - playground
 
 jobs:
   lint:
@@ -25,7 +26,7 @@ jobs:
 
   build-and-dryrun:
     runs-on: ubuntu-latest
-    environment: strapi-staging
+    environment: ${{ github.base_ref == 'playground' && 'strapi-playground' || 'strapi-staging' }}
 
     steps:
       - uses: actions/checkout@v4
