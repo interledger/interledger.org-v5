@@ -51,7 +51,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       [&_h3]:text-step-1 [&_h3]:font-bold [&_h3]:mb-space-xs
       [&_h4]:font-bold [&_h4]:mb-space-xs
       [&_h5]:font-bold [&_h5]:text-[0.83em]
-      [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline
+      [&_a]:text-primary [&_a]:underline [&_a]:transition-[text-decoration-color] [&_a]:duration-200 [&_a]:ease-in-out [&_a:hover]:decoration-transparent
       [&_figcaption]:text-step--1 [&_figcaption]:italic
       [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee
       [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere]

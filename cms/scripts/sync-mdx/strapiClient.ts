@@ -52,11 +52,13 @@ export interface StrapiClient {
 interface StrapiClientOptions {
   baseUrl: string
   token: string
+  dryRun?: boolean
 }
 
 export function createStrapiClient({
   baseUrl,
-  token
+  token,
+  dryRun = false
 }: StrapiClientOptions): StrapiClient {
   const apiRoot = `${baseUrl.replace(/\/+$/, '')}/api`
 
@@ -64,6 +66,13 @@ export function createStrapiClient({
     endpoint: string,
     options: RequestInit = {}
   ): Promise<unknown> {
+    const method = (options.method || 'GET').toUpperCase()
+    if (dryRun && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      throw new Error(
+        `Dry-run mutation blocked: ${method} ${endpoint.replace(/^\/+/, '')}`
+      )
+    }
+
     const url = `${apiRoot}/${endpoint.replace(/^\/+/, '')}`
     const response = await fetch(url, {
       ...options,

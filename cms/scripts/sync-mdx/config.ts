@@ -45,7 +45,8 @@ export interface ContentTypeConfig {
   buildPayload: (
     mdx: MDXFile,
     strapi: StrapiClient,
-    existing: StrapiEntry | null
+    existing: StrapiEntry | null,
+    dryRun: boolean
   ) => Promise<Record<string, unknown>>
 }
 
@@ -95,19 +96,20 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
       schema: ambassadorFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing) =>
+      buildPayload: (mdx, strapi, _existing, dryRun) =>
         buildAmbassadorPayload(
           ambassadorFrontmatterSchema,
           mdx,
           strapi,
-          ambassadorAltIds
+          ambassadorAltIds,
+          dryRun
         )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       schema: foundationPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing) =>
+      buildPayload: (mdx, strapi, existing, _dryRun) =>
         buildParsedPagePayload(
           foundationPageFrontmatterSchema,
           mdx,
@@ -119,7 +121,7 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing) =>
+      buildPayload: (mdx, strapi, existing, _dryRun) =>
         buildParsedPagePayload(
           summitPageFrontmatterSchema,
           mdx,
@@ -131,11 +133,12 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
       schema: foundationBlogFrontmatterSchema,
-      buildPayload: async (mdx, strapi, _existing) => {
+      buildPayload: async (mdx, strapi, _existing, dryRun) => {
         const uploadContext: StrapiUploadContext = {
           strapi,
           STRAPI_URL: strapiUrl,
-          STRAPI_TOKEN: strapiToken
+          STRAPI_TOKEN: strapiToken,
+          dryRun
         }
         const locale = mdx.locale || 'en'
         const parserCtx: ParserContext = {
@@ -157,7 +160,8 @@ export function buildContentTypes(
           mdx,
           uploadContext,
           blogAltIds,
-          parserCtx
+          parserCtx,
+          dryRun
         )
       }
     }

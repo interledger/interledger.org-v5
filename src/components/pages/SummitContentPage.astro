@@ -10,6 +10,7 @@ import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import CalloutText from '@/components/callout/CalloutText.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 
 interface Props {
   slug: string
@@ -31,14 +32,16 @@ if (!mdxPage) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
-const title = mdxData?.metaTitle || mdxData?.title
+const title = mdxData?.title
 const description =
   mdxData?.metaDescription || mdxData?.description || undefined
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
-const gradient = mdxData?.gradient || 'option1'
+const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
+const gradient =
+  (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'
 ---
 
 <SummitPageLayout
@@ -58,7 +61,15 @@ const gradient = mdxData?.gradient || 'option1'
     />
     {
       mdxHeroTitle && (
-        <section class="min-h-[40vh] py-space-xl flex items-center text-white">
+        <section
+          class:list={[
+            'min-h-[40vh] py-space-xl flex items-center text-white',
+            heroSectionStyle
+              ? 'bg-no-repeat bg-cover bg-center'
+              : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+          ]}
+          style={heroSectionStyle}
+        >
           <div class="mx-auto w-full max-w-wide px-space-m">
             <div class="max-w-narrow">
               <h1 class="max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">

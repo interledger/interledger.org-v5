@@ -10,6 +10,7 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 
 interface Props {
   slug: string
@@ -31,13 +32,14 @@ if (!mdxPage) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
-const title = mdxData?.metaTitle || mdxData?.title
+const title = mdxData?.title
 const description =
   mdxData?.metaDescription || mdxData?.description || undefined
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
+const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
 const pillar = mdxData?.pillar || undefined
 const isNotFound = !MdxContent
 
@@ -54,7 +56,15 @@ if (isNotFound) return Astro.redirect('/404')
     <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
     {
       mdxHeroTitle && (
-        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+        <section
+          class:list={[
+            'min-h-[40vh] py-space-xl text-white flex items-center',
+            heroSectionStyle
+              ? 'bg-no-repeat bg-cover bg-center'
+              : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+          ]}
+          style={heroSectionStyle}
+        >
           <div class="mx-auto w-full max-w-wide px-space-m">
             <div class="max-w-narrow">
               <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">

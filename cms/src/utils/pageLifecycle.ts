@@ -41,11 +41,7 @@ interface PageData {
     backgroundImage?: { url?: string }
   }
   seo?: {
-    metaTitle?: string
     metaDescription?: string
-    metaImage?: { url?: string }
-    keywords?: string
-    canonicalUrl?: string
   }
   content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
@@ -119,7 +115,7 @@ function getOutputDir(config: PageLifecycleConfig): string {
   return path.join(projectRoot, config.outputDir)
 }
 
-function generateMDX(
+export function generateMDX(
   config: PageLifecycleConfig,
   page: PageData,
   preservedFields: Record<string, unknown> = {},
@@ -132,17 +128,27 @@ function generateMDX(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
+  const heroData = heroFrontmatter(page.hero)
+  const seoData = seoFrontmatter(page.seo)
+
   // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
     pathSlug: page.pathSlug,
     title: page.title,
     ...(page.pillar ? { pillar: page.pillar } : {}),
-    ...heroFrontmatter(page.hero),
-    ...seoFrontmatter(page.seo),
+    ...heroData,
+    ...seoData,
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
+
+  // Explicitly remove Strapi-managed fields that are no longer set (e.g. deleted image)
+  const heroManagedKeys = ['heroTitle', 'heroDescription', 'heroImage'] as const
+  for (const key of heroManagedKeys) {
+    if (!(key in heroData)) delete frontmatterData[key]
+  }
+  if (!('metaDescription' in seoData)) delete frontmatterData.metaDescription
 
   const content = serializeContent(page.content)
 
@@ -419,7 +425,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
               .replace(/^\/+|\/+$/g, '')
               .trim()
       if (!slug) {
-        strapi.log.warn(
+        console.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
         )
         scheduleGitSync(label)

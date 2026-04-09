@@ -27,6 +27,7 @@ export interface StrapiUploadContext {
   strapi: StrapiClient
   STRAPI_URL: string
   STRAPI_TOKEN: string
+  dryRun: boolean
 }
 
 /**
@@ -103,7 +104,7 @@ async function uploadImageToStrapi(
 
 // Returns existing Strapi image ID or uploads a new image
 async function getImageFromStrapi(
-  { strapi, STRAPI_URL, STRAPI_TOKEN }: StrapiUploadContext,
+  { strapi, STRAPI_URL, STRAPI_TOKEN, dryRun }: StrapiUploadContext,
   { image, alt }: { image: string | undefined; alt: string | undefined }
 ): Promise<number | null> {
   const photoUrl = nullOrValue(image)
@@ -112,10 +113,19 @@ async function getImageFromStrapi(
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   try {
-    const existing = await strapi.findUploadByName(name)
-    if (existing) {
-      return existing
+    const byUrl = await strapi.findUploadByUrl(photoUrl)
+    if (byUrl) return byUrl
+
+    const byName = await strapi.findUploadByName(name)
+    if (byName) return byName
+
+    if (dryRun) {
+      console.log(
+        `   🖼️  [DRY-RUN] Missing upload for "${photoUrl}"; skipping upload.`
+      )
+      return null
     }
+
     const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
       filePath: photoUrl,
       name,
@@ -240,7 +250,8 @@ async function updateUploadAltOnce(
   id: number,
   alt: string,
   updatedAltIds: Map<number, string>,
-  pathSlug: string
+  pathSlug: string,
+  dryRun: boolean
 ): Promise<void> {
   const existing = updatedAltIds.get(id)
   if (existing !== undefined) {
@@ -251,6 +262,15 @@ async function updateUploadAltOnce(
     }
     return
   }
+
+  if (dryRun) {
+    console.log(
+      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} from "${pathSlug}".`
+    )
+    updatedAltIds.set(id, alt)
+    return
+  }
+
   await strapi.updateUploadAlt(id, alt)
   updatedAltIds.set(id, alt)
 }
@@ -271,7 +291,8 @@ export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  updatedAltIds: Map<number, string> = new Map()
+  updatedAltIds: Map<number, string> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
@@ -291,7 +312,8 @@ export async function buildAmbassadorPayload(
         photoId,
         photoAlt,
         updatedAltIds,
-        mdx.pathSlug
+        mdx.pathSlug,
+        dryRun
       )
     }
   }
@@ -326,7 +348,8 @@ export async function buildBlogPayload(
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
   updatedAltIds: Map<number, string> = new Map(),
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  dryRun = false
 ): Promise<Record<string, unknown>> {
   let parsed
   try {
@@ -371,7 +394,8 @@ export async function buildBlogPayload(
       featureImage,
       parsed.featureImageAlt,
       updatedAltIds,
-      mdx.pathSlug
+      mdx.pathSlug,
+      dryRun
     )
   }
   if (thumbnailImage && parsed.thumbnailImageAlt) {
@@ -380,7 +404,8 @@ export async function buildBlogPayload(
       thumbnailImage,
       parsed.thumbnailImageAlt,
       updatedAltIds,
-      mdx.pathSlug
+      mdx.pathSlug,
+      dryRun
     )
   }
 

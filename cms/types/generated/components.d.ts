@@ -578,7 +578,7 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
 export interface SharedHero extends Struct.ComponentSchema {
   collectionName: 'components_shared_heroes'
   info: {
-    description: 'Hero section with title, description and CTAs'
+    description: 'Hero section with title, description and background image'
     displayName: 'Hero'
     icon: 'star'
   }
@@ -590,12 +590,6 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -673,18 +667,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search'
   }
   attributes: {
-    canonicalUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    keywords: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     metaDescription: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -692,23 +674,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.SetMinMaxLength<{
-        maxLength: 160
-      }>
-    metaImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    metaTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 60
+        maxLength: 300
       }>
   }
 }

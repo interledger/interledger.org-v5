@@ -5,10 +5,11 @@ import SpeakerCard from './SpeakerCard.astro'
 interface Props {
   speakers: Speaker[]
   basePath: string
+  year: string
   extraClass?: string
 }
 
-const { speakers, basePath, extraClass } = Astro.props
+const { speakers, basePath, year, extraClass } = Astro.props
 const listClass = `flex flex-wrap gap-space-s ${extraClass ?? ''}`.trim()
 ---
 
@@ -16,7 +17,7 @@ const listClass = `flex flex-wrap gap-space-s ${extraClass ?? ''}`.trim()
   speakers.length > 0 ? (
     <ul class={listClass}>
       {speakers.map((speaker) => (
-        <SpeakerCard speaker={speaker} basePath={basePath} />
+        <SpeakerCard speaker={speaker} basePath={basePath} year={year} />
       ))}
     </ul>
   ) : (

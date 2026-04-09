@@ -1,8 +1,13 @@
-export function formatDate(iso: string, lang = 'en') {
+import { defaultLocale, type Locale } from './i18'
+export function formatDate(iso: string, lang = defaultLocale) {
   const date = new Date(iso)
   if (isNaN(date.getTime())) return ''
 
-  const locale = lang === 'es' ? 'es-ES' : 'en-GB'
+  const localeMap: Record<Locale, string> = {
+    es: 'es-ES',
+    en: 'en-GB'
+  }
+  const locale = localeMap[lang] ?? localeMap[defaultLocale]
 
   let formatted = new Intl.DateTimeFormat(locale, {
     weekday: 'short',
