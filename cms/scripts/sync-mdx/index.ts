@@ -31,7 +31,7 @@ async function main() {
       cwd: projectRoot
     })
     const currentBranch = branch.stdout?.trim()
-    const allowedBranches = ['main', 'staging']
+    const allowedBranches = ['main', 'staging', 'playground']
     if (!allowedBranches.includes(currentBranch || '')) {
       console.error(
         `❌ Error: sync-mdx can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview, --force to override)`
