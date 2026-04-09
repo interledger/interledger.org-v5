@@ -3,7 +3,8 @@ import {
   sanitizeMenuItem,
   sanitizeMenuGroup,
   sanitizeNavigation,
-  getLocaleOutputPath
+  getLocaleOutputPath,
+  type MenuItem
 } from './navigationLifecycle'
 
 vi.mock('./gitSync', () => ({
@@ -102,7 +103,11 @@ describe('sanitizeMenuGroup', () => {
   it('filters out null items', () => {
     const group = {
       label: 'Nav',
-      items: [null, { label: 'A', href: '/a' }, undefined] as any[]
+      items: [null, { label: 'A', href: '/a' }, undefined] as (
+        | MenuItem
+        | null
+        | undefined
+      )[]
     }
     expect(sanitizeMenuGroup(group)).toEqual({
       label: 'Nav',
@@ -111,7 +116,7 @@ describe('sanitizeMenuGroup', () => {
   })
 
   it('omits items key when all items are null', () => {
-    const group = { label: 'Nav', items: [null, null] as any[] }
+    const group = { label: 'Nav', items: [null, null] as (MenuItem | null)[] }
     expect(sanitizeMenuGroup(group)).toEqual({ label: 'Nav' })
   })
 

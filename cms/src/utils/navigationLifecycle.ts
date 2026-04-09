@@ -8,7 +8,7 @@ import type { StrapiGlobal } from './strapiTypes'
 
 declare const strapi: StrapiGlobal
 
-interface MenuItem {
+export interface MenuItem {
   label: string
   href?: string | null
   openInNewTab?: boolean | null
@@ -37,7 +37,9 @@ export interface NavigationLifecycleConfig {
   outputPath: string
 }
 
-export function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
+export function sanitizeMenuItem(
+  item: MenuItem | null | undefined
+): MenuItem | null {
   if (!item) return null
   return {
     label: item.label,
