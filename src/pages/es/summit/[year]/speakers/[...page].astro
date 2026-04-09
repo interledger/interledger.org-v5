@@ -25,7 +25,6 @@ if (!page) {
 const speakers: Speaker[] = page.data
 const basePath = stripPagination(Astro.url.pathname)
 const title = `Oradores de la Cumbre ${year}`
-const isFallback = speakers.some((speaker) => speaker.es === null)
 ---
 
 <SpeakersListPage
@@ -34,5 +33,4 @@ const isFallback = speakers.some((speaker) => speaker.es === null)
   title={title}
   page={page}
   year={year}
-  isFallback={isFallback}
 />
