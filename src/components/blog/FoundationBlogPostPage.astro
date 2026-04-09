@@ -37,7 +37,7 @@ const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>
-  <Fragment slot="topNotice">
+  <Fragment slot="disclaimer">
     <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
   </Fragment>
   <MdxContent
