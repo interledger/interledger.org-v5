@@ -21,5 +21,23 @@
     & p {
       line-height: 1.39;
     }
+
+    /* Lists */
+    & ul {
+      margin-block-end: var(--spacing-space-s);
+      padding-inline-start: var(--spacing-space-m);
+      list-style-type: disc;
+    }
+
+    & ol {
+      margin-block-end: var(--spacing-space-s);
+      padding-inline-start: var(--spacing-space-m);
+      list-style-type: decimal;
+    }
+
+    & li {
+      margin-block-end: var(--spacing-space-xs);
+      line-height: 1.6;
+    }
   }
 }
