@@ -321,10 +321,11 @@ export async function buildAmbassadorPayload(
   return {
     name: nullOrValue(mdx.frontmatter.name),
     pathSlug: mdx.pathSlug,
-    description: nullOrValue(mdx.frontmatter.description),
+    description: nullOrValue(mdx.content),
     ...(photoId ? { photo: photoId } : {}),
-    linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
-    grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
+    category: nullOrValue(mdx.frontmatter.category),
+    tagline: nullOrValue(mdx.frontmatter.tagline),
+    quote: nullOrValue(mdx.frontmatter.quote),
     publishedAt: new Date().toISOString()
   }
 }

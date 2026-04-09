@@ -71,7 +71,8 @@
           "localized": true
         }
       },
-      "targetField": "name"
+      "targetField": "name",
+      "required": true
     },
     "category": {
       "type": "enumeration",

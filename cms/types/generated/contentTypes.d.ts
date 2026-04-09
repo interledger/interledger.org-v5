@@ -479,6 +479,7 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         maxLength: 255
       }>
     pathSlug: Schema.Attribute.UID<'name'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
