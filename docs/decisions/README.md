@@ -9,7 +9,7 @@ An ADR captures a single technical decision: the context that forced it, what wa
 | #   | Title                                       | Status   | Date       |
 | --- | ------------------------------------------- | -------- | ---------- |
 | 001 | Path handling for Astro content collections | Accepted | 2026-03-27 |
-| 002 | Spanish fallback disclaimer behavior        | Accepted | 2026-04-09 |
+| 002 | Spanish fallback disclaimer behavior        | Proposed | 2026-04-09 |
 
 ## Writing a new ADR
 

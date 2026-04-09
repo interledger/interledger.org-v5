@@ -1,6 +1,6 @@
 # ADR-002: Spanish fallback disclaimer behavior for Speaker list pages
 
-**Status:** Up for discussion
+**Status:** Proposed
 **Date:** 2026-04-09
 **Issue:** N/A
 
