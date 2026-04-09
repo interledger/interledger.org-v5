@@ -18,6 +18,7 @@ import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/conte
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
+import type { HeroCta } from '../../src/utils/mdx'
 import fs from 'fs/promises'
 import path from 'path'
 import { getTargetRepoRoot } from '@/utils/gitSync'
@@ -138,6 +139,45 @@ async function getImageFromStrapi(
   }
 }
 
+interface StrapiHeroPayload {
+  title: string
+  description: string
+  hero_call_to_action?: Array<{
+    text: string
+    link: string
+    style: string
+    external: boolean
+    analytics_event_label?: string
+  }>
+}
+
+function buildHeroPayload(
+  heroTitle: string | undefined,
+  heroDescription: string | undefined,
+  fallbackTitle: string,
+  ctas: HeroCta[] | undefined
+): StrapiHeroPayload {
+  const hero: StrapiHeroPayload = {
+    title: heroTitle || fallbackTitle,
+    description: heroDescription || ''
+  }
+
+  const validCtas = ctas?.filter((c) => c.text && c.link)
+  if (validCtas && validCtas.length > 0) {
+    hero.hero_call_to_action = validCtas.map((c) => ({
+      text: c.text!,
+      link: c.link!,
+      style: c.style ?? 'primary',
+      external: c.external ?? false,
+      ...(c.analytics_event_label
+        ? { analytics_event_label: c.analytics_event_label }
+        : {})
+    }))
+  }
+
+  return hero
+}
+
 /**
  * Builds a Strapi payload for a page-type MDX file.
  *
@@ -174,35 +214,14 @@ export async function buildPagePayload(
     ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
-  // Handle hero section
-  // If hero fields exist in frontmatter, use them
-  // Otherwise, preserve existing hero data if updating an entry
+  // Handle hero section — use frontmatter fields if present, otherwise preserve existing
   if (parsed.heroTitle || parsed.heroDescription) {
-    const hero: Record<string, unknown> = {
-      title: parsed.heroTitle || parsed.title,
-      description: parsed.heroDescription || ''
-    }
-    const heroCtas = parsed.heroCtas as
-      | Array<{
-          text: string
-          link: string
-          style?: string
-          external?: boolean
-          analytics_event_label?: string
-        }>
-      | undefined
-    if (heroCtas && heroCtas.length > 0) {
-      hero.hero_call_to_action = heroCtas.map((c) => ({
-        text: c.text,
-        link: c.link,
-        style: c.style ?? 'primary',
-        external: c.external ?? false,
-        ...(c.analytics_event_label
-          ? { analytics_event_label: c.analytics_event_label }
-          : {})
-      }))
-    }
-    data.hero = hero
+    data.hero = buildHeroPayload(
+      parsed.heroTitle as string | undefined,
+      parsed.heroDescription as string | undefined,
+      parsed.title as string,
+      parsed.heroCtas as HeroCta[] | undefined
+    )
   } else {
     const existingHero = getEntryField(existingEntry, 'hero')
     if (existingHero) {

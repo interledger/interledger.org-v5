@@ -138,7 +138,7 @@ export function getPreservedFields(filepath: string): Record<string, unknown> {
   }
 }
 
-interface HeroCta {
+export interface HeroCta {
   text?: string
   link?: string
   style?: 'primary' | 'secondary'
