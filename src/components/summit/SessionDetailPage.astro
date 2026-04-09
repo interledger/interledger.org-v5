@@ -6,6 +6,7 @@ import { currentSummitYear } from '@/utils/sessionize'
 import { getSpeakers } from '@/utils/extractSessionize'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SpeakersList from './SpeakersList.astro'
 import SessionSubheader from './SessionSubheader.astro'
 import TextParagraphs from './TextParagraphs.astro'
@@ -14,10 +15,11 @@ import VideoEmbed from '../blocks/VideoEmbed.astro'
 interface Props {
   entry: Talk
   year: string
+  isFallback?: boolean
 }
 
 const { routeLocale: lang, currentBasePath } = Astro.locals
-const { entry, year } = Astro.props
+const { entry, year, isFallback = false } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
 // the path for current summit is /summit, instead of /summit/{year}
@@ -48,6 +50,7 @@ const breadcrumbs = [
 
 <SummitPageLayout title={entry.title}>
   <main class="max-w-275 m-auto p-4">
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     <Breadcrumbs breadcrumbs={breadcrumbs} />
     <article>
       <header class="mb-8">
