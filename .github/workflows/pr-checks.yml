@@ -48,4 +48,9 @@ jobs:
           cd cms
           pnpm install --frozen-lockfile
           pnpm run build
+          echo "Running MDX sync in dry-run mode against ${STRAPI_URL}"
+          # To help with debugging, we will hash the contents of the STRAPI_API_TOKEN
+          # and output it here so that we can verify that the correct token is used without exposing
+          # the actual value in the logs.
+          echo "STRAPI_API_TOKEN hash: $(echo -n $STRAPI_API_TOKEN | sha256sum)"
           pnpm run sync:mdx:dry-run
