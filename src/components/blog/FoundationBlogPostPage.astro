@@ -21,7 +21,6 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
 
 const posts = await getCollection('foundation-blog')
 
@@ -38,7 +37,7 @@ const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
 
 <FoundationBlogLayout frontmatter={mdxData}>
   <Fragment slot="disclaimer">
-    <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
+    <TranslationDisclaimer isVisible={isFallback} />
   </Fragment>
   <MdxContent
     components={{

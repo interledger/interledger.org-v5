@@ -19,7 +19,6 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
 
 const pages = await getCollection('summit-pages')
 
@@ -54,11 +53,7 @@ const gradient =
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
-    <TranslationDisclaimer
-      locale={routeLocale}
-      isVisible={isFallback}
-      style="summit"
-    />
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     {
       mdxHeroTitle && (
         <section

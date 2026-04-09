@@ -19,7 +19,6 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
 
 const pages = await getCollection('foundation-pages')
 
@@ -53,7 +52,7 @@ if (isNotFound) return Astro.redirect('/404')
   canonicalURL={canonicalURL}
 >
   <main class="pb-space-l" data-pillar={pillar}>
-    <TranslationDisclaimer locale={routeLocale} isVisible={isFallback} />
+    <TranslationDisclaimer isVisible={isFallback} />
     {
       mdxHeroTitle && (
         <section

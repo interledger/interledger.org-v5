@@ -4,6 +4,7 @@ interface Props {
   style?: 'foundation' | 'summit'
 }
 
+const { routeLocale } = Astro.locals
 const { isVisible = false, style = 'foundation' } = Astro.props
 
 const spanishDisclaimer = 'Esta página aún no está disponible en español.'
@@ -14,7 +15,7 @@ const styleClass = {
 ---
 
 {
-  isVisible && spanishDisclaimer && (
+  isVisible && routeLocale === 'es' && (
     <section class="py-space-s" aria-label="Translation disclaimer">
       <div class="mx-auto w-full max-w-wide px-space-m">
         <p
