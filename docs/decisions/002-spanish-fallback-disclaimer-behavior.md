@@ -30,4 +30,4 @@ Rejected because it over-signals fallback, especially on the Summit speakers lis
 
 **Negative:**
 
-- This could change in the future with how the page is handled. 
+- This could change in the future with how the page is handled.
