@@ -17,6 +17,12 @@ interface GitStatusChange {
   filepath: string
 }
 
+export interface SyncContext {
+  slug?: string
+  action?: 'create' | 'update' | 'delete'
+  author?: { name: string; email: string }
+}
+
 function shellEscape(value: string): string {
   return value.replace(/'/g, "'\\''")
 }
@@ -206,12 +212,16 @@ function getStagePaths(repoRoot: string): string[] {
 async function commitAndPush(
   repoRoot: string,
   addPaths: string[],
-  message: string
+  message: string,
+  author?: { name: string; email: string }
 ): Promise<void> {
   const safeMessage = shellQuote(message)
+  const authorFlag = author
+    ? ` --author=${shellQuote(`${author.name} <${author.email}>`)}`
+    : ''
   const commands = [
     `git add ${addPaths.join(' ')}`,
-    `git commit -m ${safeMessage}`,
+    `git commit -m ${safeMessage}${authorFlag}`,
     'git pull --rebase',
     'git push'
   ].join(' && ')
@@ -238,8 +248,12 @@ async function commitAndPush(
 // ── Debounced sync ───────────────────────────────────────────────────────────
 
 let pendingSyncTimer: ReturnType<typeof setTimeout> | null = null
+let latestContext: SyncContext | undefined
 
-async function flushGitSync(label: string): Promise<void> {
+async function flushGitSync(
+  label: string,
+  context?: SyncContext
+): Promise<void> {
   const repoRoot = getTargetRepoRoot()
   const changes = await getGitStatus(repoRoot)
 
@@ -254,9 +268,12 @@ async function flushGitSync(label: string): Promise<void> {
     return
   }
 
-  const message = inferCommitMessage(label, changes)
+  const message =
+    context?.slug && context?.action
+      ? `${label}: ${context.action} ${context.slug}`
+      : inferCommitMessage(label, changes)
   console.log(`[gitSync] Inferred message: ${message}`)
-  await commitAndPush(repoRoot, stagePaths, message)
+  await commitAndPush(repoRoot, stagePaths, message, context?.author)
 }
 
 /**
@@ -264,17 +281,20 @@ async function flushGitSync(label: string): Promise<void> {
  * are coalesced into a single commit. The commit message is inferred from
  * actual git status rather than the caller.
  */
-export function scheduleGitSync(label: string): void {
+export function scheduleGitSync(label: string, context?: SyncContext): void {
   if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
     console.log('⏭️  Git sync scheduling skipped via STRAPI_DISABLE_GIT_SYNC')
     return
   }
 
   if (pendingSyncTimer) clearTimeout(pendingSyncTimer)
+  latestContext = context
 
   pendingSyncTimer = setTimeout(() => {
     pendingSyncTimer = null
-    flushGitSync(label).catch((err) =>
+    const ctx = latestContext
+    latestContext = undefined
+    flushGitSync(label, ctx).catch((err) =>
       console.error(`[gitSync] Flush error:`, err)
     )
   }, DEBOUNCE_MS)

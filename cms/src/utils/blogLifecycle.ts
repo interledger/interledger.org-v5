@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { shouldSkipMdxExport } from './pageLifecycle'
+import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
-import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { StrapiGlobal } from './strapiTypes'
 
@@ -222,7 +222,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!post) return
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: post.pathSlug,
+        action: 'create',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterUpdate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
@@ -233,7 +238,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (!post) return
       console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: post.pathSlug,
+        action: 'update',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterDelete(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
@@ -245,7 +255,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         outputPath: getOutputPath(result.locale),
         post: result
       })
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'delete',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     }
   }
 }

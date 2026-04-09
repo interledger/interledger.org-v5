@@ -25,7 +25,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
-import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import { FOUNDATION_PAGE_CONTENT_POPULATE } from './contentPopulate'
 
 interface PageData {
@@ -62,12 +62,23 @@ interface Event {
  */
 export function shouldSkipMdxExport(): boolean {
   try {
-    const ctx = strapi.requestContext.get() as {
-      request?: { headers?: Record<string, string> }
-    } | null
+    const ctx = strapi.requestContext.get()
     return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
   } catch {
     return false
+  }
+}
+
+export function getAdminAuthor(): { name: string; email: string } | undefined {
+  try {
+    const ctx = strapi.requestContext.get()
+    const user = ctx?.state?.user
+    if (!user?.email) return undefined
+    const name =
+      [user.firstname, user.lastname].filter(Boolean).join(' ') || 'Strapi'
+    return { name, email: user.email }
+  } catch {
+    return undefined
   }
 }
 
@@ -353,7 +364,12 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'create',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async beforeUpdate(event: {
       params?: {
@@ -409,7 +425,12 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'update',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterDelete(event: Event) {
       const { result } = event
@@ -424,11 +445,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
           : String(result.pathSlug)
               .replace(/^\/+|\/+$/g, '')
               .trim()
+      const author = getAdminAuthor()
+
       if (!slug) {
         console.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
         )
-        scheduleGitSync(label)
+        scheduleGitSync(label, { action: 'delete', author })
         return
       }
 
@@ -445,7 +468,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         label
       )
 
-      scheduleGitSync(label)
+      scheduleGitSync(label, { slug, action: 'delete', author })
     }
   }
 }
