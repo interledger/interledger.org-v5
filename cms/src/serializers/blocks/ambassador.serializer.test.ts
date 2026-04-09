@@ -10,8 +10,9 @@ const baseAmbassador = {
     url: '/uploads/alice.jpg',
     alternativeText: 'Alice smiling'
   },
-  linkedinUrl: 'https://linkedin.com/in/alice',
-  grantReportUrl: 'https://example.com/report'
+  category: 'Fellows 2026',
+  tagline: 'Tagline of Alice',
+  quote: 'Something Alice said'
 }
 
 describe('ambassador serializer', () => {
@@ -20,11 +21,9 @@ describe('ambassador serializer', () => {
 
     expect(result).toContain('name="Alice Example"')
     expect(result).toContain('pathSlug="alice-example"')
-    expect(result).toContain('description="A great ambassador."')
     expect(result).toContain('photo="')
     expect(result).toContain('photoAlt="Alice smiling"')
-    expect(result).toContain('linkedinUrl="https://linkedin.com/in/alice"')
-    expect(result).toContain('grantReportUrl="https://example.com/report"')
+    expect(result).toContain('quote="Something Alice said"')
   })
 
   it('returns empty string when ambassador is null', () => {
@@ -85,14 +84,15 @@ describe('ambassador serializer', () => {
         name: 'Bob',
         pathSlug: 'bob',
         photo: null,
-        linkedinUrl: null,
-        grantReportUrl: null
+        category: null,
+        tagline: null,
+        quote: null,
+        description: null
       }
     })
 
     expect(result).toContain('name="Bob"')
     expect(result).toContain('pathSlug="bob"')
-    expect(result).toContain('linkedinUrl=""')
-    expect(result).toContain('grantReportUrl=""')
+    expect(result).toContain('quote=""')
   })
 })

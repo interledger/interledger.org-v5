@@ -9,14 +9,17 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+import Link from '@/components/shared/Link.astro'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
 
 const pages = await getCollection('foundation-pages')
 
@@ -37,6 +40,7 @@ const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
+const heroCtas = mdxData?.heroCtas ?? []
 const pillar = mdxData?.pillar || undefined
 const isNotFound = !MdxContent
 
@@ -50,6 +54,7 @@ if (isNotFound) return Astro.redirect('/404')
   canonicalURL={canonicalURL}
 >
   <main class="pb-space-l" data-pillar={pillar}>
+    <TranslationDisclaimer isVisible={isFallback} />
     {
       mdxHeroTitle && (
         <section
@@ -70,6 +75,20 @@ if (isNotFound) return Astro.redirect('/404')
                 <p class="mb-space-m text-[1.125rem] max-w-[600px]">
                   {mdxHeroDescription}
                 </p>
+              )}
+              {heroCtas.length > 0 && (
+                <div class="flex flex-wrap gap-space-s mt-space-s">
+                  {heroCtas.map((cta) => (
+                    <Link
+                      href={cta.link}
+                      style={cta.style}
+                      variant="hero"
+                      umami={cta.analytics_event_label}
+                      external={cta.external}
+                      text={cta.text}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </div>

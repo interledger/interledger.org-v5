@@ -25,7 +25,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
-import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import { FOUNDATION_PAGE_CONTENT_POPULATE } from './contentPopulate'
 
 interface PageData {
@@ -39,6 +39,13 @@ interface PageData {
     title?: string
     description?: string
     backgroundImage?: { url?: string }
+    hero_call_to_action?: Array<{
+      text?: string
+      link?: string
+      style?: 'primary' | 'secondary'
+      external?: boolean
+      analytics_event_label?: string
+    }>
   }
   seo?: {
     metaDescription?: string
@@ -62,12 +69,23 @@ interface Event {
  */
 export function shouldSkipMdxExport(): boolean {
   try {
-    const ctx = strapi.requestContext.get() as {
-      request?: { headers?: Record<string, string> }
-    } | null
+    const ctx = strapi.requestContext.get()
     return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
   } catch {
     return false
+  }
+}
+
+export function getAdminAuthor(): { name: string; email: string } | undefined {
+  try {
+    const ctx = strapi.requestContext.get()
+    const user = ctx?.state?.user
+    if (!user?.email) return undefined
+    const name =
+      [user.firstname, user.lastname].filter(Boolean).join(' ') || 'Strapi'
+    return { name, email: user.email }
+  } catch {
+    return undefined
   }
 }
 
@@ -144,7 +162,12 @@ export function generateMDX(
   }
 
   // Explicitly remove Strapi-managed fields that are no longer set (e.g. deleted image)
-  const heroManagedKeys = ['heroTitle', 'heroDescription', 'heroImage'] as const
+  const heroManagedKeys = [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroCtas'
+  ] as const
   for (const key of heroManagedKeys) {
     if (!(key in heroData)) delete frontmatterData[key]
   }
@@ -206,7 +229,9 @@ async function fetchPublished(
       locale,
       status: 'published',
       populate: {
-        hero: { populate: '*' },
+        hero: {
+          populate: { backgroundImage: true, hero_call_to_action: true }
+        },
         seo: { populate: '*' },
         content: FOUNDATION_PAGE_CONTENT_POPULATE
       }
@@ -353,7 +378,12 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'create',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async beforeUpdate(event: {
       params?: {
@@ -409,7 +439,12 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'update',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterDelete(event: Event) {
       const { result } = event
@@ -424,11 +459,13 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
           : String(result.pathSlug)
               .replace(/^\/+|\/+$/g, '')
               .trim()
+      const author = getAdminAuthor()
+
       if (!slug) {
-        strapi.log.warn(
+        console.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
         )
-        scheduleGitSync(label)
+        scheduleGitSync(label, { action: 'delete', author })
         return
       }
 
@@ -445,7 +482,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
         label
       )
 
-      scheduleGitSync(label)
+      scheduleGitSync(label, { slug, action: 'delete', author })
     }
   }
 }

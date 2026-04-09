@@ -17,9 +17,19 @@ export interface StrapiDocumentAPI {
   }) => Promise<unknown>
 }
 
+export interface StrapiAdminUser {
+  firstname?: string
+  lastname?: string
+  email?: string
+}
+
 export interface StrapiGlobal {
   documents: (uid: string) => StrapiDocumentAPI
   requestContext: {
-    get: () => { request?: { headers?: Record<string, string> } } | null
+    get: () => {
+      request?: { headers?: Record<string, string> }
+      state?: { user?: StrapiAdminUser }
+    } | null
   }
+  log: { warn: (msg: string) => void }
 }

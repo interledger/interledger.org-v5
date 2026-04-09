@@ -8,20 +8,12 @@
           "href": "/summit"
         },
         {
-          "label": "Schedule",
-          "href": "/summit/schedule"
-        },
-        {
           "label": "Sessions",
           "href": "/summit/2025/talks"
         },
         {
           "label": "Speakers",
           "href": "/summit/2025/speakers"
-        },
-        {
-          "label": "FAQ",
-          "href": "/summit/faq"
         }
       ]
     },

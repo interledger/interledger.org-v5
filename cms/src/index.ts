@@ -1,8 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { validateGitSyncRepoOnStartup } from './utils/gitSync'
+import { pipeline } from 'stream/promises'
+import { scheduleGitSync, validateGitSyncRepoOnStartup } from './utils/gitSync'
 import { validateNoNestedJsx } from './utils/contentValidation'
 import { LOCALES } from './utils/mdx'
+import { shouldSkipMdxExport } from './utils/pageLifecycle'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -94,16 +96,118 @@ interface CmComponentsService {
   ) => Promise<void>
 }
 
+interface UploadSettings {
+  responsiveDimensions: boolean
+  sizeOptimization: boolean
+  autoOrientation: boolean
+  aiMetadata: boolean
+}
+
+interface UploadProvider {
+  upload: (file: UploadFile) => Promise<void>
+  uploadStream: (file: UploadFile) => Promise<void>
+  delete: (file: UploadFile) => Promise<void>
+  checkFileSize: (file: UploadFile, options?: unknown) => void
+}
+
+interface UploadFile {
+  hash: string
+  ext: string
+  url?: string
+  buffer?: Buffer
+  stream?: NodeJS.ReadableStream
+  getStream?: () => NodeJS.ReadableStream
+  [key: string]: unknown
+}
+
+interface UploadService {
+  getSettings: () => Promise<UploadSettings>
+  setSettings: (value: UploadSettings) => Promise<void>
+}
+
+interface ImageManipulationService {
+  generateThumbnail: (file: unknown) => Promise<unknown>
+  generateResponsiveFormats: (file: unknown) => Promise<unknown[]>
+  [key: string]: unknown
+}
+
+interface StrapiPlugin {
+  service: (
+    name: string
+  ) =>
+    | CmContentTypesService
+    | CmComponentsService
+    | UploadService
+    | ImageManipulationService
+    | undefined
+  provider?: UploadProvider
+}
+
+interface UploadFileRecord {
+  id: number
+  name: string
+  hash: string
+  ext: string
+  mime: string
+  size: number
+  url: string
+  provider: string
+  width?: number | null
+  height?: number | null
+  formats?: Record<string, unknown> | null
+  folderPath?: string
+}
+
+interface DbQueryApi {
+  findOne: (params: {
+    where: Record<string, unknown>
+    select?: string[]
+  }) => Promise<UploadFileRecord | null>
+  create: (params: {
+    data: Omit<UploadFileRecord, 'id'>
+  }) => Promise<UploadFileRecord>
+  count: (params: { where: Record<string, unknown> }) => Promise<number>
+}
 interface StrapiInstance {
   documents: (uid: string) => StrapiDocumentService
   log: StrapiLogger
-  plugin: (name: string) =>
-    | {
-        service: (
-          name: string
-        ) => CmContentTypesService | CmComponentsService | undefined
-      }
-    | undefined
+  dirs: { static: { public: string } }
+  db?: {
+    lifecycles?: {
+      subscribe: (subscription: {
+        models: string[]
+        afterCreate?: (event: { result?: Record<string, unknown> }) => void
+        afterDelete?: (event: { result?: Record<string, unknown> }) => void
+      }) => void
+    }
+    query: (uid: string) => DbQueryApi
+  }
+  config: { get: (key: string, defaultValue?: unknown) => unknown }
+  plugin: (name: string) => StrapiPlugin | undefined
+}
+
+function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
+  strapi.db?.lifecycles?.subscribe({
+    models: ['plugin::upload.file'],
+    afterCreate(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🖼️  Upload created, scheduling git sync')
+      scheduleGitSync('upload')
+    },
+    afterDelete(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🗑️  Upload deleted, scheduling git sync')
+      scheduleGitSync('upload')
+    }
+  })
 }
 
 /**
@@ -163,6 +267,194 @@ async function ensureLocales(strapi: StrapiInstance) {
   }
 }
 
+// ── Upload overrides ──────────────────────────────────────────────────────────
+const UPLOAD_SUBDIR = 'img/original'
+const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
+
+/**
+ * Redirect the local upload provider so files land in
+ * `public/uploads/img/original/` and URLs reflect the new path.
+ */
+function overrideUploadProvider(strapi: StrapiInstance): void {
+  const uploadPlugin = strapi.plugin('upload')
+  if (!uploadPlugin?.provider) {
+    strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
+    return
+  }
+
+  const publicDir = strapi.dirs.static.public
+  const uploadPath = path.join(publicDir, 'uploads', UPLOAD_SUBDIR)
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true })
+  }
+
+  const provider = uploadPlugin.provider
+
+  provider.uploadStream = async (file: UploadFile) => {
+    const stream = file.stream ?? file.getStream?.()
+    if (!stream) throw new Error('Missing file stream')
+    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
+    await pipeline(stream, fs.createWriteStream(dest))
+    file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
+  }
+
+  provider.upload = async (file: UploadFile) => {
+    if (!file.buffer) throw new Error('Missing file buffer')
+    const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
+    fs.writeFileSync(dest, file.buffer)
+    file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
+  }
+
+  provider.delete = async (file: UploadFile) => {
+    const candidates = [
+      path.join(uploadPath, `${file.hash}${file.ext}`),
+      ...(file.url ? [path.join(publicDir, file.url)] : [])
+    ]
+    for (const dest of candidates) {
+      if (fs.existsSync(dest)) {
+        fs.unlinkSync(dest)
+        return
+      }
+    }
+  }
+
+  strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
+}
+
+/**
+ * Disable all image variant generation (thumbnails, responsive formats,
+ * size optimization). Only the original file is kept.
+ */
+async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
+  const uploadPlugin = strapi.plugin('upload')
+  if (!uploadPlugin) return
+
+  const uploadService = uploadPlugin.service('upload') as
+    | UploadService
+    | undefined
+  if (uploadService) {
+    await uploadService.setSettings({
+      responsiveDimensions: false,
+      sizeOptimization: false,
+      autoOrientation: false,
+      aiMetadata: false
+    })
+    strapi.log.info('✅ Upload settings: variants disabled')
+  }
+
+  const imgService = uploadPlugin.service('image-manipulation') as
+    | ImageManipulationService
+    | undefined
+  if (imgService) {
+    imgService.generateThumbnail = async () => null
+    imgService.generateResponsiveFormats = async () => []
+    strapi.log.info(
+      '✅ Image manipulation: thumbnail & responsive formats disabled'
+    )
+  }
+}
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+  '.tiff': 'image/tiff'
+}
+
+const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
+
+/**
+ * Directories under `public/` to scan for seedable images.
+ * Each entry maps a disk path (relative to public/) to the URL prefix it's
+ * served at. Files found on disk but missing from Strapi's `upload_file`
+ * table are inserted so MDX references remain valid after a fresh database.
+ */
+const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
+  { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
+  { dir: 'img', urlPrefix: '/img' }
+]
+
+async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
+  const query = strapi.db?.query('plugin::upload.file')
+  if (!query) {
+    strapi.log.warn('⚠️  DB query API unavailable — skipping upload seeding')
+    return
+  }
+
+  const publicDir = strapi.dirs.static.public
+  let seeded = 0
+
+  for (const { dir, urlPrefix } of SEED_DIRS) {
+    const absDir = path.join(publicDir, dir)
+    if (!fs.existsSync(absDir)) continue
+
+    const files = collectImagePaths(absDir)
+
+    for (const filePath of files) {
+      const ext = path.extname(filePath).toLowerCase()
+      const basename = path.basename(filePath, ext)
+      const relativePath = path.relative(absDir, filePath)
+      const url = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
+
+      const existing = await query.findOne({
+        where: { url },
+        select: ['id']
+      })
+      if (existing) continue
+
+      const stat = fs.statSync(filePath)
+      const sizeKB = Number((stat.size / 1024).toFixed(2))
+      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+
+      await query.create({
+        data: {
+          name: path.basename(filePath),
+          hash: basename,
+          ext,
+          mime,
+          size: sizeKB,
+          url,
+          provider: 'local',
+          width: null,
+          height: null,
+          formats: null,
+          folderPath: '/'
+        }
+      })
+      seeded++
+    }
+  }
+
+  if (seeded > 0) {
+    strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
+  }
+}
+
+function collectImagePaths(dir: string): string[] {
+  const results: string[] = []
+
+  function walk(current: string) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name.startsWith('.')) continue
+      const full = path.join(current, entry.name)
+      if (entry.isDirectory()) {
+        walk(full)
+      } else if (
+        SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+      ) {
+        results.push(full)
+      }
+    }
+  }
+
+  walk(dir)
+  return results
+}
+
 /**
  * Configure pretty labels for field names in the admin panel.
  * This updates the content-manager metadata stored in the database.
@@ -178,8 +470,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'URL Slug',
       description: 'Description',
       photo: 'Photo',
-      linkedinUrl: 'LinkedIn URL',
-      grantReportUrl: 'Grant Report URL'
+      quote: 'Quote',
+      tagline: 'Tag line',
+      category: 'Category'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
@@ -197,7 +490,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
       pathSlug: 'Full Path Slug',
-      pageType: 'Brand Pillar',
+      pillar: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
       content: 'Page Content'
@@ -205,7 +498,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       title: 'Title',
       pathSlug: 'Full Path Slug',
-      pageType: 'Brand Pillar',
       seo: 'SEO',
       hero: 'Hero',
       content: 'Content'
@@ -254,7 +546,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      backgroundImage: 'Background Image'
+      backgroundImage: 'Background Image',
+      hero_call_to_action: 'Call-to-action Buttons'
     },
     'shared.seo': {
       metaDescription: 'Meta Description'
@@ -265,6 +558,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.ambassadors-grid': {
       heading: 'Heading',
+      category: 'Category',
       ambassadors: 'Ambassadors'
     },
     'blocks.blockquote': {
@@ -339,6 +633,21 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       image: 'Image',
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
+    },
+    'shared.tags': {
+      tagValue: 'Tag'
+    }
+  }
+
+  const componentDescriptions: Record<string, Record<string, string>> = {
+    'shared.tags': {
+      tagValue:
+        'You can select multiple tags — click "+ Add an entry" for each tag'
+    },
+    'blocks.ambassadors-grid': {
+      category:
+        'Option A: show ambassadors by category (leave ambassadors empty)',
+      ambassadors: 'Option B: pick ambassadors manually (leave category empty)'
     }
   }
 
@@ -422,7 +731,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         strapi.log.debug(`Component ${uid} not found, skipping labels`)
         continue
       }
-      await applyLabels(componentService, uid, labels)
+      await applyLabels(
+        componentService,
+        uid,
+        labels,
+        componentDescriptions[uid]
+      )
     } catch (error) {
       strapi.log.debug(
         `Could not update labels for ${uid}: ${(error as Error).message}`
@@ -464,16 +778,17 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pathSlug', size: 6 }
       ],
       [
-        { name: 'linkedinUrl', size: 6 },
-        { name: 'grantReportUrl', size: 6 }
+        { name: 'category', size: 6 },
+        { name: 'photo', size: 6 }
       ],
-      [{ name: 'photo', size: 12 }],
+      [{ name: 'tagline', size: 12 }],
+      [{ name: 'quote', size: 12 }],
       [{ name: 'description', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
       [
         { name: 'title', size: 6 },
-        { name: 'pageType', size: 6 }
+        { name: 'pillar', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
@@ -481,10 +796,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'api::summit-page.summit-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pageType', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
@@ -506,6 +818,11 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'profileImage', size: 6 },
         { name: 'profileBio', size: 6 }
       ]
+    ],
+    'blocks.ambassadors-grid': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'category', size: 12 }],
+      [{ name: 'ambassadors', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
@@ -558,7 +875,8 @@ async function configureLayouts(strapi: StrapiInstance) {
       [
         { name: 'description', size: 6 },
         { name: 'backgroundImage', size: 6 }
-      ]
+      ],
+      [{ name: 'hero_call_to_action', size: 12 }]
     ],
     'shared.seo': [[{ name: 'metaDescription', size: 12 }]]
   }
@@ -695,11 +1013,21 @@ export default {
     // Ensure git sync points at a valid staging clone before handling content events
     await validateGitSyncRepoOnStartup()
 
+    // Redirect uploads to public/uploads/img/original/ and disable image variants
+    overrideUploadProvider(strapi)
+    await disableImageVariants(strapi)
+
+    // Register any on-disk images that are missing from the DB (fresh DB scenario)
+    await seedUploadsFromDisk(strapi)
+
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)
 
     // Configure pretty field labels for the admin panel
     await configureFieldLabels(strapi)
     await configureLayouts(strapi)
+
+    // Auto-commit uploaded image changes in public/uploads via git sync.
+    registerUploadGitSyncLifecycle(strapi)
   }
 }

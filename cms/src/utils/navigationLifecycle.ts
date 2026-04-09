@@ -187,18 +187,30 @@ function deleteNavigationFiles(config: NavigationLifecycleConfig): string[] {
   return deletedPaths
 }
 
+async function exportAndCommitNavigation(
+  config: NavigationLifecycleConfig,
+  action: string
+): Promise<void> {
+  if (shouldSkipMdxExport()) return
+  const label = uidToLogLabel(config.contentTypeUid)
+  console.log(`📝 ${action} ${label} JSON`)
+  const outputPaths = await exportAllLocales(config)
+  if (outputPaths.length > 0) {
+    await gitCommitAndPush(
+      outputPaths,
+      `${label}: ${action.toLowerCase()} navigation`
+    )
+  }
+}
+
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
   return {
     async afterCreate(_event: Event) {
-      if (shouldSkipMdxExport()) return
-      console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const outputPaths = await exportAllLocales(config)
-      if (outputPaths.length > 0) {
-        await gitCommitAndPush(
-          outputPaths,
-          `${uidToLogLabel(config.contentTypeUid)}: update navigation`
-        )
-      }
+      await exportAndCommitNavigation(config, 'Create')
+    },
+
+    async afterUpdate(_event: Event) {
+      await exportAndCommitNavigation(config, 'Update')
     },
 
     async afterDelete(_event: Event) {

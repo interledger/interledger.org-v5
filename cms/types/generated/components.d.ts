@@ -28,6 +28,7 @@ export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
       'oneToMany',
       'api::ambassador.ambassador'
     >
+    category: Schema.Attribute.Enumeration<['Fellows 2026']>
     heading: Schema.Attribute.String
   }
 }
@@ -590,6 +591,12 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

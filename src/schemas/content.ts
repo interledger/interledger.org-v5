@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+const heroCtaSchema = z.object({
+  text: z.string(),
+  link: z.string(),
+  style: z.enum(['primary', 'secondary']).optional(),
+  external: z.boolean().optional(),
+  analytics_event_label: z.string().optional()
+})
+
 // Normalizes pathSlug by stripping any leading or trailing slashes so that
 // "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
 // "/grants/web-grant/" all resolve to the same route.
@@ -82,6 +90,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
@@ -112,6 +121,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
@@ -138,12 +148,12 @@ export const summitPageFrontmatterSchema = z.object({
 export const ambassadorFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
-  description: z.string().min(1, 'description is required'),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
+  category: z.string().nullable().optional(),
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),
-  linkedinUrl: z.string().nullable().optional(),
-  grantReportUrl: z.string().nullable().optional(),
+  tagline: z.string().nullable().optional(),
+  quote: z.string().nullable().optional(),
   locale: z.string().optional(),
   localizes: z.string().optional()
 })

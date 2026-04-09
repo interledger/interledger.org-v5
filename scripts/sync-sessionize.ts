@@ -59,9 +59,9 @@ async function getSessionizeData(speakersUrl: string, talksUrl: string) {
   ])
 }
 
-//Step 2: import Sessionize images into `/public/img/sessionize-speakers/{year}` folder
+//Step 2: import Sessionize images into `/public/sessionize-speakers/img/{year}` folder
 const imgUrlFileSource = path.join(basePath, `${YEAR}-speakers.json`)
-const imgFilePath = path.resolve(`./public/img/sessionize-speakers/${YEAR}`)
+const imgFilePath = path.resolve(`./public/sessionize-speakers/img/${YEAR}`)
 await fs.mkdir(imgFilePath, { recursive: true })
 
 async function fetchAndSaveImage(url: string, name: string) {

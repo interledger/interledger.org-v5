@@ -18,6 +18,7 @@ import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/conte
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
+import type { HeroCta } from '../../src/utils/mdx'
 import fs from 'fs/promises'
 import path from 'path'
 import { getTargetRepoRoot } from '@/utils/gitSync'
@@ -113,10 +114,11 @@ async function getImageFromStrapi(
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   try {
-    const existing = await strapi.findUploadByName(name)
-    if (existing) {
-      return existing
-    }
+    const byUrl = await strapi.findUploadByUrl(photoUrl)
+    if (byUrl) return byUrl
+
+    const byName = await strapi.findUploadByName(name)
+    if (byName) return byName
 
     if (dryRun) {
       console.log(
@@ -135,6 +137,45 @@ async function getImageFromStrapi(
     console.error(`Error getting image from Strapi for "${image}":`, err)
     return null
   }
+}
+
+interface StrapiHeroPayload {
+  title: string
+  description: string
+  hero_call_to_action?: Array<{
+    text: string
+    link: string
+    style: string
+    external: boolean
+    analytics_event_label?: string
+  }>
+}
+
+function buildHeroPayload(
+  heroTitle: string | undefined,
+  heroDescription: string | undefined,
+  fallbackTitle: string,
+  ctas: HeroCta[] | undefined
+): StrapiHeroPayload {
+  const hero: StrapiHeroPayload = {
+    title: heroTitle || fallbackTitle,
+    description: heroDescription || ''
+  }
+
+  const validCtas = ctas?.filter((c) => c.text && c.link)
+  if (validCtas && validCtas.length > 0) {
+    hero.hero_call_to_action = validCtas.map((c) => ({
+      text: c.text!,
+      link: c.link!,
+      style: c.style ?? 'primary',
+      external: c.external ?? false,
+      ...(c.analytics_event_label
+        ? { analytics_event_label: c.analytics_event_label }
+        : {})
+    }))
+  }
+
+  return hero
 }
 
 /**
@@ -173,14 +214,14 @@ export async function buildPagePayload(
     ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
-  // Handle hero section
-  // If hero fields exist in frontmatter, use them
-  // Otherwise, preserve existing hero data if updating an entry
+  // Handle hero section — use frontmatter fields if present, otherwise preserve existing
   if (parsed.heroTitle || parsed.heroDescription) {
-    data.hero = {
-      title: parsed.heroTitle || parsed.title,
-      description: parsed.heroDescription || ''
-    }
+    data.hero = buildHeroPayload(
+      parsed.heroTitle as string | undefined,
+      parsed.heroDescription as string | undefined,
+      parsed.title as string,
+      parsed.heroCtas as HeroCta[] | undefined
+    )
   } else {
     const existingHero = getEntryField(existingEntry, 'hero')
     if (existingHero) {
@@ -320,10 +361,11 @@ export async function buildAmbassadorPayload(
   return {
     name: nullOrValue(mdx.frontmatter.name),
     pathSlug: mdx.pathSlug,
-    description: nullOrValue(mdx.frontmatter.description),
+    description: nullOrValue(mdx.content),
     ...(photoId ? { photo: photoId } : {}),
-    linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
-    grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
+    category: nullOrValue(mdx.frontmatter.category),
+    tagline: nullOrValue(mdx.frontmatter.tagline),
+    quote: nullOrValue(mdx.frontmatter.quote),
     publishedAt: new Date().toISOString()
   }
 }

@@ -17,13 +17,15 @@
       font-size: 0.83em;
     }
 
-    /* === Links: no underline by default, underline on hover === */
+    /* === Links: underline by default for discoverability === */
     & a {
       color: var(--color-primary);
-      text-decoration-line: none;
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+      transition: text-decoration-color 200ms ease-in-out;
     }
     & a:hover {
-      text-decoration-line: underline;
+      text-decoration-color: transparent;
     }
 
     /* === Extended element spacing === */

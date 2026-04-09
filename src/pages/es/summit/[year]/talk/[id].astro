@@ -21,6 +21,8 @@ if (!year) {
 if (!entry) {
   return Astro.redirect('/404')
 }
+
+const isFallback = entry.es === null
 ---
 
-<SessionDetailPage entry={entry} year={year} />
+<SessionDetailPage entry={entry} year={year} isFallback={isFallback} />
