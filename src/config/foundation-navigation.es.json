@@ -1,0 +1,102 @@
+{
+  "mainMenu": [
+    {
+      "label": "Foundation",
+      "items": [
+        {
+          "label": "About Us",
+          "href": "/about-us"
+        },
+        {
+          "label": "Policy & Advocacy",
+          "href": "/policy-and-advocacy"
+        },
+        {
+          "label": "Team",
+          "href": "/team"
+        },
+        {
+          "label": "Media",
+          "href": "/media"
+        }
+      ]
+    },
+    {
+      "label": "Technology",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/open-standards"
+        },
+        {
+          "label": "Interledger",
+          "href": "/interledger"
+        },
+        {
+          "label": "Open Payments",
+          "href": "/open-payments"
+        },
+        {
+          "label": "Web Monetization",
+          "href": "/web-monetization"
+        },
+        {
+          "label": "Join Network",
+          "href": "/join-network"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        }
+      ]
+    },
+    {
+      "label": "Grants",
+      "items": [
+        {
+          "label": "Digital Financial Services",
+          "href": "/grant/financial-services"
+        },
+        {
+          "label": "Higher Education",
+          "href": "/grant/education"
+        },
+        {
+          "label": "Grant for Web",
+          "href": "grant/grant-web"
+        }
+      ]
+    },
+    {
+      "label": "Content Hub",
+      "items": [
+        {
+          "label": "Foundation Blog",
+          "href": "/blog"
+        },
+        {
+          "label": "Tech Blog",
+          "href": "/developers/blog"
+        },
+        {
+          "label": "Community Forum",
+          "href": "https://forum.interledger.org",
+          "openInNewTab": true
+        }
+      ]
+    },
+    {
+      "label": "Participate",
+      "items": [
+        {
+          "label": "Get Involved",
+          "href": "/get-involved"
+        }
+      ]
+    }
+  ],
+  "ctaButton": {
+    "label": "Interledger Summit",
+    "href": "/summit"
+  }
+}

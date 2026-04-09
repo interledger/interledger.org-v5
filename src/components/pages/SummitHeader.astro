@@ -2,24 +2,11 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import { ROUTE_BASES } from '@/utils/routes'
-import summitNavigation from '@/config/summit-navigation.json'
+import { getNavigation } from '@/utils/navigation'
+import type { Locale } from '@/utils/i18'
 
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
-
-const { mainMenu, ctaButton } = summitNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
+const locale = (Astro.locals.routeLocale ?? 'en') as Locale
+const { mainMenu, ctaButton } = getNavigation('summit', locale)
 
 const navWrapperClass =
   'xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full'

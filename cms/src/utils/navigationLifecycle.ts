@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
-import { uidToLogLabel } from './mdx'
+import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 
 import type { StrapiGlobal } from './strapiTypes'
@@ -37,7 +37,7 @@ export interface NavigationLifecycleConfig {
   outputPath: string
 }
 
-function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
+export function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
   if (!item) return null
   return {
     label: item.label,
@@ -46,7 +46,7 @@ function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
   }
 }
 
-function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
+export function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
   const items = group.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
   return {
     label: group.label,
@@ -55,19 +55,30 @@ function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
   }
 }
 
-function sanitizeNavigation(data: NavigationData) {
+export function sanitizeNavigation(data: NavigationData) {
   return {
     mainMenu: (data.mainMenu || []).map(sanitizeMenuGroup),
     ...(data.ctaButton ? { ctaButton: sanitizeMenuItem(data.ctaButton) } : {})
   }
 }
 
-function writeNavigationFile(
+export function getLocaleOutputPath(
   config: NavigationLifecycleConfig,
-  data: NavigationData
+  locale: string
 ): string {
   const projectRoot = getTargetRepoRoot()
-  const outputPath = path.join(projectRoot, config.outputPath)
+  return path.join(
+    projectRoot,
+    config.outputPath.replace(/\.json$/, `.${locale}.json`)
+  )
+}
+
+function writeNavigationFile(
+  config: NavigationLifecycleConfig,
+  locale: string,
+  data: NavigationData
+): string {
+  const outputPath = getLocaleOutputPath(config, locale)
   const outputDir = path.dirname(outputPath)
 
   try {
@@ -82,12 +93,12 @@ function writeNavigationFile(
       'utf-8'
     )
     console.log(
-      `✅ Wrote ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`
+      `✅ Wrote ${uidToLogLabel(config.contentTypeUid)} [${locale}] JSON: ${outputPath}`
     )
     return outputPath
   } catch (error) {
     console.error(
-      `Failed to write ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`,
+      `Failed to write ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation file: ${outputPath}`,
       error
     )
     throw error
@@ -95,11 +106,13 @@ function writeNavigationFile(
 }
 
 async function fetchPublishedNavigation(
-  config: NavigationLifecycleConfig
+  config: NavigationLifecycleConfig,
+  locale: string
 ): Promise<NavigationData | null> {
   try {
     const navigation = await strapi.documents(config.contentTypeUid).findFirst({
       status: 'published',
+      locale,
       populate: {
         mainMenu: { populate: { items: true } },
         ctaButton: true
@@ -108,34 +121,68 @@ async function fetchPublishedNavigation(
     return navigation as NavigationData | null
   } catch (error) {
     console.error(
-      `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} navigation:`,
+      `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation:`,
       error
     )
     return null
   }
 }
 
-async function deleteNavigationFile(
+async function exportAllLocales(
   config: NavigationLifecycleConfig
-): Promise<string | null> {
-  const projectRoot = getTargetRepoRoot()
-  const outputPath = path.join(projectRoot, config.outputPath)
-  try {
-    if (fs.existsSync(outputPath)) {
-      fs.unlinkSync(outputPath)
-      console.log(
-        `🗑️  Deleted ${uidToLogLabel(config.contentTypeUid)} JSON: ${outputPath}`
+): Promise<string[]> {
+  const outputPaths: string[] = []
+  const defaultNav = await fetchPublishedNavigation(config, defaultLang)
+
+  for (const locale of LOCALES) {
+    try {
+      const navigation =
+        locale === defaultLang
+          ? defaultNav
+          : ((await fetchPublishedNavigation(config, locale)) ?? defaultNav)
+
+      if (!navigation) {
+        console.log(
+          `⏭️  No published ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation`
+        )
+        continue
+      }
+
+      const outputPath = writeNavigationFile(config, locale, navigation)
+      outputPaths.push(outputPath)
+    } catch (error) {
+      console.error(
+        `⚠️  Failed to export ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation:`,
+        error
       )
-      return outputPath
     }
-    return null
-  } catch (error) {
-    console.error(
-      `Failed to delete ${uidToLogLabel(config.contentTypeUid)} navigation file: ${outputPath}`,
-      error
-    )
-    throw error
   }
+
+  return outputPaths
+}
+
+function deleteNavigationFiles(config: NavigationLifecycleConfig): string[] {
+  const deletedPaths: string[] = []
+
+  for (const locale of LOCALES) {
+    const outputPath = getLocaleOutputPath(config, locale)
+    try {
+      if (fs.existsSync(outputPath)) {
+        fs.unlinkSync(outputPath)
+        console.log(
+          `🗑️  Deleted ${uidToLogLabel(config.contentTypeUid)} [${locale}] JSON: ${outputPath}`
+        )
+        deletedPaths.push(outputPath)
+      }
+    } catch (error) {
+      console.error(
+        `Failed to delete ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation file: ${outputPath}`,
+        error
+      )
+    }
+  }
+
+  return deletedPaths
 }
 
 export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
@@ -143,27 +190,22 @@ export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
     async afterCreate(_event: Event) {
       if (shouldSkipMdxExport()) return
       console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const navigation = await fetchPublishedNavigation(config)
-      if (!navigation) {
-        console.log(
-          `⏭️  No published ${uidToLogLabel(config.contentTypeUid)} navigation`
+      const outputPaths = await exportAllLocales(config)
+      if (outputPaths.length > 0) {
+        await gitCommitAndPush(
+          outputPaths,
+          `${uidToLogLabel(config.contentTypeUid)}: update navigation`
         )
-        return
       }
-      const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        [outputPath],
-        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
-      )
     },
 
     async afterDelete(_event: Event) {
       if (shouldSkipMdxExport()) return
       console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const deletedPath = await deleteNavigationFile(config)
-      if (deletedPath) {
+      const deletedPaths = deleteNavigationFiles(config)
+      if (deletedPaths.length > 0) {
         await gitCommitAndPush(
-          [deletedPath],
+          deletedPaths,
           `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
         )
       }

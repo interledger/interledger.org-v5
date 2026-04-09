@@ -1,24 +1,11 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import foundationNavigation from '@/config/foundation-navigation.json'
+import { getNavigation } from '@/utils/navigation'
+import type { Locale } from '@/utils/i18'
 
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
-
-const { mainMenu, ctaButton } = foundationNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
+const locale = (Astro.locals.routeLocale ?? 'en') as Locale
+const { mainMenu, ctaButton } = getNavigation('foundation', locale)
 ---
 
 <header

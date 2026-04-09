@@ -1,0 +1,193 @@
+import { describe, expect, it, vi } from 'vitest'
+import {
+  sanitizeMenuItem,
+  sanitizeMenuGroup,
+  sanitizeNavigation,
+  getLocaleOutputPath
+} from './navigationLifecycle'
+
+vi.mock('./gitSync', () => ({
+  getTargetRepoRoot: () => '/repo',
+  gitCommitAndPush: vi.fn()
+}))
+
+vi.mock('./pageLifecycle', () => ({
+  shouldSkipMdxExport: () => false
+}))
+
+const testConfig = {
+  contentTypeUid: 'api::foundation-navigation.foundation-navigation',
+  outputPath: 'src/config/foundation-navigation.json'
+}
+
+describe('sanitizeMenuItem', () => {
+  it('returns null for null input', () => {
+    expect(sanitizeMenuItem(null)).toBeNull()
+  })
+
+  it('returns null for undefined input', () => {
+    expect(sanitizeMenuItem(undefined)).toBeNull()
+  })
+
+  it('keeps label and href', () => {
+    expect(sanitizeMenuItem({ label: 'About', href: '/about' })).toEqual({
+      label: 'About',
+      href: '/about'
+    })
+  })
+
+  it('omits href when null', () => {
+    expect(sanitizeMenuItem({ label: 'About', href: null })).toEqual({
+      label: 'About'
+    })
+  })
+
+  it('omits href when empty string', () => {
+    expect(sanitizeMenuItem({ label: 'About', href: '' })).toEqual({
+      label: 'About'
+    })
+  })
+
+  it('includes openInNewTab only when true', () => {
+    expect(
+      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: true })
+    ).toEqual({ label: 'Ext', href: '/ext', openInNewTab: true })
+  })
+
+  it('omits openInNewTab when false', () => {
+    expect(
+      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: false })
+    ).toEqual({ label: 'Ext', href: '/ext' })
+  })
+
+  it('omits openInNewTab when null', () => {
+    expect(
+      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: null })
+    ).toEqual({ label: 'Ext', href: '/ext' })
+  })
+})
+
+describe('sanitizeMenuGroup', () => {
+  it('returns group with label only when no items or href', () => {
+    expect(sanitizeMenuGroup({ label: 'Group' })).toEqual({ label: 'Group' })
+  })
+
+  it('includes href when present', () => {
+    expect(sanitizeMenuGroup({ label: 'Group', href: '/group' })).toEqual({
+      label: 'Group',
+      href: '/group'
+    })
+  })
+
+  it('omits href when null', () => {
+    expect(sanitizeMenuGroup({ label: 'Group', href: null })).toEqual({
+      label: 'Group'
+    })
+  })
+
+  it('sanitizes child items', () => {
+    const group = {
+      label: 'Nav',
+      items: [
+        { label: 'A', href: '/a' },
+        { label: 'B', href: null, openInNewTab: null }
+      ]
+    }
+    expect(sanitizeMenuGroup(group)).toEqual({
+      label: 'Nav',
+      items: [{ label: 'A', href: '/a' }, { label: 'B' }]
+    })
+  })
+
+  it('filters out null items', () => {
+    const group = {
+      label: 'Nav',
+      items: [null, { label: 'A', href: '/a' }, undefined] as any[]
+    }
+    expect(sanitizeMenuGroup(group)).toEqual({
+      label: 'Nav',
+      items: [{ label: 'A', href: '/a' }]
+    })
+  })
+
+  it('omits items key when all items are null', () => {
+    const group = { label: 'Nav', items: [null, null] as any[] }
+    expect(sanitizeMenuGroup(group)).toEqual({ label: 'Nav' })
+  })
+
+  it('omits items key when items array is empty', () => {
+    expect(sanitizeMenuGroup({ label: 'Nav', items: [] })).toEqual({
+      label: 'Nav'
+    })
+  })
+})
+
+describe('sanitizeNavigation', () => {
+  it('returns empty mainMenu when no data', () => {
+    expect(sanitizeNavigation({})).toEqual({ mainMenu: [] })
+  })
+
+  it('sanitizes mainMenu groups', () => {
+    const data = {
+      mainMenu: [
+        { label: 'Foundation', items: [{ label: 'About', href: '/about' }] }
+      ]
+    }
+    expect(sanitizeNavigation(data)).toEqual({
+      mainMenu: [
+        { label: 'Foundation', items: [{ label: 'About', href: '/about' }] }
+      ]
+    })
+  })
+
+  it('includes ctaButton when present', () => {
+    const data = {
+      mainMenu: [],
+      ctaButton: { label: 'Summit', href: '/summit' }
+    }
+    expect(sanitizeNavigation(data)).toEqual({
+      mainMenu: [],
+      ctaButton: { label: 'Summit', href: '/summit' }
+    })
+  })
+
+  it('omits ctaButton when null', () => {
+    const data = { mainMenu: [], ctaButton: null }
+    expect(sanitizeNavigation(data)).toEqual({ mainMenu: [] })
+  })
+
+  it('strips Strapi metadata fields (id, documentId, publishedAt)', () => {
+    const data = {
+      id: 1,
+      documentId: 'abc',
+      publishedAt: '2026-01-01',
+      mainMenu: [{ label: 'Nav' }]
+    }
+    const result = sanitizeNavigation(data)
+    expect(result).not.toHaveProperty('id')
+    expect(result).not.toHaveProperty('documentId')
+    expect(result).not.toHaveProperty('publishedAt')
+  })
+})
+
+describe('getLocaleOutputPath', () => {
+  it('derives en path from outputPath', () => {
+    const result = getLocaleOutputPath(testConfig, 'en')
+    expect(result).toBe('/repo/src/config/foundation-navigation.en.json')
+  })
+
+  it('derives es path from outputPath', () => {
+    const result = getLocaleOutputPath(testConfig, 'es')
+    expect(result).toBe('/repo/src/config/foundation-navigation.es.json')
+  })
+
+  it('works with summit navigation config', () => {
+    const summitConfig = {
+      contentTypeUid: 'api::summit-navigation.summit-navigation',
+      outputPath: 'src/config/summit-navigation.json'
+    }
+    expect(getLocaleOutputPath(summitConfig, 'es')).toBe(
+      '/repo/src/config/summit-navigation.es.json'
+    )
+  })
+})

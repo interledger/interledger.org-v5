@@ -12,6 +12,7 @@ export interface StrapiDocumentAPI {
   }) => Promise<unknown>
   findFirst: (options: {
     status: string
+    locale?: string
     populate: Record<string, unknown>
   }) => Promise<unknown>
 }

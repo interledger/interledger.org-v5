@@ -1,0 +1,63 @@
+{
+  "mainMenu": [
+    {
+      "label": "Summit",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/summit"
+        },
+        {
+          "label": "Schedule",
+          "href": "/summit/schedule"
+        },
+        {
+          "label": "Sessions",
+          "href": "/summit/2025/talks"
+        },
+        {
+          "label": "Speakers",
+          "href": "/summit/2025/speakers"
+        },
+        {
+          "label": "FAQ",
+          "href": "/summit/faq"
+        }
+      ]
+    },
+    {
+      "label": "Hackathon",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/summit/hackathon"
+        },
+        {
+          "label": "Participation requirements",
+          "href": "/summit/hackathon/participation-requirements"
+        }
+      ]
+    },
+    {
+      "label": "Past Summits",
+      "items": [
+        {
+          "label": "2024 Cape Town",
+          "href": "/summit/2024"
+        },
+        {
+          "label": "2023 Costa Rica",
+          "href": "/summit/2023"
+        },
+        {
+          "label": "2022 New Orleans",
+          "href": "/summit/2022"
+        }
+      ]
+    },
+    {
+      "label": "Code of conduct",
+      "href": "/summit/code-of-conduct"
+    }
+  ]
+}
