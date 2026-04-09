@@ -5,6 +5,7 @@ import Paragraph from '../components/blocks/Paragraph.astro'
 import { type Locale } from '@/utils/i18'
 import { HOME_SLUG } from '@/utils/routes'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+import Link from '@/components/shared/Link.astro'
 
 const pageLang: Locale = 'en'
 
@@ -25,7 +26,8 @@ const {
   canonicalUrl,
   heroTitle,
   heroDescription,
-  heroImage
+  heroImage,
+  heroCtas
 } = homePage.data
 const pageTitle = title || 'Interledger Foundation'
 const pageDescription = metaDescription || undefined
@@ -58,6 +60,19 @@ const heroSectionStyle = getHeroSectionStyle(heroImage)
           <p class="mb-space-m text-[1.25rem] max-w-[600px]">
             {heroDescription}
           </p>
+          {heroCtas && heroCtas.length > 0 && (
+            <div class="flex flex-wrap gap-space-s">
+              {heroCtas.map((cta) => (
+                <Link
+                  href={cta.link}
+                  style={cta.style}
+                  umami={cta.analytics_event_label}
+                  external={cta.external}
+                  text={cta.text}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

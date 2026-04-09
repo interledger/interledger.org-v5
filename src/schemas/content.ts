@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+const heroCtaSchema = z.object({
+  text: z.string(),
+  link: z.string(),
+  style: z.enum(['primary', 'secondary']).optional(),
+  external: z.boolean().optional(),
+  analytics_event_label: z.string().optional()
+})
+
 // Normalizes pathSlug by stripping any leading or trailing slashes so that
 // "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
 // "/grants/web-grant/" all resolve to the same route.
@@ -82,6 +90,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
@@ -112,6 +121,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),

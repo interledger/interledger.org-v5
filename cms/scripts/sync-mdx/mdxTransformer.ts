@@ -178,10 +178,31 @@ export async function buildPagePayload(
   // If hero fields exist in frontmatter, use them
   // Otherwise, preserve existing hero data if updating an entry
   if (parsed.heroTitle || parsed.heroDescription) {
-    data.hero = {
+    const hero: Record<string, unknown> = {
       title: parsed.heroTitle || parsed.title,
       description: parsed.heroDescription || ''
     }
+    const heroCtas = parsed.heroCtas as
+      | Array<{
+          text: string
+          link: string
+          style?: string
+          external?: boolean
+          analytics_event_label?: string
+        }>
+      | undefined
+    if (heroCtas && heroCtas.length > 0) {
+      hero.hero_call_to_action = heroCtas.map((c) => ({
+        text: c.text,
+        link: c.link,
+        style: c.style ?? 'primary',
+        external: c.external ?? false,
+        ...(c.analytics_event_label
+          ? { analytics_event_label: c.analytics_event_label }
+          : {})
+      }))
+    }
+    data.hero = hero
   } else {
     const existingHero = getEntryField(existingEntry, 'hero')
     if (existingHero) {

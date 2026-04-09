@@ -39,6 +39,13 @@ interface PageData {
     title?: string
     description?: string
     backgroundImage?: { url?: string }
+    hero_call_to_action?: Array<{
+      text?: string
+      link?: string
+      style?: 'primary' | 'secondary'
+      external?: boolean
+      analytics_event_label?: string
+    }>
   }
   seo?: {
     metaDescription?: string
@@ -155,7 +162,12 @@ export function generateMDX(
   }
 
   // Explicitly remove Strapi-managed fields that are no longer set (e.g. deleted image)
-  const heroManagedKeys = ['heroTitle', 'heroDescription', 'heroImage'] as const
+  const heroManagedKeys = [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroCtas'
+  ] as const
   for (const key of heroManagedKeys) {
     if (!(key in heroData)) delete frontmatterData[key]
   }
@@ -217,7 +229,7 @@ async function fetchPublished(
       locale,
       status: 'published',
       populate: {
-        hero: { populate: '*' },
+        hero: { populate: { backgroundImage: true, hero_call_to_action: true } },
         seo: { populate: '*' },
         content: FOUNDATION_PAGE_CONTENT_POPULATE
       }

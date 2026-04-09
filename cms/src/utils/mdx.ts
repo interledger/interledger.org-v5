@@ -138,16 +138,25 @@ export function getPreservedFields(filepath: string): Record<string, unknown> {
   }
 }
 
+interface HeroCta {
+  text?: string
+  link?: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+  analytics_event_label?: string
+}
+
+interface HeroData {
+  title?: string
+  description?: string
+  backgroundImage?: { url?: string }
+  hero_call_to_action?: HeroCta[]
+}
+
 export function heroFrontmatter(
-  hero:
-    | {
-        title?: string
-        description?: string
-        backgroundImage?: { url?: string }
-      }
-    | undefined
-): Record<string, string> {
-  const data: Record<string, string> = {}
+  hero: HeroData | undefined
+): Record<string, unknown> {
+  const data: Record<string, unknown> = {}
   if (!hero) return data
   if (hero.title) {
     data.heroTitle = hero.title
@@ -158,6 +167,18 @@ export function heroFrontmatter(
   const heroImage = getImageUrl(hero.backgroundImage)
   if (heroImage) {
     data.heroImage = heroImage
+  }
+  const ctas = hero.hero_call_to_action?.filter((c) => c.text && c.link)
+  if (ctas && ctas.length > 0) {
+    data.heroCtas = ctas.map((c) => ({
+      text: c.text!,
+      link: c.link!,
+      ...(c.style && c.style !== 'primary' ? { style: c.style } : {}),
+      ...(c.external ? { external: true } : {}),
+      ...(c.analytics_event_label
+        ? { analytics_event_label: c.analytics_event_label }
+        : {})
+    }))
   }
   return data
 }
