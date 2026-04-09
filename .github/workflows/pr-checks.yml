@@ -43,6 +43,17 @@ jobs:
           STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_TOKEN_DRY_RUN }}
           STRAPI_URL: ${{ secrets.ENV_STRAPI_URL }}
         run: |
+          # Fail fast if STRAPI_API_TOKEN or STRAPI_URL are not set
+          if [ -z "$STRAPI_API_TOKEN" ]; then
+            echo "Error: STRAPI_API_TOKEN is not set."
+            exit 1
+          fi
+
+          if [ -z "$STRAPI_URL" ]; then
+            echo "Error: STRAPI_URL is not set."
+            exit 1
+          fi
+
           pnpm install --frozen-lockfile      
           pnpm run build
           cd cms
