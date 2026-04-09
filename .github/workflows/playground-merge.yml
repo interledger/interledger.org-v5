@@ -244,7 +244,7 @@ jobs:
 
           sudo systemctl start strapi.service
           sleep 5
-          sudo systemctl status strapi.service
+          sudo systemctl status strapi-playground.service
 
   sync-to-strapi:
     needs: [detect-changes, rebuild-strapi]
