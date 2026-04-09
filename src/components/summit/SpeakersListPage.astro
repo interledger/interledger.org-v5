@@ -15,7 +15,14 @@ interface Props {
   isFallback?: boolean
 }
 
-const { speakers, basePath, title, page, year, isFallback = false } = Astro.props
+const {
+  speakers,
+  basePath,
+  title,
+  page,
+  year,
+  isFallback = false
+} = Astro.props
 const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 const label = `${year} Summit Speakers`
 ---
