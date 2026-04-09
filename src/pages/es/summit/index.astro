@@ -1,9 +1,22 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
+import { defaultLocale, type Locale } from '@/utils/i18'
+import { getCollection } from 'astro:content'
 import { HOME_SLUG } from '@/utils/routes'
-import { type Locale } from '@/utils/i18'
 
 const pageLang: Locale = 'es'
+
+const pages = await getCollection('summit-pages')
+const localizedHomePage = pages.find(
+  (page) => page.data.pathSlug === HOME_SLUG && page.data.locale === pageLang
+)
+
+const contentLocale = localizedHomePage ? pageLang : defaultLocale
+const isFallback = !localizedHomePage
 ---
 
-<SummitContentPage slug={HOME_SLUG} contentLocale={pageLang} />
+<SummitContentPage
+  slug={HOME_SLUG}
+  contentLocale={contentLocale}
+  isFallback={isFallback}
+/>

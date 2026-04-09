@@ -37,6 +37,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   datePublished={dateObj.toISOString()}
 >
   <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
+    <slot name="disclaimer" />
     <article
       itemscope
       itemtype="http://schema.org/Article"

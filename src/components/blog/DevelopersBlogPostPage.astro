@@ -4,13 +4,15 @@ import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
 
 const posts = await getCollection('developers-blog')
 
@@ -31,6 +33,9 @@ const blogPath = localizeRoute(ROUTE_BASES['developers-blog'], contentLocale)
   developersHomePath={developersHomePath}
   blogPath={blogPath}
 >
+  <Fragment slot="disclaimer">
+    <TranslationDisclaimer isVisible={isFallback} />
+  </Fragment>
   <MdxContent />
   <CommunityLinksDevelopers />
 </DevelopersBlogLayout>

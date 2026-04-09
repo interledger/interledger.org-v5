@@ -9,14 +9,16 @@ import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import CalloutText from '@/components/callout/CalloutText.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
 
 const pages = await getCollection('summit-pages')
 
@@ -51,6 +53,7 @@ const gradient =
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     {
       mdxHeroTitle && (
         <section
