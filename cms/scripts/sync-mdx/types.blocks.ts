@@ -53,7 +53,8 @@ export interface AmbassadorBlock extends StrapiBlockBase {
 export interface AmbassadorsGridBlock extends StrapiBlockBase {
   __component: 'blocks.ambassadors-grid'
   heading?: string
-  ambassadors: { connect: Array<{ documentId: string }> }
+  ambassadors?: { connect: Array<{ documentId: string }> }
+  category?: string
 }
 
 /** blocks.blockquote – styled quote with optional attribution. */

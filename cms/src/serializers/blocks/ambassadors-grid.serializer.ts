@@ -7,15 +7,19 @@ const escSingle = (v: string) => (v ? jsesc(v, { quotes: 'single' }) : '')
 export function serialize(block: {
   heading?: string
   ambassadors?: AmbassadorBase[]
+  category?: string
 }): string {
   const pathSlugs = (block.ambassadors || [])
     .filter((amb) => amb?.pathSlug)
     .map((amb) => `'${escSingle(amb.pathSlug)}'`)
 
-  if (pathSlugs.length === 0) return ''
-
   const headingAttr = block.heading
     ? ` heading="${escDouble(block.heading)}"`
     : ''
-  return `<AmbassadorGrid${headingAttr} pathSlugs={[${pathSlugs.join(',')}]} />`
+  const pathSlugsAttr =
+    pathSlugs.length > 0 ? ` pathSlugs={[${pathSlugs.join(',')}]}` : ''
+  const categoryAttr = block.category
+    ? ` category="${escDouble(block.category)}"`
+    : ''
+  return `<AmbassadorGrid${headingAttr}${pathSlugsAttr}${categoryAttr} />`
 }
