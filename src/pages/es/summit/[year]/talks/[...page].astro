@@ -23,6 +23,7 @@ if (!page) {
 }
 const talkPreviews: TalkPreview[] = page.data
 const title = `Sesiones de la Cumbre ${year}`
+const isFallback = talkPreviews.some((talk) => talk.es === null)
 ---
 
 <SessionsListPage
@@ -30,4 +31,5 @@ const title = `Sesiones de la Cumbre ${year}`
   title={title}
   page={page}
   year={year}
+  isFallback={isFallback}
 />

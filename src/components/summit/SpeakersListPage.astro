@@ -2,6 +2,7 @@
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import SpeakersList from './SpeakersList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
 
@@ -11,15 +12,17 @@ interface Props {
   title: string
   page: Page
   year: string
+  isFallback?: boolean
 }
 
-const { speakers, basePath, title, page, year } = Astro.props
+const { speakers, basePath, title, page, year, isFallback = false } = Astro.props
 const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 const label = `${year} Summit Speakers`
 ---
 
 <SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     <h1>{title}</h1>
     <section aria-label="Speakers">
       <SpeakersList
