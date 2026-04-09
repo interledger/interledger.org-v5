@@ -62,8 +62,12 @@
           "href": "/grant/education"
         },
         {
+          "label": "Fellowship Program",
+          "href": "ambassadors"
+        },
+        {
           "label": "Grant for Web",
-          "href": "/grant/grant-web"
+          "href": "grant-web"
         }
       ]
     },
