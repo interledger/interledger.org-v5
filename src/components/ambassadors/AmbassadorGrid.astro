@@ -1,13 +1,11 @@
 ---
 /**
  * Ambassador Grid component
- * - Single column on mobile
- * - Side-by-side (photo + text) at 600px+
- * - 2-column grid at 1140px+
  *
  * Can be used in two ways:
  * 1. With ambassadors data: <AmbassadorGrid ambassadors={data} />
  * 2. With pathSlugs (fetches from collection): <AmbassadorGrid pathSlugs={["slug1", "slug2"]} />
+ * 3. With category (fetches from collection): <AmbassadorGrid category="some-category" />
  *
  * Order is preserved from the input (pathSlugs array order or ambassadors array order).
  * This allows per-grid ordering via Strapi's relation field arrangement.
@@ -21,9 +19,15 @@ interface Props {
   ambassadors?: AmbassadorData[]
   pathSlugs?: string[]
   heading?: string
+  category?: string
 }
 
-const { ambassadors: propAmbassadors, pathSlugs, heading } = Astro.props
+const {
+  ambassadors: propAmbassadors,
+  pathSlugs,
+  heading,
+  category
+} = Astro.props
 
 let ambassadors: AmbassadorData[] = []
 
@@ -46,32 +50,41 @@ if (propAmbassadors) {
     .map((entry) => ({
       name: entry.data.name,
       pathSlug: entry.data.pathSlug,
-      description: entry.data.description,
       photo: entry.data.photo,
       photoAlt: entry.data.photoAlt,
-      linkedinUrl: entry.data.linkedinUrl,
-      grantReportUrl: entry.data.grantReportUrl
+      quote: entry.data.quote
+    }))
+} else if (category) {
+  // Fetch ambassadors by category from the content collection
+  const allAmbassadors = await getCollection('ambassadors')
+  ambassadors = allAmbassadors
+    .filter((entry) => entry.data.category === category)
+    .map((entry) => ({
+      name: entry.data.name,
+      pathSlug: entry.data.pathSlug,
+      photo: entry.data.photo,
+      photoAlt: entry.data.photoAlt,
+      quote: entry.data.quote
     }))
 }
 ---
 
 {
   ambassadors.length > 0 ? (
-    <div class="ambassadors-section">
-      {heading && <h2 class="ambassadors__heading mb-space-s">{heading}</h2>}
-      <div class="ambassadors-wrapper grid grid-cols-1 min-[1140px]:grid-cols-2 gap-space-s items-start">
+    <section aria-label="Ambassadors">
+      {heading && <h2 class="mb-space-s">{heading}</h2>}
+      <div class="ambassadors-wrapper grid grid-cols-[repeat(auto-fill,minmax(8em,1fr))] gap-space-s">
         {ambassadors.map((ambassador) => (
           <Ambassador
             name={ambassador.name}
-            description={ambassador.description}
+            pathSlug={ambassador.pathSlug}
             photo={ambassador.photo || undefined}
             photoAlt={ambassador.photoAlt || ambassador.name}
-            linkedinUrl={ambassador.linkedinUrl || undefined}
-            grantReportUrl={ambassador.grantReportUrl || undefined}
+            quote={ambassador.quote || undefined}
           />
         ))}
       </div>
-    </div>
+    </section>
   ) : (
     <p class="text-gray">No ambassadors to display.</p>
   )
