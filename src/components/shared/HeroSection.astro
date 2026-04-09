@@ -31,20 +31,22 @@ const { title, content, ctas } = Astro.props
       <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-space-xs">
         {content ?? ''}
       </p>
-      {ctas && ctas.length > 0 && (
-        <div class="flex flex-wrap gap-space-s mt-space-s">
-          {ctas.map((link) => (
-            <Link
-              href={link.link}
-              style={link.style}
-              variant="hero"
-              umami={link.analytics_event_label}
-              external={link.external}
-              text={link.text}
-            />
-          ))}
-        </div>
-      )}
+      {
+        ctas && ctas.length > 0 && (
+          <div class="flex flex-wrap gap-space-s mt-space-s">
+            {ctas.map((link) => (
+              <Link
+                href={link.link}
+                style={link.style}
+                variant="hero"
+                umami={link.analytics_event_label}
+                external={link.external}
+                text={link.text}
+              />
+            ))}
+          </div>
+        )
+      }
     </div>
   </div>
 </section>
