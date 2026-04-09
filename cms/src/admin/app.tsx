@@ -45,6 +45,38 @@ interface CKEditor {
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
+function cleanGoogleDocsOnPaste(editor: CKEditor) {
+  const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
+
+  clipboardPlugin.on(
+    'contentInsertion',
+    (evt: unknown, data: CKEditorInsertionData) => {
+      const htmlContent = data.dataTransfer.getData('text/html')
+
+      if (
+        htmlContent &&
+        (htmlContent.includes('docs-internal-guid') ||
+          htmlContent.includes('google-docs'))
+      ) {
+        const cleanedHtml = htmlContent
+          // Remove only the Google Docs wrapper <b> tag with font-weight:normal - is this too fragile?
+          .replace(/<b[^>]*font-weight:\s*normal[^>]*>/gi, '')
+          .replace(/<\/b>(?=<br class="Apple-interchange-newline">)/gi, '')
+          // Remove meta tags
+          .replace(/<meta[^>]*>/gi, '')
+
+        // Parse the cleaned HTML and insert it
+        const viewFragment = editor.data.processor.toView(cleanedHtml)
+        const modelFragment = editor.data.toModel(viewFragment)
+
+        // Replace the content that would be inserted
+        data.content = modelFragment
+      }
+    },
+    { priority: 'high' }
+  )
+}
+
 const myCustomPreset: Preset = {
   ...defaultMarkdownPreset,
   description: 'Markdown editor without H1',
@@ -55,47 +87,38 @@ const myCustomPreset: Preset = {
         (option) => option.model !== 'heading1'
       )
     },
-    extraPlugins: [
-      function cleanGoogleDocsOnPaste(editor: CKEditor) {
-        const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
+    extraPlugins: [cleanGoogleDocsOnPaste]
+  }
+}
 
-        clipboardPlugin.on(
-          'contentInsertion',
-          (evt: unknown, data: CKEditorInsertionData) => {
-            const htmlContent = data.dataTransfer.getData('text/html')
-
-            if (
-              htmlContent &&
-              (htmlContent.includes('docs-internal-guid') ||
-                htmlContent.includes('google-docs'))
-            ) {
-              const cleanedHtml = htmlContent
-                // Remove only the Google Docs wrapper <b> tag with font-weight:normal - is this too fragile?
-                .replace(/<b[^>]*font-weight:\s*normal[^>]*>/gi, '')
-                .replace(
-                  /<\/b>(?=<br class="Apple-interchange-newline">)/gi,
-                  ''
-                )
-                // Remove meta tags
-                .replace(/<meta[^>]*>/gi, '')
-
-              // Parse the cleaned HTML and insert it
-              const viewFragment = editor.data.processor.toView(cleanedHtml)
-              const modelFragment = editor.data.toModel(viewFragment)
-
-              // Replace the content that would be inserted
-              data.content = modelFragment
-            }
-          },
-          { priority: 'high' }
-        )
-      }
-    ]
+const ambassadorBioPreset: Preset = {
+  ...defaultMarkdownPreset,
+  name: 'ambassadorBio',
+  description: 'Simplified editor for ambassador biographies',
+  editorConfig: {
+    ...defaultMarkdownPreset.editorConfig,
+    toolbar: [
+      'bold',
+      'italic',
+      'strikethrough',
+      '|',
+      'link',
+      '|',
+      'bulletedList',
+      'numberedList',
+      '|',
+      'blockQuote',
+      '|',
+      'undo',
+      'redo'
+    ],
+    heading: undefined,
+    extraPlugins: [cleanGoogleDocsOnPaste]
   }
 }
 
 const myPluginConfig: PluginConfig = {
-  presets: [myCustomPreset]
+  presets: [myCustomPreset, ambassadorBioPreset]
 }
 
 export default {

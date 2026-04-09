@@ -85,7 +85,16 @@ const hasLinks = linkedinUrl || grantReportUrl
     }
   </div>
   <div
-    class="ambassador__txt max-w-none [&_strong]:font-bold [&_strong]:text-black"
+    class:list={[
+      'ambassador__txt max-w-none',
+      '[&_strong]:font-bold [&_strong]:text-black',
+      '[&_a]:text-primary [&_a]:underline hover:[&_a]:no-underline',
+      '[&_ul]:list-disc [&_ul]:ps-space-m [&_ul]:mb-space-2xs',
+      '[&_ol]:list-decimal [&_ol]:ps-space-m [&_ol]:mb-space-2xs',
+      '[&_li]:mb-space-3xs [&_li]:leading-relaxed',
+      '[&_p]:mb-space-2xs [&_p:last-child]:mb-0',
+      '[&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:ps-space-xs [&_blockquote]:italic [&_blockquote]:my-space-2xs'
+    ]}
     set:html={descriptionHtml}
   />
 </article>
