@@ -223,7 +223,7 @@ jobs:
           fi
 
           # Stop the service while we rebuild
-          sudo systemctl stop strapi.service
+          sudo systemctl stop strapi-playground.service
 
           cd /home/strapi/interledger.org-v5-playground
 
@@ -242,7 +242,7 @@ jobs:
           cd /home/strapi/interledger.org-v5-playground/cms
           NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
-          sudo systemctl start strapi.service
+          sudo systemctl start strapi-playground.service
           sleep 5
           sudo systemctl status strapi-playground.service
 
