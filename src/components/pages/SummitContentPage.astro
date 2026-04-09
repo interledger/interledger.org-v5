@@ -78,11 +78,12 @@ const gradient =
                 </p>
               )}
               {heroCtas.length > 0 && (
-                <div class="flex flex-wrap gap-space-s">
+                <div class="flex flex-wrap gap-space-s mt-space-s">
                   {heroCtas.map((cta) => (
                     <Link
                       href={cta.link}
                       style={cta.style}
+                      variant="hero"
                       umami={cta.analytics_event_label}
                       external={cta.external}
                       text={cta.text}

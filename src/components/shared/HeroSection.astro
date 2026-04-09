@@ -1,5 +1,20 @@
 ---
 import Link from './Link.astro'
+
+interface CtaLink {
+  link: string
+  text: string
+  style?: string
+  external?: boolean
+  analytics_event_label?: string
+}
+
+interface Props {
+  title?: string
+  content?: string
+  ctas?: CtaLink[]
+}
+
 const { title, content, ctas } = Astro.props
 ---
 
@@ -16,19 +31,20 @@ const { title, content, ctas } = Astro.props
       <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-space-xs">
         {content ?? ''}
       </p>
-      <div class="flex gap-8">
-        {
-          ctas?.map((link) => (
+      {ctas && ctas.length > 0 && (
+        <div class="flex flex-wrap gap-space-s mt-space-s">
+          {ctas.map((link) => (
             <Link
               href={link.link}
               style={link.style}
+              variant="hero"
               umami={link.analytics_event_label}
               external={link.external}
               text={link.text}
             />
-          ))
-        }
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   </div>
 </section>
