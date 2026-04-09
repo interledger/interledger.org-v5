@@ -596,6 +596,12 @@ export interface SharedHero extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

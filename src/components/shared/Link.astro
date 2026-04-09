@@ -1,13 +1,31 @@
 ---
-const { href, style, umami, external, text } = Astro.props
+const { href, style, umami, external, text, variant } = Astro.props
+
+const classes: Record<string, string> = {
+  'hero-primary':
+    'inline-block w-fit rounded-pill bg-white text-primary font-semibold no-underline transition-colors hover:bg-white/90',
+  'hero-secondary':
+    'inline-block w-fit rounded-pill border-2 border-white text-white font-semibold no-underline transition-colors hover:bg-white/15',
+  secondary:
+    'inline-block w-fit rounded-pill bg-white/70 text-primary no-underline transition-colors hover:bg-white/90',
+  primary:
+    'inline-block w-fit rounded-pill bg-primary text-white no-underline transition-colors hover:bg-primary-hover'
+}
+
+const key =
+  variant === 'hero'
+    ? style === 'secondary'
+      ? 'hero-secondary'
+      : 'hero-primary'
+    : style === 'secondary'
+      ? 'secondary'
+      : 'primary'
 ---
 
 <a
   href={href ?? ''}
-  class={style === 'secondary'
-    ? 'inline-block w-fit rounded-button bg-white/70 text-primary transition-colors hover:bg-white/90'
-    : 'inline-block w-fit rounded-button bg-primary text-white transition-colors hover:bg-primary-hover'}
-  style={`padding: clamp(0.875rem, 0.7772rem + 0.4348vi, 1.125rem) clamp(1.6875rem, 1.4674rem + 0.9783vi, 2.25rem);`}
+  class={classes[key]}
+  style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
   data-umami-event={umami ?? ''}
   {...external && {
     target: '_blank',

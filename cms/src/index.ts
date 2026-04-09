@@ -546,7 +546,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      backgroundImage: 'Background Image'
+      backgroundImage: 'Background Image',
+      hero_call_to_action: 'Call-to-action Buttons'
     },
     'shared.seo': {
       metaDescription: 'Meta Description'
@@ -874,7 +875,8 @@ async function configureLayouts(strapi: StrapiInstance) {
       [
         { name: 'description', size: 6 },
         { name: 'backgroundImage', size: 6 }
-      ]
+      ],
+      [{ name: 'hero_call_to_action', size: 12 }]
     ],
     'shared.seo': [[{ name: 'metaDescription', size: 12 }]]
   }
