@@ -359,36 +359,7 @@ All documentation for working with website content is available in [the wiki](ht
 
 Developers can add multiple types of content directly to the repository. Each content type has a specific folder and naming convention.
 
-Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates.
-
-#### Content structure
-
-All MDX files must live under their collection in `src/content/<collection>`.
-
-- English (`en`) files live directly in the collection folder.
-- Spanish (`es`) files live under `es/` within the same collection.
-
-Folder structure:
-
-```text
-src/content/<collection>/
-├── <en-files>.mdx
-└── es/
-    └── <es-files>.mdx
-```
-
-Nesting rules:
-
-- File paths must reflect their route structure (`pathSlug`).
-- Spanish files must mirror the English folder structure exactly.
-- Spanish filenames must match the English filenames for the localized entry.
-
-Example:
-
-```text
-EN: src/content/summit-pages/hackathon/resources/use-cases.mdx
-ES: src/content/summit-pages/es/hackathon/resources/use-cases.mdx
-```
+Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates. All MDX files must live under their collection in `src/content/<collection>`: English (`en`) files go directly in the collection folder, while Spanish (`es`) files go under `es/` and must mirror the English folder structure and filename exactly for the localized entry. For example, `src/content/summit-pages/hackathon/resources/use-cases.mdx` maps to `src/content/summit-pages/es/hackathon/resources/use-cases.mdx` in Spanish.
 
 #### Content paths vs URL routes
 
