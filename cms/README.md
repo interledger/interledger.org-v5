@@ -47,7 +47,6 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 | `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                                    |
 | `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                                      |
 | `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages` for English pages, with localizations written under `src/content/foundation-pages/{locale}/` |
-| `PAGES_MDX_OUTPUT_PATH`     | Legacy page output override (used if `MDX_OUTPUT_PATH` is not set)                                                                                                                                                      |
 | `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                                              |
 | `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).                  |
 | `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                             |
@@ -60,8 +59,7 @@ Lifecycle hooks that commit MDX updates now write to a dedicated staging clone c
 For page MDX output, the resolution order is:
 
 1. `MDX_OUTPUT_PATH`
-2. `PAGES_MDX_OUTPUT_PATH`
-3. `src/content/foundation-pages` (resolved inside `STRAPI_GIT_SYNC_REPO_PATH`)
+2. `src/content/foundation-pages` (resolved inside `STRAPI_GIT_SYNC_REPO_PATH`)
 
 This was introduced to:
 
