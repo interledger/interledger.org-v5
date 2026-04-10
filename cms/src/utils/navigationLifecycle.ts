@@ -69,6 +69,9 @@ export function getLocaleOutputPath(
   locale: string
 ): string {
   const projectRoot = getTargetRepoRoot()
+  if (locale === defaultLang) {
+    return path.join(projectRoot, config.outputPath)
+  }
   return path.join(
     projectRoot,
     config.outputPath.replace(/\.json$/, `.${locale}.json`)

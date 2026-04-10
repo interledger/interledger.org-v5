@@ -1,8 +1,8 @@
 import { defaultLocale, type Locale } from '@/utils/i18'
 
-import foundationEn from '@/config/foundation-navigation.en.json'
+import foundationEn from '@/config/foundation-navigation.json'
 import foundationEs from '@/config/foundation-navigation.es.json'
-import summitEn from '@/config/summit-navigation.en.json'
+import summitEn from '@/config/summit-navigation.json'
 import summitEs from '@/config/summit-navigation.es.json'
 
 export interface MenuItem {

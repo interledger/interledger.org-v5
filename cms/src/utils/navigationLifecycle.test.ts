@@ -176,9 +176,9 @@ describe('sanitizeNavigation', () => {
 })
 
 describe('getLocaleOutputPath', () => {
-  it('derives en path from outputPath', () => {
+  it('uses outputPath as-is for default locale (en)', () => {
     const result = getLocaleOutputPath(testConfig, 'en')
-    expect(result).toBe('/repo/src/config/foundation-navigation.en.json')
+    expect(result).toBe('/repo/src/config/foundation-navigation.json')
   })
 
   it('derives es path from outputPath', () => {

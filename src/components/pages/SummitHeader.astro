@@ -28,7 +28,6 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
 const rightNavBase =
   'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
 const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
-const ctaLinkClass = rightNavBase
 ---
 
 <header
@@ -112,26 +111,15 @@ const ctaLinkClass = rightNavBase
     <div
       class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
     >
-      {
-        ctaButton && (
-          <a
-            class={ctaLinkClass}
-            href={ctaButton.href || '#'}
-            data-umami-event={`Summit Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            {ctaButton.label}
-          </a>
-        )
-      }
       <a
-        href="/"
         class={rightNavLinkClass}
-        data-umami-event="Summit Nav - Interledger Foundation"
+        href={ctaButton?.href || '/'}
+        data-umami-event={`Summit Nav - ${ctaButton?.label || 'Interledger Foundation'}`}
+        {...ctaButton?.openInNewTab
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {}}
       >
-        Interledger Foundation
+        {ctaButton?.label || 'Interledger Foundation'}
       </a>
       <LanguageSwitcher />
     </div>

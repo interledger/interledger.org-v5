@@ -11,13 +11,15 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
+import { spawnSync } from 'child_process'
 import {
   assertRunFromCms,
   getConfigPath,
   getProjectRoot
 } from '../src/utils/paths'
-import { LOCALES } from '../src/utils/mdx'
+import { LOCALES, defaultLang } from '../src/utils/mdx'
 const DRY_RUN = process.argv.includes('--dry-run')
+const FORCE = process.argv.includes('--force')
 
 interface MenuItem {
   label: string
@@ -179,7 +181,10 @@ async function syncAllNavigations(
   for (const nav of navigations) {
     const basePath = getConfigPath(projectRoot, nav.configKey)
     for (const locale of LOCALES) {
-      const configPath = basePath.replace(/\.json$/, `.${locale}.json`)
+      const configPath =
+        locale === defaultLang
+          ? basePath
+          : basePath.replace(/\.json$/, `.${locale}.json`)
       await updateNavigation({
         baseUrl,
         token,
@@ -195,6 +200,22 @@ async function syncAllNavigations(
 async function main() {
   assertRunFromCms()
   const projectRoot = getProjectRoot()
+
+  if (!DRY_RUN && !FORCE) {
+    const branch = spawnSync('git', ['branch', '--show-current'], {
+      encoding: 'utf-8',
+      cwd: projectRoot
+    })
+    const currentBranch = branch.stdout?.trim()
+    const allowedBranches = ['main', 'staging']
+    if (!allowedBranches.includes(currentBranch || '')) {
+      console.error(
+        `❌ Error: sync-navigation can only run on ${allowedBranches.join(' or ')} branch (use --dry-run to preview, --force to override)`
+      )
+      console.error(`   Current branch: ${currentBranch || '(unknown)'}`)
+      process.exit(1)
+    }
+  }
   const envPath = path.join(projectRoot, '.env')
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })
