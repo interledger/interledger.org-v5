@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config'
 import { fileURLToPath } from 'node:url'
+import { redirects } from './redirects.js'
 import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
@@ -166,10 +167,7 @@ export default defineConfig({
     },
     plugins: [tailwindcss()]
   },
-  redirects: {
-    '/hacktoberfest': 'https://interledger.org/hacktoberfest',
-    '/hacktoberfest-2023': 'https://interledger.org/hacktoberfest'
-  },
+  redirects,
   server: {
     port: 1103
   }
