@@ -361,6 +361,35 @@ Developers can add multiple types of content directly to the repository. Each co
 
 Astro automatically picks up these files, registers them in the appropriate content collection, and generates the correct routes using the associated templates.
 
+#### Content structure
+
+All MDX files must live under their collection in `src/content/<collection>`.
+
+- English (`en`) files live directly in the collection folder.
+- Spanish (`es`) files live under `es/` within the same collection.
+
+Folder structure:
+
+```text
+src/content/<collection>/
+├── <en-files>.mdx
+└── es/
+    └── <es-files>.mdx
+```
+
+Nesting rules:
+
+- File paths must reflect their route structure (`pathSlug`).
+- Spanish files must mirror the English folder structure exactly.
+- Spanish filenames must match the English filenames for the localized entry.
+
+Example:
+
+```text
+EN: src/content/summit-pages/hackathon/resources/use-cases.mdx
+ES: src/content/summit-pages/es/hackathon/resources/use-cases.mdx
+```
+
 #### Content paths vs URL routes
 
 This project has two related but separate pieces of configuration:
