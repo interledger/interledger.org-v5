@@ -16,6 +16,7 @@ import {
   getConfigPath,
   getProjectRoot
 } from '../src/utils/paths'
+import { LOCALES } from '../src/utils/mdx'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -101,6 +102,7 @@ interface UpdateNavigationOptions {
   token: string
   apiId: string
   configPath: string
+  locale: string
   label: string
 }
 
@@ -109,14 +111,22 @@ async function updateNavigation({
   token,
   apiId,
   configPath,
+  locale,
   label
 }: UpdateNavigationOptions) {
+  if (!fs.existsSync(configPath)) {
+    console.log(
+      `⏭️  Skipping ${label} [${locale}]: file not found (${configPath})`
+    )
+    return
+  }
+
   const navigation = readJson(configPath)
   const payload = toStrapiPayload(navigation)
-  const url = `${baseUrl}/api/${apiId}?publicationState=preview`
+  const url = `${baseUrl}/api/${apiId}?publicationState=preview&locale=${locale}`
 
   if (DRY_RUN) {
-    console.log(`🔍 [DRY-RUN] Would update ${label}: ${configPath}`)
+    console.log(`🔍 [DRY-RUN] Would update ${label} [${locale}]: ${configPath}`)
     return
   }
 
@@ -137,11 +147,15 @@ async function updateNavigation({
 
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(`Failed to sync ${label}: ${res.status} - ${text}`)
+    throw new Error(
+      `Failed to sync ${label} [${locale}]: ${res.status} - ${text}`
+    )
   }
 
   const result = (await res.json()) as { data: { documentId: string } }
-  console.log(`✅ Synced ${label} (documentId: ${result.data.documentId})`)
+  console.log(
+    `✅ Synced ${label} [${locale}] (documentId: ${result.data.documentId})`
+  )
 }
 
 async function syncAllNavigations(
@@ -149,27 +163,32 @@ async function syncAllNavigations(
   baseUrl: string,
   token: string
 ) {
-  const configs = [
+  const navigations = [
     {
       apiId: 'foundation-navigation',
-      configPath: getConfigPath(projectRoot, 'foundationNavigation'),
+      configKey: 'foundationNavigation' as const,
       label: 'foundation navigation'
     },
     {
       apiId: 'summit-navigation',
-      configPath: getConfigPath(projectRoot, 'summitNavigation'),
+      configKey: 'summitNavigation' as const,
       label: 'summit navigation'
     }
   ]
 
-  for (const config of configs) {
-    await updateNavigation({
-      baseUrl,
-      token,
-      apiId: config.apiId,
-      configPath: config.configPath,
-      label: config.label
-    })
+  for (const nav of navigations) {
+    const basePath = getConfigPath(projectRoot, nav.configKey)
+    for (const locale of LOCALES) {
+      const configPath = basePath.replace(/\.json$/, `.${locale}.json`)
+      await updateNavigation({
+        baseUrl,
+        token,
+        apiId: nav.apiId,
+        configPath,
+        locale,
+        label: nav.label
+      })
+    }
   }
 }
 
