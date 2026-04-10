@@ -41,25 +41,19 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                                         |
-| `DATABASE_CLIENT`           | Using better-sqlite3                                                                                                                                                                                                    |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                                      |
-| `MDX_OUTPUT_PATH`           | Base output path for page MDX files. Default behavior resolves to `STRAPI_GIT_SYNC_REPO_PATH/src/content/foundation-pages` for English pages, with localizations written under `src/content/foundation-pages/{locale}/` |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                                              |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).                  |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                             |
-| `FRONTEND_ORIGINS`          | Origins allowed for CORS (e.g., local dev, staging, production Astro sites)                                                                                                                                             |
+| Variable                    | Description                                                                                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
 
 ### Git Sync Repository Target
 
 Lifecycle hooks that commit MDX updates now write to a dedicated staging clone configured by `STRAPI_GIT_SYNC_REPO_PATH`.
 
-For page MDX output, the resolution order is:
-
-1. `MDX_OUTPUT_PATH`
-2. `src/content/foundation-pages` (resolved inside `STRAPI_GIT_SYNC_REPO_PATH`)
+Page MDX output is written under `src/content/foundation-pages` inside `STRAPI_GIT_SYNC_REPO_PATH`, with localized pages under `src/content/foundation-pages/{locale}/`.
 
 This was introduced to:
 
@@ -393,7 +387,7 @@ cms/
 ### MDX files not generating
 
 1. Check that the content item is **published** (not just saved as draft)
-2. Verify the `MDX_OUTPUT_PATH` in `.env` points to the correct directory
+2. Verify the staging clone configured by `STRAPI_GIT_SYNC_REPO_PATH` points to the correct repository
 3. Check file permissions on the content directory (e.g. `src/content/foundation-pages`)
 4. Look for errors in the Strapi console output
 
@@ -427,7 +421,7 @@ pnpm add dotenv
 
 - The `.env` file contains secrets - never commit it to version control
 - Change the default secrets in `.env` before deploying to production
-- Update `FRONTEND_ORIGINS` in `.env` and `config/middlewares.ts` for production
+- Review the allowed CORS origins in `config/middlewares.ts` for production
 
 ## Support
 
