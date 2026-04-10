@@ -8,19 +8,21 @@ export const redirects = {
   '/values': '/about-us',
   '/vision': '/about-us',
   '/terms-service': '/terms-of-service',
-  '/es/open-payments-es': '/es/open-payments',
   '/financial-services': '/grant/financial-services',
-  '/es/servicios-financieros-digitales': '/es/grant/financial-services',
   '/education': '/grant/education',
-  '/es/educacion': '/es/grant/education',
   '/ambassadors': '/grant/ambassadors',
-  '/es/embajadores': '/es/grant/ambassadors',
   '/grant-web': '/grant/grant-web',
+  '/hacktoberfest-0': '/hacktoberfest',
+  '/hacktoberfest-2023': '/hacktoberfest',
+
+  // Foundation + site pages (Spanish)
+  '/es/open-payments-es': '/es/open-payments',
+  '/es/servicios-financieros-digitales': '/es/grant/financial-services',
+  '/es/educacion': '/es/grant/education',
+  '/es/embajadores': '/es/grant/ambassadors',
   '/es/grant-web': '/es/grant/grant-web',
   '/es/grant/educacion': '/es/grant/education',
   '/es/grant/embajadores': '/es/grant/ambassadors',
-  '/hacktoberfest-0': '/hacktoberfest',
-  '/hacktoberfest-2023': '/hacktoberfest',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
@@ -38,21 +40,15 @@ export const redirects = {
   '/summit/key-information': '/summit/media-kit',
   '/summit/2025-summit-schedule': '/summit/schedule',
   '/summit/code-of-conduct': '/summit/code-conduct',
+
+  // Summit pages (Spanish)
   '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
 
   // Summit hackathon
-  '/es//summit/hackathon': '/es/summit/hackaton',
-  '/es/summit/hackathon/resources': '/es/summit/hackaton/recursos',
   '/summit/hackathon-2024': '/summit/hackathon/resources',
   '/summit/hackathon-venue': '/summit/hackathon/resources/venue',
   '/summit/hackathon/schedule': '/summit/2024/hackathon/schedule',
-  '/es/summit/hackathon/schedule': '/es/summit/hackaton/programa',
-  '/es/summit/hackathon/faqs': '/es/summit/hackaton/preguntas-frecuentes',
-  '/es/summit/hackathon/preguntas-frecuentes':
-    '/es/summit/hackaton/preguntas-frecuentes',
   '/summit/hackathon/resources': '/summit/hackaton/recursos',
-  '/es/summit/hackathon/resources/documentation':
-    '/es/summit/hackaton/recursos/open-payments',
   '/summit/hackathon/resources/glossary':
     '/summit/hackathon/resources/documentation/glossary',
   '/summit/hackathon-glossary-documentation':
@@ -72,6 +68,16 @@ export const redirects = {
   '/summit/presentations': '/summit/hackathon/resources/presentations',
   '/summit/ideation-framework':
     '/summit/hackathon/resources/ideation-framework',
+
+  // Summit hackathon (Spanish)
+  '/es//summit/hackathon': '/es/summit/hackaton',
+  '/es/summit/hackathon/schedule': '/es/summit/hackaton/programa',
+  '/es/summit/hackathon/faqs': '/es/summit/hackaton/preguntas-frecuentes',
+  '/es/summit/hackathon/preguntas-frecuentes':
+    '/es/summit/hackaton/preguntas-frecuentes',
+  '/es/summit/hackathon/resources': '/es/summit/hackaton/recursos',
+  '/es/summit/hackathon/resources/documentation':
+    '/es/summit/hackaton/recursos/open-payments',
 
   // Summit talks and speakers
   '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
