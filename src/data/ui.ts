@@ -58,7 +58,18 @@ export const ui = {
     'footer.social.github': 'Github',
     'footer.social.linkedin': 'Linkedin',
     'blog.foundation.title': 'Foundation Blog',
+    'blog.foundation.description':
+      'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.',
+    'blog.foundation.tag_title': 'Foundation Blog - {tag}',
+    'blog.foundation.tag_description':
+      'Foundation Blog posts tagged with {tag}',
+    'blog.developers.portal': 'Developers Portal',
     'blog.developers.title': 'Engineering Blog',
+    'blog.developers.description':
+      'Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality.',
+    'blog.developers.tag_title': 'Engineering Blog - {tag}',
+    'blog.developers.tag_description':
+      'Engineering Blog posts tagged with {tag}',
     'blog.foundation.cta': 'Explore our Engineering Blog',
     'blog.developers.cta': 'Check out Foundation updates',
     'blog.header.image_alt': 'Ernie holding an envelope',
@@ -209,7 +220,18 @@ export const ui = {
     'footer.social.github': 'Github',
     'footer.social.linkedin': 'Linkedin',
     'blog.foundation.title': 'Blog de la fundación',
+    'blog.foundation.description':
+      'La Fundación Interledger comparte las noticias, perspectivas y novedades más recientes sobre inclusión financiera digital y nuestra misión de construir equidad e inclusión dentro de una red global de pagos para proveedores de servicios financieros digitales inclusivos.',
+    'blog.foundation.tag_title': 'Blog de la fundación - {tag}',
+    'blog.foundation.tag_description':
+      'Entradas del blog de la fundación etiquetadas con {tag}',
+    'blog.developers.portal': 'Portal para desarrolladores',
     'blog.developers.title': 'Blog de ingeniería',
+    'blog.developers.description':
+      'Historias y experiencias del equipo que trabaja para hacer realidad Interledger, la red global interoperable de pagos.',
+    'blog.developers.tag_title': 'Blog de ingeniería - {tag}',
+    'blog.developers.tag_description':
+      'Entradas del blog de ingeniería etiquetadas con {tag}',
     'blog.foundation.cta': 'Explora nuestro blog de ingeniería',
     'blog.developers.cta': 'Lee novedades de la fundación',
     'blog.header.image_alt': 'Ernie sosteniendo un sobre',

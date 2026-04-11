@@ -4,6 +4,7 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   page: Page
@@ -13,13 +14,15 @@ interface Props {
 }
 
 const { page, allTags, selectedTag, blogPath } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
 const title = selectedTag
-  ? `Foundation Blog - ${selectedTag}`
-  : 'Foundation Blog'
+  ? t('blog.foundation.tag_title', { tag: selectedTag })
+  : t('blog.foundation.title')
 const description = selectedTag
-  ? `Foundation Blog posts tagged with ${selectedTag}`
-  : 'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.'
+  ? t('blog.foundation.tag_description', { tag: selectedTag })
+  : t('blog.foundation.description')
 const developersBlogPath = blogPath.replace(/\/blog$/, '/developers/blog')
 ---
 
