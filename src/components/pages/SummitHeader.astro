@@ -3,7 +3,7 @@ import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import { HOME_SLUG, ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import summitNavigation from '@/config/summit-navigation.json'
-import { useTranslations, type UiKey } from '@/utils/i18'
+import { useTranslations } from '@/utils/i18'
 import { translationMap } from '@/utils/translationMapData'
 
 interface MenuItem {
@@ -24,21 +24,6 @@ const { mainMenu, ctaButton } = summitNavigation as {
 }
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const navLabelKeys: Record<string, UiKey> = {
-  Summit: 'nav.interledger_summit',
-  Overview: 'nav.overview',
-  Sessions: 'nav.sessions',
-  Speakers: 'nav.speakers',
-  Hackathon: 'nav.hackathon',
-  'Participation requirements': 'nav.participation_requirements',
-  'Past Summits': 'nav.past_summits',
-  '2024 Cape Town': 'nav.2024_cape_town',
-  '2023 Costa Rica': 'nav.2023_costa_rica',
-  '2022 New Orleans': 'nav.2022_new_orleans',
-  'Code of conduct': 'nav.code_of_conduct'
-}
-const translateNavLabel = (label: string) =>
-  navLabelKeys[label] ? t(navLabelKeys[label]) : label
 
 function normalizeBasePath(basePath: string): string {
   if (!basePath || basePath === '/') return ''
@@ -152,7 +137,7 @@ const ctaLinkClass = rightNavBase
                   data-umami-event={`Summit Nav - ${group.label}`}
                   class={topNavLinkClass}
                 >
-                  {translateNavLabel(group.label)}
+                  {group.label}
                 </a>
               ) : (
                 <>
@@ -163,7 +148,7 @@ const ctaLinkClass = rightNavBase
                     data-submenu-button
                     data-open="false"
                   >
-                    {translateNavLabel(group.label)}
+                    {group.label}
                   </button>
                   {group.items && group.items.length > 0 && (
                     <ul class={submenuClass}>
@@ -177,7 +162,7 @@ const ctaLinkClass = rightNavBase
                               ? { target: '_blank', rel: 'noopener noreferrer' }
                               : {})}
                           >
-                            {translateNavLabel(item.label)}
+                            {item.label}
                           </a>
                         </li>
                       ))}
@@ -203,7 +188,7 @@ const ctaLinkClass = rightNavBase
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}
           >
-            {translateNavLabel(ctaButton.label)}
+            {ctaButton.label}
           </a>
         )
       }
