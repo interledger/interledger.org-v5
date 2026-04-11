@@ -76,16 +76,6 @@ export const ui = {
     'blog.filter.label': 'Filter by tag:',
     'blog.filter.all': 'All',
     'blog.read_more': 'Read more',
-    'blog.preview.title': 'Preview not available',
-    'blog.preview.description':
-      'Developers blog content is rendered from MDX files in the repository. Strapi preview is not available for this content type.',
-    'blog.preview.body':
-      'Developers blog preview is not available. Content is loaded from MDX files in',
-    'blog.preview.body_suffix': 'and rendered at build time.',
-    'blog.preview.link': 'View the developers blog',
-    'preview.title': 'Preview',
-    'preview.prefix': '[PREVIEW]',
-    'preview.banner': 'PREVIEW MODE - This content is not published',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
     'blog.community.foundation.middle': 'We also welcome you to join our',
@@ -236,16 +226,6 @@ export const ui = {
     'blog.filter.label': 'Filtrar por etiqueta:',
     'blog.filter.all': 'Todo',
     'blog.read_more': 'Leer más',
-    'blog.preview.title': 'Vista previa no disponible',
-    'blog.preview.description':
-      'El contenido del blog de desarrolladores se renderiza desde archivos MDX en el repositorio. La vista previa de Strapi no está disponible para este tipo de contenido.',
-    'blog.preview.body':
-      'La vista previa del blog de desarrolladores no está disponible. El contenido se carga desde archivos MDX en',
-    'blog.preview.body_suffix': 'y se renderiza durante la compilación.',
-    'blog.preview.link': 'Ver el blog de desarrolladores',
-    'preview.title': 'Vista previa',
-    'preview.prefix': '[VISTA PREVIA]',
-    'preview.banner': 'MODO DE VISTA PREVIA - Este contenido no está publicado',
     'blog.community.foundation.start':
       'Si quieres mantenerte al día con todas las oportunidades abiertas y noticias de la Fundación Interledger, puedes suscribirte a nuestro',
     'blog.community.foundation.middle':

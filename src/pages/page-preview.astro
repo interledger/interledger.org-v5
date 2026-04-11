@@ -9,12 +9,9 @@ import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import Link from '@/components/shared/Link.astro'
 import { applyPreviewNoStore } from '@/utils/cache'
 import { fetchStrapi } from '@/utils/fetchStrapi'
-import { useTranslations } from '@/utils/i18'
 
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
-const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
 
 const documentId = Astro.url.searchParams.get('documentId')
 if (!documentId) {
@@ -49,7 +46,7 @@ if (!page) {
   return Astro.redirect('/404')
 }
 
-const title = page.title || t('preview.title')
+const title = page.title || 'Preview'
 const description = page.seo?.metaDescription || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description
@@ -63,11 +60,11 @@ const heroCtas = (page.hero?.hero_call_to_action ?? []) as Array<{
 const content = page.content || []
 ---
 
-<BaseLayout title={`${t('preview.prefix')} ${title}`} description={description}>
+<BaseLayout title={`[PREVIEW] ${title}`} description={description}>
   <main class="pb-space-l">
     <!-- Preview Banner -->
     <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
-      {t('preview.banner')}
+      PREVIEW MODE - This content is not published
     </div>
 
     {
