@@ -1,18 +1,19 @@
 ---
+/**
+ * Foundation site header.
+ * Composes navigation menu, action links, and mobile toggle.
+ */
 import FoundationLogo from '../logos/FoundationLogo.astro'
-import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import {
-  HOME_CONTENT_SLUG,
-  type Locale,
-  translatePath,
-  useTranslations,
-  getNavigation
-} from '@/utils'
+import FoundationNavMenu from '../shared/foundation-header/FoundationNavMenu.astro'
+import FoundationNavActions from '../shared/foundation-header/FoundationNavActions.astro'
+import HamburgerButton from '../shared/HamburgerButton.astro'
+import foundationNavigation from '@/config/foundation-navigation.json'
+import type { MenuGroup, MenuItem } from '@/types/navigation'
 
-const { routeLocale } = Astro.locals
-const locale = (routeLocale ?? 'en') as Locale
-const { mainMenu, ctaButton } = getNavigation('foundation', locale)
-const t = useTranslations(routeLocale)
+const { mainMenu, ctaButton } = foundationNavigation as {
+  mainMenu: MenuGroup[]
+  ctaButton?: MenuItem
+}
 ---
 
 <header
@@ -20,267 +21,36 @@ const t = useTranslations(routeLocale)
   role="banner"
 >
   <nav
-    class="flex items-center justify-between xl:grid xl:grid-cols-[auto_1fr_auto] xl:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
+    class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
   >
     <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
-      {t('nav.main')}
+      Main Navigation
     </h2>
     <a
-      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
-      class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
-      aria-label={t('aria.logo.foundation')}
+      href="/"
+      class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
+      aria-label="Interledger Foundation"
       data-umami-event="Site Nav - Logo"
     >
       <FoundationLogo class="text-black" />
     </a>
     <div
-      class="xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-white max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full"
+      class="header-nav-wrapper header-nav-wrapper--foundation"
       data-nav-wrapper
       data-offscreen="true"
       id="siteNavLinks"
     >
-      <ul
-        class="list-none ps-0 justify-center xl:flex xl:items-center"
-        id="siteNavMenu"
-        data-nav-list
-      >
-        {
-          mainMenu.map((group) => (
-            <li class="group min-[1060px]:relative" data-menu-level="1">
-              <button
-                aria-expanded="false"
-                data-umami-event={`Site Nav - ${group.label}`}
-                class="peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
-                data-submenu-button
-                data-open="false"
-              >
-                {group.label}
-              </button>
-              {group.items && group.items.length > 0 && (
-                <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
-                  {group.items.map((item) => (
-                    <li data-menu-level="2">
-                      <a
-                        href={item.href || '#'}
-                        data-umami-event={`Site Nav - ${item.label}`}
-                        class="block no-underline text-black hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
-                        {...(item.openInNewTab
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))
-        }
-      </ul>
+      <FoundationNavMenu menuGroups={mainMenu} />
     </div>
-    <div
-      class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
-    >
-      {
-        ctaButton && (
-          <a
-            class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
-            href={ctaButton.href || '#'}
-            data-umami-event={`Site Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            {ctaButton.label}
-          </a>
-        )
-      }
-      <LanguageSwitcher />
-    </div>
-    <button
-      type="button"
-      class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
-      aria-controls="siteNavMenu"
-      aria-label={t('nav.toggle_menu')}
-      title={t('nav.toggle_menu')}
-      id="siteNavToggle"
-      data-nav-toggle
-    >
-      <div
-        id="menuIcon"
-        class="group relative h-[1em] w-[1.5em] cursor-pointer transition-[transform] duration-500 ease-in-out"
-        data-open="false"
-      >
-        <span
-          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
-        ></span>
-        <span
-          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:rotate-45"
-        ></span>
-        <span
-          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-1/2 group-data-[open=true]:-rotate-45"
-        ></span>
-        <span
-          class="absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2"
-        ></span>
-      </div>
-    </button>
+    <FoundationNavActions ctaButton={ctaButton} />
+    <HamburgerButton menuId="siteNavMenu" iconId="foundationMenuIcon" />
   </nav>
 </header>
 
 <script>
-  import { stripTrailingSlash } from '@/utils/client'
-
-  const siteLinksWrapper = document.querySelector('[data-nav-wrapper]')
-  const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
-  wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
-
-  const siteNavToggle = document.querySelector('[data-nav-toggle]')
-  const menuIcon = document.getElementById('menuIcon')
-
-  if (document.contains(siteNavToggle)) {
-    siteNavToggle?.addEventListener('click', handleMobileNavToggle, false)
-  }
-
-  function setOffscreenState(isOffscreen: boolean) {
-    if (siteLinksWrapper instanceof HTMLElement) {
-      siteLinksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
-    }
-  }
-
-  function setMenuIconOpenState(isOpen: boolean) {
-    if (menuIcon instanceof HTMLElement) {
-      menuIcon.dataset.open = isOpen ? 'true' : 'false'
-    }
-  }
-
-  function handleMobileNavToggle() {
-    const isCurrentlyOffscreen =
-      siteLinksWrapper instanceof HTMLElement &&
-      siteLinksWrapper.dataset.offscreen === 'true'
-    setOffscreenState(!isCurrentlyOffscreen)
-    setMenuIconOpenState(isCurrentlyOffscreen)
-  }
-
-  function handleNavDisplayStyles(event: MediaQueryListEvent) {
-    if (event.matches) {
-      setOffscreenState(false)
-      setMenuIconOpenState(false)
-    } else {
-      if (siteLinksWrapper) {
-        flashPrevention(siteLinksWrapper)
-      }
-      setOffscreenState(true)
-      setMenuIconOpenState(false)
-    }
-  }
-
-  function flashPrevention(element: Element) {
-    element.setAttribute('style', 'display:none')
-    setTimeout(() => {
-      element.removeAttribute('style')
-    }, 10)
-  }
-
-  // Site sub-navigation toggle
-  const siteNav = document.querySelector('[data-nav-list]') as HTMLInputElement
-
-  if (document.contains(siteNav)) {
-    const submenuButtons = document.querySelectorAll('[data-submenu-button]')
-
-    submenuButtons.forEach((submenuButton) => {
-      submenuButton.setAttribute('aria-expanded', 'false')
-      submenuButton.setAttribute('data-open', 'false')
-
-      submenuButton.addEventListener('click', function (event) {
-        const clickedSubmenuButton = event.target
-        const allSubmenuButtons = Array.from(submenuButtons)
-        const notClickedSubmenuButtons = allSubmenuButtons.filter(
-          function (otherSubmenuButton) {
-            return otherSubmenuButton !== clickedSubmenuButton
-          }
-        )
-        notClickedSubmenuButtons.forEach((button) => {
-          button.setAttribute('aria-expanded', 'false')
-          button.setAttribute('data-open', 'false')
-        })
-        if (clickedSubmenuButton instanceof HTMLElement) {
-          const isOpen =
-            clickedSubmenuButton?.getAttribute('aria-expanded') === 'true'
-          if (isOpen) {
-            clickedSubmenuButton?.setAttribute('aria-expanded', 'false')
-            clickedSubmenuButton?.setAttribute('data-open', 'false')
-          } else {
-            clickedSubmenuButton?.setAttribute('aria-expanded', 'true')
-            clickedSubmenuButton?.setAttribute('data-open', 'true')
-          }
-        }
-      })
-    })
-
-    siteNav?.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        resetSubMenus()
-      }
-    })
-
-    document.addEventListener('click', function (event) {
-      if (isClickOutside(event, submenuButtons)) {
-        resetSubMenus()
-      }
-    })
-
-    function resetSubMenus() {
-      submenuButtons.forEach((submenuButton) => {
-        submenuButton.setAttribute('aria-expanded', 'false')
-        submenuButton.setAttribute('data-open', 'false')
-      })
-    }
-  }
-
-  function isClickOutside(
-    event: MouseEvent,
-    nodeList: NodeListOf<Element>
-  ): boolean {
-    let clickedInsideTarget = false
-    const eventTarget = event.target as Element
-    Array.from(nodeList).forEach(function (element) {
-      if (element.contains(eventTarget)) {
-        clickedInsideTarget = true
-      }
-    })
-    return !clickedInsideTarget
-  }
-
-  // Site sub-navigation highlighting parent menu item
-  const devLinks = document.querySelectorAll(
-    "[data-menu-level='2'] a[href*='/developers']"
-  )
-  const currentPath = stripTrailingSlash(window.location.pathname)
-
-  const activeSections = ['/blog']
-  devLinks.forEach((devLink) => {
-    if (devLink instanceof HTMLAnchorElement) {
-      const linkPath = devLink.pathname
-      const isExactMatch = linkPath === currentPath
-
-      const isSectionMatch = activeSections.some(
-        (section) =>
-          currentPath.startsWith(section) && linkPath.startsWith(section)
-      )
-
-      if (isExactMatch || isSectionMatch) {
-        const parentMenu = devLink.closest("[data-menu-level='1']")
-        const parentMenuLink = parentMenu?.querySelector('button')
-
-        devLink.setAttribute('data-active', 'true')
-        parentMenuLink?.setAttribute('data-active', 'true')
-      }
-    }
-  })
+  import '../shared/foundation-header/foundation-header.ts'
 </script>

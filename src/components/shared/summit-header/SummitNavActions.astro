@@ -1,0 +1,48 @@
+---
+import type { MenuItem } from '@/types/navigation'
+import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
+
+interface Props {
+  ctaButton?: MenuItem
+}
+
+const { ctaButton } = Astro.props
+
+const rightNavBase =
+  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
+const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
+const ctaLinkClass = rightNavBase
+
+const langItemClass =
+  "flex items-center after:mx-space-2xs after:text-white/70 after:content-['|'] last:after:content-none"
+
+const langLinkClass =
+  'block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
+---
+
+<div
+  class="flex items-center gap-space-s min-[1060px]:col-start-3 min-[1060px]:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+>
+  {
+    ctaButton && (
+      <a
+        class={ctaLinkClass}
+        href={ctaButton.href || '#'}
+        data-umami-event={`Summit Nav - ${ctaButton.label}`}
+        {...(ctaButton.openInNewTab
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {})}
+      >
+        {ctaButton.label}
+      </a>
+    )
+  }
+  <a
+    href="/"
+    class={rightNavLinkClass}
+    data-umami-event="Summit Nav - Interledger Foundation"
+  >
+    Interledger Foundation
+  </a>
+  <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
+</div>
