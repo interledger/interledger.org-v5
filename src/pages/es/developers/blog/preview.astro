@@ -4,19 +4,16 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 // Developers blog is not in Strapi (phase 1). Content is rendered from MDX files.
 // Preview from Strapi is not available until developers-blog-posts is added to the CMS.
 export const prerender = false
-
-const title = 'Preview not available'
-const description =
-  'Developers blog content is rendered from MDX files in the repository. Strapi preview is not available for this content type.'
 ---
 
-<FoundationPageLayout title={title} description={description}>
+<FoundationPageLayout
+  title="Preview not available"
+  description="Developers blog content is rendered from MDX files in the repository. Strapi preview is not available for this content type."
+>
   <main class="mx-auto max-w-content px-[5%] py-space-xl">
     <p class="text-step-0">
       Developers blog preview is not available. Content is loaded from MDX files
-      in
-      <code>src/content/developers-blog-posts/</code>
-      and rendered at build time.
+      in <code>src/content/developers-blog-posts/</code> and rendered at build time.
     </p>
     <p class="mt-space-m text-step-0">
       <a href="/developers/blog" class="text-primary underline"
