@@ -1,9 +1,10 @@
 import { initHeaderNav } from '@/scripts/header-nav'
 
-const rootSelector = '#block-interledger-mainnavigation'
+const navId = 'block-interledger-mainnavigation'
+const rootSelector = `#${navId}`
 const headerRoot = document.querySelector<HTMLElement>(rootSelector)
 if (headerRoot) {
-  initHeaderNav('foundationMenuIcon', rootSelector)
+  initHeaderNav(navId, 'foundationMenuIcon')
 
   // Mark active navigation links (Foundation-specific: developer links + blog section)
   const devLinks = headerRoot.querySelectorAll(

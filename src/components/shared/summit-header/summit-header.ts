@@ -1,9 +1,10 @@
 import { initHeaderNav } from '@/scripts/header-nav'
 
-const rootSelector = '#block-summit-navigation'
+const navId = 'block-summit-navigation'
+const rootSelector = `#${navId}`
 const headerRoot = document.querySelector<HTMLElement>(rootSelector)
 if (headerRoot) {
-  initHeaderNav('summitMenuIcon', rootSelector)
+  initHeaderNav(navId, 'summitMenuIcon')
 
   // Mark active navigation links (Summit-specific)
   const currentPath = window.location.pathname

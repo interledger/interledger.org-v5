@@ -1,15 +1,18 @@
 /**
  * Shared header navigation behavior.
  * Used by both Summit and Foundation headers.
+ *
+ * All DOM queries are scoped to the nav root identified by `navId`,
+ * so multiple headers on the same page won't interfere with each other.
  */
 
 /** Sets up mobile nav toggle, responsive breakpoint handling, and submenu behavior. */
-export function initHeaderNav(iconId: string, rootSelector: string) {
-  const root = document.querySelector<HTMLElement>(rootSelector)
+export function initHeaderNav(navId: string, iconId: string) {
+  const root = document.getElementById(navId)
   if (!root) return
 
   const linksWrapper = root.querySelector<HTMLElement>('[data-nav-wrapper]')
-  const menuIcon = root.querySelector<HTMLElement>(`#${iconId}`)
+  const menuIcon = document.getElementById(iconId)
   const navToggle = root.querySelector<HTMLElement>('[data-nav-toggle]')
 
   function setOffscreenState(isOffscreen: boolean) {
@@ -38,7 +41,7 @@ export function initHeaderNav(iconId: string, rootSelector: string) {
       setMenuIconOpenState(false)
     } else {
       if (linksWrapper) {
-        suppressTransitionFlash(linksWrapper)
+        flashPrevention(linksWrapper)
       }
       setOffscreenState(true)
       setMenuIconOpenState(false)
@@ -55,22 +58,11 @@ export function initHeaderNav(iconId: string, rootSelector: string) {
   initSubmenuToggle(root)
 }
 
-function suppressTransitionFlash(element: HTMLElement) {
-  const previousTransition = element.style.transition
-
-  element.style.transition = 'none'
-  // Force style recalculation so the transition suppression is applied.
-  void element.offsetHeight
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      if (previousTransition) {
-        element.style.transition = previousTransition
-      } else {
-        element.style.removeProperty('transition')
-      }
-    })
-  })
+function flashPrevention(element: Element) {
+  element.setAttribute('style', 'display:none')
+  setTimeout(() => {
+    element.removeAttribute('style')
+  }, 10)
 }
 
 function isClickOutside(
@@ -85,7 +77,7 @@ function isClickOutside(
 function initSubmenuToggle(root: HTMLElement) {
   const navList = root.querySelector<HTMLElement>('[data-nav-list]')
 
-  if (!navList || !document.contains(navList)) return
+  if (!navList) return
 
   const submenuButtons = root.querySelectorAll<HTMLElement>(
     '[data-submenu-button]'
