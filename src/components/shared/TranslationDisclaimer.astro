@@ -1,14 +1,12 @@
 ---
-import { useTranslations } from '@/utils/i18'
-
 interface Props {
   isVisible?: boolean
   style?: 'foundation' | 'summit'
 }
 
 const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
 const { isVisible = false, style = 'foundation' } = Astro.props
+const spanishDisclaimer = 'Esta página aún no está disponible en español.'
 
 const styleClass = {
   foundation: 'text-primary',
@@ -18,12 +16,12 @@ const styleClass = {
 
 {
   isVisible && routeLocale === 'es' && (
-    <section class="py-space-s" aria-label={t('translation.disclaimer_label')}>
+    <section class="py-space-s">
       <div class="mx-auto w-full max-w-wide px-space-m">
         <p
           class={`translation-disclaimer max-w-fit px-space-s py-space-2xs text-step--1 ${styleClass}`}
         >
-          {t('translation.disclaimer')}
+          {spanishDisclaimer}
         </p>
       </div>
     </section>
