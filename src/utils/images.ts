@@ -66,7 +66,7 @@ export function getOptimizedImage(src: string): OptimizedImage {
     fs.existsSync(path.join(publicDir, `${base}-${w}.webp`))
   ).map((w) => ({
     src: `${base}-${w}.webp`,
-    width: w,
+    width: w
   }))
 
   const fullWebP = `${base}-full.webp`

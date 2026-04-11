@@ -17,7 +17,10 @@ interface SourceConfig {
 
 const SOURCES: SourceConfig[] = [
   { dir: path.join(PUBLIC_DIR, 'img'), outputPrefix: '' },
-  { dir: path.join(PUBLIC_DIR, 'uploads', 'img', 'original'), outputPrefix: 'uploads' },
+  {
+    dir: path.join(PUBLIC_DIR, 'uploads', 'img', 'original'),
+    outputPrefix: 'uploads'
+  }
 ]
 
 function isRaster(file: string): boolean {
@@ -111,7 +114,9 @@ async function main(): Promise<void> {
     for (const file of files) {
       const { created, cached } = await processImage(file, dir, outputPrefix)
       if (created > 0) {
-        console.log(`    ${path.relative(dir, file)} → ${created} new variant(s)`)
+        console.log(
+          `    ${path.relative(dir, file)} → ${created} new variant(s)`
+        )
       }
       totalCreated += created
       totalCached += cached
