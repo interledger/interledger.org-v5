@@ -1,10 +1,3 @@
-export const showDefaultLang = false
-
-export const languages = {
-  en: 'English',
-  es: 'Español'
-} as const
-
 export const ui = {
   en: {
     'site.title': 'Interledger Foundation',
