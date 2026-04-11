@@ -42,7 +42,13 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
   }
   attributes: {
     quote: Schema.Attribute.Text & Schema.Attribute.Required
-    source: Schema.Attribute.RichText
+    source: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
   }
 }
 
@@ -54,7 +60,14 @@ export interface BlocksCalloutText extends Struct.ComponentSchema {
     icon: 'megaphone'
   }
   attributes: {
-    content: Schema.Attribute.RichText & Schema.Attribute.Required
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
   }
 }
 
@@ -369,6 +382,12 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
       }>
     content: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -415,6 +434,12 @@ export interface BlocksParagraph extends Struct.ComponentSchema {
       Schema.Attribute.DefaultTo<'left'>
     content: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
