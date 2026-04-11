@@ -733,7 +733,11 @@ To use it directly in Astro templates:
 ```astro
 import OptimizedImage from '@/components/OptimizedImage.astro'
 
-<OptimizedImage src="/img/hero.png" alt="Hero image" sizes="(max-width: 640px) 100vw, 50vw" />
+<OptimizedImage
+  src="/img/hero.png"
+  alt="Hero image"
+  sizes="(max-width: 640px) 100vw, 50vw"
+/>
 ```
 
 SVGs are passed through unchanged.
