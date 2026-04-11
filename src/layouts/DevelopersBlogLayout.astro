@@ -2,6 +2,7 @@
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
 import { ROUTE_BASES } from '@/utils/routes'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType
@@ -15,6 +16,8 @@ const {
   developersHomePath = '/developers',
   blogPath = ROUTE_BASES['developers-blog']
 } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const site = Astro.site!
 const ogImageUrl = frontmatter.ogImageUrl
@@ -72,7 +75,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
             href={developersHomePath}
             data-umami-event="Devs breadcrumb - Home"
           >
-            <span itemprop="name">Developers Portal</span></a
+            <span itemprop="name">{t('nav.developers')}</span></a
           >
           <meta itemprop="position" content="1" />
         </li>
@@ -87,7 +90,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
             href={blogPath}
             data-umami-event="Devs breadcrumb - Blog"
           >
-            <span itemprop="name">Engineering Blog</span></a
+            <span itemprop="name">{t('blog.developers.title')}</span></a
           >
           <meta itemprop="position" content="2" />
         </li>

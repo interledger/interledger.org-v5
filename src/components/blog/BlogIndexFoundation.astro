@@ -3,6 +3,7 @@ import { createExcerpt } from '@/utils/create-excerpt'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -19,14 +20,16 @@ const {
   path = '/blog',
   developersHref = '/developers/blog'
 } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <BlogIndexHeader
-  title="Foundation Blog"
+  title={t('blog.foundation.title')}
   href={developersHref}
-  message="Explore our Engineering Blog"
+  message={t('blog.foundation.cta')}
   imgHref="/img/ernie-teal.svg"
-  imgAlt="Ernie holding an envelope"
+  imgAlt={t('blog.header.image_alt')}
 />
 
 <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
@@ -76,7 +79,7 @@ const {
               class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
               data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (read more)`}
             >
-              Read more
+              {t('blog.read_more')}
               <svg
                 viewBox="0 0 12 12"
                 class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"

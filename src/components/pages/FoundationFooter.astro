@@ -1,4 +1,8 @@
 ---
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const currentYear = new Date().getFullYear()
 ---
 
@@ -9,25 +13,25 @@ const currentYear = new Date().getFullYear()
   <div class="md:flex md:gap-space-xl md:justify-center">
     <div>
       <h3 class="text-current mb-space-2xs md:text-left">
-        Join our mailing list
+        {t('footer.join_mailing_list')}
       </h3>
       <a
         class="mx-auto mb-space-s flex max-w-[10em] cursor-pointer items-center justify-center rounded border border-gray bg-gray text-step--1 no-underline text-white transition-transform duration-200 hover:scale-[1.15] px-space-xs py-space-3xs"
         href="/subscribe"
         data-umami-event="Footer link - Subscribe"
       >
-        Subscribe
+        {t('footer.subscribe')}
       </a>
     </div>
     <div>
-      <h3 class="mb-space-2xs md:text-left">Connect with us</h3>
+      <h3 class="mb-space-2xs md:text-left">{t('footer.connect')}</h3>
       <ul
         class="flex flex-wrap gap-space-s mb-space-s justify-center list-none p-0"
       >
         <li class="flex-none">
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
-            aria-label="Interledger's Youtube channel"
+            aria-label={t('footer.youtube')}
             data-umami-event="Footer - Youtube"
             class="inline-flex"
           >
@@ -44,7 +48,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://interledger.social/about"
-            aria-label="Interledger's Mastadon instance"
+            aria-label={t('footer.mastadon')}
             data-umami-event="Footer - Mastadon"
             class="inline-flex"
           >
@@ -64,7 +68,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://x.com/interledger"
-            aria-label="Interledger's X.com account"
+            aria-label={t('footer.x')}
             data-umami-event="Footer - X"
             class="inline-flex"
           >
@@ -81,7 +85,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://github.com/interledger"
-            aria-label="Interledger's GitHub account"
+            aria-label={t('footer.github')}
             data-umami-event="Footer - GitHub"
             class="inline-flex"
           >
@@ -98,7 +102,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://www.instagram.com/interledgerfoundation/"
-            aria-label="Interledger's Instagram account"
+            aria-label={t('footer.instagram')}
             data-umami-event="Footer - Instagram"
             class="inline-flex"
           >
@@ -118,7 +122,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://www.linkedin.com/company/interledger-foundation/"
-            aria-label="Interledger's LinkedIn account"
+            aria-label={t('footer.linkedin')}
             data-umami-event="Footer - LinkedIn"
             class="inline-flex"
           >
@@ -135,7 +139,7 @@ const currentYear = new Date().getFullYear()
         <li class="flex-none">
           <a
             href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-            aria-label="Interledger Community Slack"
+            aria-label={t('footer.slack')}
             data-umami-event="Footer - Slack"
             class="inline-flex"
           >
@@ -153,7 +157,7 @@ const currentYear = new Date().getFullYear()
     </div>
   </div>
   <p class="mb-space-3xs">
-    &copy; 2020–{currentYear}, Interledger Foundation. All rights reserved.
+    &copy; 2020–{currentYear}, Interledger Foundation. {t('footer.rights')}
   </p>
   <ul class="footer-links flex list-none justify-center p-0 max-xs:block">
     <li
@@ -164,7 +168,7 @@ const currentYear = new Date().getFullYear()
         data-umami-event="Footer - T&C"
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >
-        Terms & conditions
+        {t('footer.terms_conditions')}
       </a>
     </li>
     <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline">
@@ -173,7 +177,7 @@ const currentYear = new Date().getFullYear()
         data-umami-event="Footer - Privacy"
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >
-        Privacy policy
+        {t('footer.privacy_policy')}
       </a>
     </li>
     <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline">
@@ -182,7 +186,7 @@ const currentYear = new Date().getFullYear()
         data-umami-event="Footer - Contact"
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >
-        Contact us
+        {t('footer.contact_us')}
       </a>
     </li>
   </ul>

@@ -2,6 +2,7 @@
 import Footer from '../components/pages/Footer.astro'
 import LanderHeader from '../components/pages/LanderHeader.astro'
 import '../styles/tailwind.css'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   title: string
@@ -9,24 +10,24 @@ interface Props {
   gradient?: string
 }
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const { title, description, gradient = 'option1' } = Astro.props
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang={routeLocale} data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="author" content="Interledger Foundation" />
     <meta
       name="description"
-      content={description
-        ? description
-        : 'Making payments as easy as sending an email'}
+      content={description ? description : t('site.description')}
     />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>
-      {title ? `${title} | Interledger Foundation` : 'Interledger Foundation'}
+      {title ? `${title} | ${t('site.title')}` : t('site.title')}
     </title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script

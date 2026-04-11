@@ -6,6 +6,7 @@
  */
 import '../styles/tailwind.css'
 import SeoHead from '@/components/SeoHead.astro'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   title: string
@@ -20,10 +21,12 @@ interface Props {
   datePublished?: string
 }
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const {
   title,
-  titleSuffix = 'Interledger Foundation',
-  description = 'Making payments as easy as sending an email',
+  titleSuffix = t('site.title'),
+  description = t('site.description'),
   theme = 'light',
   ogType = 'website',
   ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
@@ -35,7 +38,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme={theme}>
+<html lang={routeLocale} data-theme={theme}>
   <head>
     <SeoHead
       title={title}

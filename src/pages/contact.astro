@@ -1,15 +1,19 @@
 ---
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <FoundationPageLayout
-  title="Contact"
-  description="Get in touch with the Interledger Foundation."
+  title={t('contact.title')}
+  description={t('contact.description')}
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-[1440px] min-w-[360px] px-[5%] min-[1600px]:px-0">
       <header class="pt-space-s pb-space-m">
-        <h1 class="text-step-3 font-bold">Contact</h1>
+        <h1 class="text-step-3 font-bold">{t('contact.title')}</h1>
       </header>
       <div class="max-w-[640px]">
         <!-- Success message (shown via JS when ?success=true) -->
@@ -17,11 +21,10 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
           id="success-message"
           class="hidden mb-space-l p-space-m rounded border border-green-400 bg-green-50 text-green-800"
         >
-          <p class="font-semibold mb-space-2xs">Message sent!</p>
-          <p>
-            Thank you for reaching out. We'll get back to you as soon as
-            possible.
+          <p class="font-semibold mb-space-2xs">
+            {t('contact.success_title')}
           </p>
+          <p>{t('contact.success_message')}</p>
         </div>
 
         <!-- Contact form -->
@@ -39,61 +42,69 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 
           <!-- Honeypot field (hidden from real users) -->
           <p class="hidden">
-            <label>Don't fill this out: <input name="bot-field" /></label>
+            <label>{t('contact.honeypot')} <input name="bot-field" /></label>
           </p>
 
           <div class="flex flex-col gap-space-2xs">
-            <label for="name" class="font-semibold text-[0.95rem]">Name</label>
+            <label for="name" class="font-semibold text-[0.95rem]">
+              {t('contact.name')}
+            </label>
             <input
               id="name"
               type="text"
               name="name"
               required
-              placeholder="Enter your preferred name"
+              placeholder={t('contact.name_placeholder')}
               class="w-full rounded border border-[var(--sl-color-gray-4)] bg-white px-space-xs py-space-2xs text-[1rem] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
             />
           </div>
 
           <div class="flex flex-col gap-space-2xs">
-            <label for="email" class="font-semibold text-[0.95rem]">Email</label
-            >
+            <label for="email" class="font-semibold text-[0.95rem]">
+              {t('contact.email')}
+            </label>
             <input
               id="email"
               type="email"
               name="email"
               required
-              placeholder="Enter the email address you would like to be contacted at"
+              placeholder={t('contact.email_placeholder')}
               class="w-full rounded border border-[var(--sl-color-gray-4)] bg-white px-space-xs py-space-2xs text-[1rem] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
             />
           </div>
 
           <div class="flex flex-col gap-space-2xs">
-            <label for="topic" class="font-semibold text-[0.95rem]">Topic</label
-            >
+            <label for="topic" class="font-semibold text-[0.95rem]">
+              {t('contact.topic')}
+            </label>
             <select
               id="topic"
               name="topic"
               required
               class="w-full rounded border border-[var(--sl-color-gray-4)] px-space-xs py-space-2xs text-[1rem] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-white"
             >
-              <option value="" disabled selected>Select a topic</option>
-              <option value="Grants">Grants</option>
-              <option value="Media">Media</option>
-              <option value="Technology">Technology</option>
-              <option value="Other">Other</option>
+              <option value="" disabled selected>
+                {t('contact.topic_placeholder')}
+              </option>
+              <option value="Grants">{t('contact.topic.grants')}</option>
+              <option value="Media">{t('contact.topic.media')}</option>
+              <option value="Technology">
+                {t('contact.topic.technology')}
+              </option>
+              <option value="Other">{t('contact.topic.other')}</option>
             </select>
           </div>
 
           <div class="flex flex-col gap-space-2xs">
             <label for="message" class="font-semibold text-[0.95rem]"
-              >Message</label
+              >{t('contact.message')}</label
             >
             <textarea
               id="message"
               name="message"
               required
               rows="6"
-              placeholder="Your message"
+              placeholder={t('contact.message_placeholder')}
               class="w-full rounded border border-[var(--sl-color-gray-4)] bg-white px-space-xs py-space-2xs text-[1rem] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-y"
             ></textarea>
           </div>
@@ -105,7 +116,7 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
               class="hidden text-red-600 text-sm"
               role="alert"
             >
-              Please complete the reCAPTCHA challenge.
+              {t('contact.recaptcha')}
             </p>
           </div>
 
@@ -114,7 +125,7 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
               type="submit"
               class="rounded-pill bg-primary px-space-s py-space-xs text-white font-semibold cursor-pointer hover:opacity-90 transition-opacity border-0"
             >
-              Send message
+              {t('contact.submit')}
             </button>
           </div>
         </form>

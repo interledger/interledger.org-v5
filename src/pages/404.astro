@@ -3,25 +3,26 @@
  * Custom 404 page for static hosting (Netlify serves 404.html).
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
-<FoundationPageLayout
-  title="Page not found"
-  description="The page you requested could not be found."
->
+<FoundationPageLayout title={t('404.title')} description={t('404.description')}>
   <main class="flex-1 flex items-center justify-center py-space-xl">
     <section class="text-center px-space-m">
       <h1 class="text-6xl font-semibold text-primary mb-space-s">404</h1>
       <p
         class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-md mx-auto"
       >
-        The page you requested could not be found.
+        {t('404.description')}
       </p>
       <a
         href="/"
         class="inline-block text-primary font-medium underline hover:no-underline"
       >
-        ← Back to home
+        ← {t('404.back_home')}
       </a>
     </section>
   </main>

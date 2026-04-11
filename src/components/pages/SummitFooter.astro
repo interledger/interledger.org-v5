@@ -1,4 +1,8 @@
 ---
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const currentYear = new Date().getFullYear()
 ---
 
@@ -13,21 +17,21 @@ const currentYear = new Date().getFullYear()
       <h3
         class="mb-space-2xs font-semibold text-[var(--color-text)] min-[780px]:text-left"
       >
-        Join our mailing list
+        {t('footer.join_mailing_list')}
       </h3>
       <a
         class="mx-auto mb-space-s flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-space-xs py-space-3xs text-step--1 text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
         href="/subscribe"
         data-umami-event="Footer link - Subscribe"
       >
-        Subscribe
+        {t('footer.subscribe')}
       </a>
     </div>
     <div>
       <h3
         class="mb-space-2xs font-semibold text-[var(--color-text)] min-[780px]:text-left"
       >
-        Connect with us
+        {t('footer.connect')}
       </h3>
       <ul
         class="flex flex-wrap justify-center gap-space-s mb-space-s list-none p-0"
@@ -35,7 +39,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
-            aria-label="Interledger's Youtube channel"
+            aria-label={t('footer.youtube')}
             data-umami-event="Footer - Youtube"
           >
             <svg
@@ -51,7 +55,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://interledger.social/@Interledger"
-            aria-label="Interledger's Mastadon instance"
+            aria-label={t('footer.mastadon')}
             data-umami-event="Footer - Mastadon"
           >
             <svg
@@ -68,7 +72,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://x.com/interledger"
-            aria-label="Interledger's X.com account"
+            aria-label={t('footer.x')}
             data-umami-event="Footer - X"
           >
             <svg
@@ -84,7 +88,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://github.com/interledger"
-            aria-label="Interledger's GitHub account"
+            aria-label={t('footer.github')}
             data-umami-event="Footer - GitHub"
           >
             <svg
@@ -100,7 +104,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://www.instagram.com/interledgerfoundation/"
-            aria-label="Interledger's Instagram account"
+            aria-label={t('footer.instagram')}
             data-umami-event="Footer - Instagram"
           >
             <svg
@@ -119,7 +123,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://www.linkedin.com/company/interledger-foundation/"
-            aria-label="Interledger's LinkedIn account"
+            aria-label={t('footer.linkedin')}
             data-umami-event="Footer - LinkedIn"
           >
             <svg
@@ -135,7 +139,7 @@ const currentYear = new Date().getFullYear()
         <li>
           <a
             href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-            aria-label="Interledger Community Slack"
+            aria-label={t('footer.slack')}
             data-umami-event="Footer - Slack"
           >
             <svg
@@ -152,7 +156,7 @@ const currentYear = new Date().getFullYear()
     </div>
   </div>
   <p class="my-space-m text-[var(--color-text)]">
-    © 2020–{currentYear}, Interledger Foundation. All rights reserved.
+    © 2020–{currentYear}, Interledger Foundation. {t('footer.rights')}
   </p>
   <ul class="flex list-none justify-center p-0 mt-space-s max-[479px]:block">
     <li
@@ -160,7 +164,7 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/terms-of-service">Terms of service</a
+        href="/terms-of-service">{t('footer.terms_service')}</a
       >
     </li>
     <li
@@ -168,7 +172,7 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/privacy-policy">Privacy policy</a
+        href="/privacy-policy">{t('footer.privacy_policy')}</a
       >
     </li>
     <li
@@ -176,7 +180,7 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/contact">Contact us</a
+        href="/contact">{t('footer.contact_us')}</a
       >
     </li>
   </ul>

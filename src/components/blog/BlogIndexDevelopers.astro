@@ -3,6 +3,7 @@ import { createExcerpt } from '@/utils/create-excerpt'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   posts: CollectionEntry<'developers-blog'>[]
@@ -19,14 +20,16 @@ const {
   path = '/developers/blog',
   foundationHref = '/blog'
 } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <BlogIndexHeader
-  title="Engineering Blog"
+  title={t('blog.developers.title')}
   href={foundationHref}
-  message="Check out Foundation updates"
+  message={t('blog.developers.cta')}
   imgHref="/img/ernie-purple.svg"
-  imgAlt="Ernie holding an envelope"
+  imgAlt={t('blog.header.image_alt')}
 />
 
 <TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />

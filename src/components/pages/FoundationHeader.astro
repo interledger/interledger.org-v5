@@ -2,6 +2,9 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
+import { useTranslations, type UiKey } from '@/utils/i18'
+import { translationMap } from '@/utils/translationMapData'
+import { HOME_SLUG, ROUTE_BASES, localizeRoute } from '@/utils/routes'
 
 interface MenuItem {
   label: string
@@ -19,6 +22,82 @@ const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const navLabelKeys: Record<string, UiKey> = {
+  Foundation: 'nav.foundation',
+  'About Us': 'nav.about_us',
+  'Policy & Advocacy': 'nav.policy_advocacy',
+  Team: 'nav.team',
+  Media: 'nav.media',
+  Technology: 'nav.technology',
+  Overview: 'nav.overview',
+  Interledger: 'nav.interledger',
+  'Open Payments': 'nav.open_payments',
+  'Web Monetization': 'nav.web_monetization',
+  'Join Network': 'nav.join_network',
+  Developers: 'nav.developers',
+  Grants: 'nav.grants',
+  'Digital Financial Services': 'nav.digital_financial_services',
+  'Higher Education': 'nav.higher_education',
+  'Grant for Web': 'nav.grant_for_web',
+  'Content Hub': 'nav.content_hub',
+  'Foundation Blog': 'nav.foundation_blog',
+  'Tech Blog': 'nav.tech_blog',
+  'Community Forum': 'nav.community_forum',
+  Participate: 'nav.participate',
+  'Get Involved': 'nav.get_involved',
+  'Interledger Summit': 'nav.interledger_summit'
+}
+const translateNavLabel = (label: string) =>
+  navLabelKeys[label] ? t(navLabelKeys[label]) : label
+
+function normalizeBasePath(basePath: string): string {
+  if (!basePath || basePath === '/') return ''
+  return basePath.startsWith('/') ? basePath : `/${basePath}`
+}
+
+function buildRoutePath(basePath: string, slug: string): string {
+  const normalizedBasePath = normalizeBasePath(basePath)
+
+  if (slug === HOME_SLUG && normalizedBasePath === '') {
+    return ''
+  }
+
+  return `${normalizedBasePath}/${slug}`
+}
+
+function localizeHref(href = '#'): string {
+  if (
+    href.startsWith('http') ||
+    href.startsWith('mailto:') ||
+    href.startsWith('#')
+  ) {
+    return href
+  }
+
+  const path = href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href
+  const bases = Object.values(ROUTE_BASES).sort((a, b) => b.length - a.length)
+
+  for (const base of bases) {
+    const normalizedBase = normalizeBasePath(base)
+    if (normalizedBase && path === normalizedBase) {
+      return localizeRoute(normalizedBase, routeLocale)
+    }
+    if (normalizedBase && path.startsWith(`${normalizedBase}/`)) {
+      const slug = path.slice(normalizedBase.length + 1)
+      const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
+      return localizeRoute(
+        buildRoutePath(normalizedBase, localizedSlug),
+        routeLocale
+      )
+    }
+  }
+
+  const slug = path === '/' ? HOME_SLUG : path.slice(1)
+  const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
+  return localizeRoute(buildRoutePath('', localizedSlug), routeLocale)
+}
 ---
 
 <header
@@ -33,12 +112,12 @@ const { mainMenu, ctaButton } = foundationNavigation as {
     data-nav
   >
     <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
-      Main navigation
+      {t('nav.main')}
     </h2>
     <a
       href="/"
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
-      aria-label="Interledger Foundation"
+      aria-label={t('aria.logo.foundation')}
       data-umami-event="Site Nav - Logo"
     >
       <FoundationLogo class="text-black" />
@@ -64,21 +143,21 @@ const { mainMenu, ctaButton } = foundationNavigation as {
                 data-submenu-button
                 data-open="false"
               >
-                {group.label}
+                {translateNavLabel(group.label)}
               </button>
               {group.items && group.items.length > 0 && (
                 <ul class="list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block">
                   {group.items.map((item) => (
                     <li data-menu-level="2">
                       <a
-                        href={item.href || '#'}
+                        href={localizeHref(item.href)}
                         data-umami-event={`Site Nav - ${item.label}`}
                         class="block no-underline text-black hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                         {...(item.openInNewTab
                           ? { target: '_blank', rel: 'noopener noreferrer' }
                           : {})}
                       >
-                        {item.label}
+                        {translateNavLabel(item.label)}
                       </a>
                     </li>
                   ))}
@@ -96,13 +175,13 @@ const { mainMenu, ctaButton } = foundationNavigation as {
         ctaButton && (
           <a
             class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
-            href={ctaButton.href || '#'}
+            href={localizeHref(ctaButton.href)}
             data-umami-event={`Site Nav - ${ctaButton.label}`}
             {...(ctaButton.openInNewTab
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}
           >
-            {ctaButton.label}
+            {translateNavLabel(ctaButton.label)}
           </a>
         )
       }
@@ -112,8 +191,8 @@ const { mainMenu, ctaButton } = foundationNavigation as {
       type="button"
       class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
       aria-controls="siteNavMenu"
-      aria-label="Toggle Menu"
-      title="Toggle Menu"
+      aria-label={t('nav.toggle_menu')}
+      title={t('nav.toggle_menu')}
       id="siteNavToggle"
       data-nav-toggle
     >

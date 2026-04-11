@@ -1,8 +1,10 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import { ROUTE_BASES } from '@/utils/routes'
+import { HOME_SLUG, ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import summitNavigation from '@/config/summit-navigation.json'
+import { useTranslations, type UiKey } from '@/utils/i18'
+import { translationMap } from '@/utils/translationMapData'
 
 interface MenuItem {
   label: string
@@ -19,6 +21,70 @@ interface MenuGroup {
 const { mainMenu, ctaButton } = summitNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
+}
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const navLabelKeys: Record<string, UiKey> = {
+  Summit: 'nav.interledger_summit',
+  Overview: 'nav.overview',
+  Sessions: 'nav.sessions',
+  Speakers: 'nav.speakers',
+  Hackathon: 'nav.hackathon',
+  'Participation requirements': 'nav.participation_requirements',
+  'Past Summits': 'nav.past_summits',
+  '2024 Cape Town': 'nav.2024_cape_town',
+  '2023 Costa Rica': 'nav.2023_costa_rica',
+  '2022 New Orleans': 'nav.2022_new_orleans',
+  'Code of conduct': 'nav.code_of_conduct'
+}
+const translateNavLabel = (label: string) =>
+  navLabelKeys[label] ? t(navLabelKeys[label]) : label
+
+function normalizeBasePath(basePath: string): string {
+  if (!basePath || basePath === '/') return ''
+  return basePath.startsWith('/') ? basePath : `/${basePath}`
+}
+
+function buildRoutePath(basePath: string, slug: string): string {
+  const normalizedBasePath = normalizeBasePath(basePath)
+
+  if (slug === HOME_SLUG && normalizedBasePath === '') {
+    return ''
+  }
+
+  return `${normalizedBasePath}/${slug}`
+}
+
+function localizeHref(href = '#'): string {
+  if (
+    href.startsWith('http') ||
+    href.startsWith('mailto:') ||
+    href.startsWith('#')
+  ) {
+    return href
+  }
+
+  const path = href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href
+  const bases = Object.values(ROUTE_BASES).sort((a, b) => b.length - a.length)
+
+  for (const base of bases) {
+    const normalizedBase = normalizeBasePath(base)
+    if (normalizedBase && path === normalizedBase) {
+      return localizeRoute(normalizedBase, routeLocale)
+    }
+    if (normalizedBase && path.startsWith(`${normalizedBase}/`)) {
+      const slug = path.slice(normalizedBase.length + 1)
+      const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
+      return localizeRoute(
+        buildRoutePath(normalizedBase, localizedSlug),
+        routeLocale
+      )
+    }
+  }
+
+  const slug = path === '/' ? HOME_SLUG : path.slice(1)
+  const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
+  return localizeRoute(buildRoutePath('', localizedSlug), routeLocale)
 }
 
 const navWrapperClass =
@@ -55,11 +121,13 @@ const ctaLinkClass = rightNavBase
     id="block-summit-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">Summit navigation</h2>
+    <h2 class="sr-only" id="block-summit-navigation-menu">
+      {t('nav.summit')}
+    </h2>
     <a
       href={ROUTE_BASES['summit-pages']}
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
-      aria-label="Interledger Summit"
+      aria-label={t('aria.logo.summit')}
       data-umami-event="Summit Nav - Logo"
     >
       <FoundationLogo class="text-white" />
@@ -80,11 +148,11 @@ const ctaLinkClass = rightNavBase
             <li class="group min-[1060px]:relative" data-menu-level="1">
               {group.href ? (
                 <a
-                  href={group.href}
+                  href={localizeHref(group.href)}
                   data-umami-event={`Summit Nav - ${group.label}`}
                   class={topNavLinkClass}
                 >
-                  {group.label}
+                  {translateNavLabel(group.label)}
                 </a>
               ) : (
                 <>
@@ -95,21 +163,21 @@ const ctaLinkClass = rightNavBase
                     data-submenu-button
                     data-open="false"
                   >
-                    {group.label}
+                    {translateNavLabel(group.label)}
                   </button>
                   {group.items && group.items.length > 0 && (
                     <ul class={submenuClass}>
                       {group.items.map((item) => (
                         <li data-menu-level="2">
                           <a
-                            href={item.href || '#'}
+                            href={localizeHref(item.href)}
                             data-umami-event={`Summit Nav - ${item.label}`}
                             class={submenuItemClass}
                             {...(item.openInNewTab
                               ? { target: '_blank', rel: 'noopener noreferrer' }
                               : {})}
                           >
-                            {item.label}
+                            {translateNavLabel(item.label)}
                           </a>
                         </li>
                       ))}
@@ -129,22 +197,22 @@ const ctaLinkClass = rightNavBase
         ctaButton && (
           <a
             class={ctaLinkClass}
-            href={ctaButton.href || '#'}
+            href={localizeHref(ctaButton.href)}
             data-umami-event={`Summit Nav - ${ctaButton.label}`}
             {...(ctaButton.openInNewTab
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}
           >
-            {ctaButton.label}
+            {translateNavLabel(ctaButton.label)}
           </a>
         )
       }
       <a
-        href="/"
+        href={localizeHref('/')}
         class={rightNavLinkClass}
         data-umami-event="Summit Nav - Interledger Foundation"
       >
-        Interledger Foundation
+        {t('aria.logo.foundation')}
       </a>
       <LanguageSwitcher />
     </div>
@@ -152,8 +220,8 @@ const ctaLinkClass = rightNavBase
       type="button"
       class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
       aria-controls="summitNavMenu"
-      aria-label="Toggle Menu"
-      title="Toggle Menu"
+      aria-label={t('nav.toggle_menu')}
+      title={t('nav.toggle_menu')}
       id="summitNavToggle"
       data-nav-toggle
     >
