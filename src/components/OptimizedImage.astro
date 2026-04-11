@@ -1,0 +1,76 @@
+---
+import { getOptimizedImage } from '../utils/images'
+
+interface Props {
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  class?: string
+  loading?: 'lazy' | 'eager'
+  sizes?: string
+  fetchpriority?: 'high' | 'low' | 'auto'
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  class: className,
+  loading = 'lazy',
+  sizes = '100vw',
+  fetchpriority,
+} = Astro.props
+
+const { variants, fullSrc } = src
+  ? getOptimizedImage(src)
+  : { variants: [], fullSrc: null }
+
+const hasResponsive = variants.length > 0
+const srcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
+const decoding = loading === 'lazy' ? 'async' : undefined
+---
+
+{
+  hasResponsive ? (
+    <picture>
+      <source type="image/webp" srcset={srcset} sizes={sizes} />
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        class={className}
+        loading={loading}
+        decoding={decoding}
+        fetchpriority={fetchpriority}
+      />
+    </picture>
+  ) : fullSrc ? (
+    <picture>
+      <source type="image/webp" srcset={fullSrc} />
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        class={className}
+        loading={loading}
+        decoding={decoding}
+        fetchpriority={fetchpriority}
+      />
+    </picture>
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      class={className}
+      loading={loading}
+      decoding={decoding}
+      fetchpriority={fetchpriority}
+    />
+  )
+}

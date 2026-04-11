@@ -12,6 +12,7 @@ import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 import Link from '@/components/shared/Link.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
 
 interface Props {
   slug: string
@@ -100,6 +101,7 @@ if (isNotFound) return Astro.redirect('/404')
         <div data-prose class="mx-auto max-w-narrow">
           <MdxContent
             components={{
+              img: OptimizedImage,
               Ambassador,
               AmbassadorGrid,
               Blockquote,

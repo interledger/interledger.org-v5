@@ -12,6 +12,7 @@ import PdfEmbed from '@/components/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 import Link from '@/components/shared/Link.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
 
 interface Props {
   slug: string
@@ -103,6 +104,7 @@ const gradient =
         >
           <MdxContent
             components={{
+              img: OptimizedImage,
               Ambassador,
               AmbassadorGrid,
               Blockquote,
