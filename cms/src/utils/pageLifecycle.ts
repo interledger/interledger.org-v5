@@ -19,6 +19,7 @@ import {
   seoFrontmatter,
   getPreservedFields,
   uidToLogLabel,
+  formatMdx,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import {
@@ -199,11 +200,8 @@ async function writeMDXFile(
 
     // Preserve fields that exist in MDX but not in Strapi
     const preservedFields = getPreservedFields(filepath)
-    fs.writeFileSync(
-      filepath,
-      generateMDX(config, page, preservedFields, englishSlug),
-      'utf-8'
-    )
+    const mdxContent = generateMDX(config, page, preservedFields, englishSlug)
+    fs.writeFileSync(filepath, await formatMdx(mdxContent), 'utf-8')
     console.log(
       `✅ Generated ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`
     )
