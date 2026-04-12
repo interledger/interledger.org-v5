@@ -22,8 +22,7 @@
     "src/**/*.ts",
     "src/**/*.json",
     "config/**/*.ts",
-    "types/**/*.ts",
-    "scripts/**/*.ts"
+    "types/**/*.ts"
   ],
   "exclude": ["node_modules/**", "build/**", "dist/**", ".cache/**", ".tmp/**"]
 }
