@@ -1,4 +1,4 @@
-import { getImageUrl } from '@/utils'
+import { getImageUrl } from '../../utils'
 import { escDouble as esc } from '../shared'
 
 export function serialize(block: {

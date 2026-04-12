@@ -1,4 +1,4 @@
-import { getImageUrl } from '@/utils'
+import { getImageUrl } from '../../utils'
 
 export function serialize(block: {
   images?: Array<{ url?: string; alternativeText?: string }>

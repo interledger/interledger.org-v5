@@ -1,4 +1,4 @@
-import { formatBlockquote } from '@/utils'
+import { formatBlockquote } from '../../utils'
 import { escDouble as esc } from '../shared'
 
 export function serialize(block: { quote: string; source?: string }): string {

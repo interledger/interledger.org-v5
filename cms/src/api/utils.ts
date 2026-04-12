@@ -18,4 +18,4 @@ export {
   getPreservedFields,
   gitCommitAndPush,
   resolveTargetRepoPath
-} from '@/utils'
+} from '../utils'

@@ -4,7 +4,7 @@ import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
-import { yamlSingleQuoteScalar, defaultLang } from '@/utils'
+import { yamlSingleQuoteScalar, defaultLang } from './mdx'
 import type { StrapiGlobal } from './strapiTypes'
 
 declare const strapi: StrapiGlobal

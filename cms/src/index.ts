@@ -7,7 +7,7 @@ import {
   validateNoNestedJsx,
   LOCALES,
   shouldSkipMdxExport
-} from '@/utils'
+} from './utils'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')

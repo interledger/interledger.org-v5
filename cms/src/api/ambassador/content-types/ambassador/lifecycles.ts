@@ -13,7 +13,7 @@ import {
   getContentPath,
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle
-} from '@/utils'
+} from '../../../../utils'
 import type { AmbassadorBase } from '../../types'
 
 interface Ambassador extends AmbassadorBase {
