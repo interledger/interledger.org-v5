@@ -180,6 +180,8 @@ const ctaLinkClass = rightNavBase
 </header>
 
 <script>
+  import { stripTrailingSlash } from '@/utils/url'
+
   const summitLinksWrapper = document.querySelector('[data-nav-wrapper]')
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
@@ -310,9 +312,8 @@ const ctaLinkClass = rightNavBase
   navLinks.forEach((link) => {
     if (link instanceof HTMLAnchorElement) {
       const linkPath = link.pathname
-      // Remove trailing slashes for comparison
-      const normalizedCurrentPath = currentPath.replace(/\/$/, '')
-      const normalizedLinkPath = linkPath.replace(/\/$/, '')
+      const normalizedCurrentPath = stripTrailingSlash(currentPath)
+      const normalizedLinkPath = stripTrailingSlash(linkPath)
 
       // Check for exact match or if current path starts with link path (for subpages)
       if (

@@ -1,3 +1,5 @@
+import { stripTrailingSlash } from '@/utils/url'
+
 export async function fetchStrapi(endpoint: string) {
   const base = import.meta.env.STRAPI_URL
   const token = import.meta.env.STRAPI_API_TOKEN
@@ -10,7 +12,7 @@ export async function fetchStrapi(endpoint: string) {
     // Ensure no double slashes
     const url = endpoint.startsWith('http')
       ? endpoint
-      : `${base.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`
+      : `${stripTrailingSlash(base)}/${endpoint.replace(/^\//, '')}`
     const res = await fetch(url, {
       cache: 'no-store',
       headers: {
