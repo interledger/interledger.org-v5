@@ -2,9 +2,7 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
-import { useTranslations } from '@/utils/i18'
-import { translationMap } from '@/utils/translationMapData'
-import { HOME_SLUG, ROUTE_BASES, localizeRoute } from '@/utils/routes'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
 
 interface MenuItem {
   label: string
@@ -24,53 +22,6 @@ const { mainMenu, ctaButton } = foundationNavigation as {
 }
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-
-function normalizeBasePath(basePath: string): string {
-  if (!basePath || basePath === '/') return ''
-  return basePath.startsWith('/') ? basePath : `/${basePath}`
-}
-
-function buildRoutePath(basePath: string, slug: string): string {
-  const normalizedBasePath = normalizeBasePath(basePath)
-
-  if (slug === HOME_SLUG && normalizedBasePath === '') {
-    return ''
-  }
-
-  return `${normalizedBasePath}/${slug}`
-}
-
-function localizeHref(href = '#'): string {
-  if (
-    href.startsWith('http') ||
-    href.startsWith('mailto:') ||
-    href.startsWith('#')
-  ) {
-    return href
-  }
-
-  const path = href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href
-  const bases = Object.values(ROUTE_BASES).sort((a, b) => b.length - a.length)
-
-  for (const base of bases) {
-    const normalizedBase = normalizeBasePath(base)
-    if (normalizedBase && path === normalizedBase) {
-      return localizeRoute(normalizedBase, routeLocale)
-    }
-    if (normalizedBase && path.startsWith(`${normalizedBase}/`)) {
-      const slug = path.slice(normalizedBase.length + 1)
-      const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
-      return localizeRoute(
-        buildRoutePath(normalizedBase, localizedSlug),
-        routeLocale
-      )
-    }
-  }
-
-  const slug = path === '/' ? HOME_SLUG : path.slice(1)
-  const localizedSlug = translationMap[slug]?.[routeLocale] ?? slug
-  return localizeRoute(buildRoutePath('', localizedSlug), routeLocale)
-}
 ---
 
 <header
@@ -88,7 +39,7 @@ function localizeHref(href = '#'): string {
       {t('nav.main')}
     </h2>
     <a
-      href="/"
+      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
       aria-label={t('aria.logo.foundation')}
       data-umami-event="Site Nav - Logo"
@@ -123,7 +74,7 @@ function localizeHref(href = '#'): string {
                   {group.items.map((item) => (
                     <li data-menu-level="2">
                       <a
-                        href={localizeHref(item.href)}
+                        href={item.href || '#'}
                         data-umami-event={`Site Nav - ${item.label}`}
                         class="block no-underline text-black hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
                         {...(item.openInNewTab
@@ -148,7 +99,7 @@ function localizeHref(href = '#'): string {
         ctaButton && (
           <a
             class="self-center no-underline py-space-s hover:underline max-[1059px]:hover:bg-gray-header"
-            href={localizeHref(ctaButton.href)}
+            href={ctaButton.href || '#'}
             data-umami-event={`Site Nav - ${ctaButton.label}`}
             {...(ctaButton.openInNewTab
               ? { target: '_blank', rel: 'noopener noreferrer' }

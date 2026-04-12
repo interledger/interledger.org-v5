@@ -1,5 +1,5 @@
 ---
-import { useTranslations } from '@/utils/i18'
+import { translatePath, useTranslations } from '@/utils/i18'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -17,7 +17,7 @@ const currentYear = new Date().getFullYear()
       </h3>
       <a
         class="mx-auto mb-space-s flex max-w-[10em] cursor-pointer items-center justify-center rounded border border-gray bg-gray text-step--1 no-underline text-white transition-transform duration-200 hover:scale-[1.15] px-space-xs py-space-3xs"
-        href="/subscribe"
+        href={translatePath('foundation-pages', routeLocale, 'subscribe')}
         data-umami-event="Footer link - Subscribe"
       >
         {t('footer.subscribe')}
@@ -182,7 +182,7 @@ const currentYear = new Date().getFullYear()
     </li>
     <li class="max-xs:mb-space-2xs xs:before:content-['|'] xs:before:inline">
       <a
-        href="/contact"
+        href={translatePath('foundation-pages', routeLocale, 'contact')}
         data-umami-event="Footer - Contact"
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 hover:decoration-solid hover:text-black"
       >

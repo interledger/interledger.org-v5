@@ -1,6 +1,6 @@
 ---
 import DevelopersLogo from '../logos/DevelopersLogo.astro'
-import { useTranslations } from '@/utils/i18'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -11,14 +11,14 @@ const t = useTranslations(routeLocale)
     class="flex justify-between items-center max-w-[95rem] mx-auto gap-space-s"
   >
     <a
-      href="/"
+      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
       class="flex items-center gap-space-xs flex-none"
       data-umami-event="Devs Nav - Logo"
     >
       <DevelopersLogo class="w-[7em] flex-none text-[var(--color-text)]" />
     </a>
     <a
-      href="/"
+      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
       class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-step--1"
       data-umami-event="Devs Nav - ILF"
     >

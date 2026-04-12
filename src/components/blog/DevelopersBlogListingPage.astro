@@ -5,29 +5,33 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import stripPagination from '@/utils/stripPagination'
-import { useTranslations } from '@/utils/i18'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 interface Props {
   page: Page
   allTags: string[]
   selectedTag?: string
-  blogPath: string
-  developersHomePath: string
-  foundationBlogPath: string
 }
 
-const {
-  page,
-  allTags,
-  selectedTag,
-  blogPath,
-  developersHomePath,
-  foundationBlogPath
-} = Astro.props
+const { page, allTags, selectedTag } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
+const blogPath = translatePath(
+  'developers-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
+const developersHomePath = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'developers'
+)
 const title = selectedTag
   ? t('blog.developers.tag_title', { tag: selectedTag })
   : t('blog.developers.title')
@@ -64,8 +68,7 @@ if (selectedTag) {
         allTags={allTags}
         selectedTag={selectedTag}
         showTagFilter={true}
-        path={blogPath}
-        foundationHref={foundationBlogPath}
+        blogIndexHref={blogPath}
       />
       <Pagination
         baseUrl={basePath}

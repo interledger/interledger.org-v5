@@ -1,11 +1,10 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { COLLECTION_INDEX_SLUG, translatePath, type Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
-import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'
@@ -21,6 +20,7 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
 
 const posts = await getCollection('foundation-blog')
 
@@ -32,7 +32,11 @@ if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
+const blogPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>

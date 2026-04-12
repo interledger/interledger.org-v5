@@ -3,25 +3,27 @@ import { createExcerpt } from '@/utils/create-excerpt'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
-import { useTranslations } from '@/utils/i18'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
-  path?: string
-  developersHref?: string
+  blogIndexHref: string
 }
-const {
-  posts,
-  allTags = [],
-  selectedTag,
-  path = '/blog',
-  developersHref = '/developers/blog'
-} = Astro.props
+const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const developersHref = translatePath(
+  'developers-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <BlogIndexHeader
@@ -32,13 +34,13 @@ const t = useTranslations(routeLocale)
   imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
 
 <ol class="list-none p-0">
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = `${path}/${blogPostEntry.data.pathSlug}`
+      const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
           <div class="shrink-0">
@@ -84,7 +86,7 @@ const t = useTranslations(routeLocale)
                 viewBox="0 0 12 12"
                 class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
               >
-                <path
+                <blogIndexHref
                   d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
                   fill="currentColor"
                 />

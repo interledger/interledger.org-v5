@@ -1,5 +1,5 @@
 ---
-import { useTranslations } from '@/utils/i18'
+import { translatePath, useTranslations } from '@/utils/i18'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -10,7 +10,7 @@ const t = useTranslations(routeLocale)
 <p class="italic">
   {t('blog.community.foundation.start')}
   <a
-    href="https://interledger.org/subscribe"
+    href={translatePath('foundation-pages', routeLocale, 'subscribe')}
     data-umami-event="Blog Foundation - Newsletter"
     >{t('blog.community.newsletter')}</a
   >. {t('blog.community.foundation.middle')}

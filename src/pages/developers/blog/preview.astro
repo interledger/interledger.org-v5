@@ -1,11 +1,18 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import { applyPreviewNoStore } from '@/utils/cache'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 // Developers blog is not in Strapi (phase 1). Content is rendered from MDX files.
 // Preview from Strapi is not available until developers-blog-posts is added to the CMS.
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <FoundationPageLayout
@@ -18,8 +25,13 @@ applyPreviewNoStore(Astro.response.headers)
       in <code>src/content/developers-blog-posts/</code> and rendered at build time.
     </p>
     <p class="mt-space-m text-step-0">
-      <a href="/developers/blog" class="text-primary underline"
-        >View the developers blog</a
+      <a
+        href={translatePath(
+          'developers-blog',
+          routeLocale,
+          COLLECTION_INDEX_SLUG
+        )}
+        class="text-primary underline">{t('blog.developers.preview.link')}</a
       >
     </p>
   </main>

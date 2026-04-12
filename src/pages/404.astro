@@ -3,6 +3,9 @@
  * Custom 404 page for static hosting (Netlify serves 404.html).
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import { HOME_CONTENT_SLUG, translatePath } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
 ---
 
 <FoundationPageLayout
@@ -18,7 +21,7 @@ import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
         The page you requested could not be found.
       </p>
       <a
-        href="/"
+        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
         class="inline-block text-primary font-medium underline hover:no-underline"
       >
         ← Back to home

@@ -1,5 +1,5 @@
 ---
-import { useTranslations } from '@/utils/i18'
+import { translatePath, useTranslations } from '@/utils/i18'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -21,7 +21,7 @@ const currentYear = new Date().getFullYear()
       </h3>
       <a
         class="mx-auto mb-space-s flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-space-xs py-space-3xs text-step--1 text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
-        href="/subscribe"
+        href={translatePath('foundation-pages', routeLocale, 'subscribe')}
         data-umami-event="Footer link - Subscribe"
       >
         {t('footer.subscribe')}
@@ -164,7 +164,11 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/terms-of-service">{t('footer.terms_service')}</a
+        href={translatePath(
+          'foundation-pages',
+          routeLocale,
+          'terms-of-service'
+        )}>{t('footer.terms_service')}</a
       >
     </li>
     <li
@@ -172,7 +176,8 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/privacy-policy">{t('footer.privacy_policy')}</a
+        href={translatePath('foundation-pages', routeLocale, 'privacy-policy')}
+        >{t('footer.privacy_policy')}</a
       >
     </li>
     <li
@@ -180,7 +185,8 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href="/contact">{t('footer.contact_us')}</a
+        href={translatePath('foundation-pages', routeLocale, 'contact')}
+        >{t('footer.contact_us')}</a
       >
     </li>
   </ul>
