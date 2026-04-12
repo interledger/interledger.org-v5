@@ -395,9 +395,9 @@ Rule of thumb:
 - If you are working with folders or files on disk, use `src/utils/paths.ts`
 - If you are working with browser URLs or route generation, use `src/utils/routes.ts`
 
-In Astro `<script>` tags or hydrated browser components, avoid the broad
-`@/utils` barrel because it includes server-only helpers. Import browser-safe
-helpers directly, e.g. `@/utils/url` for `stripTrailingSlash`.
+In Astro `<script>` tags or hydrated browser components, use `@/utils/client`.
+In `src/content.config.ts`, import collection constants from
+`@/utils/contentCollections`, not the broad `@/utils` barrel.
 
 When adding a new localized collection or changing route structure, review all of the files above together. They form the core configuration for how content is loaded and how URLs are generated.
 

@@ -20,7 +20,7 @@ export { fetchStrapi } from './fetchStrapi'
 export { applyPreviewNoStore } from './cache'
 
 // Static paths
-export { CONTENT, CONTENT_ROOT } from './astroContentCollections'
+export { CONTENT, CONTENT_ROOT } from './contentCollections'
 export { type CollectionType, getLocalizedPaths } from './static-paths'
 export {
   getTagSlug,
