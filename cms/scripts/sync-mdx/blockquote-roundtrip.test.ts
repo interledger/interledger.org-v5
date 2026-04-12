@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
-import { serialize } from '../../src/serializers/blocks/blockquote.serializer'
+import { serialize } from '@/serializers/blocks/blockquote.serializer'
 
 // Side-effect import: registers Blockquote handler
 import './blockquoteHandler'

@@ -8,7 +8,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { LOCALES, defaultLang } from './mdx'
+import { LOCALES } from './mdx'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -112,13 +112,13 @@ export function createFlatLocaleMdxLifecycle<
 
   async function exportAllLocales(documentId: string): Promise<string[]> {
     const filepaths: string[] = []
-    const englishEntry = await fetchPublished(documentId, defaultLang)
+    const englishEntry = await fetchPublished(documentId, 'en')
     const englishSlug = englishEntry?.pathSlug
 
     for (const locale of LOCALES) {
       try {
         const entry =
-          locale === defaultLang
+          locale === 'en'
             ? englishEntry
             : await fetchPublished(documentId, locale)
         if (!entry) {

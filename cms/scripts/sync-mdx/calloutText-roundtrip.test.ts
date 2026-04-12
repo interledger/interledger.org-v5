@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
-import { serialize } from '../../src/serializers/blocks/callout-text.serializer'
+import { serialize } from '@/serializers/blocks/callout-text.serializer'
 
 // Side-effect import: registers CalloutText handler
 import './calloutTextHandler'
