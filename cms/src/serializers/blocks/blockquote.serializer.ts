@@ -1,5 +1,5 @@
 import jsesc from 'jsesc'
-import { formatBlockquote } from '../../utils/mdx'
+import { formatBlockquote } from '@/utils'
 
 const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
 

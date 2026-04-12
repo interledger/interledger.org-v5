@@ -1,4 +1,4 @@
-import { createPageLifecycle, PATHS } from '../../../utils'
+import { createPageLifecycle, PATHS } from '@/utils'
 
 export default createPageLifecycle({
   contentTypeUid: 'api::summit-page.summit-page',

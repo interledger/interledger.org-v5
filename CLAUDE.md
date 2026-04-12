@@ -98,6 +98,18 @@
   3. Add a row for it in `src/utils/README.md` in the correct table.
 - `src/utils/paths.ts` is a CMS-only Node.js utility — do not import it in Astro components.
 
+## CMS Utilities (`cms/src/utils/`)
+
+Same rules as `src/utils/` above, applied to the Strapi CMS layer. Import from `@/utils` (maps to `cms/src/*` via `cms/tsconfig.json`).
+
+- **Always check `cms/src/utils/` before writing a new CMS utility.** Read `cms/src/utils/README.md` for a module-by-module summary.
+- If you add a new utility function:
+  1. Put it in the most semantically appropriate existing module, or create a new one.
+  2. Add an explicit named export in `cms/src/utils/index.ts` under the correct group comment.
+  3. Add a row for it in `cms/src/utils/README.md` in the correct table.
+- Files inside `cms/src/utils/` keep their internal cross-imports as relative paths — never import from `@/utils` inside the utils folder itself.
+- `cms/src/api/utils.ts` is a thin convenience re-export for API lifecycle files — keep it delegating to `@/utils`, don't add logic to it.
+
 ## When Asked to Generate Code
 
 - Produce clean, readable, well-named, strongly typed code by default

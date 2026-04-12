@@ -1,24 +1,21 @@
 /**
- * Barrel re-export for utils used by api lifecycles.
- * Use this module to keep lifecycle imports short and consistent.
+ * Convenience re-exports for API lifecycle files.
+ * Delegates to the main @/utils barrel.
  */
 
 export {
   createPageLifecycle,
   shouldSkipMdxExport,
-  type PageLifecycleConfig
-} from '../utils/pageLifecycle'
-export { createNavigationLifecycle } from '../utils/navigationLifecycle'
-export {
+  type PageLifecycleConfig,
+  createNavigationLifecycle,
   getProjectRoot,
   getContentPath,
   getCmsDir,
-  PATHS
-} from '../utils/paths'
-export {
+  PATHS,
   getImageUrl,
   htmlToMarkdown,
   LOCALES,
-  getPreservedFields
-} from '../utils/mdx'
-export { gitCommitAndPush, resolveTargetRepoPath } from '../utils/gitSync'
+  getPreservedFields,
+  gitCommitAndPush,
+  resolveTargetRepoPath
+} from '@/utils'
