@@ -1894,6 +1894,10 @@
     "profilePicture": "https://sessionize.com/image/bc5d-400o400o1-BLhytvsuwLNtP4bryoMsF2.JPG",
     "sessions": [
       {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
         "id": 554064,
         "name": "Future|Money Open Studio Day 2"
       }
@@ -1920,42 +1924,6 @@
         "question": "Role",
         "questionType": "Short_Text",
         "answer": "Artist ",
-        "sort": 23,
-        "answerExtra": null
-      }
-    ],
-    "categories": []
-  },
-  {
-    "id": "6acc0bce-61ef-4ccc-9419-735d16c0f0b7",
-    "firstName": "Lena ",
-    "lastName": "Ghaninejad",
-    "fullName": "Lena Ghaninejad",
-    "bio": null,
-    "tagLine": "Future|Money Awardee",
-    "profilePicture": "https://sessionize.com/image/d11e-400o400o1-Y2iEuAHnq7LLJtDHpX7Xmc.JPG",
-    "sessions": [
-      {
-        "id": 551406,
-        "name": "Future|Money Open Studio"
-      }
-    ],
-    "isTopSpeaker": false,
-    "links": [],
-    "questionAnswers": [
-      {
-        "id": 51677,
-        "question": "Organizational Affiliation ",
-        "questionType": "Short_Text",
-        "answer": null,
-        "sort": 22,
-        "answerExtra": null
-      },
-      {
-        "id": 51678,
-        "question": "Role",
-        "questionType": "Short_Text",
-        "answer": null,
         "sort": 23,
         "answerExtra": null
       }
@@ -2265,6 +2233,10 @@
     "profilePicture": "https://sessionize.com/image/5a39-400o400o1-P5qh24keiLrpQ3nwcN5sfB.jpeg",
     "sessions": [
       {
+        "id": 551406,
+        "name": "Future|Money Open Studio"
+      },
+      {
         "id": 554064,
         "name": "Future|Money Open Studio Day 2"
       }
@@ -2291,42 +2263,6 @@
         "question": "Role",
         "questionType": "Short_Text",
         "answer": "Grantee",
-        "sort": 23,
-        "answerExtra": null
-      }
-    ],
-    "categories": []
-  },
-  {
-    "id": "e2f09125-c1ee-4d7f-ab94-b989a449f1e2",
-    "firstName": "Mia ",
-    "lastName": "Wright- Ross ",
-    "fullName": "Mia Wright- Ross",
-    "bio": "Mia Wright-Ross: Loose Change (CHAINS) is a series of large-scale multi-media tapestries (primarily leather & paper lottery tickets) as a reflection/projection of the reimagination of Hope that has become a lethal tool of capitalism within the community-rich centers of Black & Brown neighborhoods throughout the United States of America. ",
-    "tagLine": "Future|Money Cohort",
-    "profilePicture": "https://sessionize.com/image/4673-400o400o1-aFbztVPFrLdjzrdxfvAXrK.jpeg",
-    "sessions": [
-      {
-        "id": 551406,
-        "name": "Future|Money Open Studio"
-      }
-    ],
-    "isTopSpeaker": false,
-    "links": [],
-    "questionAnswers": [
-      {
-        "id": 51677,
-        "question": "Organizational Affiliation ",
-        "questionType": "Short_Text",
-        "answer": null,
-        "sort": 22,
-        "answerExtra": null
-      },
-      {
-        "id": 51678,
-        "question": "Role",
-        "questionType": "Short_Text",
-        "answer": null,
         "sort": 23,
         "answerExtra": null
       }
