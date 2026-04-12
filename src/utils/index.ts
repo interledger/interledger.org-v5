@@ -7,7 +7,7 @@ export {
   normalizeBasePath,
   localizeRoute
 } from './routes'
-export { type RouteContext, routeContextFromPathname } from './routeContext'
+export { routeContextFromPathname } from './routeContext'
 export { default as stripPagination } from './stripPagination'
 
 // Internationalisation
@@ -18,12 +18,12 @@ export {
   defaultLocale,
   switcherLocales
 } from './i18'
-export { type TranslationEntry, buildMap } from './translationMap'
+export { buildMap } from './translationMap'
 export { translationMap } from './translationMapData'
 
 // Data fetching
 export { fetchStrapi } from './fetchStrapi'
-export { CACHE_CONTROL, applyPreviewNoStore } from './cache'
+export { applyPreviewNoStore } from './cache'
 
 // Static paths
 export { type CollectionType, getLocalizedPaths } from './static-paths'

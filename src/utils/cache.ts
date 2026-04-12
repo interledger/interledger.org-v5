@@ -1,4 +1,4 @@
-export const CACHE_CONTROL = {
+const CACHE_CONTROL = {
   html: 'public, max-age=0, must-revalidate',
   preview: 'private, no-store, max-age=0, must-revalidate',
   immutableAsset: 'public, max-age=31536000, immutable',

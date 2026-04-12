@@ -6,7 +6,7 @@ const prefixedLocales = new Set(
   locales.filter((l) => l !== defaultLocale)
 ) as Set<Locale>
 
-export type RouteContext = {
+type RouteContext = {
   routeLocale: Locale
   currentSlug: string
   currentBasePath: string
