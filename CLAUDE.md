@@ -90,23 +90,20 @@
 
 ## Shared Utilities (`src/utils/`)
 
-- **Always check `src/utils/` before writing a new utility function.** Read `src/utils/README.md` for a module-by-module summary, then scan the relevant file before implementing anything yourself.
-- If a utility already exists, import it — never duplicate it inline.
+- **Always check `src/utils/index.ts` before writing a new utility function** — it's the full catalog of what exists, grouped by domain. Scan the relevant module if you need more detail.
+- If a utility already exists, import it from `@/utils` — never duplicate it inline.
 - If you add a new utility function:
   1. Put it in the most semantically appropriate existing module, or create a new one if no good fit exists.
   2. Add an explicit named export for it in `src/utils/index.ts` under the correct group comment.
-  3. Add a row for it in `src/utils/README.md` in the correct table.
-- `src/utils/paths.ts` is a CMS-only Node.js utility — do not import it in Astro components.
 
 ## CMS Utilities (`cms/src/utils/`)
 
 Same rules as `src/utils/` above, applied to the Strapi CMS layer. Import from `@/utils` (maps to `cms/src/*` via `cms/tsconfig.json`).
 
-- **Always check `cms/src/utils/` before writing a new CMS utility.** Read `cms/src/utils/README.md` for a module-by-module summary.
+- **Always check `cms/src/utils/index.ts` before writing a new CMS utility** — it's the full catalog.
 - If you add a new utility function:
   1. Put it in the most semantically appropriate existing module, or create a new one.
   2. Add an explicit named export in `cms/src/utils/index.ts` under the correct group comment.
-  3. Add a row for it in `cms/src/utils/README.md` in the correct table.
 - Files inside `cms/src/utils/` keep their internal cross-imports as relative paths — never import from `@/utils` inside the utils folder itself.
 - `cms/src/api/utils.ts` is a thin convenience re-export for API lifecycle files — keep it delegating to `@/utils`, don't add logic to it.
 
