@@ -62,7 +62,7 @@ export function yamlSingleQuoteScalar(
   value: string | null | undefined
 ): string {
   if (value === null || value === undefined) return 'null'
-  return `'${String(value).replace(/'/g, "''")}'`
+  return `'${String(value).replace(/\r\n/g, '\n').replace(/'/g, "''")}'`
 }
 
 /**

@@ -7,7 +7,13 @@
  * only wrote the single event.result locale, leaving other locales' MDX stale.
  */
 
-import { getImageUrl, yamlSingleQuoteScalar, getContentPath, getTargetRepoRoot, createFlatLocaleMdxLifecycle } from '@/utils'
+import {
+  getImageUrl,
+  yamlSingleQuoteScalar,
+  getContentPath,
+  getTargetRepoRoot,
+  createFlatLocaleMdxLifecycle
+} from '@/utils'
 import type { AmbassadorBase } from '../../types'
 
 interface Ambassador extends AmbassadorBase {

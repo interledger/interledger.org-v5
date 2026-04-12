@@ -96,6 +96,14 @@ export interface PageLifecycleConfig {
   outputDir: string
 }
 
+function normalizePathSlug(pathSlug: unknown): string {
+  return pathSlug == null
+    ? ''
+    : String(pathSlug)
+        .replace(/^\/+|\/+$/g, '')
+        .trim()
+}
+
 /**
  * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
  * Segments before the last `/` are directories; the last segment is the filename stem.
@@ -109,12 +117,7 @@ export function resolvePageFilepath(
   page: Pick<PageData, 'pathSlug'>,
   locale: string = defaultLang
 ): string {
-  const normalized =
-    page.pathSlug == null
-      ? ''
-      : String(page.pathSlug)
-          .replace(/^\/+|\/+$/g, '')
-          .trim()
+  const normalized = normalizePathSlug(page.pathSlug)
 
   if (!normalized) {
     throw new Error('pathSlug is required')
@@ -453,12 +456,7 @@ export function createPageLifecycle(config: PageLifecycleConfig) {
 
       const label = uidToLogLabel(config.contentTypeUid)
 
-      const slug =
-        result.pathSlug == null
-          ? ''
-          : String(result.pathSlug)
-              .replace(/^\/+|\/+$/g, '')
-              .trim()
+      const slug = normalizePathSlug(result.pathSlug)
       const author = getAdminAuthor()
 
       if (!slug) {

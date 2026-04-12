@@ -1,7 +1,5 @@
-import jsesc from 'jsesc'
 import { formatBlockquote } from '@/utils'
-
-const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
+import { escDouble as esc } from '../shared'
 
 export function serialize(block: { quote: string; source?: string }): string {
   // Escape { and } so MDX doesn't try to parse them as JS expressions

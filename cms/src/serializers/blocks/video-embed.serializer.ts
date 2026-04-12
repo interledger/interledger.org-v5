@@ -1,6 +1,4 @@
-import jsesc from 'jsesc'
-
-const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
+import { escDouble as esc } from '../shared'
 
 export function serialize(block: { url: string; title: string }): string {
   if (!block.url) throw new Error('VideoEmbed block is missing url')
