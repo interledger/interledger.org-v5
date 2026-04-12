@@ -1,6 +1,6 @@
 import { defaultLocale, locales, type Locale } from '@/utils/i18'
 import { HOME_SLUG, ROUTE_BASES } from '@/utils/routes'
-import { stripTrailingSlash } from '@/utils/url'
+import { stripTrailingSlash } from './url'
 
 const prefixedLocales = new Set(
   locales.filter((l) => l !== defaultLocale)
