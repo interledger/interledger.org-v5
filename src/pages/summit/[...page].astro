@@ -1,7 +1,6 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
-import { getLocalizedPaths } from '@/utils/static-paths'
-import { HOME_SLUG } from '@/utils/routes'
+import { getLocalizedPaths, HOME_SLUG } from '@/utils'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('summit-pages', 'en', 'page', {

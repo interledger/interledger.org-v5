@@ -2,9 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import Paragraph from '../components/blocks/Paragraph.astro'
-import { type Locale } from '@/utils/i18'
-import { HOME_SLUG } from '@/utils/routes'
-import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+import { type Locale, HOME_SLUG, getHeroSectionStyle } from '@/utils'
 import Link from '@/components/shared/Link.astro'
 
 const pageLang: Locale = 'en'

@@ -4,7 +4,7 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/shared/Pagination.astro'
-import stripPagination from '@/utils/stripPagination'
+import { stripPagination } from '@/utils'
 
 interface Props {
   page: Page

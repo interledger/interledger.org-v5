@@ -1,9 +1,8 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { type Locale, ROUTE_BASES, localizeRoute } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
-import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {

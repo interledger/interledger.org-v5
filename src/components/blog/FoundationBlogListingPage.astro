@@ -3,7 +3,7 @@ import type { Page } from 'astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import Pagination from '@/components/shared/Pagination.astro'
-import stripPagination from '@/utils/stripPagination'
+import { stripPagination } from '@/utils'
 
 interface Props {
   page: Page

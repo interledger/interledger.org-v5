@@ -1,11 +1,10 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { type Locale, ROUTE_BASES, localizeRoute } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
-import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
 import Blockquote from '@/components/blockquote/Blockquote.astro'

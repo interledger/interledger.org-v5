@@ -1,5 +1,5 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { type Locale, getHeroSectionStyle } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
@@ -10,7 +10,6 @@ import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import CalloutText from '@/components/callout/CalloutText.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 import Link from '@/components/shared/Link.astro'
 
 interface Props {

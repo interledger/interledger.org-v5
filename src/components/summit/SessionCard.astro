@@ -1,10 +1,7 @@
 ---
 import type { TalkPreview } from '@/types/summit'
-import { generateSlug } from '@/utils/slug'
-import { truncateText } from '@/utils/text'
+import { generateSlug, truncateText, type Locale, getTranslation } from '@/utils'
 import SessionSubheader from './SessionSubheader.astro'
-import { type Locale } from '@/utils/i18'
-import { getTranslation } from '@/utils/summit-talks-speakers'
 
 interface Props {
   talkPreview: TalkPreview

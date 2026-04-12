@@ -88,6 +88,16 @@
 - Add linear ID in Git PR so it's linked
 - PR descriptions should explain _why_, not just _what_ — include context, decisions made, and anything reviewers should watch for
 
+## Shared Utilities (`src/utils/`)
+
+- **Always check `src/utils/` before writing a new utility function.** Read `src/utils/README.md` for a module-by-module summary, then scan the relevant file before implementing anything yourself.
+- If a utility already exists, import it — never duplicate it inline.
+- If you add a new utility function:
+  1. Put it in the most semantically appropriate existing module, or create a new one if no good fit exists.
+  2. Add an explicit named export for it in `src/utils/index.ts` under the correct group comment.
+  3. Add a row for it in `src/utils/README.md` in the correct table.
+- `src/utils/paths.ts` is a CMS-only Node.js utility — do not import it in Astro components.
+
 ## When Asked to Generate Code
 
 - Produce clean, readable, well-named, strongly typed code by default
