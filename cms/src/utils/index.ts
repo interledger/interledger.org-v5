@@ -8,7 +8,6 @@ export {
 // Paths & configuration
 export {
   getProjectRoot,
-  getCmsDir,
   assertRunFromCms,
   PATHS,
   getContentPath,

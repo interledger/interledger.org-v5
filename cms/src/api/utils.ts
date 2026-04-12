@@ -10,7 +10,6 @@ export {
   createNavigationLifecycle,
   getProjectRoot,
   getContentPath,
-  getCmsDir,
   PATHS,
   getImageUrl,
   htmlToMarkdown,
