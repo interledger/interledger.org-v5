@@ -9,7 +9,7 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
-import { CONTENT, CONTENT_ROOT } from '@/utils'
+import { CONTENT, CONTENT_ROOT } from '@/utils/astroContentCollections'
 
 const foundationBlogCollection = defineCollection({
   loader: glob({
