@@ -27,7 +27,7 @@ import './sync-mdx/pdfEmbedHandler'
 import './sync-mdx/ambassadorHandler'
 
 import { parseMdxToBlocks, type ParserContext } from './sync-mdx/mdxBlockParser'
-import { serializeContent } from '@/serializers/blocks'
+import { serializeContent } from '../src/serializers/blocks/index'
 
 /**
  * Split an MDX file into its raw frontmatter header (including `---` delimiters
