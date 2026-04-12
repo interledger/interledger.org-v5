@@ -11,12 +11,7 @@ export { routeContextFromPathname } from './routeContext'
 export { default as stripPagination } from './stripPagination'
 
 // Internationalisation
-export {
-  type Locale,
-  locales,
-  defaultLocale,
-  switcherLocales
-} from './i18'
+export { type Locale, locales, defaultLocale, switcherLocales } from './i18'
 export { buildMap } from './translationMap'
 export { translationMap } from './translationMapData'
 
@@ -25,6 +20,7 @@ export { fetchStrapi } from './fetchStrapi'
 export { applyPreviewNoStore } from './cache'
 
 // Static paths
+export { CONTENT, CONTENT_ROOT } from './astroContentCollections'
 export { type CollectionType, getLocalizedPaths } from './static-paths'
 export {
   getTagSlug,
