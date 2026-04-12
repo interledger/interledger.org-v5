@@ -14,7 +14,6 @@ export { default as stripPagination } from './stripPagination'
 export {
   type Locale,
   locales,
-  localeSchema,
   defaultLocale,
   switcherLocales
 } from './i18'
