@@ -6,7 +6,6 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
-import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
@@ -97,11 +96,6 @@ export function htmlToMarkdown(html: string): string {
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
-
-export function markdownToHtml(markdown: string): string {
-  if (!markdown) return ''
-  return marked.parse(markdown) as string
-}
 
 /**
  * Strips any surrounding straight or curly quotes from a blockquote string

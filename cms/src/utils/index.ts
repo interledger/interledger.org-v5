@@ -34,7 +34,6 @@ export {
 export {
   getImageUrl,
   htmlToMarkdown,
-  markdownToHtml,
   formatBlockquote,
   uidToLogLabel
 } from './mdx'
@@ -48,7 +47,6 @@ export {
 export {
   type SyncContext,
   getTargetRepoRoot,
-  resolveTargetRepoPath,
   validateGitSyncRepoOnStartup,
   scheduleGitSync,
   gitCommitAndPush

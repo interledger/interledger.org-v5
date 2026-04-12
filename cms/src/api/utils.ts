@@ -15,6 +15,5 @@ export {
   htmlToMarkdown,
   LOCALES,
   getPreservedFields,
-  gitCommitAndPush,
-  resolveTargetRepoPath
+  gitCommitAndPush
 } from '../utils'
