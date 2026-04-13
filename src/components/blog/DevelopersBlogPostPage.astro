@@ -13,11 +13,7 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
-const notFoundPath = translatePath(
-  'foundation-pages',
-  routeLocale,
-  '404'
-)
+const notFoundPath = translatePath('foundation-pages', routeLocale, '404')
 
 const posts = await getCollection('developers-blog')
 
