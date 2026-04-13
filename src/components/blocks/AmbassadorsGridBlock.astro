@@ -11,6 +11,7 @@ import type {
   StrapiAmbassador,
   AmbassadorData
 } from '@/components/ambassadors/types'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   heading?: string
@@ -18,6 +19,8 @@ interface Props {
 }
 
 const { heading, ambassadors: strapiAmbassadors = [] } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 // Transform Strapi ambassador data to the format expected by AmbassadorGrid
 // Convert markdown description to HTML for preview rendering
@@ -38,6 +41,6 @@ const ambassadors: AmbassadorData[] = await Promise.all(
   ambassadors.length > 0 ? (
     <AmbassadorGrid ambassadors={ambassadors} heading={heading} />
   ) : (
-    <p class="text-gray">No ambassadors selected for this grid.</p>
+    <p class="text-gray">{t('ambassadors.no_grid')}</p>
   )
 }

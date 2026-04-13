@@ -6,6 +6,7 @@
  */
 
 import { parseMarkdown } from '@/utils/mdx'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   name: string
@@ -18,6 +19,8 @@ interface Props {
 
 const { name, description, photo, photoAlt, linkedinUrl, grantReportUrl } =
   Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const descriptionHtml = await parseMarkdown(description)
 const hasLinks = linkedinUrl || grantReportUrl
@@ -44,7 +47,7 @@ const hasLinks = linkedinUrl || grantReportUrl
             <a
               href={grantReportUrl}
               class="ambassador-link group"
-              aria-label="ILF Final Grant Report"
+              aria-label={t('aria.ambassador.grant_report')}
               data-umami-event={`Ambassadors page link - ${name} report`}
               target="_blank"
               rel="noopener noreferrer"
@@ -66,7 +69,7 @@ const hasLinks = linkedinUrl || grantReportUrl
             <a
               href={linkedinUrl}
               class="ambassador-link group"
-              aria-label="LinkedIn"
+              aria-label={t('aria.linkedin')}
               data-umami-event={`Ambassadors page link - ${name} Linkedin`}
               target="_blank"
               rel="noopener noreferrer"

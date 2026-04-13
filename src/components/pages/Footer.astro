@@ -1,4 +1,8 @@
 ---
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const currentYear = new Date().getFullYear()
 ---
 
@@ -9,18 +13,22 @@ const currentYear = new Date().getFullYear()
     <li>
       <a
         href="https://interledger.social/@Interledger"
-        data-umami-event="Footer - Mastadon"
+        data-umami-event="Footer - Mastodon"
       >
         <img
           src="/img/lander/icon-fediverse.svg"
-          alt="Mastadon"
+          alt={t('footer.social.mastodon')}
           class="w-6 h-6"
         />
       </a>
     </li>
     <li>
       <a href="https://twitter.com/interledger" data-umami-event="Footer - X">
-        <img src="/img/lander/icon-twitter.svg" alt="Twitter" class="w-6 h-6" />
+        <img
+          src="/img/lander/icon-twitter.svg"
+          alt={t('footer.social.twitter')}
+          class="w-6 h-6"
+        />
       </a>
     </li>
     <li>
@@ -28,7 +36,11 @@ const currentYear = new Date().getFullYear()
         href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
         data-umami-event="Footer - Slack"
       >
-        <img src="/img/lander/icon-slack.svg" alt="Slack" class="w-6 h-6" />
+        <img
+          src="/img/lander/icon-slack.svg"
+          alt={t('footer.social.slack')}
+          class="w-6 h-6"
+        />
       </a>
     </li>
     <li>
@@ -36,7 +48,11 @@ const currentYear = new Date().getFullYear()
         href="https://github.com/interledger"
         data-umami-event="Footer - GitHub"
       >
-        <img src="/img/lander/icon-github.svg" alt="Github" class="w-6 h-6" />
+        <img
+          src="/img/lander/icon-github.svg"
+          alt={t('footer.social.github')}
+          class="w-6 h-6"
+        />
       </a>
     </li>
     <li>
@@ -46,7 +62,7 @@ const currentYear = new Date().getFullYear()
       >
         <img
           src="/img/lander/icon-linkedin.svg"
-          alt="Linkedin"
+          alt={t('footer.social.linkedin')}
           class="w-6 h-6"
         />
       </a>
