@@ -27,7 +27,11 @@
       "required": true
     },
     "description": {
-      "type": "richtext",
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
       "pluginOptions": {
         "i18n": {
           "localized": true

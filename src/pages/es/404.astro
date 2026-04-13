@@ -1,0 +1,32 @@
+---
+/**
+ * Spanish 404 page for localized routes.
+ */
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { localizeRoute } from '@/utils/routes'
+
+const { routeLocale } = Astro.locals
+const homePath = localizeRoute('', routeLocale)
+---
+
+<FoundationPageLayout
+  title="Página no encontrada"
+  description="No se pudo encontrar la página que solicitaste."
+>
+  <main class="flex-1 flex items-center justify-center py-space-xl">
+    <section class="text-center px-space-m">
+      <h1 class="text-6xl font-semibold text-primary mb-space-s">404</h1>
+      <p
+        class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-md mx-auto"
+      >
+        No se pudo encontrar la página que solicitaste.
+      </p>
+      <a
+        href={homePath}
+        class="inline-block text-primary font-medium underline hover:no-underline"
+      >
+        ← Volver al inicio
+      </a>
+    </section>
+  </main>
+</FoundationPageLayout>
