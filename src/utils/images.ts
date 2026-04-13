@@ -3,6 +3,13 @@ import path from 'node:path'
 
 export const TARGET_WIDTHS = [640, 1280, 1920] as const
 
+export const IMAGE_URL_PATHS = {
+  publicSource: '/img',
+  publicOptimized: '/img/optimized',
+  uploadSource: '/uploads/img/original',
+  uploadOptimized: '/img/optimized/uploads'
+} as const
+
 export interface ImageVariant {
   src: string
   width: number
@@ -11,6 +18,22 @@ export interface ImageVariant {
 export interface OptimizedImage {
   variants: ImageVariant[]
   fullSrc: string | null
+}
+
+export function pathToSegments(urlPath: string): string[] {
+  return urlPath.split('/').filter(Boolean)
+}
+
+function isWithinUrlPath(pathname: string, basePath: string): boolean {
+  return pathname === basePath || pathname.startsWith(`${basePath}/`)
+}
+
+function replaceUrlPathPrefix(
+  pathname: string,
+  fromPath: string,
+  toPath: string
+): string {
+  return `${toPath}${pathname.slice(fromPath.length)}`
 }
 
 /**
@@ -35,12 +58,23 @@ function getOptimizedBase(src: string): string | null {
   if (!ext) return null
   const stem = pathname.slice(0, -ext.length)
 
-  if (pathname.startsWith('/uploads/img/original/')) {
-    return `/img/optimized/uploads${stem.slice('/uploads/img/original'.length)}`
+  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
+    return replaceUrlPathPrefix(
+      stem,
+      IMAGE_URL_PATHS.uploadSource,
+      IMAGE_URL_PATHS.uploadOptimized
+    )
   }
 
-  if (pathname.startsWith('/img/') && !pathname.startsWith('/img/optimized/')) {
-    return `/img/optimized${stem.slice('/img'.length)}`
+  if (
+    isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicSource) &&
+    !isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)
+  ) {
+    return replaceUrlPathPrefix(
+      stem,
+      IMAGE_URL_PATHS.publicSource,
+      IMAGE_URL_PATHS.publicOptimized
+    )
   }
 
   return null

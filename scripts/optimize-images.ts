@@ -1,11 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
-import { TARGET_WIDTHS } from '@/utils/images'
+import { IMAGE_URL_PATHS, TARGET_WIDTHS, pathToSegments } from '@/utils/images'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
-const OUTPUT_BASE = path.join(PUBLIC_DIR, 'img', 'optimized')
+const getPublicAssetPath = (urlPath: string): string =>
+  path.join(PUBLIC_DIR, ...pathToSegments(urlPath))
+
+const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
 
 const WEBP_QUALITY = 80
 const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
@@ -16,9 +19,12 @@ interface SourceConfig {
 }
 
 const SOURCES: SourceConfig[] = [
-  { dir: path.join(PUBLIC_DIR, 'img'), outputPrefix: '' },
   {
-    dir: path.join(PUBLIC_DIR, 'uploads', 'img', 'original'),
+    dir: getPublicAssetPath(IMAGE_URL_PATHS.publicSource),
+    outputPrefix: ''
+  },
+  {
+    dir: getPublicAssetPath(IMAGE_URL_PATHS.uploadSource),
     outputPrefix: 'uploads'
   }
 ]
