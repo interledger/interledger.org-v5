@@ -36,6 +36,11 @@ export const redirects = {
   '/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
     '/news/reflections-2025-payments-canada-summit',
 
+  // Spanish developer blog content
+  '/developers/blog/es': '/es/developers/blog',
+  '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
+    '/es/developers/blog/el-universo-interledger',
+
   // Summit pages
   '/summit/key-information': '/summit/media-kit',
   '/summit/2025-summit-schedule': '/summit/schedule',
