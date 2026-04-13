@@ -11,7 +11,9 @@ const getPublicAssetPath = (urlPath: string): string =>
 const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
 
 const WEBP_QUALITY = 80
-const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
+// GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
+// would become static. They're passed through as-is by OptimizedImage.
+const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp'])
 
 interface SourceConfig {
   dir: string
