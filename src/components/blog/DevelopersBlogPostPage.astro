@@ -5,6 +5,7 @@ import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
 
 interface Props {
   slug: string
@@ -38,6 +39,6 @@ const blogPath = localizeRoute(ROUTE_BASES['developers-blog'], contentLocale)
   <Fragment slot="disclaimer">
     <TranslationDisclaimer isVisible={isFallback} />
   </Fragment>
-  <MdxContent />
+  <MdxContent components={{ img: OptimizedImage }} />
   <CommunityLinksDevelopers />
 </DevelopersBlogLayout>

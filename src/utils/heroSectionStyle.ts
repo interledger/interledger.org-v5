@@ -1,13 +1,13 @@
+import { getOptimizedImage } from './images'
+
 export function getHeroSectionStyle(
   heroImage?: string
 ): Record<string, string> | undefined {
-  const safeHeroImageUrl = heroImage?.trim()
-    ? encodeURI(heroImage.trim())
-    : undefined
+  const trimmed = heroImage?.trim()
+  if (!trimmed) return undefined
 
-  return safeHeroImageUrl
-    ? {
-        backgroundImage: `url('${safeHeroImageUrl}')`
-      }
-    : undefined
+  const { fullSrc } = getOptimizedImage(trimmed)
+  const url = encodeURI(fullSrc ?? trimmed)
+
+  return { backgroundImage: `url('${url}')` }
 }
