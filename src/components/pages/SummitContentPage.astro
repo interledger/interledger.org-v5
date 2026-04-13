@@ -12,6 +12,7 @@ import PdfEmbed from '@/components/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 import Link from '@/components/shared/Link.astro'
+import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
@@ -20,6 +21,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const pages = await getCollection('summit-pages')
 
@@ -27,7 +30,7 @@ const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
-if (!mdxPage) return Astro.redirect('/404')
+if (!mdxPage) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data

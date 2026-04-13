@@ -50,35 +50,15 @@ const foundationHref = translatePath(
             >
               {blogPostEntry.data.date.toDateString()}
             </time>
-            {blogPostEntry.data.locale === 'es' ? (
-              <div class="flex items-start gap-space-2xs">
-                <h2 class="text-step-1">
-                  <a
-                    href={postPath}
-                    class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                    data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
-                  >
-                    {blogPostEntry.data.title}
-                  </a>
-                </h2>
-                <a
-                  class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
-                  href={blogIndexHref}
-                >
-                  ES
-                </a>
-              </div>
-            ) : (
-              <h2 class="text-step-1">
-                <a
-                  href={postPath}
-                  class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                  data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
-                >
-                  {blogPostEntry.data.title}
-                </a>
-              </h2>
-            )}
+            <h2 class="text-step-1">
+              <a
+                href={postPath}
+                class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
+              >
+                {blogPostEntry.data.title}
+              </a>
+            </h2>
 
             <p class="mb-space-2xs grow">
               {blogPostEntry.data.description
