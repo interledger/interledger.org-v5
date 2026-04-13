@@ -1,12 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
+import { TARGET_WIDTHS } from '@/utils/images'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
 const OUTPUT_BASE = path.join(PUBLIC_DIR, 'img', 'optimized')
 
-const TARGET_WIDTHS = [640, 1280, 1920]
 const WEBP_QUALITY = 80
 const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
 

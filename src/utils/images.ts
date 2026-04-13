@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const TARGET_WIDTHS = [640, 1280, 1920] as const
+export const TARGET_WIDTHS = [640, 1280, 1920] as const
 
 export interface ImageVariant {
   src: string
