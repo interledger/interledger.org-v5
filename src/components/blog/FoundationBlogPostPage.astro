@@ -21,6 +21,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const posts = await getCollection('foundation-blog')
 
@@ -28,7 +30,7 @@ const mdxPost = posts.find(
   (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
-if (!mdxPost) return Astro.redirect('/404')
+if (!mdxPost) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
