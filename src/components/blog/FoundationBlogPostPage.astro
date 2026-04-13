@@ -13,6 +13,7 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { localizeRoute } from '@/utils/routes'
 interface Props {
   slug: string
   contentLocale: Locale
@@ -21,7 +22,7 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
-const notFoundPath = translatePath('foundation-pages', routeLocale, '404')
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const posts = await getCollection('foundation-blog')
 
