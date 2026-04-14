@@ -1,9 +1,11 @@
 ---
 import { type Talk } from '@/types/summit'
-import { type Locale } from '@/utils/i18'
-import { generateSlug } from '@/utils/slug'
-import { truncateText } from '@/utils/text'
-import { getTranslation } from '@/utils/summit-talks-speakers'
+import {
+  type Locale,
+  generateSlug,
+  truncateText,
+  getTranslation
+} from '@/utils'
 
 interface Props {
   sessions: Talk[]

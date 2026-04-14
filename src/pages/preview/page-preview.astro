@@ -7,8 +7,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import Link from '@/components/shared/Link.astro'
-import { applyPreviewNoStore } from '@/utils/cache'
-import { fetchStrapi } from '@/utils/fetchStrapi'
+import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)

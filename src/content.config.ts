@@ -2,7 +2,6 @@ import { defineCollection } from 'astro:content'
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
-import { PATHS } from './utils/paths'
 import {
   ambassadorFrontmatterSchema,
   developersBlogFrontmatterSchema,
@@ -10,11 +9,12 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
+import { CONTENT, CONTENT_ROOT } from '@/utils/contentCollections'
 
 const foundationBlogCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.blog}`
+    base: `./${CONTENT_ROOT}/${CONTENT.blog}`
   }),
   schema: foundationBlogFrontmatterSchema
 })
@@ -22,7 +22,7 @@ const foundationBlogCollection = defineCollection({
 const foundationPagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`
+    base: `./${CONTENT_ROOT}/${CONTENT.foundationPages}`
   }),
   schema: foundationPageFrontmatterSchema
 })
@@ -30,7 +30,7 @@ const foundationPagesCollection = defineCollection({
 const summitPagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summitPages}`
+    base: `./${CONTENT_ROOT}/${CONTENT.summitPages}`
   }),
   schema: summitPageFrontmatterSchema
 })
@@ -38,7 +38,7 @@ const summitPagesCollection = defineCollection({
 const developersBlogCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.developersBlog}`
+    base: `./${CONTENT_ROOT}/${CONTENT.developersBlog}`
   }),
   schema: developersBlogFrontmatterSchema
 })
@@ -46,7 +46,7 @@ const developersBlogCollection = defineCollection({
 const ambassadorCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.mdx',
-    base: `./${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.ambassadors}`
+    base: `./${CONTENT_ROOT}/${CONTENT.ambassadors}`
   }),
   schema: ambassadorFrontmatterSchema
 })

@@ -1,6 +1,6 @@
 ---
 import FoundationBlogPostPage from '@/components/blog/FoundationBlogPostPage.astro'
-import { getLocalizedPaths } from '@/utils/static-paths'
+import { getLocalizedPaths } from '@/utils'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('foundation-blog', 'es', 'id')

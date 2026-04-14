@@ -1,8 +1,7 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
 import type { Speaker } from '@/types/summit'
-import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers'
-import stripPagination from '@/utils/stripPagination'
+import { paginateSummitSpeakers, stripPagination } from '@/utils'
 import SpeakersListPage from '@/components/summit/SpeakersListPage.astro'
 import { localizeRoute } from '@/utils/routes'
 

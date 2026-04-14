@@ -1,9 +1,8 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import { getNavigation } from '@/utils/navigation'
-import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
-import type { Locale } from '@/utils/i18'
+import summitNavigation from '@/config/summit-navigation.json'
+import { HOME_CONTENT_SLUG, type Locale, translatePath, useTranslations, getNavigation } from '@/utils'
 
 const { routeLocale } = Astro.locals
 const locale = (routeLocale ?? 'en') as Locale
@@ -165,6 +164,8 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
 </header>
 
 <script>
+  import { stripTrailingSlash } from '@/utils/client'
+
   const summitLinksWrapper = document.querySelector('[data-nav-wrapper]')
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
@@ -299,9 +300,8 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
   navLinks.forEach((link) => {
     if (link instanceof HTMLAnchorElement) {
       const linkPath = link.pathname
-      // Remove trailing slashes for comparison
-      const normalizedCurrentPath = currentPath.replace(/\/$/, '')
-      const normalizedLinkPath = linkPath.replace(/\/$/, '')
+      const normalizedCurrentPath = stripTrailingSlash(currentPath)
+      const normalizedLinkPath = stripTrailingSlash(linkPath)
 
       // Check for exact match or if current path starts with link path (for subpages)
       if (

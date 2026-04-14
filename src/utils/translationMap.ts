@@ -5,7 +5,7 @@ import { YEARS } from './sessionize'
 import { getTalks, getSpeakers } from './extractSessionize'
 import { generateSlug } from './slug'
 
-export type TranslationEntry = Record<Locale, string>
+type TranslationEntry = Record<Locale, string>
 
 function createFallbackEntry(defaultSlug: string): TranslationEntry {
   return Object.fromEntries(

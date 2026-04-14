@@ -1,8 +1,5 @@
-import jsesc from 'jsesc'
 import type { AmbassadorBase } from '../../api/ambassador/types'
-
-const escDouble = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
-const escSingle = (v: string) => (v ? jsesc(v, { quotes: 'single' }) : '')
+import { escDouble, escSingle } from '../shared'
 
 export function serialize(block: {
   heading?: string

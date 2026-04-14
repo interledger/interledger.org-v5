@@ -14,6 +14,8 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
+      "@/utils": ["src/utils/index.ts"],
+      "@/utils/*": ["src/utils/*"],
       "@/*": ["src/*"],
       "@site/*": ["../src/*"]
     }

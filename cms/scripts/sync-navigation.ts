@@ -12,12 +12,8 @@ import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
 import { spawnSync } from 'child_process'
-import {
-  assertRunFromCms,
-  getConfigPath,
-  getProjectRoot
-} from '../src/utils/paths'
-import { LOCALES, defaultLang } from '../src/utils/mdx'
+import { LOCALES, defaultLang } from '@/utils/mdx'
+import { assertRunFromCms, getConfigPath, getProjectRoot } from '@/utils'
 const DRY_RUN = process.argv.includes('--dry-run')
 const FORCE = process.argv.includes('--force')
 

@@ -1,7 +1,5 @@
-import jsesc from 'jsesc'
-import { getImageUrl } from '../../utils/mdx'
-
-const esc = (v: string) => (v ? jsesc(v, { quotes: 'double' }) : '')
+import { getImageUrl } from '../../utils'
+import { escDouble as esc } from '../shared'
 
 export function serialize(block: {
   heading?: string

@@ -1,4 +1,4 @@
-import { getImageUrl } from '../../utils/mdx'
+import { getImageUrl } from '../../utils'
 import type { AmbassadorBase } from '../../api/ambassador/types'
 
 const escAttr = (v: string) => v.replace(/"/g, '&quot;')

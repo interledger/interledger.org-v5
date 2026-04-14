@@ -4,15 +4,11 @@ import {
   HOME_CONTENT_SLUG,
   ROUTE_BASES,
   type RouteCollection,
-  localizeRoute
+  localizeRoute,
+  normalizeBasePath
 } from '@/utils/routes'
 
 export const COLLECTION_INDEX_SLUG = ''
-
-export function normalizeBasePath(basePath: string): string {
-  if (!basePath || basePath === '/') return ''
-  return basePath.startsWith('/') ? basePath : `/${basePath}`
-}
 
 export function buildRoutePath(basePath: string, enSlug: string): string {
   const normalizedBase = normalizeBasePath(basePath)

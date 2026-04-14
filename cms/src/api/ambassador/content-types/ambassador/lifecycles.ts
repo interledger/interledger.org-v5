@@ -7,10 +7,13 @@
  * only wrote the single event.result locale, leaving other locales' MDX stale.
  */
 
-import { getImageUrl, yamlSingleQuoteScalar } from '../../../../utils/mdx'
-import { getContentPath } from '../../../../utils/paths'
-import { getTargetRepoRoot } from '../../../../utils/gitSync'
-import { createFlatLocaleMdxLifecycle } from '../../../../utils/flatContentLifecycle'
+import {
+  getImageUrl,
+  yamlSingleQuoteScalar,
+  getContentPath,
+  getTargetRepoRoot,
+  createFlatLocaleMdxLifecycle
+} from '../../../../utils'
 import type { AmbassadorBase } from '../../types'
 
 interface Ambassador extends AmbassadorBase {

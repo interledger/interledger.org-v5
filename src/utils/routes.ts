@@ -11,7 +11,7 @@ export const ROUTE_BASES = {
 
 export type RouteCollection = keyof typeof ROUTE_BASES
 
-function normalizeBasePath(basePath: string): string {
+export function normalizeBasePath(basePath: string): string {
   if (!basePath || basePath === '/') return ''
   return basePath.startsWith('/') ? basePath : `/${basePath}`
 }

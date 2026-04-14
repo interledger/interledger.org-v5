@@ -4,8 +4,7 @@ import type { BlogCollectionType } from '@/content.config'
 import type { Locale } from './i18'
 
 export function getTagUrl(path: string, tag: string) {
-  const pathSlug = tag.toLowerCase().replace(/\s+/g, '-')
-  return `${path}/tag/${pathSlug}`
+  return `${path}/tag/${getTagSlug(tag)}`
 }
 
 export function getTagSlug(tag: string) {

@@ -1,10 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { pipeline } from 'stream/promises'
-import { scheduleGitSync, validateGitSyncRepoOnStartup } from './utils/gitSync'
-import { validateNoNestedJsx } from './utils/contentValidation'
-import { LOCALES } from './utils/mdx'
-import { shouldSkipMdxExport } from './utils/pageLifecycle'
+import {
+  scheduleGitSync,
+  validateGitSyncRepoOnStartup,
+  validateNoNestedJsx,
+  LOCALES,
+  shouldSkipMdxExport
+} from './utils'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')

@@ -15,11 +15,6 @@ export function getProjectRoot(): string {
   return path.basename(cwd) === 'cms' ? path.resolve(cwd, '..') : cwd
 }
 
-/** CMS directory (absolute path). Works regardless of cwd. */
-export function getCmsDir(): string {
-  return path.join(getProjectRoot(), 'cms')
-}
-
 /** Exits if not run from cms directory. */
 export function assertRunFromCms(): void {
   if (path.basename(getCwd()) !== 'cms') {
