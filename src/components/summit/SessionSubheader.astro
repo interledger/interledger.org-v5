@@ -1,8 +1,11 @@
 ---
 import type { Talk, TalkPreview } from '@/types/summit'
-import type { Locale } from '@/utils/i18'
-import { useTranslations } from '@/utils/i18'
-import { formatDate, getDurationInMinutes } from '@/utils/time'
+import {
+  type Locale,
+  useTranslations,
+  formatDate,
+  getDurationInMinutes
+} from '@/utils'
 
 interface Props {
   talk: TalkPreview | Talk

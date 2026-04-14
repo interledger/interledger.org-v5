@@ -1,12 +1,11 @@
 ---
 import type { Page } from 'astro'
 import type { TalkPreview } from '@/types/summit'
-import { stripPagination } from '@/utils'
+import { stripPagination, useTranslations } from '@/utils'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SessionCard from './SessionCard.astro'
-import { useTranslations } from '@/utils/i18'
 
 interface Props {
   talkPreviews: TalkPreview[]

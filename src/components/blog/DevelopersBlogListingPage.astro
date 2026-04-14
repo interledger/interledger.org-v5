@@ -4,12 +4,12 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/shared/Pagination.astro'
-import stripPagination from '@/utils/stripPagination'
 import {
+  stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
   useTranslations
-} from '@/utils/i18'
+} from '@/utils'
 
 interface Props {
   page: Page

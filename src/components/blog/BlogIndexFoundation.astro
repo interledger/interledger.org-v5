@@ -1,13 +1,13 @@
 ---
-import { createExcerpt } from '@/utils'
-import type { CollectionEntry } from 'astro:content'
-import TagFilter from './TagFilter.astro'
-import BlogIndexHeader from './BlogIndexHeader.astro'
 import {
+  createExcerpt,
   COLLECTION_INDEX_SLUG,
   translatePath,
   useTranslations
-} from '@/utils/i18'
+} from '@/utils'
+import type { CollectionEntry } from 'astro:content'
+import TagFilter from './TagFilter.astro'
+import BlogIndexHeader from './BlogIndexHeader.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]

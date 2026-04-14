@@ -1,8 +1,11 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import { defaultLocale, useTranslations } from '@/utils/i18'
-import { getTranslation } from '@/utils/summit-talks-speakers'
-import { getTalks } from '@/utils/extractSessionize'
+import {
+  defaultLocale,
+  useTranslations,
+  getTranslation,
+  getTalks
+} from '@/utils'
 import type { Speaker } from '@/types/summit'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import TextParagraphs from './TextParagraphs.astro'

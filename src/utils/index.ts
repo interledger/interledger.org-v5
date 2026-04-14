@@ -11,7 +11,16 @@ export { routeContextFromPathname } from './routeContext'
 export { default as stripPagination } from './stripPagination'
 
 // Internationalisation
-export { type Locale, locales, defaultLocale, switcherLocales } from './i18'
+export {
+  type Locale,
+  locales,
+  defaultLocale,
+  switcherLocales,
+  useTranslations,
+  translatePath,
+  COLLECTION_INDEX_SLUG,
+  buildRoutePath
+} from './i18'
 export { buildMap } from './translationMap'
 export { translationMap } from './translationMapData'
 
@@ -52,3 +61,6 @@ export {
   getSpeakerPages,
   getSessionPages
 } from './summit-talks-speakers'
+
+// Images
+export { getOptimizedImage } from './images'

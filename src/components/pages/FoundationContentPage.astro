@@ -1,5 +1,5 @@
 ---
-import { type Locale, getHeroSectionStyle } from '@/utils'
+import { type Locale, getHeroSectionStyle, localizeRoute } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
@@ -12,7 +12,6 @@ import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/OptimizedImage.astro'
-import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string

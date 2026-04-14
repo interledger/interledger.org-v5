@@ -1,10 +1,3 @@
-// Types
-export {
-  type StrapiDocumentAPI,
-  type StrapiAdminUser,
-  type StrapiGlobal
-} from './strapiTypes'
-
 // Paths & configuration
 export {
   getProjectRoot,
@@ -23,15 +16,11 @@ export {
   type HeroCta,
   heroFrontmatter,
   seoFrontmatter,
-  getPreservedFields
-} from './mdx'
-export {
+  getPreservedFields,
   defaultLang,
   LOCALES,
   MATTER_STRINGIFY_OPTIONS,
-  yamlSingleQuoteScalar
-} from './mdx'
-export {
+  yamlSingleQuoteScalar,
   getImageUrl,
   htmlToMarkdown,
   formatBlockquote,
