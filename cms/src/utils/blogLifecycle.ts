@@ -3,6 +3,7 @@ import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
+import { formatMdx } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { Core } from '@strapi/strapi'
 
@@ -170,7 +171,7 @@ async function writeMDXFile({
   const mdxContent = generateBlogMDX(post)
 
   await fs.promises.mkdir(outputPath, { recursive: true })
-  await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
+  await fs.promises.writeFile(filepath, await formatMdx(mdxContent), 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
   return filepath

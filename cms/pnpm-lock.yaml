@@ -54,6 +54,9 @@ importers:
       mdast-util-to-markdown:
         specifier: ^2.1.2
         version: 2.1.2
+      prettier:
+        specifier: 3.8.1
+        version: 3.8.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -5986,6 +5989,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   pretty-error@4.0.0:
     resolution: {integrity: sha512-AoJ5YMAcXKYxKhuJGdcvse+Voc6v1RgnsR3nWcYU7q4t6z0Q6T86sv5Zq8VIRbOWWFpvdGE83LtdSMNd+6Y0xw==}
 
@@ -8002,6 +8010,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-editor-multi-root@47.4.0':
     dependencies:
@@ -8032,8 +8042,6 @@ snapshots:
     dependencies:
       '@ckeditor/ckeditor5-utils': 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-enter@47.4.0':
     dependencies:
@@ -8443,8 +8451,6 @@ snapshots:
     dependencies:
       '@ckeditor/ckeditor5-ui': 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-watchdog@47.4.0':
     dependencies:
@@ -10134,7 +10140,7 @@ snapshots:
       '@strapi/design-system': 2.2.0(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@strapi/icons@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.14)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/icons': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/permissions': 5.41.1
-      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)
+      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)
       '@strapi/typescript-utils': 5.41.1
       '@strapi/utils': 5.41.1
       '@testing-library/dom': 10.4.1
@@ -10333,7 +10339,7 @@ snapshots:
       '@strapi/database': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)
       '@strapi/design-system': 2.2.0(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@strapi/icons@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.14)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/icons': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)
+      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)
       '@strapi/utils': 5.41.1
       date-fns: 2.30.0
       date-fns-tz: 2.0.1(date-fns@2.30.0)
@@ -10434,7 +10440,7 @@ snapshots:
       '@strapi/generators': 5.41.1(@types/node@25.4.0)
       '@strapi/logger': 5.41.1
       '@strapi/permissions': 5.41.1
-      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)
+      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)
       '@strapi/typescript-utils': 5.41.1
       '@strapi/utils': 5.41.1
       '@vercel/stega': 0.1.2
@@ -10862,7 +10868,7 @@ snapshots:
       '@strapi/openapi': 5.41.1
       '@strapi/permissions': 5.41.1
       '@strapi/review-workflows': 5.41.1(6d9d4bf50717dda097ab439406d5332a)
-      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)
+      '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)
       '@strapi/typescript-utils': 5.41.1
       '@strapi/upload': 5.41.1(875d5a09f0e66a339eb16219cd5704cd)
       '@strapi/utils': 5.41.1
@@ -10963,6 +10969,36 @@ snapshots:
       - webpack-cli
       - webpack-dev-server
       - webpack-plugin-serve
+
+  '@strapi/types@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)':
+    dependencies:
+      '@casl/ability': 6.7.5
+      '@koa/cors': 5.0.0
+      '@koa/router': 12.0.2
+      '@strapi/database': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)
+      '@strapi/logger': 5.41.1
+      '@strapi/permissions': 5.41.1
+      '@strapi/utils': 5.41.1
+      commander: 8.3.0
+      json-logic-js: 2.0.5
+      koa: 2.16.4
+      koa-body: 6.0.1
+      node-schedule: 2.1.1
+      typedoc: 0.25.10(typescript@5.4.4)
+      typedoc-github-wiki-theme: 1.1.0(typedoc-plugin-markdown@3.17.1(typedoc@0.25.10(typescript@5.9.3)))(typedoc@0.25.10(typescript@5.9.3))
+      typedoc-plugin-markdown: 3.17.1(typedoc@0.25.10(typescript@5.9.3))
+      zod: 3.25.67
+    transitivePeerDependencies:
+      - '@types/node'
+      - better-sqlite3
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+      - typescript
 
   '@strapi/types@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)':
     dependencies:
@@ -15075,6 +15111,8 @@ snapshots:
 
   prettier@3.3.3: {}
 
+  prettier@3.8.1: {}
+
   pretty-error@4.0.0:
     dependencies:
       lodash: 4.17.23
@@ -16225,6 +16263,14 @@ snapshots:
     dependencies:
       handlebars: 4.7.8
       typedoc: 0.25.10(typescript@5.9.3)
+
+  typedoc@0.25.10(typescript@5.4.4):
+    dependencies:
+      lunr: 2.3.9
+      marked: 4.3.0
+      minimatch: 9.0.9
+      shiki: 0.14.7
+      typescript: 5.4.4
 
   typedoc@0.25.10(typescript@5.9.3):
     dependencies:
