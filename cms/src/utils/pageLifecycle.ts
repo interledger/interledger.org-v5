@@ -4,9 +4,9 @@
  * Used by page and summit-page content types.
  */
 
-import type { StrapiGlobal } from './strapiTypes'
+import type { Core, UID, Modules } from '@strapi/strapi'
 
-declare const strapi: StrapiGlobal
+declare const strapi: Core.Strapi
 
 import fs from 'fs'
 import path from 'path'
@@ -26,7 +26,6 @@ import {
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
-import { FOUNDATION_PAGE_CONTENT_POPULATE } from './contentPopulate'
 
 interface PageData {
   id: number
@@ -89,11 +88,15 @@ export function getAdminAuthor(): { name: string; email: string } | undefined {
   }
 }
 
-export interface PageLifecycleConfig {
+export interface PageLifecycleConfig<
+  T extends UID.ContentType = UID.ContentType
+> {
   /** Strapi content type UID, e.g. 'api::foundation-page.foundation-page' */
-  contentTypeUid: string
+  contentTypeUid: T
   /** English output path relative to project root, e.g. 'src/content/foundation-pages' */
   outputDir: string
+  /** Strapi populate clause for fetching published content. */
+  populate: Modules.Documents.Params.Populate.Any<T>
 }
 
 /**
@@ -128,13 +131,15 @@ export function resolvePageFilepath(
   return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
 }
 
-function getOutputDir(config: PageLifecycleConfig): string {
+function getOutputDir<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>
+): string {
   const projectRoot = getTargetRepoRoot()
   return path.join(projectRoot, config.outputDir)
 }
 
-export function generateMDX(
-  config: PageLifecycleConfig,
+export function generateMDX<T extends UID.ContentType = UID.ContentType>(
+  _config: PageLifecycleConfig<T>,
   page: PageData,
   preservedFields: Record<string, unknown> = {},
   englishSlug?: string
@@ -182,8 +187,8 @@ export function generateMDX(
   )
 }
 
-async function writeMDXFile(
-  config: PageLifecycleConfig,
+async function writeMDXFile<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
   page: PageData,
   englishSlug?: string
 ): Promise<string> {
@@ -218,8 +223,8 @@ async function writeMDXFile(
   }
 }
 
-async function fetchPublished(
-  config: PageLifecycleConfig,
+async function fetchPublished<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
   documentId: string,
   locale: string
 ): Promise<PageData | null> {
@@ -228,15 +233,9 @@ async function fetchPublished(
       documentId,
       locale,
       status: 'published',
-      populate: {
-        hero: {
-          populate: { backgroundImage: true, hero_call_to_action: true }
-        },
-        seo: { populate: '*' },
-        content: FOUNDATION_PAGE_CONTENT_POPULATE
-      }
+      populate: config.populate
     })
-    return page as PageData | null
+    return page as unknown as PageData | null
   } catch (error) {
     console.error(
       `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} ${documentId} (${locale}):`,
@@ -246,8 +245,8 @@ async function fetchPublished(
   }
 }
 
-async function exportAllLocales(
-  config: PageLifecycleConfig,
+async function exportAllLocales<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
   documentId: string
 ): Promise<string[]> {
   const filepaths: string[] = []
@@ -366,7 +365,9 @@ function deleteMdxIfExists(
 /**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
-export function createPageLifecycle(config: PageLifecycleConfig) {
+export function createPageLifecycle<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>
+) {
   return {
     async afterCreate(event: Event) {
       const { result } = event

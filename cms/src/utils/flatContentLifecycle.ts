@@ -33,9 +33,9 @@ export interface FlatContentLifecycleConfig<
 
 // ── Flat locale MDX lifecycle (export all locales per save) ───────────────────
 
-import type { StrapiGlobal } from './strapiTypes'
+import type { Core, UID, Modules } from '@strapi/strapi'
 
-declare const strapi: StrapiGlobal
+declare const strapi: Core.Strapi
 
 export interface FlatLocaleMdxLifecycleConfig<
   T extends {
@@ -44,14 +44,15 @@ export interface FlatLocaleMdxLifecycleConfig<
     locale?: string
     documentId?: string
     publishedAt?: string
-  }
+  },
+  U extends UID.ContentType = UID.ContentType
 > {
-  contentTypeUid: string
+  contentTypeUid: U
   label: string
   getBaseDir: (locale?: string) => string
   /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
   generateContent: (entry: T, englishSlug?: string) => string
-  populate?: Record<string, unknown>
+  populate?: Modules.Documents.Params.Populate.Any<U>
 }
 
 /**
@@ -66,15 +67,11 @@ export function createFlatLocaleMdxLifecycle<
     locale?: string
     documentId?: string
     publishedAt?: string
-  }
->(config: FlatLocaleMdxLifecycleConfig<T>) {
-  const {
-    contentTypeUid,
-    label,
-    getBaseDir,
-    generateContent,
-    populate = {}
-  } = config
+  },
+  U extends UID.ContentType = UID.ContentType
+>(config: FlatLocaleMdxLifecycleConfig<T, U>) {
+  const { contentTypeUid, label, getBaseDir, generateContent, populate } =
+    config
 
   async function fetchPublished(
     documentId: string,
@@ -85,9 +82,9 @@ export function createFlatLocaleMdxLifecycle<
         documentId,
         locale,
         status: 'published',
-        populate
+        ...(populate != null && { populate })
       })
-      return result as T | null
+      return result as unknown as T | null
     } catch (error) {
       console.error(
         `Failed to fetch ${label} ${documentId} (${locale}):`,

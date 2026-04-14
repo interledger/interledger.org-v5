@@ -8,8 +8,13 @@ import {
 } from './pageLifecycle'
 
 const testConfig = {
-  contentTypeUid: 'api::foundation-page.foundation-page',
-  outputDir: 'src/content/foundation-pages'
+  contentTypeUid: 'api::foundation-page.foundation-page' as const,
+  outputDir: 'src/content/foundation-pages',
+  populate: {
+    hero: { populate: '*' as const },
+    seo: { populate: '*' as const },
+    content: { populate: '*' as const }
+  }
 }
 
 describe('generateMDX — clears deleted Strapi-managed fields', () => {
