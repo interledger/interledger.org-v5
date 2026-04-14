@@ -1,5 +1,5 @@
 ---
-import { defaultLocale } from '@/utils/i18'
+import { defaultLocale, useTranslations } from '@/utils/i18'
 import type { Talk } from '@/types/summit'
 import { getTranslation } from '@/utils/summit-talks-speakers'
 import { currentSummitYear } from '@/utils/sessionize'
@@ -19,6 +19,7 @@ interface Props {
 }
 
 const { routeLocale: lang, currentBasePath } = Astro.locals
+const t = useTranslations(lang)
 const { entry, year, isFallback = false } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
@@ -36,12 +37,12 @@ const description = translation?.description ?? entry.description
 
 const breadcrumbs = [
   {
-    name: `${year} Summit`,
+    name: t('summit.summit_name', { year }),
     href: summitHref,
     umamiEvent: `Session Detail Page - ${year} Summit`
   },
   {
-    name: 'Sessions',
+    name: t('summit.sessions'),
     href: sessionsHref,
     umamiEvent: `Session Detail Page - ${year} Summit Sessions`
   }
@@ -59,16 +60,16 @@ const breadcrumbs = [
       </header>
       {
         entry.recordingUrl && (
-          <section aria-label="Session Recording">
+          <section aria-label={t('summit.session_recording')}>
             <VideoEmbed url={entry.recordingUrl} title={entry.title} />
           </section>
         )
       }
       <div class="flex flex-row gap-8">
-        <section aria-label="Session Description">
+        <section aria-label={t('summit.session_description')}>
           <TextParagraphs text={description} />
         </section>
-        <aside aria-label="Speakers">
+        <aside aria-label={t('summit.speakers')}>
           <SpeakersList
             speakers={speakers}
             basePath={speakersBasePath}

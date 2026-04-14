@@ -1,27 +1,36 @@
 ---
+import { translatePath, useTranslations } from '@/utils/i18'
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <hr class="mt-space-l mb-space-s" />
 
 <p class="italic">
-  As we are open source, you can easily check our work on <a
+  {t('blog.community.developers.start')}
+  <a
     href="https://github.com/interledger/"
-    data-umami-event="Blog Developers - GitHub">GitHub</a
-  >. If the work mentioned here inspired you, we welcome your contributions. You
-  can join our <a
+    data-umami-event="Blog Developers - GitHub">{t('blog.community.github')}</a
+  >. {t('blog.community.developers.middle')}
+  <a
     href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-    data-umami-event="Blog Developers - Community Slack">community slack</a
-  > or participate in the next <a
+    data-umami-event="Blog Developers - Community Slack"
+    >{t('blog.community.slack')}</a
+  >
+  {t('blog.community.foundation.or')}
+  <a
     href="https://docs.google.com/document/d/1T_Q_eRZtL8GluJR9rVADd7fvkB8mPluMk-d96LM4vlg/edit?usp=sharing"
-    data-umami-event="Blog Developers - Community Call">community call</a
-  >, which takes place each second Wednesday of the month.
+    data-umami-event="Blog Developers - Community Call"
+    >{t('blog.community.call')}</a
+  >, {t('blog.community.foundation.end')}
 </p>
 
 <p class="italic">
-  If you want to stay updated with all open opportunities and news from the
-  Interledger Foundation, you can subscribe to our <a
-    href="https://interledger.org/subscribe"
-    data-umami-event="Blog Developers - Newsletter">newsletter</a
+  {t('blog.community.developers.newsletter')}
+  <a
+    href={translatePath('foundation-pages', routeLocale, 'subscribe')}
+    data-umami-event="Blog Developers - Newsletter"
+    >{t('blog.community.newsletter')}</a
   >.
 </p>

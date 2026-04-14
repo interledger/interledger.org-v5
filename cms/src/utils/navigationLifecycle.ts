@@ -4,9 +4,9 @@ import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 
-import type { StrapiGlobal } from './strapiTypes'
+import type { Core, UID, Modules } from '@strapi/strapi'
 
-declare const strapi: StrapiGlobal
+declare const strapi: Core.Strapi
 
 interface MenuItem {
   label: string
@@ -32,9 +32,12 @@ interface Event {
   result?: NavigationData
 }
 
-export interface NavigationLifecycleConfig {
-  contentTypeUid: string
+export interface NavigationLifecycleConfig<
+  T extends UID.ContentType = UID.ContentType
+> {
+  contentTypeUid: T
   outputPath: string
+  populate: Modules.Documents.Params.Populate.Any<T>
 }
 
 function sanitizeMenuItem(item: MenuItem | null | undefined): MenuItem | null {
@@ -62,8 +65,8 @@ function sanitizeNavigation(data: NavigationData) {
   }
 }
 
-function writeNavigationFile(
-  config: NavigationLifecycleConfig,
+function writeNavigationFile<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   data: NavigationData
 ): string {
   const projectRoot = getTargetRepoRoot()
@@ -94,18 +97,15 @@ function writeNavigationFile(
   }
 }
 
-async function fetchPublishedNavigation(
-  config: NavigationLifecycleConfig
+async function fetchPublishedNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
 ): Promise<NavigationData | null> {
   try {
     const navigation = await strapi.documents(config.contentTypeUid).findFirst({
       status: 'published',
-      populate: {
-        mainMenu: { populate: { items: true } },
-        ctaButton: true
-      }
+      populate: config.populate
     })
-    return navigation as NavigationData | null
+    return navigation as unknown as NavigationData | null
   } catch (error) {
     console.error(
       `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} navigation:`,
@@ -115,8 +115,8 @@ async function fetchPublishedNavigation(
   }
 }
 
-async function deleteNavigationFile(
-  config: NavigationLifecycleConfig
+async function deleteNavigationFile<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
 ): Promise<string | null> {
   const projectRoot = getTargetRepoRoot()
   const outputPath = path.join(projectRoot, config.outputPath)
@@ -138,8 +138,8 @@ async function deleteNavigationFile(
   }
 }
 
-async function exportAndCommitNavigation(
-  config: NavigationLifecycleConfig,
+async function exportAndCommitNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   action: string
 ): Promise<void> {
   if (shouldSkipMdxExport()) return
@@ -157,7 +157,9 @@ async function exportAndCommitNavigation(
   )
 }
 
-export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
+export function createNavigationLifecycle<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
+) {
   return {
     async afterCreate(_event: Event) {
       await exportAndCommitNavigation(config, 'Create')

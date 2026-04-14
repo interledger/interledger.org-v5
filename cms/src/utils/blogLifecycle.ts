@@ -3,12 +3,13 @@ import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
+import { formatMdx } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
-import type { StrapiGlobal } from './strapiTypes'
+import type { Core } from '@strapi/strapi'
 
-declare const strapi: StrapiGlobal
+declare const strapi: Core.Strapi
 
-const BLOG_UID = 'api::foundation-blog-post.foundation-blog-post'
+const BLOG_UID = 'api::foundation-blog-post.foundation-blog-post' as const
 
 interface ContentBlock {
   __component: string
@@ -75,7 +76,7 @@ async function fetchBlogPost(
         content: BLOG_CONTENT_POPULATE
       }
     })
-    return post as BlogResult | null
+    return post as unknown as BlogResult | null
   } catch (error) {
     console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
     return null
@@ -170,7 +171,7 @@ async function writeMDXFile({
   const mdxContent = generateBlogMDX(post)
 
   await fs.promises.mkdir(outputPath, { recursive: true })
-  await fs.promises.writeFile(filepath, mdxContent, 'utf-8')
+  await fs.promises.writeFile(filepath, await formatMdx(mdxContent), 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
   return filepath

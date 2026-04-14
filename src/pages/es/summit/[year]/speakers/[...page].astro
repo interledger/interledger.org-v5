@@ -4,6 +4,7 @@ import type { Speaker } from '@/types/summit'
 import { paginateSummitSpeakers } from '@/utils/summit-talks-speakers'
 import stripPagination from '@/utils/stripPagination'
 import SpeakersListPage from '@/components/summit/SpeakersListPage.astro'
+import { localizeRoute } from '@/utils/routes'
 
 type Props = {
   page: Page
@@ -16,11 +17,12 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 
 const { year } = Astro.params
 const { page } = Astro.props
+const { routeLocale } = Astro.locals
 if (!year) {
   throw new Error('Year param is required')
 }
 if (!page) {
-  return Astro.redirect('/404')
+  return Astro.redirect(localizeRoute('/404', routeLocale))
 }
 const speakers: Speaker[] = page.data
 const basePath = stripPagination(Astro.url.pathname)

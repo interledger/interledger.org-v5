@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs'
+import prettier from 'prettier'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import { marked } from 'marked'
@@ -181,6 +182,27 @@ export function heroFrontmatter(
     }))
   }
   return data
+}
+
+const PRETTIER_MDX_OPTIONS: prettier.Options = {
+  parser: 'mdx',
+  semi: false,
+  singleQuote: true,
+  trailingComma: 'none',
+  proseWrap: 'preserve'
+}
+
+/**
+ * Formats MDX content with Prettier using the project's code style.
+ * Returns the original content unchanged if formatting fails.
+ */
+export async function formatMdx(content: string): Promise<string> {
+  try {
+    return await prettier.format(content, PRETTIER_MDX_OPTIONS)
+  } catch (error) {
+    console.warn('prettier formatting failed, writing unformatted MDX:', error)
+    return content
+  }
 }
 
 export function seoFrontmatter(
