@@ -1,5 +1,5 @@
 ---
-import { type Locale, ROUTE_BASES, localizeRoute } from '@/utils'
+import { COLLECTION_INDEX_SLUG, translatePath, type Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
@@ -13,6 +13,9 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { localizeRoute } from '@/utils/routes'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+
 interface Props {
   slug: string
   contentLocale: Locale
@@ -20,6 +23,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const posts = await getCollection('foundation-blog')
 
@@ -27,11 +32,15 @@ const mdxPost = posts.find(
   (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
-if (!mdxPost) return Astro.redirect('/404')
+if (!mdxPost) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
+const blogPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <FoundationBlogLayout frontmatter={mdxData}>
@@ -40,6 +49,7 @@ const blogPath = localizeRoute(ROUTE_BASES['foundation-blog'], contentLocale)
   </Fragment>
   <MdxContent
     components={{
+      img: OptimizedImage,
       Ambassador,
       AmbassadorGrid,
       Blockquote,

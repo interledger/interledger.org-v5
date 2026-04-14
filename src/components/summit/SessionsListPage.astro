@@ -6,6 +6,7 @@ import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SessionCard from './SessionCard.astro'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   talkPreviews: TalkPreview[]
@@ -15,10 +16,11 @@ interface Props {
   isFallback?: boolean
 }
 const { routeLocale: lang } = Astro.locals
+const t = useTranslations(lang)
 const { talkPreviews, title, page, year, isFallback = false } = Astro.props
 const basePath = stripPagination(Astro.url.pathname)
 const sessionBasePath = basePath.replace(/\/talks\/?$/, '/talk')
-const label = `${year} Summit Talks`
+const label = t('summit.talks_pagination', { year })
 ---
 
 <SummitPageLayout title={title}>
@@ -39,7 +41,7 @@ const label = `${year} Summit Talks`
             ))}
           </ul>
         ) : (
-          <p>No data available for {title}</p>
+          <p>{t('summit.no_data', { title })}</p>
         )
       }
     </section>

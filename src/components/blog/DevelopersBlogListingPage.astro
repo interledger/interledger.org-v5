@@ -4,36 +4,43 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogIndexDevelopers from '@/components/blog/BlogIndexDevelopers.astro'
 import Pagination from '@/components/shared/Pagination.astro'
-import { stripPagination } from '@/utils'
+import stripPagination from '@/utils/stripPagination'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 interface Props {
   page: Page
   allTags: string[]
   selectedTag?: string
-  blogPath: string
-  developersHomePath: string
-  foundationBlogPath: string
 }
 
-const {
-  page,
-  allTags,
-  selectedTag,
-  blogPath,
-  developersHomePath,
-  foundationBlogPath
-} = Astro.props
+const { page, allTags, selectedTag } = Astro.props
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
+const blogPath = translatePath(
+  'developers-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
+const developersHomePath = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'developers'
+)
 const title = selectedTag
-  ? `Engineering Blog - ${selectedTag}`
-  : 'Engineering Blog'
+  ? t('blog.developers.tag_title', { tag: selectedTag })
+  : t('blog.developers.title')
 const description = selectedTag
-  ? `Engineering Blog posts tagged with ${selectedTag}`
-  : 'Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality.'
+  ? t('blog.developers.tag_description', { tag: selectedTag })
+  : t('blog.developers.description')
 const breadcrumbs = [
   {
-    name: 'Developers Portal',
+    name: t('blog.developers.portal'),
     href: developersHomePath,
     umamiEvent: 'Devs breadcrumb - Home'
   }
@@ -41,7 +48,7 @@ const breadcrumbs = [
 
 if (selectedTag) {
   breadcrumbs.push({
-    name: 'Engineering Blog',
+    name: t('blog.developers.title'),
     href: blogPath,
     umamiEvent: 'Devs breadcrumb - Blog'
   })
@@ -61,8 +68,7 @@ if (selectedTag) {
         allTags={allTags}
         selectedTag={selectedTag}
         showTagFilter={true}
-        path={blogPath}
-        foundationHref={foundationBlogPath}
+        blogIndexHref={blogPath}
       />
       <Pagination
         baseUrl={basePath}

@@ -3,39 +3,44 @@ import { createExcerpt } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 interface Props {
   posts: CollectionEntry<'developers-blog'>[]
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
-  path?: string
-  foundationHref?: string
+  blogIndexHref: string
 }
-const {
-  posts,
-  allTags = [],
-  selectedTag,
-  path = '/developers/blog',
-  foundationHref = '/blog'
-} = Astro.props
+const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const foundationHref = translatePath(
+  'foundation-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <BlogIndexHeader
-  title="Engineering Blog"
+  title={t('blog.developers.title')}
   href={foundationHref}
-  message="Check out Foundation updates"
+  message={t('blog.developers.cta')}
   imgHref="/img/ernie-purple.svg"
-  imgAlt="Ernie holding an envelope"
+  imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
 
 <ol class="list-none p-0">
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = `${path}/${blogPostEntry.data.pathSlug}`
+      const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="mb-space-2xs">
           <div class="flex flex-col flex-1">
@@ -45,35 +50,15 @@ const {
             >
               {blogPostEntry.data.date.toDateString()}
             </time>
-            {blogPostEntry.data.locale === 'es' ? (
-              <div class="flex items-start gap-space-2xs">
-                <h2 class="text-step-1">
-                  <a
-                    href={postPath}
-                    class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                    data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
-                  >
-                    {blogPostEntry.data.title}
-                  </a>
-                </h2>
-                <a
-                  class="mt-space-3xs rounded border-[1.5px] bg-white px-1 text-step--1 no-underline"
-                  href={path}
-                >
-                  ES
-                </a>
-              </div>
-            ) : (
-              <h2 class="text-step-1">
-                <a
-                  href={postPath}
-                  class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                  data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
-                >
-                  {blogPostEntry.data.title}
-                </a>
-              </h2>
-            )}
+            <h2 class="text-step-1">
+              <a
+                href={postPath}
+                class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
+                data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
+              >
+                {blogPostEntry.data.title}
+              </a>
+            </h2>
 
             <p class="mb-space-2xs grow">
               {blogPostEntry.data.description

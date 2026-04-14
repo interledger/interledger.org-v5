@@ -1,6 +1,8 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import { defaultLocale, getTranslation, getTalks } from '@/utils'
+import { defaultLocale, useTranslations } from '@/utils/i18'
+import { getTranslation } from '@/utils/summit-talks-speakers'
+import { getTalks } from '@/utils/extractSessionize'
 import type { Speaker } from '@/types/summit'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import TextParagraphs from './TextParagraphs.astro'
@@ -14,6 +16,7 @@ interface Props {
 
 const { entry, year, isFallback = false } = Astro.props
 const { routeLocale: lang, currentBasePath } = Astro.locals
+const t = useTranslations(lang)
 const langPrefix = lang === defaultLocale ? '' : `/${lang}`
 const baseHref = `${langPrefix}${currentBasePath}`
 const sessionBaseHref = `${baseHref}/${year}/talk`
@@ -33,7 +36,7 @@ const bio = translation?.bio ?? entry.bio
         </div>
         <img
           src={entry.profilePicture}
-          alt={`Profile image of ${entry.name}`}
+          alt={t('summit.profile_image', { name: entry.name })}
           width="400"
           height="400"
           loading="lazy"
@@ -41,12 +44,15 @@ const bio = translation?.bio ?? entry.bio
       </div>
     </header>
     <div class="max-w-250 m-auto my-4">
-      <section aria-label="Biography" class="my-8">
+      <section aria-label={t('summit.biography')} class="my-8">
         <TextParagraphs text={bio} />
       </section>
       {
         sessions.length > 0 && (
-          <section aria-label="Sessions" class="border border-teal-300 p-8">
+          <section
+            aria-label={t('summit.sessions')}
+            class="border border-teal-300 p-8"
+          >
             <SessionsList
               sessions={sessions}
               sessionBaseHref={sessionBaseHref}

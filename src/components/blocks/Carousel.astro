@@ -1,4 +1,6 @@
 ---
+import { useTranslations } from '@/utils/i18'
+
 interface CarouselItem {
   quote: string
   author?: string
@@ -18,6 +20,8 @@ interface Props {
 }
 
 const { heading, items, autoplay = true, interval = 5000 } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
 ---
 
@@ -83,7 +87,7 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
         <div class="flex items-center justify-center gap-space-m mt-space-l">
           <button
             class="h-10 w-10 rounded-full border text-xl transition-all duration-200 hover:border-primary hover:bg-primary hover:text-white"
-            aria-label="Previous slide"
+            aria-label={t('carousel.previous')}
             data-carousel-btn
             style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-gray-5, #ddd);"
           >
@@ -93,7 +97,7 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
             {items.map((_, index) => (
               <button
                 class="h-[10px] w-[10px] rounded-full border-0 transition-colors duration-200 bg-[var(--sl-color-gray-5)] data-[active=true]:bg-primary hover:bg-primary"
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={t('carousel.go_to', { number: index + 1 })}
                 data-index={index}
                 data-carousel-dot
                 data-active={index === 0 ? 'true' : 'false'}
@@ -102,7 +106,7 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
           </div>
           <button
             class="h-10 w-10 rounded-full border text-xl transition-all duration-200 hover:border-primary hover:bg-primary hover:text-white"
-            aria-label="Next slide"
+            aria-label={t('carousel.next')}
             data-carousel-btn
             style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-gray-5, #ddd);"
           >

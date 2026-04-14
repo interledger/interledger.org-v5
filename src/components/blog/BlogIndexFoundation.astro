@@ -3,39 +3,44 @@ import { createExcerpt } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations
+} from '@/utils/i18'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
   allTags?: string[]
   selectedTag?: string
   showTagFilter?: boolean
-  path?: string
-  developersHref?: string
+  blogIndexHref: string
 }
-const {
-  posts,
-  allTags = [],
-  selectedTag,
-  path = '/blog',
-  developersHref = '/developers/blog'
-} = Astro.props
+const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const developersHref = translatePath(
+  'developers-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <BlogIndexHeader
-  title="Foundation Blog"
+  title={t('blog.foundation.title')}
   href={developersHref}
-  message="Explore our Engineering Blog"
+  message={t('blog.foundation.cta')}
   imgHref="/img/ernie-teal.svg"
-  imgAlt="Ernie holding an envelope"
+  imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={path} />
+<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
 
 <ol class="list-none p-0">
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = `${path}/${blogPostEntry.data.pathSlug}`
+      const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
       return (
         <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
           <div class="shrink-0">
@@ -76,7 +81,7 @@ const {
               class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
               data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (read more)`}
             >
-              Read more
+              {t('blog.read_more')}
               <svg
                 viewBox="0 0 12 12"
                 class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"

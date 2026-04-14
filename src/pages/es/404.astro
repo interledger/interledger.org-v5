@@ -1,16 +1,17 @@
 ---
 /**
- * Custom 404 page for static hosting (Netlify serves 404.html).
+ * Spanish 404 page for localized routes.
  */
-import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
-import { HOME_CONTENT_SLUG, translatePath } from '@/utils/i18'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { localizeRoute } from '@/utils/routes'
 
 const { routeLocale } = Astro.locals
+const homePath = localizeRoute('', routeLocale)
 ---
 
 <FoundationPageLayout
-  title="Page not found"
-  description="The page you requested could not be found."
+  title="Página no encontrada"
+  description="No se pudo encontrar la página que solicitaste."
 >
   <main class="flex-1 flex items-center justify-center py-space-xl">
     <section class="text-center px-space-m">
@@ -18,13 +19,13 @@ const { routeLocale } = Astro.locals
       <p
         class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-md mx-auto"
       >
-        The page you requested could not be found.
+        No se pudo encontrar la página que solicitaste.
       </p>
       <a
-        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
+        href={homePath}
         class="inline-block text-primary font-medium underline hover:no-underline"
       >
-        ← Back to home
+        ← Volver al inicio
       </a>
     </section>
   </main>

@@ -1,17 +1,20 @@
 ---
-import { getTagUrl } from '@/utils'
+import { getTagUrl } from '@/utils/tagFilter'
+import { useTranslations } from '@/utils/i18'
 interface Props {
   allTags: string[]
   selectedTag?: string
   href: string
 }
 const { allTags, selectedTag, href } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const activeClass = ['bg-primary', 'text-white']
 const inactiveClass = ['bg-white']
 ---
 
 <div class="mb-space-m bg-transparent rounded-[var(--border-radius)]">
-  <div class="font-semibold mb-3xs text-step--1">Filter by tag:</div>
+  <div class="font-semibold mb-3xs text-step--1">{t('blog.filter.label')}</div>
   <div
     class="flex flex-wrap gap-space-3xs
   [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
@@ -21,7 +24,7 @@ const inactiveClass = ['bg-white']
       class:list={!selectedTag ? activeClass : inactiveClass}
       data-umami-event="Blog tag filter - All"
     >
-      All
+      {t('blog.filter.all')}
     </a>
     {
       allTags.map((tag) => (

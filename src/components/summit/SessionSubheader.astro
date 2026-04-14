@@ -1,6 +1,8 @@
 ---
 import type { Talk, TalkPreview } from '@/types/summit'
-import { type Locale, formatDate, getDurationInMinutes } from '@/utils'
+import type { Locale } from '@/utils/i18'
+import { useTranslations } from '@/utils/i18'
+import { formatDate, getDurationInMinutes } from '@/utils/time'
 
 interface Props {
   talk: TalkPreview | Talk
@@ -9,6 +11,7 @@ interface Props {
 }
 
 const { talk, showRecordingLabel = false, lang } = Astro.props
+const t = useTranslations(lang)
 ---
 
 <>
@@ -17,14 +20,14 @@ const { talk, showRecordingLabel = false, lang } = Astro.props
     - {getDurationInMinutes(talk.startsAt, talk.endsAt)} min
     {
       talk.recordingUrl && showRecordingLabel && (
-        <span> (recording available)</span>
+        <span> ({t('summit.recording_available')})</span>
       )
     }
   </p>
   {
     talk.translations.length > 0 && (
       <ul
-        aria-label="Available translations"
+        aria-label={t('summit.available_translations')}
         class="flex flex-row gap-2 mb-3 [&_li]:bg-white/20 [&_li]:py-0.5 [&_li]:px-1 [&_li]:rounded-sm [&_li]:text-step--2 [&_li]:font-bold"
       >
         {talk.translations.map((language) => (

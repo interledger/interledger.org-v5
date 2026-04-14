@@ -16,6 +16,7 @@
 import { getCollection } from 'astro:content'
 import Ambassador from './Ambassador.astro'
 import type { AmbassadorData } from './types'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   ambassadors?: AmbassadorData[]
@@ -24,6 +25,8 @@ interface Props {
 }
 
 const { ambassadors: propAmbassadors, pathSlugs, heading } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 let ambassadors: AmbassadorData[] = []
 
@@ -73,7 +76,7 @@ if (propAmbassadors) {
       </div>
     </div>
   ) : (
-    <p class="text-gray">No ambassadors to display.</p>
+    <p class="text-gray">{t('ambassadors.no_ambassadors')}</p>
   )
 }
 
