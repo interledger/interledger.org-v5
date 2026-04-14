@@ -129,9 +129,11 @@ export function getLocalesToCheck(
   _contentType: keyof ContentTypes,
   contentTypes: ContentTypes
 ): string[] {
-  const locales = new Set<string>([defaultLang])
+  // Start with ALL known locales so we detect orphans even when a locale
+  // directory has been entirely removed from disk.
+  const locales = new Set<string>(LOCALES)
 
-  // Check all content types to find all locales that exist
+  // Also scan directories as a safety net for any locale not in the constant
   for (const contentType of Object.keys(contentTypes) as Array<
     keyof ContentTypes
   >) {

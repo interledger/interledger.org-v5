@@ -205,7 +205,13 @@ export async function syncUnmatchedLocales(
   }
 }
 
-/** Delete Strapi entries (any locale) that no longer have a matching MDX file. */
+/**
+ * Delete Strapi entries (any locale) that no longer have a matching MDX file.
+ *
+ * Uses a merged fetch (locale=all + per-locale) to catch all entries,
+ * groups orphans by documentId, deletes non-default locales first,
+ * then removes the document root.
+ */
 export async function deleteOrphanedEntries(
   contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
@@ -215,37 +221,117 @@ export async function deleteOrphanedEntries(
   results: SyncResults,
   dryRun: boolean
 ): Promise<void> {
+  // --- 1. Merged fetch: locale=all + per-locale, deduped ---
+  const seen = new Set<string>()
+  const allEntries: Array<StrapiEntry & { locale: string }> = []
+
+  function addBatch(batch: StrapiEntry[], fallbackLocale: string) {
+    for (const entry of batch) {
+      const locale = entry.locale || fallbackLocale
+      const key = `${entry.documentId}\0${locale}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      allEntries.push({ ...entry, locale })
+    }
+  }
+
+  // locale=all first (catches entries per-locale queries may miss)
+  try {
+    addBatch(await ctx.strapi.getAllEntries(config.apiId, 'all'), 'en')
+  } catch {
+    // locale=all may not be supported — fall through to per-locale
+  }
+
+  // Per-locale queries as safety net
   const locales = getLocalesToCheck(contentType, contentTypes)
-
   for (const locale of locales) {
-    const strapiEntries = await ctx.strapi.getAllEntries(config.apiId, locale)
+    try {
+      addBatch(await ctx.strapi.getAllEntries(config.apiId, locale), locale)
+    } catch {
+      // locale may not exist for this content type
+    }
+  }
 
-    for (const entry of strapiEntries) {
-      const entryLocale = entry.locale || locale
+  // --- 2. Identify orphans and group by documentId ---
+  const orphansByDocument = new Map<
+    string,
+    { locales: Set<string>; slugs: Map<string, string> }
+  >()
 
-      // Skip if this entry has a corresponding MDX file
-      if (hasMdxFile(mdxSlugsByLocale, entryLocale, entry.pathSlug)) continue
+  for (const entry of allEntries) {
+    if (hasMdxFile(mdxSlugsByLocale, entry.locale, entry.pathSlug)) continue
 
+    let doc = orphansByDocument.get(entry.documentId)
+    if (!doc) {
+      doc = { locales: new Set(), slugs: new Map() }
+      orphansByDocument.set(entry.documentId, doc)
+    }
+    doc.locales.add(entry.locale)
+    doc.slugs.set(entry.locale, entry.pathSlug)
+  }
+
+  // --- 3. Delete: non-default locales first, then default, then document root ---
+  for (const [documentId, doc] of orphansByDocument) {
+    const sortedLocales = sortLocalesForDelete(doc.locales)
+    const slugLabel = doc.slugs.values().next().value ?? documentId
+
+    if (dryRun) {
+      console.log(
+        `   🗑️  [DRY-RUN] Would delete: ${slugLabel} (${sortedLocales.join(', ')})`
+      )
+      results.deleted += sortedLocales.length
+      continue
+    }
+
+    let deletedAny = false
+    for (const locale of sortedLocales) {
       try {
-        if (dryRun) {
-          console.log(
-            `   🗑️  [DRY-RUN] Would delete: ${entry.pathSlug} (${entryLocale})`
-          )
-        } else {
-          await ctx.strapi.deleteLocalization(
-            config.apiId,
-            entry.documentId,
-            entryLocale
-          )
-          console.log(`   🗑️  Deleted: ${entry.pathSlug} (${entryLocale})`)
-        }
-        results.deleted++
-      } catch (error) {
-        console.error(
-          `   ❌ Error deleting ${entry.pathSlug} (${entryLocale}): ${(error as Error).message}`
+        await ctx.strapi.deleteLocalization(config.apiId, documentId, locale)
+        console.log(
+          `   🗑️  Deleted: ${doc.slugs.get(locale) ?? slugLabel} (${locale})`
         )
-        results.errors++
+        results.deleted++
+        deletedAny = true
+      } catch (error) {
+        if (isNotFoundError((error as Error).message)) {
+          // Already gone (cascaded delete) — not an error
+          results.deleted++
+          deletedAny = true
+        } else {
+          console.error(
+            `   ❌ Error deleting ${doc.slugs.get(locale) ?? slugLabel} (${locale}): ${(error as Error).message}`
+          )
+          results.errors++
+        }
+      }
+    }
+
+    // Clean up document root
+    if (deletedAny) {
+      try {
+        await ctx.strapi.deleteEntry(config.apiId, documentId)
+      } catch (error) {
+        // 404 = document was already fully removed by locale deletes. Expected.
+        if (!isNotFoundError((error as Error).message)) {
+          console.error(
+            `   ❌ Error deleting document root ${slugLabel}: ${(error as Error).message}`
+          )
+          results.errors++
+        }
       }
     }
   }
+}
+
+/** Non-default locales first (assumes 'en' is default), then 'en'. */
+function sortLocalesForDelete(locales: Set<string>): string[] {
+  return [...locales].sort((a, b) => {
+    if (a === 'en' && b !== 'en') return 1
+    if (b === 'en' && a !== 'en') return -1
+    return a.localeCompare(b)
+  })
+}
+
+function isNotFoundError(message: string): boolean {
+  return /\b404\b/.test(message) || /not\s*found/i.test(message)
 }
