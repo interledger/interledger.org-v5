@@ -1,23 +1,24 @@
 {
   "mainMenu": [
     {
-      "label": "Foundation",
+      "label": "Fundación",
+      "href": "/es",
       "items": [
         {
-          "label": "About Us",
-          "href": "/about-us"
+          "label": "Sobre nosotros",
+          "href": "/es/sobre-nosotros"
         },
         {
-          "label": "Policy & Advocacy",
-          "href": "/policy-and-advocacy"
+          "label": "Políticas y defensa pública",
+          "href": "/es/policy-and-advocacy"
         },
         {
-          "label": "Team",
-          "href": "/team"
+          "label": "Equipo",
+          "href": "/es/team"
         },
         {
-          "label": "Media",
-          "href": "/media"
+          "label": "Medios",
+          "href": "/es/media"
         }
       ]
     },
