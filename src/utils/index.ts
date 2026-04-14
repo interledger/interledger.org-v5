@@ -2,7 +2,7 @@
 export { stripTrailingSlash } from './url'
 export {
   type RouteCollection,
-  HOME_SLUG,
+  HOME_CONTENT_SLUG,
   ROUTE_BASES,
   normalizeBasePath,
   localizeRoute
