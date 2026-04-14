@@ -5,19 +5,19 @@ import foundationEs from '@/config/foundation-navigation.es.json'
 import summitEn from '@/config/summit-navigation.json'
 import summitEs from '@/config/summit-navigation.es.json'
 
-export interface MenuItem {
+interface MenuItem {
   label: string
   href?: string
   openInNewTab?: boolean
 }
 
-export interface MenuGroup {
+interface MenuGroup {
   label: string
   href?: string
   items?: MenuItem[]
 }
 
-export interface NavigationData {
+interface NavigationData {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
