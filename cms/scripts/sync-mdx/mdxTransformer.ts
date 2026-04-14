@@ -14,14 +14,14 @@
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
-import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/content'
+import type { foundationBlogFrontmatterSchema } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
-import type { HeroCta } from '../../src/utils/mdx'
+import type { HeroCta } from '@/utils'
+import { getTargetRepoRoot } from '@/utils'
 import fs from 'fs/promises'
 import path from 'path'
-import { getTargetRepoRoot } from '@/utils/gitSync'
 import mime from 'mime-types'
 
 export interface StrapiUploadContext {

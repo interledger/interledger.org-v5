@@ -1,11 +1,12 @@
 import { defaultLocale, locales, type Locale } from '@/utils/i18'
 import { HOME_CONTENT_SLUG, ROUTE_BASES } from '@/utils/routes'
+import { stripTrailingSlash } from './url'
 
 const prefixedLocales = new Set(
   locales.filter((l) => l !== defaultLocale)
 ) as Set<Locale>
 
-export type RouteContext = {
+type RouteContext = {
   routeLocale: Locale
   currentSlug: string
   currentBasePath: string
@@ -16,10 +17,7 @@ export type RouteContext = {
  * Used by middleware so layouts/components read Astro.locals instead of props.
  */
 export function routeContextFromPathname(pathname: string): RouteContext {
-  const path =
-    pathname.endsWith('/') && pathname.length > 1
-      ? pathname.slice(0, -1)
-      : pathname
+  const path = stripTrailingSlash(pathname)
 
   const segments = path.split('/').filter(Boolean)
 

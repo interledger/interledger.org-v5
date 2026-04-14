@@ -15,7 +15,7 @@
 import fs from 'fs'
 import path from 'path'
 import { config } from 'dotenv'
-import { getProjectRoot, PATHS } from '../src/utils/paths'
+import { getProjectRoot, PATHS } from '@/utils'
 
 config({ path: path.resolve(process.cwd(), '../.env') })
 

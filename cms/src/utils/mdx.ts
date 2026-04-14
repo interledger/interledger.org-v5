@@ -7,7 +7,6 @@ import fs from 'fs'
 import prettier from 'prettier'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
-import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
@@ -63,7 +62,7 @@ export function yamlSingleQuoteScalar(
   value: string | null | undefined
 ): string {
   if (value === null || value === undefined) return 'null'
-  return `'${String(value).replace(/'/g, "''")}'`
+  return `'${String(value).replace(/\r\n/g, '\n').replace(/'/g, "''")}'`
 }
 
 /**
@@ -98,11 +97,6 @@ export function htmlToMarkdown(html: string): string {
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
-
-export function markdownToHtml(markdown: string): string {
-  if (!markdown) return ''
-  return marked.parse(markdown) as string
-}
 
 /**
  * Strips any surrounding straight or curly quotes from a blockquote string

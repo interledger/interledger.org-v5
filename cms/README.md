@@ -14,6 +14,7 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
 ## Strapi v5 developer notes
 
 - **i18n `locale` on APIs vs lifecycle `params`**: Document Service calls use top-level `locale`; bulk/plugin updates often use `params.data.locale`; update filters may use `params.where.locale`. See [`docs/STRAPI_I18N_LOCALE.md`](docs/STRAPI_I18N_LOCALE.md) and `readLocaleFromUpdateEvent` in `src/utils/pageLifecycle.ts`.
+- **Utility imports**: Strapi runtime files under `src/` are compiled to CommonJS, so avoid the `@/utils` alias there; Node will not resolve it after build. Use relative imports such as `../../../../utils`. Scripts run through `tsx` may use `@/utils`.
 
 ## Getting Started
 

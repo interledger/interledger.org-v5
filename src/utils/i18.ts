@@ -30,8 +30,8 @@ export function useTranslations(lang: Locale) {
 
 export {
   buildRoutePath,
-  normalizeBasePath,
   COLLECTION_INDEX_SLUG,
   translatePath
 } from '@/utils/translatePath'
+
 export { HOME_CONTENT_SLUG } from '@/utils/routes'

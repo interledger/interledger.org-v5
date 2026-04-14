@@ -72,12 +72,6 @@ export function getTargetRepoRoot(): string {
   return configured ? path.resolve(expandHomeDir(configured)) : getProjectRoot()
 }
 
-export function resolveTargetRepoPath(targetPath: string): string {
-  const expanded = expandHomeDir(targetPath)
-  if (path.isAbsolute(expanded)) return path.resolve(expanded)
-  return path.join(getTargetRepoRoot(), expanded.replace(/^\/+/, ''))
-}
-
 // ── Startup validation ───────────────────────────────────────────────────────
 
 export async function validateGitSyncRepoOnStartup(): Promise<void> {

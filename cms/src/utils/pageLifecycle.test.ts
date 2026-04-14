@@ -1,11 +1,11 @@
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defaultLang } from './mdx'
 import {
+  defaultLang,
   generateMDX,
   readLocaleFromUpdateEvent,
   resolvePageFilepath
-} from './pageLifecycle'
+} from '@/utils'
 
 const testConfig = {
   contentTypeUid: 'api::foundation-page.foundation-page' as const,

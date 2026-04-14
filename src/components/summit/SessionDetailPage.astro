@@ -1,9 +1,12 @@
 ---
-import { defaultLocale, useTranslations } from '@/utils/i18'
-import type { Talk } from '@/types/summit'
+import {
+  defaultLocale,
+  useTranslations,
+  currentSummitYear,
+  getSpeakers
+} from '@/utils'
 import { getTranslation } from '@/utils/summit-talks-speakers'
-import { currentSummitYear } from '@/utils/sessionize'
-import { getSpeakers } from '@/utils/extractSessionize'
+import type { Talk } from '@/types/summit'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'

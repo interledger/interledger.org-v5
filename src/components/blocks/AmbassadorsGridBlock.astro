@@ -6,12 +6,11 @@
  */
 
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
-import { parseMarkdown } from '@/utils/mdx'
+import { parseMarkdown, useTranslations } from '@/utils'
 import type {
   StrapiAmbassador,
   AmbassadorData
 } from '@/components/ambassadors/types'
-import { useTranslations } from '@/utils/i18'
 
 interface Props {
   heading?: string
