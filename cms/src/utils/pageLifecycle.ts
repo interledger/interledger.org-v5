@@ -198,7 +198,11 @@ async function writeMDXFile<T extends UID.ContentType>(
 ): Promise<string> {
   const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
-  const filepath = resolvePageFilepath(outputDir, page, locale)
+  // For non-default locales, use the English slug for the filepath so filenames
+  // stay locale-independent (e.g. es/about-us.mdx, not es/sobre-nosotros.mdx)
+  const filepathPage: Pick<PageData, 'pathSlug'> =
+    locale !== defaultLang && englishSlug ? { pathSlug: englishSlug } : page
+  const filepath = resolvePageFilepath(outputDir, filepathPage, locale)
 
   try {
     const fileDir = path.dirname(filepath)
