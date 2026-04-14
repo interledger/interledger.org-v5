@@ -10,6 +10,7 @@ import {
   yamlSingleQuoteScalar,
   resolveFilenameSlug
 } from './mdx'
+import { deleteLocaleMdxFiles } from './localeMdxUtils'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { Core } from '@strapi/strapi'
 
@@ -224,27 +225,6 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       ? path.join(projectRoot, outputDir, locale)
       : path.join(projectRoot, outputDir)
 
-  async function deleteAllLocaleFiles(
-    date: string,
-    slug: string
-  ): Promise<void> {
-    for (const locale of LOCALES) {
-      const outputPath = getOutputPath(
-        locale === defaultLang ? undefined : locale
-      )
-      const filepath = path.join(
-        outputPath,
-        generateFilename({ date, pathSlug: slug })
-      )
-      try {
-        await fs.promises.unlink(filepath)
-        console.log(`🗑️  Deleted stale blog MDX: ${filepath}`)
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-      }
-    }
-  }
-
   return {
     async beforeUpdate(event: {
       params?: { documentId?: string; data?: { documentId?: string } }
@@ -297,7 +277,14 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         console.log(
           `🗑️  Blog slug changed from "${oldSlug}" to "${post.pathSlug}", renaming all locale files`
         )
-        await deleteAllLocaleFiles(oldDate!, oldSlug!)
+        deleteLocaleMdxFiles(
+          (locale) =>
+            path.join(
+              getOutputPath(locale === defaultLang ? undefined : locale),
+              generateFilename({ date: oldDate!, pathSlug: oldSlug! })
+            ),
+          label
+        )
         // Re-write every locale so the Spanish file gets a new filename and
         // updated localizes frontmatter.
         for (const locale of LOCALES) {

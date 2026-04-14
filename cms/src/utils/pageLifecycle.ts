@@ -354,20 +354,6 @@ export function readLocaleFromUpdateEvent(event: {
   return resolved
 }
 
-function deleteMdxIfExists(
-  filepath: string,
-  locale: string,
-  label: string
-): void {
-  if (!fs.existsSync(filepath)) return
-  try {
-    fs.unlinkSync(filepath)
-    console.log(`🗑️  Deleted ${locale} ${label} MDX: ${filepath}`)
-  } catch (error) {
-    console.error(`Failed to delete ${locale} ${label} MDX: ${filepath}`, error)
-  }
-}
-
 /**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
@@ -431,15 +417,22 @@ export function createPageLifecycle<T extends UID.ContentType>(
       const locale = result.locale ?? defaultLang
       const { oldPathSlug } = event.state
 
-      // If this locale's pathSlug changed, remove only that locale's old file
-      if (oldPathSlug && oldPathSlug !== result.pathSlug) {
+      // All locale files are named after the English slug, so only an English
+      // slug change produces stale files. Delete all locale files with the old
+      // slug and let exportAllLocales below re-write them with the new one.
+      if (
+        locale === defaultLang &&
+        oldPathSlug &&
+        oldPathSlug !== result.pathSlug
+      ) {
         console.log(
-          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
+          `🗑️  PathSlug changed from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX files for all locales`
         )
         const outputDir = getOutputDir(config)
-        const oldPage = { pathSlug: oldPathSlug }
-        const oldFilepath = resolvePageFilepath(outputDir, oldPage, locale)
-        deleteMdxIfExists(oldFilepath, locale, label)
+        deleteLocaleMdxFiles(
+          (l) => resolvePageFilepath(outputDir, { pathSlug: oldPathSlug }, l),
+          label
+        )
       }
 
       console.log(

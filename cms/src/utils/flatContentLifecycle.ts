@@ -191,17 +191,10 @@ export function createFlatLocaleMdxLifecycle<
         console.log(
           `🗑️  ${label} slug changed from "${oldEnglishSlug}" to "${result.pathSlug}", deleting stale files`
         )
-        for (const locale of LOCALES) {
-          const oldFilepath = getFilePath(locale, oldEnglishSlug)
-          try {
-            await fs.promises.unlink(oldFilepath)
-            console.log(
-              `🗑️  Deleted stale ${locale} ${label} MDX: ${oldFilepath}`
-            )
-          } catch (error) {
-            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-          }
-        }
+        deleteLocaleMdxFiles(
+          (locale) => getFilePath(locale, oldEnglishSlug),
+          label
+        )
       }
 
       console.log(
