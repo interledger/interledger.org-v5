@@ -17,8 +17,7 @@ vi.mock('./pageLifecycle', () => ({
 }))
 
 const testConfig = {
-  contentTypeUid:
-    'api::foundation-navigation.foundation-navigation' as const,
+  contentTypeUid: 'api::foundation-navigation.foundation-navigation' as const,
   outputPath: 'src/config/foundation-navigation.json',
   populate: {
     mainMenu: { populate: { items: true as const } },
