@@ -15,7 +15,7 @@ export function serialize(block: {
   name="${escAttr(amb.name)}"
   pathSlug="${escAttr(amb.pathSlug)}"
   photo="${escAttr(photo)}"
-  photoAlt="${escAttr(amb.photo?.alternativeText || '')}"
+  photoAlt="${escAttr(amb.photo?.alternativeText ?? '')}"
   quote="${escAttr(amb.quote || '')}"
 />`
 }

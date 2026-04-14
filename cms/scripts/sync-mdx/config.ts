@@ -88,8 +88,8 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const ambassadorAltIds = new Map<number, string>()
-  const blogAltIds = new Map<number, string>()
+  const ambassadorAltIds = new Map<number, string | null>()
+  const blogAltIds = new Map<number, string | null>()
 
   return {
     ambassadors: {

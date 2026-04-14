@@ -46,7 +46,7 @@ const longDate = dateObj.toDateString().substring(4)
             <div class="bg-[image:var(--feature-gradient)] w-full" />
             <img
               src={frontmatter.featureImage}
-              alt={frontmatter.featureImageAlt || frontmatter.title}
+              alt={frontmatter.featureImageAlt ?? ''}
             />
           </div>
         )

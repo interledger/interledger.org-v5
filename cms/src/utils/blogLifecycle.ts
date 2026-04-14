@@ -131,14 +131,14 @@ function generateBlogMDX(post: BlogResult) {
     post.featureImage?.url
       ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
-    post.featureImage?.alternativeText
-      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText)}`
+    post.featureImage?.url
+      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText ?? '')}`
       : null,
     post.thumbnailImage?.url
       ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
       : null,
-    post.thumbnailImage?.alternativeText
-      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText)}`
+    post.thumbnailImage?.url
+      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
     post.tags

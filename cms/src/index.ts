@@ -180,6 +180,7 @@ interface StrapiInstance {
       subscribe: (subscription: {
         models: string[]
         afterCreate?: (event: { result?: Record<string, unknown> }) => void
+        afterUpdate?: (event: { result?: Record<string, unknown> }) => void
         afterDelete?: (event: { result?: Record<string, unknown> }) => void
       }) => void
     }
@@ -199,6 +200,15 @@ function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
       if (typeof mime === 'string' && !mime.startsWith('image/')) return
 
       console.log('🖼️  Upload created, scheduling git sync')
+      scheduleGitSync('upload')
+    },
+    afterUpdate(event) {
+      if (shouldSkipMdxExport()) return
+
+      const mime = event.result?.mime
+      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+
+      console.log('🖼️  Upload updated, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterDelete(event) {
@@ -518,6 +528,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   }
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
+    'api::ambassador.ambassador': {
+      photo:
+        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").'
+    },
     'api::foundation-page.foundation-page': {
       pathSlug:
         'Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash.'
@@ -528,7 +542,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
-        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.'
+        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.',
+      featureImage:
+        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
+      thumbnailImage:
+        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").'
     }
   }
 

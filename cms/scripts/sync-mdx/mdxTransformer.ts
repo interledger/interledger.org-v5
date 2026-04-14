@@ -238,8 +238,8 @@ function nullOrValue(v: unknown): string | null {
 async function updateUploadAltOnce(
   strapi: StrapiClient,
   id: number,
-  alt: string,
-  updatedAltIds: Map<number, string>,
+  alt: string | null,
+  updatedAltIds: Map<number, string | null>,
   pathSlug: string,
   dryRun: boolean
 ): Promise<void> {
@@ -281,7 +281,7 @@ export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  updatedAltIds: Map<number, string> = new Map(),
+  updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -295,12 +295,15 @@ export async function buildAmbassadorPayload(
   }
 
   if (photoId) {
-    const photoAlt = nullOrValue(mdx.frontmatter.photoAlt as string)
-    if (photoAlt) {
+    const photoAltFrontmatter = mdx.frontmatter.photoAlt as
+      | string
+      | null
+      | undefined
+    if (photoAltFrontmatter !== undefined) {
       await updateUploadAltOnce(
         strapi,
         photoId,
-        photoAlt,
+        nullOrValue(photoAltFrontmatter),
         updatedAltIds,
         mdx.pathSlug,
         dryRun
@@ -338,7 +341,7 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string> = new Map(),
+  updatedAltIds: Map<number, string | null> = new Map(),
   parserCtx?: ParserContext,
   dryRun = false
 ): Promise<Record<string, unknown>> {
@@ -376,21 +379,21 @@ export async function buildBlogPayload(
 
   // getImageFromStrapi only sets alt text on newly uploaded files.
   // For existing files (found by name), patch alt text explicitly.
-  if (featureImage && parsed.featureImageAlt) {
+  if (featureImage && parsed.featureImageAlt !== undefined) {
     await updateUploadAltOnce(
       strapiUploadContext.strapi,
       featureImage,
-      parsed.featureImageAlt,
+      nullOrValue(parsed.featureImageAlt),
       updatedAltIds,
       mdx.pathSlug,
       dryRun
     )
   }
-  if (thumbnailImage && parsed.thumbnailImageAlt) {
+  if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
     await updateUploadAltOnce(
       strapiUploadContext.strapi,
       thumbnailImage,
-      parsed.thumbnailImageAlt,
+      nullOrValue(parsed.thumbnailImageAlt),
       updatedAltIds,
       mdx.pathSlug,
       dryRun
