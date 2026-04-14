@@ -12,6 +12,7 @@ import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
 import { assertRunFromCms, getConfigPath, getProjectRoot } from '@/utils'
+import { assertStrapiRunning } from './ensureStrapiRunning'
 const DRY_RUN = process.argv.includes('--dry-run')
 
 interface MenuItem {
@@ -192,6 +193,7 @@ async function main() {
     process.exit(1)
   }
 
+  await assertStrapiRunning(STRAPI_URL)
   await syncAllNavigations(projectRoot, STRAPI_URL, STRAPI_TOKEN)
 
   if (DRY_RUN) {

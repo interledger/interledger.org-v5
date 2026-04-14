@@ -14,6 +14,7 @@ import path from 'path'
 import { spawnSync } from 'child_process'
 import dotenv from 'dotenv'
 import { getProjectRoot } from '@/utils'
+import { assertStrapiRunning } from '../ensureStrapiRunning'
 import { buildContentTypes } from './config'
 import { createStrapiClient } from './strapiClient'
 import { syncAll } from './syncCoordinator'
@@ -62,6 +63,7 @@ async function main() {
   }
 
   console.log(`🔗 Connecting to: ${STRAPI_URL}`)
+  await assertStrapiRunning(STRAPI_URL)
 
   if (DRY_RUN) {
     console.log('🔍 DRY-RUN MODE - No changes will be made\n')

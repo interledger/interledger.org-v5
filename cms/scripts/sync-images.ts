@@ -16,8 +16,9 @@ import fs from 'fs'
 import path from 'path'
 import { config } from 'dotenv'
 import { getProjectRoot, PATHS } from '@/utils'
+import { assertStrapiRunning } from './ensureStrapiRunning'
 
-config({ path: path.resolve(process.cwd(), '../.env') })
+config({ path: path.resolve(process.cwd(), '../.env'), quiet: true })
 
 const STRAPI_URL = process.env.STRAPI_URL ?? 'http://localhost:1337'
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? ''
@@ -87,6 +88,7 @@ async function main() {
     console.error('❌ STRAPI_API_TOKEN is required. Set it in .env')
     process.exit(1)
   }
+  await assertStrapiRunning(STRAPI_URL)
 
   const projectRoot = getProjectRoot()
   let totalRegistered = 0
@@ -141,6 +143,9 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Fatal error:', err)
+  console.error(
+    '❌ Fatal error:',
+    err instanceof Error ? err.message : String(err)
+  )
   process.exit(1)
 })
