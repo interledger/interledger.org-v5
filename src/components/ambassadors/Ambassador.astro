@@ -1,4 +1,6 @@
 ---
+import OptimizedImage from '../OptimizedImage.astro'
+
 interface Props {
   name: string
   pathSlug: string
@@ -13,11 +15,11 @@ const { name, photo, photoAlt, quote } = Astro.props
 <article>
   {
     photo && (
-      <img
+      <OptimizedImage
         src={photo}
         alt={photoAlt || name}
-        width="240"
-        height="240"
+        width={240}
+        height={240}
         loading="lazy"
       />
     )

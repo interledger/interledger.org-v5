@@ -73,7 +73,7 @@ if (propAmbassadors) {
 
 {
   ambassadors.length > 0 ? (
-    <section aria-label="Ambassadors">
+    <section aria-label={t('ambassadors.ambassadors')}>
       {heading && <h2 class="mb-space-s">{heading}</h2>}
       <div class="ambassadors-wrapper grid grid-cols-[repeat(auto-fill,minmax(8em,1fr))] gap-space-s">
         {ambassadors.map((ambassador) => (

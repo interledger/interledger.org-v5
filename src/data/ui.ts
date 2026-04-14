@@ -114,6 +114,7 @@ export const ui = {
     'summit.talks_pagination': '{year} Summit Talks',
     'summit.summit_name': '{year} Summit',
     'summit.profile_image': 'Profile image of {name}',
+    'ambassadors.ambassadors': 'Ambassadors',
     'ambassadors.no_ambassadors': 'No ambassadors to display.',
     'ambassadors.no_grid': 'No ambassadors selected for this grid.',
     'blocks.previous_slide': 'Previous slide',
@@ -242,6 +243,7 @@ export const ui = {
     'summit.talks_pagination': 'Charlas de la Cumbre {year}',
     'summit.summit_name': 'Cumbre {year}',
     'summit.profile_image': 'Imagen de perfil de {name}',
+    'ambassadors.ambassadors': 'Embajadores',
     'ambassadors.no_ambassadors': 'No hay embajadores para mostrar.',
     'ambassadors.no_grid':
       'No se seleccionaron embajadores para esta cuadrícula.',
