@@ -28,7 +28,7 @@ function generateMdxContent(
   englishSlug?: string
 ): string {
   const photoUrl = getImageUrl(ambassador.photo) || null
-  const photoAlt = ambassador.photo?.alternativeText ?? ''
+  const photoAlt = ambassador.photo?.alternativeText ?? ambassador.name
   const isLocalized = ambassador.locale !== defaultLang
 
   const q = yamlSingleQuoteScalar

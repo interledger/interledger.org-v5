@@ -41,6 +41,7 @@
     },
     "photo": {
       "type": "media",
+      "description": "Image alt text comes from the media Alternative text field when set; otherwise MDX export uses the ambassador name as photoAlt.",
       "pluginOptions": {
         "i18n": {
           "localized": true
