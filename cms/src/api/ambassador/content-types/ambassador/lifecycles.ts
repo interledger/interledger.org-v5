@@ -48,7 +48,10 @@ function generateMdxContent(
   return `---\n${fields.join('\n')}\n---\n\n${content}\n`
 }
 
-export default createFlatLocaleMdxLifecycle<Ambassador>({
+export default createFlatLocaleMdxLifecycle<
+  Ambassador,
+  'api::ambassador.ambassador'
+>({
   contentTypeUid: 'api::ambassador.ambassador',
   label: 'ambassador',
   getBaseDir: (locale) =>

@@ -4,9 +4,9 @@ import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 
-import type { StrapiGlobal } from './strapiTypes'
+import type { Core, UID, Modules } from '@strapi/strapi'
 
-declare const strapi: StrapiGlobal
+declare const strapi: Core.Strapi
 
 export interface MenuItem {
   label: string
@@ -32,9 +32,12 @@ interface Event {
   result?: NavigationData
 }
 
-export interface NavigationLifecycleConfig {
-  contentTypeUid: string
+export interface NavigationLifecycleConfig<
+  T extends UID.ContentType = UID.ContentType
+> {
+  contentTypeUid: T
   outputPath: string
+  populate: Modules.Documents.Params.Populate.Any<T>
 }
 
 export function sanitizeMenuItem(
@@ -64,8 +67,8 @@ export function sanitizeNavigation(data: NavigationData) {
   }
 }
 
-export function getLocaleOutputPath(
-  config: NavigationLifecycleConfig,
+export function getLocaleOutputPath<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   locale: string
 ): string {
   const projectRoot = getTargetRepoRoot()
@@ -78,8 +81,8 @@ export function getLocaleOutputPath(
   )
 }
 
-function writeNavigationFile(
-  config: NavigationLifecycleConfig,
+function writeNavigationFile<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   locale: string,
   data: NavigationData
 ): string {
@@ -110,20 +113,17 @@ function writeNavigationFile(
   }
 }
 
-async function fetchPublishedNavigation(
-  config: NavigationLifecycleConfig,
+async function fetchPublishedNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   locale: string
 ): Promise<NavigationData | null> {
   try {
     const navigation = await strapi.documents(config.contentTypeUid).findFirst({
       status: 'published',
       locale,
-      populate: {
-        mainMenu: { populate: { items: true } },
-        ctaButton: true
-      }
+      populate: config.populate
     })
-    return navigation as NavigationData | null
+    return navigation as unknown as NavigationData | null
   } catch (error) {
     console.error(
       `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} [${locale}] navigation:`,
@@ -133,8 +133,8 @@ async function fetchPublishedNavigation(
   }
 }
 
-async function exportAllLocales(
-  config: NavigationLifecycleConfig
+async function exportAllLocales<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
 ): Promise<string[]> {
   const outputPaths: string[] = []
   const defaultNav = await fetchPublishedNavigation(config, defaultLang)
@@ -166,7 +166,9 @@ async function exportAllLocales(
   return outputPaths
 }
 
-function deleteNavigationFiles(config: NavigationLifecycleConfig): string[] {
+function deleteNavigationFiles<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
+): string[] {
   const deletedPaths: string[] = []
 
   for (const locale of LOCALES) {
@@ -190,8 +192,8 @@ function deleteNavigationFiles(config: NavigationLifecycleConfig): string[] {
   return deletedPaths
 }
 
-async function exportAndCommitNavigation(
-  config: NavigationLifecycleConfig,
+async function exportAndCommitNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
   action: string
 ): Promise<void> {
   if (shouldSkipMdxExport()) return
@@ -206,7 +208,9 @@ async function exportAndCommitNavigation(
   }
 }
 
-export function createNavigationLifecycle(config: NavigationLifecycleConfig) {
+export function createNavigationLifecycle<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
+) {
   return {
     async afterCreate(_event: Event) {
       await exportAndCommitNavigation(config, 'Create')

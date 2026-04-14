@@ -4,6 +4,7 @@ import SpeakersList from './SpeakersList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
+import { useTranslations } from '@/utils/i18'
 
 interface Props {
   speakers: Speaker[]
@@ -14,8 +15,10 @@ interface Props {
 }
 
 const { speakers, basePath, title, page, year } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
-const label = `${year} Summit Speakers`
+const label = t('summit.speakers_pagination', { year })
 ---
 
 <SummitPageLayout title={title}>
@@ -23,7 +26,7 @@ const label = `${year} Summit Speakers`
     <!-- Speaker list pages intentionally do not show the translation disclaimer.
          Names/affiliations are still usable in Spanish, while untranslated bios are only shown on speaker detail pages. -->
     <h1>{title}</h1>
-    <section aria-label="Speakers">
+    <section aria-label={t('summit.speakers')}>
       <SpeakersList
         speakers={speakers}
         basePath={speakerBasePath}

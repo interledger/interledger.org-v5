@@ -45,16 +45,46 @@ interface CKEditor {
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
-const myCustomPreset: Preset = {
+const headingOptionsWithoutH1 = [
+  { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+  {
+    model: 'heading2',
+    view: 'h2',
+    title: 'Heading 2',
+    class: 'ck-heading_heading2'
+  },
+  {
+    model: 'heading3',
+    view: 'h3',
+    title: 'Heading 3',
+    class: 'ck-heading_heading3'
+  },
+  {
+    model: 'heading4',
+    view: 'h4',
+    title: 'Heading 4',
+    class: 'ck-heading_heading4'
+  },
+  {
+    model: 'heading5',
+    view: 'h5',
+    title: 'Heading 5',
+    class: 'ck-heading_heading5'
+  },
+  {
+    model: 'heading6',
+    view: 'h6',
+    title: 'Heading 6',
+    class: 'ck-heading_heading6'
+  }
+]
+
+const markdownPresetNoH1: Preset = {
   ...defaultMarkdownPreset,
-  description: 'Markdown editor without H1',
+  description: 'Default Markdown editor without H1',
   editorConfig: {
     ...defaultMarkdownPreset.editorConfig,
-    heading: {
-      options: defaultMarkdownPreset.editorConfig.heading?.options?.filter(
-        (option) => option.model !== 'heading1'
-      )
-    },
+    heading: { options: headingOptionsWithoutH1 },
     extraPlugins: [
       function cleanGoogleDocsOnPaste(editor: CKEditor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
@@ -95,7 +125,7 @@ const myCustomPreset: Preset = {
 }
 
 const myPluginConfig: PluginConfig = {
-  presets: [myCustomPreset]
+  presets: [markdownPresetNoH1]
 }
 
 export default {

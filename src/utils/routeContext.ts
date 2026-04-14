@@ -1,5 +1,5 @@
 import { defaultLocale, locales, type Locale } from '@/utils/i18'
-import { HOME_SLUG, ROUTE_BASES } from '@/utils/routes'
+import { HOME_CONTENT_SLUG, ROUTE_BASES } from '@/utils/routes'
 
 const prefixedLocales = new Set(
   locales.filter((l) => l !== defaultLocale)
@@ -37,7 +37,7 @@ export function routeContextFromPathname(pathname: string): RouteContext {
   if (restPath === '/') {
     return {
       routeLocale,
-      currentSlug: HOME_SLUG,
+      currentSlug: HOME_CONTENT_SLUG,
       currentBasePath: ''
     }
   }

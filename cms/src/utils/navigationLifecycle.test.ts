@@ -17,8 +17,13 @@ vi.mock('./pageLifecycle', () => ({
 }))
 
 const testConfig = {
-  contentTypeUid: 'api::foundation-navigation.foundation-navigation',
-  outputPath: 'src/config/foundation-navigation.json'
+  contentTypeUid:
+    'api::foundation-navigation.foundation-navigation' as const,
+  outputPath: 'src/config/foundation-navigation.json',
+  populate: {
+    mainMenu: { populate: { items: true as const } },
+    ctaButton: true as const
+  }
 }
 
 describe('sanitizeMenuItem', () => {
@@ -188,8 +193,12 @@ describe('getLocaleOutputPath', () => {
 
   it('works with summit navigation config', () => {
     const summitConfig = {
-      contentTypeUid: 'api::summit-navigation.summit-navigation',
-      outputPath: 'src/config/summit-navigation.json'
+      contentTypeUid: 'api::summit-navigation.summit-navigation' as const,
+      outputPath: 'src/config/summit-navigation.json',
+      populate: {
+        mainMenu: { populate: { items: true as const } },
+        ctaButton: true as const
+      }
     }
     expect(getLocaleOutputPath(summitConfig, 'es')).toBe(
       '/repo/src/config/summit-navigation.es.json'

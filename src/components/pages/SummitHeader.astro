@@ -3,10 +3,18 @@ import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import { ROUTE_BASES } from '@/utils/routes'
 import { getNavigation } from '@/utils/navigation'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
 import type { Locale } from '@/utils/i18'
 
-const locale = (Astro.locals.routeLocale ?? 'en') as Locale
+const { routeLocale } = Astro.locals
+const locale = (routeLocale ?? 'en') as Locale
 const { mainMenu, ctaButton } = getNavigation('summit', locale)
+const t = useTranslations(routeLocale)
+const summitHomePath = translatePath(
+  'summit-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
 
 const navWrapperClass =
   'xl:col-start-2 xl:col-end-3 xl:flex xl:items-center xl:justify-center max-[1059px]:absolute max-[1059px]:right-0 max-[1059px]:top-[var(--site-header-height)] max-[1059px]:bg-black max-[1059px]:border-t max-[1059px]:border-gray-header max-[1059px]:transition-transform max-[1059px]:duration-slow max-[1059px]:will-change-transform max-[479px]:w-full min-[480px]:max-[1059px]:w-max min-[1060px]:relative min-[1060px]:transform-none min-[1060px]:top-0 min-[1060px]:right-0 min-[1060px]:bg-transparent min-[1060px]:border-0 data-[offscreen=true]:max-[1059px]:translate-x-full'
@@ -40,12 +48,15 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
     aria-labelledby="block-summit-navigation-menu"
     id="block-summit-navigation"
     data-nav
+    data-summit-home-path={summitHomePath}
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">Summit navigation</h2>
+    <h2 class="sr-only" id="block-summit-navigation-menu">
+      {t('nav.summit')}
+    </h2>
     <a
-      href={ROUTE_BASES['summit-pages']}
+      href={summitHomePath}
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
-      aria-label="Interledger Summit"
+      aria-label={t('aria.logo.summit')}
       data-umami-event="Summit Nav - Logo"
     >
       <FoundationLogo class="text-white" />
@@ -127,8 +138,8 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
       type="button"
       class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
       aria-controls="summitNavMenu"
-      aria-label="Toggle Menu"
-      title="Toggle Menu"
+      aria-label={t('nav.toggle_menu')}
+      title={t('nav.toggle_menu')}
       id="summitNavToggle"
       data-nav-toggle
     >
@@ -280,6 +291,10 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
 
   // Mark active navigation links
   const currentPath = window.location.pathname
+  const summitHomePath =
+    document
+      .querySelector('[data-nav]')
+      ?.getAttribute('data-summit-home-path') ?? '/summit'
   const navLinks = document.querySelectorAll('[data-nav-list] a')
 
   navLinks.forEach((link) => {
@@ -292,7 +307,7 @@ const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden
       // Check for exact match or if current path starts with link path (for subpages)
       if (
         normalizedCurrentPath === normalizedLinkPath ||
-        (normalizedLinkPath !== '/summit' &&
+        (normalizedLinkPath !== summitHomePath &&
           normalizedCurrentPath.startsWith(normalizedLinkPath))
       ) {
         link.setAttribute('data-active', 'true')
