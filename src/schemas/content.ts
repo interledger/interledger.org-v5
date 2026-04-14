@@ -157,6 +157,9 @@ export const ambassadorFrontmatterSchema = z.object({
   locale: z.string().optional(),
   localizes: z.string().optional()
 })
+export type AmbassadorFrontmatterType = z.infer<
+  typeof ambassadorFrontmatterSchema
+>
 
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema

@@ -2,7 +2,7 @@
 /**
  * Ambassador Grid component
  *
- * Can be used in three ways:
+ * Accepts one of three mutually exclusive props (checked in priority order):
  * 1. With ambassadors data: <AmbassadorGrid ambassadors={data} />
  * 2. With pathSlugs (fetches from collection): <AmbassadorGrid pathSlugs={["slug1", "slug2"]} />
  * 3. With category (fetches from collection): <AmbassadorGrid category="some-category" />
@@ -15,6 +15,7 @@ import { getCollection } from 'astro:content'
 import Ambassador from './Ambassador.astro'
 import type { AmbassadorData } from './types'
 import { useTranslations } from '@/utils/i18'
+import type { AmbassadorFrontmatterType } from '@/schemas/content'
 
 interface Props {
   ambassadors?: AmbassadorData[]
@@ -31,6 +32,16 @@ const {
 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const toAmbassadorData = (
+  entry: AmbassadorFrontmatterType
+): AmbassadorData => ({
+  name: entry.name,
+  pathSlug: entry.pathSlug,
+  photo: entry.photo,
+  photoAlt: entry.photoAlt,
+  quote: entry.quote
+})
 
 let ambassadors: AmbassadorData[] = []
 
@@ -50,25 +61,13 @@ if (propAmbassadors) {
       filtered.find((entry) => entry.data.pathSlug === pathSlug)
     )
     .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
-    .map((entry) => ({
-      name: entry.data.name,
-      pathSlug: entry.data.pathSlug,
-      photo: entry.data.photo,
-      photoAlt: entry.data.photoAlt,
-      quote: entry.data.quote
-    }))
+    .map((entry) => toAmbassadorData(entry.data))
 } else if (category) {
   // Fetch ambassadors by category from the content collection
   const allAmbassadors = await getCollection('ambassadors')
   ambassadors = allAmbassadors
     .filter((entry) => entry.data.category === category)
-    .map((entry) => ({
-      name: entry.data.name,
-      pathSlug: entry.data.pathSlug,
-      photo: entry.data.photo,
-      photoAlt: entry.data.photoAlt,
-      quote: entry.data.quote
-    }))
+    .map((entry) => toAmbassadorData(entry.data))
 }
 ---
 
