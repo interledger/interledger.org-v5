@@ -130,6 +130,65 @@ function buildHeroPayload(
 }
 
 /**
+ * Resolves hero from frontmatter (title, description, CTAs), preserves the
+ * existing Strapi hero when those fields are omitted, and optionally syncs
+ * heroImage / heroImageAlt to Strapi uploads (including alt patches).
+ */
+async function buildHeroWithImage(
+  parsed: Record<string, unknown>,
+  existingEntry: StrapiEntry | null,
+  strapiUploadContext: StrapiUploadContext | undefined,
+  updatedAltIds: Map<number, string | null>,
+  pathSlug: string,
+  dryRun: boolean
+): Promise<Record<string, unknown> | undefined> {
+  const existingHeroRaw = getEntryField(existingEntry, 'hero')
+  const existingHero =
+    existingHeroRaw && typeof existingHeroRaw === 'object'
+      ? { ...(existingHeroRaw as Record<string, unknown>) }
+      : null
+
+  let heroPayload: Record<string, unknown> | undefined
+  if (parsed.heroTitle || parsed.heroDescription) {
+    heroPayload = buildHeroPayload(
+      parsed.heroTitle as string | undefined,
+      parsed.heroDescription as string | undefined,
+      parsed.title as string,
+      parsed.heroCtas as HeroCta[] | undefined
+    ) as unknown as Record<string, unknown>
+  } else if (existingHero) {
+    heroPayload = existingHero
+  }
+
+  const hasHeroImageField = Object.prototype.hasOwnProperty.call(
+    parsed,
+    'heroImage'
+  )
+  if (hasHeroImageField && strapiUploadContext) {
+    const heroImage = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed.heroImage as string | undefined,
+      alt: parsed.heroImageAlt as string | null | undefined
+    })
+    if (!heroPayload) heroPayload = {}
+    const hero = heroPayload as unknown as StrapiHeroPayload
+    hero.backgroundImage = heroImage ?? null
+
+    if (heroImage && parsed.heroImageAlt !== undefined) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        heroImage,
+        nullOrValue(parsed.heroImageAlt),
+        updatedAltIds,
+        pathSlug,
+        dryRun
+      )
+    }
+  }
+
+  return heroPayload
+}
+
+/**
  * Builds a Strapi payload for a page-type MDX file.
  *
  * This function:
@@ -168,49 +227,14 @@ export async function buildPagePayload(
     ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
-  // Handle hero section — preserve existing hero when frontmatter omits hero fields.
-  const existingHeroRaw = getEntryField(existingEntry, 'hero')
-  const existingHero =
-    existingHeroRaw && typeof existingHeroRaw === 'object'
-      ? { ...(existingHeroRaw as Record<string, unknown>) }
-      : null
-
-  let heroPayload: Record<string, unknown> | undefined
-  if (parsed.heroTitle || parsed.heroDescription) {
-    heroPayload = buildHeroPayload(
-      parsed.heroTitle as string | undefined,
-      parsed.heroDescription as string | undefined,
-      parsed.title as string,
-      parsed.heroCtas as HeroCta[] | undefined
-    )
-  } else if (existingHero) {
-    heroPayload = existingHero
-  }
-
-  const hasHeroImageField = Object.prototype.hasOwnProperty.call(
+  const heroPayload = await buildHeroWithImage(
     parsed,
-    'heroImage'
+    existingEntry,
+    strapiUploadContext,
+    updatedAltIds,
+    mdx.pathSlug,
+    dryRun
   )
-  if (hasHeroImageField && strapiUploadContext) {
-    const heroImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.heroImage as string | undefined,
-      alt: parsed.heroImageAlt as string | null | undefined
-    })
-    if (!heroPayload) heroPayload = {}
-    const hero = heroPayload as StrapiHeroPayload
-    hero.backgroundImage = heroImage ?? null
-
-    if (heroImage && parsed.heroImageAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        heroImage,
-        nullOrValue(parsed.heroImageAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
-  }
 
   if (heroPayload) {
     data.hero = heroPayload
