@@ -59,7 +59,8 @@ export type DevelopersBlogFrontmatterType = z.infer<
 const ArticleBioSchema = z.object({
   author: z.string(),
   text: z.string().optional(),
-  image: z.string().optional()
+  image: z.string().optional(),
+  imageAlt: z.string().nullable().optional()
 })
 
 export const foundationBlogFrontmatterSchema = z.object({
@@ -90,6 +91,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
@@ -121,6 +123,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),
