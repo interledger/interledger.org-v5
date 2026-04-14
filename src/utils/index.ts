@@ -25,6 +25,7 @@ export { buildMap } from './translationMap'
 export { translationMap } from './translationMapData'
 
 // Data fetching
+export { getNavigation } from './navigation'
 export { fetchStrapi } from './fetchStrapi'
 export { applyPreviewNoStore } from './cache'
 

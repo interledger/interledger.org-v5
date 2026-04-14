@@ -1,9 +1,13 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import { getNavigation } from '@/utils/navigation'
-import foundationNavigation from '@/config/foundation-navigation.json'
-import { HOME_CONTENT_SLUG, type Locale, translatePath, useTranslations, getNavigation } from '@/utils'
+import {
+  HOME_CONTENT_SLUG,
+  type Locale,
+  translatePath,
+  useTranslations,
+  getNavigation
+} from '@/utils'
 
 const { routeLocale } = Astro.locals
 const locale = (routeLocale ?? 'en') as Locale
