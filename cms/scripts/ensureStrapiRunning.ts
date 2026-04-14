@@ -39,4 +39,3 @@ export async function assertStrapiRunning(
       `Start Strapi first: cd cms && pnpm run develop`
   )
 }
-
