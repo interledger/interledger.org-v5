@@ -160,10 +160,50 @@ export function createFlatLocaleMdxLifecycle<
       }
       scheduleGitSync(label, ctx)
     },
-    async afterUpdate(event: { result?: T }) {
+    async beforeUpdate(event: {
+      params?: { documentId?: string; data?: { documentId?: string } }
+      state: { oldEnglishSlug?: string }
+    }) {
+      if (shouldSkipMdxExport()) return
+      const documentId =
+        event.params?.documentId ?? event.params?.data?.documentId
+      if (!documentId) return
+      // Only the English slug drives filenames — stash it so afterUpdate can
+      // detect renames and clean up the stale file for every locale.
+      const existing = await fetchPublished(documentId, defaultLang)
+      if (!existing?.pathSlug) return
+      event.state.oldEnglishSlug = existing.pathSlug
+    },
+    async afterUpdate(event: {
+      result?: T
+      state: { oldEnglishSlug?: string }
+    }) {
       const { result } = event
       if (shouldSkipMdxExport()) return
       if (!result?.documentId || !result.publishedAt) return
+
+      const { oldEnglishSlug } = event.state
+      if (
+        oldEnglishSlug &&
+        result.locale === defaultLang &&
+        oldEnglishSlug !== result.pathSlug
+      ) {
+        console.log(
+          `🗑️  ${label} slug changed from "${oldEnglishSlug}" to "${result.pathSlug}", deleting stale files`
+        )
+        for (const locale of LOCALES) {
+          const oldFilepath = getFilePath(locale, oldEnglishSlug)
+          try {
+            await fs.promises.unlink(oldFilepath)
+            console.log(
+              `🗑️  Deleted stale ${locale} ${label} MDX: ${oldFilepath}`
+            )
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+          }
+        }
+      }
+
       console.log(
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )

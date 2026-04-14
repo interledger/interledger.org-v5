@@ -5,6 +5,7 @@ import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
   defaultLang,
+  LOCALES,
   formatMdx,
   yamlSingleQuoteScalar,
   resolveFilenameSlug
@@ -223,7 +224,43 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       ? path.join(projectRoot, outputDir, locale)
       : path.join(projectRoot, outputDir)
 
+  async function deleteAllLocaleFiles(
+    date: string,
+    slug: string
+  ): Promise<void> {
+    for (const locale of LOCALES) {
+      const outputPath = getOutputPath(
+        locale === defaultLang ? undefined : locale
+      )
+      const filepath = path.join(
+        outputPath,
+        generateFilename({ date, pathSlug: slug })
+      )
+      try {
+        await fs.promises.unlink(filepath)
+        console.log(`🗑️  Deleted stale blog MDX: ${filepath}`)
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+      }
+    }
+  }
+
   return {
+    async beforeUpdate(event: {
+      params?: { documentId?: string; data?: { documentId?: string } }
+      state: { oldSlug?: string; oldDate?: string }
+    }) {
+      if (shouldSkipMdxExport()) return
+      const documentId =
+        event.params?.documentId ?? event.params?.data?.documentId
+      if (!documentId) return
+      // Only the English slug drives filenames — stash it so afterUpdate can
+      // detect renames and clean up the stale file for every locale.
+      const existing = await fetchBlogPost(documentId, defaultLang)
+      if (!existing) return
+      event.state.oldSlug = existing.pathSlug
+      event.state.oldDate = existing.date
+    },
     async afterCreate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
@@ -240,15 +277,54 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       }
       scheduleGitSync(label, ctx)
     },
-    async afterUpdate(event: BlogEvent) {
+    async afterUpdate(
+      event: BlogEvent & { state: { oldSlug?: string; oldDate?: string } }
+    ) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
       const post = await fetchBlogPost(result.documentId, result.locale)
       if (!post) return
-      console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
-      await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+
+      const { oldSlug, oldDate } = event.state
+      const englishRenamed =
+        result.locale === defaultLang &&
+        oldSlug != null &&
+        (oldSlug !== post.pathSlug || oldDate !== post.date)
+
+      if (englishRenamed) {
+        console.log(
+          `🗑️  Blog slug changed from "${oldSlug}" to "${post.pathSlug}", renaming all locale files`
+        )
+        await deleteAllLocaleFiles(oldDate!, oldSlug!)
+        // Re-write every locale so the Spanish file gets a new filename and
+        // updated localizes frontmatter.
+        for (const locale of LOCALES) {
+          try {
+            const localePost =
+              locale === defaultLang
+                ? post
+                : await fetchBlogPost(result.documentId, locale)
+            if (!localePost?.publishedAt) continue
+            await writeMDXFile({
+              outputPath: getOutputPath(
+                locale === defaultLang ? undefined : locale
+              ),
+              post: localePost
+            })
+          } catch (err) {
+            console.error(
+              `⚠️  Failed to re-write ${locale} blog post after rename:`,
+              err
+            )
+          }
+        }
+      } else {
+        console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
+        await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+      }
+
       const ctx: SyncContext = {
         slug: post.pathSlug,
         action: 'update',
