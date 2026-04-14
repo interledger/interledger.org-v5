@@ -380,6 +380,7 @@ const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
   { dir: 'img', urlPrefix: '/img' }
 ]
+const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
 async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   const query = strapi.db?.query('plugin::upload.file')
@@ -445,6 +446,7 @@ function collectImagePaths(dir: string): string[] {
       if (entry.name.startsWith('.')) continue
       const full = path.join(current, entry.name)
       if (entry.isDirectory()) {
+        if (EXCLUDED_SEED_SUBDIRS.has(entry.name)) continue
         walk(full)
       } else if (
         SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
