@@ -25,7 +25,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
-import { scheduleGitSync, getTargetRepoRoot } from './gitSync'
+import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 
 interface PageData {
   id: number
@@ -38,13 +38,16 @@ interface PageData {
     title?: string
     description?: string
     backgroundImage?: { url?: string }
+    hero_call_to_action?: Array<{
+      text?: string
+      link?: string
+      style?: 'primary' | 'secondary'
+      external?: boolean
+      analytics_event_label?: string
+    }>
   }
   seo?: {
-    metaTitle?: string
     metaDescription?: string
-    metaImage?: { url?: string }
-    keywords?: string
-    canonicalUrl?: string
   }
   content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
@@ -65,12 +68,23 @@ interface Event {
  */
 export function shouldSkipMdxExport(): boolean {
   try {
-    const ctx = strapi.requestContext.get() as {
-      request?: { headers?: Record<string, string> }
-    } | null
+    const ctx = strapi.requestContext.get()
     return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
   } catch {
     return false
+  }
+}
+
+export function getAdminAuthor(): { name: string; email: string } | undefined {
+  try {
+    const ctx = strapi.requestContext.get()
+    const user = ctx?.state?.user
+    if (!user?.email) return undefined
+    const name =
+      [user.firstname, user.lastname].filter(Boolean).join(' ') || 'Strapi'
+    return { name, email: user.email }
+  } catch {
+    return undefined
   }
 }
 
@@ -124,7 +138,8 @@ function getOutputDir<T extends UID.ContentType>(
   return path.join(projectRoot, config.outputDir)
 }
 
-function generateMDX(
+export function generateMDX<T extends UID.ContentType = UID.ContentType>(
+  _config: PageLifecycleConfig<T>,
   page: PageData,
   preservedFields: Record<string, unknown> = {},
   englishSlug?: string
@@ -136,17 +151,32 @@ function generateMDX(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
+  const heroData = heroFrontmatter(page.hero)
+  const seoData = seoFrontmatter(page.seo)
+
   // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
     pathSlug: page.pathSlug,
     title: page.title,
     ...(page.pillar ? { pillar: page.pillar } : {}),
-    ...heroFrontmatter(page.hero),
-    ...seoFrontmatter(page.seo),
+    ...heroData,
+    ...seoData,
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
+
+  // Explicitly remove Strapi-managed fields that are no longer set (e.g. deleted image)
+  const heroManagedKeys = [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroCtas'
+  ] as const
+  for (const key of heroManagedKeys) {
+    if (!(key in heroData)) delete frontmatterData[key]
+  }
+  if (!('metaDescription' in seoData)) delete frontmatterData.metaDescription
 
   const content = serializeContent(page.content)
 
@@ -176,7 +206,7 @@ async function writeMDXFile<T extends UID.ContentType>(
     const preservedFields = getPreservedFields(filepath)
     fs.writeFileSync(
       filepath,
-      generateMDX(page, preservedFields, englishSlug),
+      generateMDX(config, page, preservedFields, englishSlug),
       'utf-8'
     )
     console.log(
@@ -349,7 +379,12 @@ export function createPageLifecycle<T extends UID.ContentType>(
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'create',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async beforeUpdate(event: {
       params?: {
@@ -405,7 +440,12 @@ export function createPageLifecycle<T extends UID.ContentType>(
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(config, result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug ?? undefined,
+        action: 'update',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterDelete(event: Event) {
       const { result } = event
@@ -420,11 +460,13 @@ export function createPageLifecycle<T extends UID.ContentType>(
           : String(result.pathSlug)
               .replace(/^\/+|\/+$/g, '')
               .trim()
+      const author = getAdminAuthor()
+
       if (!slug) {
-        strapi.log.warn(
+        console.warn(
           `[${label}] Skipping MDX delete: pathSlug missing on deleted document (documentId=${result.documentId})`
         )
-        scheduleGitSync(label)
+        scheduleGitSync(label, { action: 'delete', author })
         return
       }
 
@@ -441,7 +483,7 @@ export function createPageLifecycle<T extends UID.ContentType>(
         label
       )
 
-      scheduleGitSync(label)
+      scheduleGitSync(label, { slug, action: 'delete', author })
     }
   }
 }

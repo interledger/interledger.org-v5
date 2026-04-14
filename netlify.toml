@@ -20,8 +20,63 @@
 [context.deploy-preview]
   command = "pnpm install && pnpm run build"
 
+[[redirects]]
+  from = "/es/*"
+  to = "/es/404"
+  status = 404
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/uploads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/documents/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/scripts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/blog/preview"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/page-preview"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/preview/page-preview"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/developers/blog/preview"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+
 [[headers]]
   for = "/*"
   [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
     X-Robots-Tag = "noindex, nofollow"
-

@@ -1,16 +1,21 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { COLLECTION_INDEX_SLUG, translatePath, type Locale } from '@/utils/i18'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksDevelopers from '@/components/blog/CommunityLinksDevelopers.astro'
 import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
-import { ROUTE_BASES, localizeRoute } from '@/utils/routes'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { localizeRoute } from '@/utils/routes'
+import OptimizedImage from '@/components/OptimizedImage.astro'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const posts = await getCollection('developers-blog')
 
@@ -18,12 +23,20 @@ const mdxPost = posts.find(
   (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
-if (!mdxPost) return Astro.redirect('/404')
+if (!mdxPost) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const developersHomePath = localizeRoute('/developers', contentLocale)
-const blogPath = localizeRoute(ROUTE_BASES['developers-blog'], contentLocale)
+const developersHomePath = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'developers'
+)
+const blogPath = translatePath(
+  'developers-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
 ---
 
 <DevelopersBlogLayout
@@ -31,6 +44,9 @@ const blogPath = localizeRoute(ROUTE_BASES['developers-blog'], contentLocale)
   developersHomePath={developersHomePath}
   blogPath={blogPath}
 >
-  <MdxContent />
+  <Fragment slot="disclaimer">
+    <TranslationDisclaimer isVisible={isFallback} />
+  </Fragment>
+  <MdxContent components={{ img: OptimizedImage }} />
   <CommunityLinksDevelopers />
 </DevelopersBlogLayout>

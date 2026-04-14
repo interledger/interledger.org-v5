@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro'
 import { getSpeakerPages } from '@/utils/summit-talks-speakers'
 import SpeakerDetailPage from '@/components/summit/SpeakerDetailPage.astro'
 import type { Speaker } from '@/types/summit'
+import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   entry: Speaker
@@ -15,12 +16,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const { year } = Astro.params
 const { entry } = Astro.props
+const { routeLocale } = Astro.locals
 if (!year) {
   throw new Error('Year param is required')
 }
 if (!entry) {
-  return Astro.redirect('/404')
+  return Astro.redirect(localizeRoute('/404', routeLocale))
 }
+
+const isFallback = entry.es === null
 ---
 
-<SpeakerDetailPage entry={entry} year={year} />
+<SpeakerDetailPage entry={entry} year={year} isFallback={isFallback} />

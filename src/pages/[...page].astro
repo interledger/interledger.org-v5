@@ -1,11 +1,11 @@
 ---
 import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
 import { getLocalizedPaths } from '@/utils/static-paths'
-import { HOME_SLUG } from '@/utils/routes'
+import { HOME_CONTENT_SLUG } from '@/utils/routes'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('foundation-pages', 'en', 'page', {
-    excludeSlug: HOME_SLUG
+    excludeSlug: HOME_CONTENT_SLUG
   })
 }
 

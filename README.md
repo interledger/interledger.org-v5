@@ -30,8 +30,9 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [Adding a New Summit Year](#adding-a-new-summit-year)
    - [Translations](#translations)
    - [Image Handling](#image-handling)
+9. [Image Optimization](#image-optimization)
 
-9. [More Info](#more-info)
+10. [More Info](#more-info)
 
 ## About the Project
 
@@ -255,6 +256,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run format`                    | Format code and fix linting issues                             |
 | `pnpm run lint`                      | Check code formatting and linting                              |
 | `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
+| `pnpm run optimize:images`           | Generate responsive WebP variants for all raster images        |
 
 ### 🔍 Code Formatting
 
@@ -607,7 +609,7 @@ pnpm run sync:sessionize  # defaults to currentSummitYear
   - `src/data/sessionize/{YEAR}-speakers.json`
   - `src/data/sessionize/{YEAR}-talks.json`
 - Downloads speaker images into:
-  - `public/img/sessionize-speakers/{YEAR}`
+  - `public/sessionize-speakers/img/{YEAR}`
 - Clears the image folder before downloading
 - Validates the year against the allowed `YEARS` list
 
@@ -698,10 +700,47 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 - Speaker images are downloaded locally during sync
 - Stored under:
-  `public/img/sessionize-speakers/{YEAR}/`
+  `public/sessionize-speakers/img/{YEAR}/`
 - Filenames are generated using a slugified speaker name
 - If no image is available, a fallback is used:
-  `/img/sessionize-speakers/no-photo.svg`
+  `public/sessionize-speakers/img/no-photo.svg`
+
+## Image Optimization
+
+Raster images (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`) are automatically optimized at build time via `scripts/optimize-images.ts`. The script uses [`sharp`](https://sharp.pixelplumbing.com/) to produce WebP variants at three responsive widths (640px, 1280px, 1920px) plus a full-size WebP, writing outputs to `public/img/optimized/`.
+
+The script runs automatically as part of `pnpm run build` (via the `prebuild` hook). You can also run it manually:
+
+```sh
+pnpm run optimize:images
+```
+
+**How it works:**
+
+- Images are sourced from two locations:
+  - `public/img/` — static assets committed to the repo
+  - `public/uploads/img/original/` — images uploaded via Strapi
+- Each image produces variants at widths ≤ its original width, avoiding upscaling
+- Outputs are cached: a variant is skipped if it already exists and is newer than the source
+- The `public/img/optimized/` directory is gitignored — variants are generated at build time
+
+**Component usage:**
+
+The `OptimizedImage` Astro component (`src/components/OptimizedImage.astro`) wraps the optimized variants in a `<picture>` element with a WebP `<source srcset="...">` and a responsive `sizes` attribute, falling back to the original `<img>` if no variants exist. It is wired into all MDX contexts as the default `img` renderer, so inline images in content get responsive output automatically.
+
+To use it directly in Astro templates:
+
+```astro
+import OptimizedImage from '@/components/OptimizedImage.astro'
+
+<OptimizedImage
+  src="/img/hero.png"
+  alt="Hero image"
+  sizes="(max-width: 640px) 100vw, 50vw"
+/>
+```
+
+SVGs are passed through unchanged.
 
 ## More Info
 

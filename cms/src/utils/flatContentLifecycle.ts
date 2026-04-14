@@ -7,13 +7,13 @@
 
 import fs from 'fs'
 import path from 'path'
-import { shouldSkipMdxExport } from './pageLifecycle'
+import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { LOCALES } from './mdx'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
-import { scheduleGitSync } from './gitSync'
+import { scheduleGitSync, type SyncContext } from './gitSync'
 
 export interface FlatContentLifecycleConfig<
   T extends {
@@ -148,7 +148,12 @@ export function createFlatLocaleMdxLifecycle<
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'create',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterUpdate(event: { result?: T }) {
       const { result } = event
@@ -158,7 +163,12 @@ export function createFlatLocaleMdxLifecycle<
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
       await exportAllLocales(result.documentId)
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'update',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     },
     async afterDelete(event: { result?: T }) {
       const { result } = event
@@ -179,7 +189,12 @@ export function createFlatLocaleMdxLifecycle<
         label
       )
 
-      scheduleGitSync(label)
+      const ctx: SyncContext = {
+        slug: result.pathSlug,
+        action: 'delete',
+        author: getAdminAuthor()
+      }
+      scheduleGitSync(label, ctx)
     }
   }
 }

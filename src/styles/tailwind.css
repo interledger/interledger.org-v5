@@ -28,6 +28,13 @@
  * DO NOT REORDER THESE IMPORTS without understanding the layer system.
  */
 
+/* Pre-declare Starlight's CSS layers BEFORE Tailwind's own layers.
+   CSS cascade: earlier-declared layers have LOWER priority.
+   Without this, Starlight layers end up after Tailwind's utilities layer,
+   so starlight.reset { * { margin: 0 } } overrides Tailwind margin utilities.
+   This ordering ensures: starlight.* < theme < base < components < utilities */
+@layer starlight.base, starlight.reset, starlight.core, starlight.content, starlight.components, starlight.utils;
+
 /* Tailwind CSS v4 core
    NOTE: @config must come AFTER @import because it configures the
    Tailwind engine that was just imported. You can't configure

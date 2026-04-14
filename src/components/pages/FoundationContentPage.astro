@@ -9,13 +9,21 @@ import CalloutText from '@/components/callout/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+import Link from '@/components/shared/Link.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const pages = await getCollection('foundation-pages')
 
@@ -23,22 +31,24 @@ const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
-if (!mdxPage) return Astro.redirect('/404')
+if (!mdxPage) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
-const title = mdxData?.metaTitle || mdxData?.title
+const title = mdxData?.title
 const description =
   mdxData?.metaDescription || mdxData?.description || undefined
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
+const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
+const heroCtas = mdxData?.heroCtas ?? []
 const pillar = mdxData?.pillar || undefined
 const isNotFound = !MdxContent
 
-if (isNotFound) return Astro.redirect('/404')
+if (isNotFound) return Astro.redirect(notFoundPath)
 ---
 
 <FoundationPageLayout
@@ -48,9 +58,18 @@ if (isNotFound) return Astro.redirect('/404')
   canonicalURL={canonicalURL}
 >
   <main class="pb-space-l" data-pillar={pillar}>
+    <TranslationDisclaimer isVisible={isFallback} />
     {
       mdxHeroTitle && (
-        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
+        <section
+          class:list={[
+            'min-h-[40vh] py-space-xl text-white flex items-center',
+            heroSectionStyle
+              ? 'bg-no-repeat bg-cover bg-center'
+              : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+          ]}
+          style={heroSectionStyle}
+        >
           <div class="mx-auto w-full max-w-wide px-space-m">
             <div class="max-w-narrow">
               <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
@@ -60,6 +79,20 @@ if (isNotFound) return Astro.redirect('/404')
                 <p class="mb-space-m text-[1.125rem] max-w-[600px]">
                   {mdxHeroDescription}
                 </p>
+              )}
+              {heroCtas.length > 0 && (
+                <div class="flex flex-wrap gap-space-s mt-space-s">
+                  {heroCtas.map((cta) => (
+                    <Link
+                      href={cta.link}
+                      style={cta.style}
+                      variant="hero"
+                      umami={cta.analytics_event_label}
+                      external={cta.external}
+                      text={cta.text}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -71,6 +104,7 @@ if (isNotFound) return Astro.redirect('/404')
         <div data-prose class="mx-auto max-w-narrow">
           <MdxContent
             components={{
+              img: OptimizedImage,
               Ambassador,
               AmbassadorGrid,
               Blockquote,

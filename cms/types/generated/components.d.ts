@@ -28,6 +28,7 @@ export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
       'oneToMany',
       'api::ambassador.ambassador'
     >
+    category: Schema.Attribute.Enumeration<['Fellows 2026']>
     heading: Schema.Attribute.String
   }
 }
@@ -41,7 +42,13 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
   }
   attributes: {
     quote: Schema.Attribute.Text & Schema.Attribute.Required
-    source: Schema.Attribute.RichText
+    source: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
   }
 }
 
@@ -53,7 +60,14 @@ export interface BlocksCalloutText extends Struct.ComponentSchema {
     icon: 'megaphone'
   }
   attributes: {
-    content: Schema.Attribute.RichText & Schema.Attribute.Required
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
   }
 }
 
@@ -368,6 +382,12 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
       }>
     content: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -414,6 +434,12 @@ export interface BlocksParagraph extends Struct.ComponentSchema {
       Schema.Attribute.DefaultTo<'left'>
     content: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -578,7 +604,7 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
 export interface SharedHero extends Struct.ComponentSchema {
   collectionName: 'components_shared_heroes'
   info: {
-    description: 'Hero section with title, description and CTAs'
+    description: 'Hero section with title, description and background image'
     displayName: 'Hero'
     icon: 'star'
   }
@@ -595,7 +621,7 @@ export interface SharedHero extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    secondaryCtas: Schema.Attribute.Component<'shared.cta-link', true> &
+    hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -673,18 +699,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search'
   }
   attributes: {
-    canonicalUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    keywords: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     metaDescription: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -693,22 +707,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
       }> &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 300
-      }>
-    metaImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    metaTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 60
       }>
   }
 }

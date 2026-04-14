@@ -9,13 +9,21 @@ import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
 import CalloutText from '@/components/callout/CalloutText.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
+import Link from '@/components/shared/Link.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
   contentLocale: Locale
+  isFallback?: boolean
 }
 
-const { slug, contentLocale } = Astro.props
+const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
+const notFoundPath = localizeRoute('/404', routeLocale)
 
 const pages = await getCollection('summit-pages')
 
@@ -23,19 +31,22 @@ const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
-if (!mdxPage) return Astro.redirect('/404')
+if (!mdxPage) return Astro.redirect(notFoundPath)
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
-const title = mdxData?.metaTitle || mdxData?.title
+const title = mdxData?.title
 const description =
   mdxData?.metaDescription || mdxData?.description || undefined
 const ogImageUrl = mdxData?.metaImage || undefined
 const canonicalURL = mdxData?.canonicalUrl || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
-const gradient = mdxData?.gradient || 'option1'
+const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
+const heroCtas = mdxData?.heroCtas ?? []
+const gradient =
+  (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'
 ---
 
 <SummitPageLayout
@@ -48,9 +59,18 @@ const gradient = mdxData?.gradient || 'option1'
   <main
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     {
       mdxHeroTitle && (
-        <section class="min-h-[40vh] py-space-xl flex items-center text-white">
+        <section
+          class:list={[
+            'min-h-[40vh] py-space-xl flex items-center text-white',
+            heroSectionStyle
+              ? 'bg-no-repeat bg-cover bg-center'
+              : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+          ]}
+          style={heroSectionStyle}
+        >
           <div class="mx-auto w-full max-w-wide px-space-m">
             <div class="max-w-narrow">
               <h1 class="max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
@@ -60,6 +80,20 @@ const gradient = mdxData?.gradient || 'option1'
                 <p class="mb-space-m text-[1.125rem] max-w-[600px]">
                   {mdxHeroDescription}
                 </p>
+              )}
+              {heroCtas.length > 0 && (
+                <div class="flex flex-wrap gap-space-s mt-space-s">
+                  {heroCtas.map((cta) => (
+                    <Link
+                      href={cta.link}
+                      style={cta.style}
+                      variant="hero"
+                      umami={cta.analytics_event_label}
+                      external={cta.external}
+                      text={cta.text}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -73,6 +107,7 @@ const gradient = mdxData?.gradient || 'option1'
         >
           <MdxContent
             components={{
+              img: OptimizedImage,
               Ambassador,
               AmbassadorGrid,
               Blockquote,

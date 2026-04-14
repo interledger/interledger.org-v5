@@ -8,7 +8,7 @@ import type {
 import path from 'node:path'
 import { generateSlug } from './slug'
 
-const profilePictureBase = '/img/sessionize-speakers'
+const profilePictureBase = '/sessionize-speakers/img'
 // IDs for the object that contain Spanish translations in Sessionize
 const TRANSLATION_ID = 107734
 const SPANISH_TITLE_ID = 114105

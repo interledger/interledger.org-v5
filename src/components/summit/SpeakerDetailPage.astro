@@ -1,19 +1,22 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import { defaultLocale } from '@/utils/i18'
+import { defaultLocale, useTranslations } from '@/utils/i18'
 import type { Speaker } from '@/types/summit'
 import { getTranslation } from '@/utils/summit-talks-speakers'
 import { getTalks } from '@/utils/extractSessionize'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import TextParagraphs from './TextParagraphs.astro'
 import SessionsList from './SessionsList.astro'
 
 interface Props {
   entry: Speaker
   year: string
+  isFallback?: boolean
 }
 
-const { entry, year } = Astro.props
+const { entry, year, isFallback = false } = Astro.props
 const { routeLocale: lang, currentBasePath } = Astro.locals
+const t = useTranslations(lang)
 const langPrefix = lang === defaultLocale ? '' : `/${lang}`
 const baseHref = `${langPrefix}${currentBasePath}`
 const sessionBaseHref = `${baseHref}/${year}/talk`
@@ -24,6 +27,7 @@ const bio = translation?.bio ?? entry.bio
 
 <SummitPageLayout title={entry.name}>
   <main>
+    <TranslationDisclaimer isVisible={isFallback} style="summit" />
     <header class="bg-black/20">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>
@@ -32,7 +36,7 @@ const bio = translation?.bio ?? entry.bio
         </div>
         <img
           src={entry.profilePicture}
-          alt={`Profile image of ${entry.name}`}
+          alt={t('summit.profile_image', { name: entry.name })}
           width="400"
           height="400"
           loading="lazy"
@@ -40,12 +44,15 @@ const bio = translation?.bio ?? entry.bio
       </div>
     </header>
     <div class="max-w-250 m-auto my-4">
-      <section aria-label="Biography" class="my-8">
+      <section aria-label={t('summit.biography')} class="my-8">
         <TextParagraphs text={bio} />
       </section>
       {
         sessions.length > 0 && (
-          <section aria-label="Sessions" class="border border-teal-300 p-8">
+          <section
+            aria-label={t('summit.sessions')}
+            class="border border-teal-300 p-8"
+          >
             <SessionsList
               sessions={sessions}
               sessionBaseHref={sessionBaseHref}

@@ -9,6 +9,16 @@
 
 @layer components {
   [data-prose-summit] {
+    & a {
+      color: var(--color-primary);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+      transition: text-decoration-color 200ms ease-in-out;
+    }
+    & a:hover {
+      text-decoration-color: transparent;
+    }
+
     & h1 { font-size: var(--text-step-4); }
 
     & h2,

@@ -244,12 +244,40 @@ describe('AmbassadorGrid handler', () => {
     expect(blocks[0]).not.toHaveProperty('heading')
   })
 
-  it('throws MISSING_REQUIRED_PROP when pathSlugs is missing', async () => {
+  it('throws MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
     await expect(
       parseMdxToBlocks('<AmbassadorGrid heading="Team" />', ctxWith({}))
     ).rejects.toMatchObject({
       code: ParserErrorCode.MISSING_REQUIRED_PROP
     })
+  })
+
+  it('parses <AmbassadorGrid> with category instead of pathSlugs', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<AmbassadorGrid heading="2026 Fellows" category="Fellows 2026" />',
+      ctxWith({})
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.ambassadors-grid',
+        heading: '2026 Fellows',
+        category: 'Fellows 2026'
+      }
+    ])
+  })
+
+  it('parses <AmbassadorGrid> with category and no heading', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<AmbassadorGrid category="Fellows 2026" />',
+      ctxWith({})
+    )
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.ambassadors-grid',
+      category: 'Fellows 2026'
+    })
+    expect(blocks[0]).not.toHaveProperty('heading')
   })
 
   it('throws UNRESOLVED_RELATION when any pathSlug is unresolved', async () => {

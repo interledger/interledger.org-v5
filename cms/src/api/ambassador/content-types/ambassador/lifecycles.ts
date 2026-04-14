@@ -35,16 +35,17 @@ function generateMdxContent(
   const fields = [
     `name: ${q(ambassador.name)}`,
     `pathSlug: ${q(ambassador.pathSlug)}`,
-    `description: ${q(ambassador.description || '')}`,
     `photo: ${q(photoUrl)}`,
     `photoAlt: ${q(photoAlt)}`,
-    `linkedinUrl: ${q(ambassador.linkedinUrl ?? null)}`,
-    `grantReportUrl: ${q(ambassador.grantReportUrl ?? null)}`,
+    `category: ${q(ambassador.category ?? null)}`,
+    `tagline: ${q(ambassador.tagline ?? null)}`,
+    `quote: ${q(ambassador.quote ?? null)}`,
     ...(isLocalized && englishSlug ? [`localizes: ${q(englishSlug)}`] : []),
     ...(locale ? [`locale: ${q(locale)}`] : [])
   ]
 
-  return `---\n${fields.join('\n')}\n---\n`
+  const content = ambassador.description ?? ''
+  return `---\n${fields.join('\n')}\n---\n\n${content}\n`
 }
 
 export default createFlatLocaleMdxLifecycle<

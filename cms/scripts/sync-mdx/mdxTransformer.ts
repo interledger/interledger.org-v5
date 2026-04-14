@@ -18,6 +18,7 @@ import type { foundationBlogFrontmatterSchema } from '../../../src/schemas/conte
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
+import type { HeroCta } from '../../src/utils/mdx'
 import fs from 'fs/promises'
 import path from 'path'
 import { getTargetRepoRoot } from '@/utils/gitSync'
@@ -27,6 +28,7 @@ export interface StrapiUploadContext {
   strapi: StrapiClient
   STRAPI_URL: string
   STRAPI_TOKEN: string
+  dryRun: boolean
 }
 
 /**
@@ -103,7 +105,7 @@ async function uploadImageToStrapi(
 
 // Returns existing Strapi image ID or uploads a new image
 async function getImageFromStrapi(
-  { strapi, STRAPI_URL, STRAPI_TOKEN }: StrapiUploadContext,
+  { strapi, STRAPI_URL, STRAPI_TOKEN, dryRun }: StrapiUploadContext,
   { image, alt }: { image: string | undefined; alt: string | undefined }
 ): Promise<number | null> {
   const photoUrl = nullOrValue(image)
@@ -112,10 +114,19 @@ async function getImageFromStrapi(
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   try {
-    const existing = await strapi.findUploadByName(name)
-    if (existing) {
-      return existing
+    const byUrl = await strapi.findUploadByUrl(photoUrl)
+    if (byUrl) return byUrl
+
+    const byName = await strapi.findUploadByName(name)
+    if (byName) return byName
+
+    if (dryRun) {
+      console.log(
+        `   🖼️  [DRY-RUN] Missing upload for "${photoUrl}"; skipping upload.`
+      )
+      return null
     }
+
     const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
       filePath: photoUrl,
       name,
@@ -126,6 +137,45 @@ async function getImageFromStrapi(
     console.error(`Error getting image from Strapi for "${image}":`, err)
     return null
   }
+}
+
+interface StrapiHeroPayload {
+  title: string
+  description: string
+  hero_call_to_action?: Array<{
+    text: string
+    link: string
+    style: string
+    external: boolean
+    analytics_event_label?: string
+  }>
+}
+
+function buildHeroPayload(
+  heroTitle: string | undefined,
+  heroDescription: string | undefined,
+  fallbackTitle: string,
+  ctas: HeroCta[] | undefined
+): StrapiHeroPayload {
+  const hero: StrapiHeroPayload = {
+    title: heroTitle || fallbackTitle,
+    description: heroDescription || ''
+  }
+
+  const validCtas = ctas?.filter((c) => c.text && c.link)
+  if (validCtas && validCtas.length > 0) {
+    hero.hero_call_to_action = validCtas.map((c) => ({
+      text: c.text!,
+      link: c.link!,
+      style: c.style ?? 'primary',
+      external: c.external ?? false,
+      ...(c.analytics_event_label
+        ? { analytics_event_label: c.analytics_event_label }
+        : {})
+    }))
+  }
+
+  return hero
 }
 
 /**
@@ -164,14 +214,14 @@ export async function buildPagePayload(
     ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
-  // Handle hero section
-  // If hero fields exist in frontmatter, use them
-  // Otherwise, preserve existing hero data if updating an entry
+  // Handle hero section — use frontmatter fields if present, otherwise preserve existing
   if (parsed.heroTitle || parsed.heroDescription) {
-    data.hero = {
-      title: parsed.heroTitle || parsed.title,
-      description: parsed.heroDescription || ''
-    }
+    data.hero = buildHeroPayload(
+      parsed.heroTitle as string | undefined,
+      parsed.heroDescription as string | undefined,
+      parsed.title as string,
+      parsed.heroCtas as HeroCta[] | undefined
+    )
   } else {
     const existingHero = getEntryField(existingEntry, 'hero')
     if (existingHero) {
@@ -240,7 +290,8 @@ async function updateUploadAltOnce(
   id: number,
   alt: string,
   updatedAltIds: Map<number, string>,
-  pathSlug: string
+  pathSlug: string,
+  dryRun: boolean
 ): Promise<void> {
   const existing = updatedAltIds.get(id)
   if (existing !== undefined) {
@@ -251,6 +302,15 @@ async function updateUploadAltOnce(
     }
     return
   }
+
+  if (dryRun) {
+    console.log(
+      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} from "${pathSlug}".`
+    )
+    updatedAltIds.set(id, alt)
+    return
+  }
+
   await strapi.updateUploadAlt(id, alt)
   updatedAltIds.set(id, alt)
 }
@@ -271,7 +331,8 @@ export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  updatedAltIds: Map<number, string> = new Map()
+  updatedAltIds: Map<number, string> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
@@ -291,7 +352,8 @@ export async function buildAmbassadorPayload(
         photoId,
         photoAlt,
         updatedAltIds,
-        mdx.pathSlug
+        mdx.pathSlug,
+        dryRun
       )
     }
   }
@@ -299,10 +361,11 @@ export async function buildAmbassadorPayload(
   return {
     name: nullOrValue(mdx.frontmatter.name),
     pathSlug: mdx.pathSlug,
-    description: nullOrValue(mdx.frontmatter.description),
+    description: nullOrValue(mdx.content),
     ...(photoId ? { photo: photoId } : {}),
-    linkedinUrl: nullOrValue(mdx.frontmatter.linkedinUrl),
-    grantReportUrl: nullOrValue(mdx.frontmatter.grantReportUrl),
+    category: nullOrValue(mdx.frontmatter.category),
+    tagline: nullOrValue(mdx.frontmatter.tagline),
+    quote: nullOrValue(mdx.frontmatter.quote),
     publishedAt: new Date().toISOString()
   }
 }
@@ -326,7 +389,8 @@ export async function buildBlogPayload(
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
   updatedAltIds: Map<number, string> = new Map(),
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  dryRun = false
 ): Promise<Record<string, unknown>> {
   let parsed
   try {
@@ -371,7 +435,8 @@ export async function buildBlogPayload(
       featureImage,
       parsed.featureImageAlt,
       updatedAltIds,
-      mdx.pathSlug
+      mdx.pathSlug,
+      dryRun
     )
   }
   if (thumbnailImage && parsed.thumbnailImageAlt) {
@@ -380,7 +445,8 @@ export async function buildBlogPayload(
       thumbnailImage,
       parsed.thumbnailImageAlt,
       updatedAltIds,
-      mdx.pathSlug
+      mdx.pathSlug,
+      dryRun
     )
   }
 

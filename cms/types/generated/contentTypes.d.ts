@@ -447,33 +447,27 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    category: Schema.Attribute.Enumeration<['Fellows 2026']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'Fellows 2026'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
     description: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
-      }>
-    grantReportUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 500
-      }>
-    linkedinUrl: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 500
       }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
@@ -498,13 +492,24 @@ export interface ApiAmbassadorAmbassador extends Struct.CollectionTypeSchema {
         }
       }>
     photo: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
     publishedAt: Schema.Attribute.DateTime
+    quote: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    tagline: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -651,7 +656,7 @@ export interface ApiFoundationPageFoundationPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation-pages'
   info: {
-    description: 'Website pages with dynamic content blocks. Page type (Grant, Policy, Developer) defines layout. Full path slug sets the URL and file location.'
+    description: 'Website pages with dynamic content blocks. Full path slug sets the URL and file location.'
     displayName: 'Foundation Page'
     pluralName: 'foundation-pages'
     singularName: 'foundation-page'
@@ -695,13 +700,6 @@ export interface ApiFoundationPageFoundationPage
       'oneToMany',
       'api::foundation-page.foundation-page'
     >
-    pageType: Schema.Attribute.Enumeration<['grant', 'policy', 'developer']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'grant'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -772,7 +770,7 @@ export interface ApiSummitNavigationSummitNavigation
 export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
   collectionName: 'summit_pages'
   info: {
-    description: 'Summit pages with dark theme. Page type (Hackathon, Hackathon Resource) defines layout. Full path slug sets the URL and file location.'
+    description: 'Summit pages with dark theme. Full path slug sets the URL and file location.'
     displayName: 'Summit Page'
     pluralName: 'summit-pages'
     singularName: 'summit-page'
@@ -816,15 +814,6 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::summit-page.summit-page'
     >
-    pageType: Schema.Attribute.Enumeration<
-      ['hackathon', 'hackathon-resource']
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'hackathon'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &

@@ -3,6 +3,10 @@ import Search from '@astrojs/starlight/components/Search.astro'
 import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from '../logos/DevelopersLogo.astro'
+import { useTranslations } from '@/utils/i18'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <div
@@ -20,11 +24,11 @@ import DevelopersLogo from '../logos/DevelopersLogo.astro'
     <span
       class="block w-0 flex-auto overflow-hidden text-ellipsis text-right"
       aria-hidden="true"
-      title="Interledger Foundation"
+      title={t('aria.logo.foundation_title')}
     >
       ILF
     </span>
-    <span class="inline flex-[0_1_100%]"> Interledger Foundation </span>
+    <span class="inline flex-[0_1_100%]"> {t('aria.logo.foundation')} </span>
   </a>
   <Search />
   <div class="hidden items-center gap-space-s md:flex">

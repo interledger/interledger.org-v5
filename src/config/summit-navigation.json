@@ -8,20 +8,12 @@
           "href": "/summit"
         },
         {
-          "label": "Schedule",
-          "href": "/summit/schedule"
-        },
-        {
           "label": "Sessions",
-          "href": "/summit/sessions"
+          "href": "/summit/2025/talks"
         },
         {
           "label": "Speakers",
-          "href": "/summit/speakers"
-        },
-        {
-          "label": "FAQ",
-          "href": "/summit/faq"
+          "href": "/summit/2025/speakers"
         }
       ]
     },
@@ -31,14 +23,6 @@
         {
           "label": "Overview",
           "href": "/summit/hackathon"
-        },
-        {
-          "label": "Resources",
-          "href": "/summit/hackathon/resources"
-        },
-        {
-          "label": "FAQ",
-          "href": "/summit/hackathon/faq"
         },
         {
           "label": "Participation requirements",
@@ -65,7 +49,7 @@
     },
     {
       "label": "Code of conduct",
-      "href": "/summit/code-of-conduct"
+      "href": "/summit/code-conduct"
     }
   ]
 }

@@ -167,7 +167,7 @@ describe('syncEnglishEntry', () => {
       false
     )
 
-    expect(buildPayloadMock).toHaveBeenCalledWith(mdx, strapi, existing)
+    expect(buildPayloadMock).toHaveBeenCalledWith(mdx, strapi, existing, false)
   })
 
   // Dry run mode: count what would happen without actually calling Strapi

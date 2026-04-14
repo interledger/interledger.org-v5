@@ -1,0 +1,9 @@
+---
+import SummitContentPage from '@/components/pages/SummitContentPage.astro'
+import { HOME_CONTENT_SLUG } from '@/utils/routes'
+import { type Locale } from '@/utils/i18'
+
+const pageLang: Locale = 'en'
+---
+
+<SummitContentPage slug={HOME_CONTENT_SLUG} contentLocale={pageLang} />

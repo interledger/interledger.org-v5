@@ -1,4 +1,6 @@
 ---
+import { useTranslations } from '@/utils/i18'
+
 const {
   baseUrl,
   length,
@@ -9,14 +11,20 @@ const {
   lastUrl,
   label
 } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const paginationList = Array.from({ length }, (_, i) => i + 1)
 ---
 
-<nav aria-label={`${label} pages`} class="flex justify-center my-space-m">
+<nav
+  aria-label={t('pagination.pages', { label })}
+  class="flex justify-center my-space-m"
+>
   {
     firstUrl ? (
       <a
         href={`${firstUrl}`}
+        aria-label={t('pagination.first')}
         class="px-space-s py-space-xs"
         data-umami-event={`${label} pagination - first`}
       >
@@ -33,6 +41,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
     prevUrl ? (
       <a
         href={`${prevUrl}`}
+        aria-label={t('pagination.previous')}
         class="px-space-s py-space-xs"
         data-umami-event={`${label} pagination - prev`}
       >
@@ -65,6 +74,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
     ) : (
       <a
         href={`${nextUrl}`}
+        aria-label={t('pagination.next')}
         class="px-space-s py-space-xs"
         data-umami-event={`${label} pagination - next`}
       >
@@ -77,6 +87,7 @@ const paginationList = Array.from({ length }, (_, i) => i + 1)
     lastUrl ? (
       <a
         href={`${lastUrl}`}
+        aria-label={t('pagination.last')}
         class="px-space-s py-space-xs"
         data-umami-event={`${label} pagination - last`}
       >

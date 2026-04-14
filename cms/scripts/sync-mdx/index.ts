@@ -70,7 +70,8 @@ async function main() {
   const contentTypes = buildContentTypes(projectRoot, STRAPI_URL, STRAPI_TOKEN)
   const strapi = createStrapiClient({
     baseUrl: STRAPI_URL,
-    token: STRAPI_TOKEN
+    token: STRAPI_TOKEN,
+    dryRun: DRY_RUN
   })
 
   const results = await syncAll(

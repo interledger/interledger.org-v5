@@ -1,26 +1,16 @@
 ---
 import { translationMap } from '@/utils/translationMapData'
-import { switcherLocales, type Locale } from '@/utils/i18'
-import { HOME_SLUG, localizeRoute } from '@/utils/routes'
+import {
+  buildRoutePath,
+  normalizeBasePath,
+  switcherLocales,
+  type Locale
+} from '@/utils/i18'
+import { localizeRoute } from '@/utils/routes'
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
 
 const entry = translationMap[currentSlug]
-
-function normalizeBasePath(basePath: string): string {
-  if (!basePath || basePath === '/') return ''
-  return basePath.startsWith('/') ? basePath : `/${basePath}`
-}
-
-function buildRoutePath(basePath: string, slug: string): string {
-  const normalizedBasePath = normalizeBasePath(basePath)
-
-  if (slug === HOME_SLUG && normalizedBasePath === '') {
-    return ''
-  }
-
-  return `${normalizedBasePath}/${slug}`
-}
 
 function toDefaultSectionHref(locale: Locale, basePath: string): string {
   return localizeRoute(normalizeBasePath(basePath), locale)

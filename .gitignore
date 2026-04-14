@@ -28,3 +28,8 @@ yarn-error.log*
 .netlify
 
 presentations/
+
+# Generated optimized images
+public/img/optimized/
+
+.codex

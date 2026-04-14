@@ -1,6 +1,6 @@
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { defaultLocale, type Locale } from '@/utils/locales'
 
-export const HOME_SLUG = 'home'
+export const HOME_CONTENT_SLUG = 'home'
 
 export const ROUTE_BASES = {
   'foundation-pages': '',

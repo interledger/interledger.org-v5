@@ -2,6 +2,7 @@
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import foundationNavigation from '@/config/foundation-navigation.json'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
 
 interface MenuItem {
   label: string
@@ -19,6 +20,8 @@ const { mainMenu, ctaButton } = foundationNavigation as {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <header
@@ -33,12 +36,12 @@ const { mainMenu, ctaButton } = foundationNavigation as {
     data-nav
   >
     <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
-      Main navigation
+      {t('nav.main')}
     </h2>
     <a
-      href="/"
+      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
       class="w-[11em] flex-none xl:col-start-1 xl:col-end-2 xl:z-[1]"
-      aria-label="Interledger Foundation"
+      aria-label={t('aria.logo.foundation')}
       data-umami-event="Site Nav - Logo"
     >
       <FoundationLogo class="text-black" />
@@ -112,8 +115,8 @@ const { mainMenu, ctaButton } = foundationNavigation as {
       type="button"
       class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
       aria-controls="siteNavMenu"
-      aria-label="Toggle Menu"
-      title="Toggle Menu"
+      aria-label={t('nav.toggle_menu')}
+      title={t('nav.toggle_menu')}
       id="siteNavToggle"
       data-nav-toggle
     >

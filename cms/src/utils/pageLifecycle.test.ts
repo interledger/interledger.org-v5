@@ -1,7 +1,78 @@
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defaultLang } from './mdx'
-import { readLocaleFromUpdateEvent, resolvePageFilepath } from './pageLifecycle'
+import {
+  generateMDX,
+  readLocaleFromUpdateEvent,
+  resolvePageFilepath
+} from './pageLifecycle'
+
+const testConfig = {
+  contentTypeUid: 'api::foundation-page.foundation-page' as const,
+  outputDir: 'src/content/foundation-pages',
+  populate: {
+    hero: { populate: '*' as const },
+    seo: { populate: '*' as const },
+    content: { populate: '*' as const }
+  }
+}
+
+describe('generateMDX — clears deleted Strapi-managed fields', () => {
+  it('removes heroImage from frontmatter when backgroundImage is deleted in Strapi', () => {
+    const page = {
+      id: 1,
+      documentId: 'doc1',
+      title: 'Test Page',
+      pathSlug: 'test',
+      locale: 'en',
+      hero: {
+        title: 'Hero Title',
+        description: undefined,
+        backgroundImage: undefined
+      }
+    }
+    const preservedFields = {
+      heroImage: 'https://example.com/old-image.jpg',
+      heroTitle: 'Preserved Title'
+    }
+
+    const result = generateMDX(testConfig, page, preservedFields)
+
+    expect(result).not.toContain('heroImage')
+  })
+
+  it('removes metaDescription from frontmatter when seo.metaDescription is deleted in Strapi', () => {
+    const page = {
+      id: 1,
+      documentId: 'doc1',
+      title: 'Test Page',
+      pathSlug: 'test',
+      locale: 'en',
+      seo: { metaDescription: undefined }
+    }
+    const preservedFields = { metaDescription: 'Old description' }
+
+    const result = generateMDX(testConfig, page, preservedFields)
+
+    expect(result).not.toContain('metaDescription')
+  })
+
+  it('keeps heroImage in frontmatter when backgroundImage is present', () => {
+    const page = {
+      id: 1,
+      documentId: 'doc1',
+      title: 'Test Page',
+      pathSlug: 'test',
+      locale: 'en',
+      hero: { backgroundImage: { url: 'https://example.com/image.jpg' } }
+    }
+
+    const result = generateMDX(testConfig, page)
+
+    expect(result).toContain('heroImage')
+    expect(result).toContain('https://example.com/image.jpg')
+  })
+})
 
 describe('resolvePageFilepath', () => {
   const outputDir = path.join('/repo', 'src', 'content', 'foundation-pages')

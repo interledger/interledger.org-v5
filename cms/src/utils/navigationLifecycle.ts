@@ -138,25 +138,35 @@ async function deleteNavigationFile<T extends UID.ContentType>(
   }
 }
 
+async function exportAndCommitNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>,
+  action: string
+): Promise<void> {
+  if (shouldSkipMdxExport()) return
+  const label = uidToLogLabel(config.contentTypeUid)
+  console.log(`📝 ${action} ${label} JSON`)
+  const navigation = await fetchPublishedNavigation(config)
+  if (!navigation) {
+    console.log(`⏭️  No published ${label} navigation`)
+    return
+  }
+  const outputPath = writeNavigationFile(config, navigation)
+  await gitCommitAndPush(
+    [outputPath],
+    `${label}: ${action.toLowerCase()} navigation`
+  )
+}
+
 export function createNavigationLifecycle<T extends UID.ContentType>(
   config: NavigationLifecycleConfig<T>
 ) {
   return {
     async afterCreate(_event: Event) {
-      if (shouldSkipMdxExport()) return
-      console.log(`📝 Creating ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const navigation = await fetchPublishedNavigation(config)
-      if (!navigation) {
-        console.log(
-          `⏭️  No published ${uidToLogLabel(config.contentTypeUid)} navigation`
-        )
-        return
-      }
-      const outputPath = writeNavigationFile(config, navigation)
-      await gitCommitAndPush(
-        [outputPath],
-        `${uidToLogLabel(config.contentTypeUid)}: update navigation`
-      )
+      await exportAndCommitNavigation(config, 'Create')
+    },
+
+    async afterUpdate(_event: Event) {
+      await exportAndCommitNavigation(config, 'Update')
     },
 
     async afterDelete(_event: Event) {

@@ -6,20 +6,38 @@
 
 @layer components {
   main {
-    /* Links: hidden underline that reveals on hover */
+    /* Links: visible underline, accent color on hover */
     & a {
       color: var(--color-primary);
-      text-decoration-color: transparent;
       text-decoration-line: underline;
+      text-decoration-color: currentColor;
       transition: text-decoration-color 200ms ease-in-out;
     }
     & a:hover {
-      text-decoration-color: currentColor;
+      text-decoration-color: transparent;
     }
 
     /* Paragraphs: tighter line-height for body text */
     & p {
       line-height: 1.39;
+    }
+
+    /* Lists */
+    & ul {
+      margin-block-end: var(--spacing-space-s);
+      padding-inline-start: var(--spacing-space-m);
+      list-style-type: disc;
+    }
+
+    & ol {
+      margin-block-end: var(--spacing-space-s);
+      padding-inline-start: var(--spacing-space-m);
+      list-style-type: decimal;
+    }
+
+    & li {
+      margin-block-end: var(--spacing-space-xs);
+      line-height: 1.6;
     }
   }
 }

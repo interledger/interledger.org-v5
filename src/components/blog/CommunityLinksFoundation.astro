@@ -1,19 +1,28 @@
 ---
+import { translatePath, useTranslations } from '@/utils/i18'
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <hr class="mt-space-l mb-space-s" />
 
 <p class="italic">
-  If you want to stay updated with all open opportunities and news from the
-  Interledger Foundation, you can subscribe to our <a
-    href="https://interledger.org/subscribe"
-    data-umami-event="Blog Foundation - Newsletter">newsletter</a
-  >. We also welcome you to join our <a
+  {t('blog.community.foundation.start')}
+  <a
+    href={translatePath('foundation-pages', routeLocale, 'subscribe')}
+    data-umami-event="Blog Foundation - Newsletter"
+    >{t('blog.community.newsletter')}</a
+  >. {t('blog.community.foundation.middle')}
+  <a
     href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-    data-umami-event="Blog Foundation - Community Slack">community slack</a
-  > or participate in the next <a
+    data-umami-event="Blog Foundation - Community Slack"
+    >{t('blog.community.slack')}</a
+  >
+  {t('blog.community.foundation.or')}
+  <a
     href="https://docs.google.com/document/d/1T_Q_eRZtL8GluJR9rVADd7fvkB8mPluMk-d96LM4vlg/edit?usp=sharing"
-    data-umami-event="Blog Foundation - Community Call">community call</a
-  >, which takes place each second Wednesday of the month.
+    data-umami-event="Blog Foundation - Community Call"
+    >{t('blog.community.call')}</a
+  >, {t('blog.community.foundation.end')}
 </p>
