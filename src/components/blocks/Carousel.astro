@@ -1,5 +1,5 @@
 ---
-import { useTranslations } from '@/utils/i18'
+import { useTranslations } from '@/utils'
 
 interface CarouselItem {
   quote: string
@@ -22,7 +22,7 @@ interface Props {
 const { heading, items, autoplay = true, interval = 5000 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`
+const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
 ---
 
 <div class="max-w-[900px] mx-auto p-space-l">

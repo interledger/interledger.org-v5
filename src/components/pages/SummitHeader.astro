@@ -1,26 +1,17 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import summitNavigation from '@/config/summit-navigation.json'
-import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils/i18'
+import {
+  HOME_CONTENT_SLUG,
+  type Locale,
+  translatePath,
+  useTranslations,
+  getNavigation
+} from '@/utils'
 
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
-
-const { mainMenu, ctaButton } = summitNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
 const { routeLocale } = Astro.locals
+const locale = (routeLocale ?? 'en') as Locale
+const { mainMenu, ctaButton } = getNavigation('summit', locale)
 const t = useTranslations(routeLocale)
 const summitHomePath = translatePath(
   'summit-pages',
@@ -48,7 +39,6 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
 const rightNavBase =
   'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
 const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
-const ctaLinkClass = rightNavBase
 ---
 
 <header
@@ -135,26 +125,15 @@ const ctaLinkClass = rightNavBase
     <div
       class="flex items-center gap-space-s xl:col-start-3 xl:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
     >
-      {
-        ctaButton && (
-          <a
-            class={ctaLinkClass}
-            href={ctaButton.href || '#'}
-            data-umami-event={`Summit Nav - ${ctaButton.label}`}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            {ctaButton.label}
-          </a>
-        )
-      }
       <a
-        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
         class={rightNavLinkClass}
-        data-umami-event="Summit Nav - Interledger Foundation"
+        href={ctaButton?.href || '/'}
+        data-umami-event={`Summit Nav - ${ctaButton?.label || 'Interledger Foundation'}`}
+        {...ctaButton?.openInNewTab
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {}}
       >
-        {t('aria.logo.foundation')}
+        {ctaButton?.label || 'Interledger Foundation'}
       </a>
       <LanguageSwitcher />
     </div>
@@ -190,6 +169,8 @@ const ctaLinkClass = rightNavBase
 </header>
 
 <script>
+  import { stripTrailingSlash } from '@/utils/client'
+
   const summitLinksWrapper = document.querySelector('[data-nav-wrapper]')
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
@@ -324,9 +305,8 @@ const ctaLinkClass = rightNavBase
   navLinks.forEach((link) => {
     if (link instanceof HTMLAnchorElement) {
       const linkPath = link.pathname
-      // Remove trailing slashes for comparison
-      const normalizedCurrentPath = currentPath.replace(/\/$/, '')
-      const normalizedLinkPath = linkPath.replace(/\/$/, '')
+      const normalizedCurrentPath = stripTrailingSlash(currentPath)
+      const normalizedLinkPath = stripTrailingSlash(linkPath)
 
       // Check for exact match or if current path starts with link path (for subpages)
       if (

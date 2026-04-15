@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { LOCALES, defaultLang } from '@/utils/mdx'
+import { LOCALES, defaultLang } from '@/utils'
 import type { ContentTypes } from './config'
 import type { MDXFile } from './mdxTypes'
 

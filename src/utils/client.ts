@@ -1,0 +1,1 @@
+export { stripTrailingSlash } from './url'

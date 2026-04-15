@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateNoNestedJsx } from './contentValidation'
+import { validateNoNestedJsx } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
   it('throws when a paragraph block contains bare JSX', () => {

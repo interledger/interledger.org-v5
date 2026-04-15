@@ -7,7 +7,6 @@ import fs from 'fs'
 import prettier from 'prettier'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
-import { marked } from 'marked'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
@@ -32,6 +31,19 @@ export const defaultLang = 'en'
 export const LOCALES = [defaultLang, 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
+
+/**
+ * Returns the slug to use as the MDX filename for a given locale.
+ * Non-default locales use the English slug so filenames stay locale-independent
+ * (e.g. es/about-us.mdx, not es/sobre-nosotros.mdx).
+ */
+export function resolveFilenameSlug(
+  locale: string,
+  ownSlug: string,
+  englishSlug?: string | null
+): string {
+  return locale !== defaultLang && englishSlug ? englishSlug : ownSlug
+}
 
 /** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
 export function uidToLogLabel(uid: string): string {
@@ -63,7 +75,7 @@ export function yamlSingleQuoteScalar(
   value: string | null | undefined
 ): string {
   if (value === null || value === undefined) return 'null'
-  return `'${String(value).replace(/'/g, "''")}'`
+  return `'${String(value).replace(/\r\n/g, '\n').replace(/'/g, "''")}'`
 }
 
 /**
@@ -98,11 +110,6 @@ export function htmlToMarkdown(html: string): string {
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
-
-export function markdownToHtml(markdown: string): string {
-  if (!markdown) return ''
-  return marked.parse(markdown) as string
-}
 
 /**
  * Strips any surrounding straight or curly quotes from a blockquote string

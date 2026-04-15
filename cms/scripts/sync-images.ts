@@ -15,7 +15,7 @@
 import fs from 'fs'
 import path from 'path'
 import { config } from 'dotenv'
-import { getProjectRoot, PATHS } from '../src/utils/paths'
+import { getProjectRoot, PATHS } from '@/utils'
 
 config({ path: path.resolve(process.cwd(), '../.env') })
 
@@ -26,6 +26,7 @@ const SCAN_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: PATHS.UPLOADS, urlPrefix: `/${PATHS.UPLOADS.replace('public/', '')}` },
   { dir: 'public/img', urlPrefix: '/img' }
 ]
+const EXCLUDED_DIR_NAMES = new Set(['optimized'])
 
 const IMAGE_EXTENSIONS = new Set([
   '.jpg',
@@ -71,6 +72,7 @@ function collectImageFiles(dir: string): string[] {
       if (entry.name.startsWith('.')) continue
       const full = path.join(current, entry.name)
       if (entry.isDirectory()) {
+        if (EXCLUDED_DIR_NAMES.has(entry.name)) continue
         walk(full)
       } else if (IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
         results.push(full)

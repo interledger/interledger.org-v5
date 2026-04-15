@@ -1,10 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { pipeline } from 'stream/promises'
-import { scheduleGitSync, validateGitSyncRepoOnStartup } from './utils/gitSync'
-import { validateNoNestedJsx } from './utils/contentValidation'
-import { LOCALES } from './utils/mdx'
-import { shouldSkipMdxExport } from './utils/pageLifecycle'
+import {
+  scheduleGitSync,
+  validateGitSyncRepoOnStartup,
+  validateNoNestedJsx,
+  LOCALES,
+  shouldSkipMdxExport
+} from './utils'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -377,6 +380,7 @@ const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
   { dir: 'img', urlPrefix: '/img' }
 ]
+const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
 async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   const query = strapi.db?.query('plugin::upload.file')
@@ -442,6 +446,7 @@ function collectImagePaths(dir: string): string[] {
       if (entry.name.startsWith('.')) continue
       const full = path.join(current, entry.name)
       if (entry.isDirectory()) {
+        if (EXCLUDED_SEED_SUBDIRS.has(entry.name)) continue
         walk(full)
       } else if (
         SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())

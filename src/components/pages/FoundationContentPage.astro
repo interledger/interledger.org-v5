@@ -1,5 +1,5 @@
 ---
-import type { Locale } from '@/utils/i18'
+import { type Locale, getHeroSectionStyle } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
@@ -10,10 +10,8 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import { getHeroSectionStyle } from '@/utils/heroSectionStyle'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/OptimizedImage.astro'
-import { localizeRoute } from '@/utils/routes'
 
 interface Props {
   slug: string
@@ -22,16 +20,13 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
-const notFoundPath = localizeRoute('/404', routeLocale)
-
 const pages = await getCollection('foundation-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
-if (!mdxPage) return Astro.redirect(notFoundPath)
+if (!mdxPage) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
@@ -48,7 +43,7 @@ const heroCtas = mdxData?.heroCtas ?? []
 const pillar = mdxData?.pillar || undefined
 const isNotFound = !MdxContent
 
-if (isNotFound) return Astro.redirect(notFoundPath)
+if (isNotFound) return Astro.redirect('/404')
 ---
 
 <FoundationPageLayout

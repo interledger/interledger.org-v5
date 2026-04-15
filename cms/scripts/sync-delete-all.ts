@@ -18,8 +18,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import { getProjectRoot } from '@/utils/paths'
-import { LOCALES } from '@/utils/mdx'
+import { getProjectRoot, LOCALES } from '@/utils'
 import {
   createStrapiClient,
   type StrapiClient,

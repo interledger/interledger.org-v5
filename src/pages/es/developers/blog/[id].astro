@@ -1,6 +1,6 @@
 ---
 import DevelopersBlogPostPage from '@/components/blog/DevelopersBlogPostPage.astro'
-import { getLocalizedPaths } from '@/utils/static-paths'
+import { getLocalizedPaths } from '@/utils'
 
 export async function getStaticPaths() {
   return getLocalizedPaths('developers-blog', 'es', 'id')

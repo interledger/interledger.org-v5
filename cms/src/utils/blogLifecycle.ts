@@ -3,7 +3,12 @@ import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
-import { formatMdx } from './mdx'
+import {
+  defaultLang,
+  formatMdx,
+  yamlSingleQuoteScalar,
+  resolveFilenameSlug
+} from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { Core } from '@strapi/strapi'
 
@@ -83,11 +88,6 @@ async function fetchBlogPost(
   }
 }
 
-function yamlSingleQuote(value: string): string {
-  return `${value.replace(/'/g, '’').replace(/\r\n/g, '\n')}`
-}
-const q = yamlSingleQuote
-
 function generateFilename({
   date,
   pathSlug
@@ -100,15 +100,17 @@ function generateFilename({
 }
 
 function generateBlogMDX(post: BlogResult) {
+  const yqs = yamlSingleQuoteScalar
+
   const articleBios =
     post.articleBio?.length > 0
       ? `articleBios:${post.articleBio
           .map((bio) => {
             const articleBio = [
-              `\n  - author: ${q(bio.author)}`,
-              bio.profileBio ? `\n    text: '${q(bio.profileBio)}'` : null,
+              `\n  - author: ${yqs(bio.author)}`,
+              bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
               bio.profileImage
-                ? `\n    image: '${q(bio.profileImage.url)}'`
+                ? `\n    image: ${yqs(bio.profileImage.url)}`
                 : null
             ]
               .filter(Boolean)
@@ -119,30 +121,30 @@ function generateBlogMDX(post: BlogResult) {
       : null
 
   const frontmatterLines = [
-    `title: '${q(post.title)}'`,
-    `description: '${q(post.description)}'`,
+    `title: ${yqs(post.title)}`,
+    `description: ${yqs(post.description)}`,
     `date: ${post.date}`,
     `pathSlug: ${post.pathSlug}`,
-    `pillar: '${q(post.pillar)}'`,
+    `pillar: ${yqs(post.pillar)}`,
     post.featureImage?.url
-      ? `featureImage: '${q(post.featureImage.url)}'`
+      ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
     post.featureImage?.alternativeText
-      ? `featureImageAlt: '${q(post.featureImage.alternativeText)}'`
+      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText)}`
       : null,
     post.thumbnailImage?.url
-      ? `thumbnailImage: '${q(post.thumbnailImage.url)}'`
+      ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
       : null,
     post.thumbnailImage?.alternativeText
-      ? `thumbnailImageAlt: '${q(post.thumbnailImage.alternativeText)}'`
+      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText)}`
       : null,
     articleBios,
     post.tags
       ? post.tags.length === 0
         ? `tags: []`
-        : `tags:${post.tags.map((tag) => `\n  - ${q(tag.tagValue)}`).join('')}`
+        : `tags:${post.tags.map((tag) => `\n  - ${yqs(tag.tagValue)}`).join('')}`
       : null,
-    post.locale ? `locale: ${q(post.locale)}` : null,
+    post.locale ? `locale: ${yqs(post.locale)}` : null,
     post.localizations?.[0]?.pathSlug
       ? `localizes: ${post.localizations[0].pathSlug}`
       : null
@@ -165,7 +167,11 @@ async function writeMDXFile({
 }): Promise<string> {
   const filename = generateFilename({
     date: post.date,
-    pathSlug: post.pathSlug
+    pathSlug: resolveFilenameSlug(
+      post.locale,
+      post.pathSlug,
+      post.localizations?.[0]?.pathSlug
+    )
   })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
@@ -186,7 +192,11 @@ async function deleteMDXFile({
 }): Promise<string | null> {
   const filename = generateFilename({
     date: post.date,
-    pathSlug: post.pathSlug
+    pathSlug: resolveFilenameSlug(
+      post.locale,
+      post.pathSlug,
+      post.localizations?.[0]?.pathSlug
+    )
   })
   const filepath = path.join(outputPath, filename)
 
@@ -209,7 +219,7 @@ async function deleteMDXFile({
 export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   const projectRoot = getTargetRepoRoot()
   const getOutputPath = (locale?: string) =>
-    locale && locale !== 'en'
+    locale && locale !== defaultLang
       ? path.join(projectRoot, outputDir, locale)
       : path.join(projectRoot, outputDir)
 

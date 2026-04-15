@@ -633,18 +633,32 @@ export interface ApiFoundationNavigationFoundationNavigation
   options: {
     draftAndPublish: false
   }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::foundation-navigation.foundation-navigation'
-    > &
-      Schema.Attribute.Private
-    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
+    >
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -748,18 +762,32 @@ export interface ApiSummitNavigationSummitNavigation
   options: {
     draftAndPublish: false
   }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::summit-navigation.summit-navigation'
-    > &
-      Schema.Attribute.Private
-    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true>
+    >
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

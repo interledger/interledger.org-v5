@@ -1,5 +1,5 @@
 ---
-import { COLLECTION_INDEX_SLUG, translatePath, type Locale } from '@/utils/i18'
+import { COLLECTION_INDEX_SLUG, translatePath, type Locale } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleTags from '@/components/blog/ArticleTags.astro'
@@ -13,7 +13,6 @@ import Paragraph from '@/components/blocks/Paragraph.astro'
 import PdfEmbed from '@/components/PdfEmbed.astro'
 import VideoEmbed from '@/components/blocks/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import { localizeRoute } from '@/utils/routes'
 import OptimizedImage from '@/components/OptimizedImage.astro'
 
 interface Props {
@@ -24,15 +23,13 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
-const notFoundPath = localizeRoute('/404', routeLocale)
-
 const posts = await getCollection('foundation-blog')
 
 const mdxPost = posts.find(
   (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
 )
 
-if (!mdxPost) return Astro.redirect(notFoundPath)
+if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data

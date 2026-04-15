@@ -1,4 +1,4 @@
-import { getContentPath } from '@/utils/paths'
+import { getContentPath } from '@/utils'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {

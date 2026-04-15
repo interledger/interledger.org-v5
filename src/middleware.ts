@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from 'astro'
-import { routeContextFromPathname } from '@/utils/routeContext'
+import { routeContextFromPathname } from '@/utils'
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
   const { routeLocale, currentSlug, currentBasePath } =
