@@ -4,14 +4,21 @@ import {
   type StrapiAmbassador
 } from '@/components/ambassadors/types'
 
+function isAmbassadorFrontmatterType(
+  entry: AmbassadorFrontmatterType | StrapiAmbassador
+): entry is AmbassadorFrontmatterType {
+  return 'photoAlt' in entry
+}
+
 export const toAmbassadorData = (
   entry: AmbassadorFrontmatterType | StrapiAmbassador
 ): AmbassadorData => {
-  const photo = typeof entry.photo === 'string' ? entry.photo : entry.photo?.url
-  const photoAlt =
-    typeof entry.photo === 'string'
-      ? (entry as AmbassadorFrontmatterType).photoAlt
-      : entry.photo?.alternativeText
+  const photo = isAmbassadorFrontmatterType(entry)
+    ? entry.photo
+    : entry.photo?.url
+  const photoAlt = isAmbassadorFrontmatterType(entry)
+    ? entry.photoAlt
+    : entry.photo?.alternativeText
 
   return {
     name: entry.name,
