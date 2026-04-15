@@ -24,6 +24,28 @@ jobs:
 
       - run: pnpm run lint
 
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: cms/pnpm-lock.yaml
+
+      - name: Install CMS dependencies
+        working-directory: cms
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run unit tests
+        working-directory: cms
+        run: pnpm test
+
   build-and-dryrun:
     runs-on: ubuntu-latest
     environment: ${{ github.base_ref == 'playground' && 'strapi-playground' || 'strapi-staging' }}
