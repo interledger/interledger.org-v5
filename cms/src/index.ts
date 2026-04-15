@@ -558,8 +558,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       metaDescription: 'Meta Description'
     },
     'blocks.ambassador': {
-      ambassador: 'Ambassador',
-      showLinks: 'Show Social Links'
+      ambassador: 'Ambassador'
     },
     'blocks.ambassadors-grid': {
       heading: 'Heading',

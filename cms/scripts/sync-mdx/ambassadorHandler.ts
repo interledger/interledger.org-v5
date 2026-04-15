@@ -2,7 +2,7 @@
  * Ambassador + AmbassadorGrid component handlers for the MDX block parser.
  *
  * Handles:
- * - <Ambassador pathSlug="..." showLinks={true|false} />
+ * - <Ambassador pathSlug="..." />
  * - <AmbassadorGrid heading="..." pathSlugs={["a","b"]} />
  *
  * Both handlers resolve ambassador pathSlugs to Strapi document IDs
@@ -17,7 +17,7 @@ import type {
   AmbassadorsGridBlock
 } from './types.blocks'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
-import { getStringAttr, getBooleanAttr, getStringArrayAttr } from './jsxExtract'
+import { getStringAttr, getStringArrayAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 // ---------------------------------------------------------------------------
@@ -64,17 +64,12 @@ async function handleAmbassador(
   ctx: ParserContext
 ): Promise<ParsedBlock[]> {
   const pathSlug = getStringAttr(node, 'pathSlug', { required: true })
-  const showLinks = getBooleanAttr(node, 'showLinks')
 
   const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
 
   const block: AmbassadorBlock = {
     __component: 'blocks.ambassador',
     ambassador: { connect: [{ documentId }] }
-  }
-
-  if (showLinks !== undefined) {
-    block.showLinks = showLinks
   }
 
   return [block]

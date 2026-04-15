@@ -34,24 +34,6 @@ describe('ambassador serializer', () => {
     expect(serialize({})).toBe('')
   })
 
-  it('emits showLinks={false} when false', () => {
-    const result = serialize({ ambassador: baseAmbassador, showLinks: false })
-
-    expect(result).toContain('showLinks={false}')
-  })
-
-  it('omits showLinks when true (default)', () => {
-    const result = serialize({ ambassador: baseAmbassador, showLinks: true })
-
-    expect(result).not.toContain('showLinks')
-  })
-
-  it('omits showLinks when undefined', () => {
-    const result = serialize({ ambassador: baseAmbassador })
-
-    expect(result).not.toContain('showLinks')
-  })
-
   it('emits correct photoAlt from photo.alternativeText', () => {
     const result = serialize({
       ambassador: {

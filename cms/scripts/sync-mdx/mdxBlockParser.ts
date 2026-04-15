@@ -139,12 +139,12 @@ function unwrapTextElement(
  * @example
  * ```ts
  * // Given MDX body:
- * //   <Ambassador pathSlug="caroline-sinders" showLinks={false} />
+ * //   <Ambassador pathSlug="caroline-sinders" />
  * //   <AmbassadorGrid heading="Our Team" pathSlugs={["alice","bob"]} />
  * //
  * // Returns (once handlers are registered):
  * // [
- * //   { __component: 'blocks.ambassador', ambassador: { documentId: '...' }, showLinks: false },
+ * //   { __component: 'blocks.ambassador', ambassador: { documentId: '...' }},
  * //   { __component: 'blocks.ambassadors-grid', heading: 'Our Team', ambassadors: [...] }
  * // ]
  *

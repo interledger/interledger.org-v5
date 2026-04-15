@@ -114,6 +114,7 @@ export const ui = {
     'summit.talks_pagination': '{year} Summit Talks',
     'summit.summit_name': '{year} Summit',
     'summit.profile_image': 'Profile image of {name}',
+    'ambassadors.ambassadors': 'Ambassadors',
     'ambassadors.no_ambassadors': 'No ambassadors to display.',
     'ambassadors.no_grid': 'No ambassadors selected for this grid.',
     'blocks.previous_slide': 'Previous slide',
@@ -121,9 +122,7 @@ export const ui = {
     'aria.logo.foundation': 'Interledger Foundation',
     'aria.logo.summit': 'Interledger Summit',
     'aria.logo.foundation_title': 'Interledger Foundation',
-    'aria.logo.github': 'Interledger Github',
-    'aria.ambassador.grant_report': 'ILF Final Grant Report',
-    'aria.linkedin': 'LinkedIn'
+    'aria.logo.github': 'Interledger Github'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -242,6 +241,7 @@ export const ui = {
     'summit.talks_pagination': 'Charlas de la Cumbre {year}',
     'summit.summit_name': 'Cumbre {year}',
     'summit.profile_image': 'Imagen de perfil de {name}',
+    'ambassadors.ambassadors': 'Embajadores',
     'ambassadors.no_ambassadors': 'No hay embajadores para mostrar.',
     'ambassadors.no_grid':
       'No se seleccionaron embajadores para esta cuadrícula.',
@@ -250,8 +250,6 @@ export const ui = {
     'aria.logo.foundation': 'Fundación Interledger',
     'aria.logo.summit': 'Cumbre Interledger',
     'aria.logo.foundation_title': 'Fundación Interledger',
-    'aria.logo.github': 'GitHub de Interledger',
-    'aria.ambassador.grant_report': 'Informe final de subvención de ILF',
-    'aria.linkedin': 'LinkedIn'
+    'aria.logo.github': 'GitHub de Interledger'
   }
 } as const

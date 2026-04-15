@@ -23,11 +23,9 @@
 export interface AmbassadorData {
   name: string
   pathSlug: string
-  description: string
   photo?: string | null
   photoAlt?: string | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
+  quote?: string | null
 }
 
 /**
@@ -41,6 +39,7 @@ export interface StrapiAmbassador {
   pathSlug: string
   description?: string
   photo?: { url: string; alternativeText?: string } | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
+  category?: string | null
+  tagline?: string | null
+  quote?: string | null
 }
