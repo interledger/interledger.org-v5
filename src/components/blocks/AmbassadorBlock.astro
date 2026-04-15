@@ -6,15 +6,13 @@
  */
 
 import Ambassador from '@/components/ambassadors/Ambassador.astro'
-import { parseMarkdown } from '@/utils'
 import type { StrapiAmbassador } from '@/components/ambassadors/types'
 
 interface Props {
   ambassador?: StrapiAmbassador
-  showLinks?: boolean
 }
 
-const { ambassador, showLinks = true } = Astro.props
+const { ambassador } = Astro.props
 
 // Handle case where ambassador relation isn't populated
 if (!ambassador) {
@@ -23,17 +21,12 @@ if (!ambassador) {
 
 const photoUrl = ambassador.photo?.url
 const photoAlt = ambassador.photo?.alternativeText || ambassador.name
-// Convert markdown description to HTML for preview
-const descriptionHtml = await parseMarkdown(ambassador.description)
 ---
 
 <Ambassador
   name={ambassador.name}
-  description={descriptionHtml}
+  pathSlug={ambassador.pathSlug}
   photo={photoUrl}
   photoAlt={photoAlt}
-  linkedinUrl={showLinks ? (ambassador.linkedinUrl ?? undefined) : undefined}
-  grantReportUrl={showLinks
-    ? (ambassador.grantReportUrl ?? undefined)
-    : undefined}
+  quote={ambassador.quote || undefined}
 />

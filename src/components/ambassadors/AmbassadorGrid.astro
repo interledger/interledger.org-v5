@@ -14,8 +14,7 @@
 import { getCollection } from 'astro:content'
 import Ambassador from './Ambassador.astro'
 import type { AmbassadorData } from './types'
-import { useTranslations } from '@/utils'
-import type { AmbassadorFrontmatterType } from '@/schemas/content'
+import { useTranslations, toAmbassadorData } from '@/utils'
 
 interface Props {
   ambassadors?: AmbassadorData[]
@@ -32,16 +31,6 @@ const {
 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-
-const toAmbassadorData = (
-  entry: AmbassadorFrontmatterType
-): AmbassadorData => ({
-  name: entry.name,
-  pathSlug: entry.pathSlug,
-  photo: entry.photo,
-  photoAlt: entry.photoAlt,
-  quote: entry.quote
-})
 
 let ambassadors: AmbassadorData[] = []
 

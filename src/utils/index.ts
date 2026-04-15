@@ -65,3 +65,6 @@ export {
 
 // Images
 export { getOptimizedImage } from './images'
+
+// Ambassadors
+export { toAmbassadorData } from './ambassadors'

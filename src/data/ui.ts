@@ -122,9 +122,7 @@ export const ui = {
     'aria.logo.foundation': 'Interledger Foundation',
     'aria.logo.summit': 'Interledger Summit',
     'aria.logo.foundation_title': 'Interledger Foundation',
-    'aria.logo.github': 'Interledger Github',
-    'aria.ambassador.grant_report': 'ILF Final Grant Report',
-    'aria.linkedin': 'LinkedIn'
+    'aria.logo.github': 'Interledger Github'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -252,8 +250,6 @@ export const ui = {
     'aria.logo.foundation': 'Fundación Interledger',
     'aria.logo.summit': 'Cumbre Interledger',
     'aria.logo.foundation_title': 'Fundación Interledger',
-    'aria.logo.github': 'GitHub de Interledger',
-    'aria.ambassador.grant_report': 'Informe final de subvención de ILF',
-    'aria.linkedin': 'LinkedIn'
+    'aria.logo.github': 'GitHub de Interledger'
   }
 } as const
