@@ -155,42 +155,6 @@ describe('Ambassador handler', () => {
     ])
   })
 
-  it('parses showLinks={false}', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Ambassador pathSlug="alice" showLinks={false} />',
-      ctxWith({ alice: 'doc-alice' })
-    )
-
-    expect(blocks[0]).toMatchObject({ showLinks: false })
-  })
-
-  it('parses showLinks={true}', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Ambassador pathSlug="alice" showLinks={true} />',
-      ctxWith({ alice: 'doc-alice' })
-    )
-
-    expect(blocks[0]).toMatchObject({ showLinks: true })
-  })
-
-  it('parses valueless showLinks as true', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Ambassador pathSlug="alice" showLinks />',
-      ctxWith({ alice: 'doc-alice' })
-    )
-
-    expect(blocks[0]).toMatchObject({ showLinks: true })
-  })
-
-  it('omits showLinks when not specified', async () => {
-    const blocks = await parseMdxToBlocks(
-      '<Ambassador pathSlug="alice" />',
-      ctxWith({ alice: 'doc-alice' })
-    )
-
-    expect(blocks[0]).not.toHaveProperty('showLinks')
-  })
-
   it('throws MISSING_REQUIRED_PROP when pathSlug is missing', async () => {
     await expect(
       parseMdxToBlocks('<Ambassador />', ctxWith({}))

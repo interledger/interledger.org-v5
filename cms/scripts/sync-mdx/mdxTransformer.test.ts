@@ -486,7 +486,7 @@ describe('buildPagePayload', () => {
       const mdx = createMdxFile({
         pathSlug: 'ambassadors-page',
         frontmatter: { title: 'Ambassadors' },
-        content: '<Ambassador pathSlug="alice" showLinks={false} />'
+        content: '<Ambassador pathSlug="alice" />'
       })
 
       const payload = await buildPagePayload(
@@ -499,8 +499,7 @@ describe('buildPagePayload', () => {
       expect(payload.content).toEqual([
         {
           __component: 'blocks.ambassador',
-          ambassador: { connect: [{ documentId: 'doc-alice' }] },
-          showLinks: false
+          ambassador: { connect: [{ documentId: 'doc-alice' }] }
         }
       ])
     })

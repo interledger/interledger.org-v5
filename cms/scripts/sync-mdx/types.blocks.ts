@@ -41,7 +41,6 @@ export interface ParagraphBlock extends StrapiBlockBase {
 export interface AmbassadorBlock extends StrapiBlockBase {
   __component: 'blocks.ambassador'
   ambassador: { connect: Array<{ documentId: string }> }
-  showLinks?: boolean
 }
 
 /**

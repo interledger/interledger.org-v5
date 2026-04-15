@@ -123,12 +123,12 @@ export function getStringAttr(
  *
  * @example
  * ```ts
- * // <Ambassador showLinks />           → true  (valueless)
- * // <Ambassador showLinks={true} />    → true
- * // <Ambassador showLinks={false} />   → false
+ * // <Ambassador active />           → true  (valueless)
+ * // <Ambassador active={true} />    → true
+ * // <Ambassador active={false} />   → false
  * // <Ambassador />                     → undefined (absent)
- * // <Ambassador showLinks={someVar} /> → throws DYNAMIC_EXPRESSION
- * getBooleanAttr(node, 'showLinks')
+ * // <Ambassador active={someVar} /> → throws DYNAMIC_EXPRESSION
+ * getBooleanAttr(node, 'active')
  * ```
  *
  * @returns The boolean value, or `undefined` if absent
@@ -140,7 +140,7 @@ export function getBooleanAttr(
   const attr = findAttr(node, name)
   if (!attr) return undefined
 
-  // Valueless: <Foo showLinks /> → true
+  // Valueless: <Foo active /> → true
   if (attr.value === null || attr.value === undefined) {
     return true
   }

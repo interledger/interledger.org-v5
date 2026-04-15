@@ -12,7 +12,6 @@ export interface BlocksAmbassador extends Struct.ComponentSchema {
       'oneToOne',
       'api::ambassador.ambassador'
     >
-    showLinks: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
   }
 }
 
