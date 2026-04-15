@@ -32,6 +32,19 @@ export const LOCALES = [defaultLang, 'es']
 
 // ── Utility functions ────────────────────────────────────────────────────────
 
+/**
+ * Returns the slug to use as the MDX filename for a given locale.
+ * Non-default locales use the English slug so filenames stay locale-independent
+ * (e.g. es/about-us.mdx, not es/sobre-nosotros.mdx).
+ */
+export function resolveFilenameSlug(
+  locale: string,
+  ownSlug: string,
+  englishSlug?: string | null
+): string {
+  return locale !== defaultLang && englishSlug ? englishSlug : ownSlug
+}
+
 /** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
 export function uidToLogLabel(uid: string): string {
   const parts = uid.split('.')

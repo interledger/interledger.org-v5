@@ -3,7 +3,12 @@ import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
-import { defaultLang, formatMdx, yamlSingleQuoteScalar } from './mdx'
+import {
+  defaultLang,
+  formatMdx,
+  yamlSingleQuoteScalar,
+  resolveFilenameSlug
+} from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { Core } from '@strapi/strapi'
 
@@ -162,7 +167,11 @@ async function writeMDXFile({
 }): Promise<string> {
   const filename = generateFilename({
     date: post.date,
-    pathSlug: post.pathSlug
+    pathSlug: resolveFilenameSlug(
+      post.locale,
+      post.pathSlug,
+      post.localizations?.[0]?.pathSlug
+    )
   })
   const filepath = path.join(outputPath, filename)
   const mdxContent = generateBlogMDX(post)
@@ -183,7 +192,11 @@ async function deleteMDXFile({
 }): Promise<string | null> {
   const filename = generateFilename({
     date: post.date,
-    pathSlug: post.pathSlug
+    pathSlug: resolveFilenameSlug(
+      post.locale,
+      post.pathSlug,
+      post.localizations?.[0]?.pathSlug
+    )
   })
   const filepath = path.join(outputPath, filename)
 

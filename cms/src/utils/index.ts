@@ -24,7 +24,8 @@ export {
   getImageUrl,
   htmlToMarkdown,
   formatBlockquote,
-  uidToLogLabel
+  uidToLogLabel,
+  resolveFilenameSlug
 } from './mdx'
 export { validateNoNestedJsx } from './contentValidation'
 export {

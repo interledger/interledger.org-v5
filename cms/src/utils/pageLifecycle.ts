@@ -20,7 +20,8 @@ import {
   getPreservedFields,
   uidToLogLabel,
   formatMdx,
-  MATTER_STRINGIFY_OPTIONS
+  MATTER_STRINGIFY_OPTIONS,
+  resolveFilenameSlug
 } from './mdx'
 import {
   deleteLocaleMdxFiles,
@@ -198,7 +199,11 @@ async function writeMDXFile<T extends UID.ContentType>(
 ): Promise<string> {
   const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
-  const filepath = resolvePageFilepath(outputDir, page, locale)
+  const filepath = resolvePageFilepath(
+    outputDir,
+    { pathSlug: resolveFilenameSlug(locale, page.pathSlug ?? '', englishSlug) },
+    locale
+  )
 
   try {
     const fileDir = path.dirname(filepath)

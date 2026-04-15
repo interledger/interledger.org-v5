@@ -8,7 +8,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { LOCALES, formatMdx } from './mdx'
+import { LOCALES, defaultLang, formatMdx, resolveFilenameSlug } from './mdx'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -96,7 +96,12 @@ export function createFlatLocaleMdxLifecycle<
 
   async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
     const baseDir = getBaseDir(entry.locale)
-    const filepath = path.join(baseDir, `${entry.pathSlug}.mdx`)
+    const slug = resolveFilenameSlug(
+      entry.locale ?? defaultLang,
+      entry.pathSlug,
+      englishSlug
+    )
+    const filepath = path.join(baseDir, `${slug}.mdx`)
     await fs.promises.mkdir(baseDir, { recursive: true })
     await fs.promises.writeFile(
       filepath,
