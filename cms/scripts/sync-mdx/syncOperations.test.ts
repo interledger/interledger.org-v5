@@ -36,6 +36,8 @@ function createMockStrapi() {
     getAllEntries: vi.fn().mockResolvedValue([]),
     findByPathSlug: vi.fn().mockResolvedValue(undefined),
     findUploadByUrl: vi.fn().mockResolvedValue(null),
+    findUploadByName: vi.fn().mockResolvedValue(null),
+    updateUploadAlt: vi.fn().mockResolvedValue(undefined),
     createEntry: vi
       .fn()
       .mockResolvedValue({ data: { documentId: 'new-1', pathSlug: 'test' } }),

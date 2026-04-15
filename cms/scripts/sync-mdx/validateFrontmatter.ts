@@ -28,7 +28,8 @@ export function validateFrontmatter(
 
   if (!result.success && result.error) {
     const errors = result.error.issues.map((issue) => {
-      const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : ''
+      const path =
+        issue.path.length > 0 ? `${issue.path.map(String).join('.')}: ` : ''
       return `${path}${issue.message}`
     })
     return {

@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2020"],
+    "lib": ["ES2022"],
     "outDir": "dist",
-    "rootDir": ".",
+    "noEmit": true,
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -24,7 +24,8 @@
     "src/**/*.ts",
     "src/**/*.json",
     "config/**/*.ts",
-    "types/**/*.ts"
+    "types/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules/**", "build/**", "dist/**", ".cache/**", ".tmp/**"]
 }

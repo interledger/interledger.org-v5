@@ -32,7 +32,7 @@ export interface FrontmatterSchema {
   parse(data: unknown): unknown
   safeParse(data: unknown): {
     success: boolean
-    error?: { issues: Array<{ path: (string | number)[]; message: string }> }
+    error?: { issues: Array<{ path: PropertyKey[]; message: string }> }
   }
 }
 
