@@ -1,5 +1,5 @@
 ---
-import { type Locale, getHeroSectionStyle, localizeRoute } from '@/utils'
+import { type Locale, getHeroSectionStyle } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import AmbassadorGrid from '@/components/ambassadors/AmbassadorGrid.astro'
@@ -20,16 +20,13 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
-const notFoundPath = localizeRoute('/404', routeLocale)
-
 const pages = await getCollection('summit-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
-if (!mdxPage) return Astro.redirect(notFoundPath)
+if (!mdxPage) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data

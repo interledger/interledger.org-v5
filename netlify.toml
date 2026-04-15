@@ -20,11 +20,6 @@
 [context.deploy-preview]
   command = "pnpm install && pnpm run build"
 
-[[redirects]]
-  from = "/es/*"
-  to = "/es/404"
-  status = 404
-
 [[headers]]
   for = "/_astro/*"
   [headers.values]
