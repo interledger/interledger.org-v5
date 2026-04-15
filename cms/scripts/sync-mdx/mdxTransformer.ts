@@ -19,10 +19,7 @@ import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { getTargetRepoRoot } from '@/utils'
-import fs from 'fs/promises'
 import path from 'path'
-import mime from 'mime-types'
 
 export interface StrapiUploadContext {
   strapi: StrapiClient
@@ -54,59 +51,15 @@ function normalizeStrapiFilename(filename: string) {
     .replace(/[^\w_.]/g, '')
 }
 
-async function uploadImageToStrapi(
-  STRAPI_URL: string,
-  STRAPI_TOKEN: string,
-  {
-    filePath,
-    name,
-    alt
-  }: { filePath: string; name: string; alt: string | undefined }
-): Promise<number | null> {
-  if (!filePath) return null
-
-  try {
-    const rootDir = getTargetRepoRoot()
-    const fullPath = `${rootDir}/public${filePath}`
-
-    const fileBuffer = await fs.readFile(fullPath)
-    const mimeType = mime.lookup(fullPath) || 'application/octet-stream'
-    const formData = new FormData()
-    const blob = new Blob([fileBuffer], { type: mimeType })
-
-    formData.append('files', blob, path.basename(fullPath))
-    formData.append(
-      'fileInfo',
-      JSON.stringify({ name: name ?? undefined, alternativeText: alt ?? null })
-    )
-
-    const res = await fetch(`${STRAPI_URL}/api/upload`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${STRAPI_TOKEN}`
-      },
-      body: formData
-    })
-
-    if (!res.ok) {
-      console.error(
-        `Failed to upload image: ${filePath} (status ${res.status})`
-      )
-      return null
-    }
-
-    const data: Array<{ id: number }> = await res.json()
-    return data[0]?.id || null
-  } catch (err) {
-    console.error(`Error uploading image "${filePath}: "`, err)
-    return null
-  }
+function isLocalAssetPath(url: string): boolean {
+  return url.startsWith('/img/') || url.startsWith('/uploads/')
 }
 
-// Returns existing Strapi image ID or uploads a new image
+// Returns an existing Strapi upload ID for a referenced image.
+// Local assets must already exist in Strapi media records; this function never uploads.
 async function getImageFromStrapi(
-  { strapi, STRAPI_URL, STRAPI_TOKEN, dryRun }: StrapiUploadContext,
-  { image, alt }: { image: string | undefined; alt: string | undefined }
+  { strapi, dryRun }: StrapiUploadContext,
+  { image }: { image: string | undefined }
 ): Promise<number | null> {
   const photoUrl = nullOrValue(image)
   if (!photoUrl) return null
@@ -120,22 +73,19 @@ async function getImageFromStrapi(
     const byName = await strapi.findUploadByName(name)
     if (byName) return byName
 
-    if (dryRun) {
-      console.log(
-        `   🖼️  [DRY-RUN] Missing upload for "${photoUrl}"; skipping upload.`
-      )
-      return null
-    }
-
-    const uploaded = await uploadImageToStrapi(STRAPI_URL, STRAPI_TOKEN, {
-      filePath: photoUrl,
-      name,
-      alt
-    })
-    return uploaded
+    const localHint = isLocalAssetPath(photoUrl)
+      ? ' Start Strapi to run bootstrap seeding, or register this file in Media Library.'
+      : ''
+    const dryRunPrefix = dryRun ? '[DRY-RUN] ' : ''
+    throw new Error(
+      `${dryRunPrefix}Missing Strapi upload for image "${photoUrl}". Auto-upload is disabled to avoid duplicating local assets.${localHint}`
+    )
   } catch (err) {
-    console.error(`Error getting image from Strapi for "${image}":`, err)
-    return null
+    console.error(
+      `Error resolving image from Strapi for "${image}":`,
+      err instanceof Error ? err.message : err
+    )
+    throw err
   }
 }
 
@@ -405,12 +355,10 @@ export async function buildBlogPayload(
 
   const date = new Date(parsed.date || Date.now())
   const featureImage = await getImageFromStrapi(strapiUploadContext, {
-    image: parsed.featureImage,
-    alt: parsed.featureImageAlt
+    image: parsed.featureImage
   })
   const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
-    image: parsed.thumbnailImage,
-    alt: parsed.thumbnailImageAlt
+    image: parsed.thumbnailImage
   })
 
   const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
@@ -421,8 +369,7 @@ export async function buildBlogPayload(
       profileBio: bio.text || null,
       profileImage:
         (await getImageFromStrapi(strapiUploadContext, {
-          image: bio.image,
-          alt: bio.author
+          image: bio.image
         })) || null
     }))
   )
