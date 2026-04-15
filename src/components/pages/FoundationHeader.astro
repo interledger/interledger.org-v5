@@ -1,26 +1,17 @@
 ---
 import FoundationLogo from '../logos/FoundationLogo.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
-import foundationNavigation from '@/config/foundation-navigation.json'
-import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils'
+import {
+  HOME_CONTENT_SLUG,
+  type Locale,
+  translatePath,
+  useTranslations,
+  getNavigation
+} from '@/utils'
 
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
-
-const { mainMenu, ctaButton } = foundationNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
 const { routeLocale } = Astro.locals
+const locale = (routeLocale ?? 'en') as Locale
+const { mainMenu, ctaButton } = getNavigation('foundation', locale)
 const t = useTranslations(routeLocale)
 ---
 

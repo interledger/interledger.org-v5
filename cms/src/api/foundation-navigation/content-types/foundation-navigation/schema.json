@@ -10,17 +10,23 @@
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "mainMenu": {
       "type": "component",
       "repeatable": true,
-      "component": "navigation.menu-group"
+      "component": "navigation.menu-group",
+      "pluginOptions": { "i18n": { "localized": true } }
     },
     "ctaButton": {
       "type": "component",
       "repeatable": false,
-      "component": "navigation.menu-item"
+      "component": "navigation.menu-item",
+      "pluginOptions": { "i18n": { "localized": true } }
     }
   }
 }
