@@ -95,7 +95,7 @@ async function uploadImageToStrapi(
       return null
     }
 
-    const data: Array<{ id: number }> = await res.json()
+    const data = (await res.json()) as Array<{ id: number }>
     return data[0]?.id || null
   } catch (err) {
     console.error(`Error uploading image "${filePath}: "`, err)
