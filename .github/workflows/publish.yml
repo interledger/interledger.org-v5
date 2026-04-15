@@ -1,0 +1,69 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Commit SHA to publish
+        required: true
+        type: string
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - production
+          - playground
+
+concurrency:
+  group: publish-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Validate SHA input shape
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TARGET_SHA="${{ github.event.inputs.target_sha }}"
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "Error: target_sha must be a full 40-character commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PUBLISH_APP_ID }}
+          private-key: ${{ secrets.PUBLISH_APP_PRIVATE_KEY }}
+
+      - name: Publish to target branch
+        env:
+          TARGET_SHA: ${{ github.event.inputs.target_sha }}
+          PUBLISH_BRANCH: ${{ vars.PUBLISH_BRANCH }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$PUBLISH_BRANCH" ]]; then
+            echo "Error: PUBLISH_BRANCH is not set in the environment."
+            exit 1
+          fi
+
+          git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin "${TARGET_SHA}:refs/heads/${PUBLISH_BRANCH}" --force
