@@ -1,4 +1,5 @@
 name: Publish
+description: Publish a specific commit to the target environment branch.
 
 on:
   workflow_dispatch:
