@@ -17,10 +17,13 @@ interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  isAmbassador: boolean
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('summit-pages')
+const { slug, contentLocale, isFallback = false, isAmbassador } = Astro.props
+const pages = isAmbassador
+  ? await getCollection('summit-ambassadors')
+  : await getCollection('summit-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -55,7 +58,12 @@ const gradient =
     class="relative z-0 pb-space-l before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
     <TranslationDisclaimer isVisible={isFallback} style="summit" />
-    {
+     {
+      isAmbassador && (
+        <p class="text-red-500">This is an ambassador page!</p>
+        <MdxContent />
+      )}
+    { !isAmbassador &&
       mdxHeroTitle && (
         <section
           class:list={[
@@ -95,25 +103,28 @@ const gradient =
         </section>
       )
     }
-    <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div
-          class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:underline [&_a:hover]:no-underline"
-        >
-          <MdxContent
-            components={{
-              img: OptimizedImage,
-              Ambassador,
-              AmbassadorGrid,
-              Blockquote,
-              CalloutText,
-              Paragraph,
-              PdfEmbed,
-              VideoEmbed
-            }}
-          />
+    {!isAmbassador && (
+      <section class="py-space-xl">
+        <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+          <div
+            class="mx-auto max-w-narrow [&_h2]:mt-space-l [&_h2]:mb-space-s [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-space-m [&_h3]:mb-space-xs [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-space-s [&_p]:leading-[1.6] [&_ul]:mb-space-s [&_ul]:ps-space-m [&_li]:mb-space-xs [&_a]:underline [&_a:hover]:no-underline"
+          >
+            <MdxContent
+              components={{
+                img: OptimizedImage,
+                Ambassador,
+                AmbassadorGrid,
+                Blockquote,
+                CalloutText,
+                Paragraph,
+                PdfEmbed,
+                VideoEmbed
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+)
+    }
   </main>
 </SummitPageLayout>

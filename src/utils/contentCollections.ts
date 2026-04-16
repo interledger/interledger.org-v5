@@ -5,5 +5,6 @@ export const CONTENT = {
   blog: 'foundation-blog-posts',
   developersBlog: 'developers-blog-posts',
   foundationPages: 'foundation-pages',
-  summitPages: 'summit-pages'
+  summitPages: 'summit-pages',
+  summitAmbassadors: 'summit-ambassadors'
 } as const

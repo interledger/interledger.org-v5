@@ -6,6 +6,8 @@ export type CollectionType =
   | 'summit-pages'
   | 'foundation-blog'
   | 'developers-blog'
+  | 'ambassadors'
+  | 'summit-ambassadors'
 
 type Entry = Awaited<ReturnType<typeof getCollection>>[number]
 
@@ -15,6 +17,7 @@ type LocalizedPath = {
     slug: string
     locale: Locale
     isFallback: boolean
+    isAmbassador: boolean
   }
 }
 
@@ -39,13 +42,16 @@ type Options = {
  *   - EN never falls back to ES content
  */
 export async function getLocalizedPaths(
-  collection: CollectionType,
+  collections: CollectionType[],
   lang: Locale,
   paramName: string,
   options: Options = {}
 ): Promise<LocalizedPath[]> {
-  const allEntries = await getCollection(collection)
-
+  const allEntries: Entry[] = (
+    await Promise.all(
+      collections.map((collection) => getCollection(collection))
+    )
+  ).flat()
   const defaultEntries = getEntriesForDefaultLocale(
     allEntries,
     defaultLocale,
@@ -58,7 +64,9 @@ export async function getLocalizedPaths(
         paramName,
         routeSegmentForCollection(entry.data),
         defaultLocale,
-        false
+        false,
+        entry.collection === 'ambassadors' ||
+          entry.collection === 'summit-ambassadors'
       )
     )
   }
@@ -77,13 +85,17 @@ export async function getLocalizedPaths(
           paramName,
           routeSegmentForCollection(localizedEntry.data),
           lang,
-          false
+          false,
+          enEntry.collection === 'ambassadors' ||
+            enEntry.collection === 'summit-ambassadors'
         )
       : toPath(
           paramName,
           routeSegmentForCollection(enEntry.data),
           defaultLocale,
-          true
+          true,
+          enEntry.collection === 'ambassadors' ||
+            enEntry.collection === 'summit-ambassadors'
         )
   })
 }
@@ -127,10 +139,11 @@ function toPath(
   paramName: string,
   slug: string,
   locale: Locale,
-  isFallback: boolean
+  isFallback: boolean,
+  isAmbassador: boolean
 ): LocalizedPath {
   return {
     params: { [paramName]: slug },
-    props: { slug, locale, isFallback }
+    props: { slug, locale, isFallback, isAmbassador }
   }
 }

@@ -51,6 +51,14 @@ const ambassadorCollection = defineCollection({
   schema: ambassadorFrontmatterSchema
 })
 
+const summitAmbassadorCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.mdx',
+    base: `./${CONTENT_ROOT}/${CONTENT.summitAmbassadors}`
+  }),
+  schema: ambassadorFrontmatterSchema
+})
+
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
@@ -58,7 +66,8 @@ export const collections = {
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'summit-pages': summitPagesCollection,
-  ambassadors: ambassadorCollection
+  ambassadors: ambassadorCollection,
+  'summit-ambassadors': summitAmbassadorCollection
 }
 
 export type CollectionType = keyof typeof collections

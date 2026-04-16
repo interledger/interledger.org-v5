@@ -3,7 +3,7 @@ import DevelopersBlogPostPage from '@/components/blog/DevelopersBlogPostPage.ast
 import { getLocalizedPaths } from '@/utils'
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('developers-blog', 'es', 'id')
+  return getLocalizedPaths(['developers-blog'], 'es', 'id')
 }
 
 const { slug, locale: contentLocale } = Astro.props

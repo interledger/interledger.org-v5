@@ -4,16 +4,22 @@ import { getLocalizedPaths } from '@/utils/static-paths'
 import { HOME_CONTENT_SLUG } from '@/utils/routes'
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('summit-pages', 'es', 'page', {
-    excludeSlug: HOME_CONTENT_SLUG
-  })
+  return getLocalizedPaths(
+    ['summit-pages', 'summit-ambassadors'],
+    'es',
+    'page',
+    {
+      excludeSlug: HOME_CONTENT_SLUG
+    }
+  )
 }
 
-const { slug, locale: contentLocale } = Astro.props
+const { slug, locale: contentLocale, isAmbassador } = Astro.props
 ---
 
 <SummitContentPage
   slug={slug}
   contentLocale={contentLocale}
   isFallback={Astro.props.isFallback}
+  isAmbassador={isAmbassador}
 />

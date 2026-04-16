@@ -17,10 +17,11 @@ interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  isAmbassador?: boolean
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('foundation-pages')
+const { slug, contentLocale, isFallback = false, isAmbassador } = Astro.props
+const pages = isAmbassador ? await getCollection('ambassadors') : await getCollection('foundation-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -54,7 +55,11 @@ if (isNotFound) return Astro.redirect('/404')
 >
   <main class="pb-space-l" data-pillar={pillar}>
     <TranslationDisclaimer isVisible={isFallback} />
-    {
+    {isAmbassador && (
+      <p class="text-red-500">This is an ambassador page!</p>
+      <MdxContent />
+    )}
+    {!isAmbassador &&
       mdxHeroTitle && (
         <section
           class:list={[
@@ -94,23 +99,27 @@ if (isNotFound) return Astro.redirect('/404')
         </section>
       )
     }
-    <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div data-prose class="mx-auto max-w-narrow">
-          <MdxContent
-            components={{
-              img: OptimizedImage,
-              Ambassador,
-              AmbassadorGrid,
-              Blockquote,
-              CalloutText,
-              Paragraph,
-              PdfEmbed,
-              VideoEmbed
-            }}
-          />
+    {
+      !isAmbassador &&(
+      <section class="py-space-xl">
+        <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+          <div data-prose class="mx-auto max-w-narrow">
+            <MdxContent
+              components={{
+                img: OptimizedImage,
+                Ambassador,
+                AmbassadorGrid,
+                Blockquote,
+                CalloutText,
+                Paragraph,
+                PdfEmbed,
+                VideoEmbed
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      )
+    }
   </main>
 </FoundationPageLayout>
