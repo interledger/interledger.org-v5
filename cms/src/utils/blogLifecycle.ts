@@ -330,7 +330,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         oldPathSlug &&
         oldDate &&
         currentEnSlug &&
-        oldPathSlug !== currentEnSlug
+       currentEnSlug
       ) {
         console.log(
           `🗑️  Blog pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
