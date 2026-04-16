@@ -21,7 +21,7 @@ const entry = allAmbassadors.find(
 if (!entry) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(entry)
-const { name, photo, tagline } = entry.data
+const { name, photo, photoAlt, tagline } = entry.data
 
 const image = photo ?? '/sessionize-speakers/img/no-photo.svg'
 const title = `${name} | Interledger Foundation`
@@ -31,7 +31,6 @@ const description = `${name} is an Interledger Fellow advancing digital financia
 <FoundationPageLayout title={title} description={description}>
   <main class="pb-space-l" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
-    <!-- <TranslationDisclaimer isVisible={isFallback} style="summit" /> -->
     <header class="bg-[var(--color-primary)]/10">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>
@@ -40,7 +39,7 @@ const description = `${name} is an Interledger Fellow advancing digital financia
         </div>
         <OptimizedImage
           src={image}
-          alt={t('summit.profile_image', { name: name })}
+          alt={photoAlt || name}
           width={400}
           height={400}
           loading="lazy"
@@ -49,7 +48,7 @@ const description = `${name} is an Interledger Fellow advancing digital financia
       </div>
     </header>
     <div class="max-w-250 m-auto my-4">
-      <section data-prose aria-label={t('summit.biography')} class="my-8">
+      <section data-prose aria-label={t('profile.biography')} class="my-8">
         <MdxContent />
       </section>
     </div>
