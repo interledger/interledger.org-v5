@@ -12,11 +12,7 @@ export async function getStaticPaths() {
   return getLocalizedPaths('ambassadors', 'en', 'id')
 }
 
-const { slug, locale: contentLocale, isFallback } = Astro.props
+const { slug, locale: contentLocale } = Astro.props
 ---
 
-<AmbassadorDetailPage
-  slug={slug}
-  contentLocale={contentLocale}
-  isFallback={isFallback}
-/>
+<AmbassadorDetailPage slug={slug} contentLocale={contentLocale} />

@@ -12,7 +12,8 @@ import {
   yamlSingleQuoteScalar,
   getContentPath,
   getTargetRepoRoot,
-  createFlatLocaleMdxLifecycle
+  createFlatLocaleMdxLifecycle,
+  defaultLang
 } from '../../../../utils'
 import type { AmbassadorBase } from '../../types'
 
@@ -28,11 +29,7 @@ function generateMdxContent(
 ): string {
   const photoUrl = getImageUrl(ambassador.photo) || null
   const photoAlt = ambassador.photo?.alternativeText || ambassador.name
-  const locale =
-    ambassador.locale && ambassador.locale !== 'en'
-      ? ambassador.locale
-      : undefined
-  const isLocalized = locale !== undefined
+  const isLocalized = ambassador.locale !== defaultLang
 
   const q = yamlSingleQuoteScalar
   const fields = [
@@ -43,8 +40,8 @@ function generateMdxContent(
     `category: ${q(ambassador.category ?? null)}`,
     `tagline: ${q(ambassador.tagline ?? null)}`,
     `quote: ${q(ambassador.quote ?? null)}`,
-    ...(isLocalized && englishSlug ? [`localizes: ${q(englishSlug)}`] : []),
-    ...(locale ? [`locale: ${q(locale)}`] : [])
+    `locale: ${q(ambassador.locale)}`,
+    ...(isLocalized && englishSlug ? [`localizes: ${q(englishSlug)}`] : [])
   ]
 
   const content = ambassador.description ?? ''

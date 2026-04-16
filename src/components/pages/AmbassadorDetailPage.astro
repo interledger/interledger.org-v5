@@ -29,7 +29,7 @@ const description = `${name} is an Interledger Fellow advancing digital financia
 ---
 
 <FoundationPageLayout title={title} description={description}>
-  <main class="pb-space-l">
+  <main class="pb-space-l" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <!-- <TranslationDisclaimer isVisible={isFallback} style="summit" /> -->
     <header class="bg-[var(--color-primary)]/10">
@@ -49,7 +49,7 @@ const description = `${name} is an Interledger Fellow advancing digital financia
       </div>
     </header>
     <div class="max-w-250 m-auto my-4">
-      <section aria-label={t('summit.biography')} class="my-8">
+      <section data-prose aria-label={t('summit.biography')} class="my-8">
         <MdxContent />
       </section>
     </div>
