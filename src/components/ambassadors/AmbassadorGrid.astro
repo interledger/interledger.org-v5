@@ -55,7 +55,10 @@ if (propAmbassadors) {
   // Fetch ambassadors by category from the content collection
   const allAmbassadors = await getCollection('ambassadors')
   ambassadors = allAmbassadors
-    .filter((entry) => entry.data.category === category)
+    .filter(
+      (entry) =>
+        entry.data.category === category && entry.data.locale === routeLocale
+    )
     .map((entry) => toAmbassadorData(entry.data))
 }
 ---
