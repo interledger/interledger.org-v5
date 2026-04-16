@@ -326,12 +326,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const currentEnSlug = enPost?.pathSlug
 
       // If the EN slug changed, delete old files for all locales and re-export
-      if (
-        oldPathSlug &&
-        oldDate &&
-        currentEnSlug &&
-       currentEnSlug
-      ) {
+      if (oldPathSlug && oldDate && currentEnSlug && currentEnSlug) {
         console.log(
           `🗑️  Blog pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
         )
