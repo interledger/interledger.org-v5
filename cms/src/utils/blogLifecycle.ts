@@ -4,6 +4,7 @@ import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
+  LOCALES,
   defaultLang,
   formatMdx,
   yamlSingleQuoteScalar,
@@ -56,6 +57,7 @@ interface BlogResult {
 interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
+  state: { oldPathSlug?: string; oldDate?: string }
 }
 
 /**
@@ -223,6 +225,59 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       ? path.join(projectRoot, outputDir, locale)
       : path.join(projectRoot, outputDir)
 
+  function deleteMdxIfExists(filepath: string, locale: string): void {
+    if (!fs.existsSync(filepath)) return
+    try {
+      fs.unlinkSync(filepath)
+      console.log(`🗑️  Deleted old ${locale} blog MDX: ${filepath}`)
+    } catch (error) {
+      console.error(`Failed to delete blog MDX: ${filepath}`, error)
+    }
+  }
+
+  /**
+   * Delete old blog MDX files for all locales when EN slug changes.
+   * Blog filenames include the date: `{date}-{slug}.mdx` where slug is the
+   * english slug for all locales (via resolveFilenameSlug).
+   */
+  function deleteOldBlogFiles(oldEnSlug: string, oldDate: string): void {
+    for (const locale of LOCALES) {
+      const filename = generateFilename({ date: oldDate, pathSlug: oldEnSlug })
+      const filepath = path.join(getOutputPath(locale), filename)
+      deleteMdxIfExists(filepath, locale)
+    }
+  }
+
+  /** Export all locale variants for a blog post (mirrors pageLifecycle pattern). */
+  async function exportAllBlogLocales(documentId: string): Promise<string[]> {
+    const filepaths: string[] = []
+    const enPost = await fetchBlogPost(documentId, defaultLang)
+
+    for (const locale of LOCALES) {
+      try {
+        const post =
+          locale === defaultLang
+            ? enPost
+            : await fetchBlogPost(documentId, locale)
+        if (!post) {
+          console.log(`⏭️  No published ${locale} blog post for ${documentId}`)
+          continue
+        }
+        const filepath = await writeMDXFile({
+          outputPath: getOutputPath(post.locale),
+          post
+        })
+        filepaths.push(filepath)
+      } catch (error) {
+        console.error(
+          `⚠️  Failed to export ${locale} blog post for ${documentId}:`,
+          error
+        )
+      }
+    }
+    return filepaths
+  }
+
   return {
     async afterCreate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
@@ -240,17 +295,58 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       }
       scheduleGitSync(label, ctx)
     },
+    async beforeUpdate(event: {
+      params?: {
+        locale?: string
+        documentId?: string
+        data?: { documentId?: string; locale?: string }
+      }
+      state: { oldPathSlug?: string; oldDate?: string }
+    }) {
+      if (shouldSkipMdxExport()) return
+      const documentId =
+        event.params?.documentId ?? event.params?.data?.documentId
+      if (!documentId) return
+
+      // Always stash the EN slug/date — all locale filenames depend on it
+      const enPost = await fetchBlogPost(documentId, defaultLang)
+      if (!enPost?.pathSlug) return
+
+      event.state.oldPathSlug = enPost.pathSlug
+      event.state.oldDate = enPost.date
+    },
     async afterUpdate(event: BlogEvent) {
       if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
       const label = event.model.singularName
-      const post = await fetchBlogPost(result.documentId, result.locale)
-      if (!post) return
-      console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
-      await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+      const { oldPathSlug, oldDate } = event.state
+
+      const enPost = await fetchBlogPost(result.documentId, defaultLang)
+      const currentEnSlug = enPost?.pathSlug
+
+      // If the EN slug changed, delete old files for all locales and re-export
+      if (
+        oldPathSlug &&
+        oldDate &&
+        currentEnSlug &&
+        oldPathSlug !== currentEnSlug
+      ) {
+        console.log(
+          `🗑️  Blog pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
+        )
+        deleteOldBlogFiles(oldPathSlug, oldDate)
+        console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
+        await exportAllBlogLocales(result.documentId)
+      } else {
+        const post = await fetchBlogPost(result.documentId, result.locale)
+        if (!post) return
+        console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
+        await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+      }
+
       const ctx: SyncContext = {
-        slug: post.pathSlug,
+        slug: result.pathSlug,
         action: 'update',
         author: getAdminAuthor()
       }

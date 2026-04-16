@@ -143,6 +143,27 @@ export function createFlatLocaleMdxLifecycle<
     return path.join(getBaseDir(locale), `${pathSlug}.mdx`)
   }
 
+  function deleteMdxIfExists(filepath: string, locale: string): void {
+    if (!fs.existsSync(filepath)) return
+    try {
+      fs.unlinkSync(filepath)
+      console.log(`🗑️  Deleted old ${locale} ${label} MDX: ${filepath}`)
+    } catch (error) {
+      console.error(`Failed to delete ${label} MDX: ${filepath}`, error)
+    }
+  }
+
+  /**
+   * Delete old MDX files for all locales when EN slug changes.
+   * All locale filenames use the EN slug (via resolveFilenameSlug).
+   */
+  function deleteOldFiles(oldEnSlug: string): void {
+    for (const locale of LOCALES) {
+      const filepath = getFilePath(locale, oldEnSlug)
+      deleteMdxIfExists(filepath, locale)
+    }
+  }
+
   return {
     async afterCreate(event: { result?: T }) {
       const { result } = event
@@ -160,10 +181,44 @@ export function createFlatLocaleMdxLifecycle<
       }
       scheduleGitSync(label, ctx)
     },
-    async afterUpdate(event: { result?: T }) {
+    async beforeUpdate(event: {
+      params?: {
+        locale?: string
+        documentId?: string
+        data?: { documentId?: string; locale?: string }
+        where?: Record<string, unknown>
+      }
+      state: { oldPathSlug?: string }
+    }) {
+      if (shouldSkipMdxExport()) return
+      const documentId =
+        event.params?.documentId ?? event.params?.data?.documentId
+      if (!documentId) return
+
+      // Stash the EN slug — all locale filenames depend on it
+      const enEntry = await fetchPublished(documentId, defaultLang)
+      if (!enEntry?.pathSlug) return
+
+      event.state.oldPathSlug = enEntry.pathSlug
+    },
+    async afterUpdate(event: { result?: T; state: { oldPathSlug?: string } }) {
       const { result } = event
       if (shouldSkipMdxExport()) return
       if (!result?.documentId || !result.publishedAt) return
+
+      const { oldPathSlug } = event.state
+
+      // Re-fetch EN to get the current slug
+      const enEntry = await fetchPublished(result.documentId, defaultLang)
+      const currentEnSlug = enEntry?.pathSlug
+
+      if (oldPathSlug && currentEnSlug && oldPathSlug !== currentEnSlug) {
+        console.log(
+          `🗑️  ${label} pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
+        )
+        deleteOldFiles(oldPathSlug)
+      }
+
       console.log(
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
