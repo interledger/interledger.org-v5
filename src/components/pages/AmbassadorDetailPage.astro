@@ -1,0 +1,57 @@
+---
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import { type Locale, useTranslations } from '@/utils'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const t = useTranslations(contentLocale)
+const allAmbassadors = await getCollection('ambassadors')
+const entry = allAmbassadors.find(
+  (a) => a.data.pathSlug === slug && a.data.locale === contentLocale
+)
+
+if (!entry) return Astro.redirect('/404')
+
+const { Content: MdxContent } = await render(entry)
+const { name, photo, tagline } = entry.data
+
+const image = photo ?? '/sessionize-speakers/img/no-photo.svg'
+const title = `${name} | Interledger Foundation`
+const description = `${name} is an Interledger Fellow advancing digital financial inclusion by tackling barriers to access, affordability, and financial literacy.`
+---
+
+<FoundationPageLayout title={title} description={description}>
+  <main class="pb-space-l">
+    <TranslationDisclaimer isVisible={isFallback} />
+    <!-- <TranslationDisclaimer isVisible={isFallback} style="summit" /> -->
+    <header class="bg-[var(--color-primary)]/10">
+      <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
+        <div>
+          <h1 class="text-step-4">{name}</h1>
+          <p class="mb-6">{tagline}</p>
+        </div>
+        <OptimizedImage
+          src={image}
+          alt={t('summit.profile_image', { name: name })}
+          width={400}
+          height={400}
+          loading="lazy"
+          sizes="400px"
+        />
+      </div>
+    </header>
+    <div class="max-w-250 m-auto my-4">
+      <section aria-label={t('summit.biography')} class="my-8">
+        <MdxContent />
+      </section>
+    </div>
+  </main>
+</FoundationPageLayout>
