@@ -18,6 +18,11 @@ export function initHeaderNav(navId: string, iconId: string) {
   function setOffscreenState(isOffscreen: boolean) {
     if (linksWrapper instanceof HTMLElement) {
       linksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
+      if (isOffscreen) {
+        linksWrapper.setAttribute('inert', '')
+      } else {
+        linksWrapper.removeAttribute('inert')
+      }
     }
   }
 
@@ -31,8 +36,16 @@ export function initHeaderNav(navId: string, iconId: string) {
     const isCurrentlyOffscreen =
       linksWrapper instanceof HTMLElement &&
       linksWrapper.dataset.offscreen === 'true'
-    setOffscreenState(!isCurrentlyOffscreen)
-    setMenuIconOpenState(isCurrentlyOffscreen)
+    const opening = isCurrentlyOffscreen
+    setOffscreenState(!opening)
+    setMenuIconOpenState(opening)
+
+    if (opening && linksWrapper) {
+      const firstFocusable = linksWrapper.querySelector<HTMLElement>(
+        'a, button, [tabindex]:not([tabindex="-1"])'
+      )
+      firstFocusable?.focus()
+    }
   }
 
   function handleNavDisplayStyles(event: MediaQueryListEvent) {
@@ -50,6 +63,11 @@ export function initHeaderNav(navId: string, iconId: string) {
 
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
+
+  // On initial load at wide viewport, remove inert so the nav is reachable by keyboard.
+  if (wideNavMinWidth.matches) {
+    setOffscreenState(false)
+  }
 
   if (navToggle) {
     navToggle.addEventListener('click', handleMobileNavToggle, false)
