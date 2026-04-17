@@ -6,6 +6,7 @@ export type CollectionType =
   | 'summit-pages'
   | 'foundation-blog'
   | 'developers-blog'
+  | 'ambassadors'
 
 type Entry = Awaited<ReturnType<typeof getCollection>>[number]
 

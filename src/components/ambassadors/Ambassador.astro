@@ -1,5 +1,6 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro'
+import { defaultLocale } from '@/utils'
 
 interface Props {
   name: string
@@ -9,26 +10,37 @@ interface Props {
   quote?: string
 }
 
-const { name, photo, photoAlt, quote } = Astro.props
+const { name, pathSlug, photo, photoAlt, quote } = Astro.props
+const { routeLocale } = Astro.locals
+const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
+const fellowLink = `${langPrefix}/grant/fellowship/${pathSlug}`
 ---
 
 <article>
-  {
-    photo && (
-      <OptimizedImage
-        src={photo}
-        alt={photoAlt || name}
-        width={240}
-        height={240}
-        loading="lazy"
-        sizes="240px"
-      />
-    )
-  }
-  <div class="max-w-100">
-    <h3 class="text-step-0 font-bold">
-      {name}
-    </h3>
-    {quote && <p class="text-step--1 italic">{quote}</p>}
-  </div>
+  <a
+    href={fellowLink}
+    class="text-black no-underline"
+    umami-event=`${name} Fellow card - Fellow profile page`
+  >
+    {
+      photo && (
+        <OptimizedImage
+          src={photo}
+          alt={photoAlt || name}
+          width={240}
+          height={240}
+          loading="lazy"
+          sizes="240px"
+        />
+      )
+    }
+    <div class="max-w-100">
+      <h3
+        class="text-step-0 font-bold underline decoration-inherit text-[var(--color-primary)] transition-colors duration-300 hover:decoration-transparent"
+      >
+        {name}
+      </h3>
+      {quote && <p class="text-step--1 italic">{quote}</p>}
+    </div>
+  </a>
 </article>
