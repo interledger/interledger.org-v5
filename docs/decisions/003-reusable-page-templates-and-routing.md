@@ -16,7 +16,7 @@ The core problem has two parts:
 
 **Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries without duplicating content or route logic.
 
-Two concerns must stay separate but coordinate correctly: content composition (what components make up a page) and page rendering (where a page lives and how it looks). The bridge between them must be explicit — template type in frontmatter is what Astro reads to determine layout, routing, and how collection entries are iterated into listing views.
+Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, i.e. how templates are defined) and page rendering (where a page lives and how it looks, i.e. where it's placed in the file system, what layoputs it uses, what components it uses). The bridge between them must be explicit but can be handled in various ways (how we nest the content collections, how we link them to the correct layout for rendering, how best to iterate through collection-driven templates to create views).
 
 ## Decision
 
