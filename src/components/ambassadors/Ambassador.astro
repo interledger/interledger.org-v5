@@ -12,7 +12,8 @@ interface Props {
   grantReportUrl?: string
 }
 
-const { name, pathSlug, photo, photoAlt, quote, linkedinUrl, grantReportUrl } = Astro.props
+const { name, pathSlug, photo, photoAlt, quote, linkedinUrl, grantReportUrl } =
+  Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
