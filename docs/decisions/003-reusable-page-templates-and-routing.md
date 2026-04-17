@@ -6,20 +6,19 @@
 
 ## Context
 
-As background knoweldge
-1. As part of the redesign Jessica wants to move over to a temnplate absed approach for pages. The blogs have always been easiest for people to add because they have a set of predefine fields like title, descripotion, feature and thumbnail images, author info etc. So Jessic wants to extend this so that all grant pages folow the same format, we havea predefined FAQ page, we have one page type for all profiles (this could be team members, summit speakers, hackathon judges, fellows, etc), and so on.
-2. We will have the home pages as separate (Astro-only custom pages) and we will have a custom page type (like our summit and foudnation pages now that build up based off any selection of compoennts available through the dynamic zones).
-2. The redesign will be breaking the hackathon out into a separate microsite, so now we will have foundation pages, summit pages and hackathon pages. Let's refer to these as the three *sections* of the webiste
+The redesign introduces a template-based approach to page authoring. Blogs have always been the easiest content type to manage because they have a fixed set of fields — title, description, featured image, author info, etc. The goal is to extend this to other page types: grant pages follow a standard format, FAQs have a predefined structure, and all profiles (team members, summit speakers, hackathon judges, fellows, etc.) share a single type. Home pages remain bespoke Astro-only pages, and a custom page type continues to exist for freeform layouts built from dynamic zones.
 
-The template pages will need to work acros all sections of the webiste (foundation, summit and hackathon). The previous architecture rooted everything in a section split (summit vs. foundation), which would lead to duplicating template types on Strapi, do you want to add a foundation profile or a summit profile or a hackthon profile. This adds more options anbd clutter to the editor interface.
+The redesign also breaks the hackathon out into a separate microsite, giving the site three distinct sections: Foundation, Summit, and Hackathon.
+
+Template pages must work across all three sections. The previous architecture rooted everything in a section split, which would require duplicating template types in Strapi — a foundation profile, a summit profile, a hackathon profile — cluttering the editor interface and making the section boundary a concern it shouldn't own.
 
 The core problem has two parts:
 
-**Single-instance templates.** A single template type (e.g. "FAQ") must generate correct routes and layouts whether the content belongs to Foundation, Summit, or Hackathon. Adding a new section should not require rethinking the architecture.
+**Single-instance templates.** A template type (e.g. "FAQ") must generate correct routes and layouts regardless of which section it belongs to. Adding a new section should not require rethinking the architecture.
 
-**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages (to view details on one person) _and_ power summary/listing views (a team page view collection, or the fellows view at the bottom of the ambassadors page). These listing views need to query, filter, and group entries — fellows vs. judges, foundation vs. hackathon — without duplicating content or route logic, as efficiently and cleanly as possible.
+**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries — fellows vs. judges, foundation vs. hackathon — without duplicating content or route logic.
 
-Additionaly, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, how templates are defined) and page rendering (where a page lives and how it looks, determined by the file system, layouts and components). The bridge between them must be explicit and machine-readable. I.e. a template approach can be solved through various content collection approaches on Astro, and is either made up of custom layouts, or it can simply use rules around wjhich components it can use in what order. 
+Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page) and page rendering (where a page lives and how it looks). The bridge between them must be explicit and machine-readable — a template type is declared in Strapi and Astro acts on it, without either side needing to know the other's internals.
 
 ## Decision
 
