@@ -73,8 +73,9 @@ export function initHeaderNav(navId: string, iconId: string) {
     navToggle.addEventListener('click', handleMobileNavToggle, false)
   }
 
-  // Escape closes the mobile nav drawer and returns focus to the toggle button.
-  document.addEventListener('keydown', (event) => {
+  // Escape closes the mobile nav drawer when focus is inside it.
+  // Bound to root (not document) so it's naturally scoped and won't duplicate on re-init.
+  root.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && linksWrapper?.dataset.offscreen === 'false') {
       setOffscreenState(true)
       setMenuIconOpenState(false)
@@ -90,6 +91,7 @@ export function initHeaderNav(navId: string, iconId: string) {
  * Uses longest-prefix-match so /a/b/c activates /a/b/c before /a/b.
  * Must be called after the nav is in the DOM.
  */
+// Called once on page load; does not handle client-side navigation.
 export function markActiveNavLink(root: HTMLElement) {
   const currentPath = window.location.pathname.replace(/\/$/, '')
   const navLinks = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-nav-list] a'))
@@ -99,7 +101,8 @@ export function markActiveNavLink(root: HTMLElement) {
 
   for (const link of navLinks) {
     const linkPath = link.pathname.replace(/\/$/, '')
-    if (linkPath.length < 2) continue
+    // Skip the root path — the home link shouldn't activate from every subpage.
+    if (linkPath === '' || linkPath === '/') continue
     if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
       if (linkPath.length > bestMatchLength) {
         bestMatch = link
