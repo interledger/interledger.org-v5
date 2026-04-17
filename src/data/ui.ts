@@ -248,7 +248,7 @@ export const ui = {
     'ambassadors.no_grid':
       'No se seleccionaron embajadores para esta cuadrícula.',
     'ambassadors.page-description':
-      '{name} es embajadora de Interledger que impulsa la inclusión financiera digital abordando las barreras de acceso, asequibilidad y alfabetización financiera.',
+      '{name} forma parte del programa de Embajadores de Interledger e impulsa la inclusión financiera digital abordando las barreras de acceso, asequibilidad y alfabetización financiera.',
     'blocks.previous_slide': 'Diapositiva anterior',
     'blocks.next_slide': 'Diapositiva siguiente',
     'aria.logo.foundation': 'Fundación Interledger',

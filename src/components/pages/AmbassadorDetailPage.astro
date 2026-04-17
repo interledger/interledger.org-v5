@@ -18,7 +18,7 @@ const entry = allAmbassadors.find(
   (a) => a.data.pathSlug === slug && a.data.locale === contentLocale
 )
 
-if (!entry) return Astro.redirect('/404')
+if (!entry) throw new Error(`Ambassador not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent } = await render(entry)
 const { name, photo, photoAlt, tagline } = entry.data
