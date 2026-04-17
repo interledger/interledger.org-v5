@@ -6,9 +6,7 @@
 
 ## Context
 
-The redesign introduces a template-based approach to page authoring. Blogs have always been the easiest content type to manage because they have a fixed set of fields — title, description, featured image, author info, etc. The goal is to extend this to other page types: grant pages follow a standard format, FAQs have a predefined structure, and all profiles (team members, summit speakers, hackathon judges, fellows, etc.) share a single type. Home pages remain bespoke Astro-only pages, and a custom page type continues to exist for freeform layouts built from dynamic zones.
-
-The redesign also breaks the hackathon out into a separate microsite, giving the site three distinct sections: Foundation, Summit, and Hackathon.
+The redesign moves to a template-based approach to page authoring: grant pages, FAQs, and profiles (team members, summit speakers, hackathon judges, fellows, etc.) each follow a fixed structure. Home pages remain bespoke Astro-only pages; a custom page type continues to exist for freeform layouts. The redesign also breaks the hackathon out into a separate microsite, giving the site three sections: Foundation, Summit, and Hackathon.
 
 Template pages must work across all three sections. The previous architecture rooted everything in a section split, which would require duplicating template types in Strapi — a foundation profile, a summit profile, a hackathon profile — cluttering the editor interface and making the section boundary a concern it shouldn't own.
 
@@ -30,12 +28,7 @@ Once a template is selected, the editor provides a required field before filling
 
 - **Path** — composed from three parts in the UI: a static `interledger.org` label, a section dropdown (`/`, `/summit`, `/hackathon`), and a free-text slug field for the remaining path. Together these produce the full URL, e.g. `interledger.org/summit/speakers/jane-doe`. The section dropdown is the canonical way an editor assigns a page to a section — no free-text prefix to mistype.
 
-Both Strapi and Astro validate that the path and section stay aligned:
-
-- **Strapi** stores the section selection and slug as separate fields, combining them into the exported path. The `beforeCreate` and `beforeUpdate` lifecycle hooks validate that the combination is well-formed before saving.
-- **Astro** derives the `section` value from the stored section field at build time and verifies it has a corresponding entry in `LAYOUT_MAP`. A mismatch fails the build.
-
-This two-layer validation ensures a summit page always uses a summit layout, and a misconfigured path cannot silently produce a page in the wrong section.
+Strapi stores section and slug as separate fields and validates their combination via `beforeCreate`/`beforeUpdate` hooks. Astro verifies the section has a matching `LAYOUT_MAP` entry at build time — a mismatch fails the build.
 
 ### Template type as frontmatter bridge
 
@@ -146,7 +139,7 @@ Using a `fellows` collection, a `judges` collection, etc. mirrors the old sectio
 
 ### Strapi-enforced section/template compatibility
 
-Ideally Strapi's UI would dynamically restrict available components based on the selected template or section. This is not reliably achievable with Strapi's current conditional field support. Validation is instead enforced at build time: if template composition is incompatible with the declared section, tests catch it before import.
+Dynamic UI restrictions based on template or section are not reliably achievable with Strapi's conditional field support. Validation is enforced at build time instead.
 
 ## Consequences
 
