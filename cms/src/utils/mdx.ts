@@ -157,7 +157,7 @@ export interface HeroCta {
 interface HeroData {
   title?: string
   description?: string
-  backgroundImage?: { url?: string }
+  backgroundImage?: { url?: string; alternativeText?: string }
   hero_call_to_action?: HeroCta[]
 }
 
@@ -175,6 +175,7 @@ export function heroFrontmatter(
   const heroImage = getImageUrl(hero.backgroundImage)
   if (heroImage) {
     data.heroImage = heroImage
+    data.heroImageAlt = hero.backgroundImage?.alternativeText ?? ''
   }
   const ctas = hero.hero_call_to_action?.filter((c) => c.text && c.link)
   if (ctas && ctas.length > 0) {

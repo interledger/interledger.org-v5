@@ -9,4 +9,68 @@
     color: var(--color-primary);
     text-decoration-line: none;
   }
+
+  /* Shared responsive wrapper used by Foundation/Summit header menus. */
+  .header-nav-wrapper {
+    will-change: transform;
+  }
+
+  @media (min-width: 1060px) {
+    .header-nav-wrapper {
+      grid-column-start: 2;
+      grid-column-end: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 1059px) {
+    .header-nav-wrapper {
+      position: absolute;
+      right: 0;
+      top: var(--site-header-height);
+      border-top-width: 1px;
+      border-top-style: solid;
+      transition-property: transform;
+      transition-duration: var(--duration-slow);
+    }
+
+    .header-nav-wrapper[data-offscreen='true'] {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .header-nav-wrapper {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 480px) and (max-width: 1059px) {
+    .header-nav-wrapper {
+      width: max-content;
+    }
+  }
+
+  @media (min-width: 1060px) {
+    .header-nav-wrapper {
+      position: relative;
+      top: 0;
+      right: 0;
+      transform: none;
+      background: transparent;
+      border-width: 0;
+    }
+  }
+
+  .header-nav-wrapper--foundation {
+    background: white;
+    border-top-color: var(--color-gray-header);
+  }
+
+  .header-nav-wrapper--summit {
+    background: black;
+    border-top-color: var(--color-gray-header);
+  }
 }

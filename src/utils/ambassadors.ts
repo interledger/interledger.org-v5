@@ -25,6 +25,10 @@ export const toAmbassadorData = (
     pathSlug: entry.pathSlug,
     photo,
     photoAlt,
-    quote: entry.quote
+    quote: entry.quote,
+    ...(!isAmbassadorFrontmatterType(entry) && {
+      linkedinUrl: entry.linkedinUrl,
+      grantReportUrl: entry.grantReportUrl
+    })
   }
 }

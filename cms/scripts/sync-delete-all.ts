@@ -19,6 +19,7 @@ import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
 import { getProjectRoot, LOCALES } from '@/utils'
+import { assertStrapiRunning } from './ensureStrapiRunning'
 import {
   createStrapiClient,
   type StrapiClient,
@@ -170,6 +171,7 @@ Default collections: ${DEFAULT_COLLECTIONS.join(', ')}
     process.exit(1)
   }
 
+  await assertStrapiRunning(baseUrl)
   const strapi = createStrapiClient({ baseUrl, token })
 
   if (dryRun) {

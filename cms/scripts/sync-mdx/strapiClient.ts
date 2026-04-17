@@ -16,7 +16,7 @@ export interface StrapiClient {
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, or null. */
   findUploadByUrl: (url: string) => Promise<number | null>
   /** Update the alternativeText (alt text) on a Strapi upload file record. */
-  updateUploadAlt: (id: number, alternativeText: string) => Promise<void>
+  updateUploadAlt: (id: number, alternativeText: string | null) => Promise<void>
   findUploadByName: (name: string) => Promise<number | null>
   createLocalization: (
     apiId: string,
@@ -247,7 +247,7 @@ export function createStrapiClient({
 
   async function updateUploadAlt(
     id: number,
-    alternativeText: string
+    alternativeText: string | null
   ): Promise<void> {
     const formData = new FormData()
     formData.append('fileInfo', JSON.stringify({ alternativeText }))

@@ -101,12 +101,12 @@ export const ui = {
     'carousel.previous': 'Previous slide',
     'carousel.next': 'Next slide',
     'carousel.go_to': 'Go to slide {number}',
+    'profile.biography': 'Biography',
     'summit.recording_available': 'recording available',
     'summit.available_translations': 'Available translations',
     'summit.no_speakers': 'No speakers to display',
     'summit.speakers': 'Speakers',
     'summit.sessions': 'Sessions',
-    'summit.biography': 'Biography',
     'summit.session_recording': 'Session Recording',
     'summit.session_description': 'Session Description',
     'summit.no_data': 'No data available for {title}',
@@ -117,12 +117,16 @@ export const ui = {
     'ambassadors.ambassadors': 'Ambassadors',
     'ambassadors.no_ambassadors': 'No ambassadors to display.',
     'ambassadors.no_grid': 'No ambassadors selected for this grid.',
+    'ambassadors.page-description':
+      '{name} is an Interledger Ambassador advancing digital financial inclusion by tackling barriers to access, affordability, and financial literacy.',
     'blocks.previous_slide': 'Previous slide',
     'blocks.next_slide': 'Next slide',
     'aria.logo.foundation': 'Interledger Foundation',
     'aria.logo.summit': 'Interledger Summit',
     'aria.logo.foundation_title': 'Interledger Foundation',
-    'aria.logo.github': 'Interledger Github'
+    'aria.logo.github': 'Interledger Github',
+    'aria.ambassador.grant_report': 'View grant report',
+    'aria.linkedin': 'View LinkedIn profile'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -228,12 +232,12 @@ export const ui = {
     'carousel.previous': 'Diapositiva anterior',
     'carousel.next': 'Diapositiva siguiente',
     'carousel.go_to': 'Ir a la diapositiva {number}',
+    'profile.biography': 'Biografía',
     'summit.recording_available': 'grabación disponible',
     'summit.available_translations': 'Traducciones disponibles',
     'summit.no_speakers': 'No hay ponentes para mostrar',
     'summit.speakers': 'Ponentes',
     'summit.sessions': 'Sesiones',
-    'summit.biography': 'Biografía',
     'summit.session_recording': 'Grabación de la sesión',
     'summit.session_description': 'Descripción de la sesión',
     'summit.no_data': 'No hay datos disponibles para {title}',
@@ -245,11 +249,15 @@ export const ui = {
     'ambassadors.no_ambassadors': 'No hay embajadores para mostrar.',
     'ambassadors.no_grid':
       'No se seleccionaron embajadores para esta cuadrícula.',
+    'ambassadors.page-description':
+      '{name} forma parte del programa de Embajadores de Interledger e impulsa la inclusión financiera digital abordando las barreras de acceso, asequibilidad y alfabetización financiera.',
     'blocks.previous_slide': 'Diapositiva anterior',
     'blocks.next_slide': 'Diapositiva siguiente',
     'aria.logo.foundation': 'Fundación Interledger',
     'aria.logo.summit': 'Cumbre Interledger',
     'aria.logo.foundation_title': 'Fundación Interledger',
-    'aria.logo.github': 'GitHub de Interledger'
+    'aria.logo.github': 'GitHub de Interledger',
+    'aria.ambassador.grant_report': 'Ver informe de subvención',
+    'aria.linkedin': 'Ver perfil de LinkedIn'
   }
 } as const

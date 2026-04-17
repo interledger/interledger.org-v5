@@ -62,23 +62,34 @@ function buildParsedPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  existing: StrapiEntry | null
+  existing: StrapiEntry | null,
+  strapiUploadContext: StrapiUploadContext,
+  updatedAltIds: Map<number, string | null>,
+  dryRun: boolean
 ) {
   const locale = mdx.locale || 'en'
-  return buildPagePayload(schema, mdx, existing, {
-    locale,
-    resolveRelation: createRelationResolver(strapi, locale),
-    resolveMediaUpload: async (url: string) => {
-      const id = await strapi.findUploadByUrl(url)
-      if (!id) {
-        throw new MdxParserError({
-          code: ParserErrorCode.UNRESOLVED_RELATION,
-          message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-        })
+  return buildPagePayload(
+    schema,
+    mdx,
+    existing,
+    {
+      locale,
+      resolveRelation: createRelationResolver(strapi, locale),
+      resolveMediaUpload: async (url: string) => {
+        const id = await strapi.findUploadByUrl(url)
+        if (!id) {
+          throw new MdxParserError({
+            code: ParserErrorCode.UNRESOLVED_RELATION,
+            message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+          })
+        }
+        return id
       }
-      return id
-    }
-  })
+    },
+    strapiUploadContext,
+    updatedAltIds,
+    dryRun
+  )
 }
 
 export function buildContentTypes(
@@ -88,8 +99,9 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const ambassadorAltIds = new Map<number, string>()
-  const blogAltIds = new Map<number, string>()
+  const ambassadorAltIds = new Map<number, string | null>()
+  const blogAltIds = new Map<number, string | null>()
+  const pageAltIds = new Map<number, string | null>()
 
   return {
     ambassadors: {
@@ -109,24 +121,40 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
       schema: foundationPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing, _dryRun) =>
+      buildPayload: (mdx, strapi, existing, dryRun) =>
         buildParsedPagePayload(
           foundationPageFrontmatterSchema,
           mdx,
           strapi,
-          existing
+          existing,
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun
+          },
+          pageAltIds,
+          dryRun
         )
     },
     'summit-pages': {
       dir: getContentPath(projectRoot, 'summitPages'),
       apiId: 'summit-pages',
       schema: summitPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing, _dryRun) =>
+      buildPayload: (mdx, strapi, existing, dryRun) =>
         buildParsedPagePayload(
           summitPageFrontmatterSchema,
           mdx,
           strapi,
-          existing
+          existing,
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun
+          },
+          pageAltIds,
+          dryRun
         )
     },
     'foundation-blog-posts': {

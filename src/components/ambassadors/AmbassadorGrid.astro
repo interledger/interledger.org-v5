@@ -55,7 +55,10 @@ if (propAmbassadors) {
   // Fetch ambassadors by category from the content collection
   const allAmbassadors = await getCollection('ambassadors')
   ambassadors = allAmbassadors
-    .filter((entry) => entry.data.category === category)
+    .filter(
+      (entry) =>
+        entry.data.category === category && entry.data.locale === routeLocale
+    )
     .map((entry) => toAmbassadorData(entry.data))
 }
 ---
@@ -70,8 +73,10 @@ if (propAmbassadors) {
             name={ambassador.name}
             pathSlug={ambassador.pathSlug}
             photo={ambassador.photo || undefined}
-            photoAlt={ambassador.photoAlt || ambassador.name}
+            photoAlt={ambassador.photoAlt ?? ambassador.name}
             quote={ambassador.quote || undefined}
+            linkedinUrl={ambassador.linkedinUrl || undefined}
+            grantReportUrl={ambassador.grantReportUrl || undefined}
           />
         ))}
       </div>
