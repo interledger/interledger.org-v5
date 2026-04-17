@@ -13,22 +13,20 @@ export async function assertStrapiRunning(
   timeoutMs = 4000
 ): Promise<void> {
   const normalized = baseUrl.replace(/\/+$/, '')
-  const probeUrls = [`${normalized}/_health`, `${normalized}/admin`]
+  const probeUrl = `${normalized}/_health`
 
   let lastError: unknown = null
 
-  for (const url of probeUrls) {
-    try {
-      const response = await withTimeout(
-        (signal) => fetch(url, { method: 'GET', signal }),
-        timeoutMs
-      )
+  try {
+    const response = await withTimeout(
+      (signal) => fetch(probeUrl, { method: 'GET', signal }),
+      timeoutMs
+    )
 
-      // Any HTTP response means the server is reachable (even 401/403/404).
-      if (response.status >= 100) return
-    } catch (error) {
-      lastError = error
-    }
+    // Any HTTP response means the server is reachable (even 401/403/404).
+    if (response.status >= 100) return
+  } catch (error) {
+    lastError = error
   }
 
   const reason =
