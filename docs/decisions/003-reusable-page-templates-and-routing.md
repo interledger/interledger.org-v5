@@ -29,16 +29,14 @@ Editors create a new page by choosing a template type first: FAQ, grant, profile
 Once a template is selected, the editor provides two required fields before filling in content:
 
 - **Locale** — the language of this entry (`en` or `es`).
-- **Path** — the full URL path for the page, including any section prefix. For example, `/summit/speakers/jane-doe` or `/hackathon/judges/ali-hassan`. Foundation pages have no prefix: `/fellows/jane-doe`.
-
-The path prefix is the mechanism by which an editor assigns a page to a section. There is no separate section dropdown — the path makes the section explicit and human-readable.
+- **Path** — composed from three parts in the UI: a static `interledger.org` label, a section dropdown (`/`, `/summit`, `/hackathon`), and a free-text slug field for the remaining path. Together these produce the full URL, e.g. `interledger.org/summit/speakers/jane-doe`. The section dropdown is the canonical way an editor assigns a page to a section — no free-text prefix to mistype.
 
 Both Strapi and Astro validate that the path and section stay aligned:
 
-- **Strapi** validates on submission that the path prefix matches a known section (`/summit/`, `/hackathon/`, or no prefix for foundation). An invalid prefix is rejected before the content is saved.
-- **Astro** derives the `section` value from the path prefix at build time and verifies it has a corresponding entry in `LAYOUT_MAP`. A mismatch fails the build.
+- **Strapi** stores the section selection and slug as separate fields, combining them into the exported path. The `beforeCreate` and `beforeUpdate` lifecycle hooks validate that the combination is well-formed before saving.
+- **Astro** derives the `section` value from the stored section field at build time and verifies it has a corresponding entry in `LAYOUT_MAP`. A mismatch fails the build.
 
-This two-layer validation ensures a summit path always uses a summit layout, and a misconfigured path cannot silently produce a page in the wrong section.
+This two-layer validation ensures a summit page always uses a summit layout, and a misconfigured path cannot silently produce a page in the wrong section.
 
 ### Template type as frontmatter bridge
 
@@ -49,7 +47,7 @@ Collection entries carry four frontmatter fields that drive routing, layout sele
 ```
 templateType: profile   # selects components and layout
 category: fellow        # used by listing views to filter within a collection
-section: foundation     # derived from path prefix; determines layout component
+section: foundation     # set via section dropdown; determines layout component
 locale: en              # drives translation routing and listing view filtering
 ```
 
