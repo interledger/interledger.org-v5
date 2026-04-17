@@ -6,11 +6,12 @@ An ADR captures a single technical decision: the context that forced it, what wa
 
 ## Decisions
 
-| #   | Title                                       | Status   | Date       |
-| --- | ------------------------------------------- | -------- | ---------- |
-| 001 | Path handling for Astro content collections | Accepted | 2026-03-27 |
-| 002 | Spanish fallback disclaimer behavior        | Proposed | 2026-04-09 |
-| 004 | Locale-prefix routing for translations      | Proposed | 2026-04-17 |
+| #   | Title                                             | Status   | Date       |
+| --- | ------------------------------------------------- | -------- | ---------- |
+| 001 | Path handling for Astro content collections       | Accepted | 2026-03-27 |
+| 002 | Spanish fallback disclaimer behavior              | Proposed | 2026-04-09 |
+| 003 | Reusable page templates and cross-section routing | Proposed | 2026-04-17 |
+| 004 | Locale-prefix routing for translations            | Proposed | 2026-04-17 |
 
 ## Writing a new ADR
 
