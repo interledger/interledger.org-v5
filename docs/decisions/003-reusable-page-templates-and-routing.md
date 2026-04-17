@@ -16,7 +16,7 @@ The core problem has two parts:
 
 **Single-instance templates.** A template type (e.g. "FAQ" which is just a single page instance) must generate correct routes and layouts regardless of which section it belongs to. Adding a new section should not require rethinking the architecture.
 
-**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries efficiently (probably usinga  category field) without duplicating content or route logic.
+**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries efficiently (probably using a category field) without duplicating content or route logic.
 
 Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, i.e. how templates are defined) and page rendering (where a page lives and how it looks, i.e. where it's placed in the file system, what layoputs it uses, what components it uses). The bridge between them must be explicit but can be handled in various ways (how we nest the content collections, how we link them to the correct layout for rendering, how best to iterate through collection-driven templates to create views).
 
@@ -26,12 +26,13 @@ Additionally, two concerns must stay separate but coordinate correctly: content 
 
 When an editor creates a page in Strapi, `templateType` and `section` fields are written into the exported MDX frontmatter. Astro reads this to select the correct components and layout.
 
-Collection entries carry three frontmatter fields that drive routing, layout selection, and filtering:
+Collection entries carry four frontmatter fields that drive routing, layout selection, and filtering:
 
 ```
 templateType: profile   # selects components and layout
 category: fellow        # used by listing views to filter within a collection
 section: foundation     # determines URL prefix and layout component
+locale: en              # drives translation routing and listing view filtering
 ```
 
 ### Single catch-all route
@@ -100,11 +101,11 @@ We should also ensure that when a page is added as a file on Astro, that we fail
 
 ### Listing views via frontmatter filters
 
-Because all profiles share a single collection, listing views filter by frontmatter — no separate collections or route logic required:
+Because all profiles share a single collection, listing views filter by frontmatter — no separate collections or route logic required. Locale must always be included as a filter so listing views only surface content in the correct language:
 
 ```ts
 const fellows = await getCollection('profiles',
-  entry => entry.data.category === 'fellow'
+  entry => entry.data.category === 'fellow' && entry.data.locale === currentLocale
 );
 ```
 
