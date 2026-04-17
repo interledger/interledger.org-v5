@@ -53,14 +53,14 @@ src/pages/[...slug].astro
 export async function getStaticPaths() {
   const allContent = [
     ...(await getCollection('profiles')),
-    ...(await getCollection('faqs')),
+    ...(await getCollection('faqs'))
     // add new collections here when new templates are added
-  ];
+  ]
 
-  return allContent.map(entry => ({
+  return allContent.map((entry) => ({
     params: { slug: buildPagePath(entry.data.section, entry.slug) },
-    props: { entry },
-  }));
+    props: { entry }
+  }))
 }
 ```
 
@@ -72,12 +72,12 @@ URL paths are assembled from a `PREFIX_MAP`:
 export const PREFIX_MAP: Record<Section, string> = {
   foundation: '',
   summit: 'summit',
-  hackathon: 'hackathon',
-};
+  hackathon: 'hackathon'
+}
 
 export function buildPagePath(section: Section, slug: string): string {
-  const prefix = PREFIX_MAP[section];
-  return [prefix, slug].filter(Boolean).join('/');
+  const prefix = PREFIX_MAP[section]
+  return [prefix, slug].filter(Boolean).join('/')
 }
 ```
 
@@ -87,15 +87,16 @@ The correct layout component is selected at render time from a `LAYOUT_MAP`:
 export const LAYOUT_MAP: Record<Section, AstroComponent> = {
   foundation: FoundationContentPage,
   summit: SummitContentPage,
-  hackathon: HackathonContentPage,
-};
+  hackathon: HackathonContentPage
+}
 ```
 
 ```astro
 ---
-const { entry } = Astro.props;
-const Layout = LAYOUT_MAP[entry.data.section];
+const { entry } = Astro.props
+const Layout = LAYOUT_MAP[entry.data.section]
 ---
+
 <Layout slug={entry.slug} contentLocale={entry.data.locale} />
 ```
 
@@ -108,9 +109,11 @@ Build-time validation also checks that the components used in an MDX file are co
 Because all profiles share a single collection, listing views filter by frontmatter — no separate collections or route logic required. Locale must always be included as a filter so listing views only surface content in the correct language:
 
 ```ts
-const fellows = await getCollection('profiles',
-  entry => entry.data.category === 'fellow' && entry.data.locale === currentLocale
-);
+const fellows = await getCollection(
+  'profiles',
+  (entry) =>
+    entry.data.category === 'fellow' && entry.data.locale === currentLocale
+)
 ```
 
 ### Developer ownership surface
