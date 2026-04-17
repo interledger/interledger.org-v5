@@ -117,6 +117,8 @@ export const ui = {
     'ambassadors.ambassadors': 'Ambassadors',
     'ambassadors.no_ambassadors': 'No ambassadors to display.',
     'ambassadors.no_grid': 'No ambassadors selected for this grid.',
+    'ambassadors.page-description':
+      '{name} is an Interledger Ambassador advancing digital financial inclusion by tackling barriers to access, affordability, and financial literacy.',
     'blocks.previous_slide': 'Previous slide',
     'blocks.next_slide': 'Next slide',
     'aria.logo.foundation': 'Interledger Foundation',
@@ -245,6 +247,8 @@ export const ui = {
     'ambassadors.no_ambassadors': 'No hay embajadores para mostrar.',
     'ambassadors.no_grid':
       'No se seleccionaron embajadores para esta cuadrícula.',
+    'ambassadors.page-description':
+      '{name} es embajadora de Interledger que impulsa la inclusión financiera digital abordando las barreras de acceso, asequibilidad y alfabetización financiera.',
     'blocks.previous_slide': 'Diapositiva anterior',
     'blocks.next_slide': 'Diapositiva siguiente',
     'aria.logo.foundation': 'Fundación Interledger',

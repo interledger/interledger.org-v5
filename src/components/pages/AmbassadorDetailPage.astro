@@ -25,7 +25,7 @@ const { name, photo, photoAlt, tagline } = entry.data
 
 const image = photo ?? '/sessionize-speakers/img/no-photo.svg'
 const title = `${name} | Interledger Foundation`
-const description = `${name} is an Interledger Fellow advancing digital financial inclusion by tackling barriers to access, affordability, and financial literacy.`
+const description = t('ambassadors.page-description', { name })
 ---
 
 <FoundationPageLayout title={title} description={description}>
