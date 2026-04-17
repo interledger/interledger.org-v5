@@ -22,16 +22,34 @@ Additionally, two concerns must stay separate but coordinate correctly: content 
 
 ## Decision
 
+### Editor experience in Strapi
+
+Editors create a new page by choosing a template type first: FAQ, grant, profile, or custom page. The template type determines what fields are available and what the page composition looks like — not which section it belongs to.
+
+Once a template is selected, the editor provides two required fields before filling in content:
+
+- **Locale** — the language of this entry (`en` or `es`).
+- **Path** — the full URL path for the page, including any section prefix. For example, `/summit/speakers/jane-doe` or `/hackathon/judges/ali-hassan`. Foundation pages have no prefix: `/fellows/jane-doe`.
+
+The path prefix is the mechanism by which an editor assigns a page to a section. There is no separate section dropdown — the path makes the section explicit and human-readable.
+
+Both Strapi and Astro validate that the path and section stay aligned:
+
+- **Strapi** validates on submission that the path prefix matches a known section (`/summit/`, `/hackathon/`, or no prefix for foundation). An invalid prefix is rejected before the content is saved.
+- **Astro** derives the `section` value from the path prefix at build time and verifies it has a corresponding entry in `LAYOUT_MAP`. A mismatch fails the build.
+
+This two-layer validation ensures a summit path always uses a summit layout, and a misconfigured path cannot silently produce a page in the wrong section.
+
 ### Template type as frontmatter bridge
 
-When an editor creates a page in Strapi, `templateType` and `section` fields are written into the exported MDX frontmatter. Astro reads this to select the correct components and layout.
+When an editor creates a page in Strapi, the `templateType`, `section` (derived from the path prefix), and `locale` fields are written into the exported MDX frontmatter. Astro reads these to select the correct collection, layout, and rendering behaviour.
 
 Collection entries carry four frontmatter fields that drive routing, layout selection, and filtering:
 
 ```
 templateType: profile   # selects components and layout
 category: fellow        # used by listing views to filter within a collection
-section: foundation     # determines URL prefix and layout component
+section: foundation     # derived from path prefix; determines layout component
 locale: en              # drives translation routing and listing view filtering
 ```
 
@@ -111,12 +129,13 @@ const fellows = await getCollection('profiles',
 
 ### Developer ownership surface
 
-Developers own exactly two things:
+Developers own exactly three things:
 
 - **New section** — add to `PREFIX_MAP`, `LAYOUT_MAP`, and create the layout component.
 - **New content collection** — add to `getStaticPaths`.
+- **Template composition** — define the rules for each template type, enforce them at build time, and expose the required fields in Strapi.
 
-Everything else — URL slugs, template composition, page content — is owned by editors in Strapi.
+Everything else — URL slugs, page content — can be handled directly by editors in Strapi.
 
 ## Alternatives considered
 
@@ -146,4 +165,4 @@ Ideally Strapi's UI would dynamically restrict available components based on the
 
 - All pages share a single route file; the routing surface is less immediately legible than file-based routes.
 - `PREFIX_MAP` and `LAYOUT_MAP` must be kept in sync manually — a section added to one but not the other will break the build.
-- Strapi cannot validate section/template compatibility at content-creation time; mismatches are only caught at build.
+- Strapi does not validate section/template compatibility by default; mismatches are only caught at build unless `beforeCreate` and `beforeUpdate` lifecycle hooks are added to enforce path prefix rules at save time.
