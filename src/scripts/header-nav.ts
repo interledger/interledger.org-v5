@@ -94,7 +94,9 @@ export function initHeaderNav(navId: string, iconId: string) {
 // Called once on page load; does not handle client-side navigation.
 export function markActiveNavLink(root: HTMLElement) {
   const currentPath = window.location.pathname.replace(/\/$/, '')
-  const navLinks = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-nav-list] a'))
+  const navLinks = Array.from(
+    root.querySelectorAll<HTMLAnchorElement>('[data-nav-list] a')
+  )
 
   let bestMatch: HTMLAnchorElement | null = null
   let bestMatchLength = 0
