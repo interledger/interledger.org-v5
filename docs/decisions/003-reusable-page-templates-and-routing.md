@@ -14,17 +14,17 @@ Template pages must work across all three sections. The previous architecture ro
 
 The core problem has two parts:
 
-**Single-instance templates.** A template type (e.g. "FAQ") must generate correct routes and layouts regardless of which section it belongs to. Adding a new section should not require rethinking the architecture.
+**Single-instance templates.** A template type (e.g. "FAQ" which is just a single page instance) must generate correct routes and layouts regardless of which section it belongs to. Adding a new section should not require rethinking the architecture.
 
-**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries — fellows vs. judges, foundation vs. hackathon — without duplicating content or route logic.
+**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries efficiently (probably usinga  category field) without duplicating content or route logic.
 
-Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page) and page rendering (where a page lives and how it looks). The bridge between them must be explicit and machine-readable — a template type is declared in Strapi and Astro acts on it, without either side needing to know the other's internals.
+Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, i.e. how templates are defined) and page rendering (where a page lives and how it looks, i.e. where it's placed in the file system, what layoputs it uses, what components it uses). The bridge between them must be explicit but can be handled in various ways (how we nest the content collections, how we link them to the correct layout for rendering, how best to iterate through collection-driven templates to create views).
 
 ## Decision
 
 ### Template type as frontmatter bridge
 
-When an editor creates a page in Strapi, a `templateType` field is written into the exported MDX frontmatter. Astro reads this to select the correct components and layout. Strapi has no knowledge of Astro's rendering — it only records intent.
+When an editor creates a page in Strapi, `templateType` and `section` fields are written into the exported MDX frontmatter. Astro reads this to select the correct components and layout.
 
 Collection entries carry three frontmatter fields that drive routing, layout selection, and filtering:
 
@@ -49,7 +49,7 @@ export async function getStaticPaths() {
   const allContent = [
     ...(await getCollection('profiles')),
     ...(await getCollection('faqs')),
-    // add new collections here when created
+    // add new collections here when new templates are added
   ];
 
   return allContent.map(entry => ({
@@ -67,7 +67,7 @@ URL paths are assembled from a `PREFIX_MAP`:
 export const PREFIX_MAP: Record<Section, string> = {
   foundation: '',
   summit: 'summit',
-  hackathon: 'summit/hackathon',
+  hackathon: 'hackathon',
 };
 
 export function buildPagePath(section: Section, slug: string): string {
@@ -94,7 +94,9 @@ const Layout = LAYOUT_MAP[entry.data.section];
 <Layout slug={entry.slug} contentLocale={entry.data.locale} />
 ```
 
-If a `section` value appears in content with no matching entry in `LAYOUT_MAP`, the build fails loudly.
+If a `section` value appears in content with no matching entry in `LAYOUT_MAP`, the build fails.
+
+We should also ensure that when a page is added as a file on Astro, that we fail if it breaks the template requirements for that `templateType`
 
 ### Listing views via frontmatter filters
 
