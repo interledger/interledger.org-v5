@@ -50,7 +50,7 @@ const developersHref = translatePath(
                 src={blogPostEntry.data.thumbnailImage}
                 width="250"
                 height="250"
-                alt={blogPostEntry.data.thumbnailImageAlt}
+                alt={blogPostEntry.data.thumbnailImageAlt ?? ''}
                 class="w-62.5 h-62.5 object-cover"
               />
             )}

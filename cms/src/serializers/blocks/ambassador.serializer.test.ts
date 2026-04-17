@@ -49,11 +49,22 @@ describe('ambassador serializer', () => {
     expect(result).toContain('photoAlt="Portrait of Alice"')
   })
 
-  it('falls back to empty string when photo has no alternativeText', () => {
+  it('omits photoAlt when photo has no alternativeText', () => {
     const result = serialize({
       ambassador: {
         ...baseAmbassador,
         photo: { id: 1, url: '/uploads/alice.jpg' }
+      }
+    })
+
+    expect(result).not.toContain('photoAlt=')
+  })
+
+  it('emits photoAlt="" when alternativeText is explicitly empty (decorative image)', () => {
+    const result = serialize({
+      ambassador: {
+        ...baseAmbassador,
+        photo: { id: 1, url: '/uploads/alice.jpg', alternativeText: '' }
       }
     })
 

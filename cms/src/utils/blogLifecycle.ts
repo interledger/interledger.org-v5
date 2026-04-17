@@ -48,7 +48,7 @@ interface BlogResult {
   articleBio?: {
     author: string
     profileBio?: string
-    profileImage?: { url: string; name: string }
+    profileImage?: { url: string; name: string; alternativeText?: string }
   }[]
   tags?: { tagValue: string }[]
   localizations: { pathSlug: string }[]
@@ -113,6 +113,9 @@ function generateBlogMDX(post: BlogResult) {
               bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
               bio.profileImage
                 ? `\n    image: ${yqs(bio.profileImage.url)}`
+                : null,
+              bio.profileImage
+                ? `\n    imageAlt: ${yqs(bio.profileImage.alternativeText ?? '')}`
                 : null
             ]
               .filter(Boolean)
@@ -131,14 +134,14 @@ function generateBlogMDX(post: BlogResult) {
     post.featureImage?.url
       ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
-    post.featureImage?.alternativeText
-      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText)}`
+    post.featureImage?.url
+      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText ?? '')}`
       : null,
     post.thumbnailImage?.url
       ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
       : null,
-    post.thumbnailImage?.alternativeText
-      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText)}`
+    post.thumbnailImage?.url
+      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
     post.tags

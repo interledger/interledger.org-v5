@@ -58,7 +58,7 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
                   {item.image && (
                     <img
                       src={item.image.url}
-                      alt={item.image.alternativeText || item.author || ''}
+                      alt={item.image.alternativeText ?? ''}
                       class="w-[60px] h-[60px] rounded-full object-cover"
                     />
                   )}

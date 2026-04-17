@@ -24,8 +24,8 @@ const t = useTranslations(routeLocale)
 
 // Transform Strapi ambassador data to the format expected by AmbassadorGrid
 // Convert markdown description to HTML for preview rendering
-const ambassadors: AmbassadorData[] = await Promise.all(
-  strapiAmbassadors.map(async (amb) => toAmbassadorData(amb))
+const ambassadors: AmbassadorData[] = strapiAmbassadors.map((amb) =>
+  toAmbassadorData(amb)
 )
 ---
 

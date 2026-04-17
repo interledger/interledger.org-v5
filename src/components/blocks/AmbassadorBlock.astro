@@ -20,7 +20,7 @@ if (!ambassador) {
 }
 
 const photoUrl = ambassador.photo?.url
-const photoAlt = ambassador.photo?.alternativeText || ambassador.name
+const photoAlt = ambassador.photo?.alternativeText ?? ambassador.name
 ---
 
 <Ambassador

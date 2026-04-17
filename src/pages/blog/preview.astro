@@ -31,8 +31,8 @@ const frontmatter = {
   locale: article.locale,
   date: article.publishedAt,
   pillar: article.pillar,
-  featureImage: article.featuredImage?.url,
-  featureImageAlt: article.featuredImage?.alternativeText,
+  featureImage: article.featureImage?.url,
+  featureImageAlt: article.featureImage?.alternativeText ?? '',
   articleBios: [],
   tags: []
 }

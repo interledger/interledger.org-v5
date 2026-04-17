@@ -92,6 +92,7 @@ async function getImageFromStrapi(
 interface StrapiHeroPayload {
   title: string
   description: string
+  backgroundImage?: number | null
   hero_call_to_action?: Array<{
     text: string
     link: string
@@ -129,6 +130,65 @@ function buildHeroPayload(
 }
 
 /**
+ * Resolves hero from frontmatter (title, description, CTAs), preserves the
+ * existing Strapi hero when those fields are omitted, and optionally syncs
+ * heroImage / heroImageAlt to Strapi uploads (including alt patches).
+ */
+async function buildHeroWithImage(
+  parsed: Record<string, unknown>,
+  existingEntry: StrapiEntry | null,
+  strapiUploadContext: StrapiUploadContext | undefined,
+  updatedAltIds: Map<number, string | null>,
+  pathSlug: string,
+  dryRun: boolean
+): Promise<Record<string, unknown> | undefined> {
+  const existingHeroRaw = getEntryField(existingEntry, 'hero')
+  const existingHero =
+    existingHeroRaw && typeof existingHeroRaw === 'object'
+      ? { ...(existingHeroRaw as Record<string, unknown>) }
+      : null
+
+  let heroPayload: Record<string, unknown> | undefined
+  if (parsed.heroTitle || parsed.heroDescription) {
+    heroPayload = buildHeroPayload(
+      parsed.heroTitle as string | undefined,
+      parsed.heroDescription as string | undefined,
+      parsed.title as string,
+      parsed.heroCtas as HeroCta[] | undefined
+    ) as unknown as Record<string, unknown>
+  } else if (existingHero) {
+    heroPayload = existingHero
+  }
+
+  const hasHeroImageField = Object.prototype.hasOwnProperty.call(
+    parsed,
+    'heroImage'
+  )
+  if (hasHeroImageField && strapiUploadContext) {
+    const heroImage = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed.heroImage as string | undefined,
+      alt: parsed.heroImageAlt as string | null | undefined
+    })
+    if (!heroPayload) heroPayload = {}
+    const hero = heroPayload as unknown as StrapiHeroPayload
+    hero.backgroundImage = heroImage ?? null
+
+    if (heroImage && parsed.heroImageAlt !== undefined) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        heroImage,
+        nullOrValue(parsed.heroImageAlt),
+        updatedAltIds,
+        pathSlug,
+        dryRun
+      )
+    }
+  }
+
+  return heroPayload
+}
+
+/**
  * Builds a Strapi payload for a page-type MDX file.
  *
  * This function:
@@ -148,7 +208,10 @@ export async function buildPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  strapiUploadContext?: StrapiUploadContext,
+  updatedAltIds: Map<number, string | null> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown>> {
   // Validate frontmatter against schema (throws if invalid)
   const parsed = schema.parse({
@@ -164,19 +227,17 @@ export async function buildPagePayload(
     ...(parsed.pillar ? { pillar: parsed.pillar } : {})
   }
 
-  // Handle hero section — use frontmatter fields if present, otherwise preserve existing
-  if (parsed.heroTitle || parsed.heroDescription) {
-    data.hero = buildHeroPayload(
-      parsed.heroTitle as string | undefined,
-      parsed.heroDescription as string | undefined,
-      parsed.title as string,
-      parsed.heroCtas as HeroCta[] | undefined
-    )
-  } else {
-    const existingHero = getEntryField(existingEntry, 'hero')
-    if (existingHero) {
-      data.hero = existingHero
-    }
+  const heroPayload = await buildHeroWithImage(
+    parsed,
+    existingEntry,
+    strapiUploadContext,
+    updatedAltIds,
+    mdx.pathSlug,
+    dryRun
+  )
+
+  if (heroPayload) {
+    data.hero = heroPayload
   }
 
   // Handle content import
@@ -238,8 +299,8 @@ function nullOrValue(v: unknown): string | null {
 async function updateUploadAltOnce(
   strapi: StrapiClient,
   id: number,
-  alt: string,
-  updatedAltIds: Map<number, string>,
+  alt: string | null,
+  updatedAltIds: Map<number, string | null>,
   pathSlug: string,
   dryRun: boolean
 ): Promise<void> {
@@ -281,7 +342,7 @@ export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
-  updatedAltIds: Map<number, string> = new Map(),
+  updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown>> {
   schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -295,12 +356,15 @@ export async function buildAmbassadorPayload(
   }
 
   if (photoId) {
-    const photoAlt = nullOrValue(mdx.frontmatter.photoAlt as string)
-    if (photoAlt) {
+    const photoAltFrontmatter = mdx.frontmatter.photoAlt as
+      | string
+      | null
+      | undefined
+    if (photoAltFrontmatter !== undefined) {
       await updateUploadAltOnce(
         strapi,
         photoId,
-        photoAlt,
+        nullOrValue(photoAltFrontmatter),
         updatedAltIds,
         mdx.pathSlug,
         dryRun
@@ -338,7 +402,7 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string> = new Map(),
+  updatedAltIds: Map<number, string | null> = new Map(),
   parserCtx?: ParserContext,
   dryRun = false
 ): Promise<Record<string, unknown>> {
@@ -364,33 +428,48 @@ export async function buildBlogPayload(
   const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
 
   const articleBio = await Promise.all(
-    (parsed.articleBios ?? []).map(async (bio) => ({
-      author: bio.author,
-      profileBio: bio.text || null,
-      profileImage:
+    (parsed.articleBios ?? []).map(async (bio) => {
+      const profileImageId =
         (await getImageFromStrapi(strapiUploadContext, {
           image: bio.image
         })) || null
-    }))
+
+      if (profileImageId && bio.imageAlt !== undefined) {
+        await updateUploadAltOnce(
+          strapiUploadContext.strapi,
+          profileImageId,
+          nullOrValue(bio.imageAlt),
+          updatedAltIds,
+          mdx.pathSlug,
+          dryRun
+        )
+      }
+
+      return {
+        author: bio.author,
+        profileBio: bio.text || null,
+        profileImage: profileImageId
+      }
+    })
   )
 
   // getImageFromStrapi only sets alt text on newly uploaded files.
   // For existing files (found by name), patch alt text explicitly.
-  if (featureImage && parsed.featureImageAlt) {
+  if (featureImage && parsed.featureImageAlt !== undefined) {
     await updateUploadAltOnce(
       strapiUploadContext.strapi,
       featureImage,
-      parsed.featureImageAlt,
+      nullOrValue(parsed.featureImageAlt),
       updatedAltIds,
       mdx.pathSlug,
       dryRun
     )
   }
-  if (thumbnailImage && parsed.thumbnailImageAlt) {
+  if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
     await updateUploadAltOnce(
       strapiUploadContext.strapi,
       thumbnailImage,
-      parsed.thumbnailImageAlt,
+      nullOrValue(parsed.thumbnailImageAlt),
       updatedAltIds,
       mdx.pathSlug,
       dryRun

@@ -13,7 +13,6 @@ export interface AmbassadorBase {
   name: string
   description?: string
   photo?: MediaFile | null
-  photoAlt?: string | null
   category?: string | null
   tagline?: string | null
   quote?: string | null
