@@ -14,6 +14,7 @@ import dotenv from 'dotenv'
 import { spawnSync } from 'child_process'
 import { LOCALES, defaultLang } from '@/utils/mdx'
 import { assertRunFromCms, getConfigPath, getProjectRoot } from '@/utils'
+import { assertStrapiRunning } from './ensureStrapiRunning'
 const DRY_RUN = process.argv.includes('--dry-run')
 const FORCE = process.argv.includes('--force')
 
@@ -232,6 +233,7 @@ async function main() {
     process.exit(1)
   }
 
+  await assertStrapiRunning(STRAPI_URL)
   await syncAllNavigations(projectRoot, STRAPI_URL, STRAPI_TOKEN)
 
   if (DRY_RUN) {

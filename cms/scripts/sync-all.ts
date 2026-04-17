@@ -6,7 +6,7 @@
  *   pnpm run sync:all --force    # bypass branch check for mdx and navigation
  */
 
-import { execSync } from 'child_process'
+import { spawnSync } from 'child_process'
 
 const FORCE = process.argv.includes('--force')
 
@@ -18,5 +18,13 @@ const scripts = [
 
 for (const cmd of scripts) {
   console.log(`\n▶ ${cmd}\n`)
-  execSync(cmd, { stdio: 'inherit' })
+  const result = spawnSync(cmd, {
+    stdio: 'inherit',
+    shell: true
+  })
+
+  if (result.status !== 0) {
+    console.error(`\n❌ sync:all stopped because "${cmd}" failed.`)
+    process.exit(result.status ?? 1)
+  }
 }
