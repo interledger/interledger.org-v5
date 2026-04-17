@@ -6,15 +6,11 @@
 
 ## Context
 
-The redesign moves to a template-based approach to page authoring: grant pages, FAQs, and profiles (team members, summit speakers, hackathon judges, fellows, etc.) each follow a fixed structure. Home pages remain bespoke Astro-only pages; a custom page type continues to exist for freeform layouts. The redesign also breaks the hackathon out into a separate microsite, giving the site three sections: Foundation, Summit, and Hackathon.
+The redesign moves to a template-based approach: grant pages, FAQs, and profiles each follow a fixed structure. The site also splits into three sections — Foundation, Summit, and Hackathon — after the hackathon becomes a separate microsite.
 
-Template pages must work across all three sections. The previous architecture rooted everything in a section split, which would require duplicating template types in Strapi — a foundation profile, a summit profile, a hackathon profile — cluttering the editor interface and making the section boundary a concern it shouldn't own.
+Templates must work across all three sections without duplicating template types in Strapi. Two problems make this non-trivial:
 
-The core problem has two parts:
-
-**Single-instance templates.** A template type (e.g. "FAQ") must generate correct routes and layouts regardless of which section it belongs to. Adding a new section should not require rethinking the architecture.
-
-**Collection-driven templates.** Some templates (e.g. profiles) must do two things: generate individual routed pages and power summary and listing views (a team page, or the fellows section on the ambassadors page). These listing views need to query, filter, and group entries without duplicating content or route logic.
+**Single-instance templates** (e.g. FAQ) must generate correct routes and layouts regardless of section. **Collection-driven templates** (e.g. profiles) must also power listing and summary views — filtering by category and locale — without duplicating content or route logic.
 
 Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, i.e. how templates are defined) and page rendering (where a page lives and how it looks, i.e. where it's placed in the file system, what layoputs it uses, what components it uses). The bridge between them must be explicit but can be handled in various ways (how we nest the content collections, how we link them to the correct layout for rendering, how best to iterate through collection-driven templates to create views).
 
@@ -129,17 +125,11 @@ Everything else — URL slugs, page content — can be handled directly by edito
 
 ## Alternatives considered
 
-### Section-first routing (status quo)
+**Section-first routing (status quo)** — routes split by section, not template. Adding a new section is a structural change and may force template logic to be duplicated per section.
 
-The existing approach roots everything in a section split: summit pages and foundation pages live in separate route trees. This makes adding a new section (e.g. hackathon) a structural change rather than a configuration change, and forces template logic to be duplicated per section.
+**Separate collections per profile category** — a `fellows` collection, a `judges` collection, etc. Requires a developer change for every new category.
 
-### Separate collections per profile category
-
-Using a `fellows` collection, a `judges` collection, etc. mirrors the old section-first pattern at the collection level. It requires a developer change every time a new category is introduced, and makes cross-category queries (e.g. "all profiles for the hackathon") needlessly complex.
-
-### Strapi-enforced section/template compatibility
-
-Dynamic UI restrictions based on template or section are not reliably achievable with Strapi's conditional field support. Validation is enforced at build time instead.
+**Strapi-led template+section compatibility** — dynamic UI restrictions are not reliably achievable with Strapi's conditional field support. Validation will need to be enforced at build time instead.
 
 ## Consequences
 
