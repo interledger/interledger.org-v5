@@ -19,7 +19,7 @@ const {
   listClass = 'flex items-center p-0 list-none',
   itemClass = "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none",
   linkClass = 'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
-} = Astro.props as Props
+} = Astro.props
 
 const entry = translationMap[currentSlug]
 function toDefaultSectionHref(locale: Locale, basePath: string): string {

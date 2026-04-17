@@ -9,3 +9,8 @@ export interface MenuGroup {
   href?: string
   items?: MenuItem[]
 }
+
+export interface NavigationData {
+  mainMenu: MenuGroup[]
+  ctaButton?: MenuItem
+}

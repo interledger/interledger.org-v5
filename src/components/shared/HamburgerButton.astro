@@ -1,11 +1,14 @@
 ---
+import { useTranslations } from '@/utils'
+
 interface Props {
   menuId: string
   iconId: string
 }
 
 const { menuId, iconId } = Astro.props
-
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 const barClass =
   'absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out'
 ---
@@ -14,8 +17,8 @@ const barClass =
   type="button"
   class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
   aria-controls={menuId}
-  aria-label="Toggle Menu"
-  title="Toggle Menu"
+  aria-label={t('nav.toggle_menu')}
+  title={t('nav.toggle_menu')}
   data-nav-toggle
 >
   <div

@@ -7,13 +7,18 @@ import FoundationLogo from '../logos/FoundationLogo.astro'
 import FoundationNavMenu from '../shared/foundation-header/FoundationNavMenu.astro'
 import FoundationNavActions from '../shared/foundation-header/FoundationNavActions.astro'
 import HamburgerButton from '../shared/HamburgerButton.astro'
-import foundationNavigation from '@/config/foundation-navigation.json'
-import type { MenuGroup, MenuItem } from '@/types/navigation'
 
-const { mainMenu, ctaButton } = foundationNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
+import {
+  translatePath,
+  HOME_CONTENT_SLUG,
+  useTranslations,
+  getNavigation
+} from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
 ---
 
 <header
@@ -28,12 +33,12 @@ const { mainMenu, ctaButton } = foundationNavigation as {
     data-nav
   >
     <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
-      Main Navigation
+      {t('nav.main')}
     </h2>
     <a
-      href="/"
+      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
       class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
-      aria-label="Interledger Foundation"
+      aria-label={t('aria.logo.foundation')}
       data-umami-event="Site Nav - Logo"
     >
       <FoundationLogo class="text-black" />

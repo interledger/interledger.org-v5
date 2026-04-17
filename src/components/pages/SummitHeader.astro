@@ -4,17 +4,24 @@
  * Composes navigation menu, action links, and mobile toggle.
  */
 import FoundationLogo from '../logos/FoundationLogo.astro'
-import { ROUTE_BASES } from '@/utils/routes'
+import {
+  getNavigation,
+  useTranslations,
+  translatePath,
+  HOME_CONTENT_SLUG
+} from '@/utils'
 import SummitNavMenu from '../shared/summit-header/SummitNavMenu.astro'
 import SummitNavActions from '../shared/summit-header/SummitNavActions.astro'
 import HamburgerButton from '../shared/HamburgerButton.astro'
-import summitNavigation from '@/config/summit-navigation.json'
-import type { MenuGroup, MenuItem } from '@/types/navigation'
 
-const { mainMenu, ctaButton } = summitNavigation as {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
+const { routeLocale } = Astro.locals
+const { mainMenu, ctaButton } = getNavigation('summit', routeLocale)
+const t = useTranslations(routeLocale)
+const summitHomePath = translatePath(
+  'summit-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
 ---
 
 <header
@@ -28,13 +35,11 @@ const { mainMenu, ctaButton } = summitNavigation as {
     id="block-summit-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">
-      Summit Navigation
-    </h2>
+    <h2 class="sr-only" id="block-summit-navigation-menu">{t('nav.summit')}</h2>
     <a
-      href={ROUTE_BASES['summit-pages']}
+      href={summitHomePath}
       class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
-      aria-label="Interledger Summit"
+      aria-label={t('aria.logo.summit')}
       data-umami-event="Summit Nav - Logo"
     >
       <FoundationLogo class="text-white" />
