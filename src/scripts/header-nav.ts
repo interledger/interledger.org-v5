@@ -73,7 +73,47 @@ export function initHeaderNav(navId: string, iconId: string) {
     navToggle.addEventListener('click', handleMobileNavToggle, false)
   }
 
+  // Escape closes the mobile nav drawer and returns focus to the toggle button.
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && linksWrapper?.dataset.offscreen === 'false') {
+      setOffscreenState(true)
+      setMenuIconOpenState(false)
+      navToggle?.focus()
+    }
+  })
+
   initSubmenuToggle(root)
+}
+
+/**
+ * Marks the single best-matching nav link as active based on current path.
+ * Uses longest-prefix-match so /a/b/c activates /a/b/c before /a/b.
+ * Must be called after the nav is in the DOM.
+ */
+export function markActiveNavLink(root: HTMLElement) {
+  const currentPath = window.location.pathname.replace(/\/$/, '')
+  const navLinks = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-nav-list] a'))
+
+  let bestMatch: HTMLAnchorElement | null = null
+  let bestMatchLength = 0
+
+  for (const link of navLinks) {
+    const linkPath = link.pathname.replace(/\/$/, '')
+    if (linkPath.length < 2) continue
+    if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
+      if (linkPath.length > bestMatchLength) {
+        bestMatch = link
+        bestMatchLength = linkPath.length
+      }
+    }
+  }
+
+  if (bestMatch) {
+    bestMatch.setAttribute('data-active', 'true')
+    bestMatch.setAttribute('aria-current', 'page')
+    const parentMenu = bestMatch.closest("[data-menu-level='1']")
+    parentMenu?.querySelector('button')?.setAttribute('data-active', 'true')
+  }
 }
 
 function flashPrevention(element: Element) {
