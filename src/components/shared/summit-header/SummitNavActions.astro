@@ -9,8 +9,7 @@ interface Props {
 const { ctaButton } = Astro.props
 
 const rightNavBase =
-  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444]'
-const rightNavLinkClass = `${rightNavBase} whitespace-nowrap max-[1059px]:hidden`
+  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hover:bg-[#444] max-[1059px]:hidden'
 const ctaLinkClass = rightNavBase
 
 const langItemClass =
@@ -37,12 +36,5 @@ const langLinkClass =
       </a>
     )
   }
-  <a
-    href="/"
-    class={rightNavLinkClass}
-    data-umami-event="Summit Nav - Interledger Foundation"
-  >
-    Interledger Foundation
-  </a>
   <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
 </div>
