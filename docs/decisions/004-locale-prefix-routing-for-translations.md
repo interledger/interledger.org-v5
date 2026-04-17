@@ -45,8 +45,10 @@ No Strapi query, no mapping table, no risk of staleness.
 `hreflang` pairs are derivable from the current URL without any lookup:
 
 ```ts
-const enUrl = canonicalUrl.replace(/^\/es\//, '/');
-const esUrl = canonicalUrl.startsWith('/es/') ? canonicalUrl : `/es${canonicalUrl}`;
+const enUrl = canonicalUrl.replace(/^\/es\//, '/')
+const esUrl = canonicalUrl.startsWith('/es/')
+  ? canonicalUrl
+  : `/es${canonicalUrl}`
 ```
 
 ### Redirect table
