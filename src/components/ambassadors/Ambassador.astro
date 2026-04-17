@@ -32,7 +32,7 @@ const hasLinks = linkedinUrl || grantReportUrl
       photo && (
         <OptimizedImage
           src={photo}
-          alt={photoAlt || name}
+          alt={photoAlt ?? name}
           width={240}
           height={240}
           loading="lazy"
