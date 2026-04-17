@@ -26,9 +26,8 @@ Two concerns must stay separate but coordinate correctly: content composition (w
 
 Editors create a new page by choosing a template type first: FAQ, grant, profile, or custom page. The template type determines what fields are available and what the page composition looks like — not which section it belongs to.
 
-Once a template is selected, the editor provides two required fields before filling in content:
+Once a template is selected, the editor provides a required field before filling in content:
 
-- **Locale** — the language of this entry (`en` or `es`).
 - **Path** — composed from three parts in the UI: a static `interledger.org` label, a section dropdown (`/`, `/summit`, `/hackathon`), and a free-text slug field for the remaining path. Together these produce the full URL, e.g. `interledger.org/summit/speakers/jane-doe`. The section dropdown is the canonical way an editor assigns a page to a section — no free-text prefix to mistype.
 
 Both Strapi and Astro validate that the path and section stay aligned:
