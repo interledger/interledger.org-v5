@@ -4,23 +4,7 @@ import foundationEn from '@/config/foundation-navigation.json'
 import foundationEs from '@/config/foundation-navigation.es.json'
 import summitEn from '@/config/summit-navigation.json'
 import summitEs from '@/config/summit-navigation.es.json'
-
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
-
-interface NavigationData {
-  mainMenu: MenuGroup[]
-  ctaButton?: MenuItem
-}
+import type { NavigationData } from '@/types/navigation'
 
 const navigationMap: Record<string, Record<string, NavigationData>> = {
   foundation: {
