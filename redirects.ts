@@ -128,5 +128,5 @@ export const redirects = {
   '/network-fees-interledger-ecosystem':
     '/policy-and-advocacy/network-fees-interledger-ecosystem',
   '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
+    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions'
 }
