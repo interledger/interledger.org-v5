@@ -14,6 +14,8 @@ export const redirects = {
   '/grant-web': '/grant/grant-web',
   '/hacktoberfest-0': '/hacktoberfest',
   '/hacktoberfest-2023': '/hacktoberfest',
+  '/grant/ambassadors': '/grant/fellowship',
+  '/grant/ambassadors/faq': '/grant/fellowship/faq',
 
   // Foundation + site pages (Spanish)
   '/es/open-payments-es': '/es/open-payments',
@@ -23,6 +25,8 @@ export const redirects = {
   '/es/grant-web': '/es/grant/grant-web',
   '/es/grant/educacion': '/es/grant/education',
   '/es/grant/embajadores': '/es/grant/ambassadors',
+  '/es/grant/ambassadors': '/es/grant/fellowship',
+  '/es/grant/ambassadors/faq': '/es/grant/fellowship/faq',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
@@ -124,5 +128,5 @@ export const redirects = {
   '/network-fees-interledger-ecosystem':
     '/policy-and-advocacy/network-fees-interledger-ecosystem',
   '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions'
+    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
 }
