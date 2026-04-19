@@ -167,7 +167,8 @@ export default {
         li.id = 'staging-site-nav-link'
         const a = li.querySelector('a')
         if (a) {
-          const labelClass = settingsLink?.querySelector('span')?.className ?? ''
+          const labelClass =
+            settingsLink?.querySelector('span')?.className ?? ''
           a.href = 'https://staging--interledger-org-v5.netlify.app/'
           a.target = '_blank'
           a.rel = 'noopener noreferrer'
@@ -194,7 +195,7 @@ export default {
               whiteSpace: 'nowrap',
               pointerEvents: 'none',
               zIndex: '9999',
-              display: 'none',
+              display: 'none'
             })
             document.body.appendChild(tooltip)
             a.addEventListener('mouseenter', () => {
