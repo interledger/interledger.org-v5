@@ -5,6 +5,7 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
+  normalizeNavigationInput,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
@@ -1003,6 +1004,31 @@ export default {
             }
             return
           }
+        }
+        await next()
+      }
+    )
+
+    // Normalize nav href fields (force leading slash) before saving to DB
+    const NAV_PATTERN =
+      /\/content-manager\/single-types\/api::(foundation|summit)-navigation\./
+    strapi.server?.use?.(
+      async (
+        ctx: {
+          method?: string
+          url?: string
+          request?: { body?: Record<string, unknown> }
+        },
+        next: () => Promise<void>
+      ) => {
+        if (
+          (ctx.method === 'PUT' || ctx.method === 'POST') &&
+          NAV_PATTERN.test(ctx.url ?? '') &&
+          ctx.request?.body
+        ) {
+          normalizeNavigationInput(
+            ctx.request.body as Parameters<typeof normalizeNavigationInput>[0]
+          )
         }
         await next()
       }

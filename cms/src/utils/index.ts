@@ -61,5 +61,6 @@ export {
 } from './flatContentLifecycle'
 export {
   type NavigationLifecycleConfig,
-  createNavigationLifecycle
+  createNavigationLifecycle,
+  normalizeNavigationInput
 } from './navigationLifecycle'
