@@ -1,5 +1,8 @@
-name: Publish
-# Publish a specific commit to the target environment branch.
+name: Force Reset
+# Manual-only workflow for force-pushing a specific commit SHA to production or playground.
+# Use this to roll forward or back to any known commit in either environment.
+# Not applicable to staging — staging is the default branch and must preserve full history; its head is never reset.
+# Requires a full 40-character SHA — authenticated via a GitHub App token to bypass branch protections.
 
 on:
   workflow_dispatch:
