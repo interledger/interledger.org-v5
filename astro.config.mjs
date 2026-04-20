@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config'
 import { fileURLToPath } from 'node:url'
-import { redirects } from './redirects.js'
+import { redirects } from './redirects.ts'
 import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
