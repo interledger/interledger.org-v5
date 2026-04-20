@@ -157,6 +157,67 @@ export default {
         openEntityLi.style.display = 'none'
       }
 
+      // TEMP UI Fix: staging link below Settings (clone Settings row DOM, replace anchor only)
+      const settingsLink = document.querySelector<HTMLAnchorElement>(
+        'nav a[href="/admin/settings"]'
+      )
+      const settingsLi = settingsLink?.closest('li')
+      if (settingsLi && !document.getElementById('staging-site-nav-link')) {
+        const li = settingsLi.cloneNode(true) as HTMLLIElement
+        li.id = 'staging-site-nav-link'
+        const a = li.querySelector('a')
+        if (a) {
+          const labelClass =
+            settingsLink?.querySelector('span')?.className ?? ''
+          a.href = 'https://staging--interledger-org-v5.netlify.app/'
+          a.target = '_blank'
+          a.rel = 'noopener noreferrer'
+          a.setAttribute('aria-label', 'Staging site')
+          a.removeAttribute('aria-current')
+          a.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20" fill="#8e8ea9" aria-hidden="true" focusable="false">
+              <path d="M156,228a12,12,0,0,1-12,12H112a12,12,0,0,1,0-24h32A12,12,0,0,1,156,228ZM128,116a16,16,0,1,0-16-16A16,16,0,0,0,128,116Zm99.53,40.7-12.36,55.63a19.9,19.9,0,0,1-12.88,14.53A20.16,20.16,0,0,1,195.6,228a19.87,19.87,0,0,1-12.29-4.27L157.17,204H98.83L72.69,223.74A19.87,19.87,0,0,1,60.4,228a20.16,20.16,0,0,1-6.69-1.15,19.9,19.9,0,0,1-12.88-14.53L28.47,156.7a20.1,20.1,0,0,1,4.16-17.14l27.83-33.4A127,127,0,0,1,69.11,69.7c13.27-33.25,37-54.1,46.64-61.52a20,20,0,0,1,24.5,0c9.6,7.42,33.37,28.27,46.64,61.52a127,127,0,0,1,8.65,36.46l27.83,33.4A20.1,20.1,0,0,1,227.53,156.7ZM101.79,180h52.42c19.51-35.7,23-69.78,10.39-101.4C154.4,53,136.2,35.9,128,29.12,119.8,35.9,101.6,53,91.4,78.6,78.78,110.22,82.28,144.3,101.79,180Zm-22.55,8.72a168,168,0,0,1-16.92-47.3l-10,12,10.58,47.64Zm124.43-35.31-10-12a168,168,0,0,1-16.92,47.3l16.33,12.33Z"/>
+            </svg>
+            <span class="${labelClass}">Staging</span>`
+
+          if (!document.getElementById('staging-site-tooltip')) {
+            const tooltip = document.createElement('div')
+            tooltip.id = 'staging-site-tooltip'
+            tooltip.textContent = 'Staging Site'
+            Object.assign(tooltip.style, {
+              position: 'fixed',
+              background: '#32324D',
+              color: '#ffffff',
+              padding: '8px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              zIndex: '9999',
+              display: 'none'
+            })
+            document.body.appendChild(tooltip)
+            const showTooltip = () => {
+              const rect = li.getBoundingClientRect()
+              tooltip.style.left = `${rect.right + 8}px`
+              tooltip.style.top = `${rect.top + rect.height / 2}px`
+              tooltip.style.transform = 'translateY(-50%)'
+              tooltip.style.display = 'block'
+            }
+            const hideTooltip = () => {
+              tooltip.style.display = 'none'
+            }
+            a.addEventListener('mouseenter', showTooltip)
+            a.addEventListener('mouseleave', hideTooltip)
+            a.addEventListener('focusin', showTooltip)
+            a.addEventListener('focusout', hideTooltip)
+          }
+
+          settingsLi.insertAdjacentElement('afterend', li)
+        }
+      }
+
       // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
