@@ -70,4 +70,4 @@ export { getOptimizedImage } from './images'
 export { toAmbassadorData } from './ambassadors'
 
 // GitHub
-export { type RawGitHubParts, parseRawGitHubPath } from './parseRawGitHubPath'
+export { parseRawGitHubPath } from './parseRawGitHubPath'

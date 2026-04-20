@@ -1,4 +1,4 @@
-export type RawGitHubParts = {
+type RawGitHubParts = {
   branch: string
   sourcePath: string
 }
