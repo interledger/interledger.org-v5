@@ -1,5 +1,5 @@
 ---
-import { getTagUrl, useTranslations } from '@/utils'
+import { getTagUrl, translateTag, useTranslations } from '@/utils'
 interface Props {
   allTags: string[]
   selectedTag?: string
@@ -32,7 +32,7 @@ const inactiveClass = ['bg-white']
           class:list={selectedTag === tag ? activeClass : inactiveClass}
           data-umami-event={`Blog tag filter - ${tag}`}
         >
-          {tag}
+          {translateTag(tag, t)}
         </a>
       ))
     }

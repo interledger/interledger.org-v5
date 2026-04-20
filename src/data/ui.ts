@@ -126,7 +126,21 @@ export const ui = {
     'aria.logo.foundation_title': 'Interledger Foundation',
     'aria.logo.github': 'Interledger Github',
     'aria.ambassador.grant_report': 'View grant report',
-    'aria.linkedin': 'View LinkedIn profile'
+    'aria.linkedin': 'View LinkedIn profile',
+    'blog.tags.interledger-protocol': 'Interledger Protocol',
+    'blog.tags.open-payments': 'Open Payments',
+    'blog.tags.rafiki': 'Rafiki',
+    'blog.tags.releases': 'Releases',
+    'blog.tags.updates': 'Updates',
+    'blog.tags.web-monetization': 'Web Monetization',
+    'blog.tags.card-payments': 'Card Payments',
+    'blog.tags.integration': 'Integration',
+    'blog.tags.work-week': 'Work Week',
+    'blog.tags.announcements': 'Announcements',
+    'blog.tags.community-&-events': 'Community & Events',
+    'blog.tags.grants-&-grantee-insights': 'Grants & Grantee Insights',
+    'blog.tags.interledger-technology': 'Interledger Technology',
+    'blog.tags.thought-leadership': 'Thought Leadership'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -258,6 +272,20 @@ export const ui = {
     'aria.logo.foundation_title': 'Fundación Interledger',
     'aria.logo.github': 'GitHub de Interledger',
     'aria.ambassador.grant_report': 'Ver informe de subvención',
-    'aria.linkedin': 'Ver perfil de LinkedIn'
+    'aria.linkedin': 'Ver perfil de LinkedIn',
+    'blog.tags.interledger-protocol': 'Protocolo Interledger',
+    'blog.tags.open-payments': 'Open Payments',
+    'blog.tags.rafiki': 'Rafiki',
+    'blog.tags.releases': 'Lanzamientos',
+    'blog.tags.updates': 'Actualizaciones',
+    'blog.tags.web-monetization': 'Web Monetization',
+    'blog.tags.card-payments': 'Pagos con Tarjeta',
+    'blog.tags.integration': 'Integración',
+    'blog.tags.work-week': 'Semana de Trabajo',
+    'blog.tags.announcements': 'Anuncios',
+    'blog.tags.community-&-events': 'Comunidad y Eventos',
+    'blog.tags.grants-&-grantee-insights': 'Subvenciones e Información de Beneficiarios',
+    'blog.tags.interledger-technology': 'Tecnología Interledger',
+    'blog.tags.thought-leadership': 'Liderazgo de Opinión'
   }
 } as const

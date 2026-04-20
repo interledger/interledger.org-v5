@@ -33,7 +33,9 @@ const developersTags = [
   'Releases',
   'Updates',
   'Web Monetization',
-  'Card Payments'
+  'Card Payments',
+  'Integration',
+  'Work Week'
   // Please add a matching translation in src/data/ui.ts for any new tag
 ] as const
 export type FoundationTag = (typeof foundationTags)[number]
