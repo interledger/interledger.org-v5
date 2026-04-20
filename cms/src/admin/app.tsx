@@ -198,16 +198,20 @@ export default {
               display: 'none'
             })
             document.body.appendChild(tooltip)
-            a.addEventListener('mouseenter', () => {
+            const showTooltip = () => {
               const rect = li.getBoundingClientRect()
               tooltip.style.left = `${rect.right + 8}px`
               tooltip.style.top = `${rect.top + rect.height / 2}px`
               tooltip.style.transform = 'translateY(-50%)'
               tooltip.style.display = 'block'
-            })
-            a.addEventListener('mouseleave', () => {
+            }
+            const hideTooltip = () => {
               tooltip.style.display = 'none'
-            })
+            }
+            a.addEventListener('mouseenter', showTooltip)
+            a.addEventListener('mouseleave', hideTooltip)
+            a.addEventListener('focusin', showTooltip)
+            a.addEventListener('focusout', hideTooltip)
           }
 
           settingsLi.insertAdjacentElement('afterend', li)
