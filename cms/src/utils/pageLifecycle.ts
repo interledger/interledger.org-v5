@@ -113,8 +113,8 @@ function normalizePathSlug(pathSlug: unknown): string {
  * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
  * Segments before the last `/` are directories; the last segment is the filename stem.
  *
- * English: grant/ambassadors → {outputDir}/grant/ambassadors.mdx
- * Spanish: grant/ambassadors → {outputDir}/es/grant/ambassadors.mdx
+ * English: grant/fellowship → {outputDir}/grant/fellowship.mdx
+ * Spanish: grant/fellowship → {outputDir}/es/grant/fellowship.mdx
  * English: about-us         → {outputDir}/about-us.mdx
  */
 export function resolvePageFilepath(
