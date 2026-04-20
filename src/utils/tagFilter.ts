@@ -11,10 +11,7 @@ export function getTagSlug(tag: string) {
   return tag.toLowerCase().replace(/\s+/g, '-')
 }
 
-export function translateTag(
-  tag: string,
-  t: (key: UiKey) => string
-): string {
+export function translateTag(tag: string, t: (key: UiKey) => string): string {
   const key = `blog.tags.${getTagSlug(tag)}` as UiKey
   return t(key) || tag
 }

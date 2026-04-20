@@ -249,7 +249,8 @@ export const ui = {
     'blog.tags.work-week': 'Semana de Trabajo',
     'blog.tags.announcements': 'Anuncios',
     'blog.tags.community-&-events': 'Comunidad y Eventos',
-    'blog.tags.grants-&-grantee-insights': 'Subvenciones e Información de Beneficiarios',
+    'blog.tags.grants-&-grantee-insights':
+      'Subvenciones e Información de Beneficiarios',
     'blog.tags.interledger-technology': 'Tecnología Interledger',
     'blog.tags.thought-leadership': 'Liderazgo de Opinión',
     'pagination.pages': 'Páginas de {label}',
