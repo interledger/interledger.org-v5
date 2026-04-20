@@ -1,4 +1,8 @@
-name: Merge Push Workflow
+name: Build and Sync
+# Runs on push to staging or playground only — not prod (prod has no Strapi instance, so no build or sync applies).
+# Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
+# and/or syncs MDX content and navigation JSON to Strapi if those files changed.
+# Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
   # Run on pushes to merge branches.
