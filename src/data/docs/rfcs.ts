@@ -8,7 +8,7 @@ export type PublishedRfc = {
   sourceRawUrl: string
 }
 
-export const PUBLISHED_RFCS = [
+const PUBLISHED_RFCS = [
   {
     id: 'interledger-protocol',
     title: 'Interledger Protocol V4 (ILPv4)',
@@ -88,9 +88,11 @@ export const PUBLISHED_RFCS = [
   }
 ] as const satisfies readonly PublishedRfc[]
 
+const DOCS_BASE_PATH = '/developers'
+
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
   label: rfc.title,
-  link: rfc.route
+  link: `${DOCS_BASE_PATH}${rfc.route}`
 }))
 
 export function getPublishedRfcRouteBySourcePath(): Map<string, string> {
