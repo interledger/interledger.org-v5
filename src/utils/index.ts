@@ -1,5 +1,5 @@
 // URL & routing
-export { stripTrailingSlash } from './url'
+export { stripTrailingSlash, addTrailingSlash } from './url'
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
@@ -68,3 +68,6 @@ export { getOptimizedImage } from './images'
 
 // Ambassadors
 export { toAmbassadorData } from './ambassadors'
+
+// GitHub
+export { type RawGitHubParts, parseRawGitHubPath } from './parseRawGitHubPath'

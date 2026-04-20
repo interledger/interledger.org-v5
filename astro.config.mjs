@@ -75,11 +75,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Overview',
-          link: '/get-started'
+          link: '/developers/get-started'
         },
         {
           label: 'Get involved',
-          link: '/get-involved'
+          link: '/developers/get-involved'
         },
         {
           label: 'Specifications',

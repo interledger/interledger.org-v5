@@ -1,4 +1,5 @@
-import { parseRawGitHubPath } from '@/utils/parseRawGitHubPath'
+import { addTrailingSlash } from '../../utils/url'
+import { parseRawGitHubPath } from '../../utils/parseRawGitHubPath'
 
 export type PublishedRfc = {
   id: string
@@ -99,7 +100,7 @@ export function getPublishedRfcRouteBySourcePath(): Map<string, string> {
         rfc.sourceRawUrl,
         'raw GitHub URL'
       )
-      return [sourcePath, withTrailingSlash(rfc.route)]
+      return [sourcePath, addTrailingSlash(rfc.route)]
     })
   )
 }
@@ -112,8 +113,4 @@ export function getRfcById(id: PublishedRfc['id']): PublishedRfc {
   }
 
   return rfc
-}
-
-function withTrailingSlash(route: string): string {
-  return route.endsWith('/') ? route : `${route}/`
 }
