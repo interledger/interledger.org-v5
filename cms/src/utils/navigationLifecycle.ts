@@ -40,22 +40,30 @@ export interface NavigationLifecycleConfig<
   populate: Modules.Documents.Params.Populate.Any<T>
 }
 
+function normalizeHref(href: string | null | undefined): string | undefined {
+  if (!href) return undefined
+  if (href.startsWith('/') || href.startsWith('http')) return href
+  return `/${href}`
+}
+
 export function sanitizeMenuItem(
   item: MenuItem | null | undefined
 ): MenuItem | null {
   if (!item) return null
+  const href = normalizeHref(item.href)
   return {
     label: item.label,
-    ...(item.href ? { href: item.href } : {}),
+    ...(href ? { href } : {}),
     ...(item.openInNewTab ? { openInNewTab: true } : {})
   }
 }
 
 export function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
   const items = group.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
+  const href = normalizeHref(group.href)
   return {
     label: group.label,
-    ...(group.href ? { href: group.href } : {}),
+    ...(href ? { href } : {}),
     ...(items && items.length > 0 ? { items: items as MenuItem[] } : {})
   }
 }
@@ -208,10 +216,35 @@ async function exportAndCommitNavigation<T extends UID.ContentType>(
   }
 }
 
+export function normalizeNavigationInput(data: NavigationData): void {
+  data.mainMenu?.forEach((group) => {
+    group.href = normalizeHref(group.href) ?? group.href
+    group.items?.forEach((item) => {
+      item.href = normalizeHref(item.href) ?? item.href
+    })
+  })
+  if (data.ctaButton) {
+    data.ctaButton.href =
+      normalizeHref(data.ctaButton.href) ?? data.ctaButton.href
+  }
+}
+
+interface BeforeEvent {
+  params: { data: NavigationData }
+}
+
 export function createNavigationLifecycle<T extends UID.ContentType>(
   config: NavigationLifecycleConfig<T>
 ) {
   return {
+    beforeCreate(event: BeforeEvent) {
+      normalizeNavigationInput(event.params.data)
+    },
+
+    beforeUpdate(event: BeforeEvent) {
+      normalizeNavigationInput(event.params.data)
+    },
+
     async afterCreate(_event: Event) {
       await exportAndCommitNavigation(config, 'Create')
     },
