@@ -3,6 +3,27 @@
   base = "/"
   publish = "dist"
 
+# Redirect old singular summit routes to plural (EN and ES)
+[[redirects]]
+  from = "/summit/:year/talk/:slug"
+  to = "/summit/:year/talks/:slug"
+  status = 301
+
+[[redirects]]
+  from = "/summit/:year/speaker/:slug"
+  to = "/summit/:year/speakers/:slug"
+  status = 301
+
+[[redirects]]
+  from = "/es/summit/:year/talk/:slug"
+  to = "/es/summit/:year/talks/:slug"
+  status = 301
+
+[[redirects]]
+  from = "/es/summit/:year/speaker/:slug"
+  to = "/es/summit/:year/speakers/:slug"
+  status = 301
+
 [dev]
   command = "pnpm install && pnpm run build"
   base = "/"

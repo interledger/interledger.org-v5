@@ -88,25 +88,47 @@ export const redirects = {
   '/es/summit/hackathon/resources/documentation':
     '/es/summit/hackaton/recursos/open-payments',
 
-  // Summit talks and speakers
+  // Summit talks and speakers (plural routes + old singular redirects)
+  // New plural routes
+  '/summit/2024/talks/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
+    '/summit/2024/talks/future-payments-your-pocket',
+  '/summit/2024/talks/get-started-interledger-tech-stack':
+    '/summit/2024/talks/codius-fireside-chat',
+  '/summit/2025/talks/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
+  '/summit/2025/talks/kanzu-code': '/summit/2025/talks/kanzu-finance',
+  '/summit/2025/talks/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
+    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
+  '/summit/2025/talks/use-regional-sub-networks-permissionless-use-interledger':
+    '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talks/closing-pleanary': '/summit/2025/talks/closing-plenary',
+  '/summit/2025/talks/miplata':
+    '/summit/2025/talks/miplata-payroll-reaches-home',
+  '/summit/2025/talks/liquidity': '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talks/prototype-production-activating-real-world-web-monetization-chimoney-app':
+    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
+  '/summit/2025/speakers/alan-davids': '/summit/2025/speakers/allan-davids',
+  '/summit/2025/speakers/alejandra-cullen':
+    '/summit/2025/speakers/alejandra-cullen-benitez',
+  // Old singular routes (redirect directly to final destination)
   '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
-    '/summit/2024/talk/future-payments-your-pocket',
+    '/summit/2024/talks/future-payments-your-pocket',
   '/summit/2024/talk/get-started-interledger-tech-stack':
-    '/summit/2024/talk/codius-fireside-chat',
-  '/summit/2025/talk/rafiki': '/summit/2025/talk/evolution-rafiki-2025',
-  '/summit/2025/talk/kanzu-code': '/summit/2025/talk/kanzu-finance',
+    '/summit/2024/talks/codius-fireside-chat',
+  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
+  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
   '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
-    '/summit/2025/talk/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
+    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
   '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
-    '/summit/2025/talk/keynote-liquidity',
-  '/summit/2025/talk/closing-pleanary': '/summit/2025/talk/closing-plenary',
-  '/summit/2025/talk/miplata': '/summit/2025/talk/miplata-payroll-reaches-home',
-  '/summit/2025/talk/liquidity': '/summit/2025/talk/keynote-liquidity',
+    '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
+  '/summit/2025/talk/miplata':
+    '/summit/2025/talks/miplata-payroll-reaches-home',
+  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
   '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
-    '/summit/2025/talk/chimoneys-ilp-stack-chimoney-app-updates',
-  '/summit/2025/speaker/alan-davids': '/summit/2025/speaker/allan-davids',
+    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
+  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
   '/summit/2025/speaker/alejandra-cullen':
-    '/summit/2025/speaker/alejandra-cullen-benitez',
+    '/summit/2025/speakers/alejandra-cullen-benitez',
 
   // Team profile redirects
   '/team/team-member-alex-lakatos':
