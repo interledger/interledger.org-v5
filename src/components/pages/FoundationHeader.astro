@@ -51,6 +51,20 @@ const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
       id="siteNavLinks"
     >
       <FoundationNavMenu menuGroups={mainMenu} />
+      {
+        ctaButton && (
+          <a
+            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-200 hover:bg-gray-header min-[1060px]:hidden"
+            href={ctaButton.href || '#'}
+            data-umami-event={`Site Nav - ${ctaButton.label}`}
+            {...(ctaButton.openInNewTab
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )
+      }
     </div>
     <FoundationNavActions ctaButton={ctaButton} />
     <HamburgerButton menuId="siteNavMenu" iconId="foundationMenuIcon" />
