@@ -7,6 +7,7 @@ import {
   stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
+  translateTag,
   useTranslations
 } from '@/utils'
 
@@ -25,11 +26,12 @@ const blogPath = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
-const title = selectedTag
-  ? t('blog.foundation.tag_title', { tag: selectedTag })
+const translatedTag = selectedTag ? translateTag(selectedTag, t) : undefined
+const title = translatedTag
+  ? t('blog.foundation.tag_title', { tag: translatedTag })
   : t('blog.foundation.title')
-const description = selectedTag
-  ? t('blog.foundation.tag_description', { tag: selectedTag })
+const description = translatedTag
+  ? t('blog.foundation.tag_description', { tag: translatedTag })
   : t('blog.foundation.description')
 ---
 

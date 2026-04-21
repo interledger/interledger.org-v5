@@ -35,6 +35,7 @@ export { type CollectionType, getLocalizedPaths } from './static-paths'
 export {
   getTagSlug,
   getTagUrl,
+  translateTag,
   paginateAllPosts,
   paginatePostsByTag
 } from './tagFilter'

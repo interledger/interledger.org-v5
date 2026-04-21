@@ -8,6 +8,7 @@ import {
   stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
+  translateTag,
   useTranslations
 } from '@/utils'
 
@@ -32,11 +33,12 @@ const developersHomePath = translatePath(
   routeLocale,
   'developers'
 )
-const title = selectedTag
-  ? t('blog.developers.tag_title', { tag: selectedTag })
+const translatedTag = selectedTag ? translateTag(selectedTag, t) : undefined
+const title = translatedTag
+  ? t('blog.developers.tag_title', { tag: translatedTag })
   : t('blog.developers.title')
-const description = selectedTag
-  ? t('blog.developers.tag_description', { tag: selectedTag })
+const description = translatedTag
+  ? t('blog.developers.tag_description', { tag: translatedTag })
   : t('blog.developers.description')
 const breadcrumbs = [
   {

@@ -1,11 +1,13 @@
 ---
 import type { FoundationTag } from '@/schemas/content'
-import { getTagUrl } from '@/utils'
+import { getTagUrl, translateTag, useTranslations } from '@/utils'
 interface Props {
   tags: FoundationTag[]
   path: string
 }
 const { tags, path } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <footer>
@@ -13,7 +15,7 @@ const { tags, path } = Astro.props
     {
       tags.map((tag) => (
         <li class="mb-space-xs">
-          <a href={getTagUrl(path, tag)}>#{tag}</a>
+          <a href={getTagUrl(path, tag)}>#{translateTag(tag, t)}</a>
         </li>
       ))
     }

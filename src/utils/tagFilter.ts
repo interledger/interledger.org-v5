@@ -1,7 +1,7 @@
 import type { PaginateFunction } from 'astro'
 import { getCollection } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
-import type { Locale } from './i18'
+import type { Locale, UiKey } from './i18'
 
 export function getTagUrl(path: string, tag: string) {
   return `${path}/tag/${getTagSlug(tag)}`
@@ -9,6 +9,11 @@ export function getTagUrl(path: string, tag: string) {
 
 export function getTagSlug(tag: string) {
   return tag.toLowerCase().replace(/\s+/g, '-')
+}
+
+export function translateTag(tag: string, t: (key: UiKey) => string): string {
+  const key = `blog.tags.${getTagSlug(tag)}` as UiKey
+  return t(key) || tag
 }
 
 async function fetchPostsAndTags(collection: BlogCollectionType, lang: Locale) {
