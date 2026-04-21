@@ -12,11 +12,10 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowJs": true,
-    "baseUrl": ".",
     "paths": {
-      "@/utils": ["src/utils/index.ts"],
-      "@/utils/*": ["src/utils/*"],
-      "@/*": ["src/*"],
+      "@/utils": ["./src/utils/index.ts"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/*": ["./src/*"],
       "@site/*": ["../src/*"]
     }
   },
