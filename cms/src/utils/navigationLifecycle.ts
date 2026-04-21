@@ -218,29 +218,14 @@ async function exportAndCommitNavigation<T extends UID.ContentType>(
 
 export function normalizeNavigationInput(data: NavigationData): void {
   data.mainMenu?.forEach((group) => {
-    if (
-      group.href &&
-      !group.href.startsWith('/') &&
-      !group.href.startsWith('http')
-    ) {
-      group.href = `/${group.href}`
-    }
+    group.href = normalizeHref(group.href) ?? group.href
     group.items?.forEach((item) => {
-      if (
-        item.href &&
-        !item.href.startsWith('/') &&
-        !item.href.startsWith('http')
-      ) {
-        item.href = `/${item.href}`
-      }
+      item.href = normalizeHref(item.href) ?? item.href
     })
   })
-  if (
-    data.ctaButton?.href &&
-    !data.ctaButton.href.startsWith('/') &&
-    !data.ctaButton.href.startsWith('http')
-  ) {
-    data.ctaButton.href = `/${data.ctaButton.href}`
+  if (data.ctaButton) {
+    data.ctaButton.href =
+      normalizeHref(data.ctaButton.href) ?? data.ctaButton.href
   }
 }
 
