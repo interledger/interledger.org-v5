@@ -83,6 +83,18 @@ export function initHeaderNav(navId: string, iconId: string) {
     }
   })
 
+  // Click outside closes the mobile nav drawer.
+  document.addEventListener('click', (event) => {
+    if (
+      !wideNavMinWidth.matches &&
+      linksWrapper?.dataset.offscreen === 'false' &&
+      !root.contains(event.target as Node)
+    ) {
+      setOffscreenState(true)
+      setMenuIconOpenState(false)
+    }
+  })
+
   initSubmenuToggle(root)
 }
 
