@@ -43,11 +43,9 @@ function isRelativeLink(linkPath: string): boolean {
   return !/^[a-z]+:/i.test(linkPath)
 }
 
+const MARKDOWN_EXTS = new Set(['.md', '.mdx'])
 function isRelativeMarkdownLink(linkPath: string): boolean {
-  return (
-    (isRelativeLink(linkPath) && posix.extname(linkPath) === '.md') ||
-    (isRelativeLink(linkPath) && posix.extname(linkPath) === '.mdx')
-  )
+  return isRelativeLink(linkPath) && MARKDOWN_EXTS.has(posix.extname(linkPath))
 }
 
 function resolveSourcePath(
