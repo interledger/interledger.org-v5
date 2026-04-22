@@ -19,6 +19,7 @@
     "sync:all:dry-run": "pnpm run sync:images:dry-run && pnpm run sync:mdx:dry-run && pnpm run sync:navigation:dry-run",
     "sync:delete-all": "tsx scripts/sync-delete-all.ts",
     "sync:delete-all:dry-run": "tsx scripts/sync-delete-all.ts --dry-run",
+    "test": "vitest run",
     "test:sync-mdx": "vitest run scripts/sync-mdx",
     "test:serializers": "vitest run src/serializers"
   },
