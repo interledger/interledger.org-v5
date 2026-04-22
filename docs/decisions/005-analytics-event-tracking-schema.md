@@ -32,13 +32,13 @@ All tracked link events follow a three-segment schema, generated from code and c
 
 ### Segments
 
-**`page`** is the `pathSlug` defined in MDX frontmatter — stable identifier.
+**`page`** is derived from the page’s `pathSlug` defined in MDX frontmatter, which is the stable identifier.
 
-**`component`** is a `const COMPONENT` declared inside each Astro component. The component declares its own identity; nothing is passed or inferred from outside.
+**`component`** is defined by the Astro component rendering the link (via a local `const COMPONENT`).
 
 **`label`** is derived at build time from the link's `href`.
 
-The `page` and `label` segmnents are derived via `deriveLabel()`. For internal links, the last two path segments are taken after stripping any locale prefix. For external links, root and sub domains are used. GitHub gets special treatment to capture org and repo.
+The `page` and `label` segments are derived via `deriveLabel()`. For internal links, the last two path segments are taken after stripping any locale prefix. For external links, root and sub domains are used. GitHub gets special treatment to capture org and repo.
 
 Two segments instead of one prevents collisions where the final segment alone is ambiguous. `/grants/fellowship/sheena-allen`, `/hackathon/judges/sheena-allen`, and `/summit/speakers/sheena-allen` all end in `sheena-allen`. Two segments gives `fellowship_sheena_allen`, `judges_sheena_allen`, and `speakers_sheena_allen`.
 
