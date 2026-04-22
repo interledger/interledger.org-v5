@@ -18,6 +18,11 @@ export function initHeaderNav(navId: string, iconId: string) {
   function setOffscreenState(isOffscreen: boolean) {
     if (linksWrapper instanceof HTMLElement) {
       linksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
+      if (isOffscreen) {
+        linksWrapper.setAttribute('inert', '')
+      } else {
+        linksWrapper.removeAttribute('inert')
+      }
     }
   }
 
@@ -31,8 +36,16 @@ export function initHeaderNav(navId: string, iconId: string) {
     const isCurrentlyOffscreen =
       linksWrapper instanceof HTMLElement &&
       linksWrapper.dataset.offscreen === 'true'
-    setOffscreenState(!isCurrentlyOffscreen)
-    setMenuIconOpenState(isCurrentlyOffscreen)
+    const opening = isCurrentlyOffscreen
+    setOffscreenState(!opening)
+    setMenuIconOpenState(opening)
+
+    if (opening && linksWrapper) {
+      const firstFocusable = linksWrapper.querySelector<HTMLElement>(
+        'a, button, [tabindex]:not([tabindex="-1"])'
+      )
+      firstFocusable?.focus()
+    }
   }
 
   function handleNavDisplayStyles(event: MediaQueryListEvent) {
@@ -51,11 +64,73 @@ export function initHeaderNav(navId: string, iconId: string) {
   const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
+  // On initial load at wide viewport, remove inert so the nav is reachable by keyboard.
+  if (wideNavMinWidth.matches) {
+    setOffscreenState(false)
+  }
+
   if (navToggle) {
     navToggle.addEventListener('click', handleMobileNavToggle, false)
   }
 
+  // Escape closes the mobile nav drawer when focus is inside it.
+  // Bound to root (not document) so it's naturally scoped and won't duplicate on re-init.
+  root.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && linksWrapper?.dataset.offscreen === 'false') {
+      setOffscreenState(true)
+      setMenuIconOpenState(false)
+      navToggle?.focus()
+    }
+  })
+
+  // Click outside closes the mobile nav drawer.
+  document.addEventListener('click', (event) => {
+    if (
+      !wideNavMinWidth.matches &&
+      linksWrapper?.dataset.offscreen === 'false' &&
+      !root.contains(event.target as Node)
+    ) {
+      setOffscreenState(true)
+      setMenuIconOpenState(false)
+    }
+  })
+
   initSubmenuToggle(root)
+}
+
+/**
+ * Marks the single best-matching nav link as active based on current path.
+ * Uses longest-prefix-match so /a/b/c activates /a/b/c before /a/b.
+ * Must be called after the nav is in the DOM.
+ */
+// Called once on page load; does not handle client-side navigation.
+export function markActiveNavLink(root: HTMLElement) {
+  const currentPath = window.location.pathname.replace(/\/$/, '')
+  const navLinks = Array.from(
+    root.querySelectorAll<HTMLAnchorElement>('[data-nav-list] a')
+  )
+
+  let bestMatch: HTMLAnchorElement | null = null
+  let bestMatchLength = 0
+
+  for (const link of navLinks) {
+    const linkPath = link.pathname.replace(/\/$/, '')
+    // Skip the root path — the home link shouldn't activate from every subpage.
+    if (linkPath === '' || linkPath === '/') continue
+    if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
+      if (linkPath.length > bestMatchLength) {
+        bestMatch = link
+        bestMatchLength = linkPath.length
+      }
+    }
+  }
+
+  if (bestMatch) {
+    bestMatch.setAttribute('data-active', 'true')
+    bestMatch.setAttribute('aria-current', 'page')
+    const parentMenu = bestMatch.closest("[data-menu-level='1']")
+    parentMenu?.querySelector('button')?.setAttribute('data-active', 'true')
+  }
 }
 
 function flashPrevention(element: Element) {

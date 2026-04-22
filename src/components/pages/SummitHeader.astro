@@ -48,9 +48,24 @@ const summitHomePath = translatePath(
       class="header-nav-wrapper header-nav-wrapper--summit"
       data-nav-wrapper
       data-offscreen="true"
+      inert
       id="summitNavLinks"
     >
       <SummitNavMenu menuGroups={mainMenu} />
+      {
+        ctaButton && (
+          <a
+            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-150 hover:bg-[#444] min-[1060px]:hidden"
+            href={ctaButton.href || '#'}
+            data-umami-event={`Summit Nav - ${ctaButton.label}`}
+            {...(ctaButton.openInNewTab
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )
+      }
     </div>
     <SummitNavActions ctaButton={ctaButton} />
     <HamburgerButton menuId="summitNavMenu" iconId="summitMenuIcon" />

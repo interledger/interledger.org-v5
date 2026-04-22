@@ -643,8 +643,8 @@ It generates:
   - Talks → `/summit/{year}/talks`
   - Speakers → `/summit/{year}/speakers`
 - Dynamic detail pages
-  - Talk pages → `/summit/{year}/talk/{talk-title}`
-  - Speaker pages → `/summit/{year}/speaker/{speaker-name}`
+  - Talk pages → `/summit/{year}/talks/{talk-title}`
+  - Speaker pages → `/summit/{year}/speakers/{speaker-name}`
 
 All of these functions iterate over every year in the `YEARS` list automatically, so new summit data is picked up without any changes to page templates.
 
