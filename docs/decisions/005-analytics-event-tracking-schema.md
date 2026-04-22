@@ -135,42 +135,12 @@ Rich text links use a two-segment name instead:
 {page}:richtext
 ```
 
-Label, destination URL, and link type are captured as properties via a rehype plugin registered once in `astro.config.ts`. It reads `pathSlug` from MDX frontmatter at build time and operates on the HTML AST — no regex over rendered strings:
+A custom Markdown link renderer intercepts all links at build time and produces anchor elements with tracking attributes already in place:
 
-```typescript
-// src/lib/rehypeUmamiTracking.ts
-import { visit } from 'unist-util-visit'
-import { deriveLabel } from './tracking'
-import type { Root } from 'hast'
-
-export function rehypeUmamiTracking() {
-  return (tree: Root, file: any) => {
-    const page = file.data.astro?.frontmatter?.pathSlug ?? 'unknown'
-
-    visit(tree, 'element', (node) => {
-      if (node.tagName !== 'a') return
-      const href = node.properties?.href as string
-      if (!href) return
-
-      const isInternal =
-        href.startsWith('/') || href.includes('interledger.org')
-      const linkType = href.startsWith('#')
-        ? 'anchor'
-        : isInternal
-          ? 'internal'
-          : 'external'
-
-      node.properties = {
-        ...node.properties,
-        'data-umami-event': `${page}:richtext`,
-        'data-umami-event-label': deriveLabel(href),
-        'data-umami-event-href': href,
-        'data-umami-event-link-type': linkType
-      }
-    })
-  }
-}
-```
+- `data-umami-event` — `{page}:richtext`
+- `data-umami-event-label` — derived label from `href`
+- `data-umami-event-lang` — current locale
+- `data-umami-event-link-text` — visible link text (null for icon/image links)
 
 The rule: three-segment names for components with bounded, intentional destinations (nav, hero, card, cta, footer, faq, filter, breadcrumb). Two-segment names for open-ended, editor-driven content (richtext).
 
