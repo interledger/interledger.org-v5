@@ -48,39 +48,48 @@ Locale prefixes are stripped using the project's `locales` export as the source 
 
 ```typescript
 // src/lib/tracking.ts
-import { locales } from '../i18n/config';
+import { locales } from '../i18n/config'
 
 export function deriveLabel(href: string): string {
   try {
-    const url = new URL(href, 'https://interledger.org');
+    const url = new URL(href, 'https://interledger.org')
     const isInternal =
       href.startsWith('/') ||
       url.hostname === 'interledger.org' ||
-      url.hostname.endsWith('.interledger.org');
+      url.hostname.endsWith('.interledger.org')
 
     if (isInternal) {
       const parts = stripLangPrefix(
         url.pathname.replace(/\/$/, '').split('/').filter(Boolean)
-      );
-      return slugify(parts.slice(-2).join('_') || 'home');
+      )
+      return slugify(parts.slice(-2).join('_') || 'home')
     }
 
     if (url.hostname === 'github.com') {
-      return url.pathname.split('/').filter(Boolean).slice(0, 2).join('_') || 'github';
+      return (
+        url.pathname.split('/').filter(Boolean).slice(0, 2).join('_') ||
+        'github'
+      )
     }
 
-    const hostParts = url.hostname.replace(/^www\./, '').split('.');
-    return slugify(hostParts.length > 2 ? `${hostParts[0]}_${hostParts[1]}` : hostParts[0]);
+    const hostParts = url.hostname.replace(/^www\./, '').split('.')
+    return slugify(
+      hostParts.length > 2 ? `${hostParts[0]}_${hostParts[1]}` : hostParts[0]
+    )
   } catch {
-    return slugify(href);
+    return slugify(href)
   }
 }
 
 const stripLangPrefix = (parts: string[]): string[] =>
-  (locales as string[]).includes(parts[0]) ? parts.slice(1) : parts;
+  (locales as string[]).includes(parts[0]) ? parts.slice(1) : parts
 
 export const slugify = (text: string): string =>
-  text.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^\w_]/g, '');
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^\w_]/g, '')
 ```
 
 ### TrackedLink component
@@ -90,24 +99,25 @@ A single Astro component is the instrumentation point for all bounded link inter
 ```astro
 ---
 // src/components/TrackedLink.astro
-import { deriveLabel } from '../lib/tracking';
+import { deriveLabel } from '../lib/tracking'
 
 interface Props {
-  pathSlug: string;
-  component: string;
-  href: string;
-  linkText?: string;
+  pathSlug: string
+  component: string
+  href: string
+  linkText?: string
 }
 
-const { pathSlug, component, href, linkText } = Astro.props;
-const event = `${deriveLabel(pathSlug)}:${component}:${deriveLabel(href)}`;
+const { pathSlug, component, href, linkText } = Astro.props
+const event = `${deriveLabel(pathSlug)}:${component}:${deriveLabel(href)}`
 ---
 
 <a
   href={href}
   data-umami-event={event}
   data-umami-event-lang={Astro.currentLocale}
-  data-umami-event-link-text={linkText}  {/* linkText is optional — omit or pass undefined for icon-only/image links */}
+  data-umami-event-link-text={linkText}
+  {/* linkText is optional — omit or pass undefined for icon-only/image links */}
 >
   <slot />
 </a>
@@ -130,16 +140,20 @@ Label, destination URL, and link type are captured as event properties. Because 
 ```typescript
 // src/components/blocks/Paragraph.astro
 const processed = content.replace(/<a\s+href="([^"]+)"/g, (_, href) => {
-  const isInternal = href.startsWith('/') || href.includes('interledger.org');
-  const linkType = href.startsWith('#') ? 'anchor' : isInternal ? 'internal' : 'external';
+  const isInternal = href.startsWith('/') || href.includes('interledger.org')
+  const linkType = href.startsWith('#')
+    ? 'anchor'
+    : isInternal
+      ? 'internal'
+      : 'external'
   return [
     `<a href="${href}"`,
     `data-umami-event="${page}:richtext"`,
     `data-umami-event-label="${deriveLabel(href)}"`,
     `data-umami-event-href="${href}"`,
-    `data-umami-event-link-type="${linkType}"`,
-  ].join(' ');
-});
+    `data-umami-event-link-type="${linkType}"`
+  ].join(' ')
+})
 ```
 
 The rule is: use three-segment naming for components where the destination set is bounded and intentional (nav, hero, card, cta, footer, faq, filter, breadcrumb). Use two-segment naming for components where destinations are open-ended and editor-driven (richtext).
@@ -169,7 +183,6 @@ The rule is: use three-segment naming for components where the destination set i
 - Umami wildcard queries (`fellowship:*`, `*:hero:*`, `*:*:submittable`) give clean page-level, component-level, and destination-level views. URL path filtering in Umami isolates microsites and locales without extra instrumentation.
 - Umami supports language filtering by selecting whether `/es/` is included or excluded in the path as a filter criteria.
 - Umami supports microsite filtering by selecting whether `/summit/` and `/hackathon/` segments are included or excluded in the path as a filter criteria.
-
 
 **Negative**
 
