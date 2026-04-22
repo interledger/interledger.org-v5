@@ -135,25 +135,41 @@ Rich text links use a two-segment name instead:
 {page}:richtext
 ```
 
-Label, destination URL, and link type are captured as properties, injected at build time:
+Label, destination URL, and link type are captured as properties via a rehype plugin registered once in `astro.config.ts`. It reads `pathSlug` from MDX frontmatter at build time and operates on the HTML AST — no regex over rendered strings:
 
 ```typescript
-// src/components/blocks/Paragraph.astro
-const processed = content.replace(/<a\s+href="([^"]+)"/g, (_, href) => {
-  const isInternal = href.startsWith('/') || href.includes('interledger.org')
-  const linkType = href.startsWith('#')
-    ? 'anchor'
-    : isInternal
-      ? 'internal'
-      : 'external'
-  return [
-    `<a href="${href}"`,
-    `data-umami-event="${page}:richtext"`,
-    `data-umami-event-label="${deriveLabel(href)}"`,
-    `data-umami-event-href="${href}"`,
-    `data-umami-event-link-type="${linkType}"`
-  ].join(' ')
-})
+// src/lib/rehypeUmamiTracking.ts
+import { visit } from 'unist-util-visit'
+import { deriveLabel } from './tracking'
+import type { Root } from 'hast'
+
+export function rehypeUmamiTracking() {
+  return (tree: Root, file: any) => {
+    const page = file.data.astro?.frontmatter?.pathSlug ?? 'unknown'
+
+    visit(tree, 'element', (node) => {
+      if (node.tagName !== 'a') return
+      const href = node.properties?.href as string
+      if (!href) return
+
+      const isInternal =
+        href.startsWith('/') || href.includes('interledger.org')
+      const linkType = href.startsWith('#')
+        ? 'anchor'
+        : isInternal
+          ? 'internal'
+          : 'external'
+
+      node.properties = {
+        ...node.properties,
+        'data-umami-event': `${page}:richtext`,
+        'data-umami-event-label': deriveLabel(href),
+        'data-umami-event-href': href,
+        'data-umami-event-link-type': linkType
+      }
+    })
+  }
+}
 ```
 
 The rule: three-segment names for components with bounded, intentional destinations (nav, hero, card, cta, footer, faq, filter, breadcrumb). Two-segment names for open-ended, editor-driven content (richtext).
@@ -168,7 +184,7 @@ The rule: three-segment names for components with bounded, intentional destinati
 
 **Full path as label.** Produces near-unique event names for deep pages, defeating aggregation. Ruled out.
 
-**Selective tracking.** Track fewer events upfront and add more as questions arise. The problem is that analytics questions are often retrospective — you can't answer "which CTA drove fellowship applications last quarter?" if you only started tracking hero clicks this month. The schema solves the noise problem structurally: bounded components produce a finite, predictable event set; rich text collapses to `{page}:richtext` with detail in properties.
+**Selective tracking.** Track fewer events upfront. The problem is that analytics questions are often retrospective and the cost of not capturing a link is permanent. You can always filter noise out at query time, but you can never go back and reconstruct clicks that were never tracked. With a schema this clean, every link fires a well-structured event that costs you nothing to ignore and potentially a lot to have missed. Selectivity made sense when events were messy and every new one required a manual decision. When generation is automatic and the schema is consistent, we can capture everything with less noise and enhanced filtering. The schema solves the noise problem structurally: bounded components produce a finite, predictable event set; rich text collapses to `{page}:richtext` with detail in properties.
 
 ---
 
@@ -185,4 +201,4 @@ The rule: three-segment names for components with bounded, intentional destinati
 **Negative**
 
 - `TrackedLink` must be adopted across all components to realise consistency benefits.
-- Rich text instrumentation depends on build-time HTML processing, adding build steps and potential fragility.
+- Rich text instrumentation requires the rehype plugin to run correctly and `pathSlug` to be present in frontmatter.
