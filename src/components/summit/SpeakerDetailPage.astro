@@ -22,7 +22,7 @@ const { routeLocale: lang, currentBasePath } = Astro.locals
 const t = useTranslations(lang)
 const langPrefix = lang === defaultLocale ? '' : `/${lang}`
 const baseHref = `${langPrefix}${currentBasePath}`
-const sessionBaseHref = `${baseHref}/${year}/talk`
+const sessionBaseHref = `${baseHref}/${year}/talks`
 const sessions = await getTalks(year, entry.id)
 const translation = getTranslation(entry, lang)
 const bio = translation?.bio ?? entry.bio

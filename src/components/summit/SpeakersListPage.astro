@@ -17,7 +17,6 @@ interface Props {
 const { speakers, basePath, title, page, year } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const speakerBasePath = basePath.replace(/\/speakers\/?$/, '/speaker')
 const label = t('summit.speakers_pagination', { year })
 ---
 
@@ -27,11 +26,7 @@ const label = t('summit.speakers_pagination', { year })
          Names/affiliations are still usable in Spanish, while untranslated bios are only shown on speaker detail pages. -->
     <h1>{title}</h1>
     <section aria-label={t('summit.speakers')}>
-      <SpeakersList
-        speakers={speakers}
-        basePath={speakerBasePath}
-        year={year}
-      />
+      <SpeakersList speakers={speakers} basePath={basePath} year={year} />
     </section>
 
     {

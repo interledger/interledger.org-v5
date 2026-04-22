@@ -32,7 +32,7 @@ const baseHref = `${langPrefix}${currentBasePath}`
 const isCurrentYear = currentSummitYear === year
 const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
 const sessionsHref = `${baseHref}/${year}/talks`
-const speakersBasePath = `${baseHref}/${year}/speaker`
+const speakersBasePath = `${baseHref}/${year}/speakers`
 
 const translation = getTranslation(entry, lang)
 const title = translation?.title ?? entry.title
