@@ -26,8 +26,7 @@ const rehypeUmamiLinks: Plugin<[], Root> = () => (tree, file: VFile) => {
   const [, collection, slug] = match
   if (collection === 'docs') return
 
-  const frontmatter =
-    (file.data as AstroFileData)?.astro?.frontmatter ?? {}
+  const frontmatter = (file.data as AstroFileData)?.astro?.frontmatter ?? {}
   const override =
     typeof frontmatter.umamiContext === 'string'
       ? frontmatter.umamiContext

@@ -72,9 +72,7 @@ describe('rehypeUmamiLinks', () => {
   })
 
   it('flattens nested inline markup inside <a>', async () => {
-    const out = await run(
-      '<p><a href="/x"><strong>bold</strong> link</a></p>'
-    )
+    const out = await run('<p><a href="/x"><strong>bold</strong> link</a></p>')
     expect(out).toContain('data-umami-event="About Us page link - bold link"')
   })
 })
