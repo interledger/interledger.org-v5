@@ -1,6 +1,7 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro'
 import { defaultLocale, useTranslations } from '@/utils'
+import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
 
 interface Props {
   name: string
@@ -10,23 +11,40 @@ interface Props {
   quote?: string
   linkedinUrl?: string
   grantReportUrl?: string
+  umamiContext?: string
 }
 
-const { name, pathSlug, photo, photoAlt, quote, linkedinUrl, grantReportUrl } =
-  Astro.props
+const {
+  name,
+  pathSlug,
+  photo,
+  photoAlt,
+  quote,
+  linkedinUrl,
+  grantReportUrl,
+  umamiContext
+} = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
 const fellowLink = `${langPrefix}/grant/fellowship/${pathSlug}`
 
 const hasLinks = linkedinUrl || grantReportUrl
+
+const pageLabel = resolvePageLabel({
+  pageLabel: umamiContext,
+  pathname: Astro.url.pathname
+})
 ---
 
 <article>
   <a
     href={fellowLink}
     class="text-black no-underline"
-    umami-event=`${name} Fellow card - Fellow profile page`
+    data-umami-event={buildUmamiEvent({
+      pageLabel,
+      linkText: `${name} Fellow profile`
+    })}
   >
     {
       photo && (
@@ -58,7 +76,10 @@ const hasLinks = linkedinUrl || grantReportUrl
             href={grantReportUrl}
             class="ambassador-link group"
             aria-label={t('aria.ambassador.grant_report')}
-            data-umami-event={`Ambassadors page link - ${name} report`}
+            data-umami-event={buildUmamiEvent({
+              pageLabel,
+              linkText: `${name} report`
+            })}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -80,7 +101,10 @@ const hasLinks = linkedinUrl || grantReportUrl
             href={linkedinUrl}
             class="ambassador-link group"
             aria-label={t('aria.linkedin')}
-            data-umami-event={`Ambassadors page link - ${name} Linkedin`}
+            data-umami-event={buildUmamiEvent({
+              pageLabel,
+              linkText: `${name} Linkedin`
+            })}
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -3,11 +3,17 @@ import { parseMarkdown } from '@/utils'
 
 interface Props {
   content?: string
+  umamiContext?: string
 }
 
-const { content } = Astro.props
+const { content, umamiContext } = Astro.props
 
-const htmlContent = content ? await parseMarkdown(content) : null
+const htmlContent = content
+  ? await parseMarkdown(content, {
+      pageLabel: umamiContext,
+      pathname: Astro.url.pathname
+    })
+  : null
 ---
 
 <div

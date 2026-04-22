@@ -5,10 +5,14 @@ interface Props {
   source?: string
   /** Plain-text quote. If omitted, slot content is used (MDX usage). */
   quote?: string
+  umamiContext?: string
 }
 
-const { source, quote } = Astro.props
-const htmlSource = parseMarkdownInline(source)
+const { source, quote, umamiContext } = Astro.props
+const htmlSource = parseMarkdownInline(source, {
+  pageLabel: umamiContext,
+  pathname: Astro.url.pathname
+})
 ---
 
 <div class="ps-space-s py-space-2xs border-l-4 border-primary mb-space-s">

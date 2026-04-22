@@ -72,3 +72,6 @@ export { toAmbassadorData } from './ambassadors'
 
 // GitHub
 export { parseRawGitHubPath } from './parseRawGitHubPath'
+
+// Analytics
+export { type UmamiLinkContext } from './umami'

@@ -1,26 +1,75 @@
 ---
+import { buildUmamiEvent, escapeHtml, resolvePageLabel } from '@/utils/umami'
+
+interface TextNode {
+  type?: 'text'
+  text?: string
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  strikethrough?: boolean
+  code?: boolean
+}
+interface LinkNode {
+  type: 'link'
+  url: string
+  children: TextNode[]
+}
+type InlineNode = TextNode | LinkNode
+interface ParagraphBlock {
+  type: 'paragraph'
+  children: InlineNode[]
+}
+interface ListBlock {
+  type: 'list'
+  format?: 'ordered' | 'unordered'
+  children: Array<{ children: InlineNode[] }>
+}
+type Block = ParagraphBlock | ListBlock
+
+interface Props {
+  title: string
+  content: Block[]
+}
+
 const { title, content } = Astro.props
-// Helper: render children text
-const renderChildren = (children = []) => {
-  return children.map((node) => {
-    if (node.type === 'link' && node.type === 'text') return ''
 
-    if (node.type === 'link') {
-      const { url, children: linkChildren } = node
-      return `<a href="${url}">${renderChildren(linkChildren)}</a>`
-    }
+const pageLabel = resolvePageLabel({
+  pageLabel: title,
+  pathname: Astro.url.pathname
+})
 
-    const { text, bold, italic, underline, strikethrough, code } = node
-    let result = text
+const renderTextNode = (node: TextNode) => {
+  let result = escapeHtml(node.text ?? '')
+  if (node.underline) result = `<u>${result}</u>`
+  if (node.italic) result = `<em>${result}</em>`
+  if (node.bold) result = `<strong>${result}</strong>`
+  if (node.strikethrough) result = `<s>${result}</s>`
+  if (node.code) result = `<code>${result}</code>`
+  return result
+}
 
-    if (underline) result = `<u>${result}</u>`
-    if (italic) result = `<em>${result}</em>`
-    if (bold) result = `<strong>${result}</strong>`
-    if (strikethrough) result = `<s>${result}</s>`
-    if (code) result = `<code>${result}</code>`
-
-    return result
+const renderLinkNode = (node: LinkNode) => {
+  const href = node.url ?? ''
+  const innerHtml = renderChildren(node.children)
+  const event = buildUmamiEvent({
+    pageLabel,
+    linkText: node.children.map((c) => c.text ?? '').join(''),
+    href
   })
+  return `<a href="${escapeHtml(href)}" data-umami-event="${escapeHtml(event)}">${innerHtml}</a>`
+}
+
+function renderChildren(children: InlineNode[] = []): string {
+  return children
+    .map((node) => {
+      if (node.type === 'link') return renderLinkNode(node)
+      // Strapi text nodes historically omit `type`; treat absent as text.
+      if (node.type === 'text' || node.type === undefined)
+        return renderTextNode(node)
+      return ''
+    })
+    .join('')
 }
 ---
 

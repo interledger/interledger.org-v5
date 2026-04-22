@@ -1,18 +1,13 @@
 ---
-import MarkdownIt from 'markdown-it'
+import { parseMarkdown } from '@/utils'
 
 interface Props {
   content?: string
   alignment?: 'left' | 'center' | 'right'
+  umamiContext?: string
 }
 
-const { content, alignment = 'left' } = Astro.props
-
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  typographer: true
-})
+const { content, alignment = 'left', umamiContext } = Astro.props
 
 const alignmentClass =
   alignment === 'center'
@@ -23,11 +18,17 @@ const alignmentClass =
 
 const hasContent = content != null && content !== ''
 const className = alignmentClass || undefined
+const htmlContent = hasContent
+  ? await parseMarkdown(content, {
+      pageLabel: umamiContext,
+      pathname: Astro.url.pathname
+    })
+  : null
 ---
 
 {
   hasContent ? (
-    <div class={className} set:html={md.render(content)} />
+    <div class={className} set:html={htmlContent} />
   ) : (
     <div class={className}>
       <slot />
