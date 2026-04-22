@@ -12,6 +12,7 @@ An ADR captures a single technical decision: the context that forced it, what wa
 | 002 | Spanish fallback disclaimer behavior              | Proposed | 2026-04-09 |
 | 003 | Reusable page templates and cross-section routing | Proposed | 2026-04-17 |
 | 004 | Locale-prefix routing for translations            | Proposed | 2026-04-17 |
+| 005 | Analytics event tracking schema                   | Proposed | 2026-04-21 |
 
 ## Writing a new ADR
 
