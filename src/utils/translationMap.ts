@@ -58,14 +58,14 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
     const talks = await getTalks(year)
     for (const talk of talks) {
       const id = generateSlug(talk.title)
-      map[`${year}/talk/${id}`] = createFallbackEntry(`${year}/talk/${id}`)
+      map[`${year}/talks/${id}`] = createFallbackEntry(`${year}/talks/${id}`)
     }
 
     const speakers = await getSpeakers(year)
     for (const speaker of speakers) {
       const id = generateSlug(speaker.name)
-      map[`${year}/speaker/${id}`] = createFallbackEntry(
-        `${year}/speaker/${id}`
+      map[`${year}/speakers/${id}`] = createFallbackEntry(
+        `${year}/speakers/${id}`
       )
     }
   }
