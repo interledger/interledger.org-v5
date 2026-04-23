@@ -56,7 +56,7 @@ Two segments instead of one prevents collisions where the final segment alone is
 | `/es/`                                    | `foundation_home`           |
 | `/summit`                                 | `summit_home`               |
 | `/es/summit`                              | `summit_home`               |
-| `/summit/hackathon`                        | `hackathon_home`            |
+| `/summit/hackathon`                       | `hackathon_home`            |
 | `/grants/fellowship`                      | `grants_fellowship`         |
 | `/es/grants/fellowship`                   | `grants_fellowship`         |
 | `/grants/fellowship/sheena-allen`         | `fellowship_sheena_allen`   |
