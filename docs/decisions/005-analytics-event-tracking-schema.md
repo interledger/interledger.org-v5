@@ -38,72 +38,38 @@ All tracked link events follow a three-segment schema, generated from code and c
 
 **`label`** is derived at build time from the link's `href`.
 
-The `page` and `label` segments are derived via `deriveLabel()`. For internal links, the last two path segments are taken after stripping any locale prefix. For external links, root and sub domains are used. GitHub gets special treatment to capture org and repo.
+The `page` and `label` segments are both derived by `deriveLabel()` — the same rules apply in both contexts. For external links, subdomains are preserved — `learn.interledger.org` stays `learn_interledger`, not just `interledger`. `www` is stripped and the TLD is always dropped. For GitHub URLs, `github` is prepended to org and repo (e.g. `github.com/interledger/rafiki` → `github_interledger_rafiki`). All output is lowercase, spaces and hyphens become underscores, and non-word characters are stripped.
 
-Two segments instead of one prevents collisions where the final segment alone is ambiguous. `/grants/fellowship/sheena-allen`, `/hackathon/judges/sheena-allen`, and `/summit/speakers/sheena-allen` all end in `sheena-allen`. Two segments gives `fellowship_sheena_allen`, `judges_sheena_allen`, and `speakers_sheena_allen`.
+### Label resolution rules
 
-Locale prefixes are stripped using the project's `locales` export. Microsite prefixes (`summit`, `hackathon`) are also stripped — both are better handled as URL path filters in Umami than encoded into every event name.
+For internal paths, resolution follows three steps in order:
 
-### Implementation
+1. **Strip locale prefix** — using the project's `locales` export as the source of truth. `/es/grants/fellowship` becomes `grants/fellowship`. Never pattern-matched — a two-letter segment that isn't a locale (e.g. `go`, `do`) is never stripped.
 
-```typescript
-// src/lib/tracking.ts
-import { locales } from '../i18n/config'
+2. **Resolve home names** — an empty path resolves to `foundation_home`. A path whose only remaining segment is a microsite name resolves to `{microsite}_home`. This gives root paths a meaningful, unambiguous identity.
 
-export function deriveLabel(href: string): string {
-  try {
-    const url = new URL(href, 'https://interledger.org')
-    const isInternal =
-      href.startsWith('/') ||
-      url.hostname === 'interledger.org' ||
-      url.hostname.endsWith('.interledger.org')
+3. **Strip microsite prefixes from longer paths, then take last two segments** — if `summit` or `hackathon` appear at the start of a multi-segment path, they are stripped before the two-segment slice. Microsite context is already captured by the URL path filter in Umami — it adds no value in the event name.
 
-    if (isInternal) {
-      const parts = stripMicrositePrefix(
-        stripLangPrefix(
-          url.pathname.replace(/\/$/, '').split('/').filter(Boolean)
-        )
-      )
-      return slugify(parts.slice(-2).join('_') || 'home')
-    }
+Two segments instead of one prevents collisions where the final segment alone is ambiguous. `/grants/fellowship/sheena-allen` and `/hackathon/judges/sheena-allen` both end in `sheena-allen` — two segments gives `fellowship_sheena_allen` and `judges_sheena_allen`.
 
-    if (url.hostname === 'github.com') {
-      return (
-        url.pathname.split('/').filter(Boolean).slice(0, 2).join('_') ||
-        'github'
-      )
-    }
-
-    const hostParts = url.hostname.replace(/^www\./, '').split('.')
-    return slugify(
-      hostParts.length > 2 ? `${hostParts[0]}_${hostParts[1]}` : hostParts[0]
-    )
-  } catch {
-    return slugify(href)
-  }
-}
-
-const MICROSITES = ['summit', 'hackathon'] as const
-
-const stripLangPrefix = (parts: string[]): string[] =>
-  (locales as string[]).includes(parts[0]) ? parts.slice(1) : parts
-
-const stripMicrositePrefix = (parts: string[]): string[] => {
-  while (
-    parts.length > 0 &&
-    (MICROSITES as readonly string[]).includes(parts[0])
-  )
-    parts = parts.slice(1)
-  return parts
-}
-
-export const slugify = (text: string): string =>
-  text
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '_')
-    .replace(/[^\w_]/g, '')
-```
+| Path / URL                                | Resolved label              |
+| ----------------------------------------- | --------------------------- |
+| `/`                                       | `foundation_home`           |
+| `/es/`                                    | `foundation_home`           |
+| `/summit`                                 | `summit_home`               |
+| `/es/summit`                              | `summit_home`               |
+| `/hackathon`                              | `hackathon_home`            |
+| `/grants/fellowship`                      | `grants_fellowship`         |
+| `/es/grants/fellowship`                   | `grants_fellowship`         |
+| `/grants/fellowship/sheena-allen`         | `fellowship_sheena_allen`   |
+| `/summit/speakers/sheena-allen`           | `speakers_sheena_allen`     |
+| `/hackathon/judges/sheena-allen`          | `judges_sheena_allen`       |
+| `/summit/hackathon/resources`             | `resources`                 |
+| `https://github.com/interledger/rafiki`   | `github_interledger_rafiki` |
+| `https://github.com/interledger`          | `github_interledger`        |
+| `https://wallet.interledger-test.dev/...` | `wallet_interledger_test`   |
+| `https://learn.interledger.org/...`       | `learn_interledger`         |
+| `https://submittable.com/...`             | `submittable`               |
 
 ### TrackedLink component
 
@@ -145,17 +111,17 @@ Body content is editor-driven and open-ended. Encoding every inline destination 
 Rich text links use a two-segment name instead:
 
 ```
-{page}:richtext
+{page}:{component}
 ```
 
-A custom Markdown link renderer intercepts all links at build time and produces anchor elements with tracking attributes already in place:
+The component segment follows the same pattern as bounded components — each component declares its own `const COMPONENT` (e.g. `paragraph`, `blockquote`, `callout`). A custom Markdown link renderer intercepts all links at build time and produces anchor elements with tracking attributes already in place:
 
-- `data-umami-event` — `{page}:richtext`
+- `data-umami-event` — `{page}:{component}`
 - `data-umami-event-label` — derived label from `href`
 - `data-umami-event-lang` — current locale
 - `data-umami-event-link-text` — visible link text (null for icon/image links)
 
-The rule: three-segment names for components with bounded, intentional destinations (nav, hero, card, cta, footer, faq, filter, breadcrumb). Two-segment names for open-ended, editor-driven content (richtext).
+The rule: three-segment names for components with bounded, intentional destinations (nav, hero, card, cta, footer, faq, filter, breadcrumb). Two-segment names for open-ended, editor-driven content (paragraph, blockquote, callout).
 
 ---
 
@@ -167,7 +133,7 @@ The rule: three-segment names for components with bounded, intentional destinati
 
 **Full path as label.** Produces near-unique event names for deep pages, defeating aggregation. Ruled out.
 
-**Selective tracking.** Track fewer events upfront. The problem is that analytics questions are often retrospective and the cost of not capturing a link is permanent. You can always filter noise out at query time, but you can never go back and reconstruct clicks that were never tracked. With a schema this clean, every link fires a well-structured event that costs you nothing to ignore and potentially a lot to have missed. Selectivity made sense when events were messy and every new one required a manual decision. When generation is automatic and the schema is consistent, we can capture everything with less noise and enhanced filtering. The schema solves the noise problem structurally: bounded components produce a finite, predictable event set; rich text collapses to `{page}:richtext` with detail in properties.
+**Selective tracking.** Track fewer events upfront. The problem is that analytics questions are often retrospective and the cost of not capturing a link is permanent. You can always filter noise out at query time, but you can never go back and reconstruct clicks that were never tracked. With a schema this clean, every link fires a well-structured event that costs you nothing to ignore and potentially a lot to have missed. Selectivity made sense when events were messy and every new one required a manual decision. When generation is automatic and the schema is consistent, we can capture everything with less noise and enhanced filtering. The schema solves the noise problem structurally: bounded components produce a finite, predictable event set; rich text collapses to `{page}:{component}` with detail in properties.
 
 ---
 
