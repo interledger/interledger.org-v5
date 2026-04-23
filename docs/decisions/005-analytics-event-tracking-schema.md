@@ -42,13 +42,11 @@ The `page` and `label` segments are both derived by `deriveLabel()` — the same
 
 ### Label resolution rules
 
-For internal paths, resolution follows three steps in order:
+For internal paths, resolution follows two steps in order:
 
 1. **Strip locale prefix** — using the project's `locales` export as the source of truth. `/es/grants/fellowship` becomes `grants/fellowship`. Never pattern-matched — a two-letter segment that isn't a locale (e.g. `go`, `do`) is never stripped.
 
-2. **Resolve home names** — an empty path resolves to `foundation_home`. A path whose only remaining segment is a microsite name resolves to `{microsite}_home`. This gives root paths a meaningful, unambiguous identity.
-
-3. **Strip microsite prefixes from longer paths, then take last two segments** — if `summit` or `hackathon` appear at the start of a multi-segment path, they are stripped before the two-segment slice. Microsite context is already captured by the URL path filter in Umami — it adds no value in the event name.
+2. **Resolve the label** — if the remaining path is empty, return `foundation_home`. If every remaining segment is a microsite name (`summit`, `hackathon`), return `{last_segment}_home` — so `/summit/hackathon/` resolves to `hackathon_home`. Otherwise, take the last two segments as normal. Microsites are not stripped from longer paths — `/summit/2022` resolves to `summit_2022`, and `/summit/speakers/sheena-allen` resolves to `speakers_sheena_allen`.
 
 Two segments instead of one prevents collisions where the final segment alone is ambiguous. `/grants/fellowship/sheena-allen` and `/hackathon/judges/sheena-allen` both end in `sheena-allen` — two segments gives `fellowship_sheena_allen` and `judges_sheena_allen`.
 
@@ -58,13 +56,15 @@ Two segments instead of one prevents collisions where the final segment alone is
 | `/es/`                                    | `foundation_home`           |
 | `/summit`                                 | `summit_home`               |
 | `/es/summit`                              | `summit_home`               |
-| `/hackathon`                              | `hackathon_home`            |
+| `summit/hackathon`                        | `hackathon_home`            |
 | `/grants/fellowship`                      | `grants_fellowship`         |
 | `/es/grants/fellowship`                   | `grants_fellowship`         |
 | `/grants/fellowship/sheena-allen`         | `fellowship_sheena_allen`   |
 | `/summit/speakers/sheena-allen`           | `speakers_sheena_allen`     |
 | `/hackathon/judges/sheena-allen`          | `judges_sheena_allen`       |
-| `/summit/hackathon/resources`             | `resources`                 |
+| `/summit/hackathon`                       | `hackathon_home`            |
+| `/summit/2022`                            | `summit_2022`               |
+| `/summit/hackathon/resources`             | `hackathon_resources`       |
 | `https://github.com/interledger/rafiki`   | `github_interledger_rafiki` |
 | `https://github.com/interledger`          | `github_interledger`        |
 | `https://wallet.interledger-test.dev/...` | `wallet_interledger_test`   |
