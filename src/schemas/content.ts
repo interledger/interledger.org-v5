@@ -4,8 +4,7 @@ const heroCtaSchema = z.object({
   text: z.string(),
   link: z.string(),
   style: z.enum(['primary', 'secondary']).optional(),
-  external: z.boolean().optional(),
-  analytics_event_label: z.string().optional()
+  external: z.boolean().optional()
 })
 
 // Normalizes pathSlug by stripping any leading or trailing slashes so that

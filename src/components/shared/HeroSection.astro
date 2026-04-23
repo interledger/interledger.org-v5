@@ -6,7 +6,6 @@ interface CtaLink {
   text: string
   style?: string
   external?: boolean
-  analytics_event_label?: string
 }
 
 interface Props {
@@ -39,7 +38,6 @@ const { title, content, ctas } = Astro.props
                 href={link.link}
                 style={link.style}
                 variant="hero"
-                umami={link.analytics_event_label}
                 external={link.external}
                 text={link.text}
               />

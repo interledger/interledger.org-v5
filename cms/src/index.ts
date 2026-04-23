@@ -595,8 +595,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       link: 'Link',
       text: 'Button Text',
       style: 'Style',
-      external: 'External Link',
-      analytics_event_label: 'Analytics Event Label'
+      external: 'External Link'
     },
     'blocks.paragraph': {
       content: 'Content',

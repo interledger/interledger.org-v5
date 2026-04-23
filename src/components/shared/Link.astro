@@ -1,5 +1,15 @@
 ---
-const { href, style, umami, external, text, variant } = Astro.props
+import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
+
+interface Props {
+  href?: string
+  text?: string
+  style?: string
+  variant?: 'hero' | 'default'
+  external?: boolean
+}
+
+const { href, style, external, text, variant } = Astro.props as Props
 
 const classes: Record<string, string> = {
   'hero-primary':
@@ -20,13 +30,19 @@ const key =
     : style === 'secondary'
       ? 'secondary'
       : 'primary'
+
+const umamiEvent = buildUmamiEvent({
+  pageLabel: resolvePageLabel({ pathname: Astro.url.pathname }),
+  linkText: text,
+  href
+})
 ---
 
 <a
   href={href ?? ''}
   class={classes[key]}
   style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
-  data-umami-event={umami ?? ''}
+  data-umami-event={umamiEvent}
   {...external && {
     target: '_blank',
     rel: 'noopener noreferrer'

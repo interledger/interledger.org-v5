@@ -56,7 +56,6 @@ const heroCtas = (page.hero?.hero_call_to_action ?? []) as Array<{
   link?: string
   style?: string
   external?: boolean
-  analytics_event_label?: string
 }>
 const content = page.content || []
 ---
@@ -88,7 +87,6 @@ const content = page.content || []
                       href={cta.link}
                       style={cta.style}
                       variant="hero"
-                      umami={cta.analytics_event_label}
                       external={cta.external}
                       text={cta.text}
                     />
