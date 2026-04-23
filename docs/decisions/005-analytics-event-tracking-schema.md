@@ -42,7 +42,7 @@ The `page` and `label` segments are derived via `deriveLabel()`. For internal li
 
 Two segments instead of one prevents collisions where the final segment alone is ambiguous. `/grants/fellowship/sheena-allen`, `/hackathon/judges/sheena-allen`, and `/summit/speakers/sheena-allen` all end in `sheena-allen`. Two segments gives `fellowship_sheena_allen`, `judges_sheena_allen`, and `speakers_sheena_allen`.
 
-Locale prefixes are stripped using the project's `locales` export. Event names don't differ by locale — that's a filter in Umami.
+Locale prefixes are stripped using the project's `locales` export. Microsite prefixes (`summit`, `hackathon`) are also stripped — both are better handled as URL path filters in Umami than encoded into every event name.
 
 ### Implementation
 
@@ -59,8 +59,10 @@ export function deriveLabel(href: string): string {
       url.hostname.endsWith('.interledger.org')
 
     if (isInternal) {
-      const parts = stripLangPrefix(
-        url.pathname.replace(/\/$/, '').split('/').filter(Boolean)
+      const parts = stripMicrositePrefix(
+        stripLangPrefix(
+          url.pathname.replace(/\/$/, '').split('/').filter(Boolean)
+        )
       )
       return slugify(parts.slice(-2).join('_') || 'home')
     }
@@ -81,8 +83,19 @@ export function deriveLabel(href: string): string {
   }
 }
 
+const MICROSITES = ['summit', 'hackathon'] as const
+
 const stripLangPrefix = (parts: string[]): string[] =>
   (locales as string[]).includes(parts[0]) ? parts.slice(1) : parts
+
+const stripMicrositePrefix = (parts: string[]): string[] => {
+  while (
+    parts.length > 0 &&
+    (MICROSITES as readonly string[]).includes(parts[0])
+  )
+    parts = parts.slice(1)
+  return parts
+}
 
 export const slugify = (text: string): string =>
   text
