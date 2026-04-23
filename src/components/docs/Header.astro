@@ -3,10 +3,17 @@ import Search from '@astrojs/starlight/components/Search.astro'
 import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
 import DevelopersLogo from '../logos/DevelopersLogo.astro'
-import { useTranslations } from '@/utils'
 
+// Inlined to avoid pulling @/utils/i18 into the Starlight chunk.
+// Any import from @/utils/i18 transitively drags Tailwind's bundle onto
+// the docs page because i18 is shared with main-site layouts that load
+// tailwind.css. Keep docs chrome self-contained.
+const FOUNDATION_LABEL: Record<string, string> = {
+  en: 'Interledger Foundation',
+  es: 'Fundación Interledger'
+}
 const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
+const foundationLabel = FOUNDATION_LABEL[routeLocale] ?? FOUNDATION_LABEL.en
 ---
 
 <div class="header sl-flex">
@@ -14,14 +21,10 @@ const t = useTranslations(routeLocale)
     <DevelopersLogo />
   </a>
   <a href="/" class="home-link overflower">
-    <span
-      class="overflower-short"
-      aria-hidden="true"
-      title={t('aria.logo.foundation_title')}
-    >
+    <span class="overflower-short" aria-hidden="true" title={foundationLabel}>
       ILF
     </span>
-    <span class="overflower-long"> {t('aria.logo.foundation')} </span>
+    <span class="overflower-long"> {foundationLabel} </span>
   </a>
   <Search />
   <div class="sl-hidden md:sl-flex secondary-wrap">
