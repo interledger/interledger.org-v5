@@ -349,40 +349,34 @@ Use a utility class - it will always win due to layer order:
 
 ## Starlight Docs Isolation
 
-The site has **two separate CSS systems**:
+The site has **two separate CSS systems** that never coexist in the same browser page. Isolation is enforced by **what each page loads**, not by selector scoping.
 
-### Main Site (This Architecture)
+### Main site lane
 
-- **Pages:** Foundation, blog, summit, homepage, etc.
-- **CSS:** `tailwind.css` → modular architecture (base/, components/, theme.css)
-- **Variables:** `--text-step-*`, `--spacing-space-*`, `--color-primary` from `theme.css` + `base/variables.css`
-- **Prose:** Uses `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`
+- **Pages:** foundation, blog, summit, homepage, lander — anything using `BaseLayout.astro` or `LanderLayout.astro`.
+- **CSS:** `tailwind.css`, which pulls in `theme.css`, `base/*`, `components/*`.
+- **Variables:** `--text-step-*`, `--spacing-space-*`, `--color-primary`, etc. from `theme.css` + `base/variables.css`.
+- **Prose:** `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`.
 
-### Starlight Docs (`/developers/docs`)
+### Docs lane
 
-- **Pages:** Technical documentation only
-- **CSS:** `interledger.css`, `atom-one-light.min.css` (configured in `astro.config.mjs`)
-- **Variables:** Scoped to `.sl-container` to avoid conflicts
-- **Prose:** Uses Starlight's own markdown rendering (`.sl-markdown-content`)
+- **Pages:** Starlight-rendered pages under `/developers/`.
+- **CSS:** registered in `astro.config.mjs` under Starlight's `customCss`: `@interledger/docs-design-system` themes, `interledger.css`, `atom-one-light.min.css`. Starlight bundles these into its own CSS assets and ships them only on docs routes.
+- **Variables:** `--step-*`, `--space-*`, `--color-primary`, `--sl-*` from `ilf-docs.css`, `teal-theme.css`, and `interledger.css`. All at `:root` — docs pages are the only ones that load these files, so there is no caller to conflict with.
+- **Prose:** Starlight's own markdown rendering (`.sl-markdown-content`).
 
-### Limitations
+### Rules to keep them isolated
 
-**Starlight variables override main site variables within `.sl-container`**
+1. **Main-site styles** go in `src/styles/theme.css`, `base/*`, `components/*`, or a new file imported by `tailwind.css`. Never imported on docs pages.
+2. **Docs-only styles** go in `src/styles/interledger.css` or a new file registered under `customCss` in `astro.config.mjs`. Never imported by `tailwind.css`.
+3. **Never cross-wire.** Don't `@import './interledger.css'` from `tailwind.css`. Don't add `tailwind.css` to Starlight's `customCss`. That's the only way variables can collide in the same page.
+4. **Shared components** (logos, SEO head — anything rendered in both lanes) must not assume Tailwind utilities are loaded. Either:
+   - Provide a plain-CSS fallback, like the SVG `fill="#000"` alongside `fill-current` in `DevelopersLogo.astro`. Tailwind wins when loaded; the SVG attribute wins when it isn't.
+   - Put styles in the component's own `<style>` block (Astro scopes them per-component — safe on both sides).
+5. **Don't reach across lanes for variables.** A docs component can only see variables defined in the docs lane's CSS, and vice versa. If you need the same value in both, define it in both (with matching values) — don't try to import from across.
 
-```css
-:root {
-  --color-primary: oklch(51.54%...) /* Main site */;
-}
+### Why not scope docs variables to `.sl-container`?
 
-:where(.sl-container) {
-  --color-primary: oklch(51.95%...) /* Starlight - overrides! */;
-}
-```
+An earlier attempt wrapped `interledger.css` variables in `:where(.sl-container) { ... }`. This broke the header and sidebar: Starlight renders `<header>`, `<nav.sidebar>`, and other chrome **outside** `.sl-container`, so those elements couldn't read `--color-primary` or `--space-*` and fell back to UA defaults.
 
-**Impact:** Inside Starlight pages, main site variable values are **inaccessible**.
-
-**Why this matters:** If you want to embed a main site component (that uses `var(--color-primary)`) inside Starlight docs, it will use Starlight's color value, not the main site's.
-
-**Future Fix:** Rename Starlight variables to `--sl-*` prefix (e.g., `--sl-color-primary`, `--sl-text-step-0`) so both sets of variables are accessible simultaneously. This requires updating `interledger.css` and all Starlight component styles.
-
-**Current Workaround:** Keep main site components and Starlight docs completely separate. Don't nest `.sl-container` inside `[data-prose]` wrappers or vice versa.
+The lane split above is the actual isolation mechanism. If you ever need an extra belt-and-braces layer on top, prefix docs variables (`--ilf-docs-primary`, `--ilf-docs-step-0`) rather than fencing the shared names behind a selector that doesn't cover the whole subtree.
