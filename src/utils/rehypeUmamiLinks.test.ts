@@ -48,6 +48,20 @@ describe('rehypeUmamiLinks', () => {
     )
   })
 
+  it('when frontmatter umamiContext is omitted, uses path-derived labels and does not emit malformed data-umami-event', async () => {
+    const out = await run(
+      '<p><a href="/policy">advocate</a> and <a href="https://example.org/">external</a></p>',
+      '/repo/src/content/foundation-pages/about-us.mdx',
+      {}
+    )
+    expect(out).toContain('data-umami-event="About Us page link - advocate"')
+    expect(out).toContain('data-umami-event="About Us page link - external"')
+    expect(out).not.toContain('undefined')
+    expect(out).not.toContain('data-umami-event=""')
+    expect(out).not.toMatch(/data-umami-event="\s*link -/)
+    expect(out.match(/data-umami-event=/g)).toHaveLength(2)
+  })
+
   it('leaves existing data-umami-event attributes untouched', async () => {
     const out = await run(
       '<a href="/x" data-umami-event="Existing event">kept</a>'

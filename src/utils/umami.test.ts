@@ -112,6 +112,16 @@ describe('createMarked', () => {
     expect(html).toContain('data-umami-event="Ambassadors page link - Site"')
   })
 
+  it('when pageLabel and pathname are omitted (umamiContext-style), still emits a single valid data-umami-event', async () => {
+    const html = (await createMarked({}).parse(
+      '[docs](https://example.com/docs)'
+    )) as string
+    expect(html).toContain('data-umami-event="Home page link - docs"')
+    expect(html).not.toContain('undefined')
+    expect(html).not.toContain('data-umami-event=""')
+    expect(html.match(/data-umami-event=/g)).toHaveLength(1)
+  })
+
   it('escapes quotes inside event attribute values', async () => {
     const html = await createMarked({ pageLabel: 'Home page' }).parse(
       '[hi](https://example.com "a title with \\"quotes\\"")'
