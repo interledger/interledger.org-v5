@@ -84,6 +84,19 @@ describe('derivePage', () => {
       'foundation'
     )
   })
+
+  it('falls back to pathname when optional page is omitted (e.g. CMS umamiContext)', () => {
+    expect(derivePage({ pathname: '/about-us' })).toBe('about_us')
+    expect(derivePage({ page: undefined, pathname: '/about-us' })).toBe(
+      'about_us'
+    )
+  })
+
+  it('treats whitespace-only page override as absent', () => {
+    expect(derivePage({ page: '   ', pathname: '/resources' })).toBe(
+      'resources'
+    )
+  })
 })
 
 describe('deriveAction', () => {
@@ -316,6 +329,18 @@ describe('createMarked', () => {
     expect(html).not.toContain('undefined')
     expect(html).not.toContain('data-umami-event=""')
     expect(html.match(/data-umami-event="/g)).toHaveLength(1)
+  })
+
+  it('does not use a junk segment when page is explicitly undefined (optional umamiContext)', async () => {
+    const html = await createMarked({
+      page: undefined,
+      pathname: '/education',
+      lang: 'en'
+    }).parse('[Overview](/policy-and-advocacy)')
+    expect(html).toContain(
+      'data-umami-event="education:link:policy_and_advocacy"'
+    )
+    expect(html).not.toMatch(/:undefined|undefined:/)
   })
 
   it('escapes title attribute values and keeps umami attributes valid', async () => {

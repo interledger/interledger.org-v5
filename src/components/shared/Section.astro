@@ -2,8 +2,15 @@
 import {
   buildUmamiAttrs,
   escapeHtml,
+  type BuildUmamiAttrsInput,
   umamiAttrsToHtml
 } from '@/utils/umami'
+
+/** Base fields passed into `buildUmamiAttrs` for Strapi section links (explicit, not closed over). */
+type LinkUmamiCtx = Omit<
+  BuildUmamiAttrsInput,
+  'href' | 'linkText' | 'ariaLabel' | 'action' | 'label'
+>
 
 interface TextNode {
   type?: 'text'
@@ -38,11 +45,13 @@ interface Props {
 
 const { title, content } = Astro.props
 const { routeLocale } = Astro.locals
-const umamiBase = {
+
+/** Passed into every renderer so link analytics (`page`) stay testable/refactor‑safe vs Astro scope. */
+const linkUmamiCtx: LinkUmamiCtx = {
   page: title,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'link' as const
+  section: 'link'
 }
 
 const renderTextNode = (node: TextNode) => {
@@ -55,10 +64,13 @@ const renderTextNode = (node: TextNode) => {
   return result
 }
 
-const renderChildren = (children: InlineNode[] = []): string => {
+const renderChildren = (
+  children: InlineNode[] = [],
+  umamiCtx: LinkUmamiCtx
+): string => {
   return children
     .map((node) => {
-      if (node.type === 'link') return renderLinkNode(node)
+      if (node.type === 'link') return renderLinkNode(node, umamiCtx)
       // Strapi text nodes historically omit `type`; treat absent as text.
       if (node.type === 'text' || node.type === undefined)
         return renderTextNode(node)
@@ -67,11 +79,11 @@ const renderChildren = (children: InlineNode[] = []): string => {
     .join('')
 }
 
-const renderLinkNode = (node: LinkNode) => {
+const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
   const href = node.url ?? ''
-  const innerHtml = renderChildren(node.children)
+  const innerHtml = renderChildren(node.children, umamiCtx)
   const attrs = buildUmamiAttrs({
-    ...umamiBase,
+    ...umamiCtx,
     href,
     linkText: node.children.map((c) => c.text ?? '').join('')
   })
@@ -89,7 +101,7 @@ const renderLinkNode = (node: LinkNode) => {
             return (
               <p
                 class="mb-space-2xs"
-                set:html={renderChildren(block.children)}
+                set:html={renderChildren(block.children, linkUmamiCtx)}
               />
             )
           case 'list': {
@@ -100,7 +112,7 @@ const renderLinkNode = (node: LinkNode) => {
                 {block.children.map((item) => (
                   <li
                     class="mb-space-3xs"
-                    set:html={renderChildren(item.children)}
+                    set:html={renderChildren(item.children, linkUmamiCtx)}
                   />
                 ))}
               </ListTag>

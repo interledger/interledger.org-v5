@@ -117,9 +117,15 @@ export function deriveLabel(href: string): string {
  * Resolve the `page` segment for an event. Foundation root collapses to
  * `foundation`; any microsite home (e.g. `summit_home`) collapses to `home`
  * since the microsite is implicit from the URL dimension.
+ *
+ * When `page` is omitted, `undefined`, or only whitespace (e.g. optional CMS
+ * `umamiContext` not set), the segment is derived from `pathname` only — never
+ * from the literal string "undefined" or other placeholder text.
  */
 export function derivePage({ page, pathname }: UmamiContext = {}): string {
-  if (page) return normaliseSegment(page)
+  const override =
+    page != null && String(page).trim() !== '' ? String(page).trim() : ''
+  if (override) return normaliseSegment(override)
   const raw = deriveLabel(pathname ?? '/')
   if (raw === 'foundation_home') return 'foundation'
   if (raw.endsWith(HOME_SUFFIX)) return 'home'
