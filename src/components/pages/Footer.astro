@@ -1,9 +1,15 @@
 ---
 import { useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const currentYear = new Date().getFullYear()
+const umamiBase = {
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'footer' as const
+}
 ---
 
 <footer
@@ -13,7 +19,11 @@ const currentYear = new Date().getFullYear()
     <li>
       <a
         href="https://interledger.social/@Interledger"
-        data-umami-event="Footer - Mastodon"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: 'https://interledger.social/@Interledger',
+          ariaLabel: t('footer.social.mastodon')
+        })}
       >
         <img
           src="/img/lander/icon-fediverse.svg"
@@ -23,7 +33,14 @@ const currentYear = new Date().getFullYear()
       </a>
     </li>
     <li>
-      <a href="https://twitter.com/interledger" data-umami-event="Footer - X">
+      <a
+        href="https://twitter.com/interledger"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: 'https://twitter.com/interledger',
+          ariaLabel: t('footer.social.twitter')
+        })}
+      >
         <img
           src="/img/lander/icon-twitter.svg"
           alt={t('footer.social.twitter')}
@@ -34,7 +51,11 @@ const currentYear = new Date().getFullYear()
     <li>
       <a
         href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-        data-umami-event="Footer - Slack"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: 'https://communityinviter.com/apps/interledger/interledger-working-groups-slack',
+          ariaLabel: t('footer.social.slack')
+        })}
       >
         <img
           src="/img/lander/icon-slack.svg"
@@ -46,7 +67,11 @@ const currentYear = new Date().getFullYear()
     <li>
       <a
         href="https://github.com/interledger"
-        data-umami-event="Footer - GitHub"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: 'https://github.com/interledger',
+          ariaLabel: t('footer.social.github')
+        })}
       >
         <img
           src="/img/lander/icon-github.svg"
@@ -58,7 +83,11 @@ const currentYear = new Date().getFullYear()
     <li>
       <a
         href="https://www.linkedin.com/company/interledger-foundation/"
-        data-umami-event="Footer - LinkedIn"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: 'https://www.linkedin.com/company/interledger-foundation/',
+          ariaLabel: t('footer.social.linkedin')
+        })}
       >
         <img
           src="/img/lander/icon-linkedin.svg"

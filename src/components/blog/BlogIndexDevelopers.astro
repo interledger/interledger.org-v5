@@ -5,6 +5,7 @@ import {
   translatePath,
   COLLECTION_INDEX_SLUG
 } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
@@ -24,6 +25,16 @@ const foundationHref = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
+
+const postAttrs = (href: string, linkText: string, slug: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'card',
+    href,
+    linkText,
+    action: `post_${slug}_title`
+  })
 ---
 
 <BlogIndexHeader
@@ -54,7 +65,11 @@ const foundationHref = translatePath(
               <a
                 href={postPath}
                 class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
+                {...postAttrs(
+                  postPath,
+                  blogPostEntry.data.title,
+                  blogPostEntry.data.pathSlug
+                )}
               >
                 {blogPostEntry.data.title}
               </a>

@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { content, alignment = 'left', umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
 
 const alignmentClass =
   alignment === 'center'
@@ -20,8 +21,9 @@ const hasContent = content != null && content !== ''
 const className = alignmentClass || undefined
 const htmlContent = hasContent
   ? await parseMarkdown(content, {
-      pageLabel: umamiContext,
-      pathname: Astro.url.pathname
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
     })
   : null
 ---

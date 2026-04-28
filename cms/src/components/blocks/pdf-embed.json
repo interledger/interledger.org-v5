@@ -32,10 +32,6 @@
     "label": {
       "type": "string",
       "default": "Download file"
-    },
-    "analyticsEvent": {
-      "type": "string",
-      "required": true
     }
   }
 }

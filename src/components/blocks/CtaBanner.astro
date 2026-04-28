@@ -1,5 +1,5 @@
 ---
-import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   heading: string
@@ -23,10 +23,13 @@ const {
   umamiContext
 } = Astro.props
 
-const pageLabel = resolvePageLabel({
-  pageLabel: umamiContext,
-  pathname: Astro.url.pathname
-})
+const { routeLocale } = Astro.locals
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'cta' as const
+}
 
 const bgClasses = {
   primary: 'bg-gradient-primary text-white',
@@ -77,8 +80,9 @@ const secondaryButtonClasses = {
             <a
               href={primaryButtonLink}
               class={primaryButtonClasses[backgroundColor]}
-              data-umami-event={buildUmamiEvent({
-                pageLabel,
+              {...buildUmamiAttrs({
+                ...umamiBase,
+                href: primaryButtonLink,
                 linkText: primaryButtonText
               })}
             >
@@ -89,8 +93,9 @@ const secondaryButtonClasses = {
             <a
               href={secondaryButtonLink}
               class={secondaryButtonClasses[backgroundColor]}
-              data-umami-event={buildUmamiEvent({
-                pageLabel,
+              {...buildUmamiAttrs({
+                ...umamiBase,
+                href: secondaryButtonLink,
                 linkText: secondaryButtonText
               })}
             >

@@ -1,5 +1,5 @@
 ---
-import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface CardLink {
   title: string
@@ -17,11 +17,13 @@ interface Props {
 }
 
 const { heading, subheading, cards, columns = '3', umamiContext } = Astro.props
-
-const pageLabel = resolvePageLabel({
-  pageLabel: umamiContext,
-  pathname: Astro.url.pathname
-})
+const { routeLocale } = Astro.locals
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card' as const
+}
 
 const gridClass =
   columns === '2'
@@ -52,8 +54,9 @@ const gridClass =
         <a
           href={card.href}
           class="group flex items-center justify-between rounded-card border border-gray-200 bg-white p-space-m text-inherit no-underline transition-all duration-200 hover:border-primary hover:shadow-card"
-          data-umami-event={buildUmamiEvent({
-            pageLabel,
+          {...buildUmamiAttrs({
+            ...umamiBase,
+            href: card.href,
             linkText: card.title
           })}
           {...(card.openInNewTab

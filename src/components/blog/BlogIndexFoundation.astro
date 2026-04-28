@@ -5,6 +5,7 @@ import {
   translatePath,
   useTranslations
 } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
@@ -24,6 +25,21 @@ const developersHref = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
+
+const postAttrs = (
+  href: string,
+  linkText: string,
+  slug: string,
+  variant: 'title' | 'read_more'
+) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'card',
+    href,
+    linkText,
+    action: `post_${slug}_${variant}`
+  })
 ---
 
 <BlogIndexHeader
@@ -60,7 +76,12 @@ const developersHref = translatePath(
               <a
                 href={postPath}
                 class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
-                data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (title)`}
+                {...postAttrs(
+                  postPath,
+                  blogPostEntry.data.title,
+                  blogPostEntry.data.pathSlug,
+                  'title'
+                )}
               >
                 {blogPostEntry.data.title}
               </a>
@@ -79,7 +100,12 @@ const developersHref = translatePath(
             <a
               href={postPath}
               class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
-              data-umami-event={`Blog - ${blogPostEntry.data.date.toISOString().slice(0, 10)} (read more)`}
+              {...postAttrs(
+                postPath,
+                t('blog.read_more'),
+                blogPostEntry.data.pathSlug,
+                'read_more'
+              )}
             >
               {t('blog.read_more')}
               <svg

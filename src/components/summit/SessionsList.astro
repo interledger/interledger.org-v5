@@ -6,6 +6,7 @@ import {
   truncateText,
   getTranslation
 } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   sessions: Talk[]
@@ -26,6 +27,16 @@ const sessionsWithLinks = sessions.map((session) => {
     href: `${sessionBaseHref}/${generateSlug(session.title)}`
   }
 })
+
+const sessionAttrs = (title: string, href: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang,
+    section: 'card',
+    href,
+    linkText: title,
+    action: `${year}_session_${generateSlug(title)}`
+  })
 ---
 
 <ul>
@@ -36,7 +47,7 @@ const sessionsWithLinks = sessions.map((session) => {
           <h2 class="text-teal-300">
             <a
               href={session.href}
-              data-umami-event={`${year} Speaker page - Session: ${session.title}`}
+              {...sessionAttrs(session.title, session.href)}
             >
               {session.title}
             </a>

@@ -1,9 +1,37 @@
 ---
 import { translatePath, useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const currentYear = new Date().getFullYear()
+
+const subscribeHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'subscribe'
+)
+const tocHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'terms-of-service'
+)
+const privacyHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'privacy-policy'
+)
+const contactHref = translatePath('foundation-pages', routeLocale, 'contact')
+
+const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'footer',
+    href,
+    ariaLabel,
+    linkText
+  })
 ---
 
 <footer
@@ -21,8 +49,8 @@ const currentYear = new Date().getFullYear()
       </h3>
       <a
         class="mx-auto mb-space-s flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-space-xs py-space-3xs text-step--1 text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
-        href={translatePath('foundation-pages', routeLocale, 'subscribe')}
-        data-umami-event="Footer link - Subscribe"
+        href={subscribeHref}
+        {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
       >
         {t('footer.subscribe')}
       </a>
@@ -40,7 +68,10 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
             aria-label={t('footer.youtube')}
-            data-umami-event="Footer - Youtube"
+            {...footerLink(
+              'https://www.youtube.com/@InterledgerFoundation',
+              t('footer.youtube')
+            )}
           >
             <svg
               role="img"
@@ -56,7 +87,10 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://interledger.social/@Interledger"
             aria-label={t('footer.mastodon')}
-            data-umami-event="Footer - Mastodon"
+            {...footerLink(
+              'https://interledger.social/@Interledger',
+              t('footer.mastodon')
+            )}
           >
             <svg
               role="img"
@@ -73,7 +107,7 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://x.com/interledger"
             aria-label={t('footer.x')}
-            data-umami-event="Footer - X"
+            {...footerLink('https://x.com/interledger', t('footer.x'))}
           >
             <svg
               role="img"
@@ -89,7 +123,7 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://github.com/interledger"
             aria-label={t('footer.github')}
-            data-umami-event="Footer - GitHub"
+            {...footerLink('https://github.com/interledger', t('footer.github'))}
           >
             <svg
               role="img"
@@ -105,7 +139,10 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://www.instagram.com/interledgerfoundation/"
             aria-label={t('footer.instagram')}
-            data-umami-event="Footer - Instagram"
+            {...footerLink(
+              'https://www.instagram.com/interledgerfoundation/',
+              t('footer.instagram')
+            )}
           >
             <svg
               role="img"
@@ -124,7 +161,10 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://www.linkedin.com/company/interledger-foundation/"
             aria-label={t('footer.linkedin')}
-            data-umami-event="Footer - LinkedIn"
+            {...footerLink(
+              'https://www.linkedin.com/company/interledger-foundation/',
+              t('footer.linkedin')
+            )}
           >
             <svg
               role="img"
@@ -140,7 +180,10 @@ const currentYear = new Date().getFullYear()
           <a
             href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
             aria-label={t('footer.slack')}
-            data-umami-event="Footer - Slack"
+            {...footerLink(
+              'https://communityinviter.com/apps/interledger/interledger-working-groups-slack',
+              t('footer.slack')
+            )}
           >
             <svg
               role="img"
@@ -164,11 +207,9 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href={translatePath(
-          'foundation-pages',
-          routeLocale,
-          'terms-of-service'
-        )}>{t('footer.terms_service')}</a
+        href={tocHref}
+        {...footerLink(tocHref, undefined, t('footer.terms_service'))}
+        >{t('footer.terms_service')}</a
       >
     </li>
     <li
@@ -176,7 +217,8 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href={translatePath('foundation-pages', routeLocale, 'privacy-policy')}
+        href={privacyHref}
+        {...footerLink(privacyHref, undefined, t('footer.privacy_policy'))}
         >{t('footer.privacy_policy')}</a
       >
     </li>
@@ -185,7 +227,8 @@ const currentYear = new Date().getFullYear()
     >
       <a
         class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
-        href={translatePath('foundation-pages', routeLocale, 'contact')}
+        href={contactHref}
+        {...footerLink(contactHref, undefined, t('footer.contact_us'))}
         >{t('footer.contact_us')}</a
       >
     </li>

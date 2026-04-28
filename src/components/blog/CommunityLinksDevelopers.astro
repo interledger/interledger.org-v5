@@ -1,8 +1,19 @@
 ---
 import { translatePath, useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const linkAttrs = (href: string, linkText: string, label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'link',
+    href,
+    linkText,
+    label
+  })
 ---
 
 <hr class="mt-space-l mb-space-s" />
@@ -11,18 +22,28 @@ const t = useTranslations(routeLocale)
   {t('blog.community.developers.start')}
   <a
     href="https://github.com/interledger/"
-    data-umami-event="Blog Developers - GitHub">{t('blog.community.github')}</a
+    {...linkAttrs(
+      'https://github.com/interledger/',
+      t('blog.community.github'),
+      'github'
+    )}>{t('blog.community.github')}</a
   >. {t('blog.community.developers.middle')}
   <a
     href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-    data-umami-event="Blog Developers - Community Slack"
-    >{t('blog.community.slack')}</a
+    {...linkAttrs(
+      'https://communityinviter.com/apps/interledger/interledger-working-groups-slack',
+      t('blog.community.slack'),
+      'community_slack'
+    )}>{t('blog.community.slack')}</a
   >
   {t('blog.community.foundation.or')}
   <a
     href="https://docs.google.com/document/d/1T_Q_eRZtL8GluJR9rVADd7fvkB8mPluMk-d96LM4vlg/edit?usp=sharing"
-    data-umami-event="Blog Developers - Community Call"
-    >{t('blog.community.call')}</a
+    {...linkAttrs(
+      'https://docs.google.com/document/d/1T_Q_eRZtL8GluJR9rVADd7fvkB8mPluMk-d96LM4vlg/edit?usp=sharing',
+      t('blog.community.call'),
+      'community_call'
+    )}>{t('blog.community.call')}</a
   >, {t('blog.community.foundation.end')}
 </p>
 
@@ -30,7 +51,10 @@ const t = useTranslations(routeLocale)
   {t('blog.community.developers.newsletter')}
   <a
     href={translatePath('foundation-pages', routeLocale, 'subscribe')}
-    data-umami-event="Blog Developers - Newsletter"
-    >{t('blog.community.newsletter')}</a
+    {...linkAttrs(
+      translatePath('foundation-pages', routeLocale, 'subscribe'),
+      t('blog.community.newsletter'),
+      'newsletter'
+    )}>{t('blog.community.newsletter')}</a
   >.
 </p>

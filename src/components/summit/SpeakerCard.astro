@@ -1,6 +1,7 @@
 ---
 import type { Speaker } from '@/types/summit'
 import { generateSlug } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   speaker: Speaker
@@ -9,14 +10,21 @@ interface Props {
 }
 
 const { speaker, basePath, year } = Astro.props
+const { routeLocale } = Astro.locals
 const href = `${basePath}/${generateSlug(speaker.name)}`
+
+const attrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card',
+  href,
+  linkText: speaker.name,
+  action: `${year}_speaker_${generateSlug(speaker.name)}`
+})
 ---
 
 <li class="flex-1 min-w-[8em]">
-  <a
-    href={href}
-    data-umami-event={`${year} Speaker Card - Speaker: ${speaker.name}`}
-  >
+  <a href={href} {...attrs}>
     <img
       src={speaker.profilePicture}
       alt={speaker.name}

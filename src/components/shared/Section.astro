@@ -1,5 +1,9 @@
 ---
-import { buildUmamiEvent, escapeHtml, resolvePageLabel } from '@/utils/umami'
+import {
+  buildUmamiAttrs,
+  escapeHtml,
+  umamiAttrsToHtml
+} from '@/utils/umami'
 
 interface TextNode {
   type?: 'text'
@@ -33,11 +37,13 @@ interface Props {
 }
 
 const { title, content } = Astro.props
-
-const pageLabel = resolvePageLabel({
-  pageLabel: title,
-  pathname: Astro.url.pathname
-})
+const { routeLocale } = Astro.locals
+const umamiBase = {
+  page: title,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'link' as const
+}
 
 const renderTextNode = (node: TextNode) => {
   let result = escapeHtml(node.text ?? '')
@@ -52,12 +58,12 @@ const renderTextNode = (node: TextNode) => {
 const renderLinkNode = (node: LinkNode) => {
   const href = node.url ?? ''
   const innerHtml = renderChildren(node.children)
-  const event = buildUmamiEvent({
-    pageLabel,
-    linkText: node.children.map((c) => c.text ?? '').join(''),
-    href
+  const attrs = buildUmamiAttrs({
+    ...umamiBase,
+    href,
+    linkText: node.children.map((c) => c.text ?? '').join('')
   })
-  return `<a href="${escapeHtml(href)}" data-umami-event="${escapeHtml(event)}">${innerHtml}</a>`
+  return `<a href="${escapeHtml(href)}"${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
 }
 
 function renderChildren(children: InlineNode[] = []): string {

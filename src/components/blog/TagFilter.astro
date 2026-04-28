@@ -1,5 +1,6 @@
 ---
 import { getTagUrl, translateTag, useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 interface Props {
   allTags: string[]
   selectedTag?: string
@@ -10,6 +11,15 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const activeClass = ['bg-primary', 'text-white']
 const inactiveClass = ['bg-white']
+
+const tagAttrs = (tag: string, label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: label,
+    action: `tag_${tag}`
+  })
 ---
 
 <div class="mb-space-m bg-transparent rounded-[var(--border-radius)]">
@@ -21,7 +31,7 @@ const inactiveClass = ['bg-white']
     <a
       href={href}
       class:list={!selectedTag ? activeClass : inactiveClass}
-      data-umami-event="Blog tag filter - All"
+      {...tagAttrs('all', t('blog.filter.all'))}
     >
       {t('blog.filter.all')}
     </a>
@@ -30,7 +40,7 @@ const inactiveClass = ['bg-white']
         <a
           href={getTagUrl(href, tag)}
           class:list={selectedTag === tag ? activeClass : inactiveClass}
-          data-umami-event={`Blog tag filter - ${tag}`}
+          {...tagAttrs(tag, translateTag(tag, t))}
         >
           {translateTag(tag, t)}
         </a>

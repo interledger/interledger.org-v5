@@ -7,11 +7,13 @@ interface Props {
 }
 
 const { content, umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
 
 const htmlContent = content
   ? await parseMarkdown(content, {
-      pageLabel: umamiContext,
-      pathname: Astro.url.pathname
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
     })
   : null
 ---

@@ -1,14 +1,16 @@
 ---
+import { buildUmamiAttrs } from '@/utils/umami'
+
 interface BreadcrumbItem {
   name: string
   href: string
-  umamiEvent: string
 }
 interface Props {
   breadcrumbs: BreadcrumbItem[]
 }
 
 const { breadcrumbs } = Astro.props
+const { routeLocale } = Astro.locals
 ---
 
 <ol
@@ -32,8 +34,13 @@ const { breadcrumbs } = Astro.props
         <a
           itemprop="item"
           href={crumb.href}
-          data-umami-event={crumb.umamiEvent}
-          data-umami-event="Devs blog breadcrumb - Dev Portal"
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: routeLocale,
+            section: 'nav',
+            href: crumb.href,
+            linkText: crumb.name
+          })}
         >
           <span itemprop="name">{crumb.name}</span>
         </a>

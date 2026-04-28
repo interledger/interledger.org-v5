@@ -1,4 +1,6 @@
 ---
+import { buildUmamiAttrs } from '@/utils/umami'
+
 interface Props {
   title: string
   href: string
@@ -7,6 +9,15 @@ interface Props {
   imgAlt: string
 }
 const { title, href, message, imgHref, imgAlt } = Astro.props
+const { routeLocale } = Astro.locals
+
+const ctaAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'cta',
+  href,
+  linkText: message
+})
 ---
 
 <header
@@ -16,7 +27,7 @@ const { title, href, message, imgHref, imgAlt } = Astro.props
   <a
     class="group flex items-center gap-space-s rounded bg-white px-space-2xs py-space-3xs shadow text-step--1 no-underline"
     href={href}
-    data-umami-event={`Blog link - ${message}`}
+    {...ctaAttrs}
   >
     <p
       class="underline decoration-transparent transition-[text-decoration-color] duration-300 group-hover:decoration-current"

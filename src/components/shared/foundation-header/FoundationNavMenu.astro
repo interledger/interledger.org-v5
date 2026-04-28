@@ -1,11 +1,27 @@
 ---
 import type { MenuGroup } from '@/types/navigation'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   menuGroups: MenuGroup[]
 }
 
 const { menuGroups } = Astro.props
+const { routeLocale } = Astro.locals
+
+const navAttrs = (
+  href: string | null | undefined,
+  linkText?: string,
+  action?: string
+) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    action
+  })
 
 const navButtonClass =
   "peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
@@ -27,7 +43,7 @@ const submenuItemClass =
       <li class="group min-[1060px]:relative" data-menu-level="1">
         <button
           aria-expanded="false"
-          data-umami-event={`Site Nav - ${group.label}`}
+          {...navAttrs(undefined, group.label, `${group.label}_menu`)}
           class={navButtonClass}
           data-submenu-button
           data-open="false"
@@ -40,7 +56,7 @@ const submenuItemClass =
               <li data-menu-level="2">
                 <a
                   href={item.href || '#'}
-                  data-umami-event={`Site Nav - ${item.label}`}
+                  {...navAttrs(item.href || '#', item.label)}
                   class={submenuItemClass}
                   {...(item.openInNewTab
                     ? { target: '_blank', rel: 'noopener noreferrer' }

@@ -41,13 +41,11 @@ const description = translation?.description ?? entry.description
 const breadcrumbs = [
   {
     name: t('summit.summit_name', { year }),
-    href: summitHref,
-    umamiEvent: `Session Detail Page - ${year} Summit`
+    href: summitHref
   },
   {
     name: t('summit.sessions'),
-    href: sessionsHref,
-    umamiEvent: `Session Detail Page - ${year} Summit Sessions`
+    href: sessionsHref
   }
 ]
 ---

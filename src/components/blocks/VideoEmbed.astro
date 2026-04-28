@@ -2,6 +2,7 @@
 import { YouTube } from '@astro-community/astro-embed-youtube'
 import { Vimeo } from '@astro-community/astro-embed-vimeo'
 import { detectVideoProvider } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   url: string
@@ -9,7 +10,17 @@ interface Props {
 }
 
 const { url, title } = Astro.props
+const { routeLocale } = Astro.locals
 const provider = detectVideoProvider(url)
+
+const videoAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'link',
+  href: url,
+  linkText: title,
+  label: 'video'
+})
 ---
 
 {
@@ -22,12 +33,7 @@ const provider = detectVideoProvider(url)
       <Vimeo id={url} playlabel={title} />
     </div>
   ) : (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      data-umami-event={`Video link - ${title}`}
-    >
+    <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
       {title}
     </a>
   )

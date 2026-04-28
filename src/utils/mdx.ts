@@ -1,8 +1,8 @@
-import { createMarked, type UmamiLinkContext } from './umami'
+import { createMarked, type UmamiContext } from './umami'
 
 export async function parseMarkdown(
   text: string | null | undefined,
-  context: UmamiLinkContext = {}
+  context: UmamiContext = {}
 ): Promise<string> {
   if (!text) return ''
   return createMarked(context).parse(text)
@@ -10,7 +10,7 @@ export async function parseMarkdown(
 
 export function parseMarkdownInline(
   text: string | null | undefined,
-  context: UmamiLinkContext = {}
+  context: UmamiContext = {}
 ): string {
   if (!text) return ''
   return createMarked(context).parseInline(text) as string

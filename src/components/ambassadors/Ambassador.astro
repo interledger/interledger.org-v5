@@ -1,7 +1,7 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro'
 import { defaultLocale, useTranslations } from '@/utils'
-import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   name: string
@@ -31,18 +31,21 @@ const fellowLink = `${langPrefix}/grant/fellowship/${pathSlug}`
 
 const hasLinks = linkedinUrl || grantReportUrl
 
-const pageLabel = resolvePageLabel({
-  pageLabel: umamiContext,
-  pathname: Astro.url.pathname
-})
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card' as const
+}
 ---
 
 <article>
   <a
     href={fellowLink}
     class="text-black no-underline"
-    data-umami-event={buildUmamiEvent({
-      pageLabel,
+    {...buildUmamiAttrs({
+      ...umamiBase,
+      href: fellowLink,
       linkText: `${name} Fellow profile`
     })}
   >
@@ -76,9 +79,11 @@ const pageLabel = resolvePageLabel({
             href={grantReportUrl}
             class="ambassador-link group"
             aria-label={t('aria.ambassador.grant_report')}
-            data-umami-event={buildUmamiEvent({
-              pageLabel,
-              linkText: `${name} report`
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: grantReportUrl,
+              linkText: `${name} report`,
+              ariaLabel: t('aria.ambassador.grant_report')
             })}
             target="_blank"
             rel="noopener noreferrer"
@@ -101,9 +106,11 @@ const pageLabel = resolvePageLabel({
             href={linkedinUrl}
             class="ambassador-link group"
             aria-label={t('aria.linkedin')}
-            data-umami-event={buildUmamiEvent({
-              pageLabel,
-              linkText: `${name} Linkedin`
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: linkedinUrl,
+              linkText: `${name} Linkedin`,
+              ariaLabel: t('aria.linkedin')
             })}
             target="_blank"
             rel="noopener noreferrer"

@@ -6,6 +6,7 @@ import {
   type Locale,
   getTranslation
 } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 import SessionSubheader from './SessionSubheader.astro'
 
 interface Props {
@@ -20,6 +21,15 @@ const href = `${basePath}/${generateSlug(talkPreview.title)}`
 const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
 const title = translation?.title ?? talkPreview.title
+
+const attrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang,
+  section: 'card',
+  href,
+  linkText: title,
+  action: `${year}_session_${generateSlug(talkPreview.title)}`
+})
 ---
 
 <li class="flex flex-col gap-space-m mb-6 md:flex-row">
@@ -33,11 +43,7 @@ const title = translation?.title ?? talkPreview.title
   />
   <div class="[&_p]:text-step--1">
     <h2 class="text-[var(--color-primary)]">
-      <a
-        href={href}
-        data-umami-event={`${year} Summit Sessions - Session: ${talkPreview.title}`}
-        >{title}</a
-      >
+      <a href={href} {...attrs}>{title}</a>
     </h2>
     <SessionSubheader
       talk={talkPreview}

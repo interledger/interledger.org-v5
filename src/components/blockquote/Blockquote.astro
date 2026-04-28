@@ -9,9 +9,11 @@ interface Props {
 }
 
 const { source, quote, umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
 const htmlSource = parseMarkdownInline(source, {
-  pageLabel: umamiContext,
-  pathname: Astro.url.pathname
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale
 })
 ---
 

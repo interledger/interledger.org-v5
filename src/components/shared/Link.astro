@@ -1,5 +1,5 @@
 ---
-import { buildUmamiEvent, resolvePageLabel } from '@/utils/umami'
+import { buildUmamiAttrs, type UmamiSection } from '@/utils/umami'
 
 interface Props {
   href?: string
@@ -7,9 +7,19 @@ interface Props {
   style?: string
   variant?: 'hero' | 'default'
   external?: boolean
+  /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
+  section?: UmamiSection
 }
 
-const { href, style, external, text, variant } = Astro.props as Props
+const {
+  href,
+  style,
+  external,
+  text,
+  variant,
+  section = 'cta'
+} = Astro.props as Props
+const { routeLocale } = Astro.locals
 
 const classes: Record<string, string> = {
   'hero-primary':
@@ -31,8 +41,10 @@ const key =
       ? 'secondary'
       : 'primary'
 
-const umamiEvent = buildUmamiEvent({
-  pageLabel: resolvePageLabel({ pathname: Astro.url.pathname }),
+const umamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section,
   linkText: text,
   href
 })
@@ -42,7 +54,7 @@ const umamiEvent = buildUmamiEvent({
   href={href ?? ''}
   class={classes[key]}
   style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
-  data-umami-event={umamiEvent}
+  {...umamiAttrs}
   {...external && {
     target: '_blank',
     rel: 'noopener noreferrer'
