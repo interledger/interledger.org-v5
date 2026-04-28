@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import react from '@astrojs/react'
 import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
@@ -114,6 +115,7 @@ export default defineConfig({
       },
       disable404Route: true
     }),
+    react(),
     mdx(),
     sitemap({
       filter: (url) => !new URL(url).pathname.includes('/preview')

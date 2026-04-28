@@ -42,6 +42,11 @@
 @import 'tailwindcss';
 @config "../../tailwind.config.mjs";
 
+/* React Aria Components plugin — exposes RAC's data-attribute states
+   (focused, hovered, pressed, selected, entering, exiting, etc.) as
+   short Tailwind variants without the `data-` prefix. */
+@plugin "tailwindcss-react-aria-components";
+
 /* Theme layer - @theme tokens must be processed before @apply in base files */
 @import './theme.css';
 

@@ -1,0 +1,112 @@
+---
+/**
+ * POC: React Aria nav components.
+ * INTORG-647 — measurement page; not linked from the live site.
+ *
+ * Replaces FoundationHeader with a RAC-based header so the page can be
+ * compared (Lighthouse / Web Vitals / bundle) against a baseline page that
+ * uses the vanilla FoundationHeader. The body content is intentionally
+ * lightweight so any score difference reflects the header swap, not page
+ * content.
+ *
+ * Hydration: `client:idle` mounts after first paint, before user likely
+ * interacts. `client:load` would block startup; `client:visible` is
+ * unreliable for above-the-fold content.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import FoundationFooter from '@/components/pages/FoundationFooter.astro'
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
+import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
+import AriaNavMenu from '@/components/poc/AriaNavMenu.tsx'
+import AriaMobileDrawer from '@/components/poc/AriaMobileDrawer.tsx'
+import {
+  getNavigation,
+  useTranslations,
+  translatePath,
+  HOME_CONTENT_SLUG
+} from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
+
+const langItemClass =
+  "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
+const langLinkClass =
+  'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
+---
+
+<BaseLayout
+  title="React Aria POC"
+  description="POC page with React Aria nav components. Header swapped for measurement (INTORG-647)."
+  bodyClass="flex flex-col min-h-full min-w-[360px] font-titillium"
+>
+  <header
+    slot="header"
+    class="bg-white px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow"
+    role="banner"
+  >
+    <nav
+      class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s h-[var(--site-header-height)]"
+      aria-label={t('nav.main')}
+    >
+      <a
+        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
+        class="w-[11em] flex-none"
+        aria-label={t('aria.logo.foundation')}
+      >
+        <FoundationLogo class="text-black" />
+      </a>
+
+      <div class="max-[1059px]:hidden min-[1060px]:block">
+        <AriaNavMenu menuGroups={mainMenu} client:idle />
+      </div>
+
+      <div class="flex items-center gap-space-s">
+        {
+          ctaButton && (
+            <a
+              class="self-center no-underline py-space-s hover:underline max-[1059px]:hidden"
+              href={ctaButton.href || '#'}
+              {...(ctaButton.openInNewTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {ctaButton.label}
+            </a>
+          )
+        }
+        <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
+        <div class="min-[1060px]:hidden">
+          <AriaMobileDrawer
+            menuGroups={mainMenu}
+            triggerLabel={t('nav.toggle_menu')}
+            client:idle
+          />
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main
+    class="max-w-content mx-auto px-space-m py-space-xl flex flex-col gap-space-m"
+  >
+    <h1 class="text-step-3 font-semibold">React Aria POC</h1>
+    <p class="text-step-0 max-w-prose">
+      This page's header uses <code>react-aria-components</code> instead of the vanilla
+      <code>FoundationNavMenu</code> and hamburger-drawer JS. Compare against a baseline
+      page (e.g. <code>/</code> or <code>/about-us</code>) to isolate the cost
+      of the React + RAC runtime.
+    </p>
+    <p class="text-step--1 max-w-prose">
+      Append <code>?wv=1</code> to the URL to log Web Vitals to the console. Resize
+      below 1060px to exercise the mobile drawer.
+    </p>
+  </main>
+
+  <FoundationFooter slot="footer" />
+
+  <script>
+    import '@/scripts/web-vitals'
+  </script>
+</BaseLayout>
