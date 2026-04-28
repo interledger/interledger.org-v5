@@ -83,3 +83,10 @@ export {
   deriveLabel,
   derivePage
 } from './umami'
+
+// SEO
+export {
+  buildCanonicalMeta,
+  type CanonicalMeta,
+  type HreflangMeta
+} from './seoMeta'
