@@ -23,7 +23,12 @@ interface Props {
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
 const t = useTranslations(routeLocale)
-const canonicalMeta = buildCanonicalMeta(Astro.site!, routeLocale, currentSlug, currentBasePath)
+const canonicalMeta = buildCanonicalMeta(
+  Astro.site!,
+  routeLocale,
+  currentSlug,
+  currentBasePath
+)
 const {
   title,
   titleSuffix = t('site.title'),
