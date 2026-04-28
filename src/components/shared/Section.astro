@@ -55,18 +55,7 @@ const renderTextNode = (node: TextNode) => {
   return result
 }
 
-const renderLinkNode = (node: LinkNode) => {
-  const href = node.url ?? ''
-  const innerHtml = renderChildren(node.children)
-  const attrs = buildUmamiAttrs({
-    ...umamiBase,
-    href,
-    linkText: node.children.map((c) => c.text ?? '').join('')
-  })
-  return `<a href="${escapeHtml(href)}"${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
-}
-
-function renderChildren(children: InlineNode[] = []): string {
+const renderChildren = (children: InlineNode[] = []): string => {
   return children
     .map((node) => {
       if (node.type === 'link') return renderLinkNode(node)
@@ -76,6 +65,17 @@ function renderChildren(children: InlineNode[] = []): string {
       return ''
     })
     .join('')
+}
+
+const renderLinkNode = (node: LinkNode) => {
+  const href = node.url ?? ''
+  const innerHtml = renderChildren(node.children)
+  const attrs = buildUmamiAttrs({
+    ...umamiBase,
+    href,
+    linkText: node.children.map((c) => c.text ?? '').join('')
+  })
+  return `<a href="${escapeHtml(href)}"${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
 }
 ---
 
