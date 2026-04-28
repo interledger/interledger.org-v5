@@ -6,7 +6,7 @@
  */
 import '../styles/tailwind.css'
 import SeoHead from '@/components/SeoHead.astro'
-import { useTranslations } from '@/utils/i18'
+import { useTranslations, buildCanonicalMeta } from '@/utils'
 
 interface Props {
   title: string
@@ -21,8 +21,9 @@ interface Props {
   datePublished?: string
 }
 
-const { routeLocale } = Astro.locals
+const { routeLocale, currentSlug, currentBasePath } = Astro.locals
 const t = useTranslations(routeLocale)
+const canonicalMeta = buildCanonicalMeta(Astro.site!, routeLocale, currentSlug, currentBasePath)
 const {
   title,
   titleSuffix = t('site.title'),
@@ -30,7 +31,7 @@ const {
   theme = 'light',
   ogType = 'website',
   ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
-  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  canonicalURL = canonicalMeta.canonical,
   bodyClass = '',
   bodyStyle = '',
   datePublished
@@ -47,6 +48,8 @@ const {
       ogType={ogType}
       ogImageUrl={ogImageUrl}
       canonicalURL={canonicalURL}
+      hreflang={canonicalMeta.hreflang}
+      xDefault={canonicalMeta.xDefault}
       datePublished={datePublished}
     />
     <slot name="head" />

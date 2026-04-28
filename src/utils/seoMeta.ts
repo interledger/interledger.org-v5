@@ -1,0 +1,40 @@
+import { switcherLocales, defaultLocale, type Locale } from '@/utils/locales'
+import { translationMap } from '@/utils/translationMapData'
+import { localizeRoute } from '@/utils/routes'
+import { buildRoutePath } from '@/utils/translatePath'
+
+export type HreflangMeta = {
+  locale: Locale
+  url: string
+}
+
+export type CanonicalMeta = {
+  canonical: string
+  hreflang: HreflangMeta[]
+  xDefault: string
+}
+
+export function buildCanonicalMeta(
+  site: URL,
+  routeLocale: Locale,
+  currentSlug: string,
+  currentBasePath: string
+): CanonicalMeta {
+  const entry = translationMap[currentSlug]
+
+  function resolveHref(locale: Locale): string {
+    const slug = entry?.[locale] ?? currentSlug
+    const path = buildRoutePath(currentBasePath, slug)
+    return new URL(localizeRoute(path, locale), site).href
+  }
+
+  const hreflang: HreflangMeta[] = switcherLocales.map((locale) => ({
+    locale,
+    url: resolveHref(locale)
+  }))
+
+  const canonical = resolveHref(routeLocale)
+  const xDefault = resolveHref(defaultLocale)
+
+  return { canonical, hreflang, xDefault }
+}

@@ -72,3 +72,10 @@ export { toAmbassadorData } from './ambassadors'
 
 // GitHub
 export { parseRawGitHubPath } from './parseRawGitHubPath'
+
+// SEO
+export {
+  buildCanonicalMeta,
+  type CanonicalMeta,
+  type HreflangMeta
+} from './seoMeta'
