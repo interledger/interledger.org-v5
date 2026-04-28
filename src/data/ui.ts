@@ -140,7 +140,27 @@ export const ui = {
     'aria.logo.foundation_title': 'Interledger Foundation',
     'aria.logo.github': 'Interledger Github',
     'aria.ambassador.grant_report': 'View grant report',
-    'aria.linkedin': 'View LinkedIn profile'
+    'aria.linkedin': 'View LinkedIn profile',
+    'contact.title': 'Contact',
+    'contact.description': 'Get in touch with the Interledger Foundation.',
+    'contact.name': 'Name',
+    'contact.name.placeholder': 'Enter your preferred name',
+    'contact.email': 'Email',
+    'contact.email.placeholder':
+      'Enter the email address you would like to be contacted at',
+    'contact.topic': 'Topic',
+    'contact.topic.placeholder': 'Select a topic',
+    'contact.topic.grants': 'Grants',
+    'contact.topic.media': 'Media',
+    'contact.topic.technology': 'Technology',
+    'contact.topic.other': 'Other',
+    'contact.message': 'Message',
+    'contact.message.placeholder': 'Your message',
+    'contact.submit': 'Send message',
+    'contact.success_message': 'Message sent!',
+    'contact.success_thanks':
+      "Thank you for reaching out. We'll get back to you as soon as possible.",
+    'contact.error.captcha': 'Please complete the reCAPTCHA challenge.'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -287,6 +307,26 @@ export const ui = {
     'aria.logo.foundation_title': 'Fundación Interledger',
     'aria.logo.github': 'GitHub de Interledger',
     'aria.ambassador.grant_report': 'Ver informe de subvención',
-    'aria.linkedin': 'Ver perfil de LinkedIn'
+    'aria.linkedin': 'Ver perfil de LinkedIn',
+    'contact.title': 'Contacto',
+    'contact.description': 'Póngase en contacto con la Fundación Interledger.',
+    'contact.name': 'Nombre',
+    'contact.name.placeholder': 'Escriba el nombre de su preferencia',
+    'contact.email': 'Correo electrónico',
+    'contact.email.placeholder':
+      'Indique la dirección de correo electrónico a la que desea que nos comuniquemos con usted',
+    'contact.topic': 'Tema',
+    'contact.topic.placeholder': 'Seleccione un tema',
+    'contact.topic.grants': 'Subvenciones',
+    'contact.topic.media': 'Medios',
+    'contact.topic.technology': 'Tecnología',
+    'contact.topic.other': 'Otra',
+    'contact.message': 'Mensaje',
+    'contact.message.placeholder': 'Escriba su mensaje',
+    'contact.submit': 'Enviar mensaje',
+    'contact.success_message': 'Su mensaje ha sido enviado.',
+    'contact.success_thanks':
+      'Gracias por contactarnos. Le responderemos lo antes posible.',
+    'contact.error.captcha': 'Por favor, complete el desafío de reCAPTCHA.'
   }
 } as const
