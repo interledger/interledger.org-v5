@@ -23,10 +23,6 @@ describe('deriveLabel', () => {
     expect(deriveLabel('/hackathon')).toBe('hackathon_home')
   })
 
-  it('treats /summit/hackathon as the hackathon home', () => {
-    expect(deriveLabel('/summit/hackathon')).toBe('hackathon_home')
-  })
-
   it('uses the last two segments for deeper paths', () => {
     expect(deriveLabel('/grant/fellowship')).toBe('grant_fellowship')
     expect(deriveLabel('/a/b/c/d')).toBe('c_d')
@@ -66,7 +62,7 @@ describe('derivePage', () => {
 
   it('returns home for any microsite root', () => {
     expect(derivePage({ pathname: '/summit' })).toBe('home')
-    expect(derivePage({ pathname: '/summit/hackathon' })).toBe('home')
+    expect(derivePage({ pathname: '/hackathon' })).toBe('home')
   })
 
   it('uses the derived label for content pages', () => {
@@ -98,30 +94,6 @@ describe('derivePage', () => {
     )
   })
 
-  it('collapses summit speaker detail pages to summit_speaker', () => {
-    expect(
-      derivePage({ pathname: '/summit/2022/speakers/sabine-schaller' })
-    ).toBe('summit_speaker')
-    expect(
-      derivePage({ pathname: '/es/summit/2024/speakers/john-doe' })
-    ).toBe('summit_speaker')
-  })
-
-  it('collapses summit talk detail pages to summit_talk', () => {
-    expect(
-      derivePage({
-        pathname: '/summit/2022/talks/meet-your-new-friend-rafiki'
-      })
-    ).toBe('summit_talk')
-  })
-
-  it('collapses summit speaker/talk listings to summit_speakers/summit_talks', () => {
-    expect(derivePage({ pathname: '/summit/2022/speakers' })).toBe(
-      'summit_speakers'
-    )
-    expect(derivePage({ pathname: '/summit/2024/talks' })).toBe('summit_talks')
-  })
-
   it('collapses blog post detail pages to blog_post', () => {
     expect(derivePage({ pathname: '/blog/some-very-long-post-title' })).toBe(
       'blog_post'
@@ -145,12 +117,16 @@ describe('derivePage', () => {
     )
   })
 
-  it('still uses the generic last-two-segments rule for unmatched paths', () => {
+  it('uses the last-two-segments rule for unmatched paths', () => {
     expect(derivePage({ pathname: '/grant/fellowship' })).toBe(
       'grant_fellowship'
     )
     expect(derivePage({ pathname: '/blog' })).toBe('blog')
     expect(derivePage({ pathname: '/about/team' })).toBe('about_team')
+    expect(derivePage({ pathname: '/summit/speakers' })).toBe('summit_speakers')
+    expect(derivePage({ pathname: '/hackathon/resources' })).toBe(
+      'hackathon_resources'
+    )
   })
 })
 

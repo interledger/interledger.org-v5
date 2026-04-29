@@ -82,15 +82,15 @@ High-cardinality detail and listing routes — every speaker, every talk, every 
 
 For these routes the **page segment** collapses to a stable type-name. This applies to the `page` segment only — when the same route appears as a click target, the destination `label` continues through full `deriveLabel` resolution so the action still identifies the specific instance.
 
-| Route                              | Collapsed `page`  |
-| ---------------------------------- | ----------------- |
-| `/summit/<year>/speakers/<slug>`   | `summit_speaker`  |
-| `/summit/<year>/speakers`          | `summit_speakers` |
-| `/summit/<year>/talks/<slug>`      | `summit_talk`     |
-| `/summit/<year>/talks`             | `summit_talks`    |
-| `/blog/<slug>`                     | `blog_post`       |
-| `/developers/blog/<slug>`          | `developer_post`  |
-| `/grant/fellowship/<slug>`         | `fellowship`      |
+| Route                            | Collapsed `page`  |
+| -------------------------------- | ----------------- |
+| `/summit/<year>/speakers/<slug>` | `summit_speaker`  |
+| `/summit/<year>/speakers`        | `summit_speakers` |
+| `/summit/<year>/talks/<slug>`    | `summit_talk`     |
+| `/summit/<year>/talks`           | `summit_talks`    |
+| `/blog/<slug>`                   | `blog_post`       |
+| `/developers/blog/<slug>`        | `developer_post`  |
+| `/grant/fellowship/<slug>`       | `fellowship`      |
 
 So a card click on Sabine's speaker page that links to a long-titled session resolves as `summit_speaker:card:2022_session_title` — page filterable by type, action filterable by click-type (which element on the card was clicked), link-text and URL preserved as event data for instance-level drill-down.
 
@@ -100,12 +100,12 @@ When a component links to a high-cardinality destination (every speaker, every t
 
 For these cases the component overrides `action` with a stable literal that describes **the click type**, not the click destination. The destination identity stays in link-text and URL.
 
-| Component                    | Action               | What it identifies                       |
-| ---------------------------- | -------------------- | ---------------------------------------- |
-| `SessionCard`, `SessionsList`| `{year}_session_title` | Title link on a session card             |
-| `SpeakerCard`                | `{year}_speaker_name`  | Whole-card link wrapping the speaker name |
-| `BlogIndex*` (title link)    | `post_title`         | Title link on a blog post card           |
-| `BlogIndex*` (read more link)| `post_read_more`     | "Read more" link on a blog post card     |
+| Component                     | Action                 | What it identifies                        |
+| ----------------------------- | ---------------------- | ----------------------------------------- |
+| `SessionCard`, `SessionsList` | `{year}_session_title` | Title link on a session card              |
+| `SpeakerCard`                 | `{year}_speaker_name`  | Whole-card link wrapping the speaker name |
+| `BlogIndex*` (title link)     | `post_title`           | Title link on a blog post card            |
+| `BlogIndex*` (read more link) | `post_read_more`       | "Read more" link on a blog post card      |
 
 The convention: when there's only one tracked link per card, the literal describes the visible textual identity of that link (`_title`, `_name`). When a card has multiple tracked links, each gets its own literal that distinguishes them (`_title` vs `_read_more`). Year prefixes are kept where the route is year-scoped (summit) so dashboards can compare across years without filtering by URL.
 

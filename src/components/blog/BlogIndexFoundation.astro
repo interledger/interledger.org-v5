@@ -75,11 +75,7 @@ const postAttrs = (
               <a
                 href={postPath}
                 class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
-                {...postAttrs(
-                  postPath,
-                  blogPostEntry.data.title,
-                  'title'
-                )}
+                {...postAttrs(postPath, blogPostEntry.data.title, 'title')}
               >
                 {blogPostEntry.data.title}
               </a>
@@ -98,11 +94,7 @@ const postAttrs = (
             <a
               href={postPath}
               class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
-              {...postAttrs(
-                postPath,
-                t('blog.read_more'),
-                'read_more'
-              )}
+              {...postAttrs(postPath, t('blog.read_more'), 'read_more')}
             >
               {t('blog.read_more')}
               <svg

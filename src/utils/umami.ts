@@ -48,15 +48,9 @@ const micrositeSet = new Set<string>(MICROSITES)
 
 /**
  * Detail-page route rules. Each rule receives the URL's path segments
- * (locale-stripped, lowercased) and returns a stable page-type segment for
- * matching detail/listing routes.
- *
- * The default `derivePage` behaviour ends up encoding instance identity
- * (e.g. `speakers_sabine_schaller`) into the page dimension — high-cardinality
- * and fragile against Umami's 50-char `event_name` cap. Detail rules collapse
- * those routes to a small enum (`summit_speaker`, `blog_post`, …) so the page
- * dimension stays stable while the URL field continues to disambiguate the
- * specific instance.
+ * (locale-stripped, lowercased) and returns a stable page-type segment.
+ * Collapses high-cardinality detail routes so the page dimension stays
+ * low-cardinality and event names stay within Umami's 50-char cap.
  */
 interface DetailPageRule {
   match: (segments: string[]) => boolean
@@ -64,40 +58,16 @@ interface DetailPageRule {
 }
 
 const DETAIL_PAGE_RULES: DetailPageRule[] = [
-  // /summit/<year>/speakers/<slug> → summit_speaker
-  {
-    match: (s) =>
-      s.length === 4 && s[0] === 'summit' && s[2] === 'speakers',
-    page: 'summit_speaker'
-  },
-  // /summit/<year>/talks/<slug> → summit_talk
-  {
-    match: (s) => s.length === 4 && s[0] === 'summit' && s[2] === 'talks',
-    page: 'summit_talk'
-  },
-  // /summit/<year>/speakers (listing) → summit_speakers
-  {
-    match: (s) =>
-      s.length === 3 && s[0] === 'summit' && s[2] === 'speakers',
-    page: 'summit_speakers'
-  },
-  // /summit/<year>/talks (listing) → summit_talks
-  {
-    match: (s) => s.length === 3 && s[0] === 'summit' && s[2] === 'talks',
-    page: 'summit_talks'
-  },
   // /blog/<slug> → blog_post
   { match: (s) => s.length === 2 && s[0] === 'blog', page: 'blog_post' },
   // /developers/blog/<slug> → developer_post
   {
-    match: (s) =>
-      s.length === 3 && s[0] === 'developers' && s[1] === 'blog',
+    match: (s) => s.length === 3 && s[0] === 'developers' && s[1] === 'blog',
     page: 'developer_post'
   },
   // /grant/fellowship/<slug> → fellowship
   {
-    match: (s) =>
-      s.length === 3 && s[0] === 'grant' && s[1] === 'fellowship',
+    match: (s) => s.length === 3 && s[0] === 'grant' && s[1] === 'fellowship',
     page: 'fellowship'
   }
 ]
@@ -170,14 +140,6 @@ export function deriveLabel(href: string): string {
     return micrositeSet.has(delocaled[0].toLowerCase()) ? `${seg}_home` : seg
   }
 
-  if (
-    delocaled.length === 2 &&
-    micrositeSet.has(delocaled[0].toLowerCase()) &&
-    micrositeSet.has(delocaled[1].toLowerCase())
-  ) {
-    return `${normaliseSegment(delocaled[1])}_home`
-  }
-
   return delocaled.slice(-2).map(normaliseSegment).join('_')
 }
 
@@ -212,10 +174,9 @@ export function derivePage({ page, pathname }: UmamiContext = {}): string {
 }
 
 /**
- * Identify the microsite a pathname lives in (`foundation`, `summit`,
- * `hackathon`, …). Used to disambiguate microsite-home links: a link to the
- * current microsite's root reads as `home`, whereas the same link from
- * outside reads as the microsite's name.
+ * Identify the microsite a pathname lives in (`summit`, `hackathon`, or
+ * `foundation` as the default). Each microsite is a separate top-level path
+ * (`/summit`, `/hackathon`). Used to disambiguate microsite-home links.
  */
 export function getMicrosite(pathname: string | undefined): string {
   if (!pathname) return 'foundation'
@@ -227,10 +188,7 @@ export function getMicrosite(pathname: string | undefined): string {
     .filter((s) => !localeSet.has(s.toLowerCase()))
   if (segments.length === 0) return 'foundation'
   const first = segments[0].toLowerCase()
-  if (!micrositeSet.has(first)) return 'foundation'
-  const second = segments[1]?.toLowerCase()
-  if (second && micrositeSet.has(second)) return second
-  return first
+  return micrositeSet.has(first) ? first : 'foundation'
 }
 
 /**
@@ -279,9 +237,12 @@ export function buildUmamiAttrs(input: BuildUmamiAttrsInput): UmamiAttrs {
   const label = input.label ? sanitizeText(input.label) : ''
 
   const actionOverride = input.action ? normaliseSegment(input.action) : ''
-  const action = actionOverride || deriveAction(input.href ?? '', input.pathname)
+  const action =
+    actionOverride || deriveAction(input.href ?? '', input.pathname)
   const prefix =
-    input.section === 'link' && label ? `${page}:link` : `${page}:${input.section}:`
+    input.section === 'link' && label
+      ? `${page}:link`
+      : `${page}:${input.section}:`
   const eventFull =
     input.section === 'link' && label ? prefix : `${prefix}${action}`
   const event =
