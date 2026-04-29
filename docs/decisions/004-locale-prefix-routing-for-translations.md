@@ -1,6 +1,6 @@
 # ADR-004: Locale-prefix routing for translated pages
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-04-17
 **Issue:**
 

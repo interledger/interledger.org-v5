@@ -1,6 +1,6 @@
 # ADR-005: Analytics event tracking schema
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-04-21
 **Issue:** N/A
 
