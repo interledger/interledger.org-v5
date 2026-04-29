@@ -92,3 +92,317 @@
   --animate-clockwise: clockwise 22s linear infinite;
   --animate-anticlockwise: anticlockwise 22s linear infinite;
 }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   New design system. Figma is the source of truth. When tokens change there,
+   update the corresponding entries in this block.
+
+   Additive: these tokens coexist with the legacy fluid scale above. Old utilities
+   (p-space-l, text-step-0, rounded-card, etc.) keep working unchanged. Migration
+   to the new scale is tracked separately.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Spacing: fixed t-shirt scale from Figma's "spacing/*" + "padding/*" tokens.
+     Merged into one --spacing-* set since Tailwind v4 has only one spacing
+     namespace (powers p-*, m-*, gap-*, w-*, h-*, inset-*, etc.).
+     The 8px gap at 3xl is intentional per design:
+       --spacing-3xl       (48px, Figma spacing-3xl): default 3xl.
+       --spacing-3xl-tight (40px, Figma padding-3xl): for the tighter padding case. */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 0.75rem; /* 12px */
+  --spacing-lg: 1rem; /* 16px */
+  --spacing-xl: 1.5rem; /* 24px */
+  --spacing-2xl: 2rem; /* 32px */
+  --spacing-3xl: 3rem; /* 48px, canonical 3xl */
+  --spacing-3xl-tight: 2.5rem; /* 40px, Figma padding-3xl */
+  --spacing-4xl: 3.75rem; /* 60px */
+  --spacing-5xl: 5rem; /* 80px */
+  --spacing-6xl: 7.5rem; /* 120px */
+  --spacing-7xl: 10rem; /* 160px */
+
+  /* Border radius: pin Figma values. Match Tailwind v4 defaults today, but
+     pinning insulates us from Tailwind default drift. */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
+  --radius-3xl: 1.5rem; /* 24px */
+  --radius-full: 999px; /* fully rounded; Figma value, functionally identical to 9999px */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Color palette: 24 hue families × 3 shades (50/100/150) + 7 neutrals.
+     ────────────────────────────────────────────────────────────────────────── */
+  --color-orchid-50: #dcb4ee;
+  --color-orchid-100: #80409d;
+  --color-orchid-150: #662b81;
+
+  /* periwinkle  */
+  --color-periwinkle-50: #cacaff;
+  --color-periwinkle-100: #6d6cd5;
+  --color-periwinkle-150: #5d5cd4;
+
+  --color-soft-indigo-50: #e5e8ff;
+  --color-soft-indigo-100: #959ff9;
+  --color-soft-indigo-150: #838fff;
+
+  /* lavender */
+  --color-lavender-50: #f7deff;
+  --color-lavender-100: #dbaaec;
+  --color-lavender-150: #e48eff;
+
+  --color-royal-purple-50: #dab5f5;
+  --color-royal-purple-100: #48156e;
+  --color-royal-purple-150: #320753;
+
+  --color-ice-indigo-50: #f2f3ff;
+  --color-ice-indigo-100: #eaecfe;
+  --color-ice-indigo-150: #dadeff;
+
+  --color-lagoon-50: #8bdaec;
+  --color-lagoon-100: #35a6c0;
+  --color-lagoon-150: #2e97b0;
+
+  --color-deep-teal-50: #98e4d7;
+  --color-deep-teal-100: #09967e;
+  --color-deep-teal-150: #037b67;
+
+  --color-sea-foam-50: #b9f0ee;
+  --color-sea-foam-100: #64b9b5;
+  --color-sea-foam-150: #54a7a3;
+
+  --color-aqua-mint-50: #b5fded;
+  --color-aqua-mint-100: #7edfc8;
+  --color-aqua-mint-150: #51ceb1;
+
+  --color-ocean-50: #8bd8f6;
+  --color-ocean-100: #003e56;
+  --color-ocean-150: #022836;
+
+  --color-ice-mint-50: #f3fffc;
+  --color-ice-mint-100: #e5f9f4;
+  --color-ice-mint-150: #c8faee;
+
+  --color-emerald-50: #9afac0;
+  --color-emerald-100: #4ec97e;
+  --color-emerald-150: #44b871;
+
+  --color-tangerine-50: #ffd3ab;
+  --color-tangerine-100: #ff8617;
+  --color-tangerine-150: #dd6a02;
+
+  --color-apricot-50: #ffe4c4;
+  --color-apricot-100: #ffb259;
+  --color-apricot-150: #ffa339;
+
+  --color-pistachio-50: #e1fdbe;
+  --color-pistachio-100: #b9e188;
+  --color-pistachio-150: #a6d36f;
+
+  --color-forest-green-50: #67b196;
+  --color-forest-green-100: #006b49;
+  --color-forest-green-150: #005439;
+
+  --color-cream-orange-50: #fff8f0;
+  --color-cream-orange-100: #fff0de;
+  --color-cream-orange-150: #ffebd3;
+
+  --color-coral-red-50: #ffacaf;
+  --color-coral-red-100: #ff4b51;
+  --color-coral-red-150: #df393e;
+
+  /* raspberry (Figma source: "raspbery", typo) */
+  --color-raspberry-50: #ff96b5;
+  --color-raspberry-100: #d3295b;
+  --color-raspberry-150: #c11f4e;
+
+  --color-flamingo-50: #ffccd6;
+  --color-flamingo-100: #ff7b95;
+  --color-flamingo-150: #ff6684;
+
+  --color-blush-50: #ffe8e8;
+  --color-blush-100: #ffbebe;
+  --color-blush-150: #ffaeae;
+
+  --color-wine-50: #f773bc;
+  --color-wine-100: #790444;
+  --color-wine-150: #4b042b;
+
+  --color-rose-mint-50: #fffbfb;
+  --color-rose-mint-100: #fff2f2;
+  --color-rose-mint-150: #ffe8e8;
+
+  /* Neutrals (Figma keys: 0, 25, 50, 75, 100, 150, 900). Note this is NOT a
+     0–900 ramp; only these seven steps exist. */
+  --color-neutral-0: #ffffff;
+  --color-neutral-25: #e4e4e4;
+  --color-neutral-50: #c9c9c9;
+  --color-neutral-75: #595959;
+  --color-neutral-100: #292929;
+  --color-neutral-150: #0d0d0d;
+  --color-neutral-900: #000000;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Typography: Poppins, three tiers (Mobile / Tablet / Desktop).
+     Tailwind-canonical pattern: per-tier tokens applied via responsive prefixes:
+       <h1 class="font-poppins text-h1 md:text-h1-md lg:text-h1-lg">
+     Token suffix (-md / -lg) intentionally mirrors Tailwind's md: / lg: variants.
+     md: ≥ 768px, lg: ≥ 1024px (see screens in tailwind.config.mjs).
+
+     How `text-{name}` ends up setting font-size + line-height + font-weight:
+
+     The --text-* namespace is the one place in Tailwind v4 where companion
+     keys are honoured. When the build sees --text-{name}: …, it ALSO looks
+     for these optional siblings:
+       --text-{name}--line-height
+       --text-{name}--font-weight
+       --text-{name}--letter-spacing
+       --text-{name}--font-style
+     Any that exist get baked into the same .text-{name} rule. So one class
+     applies all the bundled properties.
+
+     The compiled output uses var(--tw-leading, …) and var(--tw-font-weight, …)
+     fallbacks, which is how separate leading-* / font-weight utilities can
+     still override per-element:
+       <h1 class="text-h1">                       size + leading + weight from text-h1
+       <h1 class="text-h1 leading-h2">            size + weight from text-h1, leading from leading-h2
+       <h1 class="text-h1 font-medium">           size + leading from text-h1, weight overridden
+
+     Font family is NOT in --text-*; apply font-poppins (or another font-*)
+     alongside if you want Poppins. The body's default font-family is still
+     Titillium, so opt in per element when adopting the new typography utilities.
+
+     Reference: https://tailwindcss.com/docs/font-size#with-other-properties
+     ────────────────────────────────────────────────────────────────────────── */
+
+  /* H1: 56/68 → 70/76 → 100/100, all SemiBold */
+  --text-h1: 3.5rem;
+  --text-h1--line-height: 4.25rem;
+  --text-h1--font-weight: 600;
+  --text-h1-md: 4.375rem;
+  --text-h1-md--line-height: 4.75rem;
+  --text-h1-md--font-weight: 600;
+  --text-h1-lg: 6.25rem;
+  --text-h1-lg--line-height: 6.25rem;
+  --text-h1-lg--font-weight: 600;
+
+  /* H2: 32/40 → 36/48 → 56/64, all SemiBold */
+  --text-h2: 2rem;
+  --text-h2--line-height: 2.5rem;
+  --text-h2--font-weight: 600;
+  --text-h2-md: 2.25rem;
+  --text-h2-md--line-height: 3rem;
+  --text-h2-md--font-weight: 600;
+  --text-h2-lg: 3.5rem;
+  --text-h2-lg--line-height: 4rem;
+  --text-h2-lg--font-weight: 600;
+
+  /* H3: 20/28 (Medium) → 28/36 (Regular) → 40/56 (Regular).
+   */
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.75rem;
+  --text-h3--font-weight: 500;
+  --text-h3-md: 1.75rem;
+  --text-h3-md--line-height: 2.25rem;
+  --text-h3-md--font-weight: 400;
+  --text-h3-lg: 2.5rem;
+  --text-h3-lg--line-height: 3.5rem;
+  --text-h3-lg--font-weight: 400;
+
+  /* H4: 18/28 → 20/30 → 24/34, all Regular */
+  --text-h4: 1.125rem;
+  --text-h4--line-height: 1.75rem;
+  --text-h4--font-weight: 400;
+  --text-h4-md: 1.25rem;
+  --text-h4-md--line-height: 1.875rem;
+  --text-h4-md--font-weight: 400;
+  --text-h4-lg: 1.5rem;
+  --text-h4-lg--line-height: 2.125rem;
+  --text-h4-lg--font-weight: 400;
+
+  /* H5: 16/26 → 18/28 → 20/30, all Regular */
+  --text-h5: 1rem;
+  --text-h5--line-height: 1.625rem;
+  --text-h5--font-weight: 400;
+  --text-h5-md: 1.125rem;
+  --text-h5-md--line-height: 1.75rem;
+  --text-h5-md--font-weight: 400;
+  --text-h5-lg: 1.25rem;
+  --text-h5-lg--line-height: 1.875rem;
+  --text-h5-lg--font-weight: 400;
+
+  /* body-lg-emphasis: 15/24 (Medium) → 16/26 (Medium). No -lg tier (same as md). */
+  --text-body-lg-emphasis: 0.9375rem;
+  --text-body-lg-emphasis--line-height: 1.5rem;
+  --text-body-lg-emphasis--font-weight: 500;
+  --text-body-lg-emphasis-md: 1rem;
+  --text-body-lg-emphasis-md--line-height: 1.625rem;
+  --text-body-lg-emphasis-md--font-weight: 500;
+
+  /* body-lg-standard: 15/24 (Regular) → 16/26 (Regular). No -lg tier (same as md). */
+  --text-body-lg-standard: 0.9375rem;
+  --text-body-lg-standard--line-height: 1.5rem;
+  --text-body-lg-standard--font-weight: 400;
+  --text-body-lg-standard-md: 1rem;
+  --text-body-lg-standard-md--line-height: 1.625rem;
+  --text-body-lg-standard-md--font-weight: 400;
+
+  /* body-sm-emphasis: 14/24 Medium, identical across all three tiers */
+  --text-body-sm-emphasis: 0.875rem;
+  --text-body-sm-emphasis--line-height: 1.5rem;
+  --text-body-sm-emphasis--font-weight: 500;
+
+  /* body-sm-standard: 14/24 Regular, identical across all three tiers */
+  --text-body-sm-standard: 0.875rem;
+  --text-body-sm-standard--line-height: 1.5rem;
+  --text-body-sm-standard--font-weight: 400;
+
+  /* caption: 13/16 Regular, identical across all three tiers */
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 400;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Line-heights as standalone --leading-* tokens.
+     Mirror values are baked into the matching text-* utilities above; these
+     expose the same numbers as leading-{name} utilities so you can apply just
+     the line-height (e.g. to a non-heading element that should follow the
+     heading rhythm). Pair with text-* utilities only when the bundled
+     line-height isn't right.
+     ────────────────────────────────────────────────────────────────────────── */
+
+  /* H1 */
+  --leading-h1: 4.25rem; /* 68px */
+  --leading-h1-md: 4.75rem; /* 76px */
+  --leading-h1-lg: 6.25rem; /* 100px */
+
+  /* H2 */
+  --leading-h2: 2.5rem; /* 40px */
+  --leading-h2-md: 3rem; /* 48px */
+  --leading-h2-lg: 4rem; /* 64px */
+
+  /* H3 */
+  --leading-h3: 1.75rem; /* 28px */
+  --leading-h3-md: 2.25rem; /* 36px */
+  --leading-h3-lg: 3.5rem; /* 56px */
+
+  /* H4 */
+  --leading-h4: 1.75rem; /* 28px */
+  --leading-h4-md: 1.875rem; /* 30px */
+  --leading-h4-lg: 2.125rem; /* 34px */
+
+  /* H5 */
+  --leading-h5: 1.625rem; /* 26px */
+  --leading-h5-md: 1.75rem; /* 28px */
+  --leading-h5-lg: 1.875rem; /* 30px */
+
+  /* body-lg-* (emphasis + standard share line-heights, only weight differs) */
+  --leading-body-lg: 1.5rem; /* 24px (mobile) */
+  --leading-body-lg-md: 1.625rem; /* 26px (tablet+desktop) */
+
+  /* body-sm-* (identical across all three tiers) */
+  --leading-body-sm: 1.5rem; /* 24px */
+
+  /* caption (identical across all three tiers) */
+  --leading-caption: 1rem; /* 16px */
+}
