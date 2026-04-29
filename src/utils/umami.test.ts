@@ -60,8 +60,8 @@ describe('deriveLabel', () => {
 })
 
 describe('derivePage', () => {
-  it('returns foundation for the foundation root', () => {
-    expect(derivePage({ pathname: '/' })).toBe('foundation')
+  it('returns foundation_home for the foundation root', () => {
+    expect(derivePage({ pathname: '/' })).toBe('foundation_home')
   })
 
   it('returns home for any microsite root', () => {
@@ -159,9 +159,9 @@ describe('deriveAction', () => {
     expect(deriveAction('/')).toBe('home')
   })
 
-  it('returns the microsite name for microsite roots', () => {
-    expect(deriveAction('/summit')).toBe('summit')
-    expect(deriveAction('/hackathon')).toBe('hackathon')
+  it('returns microsite_home for microsite roots when outside that microsite', () => {
+    expect(deriveAction('/summit')).toBe('summit_home')
+    expect(deriveAction('/hackathon')).toBe('hackathon_home')
   })
 
   it('returns derived label for content destinations', () => {
@@ -209,7 +209,7 @@ describe('buildUmamiAttrs', () => {
     })
   })
 
-  it('emits foundation:nav:home for the Foundation link on /', () => {
+  it('emits foundation_home:nav:home for the Foundation link on /', () => {
     expect(
       buildUmamiAttrs({
         pathname: '/',
@@ -219,7 +219,7 @@ describe('buildUmamiAttrs', () => {
         lang: 'en'
       })
     ).toMatchObject({
-      'data-umami-event': 'foundation:nav:home',
+      'data-umami-event': 'foundation_home:nav:home',
       'data-umami-event-link-text': 'Foundation'
     })
   })
@@ -234,7 +234,7 @@ describe('buildUmamiAttrs', () => {
         lang: 'en'
       })
     ).toMatchObject({
-      'data-umami-event': 'foundation:footer:linkedin',
+      'data-umami-event': 'foundation_home:footer:linkedin',
       'data-umami-event-link-text': 'LinkedIn'
     })
   })
@@ -280,7 +280,7 @@ describe('buildUmamiAttrs', () => {
         section: 'nav',
         action: 'Menu Toggle'
       })
-    ).toEqual({ 'data-umami-event': 'foundation:nav:menu_toggle' })
+    ).toEqual({ 'data-umami-event': 'foundation_home:nav:menu_toggle' })
   })
 
   it('omits empty optional attributes', () => {
@@ -289,7 +289,7 @@ describe('buildUmamiAttrs', () => {
       section: 'cta',
       href: '/'
     })
-    expect(attrs).toEqual({ 'data-umami-event': 'foundation:cta:home' })
+    expect(attrs).toEqual({ 'data-umami-event': 'foundation_home:cta:home' })
   })
 
   it('sanitises unsafe characters in link text and label', () => {
@@ -357,7 +357,7 @@ describe('createMarked', () => {
       '[hi](https://example.com "real title")'
     )
     expect(html).toContain('title="real title"')
-    expect(html).toContain('data-umami-event="foundation:link:example"')
+    expect(html).toContain('data-umami-event="foundation_home:link:example"')
   })
 
   it('handles inline markdown inside link text', () => {
@@ -365,7 +365,7 @@ describe('createMarked', () => {
       'Try [**bold** link](https://example.com)'
     ) as string
     expect(html).toContain('<strong>bold</strong>')
-    expect(html).toContain('data-umami-event="foundation:link:example"')
+    expect(html).toContain('data-umami-event="foundation_home:link:example"')
     expect(html).toContain('data-umami-event-link-text="bold link"')
   })
 
@@ -377,11 +377,11 @@ describe('createMarked', () => {
     expect(html).toContain('data-umami-event-link-text="Site"')
   })
 
-  it('defaults to foundation when pathname is omitted', async () => {
+  it('defaults to foundation_home when pathname is omitted', async () => {
     const html = (await createMarked({}).parse(
       '[docs](https://example.com/docs)'
     )) as string
-    expect(html).toContain('data-umami-event="foundation:link:example"')
+    expect(html).toContain('data-umami-event="foundation_home:link:example"')
     expect(html).toContain('data-umami-event-link-text="docs"')
     expect(html).not.toContain('undefined')
     expect(html).not.toContain('data-umami-event=""')
@@ -405,13 +405,13 @@ describe('createMarked', () => {
       '[hi](https://example.com "a title with \\"quotes\\"")'
     )
     expect(html).toContain('title="a title with &quot;quotes&quot;"')
-    expect(html).toContain('data-umami-event="foundation:link:example"')
+    expect(html).toContain('data-umami-event="foundation_home:link:example"')
     expect(html).toContain('data-umami-event-link-text="hi"')
     expect(html).not.toContain('data-umami-event=""')
   })
 
   it('preserves multiple links on the same line', async () => {
-    const html = await createMarked({ pathname: '/' }).parse(
+    const html = await createMarked({ pathname: '/about-us' }).parse(
       '[one](https://a.com) and [two](https://b.com)'
     )
     expect(html.match(/data-umami-event="/g)).toHaveLength(2)

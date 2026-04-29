@@ -26,14 +26,14 @@ const foundationHref = translatePath(
   COLLECTION_INDEX_SLUG
 )
 
-const postAttrs = (href: string, linkText: string, slug: string) =>
+const postAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'card',
     href,
     linkText,
-    action: `post_${slug}_title`
+    action: `post_title`
   })
 ---
 
@@ -65,11 +65,7 @@ const postAttrs = (href: string, linkText: string, slug: string) =>
               <a
                 href={postPath}
                 class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
-                {...postAttrs(
-                  postPath,
-                  blogPostEntry.data.title,
-                  blogPostEntry.data.pathSlug
-                )}
+                {...postAttrs(postPath, blogPostEntry.data.title)}
               >
                 {blogPostEntry.data.title}
               </a>

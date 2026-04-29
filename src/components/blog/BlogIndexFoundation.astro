@@ -29,7 +29,6 @@ const developersHref = translatePath(
 const postAttrs = (
   href: string,
   linkText: string,
-  slug: string,
   variant: 'title' | 'read_more'
 ) =>
   buildUmamiAttrs({
@@ -38,7 +37,7 @@ const postAttrs = (
     section: 'card',
     href,
     linkText,
-    action: `post_${slug}_${variant}`
+    action: `post_${variant}`
   })
 ---
 
@@ -79,7 +78,6 @@ const postAttrs = (
                 {...postAttrs(
                   postPath,
                   blogPostEntry.data.title,
-                  blogPostEntry.data.pathSlug,
                   'title'
                 )}
               >
@@ -103,7 +101,6 @@ const postAttrs = (
               {...postAttrs(
                 postPath,
                 t('blog.read_more'),
-                blogPostEntry.data.pathSlug,
                 'read_more'
               )}
             >

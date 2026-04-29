@@ -206,7 +206,7 @@ export function derivePage({ page, pathname }: UmamiContext = {}): string {
   }
 
   const raw = deriveLabel(pathname ?? '/')
-  if (raw === 'foundation_home') return 'foundation'
+  if (raw === 'foundation_home') return 'foundation_home'
   if (raw.endsWith(HOME_SUFFIX)) return 'home'
   return raw
 }
@@ -236,7 +236,7 @@ export function getMicrosite(pathname: string | undefined): string {
 /**
  * Resolve the `action` segment for an event. The foundation root always reads
  * as `home`. A microsite root reads as `home` from inside that microsite, or
- * as the microsite's name from outside (e.g. foundation → summit link).
+ * as `{microsite}_home` from outside (e.g. foundation → summit link).
  */
 export function deriveAction(href: string, currentPath?: string): string {
   if (!href) return 'unknown'
@@ -244,7 +244,7 @@ export function deriveAction(href: string, currentPath?: string): string {
   if (raw === 'foundation_home') return 'home'
   if (raw.endsWith(HOME_SUFFIX)) {
     const dest = raw.slice(0, -HOME_SUFFIX.length)
-    return getMicrosite(currentPath) === dest ? 'home' : dest
+    return getMicrosite(currentPath) === dest ? 'home' : raw
   }
   return raw
 }
