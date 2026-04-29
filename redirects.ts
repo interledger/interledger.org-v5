@@ -27,6 +27,7 @@ export const redirects = {
   '/es/grant/embajadores': '/es/grant/ambassadors',
   '/es/grant/ambassadors': '/es/grant/fellowship',
   '/es/grant/ambassadors/faq': '/es/grant/fellowship/faq',
+  '/es/contacto': '/es/contact',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
