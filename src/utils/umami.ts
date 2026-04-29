@@ -41,9 +41,77 @@ const HTML_TAG = /<[^>]*>/g
 const MICROSITES = ['summit', 'hackathon'] as const
 const HOME_SUFFIX = '_home'
 const TITLE_LABEL_PREFIX = 'label:'
+const UMAMI_EVENT_NAME_MAX = 50
 
 const localeSet = new Set<string>(LOCALE_CODES)
 const micrositeSet = new Set<string>(MICROSITES)
+
+/**
+ * Detail-page route rules. Each rule receives the URL's path segments
+ * (locale-stripped, lowercased) and returns a stable page-type segment for
+ * matching detail/listing routes.
+ *
+ * The default `derivePage` behaviour ends up encoding instance identity
+ * (e.g. `speakers_sabine_schaller`) into the page dimension — high-cardinality
+ * and fragile against Umami's 50-char `event_name` cap. Detail rules collapse
+ * those routes to a small enum (`summit_speaker`, `blog_post`, …) so the page
+ * dimension stays stable while the URL field continues to disambiguate the
+ * specific instance.
+ */
+interface DetailPageRule {
+  match: (segments: string[]) => boolean
+  page: string
+}
+
+const DETAIL_PAGE_RULES: DetailPageRule[] = [
+  // /summit/<year>/speakers/<slug> → summit_speaker
+  {
+    match: (s) =>
+      s.length === 4 && s[0] === 'summit' && s[2] === 'speakers',
+    page: 'summit_speaker'
+  },
+  // /summit/<year>/talks/<slug> → summit_talk
+  {
+    match: (s) => s.length === 4 && s[0] === 'summit' && s[2] === 'talks',
+    page: 'summit_talk'
+  },
+  // /summit/<year>/speakers (listing) → summit_speakers
+  {
+    match: (s) =>
+      s.length === 3 && s[0] === 'summit' && s[2] === 'speakers',
+    page: 'summit_speakers'
+  },
+  // /summit/<year>/talks (listing) → summit_talks
+  {
+    match: (s) => s.length === 3 && s[0] === 'summit' && s[2] === 'talks',
+    page: 'summit_talks'
+  },
+  // /blog/<slug> → blog_post
+  { match: (s) => s.length === 2 && s[0] === 'blog', page: 'blog_post' },
+  // /developers/blog/<slug> → developer_post
+  {
+    match: (s) =>
+      s.length === 3 && s[0] === 'developers' && s[1] === 'blog',
+    page: 'developer_post'
+  },
+  // /grant/fellowship/<slug> → fellowship
+  {
+    match: (s) =>
+      s.length === 3 && s[0] === 'grant' && s[1] === 'fellowship',
+    page: 'fellowship'
+  }
+]
+
+function getDelocaledSegments(pathname: string): string[] {
+  const raw = pathname.split('?')[0].split('#')[0]
+  const segments = raw
+    .split('/')
+    .filter(Boolean)
+    .map((s) => s.toLowerCase())
+  return segments.length > 0 && localeSet.has(segments[0])
+    ? segments.slice(1)
+    : segments
+}
 
 function sanitizeText(value: string): string {
   return value.replace(UNSAFE_LABEL_CHARS, '').replace(/\s+/g, ' ').trim()
@@ -118,6 +186,11 @@ export function deriveLabel(href: string): string {
  * `foundation`; any microsite home (e.g. `summit_home`) collapses to `home`
  * since the microsite is implicit from the URL dimension.
  *
+ * Known detail-/listing-page routes (see `DETAIL_PAGE_RULES`) collapse to a
+ * stable type-name segment (`summit_speaker`, `blog_post`, …) so the page
+ * dimension stays low-cardinality and the event name doesn't blow past
+ * Umami's 50-char limit on long slugs.
+ *
  * When `page` is omitted, `undefined`, or only whitespace (e.g. optional CMS
  * `umamiContext` not set), the segment is derived from `pathname` only — never
  * from the literal string "undefined" or other placeholder text.
@@ -126,6 +199,12 @@ export function derivePage({ page, pathname }: UmamiContext = {}): string {
   const override =
     page != null && String(page).trim() !== '' ? String(page).trim() : ''
   if (override) return normaliseSegment(override)
+
+  const segments = getDelocaledSegments(pathname ?? '/')
+  for (const rule of DETAIL_PAGE_RULES) {
+    if (rule.match(segments)) return rule.page
+  }
+
   const raw = deriveLabel(pathname ?? '/')
   if (raw === 'foundation_home') return 'foundation'
   if (raw.endsWith(HOME_SUFFIX)) return 'home'
@@ -200,10 +279,15 @@ export function buildUmamiAttrs(input: BuildUmamiAttrsInput): UmamiAttrs {
   const label = input.label ? sanitizeText(input.label) : ''
 
   const actionOverride = input.action ? normaliseSegment(input.action) : ''
+  const action = actionOverride || deriveAction(input.href ?? '', input.pathname)
+  const prefix =
+    input.section === 'link' && label ? `${page}:link` : `${page}:${input.section}:`
+  const eventFull =
+    input.section === 'link' && label ? prefix : `${prefix}${action}`
   const event =
-    input.section === 'link' && label
-      ? `${page}:link`
-      : `${page}:${input.section}:${actionOverride || deriveAction(input.href ?? '', input.pathname)}`
+    eventFull.length <= UMAMI_EVENT_NAME_MAX
+      ? eventFull
+      : `${prefix}${action}`.slice(0, UMAMI_EVENT_NAME_MAX)
 
   const attrs: UmamiAttrs = { 'data-umami-event': event }
   if (text) attrs['data-umami-event-link-text'] = text
