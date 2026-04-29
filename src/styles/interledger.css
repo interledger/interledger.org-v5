@@ -57,6 +57,10 @@
 header.header {
   background-color: var(--sl-color-black);
   border-block-end: 0;
+  border-block-start: 2px solid var(--color-primary-fallback);
+  border-block-start: 2px solid var(--color-primary);
+  box-shadow: 0px 0px 12px -4px var(--color-primary-fallback);
+  box-shadow: 0px 0px 12px -4px var(--color-primary);
   font-family: 'Titillium Web';
 }
 
