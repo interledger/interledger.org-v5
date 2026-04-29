@@ -1,8 +1,9 @@
 ---
-import { useTranslations } from '@/utils'
+import { useTranslations, defaultLocale } from '@/utils'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 
 const { routeLocale } = Astro.locals
+const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
 const t = useTranslations(routeLocale)
 ---
 
@@ -34,7 +35,7 @@ const t = useTranslations(routeLocale)
           id="contact-form"
           name="contact"
           method="POST"
-          action="/contact?success=true"
+          action={`${langPrefix}/contact?success=true`}
           data-netlify="true"
           data-netlify-honeypot="bot-field"
           data-netlify-recaptcha="true"
