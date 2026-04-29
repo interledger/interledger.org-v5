@@ -25,7 +25,9 @@ describe('rehypeUmamiLinks', () => {
     const out = await run(
       '<p>Visit <a href="/policy-and-advocacy">advocate</a> today.</p>'
     )
-    expect(out).toContain('data-umami-event="about_us:link:policy_and_advocacy"')
+    expect(out).toContain(
+      'data-umami-event="about_us:link:policy_and_advocacy"'
+    )
     expect(out).toContain('data-umami-event-link-text="advocate"')
     expect(out).toContain('data-umami-event-lang="en"')
     expect(out).toContain('href="/policy-and-advocacy"')

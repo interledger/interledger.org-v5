@@ -69,7 +69,10 @@ const pageAttrs = (action: string, ariaLabel: string) =>
       <a
         href={`${baseUrl}${num == 1 ? '' : '/' + num}`}
         class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
-        {...pageAttrs(`pagination_${num}`, `${t('pagination.pages', { label })} ${num}`)}
+        {...pageAttrs(
+          `pagination_${num}`,
+          `${t('pagination.pages', { label })} ${num}`
+        )}
       >
         {num}
       </a>

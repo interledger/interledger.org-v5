@@ -123,7 +123,10 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://github.com/interledger"
             aria-label={t('footer.github')}
-            {...footerLink('https://github.com/interledger', t('footer.github'))}
+            {...footerLink(
+              'https://github.com/interledger',
+              t('footer.github')
+            )}
           >
             <svg
               role="img"

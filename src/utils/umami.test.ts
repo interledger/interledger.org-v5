@@ -274,22 +274,24 @@ describe('extractTitleLabel', () => {
 
 describe('createMarked', () => {
   it('injects the new attribute set on inline links', () => {
-    const html = createMarked({ pathname: '/resources', lang: 'en' })
-      .parseInline(
-        'See [Open Payments Docs](https://docs.interledger.org/) for more.'
-      ) as string
-    expect(html).toContain(
-      'data-umami-event="resources:link:docs_interledger"'
-    )
+    const html = createMarked({
+      pathname: '/resources',
+      lang: 'en'
+    }).parseInline(
+      'See [Open Payments Docs](https://docs.interledger.org/) for more.'
+    ) as string
+    expect(html).toContain('data-umami-event="resources:link:docs_interledger"')
     expect(html).toContain('data-umami-event-link-text="Open Payments Docs"')
     expect(html).toContain('data-umami-event-lang="en"')
   })
 
   it('honours a label directive in the link title', () => {
-    const html = createMarked({ pathname: '/get-involved', lang: 'en' })
-      .parseInline(
-        '[Community Forum](https://forum.interledger.org/ "label:community")'
-      ) as string
+    const html = createMarked({
+      pathname: '/get-involved',
+      lang: 'en'
+    }).parseInline(
+      '[Community Forum](https://forum.interledger.org/ "label:community")'
+    ) as string
     expect(html).toContain('data-umami-event="get_involved:link"')
     expect(html).toContain('data-umami-event-label="community"')
     expect(html).not.toContain('title="label:community"')
