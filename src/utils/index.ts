@@ -73,6 +73,17 @@ export { toAmbassadorData } from './ambassadors'
 // GitHub
 export { parseRawGitHubPath } from './parseRawGitHubPath'
 
+// Analytics
+export {
+  type UmamiAttrs,
+  type UmamiContext,
+  type UmamiSection,
+  buildUmamiAttrs,
+  deriveAction,
+  deriveLabel,
+  derivePage
+} from './umami'
+
 // SEO
 export {
   buildCanonicalMeta,

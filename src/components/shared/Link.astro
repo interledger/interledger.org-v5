@@ -1,5 +1,25 @@
 ---
-const { href, style, umami, external, text, variant } = Astro.props
+import { buildUmamiAttrs, type UmamiSection } from '@/utils/umami'
+
+interface Props {
+  href?: string
+  text?: string
+  style?: string
+  variant?: 'hero' | 'default'
+  external?: boolean
+  /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
+  section?: UmamiSection
+}
+
+const {
+  href,
+  style,
+  external,
+  text,
+  variant,
+  section = 'cta'
+} = Astro.props as Props
+const { routeLocale } = Astro.locals
 
 const classes: Record<string, string> = {
   'hero-primary':
@@ -20,13 +40,21 @@ const key =
     : style === 'secondary'
       ? 'secondary'
       : 'primary'
+
+const umamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section,
+  linkText: text,
+  href
+})
 ---
 
 <a
   href={href ?? ''}
   class={classes[key]}
   style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
-  data-umami-event={umami ?? ''}
+  {...umamiAttrs}
   {...external && {
     target: '_blank',
     rel: 'noopener noreferrer'

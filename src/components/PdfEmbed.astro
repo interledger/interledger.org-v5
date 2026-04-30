@@ -1,13 +1,23 @@
 ---
+import { buildUmamiAttrs } from '@/utils/umami'
+
 interface Props {
   url: string
   label?: string
-  analyticsEvent: string
 }
-const { url, label = 'Download PDF', analyticsEvent } = Astro.props
+const { url, label = 'Download PDF' } = Astro.props
+const { routeLocale } = Astro.locals
 
 // Unique ID per instance so multiple PdfEmbeds on the same page don't collide
 const id = `pdf-${Math.random().toString(36).slice(2, 9)}`
+
+const downloadAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'cta',
+  href: url,
+  linkText: label
+})
 ---
 
 <div class="w-full mt-4">
@@ -29,7 +39,7 @@ const id = `pdf-${Math.random().toString(36).slice(2, 9)}`
     download
     style={{ display: 'none' }}
     class="group inline-flex items-center gap-space-2xs rounded-pill px-space-s py-space-xs text-step-0 font-medium no-underline bg-primary text-btn-txt transition-all duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:underline"
-    data-umami-event={analyticsEvent}
+    {...downloadAttrs}
   >
     {label}
     <!-- Arrow icon (icon-link-arrow.svg inlined) — slides right on hover via group-hover -->

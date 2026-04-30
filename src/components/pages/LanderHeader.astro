@@ -1,9 +1,25 @@
 ---
 import DevelopersLogo from '../logos/DevelopersLogo.astro'
 import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const homeHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
+
+const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    ariaLabel
+  })
 ---
 
 <header class="bg-[var(--color-bg)] px-space-m py-space-2xs">
@@ -11,16 +27,16 @@ const t = useTranslations(routeLocale)
     class="flex justify-between items-center max-w-[95rem] mx-auto gap-space-s"
   >
     <a
-      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
+      href={homeHref}
       class="flex items-center gap-space-xs flex-none"
-      data-umami-event="Devs Nav - Logo"
+      {...navLink(homeHref, undefined, t('aria.logo.foundation'))}
     >
       <DevelopersLogo class="w-[7em] flex-none text-[var(--color-text)]" />
     </a>
     <a
-      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
+      href={homeHref}
       class="ml-auto inline-flex h-[1.5em] max-w-full flex-wrap overflow-hidden whitespace-nowrap text-step--1"
-      data-umami-event="Devs Nav - ILF"
+      {...navLink(homeHref, t('aria.logo.foundation'))}
     >
       <span
         class="block w-0 flex-auto overflow-hidden text-ellipsis text-right"
@@ -34,7 +50,11 @@ const t = useTranslations(routeLocale)
     <a
       href="https://github.com/interledger"
       class="h-[1.25em] w-[1.25em]"
-      data-umami-event="Devs Nav - GitHub"
+      {...navLink(
+        'https://github.com/interledger',
+        undefined,
+        t('aria.logo.github')
+      )}
     >
       <img
         src="/img/lander/icon-github.svg"

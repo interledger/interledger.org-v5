@@ -1,12 +1,14 @@
 ---
 import type { MenuItem } from '@/types/navigation'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   ctaButton?: MenuItem
 }
 
 const { ctaButton } = Astro.props
+const { routeLocale } = Astro.locals
 
 const ctaLinkClass =
   'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hidden'
@@ -16,6 +18,16 @@ const langItemClass =
 
 const langLinkClass =
   'block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
+
+const ctaAttrs =
+  ctaButton &&
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href: ctaButton.href || '#',
+    linkText: ctaButton.label
+  })
 ---
 
 <div
@@ -26,7 +38,7 @@ const langLinkClass =
       <a
         class={ctaLinkClass}
         href={ctaButton.href || '#'}
-        data-umami-event={`Summit Nav - ${ctaButton.label}`}
+        {...ctaAttrs}
         {...(ctaButton.openInNewTab
           ? { target: '_blank', rel: 'noopener noreferrer' }
           : {})}

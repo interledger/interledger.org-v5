@@ -1,26 +1,93 @@
 ---
+import {
+  buildUmamiAttrs,
+  escapeHtml,
+  type BuildUmamiAttrsInput,
+  umamiAttrsToHtml
+} from '@/utils/umami'
+
+/** Base fields passed into `buildUmamiAttrs` for Strapi section links (explicit, not closed over). */
+type LinkUmamiCtx = Omit<
+  BuildUmamiAttrsInput,
+  'href' | 'linkText' | 'ariaLabel' | 'action' | 'label'
+>
+
+interface TextNode {
+  type?: 'text'
+  text?: string
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  strikethrough?: boolean
+  code?: boolean
+}
+interface LinkNode {
+  type: 'link'
+  url: string
+  children: TextNode[]
+}
+type InlineNode = TextNode | LinkNode
+interface ParagraphBlock {
+  type: 'paragraph'
+  children: InlineNode[]
+}
+interface ListBlock {
+  type: 'list'
+  format?: 'ordered' | 'unordered'
+  children: Array<{ children: InlineNode[] }>
+}
+type Block = ParagraphBlock | ListBlock
+
+interface Props {
+  title: string
+  content: Block[]
+}
+
 const { title, content } = Astro.props
-// Helper: render children text
-const renderChildren = (children = []) => {
-  return children.map((node) => {
-    if (node.type === 'link' && node.type === 'text') return ''
+const { routeLocale } = Astro.locals
 
-    if (node.type === 'link') {
-      const { url, children: linkChildren } = node
-      return `<a href="${url}">${renderChildren(linkChildren)}</a>`
-    }
+/** Passed into every renderer so link analytics (`page`) stay testable/refactor‑safe vs Astro scope. */
+const linkUmamiCtx: LinkUmamiCtx = {
+  page: title,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'link'
+}
 
-    const { text, bold, italic, underline, strikethrough, code } = node
-    let result = text
+const renderTextNode = (node: TextNode) => {
+  let result = escapeHtml(node.text ?? '')
+  if (node.underline) result = `<u>${result}</u>`
+  if (node.italic) result = `<em>${result}</em>`
+  if (node.bold) result = `<strong>${result}</strong>`
+  if (node.strikethrough) result = `<s>${result}</s>`
+  if (node.code) result = `<code>${result}</code>`
+  return result
+}
 
-    if (underline) result = `<u>${result}</u>`
-    if (italic) result = `<em>${result}</em>`
-    if (bold) result = `<strong>${result}</strong>`
-    if (strikethrough) result = `<s>${result}</s>`
-    if (code) result = `<code>${result}</code>`
+const renderChildren = (
+  children: InlineNode[] = [],
+  umamiCtx: LinkUmamiCtx
+): string => {
+  return children
+    .map((node) => {
+      if (node.type === 'link') return renderLinkNode(node, umamiCtx)
+      // Strapi text nodes historically omit `type`; treat absent as text.
+      if (node.type === 'text' || node.type === undefined)
+        return renderTextNode(node)
+      return ''
+    })
+    .join('')
+}
 
-    return result
+const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
+  const href = node.url ?? ''
+  const innerHtml = renderChildren(node.children, umamiCtx)
+  const attrs = buildUmamiAttrs({
+    ...umamiCtx,
+    href,
+    linkText: node.children.map((c) => c.text ?? '').join('')
   })
+  return `<a href="${escapeHtml(href)}"${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
 }
 ---
 
@@ -34,7 +101,7 @@ const renderChildren = (children = []) => {
             return (
               <p
                 class="mb-space-2xs"
-                set:html={renderChildren(block.children)}
+                set:html={renderChildren(block.children, linkUmamiCtx)}
               />
             )
           case 'list': {
@@ -45,7 +112,7 @@ const renderChildren = (children = []) => {
                 {block.children.map((item) => (
                   <li
                     class="mb-space-3xs"
-                    set:html={renderChildren(item.children)}
+                    set:html={renderChildren(item.children, linkUmamiCtx)}
                   />
                 ))}
               </ListTag>

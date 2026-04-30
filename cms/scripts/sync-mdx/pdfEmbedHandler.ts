@@ -2,8 +2,8 @@
  * PdfEmbed component handler for the MDX block parser.
  *
  * Handles:
- * - <PdfEmbed url="/uploads/file.pdf" analyticsEvent="..." />  (internal)
- * - <PdfEmbed url="https://example.com/file.pdf" analyticsEvent="..." />  (external)
+ * - <PdfEmbed url="/uploads/file.pdf" />  (internal)
+ * - <PdfEmbed url="https://example.com/file.pdf" />  (external)
  *
  * Internal paths (starting with '/') are resolved to Strapi upload integer IDs
  * via ctx.resolveMediaUpload. External URLs are stored in externalUrl directly.
@@ -21,14 +21,10 @@ async function handlePdfEmbed(
 ): Promise<ParsedBlock[]> {
   const url = getStringAttr(node, 'url', { required: true })
   const label = getStringAttr(node, 'label')
-  const analyticsEvent = getStringAttr(node, 'analyticsEvent', {
-    required: true
-  })
 
   const block: PdfEmbedBlock = {
     __component: 'blocks.pdf-embed',
-    source: url.startsWith('/') ? 'media_library' : 'external_url',
-    analyticsEvent
+    source: url.startsWith('/') ? 'media_library' : 'external_url'
   }
 
   if (label !== undefined) {

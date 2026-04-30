@@ -43,16 +43,14 @@ const description = translatedTag
 const breadcrumbs = [
   {
     name: t('blog.developers.portal'),
-    href: developersHomePath,
-    umamiEvent: 'Devs breadcrumb - Home'
+    href: developersHomePath
   }
 ]
 
 if (selectedTag) {
   breadcrumbs.push({
     name: t('blog.developers.title'),
-    href: blogPath,
-    umamiEvent: 'Devs breadcrumb - Blog'
+    href: blogPath
   })
 }
 ---

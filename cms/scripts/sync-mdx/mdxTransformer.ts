@@ -98,7 +98,6 @@ interface StrapiHeroPayload {
     link: string
     style: string
     external: boolean
-    analytics_event_label?: string
   }>
 }
 
@@ -119,10 +118,7 @@ function buildHeroPayload(
       text: c.text!,
       link: c.link!,
       style: c.style ?? 'primary',
-      external: c.external ?? false,
-      ...(c.analytics_event_label
-        ? { analytics_event_label: c.analytics_event_label }
-        : {})
+      external: c.external ?? false
     }))
   }
 

@@ -151,7 +151,6 @@ export interface HeroCta {
   link?: string
   style?: 'primary' | 'secondary'
   external?: boolean
-  analytics_event_label?: string
 }
 
 interface HeroData {
@@ -183,10 +182,7 @@ export function heroFrontmatter(
       text: c.text!,
       link: c.link!,
       ...(c.style && c.style !== 'primary' ? { style: c.style } : {}),
-      ...(c.external ? { external: true } : {}),
-      ...(c.analytics_event_label
-        ? { analytics_event_label: c.analytics_event_label }
-        : {})
+      ...(c.external ? { external: true } : {})
     }))
   }
   return data

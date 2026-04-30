@@ -14,14 +14,6 @@
         }
       }
     },
-    "analytics_event_label": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "text": {
       "type": "string",
       "required": true,

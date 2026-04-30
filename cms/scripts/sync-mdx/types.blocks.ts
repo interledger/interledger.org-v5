@@ -81,7 +81,6 @@ export interface PdfEmbedBlock extends StrapiBlockBase {
   /** Set when source is 'external_url'. */
   externalUrl?: string
   label?: string
-  analyticsEvent: string
 }
 
 /** blocks.video-embed — embedded YouTube or Vimeo video. */

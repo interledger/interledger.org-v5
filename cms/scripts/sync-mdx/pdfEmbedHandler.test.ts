@@ -55,7 +55,7 @@ import './pdfEmbedHandler'
 describe('PdfEmbed handler — internal URL', () => {
   it('resolves internal path to file integer ID', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="/uploads/2024-report.pdf" analyticsEvent="2024 report" />',
+      '<PdfEmbed url="/uploads/2024-report.pdf" />',
       ctxWith({ '/uploads/2024-report.pdf': 42 })
     )
 
@@ -63,15 +63,14 @@ describe('PdfEmbed handler — internal URL', () => {
       {
         __component: 'blocks.pdf-embed',
         source: 'media_library',
-        file: 42,
-        analyticsEvent: '2024 report'
+        file: 42
       }
     ])
   })
 
   it('includes optional label when provided', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="/uploads/report.pdf" label="Download Report" analyticsEvent="report" />',
+      '<PdfEmbed url="/uploads/report.pdf" label="Download Report" />',
       ctxWith({ '/uploads/report.pdf': 7 })
     )
 
@@ -80,7 +79,7 @@ describe('PdfEmbed handler — internal URL', () => {
 
   it('omits label when not provided', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="/uploads/report.pdf" analyticsEvent="report" />',
+      '<PdfEmbed url="/uploads/report.pdf" />',
       ctxWith({ '/uploads/report.pdf': 7 })
     )
 
@@ -91,7 +90,7 @@ describe('PdfEmbed handler — internal URL', () => {
 describe('PdfEmbed handler — external URL', () => {
   it('stores external URL in externalUrl', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="https://example.gov/policy.pdf" analyticsEvent="policy doc" />',
+      '<PdfEmbed url="https://example.gov/policy.pdf" />',
       ctxWith()
     )
 
@@ -99,22 +98,20 @@ describe('PdfEmbed handler — external URL', () => {
       {
         __component: 'blocks.pdf-embed',
         source: 'external_url',
-        externalUrl: 'https://example.gov/policy.pdf',
-        analyticsEvent: 'policy doc'
+        externalUrl: 'https://example.gov/policy.pdf'
       }
     ])
   })
 
   it('includes label with external URL', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="https://example.com/doc.pdf" label="Read Policy" analyticsEvent="policy" />',
+      '<PdfEmbed url="https://example.com/doc.pdf" label="Read Policy" />',
       ctxWith()
     )
 
     expect(blocks[0]).toMatchObject({
       externalUrl: 'https://example.com/doc.pdf',
-      label: 'Read Policy',
-      analyticsEvent: 'policy'
+      label: 'Read Policy'
     })
   })
 })
@@ -122,7 +119,7 @@ describe('PdfEmbed handler — external URL', () => {
 describe('PdfEmbed handler — all props present', () => {
   it('parses all props correctly for internal URL', async () => {
     const blocks = await parseMdxToBlocks(
-      '<PdfEmbed url="/uploads/summit.pdf" label="Summit Report" analyticsEvent="2024 SI report - Summit report" />',
+      '<PdfEmbed url="/uploads/summit.pdf" label="Summit Report" />',
       ctxWith({ '/uploads/summit.pdf': 99 })
     )
 
@@ -131,8 +128,7 @@ describe('PdfEmbed handler — all props present', () => {
         __component: 'blocks.pdf-embed',
         source: 'media_library',
         file: 99,
-        label: 'Summit Report',
-        analyticsEvent: '2024 SI report - Summit report'
+        label: 'Summit Report'
       }
     ])
   })
@@ -145,32 +141,20 @@ describe('PdfEmbed handler — all props present', () => {
 describe('PdfEmbed handler — errors', () => {
   it('throws MISSING_REQUIRED_PROP when url is missing', async () => {
     await expect(
-      parseMdxToBlocks('<PdfEmbed analyticsEvent="report" />', ctxWith())
-    ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
-  })
-
-  it('throws MISSING_REQUIRED_PROP when analyticsEvent is missing', async () => {
-    await expect(
-      parseMdxToBlocks(
-        '<PdfEmbed url="https://example.com/doc.pdf" />',
-        ctxWith()
-      )
+      parseMdxToBlocks('<PdfEmbed />', ctxWith())
     ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
   })
 
   it('throws DYNAMIC_EXPRESSION when url is a dynamic expression', async () => {
     await expect(
-      parseMdxToBlocks(
-        '<PdfEmbed url={someVar} analyticsEvent="report" />',
-        ctxWith()
-      )
+      parseMdxToBlocks('<PdfEmbed url={someVar} />', ctxWith())
     ).rejects.toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
   it('throws UNRESOLVED_RELATION when internal URL is not found in Strapi', async () => {
     await expect(
       parseMdxToBlocks(
-        '<PdfEmbed url="/uploads/missing.pdf" analyticsEvent="report" />',
+        '<PdfEmbed url="/uploads/missing.pdf" />',
         ctxWith({}) // no entries
       )
     ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
@@ -178,12 +162,9 @@ describe('PdfEmbed handler — errors', () => {
 
   it('throws UNRESOLVED_RELATION when resolveMediaUpload is not in context', async () => {
     await expect(
-      parseMdxToBlocks(
-        '<PdfEmbed url="/uploads/file.pdf" analyticsEvent="report" />',
-        {
-          locale: 'en'
-        }
-      )
+      parseMdxToBlocks('<PdfEmbed url="/uploads/file.pdf" />', {
+        locale: 'en'
+      })
     ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
   })
 })
@@ -197,7 +178,7 @@ describe('PdfEmbed handler — mixed markdown + JSX ordering', () => {
     const mdx = [
       'Read the full report below:',
       '',
-      '<PdfEmbed url="https://example.com/report.pdf" analyticsEvent="report" />',
+      '<PdfEmbed url="https://example.com/report.pdf" />',
       '',
       'Download the above document for offline reading.'
     ].join('\n')
@@ -209,8 +190,7 @@ describe('PdfEmbed handler — mixed markdown + JSX ordering', () => {
     expect(blocks[1]).toEqual({
       __component: 'blocks.pdf-embed',
       source: 'external_url',
-      externalUrl: 'https://example.com/report.pdf',
-      analyticsEvent: 'report'
+      externalUrl: 'https://example.com/report.pdf'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
   })

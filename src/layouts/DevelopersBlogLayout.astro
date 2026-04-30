@@ -2,6 +2,7 @@
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
 import { useTranslations } from '@/utils/i18'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType
@@ -12,6 +13,15 @@ interface Props {
 const { frontmatter, canonicalURL, developersHomePath, blogPath } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const breadcrumbAttrs = (href: string, linkText: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText
+  })
 
 const site = Astro.site!
 const ogImageUrl = frontmatter.ogImageUrl
@@ -67,7 +77,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           <a
             itemprop="item"
             href={developersHomePath}
-            data-umami-event="Devs breadcrumb - Home"
+            {...breadcrumbAttrs(developersHomePath, t('nav.developers'))}
           >
             <span itemprop="name">{t('nav.developers')}</span></a
           >
@@ -82,7 +92,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           <a
             itemprop="item"
             href={blogPath}
-            data-umami-event="Devs breadcrumb - Blog"
+            {...breadcrumbAttrs(blogPath, t('blog.developers.title'))}
           >
             <span itemprop="name">{t('blog.developers.title')}</span></a
           >

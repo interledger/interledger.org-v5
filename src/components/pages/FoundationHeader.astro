@@ -14,11 +14,27 @@ import {
   useTranslations,
   getNavigation
 } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
+const homeHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
+
+const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    ariaLabel
+  })
 ---
 
 <header
@@ -36,10 +52,10 @@ const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
       {t('nav.main')}
     </h2>
     <a
-      href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
+      href={homeHref}
       class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
       aria-label={t('aria.logo.foundation')}
-      data-umami-event="Site Nav - Foundation"
+      {...navLink(homeHref, undefined, t('aria.logo.foundation'))}
     >
       <FoundationLogo class="text-black" />
     </a>
@@ -56,7 +72,7 @@ const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
           <a
             class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-200 hover:bg-gray-header min-[1060px]:hidden"
             href={ctaButton.href || '#'}
-            data-umami-event={`Site Nav - ${ctaButton.label}`}
+            {...navLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}

@@ -1,4 +1,6 @@
 ---
+import { buildUmamiAttrs } from '@/utils/umami'
+
 interface Props {
   heading: string
   text?: string
@@ -7,6 +9,7 @@ interface Props {
   secondaryButtonText?: string
   secondaryButtonLink?: string
   backgroundColor?: 'primary' | 'secondary' | 'light' | 'dark'
+  umamiContext?: string
 }
 
 const {
@@ -16,8 +19,17 @@ const {
   primaryButtonLink,
   secondaryButtonText,
   secondaryButtonLink,
-  backgroundColor = 'primary'
+  backgroundColor = 'primary',
+  umamiContext
 } = Astro.props
+
+const { routeLocale } = Astro.locals
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'cta' as const
+}
 
 const bgClasses = {
   primary: 'bg-gradient-primary text-white',
@@ -68,7 +80,11 @@ const secondaryButtonClasses = {
             <a
               href={primaryButtonLink}
               class={primaryButtonClasses[backgroundColor]}
-              data-umami-event={`CTA Banner - ${primaryButtonText}`}
+              {...buildUmamiAttrs({
+                ...umamiBase,
+                href: primaryButtonLink,
+                linkText: primaryButtonText
+              })}
             >
               {primaryButtonText}
             </a>
@@ -77,7 +93,11 @@ const secondaryButtonClasses = {
             <a
               href={secondaryButtonLink}
               class={secondaryButtonClasses[backgroundColor]}
-              data-umami-event={`CTA Banner - ${secondaryButtonText}`}
+              {...buildUmamiAttrs({
+                ...umamiBase,
+                href: secondaryButtonLink,
+                linkText: secondaryButtonText
+              })}
             >
               {secondaryButtonText}
             </a>

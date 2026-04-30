@@ -1,6 +1,7 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro'
 import { defaultLocale, useTranslations } from '@/utils'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   name: string
@@ -10,23 +11,43 @@ interface Props {
   quote?: string
   linkedinUrl?: string
   grantReportUrl?: string
+  umamiContext?: string
 }
 
-const { name, pathSlug, photo, photoAlt, quote, linkedinUrl, grantReportUrl } =
-  Astro.props
+const {
+  name,
+  pathSlug,
+  photo,
+  photoAlt,
+  quote,
+  linkedinUrl,
+  grantReportUrl,
+  umamiContext
+} = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
 const fellowLink = `${langPrefix}/grant/fellowship/${pathSlug}`
 
 const hasLinks = linkedinUrl || grantReportUrl
+
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card' as const
+}
 ---
 
 <article>
   <a
     href={fellowLink}
     class="text-black no-underline"
-    umami-event=`${name} Fellow card - Fellow profile page`
+    {...buildUmamiAttrs({
+      ...umamiBase,
+      href: fellowLink,
+      linkText: `${name} Fellow profile`
+    })}
   >
     {
       photo && (
@@ -58,7 +79,12 @@ const hasLinks = linkedinUrl || grantReportUrl
             href={grantReportUrl}
             class="ambassador-link group"
             aria-label={t('aria.ambassador.grant_report')}
-            data-umami-event={`Ambassadors page link - ${name} report`}
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: grantReportUrl,
+              linkText: `${name} report`,
+              ariaLabel: t('aria.ambassador.grant_report')
+            })}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -80,7 +106,12 @@ const hasLinks = linkedinUrl || grantReportUrl
             href={linkedinUrl}
             class="ambassador-link group"
             aria-label={t('aria.linkedin')}
-            data-umami-event={`Ambassadors page link - ${name} Linkedin`}
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: linkedinUrl,
+              linkText: `${name} Linkedin`,
+              ariaLabel: t('aria.linkedin')
+            })}
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -1,11 +1,27 @@
 ---
 import type { MenuGroup } from '@/types/navigation'
+import { buildUmamiAttrs } from '@/utils/umami'
 
 interface Props {
   menuGroups: MenuGroup[]
 }
 
 const { menuGroups } = Astro.props
+const { routeLocale } = Astro.locals
+
+const navAttrs = (
+  href: string | null | undefined,
+  linkText?: string,
+  action?: string
+) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    action
+  })
 
 const navItemBase =
   'block text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-150 max-[1059px]:px-space-s'
@@ -33,7 +49,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
         {group.href ? (
           <a
             href={group.href}
-            data-umami-event={`Summit Nav - ${group.label}`}
+            {...navAttrs(group.href, group.label)}
             class={topNavLinkClass}
           >
             {group.label}
@@ -42,7 +58,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
           <>
             <button
               aria-expanded="false"
-              data-umami-event={`Summit Nav - ${group.label}`}
+              {...navAttrs(undefined, group.label, `${group.label}_menu`)}
               class={topNavButtonClass}
               data-submenu-button
               data-open="false"
@@ -55,7 +71,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
                   <li data-menu-level="2">
                     <a
                       href={item.href || '#'}
-                      data-umami-event={`Summit Nav - ${item.label}`}
+                      {...navAttrs(item.href || '#', item.label)}
                       class={submenuItemClass}
                       {...(item.openInNewTab
                         ? { target: '_blank', rel: 'noopener noreferrer' }

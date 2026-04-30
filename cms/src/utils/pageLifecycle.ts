@@ -45,7 +45,6 @@ interface PageData {
       link?: string
       style?: 'primary' | 'secondary'
       external?: boolean
-      analytics_event_label?: string
     }>
   }
   seo?: {

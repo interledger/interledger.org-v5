@@ -455,7 +455,6 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
     icon: 'file-pdf'
   }
   attributes: {
-    analyticsEvent: Schema.Attribute.String & Schema.Attribute.Required
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'files'>
     label: Schema.Attribute.String & Schema.Attribute.DefaultTo<'Download file'>
@@ -563,12 +562,6 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
     displayName: 'Call-to-action Link'
   }
   attributes: {
-    analytics_event_label: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     external: Schema.Attribute.Boolean &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

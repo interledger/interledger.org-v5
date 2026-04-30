@@ -1,4 +1,6 @@
 ---
+import { buildUmamiAttrs } from '@/utils/umami'
+
 interface CardLink {
   title: string
   description?: string
@@ -11,9 +13,17 @@ interface Props {
   subheading?: string
   cards: CardLink[]
   columns?: '2' | '3' | '4'
+  umamiContext?: string
 }
 
-const { heading, subheading, cards, columns = '3' } = Astro.props
+const { heading, subheading, cards, columns = '3', umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card' as const
+}
 
 const gridClass =
   columns === '2'
@@ -44,6 +54,11 @@ const gridClass =
         <a
           href={card.href}
           class="group flex items-center justify-between rounded-card border border-gray-200 bg-white p-space-m text-inherit no-underline transition-all duration-200 hover:border-primary hover:shadow-card"
+          {...buildUmamiAttrs({
+            ...umamiBase,
+            href: card.href,
+            linkText: card.title
+          })}
           {...(card.openInNewTab
             ? { target: '_blank', rel: 'noopener noreferrer' }
             : {})}
