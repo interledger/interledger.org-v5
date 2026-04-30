@@ -1,10 +1,23 @@
 ---
+import { ui } from '@/data/ui'
 import { useTranslations, defaultLocale } from '@/utils'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 
 const { routeLocale } = Astro.locals
 const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
 const t = useTranslations(routeLocale)
+
+/** Passed to client so success text matches URL path (fixes EN body on `/es/` after Netlify POST→redirect). */
+const contactSuccessByLocale = {
+  en: {
+    heading: ui.en['contact.success_message'],
+    thanks: ui.en['contact.success_thanks']
+  },
+  es: {
+    heading: ui.es['contact.success_message'],
+    thanks: ui.es['contact.success_thanks']
+  }
+}
 ---
 
 <FoundationPageLayout
@@ -136,10 +149,23 @@ const t = useTranslations(routeLocale)
   </main>
 </FoundationPageLayout>
 
-<script>
+<script define:vars={{ contactSuccessByLocale }}>
+  const locale = window.location.pathname.startsWith('/es/') ? 'es' : 'en'
   const params = new URLSearchParams(window.location.search)
   if (params.get('success') === 'true') {
-    document.getElementById('success-message')?.classList.remove('hidden')
+    const successEl = document.getElementById('success-message')
+    const copy = contactSuccessByLocale[locale]
+    const paragraphs = successEl?.querySelectorAll('p')
+    if (
+      paragraphs &&
+      paragraphs.length >= 2 &&
+      copy?.heading !== undefined &&
+      copy?.thanks !== undefined
+    ) {
+      paragraphs[0].textContent = copy.heading
+      paragraphs[1].textContent = copy.thanks
+    }
+    successEl?.classList.remove('hidden')
     document.getElementById('contact-form')?.classList.add('hidden')
   }
 
