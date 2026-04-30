@@ -77,8 +77,8 @@ describe('rehypeUmamiLinks', () => {
       '/repo/src/content/foundation-pages/about-us.mdx',
       {}
     )
-    expect(out).toContain('data-umami-event="About Us page link - advocate"')
-    expect(out).toContain('data-umami-event="About Us page link - external"')
+    expect(out).toContain('data-umami-event="about_us:link:policy"')
+    expect(out).toContain('data-umami-event="data-umami-event="about_us:link:example"')
     expect(out).not.toContain('undefined')
     expect(out).not.toContain('data-umami-event=""')
     expect(out).not.toMatch(/data-umami-event="\s*link -/)
