@@ -33,3 +33,8 @@ presentations/
 public/img/optimized/
 
 .codex
+
+# Figma token exports. Kept locally, not committed. theme.css is the in-repo
+# source of truth for the values mirrored from these files.
+/ILF website*.json
+/Interledger Global UI color palette*.json

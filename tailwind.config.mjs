@@ -6,6 +6,7 @@ export default {
     extend: {
       fontFamily: {
         titillium: ['Titillium', 'Arial', 'sans-serif'],
+        poppins: ['Poppins', 'Arial', 'sans-serif'],
         system: [
           'system-ui',
           'Segoe UI',
@@ -49,12 +50,14 @@ export default {
           'linear-gradient(to bottom, hsla(162, 86%, 12%, 1), hsla(176, 100%, 30%, 1))'
       },
 
-      // Breakpoints matching existing media queries
+      // Breakpoints. md: and lg: align with the Figma design system's Tablet
+      // and Desktop tiers (768/1024, matching Tailwind v4 defaults). xs/sm/xl/2xl
+      // are auxiliary and don't correspond to Figma tiers.
       screens: {
         xs: '480px',
         sm: '600px',
-        md: '800px',
-        lg: '1000px',
+        md: '768px',
+        lg: '1024px',
         xl: '1060px',
         '2xl': '1324px'
       }
