@@ -170,14 +170,12 @@ const contactSuccessByLocale = {
   }
 
   document.getElementById('contact-form')?.addEventListener('submit', (e) => {
-    const form = e.target as HTMLFormElement
+    const form = e.target
     const recaptchaError = document.getElementById('recaptcha-error')
     const fieldsValid = form.checkValidity()
-    const recaptchaDone = !!(
-      document.querySelector(
-        'textarea[name="g-recaptcha-response"]'
-      ) as HTMLTextAreaElement | null
-    )?.value?.trim()
+    const recaptchaDone = !!document
+      .querySelector('textarea[name="g-recaptcha-response"]')
+      ?.value?.trim()
 
     recaptchaError?.classList.add('hidden')
 
