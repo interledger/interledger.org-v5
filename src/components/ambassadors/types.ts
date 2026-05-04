@@ -26,8 +26,6 @@ export interface AmbassadorData {
   photo?: string | null
   photoAlt?: string | null
   quote?: string | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
 }
 
 /**
@@ -44,6 +42,4 @@ export interface StrapiAmbassador {
   category?: string | null
   tagline?: string | null
   quote?: string | null
-  linkedinUrl?: string | null
-  grantReportUrl?: string | null
 }
