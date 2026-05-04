@@ -160,7 +160,9 @@ export const ui = {
     'contact.success_message': 'Message sent!',
     'contact.success_thanks':
       "Thank you for reaching out. We'll get back to you as soon as possible.",
-    'contact.error.captcha': 'Please complete the reCAPTCHA challenge.'
+    'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
+    'contact.error.submit':
+      'Something went wrong sending your message. Please try again.'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -327,6 +329,8 @@ export const ui = {
     'contact.success_message': 'Su mensaje ha sido enviado.',
     'contact.success_thanks':
       'Gracias por contactarnos. Le responderemos lo antes posible.',
-    'contact.error.captcha': 'Por favor, complete el desafío de reCAPTCHA.'
+    'contact.error.captcha': 'Por favor, complete el desafío de reCAPTCHA.',
+    'contact.error.submit':
+      'Hubo un problema al enviar su mensaje. Por favor, inténtelo de nuevo.'
   }
 } as const
