@@ -1,0 +1,61 @@
+---
+import { buttonVariants, type ButtonVariants } from './buttonVariants'
+import { twMerge } from '@/utils'
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props
+  extends Omit<HTMLAttributes<'a'>, 'class' | 'href'>, ButtonVariants {
+  href: string
+  external?: boolean
+  ariaDisabled?: boolean
+  umami?: string
+  class?: string
+}
+
+const {
+  href,
+  external = false,
+  ariaDisabled = false,
+  umami,
+  variant,
+  mode,
+  size,
+  iconOnly,
+  class: className,
+  ...rest
+} = Astro.props
+
+if (iconOnly && !rest['aria-label']) {
+  // eslint-disable-next-line no-console
+  console.warn('[LinkButton] iconOnly={true} requires aria-label')
+}
+
+const targetAttrs = external
+  ? { target: '_blank', rel: 'noopener noreferrer' }
+  : {}
+// Anchors can't be natively disabled. Strip href so Enter activation does
+// nothing, add tabindex="-1" so the element drops out of tab order, and
+// expose aria-disabled to screen readers. aria-disabled alone is advisory:
+// without stripping href, keyboard users can still navigate to and activate
+// the link.
+const disabledAttrs = ariaDisabled
+  ? { 'aria-disabled': 'true', tabindex: -1 }
+  : {}
+const resolvedHref = ariaDisabled ? undefined : href
+---
+
+<a
+  href={resolvedHref}
+  class={twMerge(
+    buttonVariants({ variant, mode, size, iconOnly, class: className })
+  )}
+  data-umami-event={umami}
+  {...targetAttrs}
+  {...disabledAttrs}
+  {...rest}
+>
+  <slot name="icon-left" />
+  <slot />
+  <slot name="icon-right" />
+  {external && <span class="sr-only">(opens in new tab)</span>}
+</a>

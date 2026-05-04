@@ -52,6 +52,7 @@ export { formatDate, getDurationInMinutes } from './time'
 // Media & UI
 export { detectVideoProvider } from './video'
 export { getHeroSectionStyle } from './heroSectionStyle'
+export { twMerge } from './twMerge'
 
 // Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './sessionize'
