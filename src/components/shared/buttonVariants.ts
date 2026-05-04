@@ -9,8 +9,7 @@
  * Caller overrides flow through tailwind-merge (configured in
  * src/utils/twMerge.ts). Button.astro and LinkButton.astro wrap the
  * buttonVariants() result with twMerge so `<Button class="w-full">` cleanly
- * wins over CVA defaults. Override patterns are documented in
- * docs/plans/intorg-705.md §4.6:
+ * wins over CVA defaults. Override patterns:
  *   - Pattern A: wrap in [data-pillar='X'] (preferred for pillar re-tint)
  *   - Pattern B: inline-style the --color-button-primary{,-hover,-disabled}
  *               vars (preferred for forcing a specific palette colour)
