@@ -1,7 +1,7 @@
 name: Build and Sync
 # Runs on push to staging or playground only — not prod (prod has no Strapi instance, so no build or sync applies).
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
-# and/or syncs MDX content and navigation JSON to Strapi if those files changed.
+# and/or syncs to Strapi when any src/content/**/*.mdx (or navigation JSON) changes.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -49,7 +49,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const contentPattern = /^src\/content\/(?:(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/|[^/]+\/(?:foundation-pages|summit-pages|foundation-blog-posts|ambassadors)\/).+\.(md|mdx)$/
+            // Any MDX anywhere under Astro content collections (sync script only uploads configured roots).
+            const contentPattern = /^src\/content\/.+\.mdx$/
             const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
             const zeroSha = '0000000000000000000000000000000000000000'
 
@@ -270,7 +271,11 @@ jobs:
 
   sync-to-strapi:
     needs: [detect-changes, rebuild-strapi]
+    # always() is required: if rebuild-strapi is skipped (no cms/ changes), GitHub would otherwise
+    # skip this job before evaluating `if`, even when content/navigation changed.
     if: |
+      always() &&
+      needs.detect-changes.result == 'success' &&
       (needs.rebuild-strapi.result == 'success' || needs.rebuild-strapi.result == 'skipped') &&
       (needs.detect-changes.outputs.content_changed == 'true' || needs.detect-changes.outputs.navigation_changed == 'true')
     runs-on: ubuntu-latest
