@@ -12,9 +12,9 @@ import {
   translatePath,
   HOME_CONTENT_SLUG,
   useTranslations,
-  getNavigation
+  getNavigation,
+  buildUmamiAttrs
 } from '@/utils'
-import { buildUmamiAttrs } from '@/utils/main/umami'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)

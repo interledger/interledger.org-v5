@@ -383,23 +383,23 @@ The main source files for this setup are:
 
 - `src/content.config.ts`
   Defines Astro collection ids such as `'foundation-pages'`, `'foundation-blog'`, `'developers-blog'`, and `'summit-pages'`.
-- `src/utils/paths.ts`
+- `src/utils/main/paths.ts`
   Defines filesystem paths and folder names used to load content from disk.
-- `src/utils/routes.ts`
+- `src/utils/main/routes.ts`
   Defines `ROUTE_BASES`, the URL base path for each content collection. Use this when building links, language-switcher URLs, or other route-aware behavior.
-- `src/utils/static-paths.ts`
+- `src/utils/main/static-paths.ts`
   Builds localized static paths for collection-backed routes. EN is canonical; ES routes may render EN content when no ES translation exists.
-- `src/utils/i18.ts`
+- `src/utils/main/i18.ts`
   Centralizes locale definitions and language-switcher ordering.
 
 Rule of thumb:
 
-- If you are working with folders or files on disk, use `src/utils/paths.ts`
-- If you are working with browser URLs or route generation, use `src/utils/routes.ts`
+- If you are working with folders or files on disk, use `src/utils/main/paths.ts`
+- If you are working with browser URLs or route generation, use `src/utils/main/routes.ts`
 
-In Astro `<script>` tags or hydrated browser components, use `@/utils/client`.
+In Astro `<script>` tags or hydrated browser components, use `@/utils/main/client`.
 In `src/content.config.ts`, import collection constants from
-`@/utils/contentCollections`, not the broad `@/utils` barrel.
+`@/utils/main/contentCollections`, not the broad `@/utils` barrel.
 
 When adding a new localized collection or changing route structure, review all of the files above together. They form the core configuration for how content is loaded and how URLs are generated.
 
@@ -505,7 +505,7 @@ Docs live in `src/content/docs`.
 
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
-RFC pages under `src/content/docs/rfcs/` are a small exception. Those route files wrap the upstream markdown from the `interledger/rfcs` repository via `src/components/Rfc.astro`. Internal RFC-to-RFC links are rewritten in `src/utils/rewriteRfcLinks.ts` so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
+RFC pages under `src/content/docs/rfcs/` are a small exception. Those route files wrap the upstream markdown from the `interledger/rfcs` repository via `src/components/Rfc.astro`. Internal RFC-to-RFC links are rewritten in `src/utils/docs/rewriteRfcLinks.ts` so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
 
 Static assets, like favicons or images, can be placed in the `public/` directory. When referencing these assets in your markdown, you do not have to include `public/` in the file path, so an image would have a path like:
 
@@ -650,7 +650,7 @@ All of these functions iterate over every year in the `YEARS` list automatically
 
 ### Adding a New Summit Year
 
-1. Add a new entry to `sessionizeApiMap` in `src/utils/sessionize.ts`, using the summit year as the key (e.g. `'2026'`) and the corresponding Sessionize API URLs as values:
+1. Add a new entry to `sessionizeApiMap` in `src/utils/main/sessionize.ts`, using the summit year as the key (e.g. `'2026'`) and the corresponding Sessionize API URLs as values:
 
 ```typescript
   '2026': {
@@ -679,7 +679,7 @@ From 2025 onwards, summit content includes Spanish translations. These are store
 }
 ```
 
-The following IDs are hardcoded in `src/utils/extractSessionize.ts`:
+The following IDs are hardcoded in `src/utils/main/extractSessionize.ts`:
 
 | Constant         | ID     | Used for                                   |
 | ---------------- | ------ | ------------------------------------------ |
@@ -700,7 +700,7 @@ To add a new language to the Sessionize data pipeline:
 export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 ```
 
-2. Update the utility functions in `src/utils/extractSessionize.ts` to extract the new language's fields from `questionAnswers`, following the same pattern used for Spanish. Each function should add a new key to the returned translations object (e.g. `fr: { title, description }`) alongside the existing `es: {}` entry. You will also need to add the corresponding Sessionize question IDs as constants (same as `SPANISH_TITLE_ID`, `SPANISH_DESC_ID`, etc.).
+2. Update the utility functions in `src/utils/main/extractSessionize.ts` to extract the new language's fields from `questionAnswers`, following the same pattern used for Spanish. Each function should add a new key to the returned translations object (e.g. `fr: { title, description }`) alongside the existing `es: {}` entry. You will also need to add the corresponding Sessionize question IDs as constants (same as `SPANISH_TITLE_ID`, `SPANISH_DESC_ID`, etc.).
 
 ### Image Handling
 

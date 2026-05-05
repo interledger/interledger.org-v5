@@ -78,7 +78,12 @@ export {
 } from './main/summit-talks-speakers'
 
 // Main site:Images
-export { getOptimizedImage } from './main/images'
+export {
+  getOptimizedImage,
+  IMAGE_URL_PATHS,
+  TARGET_WIDTHS,
+  pathToSegments
+} from './main/images'
 
 // Main site:Ambassadors
 export { toAmbassadorData } from './main/ambassadors'
@@ -88,10 +93,13 @@ export {
   type UmamiAttrs,
   type UmamiContext,
   type UmamiSection,
+  type BuildUmamiAttrsInput,
   buildUmamiAttrs,
   deriveAction,
   deriveLabel,
-  derivePage
+  derivePage,
+  escapeHtml,
+  umamiAttrsToHtml
 } from './main/umami'
 
 // Main site:SEO

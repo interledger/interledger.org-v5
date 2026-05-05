@@ -1,11 +1,11 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import { applyPreviewNoStore } from '@/utils/main/cache'
 import {
+  applyPreviewNoStore,
   COLLECTION_INDEX_SLUG,
   translatePath,
   useTranslations
-} from '@/utils/main/i18'
+} from '@/utils'
 
 // Developers blog is not in Strapi (phase 1). Content is rendered from MDX files.
 // Preview from Strapi is not available until developers-blog-posts is added to the CMS.
