@@ -1,7 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
-import { IMAGE_URL_PATHS, TARGET_WIDTHS, pathToSegments } from '@/utils/images'
+import {
+  IMAGE_URL_PATHS,
+  TARGET_WIDTHS,
+  pathToSegments
+} from '@/utils/main/images'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')

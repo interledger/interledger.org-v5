@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content'
-import { defaultLocale, switcherLocales, type Locale } from '@/utils/locales'
-import { ROUTE_BASES, type RouteCollection } from '@/utils/routes'
+import { defaultLocale, switcherLocales, type Locale } from './locales'
+import { ROUTE_BASES, type RouteCollection } from './routes'
 import { YEARS } from './sessionize'
 import { getTalks, getSpeakers } from './extractSessionize'
 import { generateSlug } from './slug'

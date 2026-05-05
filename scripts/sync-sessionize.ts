@@ -1,8 +1,12 @@
 import path from 'node:path'
 import fs from 'fs/promises'
 import type { SessionizeSpeaker } from '@/types/summit'
-import { sessionizeApiMap, currentSummitYear, YEARS } from '@/utils/sessionize'
-import { generateSlug } from '@/utils/slug'
+import {
+  sessionizeApiMap,
+  currentSummitYear,
+  YEARS
+} from '@/utils/main/sessionize'
+import { generateSlug } from '@/utils/main/slug'
 
 //Step 0. Read YEAR from command-line arguments or defaults to currentSummitYear
 const rawArgs = process.argv.slice(2)

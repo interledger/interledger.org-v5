@@ -25,7 +25,7 @@ function getLocalSpeakerImagePath(
 }
 
 async function getSpeakersData(year: string): Promise<SessionizeSpeaker[]> {
-  const data = await import(`../data/sessionize/${year}-speakers.json`)
+  const data = await import(`../../data/sessionize/${year}-speakers.json`)
   return data.default
 }
 
@@ -73,7 +73,7 @@ export async function getTalks(
   year: string,
   authorId?: string
 ): Promise<Talk[]> {
-  const data = await import(`../data/sessionize/${year}-talks.json`)
+  const data = await import(`../../data/sessionize/${year}-talks.json`)
 
   // Filter out sessions without speakers before mapping
   // These are non-talk events (e.g. coffee breaks, group photos, social events)

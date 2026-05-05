@@ -1,5 +1,5 @@
 import { getCollection } from 'astro:content'
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
   | 'foundation-pages'

@@ -1,7 +1,7 @@
-import { switcherLocales, defaultLocale, type Locale } from '@/utils/locales'
-import { translationMap } from '@/utils/translationMapData'
-import { localizeRoute } from '@/utils/routes'
-import { buildRoutePath } from '@/utils/translatePath'
+import { switcherLocales, defaultLocale, type Locale } from './locales'
+import { translationMap } from './translationMapData'
+import { localizeRoute } from './routes'
+import { buildRoutePath } from './translatePath'
 
 export type HreflangMeta = {
   locale: Locale
