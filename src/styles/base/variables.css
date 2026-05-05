@@ -21,7 +21,7 @@
        "the orchid pillar." Future pillars override these three vars under
        [data-pillar='X'] selectors (one block per pillar, mirroring the
        --color-primary pattern below). Callers can also override per-button
-       via Pattern B in docs/plans/intorg-705.md §4.6 (inline style on the element). */
+       via inline style on the element. */
     --color-button-primary: var(--color-orchid-100);
     --color-button-primary-hover: var(--color-orchid-150);
     --color-button-primary-disabled: var(--color-orchid-50);

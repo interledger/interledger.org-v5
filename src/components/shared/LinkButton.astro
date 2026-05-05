@@ -8,7 +8,6 @@ interface Props
   href: string
   external?: boolean
   ariaDisabled?: boolean
-  umami?: string
   class?: string
 }
 
@@ -16,7 +15,6 @@ const {
   href,
   external = false,
   ariaDisabled = false,
-  umami,
   variant,
   mode,
   size,
@@ -49,7 +47,6 @@ const resolvedHref = ariaDisabled ? undefined : href
   class={twMerge(
     buttonVariants({ variant, mode, size, iconOnly, class: className })
   )}
-  data-umami-event={umami}
   {...targetAttrs}
   {...disabledAttrs}
   {...rest}

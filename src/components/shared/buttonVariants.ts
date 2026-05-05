@@ -56,7 +56,10 @@ export const buttonVariants = cva(
         class: [
           'border-neutral-50 text-neutral-100',
           'hover:bg-neutral-900 hover:border-neutral-900 hover:text-neutral-0',
-          'disabled:text-neutral-50 aria-disabled:text-neutral-50'
+          // :hover still fires on disabled <button>; explicitly reset the
+          // hover overrides so disabled state stays visually inert.
+          'disabled:bg-transparent disabled:border-neutral-50 disabled:text-neutral-50',
+          'aria-disabled:bg-transparent aria-disabled:border-neutral-50 aria-disabled:text-neutral-50'
         ]
       },
       {
@@ -65,8 +68,8 @@ export const buttonVariants = cva(
         class: [
           'border-neutral-75 text-neutral-25',
           'hover:bg-neutral-0 hover:border-neutral-0 hover:text-neutral-100',
-          'disabled:border-neutral-100 disabled:text-neutral-75',
-          'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
+          'disabled:bg-transparent disabled:border-neutral-100 disabled:text-neutral-75',
+          'aria-disabled:bg-transparent aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
       { iconOnly: false, size: 'lg', class: 'px-xl' },

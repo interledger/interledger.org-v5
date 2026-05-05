@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import Button from '@/components/shared/Button.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 ---
 
 <BaseLayout title="UI Components Preview">
@@ -30,53 +31,15 @@ import LinkButton from '@/components/shared/LinkButton.astro'
         <Button>Default</Button>
         <Button disabled>Disabled</Button>
         <Button>
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button>
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button iconOnly aria-label="Next">
-          <svg
-            class="size-5"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m8 5 5 5-5 5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" class="size-5" />
         </Button>
       </div>
 
@@ -85,53 +48,15 @@ import LinkButton from '@/components/shared/LinkButton.astro'
         <Button size="sm">Default</Button>
         <Button size="sm" disabled>Disabled</Button>
         <Button size="sm">
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button size="sm">
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button size="sm" iconOnly aria-label="Next">
-          <svg
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M6 4l4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" />
         </Button>
       </div>
 
@@ -142,53 +67,15 @@ import LinkButton from '@/components/shared/LinkButton.astro'
         <Button variant="secondary" mode="light">Default</Button>
         <Button variant="secondary" mode="light" disabled>Disabled</Button>
         <Button variant="secondary" mode="light">
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button variant="secondary" mode="light">
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button variant="secondary" mode="light" iconOnly aria-label="Next">
-          <svg
-            class="size-5"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m8 5 5 5-5 5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" class="size-5" />
         </Button>
       </div>
 
@@ -201,38 +88,12 @@ import LinkButton from '@/components/shared/LinkButton.astro'
           Disabled
         </Button>
         <Button variant="secondary" mode="light" size="sm">
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button variant="secondary" mode="light" size="sm">
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button
           variant="secondary"
@@ -241,19 +102,7 @@ import LinkButton from '@/components/shared/LinkButton.astro'
           iconOnly
           aria-label="Next"
         >
-          <svg
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M6 4l4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" />
         </Button>
       </div>
 
@@ -264,53 +113,15 @@ import LinkButton from '@/components/shared/LinkButton.astro'
         <Button variant="secondary" mode="dark">Default</Button>
         <Button variant="secondary" mode="dark" disabled>Disabled</Button>
         <Button variant="secondary" mode="dark">
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button variant="secondary" mode="dark">
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button variant="secondary" mode="dark" iconOnly aria-label="Next">
-          <svg
-            class="size-5"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m8 5 5 5-5 5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" class="size-5" />
         </Button>
       </div>
 
@@ -323,38 +134,12 @@ import LinkButton from '@/components/shared/LinkButton.astro'
           Disabled
         </Button>
         <Button variant="secondary" mode="dark" size="sm">
-          <svg
-            slot="icon-left"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4 6 8l4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-left" name="chevron-left" />
           With icon-left
         </Button>
         <Button variant="secondary" mode="dark" size="sm">
           With icon-right
-          <svg
-            slot="icon-right"
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m6 4 4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon slot="icon-right" name="chevron-right" />
         </Button>
         <Button
           variant="secondary"
@@ -363,19 +148,7 @@ import LinkButton from '@/components/shared/LinkButton.astro'
           iconOnly
           aria-label="Next"
         >
-          <svg
-            class="size-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M6 4l4 4-4 4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+          <Icon name="chevron-right" />
         </Button>
       </div>
 
