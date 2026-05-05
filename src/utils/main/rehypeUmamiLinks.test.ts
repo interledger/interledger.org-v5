@@ -78,9 +78,7 @@ describe('rehypeUmamiLinks', () => {
       {}
     )
     expect(out).toContain('data-umami-event="about_us:link:policy"')
-    expect(out).toContain(
-      'data-umami-event="data-umami-event="about_us:link:example"'
-    )
+    expect(out).toContain('data-umami-event="about_us:link:example"')
     expect(out).not.toContain('undefined')
     expect(out).not.toContain('data-umami-event=""')
     expect(out).not.toMatch(/data-umami-event="\s*link -/)
