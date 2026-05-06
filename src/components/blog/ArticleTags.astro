@@ -1,7 +1,11 @@
 ---
 import type { FoundationTag } from '@/schemas/content'
-import { getTagUrl, translateTag, useTranslations } from '@/utils'
-import { buildUmamiAttrs } from '@/utils/umami'
+import {
+  buildUmamiAttrs,
+  getTagUrl,
+  translateTag,
+  useTranslations
+} from '@/utils'
 interface Props {
   tags: FoundationTag[]
   path: string
