@@ -25,7 +25,10 @@ const tagAttrs = (tag: FoundationTag, label: string) =>
     {
       tags.map((tag) => (
         <li class="mb-space-xs">
-          <a href={getTagUrl(path, tag)} {...tagAttrs(tag, translateTag(tag, t))}>
+          <a
+            href={getTagUrl(path, tag)}
+            {...tagAttrs(tag, translateTag(tag, t))}
+          >
             #{translateTag(tag, t)}
           </a>
         </li>
