@@ -1,8 +1,7 @@
 ---
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import type { DevelopersBlogFrontmatterType } from '@/schemas/content.ts'
-import { useTranslations } from '@/utils/i18'
-import { buildUmamiAttrs } from '@/utils/umami'
+import { useTranslations, buildUmamiAttrs } from '@/utils'
 
 interface Props {
   frontmatter: DevelopersBlogFrontmatterType

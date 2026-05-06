@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { parse } from 'node-html-parser'
-import { getPublishedRfcRouteBySourcePath } from '../data/docs/rfcs'
+import { getPublishedRfcRouteBySourcePath } from '../../data/docs/rfcs'
 import { parseRawGitHubPath } from './parseRawGitHubPath'
 
 const { posix } = path

@@ -1,5 +1,5 @@
-import { addTrailingSlash } from '../../utils/url'
-import { parseRawGitHubPath } from '../../utils/parseRawGitHubPath'
+import { addTrailingSlash } from '../../utils/shared/url'
+import { parseRawGitHubPath } from '../../utils/docs/parseRawGitHubPath'
 
 export type PublishedRfc = {
   id: string
