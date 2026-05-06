@@ -8,7 +8,7 @@
 // Shared (safe on either side)
 export { stripTrailingSlash, addTrailingSlash } from './shared/url'
 
-// Main site:URL & routing
+// Main site: URL & routing
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
@@ -19,7 +19,7 @@ export {
 export { routeContextFromPathname } from './main/routeContext'
 export { default as stripPagination } from './main/stripPagination'
 
-// Main site:Internationalisation
+// Main site: Internationalisation
 export {
   type Locale,
   locales,
@@ -33,12 +33,12 @@ export {
 export { buildMap } from './main/translationMap'
 export { translationMap } from './main/translationMapData'
 
-// Main site:Data fetching
+// Main site: Data fetching
 export { getNavigation } from './main/navigation'
 export { fetchStrapi } from './main/fetchStrapi'
 export { applyPreviewNoStore } from './main/cache'
 
-// Main site:Static paths
+// Main site: Static paths
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export { type CollectionType, getLocalizedPaths } from './main/static-paths'
 export {
@@ -49,20 +49,20 @@ export {
   paginatePostsByTag
 } from './main/tagFilter'
 
-// Main site:Text
+// Main site: Text
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'
 export { parseMarkdown, parseMarkdownInline } from './main/mdx'
 export { createExcerpt } from './main/create-excerpt'
 
-// Main site:Formatting
+// Main site: Formatting
 export { formatDate, getDurationInMinutes } from './main/time'
 
-// Main site:Media & UI
+// Main site: Media & UI
 export { detectVideoProvider } from './main/video'
 export { getHeroSectionStyle } from './main/heroSectionStyle'
 
-// Main site:Summit
+// Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'
 export {
   getSpeakers,
@@ -77,7 +77,7 @@ export {
   getSessionPages
 } from './main/summit-talks-speakers'
 
-// Main site:Images
+// Main site: Images
 export {
   getOptimizedImage,
   IMAGE_URL_PATHS,
@@ -85,10 +85,10 @@ export {
   pathToSegments
 } from './main/images'
 
-// Main site:Ambassadors
+// Main site: Ambassadors
 export { toAmbassadorData } from './main/ambassadors'
 
-// Main site:Analytics
+// Main site: Analytics
 export {
   type UmamiAttrs,
   type UmamiContext,
@@ -102,7 +102,7 @@ export {
   umamiAttrsToHtml
 } from './main/umami'
 
-// Main site:SEO
+// Main site: SEO
 export {
   buildCanonicalMeta,
   type CanonicalMeta,
