@@ -1,7 +1,8 @@
 name: Build and Sync
 # Runs on push to staging or playground only — not prod (prod has no Strapi instance, so no build or sync applies).
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
-# and/or syncs to Strapi when any src/content/**/*.mdx (or navigation JSON) changes.
+# and/or syncs to Strapi when src/content changes (.md/.mdx), navigation JSON changes,
+# or static media under public/img/, public/uploads/, or public/documents/ changes.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -49,8 +50,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Any MDX anywhere under Astro content collections (sync script only uploads configured roots).
-            const contentPattern = /^src\/content\/.+\.mdx$/
+            // Any Markdown/MDX under Astro content collections (sync script only uploads configured roots).
+            const contentPattern = /^src\/content\/.+\.(md|mdx)$/
+            const mediaPattern = /^public\/(?:img|uploads|documents)\//
             const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
             const zeroSha = '0000000000000000000000000000000000000000'
 
@@ -168,8 +170,9 @@ jobs:
 
             const cmsChanged =
               changedFiles.some((file) => file.startsWith('cms/'))
-            const contentChanged =
-              changedFiles.some((file) => contentPattern.test(file))
+            const contentChanged = changedFiles.some(
+              (file) => contentPattern.test(file) || mediaPattern.test(file)
+            )
             const navigationChanged =
               changedFiles.some((file) => navigationPattern.test(file))
 
@@ -178,7 +181,7 @@ jobs:
             }
 
             if (contentChanged) {
-              core.info('Content changes detected')
+              core.info('Content or public media changes detected')
             }
 
             if (navigationChanged) {
@@ -300,7 +303,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Sync MDX and navigation to Strapi
+      - name: Sync content, media, and navigation to Strapi
         working-directory: cms
         run: |
           set -euo pipefail
