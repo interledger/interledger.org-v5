@@ -18,10 +18,12 @@ async function writeAirtableJson(data: any) {
 async function fetchGranteeRecords(view: any, apiToken: string) {
   // view = row filter (Airtable view's filters apply server-side)
   // fields[] = column filter (only return the view's visible fields)
+  // exclude Project field (id: fldirPGzYo96I1Hsu)
+  const excludedFieldId = 'fldirPGzYo96I1Hsu'
   const params = new URLSearchParams({
     view: VIEW_ID
   })
-  view.visibleFieldIds.forEach((id: string) => params.append('fields[]', id))
+  view.visibleFieldIds.forEach((id: string) => id !== excludedFieldId && params.append('fields[]', id))
 
   const records = []
   let offset: string | undefined = undefined
