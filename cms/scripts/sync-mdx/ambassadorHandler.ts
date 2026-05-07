@@ -16,7 +16,11 @@ import type {
   AmbassadorBlock,
   AmbassadorsGridBlock
 } from './types.blocks'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 import { getStringAttr, getStringArrayAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
@@ -33,7 +37,8 @@ import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
  * 3. Throw UNRESOLVED_RELATION if neither found
  *
  * The returned function matches the `resolveRelation` signature on
- * ParserContext so it can be plugged in directly.
+ * ParserContext so it can be plugged in directly. Throws are caught at
+ * the handler boundary by `tryCatchParserError` and returned as values.
  */
 export function createRelationResolver(
   strapi: StrapiClient,
@@ -62,17 +67,19 @@ export function createRelationResolver(
 async function handleAmbassador(
   node: JsxBlockNode,
   ctx: ParserContext
-): Promise<ParsedBlock[]> {
-  const pathSlug = getStringAttr(node, 'pathSlug', { required: true })
+): Promise<ParsedBlock[] | MdxParserError> {
+  return tryCatchParserError(async () => {
+    const pathSlug = getStringAttr(node, 'pathSlug', { required: true })
 
-  const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
+    const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
 
-  const block: AmbassadorBlock = {
-    __component: 'blocks.ambassador',
-    ambassador: { connect: [{ documentId }] }
-  }
+    const block: AmbassadorBlock = {
+      __component: 'blocks.ambassador',
+      ambassador: { connect: [{ documentId }] }
+    }
 
-  return [block]
+    return [block]
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -82,36 +89,40 @@ async function handleAmbassador(
 async function handleAmbassadorGrid(
   node: JsxBlockNode,
   ctx: ParserContext
-): Promise<ParsedBlock[]> {
-  const heading = getStringAttr(node, 'heading')
-  const pathSlugs = getStringArrayAttr(node, 'pathSlugs')
-  const category = getStringAttr(node, 'category')
+): Promise<ParsedBlock[] | MdxParserError> {
+  return tryCatchParserError(async () => {
+    const heading = getStringAttr(node, 'heading')
+    const pathSlugs = getStringArrayAttr(node, 'pathSlugs')
+    const category = getStringAttr(node, 'category')
 
-  if (!pathSlugs && !category) {
-    throw new MdxParserError({
-      code: ParserErrorCode.MISSING_REQUIRED_PROP,
-      message: 'AmbassadorGrid requires either "pathSlugs" or "category".'
-    })
-  }
+    if (!pathSlugs && !category) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: 'AmbassadorGrid requires either "pathSlugs" or "category".'
+      })
+    }
 
-  const block: AmbassadorsGridBlock = {
-    __component: 'blocks.ambassadors-grid'
-  }
+    const block: AmbassadorsGridBlock = {
+      __component: 'blocks.ambassadors-grid'
+    }
 
-  if (heading !== undefined) {
-    block.heading = heading
-  }
-  if (category !== undefined) {
-    block.category = category
-  }
-  if (pathSlugs && pathSlugs.length > 0) {
-    const resolved = await Promise.all(
-      pathSlugs.map((pathSlug) => ctx.resolveRelation!('ambassadors', pathSlug))
-    )
-    block.ambassadors = { connect: resolved }
-  }
+    if (heading !== undefined) {
+      block.heading = heading
+    }
+    if (category !== undefined) {
+      block.category = category
+    }
+    if (pathSlugs && pathSlugs.length > 0) {
+      const resolved = await Promise.all(
+        pathSlugs.map((pathSlug) =>
+          ctx.resolveRelation!('ambassadors', pathSlug)
+        )
+      )
+      block.ambassadors = { connect: resolved }
+    }
 
-  return [block]
+    return [block]
+  })
 }
 
 // ---------------------------------------------------------------------------

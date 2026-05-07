@@ -11,42 +11,48 @@
 
 import type { JsxBlockNode } from './mdxBlockParser'
 import type { ParsedBlock, PdfEmbedBlock } from './types.blocks'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 import { getStringAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 async function handlePdfEmbed(
   node: JsxBlockNode,
   ctx: ParserContext
-): Promise<ParsedBlock[]> {
-  const url = getStringAttr(node, 'url', { required: true })
-  const label = getStringAttr(node, 'label')
+): Promise<ParsedBlock[] | MdxParserError> {
+  return tryCatchParserError(async () => {
+    const url = getStringAttr(node, 'url', { required: true })
+    const label = getStringAttr(node, 'label')
 
-  const block: PdfEmbedBlock = {
-    __component: 'blocks.pdf-embed',
-    source: url.startsWith('/') ? 'media_library' : 'external_url'
-  }
-
-  if (label !== undefined) {
-    block.label = label
-  }
-
-  if (block.source === 'media_library') {
-    // Internal Strapi media upload — resolve to integer file ID
-    if (!ctx.resolveMediaUpload) {
-      throw new MdxParserError({
-        code: ParserErrorCode.UNRESOLVED_RELATION,
-        message:
-          'resolveMediaUpload is required for internal PdfEmbed URLs but was not provided.',
-        component: 'PdfEmbed'
-      })
+    const block: PdfEmbedBlock = {
+      __component: 'blocks.pdf-embed',
+      source: url.startsWith('/') ? 'media_library' : 'external_url'
     }
-    block.file = await ctx.resolveMediaUpload(url)
-  } else {
-    block.externalUrl = url
-  }
 
-  return [block]
+    if (label !== undefined) {
+      block.label = label
+    }
+
+    if (block.source === 'media_library') {
+      // Internal Strapi media upload — resolve to integer file ID
+      if (!ctx.resolveMediaUpload) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message:
+            'resolveMediaUpload is required for internal PdfEmbed URLs but was not provided.',
+          component: 'PdfEmbed'
+        })
+      }
+      block.file = await ctx.resolveMediaUpload(url)
+    } else {
+      block.externalUrl = url
+    }
+
+    return [block]
+  })
 }
 
 // Registration (runs on import)

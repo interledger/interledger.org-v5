@@ -59,9 +59,8 @@ export interface ParserErrorContext {
 }
 
 /**
- * Thrown by the MDX block parser on any irrecoverable issue.
- *
- * Callers should catch this at the pipeline boundary and surface
+ * Returned by the MDX block parser and block handlers on any irrecoverable
+ * parsing issue. Callers narrow with `instanceof MdxParserError` and surface
  * the structured context for debugging.
  */
 export class MdxParserError extends Error {
@@ -83,5 +82,29 @@ export class MdxParserError extends Error {
     this.prop = ctx.prop
     this.line = ctx.line
     this.column = ctx.column
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Run an async fn and convert thrown `MdxParserError` into a returned value.
+ * Other thrown values (network, programmer bugs) propagate so the caller
+ * can decide how to surface them.
+ *
+ * Companion to `tryCatchAsync` in `cms/src/utils/tryCatch.ts`, narrowed to
+ * `MdxParserError` so handler/parser return types stay precisely typed
+ * as `T | MdxParserError` rather than the broader `T | Error`.
+ */
+export async function tryCatchParserError<T>(
+  fn: () => T | Promise<T>
+): Promise<T | MdxParserError> {
+  try {
+    return await fn()
+  } catch (err) {
+    if (err instanceof MdxParserError) return err
+    throw err
   }
 }

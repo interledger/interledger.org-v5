@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
-import { ParserErrorCode } from './parserErrors'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // Side-effect imports: register handlers
 import './paragraphHandler'
@@ -75,22 +75,22 @@ describe('Paragraph handler', () => {
     expect(blocks[0]).not.toHaveProperty('alignment')
   })
 
-  it('throws when children are empty (self-closing)', async () => {
-    await expect(parseMdxToBlocks('<Paragraph />', ctx)).rejects.toMatchObject({
-      code: ParserErrorCode.INVALID_PROP_VALUE
-    })
+  it('returns INVALID_PROP_VALUE when children are empty (self-closing)', async () => {
+    const result = await parseMdxToBlocks('<Paragraph />', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 
-  it('throws when children are empty (open/close with no content)', async () => {
-    await expect(
-      parseMdxToBlocks('<Paragraph></Paragraph>', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+  it('returns INVALID_PROP_VALUE when children are empty (open/close with no content)', async () => {
+    const result = await parseMdxToBlocks('<Paragraph></Paragraph>', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 
-  it('throws when content prop is an empty string', async () => {
-    await expect(
-      parseMdxToBlocks('<Paragraph content="" />', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+  it('returns INVALID_PROP_VALUE when content prop is an empty string', async () => {
+    const result = await parseMdxToBlocks('<Paragraph content="" />', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 })
 
@@ -213,7 +213,7 @@ describe('Paragraph handler — rich markdown content', () => {
 // ---------------------------------------------------------------------------
 
 describe('Paragraph handler — nested JSX guard', () => {
-  it('throws on nested flow JSX element', async () => {
+  it('returns NESTED_JSX on nested flow JSX element', async () => {
     const mdx = [
       '<Paragraph>',
       'Some text.',
@@ -223,20 +223,24 @@ describe('Paragraph handler — nested JSX guard', () => {
       '</Paragraph>'
     ].join('\n')
 
-    await expect(parseMdxToBlocks(mdx, ctx)).rejects.toMatchObject({
+    const result = await parseMdxToBlocks(mdx, ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.NESTED_JSX,
       message: expect.stringContaining('<Blockquote>')
     })
   })
 
-  it('throws on nested text JSX element', async () => {
+  it('returns NESTED_JSX on nested text JSX element', async () => {
     const mdx = [
       '<Paragraph>',
       'Text before <CalloutText content="notice" /> text after.',
       '</Paragraph>'
     ].join('\n')
 
-    await expect(parseMdxToBlocks(mdx, ctx)).rejects.toMatchObject({
+    const result = await parseMdxToBlocks(mdx, ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.NESTED_JSX,
       message: expect.stringContaining('<CalloutText>')
     })
