@@ -1,13 +1,41 @@
 import 'dotenv/config'
 import path from 'node:path'
 import fs from 'fs/promises'
+import type { TableMeta, Table, View, TableRecord } from '@/types/airtable'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
 const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 
-async function writeAirtableJson(data: any) {
+function getStringField(value: unknown, context: string): string {
+  if (typeof value !== 'string') {
+    throw new Error(`Expected ${context} to be a string, got ${typeof value}`)
+  }
+  return value
+}
+
+function isTableRecord(value: unknown): value is TableRecord {
+  if (typeof value !== 'object' || value === null) return false
+  const v = value as Record<string, unknown>
+  if (typeof v.id !== 'string' || typeof v.createdTime !== 'string')
+    return false
+  if (typeof v.fields !== 'object' || v.fields === null) return false
+  const fields = v.fields as Record<string, unknown>
+  for (const key in fields) {
+    const fieldValue = fields[key]
+    if (
+      typeof fieldValue !== 'string' &&
+      typeof fieldValue !== 'number' &&
+      (!Array.isArray(fieldValue) ||
+        !fieldValue.every((item) => typeof item === 'string'))
+    ) {
+      return false
+    }
+  }
+  return true
+}
+async function writeAirtableJson(data: TableRecord[]) {
   const basePath = path.resolve('./src/data/airtable')
   await fs.mkdir(basePath, { recursive: true })
   const filePath = path.join(basePath, 'grantee-data.json')
@@ -16,12 +44,17 @@ async function writeAirtableJson(data: any) {
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
 }
 
-async function mapContactIdsToNames(contactsTable: any, apiToken: string) {
+async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
   const primaryFieldId = contactsTable.primaryFieldId
-  const primaryFieldName =
-    contactsTable.fields.find((f: any) => f.id === primaryFieldId)?.name ||
-    'Unknown'
-  const contactRecords = []
+  const primaryFieldName = contactsTable.fields.find(
+    (f) => f.id === primaryFieldId
+  )?.name
+
+  if (!primaryFieldName)
+    throw new Error(
+      `❌ Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
+    )
+  const contactRecords: TableRecord[] = []
   const params = new URLSearchParams()
   params.set('fields[]', primaryFieldId)
   let offset: string | undefined = undefined
@@ -44,21 +77,29 @@ async function mapContactIdsToNames(contactsTable: any, apiToken: string) {
     }
 
     const page = await result.json()
+    if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
+      throw new Error(
+        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
+      )
+    }
     contactRecords.push(...page.records)
     offset = page.offset
   } while (offset)
 
   const contactMap = new Map<string, string>(
-    contactRecords.map((record: any) => [
+    contactRecords.map((record: TableRecord) => [
       record.id,
-      record.fields[primaryFieldName]
+      getStringField(
+        record.fields[primaryFieldName],
+        `Contact record ${record.id} primary field value`
+      )
     ])
   )
 
   return contactMap
 }
 
-async function fetchGranteeRecords(view: any, apiToken: string) {
+async function fetchGranteeRecords(view: View, apiToken: string) {
   // view = row filter (Airtable view's filters apply server-side)
   // fields[] = column filter (only return the view's visible fields)
   // exclude Project field (id: fldirPGzYo96I1Hsu)
@@ -66,11 +107,11 @@ async function fetchGranteeRecords(view: any, apiToken: string) {
   const params = new URLSearchParams({
     view: VIEW_ID
   })
-  view.visibleFieldIds.forEach(
-    (id: string) => id !== excludedFieldId && params.append('fields[]', id)
+  view.visibleFieldIds?.forEach(
+    (id) => id !== excludedFieldId && params.append('fields[]', id)
   )
 
-  const records = []
+  const records: TableRecord[] = []
   let offset: string | undefined = undefined
 
   do {
@@ -92,6 +133,11 @@ async function fetchGranteeRecords(view: any, apiToken: string) {
     }
 
     const page = await result.json()
+    if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
+      throw new Error(
+        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
+      )
+    }
     records.push(...page.records)
     offset = page.offset
   } while (offset)
@@ -107,30 +153,37 @@ async function fetchAirtableData() {
   }
 
   const url = `https://api.airtable.com/v0/meta/bases/${BASE_ID}/tables?include=visibleFieldIds`
-  const meta = await fetch(url, {
+  const meta: TableMeta = await fetch(url, {
     headers: { Authorization: `Bearer ${apiToken}` }
   }).then((r) => r.json())
 
-  const contactsTable = meta.tables.find((t: any) => t.id === CONTACTS_TABLE_ID)
+  const contactsTable = meta.tables.find((t) => t.id === CONTACTS_TABLE_ID)
   if (!contactsTable) {
     throw new Error(
       `❌ Contacts table with ID ${CONTACTS_TABLE_ID} not found in Airtable base metadata.`
     )
   }
-  const projectsTable = meta.tables.find((t: any) => t.id === PROJECTS_TABLE_ID)
-  const view = projectsTable?.views.find((v: any) => v.id === VIEW_ID)
+  const projectsTable = meta.tables.find((t) => t.id === PROJECTS_TABLE_ID)
+  const view = projectsTable?.views.find((v) => v.id === VIEW_ID)
 
   if (!view?.visibleFieldIds?.length) {
     throw new Error(`❌ View ${VIEW_ID} not found or has no visible fields`)
   }
 
-  const granteeData = await fetchGranteeRecords(view, apiToken)
+  const granteeData: TableRecord[] = await fetchGranteeRecords(view, apiToken)
   // granteeData contains the IDs of Project Leaders, we are swaping that with the actual names from the Contacts table before writing the JSON file
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  granteeData.forEach((record: any) => {
-    const leaderIds = record.fields['Project Leader'] || []
+  granteeData.forEach((record) => {
+    const leaderIds = record.fields['Project Leader']
+    if (leaderIds === undefined) return
+    if (!Array.isArray(leaderIds)) {
+      throw new Error(
+        `❌ Unexpected format for Project Leader field in record ${record.id}: expected string[]`
+      )
+    }
+
     record.fields['Project Leader'] = leaderIds.map(
-      (id: string) => contactsMap.get(id) || 'Unknown'
+      (id) => contactsMap.get(id) || 'Unknown'
     )
   })
   await writeAirtableJson(granteeData)
