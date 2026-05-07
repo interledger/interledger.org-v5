@@ -1,3 +1,6 @@
+// Error handling
+export { tryCatchAsync } from './tryCatch'
+
 // Paths & configuration
 export {
   getProjectRoot,
