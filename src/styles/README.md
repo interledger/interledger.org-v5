@@ -501,6 +501,23 @@ The site has **two separate CSS systems** that never coexist in the same browser
    - Put styles in the component's own `<style>` block (Astro scopes them per-component — safe on both sides).
 5. **Don't reach across lanes for variables.** A docs component can only see variables defined in the docs lane's CSS, and vice versa. If you need the same value in both, define it in both (with matching values) — don't try to import from across.
 
+### JS-side counterpart: `src/utils/` lane buckets
+
+The CSS isolation above relies on docs and main-site pages not sharing JS modules. When they do (e.g. a util imported by both a Starlight component and `BaseLayout`), Rollup forms a shared chunk and writes both lanes' CSS into it. That is the mechanism behind the leak in INTORG-639 / PR #258.
+
+To make the safe/unsafe boundary visible at import time, `src/utils/` is split into three buckets:
+
+- `src/utils/shared/`: pure helpers safe on either side. No project-internal runtime deps; no CSS-pulling chains.
+- `src/utils/main/`: anything coupled to main-site routing, content collections, summit data, or i18 chains.
+- `src/utils/docs/`: Starlight-only helpers (RFC link rewrite, GitHub source-path parsing).
+
+Import conventions:
+
+- Main-site code uses the `@/utils` barrel for `shared/` and `main/` exports.
+- Docs-side code (`src/components/docs/**`, `src/content/docs/**`) imports `shared/` directly via `@/utils/shared/<name>` and docs-only utilities via `@/utils/docs/<name>`. The barrel is intentionally a main-site surface; pulling it from docs would form the very shared chunk this split exists to prevent.
+
+This is convention-only today. Nothing in CI enforces that a docs-side file doesn't reach into `@/utils/main/*`. INTORG-654 tracks adding a build-time or boundary-rule guardrail. Until then, the lane structure is purely for visibility and reviewer-side enforcement.
+
 ### Why not scope docs variables to `.sl-container`?
 
 An earlier attempt wrapped `interledger.css` variables in `:where(.sl-container) { ... }`. This broke the header and sidebar: Starlight renders `<header>`, `<nav.sidebar>`, and other chrome **outside** `.sl-container`, so those elements couldn't read `--color-primary` or `--space-*` and fell back to UA defaults.

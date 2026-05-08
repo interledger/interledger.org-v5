@@ -13,7 +13,8 @@
     "test": "vitest run",
     "optimize:images": "tsx ./scripts/optimize-images.ts",
     "prebuild": "pnpm run optimize:images",
-    "sync:sessionize": "tsx ./scripts/sync-sessionize.ts"
+    "sync:sessionize": "tsx ./scripts/sync-sessionize.ts",
+    "sync:airtable": "tsx ./scripts/import-airtable.ts"
   },
   "dependencies": {
     "@astro-community/astro-embed-vimeo": "^0.3.12",

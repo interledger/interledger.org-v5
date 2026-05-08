@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content'
-import { defaultLocale, switcherLocales, type Locale } from '@/utils/locales'
-import { ROUTE_BASES, type RouteCollection } from '@/utils/routes'
+import { defaultLocale, switcherLocales, type Locale } from './locales'
+import { ROUTE_BASES, type RouteCollection } from './routes'
 import { YEARS } from './sessionize'
 import { getTalks, getSpeakers } from './extractSessionize'
 import { generateSlug } from './slug'
@@ -68,6 +68,12 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
         `${year}/speakers/${id}`
       )
     }
+  }
+
+  // Add hardcoded entries for routes that are not generated from content files
+  const hardcodedRoutes = ['contact']
+  for (const route of hardcodedRoutes) {
+    map[route] = createFallbackEntry(route)
   }
   return map
 }

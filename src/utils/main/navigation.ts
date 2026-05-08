@@ -1,4 +1,4 @@
-import { defaultLocale, type Locale } from '@/utils/i18'
+import { defaultLocale, type Locale } from './i18'
 
 import foundationEn from '@/config/foundation-navigation.json'
 import foundationEs from '@/config/foundation-navigation.es.json'

@@ -8,7 +8,7 @@ import mdx from '@astrojs/mdx'
 import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
-import rehypeUmamiLinks from './src/utils/rehypeUmamiLinks.ts'
+import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
 
 // https://astro.build/config
 export default defineConfig({

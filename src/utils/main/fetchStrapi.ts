@@ -1,4 +1,4 @@
-import { stripTrailingSlash } from './url'
+import { stripTrailingSlash } from '../shared/url'
 
 export async function fetchStrapi(endpoint: string) {
   const base = import.meta.env.STRAPI_URL

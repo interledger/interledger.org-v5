@@ -9,7 +9,7 @@ import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
-import { CONTENT, CONTENT_ROOT } from '@/utils/contentCollections'
+import { CONTENT, CONTENT_ROOT } from '@/utils/main/contentCollections'
 
 const foundationBlogCollection = defineCollection({
   loader: glob({

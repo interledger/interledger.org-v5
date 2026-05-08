@@ -1,16 +1,26 @@
-// URL & routing
-export { stripTrailingSlash, addTrailingSlash } from './url'
+// This barrel re-exports utilities from the three lane buckets:
+//   shared/: pure helpers safe on either side of the docs/main-site boundary
+//   main/:   anything coupled to main-site routing, content collections, or i18 chains
+//   docs/:   Starlight-only helpers
+// Lane structure exists to keep the JS module graph from leaking Tailwind CSS
+// into Starlight chunks (see src/styles/README.md "Starlight Docs Isolation").
+
+// Shared (safe on either side)
+export { stripTrailingSlash, addTrailingSlash } from './shared/url'
+export { twMerge } from './shared/twMerge'
+
+// Main site: URL & routing
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
   ROUTE_BASES,
   normalizeBasePath,
   localizeRoute
-} from './routes'
-export { routeContextFromPathname } from './routeContext'
-export { default as stripPagination } from './stripPagination'
+} from './main/routes'
+export { routeContextFromPathname } from './main/routeContext'
+export { default as stripPagination } from './main/stripPagination'
 
-// Internationalisation
+// Main site: Internationalisation
 export {
   type Locale,
   locales,
@@ -20,74 +30,82 @@ export {
   translatePath,
   COLLECTION_INDEX_SLUG,
   buildRoutePath
-} from './i18'
-export { buildMap } from './translationMap'
-export { translationMap } from './translationMapData'
+} from './main/i18'
+export { buildMap } from './main/translationMap'
+export { translationMap } from './main/translationMapData'
 
-// Data fetching
-export { getNavigation } from './navigation'
-export { fetchStrapi } from './fetchStrapi'
-export { applyPreviewNoStore } from './cache'
+// Main site: Data fetching
+export { getNavigation } from './main/navigation'
+export { fetchStrapi } from './main/fetchStrapi'
+export { applyPreviewNoStore } from './main/cache'
 
-// Static paths
-export { CONTENT, CONTENT_ROOT } from './contentCollections'
-export { type CollectionType, getLocalizedPaths } from './static-paths'
+// Main site: Static paths
+export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
+export { type CollectionType, getLocalizedPaths } from './main/static-paths'
 export {
   getTagSlug,
   getTagUrl,
   translateTag,
   paginateAllPosts,
   paginatePostsByTag
-} from './tagFilter'
+} from './main/tagFilter'
 
-// Text
-export { generateSlug } from './slug'
-export { truncateText } from './text'
-export { parseMarkdown, parseMarkdownInline } from './mdx'
-export { createExcerpt } from './create-excerpt'
+// Main site: Text
+export { generateSlug } from './main/slug'
+export { truncateText } from './main/text'
+export { parseMarkdown, parseMarkdownInline } from './main/mdx'
+export { createExcerpt } from './main/create-excerpt'
 
-// Formatting
-export { formatDate, getDurationInMinutes } from './time'
+// Main site: Formatting
+export { formatDate, getDurationInMinutes } from './main/time'
 
-// Media & UI
-export { detectVideoProvider } from './video'
-export { getHeroSectionStyle } from './heroSectionStyle'
-export { twMerge } from './twMerge'
+// Main site: Media & UI
+export { detectVideoProvider } from './main/video'
+export { getHeroSectionStyle } from './main/heroSectionStyle'
 
-// Summit
-export { sessionizeApiMap, YEARS, currentSummitYear } from './sessionize'
-export { getSpeakers, getTalks, getTalkPreviews } from './extractSessionize'
+// Main site: Summit
+export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'
+export {
+  getSpeakers,
+  getTalks,
+  getTalkPreviews
+} from './main/extractSessionize'
 export {
   getTranslation,
   paginateSummitTalks,
   paginateSummitSpeakers,
   getSpeakerPages,
   getSessionPages
-} from './summit-talks-speakers'
+} from './main/summit-talks-speakers'
 
-// Images
-export { getOptimizedImage } from './images'
+// Main site: Images
+export {
+  getOptimizedImage,
+  IMAGE_URL_PATHS,
+  TARGET_WIDTHS,
+  pathToSegments
+} from './main/images'
 
-// Ambassadors
-export { toAmbassadorData } from './ambassadors'
+// Main site: Ambassadors
+export { toAmbassadorData } from './main/ambassadors'
 
-// GitHub
-export { parseRawGitHubPath } from './parseRawGitHubPath'
-
-// Analytics
+// Main site: Analytics
 export {
   type UmamiAttrs,
   type UmamiContext,
   type UmamiSection,
+  type BuildUmamiAttrsInput,
   buildUmamiAttrs,
   deriveAction,
   deriveLabel,
-  derivePage
-} from './umami'
+  derivePage,
+  escapeHtml,
+  umamiAttrsToHtml
+} from './main/umami'
 
-// SEO
+// Main site: SEO
 export {
   buildCanonicalMeta,
   type CanonicalMeta,
   type HreflangMeta
-} from './seoMeta'
+} from './main/seoMeta'

@@ -1,12 +1,12 @@
-import { translationMap } from '@/utils/translationMapData'
-import { type Locale } from '@/utils/locales'
+import { translationMap } from './translationMapData'
+import { type Locale } from './locales'
 import {
   HOME_CONTENT_SLUG,
   ROUTE_BASES,
   type RouteCollection,
   localizeRoute,
   normalizeBasePath
-} from '@/utils/routes'
+} from './routes'
 
 export const COLLECTION_INDEX_SLUG = ''
 

@@ -5,7 +5,7 @@ import {
   localeSchema,
   defaultLocale,
   switcherLocales
-} from '@/utils/locales'
+} from './locales'
 
 export { locales, type Locale, localeSchema, defaultLocale, switcherLocales }
 
@@ -32,6 +32,6 @@ export {
   buildRoutePath,
   COLLECTION_INDEX_SLUG,
   translatePath
-} from '@/utils/translatePath'
+} from './translatePath'
 
-export { HOME_CONTENT_SLUG } from '@/utils/routes'
+export { HOME_CONTENT_SLUG } from './routes'

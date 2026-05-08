@@ -1,4 +1,4 @@
-import { defaultLocale, type Locale } from '@/utils/locales'
+import { defaultLocale, type Locale } from './locales'
 
 export const HOME_CONTENT_SLUG = 'home'
 

@@ -90,11 +90,22 @@
 
 ## Shared Utilities (`src/utils/`)
 
-- **Always check `src/utils/index.ts` before writing a new utility function** — it's the full catalog of what exists, grouped by domain. Scan the relevant module if you need more detail.
-- If a utility already exists, import it from `@/utils` — never duplicate it inline.
+`src/utils/` is split into three lane buckets so the docs/main-site CSS isolation (see `src/styles/README.md` "Starlight Docs Isolation") stays visible at import time:
+
+- `src/utils/shared/`: pure helpers safe on either side of the boundary. No project-internal runtime deps; no CSS-pulling chains.
+- `src/utils/main/`: anything coupled to main-site routing, content collections, summit data, or i18 chains. The bulk of utilities live here.
+- `src/utils/docs/`: Starlight-only helpers (RFC link rewriting, GitHub source-path parsing).
+
+Rules:
+
+- **Always check `src/utils/index.ts` before writing a new utility function**. It's the full catalog, grouped by lane and domain. Scan the relevant module if you need more detail.
+- If a utility already exists, import it. Use the barrel `@/utils` for `shared/` and `main/` exports; use direct subpaths (`@/utils/docs/<name>`) for docs-only utilities, which are intentionally not re-exported through the barrel.
 - If you add a new utility function:
-  1. Put it in the most semantically appropriate existing module, or create a new one if no good fit exists.
-  2. Add an explicit named export for it in `src/utils/index.ts` under the correct group comment.
+  1. Pick the lane: `shared/` only if the helper is genuinely pure and useful on both sides; otherwise `main/` or `docs/`.
+  2. Put it in the most semantically appropriate existing module within that lane, or create a new one if no good fit exists.
+  3. For `shared/` and `main/`, add an explicit named export in `src/utils/index.ts` under the correct lane and group comment. `docs/` utilities stay out of the barrel.
+- Inside `src/utils/`, cross-file imports use relative paths (`./foo` within a lane, `../<lane>/foo` across lanes). Never `@/utils/...` inside the utils folder itself.
+- A `main/` utility importing from `docs/` is a smell: docs is the leaf, not a dependency. Reverse the direction or promote the helper to `shared/`.
 
 ## CMS Utilities (`cms/src/utils/`)
 
