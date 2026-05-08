@@ -7,8 +7,9 @@ const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
 const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
+const EXCLUDED_FIELD_ID = 'fldirPGzYo96I1Hsu' // Project field in Projects table
 
-function getStringField(value: unknown, context: string): string {
+function assertString(value: unknown, context: string): string {
   if (typeof value !== 'string') {
     throw new Error(`Expected ${context} to be a string, got ${typeof value}`)
   }
@@ -35,6 +36,7 @@ function isTableRecord(value: unknown): value is TableRecord {
   }
   return true
 }
+
 async function writeAirtableJson(data: TableRecord[]) {
   const basePath = path.resolve('./src/data/airtable')
   await fs.mkdir(basePath, { recursive: true })
@@ -42,6 +44,26 @@ async function writeAirtableJson(data: TableRecord[]) {
 
   await fs.writeFile(filePath, JSON.stringify(data, null, 2))
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
+}
+
+function resolveProjectLeaders(
+  granteeData: TableRecord[],
+  contactsMap: Map<string, string>
+) {
+  const updatedData = granteeData.map((record) => {
+    const leaderIds = record.fields['Project Leader']
+    if (leaderIds === undefined) return record
+    if (!Array.isArray(leaderIds)) {
+      throw new Error(
+        `❌ Unexpected format for Project Leader field in record ${record.id}: expected string[]`
+      )
+    }
+    record.fields['Project Leader'] = leaderIds.map(
+      (id) => contactsMap.get(id) ?? 'Unknown'
+    )
+    return record
+  })
+  return updatedData
 }
 
 async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
@@ -52,31 +74,32 @@ async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
 
   if (!primaryFieldName)
     throw new Error(
-      `❌ Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
+      `Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
     )
+
   const contactRecords: TableRecord[] = []
   const params = new URLSearchParams()
   params.set('fields[]', primaryFieldId)
-  let offset: string | undefined = undefined
+  let offset: string | undefined
 
   do {
     if (offset) {
       params.set('offset', offset)
     }
     const url = `https://api.airtable.com/v0/${BASE_ID}/${CONTACTS_TABLE_ID}?${params}`
-    const result = await fetch(url, {
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${apiToken}`
       }
     })
 
-    if (!result.ok) {
+    if (!response.ok) {
       throw new Error(
-        `❌ Failed to fetch Airtable data; Status: ${result.status} ${result.statusText}`
+        `Failed to fetch Airtable data; Status: ${response.status} ${response.statusText}`
       )
     }
 
-    const page = await result.json()
+    const page = await response.json()
     if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
       throw new Error(
         `Unexpected response shape from Airtable: page.records is not TableRecord[]`
@@ -89,7 +112,7 @@ async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
   const contactMap = new Map<string, string>(
     contactRecords.map((record: TableRecord) => [
       record.id,
-      getStringField(
+      assertString(
         record.fields[primaryFieldName],
         `Contact record ${record.id} primary field value`
       )
@@ -102,14 +125,12 @@ async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
 async function fetchGranteeRecords(view: View, apiToken: string) {
   // view = row filter (Airtable view's filters apply server-side)
   // fields[] = column filter (only return the view's visible fields)
-  // exclude Project field (id: fldirPGzYo96I1Hsu)
-  const excludedFieldId = 'fldirPGzYo96I1Hsu'
   const params = new URLSearchParams({
     view: VIEW_ID
   })
-  view.visibleFieldIds?.forEach(
-    (id) => id !== excludedFieldId && params.append('fields[]', id)
-  )
+  view.visibleFieldIds
+    ?.filter((id) => id !== EXCLUDED_FIELD_ID)
+    .forEach((id) => params.append('fields[]', id))
 
   const records: TableRecord[] = []
   let offset: string | undefined = undefined
@@ -120,19 +141,19 @@ async function fetchGranteeRecords(view: View, apiToken: string) {
     }
 
     const granteeRecordsUrl = `https://api.airtable.com/v0/${BASE_ID}/${PROJECTS_TABLE_ID}?${params}`
-    const result = await fetch(granteeRecordsUrl, {
+    const response = await fetch(granteeRecordsUrl, {
       headers: {
         Authorization: `Bearer ${apiToken}`
       }
     })
 
-    if (!result.ok) {
+    if (!response.ok) {
       throw new Error(
-        `❌ Failed to fetch Airtable data; Status: ${result.status} ${result.statusText}`
+        `Failed to fetch Airtable data; Status: ${response.status} ${response.statusText}`
       )
     }
 
-    const page = await result.json()
+    const page = await response.json()
     if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
       throw new Error(
         `Unexpected response shape from Airtable: page.records is not TableRecord[]`
@@ -144,52 +165,49 @@ async function fetchGranteeRecords(view: View, apiToken: string) {
   return records
 }
 
-async function fetchAirtableData() {
+async function importAirtableData() {
   const apiToken = process.env.AIRTABLE_API_TOKEN
   if (!apiToken) {
     throw new Error(
-      '❌ Missing Airtable configuration. Please set AIRTABLE_API_TOKEN in your environment variables.'
+      'Missing Airtable configuration. Please set AIRTABLE_API_TOKEN in your environment variables.'
     )
   }
 
   const url = `https://api.airtable.com/v0/meta/bases/${BASE_ID}/tables?include=visibleFieldIds`
   const meta: TableMeta = await fetch(url, {
     headers: { Authorization: `Bearer ${apiToken}` }
-  }).then((r) => r.json())
+  }).then((r) => {
+    if (!r.ok)
+      throw new Error(
+        `Failed to fetch Airtable metadata; Status: ${r.status} ${r.statusText}`
+      )
+    return r.json()
+  })
 
   const contactsTable = meta.tables.find((t) => t.id === CONTACTS_TABLE_ID)
   if (!contactsTable) {
     throw new Error(
-      `❌ Contacts table with ID ${CONTACTS_TABLE_ID} not found in Airtable base metadata.`
+      `Contacts table with ID ${CONTACTS_TABLE_ID} not found in Airtable base metadata.`
     )
   }
   const projectsTable = meta.tables.find((t) => t.id === PROJECTS_TABLE_ID)
-  const view = projectsTable?.views.find((v) => v.id === VIEW_ID)
+  const granteeView = projectsTable?.views.find((v) => v.id === VIEW_ID)
 
-  if (!view?.visibleFieldIds?.length) {
-    throw new Error(`❌ View ${VIEW_ID} not found or has no visible fields`)
+  if (!granteeView?.visibleFieldIds?.length) {
+    throw new Error(`View ${VIEW_ID} not found or has no visible fields`)
   }
 
-  const granteeData: TableRecord[] = await fetchGranteeRecords(view, apiToken)
-  // granteeData contains the IDs of Project Leaders, we are swaping that with the actual names from the Contacts table before writing the JSON file
+  const granteeData: TableRecord[] = await fetchGranteeRecords(
+    granteeView,
+    apiToken
+  )
+  // Airtable returns linked records as IDs; resolve Project Leader IDs to contact names.
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  granteeData.forEach((record) => {
-    const leaderIds = record.fields['Project Leader']
-    if (leaderIds === undefined) return
-    if (!Array.isArray(leaderIds)) {
-      throw new Error(
-        `❌ Unexpected format for Project Leader field in record ${record.id}: expected string[]`
-      )
-    }
-
-    record.fields['Project Leader'] = leaderIds.map(
-      (id) => contactsMap.get(id) || 'Unknown'
-    )
-  })
-  await writeAirtableJson(granteeData)
+  const finalGranteeData = resolveProjectLeaders(granteeData, contactsMap)
+  await writeAirtableJson(finalGranteeData)
 }
 
-fetchAirtableData().catch((err) => {
+importAirtableData().catch((err) => {
   console.error(
     '❌ Error fetching Airtable data:',
     err instanceof Error ? err.message : err
