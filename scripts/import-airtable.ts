@@ -8,6 +8,7 @@ const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
 const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const EXCLUDED_FIELD_ID = 'fldirPGzYo96I1Hsu' // Project field in Projects table
+const PROJECT_LEADER_FIELD_ID = 'fldKLOR55uQPb5BHG' // Project Leader field in Projects table
 
 function assertString(value: unknown, context: string): string {
   if (typeof value !== 'string') {
@@ -48,20 +49,26 @@ async function writeAirtableJson(data: TableRecord[]) {
 
 function resolveProjectLeaders(
   granteeData: TableRecord[],
-  contactsMap: Map<string, string>
-) {
+  contactsMap: Map<string, string>,
+  projectLeaderFieldName: string
+): TableRecord[] {
   const updatedData = granteeData.map((record) => {
-    const leaderIds = record.fields['Project Leader']
+    const leaderIds = record.fields[projectLeaderFieldName]
     if (leaderIds === undefined) return record
     if (!Array.isArray(leaderIds)) {
       throw new Error(
-        `❌ Unexpected format for Project Leader field in record ${record.id}: expected string[]`
+        `Unexpected format for ${projectLeaderFieldName} field in record ${record.id}: expected string[]`
       )
     }
-    record.fields['Project Leader'] = leaderIds.map(
-      (id) => contactsMap.get(id) ?? 'Unknown'
-    )
-    return record
+    return {
+      ...record,
+      fields: {
+        ...record.fields,
+        [projectLeaderFieldName]: leaderIds.map(
+          (id) => contactsMap.get(id) ?? 'Unknown'
+        )
+      }
+    }
   })
   return updatedData
 }
@@ -180,7 +187,20 @@ async function importAirtableData() {
   )
   // Airtable returns linked records as IDs; resolve Project Leader IDs to contact names.
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  const finalGranteeData = resolveProjectLeaders(granteeData, contactsMap)
+  const projectLeaderFieldName = projectsTable?.fields.find(
+    (f) => f.id === PROJECT_LEADER_FIELD_ID
+  )?.name
+
+  if (!projectLeaderFieldName) {
+    throw new Error(
+      `Project Leader field with ID ${PROJECT_LEADER_FIELD_ID} not found in Projects table metadata`
+    )
+  }
+  const finalGranteeData = resolveProjectLeaders(
+    granteeData,
+    contactsMap,
+    projectLeaderFieldName
+  )
   await writeAirtableJson(finalGranteeData)
 }
 
