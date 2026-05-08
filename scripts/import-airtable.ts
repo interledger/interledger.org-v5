@@ -66,85 +66,19 @@ function resolveProjectLeaders(
   return updatedData
 }
 
-async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
-  const primaryFieldId = contactsTable.primaryFieldId
-  const primaryFieldName = contactsTable.fields.find(
-    (f) => f.id === primaryFieldId
-  )?.name
-
-  if (!primaryFieldName)
-    throw new Error(
-      `Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
-    )
-
-  const contactRecords: TableRecord[] = []
-  const params = new URLSearchParams()
-  params.set('fields[]', primaryFieldId)
+async function fetchAllRecords(
+  tableId: typeof CONTACTS_TABLE_ID | typeof PROJECTS_TABLE_ID,
+  params: URLSearchParams,
+  apiToken: string
+): Promise<TableRecord[]> {
+  const records: TableRecord[] = []
   let offset: string | undefined
 
   do {
-    if (offset) {
-      params.set('offset', offset)
-    }
-    const url = `https://api.airtable.com/v0/${BASE_ID}/${CONTACTS_TABLE_ID}?${params}`
+    if (offset) params.set('offset', offset)
+    const url = `https://api.airtable.com/v0/${BASE_ID}/${tableId}?${params}`
     const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${apiToken}`
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch Airtable data; Status: ${response.status} ${response.statusText}`
-      )
-    }
-
-    const page = await response.json()
-    if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
-      throw new Error(
-        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
-      )
-    }
-    contactRecords.push(...page.records)
-    offset = page.offset
-  } while (offset)
-
-  const contactMap = new Map<string, string>(
-    contactRecords.map((record: TableRecord) => [
-      record.id,
-      assertString(
-        record.fields[primaryFieldName],
-        `Contact record ${record.id} primary field value`
-      )
-    ])
-  )
-
-  return contactMap
-}
-
-async function fetchGranteeRecords(view: View, apiToken: string) {
-  // view = row filter (Airtable view's filters apply server-side)
-  // fields[] = column filter (only return the view's visible fields)
-  const params = new URLSearchParams({
-    view: VIEW_ID
-  })
-  view.visibleFieldIds
-    ?.filter((id) => id !== EXCLUDED_FIELD_ID)
-    .forEach((id) => params.append('fields[]', id))
-
-  const records: TableRecord[] = []
-  let offset: string | undefined = undefined
-
-  do {
-    if (offset) {
-      params.set('offset', offset)
-    }
-
-    const granteeRecordsUrl = `https://api.airtable.com/v0/${BASE_ID}/${PROJECTS_TABLE_ID}?${params}`
-    const response = await fetch(granteeRecordsUrl, {
-      headers: {
-        Authorization: `Bearer ${apiToken}`
-      }
+      headers: { Authorization: `Bearer ${apiToken}` }
     })
 
     if (!response.ok) {
@@ -162,7 +96,50 @@ async function fetchGranteeRecords(view: View, apiToken: string) {
     records.push(...page.records)
     offset = page.offset
   } while (offset)
+
   return records
+}
+
+async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
+  const primaryFieldId = contactsTable.primaryFieldId
+  const primaryFieldName = contactsTable.fields.find(
+    (f) => f.id === primaryFieldId
+  )?.name
+
+  if (!primaryFieldName)
+    throw new Error(
+      `Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
+    )
+
+  const params = new URLSearchParams()
+  params.set('fields[]', primaryFieldId)
+  const contactRecords = await fetchAllRecords(
+    CONTACTS_TABLE_ID,
+    params,
+    apiToken
+  )
+
+  const contactsMap = new Map<string, string>(
+    contactRecords.map((record) => [
+      record.id,
+      assertString(
+        record.fields[primaryFieldName],
+        `Contact record ${record.id} primary field value`
+      )
+    ])
+  )
+  return contactsMap
+}
+
+async function fetchGranteeRecords(view: View, apiToken: string) {
+  // view = row filter (Airtable view's filters apply server-side)
+  // fields[] = column filter (only return the view's visible fields)
+  const params = new URLSearchParams({ view: VIEW_ID })
+  view.visibleFieldIds
+    ?.filter((id) => id !== EXCLUDED_FIELD_ID)
+    .forEach((id) => params.append('fields[]', id))
+
+  return fetchAllRecords(PROJECTS_TABLE_ID, params, apiToken)
 }
 
 async function importAirtableData() {
