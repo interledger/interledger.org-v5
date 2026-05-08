@@ -17,6 +17,18 @@ function assertString(value: unknown, context: string): string {
   return value
 }
 
+function findById<T extends { id: string }>(
+  items: T[],
+  id: string,
+  what: string
+): T {
+  const found = items.find((item) => item.id === id)
+  if (!found) {
+    throw new Error(`${what} with ID '${id}' not found in Airtable metadata`)
+  }
+  return found
+}
+
 function isTableRecord(value: unknown): value is TableRecord {
   if (typeof value !== 'object' || value === null) return false
   const v = value as Record<string, unknown>
@@ -109,14 +121,11 @@ async function fetchAllRecords(
 
 async function mapContactIdsToNames(contactsTable: Table, apiToken: string) {
   const primaryFieldId = contactsTable.primaryFieldId
-  const primaryFieldName = contactsTable.fields.find(
-    (f) => f.id === primaryFieldId
-  )?.name
-
-  if (!primaryFieldName)
-    throw new Error(
-      `Primary field with ID ${primaryFieldId} not found in Contacts table metadata`
-    )
+  const primaryFieldName = findById(
+    contactsTable.fields,
+    primaryFieldId,
+    'Contacts primary field'
+  ).name
 
   const params = new URLSearchParams()
   params.set('fields[]', primaryFieldId)
@@ -168,18 +177,25 @@ async function importAirtableData() {
     return r.json()
   })
 
-  const contactsTable = meta.tables.find((t) => t.id === CONTACTS_TABLE_ID)
-  if (!contactsTable) {
-    throw new Error(
-      `Contacts table with ID ${CONTACTS_TABLE_ID} not found in Airtable base metadata.`
-    )
+  const contactsTable = findById(
+    meta.tables,
+    CONTACTS_TABLE_ID,
+    'Contacts table'
+  )
+  const projectsTable = findById(
+    meta.tables,
+    PROJECTS_TABLE_ID,
+    'Projects table'
+  )
+  const granteeView = findById(projectsTable.views, VIEW_ID, 'Grantee view')
+  if (!granteeView.visibleFieldIds?.length) {
+    throw new Error(`View '${VIEW_ID}' has no visible fields`)
   }
-  const projectsTable = meta.tables.find((t) => t.id === PROJECTS_TABLE_ID)
-  const granteeView = projectsTable?.views.find((v) => v.id === VIEW_ID)
-
-  if (!granteeView?.visibleFieldIds?.length) {
-    throw new Error(`View ${VIEW_ID} not found or has no visible fields`)
-  }
+  const projectLeaderFieldName = findById(
+    projectsTable.fields,
+    PROJECT_LEADER_FIELD_ID,
+    'Project Leader field'
+  ).name
 
   const granteeData: TableRecord[] = await fetchGranteeRecords(
     granteeView,
@@ -187,15 +203,6 @@ async function importAirtableData() {
   )
   // Airtable returns linked records as IDs; resolve Project Leader IDs to contact names.
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  const projectLeaderFieldName = projectsTable?.fields.find(
-    (f) => f.id === PROJECT_LEADER_FIELD_ID
-  )?.name
-
-  if (!projectLeaderFieldName) {
-    throw new Error(
-      `Project Leader field with ID ${PROJECT_LEADER_FIELD_ID} not found in Projects table metadata`
-    )
-  }
   const finalGranteeData = resolveProjectLeaders(
     granteeData,
     contactsMap,
