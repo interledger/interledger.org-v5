@@ -4,8 +4,9 @@
  *
  * Each entry in ICONS pairs a viewBox with the path data exported from
  * Figma. New icons go here. Sizing is via the standard Tailwind size-*
- * utilities passed through `class`, defaulting to size-4 (16px). Colour
- * follows currentColor so it inherits from the parent (e.g. button text).
+ * utilities passed through `class`, defaulting to size-5 (20px) to match
+ * the Figma design system. Colour follows currentColor so it inherits
+ * from the parent (e.g. button text).
  */
 import { twMerge } from '@/utils'
 
@@ -27,7 +28,7 @@ const { viewBox, path } = ICONS[name]
 ---
 
 <svg
-  class={twMerge('size-4', className)}
+  class={twMerge('size-5', className)}
   viewBox={viewBox}
   fill="currentColor"
   aria-hidden="true"
