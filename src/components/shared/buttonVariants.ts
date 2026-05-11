@@ -21,8 +21,7 @@ export const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
     'font-poppins text-caption',
-    'rounded-lg select-none',
-    'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
+    'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
     'motion-safe:transition-colors motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'
   ],
@@ -32,6 +31,12 @@ export const buttonVariants = cva(
         primary: [
           'bg-button-primary text-neutral-0',
           'hover:bg-button-primary-hover',
+          // Focus per Figma node 304:45172: orchid-50 fill, 2px orchid-100
+          // outline drawn inside the button border (so layout doesn't shift),
+          // orchid-100 text. Hardcoded to orchid; pillar-aware focus tokens
+          // are a follow-up once design specifies per-pillar focus colours.
+          'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
           'disabled:bg-button-primary-disabled aria-disabled:bg-button-primary-disabled'
         ],
         secondary: ['bg-transparent border']
@@ -55,11 +60,16 @@ export const buttonVariants = cva(
         mode: 'light',
         class: [
           'border-neutral-50 text-neutral-100',
-          'hover:bg-neutral-900 hover:border-neutral-900 hover:text-neutral-0',
-          // :hover still fires on disabled <button>; explicitly reset the
-          // hover overrides so disabled state stays visually inert.
-          'disabled:bg-transparent disabled:border-neutral-50 disabled:text-neutral-50',
-          'aria-disabled:bg-transparent aria-disabled:border-neutral-50 aria-disabled:text-neutral-50'
+          // Hover (Figma node 63:1388): border colour darkens to black and
+          // text deepens to black. Fill stays transparent.
+          'hover:border-neutral-900 hover:text-neutral-900',
+          // Focus uses the "filled + 2px contrast inset" pattern. Outline
+          // (with -2px offset) stands in for Figma's 2px border so the
+          // 1px default border doesn't trigger a layout shift on focus.
+          'focus-visible:bg-neutral-25 focus-visible:text-neutral-900',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
+          'disabled:border-neutral-50 disabled:text-neutral-50',
+          'aria-disabled:border-neutral-50 aria-disabled:text-neutral-50'
         ]
       },
       {
@@ -67,9 +77,15 @@ export const buttonVariants = cva(
         mode: 'dark',
         class: [
           'border-neutral-75 text-neutral-25',
-          'hover:bg-neutral-0 hover:border-neutral-0 hover:text-neutral-100',
-          'disabled:bg-transparent disabled:border-neutral-100 disabled:text-neutral-75',
-          'aria-disabled:bg-transparent aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
+          // Hover (Figma node 63:1345): border colour only changes to white;
+          // bg and text stay put.
+          'hover:border-neutral-0',
+          // Focus (Figma node 304:44018): neutral-75 fill, 2px white inset,
+          // white text.
+          'focus-visible:bg-neutral-75 focus-visible:text-neutral-0',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-0',
+          'disabled:border-neutral-100 disabled:text-neutral-75',
+          'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
       { iconOnly: false, size: 'lg', class: 'px-xl' },
