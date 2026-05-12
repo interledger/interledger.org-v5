@@ -31,15 +31,33 @@ export const buttonVariants = cva(
         primary: [
           'bg-button-primary text-neutral-0',
           'hover:bg-button-primary-hover',
-          // Focus per Figma node 304:45172: orchid-50 fill, 2px orchid-100
-          // outline drawn inside the button border (so layout doesn't shift),
-          // orchid-100 text. Hardcoded to orchid; pillar-aware focus tokens
-          // are a follow-up once design specifies per-pillar focus colours.
+          // Focus state: orchid-50 fill, 2px orchid-100 outline drawn inside
+          // the button border (so layout doesn't shift), orchid-100 text.
+          // Hardcoded to orchid; pillar-aware focus tokens are a follow-up
+          // once design specifies per-pillar focus colours.
           'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
           'disabled:bg-button-primary-disabled aria-disabled:bg-button-primary-disabled'
         ],
-        secondary: ['bg-transparent border']
+        secondary: ['bg-transparent border'],
+        // Footer ghost button. Inline text-with-padding link, no fill, no
+        // border by default. Mobile uses h4 typography + black text;
+        // tablet/desktop step down to body-sm-standard + neutral-75. Hover
+        // deepens to black. The "active" state in Figma is the
+        // currently-on-this-page indicator for a footer nav link, surfaced
+        // via aria-current="page" (not the CSS :active pseudoclass).
+        // Focus draws a 1px orchid-100 border; the transparent default
+        // border keeps layout stable. Disabled state is not in Figma.
+        ghost: [
+          'bg-transparent border border-transparent',
+          'text-h4 text-neutral-900',
+          'md:text-body-sm-standard md:text-neutral-75',
+          'hover:text-neutral-900',
+          'aria-[current=page]:text-orchid-100',
+          // The 1px orchid border is the entire focus indicator;
+          // suppress the browser's default blue focus ring.
+          'focus-visible:border-orchid-100 focus-visible:outline-none'
+        ]
       },
       mode: {
         light: '',
@@ -60,8 +78,8 @@ export const buttonVariants = cva(
         mode: 'light',
         class: [
           'border-neutral-50 text-neutral-100',
-          // Hover (Figma node 63:1388): border colour darkens to black and
-          // text deepens to black. Fill stays transparent.
+          // Hover: border colour darkens to black and text deepens to black.
+          // Fill stays transparent.
           'hover:border-neutral-900 hover:text-neutral-900',
           // Focus uses the "filled + 2px contrast inset" pattern. Outline
           // (with -2px offset) stands in for Figma's 2px border so the
@@ -77,11 +95,9 @@ export const buttonVariants = cva(
         mode: 'dark',
         class: [
           'border-neutral-75 text-neutral-25',
-          // Hover (Figma node 63:1345): border colour only changes to white;
-          // bg and text stay put.
+          // Hover: border colour only changes to white; bg and text stay put.
           'hover:border-neutral-0',
-          // Focus (Figma node 304:44018): neutral-75 fill, 2px white inset,
-          // white text.
+          // Focus: neutral-75 fill, 2px white inset, white text.
           'focus-visible:bg-neutral-75 focus-visible:text-neutral-0',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-0',
           'disabled:border-neutral-100 disabled:text-neutral-75',
@@ -89,7 +105,15 @@ export const buttonVariants = cva(
         ]
       },
       { iconOnly: false, size: 'lg', class: 'px-xl' },
-      { iconOnly: false, size: 'sm', class: 'px-md' }
+      { iconOnly: false, size: 'sm', class: 'px-md' },
+      // Ghost overrides the boxed-button geometry: no fixed height, no
+      // y-padding, no min-width, no rounded corners except on focus, and
+      // a tight 4px x-padding regardless of the size variant.
+      {
+        variant: 'ghost',
+        class:
+          'h-auto min-w-0 py-0 gap-0 px-xs rounded-none focus-visible:rounded-lg'
+      }
     ],
     defaultVariants: {
       variant: 'primary',

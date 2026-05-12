@@ -152,6 +152,44 @@ import Icon from '@/components/shared/Icon.astro'
         </Button>
       </div>
 
+      <h3 class="font-poppins mt-xl mb-md text-h4">Ghost (footer)</h3>
+      <p class="mb-md text-body-sm-standard">
+        Mobile starts at h4/black; tablet+ scales down to body-sm-standard /
+        neutral-75. Hover deepens to black. The "Active" state is the
+        currently-selected footer nav link, signalled via
+        <code>aria-current="page"</code>, which flips text to orchid-100.
+        Focus draws a 1px orchid-100 border with rounded corners. Resize the
+        viewport to see the typography breakpoint flip.
+      </p>
+      <dl class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center">
+        <dt class="text-body-sm-standard">Default</dt>
+        <dd>
+          <Button variant="ghost">Footer Ghost Button</Button>
+        </dd>
+        <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+        <dd>
+          <Button variant="ghost">Footer Ghost Button</Button>
+        </dd>
+        <dt class="text-body-sm-standard">
+          Active (<code>aria-current="page"</code>)
+        </dt>
+        <dd>
+          <Button variant="ghost" aria-current="page">
+            Footer Ghost Button
+          </Button>
+        </dd>
+        <dt class="text-body-sm-standard">Focus (Tab to it)</dt>
+        <dd>
+          <Button variant="ghost">Footer Ghost Button</Button>
+        </dd>
+        <dt class="text-body-sm-standard">As LinkButton (current page)</dt>
+        <dd>
+          <LinkButton variant="ghost" href="#buttons" aria-current="page">
+            Footer Ghost Button
+          </LinkButton>
+        </dd>
+      </dl>
+
       <h3 class="font-poppins mt-xl mb-md text-h4">LinkButton</h3>
       <div class="flex flex-wrap items-center gap-md">
         <LinkButton href="#buttons">Internal link</LinkButton>
