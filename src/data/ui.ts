@@ -334,7 +334,8 @@ export const ui = {
     'contact.error.captcha': 'Por favor, complete el desafío de reCAPTCHA.',
     'contact.error.submit':
       'Hubo un problema al enviar su mensaje. Por favor, inténtelo de nuevo.',
-    'home.hero.title_lead': 'Los sistemas financieros deberían funcionar juntos,',
+    'home.hero.title_lead':
+      'Los sistemas financieros deberían funcionar juntos,',
     'home.hero.title_accent': 'para todos',
     'home.hero.description':
       'Conectamos personas, tecnología y sistemas para impulsar los pagos abiertos y dar libertad financiera a todas las personas.',

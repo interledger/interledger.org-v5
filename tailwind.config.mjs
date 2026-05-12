@@ -24,7 +24,7 @@ export default {
       maxWidth: {
         content: '1160px',
         narrow: '800px',
-        wide: '1200px',
+        wide: '1600px',
         prose: '960px'
       },
 

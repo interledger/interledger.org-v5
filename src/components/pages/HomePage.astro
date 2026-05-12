@@ -2,7 +2,13 @@
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import OptimizedImage from '@/components/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { translatePath, useTranslations, buildUmamiAttrs, type Locale } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
+import {
+  translatePath,
+  useTranslations,
+  buildUmamiAttrs,
+  type Locale
+} from '@/utils'
 
 interface Props {
   pageLang: Locale
@@ -11,8 +17,16 @@ interface Props {
 const { pageLang } = Astro.props
 const t = useTranslations(pageLang)
 
-const exploreTechHref = translatePath('foundation-pages', pageLang, 'developers')
-const getInvolvedHref = translatePath('foundation-pages', pageLang, 'get-involved')
+const exploreTechHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'developers'
+)
+const getInvolvedHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'get-involved'
+)
 
 const heroUmami = (href: string, linkText: string) =>
   buildUmamiAttrs({
@@ -75,6 +89,7 @@ const heroUmami = (href: string, linkText: string) =>
               {...heroUmami(exploreTechHref, t('home.cta.explore_tech'))}
             >
               {t('home.cta.explore_tech')}
+              <Icon slot="icon-right" name="arrow-right" />
             </LinkButton>
             <LinkButton
               href={getInvolvedHref}
