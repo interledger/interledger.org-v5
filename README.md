@@ -756,12 +756,12 @@ pnpm run optimize:images
 
 **Component usage:**
 
-The `OptimizedImage` Astro component (`src/components/OptimizedImage.astro`) wraps the optimized variants in a `<picture>` element with a WebP `<source srcset="...">` and a responsive `sizes` attribute, falling back to the original `<img>` if no variants exist. It is wired into all MDX contexts as the default `img` renderer, so inline images in content get responsive output automatically.
+The `OptimizedImage` Astro component (`src/components/shared/OptimizedImage.astro`) wraps the optimized variants in a `<picture>` element with a WebP `<source srcset="...">` and a responsive `sizes` attribute, falling back to the original `<img>` if no variants exist. It is wired into all MDX contexts as the default `img` renderer, so inline images in content get responsive output automatically.
 
 To use it directly in Astro templates:
 
 ```astro
-import OptimizedImage from '@/components/OptimizedImage.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 <OptimizedImage
   src="/img/hero.png"

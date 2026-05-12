@@ -10,10 +10,10 @@ import type { Talk } from '@/types/summit'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import SpeakersList from './SpeakersList.astro'
-import SessionSubheader from './SessionSubheader.astro'
-import TextParagraphs from './TextParagraphs.astro'
-import VideoEmbed from '../blocks/VideoEmbed.astro'
+import SpeakersList from '@/components/summit/SpeakersList.astro'
+import SessionSubheader from '@/components/summit/SessionSubheader.astro'
+import TextParagraphs from '@/components/shared/TextParagraphs.astro'
+import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 
 interface Props {
   entry: Talk
