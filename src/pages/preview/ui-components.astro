@@ -61,6 +61,90 @@ import Icon from '@/components/shared/Icon.astro'
       </div>
 
       <h3 class="font-poppins mt-xl mb-md text-h4">
+        Symmetric vs asymmetric padding (text + icon)
+      </h3>
+      <p class="mb-md text-body-sm-standard">
+        Figma calls for asymmetric horizontal padding on text+icon buttons:
+        wider on the text side, tighter on the icon side. The current
+        implementation uses symmetric padding (the <code>px-xl</code> /
+        <code>px-md</code> compound variant) for code simplicity. Compare below and
+        pick one to ship.
+      </p>
+      <p class="mb-md text-body-sm-standard text-neutral-75">
+        Asymmetric values used here step the icon-side padding down by one
+        t-shirt size (lg buttons: <code>xl</code> → <code>lg</code>; sm buttons:
+        <code>md</code> → <code>sm</code>). Tweak the values in this preview if
+        Figma specifies different exact tokens.
+      </p>
+      <dl
+        class="grid grid-cols-[max-content_1fr_1fr] gap-x-xl gap-y-md items-center"
+      >
+        <dt class="text-body-sm-standard"></dt>
+        <dt class="text-body-sm-standard text-neutral-75">
+          Symmetric (current)
+        </dt>
+        <dt class="text-body-sm-standard text-neutral-75">
+          Asymmetric (Figma)
+        </dt>
+
+        <dt class="text-body-sm-standard">lg, icon-left</dt>
+        <dd>
+          <Button>
+            <Icon slot="icon-left" name="swap" />
+            Continue
+          </Button>
+        </dd>
+        <dd>
+          <Button class="ps-lg!">
+            <Icon slot="icon-left" name="swap" />
+            Continue
+          </Button>
+        </dd>
+
+        <dt class="text-body-sm-standard">lg, icon-right</dt>
+        <dd>
+          <Button>
+            Continue
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+        </dd>
+        <dd>
+          <Button class="pe-lg!">
+            Continue
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+        </dd>
+
+        <dt class="text-body-sm-standard">sm, icon-left</dt>
+        <dd>
+          <Button size="sm">
+            <Icon slot="icon-left" name="swap" />
+            Continue
+          </Button>
+        </dd>
+        <dd>
+          <Button size="sm" class="ps-sm!">
+            <Icon slot="icon-left" name="swap" />
+            Continue
+          </Button>
+        </dd>
+
+        <dt class="text-body-sm-standard">sm, icon-right</dt>
+        <dd>
+          <Button size="sm">
+            Continue
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+        </dd>
+        <dd>
+          <Button size="sm" class="pe-sm!">
+            Continue
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+        </dd>
+      </dl>
+
+      <h3 class="font-poppins mt-xl mb-md text-h4">
         Secondary (lg, light mode)
       </h3>
       <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
