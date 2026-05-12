@@ -1,0 +1,37 @@
+---
+import { buttonVariants, type ButtonVariants } from './buttonVariants'
+import { twMerge } from '@/utils'
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props
+  extends Omit<HTMLAttributes<'button'>, 'class'>, ButtonVariants {
+  class?: string
+}
+
+const {
+  variant,
+  mode,
+  size,
+  iconOnly,
+  class: className,
+  type = 'button',
+  ...rest
+} = Astro.props
+
+if (iconOnly && !rest['aria-label']) {
+  // eslint-disable-next-line no-console
+  console.warn('[Button] iconOnly={true} requires aria-label')
+}
+---
+
+<button
+  type={type}
+  class={twMerge(
+    buttonVariants({ variant, mode, size, iconOnly, class: className })
+  )}
+  {...rest}
+>
+  <slot name="icon-left" />
+  <slot />
+  <slot name="icon-right" />
+</button>

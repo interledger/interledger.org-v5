@@ -26,6 +26,19 @@
   --color-btn-txt: var(--color-btn-txt);
 }
 
+/* Expose the pillar-aware button-primary vars as Tailwind utilities
+   (bg-button-primary, bg-button-primary-hover, bg-button-primary-disabled).
+   The circular-looking var() reference is the Tailwind v4 @theme inline
+   pattern: the runtime value lives in src/styles/base/variables.css, and
+   `inline` tells Tailwind to read it at use-site rather than bake a static
+   value at build time. Without `inline`, [data-pillar='X'] overrides would
+   never reach the generated utility class. */
+@theme inline {
+  --color-button-primary: var(--color-button-primary);
+  --color-button-primary-hover: var(--color-button-primary-hover);
+  --color-button-primary-disabled: var(--color-button-primary-disabled);
+}
+
 /* Static design tokens — single source of truth for values */
 @theme {
   /* Fluid typography scale */

@@ -57,3 +57,32 @@
 @import './components/prose/blog.css';
 @import './components/prose/summit.css';
 @import './components/navigation.css';
+
+/* @interledger/docs-design-system's ilf-docs.css ships three unlayered rules
+   with universal-ish selectors (:focus-visible, img, and thead first-row
+   corners). Starlight auto-registers an Astro middleware that imports its
+   translations chunk; Vite groups the Starlight customCss chunk with that
+   middleware, so the entire docs CSS bundle ships on every main-site route.
+   Unlayered author rules beat @layer utilities regardless of specificity,
+   so Tailwind utilities (focus-visible:outline-orchid-100, rounded-*) lose.
+   These overrides use :root for spec parity-plus-one over the leaked
+   selectors and revert-layer to expose the underlying Tailwind utility
+   value (or UA default). Only ships in tailwind.css (main-site only), so
+   docs routes still see the design-system styling as intended.
+   Tracking upstream fix: interledger/docs-design-system#71. */
+:root :focus-visible {
+  outline-color: revert-layer;
+  border-radius: revert-layer;
+}
+
+:root img {
+  border-radius: revert-layer;
+}
+
+:root thead tr:first-of-type th:first-of-type {
+  border-start-start-radius: revert-layer;
+}
+
+:root thead tr:first-of-type th:last-of-type {
+  border-start-end-radius: revert-layer;
+}
