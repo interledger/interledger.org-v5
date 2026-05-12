@@ -4,7 +4,9 @@ import { buildUmamiAttrs, type UmamiSection } from '@/utils'
 interface Props {
   href?: string
   text?: string
+  /** `primary`: filled CTA + arrow. `secondary`: outline button. */
   style?: string
+  /** `hero` switches secondary to the dark-background treatment. */
   variant?: 'hero' | 'default'
   external?: boolean
   /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
@@ -21,25 +23,39 @@ const {
 } = Astro.props as Props
 const { routeLocale } = Astro.locals
 
-const classes: Record<string, string> = {
-  'hero-primary':
-    'inline-block w-fit rounded-pill bg-white text-primary font-semibold no-underline transition-colors hover:bg-white/90',
-  'hero-secondary':
-    'inline-block w-fit rounded-pill border-2 border-white text-white font-semibold no-underline transition-colors hover:bg-white/15',
-  secondary:
-    'inline-block w-fit rounded-pill bg-white/70 text-primary no-underline transition-colors hover:bg-white/90',
-  primary:
-    'inline-block w-fit rounded-pill bg-primary text-white no-underline transition-colors hover:bg-primary-hover'
+const isSecondary = style === 'secondary'
+const isHero = variant === 'hero'
+
+const fontClasses =
+  'font-poppins text-body-sm-standard md:text-body-lg-standard font-medium'
+
+/* Padding tuned to Figma button assets: ~16px horizontal, ~10px vertical, with
+   a 12px gap between label and trailing icon. Keep these in sync with
+   CtaBanner.astro and HomePage.astro hero buttons. */
+const buttonBase =
+  'inline-flex w-fit shrink-0 items-center justify-center gap-spacing-md rounded-cta border px-spacing-lg py-spacing-md no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+
+const primaryLayout = `${buttonBase} border-transparent bg-cta-primary text-white hover:bg-cta-primary-hover`
+
+const heroPrimaryClasses = `${primaryLayout} focus-visible:ring-white focus-visible:ring-offset-transparent`
+
+const defaultPrimaryClasses = `${primaryLayout} focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0`
+
+const heroSecondaryLayout = `${buttonBase} border-neutral-50 bg-transparent text-neutral-0 hover:border-neutral-0 hover:bg-white/[0.08] focus-visible:ring-neutral-0 focus-visible:ring-offset-transparent`
+
+const defaultSecondaryLayout = `${buttonBase} border-neutral-900 bg-transparent text-neutral-900 hover:bg-neutral-900/[0.06] focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0`
+
+function primaryClassesForVariant(): string {
+  return `${fontClasses} ${isHero ? heroPrimaryClasses : defaultPrimaryClasses}`
 }
 
-const key =
-  variant === 'hero'
-    ? style === 'secondary'
-      ? 'hero-secondary'
-      : 'hero-primary'
-    : style === 'secondary'
-      ? 'secondary'
-      : 'primary'
+function secondaryClassesForVariant(): string {
+  return `${fontClasses} ${isHero ? heroSecondaryLayout : defaultSecondaryLayout}`
+}
+
+const className = isSecondary
+  ? secondaryClassesForVariant()
+  : primaryClassesForVariant()
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
@@ -52,27 +68,31 @@ const umamiAttrs = buildUmamiAttrs({
 
 <a
   href={href ?? ''}
-  class={classes[key]}
-  style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
+  class={className}
   {...umamiAttrs}
   {...external && {
     target: '_blank',
     rel: 'noopener noreferrer'
   }}
-  >{text ?? 'Click'}
+>
+  <span>{text ?? 'Click'}</span>
+  {external ? <span class="sr-only"> (opens in a new tab)</span> : null}
   {
-    external && (
+    !isSecondary && (
       <svg
-        class="inline-block h-[0.75em] w-[0.75em]"
+        class="size-5 shrink-0"
+        aria-hidden="true"
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
         fill="none"
-        viewBox="0 0 18 18"
       >
         <path
+          d="M4 10h12M11 5l5 5-5 5"
           stroke="currentColor"
+          stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          stroke-width="2"
-          d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
         />
       </svg>
     )
