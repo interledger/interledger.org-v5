@@ -22,7 +22,7 @@ export default {
 
       // Layout constraints (no @theme namespace available)
       maxWidth: {
-        content: '1160px',
+        content: '1440px',
         narrow: '800px',
         wide: '1600px',
         prose: '960px'
