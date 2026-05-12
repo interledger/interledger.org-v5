@@ -23,6 +23,7 @@ export { default as stripPagination } from './main/stripPagination'
 // Main site: Internationalisation
 export {
   type Locale,
+  type UiKey,
   locales,
   defaultLocale,
   switcherLocales,

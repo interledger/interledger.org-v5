@@ -1,5 +1,6 @@
 ---
-import { useTranslations, buildUmamiAttrs } from '@/utils'
+import { useTranslations, buildUmamiAttrs, type UiKey } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -9,92 +10,63 @@ const umamiBase = {
   lang: routeLocale,
   section: 'footer' as const
 }
+
+type SocialIconName = 'mastodon' | 'x' | 'slack' | 'github' | 'linkedin'
+
+const socialLinks: Array<{
+  href: string
+  icon: SocialIconName
+  labelKey: UiKey
+}> = [
+  {
+    href: 'https://interledger.social/@Interledger',
+    icon: 'mastodon',
+    labelKey: 'footer.social.mastodon'
+  },
+  {
+    href: 'https://twitter.com/interledger',
+    icon: 'x',
+    labelKey: 'footer.social.twitter'
+  },
+  {
+    href: 'https://communityinviter.com/apps/interledger/interledger-working-groups-slack',
+    icon: 'slack',
+    labelKey: 'footer.social.slack'
+  },
+  {
+    href: 'https://github.com/interledger',
+    icon: 'github',
+    labelKey: 'footer.social.github'
+  },
+  {
+    href: 'https://www.linkedin.com/company/interledger-foundation/',
+    icon: 'linkedin',
+    labelKey: 'footer.social.linkedin'
+  }
+]
 ---
 
 <footer
   class="text-center py-space-2xs px-space-xs text-step--1 bg-black/15 flex flex-col gap-4 justify-center items-center xs:flex-row xs:justify-between"
 >
   <ul class="list-none flex gap-6 justify-center p-0 mt-space-2xs xs:mt-0">
-    <li>
-      <a
-        href="https://interledger.social/@Interledger"
-        {...buildUmamiAttrs({
-          ...umamiBase,
-          href: 'https://interledger.social/@Interledger',
-          ariaLabel: t('footer.social.mastodon')
-        })}
-      >
-        <img
-          src="/img/lander/icon-fediverse.svg"
-          alt={t('footer.social.mastodon')}
-          class="w-6 h-6"
-        />
-      </a>
-    </li>
-    <li>
-      <a
-        href="https://twitter.com/interledger"
-        {...buildUmamiAttrs({
-          ...umamiBase,
-          href: 'https://twitter.com/interledger',
-          ariaLabel: t('footer.social.twitter')
-        })}
-      >
-        <img
-          src="/img/lander/icon-twitter.svg"
-          alt={t('footer.social.twitter')}
-          class="w-6 h-6"
-        />
-      </a>
-    </li>
-    <li>
-      <a
-        href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"
-        {...buildUmamiAttrs({
-          ...umamiBase,
-          href: 'https://communityinviter.com/apps/interledger/interledger-working-groups-slack',
-          ariaLabel: t('footer.social.slack')
-        })}
-      >
-        <img
-          src="/img/lander/icon-slack.svg"
-          alt={t('footer.social.slack')}
-          class="w-6 h-6"
-        />
-      </a>
-    </li>
-    <li>
-      <a
-        href="https://github.com/interledger"
-        {...buildUmamiAttrs({
-          ...umamiBase,
-          href: 'https://github.com/interledger',
-          ariaLabel: t('footer.social.github')
-        })}
-      >
-        <img
-          src="/img/lander/icon-github.svg"
-          alt={t('footer.social.github')}
-          class="w-6 h-6"
-        />
-      </a>
-    </li>
-    <li>
-      <a
-        href="https://www.linkedin.com/company/interledger-foundation/"
-        {...buildUmamiAttrs({
-          ...umamiBase,
-          href: 'https://www.linkedin.com/company/interledger-foundation/',
-          ariaLabel: t('footer.social.linkedin')
-        })}
-      >
-        <img
-          src="/img/lander/icon-linkedin.svg"
-          alt={t('footer.social.linkedin')}
-          class="w-6 h-6"
-        />
-      </a>
-    </li>
+    {
+      socialLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            aria-label={t(link.labelKey)}
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: link.href,
+              ariaLabel: t(link.labelKey)
+            })}
+          >
+            <Icon name={link.icon} class="size-6" />
+          </a>
+        </li>
+      ))
+    }
   </ul>
   <p>&copy; 2020–{currentYear}, Interledger Foundation</p>
 </footer>

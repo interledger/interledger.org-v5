@@ -1,5 +1,6 @@
 ---
 import DevelopersLogo from '@/components/logos/DevelopersLogo.astro'
+import Icon from '@/components/shared/Icon.astro'
 import {
   HOME_CONTENT_SLUG,
   translatePath,
@@ -53,18 +54,15 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     </a>
     <a
       href="https://github.com/interledger"
-      class="h-[1.25em] w-[1.25em]"
+      aria-label={t('aria.logo.github')}
+      class="inline-flex h-[1.25em] w-[1.25em] items-center justify-center"
       {...navLink(
         'https://github.com/interledger',
         undefined,
         t('aria.logo.github')
       )}
     >
-      <img
-        src="/img/lander/icon-github.svg"
-        alt={t('aria.logo.github')}
-        class="h-full w-full"
-      />
+      <Icon name="github" class="h-full w-full" />
     </a>
   </div>
 </header>
