@@ -1,8 +1,8 @@
 ---
-import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
-import { type Locale, HOME_CONTENT_SLUG } from '@/utils'
+import HomePage from '@/components/pages/HomePage.astro'
+import { type Locale } from '@/utils'
 
 const pageLang: Locale = 'en'
 ---
 
-<FoundationContentPage slug={HOME_CONTENT_SLUG} contentLocale={pageLang} />
+<HomePage pageLang={pageLang} />
