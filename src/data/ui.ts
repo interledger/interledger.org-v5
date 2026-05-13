@@ -160,7 +160,13 @@ export const ui = {
       "Thank you for reaching out. We'll get back to you as soon as possible.",
     'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'contact.error.submit':
-      'Something went wrong sending your message. Please try again.'
+      'Something went wrong sending your message. Please try again.',
+    'home.hero.title_lead': 'Financial systems should work together,',
+    'home.hero.title_accent': 'for everyone',
+    'home.hero.description':
+      'We connect people, tech and systems to advance open payments and unlock financial agency for all.',
+    'home.cta.explore_tech': 'Explore Tech',
+    'home.cta.get_involved': 'Get Involved'
   },
   es: {
     'site.title': 'Fundación Interledger',
@@ -327,6 +333,13 @@ export const ui = {
       'Gracias por contactarnos. Le responderemos lo antes posible.',
     'contact.error.captcha': 'Por favor, complete el desafío de reCAPTCHA.',
     'contact.error.submit':
-      'Hubo un problema al enviar su mensaje. Por favor, inténtelo de nuevo.'
+      'Hubo un problema al enviar su mensaje. Por favor, inténtelo de nuevo.',
+    'home.hero.title_lead':
+      'Los sistemas financieros deberían funcionar juntos,',
+    'home.hero.title_accent': 'para todos',
+    'home.hero.description':
+      'Conectamos personas, tecnología y sistemas para impulsar los pagos abiertos y dar libertad financiera a todas las personas.',
+    'home.cta.explore_tech': 'Explora la tecnología',
+    'home.cta.get_involved': 'Participa'
   }
 } as const
