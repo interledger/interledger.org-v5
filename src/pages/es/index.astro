@@ -1,22 +1,11 @@
 ---
-import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
-import { defaultLocale, type Locale, HOME_CONTENT_SLUG } from '@/utils'
-import { getCollection } from 'astro:content'
-
-const pageLang: Locale = 'es'
-
-const pages = await getCollection('foundation-pages')
-const localizedHomePage = pages.find(
-  (page) =>
-    page.data.pathSlug === HOME_CONTENT_SLUG && page.data.locale === pageLang
-)
-
-const contentLocale = localizedHomePage ? pageLang : defaultLocale
-const isFallback = !localizedHomePage
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 ---
 
-<FoundationContentPage
-  slug={HOME_CONTENT_SLUG}
-  contentLocale={contentLocale}
-  isFallback={isFallback}
-/>
+<FoundationPageLayout title="Home">
+  <main class="pb-space-l">
+    <div class="mx-auto w-full max-w-wide px-space-m">
+      <p class="text-center text-gray-500">Home page coming soon.</p>
+    </div>
+  </main>
+</FoundationPageLayout>
