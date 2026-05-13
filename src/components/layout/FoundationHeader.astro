@@ -3,10 +3,10 @@
  * Foundation site header.
  * Composes navigation menu, action links, and mobile toggle.
  */
-import FoundationLogo from '../logos/FoundationLogo.astro'
-import FoundationNavMenu from '../shared/foundation-header/FoundationNavMenu.astro'
-import FoundationNavActions from '../shared/foundation-header/FoundationNavActions.astro'
-import HamburgerButton from '../shared/HamburgerButton.astro'
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
+import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
+import FoundationNavActions from '@/components/layout/FoundationNavActions.astro'
+import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 
 import {
   translatePath,
@@ -88,5 +88,5 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
 </header>
 
 <script>
-  import '../shared/foundation-header/foundation-header.ts'
+  import './foundation-header.ts'
 </script>

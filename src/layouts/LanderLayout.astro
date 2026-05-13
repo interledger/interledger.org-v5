@@ -1,6 +1,6 @@
 ---
-import Footer from '@/components/pages/Footer.astro'
-import LanderHeader from '@/components/pages/LanderHeader.astro'
+import LanderFooter from '@/components/layout/LanderFooter.astro'
+import LanderHeader from '@/components/layout/LanderHeader.astro'
 import '../styles/tailwind.css'
 import { useTranslations } from '@/utils'
 
@@ -47,6 +47,6 @@ const { title, description, gradient = 'option1' } = Astro.props
     >
       <slot />
     </div>
-    <Footer />
+    <LanderFooter />
   </body>
 </html>

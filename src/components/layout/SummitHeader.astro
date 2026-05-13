@@ -3,7 +3,7 @@
  * Summit site header.
  * Composes navigation menu, action links, and mobile toggle.
  */
-import FoundationLogo from '../logos/FoundationLogo.astro'
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import {
   getNavigation,
   useTranslations,
@@ -11,9 +11,9 @@ import {
   HOME_CONTENT_SLUG,
   buildUmamiAttrs
 } from '@/utils'
-import SummitNavMenu from '../shared/summit-header/SummitNavMenu.astro'
-import SummitNavActions from '../shared/summit-header/SummitNavActions.astro'
-import HamburgerButton from '../shared/HamburgerButton.astro'
+import SummitNavMenu from '@/components/layout/SummitNavMenu.astro'
+import SummitNavActions from '@/components/layout/SummitNavActions.astro'
+import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 
 const { routeLocale } = Astro.locals
 const { mainMenu, ctaButton } = getNavigation('summit', routeLocale)
@@ -84,5 +84,5 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
 </header>
 
 <script>
-  import '../shared/summit-header/summit-header.ts'
+  import './summit-header.ts'
 </script>
