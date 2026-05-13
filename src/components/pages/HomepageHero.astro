@@ -17,8 +17,16 @@ interface Props {
 const { pageLang, pathname } = Astro.props
 const t = useTranslations(pageLang)
 
-const exploreTechHref = translatePath('foundation-pages', pageLang, 'developers')
-const getInvolvedHref = translatePath('foundation-pages', pageLang, 'get-involved')
+const exploreTechHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'developers'
+)
+const getInvolvedHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'get-involved'
+)
 
 const heroUmami = (href: string, linkText: string) =>
   buildUmamiAttrs({ pathname, lang: pageLang, section: 'hero', href, linkText })
@@ -37,7 +45,7 @@ const heroUmami = (href: string, linkText: string) =>
       fetchpriority="high"
       media="(min-width: 1024px)"
       sizes="60vw"
-      class="absolute inset-0 h-full w-full object-cover object-right"
+      class="absolute inset-0 h-full w-full object-cover object-right hidden lg:block"
     />
   </div>
 
