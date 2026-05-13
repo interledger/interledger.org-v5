@@ -241,26 +241,24 @@ export async function buildPagePayload(
   if (mdxBody.length > 0) {
     if (parserCtx) {
       // Parse MDX body into structured dynamic-zone blocks.
-      // Parser errors (unsupported JSX, missing props, unresolved relations)
-      // are intentional hard failures — re-thrown with file context.
-      try {
-        data.content = await parseMdxToBlocks(mdxBody, {
-          ...parserCtx,
-          sourceText: mdxBody
+      // Parser errors are returned as `MdxParserError` values; we re-throw
+      // them here with file context so the existing pipeline-level handlers
+      // (sub #3 will refactor those to errors-as-values too) catch them.
+      const parsed = await parseMdxToBlocks(mdxBody, {
+        ...parserCtx,
+        sourceText: mdxBody
+      })
+      if (parsed instanceof MdxParserError) {
+        throw new MdxParserError({
+          code: parsed.code,
+          message: `[${mdx.pathSlug}] ${parsed.message}`,
+          component: parsed.component,
+          prop: parsed.prop,
+          line: parsed.line,
+          column: parsed.column
         })
-      } catch (err) {
-        if (err instanceof MdxParserError) {
-          throw new MdxParserError({
-            code: err.code,
-            message: `[${mdx.pathSlug}] ${err.message}`,
-            component: err.component,
-            prop: err.prop,
-            line: err.line,
-            column: err.column
-          })
-        }
-        throw err
       }
+      data.content = parsed
     } else {
       // Fallback: store entire body as a single paragraph block
       data.content = [
@@ -477,24 +475,21 @@ export async function buildBlogPayload(
   const mdxBody = (mdx.content || '').trim()
   let content: unknown
   if (parserCtx && mdxBody.length > 0) {
-    try {
-      content = await parseMdxToBlocks(mdxBody, {
-        ...parserCtx,
-        sourceText: mdxBody
+    const parsed = await parseMdxToBlocks(mdxBody, {
+      ...parserCtx,
+      sourceText: mdxBody
+    })
+    if (parsed instanceof MdxParserError) {
+      throw new MdxParserError({
+        code: parsed.code,
+        message: `[${mdx.pathSlug}] ${parsed.message}`,
+        component: parsed.component,
+        prop: parsed.prop,
+        line: parsed.line,
+        column: parsed.column
       })
-    } catch (err) {
-      if (err instanceof MdxParserError) {
-        throw new MdxParserError({
-          code: err.code,
-          message: `[${mdx.pathSlug}] ${err.message}`,
-          component: err.component,
-          prop: err.prop,
-          line: err.line,
-          column: err.column
-        })
-      }
-      throw err
     }
+    content = parsed
   } else {
     content = normalizeInlineImages(mdxBody)
   }

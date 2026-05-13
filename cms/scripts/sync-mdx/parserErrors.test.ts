@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 
 describe('MdxParserError', () => {
   it('sets code, message, and component', () => {
@@ -53,5 +57,36 @@ describe('MdxParserError', () => {
     expect(ParserErrorCode.MDX_PARSE_ERROR).toBe('MDX_PARSE_ERROR')
     expect(ParserErrorCode.UNRESOLVED_RELATION).toBe('UNRESOLVED_RELATION')
     expect(ParserErrorCode.CONFLICTING_PROPS).toBe('CONFLICTING_PROPS')
+  })
+})
+
+describe('tryCatchParserError', () => {
+  it('returns the resolved value when the function succeeds', async () => {
+    const result = await tryCatchParserError(async () => 'ok')
+    expect(result).toBe('ok')
+  })
+
+  it('returns the thrown MdxParserError instead of rejecting', async () => {
+    const boom = new MdxParserError({
+      code: ParserErrorCode.UNSUPPORTED_COMPONENT,
+      message: 'boom'
+    })
+    const result = await tryCatchParserError(async () => {
+      throw boom
+    })
+    expect(result).toBe(boom)
+  })
+
+  it('lets non-MdxParserError throws propagate', async () => {
+    await expect(
+      tryCatchParserError(async () => {
+        throw new Error('network down')
+      })
+    ).rejects.toThrow('network down')
+  })
+
+  it('handles synchronous functions', async () => {
+    const result = await tryCatchParserError(() => 42)
+    expect(result).toBe(42)
   })
 })

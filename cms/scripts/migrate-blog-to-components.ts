@@ -86,6 +86,8 @@ async function main() {
     try {
       const blocks = await parseMdxToBlocks(body, { ...ctx, sourceText: body })
 
+      if (blocks instanceof Error) throw blocks
+
       if (blocks.length === 0) {
         console.log(`   ⏭️  ${file} — no blocks produced, skipping`)
         skipped++

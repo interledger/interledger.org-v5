@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks } from './mdxBlockParser'
-import { ParserErrorCode } from './parserErrors'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // Side-effect import: registers VideoEmbed handler
 import './videoEmbedHandler'
@@ -60,34 +60,41 @@ describe('VideoEmbed handler', () => {
 // ---------------------------------------------------------------------------
 
 describe('VideoEmbed handler — errors', () => {
-  it('throws MISSING_REQUIRED_PROP when url is missing', async () => {
-    await expect(
-      parseMdxToBlocks('<VideoEmbed title="No URL" />', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
+  it('returns MISSING_REQUIRED_PROP when url is missing', async () => {
+    const result = await parseMdxToBlocks('<VideoEmbed title="No URL" />', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP
+    })
   })
 
-  it('throws MISSING_REQUIRED_PROP when title is missing', async () => {
-    await expect(
-      parseMdxToBlocks(
-        '<VideoEmbed url="https://www.youtube.com/watch?v=abc" />',
-        ctx
-      )
-    ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
+  it('returns MISSING_REQUIRED_PROP when title is missing', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url="https://www.youtube.com/watch?v=abc" />',
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP
+    })
   })
 
-  it('throws DYNAMIC_EXPRESSION when url is a dynamic expression', async () => {
-    await expect(
-      parseMdxToBlocks('<VideoEmbed url={someVar} title="Test" />', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  it('returns DYNAMIC_EXPRESSION when url is a dynamic expression', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url={someVar} title="Test" />',
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws DYNAMIC_EXPRESSION when title is a dynamic expression', async () => {
-    await expect(
-      parseMdxToBlocks(
-        '<VideoEmbed url="https://youtube.com/watch?v=abc" title={someVar} />',
-        ctx
-      )
-    ).rejects.toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  it('returns DYNAMIC_EXPRESSION when title is a dynamic expression', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url="https://youtube.com/watch?v=abc" title={someVar} />',
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 })
 

@@ -16,39 +16,45 @@ import {
   type JsxBlockNode,
   type ParserContext
 } from './mdxBlockParser'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 
 async function handleBlockquote(
   node: JsxBlockNode,
   _ctx: ParserContext
-): Promise<ParsedBlock[]> {
-  const source = getStringAttr(node, 'source')
+): Promise<ParsedBlock[] | MdxParserError> {
+  return tryCatchParserError(() => {
+    const source = getStringAttr(node, 'source')
 
-  const quote =
-    node.children.length > 0 ? childrenToMarkdown(node.children) : ''
+    const quote =
+      node.children.length > 0 ? childrenToMarkdown(node.children) : ''
 
-  if (!quote) {
-    throw new MdxParserError({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      message:
-        'Blockquote requires non-empty children content for the quote field.',
-      component: 'Blockquote',
-      prop: 'children',
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
-  }
+    if (!quote) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message:
+          'Blockquote requires non-empty children content for the quote field.',
+        component: 'Blockquote',
+        prop: 'children',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
 
-  const block: BlockquoteBlock = {
-    __component: 'blocks.blockquote',
-    quote
-  }
+    const block: BlockquoteBlock = {
+      __component: 'blocks.blockquote',
+      quote
+    }
 
-  if (source !== undefined) {
-    block.source = source
-  }
+    if (source !== undefined) {
+      block.source = source
+    }
 
-  return [block]
+    return [block]
+  })
 }
 
 registerComponentHandler('Blockquote', handleBlockquote)
