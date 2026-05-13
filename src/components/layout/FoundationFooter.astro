@@ -185,73 +185,89 @@ const socialLinks: Array<{
         role="list"
       >
         {
-          mainMenu.map((group) => (
-            <li class="min-w-0 lg:flex-1">
-              <p class="mb-space-s text-body-lg-standard-md font-normal uppercase tracking-wide text-gray">
-                {group.label}
-              </p>
-
-              {group.items && group.items.length > 0 && !group.subGroups && (
-                <ul
-                  class="m-0 flex list-none flex-col gap-space-2xs p-0"
-                  role="list"
+          mainMenu.map((group, groupIndex) => {
+            const groupHeadingId = `footer-nav-group-${groupIndex}`
+            return (
+              <li class="min-w-0 lg:flex-1">
+                <h6
+                  id={groupHeadingId}
+                  class="mb-space-s text-body-lg-standard-md font-normal uppercase tracking-wide text-gray"
                 >
-                  {group.items.map((item) => (
-                    <li>
-                      <a
-                        href={item.href ?? '#'}
-                        class={navLinkClass}
-                        {...footerLink(item.href ?? '#', undefined, item.label)}
-                        {...(item.openInNewTab
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                  {group.label}
+                </h6>
 
-              {group.subGroups && group.subGroups.length > 0 && (
-                <div class="flex flex-col gap-space-s">
-                  {group.subGroups.map((sub) => (
-                    <div>
-                      <p class="mb-space-xs text-caption font-normal uppercase tracking-wide text-black">
-                        <span class="border-b border-black pb-space-3xs">{sub.label}</span>
-                      </p>
-                      <ul
-                        class="m-0 flex list-none flex-col gap-space-2xs p-0"
-                        role="list"
-                      >
-                        {sub.items.map((item) => (
-                          <li>
-                            <a
-                              href={item.href ?? '#'}
-                              class={navLinkClass}
-                              {...footerLink(
-                                item.href ?? '#',
-                                undefined,
-                                item.label
-                              )}
-                              {...(item.openInNewTab
-                                ? {
-                                    target: '_blank',
-                                    rel: 'noopener noreferrer'
-                                  }
-                                : {})}
-                            >
-                              {item.label}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </li>
-          ))
+                {group.items && group.items.length > 0 && !group.subGroups && (
+                  <ul
+                    class="m-0 flex list-none flex-col gap-space-2xs p-0"
+                    role="list"
+                    aria-labelledby={groupHeadingId}
+                  >
+                    {group.items.map((item) => (
+                      <li>
+                        <a
+                          href={item.href ?? '#'}
+                          class={navLinkClass}
+                          {...footerLink(item.href ?? '#', undefined, item.label)}
+                          {...(item.openInNewTab
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {group.subGroups && group.subGroups.length > 0 && (
+                  <div class="flex flex-col gap-space-s">
+                    {group.subGroups.map((sub, subIndex) => {
+                      const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
+                      return (
+                        <div>
+                          <p
+                            id={subHeadingId}
+                            class="mb-space-xs text-caption font-normal uppercase tracking-wide text-black"
+                          >
+                            <span class="border-b border-black pb-space-3xs">
+                              {sub.label}
+                            </span>
+                          </p>
+                          <ul
+                            class="m-0 flex list-none flex-col gap-space-2xs p-0"
+                            role="list"
+                            aria-labelledby={subHeadingId}
+                          >
+                            {sub.items.map((item) => (
+                              <li>
+                                <a
+                                  href={item.href ?? '#'}
+                                  class={navLinkClass}
+                                  {...footerLink(
+                                    item.href ?? '#',
+                                    undefined,
+                                    item.label
+                                  )}
+                                  {...(item.openInNewTab
+                                    ? {
+                                        target: '_blank',
+                                        rel: 'noopener noreferrer'
+                                      }
+                                    : {})}
+                                >
+                                  {item.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </li>
+            )
+          })
         }
       </ul>
     </nav>
@@ -266,7 +282,7 @@ const socialLinks: Array<{
         href={homeHref}
         aria-label={t('footer.logo_home')}
         class="inline-block rounded-sm transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none"
-        {...footerLink(homeHref)}
+        {...footerLink(homeHref, t('footer.logo_home'), t('footer.logo_home'))}
       >
         <InterledgerIcon class="h-10 w-10" />
       </a>
