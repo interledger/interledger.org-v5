@@ -276,6 +276,113 @@ import Icon from '@/components/shared/Icon.astro'
         </dd>
       </dl>
 
+      <div class="flex flex-wrap gap-lg mt-xl">
+        <div class="p-lg">
+          <h3 class="font-poppins mb-md text-h4">FAB (light mode)</h3>
+          <div class="flex flex-wrap items-center gap-md">
+            <dl
+              class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
+            >
+              <dt class="text-body-sm-standard">Default</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">
+                Focus (same as hover - Tab to it)
+              </dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">Disabled</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"
+                  ariaDisabled
+                >
+                  <Icon name="arrow-right" />
+                </LinkButton>
+              </dd>
+            </dl>
+          </div>
+        </div>
+        <div class="bg-neutral-900 text-neutral-25 p-lg">
+          <h3 class="font-poppins mb-md text-h4">FAB (dark mode)</h3>
+          <div class="flex flex-wrap items-center gap-md">
+            <dl
+              class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
+            >
+              <dt class="text-body-sm-standard">Default</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  mode="dark"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  mode="dark"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">
+                Focus (same as hover - Tab to it)
+              </dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  mode="dark"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                >
+              </dd>
+              <dt class="text-body-sm-standard">Disabled</dt>
+              <dd>
+                <LinkButton
+                  variant="fab"
+                  mode="dark"
+                  href="#buttons"
+                  iconOnly
+                  aria-label="Next"
+                  ariaDisabled
+                >
+                  <Icon name="arrow-right" />
+                </LinkButton>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
       <h3 class="font-poppins mt-xl mb-md text-h4">LinkButton</h3>
       <div class="flex flex-wrap items-center gap-md">
         <LinkButton href="#buttons">Internal link</LinkButton>

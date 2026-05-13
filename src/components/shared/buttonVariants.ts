@@ -22,7 +22,7 @@ export const buttonVariants = cva(
     'inline-flex items-center justify-center',
     'font-poppins text-caption',
     'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
-    'motion-safe:transition-colors motion-safe:duration-200',
+    'motion-safe:transition motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'
   ],
   {
@@ -57,6 +57,12 @@ export const buttonVariants = cva(
           // The 1px orchid border is the entire focus indicator;
           // suppress the browser's default blue focus ring.
           'focus-visible:border-orchid-100 focus-visible:outline-none'
+        ],
+        fab: [
+          'rounded-full border -rotate-45',
+          'hover:rotate-0',
+          'focus-visible:rotate-0',
+          'focus-visible:outline-1 focus-visible:-outline-offset-1'
         ]
       },
       mode: {
@@ -100,6 +106,27 @@ export const buttonVariants = cva(
           // Focus: neutral-75 fill, 2px white inset, white text.
           'focus-visible:bg-neutral-75 focus-visible:text-neutral-0',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-0',
+          'disabled:border-neutral-100 disabled:text-neutral-75',
+          'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
+        ]
+      },
+      {
+        variant: 'fab',
+        mode: 'light',
+        class: [
+          'border-neutral-50 text-neutral-900',
+          'hover:border-neutral-900',
+          'focus-visible:outline-solid focus-visible:outline-neutral-900',
+          'disabled:text-neutral-50 aria-disabled:text-neutral-50'
+        ]
+      },
+      {
+        variant: 'fab',
+        mode: 'dark',
+        class: [
+          'border-neutral-75 text-neutral-25',
+          'hover:border-neutral-0 hover:text-neutral-0',
+          'focus-visible:outline-neutral-0 focus-visible:text-neutral-0',
           'disabled:border-neutral-100 disabled:text-neutral-75',
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
