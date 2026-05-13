@@ -68,6 +68,9 @@ interface Event {
  * strapi.requestContext uses AsyncLocalStorage — safe inside lifecycle hooks.
  */
 export function shouldSkipMdxExport(): boolean {
+  // Why: requestContext.get() throws when called outside an active request
+  // (e.g. boot-time, background jobs). That's a "no context" state, not an
+  // error — falling back to false is the right semantic.
   try {
     const ctx = strapi.requestContext.get()
     return ctx?.request?.headers?.['x-skip-mdx-export'] === 'true'
@@ -77,6 +80,9 @@ export function shouldSkipMdxExport(): boolean {
 }
 
 export function getAdminAuthor(): { name: string; email: string } | undefined {
+  // Why: same as shouldSkipMdxExport — requestContext.get() throws when there's
+  // no active request. Returning undefined means "no author info available,"
+  // which is a normal state rather than a failure.
   try {
     const ctx = strapi.requestContext.get()
     const user = ctx?.state?.user
@@ -195,7 +201,7 @@ async function writeMDXFile<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>,
   page: PageData,
   englishSlug?: string
-): Promise<string> {
+): Promise<string | Error> {
   const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
   const filepath = resolvePageFilepath(
@@ -220,19 +226,33 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     return filepath
   } catch (error) {
-    console.error(
-      `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file: ${filepath}`,
-      error
-    )
-    throw error
+    return error instanceof Error
+      ? new Error(
+          `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file ${filepath}: ${error.message}`,
+          { cause: error }
+        )
+      : new Error(
+          `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file ${filepath}: ${String(error)}`
+        )
   }
 }
 
+/**
+ * Fetch a published document for the given documentId and locale.
+ *
+ * Returns:
+ * - the page data on success
+ * - `null` when no published version exists for that locale (a normal state)
+ * - an `Error` when the Strapi document service throws (Strapi outage,
+ *   misconfigured populate clause, etc.)
+ *
+ * Callers narrow the three states to distinguish "skip" from "fail."
+ */
 async function fetchPublished<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>,
   documentId: string,
   locale: string
-): Promise<PageData | null> {
+): Promise<PageData | null | Error> {
   try {
     const page = await strapi.documents(config.contentTypeUid).findOne({
       documentId,
@@ -242,11 +262,14 @@ async function fetchPublished<T extends UID.ContentType>(
     })
     return page as unknown as PageData | null
   } catch (error) {
-    console.error(
-      `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} ${documentId} (${locale}):`,
-      error
-    )
-    return null
+    return error instanceof Error
+      ? new Error(
+          `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} ${documentId} (${locale}): ${error.message}`,
+          { cause: error }
+        )
+      : new Error(
+          `Failed to fetch ${uidToLogLabel(config.contentTypeUid)} ${documentId} (${locale}): ${String(error)}`
+        )
   }
 }
 
@@ -255,29 +278,39 @@ async function exportAllLocales<T extends UID.ContentType>(
   documentId: string
 ): Promise<string[]> {
   const filepaths: string[] = []
-  const englishPage = await fetchPublished(config, documentId, defaultLang)
-  const englishSlug = englishPage?.pathSlug
+  // Fetch English first so we can pass its slug to localized exports for the
+  // `localizes` frontmatter link. If the fetch errors, we still attempt the
+  // other locales; they'll just write without an English link.
+  const englishResult = await fetchPublished(config, documentId, defaultLang)
+  if (englishResult instanceof Error) {
+    console.error(`⚠️  ${englishResult.message}`)
+  }
+  const englishPage = englishResult instanceof Error ? null : englishResult
+  const englishSlug = englishPage?.pathSlug ?? undefined
 
   for (const locale of LOCALES) {
-    try {
-      const page =
-        locale === defaultLang
-          ? englishPage
-          : await fetchPublished(config, documentId, locale)
-      if (!page) {
-        console.log(
-          `⏭️  No published ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}`
-        )
-        continue
-      }
-      const filepath = await writeMDXFile(config, page, englishSlug)
-      filepaths.push(filepath)
-    } catch (error) {
-      console.error(
-        `⚠️  Failed to export ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}:`,
-        error
-      )
+    const result =
+      locale === defaultLang
+        ? englishPage
+        : await fetchPublished(config, documentId, locale)
+
+    if (result instanceof Error) {
+      console.error(`⚠️  ${result.message}`)
+      continue
     }
+    if (!result) {
+      console.log(
+        `⏭️  No published ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}`
+      )
+      continue
+    }
+
+    const filepath = await writeMDXFile(config, result, englishSlug)
+    if (filepath instanceof Error) {
+      console.error(`⚠️  ${filepath.message}`)
+      continue
+    }
+    filepaths.push(filepath)
   }
 
   return filepaths
@@ -359,6 +392,11 @@ function deleteMdxIfExists(
   label: string
 ): void {
   if (!fs.existsSync(filepath)) return
+  // Why: a failed unlink during cleanup is logged but not surfaced — the
+  // lifecycle hook continues to call scheduleGitSync. Returning Error here
+  // would force every caller to handle a state that's only ever a stale
+  // file we couldn't remove (filesystem permissions, in-flight reader),
+  // which we'd just log and continue anyway.
   try {
     fs.unlinkSync(filepath)
     console.log(`🗑️  Deleted ${locale} ${label} MDX: ${filepath}`)
@@ -413,6 +451,10 @@ export function createPageLifecycle<T extends UID.ContentType>(
       // a pathSlug change must remove the old file. Draft-only / never-published /
       // missing slug: no MDX path to reconcile, so skip.
       const existing = await fetchPublished(config, documentId, locale)
+      if (existing instanceof Error) {
+        console.error(`⚠️  ${existing.message}`)
+        return
+      }
       if (!existing?.pathSlug) return
 
       // Use Strapi’s published pathSlug only. Export always writes that value into
