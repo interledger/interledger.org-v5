@@ -1,0 +1,103 @@
+---
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import {
+  translatePath,
+  useTranslations,
+  buildUmamiAttrs,
+  type Locale
+} from '@/utils'
+
+interface Props {
+  pageLang: Locale
+}
+
+const { pageLang } = Astro.props
+const t = useTranslations(pageLang)
+
+const exploreTechHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'developers'
+)
+const getInvolvedHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'get-involved'
+)
+
+const heroUmami = (href: string, linkText: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: pageLang,
+    section: 'hero',
+    href,
+    linkText
+  })
+---
+
+<FoundationPageLayout
+  title={t('site.title')}
+  description={t('site.description')}
+>
+  <main>
+    <section
+      data-component="HomeHero"
+      class="relative overflow-hidden bg-[#0a0a0a] text-white isolate"
+      aria-labelledby="home-hero-title"
+    >
+      <div class="absolute inset-0 -z-10" aria-hidden="true">
+        <OptimizedImage
+          src="/img/homepage/stefan-thomas.webp"
+          alt=""
+          loading="eager"
+          fetchpriority="high"
+          sizes="(min-width: 1024px) 60vw, (min-width: 768px) 70vw, 100vw"
+          class="absolute inset-0 h-full w-full object-cover object-[70%_center] hidden lg:block lg:object-right"
+        />
+      </div>
+
+      <div
+        class="mx-auto w-full max-w-wide px-space-m py-space-2xl md:py-space-3xl lg:min-h-[80vh] flex items-center"
+      >
+        <div class="max-w-136 md:max-w-144 lg:max-w-168">
+          <h1
+            id="home-hero-title"
+            class="font-poppins text-h2 md:text-h2-md lg:text-h2-lg"
+          >
+            <span class="block">{t('home.hero.title_lead')}</span>
+            <span class="block text-aqua-mint-100">
+              {t('home.hero.title_accent')}
+            </span>
+          </h1>
+
+          <p
+            class="mt-space-m font-poppins text-h4 md:text-h4-md lg:text-h4-lg text-white/85"
+          >
+            {t('home.hero.description')}
+          </p>
+
+          <div class="mt-space-s flex flex-wrap gap-space-s">
+            <LinkButton
+              href={exploreTechHref}
+              {...heroUmami(exploreTechHref, t('home.cta.explore_tech'))}
+            >
+              {t('home.cta.explore_tech')}
+              <Icon slot="icon-right" name="arrow-right" />
+            </LinkButton>
+            <LinkButton
+              href={getInvolvedHref}
+              variant="secondary"
+              mode="dark"
+              {...heroUmami(getInvolvedHref, t('home.cta.get_involved'))}
+            >
+              {t('home.cta.get_involved')}
+            </LinkButton>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</FoundationPageLayout>
