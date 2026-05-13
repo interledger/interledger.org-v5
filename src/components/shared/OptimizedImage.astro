@@ -10,6 +10,7 @@ interface Props {
   loading?: 'lazy' | 'eager'
   sizes?: string
   fetchpriority?: 'high' | 'low' | 'auto'
+  media?: string
 }
 
 const {
@@ -20,7 +21,8 @@ const {
   class: className,
   loading = 'lazy',
   sizes = '100vw',
-  fetchpriority
+  fetchpriority,
+  media
 } = Astro.props
 
 const { variants, fullSrc } = src
@@ -30,14 +32,17 @@ const { variants, fullSrc } = src
 const hasResponsive = variants.length > 0
 const srcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const decoding = loading === 'lazy' ? 'async' : undefined
+// When a media query is provided, omit <img> src so browsers that don't match
+// the <source> media condition don't fetch the image at all.
+const imgSrc = media ? undefined : src
 ---
 
 {
   hasResponsive ? (
     <picture>
-      <source type="image/webp" srcset={srcset} sizes={sizes} />
+      <source type="image/webp" srcset={srcset} sizes={sizes} media={media} />
       <img
-        src={src}
+        src={imgSrc}
         alt={alt}
         width={width}
         height={height}
@@ -49,9 +54,9 @@ const decoding = loading === 'lazy' ? 'async' : undefined
     </picture>
   ) : fullSrc ? (
     <picture>
-      <source type="image/webp" srcset={fullSrc} />
+      <source type="image/webp" srcset={fullSrc} media={media} />
       <img
-        src={src}
+        src={imgSrc}
         alt={alt}
         width={width}
         height={height}
