@@ -48,6 +48,63 @@
           "label": "Developers",
           "href": "/developers"
         }
+      ],
+      "subGroups": [
+        {
+          "label": "Our Technology",
+          "items": [
+            {
+              "label": "Interledger Tech",
+              "href": "/interledger-tech"
+            },
+            {
+              "label": "Join the Network",
+              "href": "/join-the-network"
+            }
+          ]
+        },
+        {
+          "label": "Standards",
+          "items": [
+            {
+              "label": "ILP",
+              "href": "/ilp"
+            },
+            {
+              "label": "Open Payments",
+              "href": "/open-payments"
+            },
+            {
+              "label": "Web Monetization",
+              "href": "/web-monetization"
+            }
+          ]
+        },
+        {
+          "label": "Tools and Products",
+          "items": [
+            {
+              "label": "Rhyza",
+              "href": "/rhyza"
+            },
+            {
+              "label": "Wallet",
+              "href": "/wallet"
+            },
+            {
+              "label": "Cards",
+              "href": "/cards"
+            },
+            {
+              "label": "Test Tools",
+              "href": "/test-tools"
+            },
+            {
+              "label": "Web Monetization",
+              "href": "/web-monetization"
+            }
+          ]
+        }
       ]
     },
     {

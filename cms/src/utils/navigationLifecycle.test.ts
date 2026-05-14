@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   sanitizeMenuItem,
   sanitizeMenuGroup,
+  sanitizeMenuSubGroup,
   sanitizeNavigation,
   getLocaleOutputPath,
   type MenuItem
@@ -20,7 +21,12 @@ const testConfig = {
   contentTypeUid: 'api::foundation-navigation.foundation-navigation' as const,
   outputPath: 'src/config/foundation-navigation.json',
   populate: {
-    mainMenu: { populate: { items: true as const } },
+    mainMenu: {
+      populate: {
+        items: true as const,
+        subGroups: { populate: { items: true as const } }
+      }
+    },
     ctaButton: true as const
   }
 }
@@ -129,6 +135,80 @@ describe('sanitizeMenuGroup', () => {
       label: 'Nav'
     })
   })
+
+  it('sanitizes subGroups and their items', () => {
+    const group = {
+      label: 'Tech',
+      subGroups: [
+        {
+          label: 'Standards',
+          items: [
+            { label: 'ILP', href: 'interledger' },
+            { label: 'Open Payments', href: '/open-payments' }
+          ]
+        }
+      ]
+    }
+    expect(sanitizeMenuGroup(group)).toEqual({
+      label: 'Tech',
+      subGroups: [
+        {
+          label: 'Standards',
+          items: [
+            { label: 'ILP', href: '/interledger' },
+            { label: 'Open Payments', href: '/open-payments' }
+          ]
+        }
+      ]
+    })
+  })
+
+  it('omits subGroups key when subGroups array is empty', () => {
+    expect(sanitizeMenuGroup({ label: 'Nav', subGroups: [] })).toEqual({
+      label: 'Nav'
+    })
+  })
+
+  it('keeps both items and subGroups when both are present', () => {
+    const group = {
+      label: 'Tech',
+      items: [{ label: 'A', href: '/a' }],
+      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b' }] }]
+    }
+    expect(sanitizeMenuGroup(group)).toEqual({
+      label: 'Tech',
+      items: [{ label: 'A', href: '/a' }],
+      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b' }] }]
+    })
+  })
+})
+
+describe('sanitizeMenuSubGroup', () => {
+  it('returns label only when no items', () => {
+    expect(sanitizeMenuSubGroup({ label: 'Standards' })).toEqual({
+      label: 'Standards'
+    })
+  })
+
+  it('sanitizes child items', () => {
+    const subGroup = {
+      label: 'Standards',
+      items: [
+        { label: 'A', href: '/a' },
+        { label: 'B', href: null, openInNewTab: null }
+      ]
+    }
+    expect(sanitizeMenuSubGroup(subGroup)).toEqual({
+      label: 'Standards',
+      items: [{ label: 'A', href: '/a' }, { label: 'B' }]
+    })
+  })
+
+  it('omits items key when items array is empty', () => {
+    expect(sanitizeMenuSubGroup({ label: 'Standards', items: [] })).toEqual({
+      label: 'Standards'
+    })
+  })
 })
 
 describe('sanitizeNavigation', () => {
@@ -195,7 +275,12 @@ describe('getLocaleOutputPath', () => {
       contentTypeUid: 'api::summit-navigation.summit-navigation' as const,
       outputPath: 'src/config/summit-navigation.json',
       populate: {
-        mainMenu: { populate: { items: true as const } },
+        mainMenu: {
+          populate: {
+            items: true as const,
+            subGroups: { populate: { items: true as const } }
+          }
+        },
         ctaButton: true as const
       }
     }
