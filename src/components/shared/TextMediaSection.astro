@@ -1,0 +1,77 @@
+---
+import { twMerge } from '@/utils'
+
+interface Props {
+  mediaSide?: 'left' | 'right'
+  theme?: 'light' | 'dark'
+  ariaLabel?: string
+  class?: string
+}
+
+const {
+  mediaSide = 'right',
+  theme = 'light',
+  ariaLabel,
+  class: className
+} = Astro.props
+
+// DOM order stays text → media regardless of `mediaSide`. The visual flip
+// happens via flex-*-reverse so keyboard / screen-reader order stays
+// text-first on every tier. Mobile order is per-section: `mediaSide="left"`
+// flips the column on mobile too (e.g. illustration above text), while
+// tablet always keeps text-first.
+//
+// Section paddings are a sensible default for the majority of two-column
+// home-page sections per Radu's layout rules; the outliers (e.g. tablet
+// "Designed to connect" wants `tablet:px-3xl-tight tablet:py-5xl`, mobile
+// "Making money…" wants `py-5xl`) override via the `class` prop and
+// tailwind-merge resolves the conflicts.
+//
+// Text is left-aligned at every tier. Sections that need centered text on
+// mobile/tablet (e.g. "Designed to connect") add `text-center
+// desktop:text-left` on the section via the `class` prop.
+//
+// Media column reserves ~40% of the row on desktop per Radu's layout
+// rules. Mobile/tablet items-stretch keeps it full-width; consumers can
+// constrain via classes on the media slot wrapper.
+const sectionClasses = twMerge(
+  'relative flex min-h-screen flex-col items-center justify-center',
+  'px-lg tablet:px-xl desktop:px-5xl',
+  'py-3xl-tight desktop:py-5xl',
+  theme === 'light' && 'bg-neutral-0 text-neutral-900',
+  theme === 'dark' && 'text-neutral-0',
+  className
+)
+
+const innerClasses = twMerge(
+  'mx-auto flex w-full flex-col items-stretch gap-3xl',
+  'desktop:max-w-content desktop:flex-row desktop:items-center desktop:gap-6xl',
+  mediaSide === 'left' &&
+    'flex-col-reverse tablet:flex-col desktop:flex-row-reverse'
+)
+
+const textColumnClasses = twMerge(
+  'flex flex-col items-start gap-xl',
+  'desktop:flex-1 desktop:min-w-0',
+  '[&_h2]:font-poppins [&_h2]:text-h2 tablet:[&_h2]:text-h2-md desktop:[&_h2]:text-h2-lg',
+  '[&_p]:font-poppins [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg',
+  theme === 'dark' && '[&_p]:text-neutral-25'
+)
+---
+
+<section
+  aria-label={ariaLabel}
+  class={sectionClasses}
+  data-umami-component="text-media-section"
+>
+  <div class={innerClasses}>
+    <div class={textColumnClasses}>
+      <slot name="heading" />
+      <slot />
+      <slot name="cta" />
+    </div>
+    <div class="desktop:basis-[40%] desktop:shrink-0">
+      <slot name="media" />
+    </div>
+  </div>
+</section>
