@@ -15,9 +15,19 @@ const getPublicAssetPath = (urlPath: string): string =>
 const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
 
 const WEBP_QUALITY = 80
+// AVIF at q75 with 4:4:4 chroma subsampling is visually comparable to webp at
+// q80 but typically 20-30% smaller, with cleaner dark gradients (no banding).
+// Browsers that support AVIF pick it via <source type="image/avif"> ordering.
+const AVIF_QUALITY = 75
 // GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
 // would become static. They're passed through as-is by OptimizedImage.
-const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp'])
+const RASTER_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.avif'
+])
 
 interface SourceConfig {
   dir: string
@@ -78,27 +88,49 @@ async function processImage(
   const widths = TARGET_WIDTHS.filter((w) => w <= originalWidth)
 
   for (const width of widths) {
-    const outPath = path.join(outputDir, `${name}-${width}.webp`)
+    const webpPath = path.join(outputDir, `${name}-${width}.webp`)
+    const avifPath = path.join(outputDir, `${name}-${width}.avif`)
 
-    if (isFresh(filePath, outPath)) {
+    if (isFresh(filePath, webpPath)) {
       cached++
-      continue
+    } else {
+      fs.mkdirSync(outputDir, { recursive: true })
+      await sharp(filePath)
+        .resize(width)
+        .webp({ quality: WEBP_QUALITY })
+        .toFile(webpPath)
+      created++
     }
 
-    fs.mkdirSync(outputDir, { recursive: true })
-    await sharp(filePath)
-      .resize(width)
-      .webp({ quality: WEBP_QUALITY })
-      .toFile(outPath)
-    created++
+    if (isFresh(filePath, avifPath)) {
+      cached++
+    } else {
+      fs.mkdirSync(outputDir, { recursive: true })
+      await sharp(filePath)
+        .resize(width)
+        .avif({ quality: AVIF_QUALITY, chromaSubsampling: '4:4:4' })
+        .toFile(avifPath)
+      created++
+    }
   }
 
-  const fullPath = path.join(outputDir, `${name}-full.webp`)
-  if (isFresh(filePath, fullPath)) {
+  const fullWebpPath = path.join(outputDir, `${name}-full.webp`)
+  if (isFresh(filePath, fullWebpPath)) {
     cached++
   } else {
     fs.mkdirSync(outputDir, { recursive: true })
-    await sharp(filePath).webp({ quality: WEBP_QUALITY }).toFile(fullPath)
+    await sharp(filePath).webp({ quality: WEBP_QUALITY }).toFile(fullWebpPath)
+    created++
+  }
+
+  const fullAvifPath = path.join(outputDir, `${name}-full.avif`)
+  if (isFresh(filePath, fullAvifPath)) {
+    cached++
+  } else {
+    fs.mkdirSync(outputDir, { recursive: true })
+    await sharp(filePath)
+      .avif({ quality: AVIF_QUALITY, chromaSubsampling: '4:4:4' })
+      .toFile(fullAvifPath)
     created++
   }
 
