@@ -59,7 +59,9 @@ export const buttonVariants = cva(
           'focus-visible:border-orchid-100 focus-visible:outline-none'
         ],
         fab: [
-          'rounded-full border -rotate-45',
+          'self-end rounded-full border -rotate-45',
+          'tablet:self-center',
+          'desktop:self-end',
           'hover:rotate-0',
           'focus-visible:rotate-0',
           'focus-visible:outline-1 focus-visible:-outline-offset-1'
@@ -133,6 +135,7 @@ export const buttonVariants = cva(
       },
       { iconOnly: false, size: 'lg', class: 'px-xl' },
       { iconOnly: false, size: 'sm', class: 'px-md' },
+      { variant: 'fab', class: 'py-md px-md' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
       // a tight 4px x-padding regardless of the size variant.

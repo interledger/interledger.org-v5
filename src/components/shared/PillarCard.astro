@@ -1,0 +1,45 @@
+---
+import { twMerge } from '@/utils'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+interface Props {
+  title: string
+  description: string
+  href: string
+  external?: boolean
+  class?: string
+}
+
+const {
+  title,
+  description,
+  href,
+  external = false,
+  class: className
+} = Astro.props
+
+const articleClasses = twMerge(
+  'flex-1 rounded-3xl p-lg flex flex-col gap-lg',
+  'tablet:flex-row tablet:justify-between tablet:gap-xl',
+  'desktop:flex-col',
+  className
+)
+const textContentClasses = `
+flex flex-col gap-lg
+[&>h3]:text-h2 tablet:[&>h3]:text-h3-md desktop:[&>h3]:text-h3-lg
+[&>p]:text-body-lg-standard tablet:[&>p]:text-body-lg-standard-md
+`
+---
+
+<article class={articleClasses}>
+  <div class={textContentClasses}>
+    <h3>
+      {title}
+    </h3>
+    <p>{description}</p>
+  </div>
+
+  <LinkButton variant="fab" href={href} aria-label={title} external={external}>
+    <Icon name="arrow-right" />
+  </LinkButton>
+</article>
