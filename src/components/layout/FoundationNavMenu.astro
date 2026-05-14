@@ -48,13 +48,13 @@ const panelToggleClass =
   `${panelBgClass} ` +
   'min-[1060px]:transition-opacity min-[1060px]:duration-fast ' +
   'min-[1060px]:invisible min-[1060px]:opacity-0 ' +
-  'min-[1060px]:top-[calc(100%+0.25rem)] ' +
+  'min-[1060px]:top-[calc(100%+1.5rem)] ' +
   'min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
   'min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:left-0 ' +
   'min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:left-0 ' +
   'max-[1059px]:peer-data-[open=true]:block'
 
-const flatSubmenuClass = `list-none ps-0 max-[1059px]:ps-space-m min-[1060px]:min-w-full min-[1060px]:group-hover:w-max min-[1060px]:peer-data-[open=true]:w-max ${panelToggleClass}`
+const flatSubmenuClass = `list-none ps-0 max-[1059px]:ps-space-m min-[1060px]:min-w-full min-[1060px]:p-space-l min-[1060px]:group-hover:w-max min-[1060px]:peer-data-[open=true]:w-max ${panelToggleClass}`
 
 const itemTextClass = isDark
   ? 'text-neutral-25 hover:bg-neutral-100'
@@ -62,7 +62,7 @@ const itemTextClass = isDark
 
 const submenuItemClass = `block no-underline ${itemTextClass} max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
 
-const megaMenuClass = `max-[1059px]:ps-space-m min-[1060px]:grid min-[1060px]:grid-cols-3 min-[1060px]:gap-space-l min-[1060px]:p-space-l min-[1060px]:min-w-[40rem] ${panelToggleClass}`
+const megaMenuClass = `max-[1059px]:ps-space-m min-[1060px]:grid min-[1060px]:gap-space-l min-[1060px]:p-space-l ${panelToggleClass}`
 
 const subGroupHeadingTextClass = isDark
   ? 'text-neutral-50 border-neutral-100'
@@ -95,7 +95,10 @@ const megaMenuLinkClass = `block no-underline ${itemTextClass} data-[active=true
         </button>
 
         {group.subGroups && group.subGroups.length > 0 ? (
-          <div class={megaMenuClass}>
+          <div
+            class={megaMenuClass}
+            style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), minmax(11rem, 1fr));`}
+          >
             {group.subGroups.map((subGroup) => (
               <div>
                 <p class={subGroupHeadingClass}>{subGroup.label}</p>
