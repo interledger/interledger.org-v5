@@ -1,0 +1,51 @@
+---
+/**
+ * Decorative network graphic that rotates as it scrolls through the viewport,
+ * picking up the colour-dot palette from the homepage hero above. Driven by
+ * the native scroll-driven animations API (animation-timeline: view) — no JS,
+ * no library. Browsers without support (older Safari) just see a static SVG,
+ * which is the desired reduced-motion fallback anyway.
+ */
+---
+
+<section
+  data-component="AnimatedNetwork"
+  class="relative -mt-[10vh] lg:-mt-[20vh]"
+  aria-hidden="true"
+>
+  <img
+    src="/img/homepage/hero-animated-network.svg"
+    alt=""
+    width="1920"
+    height="3186"
+    loading="lazy"
+    decoding="async"
+    class="network-svg block w-full max-w-none opacity-50"
+  />
+</section>
+
+<style>
+  [data-component='AnimatedNetwork'] .network-svg {
+    transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
+    will-change: transform;
+    animation: network-rotate linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes network-rotate {
+    from {
+      transform: rotate(-25deg) scale(1.25);
+    }
+    to {
+      transform: rotate(65deg) scale(1.25);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-component='AnimatedNetwork'] .network-svg {
+      animation: none;
+      transform: rotate(20deg) scale(1.25);
+    }
+  }
+</style>
