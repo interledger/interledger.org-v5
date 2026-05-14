@@ -14,10 +14,19 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   datePublished?: string
+  /** Pass `"dark"` on pages whose top fold is a dark hero (e.g. the homepage). Default `"light"` keeps the white nav used on inner pages. */
+  headerTheme?: 'light' | 'dark'
 }
 
-const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
-  Astro.props
+const {
+  title,
+  description,
+  ogType,
+  ogImageUrl,
+  canonicalURL,
+  datePublished,
+  headerTheme = 'light'
+} = Astro.props
 ---
 
 <BaseLayout
@@ -32,7 +41,7 @@ const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <FoundationHeader slot="header" />
+  <FoundationHeader slot="header" theme={headerTheme} />
   <slot />
   <FoundationFooter slot="footer" />
 </BaseLayout>

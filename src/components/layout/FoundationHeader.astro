@@ -2,6 +2,11 @@
 /**
  * Foundation site header.
  * Composes navigation menu, action links, and mobile toggle.
+ *
+ * `theme="dark"` is used on pages where the nav sits over a dark hero
+ * (e.g. the homepage). It renders a translucent backdrop-blurred bar,
+ * light text, and dark dropdown panels. Default `"light"` is the
+ * white-bar treatment used on inner pages.
  */
 import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
@@ -15,6 +20,13 @@ import {
   getNavigation,
   buildUmamiAttrs
 } from '@/utils'
+
+interface Props {
+  theme?: 'light' | 'dark'
+}
+
+const { theme = 'light' } = Astro.props
+const isDark = theme === 'dark'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -35,12 +47,15 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     linkText,
     ariaLabel
   })
+
+const headerClass = isDark
+  ? 'sticky top-0 z-[2] px-space-m bg-neutral-150/70 backdrop-blur-md text-neutral-50'
+  : 'sticky top-0 z-[2] px-space-m bg-white border-t-2 border-gray-header shadow'
+
+const logoClass = isDark ? 'text-white' : 'text-black'
 ---
 
-<header
-  class="bg-white px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow"
-  role="banner"
->
+<header class={headerClass} role="banner" data-theme={theme}>
   <nav
     class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
     role="navigation"
@@ -57,7 +72,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
       aria-label={t('aria.logo.foundation')}
       {...navLink(homeHref, undefined, t('aria.logo.foundation'))}
     >
-      <FoundationLogo class="text-black" />
+      <FoundationLogo class={logoClass} />
     </a>
     <div
       class="header-nav-wrapper header-nav-wrapper--foundation"
@@ -66,7 +81,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
       inert
       id="siteNavLinks"
     >
-      <FoundationNavMenu menuGroups={mainMenu} />
+      <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
           <a

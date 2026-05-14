@@ -4,9 +4,11 @@ import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
+  theme?: 'light' | 'dark'
 }
 
-const { menuGroups } = Astro.props
+const { menuGroups, theme = 'light' } = Astro.props
+const isDark = theme === 'dark'
 const { routeLocale } = Astro.locals
 
 const navAttrs = (
@@ -23,17 +25,21 @@ const navAttrs = (
     action
   })
 
-const navButtonClass =
-  "peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+const navButtonHoverClass = isDark ? 'hover:bg-neutral-100' : 'hover:bg-gray-header'
+
+const navButtonClass = `peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
 
 // Visibility + positioning toggles shared by both panel variants.
 // Hidden by default; shown on group-hover (desktop pointer), peer-data-open
 // (keyboard/click via data-submenu-button), or peer-data-open on mobile.
+const panelBgClass = isDark
+  ? 'min-[1060px]:bg-neutral-150 min-[1060px]:border-l-2 min-[1060px]:border-neutral-100'
+  : 'min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header'
+
 const panelToggleClass =
   'max-[1059px]:hidden ' +
   'min-[1060px]:absolute ' +
-  'min-[1060px]:bg-white ' +
-  'min-[1060px]:border-l-2 min-[1060px]:border-gray-header ' +
+  `${panelBgClass} ` +
   'min-[1060px]:transition-opacity min-[1060px]:duration-fast ' +
   'min-[1060px]:invisible min-[1060px]:opacity-0 ' +
   'min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] ' +
@@ -44,16 +50,21 @@ const panelToggleClass =
 
 const flatSubmenuClass = `list-none ps-0 max-[1059px]:ps-space-m min-[1060px]:min-w-full min-[1060px]:group-hover:w-max min-[1060px]:peer-data-[open=true]:w-max ${panelToggleClass}`
 
-const submenuItemClass =
-  'block no-underline text-black hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
+const itemTextClass = isDark
+  ? 'text-neutral-25 hover:bg-neutral-100'
+  : 'text-black hover:bg-gray-header'
+
+const submenuItemClass = `block no-underline ${itemTextClass} max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
 
 const megaMenuClass = `max-[1059px]:ps-space-m min-[1060px]:grid min-[1060px]:grid-cols-3 min-[1060px]:gap-space-l min-[1060px]:p-space-l min-[1060px]:min-w-[40rem] ${panelToggleClass}`
 
-const subGroupHeadingClass =
-  'font-poppins text-caption uppercase tracking-wide text-neutral-75 pb-space-2xs border-b border-neutral-50 mb-space-xs max-[1059px]:mt-space-s max-[1059px]:first:mt-0'
+const subGroupHeadingTextClass = isDark
+  ? 'text-neutral-50 border-neutral-100'
+  : 'text-neutral-75 border-neutral-50'
 
-const megaMenuLinkClass =
-  'block no-underline text-black hover:bg-gray-header data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8 max-[1059px]:py-space-xs min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs'
+const subGroupHeadingClass = `font-poppins text-caption uppercase tracking-wide pb-space-2xs border-b mb-space-xs max-[1059px]:mt-space-s max-[1059px]:first:mt-0 ${subGroupHeadingTextClass}`
+
+const megaMenuLinkClass = `block no-underline ${itemTextClass} data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8 max-[1059px]:py-space-xs min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs`
 ---
 
 <ul
