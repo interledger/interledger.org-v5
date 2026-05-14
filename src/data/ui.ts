@@ -161,12 +161,13 @@ export const ui = {
     'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'contact.error.submit':
       'Something went wrong sending your message. Please try again.',
-    'home.hero.title_lead': 'Financial systems should work together,',
-    'home.hero.title_accent': 'for everyone',
-    'home.hero.description':
+    'homepageHero.title_lead': 'Financial systems should work together,',
+    'homepageHero.title_accent': 'for everyone',
+    'homepageHero.description':
       'We connect people, tech and systems to advance open payments and unlock financial agency for all.',
-    'home.cta.explore_tech': 'Explore Tech',
-    'home.cta.get_involved': 'Get Involved'
+    'homepageHero.cta_explore_tech': 'Explore Tech',
+    'homepageHero.cta_get_involved': 'Get Involved',
+    'homepageHero.cta_navigation': 'Featured actions'
   },
   es: {
     'site.title': '',
@@ -317,10 +318,13 @@ export const ui = {
     'contact.success_thanks': '',
     'contact.error.captcha': '',
     'contact.error.submit': '',
-    'home.hero.title_lead': '',
-    'home.hero.title_accent': '',
-    'home.hero.description': '',
-    'home.cta.explore_tech': '',
-    'home.cta.get_involved': ''
+    'homepageHero.title_lead':
+      'Los sistemas financieros deberían funcionar juntos,',
+    'homepageHero.title_accent': 'para todas las personas',
+    'homepageHero.description':
+      'Unimos personas, tecnología y sistemas para impulsar pagos abiertos y ampliar la autonomía financiera de todas.',
+    'homepageHero.cta_explore_tech': 'Explora la tecnología',
+    'homepageHero.cta_get_involved': 'Participa',
+    'homepageHero.cta_navigation': 'Acciones destacadas'
   }
 } as const

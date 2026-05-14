@@ -33,6 +33,13 @@
     /* Layout tokens — no @theme namespace available */
     --site-header-height: 4.375rem;
     --max-content-width: 1160px;
+
+    /* Homepage hero layout (referenced from HomepageHero.astro utilities).
+       Cap block size on large viewports for LCP hero band). */
+    --layout-homepage-hero-min-block-size-lg: min(80dvh, 56rem);
+    --layout-homepage-hero-copy-max-base: 34rem;
+    --layout-homepage-hero-copy-max-md: 36rem;
+    --layout-homepage-hero-copy-max-lg: 42rem;
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),
