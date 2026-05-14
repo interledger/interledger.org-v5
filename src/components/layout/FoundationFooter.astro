@@ -110,9 +110,7 @@ const socialLinks: Array<{
   class="font-poppins border-t border-[rgb(201,201,201)] bg-[rgb(243,255,252)]"
   role="contentinfo"
 >
-  <div
-    class="mx-auto max-w-[1600px] min-w-[360px] max-[1660px]:px-[5%]"
-  >
+  <div class="mx-auto max-w-[1600px] min-w-[360px] max-[1660px]:px-[5%]">
     <!-- Top: Subscribe | Contact | Social -->
     <div
       class="grid grid-cols-1 gap-space-l py-space-l md:grid-cols-3 md:gap-space-xl"
@@ -166,7 +164,10 @@ const socialLinks: Array<{
         >
           {t('footer.social_links')}
         </h5>
-        <ul class="m-0 flex w-full list-none flex-wrap justify-between gap-space-xs p-0" role="list">
+        <ul
+          class="m-0 flex w-full list-none flex-wrap justify-between gap-space-xs p-0"
+          role="list"
+        >
           {
             socialLinks.map((link) => (
               <li>
@@ -219,7 +220,11 @@ const socialLinks: Array<{
                         <a
                           href={item.href ?? '#'}
                           class={navLinkClass}
-                          {...footerLink(item.href ?? '#', undefined, item.label)}
+                          {...footerLink(
+                            item.href ?? '#',
+                            undefined,
+                            item.label
+                          )}
                           {...(item.openInNewTab
                             ? { target: '_blank', rel: 'noopener noreferrer' }
                             : {})}
