@@ -15,6 +15,18 @@ const t = useTranslations(routeLocale)
 
 const { mainMenu } = getNavigation('foundation', routeLocale)
 
+const resourcesColumn = {
+  label: 'Resources',
+  items: [
+    { label: 'Terms of Service', href: '/terms-of-service' },
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Press & Media', href: '/press-and-media' },
+    { label: 'FAQ', href: '/faq' }
+  ]
+}
+
+const footerColumns = [...mainMenu, resourcesColumn]
+
 const subscribeHref = translatePath(
   'foundation-pages',
   routeLocale,
@@ -185,7 +197,7 @@ const socialLinks: Array<{
         role="list"
       >
         {
-          mainMenu.map((group, groupIndex) => {
+          footerColumns.map((group, groupIndex) => {
             const groupHeadingId = `footer-nav-group-${groupIndex}`
             return (
               <li class="min-w-0 lg:flex-1">
