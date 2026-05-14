@@ -8,20 +8,23 @@ import {
   localizeRoute
 } from '@/utils'
 
+/**
+ * Segmented-pill language switcher. Renders one anchor per supported locale
+ * inside a bordered, rounded container. The anchor for the active locale gets
+ * a filled background + orchid accent; inactive locales stay transparent.
+ *
+ * Anchors (not buttons) so navigation works without JS, middle-click opens in
+ * a new tab, and search engines see locale alternates.
+ */
 interface Props {
-  listClass?: string
-  itemClass?: string
-  linkClass?: string
+  class?: string
 }
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
-const {
-  listClass = 'flex items-center p-0 list-none',
-  itemClass = "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none",
-  linkClass = 'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
-} = Astro.props
+const { class: className } = Astro.props
 
 const entry = translationMap[currentSlug]
+
 function toDefaultSectionHref(locale: Locale, basePath: string): string {
   return localizeRoute(normalizeBasePath(basePath), locale)
 }
@@ -37,19 +40,35 @@ const hrefs = Object.fromEntries(
 ) as Record<Locale, string>
 ---
 
-<ul class={listClass}>
+<div
+  role="group"
+  aria-label="Language"
+  class:list={[
+    'inline-flex items-stretch gap-0 rounded-lg border border-neutral-100 bg-neutral-150 p-[2px]',
+    className
+  ]}
+>
   {
-    switcherLocales.map((locale) => (
-      <li class={itemClass}>
+    switcherLocales.map((locale) => {
+      const isActive = routeLocale === locale
+      return (
         <a
           href={hrefs[locale]}
-          class={linkClass}
-          data-active={routeLocale === locale ? 'true' : 'false'}
           hreflang={locale}
+          aria-current={isActive ? 'true' : undefined}
+          class:list={[
+            'inline-flex items-center justify-center rounded-md px-space-s py-space-2xs',
+            'font-poppins text-caption font-semibold leading-none no-underline',
+            'transition-colors duration-150',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
+            isActive
+              ? 'bg-neutral-100 text-orchid-50'
+              : 'text-neutral-50 hover:text-neutral-25'
+          ]}
         >
           {locale.toUpperCase()}
         </a>
-      </li>
-    ))
+      )
+    })
   }
-</ul>
+</div>

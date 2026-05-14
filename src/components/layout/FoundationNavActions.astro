@@ -13,12 +13,6 @@ const { routeLocale } = Astro.locals
 const ctaLinkClass =
   'self-center no-underline py-space-s hover:underline max-[1059px]:hidden'
 
-const langItemClass =
-  "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-
-const langLinkClass =
-  'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
-
 const ctaAttrs =
   ctaButton &&
   buildUmamiAttrs({
@@ -47,5 +41,5 @@ const ctaAttrs =
       </a>
     )
   }
-  <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
+  <LanguageSwitcher />
 </div>
