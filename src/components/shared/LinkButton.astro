@@ -1,11 +1,20 @@
 ---
-import { buttonVariants, type ButtonVariants } from './buttonVariants'
+import { buttonVariants } from './buttonVariants'
 import { twMerge } from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
 
-interface Props
-  extends Omit<HTMLAttributes<'a'>, 'class' | 'href'>, ButtonVariants {
+type ButtonOpts = NonNullable<Parameters<typeof buttonVariants>[0]>
+type ButtonVariant = ButtonOpts['variant']
+type ButtonMode = ButtonOpts['mode']
+type ButtonSize = ButtonOpts['size']
+type ButtonIconOnly = ButtonOpts['iconOnly']
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   href: string
+  variant?: ButtonVariant
+  mode?: ButtonMode
+  size?: ButtonSize
+  iconOnly?: ButtonIconOnly
   external?: boolean
   ariaDisabled?: boolean
   class?: string
@@ -36,20 +45,18 @@ const targetAttrs = external
 // expose aria-disabled to screen readers. aria-disabled alone is advisory:
 // without stripping href, keyboard users can still navigate to and activate
 // the link.
-const disabledAttrs = ariaDisabled
-  ? { 'aria-disabled': 'true', tabindex: -1 }
-  : {}
 const resolvedHref = ariaDisabled ? undefined : href
 ---
 
 <a
+  {...rest}
   href={resolvedHref}
   class={twMerge(
     buttonVariants({ variant, mode, size, iconOnly, class: className })
   )}
   {...targetAttrs}
-  {...disabledAttrs}
-  {...rest}
+  aria-disabled={ariaDisabled ? true : undefined}
+  tabindex={ariaDisabled ? -1 : undefined}
 >
   <slot name="icon-left" />
   <slot />
