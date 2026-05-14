@@ -1,6 +1,7 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import HomepageHero from '@/components/pages/HomepageHero.astro'
+import HomepageHero from '@/components/homepage/HomepageHero.astro'
+import AnimatedNetwork from '@/components/homepage/AnimatedNetwork.astro'
 import { useTranslations, type Locale } from '@/utils'
 
 interface Props {
@@ -17,5 +18,6 @@ const t = useTranslations(pageLang)
 >
   <main>
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
+    <AnimatedNetwork />
   </main>
 </FoundationPageLayout>
