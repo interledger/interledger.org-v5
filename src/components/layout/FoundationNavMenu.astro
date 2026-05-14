@@ -28,7 +28,7 @@ const navAttrs = (
 
 const navButtonHoverClass = isDark ? 'hover:bg-neutral-100' : 'hover:bg-gray-header'
 
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap py-space-2xs px-space-s rounded-lg border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} group/submenu data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap py-2 pl-space-xs pr-1.5 rounded-lg border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} group/submenu data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
 
 const navButtonChevronClass =
   'ml-2 inline-flex size-5 shrink-0 items-center justify-center origin-center transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180'
@@ -46,7 +46,7 @@ const panelToggleClass =
   `${panelBgClass} ` +
   'min-[1060px]:transition-opacity min-[1060px]:duration-fast ' +
   'min-[1060px]:invisible min-[1060px]:opacity-0 ' +
-  'min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2+0.5rem)] ' +
+  'min-[1060px]:top-[calc(100%+0.25rem)] ' +
   'min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
   'min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:left-0 ' +
   'min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:left-0 ' +
@@ -72,7 +72,7 @@ const megaMenuLinkClass = `block no-underline ${itemTextClass} data-[active=true
 ---
 
 <ul
-  class="list-none ps-0 justify-center font-poppins min-[1060px]:flex min-[1060px]:items-center"
+  class="list-none ps-0 justify-center font-poppins min-[1060px]:flex min-[1060px]:items-center min-[1060px]:gap-space-2xs"
   id="siteNavMenu"
   data-nav-list
 >

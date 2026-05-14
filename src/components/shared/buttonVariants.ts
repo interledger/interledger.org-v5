@@ -20,7 +20,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 export const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'font-poppins text-caption',
+    'font-poppins text-body-sm-emphasis',
     'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
     'motion-safe:transition motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'

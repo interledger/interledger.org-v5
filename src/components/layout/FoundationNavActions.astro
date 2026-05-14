@@ -24,14 +24,14 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-space-s min-[1060px]:col-start-3 min-[1060px]:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+  class="flex items-center gap-space-2xs min-[1060px]:col-start-3 min-[1060px]:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
 >
   {
     ctaButton && (
       <LinkButton
         href={ctaButton.href || '#'}
         variant="primary"
-        size="sm"
+        size="lg"
         external={ctaButton.openInNewTab}
         class="max-[1059px]:hidden"
         {...ctaAttrs}
