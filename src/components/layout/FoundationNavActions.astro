@@ -1,6 +1,8 @@
 ---
 import type { MenuItem } from '@/types/navigation'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
@@ -9,9 +11,6 @@ interface Props {
 
 const { ctaButton } = Astro.props
 const { routeLocale } = Astro.locals
-
-const ctaLinkClass =
-  'self-center no-underline py-space-s hover:underline max-[1059px]:hidden'
 
 const ctaAttrs =
   ctaButton &&
@@ -29,16 +28,17 @@ const ctaAttrs =
 >
   {
     ctaButton && (
-      <a
-        class={ctaLinkClass}
+      <LinkButton
         href={ctaButton.href || '#'}
+        variant="primary"
+        size="sm"
+        external={ctaButton.openInNewTab}
+        class="max-[1059px]:hidden"
         {...ctaAttrs}
-        {...(ctaButton.openInNewTab
-          ? { target: '_blank', rel: 'noopener noreferrer' }
-          : {})}
       >
         {ctaButton.label}
-      </a>
+        <Icon slot="icon-right" name="arrow-right" />
+      </LinkButton>
     )
   }
   <LanguageSwitcher />
