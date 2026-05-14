@@ -51,8 +51,9 @@ const innerClasses = twMerge(
 )
 
 const textColumnClasses = twMerge(
-  'flex flex-col items-start gap-xl',
-  'desktop:flex-1 desktop:min-w-0',
+  'flex flex-col items-stretch gap-xl',
+  'tablet:items-center',
+  'desktop:flex-1 desktop:items-start desktop:min-w-0',
   '[&_h2]:font-poppins [&_h2]:text-h2 tablet:[&_h2]:text-h2-md desktop:[&_h2]:text-h2-lg',
   '[&_p]:font-poppins [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg',
   theme === 'dark' && '[&_p]:text-neutral-25'
