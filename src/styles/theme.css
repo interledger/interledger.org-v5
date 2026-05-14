@@ -282,9 +282,10 @@
        <h1 class="text-h1 leading-h2">            size + weight from text-h1, leading from leading-h2
        <h1 class="text-h1 font-medium">           size + leading from text-h1, weight overridden
 
-     Font family is NOT in --text-*; apply font-poppins (or another font-*)
-     alongside if you want Poppins. The body's default font-family is still
-     Titillium, so opt in per element when adopting the new typography utilities.
+     Font family is NOT a --text-* companion key in Tailwind v4, so we bake
+     Poppins onto these design-system utilities via a @layer components rule
+     at the bottom of this file. The body default remains Titillium; opt out
+     of Poppins per-element with font-titillium / font-system if needed.
 
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */
@@ -419,4 +420,35 @@
 
   /* caption (identical across all three tiers) */
   --leading-caption: 1rem; /* 16px */
+}
+
+/* Bake Poppins onto the design-system text-* utilities. Tailwind v4 doesn't
+   accept --text-{name}--font-family as a companion key, so we attach it here.
+   Sits in @layer components so font-* utilities (font-titillium, font-system)
+   still win when explicitly opting out. */
+@layer components {
+  .text-h1,
+  .text-h1-md,
+  .text-h1-lg,
+  .text-h2,
+  .text-h2-md,
+  .text-h2-lg,
+  .text-h3,
+  .text-h3-md,
+  .text-h3-lg,
+  .text-h4,
+  .text-h4-md,
+  .text-h4-lg,
+  .text-h5,
+  .text-h5-md,
+  .text-h5-lg,
+  .text-body-lg-emphasis,
+  .text-body-lg-emphasis-md,
+  .text-body-lg-standard,
+  .text-body-lg-standard-md,
+  .text-body-sm-emphasis,
+  .text-body-sm-standard,
+  .text-caption {
+    font-family: 'Poppins', Arial, sans-serif;
+  }
 }

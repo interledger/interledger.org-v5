@@ -36,7 +36,7 @@
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
        Cap block size on large viewports for LCP hero band). */
-    --layout-homepage-hero-min-block-size-lg: min(80dvh, 56rem);
+    --layout-homepage-hero-min-block-size-lg: min(100dvh, 60rem);
     --layout-homepage-hero-copy-max-base: 34rem;
     --layout-homepage-hero-copy-max-md: 36rem;
     --layout-homepage-hero-copy-max-lg: 42rem;
