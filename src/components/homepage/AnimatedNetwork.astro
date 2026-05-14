@@ -1,10 +1,11 @@
 ---
 /**
  * Decorative network graphic that rotates as it scrolls through the viewport,
- * picking up the colour-dot palette from the homepage hero above. Driven by
- * the native scroll-driven animations API (animation-timeline: view) — no JS,
- * no library. Browsers without support (older Safari) just see a static SVG,
- * which is the desired reduced-motion fallback anyway.
+ * with a purple disc that grows from a centre dot to a viewport-sized backdrop
+ * over the same scroll. Both effects share the section's view-timeline so they
+ * stay in lockstep. Driven entirely by the scroll-driven animations API — no
+ * JS, no library. Browsers without support (older Safari) fall back to the
+ * reduced-motion end state.
  */
 ---
 
@@ -22,23 +23,79 @@
     decoding="async"
     class="network-svg block w-full max-w-none opacity-50"
   />
+  <div class="circle-overlay">
+    <div class="circle-pin">
+      <div class="growing-circle"></div>
+    </div>
+  </div>
 </section>
 
 <style>
+  [data-component='AnimatedNetwork'] {
+    /* Names the section as the view-timeline source for child animations. */
+    view-timeline-name: --network-track;
+  }
+
   [data-component='AnimatedNetwork'] .network-svg {
     transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
     will-change: transform;
     animation: network-rotate linear both;
-    animation-timeline: view();
+    animation-timeline: --network-track;
     animation-range: entry 0% exit 100%;
   }
 
   @keyframes network-rotate {
     from {
-      transform: rotate(-25deg) scale(1.25);
+      transform: rotate(-15deg) scale(1.25);
     }
     to {
       transform: rotate(65deg) scale(1.25);
+    }
+  }
+
+  /* Overlay fills the section so the sticky pin has a containing block that
+     spans the full network height. pointer-events:none keeps it from blocking
+     anything beneath. */
+  [data-component='AnimatedNetwork'] .circle-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  [data-component='AnimatedNetwork'] .circle-pin {
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    /* Clip the growing disc here (not on the overlay) so it can't break the
+       sticky context above. */
+    overflow: hidden;
+  }
+
+  [data-component='AnimatedNetwork'] .growing-circle {
+    width: 4vw;
+    aspect-ratio: 1;
+    flex: none; /* don't let the flex parent shrink the disc as it grows */
+    border-radius: 50%;
+    background-color: #48156e; /* matches the SVG centre node */
+    opacity: 0; /* invisible until the scroll-driven animation kicks in */
+    animation: growing-circle-grow linear forwards;
+    animation-timeline: --network-track;
+    /* Hold off until the section is well into view, then grow through to exit. */
+    animation-range: cover 50% cover 100%;
+    will-change: width;
+  }
+
+  @keyframes growing-circle-grow {
+    from {
+      width: 4vw;
+      opacity: 1;
+    }
+    to {
+      width: 1500vmax;
+      opacity: 1;
     }
   }
 
@@ -46,6 +103,11 @@
     [data-component='AnimatedNetwork'] .network-svg {
       animation: none;
       transform: rotate(20deg) scale(1.25);
+    }
+
+    [data-component='AnimatedNetwork'] .growing-circle {
+      animation: none;
+      width: 1500vmax;
     }
   }
 </style>
