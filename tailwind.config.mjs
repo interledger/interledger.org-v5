@@ -59,7 +59,9 @@ export default {
         md: '768px',
         lg: '1024px',
         xl: '1060px',
-        '2xl': '1324px'
+        '2xl': '1324px',
+        tablet: '810px',
+        desktop: '1200px'
       }
     }
   },
