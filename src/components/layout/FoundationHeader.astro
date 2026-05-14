@@ -49,7 +49,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   })
 
 const headerClass = isDark
-  ? 'sticky top-0 z-[2] px-space-m bg-neutral-150/70 backdrop-blur-md text-neutral-50'
+  ? 'sticky top-0 z-[2] px-space-m bg-[rgba(13,13,13,0.7)] backdrop-blur-md text-neutral-50'
   : 'sticky top-0 z-[2] px-space-m bg-white border-t-2 border-gray-header shadow'
 
 const logoClass = isDark ? 'text-white' : 'text-black'
@@ -57,7 +57,7 @@ const logoClass = isDark ? 'text-white' : 'text-black'
 
 <header class={headerClass} role="banner" data-theme={theme}>
   <nav
-    class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
+    class="mx-auto w-full max-w-[1600px] flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s min-[1060px]:h-[76px] max-[1059px]:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"

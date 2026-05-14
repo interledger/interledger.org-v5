@@ -64,13 +64,23 @@
     }
   }
 
-  .header-nav-wrapper--foundation {
-    background: white;
-    border-top-color: var(--color-gray-header);
-  }
+  /* Drawer backgrounds: only painted at the mobile-drawer breakpoint so the
+     desktop wrapper stays transparent and inherits the parent header's bg.
+     The dark variant is keyed off `data-theme="dark"` set on <header>. */
+  @media (max-width: 1059px) {
+    .header-nav-wrapper--foundation {
+      background: white;
+      border-top-color: var(--color-gray-header);
+    }
 
-  .header-nav-wrapper--summit {
-    background: black;
-    border-top-color: var(--color-gray-header);
+    [data-theme='dark'] .header-nav-wrapper--foundation {
+      background: var(--color-neutral-150);
+      border-top-color: var(--color-neutral-100);
+    }
+
+    .header-nav-wrapper--summit {
+      background: black;
+      border-top-color: var(--color-gray-header);
+    }
   }
 }

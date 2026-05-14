@@ -132,7 +132,7 @@ export const buttonVariants = cva(
         ]
       },
       { iconOnly: false, size: 'lg', class: 'px-xl' },
-      { iconOnly: false, size: 'sm', class: 'px-md' },
+      { iconOnly: false, size: 'sm', class: 'px-lg' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
       // a tight 4px x-padding regardless of the size variant.

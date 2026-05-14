@@ -1,4 +1,5 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
 import type { MenuGroup } from '@/types/navigation'
 import { buildUmamiAttrs } from '@/utils'
 
@@ -27,14 +28,17 @@ const navAttrs = (
 
 const navButtonHoverClass = isDark ? 'hover:bg-neutral-100' : 'hover:bg-gray-header'
 
-const navButtonClass = `peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap py-space-2xs px-space-s rounded-lg border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} group/submenu data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
+
+const navButtonChevronClass =
+  'ml-2 inline-flex size-5 shrink-0 items-center justify-center origin-center transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180'
 
 // Visibility + positioning toggles shared by both panel variants.
 // Hidden by default; shown on group-hover (desktop pointer), peer-data-open
 // (keyboard/click via data-submenu-button), or peer-data-open on mobile.
 const panelBgClass = isDark
-  ? 'min-[1060px]:bg-neutral-150 min-[1060px]:border-l-2 min-[1060px]:border-neutral-100'
-  : 'min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header'
+  ? 'min-[1060px]:bg-neutral-150 min-[1060px]:border min-[1060px]:border-neutral-100'
+  : 'min-[1060px]:bg-white min-[1060px]:border min-[1060px]:border-gray-header'
 
 const panelToggleClass =
   'max-[1059px]:hidden ' +
@@ -42,7 +46,7 @@ const panelToggleClass =
   `${panelBgClass} ` +
   'min-[1060px]:transition-opacity min-[1060px]:duration-fast ' +
   'min-[1060px]:invisible min-[1060px]:opacity-0 ' +
-  'min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] ' +
+  'min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2+0.5rem)] ' +
   'min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
   'min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:left-0 ' +
   'min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:left-0 ' +
@@ -68,7 +72,7 @@ const megaMenuLinkClass = `block no-underline ${itemTextClass} data-[active=true
 ---
 
 <ul
-  class="list-none ps-0 justify-center min-[1060px]:flex min-[1060px]:items-center"
+  class="list-none ps-0 justify-center font-poppins min-[1060px]:flex min-[1060px]:items-center"
   id="siteNavMenu"
   data-nav-list
 >
@@ -83,6 +87,9 @@ const megaMenuLinkClass = `block no-underline ${itemTextClass} data-[active=true
           data-open="false"
         >
           {group.label}
+          <span class={navButtonChevronClass} aria-hidden="true">
+            <Icon name="arrow-down" class="size-5" />
+          </span>
         </button>
 
         {group.subGroups && group.subGroups.length > 0 ? (

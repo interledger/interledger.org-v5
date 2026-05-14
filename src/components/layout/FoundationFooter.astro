@@ -9,6 +9,7 @@ import {
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -49,11 +50,6 @@ const focusRing =
   'focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 focus-visible:outline-none'
 
 const navLinkClass = `text-body-sm-standard text-neutral-75 transition-colors hover:text-black rounded-sm ${focusRing}`
-
-const btnBase = `inline-flex items-center gap-2 rounded-card text-caption no-underline transition-colors ${focusRing}`
-const btnPrimary = `${btnBase} bg-button-primary text-white hover:bg-button-primary-hover`
-const btnOutline = `${btnBase} border border-[rgb(201,201,201)] hover:bg-black/5`
-const btnPadding = 'px-space-s py-space-2xs'
 
 const socialBtnClass = `inline-flex h-13 w-13 shrink-0 items-center justify-center rounded-card border border-[rgb(201,201,201)] bg-transparent transition-colors hover:bg-black/5 ${focusRing}`
 
@@ -126,14 +122,15 @@ const socialLinks: Array<{
         <p class="mb-space-s text-body-sm-standard text-neutral-75">
           {t('footer.newsletter_description')}
         </p>
-        <a
+        <LinkButton
           href={subscribeHref}
-          class={`${btnPrimary} ${btnPadding}`}
+          variant="primary"
+          size="sm"
           {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
         >
           {t('footer.subscribe')}
-          <Icon name="arrow-right" />
-        </a>
+          <Icon slot="icon-right" name="arrow-right" />
+        </LinkButton>
       </section>
 
       <!-- Contact -->
@@ -147,13 +144,15 @@ const socialLinks: Array<{
         <p class="mb-space-s text-body-sm-standard text-neutral-75">
           {t('footer.contact_description')}
         </p>
-        <a
+        <LinkButton
           href={contactHref}
-          class={`${btnOutline} ${btnPadding}`}
+          variant="secondary"
+          mode="light"
+          size="sm"
           {...footerLink(contactHref, undefined, t('footer.contact_us'))}
         >
           {t('footer.contact_us')}
-        </a>
+        </LinkButton>
       </section>
 
       <!-- Social Links -->
