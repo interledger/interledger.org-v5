@@ -24,10 +24,16 @@ interface MenuItem {
   openInNewTab?: boolean
 }
 
+interface MenuSubGroup {
+  label: string
+  items?: MenuItem[]
+}
+
 interface MenuGroup {
   label: string
   href?: string
   items?: MenuItem[]
+  subGroups?: MenuSubGroup[]
 }
 
 interface Navigation {
@@ -41,10 +47,16 @@ interface StrapiMenuItem {
   openInNewTab?: boolean
 }
 
+interface StrapiMenuSubGroup {
+  label: string
+  items?: StrapiMenuItem[]
+}
+
 interface StrapiMenuGroup {
   label: string
   href?: string
   items?: StrapiMenuItem[]
+  subGroups?: StrapiMenuSubGroup[]
 }
 
 interface StrapiPayload {
@@ -77,6 +89,19 @@ function toStrapiPayload(navigation: Navigation): StrapiPayload {
     return payload
   }
 
+  const mapSubGroup = (
+    subGroup: MenuSubGroup | undefined
+  ): StrapiMenuSubGroup | null => {
+    if (!subGroup) return null
+    const payload: StrapiMenuSubGroup = { label: subGroup.label }
+    if (subGroup.items && subGroup.items.length > 0) {
+      payload.items = subGroup.items
+        .map(mapItem)
+        .filter((item): item is StrapiMenuItem => item !== null)
+    }
+    return payload
+  }
+
   const mainMenu = (navigation.mainMenu || []).map((group): StrapiMenuGroup => {
     const groupData: StrapiMenuGroup = { label: group.label }
     if (group.href) groupData.href = group.href
@@ -84,6 +109,11 @@ function toStrapiPayload(navigation: Navigation): StrapiPayload {
       groupData.items = group.items
         .map(mapItem)
         .filter((item): item is StrapiMenuItem => item !== null)
+    }
+    if (group.subGroups && group.subGroups.length > 0) {
+      groupData.subGroups = group.subGroups
+        .map(mapSubGroup)
+        .filter((sub): sub is StrapiMenuSubGroup => sub !== null)
     }
     return groupData
   })
