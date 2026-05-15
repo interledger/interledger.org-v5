@@ -390,6 +390,30 @@ One scale, used by every spacing utility (`p-*`, `m-*`, `gap-*`, `w-*`, `h-*`, `
 - `3xl` (48px) → default. Use for gaps, margins, and most paddings.
 - `3xl-tight` (40px) → reserved for paddings that match Figma's `padding-3xl` spec specifically. Don't reach for it just because something looks crowded — `3xl` is the canonical 3xl unless Figma asks for the tighter value.
 
+#### Token collision: do not use `max-w-{md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}` (or `min-w-*`, `w-*`, `h-*` with those keys)
+
+Tailwind v4 derives sizing utilities (`max-w-N`, `min-w-N`, `w-N`, `h-N`) from `--spacing-N` first, falling back to `--container-N` only when no `--spacing-N` is defined. The new design system defines `--spacing-{md..7xl}`, which silently shadows Tailwind's container scale.
+
+Concrete impact:
+
+| Class       | Before this design system   | After this design system    |
+| ----------- | --------------------------- | --------------------------- |
+| `max-w-md`  | `max-width: 28rem` (448px)  | `max-width: 0.75rem` (12px) |
+| `max-w-lg`  | `max-width: 32rem` (512px)  | `max-width: 1rem` (16px)    |
+| `max-w-3xl` | `max-width: 48rem` (768px)  | `max-width: 3rem` (48px)    |
+| `max-w-5xl` | `max-width: 64rem` (1024px) | `max-width: 5rem` (80px)    |
+| `max-w-7xl` | `max-width: 80rem` (1280px) | `max-width: 10rem` (160px)  |
+
+The class still compiles, no warning, the output just collapses to the spacing value.
+
+**What to use instead:**
+
+- For a content-width cap: `max-w-(--max-content-width)` (defined in `base/variables.css` as `1160px`).
+- To explicitly hit Tailwind's container scale: `max-w-(--container-md)` etc. — these tokens still ship as Tailwind v4 defaults.
+- For an arbitrary value: `max-w-[28rem]`.
+
+If you grep the repo and find any `max-w-{md..7xl}` (or the `min-w-*` / `w-*` / `h-*` equivalents), assume they're broken and migrate.
+
 ### Border radius
 
 | Token          | rem     | px  |

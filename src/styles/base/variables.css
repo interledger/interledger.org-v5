@@ -17,6 +17,15 @@
        @theme inline reads this; [data-pillar] selectors override it below. */
     --color-primary: oklch(51.54% 0.088 194.77);
 
+    /* Pillar-aware button colour. Orchid is the :root default, effectively
+       "the orchid pillar." Future pillars override these three vars under
+       [data-pillar='X'] selectors (one block per pillar, mirroring the
+       --color-primary pattern below). Callers can also override per-button
+       via inline style on the element. */
+    --color-button-primary: var(--color-orchid-100);
+    --color-button-primary-hover: var(--color-orchid-150);
+    --color-button-primary-disabled: var(--color-orchid-50);
+
     /* Dependent color vars — reference other vars, so must live in :root */
     --color-btn-txt: var(--color-white);
     --color-header-bg: var(--color-white);
@@ -24,6 +33,13 @@
     /* Layout tokens — no @theme namespace available */
     --site-header-height: 4.375rem;
     --max-content-width: 1160px;
+
+    /* Homepage hero layout (referenced from HomepageHero.astro utilities).
+       Cap block size on large viewports for LCP hero band). */
+    --layout-homepage-hero-min-block-size-lg: min(80dvh, 56rem);
+    --layout-homepage-hero-copy-max-base: 34rem;
+    --layout-homepage-hero-copy-max-md: 36rem;
+    --layout-homepage-hero-copy-max-lg: 42rem;
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),

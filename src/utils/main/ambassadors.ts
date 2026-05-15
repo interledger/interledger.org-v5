@@ -2,7 +2,7 @@ import { type AmbassadorFrontmatterType } from '@/schemas/content'
 import {
   type AmbassadorData,
   type StrapiAmbassador
-} from '@/components/ambassadors/types'
+} from '@/components/shared/ambassador.types'
 
 function isAmbassadorFrontmatterType(
   entry: AmbassadorFrontmatterType | StrapiAmbassador

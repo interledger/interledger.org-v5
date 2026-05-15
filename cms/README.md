@@ -275,7 +275,7 @@ If the Strapi API data can be used directly with minimal transformation, one com
 
 If the Strapi API returns a different shape than what the presentational component expects (nested objects, markdown fields that need conversion, etc.), you need a block adapter to bridge the gap. For example:
 
-- `src/components/ambassadors/Ambassador.astro` — **Presentational component**. Accepts simple, flat props (`name`, `description` as HTML string, `photo` as URL string) and renders the UI. Used by both the published site and preview. Has no knowledge of where the data comes from.
+- `src/components/shared/Ambassador.astro` — **Presentational component**. Accepts simple, flat props (`name`, `description` as HTML string, `photo` as URL string) and renders the UI. Used by both the published site and preview. Has no knowledge of where the data comes from.
 
 - `src/components/blocks/AmbassadorBlock.astro` — **Block adapter for preview**. Used only by `DynamicZone` during SSR preview. Receives raw Strapi API data (nested `photo` object, markdown `description`) and transforms it into the simple props the presentational component expects (extracts `photo.url`, converts markdown to HTML via `marked`).
 

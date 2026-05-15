@@ -1,0 +1,21 @@
+---
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import HomepageHero from '@/components/pages/HomepageHero.astro'
+import { useTranslations, type Locale } from '@/utils'
+
+interface Props {
+  pageLang: Locale
+}
+
+const { pageLang } = Astro.props
+const t = useTranslations(pageLang)
+---
+
+<FoundationPageLayout
+  title={t('site.title')}
+  description={t('site.description')}
+>
+  <main>
+    <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
+  </main>
+</FoundationPageLayout>

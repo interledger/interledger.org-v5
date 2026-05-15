@@ -8,6 +8,7 @@
 // Shared (safe on either side)
 export { stripTrailingSlash, addTrailingSlash } from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
+export { twMerge } from './shared/twMerge'
 
 // Main site: URL & routing
 export {

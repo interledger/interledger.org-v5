@@ -22,9 +22,9 @@ export default {
 
       // Layout constraints (no @theme namespace available)
       maxWidth: {
-        content: '1160px',
+        content: '1440px',
         narrow: '800px',
-        wide: '1200px',
+        wide: '1600px',
         prose: '960px'
       },
 
@@ -50,16 +50,18 @@ export default {
           'linear-gradient(to bottom, hsla(162, 86%, 12%, 1), hsla(176, 100%, 30%, 1))'
       },
 
-      // Breakpoints. md: and lg: align with the Figma design system's Tablet
-      // and Desktop tiers (768/1024, matching Tailwind v4 defaults). xs/sm/xl/2xl
-      // are auxiliary and don't correspond to Figma tiers.
+      // Breakpoints. md: and lg: are Tailwind v4 defaults kept for legacy
+      // code. tablet: (810) and desktop: (1200) are the redesign tiers from
+      // Radu's "Layout rules" — new design-system code uses these.
       screens: {
         xs: '480px',
         sm: '600px',
         md: '768px',
         lg: '1024px',
         xl: '1060px',
-        '2xl': '1324px'
+        '2xl': '1324px',
+        tablet: '810px',
+        desktop: '1200px'
       }
     }
   },

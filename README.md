@@ -30,9 +30,10 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [Adding a New Summit Year](#adding-a-new-summit-year)
    - [Translations](#translations)
    - [Image Handling](#image-handling)
-9. [Image Optimization](#image-optimization)
+9. [Grantee Data (Airtable Integration)](#grantee-data-airtable-integration)
+10. [Image Optimization](#image-optimization)
 
-10. [More Info](#more-info)
+11. [More Info](#more-info)
 
 ## About the Project
 
@@ -256,6 +257,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run format`                    | Format code and fix linting issues                             |
 | `pnpm run lint`                      | Check code formatting and linting                              |
 | `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
+| `pnpm run sync:airtable`             | Fetch grantee data from Airtable into a local JSON file        |
 | `pnpm run optimize:images`           | Generate responsive WebP variants for all raster images        |
 
 ### 🔍 Code Formatting
@@ -711,6 +713,28 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 - If no image is available, a fallback is used:
   `public/sessionize-speakers/img/no-photo.svg`
 
+## Grantee Data (Airtable Integration)
+
+To make the work funded through Interledger Foundation grants easier to explore, the website will host a publicly accessible grantee database sourced from Airtable. A sync script fetches approved records into a local JSON file; rendering the data on the site will follow in a later phase.
+
+### Syncing Data from Airtable
+
+```sh
+pnpm run sync:airtable
+```
+
+**What it does:**
+
+- Fetches records from the **Projects** table using a configured view
+- Resolves linked **Project Leader** IDs into contact names from the **Contacts** table
+- Writes the result to `src/data/airtable/grantee-data.json`
+
+**Requirements:**
+
+- `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
+
+The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as constants at the top of `scripts/import-airtable.ts`. They reference Airtable IDs (stable across renames), not field names — so editors can rename fields in Airtable without breaking the script.
+
 ## Image Optimization
 
 Raster images (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`) are automatically optimized at build time via `scripts/optimize-images.ts`. The script uses [`sharp`](https://sharp.pixelplumbing.com/) to produce WebP variants at three responsive widths (640px, 1280px, 1920px) plus a full-size WebP, writing outputs to `public/img/optimized/`.
@@ -732,12 +756,12 @@ pnpm run optimize:images
 
 **Component usage:**
 
-The `OptimizedImage` Astro component (`src/components/OptimizedImage.astro`) wraps the optimized variants in a `<picture>` element with a WebP `<source srcset="...">` and a responsive `sizes` attribute, falling back to the original `<img>` if no variants exist. It is wired into all MDX contexts as the default `img` renderer, so inline images in content get responsive output automatically.
+The `OptimizedImage` Astro component (`src/components/shared/OptimizedImage.astro`) wraps the optimized variants in a `<picture>` element with a WebP `<source srcset="...">` and a responsive `sizes` attribute, falling back to the original `<img>` if no variants exist. It is wired into all MDX contexts as the default `img` renderer, so inline images in content get responsive output automatically.
 
 To use it directly in Astro templates:
 
 ```astro
-import OptimizedImage from '@/components/OptimizedImage.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 <OptimizedImage
   src="/img/hero.png"

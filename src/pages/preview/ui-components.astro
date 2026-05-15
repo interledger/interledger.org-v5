@@ -1,0 +1,547 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Button from '@/components/shared/Button.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import PillarCard from '@/components/shared/PillarCard.astro'
+import TextMediaSection from '@/components/shared/TextMediaSection.astro'
+---
+
+<BaseLayout title="UI Components Preview">
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow" />
+  </Fragment>
+
+  <main class="py-2xl">
+    <div class="mx-auto max-w-(--max-content-width) px-lg">
+      <h1 class="font-poppins mb-lg text-h2">UI Components Preview</h1>
+      <p class="mb-2xl text-body-lg-standard">
+        Internal reference for the new design-system components. SEO-excluded
+        and not linked from any nav. Future component PRs extend this page.
+      </p>
+
+      <nav aria-label="Sections" class="mb-2xl">
+        <ul class="flex flex-wrap gap-md">
+          <li><a class="underline" href="#buttons">Buttons</a></li>
+          <li>
+            <a class="underline" href="#text-media-section">
+              Text + media section
+            </a>
+          </li>
+          <li>
+            <a class="underline" href="#pillars-section">Pillars Section</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="mx-auto max-w-(--max-content-width) px-lg">
+      <section id="buttons" class="mb-3xl">
+        <h2 class="font-poppins mb-xl text-h3">Buttons</h2>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">Primary (lg)</h3>
+        <div class="flex flex-wrap items-center gap-md">
+          <Button>Default</Button>
+          <Button disabled>Disabled</Button>
+          <Button>
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button>
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button iconOnly aria-label="Next">
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">Primary (sm)</h3>
+        <div class="flex flex-wrap items-center gap-md">
+          <Button size="sm">Default</Button>
+          <Button size="sm" disabled>Disabled</Button>
+          <Button size="sm">
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button size="sm">
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button size="sm" iconOnly aria-label="Next">
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Symmetric vs asymmetric padding (text + icon)
+        </h3>
+        <p class="mb-md text-body-sm-standard">
+          Figma calls for asymmetric horizontal padding on text+icon buttons:
+          wider on the text side, tighter on the icon side. The current
+          implementation uses symmetric padding (the <code>px-xl</code> /
+          <code>px-md</code> compound variant) for code simplicity. Compare below
+          and pick one to ship.
+        </p>
+        <p class="mb-md text-body-sm-standard text-neutral-75">
+          Asymmetric values used here step the icon-side padding down by one
+          t-shirt size (lg buttons: <code>xl</code> → <code>lg</code>; sm
+          buttons:
+          <code>md</code> → <code>sm</code>). Tweak the values in this preview
+          if Figma specifies different exact tokens.
+        </p>
+        <dl
+          class="grid grid-cols-[max-content_1fr_1fr] gap-x-xl gap-y-md items-center"
+        >
+          <dt class="text-body-sm-standard"></dt>
+          <dt class="text-body-sm-standard text-neutral-75">
+            Symmetric (current)
+          </dt>
+          <dt class="text-body-sm-standard text-neutral-75">
+            Asymmetric (Figma)
+          </dt>
+
+          <dt class="text-body-sm-standard">lg, icon-left</dt>
+          <dd>
+            <Button>
+              <Icon slot="icon-left" name="swap" />
+              Continue
+            </Button>
+          </dd>
+          <dd>
+            <Button class="ps-lg!">
+              <Icon slot="icon-left" name="swap" />
+              Continue
+            </Button>
+          </dd>
+
+          <dt class="text-body-sm-standard">lg, icon-right</dt>
+          <dd>
+            <Button>
+              Continue
+              <Icon slot="icon-right" name="swap" />
+            </Button>
+          </dd>
+          <dd>
+            <Button class="pe-lg!">
+              Continue
+              <Icon slot="icon-right" name="swap" />
+            </Button>
+          </dd>
+
+          <dt class="text-body-sm-standard">sm, icon-left</dt>
+          <dd>
+            <Button size="sm">
+              <Icon slot="icon-left" name="swap" />
+              Continue
+            </Button>
+          </dd>
+          <dd>
+            <Button size="sm" class="ps-sm!">
+              <Icon slot="icon-left" name="swap" />
+              Continue
+            </Button>
+          </dd>
+
+          <dt class="text-body-sm-standard">sm, icon-right</dt>
+          <dd>
+            <Button size="sm">
+              Continue
+              <Icon slot="icon-right" name="swap" />
+            </Button>
+          </dd>
+          <dd>
+            <Button size="sm" class="pe-sm!">
+              Continue
+              <Icon slot="icon-right" name="swap" />
+            </Button>
+          </dd>
+        </dl>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Secondary (lg, light mode)
+        </h3>
+        <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
+          <Button variant="secondary" mode="light">Default</Button>
+          <Button variant="secondary" mode="light" disabled>Disabled</Button>
+          <Button variant="secondary" mode="light">
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button variant="secondary" mode="light">
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button variant="secondary" mode="light" iconOnly aria-label="Next">
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Secondary (sm, light mode)
+        </h3>
+        <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
+          <Button variant="secondary" mode="light" size="sm">Default</Button>
+          <Button variant="secondary" mode="light" size="sm" disabled>
+            Disabled
+          </Button>
+          <Button variant="secondary" mode="light" size="sm">
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button variant="secondary" mode="light" size="sm">
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button
+            variant="secondary"
+            mode="light"
+            size="sm"
+            iconOnly
+            aria-label="Next"
+          >
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Secondary (lg, dark mode)
+        </h3>
+        <div class="flex flex-wrap items-center gap-md bg-neutral-100 p-lg">
+          <Button variant="secondary" mode="dark">Default</Button>
+          <Button variant="secondary" mode="dark" disabled>Disabled</Button>
+          <Button variant="secondary" mode="dark">
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button variant="secondary" mode="dark">
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button variant="secondary" mode="dark" iconOnly aria-label="Next">
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Secondary (sm, dark mode)
+        </h3>
+        <div class="flex flex-wrap items-center gap-md bg-neutral-100 p-lg">
+          <Button variant="secondary" mode="dark" size="sm">Default</Button>
+          <Button variant="secondary" mode="dark" size="sm" disabled>
+            Disabled
+          </Button>
+          <Button variant="secondary" mode="dark" size="sm">
+            <Icon slot="icon-left" name="swap" />
+            With icon-left
+          </Button>
+          <Button variant="secondary" mode="dark" size="sm">
+            With icon-right
+            <Icon slot="icon-right" name="swap" />
+          </Button>
+          <Button
+            variant="secondary"
+            mode="dark"
+            size="sm"
+            iconOnly
+            aria-label="Next"
+          >
+            <Icon name="swap" />
+          </Button>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">Ghost (footer)</h3>
+        <p class="mb-md text-body-sm-standard">
+          Mobile starts at h4/black; tablet+ scales down to body-sm-standard /
+          neutral-75. Hover deepens to black. The "Active" state is the
+          currently-selected footer nav link, signalled via
+          <code>aria-current="page"</code>, which flips text to orchid-100.
+          Focus draws a 1px orchid-100 border with rounded corners. Resize the
+          viewport to see the typography breakpoint flip.
+        </p>
+        <dl
+          class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
+        >
+          <dt class="text-body-sm-standard">Default</dt>
+          <dd>
+            <Button variant="ghost">Footer Ghost Button</Button>
+          </dd>
+          <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+          <dd>
+            <Button variant="ghost">Footer Ghost Button</Button>
+          </dd>
+          <dt class="text-body-sm-standard">
+            Active (<code>aria-current="page"</code>)
+          </dt>
+          <dd>
+            <Button variant="ghost" aria-current="page">
+              Footer Ghost Button
+            </Button>
+          </dd>
+          <dt class="text-body-sm-standard">Focus (Tab to it)</dt>
+          <dd>
+            <Button variant="ghost">Footer Ghost Button</Button>
+          </dd>
+          <dt class="text-body-sm-standard">As LinkButton (current page)</dt>
+          <dd>
+            <LinkButton variant="ghost" href="#buttons" aria-current="page">
+              Footer Ghost Button
+            </LinkButton>
+          </dd>
+        </dl>
+
+        <div class="flex flex-wrap gap-lg mt-xl">
+          <div class="p-lg">
+            <h3 class="font-poppins mb-md text-h4">FAB (light mode)</h3>
+            <div class="flex flex-wrap items-center gap-md">
+              <dl
+                class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
+              >
+                <dt class="text-body-sm-standard">Default</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">
+                  Focus (same as hover - Tab to it)
+                </dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">Disabled</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"
+                    ariaDisabled
+                  >
+                    <Icon name="arrow-right" />
+                  </LinkButton>
+                </dd>
+              </dl>
+            </div>
+          </div>
+          <div class="bg-neutral-900 text-neutral-25 p-lg">
+            <h3 class="font-poppins mb-md text-h4">FAB (dark mode)</h3>
+            <div class="flex flex-wrap items-center gap-md">
+              <dl
+                class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
+              >
+                <dt class="text-body-sm-standard">Default</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    mode="dark"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">Hover (mouse over to see)</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    mode="dark"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">
+                  Focus (same as hover - Tab to it)
+                </dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    mode="dark"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"><Icon name="arrow-right" /></LinkButton
+                  >
+                </dd>
+                <dt class="text-body-sm-standard">Disabled</dt>
+                <dd>
+                  <LinkButton
+                    variant="fab"
+                    mode="dark"
+                    href="#buttons"
+                    iconOnly
+                    aria-label="Next"
+                    ariaDisabled
+                  >
+                    <Icon name="arrow-right" />
+                  </LinkButton>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">LinkButton</h3>
+        <div class="flex flex-wrap items-center gap-md">
+          <LinkButton href="#buttons">Internal link</LinkButton>
+          <LinkButton href="https://interledger.org" external>
+            External link
+          </LinkButton>
+          <LinkButton href="#buttons" ariaDisabled
+            >aria-disabled link</LinkButton
+          >
+          <LinkButton href="#buttons" variant="secondary" mode="light">
+            Secondary link
+          </LinkButton>
+        </div>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">Form integration</h3>
+        <form
+          class="flex flex-wrap items-center gap-md"
+          onsubmit="event.preventDefault()"
+        >
+          <Button type="submit">Submit</Button>
+          <Button type="reset" variant="secondary" mode="light">Reset</Button>
+        </form>
+
+        <h3 class="font-poppins mt-xl mb-md text-h4">RTL</h3>
+        <div dir="rtl" class="flex flex-wrap items-center gap-md">
+          <Button>RTL primary</Button>
+          <Button variant="secondary" mode="light">RTL secondary</Button>
+        </div>
+      </section>
+    </div>
+
+    <section id="text-media-section" aria-label="Text + media section examples">
+      <div class="mx-auto mb-xl max-w-(--max-content-width) px-lg">
+        <h2 class="font-poppins mb-md text-h3">Text + media section</h2>
+        <p class="text-body-lg-standard text-neutral-75">
+          Each example below is one full instance of <code
+            >TextMediaSection</code
+          >. Section dimensions are intentionally full-bleed: 100vh min-height,
+          1440px content cap, side margins 16 / 24 / 80 at mobile / tablet /
+          desktop. Resize through the 810 and 1200 thresholds to see the
+          breakpoint behaviour.
+        </p>
+      </div>
+
+      <TextMediaSection
+        mediaSide="right"
+        theme="light"
+        ariaLabel="Light theme, media right"
+      >
+        <h2 slot="heading">Light theme, media right</h2>
+        <p>
+          Sample body copy. Resize through 810 / 1200 to see the stack-to-split
+          transition and the side-padding step (16 → 24 → 80).
+        </p>
+        <div
+          slot="media"
+          class="aspect-square mx-auto flex w-full max-w-[426px] items-center justify-center bg-neutral-25 text-neutral-75 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+
+      <TextMediaSection
+        mediaSide="left"
+        theme="light"
+        ariaLabel="Light theme, media left"
+      >
+        <h2 slot="heading">Light theme, media left</h2>
+        <p>
+          Same component with <code>mediaSide="left"</code>. Mobile order
+          reverses to put the media slot on top; tablet keeps text-first;
+          desktop puts media on the left of the row. DOM order stays text →
+          media on every tier.
+        </p>
+        <LinkButton
+          slot="cta"
+          href="#"
+          variant="secondary"
+          size="lg"
+          class="px-lg"
+        >
+          Optional CTA
+        </LinkButton>
+        <div
+          slot="media"
+          class="aspect-square mx-auto flex w-full max-w-[426px] items-center justify-center bg-neutral-25 text-neutral-75 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+
+      <TextMediaSection
+        mediaSide="right"
+        theme="dark"
+        ariaLabel="Dark theme, media right"
+        class="bg-neutral-900"
+      >
+        <h2 slot="heading">Dark theme, media right</h2>
+        <p>
+          Dark variant: heading is <code>text-neutral-0</code>, body is
+          <code>text-neutral-25</code>. The component itself sets no background;
+          the caller wraps with the appropriate dark bg (here
+          <code>bg-neutral-900</code>).
+        </p>
+        <div
+          slot="media"
+          class="aspect-[426/286] mx-auto flex w-full max-w-[426px] items-center justify-center rounded-3xl bg-neutral-75 text-neutral-25 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+    </section>
+
+    <section
+      id="pillars-section"
+      aria-label="Pillars"
+      class="px-lg py-5xl tablet:px-xl"
+    >
+      <h2 class="font-poppins mb-xl text-h3">Pillars section</h2>
+      <p class="mb-2xl text-body-lg-standard">
+        This section is work in progress. For the moment this is a placeholder
+        for the pillar cards.
+      </p>
+      <div
+        class="flex flex-col gap-lg desktop:max-w-content desktop:mx-auto desktop:flex-row desktop:gap-4xl"
+      >
+        <PillarCard
+          title="We build the technology"
+          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+          href="#"
+          class="bg-aqua-mint-100"
+        />
+        <PillarCard
+          title="We grow the movement"
+          description="We bring together developers, policymakers, advocates, and institutions to dvance open payments."
+          href="#"
+          class="bg-apricot-100"
+        />
+        <PillarCard
+          title="This is the pillar heading"
+          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+          href="#"
+          class="bg-soft-indigo-100"
+        />
+      </div>
+    </section>
+  </main>
+</BaseLayout>

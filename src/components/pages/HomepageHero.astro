@@ -1,0 +1,104 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import {
+  translatePath,
+  useTranslations,
+  buildUmamiAttrs,
+  type Locale
+} from '@/utils'
+
+/** Intrinsic dimensions of homepage hero raster (CLS / decode hint). Mirrors `stefan-thomas.webp`. */
+const HERO_LCP_IMAGE_WIDTH = 1920
+const HERO_LCP_IMAGE_HEIGHT = 1280
+
+interface Props {
+  pageLang: Locale
+  pathname: string
+}
+
+const { pageLang, pathname } = Astro.props
+const t = useTranslations(pageLang)
+
+const exploreTechHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'developers'
+)
+const getInvolvedHref = translatePath(
+  'foundation-pages',
+  pageLang,
+  'get-involved'
+)
+
+const heroUmami = (href: string, linkText: string) =>
+  buildUmamiAttrs({
+    pathname,
+    lang: pageLang,
+    section: 'hero',
+    href,
+    linkText
+  })
+---
+
+<section
+  data-component="HomepageHero"
+  class="relative overflow-hidden bg-black text-white isolate"
+  aria-labelledby="home-hero-title"
+>
+  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+    <OptimizedImage
+      src="/img/homepage/stefan-thomas.webp"
+      alt=""
+      width={HERO_LCP_IMAGE_WIDTH}
+      height={HERO_LCP_IMAGE_HEIGHT}
+      loading="eager"
+      fetchpriority="high"
+      media="(min-width: 1024px)"
+      sizes="60vw"
+      pictureClass="absolute inset-0 hidden h-full w-full lg:block"
+      class="h-full w-full object-cover object-right"
+    />
+  </div>
+
+  <div
+    class="mx-auto w-full max-w-wide px-space-m py-space-2xl md:py-space-3xl lg:min-h-[var(--layout-homepage-hero-min-block-size-lg)] flex items-center"
+  >
+    <div
+      class="max-w-[var(--layout-homepage-hero-copy-max-base)] md:max-w-[var(--layout-homepage-hero-copy-max-md)] lg:max-w-[var(--layout-homepage-hero-copy-max-lg)] motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100"
+    >
+      <h1 id="home-hero-title" class="text-h2 md:text-h2-md lg:text-h2-lg">
+        <span class="block">{t('homepageHero.title_lead')}</span>
+        <span class="block text-aqua-mint-100">
+          {t('homepageHero.title_accent')}
+        </span>
+      </h1>
+
+      <p class="mt-space-m text-h4 md:text-h4-md lg:text-h4-lg text-white/85">
+        {t('homepageHero.description')}
+      </p>
+
+      <nav
+        aria-label={t('homepageHero.cta_navigation')}
+        class="mt-space-s flex flex-wrap gap-space-s"
+      >
+        <LinkButton
+          href={exploreTechHref}
+          {...heroUmami(exploreTechHref, t('homepageHero.cta_explore_tech'))}
+        >
+          {t('homepageHero.cta_explore_tech')}
+          <Icon slot="icon-right" name="arrow-right" />
+        </LinkButton>
+        <LinkButton
+          href={getInvolvedHref}
+          variant="secondary"
+          mode="dark"
+          {...heroUmami(getInvolvedHref, t('homepageHero.cta_get_involved'))}
+        >
+          {t('homepageHero.cta_get_involved')}
+        </LinkButton>
+      </nav>
+    </div>
+  </div>
+</section>
