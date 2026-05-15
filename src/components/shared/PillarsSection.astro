@@ -1,0 +1,52 @@
+---
+import PillarCard from '@/components/shared/PillarCard.astro'
+
+const sectionClasses = `
+  px-lg py-5xl font-poppins bg-ice-indigo-100 
+  tablet:px-xl tablet:min-h-screen
+  desktop:px-5xl
+  `
+const sectionContainerClasses = `
+  flex flex-col gap-2xl 
+  tablet:gap-lg tablet:pt-[10vh] tablet:pb=[20vh]
+  desktop:max-w-content desktop:mx-auto desktop:pt-[20vh] desktop:pb-[30vh]
+  `
+const headingClasses = `
+  text-h3 tablet:text-h3-md desktop:text-h3-lg
+  text-center
+  `
+const cardsContainerClasses = `
+  flex flex-col gap-lg 
+  tablet:pt-4xl
+  desktop:flex-row desktop:gap-4xl
+  `
+---
+
+<section aria-label="Pillars" class={sectionClasses}>
+  <div class={sectionContainerClasses}>
+    <h2 class={headingClasses}>
+      We see a world where money moves freely and opportunity follows. Here's
+      how we work to get there:
+    </h2>
+    <div class={cardsContainerClasses}>
+      <PillarCard
+        title="We build the technology"
+        description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+        href="#"
+        class="bg-aqua-mint-100"
+      />
+      <PillarCard
+        title="We grow the movement"
+        description="We bring together developers, policymakers, advocates, and institutions to advance open payments."
+        href="#"
+        class="bg-apricot-100"
+      />
+      <PillarCard
+        title="This is the pillar heading"
+        description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+        href="#"
+        class="bg-soft-indigo-100"
+      />
+    </div>
+  </div>
+</section>
