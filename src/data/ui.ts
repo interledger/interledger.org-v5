@@ -182,7 +182,8 @@ export const ui = {
     'home.making_money_move.body_3':
       'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
     'home.making_money_move.image_alt':
-      'Interconnected network paths illustration'
+      'Interconnected network paths illustration',
+    'home.making_money_move.cta_label': 'About us'
   },
   es: {
     'site.title': '',
