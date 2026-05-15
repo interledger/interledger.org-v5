@@ -56,52 +56,52 @@ export async function syncContentType(
   const processedLocalePathSlugs = new Set<string>()
 
   for (const englishMdx of englishFiles) {
-    try {
-      const englishEntry = await syncEnglishEntry(
-        contentType,
-        config,
-        englishMdx,
-        ctx,
-        results,
-        dryRun
-      )
+    const englishEntry = await syncEnglishEntry(
+      contentType,
+      config,
+      englishMdx,
+      ctx,
+      results,
+      dryRun
+    )
 
-      if (englishEntry && englishEntry.documentId) {
-        const matchingLocales = findMatchingLocales(englishMdx, localeFiles)
-
-        for (const candidate of matchingLocales) {
-          const localeCode = candidate.localeMdx.locale || 'en'
-          processedLocalePathSlugs.add(
-            `${localeCode}:${candidate.localeMdx.pathSlug}`
-          )
-
-          console.log(
-            `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.pathSlug} (${localeCode})`
-          )
-
-          try {
-            await syncLocaleEntry(
-              contentType,
-              config,
-              candidate.localeMdx,
-              englishEntry,
-              ctx,
-              results,
-              dryRun
-            )
-          } catch (error) {
-            console.error(
-              `      ❌ Error processing localization ${candidate.localeMdx.pathSlug} (${localeCode}): ${(error as Error).message}`
-            )
-            results.errors++
-          }
-        }
-      }
-    } catch (error) {
+    if (englishEntry instanceof Error) {
       console.error(
-        `   ❌ Error processing ${englishMdx.pathSlug} (${englishMdx.locale || 'en'}): ${(error as Error).message}`
+        `   ❌ Error processing ${englishMdx.pathSlug} (${englishMdx.locale || 'en'}): ${englishEntry.message}`
       )
       results.errors++
+      continue
+    }
+
+    if (englishEntry && englishEntry.documentId) {
+      const matchingLocales = findMatchingLocales(englishMdx, localeFiles)
+
+      for (const candidate of matchingLocales) {
+        const localeCode = candidate.localeMdx.locale || 'en'
+        processedLocalePathSlugs.add(
+          `${localeCode}:${candidate.localeMdx.pathSlug}`
+        )
+
+        console.log(
+          `      📌 Matched via ${candidate.matchReason}: ${candidate.localeMdx.pathSlug} (${localeCode})`
+        )
+
+        const localeResult = await syncLocaleEntry(
+          contentType,
+          config,
+          candidate.localeMdx,
+          englishEntry,
+          ctx,
+          results,
+          dryRun
+        )
+        if (localeResult instanceof Error) {
+          console.error(
+            `      ❌ Error processing localization ${candidate.localeMdx.pathSlug} (${localeCode}): ${localeResult.message}`
+          )
+          results.errors++
+        }
+      }
     }
   }
 
@@ -150,6 +150,9 @@ export async function syncAll(
       allResults.deleted += results.deleted
       allResults.errors += results.errors
     } catch (error) {
+      // syncContentType doesn't return Error directly (it accumulates errors
+      // into the per-content-type SyncResults), but we keep this guard for
+      // truly unexpected exceptions (programmer bugs, OOM, etc).
       console.error(
         `\n❌ Error syncing ${contentType}: ${(error as Error).message}`
       )

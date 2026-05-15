@@ -46,10 +46,12 @@ export function createRelationResolver(
 ): (apiId: string, pathSlug: string) => Promise<{ documentId: string }> {
   return async (apiId: string, pathSlug: string) => {
     const entry = await strapi.findByPathSlug(apiId, pathSlug, locale)
+    if (entry instanceof Error) throw entry
     if (entry) return { documentId: entry.documentId }
 
     if (locale !== 'en') {
       const fallback = await strapi.findByPathSlug(apiId, pathSlug, 'en')
+      if (fallback instanceof Error) throw fallback
       if (fallback) return { documentId: fallback.documentId }
     }
 
