@@ -38,5 +38,24 @@ const t = useTranslations(pageLang)
         />
       </div>
     </TextMediaSection>
+    <TextMediaSection
+      mediaSide="left"
+      theme="light"
+      ariaLabel={t('home.making_money_move.heading')}
+      class="py-5xl tablet:py-3xl-tight"
+    >
+      <h2 slot="heading">{t('home.making_money_move.heading')}</h2>
+      <p>{t('home.making_money_move.body_1')}</p>
+      <p>{t('home.making_money_move.body_2')}</p>
+      <p>{t('home.making_money_move.body_3')}</p>
+      <img
+        slot="media"
+        src="/img/home/animated-path-vector.svg"
+        width="426"
+        height="431"
+        alt={t('home.making_money_move.image_alt')}
+        class="mx-auto h-auto w-full max-w-[426px] desktop:mx-0"
+      />
+    </TextMediaSection>
   </main>
 </FoundationPageLayout>
