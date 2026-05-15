@@ -58,6 +58,16 @@ const textColumnClasses = twMerge(
   '[&_p]:font-poppins [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg',
   theme === 'dark' && '[&_p]:text-neutral-25'
 )
+
+// When the media column sits on the right, push the media element to the
+// container's right edge on desktop so it hugs the section gutter instead
+// of floating mid-column when the media is narrower than the 40% basis.
+// Not applied for mediaSide='left' since the column already hugs the left
+// edge via the row-reverse flip.
+const mediaColumnClasses = twMerge(
+  'desktop:basis-[40%] desktop:shrink-0',
+  mediaSide === 'right' && 'desktop:flex desktop:justify-end'
+)
 ---
 
 <section
@@ -71,7 +81,7 @@ const textColumnClasses = twMerge(
       <slot />
       <slot name="cta" />
     </div>
-    <div class="desktop:basis-[40%] desktop:shrink-0">
+    <div class={mediaColumnClasses}>
       <slot name="media" />
     </div>
   </div>
