@@ -50,9 +50,9 @@ export default {
           'linear-gradient(to bottom, hsla(162, 86%, 12%, 1), hsla(176, 100%, 30%, 1))'
       },
 
-      // Breakpoints. md: and lg: align with the Figma design system's Tablet
-      // and Desktop tiers (768/1024, matching Tailwind v4 defaults). xs/sm/xl/2xl
-      // are auxiliary and don't correspond to Figma tiers.
+      // Breakpoints. md: and lg: are Tailwind v4 defaults kept for legacy
+      // code. tablet: (810) and desktop: (1200) are the redesign tiers from
+      // Radu's "Layout rules" — new design-system code uses these.
       screens: {
         xs: '480px',
         sm: '600px',
