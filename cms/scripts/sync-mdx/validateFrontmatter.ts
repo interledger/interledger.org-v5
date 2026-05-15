@@ -7,19 +7,46 @@
 import type { ContentTypeConfig } from './config'
 import type { MDXFile } from './mdxTypes'
 
-export interface ValidationError {
+interface ValidationErrorContext {
   filepath: string
   pathSlug: string
   locale: string
   errors: string[]
 }
 
+/**
+ * Returned by `validateFrontmatter` when an MDX file fails its schema check.
+ * Subclasses Error so callers can narrow with `instanceof ValidationError`
+ * (or `instanceof Error`) and so the message field is human-readable in
+ * stack traces / logs.
+ */
+export class ValidationError extends Error {
+  public readonly filepath: string
+  public readonly pathSlug: string
+  public readonly locale: string
+  public readonly errors: string[]
+
+  constructor(ctx: ValidationErrorContext) {
+    super(`${ctx.filepath}: ${ctx.errors.join('; ')}`)
+    this.name = 'ValidationError'
+    this.filepath = ctx.filepath
+    this.pathSlug = ctx.pathSlug
+    this.locale = ctx.locale
+    this.errors = ctx.errors
+  }
+}
+
+/**
+ * Validate one MDX file against the schema for its content type.
+ * Returns the validated MDX file on success, or a `ValidationError`
+ * describing the problem on failure.
+ */
 export function validateFrontmatter(
   config: ContentTypeConfig,
   mdx: MDXFile
-): ValidationError | null {
+): MDXFile | ValidationError {
   const { schema } = config
-  if (!schema) return null
+  if (!schema) return mdx
 
   const result = schema.safeParse({
     ...mdx.frontmatter,
@@ -32,15 +59,15 @@ export function validateFrontmatter(
         issue.path.length > 0 ? `${issue.path.map(String).join('.')}: ` : ''
       return `${path}${issue.message}`
     })
-    return {
+    return new ValidationError({
       filepath: mdx.filepath,
       pathSlug: mdx.pathSlug,
       locale: mdx.locale,
       errors
-    }
+    })
   }
 
-  return null
+  return mdx
 }
 
 export function validateMdxFiles(
@@ -51,11 +78,11 @@ export function validateMdxFiles(
   const invalid: ValidationError[] = []
 
   for (const mdx of mdxFiles) {
-    const error = validateFrontmatter(config, mdx)
-    if (error) {
-      invalid.push(error)
+    const result = validateFrontmatter(config, mdx)
+    if (result instanceof ValidationError) {
+      invalid.push(result)
     } else {
-      valid.push(mdx)
+      valid.push(result)
     }
   }
 
