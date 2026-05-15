@@ -183,7 +183,14 @@ export const ui = {
       'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
     'home.making_money_move.image_alt':
       'Interconnected network paths illustration',
-    'home.making_money_move.cta_label': 'About us'
+    'home.making_money_move.cta_label': 'About us',
+    'home.independent_by_design.heading': 'Independent by Design',
+    'home.independent_by_design.body_1':
+      'For any institution or developer building on open infrastructure, governance matters as much as technology. The Interledger Foundation does not operate payment networks, take fees, or represent commercial interests, which means the standards we steward are open by structure, not just by intention.',
+    'home.independent_by_design.body_2':
+      'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
+    'home.independent_by_design.cta_label': 'Get involved',
+    'home.independent_by_design.image_alt': 'Speaker at a community event'
   },
   es: {
     'site.title': '',
