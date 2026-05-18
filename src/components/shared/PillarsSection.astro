@@ -1,25 +1,47 @@
 ---
+// Three Card layout
+// On desktop, cards stagger-pin via sticky offsets while the heading fades behind them.
+// Mobile/tablet: plain vertical stack. 
+// All animations are scroll-driven (animation-timeline) — no JS.
 import PillarCard from '@/components/shared/PillarCard.astro'
 
 const sectionClasses = `
   px-lg py-5xl font-poppins bg-ice-indigo-100 
-  tablet:px-xl tablet:min-h-screen
+  tablet:py-0 tablet:px-xl tablet:min-h-screen
   desktop:px-5xl
   `
 const sectionContainerClasses = `
   flex flex-col gap-2xl 
-  tablet:gap-lg tablet:pt-[10vh] tablet:pb=[20vh]
-  desktop:max-w-content desktop:mx-auto desktop:pt-[20vh] desktop:pb-[30vh]
+  tablet:gap-lg tablet:pb-[20vh] 
+  desktop:max-w-content desktop:mx-auto desktop:pb-[30vh]
+  desktop:relative
   `
 const headingClasses = `
+  pillars-heading
   text-h3 tablet:text-h3-md desktop:text-h3-lg
   text-center
+  desktop:z-0
+  tablet:pt-[20vh]
+  desktop:sticky desktop:top-0
   `
 const cardsContainerClasses = `
   flex flex-col gap-lg 
   tablet:pt-4xl
-  desktop:flex-row desktop:gap-4xl
+  desktop:pt-0
+  desktop:z-1
+  desktop:flex-row desktop:gap-4xl desktop:items-start
+  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-1
+  desktop:after:bg-gradient-to-b desktop:after:from-ice-indigo-100/0 desktop:after:via-ice-indigo-100/100 desktop:after:to-ice-indigo-100/100
   `
+
+const cardDivs = `
+  pillar-card
+  flex-1
+  desktop:first:mt-[300px]
+  desktop:nth-[2]:mt-[calc(300px+75vh)]
+  desktop:nth-[3]:mt-[calc(300px+2*75vh)]
+  desktop:sticky desktop:top-[45vh]
+`
 ---
 
 <section aria-label="Pillars" class={sectionClasses}>
@@ -29,24 +51,64 @@ const cardsContainerClasses = `
       how we work to get there:
     </h2>
     <div class={cardsContainerClasses}>
-      <PillarCard
-        title="We build the technology"
-        description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-        href="#"
-        class="bg-aqua-mint-100"
-      />
-      <PillarCard
-        title="We grow the movement"
-        description="We bring together developers, policymakers, advocates, and institutions to advance open payments."
-        href="#"
-        class="bg-apricot-100"
-      />
-      <PillarCard
-        title="This is the pillar heading"
-        description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-        href="#"
-        class="bg-soft-indigo-100"
-      />
+      <div class={cardDivs}>
+        <PillarCard
+          title="We build the technology"
+          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+          href="#"
+          class="bg-aqua-mint-100"
+        />
+      </div>
+      <div class={cardDivs}>
+        <PillarCard
+          title="We grow the movement"
+          description="We bring together developers, policymakers, advocates, and institutions to advance open payments."
+          href="#"
+          class="bg-apricot-100"
+        />
+      </div>
+      <div class={cardDivs}>
+        <PillarCard
+          title="This is the pillar heading"
+          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
+          href="#"
+          class="bg-soft-indigo-100"
+        />
+      </div>
     </div>
   </div>
 </section>
+
+<style>
+.pillar-card {
+  animation: rise linear forwards;
+  animation-timeline: view();
+  animation-range: 0% 30%;
+}
+
+@media (min-width: 810px) {
+  .pillars-heading {
+    animation: rise linear forwards;
+    animation-timeline: view();
+    animation-range: 0% 30%;
+  }
+}
+@media(min-width: 1200px){
+  .pillar-card {
+    animation: none;
+  }
+  .pillars-heading {
+    animation: shrink linear forwards;
+    animation-timeline: scroll();
+  }
+}
+
+@keyframes rise {
+  0%   { transform: translateY(100px); }
+  100% { transform: translateY(0); }
+}
+@keyframes shrink {
+  from { scale:1 }
+  to { scale: 0.8 }
+}
+</style>
