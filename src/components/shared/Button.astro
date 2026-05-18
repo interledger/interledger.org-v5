@@ -13,24 +13,26 @@ const {
   mode,
   size,
   iconOnly,
-  iconSide,
   class: className,
   type = 'button',
   ...rest
 } = Astro.props
 
-const resolvedIconSide =
-  iconSide ??
-  (Astro.slots.has('icon-left')
-    ? 'left'
-    : Astro.slots.has('icon-right')
-      ? 'right'
-      : 'none')
-
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
   console.warn('[Button] iconOnly={true} requires aria-label')
 }
+
+// Asymmetric padding is driven by which icon slot is filled. iconOnly
+// short-circuits to 'none' so a button with just an icon in the default
+// slot stays symmetrically padded.
+const iconPosition = iconOnly
+  ? 'none'
+  : Astro.slots.has('icon-left')
+    ? 'left'
+    : Astro.slots.has('icon-right')
+      ? 'right'
+      : 'none'
 ---
 
 <button
@@ -41,7 +43,7 @@ if (iconOnly && !rest['aria-label']) {
       mode,
       size,
       iconOnly,
-      iconSide: resolvedIconSide,
+      iconPosition,
       class: className
     })
   )}

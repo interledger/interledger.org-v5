@@ -72,17 +72,17 @@ export const buttonVariants = cva(
         dark: ''
       },
       size: {
-        lg: 'h-12 gap-sm py-lg min-w-11',
-        sm: 'h-11 gap-xs py-md min-w-11'
+        lg: 'h-12 gap-sm p-lg min-w-11',
+        sm: 'h-11 gap-xs p-md min-w-11'
       },
       iconOnly: {
-        true: 'aspect-square px-0',
+        true: 'aspect-square',
         false: ''
       },
-      iconSide: {
+      iconPosition: {
+        none: '',
         left: '',
-        right: '',
-        none: ''
+        right: ''
       }
     },
     compoundVariants: [
@@ -138,13 +138,13 @@ export const buttonVariants = cva(
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
-      { iconOnly: false, iconSide: 'left', size: 'lg', class: 'pl-lg pr-xl' },
-      { iconOnly: false, iconSide: 'right', size: 'lg', class: 'pl-xl pr-lg' },
-      { iconOnly: false, iconSide: 'none', size: 'lg', class: 'px-lg' },
-      { iconOnly: false, iconSide: 'left', size: 'sm', class: 'pl-md pr-lg' },
-      { iconOnly: false, iconSide: 'right', size: 'sm', class: 'pl-lg pr-md' },
-      { iconOnly: false, iconSide: 'none', size: 'sm', class: 'px-md' },
-      { variant: 'fab', class: 'py-md px-md' },
+      // Figma calls for asymmetric horizontal padding on text+icon buttons:
+      // the icon side keeps the base padding (lg:16 / sm:12), the text side
+      // bumps up one t-shirt size (lg:24 / sm:16) for optical balance.
+      { iconPosition: 'left', size: 'lg', class: 'pe-xl' },
+      { iconPosition: 'right', size: 'lg', class: 'ps-xl' },
+      { iconPosition: 'left', size: 'sm', class: 'pe-lg' },
+      { iconPosition: 'right', size: 'sm', class: 'ps-lg' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
       // a tight 4px x-padding regardless of the size variant.
@@ -159,7 +159,7 @@ export const buttonVariants = cva(
       mode: 'light',
       size: 'lg',
       iconOnly: false,
-      iconSide: 'none'
+      iconPosition: 'none'
     }
   }
 )

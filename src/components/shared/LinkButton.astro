@@ -8,7 +8,6 @@ type ButtonVariant = ButtonOpts['variant']
 type ButtonMode = ButtonOpts['mode']
 type ButtonSize = ButtonOpts['size']
 type ButtonIconOnly = ButtonOpts['iconOnly']
-type ButtonIconSide = ButtonOpts['iconSide']
 
 interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   href: string
@@ -16,7 +15,6 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   mode?: ButtonMode
   size?: ButtonSize
   iconOnly?: ButtonIconOnly
-  iconSide?: ButtonIconSide
   external?: boolean
   ariaDisabled?: boolean
   class?: string
@@ -30,7 +28,6 @@ const {
   mode,
   size,
   iconOnly,
-  iconSide,
   class: className,
   ...rest
 } = Astro.props
@@ -38,18 +35,21 @@ const {
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const resolvedIconSide: ButtonIconSide =
-  iconSide ??
-  (Astro.slots.has('icon-left')
-    ? 'left'
-    : Astro.slots.has('icon-right')
-      ? 'right'
-      : 'none')
-
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
   console.warn('[LinkButton] iconOnly={true} requires aria-label')
 }
+
+// Asymmetric padding is driven by which icon slot is filled. iconOnly
+// short-circuits to 'none' so a button with just an icon in the default
+// slot stays symmetrically padded.
+const iconPosition = iconOnly
+  ? 'none'
+  : Astro.slots.has('icon-left')
+    ? 'left'
+    : Astro.slots.has('icon-right')
+      ? 'right'
+      : 'none'
 
 const targetAttrs = external
   ? { target: '_blank', rel: 'noopener noreferrer' }
@@ -71,7 +71,7 @@ const resolvedHref = ariaDisabled ? undefined : href
       mode,
       size,
       iconOnly,
-      iconSide: resolvedIconSide,
+      iconPosition,
       class: className
     })
   )}

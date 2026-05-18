@@ -34,6 +34,7 @@ interface Props {
     | 'close'
     | 'menu'
   class?: string
+  size?: number
 }
 
 type IconDefinition = {
@@ -144,12 +145,14 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   }
 }
 
-const { name, class: className } = Astro.props
+const { name, class: className, size = 20 } = Astro.props
 const { viewBox, body } = ICONS[name]
 ---
 
 <svg
-  class={twMerge('size-5', className)}
+  class={twMerge('shrink-0', className)}
+  width={size}
+  height={size}
   viewBox={viewBox}
   fill="currentColor"
   aria-hidden="true"
