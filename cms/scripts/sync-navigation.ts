@@ -13,44 +13,27 @@ import path from 'path'
 import dotenv from 'dotenv'
 import { spawnSync } from 'child_process'
 import { LOCALES, defaultLang } from '@/utils/mdx'
-import { assertRunFromCms, getConfigPath, getProjectRoot } from '@/utils'
+import {
+  assertRunFromCms,
+  getConfigPath,
+  getProjectRoot,
+  type MenuItem,
+  type MenuSubGroup,
+  type MenuGroup
+} from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
 const DRY_RUN = process.argv.includes('--dry-run')
 const FORCE = process.argv.includes('--force')
-
-interface MenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface MenuGroup {
-  label: string
-  href?: string
-  items?: MenuItem[]
-}
 
 interface Navigation {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
 
-interface StrapiMenuItem {
-  label: string
-  href?: string
-  openInNewTab?: boolean
-}
-
-interface StrapiMenuGroup {
-  label: string
-  href?: string
-  items?: StrapiMenuItem[]
-}
-
 interface StrapiPayload {
   data: {
-    mainMenu: StrapiMenuGroup[]
-    ctaButton?: StrapiMenuItem | null
+    mainMenu: MenuGroup[]
+    ctaButton?: MenuItem | null
   }
 }
 
@@ -69,21 +52,39 @@ function readJson(filepath: string): Navigation {
 }
 
 function toStrapiPayload(navigation: Navigation): StrapiPayload {
-  const mapItem = (item: MenuItem | undefined): StrapiMenuItem | null => {
+  const mapItem = (item: MenuItem | undefined): MenuItem | null => {
     if (!item) return null
-    const payload: StrapiMenuItem = { label: item.label }
+    const payload: MenuItem = { label: item.label }
     if (item.href) payload.href = item.href
     if (item.openInNewTab) payload.openInNewTab = true
     return payload
   }
 
-  const mainMenu = (navigation.mainMenu || []).map((group): StrapiMenuGroup => {
-    const groupData: StrapiMenuGroup = { label: group.label }
+  const mapSubGroup = (
+    subGroup: MenuSubGroup | undefined
+  ): MenuSubGroup | null => {
+    if (!subGroup) return null
+    const payload: MenuSubGroup = { label: subGroup.label }
+    if (subGroup.items && subGroup.items.length > 0) {
+      payload.items = subGroup.items
+        .map(mapItem)
+        .filter((item): item is MenuItem => item !== null)
+    }
+    return payload
+  }
+
+  const mainMenu = (navigation.mainMenu || []).map((group): MenuGroup => {
+    const groupData: MenuGroup = { label: group.label }
     if (group.href) groupData.href = group.href
     if (group.items && group.items.length > 0) {
       groupData.items = group.items
         .map(mapItem)
-        .filter((item): item is StrapiMenuItem => item !== null)
+        .filter((item): item is MenuItem => item !== null)
+    }
+    if (group.subGroups && group.subGroups.length > 0) {
+      groupData.subGroups = group.subGroups
+        .map(mapSubGroup)
+        .filter((sub): sub is MenuSubGroup => sub !== null)
     }
     return groupData
   })
