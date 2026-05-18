@@ -22,6 +22,7 @@ interface Props {
     | 'swap'
     | 'arrow-right'
     | 'arrow-down'
+    | 'external-link'
     | 'mastodon'
     | 'slack'
     | 'instagram'
@@ -52,6 +53,11 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   'arrow-down': {
     viewBox: '0 0 24 24',
     body: '<path d="M11.702 14.326q-.136-.053-.267-.184L7.046 9.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 13.292l4.246-4.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354l-4.389 4.388q-.13.131-.267.184q-.136.053-.298.053t-.298-.053"/>'
+  },
+
+  'external-link': {
+    viewBox: '0 0 16 16',
+    body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M11 1.5H14.5V5M13.75 2.25L10 6M8.5 2.5H4C3.60218 2.5 3.22064 2.65804 2.93934 2.93934C2.65804 3.22064 2.5 3.60218 2.5 4V12C2.5 12.3978 2.65804 12.7794 2.93934 13.0607C3.22064 13.342 3.60218 13.5 4 13.5H12C12.3978 13.5 12.7794 13.342 13.0607 13.0607C13.342 12.7794 13.5 12.3978 13.5 12V7.5"/>'
   },
 
   mastodon: {
