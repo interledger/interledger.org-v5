@@ -479,7 +479,7 @@ The site has **two separate CSS systems** that never coexist in the same browser
 
 ### Main site lane
 
-- **Pages:** foundation, blog, summit, homepage, lander — anything using `BaseLayout.astro` or `LanderLayout.astro`.
+- **Pages:** foundation, blog, summit, homepage — anything using `BaseLayout.astro`.
 - **CSS:** `tailwind.css`, which pulls in `theme.css`, `base/*`, `components/*`.
 - **Variables:** `--text-step-*`, `--spacing-space-*`, `--color-primary`, etc. from `theme.css` + `base/variables.css`.
 - **Prose:** `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`.
