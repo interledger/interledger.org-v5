@@ -52,6 +52,16 @@
 - Handle empty states, loading states, and API failures gracefully
 - Validate data at boundaries (API responses, user input, URL params)
 
+## Errors as Values
+
+Functions that can fail at runtime should return `T | Error` rather than throwing or returning `null`/`undefined`. Callers narrow with `x instanceof Error`.
+
+The point: keep failure modes visible in function signatures, let the type checker complain when error cases aren't handled, and avoid the `catch + return null` pattern that hides real bugs behind "not found" branches.
+
+For wrapping throwing third-party APIs (fetch, fs, JSON.parse), use `tryCatchAsync` from `src/utils/shared/tryCatch.ts` (mirrored to `cms/src/utils/tryCatch.ts` so each side imports through its own utils barrel). Inside our own code, return `T | Error` directly rather than wrapping.
+
+Don't apply this to functions where there's no real failure mode. A `null` that means "not found" or "no value provided" stays `null`. The general rule from Code Style still applies: don't add error handling for cases that can't happen.
+
 ## Testing
 
 - Write tests for utility functions and data transformations

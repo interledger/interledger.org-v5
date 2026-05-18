@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
-import { ParserErrorCode } from './parserErrors'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // Side-effect import: registers CalloutText handler
 import './calloutTextHandler'
@@ -83,20 +83,16 @@ describe('CalloutText handler', () => {
     expect(content).toContain('<strong>strong</strong>')
   })
 
-  it('throws when children are empty (self-closing)', async () => {
-    await expect(
-      parseMdxToBlocks('<CalloutText />', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.INVALID_PROP_VALUE
-    })
+  it('returns INVALID_PROP_VALUE when children are empty (self-closing)', async () => {
+    const result = await parseMdxToBlocks('<CalloutText />', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 
-  it('throws when children are empty (open/close with no content)', async () => {
-    await expect(
-      parseMdxToBlocks('<CalloutText></CalloutText>', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.INVALID_PROP_VALUE
-    })
+  it('returns INVALID_PROP_VALUE when children are empty (open/close with no content)', async () => {
+    const result = await parseMdxToBlocks('<CalloutText></CalloutText>', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 })
 

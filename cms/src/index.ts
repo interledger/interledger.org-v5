@@ -989,16 +989,15 @@ export default {
           (ctx.method === 'PUT' || ctx.method === 'POST') &&
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
-          try {
-            validateNoNestedJsx(ctx.request?.body?.content)
-          } catch (err: unknown) {
+          const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
+          if (validationErr) {
             ctx.status = 400
             ctx.body = {
               data: null,
               error: {
                 status: 400,
                 name: 'ValidationError',
-                message: err instanceof Error ? err.message : String(err)
+                message: validationErr.message
               }
             }
             return

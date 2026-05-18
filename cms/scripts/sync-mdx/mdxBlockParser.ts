@@ -9,7 +9,8 @@
  * Design:
  * - AST-first: parse once, walk once, map each node to a block handler.
  * - Strict: unsupported JSX, dynamic expressions, and missing required
- *   props produce hard errors via `MdxParserError`.
+ *   props produce hard errors via `MdxParserError`, surfaced as a returned
+ *   value (errors-as-values, see CLAUDE.md "Errors as Values").
  * - Extensible: component handlers are registered in `COMPONENT_HANDLERS`
  *   and new components only need a handler function + type entry.
  */
@@ -40,7 +41,9 @@ export type JsxBlockNode = MdxJsxFlowElement | MdxJsxTextElement
  * Handler for a single JSX component.
  *
  * Receives the AST node and an opaque context (for relation resolution
- * etc.) and returns one or more block payloads.
+ * etc.) and returns one or more block payloads, or an `MdxParserError`
+ * if the input fails validation. Handlers do not throw `MdxParserError`
+ * to their caller; they catch their own internal throws and return them.
  *
  * Handlers are async to support relation lookups (e.g. ambassador pathSlug
  * resolution).
@@ -48,7 +51,7 @@ export type JsxBlockNode = MdxJsxFlowElement | MdxJsxTextElement
 export type ComponentHandler = (
   node: JsxBlockNode,
   ctx: ParserContext
-) => Promise<ParsedBlock[]>
+) => Promise<ParsedBlock[] | MdxParserError>
 
 /**
  * Context passed to component handlers during parsing.
@@ -136,31 +139,28 @@ function unwrapTextElement(
  * Parse an MDX body string into an ordered array of Strapi dynamic-zone
  * block payloads.
  *
+ * Returns `MdxParserError` instead of throwing on irrecoverable issues
+ * (unsupported JSX, bad props, parse errors). Callers narrow with
+ * `instanceof MdxParserError` before consuming the result.
+ *
  * @example
  * ```ts
- * // Given MDX body:
- * //   <Ambassador pathSlug="caroline-sinders" />
- * //   <AmbassadorGrid heading="Our Team" pathSlugs={["alice","bob"]} />
- * //
- * // Returns (once handlers are registered):
- * // [
- * //   { __component: 'blocks.ambassador', ambassador: { documentId: '...' }},
- * //   { __component: 'blocks.ambassadors-grid', heading: 'Our Team', ambassadors: [...] }
- * // ]
- *
- * const blocks = await parseMdxToBlocks(mdxBody, { locale: 'en' })
+ * const result = await parseMdxToBlocks(mdxBody, { locale: 'en' })
+ * if (result instanceof MdxParserError) {
+ *   // handle parse failure
+ *   return
+ * }
+ * // result is ParsedBlock[]
  * ```
  *
  * @param mdxBody - Raw MDX body content (no frontmatter)
  * @param ctx - Parser context (locale, services, etc.)
- * @returns Ordered array of block payloads ready for Strapi import
- *
- * @throws {MdxParserError} on unsupported JSX, bad props, parse errors
+ * @returns Ordered array of block payloads, or `MdxParserError` on failure
  */
 export async function parseMdxToBlocks(
   mdxBody: string,
   ctx: ParserContext
-): Promise<ParsedBlock[]> {
+): Promise<ParsedBlock[] | MdxParserError> {
   if (!mdxBody.trim()) return []
 
   // Parse MDX into AST.
@@ -172,7 +172,7 @@ export async function parseMdxToBlocks(
   try {
     tree = unified().use(remarkParse).use(remarkMdx).parse(mdxBody)
   } catch (err) {
-    throw new MdxParserError({
+    return new MdxParserError({
       code: ParserErrorCode.MDX_PARSE_ERROR,
       message: `Failed to parse MDX: ${err instanceof Error ? err.message : String(err)}`
     })
@@ -209,7 +209,7 @@ export async function parseMdxToBlocks(
       const componentName = jsxNode.name
 
       if (!componentName) {
-        throw new MdxParserError({
+        return new MdxParserError({
           code: ParserErrorCode.UNSUPPORTED_COMPONENT,
           message:
             'Encountered a JSX fragment (<>...</>). Fragments are not supported.',
@@ -220,7 +220,7 @@ export async function parseMdxToBlocks(
 
       const handler = COMPONENT_HANDLERS[componentName]
       if (!handler) {
-        throw new MdxParserError({
+        return new MdxParserError({
           code: ParserErrorCode.UNSUPPORTED_COMPONENT,
           message: `Unsupported JSX component "${componentName}".`,
           component: componentName,
@@ -230,6 +230,7 @@ export async function parseMdxToBlocks(
       }
 
       const result = await handler(jsxNode, ctx)
+      if (result instanceof MdxParserError) return result
       blocks.push(...result)
       // Skip to next node — don't let handled JSX fall through to
       // the markdown fallback which would double-emit the source text.
@@ -241,7 +242,7 @@ export async function parseMdxToBlocks(
       node.type === 'mdxTextExpression'
     ) {
       const expr = node as { value?: string; position?: Root['position'] }
-      throw new MdxParserError({
+      return new MdxParserError({
         code: ParserErrorCode.DYNAMIC_EXPRESSION,
         message: `Top-level expression "{${expr.value ?? '...'}}" is not supported.`,
         line: node.position?.start.line,
@@ -253,7 +254,7 @@ export async function parseMdxToBlocks(
     // pipeline is converted to Strapi blocks, not executed as JS modules.
     if (node.type === 'mdxjsEsm') {
       const esm = node as { value?: string; position?: Root['position'] }
-      throw new MdxParserError({
+      return new MdxParserError({
         code: ParserErrorCode.DYNAMIC_EXPRESSION,
         message: `Import/export statements are not supported: "${esm.value ?? '...'}"`,
         line: node.position?.start.line,

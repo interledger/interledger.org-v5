@@ -9,6 +9,10 @@
  * - Validating frontmatter against Zod schemas
  * - Importing MDX content as markdown (preserving original format)
  * - Preserving existing Strapi entry data when appropriate
+ *
+ * Errors-as-values: each builder wraps its body in `tryCatchAsync` and
+ * returns `Record<string, unknown> | Error`. Internal helpers throw freely;
+ * the outer wrap normalizes the return.
  */
 
 import type { MDXFile } from './mdxTypes'
@@ -19,6 +23,7 @@ import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
+import { tryCatchAsync } from '@/utils'
 import path from 'path'
 
 export interface StrapiUploadContext {
@@ -57,6 +62,8 @@ function isLocalAssetPath(url: string): boolean {
 
 // Returns an existing Strapi upload ID for a referenced image.
 // Local assets must already exist in Strapi media records; this function never uploads.
+// Throws on resolution failure so the surrounding tryCatchAsync wrap converts
+// the throw into a returned Error at the builder boundary.
 async function getImageFromStrapi(
   { strapi, dryRun }: StrapiUploadContext,
   { image }: { image: string | undefined }
@@ -66,27 +73,21 @@ async function getImageFromStrapi(
 
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
-  try {
-    const byUrl = await strapi.findUploadByUrl(photoUrl)
-    if (byUrl) return byUrl
+  const byUrl = await strapi.findUploadByUrl(photoUrl)
+  if (byUrl instanceof Error) throw byUrl
+  if (byUrl) return byUrl
 
-    const byName = await strapi.findUploadByName(name)
-    if (byName) return byName
+  const byName = await strapi.findUploadByName(name)
+  if (byName instanceof Error) throw byName
+  if (byName) return byName
 
-    const localHint = isLocalAssetPath(photoUrl)
-      ? ' Start Strapi to run bootstrap seeding, or register this file in Media Library.'
-      : ''
-    const dryRunPrefix = dryRun ? '[DRY-RUN] ' : ''
-    throw new Error(
-      `${dryRunPrefix}Missing Strapi upload for image "${photoUrl}". Auto-upload is disabled to avoid duplicating local assets.${localHint}`
-    )
-  } catch (err) {
-    console.error(
-      `Error resolving image from Strapi for "${image}":`,
-      err instanceof Error ? err.message : err
-    )
-    throw err
-  }
+  const localHint = isLocalAssetPath(photoUrl)
+    ? ' Start Strapi to run bootstrap seeding, or register this file in Media Library.'
+    : ''
+  const dryRunPrefix = dryRun ? '[DRY-RUN] ' : ''
+  throw new Error(
+    `${dryRunPrefix}Missing Strapi upload for image "${photoUrl}". Auto-upload is disabled to avoid duplicating local assets.${localHint}`
+  )
 }
 
 interface StrapiHeroPayload {
@@ -162,8 +163,7 @@ async function buildHeroWithImage(
   )
   if (hasHeroImageField && strapiUploadContext) {
     const heroImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.heroImage as string | undefined,
-      alt: parsed.heroImageAlt as string | null | undefined
+      image: parsed.heroImage as string | undefined
     })
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
@@ -193,12 +193,9 @@ async function buildHeroWithImage(
  * 3. Handles hero section (from frontmatter or preserves existing)
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  *
- * @param schema - Zod schema to validate/parse the frontmatter
- * @param mdx - MDX file data with frontmatter and content
- * @param existingEntry - Existing Strapi entry (optional, for updates)
- * @param parserCtx - When provided, MDX body is parsed into structured blocks
- *   via `parseMdxToBlocks`. Without it, the body is stored as a single paragraph.
- * @returns Strapi payload object
+ * Returns `Record<string, unknown> | Error`. Internal failures (Zod parse,
+ * missing Strapi upload, parser failure) are caught at the boundary by
+ * `tryCatchAsync` and returned to the caller.
  */
 export async function buildPagePayload(
   schema: FrontmatterSchema,
@@ -208,77 +205,73 @@ export async function buildPagePayload(
   strapiUploadContext?: StrapiUploadContext,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
-): Promise<Record<string, unknown>> {
-  // Validate frontmatter against schema (throws if invalid)
-  const parsed = schema.parse({
-    ...mdx.frontmatter,
-    pathSlug: mdx.pathSlug
-  }) as Record<string, unknown>
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    // Validate frontmatter against schema (throws if invalid)
+    const parsed = schema.parse({
+      ...mdx.frontmatter,
+      pathSlug: mdx.pathSlug
+    }) as Record<string, unknown>
 
-  // Build base payload with required fields
-  const data: Record<string, unknown> = {
-    title: parsed.title,
-    pathSlug: parsed.pathSlug,
-    publishedAt: new Date().toISOString(),
-    ...(parsed.pillar ? { pillar: parsed.pillar } : {})
-  }
+    // Build base payload with required fields
+    const data: Record<string, unknown> = {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      publishedAt: new Date().toISOString(),
+      ...(parsed.pillar ? { pillar: parsed.pillar } : {})
+    }
 
-  const heroPayload = await buildHeroWithImage(
-    parsed,
-    existingEntry,
-    strapiUploadContext,
-    updatedAltIds,
-    mdx.pathSlug,
-    dryRun
-  )
+    const heroPayload = await buildHeroWithImage(
+      parsed,
+      existingEntry,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
 
-  if (heroPayload) {
-    data.hero = heroPayload
-  }
+    if (heroPayload) {
+      data.hero = heroPayload
+    }
 
-  // Handle content import
-  const mdxBody = (mdx.content || '').trim()
-  if (mdxBody.length > 0) {
-    if (parserCtx) {
-      // Parse MDX body into structured dynamic-zone blocks.
-      // Parser errors (unsupported JSX, missing props, unresolved relations)
-      // are intentional hard failures — re-thrown with file context.
-      try {
-        data.content = await parseMdxToBlocks(mdxBody, {
+    // Handle content import
+    const mdxBody = (mdx.content || '').trim()
+    if (mdxBody.length > 0) {
+      if (parserCtx) {
+        const parsedBlocks = await parseMdxToBlocks(mdxBody, {
           ...parserCtx,
           sourceText: mdxBody
         })
-      } catch (err) {
-        if (err instanceof MdxParserError) {
+        if (parsedBlocks instanceof MdxParserError) {
           throw new MdxParserError({
-            code: err.code,
-            message: `[${mdx.pathSlug}] ${err.message}`,
-            component: err.component,
-            prop: err.prop,
-            line: err.line,
-            column: err.column
+            code: parsedBlocks.code,
+            message: `[${mdx.pathSlug}] ${parsedBlocks.message}`,
+            component: parsedBlocks.component,
+            prop: parsedBlocks.prop,
+            line: parsedBlocks.line,
+            column: parsedBlocks.column
           })
         }
-        throw err
+        data.content = parsedBlocks
+      } else {
+        // Fallback: store entire body as a single paragraph block
+        data.content = [
+          {
+            __component: 'blocks.paragraph',
+            content: mdx.content
+          }
+        ]
       }
     } else {
-      // Fallback: store entire body as a single paragraph block
-      data.content = [
-        {
-          __component: 'blocks.paragraph',
-          content: mdx.content
-        }
-      ]
+      // Preserve existing content if MDX file has no body
+      const existingContent = getEntryField(existingEntry, 'content')
+      if (existingContent) {
+        data.content = existingContent
+      }
     }
-  } else {
-    // Preserve existing content if MDX file has no body
-    const existingContent = getEntryField(existingEntry, 'content')
-    if (existingContent) {
-      data.content = existingContent
-    }
-  }
 
-  return data
+    return data
+  })
 }
 
 /** Coerce YAML null / "null" / empty-string values to null. */
@@ -291,6 +284,9 @@ function nullOrValue(v: unknown): string | null {
  * Calls updateUploadAlt only if this upload ID hasn't been patched yet in
  * the current sync run. Prevents last-write-wins corruption when the same
  * image file is referenced by multiple entries with different alt values.
+ *
+ * Throws on Strapi API failure so the surrounding builder's tryCatchAsync
+ * wrap converts the throw into a returned Error at the boundary.
  */
 async function updateUploadAltOnce(
   strapi: StrapiClient,
@@ -318,7 +314,8 @@ async function updateUploadAltOnce(
     return
   }
 
-  await strapi.updateUploadAlt(id, alt)
+  const result = await strapi.updateUploadAlt(id, alt)
+  if (result instanceof Error) throw result
   updatedAltIds.set(id, alt)
 }
 
@@ -328,11 +325,7 @@ async function updateUploadAltOnce(
  * Also patches the photo upload file's alternativeText when photoAlt is
  * present in frontmatter, so alt text survives re-exports.
  *
- * @param schema - Zod schema to validate/parse the frontmatter
- * @param mdx - MDX file data with frontmatter and content
- * @param strapi - Strapi client for resolving photo upload IDs
- * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
- * @returns Strapi payload object
+ * Returns `Record<string, unknown> | Error`.
  */
 export async function buildAmbassadorPayload(
   schema: FrontmatterSchema,
@@ -340,44 +333,51 @@ export async function buildAmbassadorPayload(
   strapi: StrapiClient,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
-): Promise<Record<string, unknown>> {
-  schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
-  const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
-  const photoId = photoUrl ? await strapi.findUploadByUrl(photoUrl) : null
-  if (photoUrl && !photoId) {
-    console.warn(
-      `   ⚠️  Photo not found in Strapi uploads for "${mdx.pathSlug}": ${photoUrl}`
-    )
-  }
-
-  if (photoId) {
-    const photoAltFrontmatter = mdx.frontmatter.photoAlt as
-      | string
-      | null
-      | undefined
-    if (photoAltFrontmatter !== undefined) {
-      await updateUploadAltOnce(
-        strapi,
-        photoId,
-        nullOrValue(photoAltFrontmatter),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
+    const photoUrl = nullOrValue(mdx.frontmatter.photo as string)
+    let photoId: number | null = null
+    if (photoUrl) {
+      const result = await strapi.findUploadByUrl(photoUrl)
+      if (result instanceof Error) throw result
+      photoId = result
+    }
+    if (photoUrl && !photoId) {
+      console.warn(
+        `   ⚠️  Photo not found in Strapi uploads for "${mdx.pathSlug}": ${photoUrl}`
       )
     }
-  }
 
-  return {
-    name: nullOrValue(mdx.frontmatter.name),
-    pathSlug: mdx.pathSlug,
-    description: nullOrValue(mdx.content),
-    ...(photoId ? { photo: photoId } : {}),
-    category: nullOrValue(mdx.frontmatter.category),
-    tagline: nullOrValue(mdx.frontmatter.tagline),
-    quote: nullOrValue(mdx.frontmatter.quote),
-    publishedAt: new Date().toISOString()
-  }
+    if (photoId) {
+      const photoAltFrontmatter = mdx.frontmatter.photoAlt as
+        | string
+        | null
+        | undefined
+      if (photoAltFrontmatter !== undefined) {
+        await updateUploadAltOnce(
+          strapi,
+          photoId,
+          nullOrValue(photoAltFrontmatter),
+          updatedAltIds,
+          mdx.pathSlug,
+          dryRun
+        )
+      }
+    }
+
+    return {
+      name: nullOrValue(mdx.frontmatter.name),
+      pathSlug: mdx.pathSlug,
+      description: nullOrValue(mdx.content),
+      ...(photoId ? { photo: photoId } : {}),
+      category: nullOrValue(mdx.frontmatter.category),
+      tagline: nullOrValue(mdx.frontmatter.tagline),
+      quote: nullOrValue(mdx.frontmatter.quote),
+      publishedAt: new Date().toISOString()
+    }
+  })
 }
 
 /**
@@ -388,11 +388,7 @@ export async function buildAmbassadorPayload(
  * - Resolves featureImage / thumbnailImage URLs to Strapi upload IDs and
  *   patches their alternativeText when alt frontmatter fields are present.
  *
- * @param schema - Zod schema to validate/parse the frontmatter
- * @param mdx - MDX file data with frontmatter and content
- * @param strapi - Strapi client for media lookups and alt-text updates
- * @param updatedAltIds - Upload IDs already patched in this sync run (shared-image guard)
- * @returns Strapi payload object
+ * Returns `Record<string, unknown> | Error`.
  */
 export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
@@ -401,116 +397,109 @@ export async function buildBlogPayload(
   updatedAltIds: Map<number, string | null> = new Map(),
   parserCtx?: ParserContext,
   dryRun = false
-): Promise<Record<string, unknown>> {
-  let parsed
-  try {
-    parsed = schema.parse({
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({
       ...mdx.frontmatter,
       pathSlug: mdx.pathSlug
     })
-  } catch (err) {
-    console.error('Error parsing Blog MDX frontmatter:', err)
-    throw err
-  }
 
-  const date = new Date(parsed.date || Date.now())
-  const featureImage = await getImageFromStrapi(strapiUploadContext, {
-    image: parsed.featureImage
-  })
-  const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
-    image: parsed.thumbnailImage
-  })
-
-  const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
-
-  const articleBio = await Promise.all(
-    (parsed.articleBios ?? []).map(async (bio) => {
-      const profileImageId =
-        (await getImageFromStrapi(strapiUploadContext, {
-          image: bio.image
-        })) || null
-
-      if (profileImageId && bio.imageAlt !== undefined) {
-        await updateUploadAltOnce(
-          strapiUploadContext.strapi,
-          profileImageId,
-          nullOrValue(bio.imageAlt),
-          updatedAltIds,
-          mdx.pathSlug,
-          dryRun
-        )
-      }
-
-      return {
-        author: bio.author,
-        profileBio: bio.text || null,
-        profileImage: profileImageId
-      }
+    const date = new Date(parsed.date || Date.now())
+    const featureImage = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed.featureImage
     })
-  )
+    const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed.thumbnailImage
+    })
 
-  // getImageFromStrapi only sets alt text on newly uploaded files.
-  // For existing files (found by name), patch alt text explicitly.
-  if (featureImage && parsed.featureImageAlt !== undefined) {
-    await updateUploadAltOnce(
-      strapiUploadContext.strapi,
-      featureImage,
-      nullOrValue(parsed.featureImageAlt),
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
-    )
-  }
-  if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
-    await updateUploadAltOnce(
-      strapiUploadContext.strapi,
-      thumbnailImage,
-      nullOrValue(parsed.thumbnailImageAlt),
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
-    )
-  }
+    const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
 
-  // Parse MDX body into structured blocks when parser context is provided.
-  // Falls back to normalized markdown string for backwards compatibility.
-  const mdxBody = (mdx.content || '').trim()
-  let content: unknown
-  if (parserCtx && mdxBody.length > 0) {
-    try {
-      content = await parseMdxToBlocks(mdxBody, {
+    const articleBio = await Promise.all(
+      (parsed.articleBios ?? []).map(async (bio) => {
+        const profileImageId =
+          (await getImageFromStrapi(strapiUploadContext, {
+            image: bio.image
+          })) || null
+
+        if (profileImageId && bio.imageAlt !== undefined) {
+          await updateUploadAltOnce(
+            strapiUploadContext.strapi,
+            profileImageId,
+            nullOrValue(bio.imageAlt),
+            updatedAltIds,
+            mdx.pathSlug,
+            dryRun
+          )
+        }
+
+        return {
+          author: bio.author,
+          profileBio: bio.text || null,
+          profileImage: profileImageId
+        }
+      })
+    )
+
+    // getImageFromStrapi only sets alt text on newly uploaded files.
+    // For existing files (found by name), patch alt text explicitly.
+    if (featureImage && parsed.featureImageAlt !== undefined) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        featureImage,
+        nullOrValue(parsed.featureImageAlt),
+        updatedAltIds,
+        mdx.pathSlug,
+        dryRun
+      )
+    }
+    if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        thumbnailImage,
+        nullOrValue(parsed.thumbnailImageAlt),
+        updatedAltIds,
+        mdx.pathSlug,
+        dryRun
+      )
+    }
+
+    // Parse MDX body into structured blocks when parser context is provided.
+    // Falls back to normalized markdown string for backwards compatibility.
+    const mdxBody = (mdx.content || '').trim()
+    let content: unknown
+    if (parserCtx && mdxBody.length > 0) {
+      const parsedBlocks = await parseMdxToBlocks(mdxBody, {
         ...parserCtx,
         sourceText: mdxBody
       })
-    } catch (err) {
-      if (err instanceof MdxParserError) {
+      if (parsedBlocks instanceof MdxParserError) {
         throw new MdxParserError({
-          code: err.code,
-          message: `[${mdx.pathSlug}] ${err.message}`,
-          component: err.component,
-          prop: err.prop,
-          line: err.line,
-          column: err.column
+          code: parsedBlocks.code,
+          message: `[${mdx.pathSlug}] ${parsedBlocks.message}`,
+          component: parsedBlocks.component,
+          prop: parsedBlocks.prop,
+          line: parsedBlocks.line,
+          column: parsedBlocks.column
         })
       }
-      throw err
+      content = parsedBlocks
+    } else {
+      content = normalizeInlineImages(mdxBody)
     }
-  } else {
-    content = normalizeInlineImages(mdxBody)
-  }
 
-  return {
-    title: parsed.title,
-    description: parsed.description,
-    pathSlug: parsed.pathSlug,
-    date: date.toISOString().split('T')[0],
-    pillar: parsed.pillar,
-    featureImage,
-    thumbnailImage,
-    articleBio,
-    tags,
-    locale: parsed.locale,
-    content,
-    publishedAt: date.toISOString()
-  }
+    return {
+      title: parsed.title,
+      description: parsed.description,
+      pathSlug: parsed.pathSlug,
+      date: date.toISOString().split('T')[0],
+      pillar: parsed.pillar,
+      featureImage,
+      thumbnailImage,
+      articleBio,
+      tags,
+      locale: parsed.locale,
+      content,
+      publishedAt: date.toISOString()
+    }
+  })
 }

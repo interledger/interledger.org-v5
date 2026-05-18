@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { validateNoNestedJsx } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
-  it('throws when a paragraph block contains bare JSX', () => {
+  it('returns a ValidationError when a paragraph block contains bare JSX', () => {
     const content = [
       {
         __component: 'blocks.paragraph',
@@ -11,10 +11,12 @@ describe('validateNoNestedJsx', () => {
       }
     ]
 
-    expect(() => validateNoNestedJsx(content)).toThrow('<Blockquote>')
+    const err = validateNoNestedJsx(content)
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toContain('<Blockquote>')
   })
 
-  it('does not throw for plain markdown content', () => {
+  it('returns undefined for plain markdown content', () => {
     const content = [
       {
         __component: 'blocks.paragraph',
@@ -22,7 +24,7 @@ describe('validateNoNestedJsx', () => {
       }
     ]
 
-    expect(() => validateNoNestedJsx(content)).not.toThrow()
+    expect(validateNoNestedJsx(content)).toBeUndefined()
   })
 
   it('ignores JSX inside fenced code blocks', () => {
@@ -39,7 +41,7 @@ describe('validateNoNestedJsx', () => {
       }
     ]
 
-    expect(() => validateNoNestedJsx(content)).not.toThrow()
+    expect(validateNoNestedJsx(content)).toBeUndefined()
   })
 
   it('ignores non-paragraph blocks', () => {
@@ -50,12 +52,12 @@ describe('validateNoNestedJsx', () => {
       }
     ]
 
-    expect(() => validateNoNestedJsx(content)).not.toThrow()
+    expect(validateNoNestedJsx(content)).toBeUndefined()
   })
 
-  it('does nothing for non-array input', () => {
-    expect(() => validateNoNestedJsx(undefined)).not.toThrow()
-    expect(() => validateNoNestedJsx('raw string')).not.toThrow()
-    expect(() => validateNoNestedJsx(null)).not.toThrow()
+  it('returns undefined for non-array input', () => {
+    expect(validateNoNestedJsx(undefined)).toBeUndefined()
+    expect(validateNoNestedJsx('raw string')).toBeUndefined()
+    expect(validateNoNestedJsx(null)).toBeUndefined()
   })
 })

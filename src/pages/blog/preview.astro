@@ -4,6 +4,17 @@ import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 import { marked } from 'marked'
 
+interface BlogPostPreview {
+  title: string
+  description: string
+  pathSlug: string
+  locale: string
+  publishedAt: string
+  pillar: string
+  featureImage?: { url?: string; alternativeText?: string }
+  content?: string
+}
+
 // Get the documentId from the query string
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
@@ -13,12 +24,11 @@ if (!documentId) {
 }
 
 // Always fetch draft content for preview
-const response = await fetchStrapi(
+const response = await fetchStrapi<BlogPostPreview>(
   `api/foundation-blog-posts/${documentId}?status=draft`
 )
-
-const article = response?.data
-
+if (response instanceof Error) throw response
+const article = response.data
 if (!article) {
   throw new Error(`Preview: No article found for documentId "${documentId}"`)
 }

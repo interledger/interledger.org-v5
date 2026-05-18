@@ -7,6 +7,7 @@
 
 // Shared (safe on either side)
 export { stripTrailingSlash, addTrailingSlash } from './shared/url'
+export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 
 // Main site: URL & routing
@@ -36,7 +37,7 @@ export { translationMap } from './main/translationMapData'
 
 // Main site: Data fetching
 export { getNavigation } from './main/navigation'
-export { fetchStrapi } from './main/fetchStrapi'
+export { fetchStrapi, type StrapiResponse } from './main/fetchStrapi'
 export { applyPreviewNoStore } from './main/cache'
 
 // Main site: Static paths
