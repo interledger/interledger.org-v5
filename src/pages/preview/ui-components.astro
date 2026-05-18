@@ -17,10 +17,10 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
     <div class={containerClass}>
       <h1 class="font-poppins mb-lg text-h2">UI Components Preview</h1>
       <p class="mb-2xl text-body-lg-standard">
-        Internal reference for the new design-system components. SEO-excluded and
-        not linked from any nav. Future component PRs extend this page.
+        Internal reference for the new design-system components. SEO-excluded
+        and not linked from any nav. Future component PRs extend this page.
       </p>
-  
+
       <nav aria-label="Sections" class="mb-2xl">
         <ul class="flex flex-wrap gap-md list-none [&>a]:underline">
           <li><a href="#buttons">Buttons</a></li>
@@ -28,11 +28,11 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
         </ul>
       </nav>
     </div>
-    
+
     <div class={containerClass}>
       <section id="buttons" class="mb-3xl">
         <h2 class="font-poppins mb-xl text-h3">Buttons</h2>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">Primary (lg)</h3>
         <div class="flex flex-wrap items-center gap-md">
           <Button>Default</Button>
@@ -49,7 +49,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">Primary (sm)</h3>
         <div class="flex flex-wrap items-center gap-md">
           <Button size="sm">Default</Button>
@@ -66,7 +66,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Symmetric vs asymmetric padding (text + icon)
         </h3>
@@ -74,14 +74,15 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
           Figma calls for asymmetric horizontal padding on text+icon buttons:
           wider on the text side, tighter on the icon side. The current
           implementation uses symmetric padding (the <code>px-xl</code> /
-          <code>px-md</code> compound variant) for code simplicity. Compare below and
-          pick one to ship.
+          <code>px-md</code> compound variant) for code simplicity. Compare below
+          and pick one to ship.
         </p>
         <p class="mb-md text-body-sm-standard text-neutral-75">
           Asymmetric values used here step the icon-side padding down by one
-          t-shirt size (lg buttons: <code>xl</code> → <code>lg</code>; sm buttons:
-          <code>md</code> → <code>sm</code>). Tweak the values in this preview if
-          Figma specifies different exact tokens.
+          t-shirt size (lg buttons: <code>xl</code> → <code>lg</code>; sm
+          buttons:
+          <code>md</code> → <code>sm</code>). Tweak the values in this preview
+          if Figma specifies different exact tokens.
         </p>
         <dl
           class="grid grid-cols-[max-content_1fr_1fr] gap-x-xl gap-y-md items-center"
@@ -93,7 +94,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
           <dt class="text-body-sm-standard text-neutral-75">
             Asymmetric (Figma)
           </dt>
-  
+
           <dt class="text-body-sm-standard">lg, icon-left</dt>
           <dd>
             <Button>
@@ -107,7 +108,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
               Continue
             </Button>
           </dd>
-  
+
           <dt class="text-body-sm-standard">lg, icon-right</dt>
           <dd>
             <Button>
@@ -121,7 +122,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
               <Icon slot="icon-right" name="swap" />
             </Button>
           </dd>
-  
+
           <dt class="text-body-sm-standard">sm, icon-left</dt>
           <dd>
             <Button size="sm">
@@ -135,7 +136,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
               Continue
             </Button>
           </dd>
-  
+
           <dt class="text-body-sm-standard">sm, icon-right</dt>
           <dd>
             <Button size="sm">
@@ -150,7 +151,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             </Button>
           </dd>
         </dl>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Secondary (lg, light mode)
         </h3>
@@ -169,7 +170,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Secondary (sm, light mode)
         </h3>
@@ -196,7 +197,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Secondary (lg, dark mode)
         </h3>
@@ -215,7 +216,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Secondary (sm, dark mode)
         </h3>
@@ -242,15 +243,15 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">Ghost (footer)</h3>
         <p class="mb-md text-body-sm-standard">
           Mobile starts at h4/black; tablet+ scales down to body-sm-standard /
           neutral-75. Hover deepens to black. The "Active" state is the
           currently-selected footer nav link, signalled via
-          <code>aria-current="page"</code>, which flips text to orchid-100. Focus
-          draws a 1px orchid-100 border with rounded corners. Resize the viewport
-          to see the typography breakpoint flip.
+          <code>aria-current="page"</code>, which flips text to orchid-100.
+          Focus draws a 1px orchid-100 border with rounded corners. Resize the
+          viewport to see the typography breakpoint flip.
         </p>
         <dl
           class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
@@ -282,7 +283,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             </LinkButton>
           </dd>
         </dl>
-  
+
         <div class="flex flex-wrap gap-lg mt-xl">
           <div class="p-lg">
             <h3 class="font-poppins mb-md text-h4">FAB (light mode)</h3>
@@ -389,19 +390,21 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             </div>
           </div>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">LinkButton</h3>
         <div class="flex flex-wrap items-center gap-md">
           <LinkButton href="#buttons">Internal link</LinkButton>
           <LinkButton href="https://interledger.org" external>
             External link
           </LinkButton>
-          <LinkButton href="#buttons" ariaDisabled>aria-disabled link</LinkButton>
+          <LinkButton href="#buttons" ariaDisabled
+            >aria-disabled link</LinkButton
+          >
           <LinkButton href="#buttons" variant="secondary" mode="light">
             Secondary link
           </LinkButton>
         </div>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">Form integration</h3>
         <form
           class="flex flex-wrap items-center gap-md"
@@ -410,7 +413,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
           <Button type="submit">Submit</Button>
           <Button type="reset" variant="secondary" mode="light">Reset</Button>
         </form>
-  
+
         <h3 class="font-poppins mt-xl mb-md text-h4">RTL</h3>
         <div dir="rtl" class="flex flex-wrap items-center gap-md">
           <Button>RTL primary</Button>
@@ -443,11 +446,42 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
         </p>
       </section>
     </div>
-    <PillarsSection/>
+    <PillarsSection />
     <div class={containerClass}>
-      <p class="mb-4"><em>Placeholder filler — gives the page enough scroll past <code>PillarsSection</code> to see the desktop heading-fade effect. Remove once real content lives below.</em></p>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde eaque id voluptate tempore veritatis, officia inventore exercitationem? Quos velit nobis atque, enim porro nesciunt dignissimos, facere deserunt iste dolor sapiente corrupti quasi quo ab sunt? Nulla omnis nesciunt unde quis sunt obcaecati optio molestias. Eveniet quibusdam commodi recusandae. Ex, harum! Ipsum numquam, obcaecati voluptatum facilis aliquid sint nulla illum velit nostrum ullam expedita itaque tempore dolor rerum praesentium veritatis voluptatibus? Tenetur tempore excepturi distinctio, facilis accusamus sunt! Aut soluta laudantium similique reiciendis impedit quo nesciunt enim cumque rem dicta iste, delectus, nisi quidem suscipit officiis fugit perferendis officia recusandae culpa a labore odio ipsam dolore. Dolore voluptatibus asperiores, provident natus cumque consectetur iure maxime velit veniam quidem explicabo. Aliquam corrupti sequi molestias dolor, rem animi, velit repudiandae vero hic rerum exercitationem odio enim, cum blanditiis ab voluptatem. Impedit sunt corporis, beatae aspernatur nulla saepe ullam fuga molestias iure sapiente alias perferendis doloremque nisi perspiciatis debitis dolorem praesentium fugit tempora. Dignissimos, recusandae quas? Repellat modi repudiandae voluptatum soluta veniam sint. Voluptatibus aspernatur vero hic autem, ipsa repellat facilis tenetur officia earum laudantium non? Repellendus impedit cupiditate facilis ea. Aperiam soluta blanditiis ex necessitatibus nulla laboriosam, suscipit doloremque fugit corrupti fugiat at.</p>
+      <p class="mb-4">
+        <em
+          >Placeholder filler — gives the page enough scroll past <code
+            >PillarsSection</code
+          > to see the desktop heading-fade effect. Remove once real content lives
+          below.</em
+        >
+      </p>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde eaque id
+        voluptate tempore veritatis, officia inventore exercitationem? Quos
+        velit nobis atque, enim porro nesciunt dignissimos, facere deserunt iste
+        dolor sapiente corrupti quasi quo ab sunt? Nulla omnis nesciunt unde
+        quis sunt obcaecati optio molestias. Eveniet quibusdam commodi
+        recusandae. Ex, harum! Ipsum numquam, obcaecati voluptatum facilis
+        aliquid sint nulla illum velit nostrum ullam expedita itaque tempore
+        dolor rerum praesentium veritatis voluptatibus? Tenetur tempore
+        excepturi distinctio, facilis accusamus sunt! Aut soluta laudantium
+        similique reiciendis impedit quo nesciunt enim cumque rem dicta iste,
+        delectus, nisi quidem suscipit officiis fugit perferendis officia
+        recusandae culpa a labore odio ipsam dolore. Dolore voluptatibus
+        asperiores, provident natus cumque consectetur iure maxime velit veniam
+        quidem explicabo. Aliquam corrupti sequi molestias dolor, rem animi,
+        velit repudiandae vero hic rerum exercitationem odio enim, cum
+        blanditiis ab voluptatem. Impedit sunt corporis, beatae aspernatur nulla
+        saepe ullam fuga molestias iure sapiente alias perferendis doloremque
+        nisi perspiciatis debitis dolorem praesentium fugit tempora.
+        Dignissimos, recusandae quas? Repellat modi repudiandae voluptatum
+        soluta veniam sint. Voluptatibus aspernatur vero hic autem, ipsa
+        repellat facilis tenetur officia earum laudantium non? Repellendus
+        impedit cupiditate facilis ea. Aperiam soluta blanditiis ex
+        necessitatibus nulla laboriosam, suscipit doloremque fugit corrupti
+        fugiat at.
+      </p>
     </div>
-        
   </main>
 </BaseLayout>

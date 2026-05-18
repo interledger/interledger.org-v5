@@ -1,7 +1,7 @@
 ---
 // Three Card layout
 // On desktop, cards stagger-pin via sticky offsets while the heading fades behind them.
-// Mobile/tablet: plain vertical stack. 
+// Mobile/tablet: plain vertical stack.
 // All animations are scroll-driven (animation-timeline) — no JS.
 import PillarCard from '@/components/shared/PillarCard.astro'
 
@@ -13,27 +13,26 @@ const sectionClasses = `
 const sectionContainerClasses = `
   flex flex-col gap-2xl 
   tablet:gap-lg tablet:pb-[20vh] 
-  desktop:max-w-content desktop:mx-auto desktop:pb-[30vh]
   desktop:relative
+  desktop:max-w-content desktop:mx-auto desktop:pb-[30vh]
   `
 const headingClasses = `
   pillars-heading
-  text-h3 tablet:text-h3-md desktop:text-h3-lg
-  text-center
-  desktop:z-0
-  tablet:pt-[20vh]
-  desktop:sticky desktop:top-0
+  text-h3 text-center
+  tablet:text-h3-md tablet:pt-[20vh]
+  desktop:text-h3-lg
+  desktop:z-0 desktop:sticky desktop:top-0
   `
 const cardsContainerClasses = `
   flex flex-col gap-lg 
   tablet:pt-4xl
-  desktop:pt-0
-  desktop:z-1
   desktop:flex-row desktop:gap-4xl desktop:items-start
+  desktop:pt-0 
+  desktop:z-1
   desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-1
   desktop:after:bg-gradient-to-b desktop:after:from-ice-indigo-100/0 desktop:after:via-ice-indigo-100/100 desktop:after:to-ice-indigo-100/100
   `
-
+//300px (initial offset), 75vh (stagger step), 45vh (sticky pin point), 100px (rise distance)
 const cardDivs = `
   pillar-card
   flex-1
@@ -42,73 +41,92 @@ const cardDivs = `
   desktop:nth-[3]:mt-[calc(300px+2*75vh)]
   desktop:sticky desktop:top-[45vh]
 `
+const pillars = [
+  {
+    title: 'We build the technology',
+    description:
+      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
+    href: '#',
+    bg: 'bg-aqua-mint-100'
+  },
+  {
+    title: 'We grow the movement',
+    description:
+      'We bring together developers, policymakers, advocates, and institutions to advance open payments.',
+    href: '#',
+    bg: 'bg-apricot-100'
+  },
+  {
+    title: 'This is the pillar heading',
+    description:
+      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
+    href: '#',
+    bg: 'bg-soft-indigo-100'
+  }
+] as const
 ---
 
-<section aria-label="Pillars" class={sectionClasses}>
+<section aria-labelledby="pillars-heading" class={sectionClasses}>
   <div class={sectionContainerClasses}>
-    <h2 class={headingClasses}>
+    <h2 id="pillars-heading" class={headingClasses}>
       We see a world where money moves freely and opportunity follows. Here's
       how we work to get there:
     </h2>
     <div class={cardsContainerClasses}>
-      <div class={cardDivs}>
-        <PillarCard
-          title="We build the technology"
-          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-          href="#"
-          class="bg-aqua-mint-100"
-        />
-      </div>
-      <div class={cardDivs}>
-        <PillarCard
-          title="We grow the movement"
-          description="We bring together developers, policymakers, advocates, and institutions to advance open payments."
-          href="#"
-          class="bg-apricot-100"
-        />
-      </div>
-      <div class={cardDivs}>
-        <PillarCard
-          title="This is the pillar heading"
-          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-          href="#"
-          class="bg-soft-indigo-100"
-        />
-      </div>
+      {
+        pillars.map((pillar) => (
+          <div class={cardDivs}>
+            <PillarCard
+              title={pillar.title}
+              description={pillar.description}
+              href={pillar.href}
+              class={pillar.bg}
+            />
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
 
 <style>
-.pillar-card {
-  animation: rise linear forwards;
-  animation-timeline: view();
-  animation-range: 0% 30%;
-}
-
-@media (min-width: 810px) {
-  .pillars-heading {
+  .pillar-card {
     animation: rise linear forwards;
     animation-timeline: view();
     animation-range: 0% 30%;
   }
-}
-@media(min-width: 1200px){
-  .pillar-card {
-    animation: none;
-  }
-  .pillars-heading {
-    animation: shrink linear forwards;
-    animation-timeline: scroll();
-  }
-}
 
-@keyframes rise {
-  0%   { transform: translateY(100px); }
-  100% { transform: translateY(0); }
-}
-@keyframes shrink {
-  from { scale:1 }
-  to { scale: 0.8 }
-}
+  @media (min-width: 810px) {
+    .pillars-heading {
+      animation: rise linear forwards;
+      animation-timeline: view();
+      animation-range: 0% 30%;
+    }
+  }
+  @media (min-width: 1200px) {
+    .pillar-card {
+      animation: none;
+    }
+    .pillars-heading {
+      animation: shrink linear forwards;
+      animation-timeline: scroll();
+    }
+  }
+
+  @keyframes rise {
+    0% {
+      transform: translateY(100px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes shrink {
+    from {
+      scale: 1;
+    }
+    to {
+      scale: 0.8;
+    }
+  }
 </style>
