@@ -13,10 +13,14 @@ const {
   mode,
   size,
   iconOnly,
+  hasIcon,
   class: className,
   type = 'button',
   ...rest
 } = Astro.props
+
+const resolvedHasIcon =
+  hasIcon ?? !!(Astro.slots.has('icon-left') || Astro.slots.has('icon-right'))
 
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
@@ -27,7 +31,14 @@ if (iconOnly && !rest['aria-label']) {
 <button
   type={type}
   class={twMerge(
-    buttonVariants({ variant, mode, size, iconOnly, class: className })
+    buttonVariants({
+      variant,
+      mode,
+      size,
+      iconOnly,
+      hasIcon: resolvedHasIcon,
+      class: className
+    })
   )}
   {...rest}
 >

@@ -8,6 +8,7 @@ type ButtonVariant = ButtonOpts['variant']
 type ButtonMode = ButtonOpts['mode']
 type ButtonSize = ButtonOpts['size']
 type ButtonIconOnly = ButtonOpts['iconOnly']
+type ButtonHasIcon = ButtonOpts['hasIcon']
 
 interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   href: string
@@ -15,6 +16,7 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   mode?: ButtonMode
   size?: ButtonSize
   iconOnly?: ButtonIconOnly
+  hasIcon?: ButtonHasIcon
   external?: boolean
   ariaDisabled?: boolean
   class?: string
@@ -28,9 +30,13 @@ const {
   mode,
   size,
   iconOnly,
+  hasIcon,
   class: className,
   ...rest
 } = Astro.props
+
+const resolvedHasIcon =
+  hasIcon ?? !!(Astro.slots.has('icon-left') || Astro.slots.has('icon-right'))
 
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
@@ -52,7 +58,14 @@ const resolvedHref = ariaDisabled ? undefined : href
   {...rest}
   href={resolvedHref}
   class={twMerge(
-    buttonVariants({ variant, mode, size, iconOnly, class: className })
+    buttonVariants({
+      variant,
+      mode,
+      size,
+      iconOnly,
+      hasIcon: resolvedHasIcon,
+      class: className
+    })
   )}
   {...targetAttrs}
   aria-disabled={ariaDisabled ? true : undefined}
