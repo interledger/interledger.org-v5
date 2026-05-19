@@ -1,0 +1,54 @@
+---
+// A single stat: animated number + optional suffix + descriptive label.
+//
+// Renders as an `<li>` since the only intended use is inside a list of stats
+// (see `StatsSection.astro`). The list-item semantic is preserved for screen
+// readers — when `ariaLabel` is supplied, the child markup is aria-hidden and
+// the label is what the SR reads, but the surrounding "list, 4 items"
+// announcement still comes from the parent `<ul role="list">`.
+
+import AnimatedNumber from './AnimatedNumber.astro'
+
+export interface StatItem {
+  value: number
+  suffix?: string
+  label: string
+  /**
+   * Override the screen-reader reading of the whole stat (number + suffix + label).
+   * When provided, the visible number/suffix/label become aria-hidden and this
+   * label is read instead — useful for disambiguating things like "M+", which
+   * SR engines pronounce inconsistently ("M plus" vs "million plus").
+   */
+  ariaLabel?: string
+}
+
+type Props = StatItem
+
+const { value, suffix, label, ariaLabel } = Astro.props
+const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
+---
+
+<li
+  aria-label={ariaLabel}
+  class="flex w-[227px] flex-col items-center gap-sm p-lg tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl"
+>
+  <div class="flex items-start gap-sm" aria-hidden={hideContents}>
+    <AnimatedNumber
+      value={value}
+      class="font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg"
+    />
+    {
+      suffix && (
+        <span class="whitespace-nowrap font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg">
+          {suffix}
+        </span>
+      )
+    }
+  </div>
+  <p
+    class="w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg"
+    aria-hidden={hideContents}
+  >
+    {label}
+  </p>
+</li>
