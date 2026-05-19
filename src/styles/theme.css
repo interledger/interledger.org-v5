@@ -42,6 +42,7 @@
 /* Static design tokens — single source of truth for values */
 @theme {
   /* Fluid typography scale */
+  --text-step--3: clamp(0.65rem, 0.5635rem + 0.3757vi, 0.865rem);
   --text-step--2: clamp(0.72rem, 0.6261rem + 0.4174vi, 0.96rem);
   --text-step--1: clamp(0.9rem, 0.7826rem + 0.5217vi, 1.2rem);
   --text-step-0: clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem);
@@ -281,9 +282,8 @@
        <h1 class="text-h1 leading-h2">            size + weight from text-h1, leading from leading-h2
        <h1 class="text-h1 font-medium">           size + leading from text-h1, weight overridden
 
-     Font family is NOT in --text-*; apply font-poppins (or another font-*)
-     alongside if you want Poppins. The body's default font-family is still
-     Titillium, so opt in per element when adopting the new typography utilities.
+     Font family is NOT in --text-*; the body's default font-family is Poppins.
+     Use font-poppins explicitly only if overriding a different font context.
 
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */

@@ -14,10 +14,19 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   datePublished?: string
+  /** Pass `"dark"` on pages whose top fold is a dark hero (e.g. the homepage). Default `"light"` keeps the white nav used on inner pages. */
+  headerTheme?: 'light' | 'dark'
 }
 
-const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
-  Astro.props
+const {
+  title,
+  description,
+  ogType,
+  ogImageUrl,
+  canonicalURL,
+  datePublished,
+  headerTheme = 'dark'
+} = Astro.props
 ---
 
 <BaseLayout
@@ -27,12 +36,12 @@ const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={datePublished}
-  bodyClass="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden"
+  bodyClass="flex flex-col min-h-full min-w-[360px] font-titillium overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden bg-black"
 >
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <FoundationHeader slot="header" />
+  <FoundationHeader slot="header" theme={headerTheme} />
   <slot />
   <FoundationFooter slot="footer" />
 </BaseLayout>

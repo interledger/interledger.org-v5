@@ -20,7 +20,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 export const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'font-poppins text-caption',
+    'font-poppins text-body-sm-emphasis',
     'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
     'motion-safe:transition motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'
@@ -37,7 +37,7 @@ export const buttonVariants = cva(
           // once design specifies per-pillar focus colours.
           'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
-          'disabled:bg-button-primary-disabled aria-disabled:bg-button-primary-disabled'
+          'disabled:bg-button-primary-disabled disabled:text-neutral-0 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-0'
         ],
         secondary: ['bg-transparent border'],
         // Footer ghost button. Inline text-with-padding link, no fill, no
@@ -77,6 +77,10 @@ export const buttonVariants = cva(
       },
       iconOnly: {
         true: 'aspect-square px-0',
+        false: ''
+      },
+      hasIcon: {
+        true: '',
         false: ''
       }
     },
@@ -133,8 +137,10 @@ export const buttonVariants = cva(
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
-      { iconOnly: false, size: 'lg', class: 'px-xl' },
-      { iconOnly: false, size: 'sm', class: 'px-md' },
+      { iconOnly: false, hasIcon: true, size: 'lg', class: 'px-xl' },
+      { iconOnly: false, hasIcon: false, size: 'lg', class: 'px-lg' },
+      { iconOnly: false, hasIcon: true, size: 'sm', class: 'px-lg' },
+      { iconOnly: false, hasIcon: false, size: 'sm', class: 'px-md' },
       { variant: 'fab', class: 'py-md px-md' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
@@ -149,7 +155,8 @@ export const buttonVariants = cva(
       variant: 'primary',
       mode: 'light',
       size: 'lg',
-      iconOnly: false
+      iconOnly: false,
+      hasIcon: false
     }
   }
 )

@@ -1,107 +1,143 @@
 {
   "mainMenu": [
     {
-      "label": "Fundación",
-      "href": "/es",
+      "label": "Sobre nosotros",
       "items": [
+        { "label": "Nuestra historia", "href": "/es/sobre-nosotros" },
+        { "label": "Equipo", "href": "/es/team" },
+        { "label": "Medios", "href": "/es/media" }
+      ]
+    },
+    {
+      "label": "Tecnología",
+      "items": [
+        { "label": "Interledger", "href": "/interledger" },
+        { "label": "Open Payments", "href": "/open-payments" },
+        { "label": "Web Monetization", "href": "/web-monetization" },
+        { "label": "Desarrolladores", "href": "/developers" },
+        { "label": "Unirse a la red", "href": "/join-network" }
+      ],
+      "subGroups": [
         {
-          "label": "Sobre nosotros",
-          "href": "/es/sobre-nosotros"
+          "label": "Nuestra tecnología",
+          "items": [
+            { "label": "Interledger", "href": "/interledger" },
+            { "label": "Open Payments", "href": "/open-payments" },
+            { "label": "Web Monetization", "href": "/web-monetization" }
+          ]
         },
         {
-          "label": "Políticas y defensa pública",
-          "href": "/es/policy-and-advocacy"
+          "label": "Estándares",
+          "items": [
+            { "label": "Estándares abiertos", "href": "/open-standards" },
+            { "label": "Desarrolladores", "href": "/developers" },
+            { "label": "Unirse a la red", "href": "/join-network" }
+          ]
         },
         {
-          "label": "Equipo",
-          "href": "/es/team"
-        },
-        {
-          "label": "Medios",
-          "href": "/es/media"
+          "label": "Herramientas y productos",
+          "items": [
+            { "label": "Rhyza", "href": "#" },
+            { "label": "Wallet", "href": "#" },
+            { "label": "Cards", "href": "#" },
+            { "label": "Test Tools", "href": "#" }
+          ]
         }
       ]
     },
     {
-      "label": "Technology",
+      "label": "Subvenciones",
       "items": [
         {
-          "label": "Overview",
-          "href": "/open-standards"
-        },
-        {
-          "label": "Interledger",
-          "href": "/interledger"
-        },
-        {
-          "label": "Open Payments",
-          "href": "/open-payments"
-        },
-        {
-          "label": "Web Monetization",
-          "href": "/web-monetization"
-        },
-        {
-          "label": "Join Network",
-          "href": "/join-network"
-        },
-        {
-          "label": "Developers",
-          "href": "/developers"
-        }
-      ]
-    },
-    {
-      "label": "Grants",
-      "items": [
-        {
-          "label": "Digital Financial Services",
+          "label": "Servicios financieros digitales",
           "href": "/grant/financial-services"
         },
+        { "label": "Educación superior", "href": "/grant/education" },
+        { "label": "Programa de becas", "href": "/grant/fellowship" },
+        { "label": "Grant for Web", "href": "/grant/grant-web" }
+      ],
+      "subGroups": [
         {
-          "label": "Higher Education",
-          "href": "/grant/education"
+          "label": "Nuestra financiación",
+          "items": [
+            { "label": "Descripción general", "href": "#" },
+            { "label": "Directorio de becarios", "href": "#" }
+          ]
         },
         {
-          "label": "Fellowship Program",
-          "href": "/grant/fellowship"
+          "label": "Subvenciones educativas",
+          "items": [
+            { "label": "NextGen", "href": "#" },
+            { "label": "Interledger en campus", "href": "#" }
+          ]
         },
         {
-          "label": "Grant for Web",
-          "href": "/grant/grant-web"
+          "label": "Subvenciones de innovación",
+          "items": [
+            { "label": "Open Payments Accelerator", "href": "#" },
+            { "label": "Open SDK", "href": "#" },
+            { "label": "Grant for the Web", "href": "/grant/grant-web" }
+          ]
+        },
+        {
+          "label": "Subvenciones de defensa",
+          "items": [
+            { "label": "Subvenciones de investigación", "href": "#" },
+            { "label": "Subvenciones de política", "href": "#" },
+            { "label": "Becas", "href": "/grant/fellowship" }
+          ]
         }
       ]
     },
     {
-      "label": "Content Hub",
+      "label": "Aprender",
+      "items": [
+        { "label": "Blog de la fundación", "href": "/blog" },
+        { "label": "Blog técnico", "href": "/developers/blog" },
+        { "label": "Podcasts", "href": "#" },
+        { "label": "Cursos", "href": "#" },
+        { "label": "Investigación e informes", "href": "#" }
+      ]
+    },
+    {
+      "label": "Participar",
+      "items": [{ "label": "Involúcrate", "href": "/get-involved" }],
+      "subGroups": [
+        {
+          "label": "Eventos",
+          "items": [
+            { "label": "Calendario", "href": "#" },
+            { "label": "Interledger Summit", "href": "/summit" },
+            { "label": "Hackatones", "href": "#" }
+          ]
+        },
+        {
+          "label": "Únete al movimiento",
+          "items": [
+            { "label": "Construye con nosotros", "href": "#" },
+            { "label": "Apoya a Interledger", "href": "#" },
+            { "label": "Únete a nuestra comunidad", "href": "#" }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Recursos",
       "items": [
         {
-          "label": "Foundation Blog",
-          "href": "/blog"
-        },
-        {
-          "label": "Tech Blog",
-          "href": "/developers/blog"
-        },
-        {
-          "label": "Community Forum",
+          "label": "Foro de la comunidad",
           "href": "https://forum.interledger.org",
           "openInNewTab": true
-        }
-      ]
-    },
-    {
-      "label": "Participate",
-      "items": [
-        {
-          "label": "Get Involved",
-          "href": "/get-involved"
-        }
+        },
+        { "label": "Preguntas frecuentes", "href": "#" },
+        { "label": "Prensa y medios", "href": "/es/media" },
+        { "label": "Términos de servicio", "href": "#" },
+        { "label": "Política de privacidad", "href": "#" }
       ]
     }
   ],
   "ctaButton": {
-    "label": "Interledger Summit",
+    "label": "Apóyanos",
     "href": "/summit"
   }
 }

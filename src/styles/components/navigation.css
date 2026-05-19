@@ -15,7 +15,7 @@
     will-change: transform;
   }
 
-  @media (min-width: 1060px) {
+  @media (min-width: 1200px) {
     .header-nav-wrapper {
       grid-column-start: 2;
       grid-column-end: 3;
@@ -25,13 +25,11 @@
     }
   }
 
-  @media (max-width: 1059px) {
+  @media (max-width: 1199px) {
     .header-nav-wrapper {
       position: absolute;
       right: 0;
       top: var(--site-header-height);
-      border-top-width: 1px;
-      border-top-style: solid;
       transition-property: transform;
       transition-duration: var(--duration-slow);
     }
@@ -41,19 +39,13 @@
     }
   }
 
-  @media (max-width: 479px) {
+  @media (max-width: 1199px) {
     .header-nav-wrapper {
       width: 100%;
     }
   }
 
-  @media (min-width: 480px) and (max-width: 1059px) {
-    .header-nav-wrapper {
-      width: max-content;
-    }
-  }
-
-  @media (min-width: 1060px) {
+  @media (min-width: 1200px) {
     .header-nav-wrapper {
       position: relative;
       top: 0;
@@ -64,13 +56,165 @@
     }
   }
 
-  .header-nav-wrapper--foundation {
-    background: white;
-    border-top-color: var(--color-gray-header);
+  /* Drawer backgrounds: only painted at the mobile-drawer breakpoint so the
+     desktop wrapper stays transparent and inherits the parent header's bg.
+     The dark variant is keyed off `data-theme="dark"` set on <header>. */
+  @media (max-width: 1199px) {
+    .header-nav-wrapper--foundation {
+      background: white;
+    }
+
+    [data-theme='dark'] .header-nav-wrapper--foundation {
+      background: #0d0d0d;
+    }
+
+    .header-nav-wrapper--summit {
+      background: black;
+    }
+  }
+}
+
+/* ================================================================
+   Foundation header: dark/light theme switching
+   Unlayered — beats @layer utilities so these override baked-in
+   Tailwind classes when JS toggles data-theme on scroll.
+   ================================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .foundation-header {
+    transition:
+      background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      backdrop-filter 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      -webkit-backdrop-filter 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.foundation-header:has([data-offscreen='false']) {
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+}
+
+.foundation-header[data-theme='dark']:has([data-offscreen='false']) {
+  background-color: #0d0d0d;
+}
+
+.foundation-header[data-theme='light']:has([data-offscreen='false']) {
+  background-color: white;
+}
+
+/* Logo swapping */
+.foundation-header[data-theme='dark'] .foundation-logo--light { display: none; }
+.foundation-header[data-theme='light'] .foundation-logo--dark { display: none; }
+
+.foundation-header[data-theme='dark'] {
+  background-color: rgba(13, 13, 13, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--color-neutral-50);
+  box-shadow: none;
+}
+
+.foundation-header[data-theme='light'] {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: black;
+  box-shadow: var(--shadow);
+}
+
+/* Nav button hover backgrounds (desktop only) */
+@media (min-width: 1200px) {
+  .foundation-header[data-theme='dark'] [data-submenu-button]:hover {
+    background-color: var(--color-neutral-100);
   }
 
-  .header-nav-wrapper--summit {
-    background: black;
-    border-top-color: var(--color-gray-header);
+  .foundation-header[data-theme='light'] [data-submenu-button]:hover {
+    background-color: var(--color-gray-header);
   }
+}
+
+/* Dropdown panel backgrounds (desktop only) */
+@media (min-width: 1200px) {
+  .foundation-header[data-theme='dark'] .submenu-panel {
+    background-color: var(--color-neutral-150);
+    border-color: var(--color-neutral-100);
+  }
+
+  .foundation-header[data-theme='light'] .submenu-panel {
+    background-color: white;
+    border-color: var(--color-gray-header);
+  }
+}
+
+/* Nav link text */
+.foundation-header[data-theme='dark'] .nav-link {
+  color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] .nav-link {
+  color: var(--color-neutral-75);
+}
+
+/* Subgroup heading: border spans text only, not full container width */
+.nav-subgroup-heading {
+  width: fit-content;
+}
+
+/* Subgroup heading text and divider */
+.foundation-header[data-theme='dark'] .nav-subgroup-heading {
+  color: var(--color-neutral-50);
+  border-color: var(--color-neutral-75);
+}
+
+.foundation-header[data-theme='light'] .nav-subgroup-heading {
+  color: var(--color-neutral-75);
+  border-color: var(--color-neutral-50);
+}
+
+/* Mobile drawer divider */
+.foundation-header[data-theme='light'] .header-nav-wrapper hr {
+  background-color: var(--color-neutral-50);
+}
+
+/* Language switcher */
+.foundation-header[data-theme='dark'] [aria-label='Language'] {
+  background-color: var(--color-neutral-150);
+  border-color: var(--color-neutral-100);
+}
+
+.foundation-header[data-theme='dark'] [aria-label='Language'] [aria-current='true'] {
+  background-color: var(--color-neutral-100);
+  color: var(--color-orchid-50);
+}
+
+.foundation-header[data-theme='dark'] [aria-label='Language'] a:not([aria-current]) {
+  color: var(--color-neutral-50);
+}
+
+.foundation-header[data-theme='dark'] [aria-label='Language'] a:not([aria-current]):hover {
+  color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] [aria-label='Language'] {
+  background-color: var(--color-neutral-0);
+  border-color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] [aria-label='Language'] a {
+  font-weight: 400;
+}
+
+.foundation-header[data-theme='light'] [aria-label='Language'] [aria-current='true'] {
+  background-color: var(--color-neutral-25);
+  color: var(--color-orchid-100);
+}
+
+.foundation-header[data-theme='light'] [aria-label='Language'] a:not([aria-current]) {
+  color: var(--color-neutral-75);
+}
+
+.foundation-header[data-theme='light'] [aria-label='Language'] a:not([aria-current]):hover {
+  color: var(--color-neutral-100);
 }

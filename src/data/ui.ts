@@ -5,6 +5,7 @@ export const ui = {
     'nav.main': 'Main navigation',
     'nav.summit': 'Summit navigation',
     'nav.toggle_menu': 'Toggle Menu',
+    'nav.language': 'Language',
     'nav.foundation': 'Foundation',
     'nav.about_us': 'About Us',
     'nav.policy_advocacy': 'Policy & Advocacy',
@@ -57,6 +58,16 @@ export const ui = {
     'footer.social.slack': 'Slack',
     'footer.social.github': 'Github',
     'footer.social.linkedin': 'Linkedin',
+    'footer.stay_up_to_date': 'Stay up to date',
+    'footer.newsletter_description':
+      'Sign up for our newsletter and keep up to date with our news and events',
+    'footer.contact_description':
+      'Have a question? We have answers. Send us a message, and we will get back to you.',
+    'footer.social_links': 'Social Links',
+    'footer.nav_label': 'Footer navigation',
+    'footer.copyright':
+      'Content on this website and Interledger Foundation publications are licensed under CC BY 4.0, unless otherwise noted. Interledger technologies and software are licensed under the Apache License 2.0, unless otherwise noted. Interledger Protocol® and ILP® are registered trademarks of the Interledger Foundation.',
+    'footer.logo_home': 'Go to homepage',
     'blog.foundation.title': 'Foundation Blog',
     'blog.foundation.description':
       'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.',
@@ -175,6 +186,7 @@ export const ui = {
     'nav.main': '',
     'nav.summit': '',
     'nav.toggle_menu': '',
+    'nav.language': '',
     'nav.foundation': '',
     'nav.about_us': '',
     'nav.policy_advocacy': '',
@@ -227,6 +239,13 @@ export const ui = {
     'footer.social.slack': '',
     'footer.social.github': '',
     'footer.social.linkedin': '',
+    'footer.stay_up_to_date': '',
+    'footer.newsletter_description': '',
+    'footer.contact_description': '',
+    'footer.social_links': '',
+    'footer.nav_label': '',
+    'footer.copyright': '',
+    'footer.logo_home': '',
     'blog.foundation.title': '',
     'blog.foundation.description': '',
     'blog.foundation.tag_title': '',
@@ -318,13 +337,11 @@ export const ui = {
     'contact.success_thanks': '',
     'contact.error.captcha': '',
     'contact.error.submit': '',
-    'homepageHero.title_lead':
-      'Los sistemas financieros deberían funcionar juntos,',
-    'homepageHero.title_accent': 'para todas las personas',
-    'homepageHero.description':
-      'Unimos personas, tecnología y sistemas para impulsar pagos abiertos y ampliar la autonomía financiera de todas.',
-    'homepageHero.cta_explore_tech': 'Explora la tecnología',
-    'homepageHero.cta_get_involved': 'Participa',
-    'homepageHero.cta_navigation': 'Acciones destacadas'
+    'homepageHero.title_lead': '',
+    'homepageHero.title_accent': '',
+    'homepageHero.description': '',
+    'homepageHero.cta_explore_tech': '',
+    'homepageHero.cta_get_involved': '',
+    'homepageHero.cta_navigation': ''
   }
 } as const

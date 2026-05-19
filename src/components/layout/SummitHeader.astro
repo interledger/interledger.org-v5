@@ -40,7 +40,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   role="banner"
 >
   <nav
-    class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
+    class="flex items-center justify-between min-[1200px]:grid min-[1200px]:grid-cols-[auto_1fr_auto] min-[1200px]:gap-space-s max-[1199px]:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-summit-navigation-menu"
     id="block-summit-navigation"
@@ -49,7 +49,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     <h2 class="sr-only" id="block-summit-navigation-menu">{t('nav.summit')}</h2>
     <a
       href={summitHomePath}
-      class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
+      class="w-[11em] flex-none min-[1200px]:col-start-1 min-[1200px]:col-end-2 min-[1200px]:z-[1]"
       aria-label={t('aria.logo.summit')}
       {...navLink(summitHomePath, undefined, t('aria.logo.summit'))}
     >
@@ -66,7 +66,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
       {
         ctaButton && (
           <a
-            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-150 hover:bg-[#444] min-[1060px]:hidden"
+            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-150 hover:bg-[#444] min-[1200px]:hidden"
             href={ctaButton.href || '#'}
             {...navLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab
