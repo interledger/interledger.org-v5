@@ -9,6 +9,24 @@ import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import Link from '@/components/shared/Link.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
+interface HeroCta {
+  text?: string
+  link?: string
+  style?: string
+  external?: boolean
+}
+
+interface FoundationPagePreview {
+  title?: string
+  seo?: { metaDescription?: string }
+  hero?: {
+    title?: string
+    description?: string
+    hero_call_to_action?: HeroCta[]
+  }
+  content?: Array<{ __component: string; [key: string]: unknown }>
+}
+
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
 
@@ -38,11 +56,13 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.pdf-embed][populate]': '*'
 })
 
-const response = await fetchStrapi(
+const response = await fetchStrapi<FoundationPagePreview>(
   `api/foundation-pages/${documentId}?${populateParams.toString()}`
 )
-
-const page = response?.data
+if (response instanceof Error) {
+  return Astro.redirect('/404')
+}
+const page = response.data
 if (!page) {
   return Astro.redirect('/404')
 }
@@ -51,12 +71,7 @@ const title = page.title || 'Preview'
 const description = page.seo?.metaDescription || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description
-const heroCtas = (page.hero?.hero_call_to_action ?? []) as Array<{
-  text?: string
-  link?: string
-  style?: string
-  external?: boolean
-}>
+const heroCtas = page.hero?.hero_call_to_action ?? []
 const content = page.content || []
 ---
 

@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { z } from 'zod'
-import { validateFrontmatter, validateMdxFiles } from './validateFrontmatter'
+import {
+  validateFrontmatter,
+  validateMdxFiles,
+  ValidationError
+} from './validateFrontmatter'
 import type { ContentTypeConfig } from './config'
 import { createMdxFile } from './test-utils'
 
@@ -33,7 +37,7 @@ const summitConfig: ContentTypeConfig = {
 // Validates MDX frontmatter against Zod schemas before syncing to Strapi.
 // Invalid files are skipped during sync to avoid corrupting CMS data.
 describe('validateFrontmatter', () => {
-  it('returns null for valid foundation-pages frontmatter', () => {
+  it('returns the validated MDX file for valid foundation-pages frontmatter', () => {
     const mdx = createMdxFile({
       filepath: '/content/about.mdx',
       pathSlug: 'about-us',
@@ -42,10 +46,10 @@ describe('validateFrontmatter', () => {
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).toBeNull()
+    expect(result).toBe(mdx)
   })
 
-  it('returns null for valid summit-pages frontmatter', () => {
+  it('returns the validated MDX file for valid summit-pages frontmatter', () => {
     const mdx = createMdxFile({
       filepath: '/content/schedule.mdx',
       pathSlug: 'schedule',
@@ -54,10 +58,10 @@ describe('validateFrontmatter', () => {
 
     const result = validateFrontmatter(summitConfig, mdx)
 
-    expect(result).toBeNull()
+    expect(result).toBe(mdx)
   })
 
-  it('returns error with filepath when title is missing', () => {
+  it('returns ValidationError with filepath when title is missing', () => {
     const mdx = createMdxFile({
       filepath: '/content/invalid.mdx',
       pathSlug: 'invalid'
@@ -65,54 +69,55 @@ describe('validateFrontmatter', () => {
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.filepath).toBe('/content/invalid.mdx')
+    expect(result).toBeInstanceOf(ValidationError)
+    expect((result as ValidationError).filepath).toBe('/content/invalid.mdx')
   })
 
-  it('returns error with slug from mdx file', () => {
+  it('returns ValidationError with slug from mdx file', () => {
     const mdx = createMdxFile({ pathSlug: 'test-slug' })
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.pathSlug).toBe('test-slug')
+    expect(result).toBeInstanceOf(ValidationError)
+    expect((result as ValidationError).pathSlug).toBe('test-slug')
   })
 
-  it('returns error with locale from mdx file', () => {
+  it('returns ValidationError with locale from mdx file', () => {
     const mdx = createMdxFile({ locale: 'es' })
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.locale).toBe('es')
+    expect(result).toBeInstanceOf(ValidationError)
+    expect((result as ValidationError).locale).toBe('es')
   })
 
-  it('returns error array with validation messages', () => {
+  it('returns ValidationError with validation messages', () => {
     const mdx = createMdxFile({})
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.errors.length).toBeGreaterThan(0)
-    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(
-      true
-    )
+    expect(result).toBeInstanceOf(ValidationError)
+    const err = result as ValidationError
+    expect(err.errors.length).toBeGreaterThan(0)
+    expect(err.errors.some((e) => e.toLowerCase().includes('title'))).toBe(true)
   })
 
   // Empty string is not the same as missing — Zod's min(1) catches both
-  it('returns error when title is empty string', () => {
+  it('returns ValidationError when title is empty string', () => {
     const mdx = createMdxFile({ frontmatter: { title: '' } })
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.errors.some((e) => e.toLowerCase().includes('title'))).toBe(
-      true
-    )
+    expect(result).toBeInstanceOf(ValidationError)
+    expect(
+      (result as ValidationError).errors.some((e) =>
+        e.toLowerCase().includes('title')
+      )
+    ).toBe(true)
   })
 
   // Slug comes from MDX file metadata, not frontmatter, but we still validate it
-  it('returns error when slug is empty in mdx file', () => {
+  it('returns ValidationError when slug is empty in mdx file', () => {
     const mdx = createMdxFile({
       pathSlug: '',
       frontmatter: { title: 'Valid Title' }
@@ -120,10 +125,12 @@ describe('validateFrontmatter', () => {
 
     const result = validateFrontmatter(foundationConfig, mdx)
 
-    expect(result).not.toBeNull()
-    expect(result!.errors.some((e) => e.toLowerCase().includes('slug'))).toBe(
-      true
-    )
+    expect(result).toBeInstanceOf(ValidationError)
+    expect(
+      (result as ValidationError).errors.some((e) =>
+        e.toLowerCase().includes('slug')
+      )
+    ).toBe(true)
   })
 })
 
@@ -183,6 +190,7 @@ describe('validateMdxFiles', () => {
 
     expect(valid).toHaveLength(0)
     expect(invalid).toHaveLength(1)
+    expect(invalid[0]).toBeInstanceOf(ValidationError)
     expect(invalid[0].pathSlug).toBe('missing-title')
     expect(invalid[0].errors.length).toBeGreaterThan(0)
   })

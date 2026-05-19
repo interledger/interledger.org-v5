@@ -41,13 +41,17 @@ export interface ContentTypeConfig {
   apiId: string
   /** Optional schema for frontmatter validation. Absent = validation skipped. */
   schema?: FrontmatterSchema
-  /** Builds the Strapi payload from an MDX file. May be async (e.g. for photo lookups). */
+  /**
+   * Builds the Strapi payload from an MDX file. Returns an Error on
+   * frontmatter validation failure, missing Strapi upload, parser failure,
+   * or transport failure. Callers narrow with `instanceof Error`.
+   */
   buildPayload: (
     mdx: MDXFile,
     strapi: StrapiClient,
     existing: StrapiEntry | null,
     dryRun: boolean
-  ) => Promise<Record<string, unknown>>
+  ) => Promise<Record<string, unknown> | Error>
 }
 
 export interface ContentTypes {
@@ -77,6 +81,7 @@ function buildParsedPagePayload(
       resolveRelation: createRelationResolver(strapi, locale),
       resolveMediaUpload: async (url: string) => {
         const id = await strapi.findUploadByUrl(url)
+        if (id instanceof Error) throw id
         if (!id) {
           throw new MdxParserError({
             code: ParserErrorCode.UNRESOLVED_RELATION,
@@ -174,6 +179,7 @@ export function buildContentTypes(
           resolveRelation: createRelationResolver(strapi, locale),
           resolveMediaUpload: async (url: string) => {
             const id = await strapi.findUploadByUrl(url)
+            if (id instanceof Error) throw id
             if (!id) {
               throw new MdxParserError({
                 code: ParserErrorCode.UNRESOLVED_RELATION,

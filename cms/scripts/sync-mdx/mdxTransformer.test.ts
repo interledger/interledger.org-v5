@@ -97,14 +97,17 @@ describe('getEntryField', () => {
 // Handles validation, hero section logic, and content block creation.
 describe('buildPagePayload', () => {
   describe('error handling', () => {
-    it('throws when frontmatter fails validation', async () => {
+    it('returns Error when frontmatter fails validation', async () => {
       const mdx = createMdxFile({
         pathSlug: 'test'
       })
 
-      await expect(
-        buildPagePayload(foundationPageFrontmatterSchema, mdx, null)
-      ).rejects.toThrow()
+      const result = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null
+      )
+      expect(result).toBeInstanceOf(Error)
     })
   })
 
@@ -504,7 +507,7 @@ describe('buildPagePayload', () => {
       ])
     })
 
-    it('re-throws parser errors with file slug context', async () => {
+    it('returns parser error with file slug context', async () => {
       await import('./ambassadorHandler')
 
       const parserCtx = {
@@ -518,9 +521,14 @@ describe('buildPagePayload', () => {
         content: '<UnknownWidget />'
       })
 
-      await expect(
-        buildPagePayload(foundationPageFrontmatterSchema, mdx, null, parserCtx)
-      ).rejects.toThrow(/bad-page/)
+      const result = await buildPagePayload(
+        foundationPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toMatch(/bad-page/)
     })
   })
 

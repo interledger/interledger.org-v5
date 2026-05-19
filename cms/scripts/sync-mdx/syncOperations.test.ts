@@ -677,7 +677,7 @@ describe('deleteOrphanedEntries', () => {
     // 'es' deletion succeeds, 'en' returns 404 (cascaded)
     strapi.deleteLocalization
       .mockResolvedValueOnce({})
-      .mockRejectedValueOnce(new Error('Strapi API error (404): Not Found'))
+      .mockResolvedValueOnce(new Error('Strapi API error (404): Not Found'))
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdxSlugsByLocale = new Map<string, Set<string>>()
@@ -704,7 +704,7 @@ describe('deleteOrphanedEntries', () => {
     mockMergedFetch(strapi, [
       { documentId: '1', pathSlug: 'orphan', locale: 'en' }
     ])
-    strapi.deleteEntry.mockRejectedValue(new Error('404 not found'))
+    strapi.deleteEntry.mockResolvedValue(new Error('404 not found'))
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const mdxSlugsByLocale = new Map<string, Set<string>>()
@@ -728,9 +728,9 @@ describe('deleteOrphanedEntries', () => {
     mockedGetLocalesToCheck.mockReturnValue(['en'])
     mockedHasMdxFile.mockReturnValue(false)
     const strapi = createMockStrapi()
-    // locale=all fails, per-locale still works
+    // locale=all fails (returns Error), per-locale still works
     strapi.getAllEntries
-      .mockRejectedValueOnce(new Error('locale=all not supported'))
+      .mockResolvedValueOnce(new Error('locale=all not supported'))
       .mockResolvedValueOnce([
         { documentId: '1', pathSlug: 'orphan', locale: 'en' }
       ])
@@ -817,7 +817,7 @@ describe('deleteOrphanedEntries', () => {
     mockMergedFetch(strapi, [
       { documentId: '1', pathSlug: 'failing', locale: 'en' }
     ])
-    strapi.deleteLocalization.mockRejectedValue(
+    strapi.deleteLocalization.mockResolvedValue(
       new Error('Internal Server Error')
     )
     const ctx: SyncContext = { contentTypes, strapi }
@@ -845,7 +845,7 @@ describe('deleteOrphanedEntries', () => {
     mockMergedFetch(strapi, [
       { documentId: '1', pathSlug: 'failing', locale: 'en' }
     ])
-    strapi.deleteLocalization.mockRejectedValue(
+    strapi.deleteLocalization.mockResolvedValue(
       new Error('Internal Server Error')
     )
     const ctx: SyncContext = { contentTypes, strapi }
@@ -1113,7 +1113,7 @@ describe('syncUnmatchedLocales', () => {
       { documentId: 'en-1', pathSlug: 'about-us', locale: 'en' }
     ])
     strapi.findByPathSlug.mockResolvedValue(undefined)
-    strapi.createLocalization.mockRejectedValue(new Error('API error'))
+    strapi.createLocalization.mockResolvedValue(new Error('API error'))
     const ctx: SyncContext = { contentTypes, strapi }
     const results = createResults()
     const matchedSlugs = new Set<string>()
