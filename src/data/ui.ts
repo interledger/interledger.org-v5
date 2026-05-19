@@ -173,7 +173,18 @@ export const ui = {
       "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - if they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
     'home.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
-    'home.problem.video_title': "The Problem We're Solving"
+    'home.problem.video_title': "The Problem We're Solving",
+    'home.stats.heading': 'Real-world progress',
+    'home.stats.body':
+      'From early experiments to real-world systems, this is what progress looks like in practice.',
+    'home.stats.grants_label': 'In Grants',
+    'home.stats.grants_aria': '21 million dollars in grants',
+    'home.stats.projects_label': 'Project worldwide',
+    'home.stats.projects_aria': '300 plus projects worldwide',
+    'home.stats.countries_label': 'Countries with active tech',
+    'home.stats.countries_aria': '130 plus countries with active tech',
+    'home.stats.students_label': 'Students skilled',
+    'home.stats.students_aria': '1,000 plus students skilled'
   },
   es: {
     'site.title': '',

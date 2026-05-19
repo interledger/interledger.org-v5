@@ -1,6 +1,9 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import HomepageHero from '@/components/pages/HomepageHero.astro'
+import StatsSection, {
+  type StatItem
+} from '@/components/shared/StatsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import { useTranslations, type Locale } from '@/utils'
@@ -11,6 +14,33 @@ interface Props {
 
 const { pageLang } = Astro.props
 const t = useTranslations(pageLang)
+
+const stats: StatItem[] = [
+  {
+    value: 21,
+    suffix: 'M+',
+    label: t('home.stats.grants_label'),
+    ariaLabel: t('home.stats.grants_aria')
+  },
+  {
+    value: 300,
+    suffix: '+',
+    label: t('home.stats.projects_label'),
+    ariaLabel: t('home.stats.projects_aria')
+  },
+  {
+    value: 130,
+    suffix: '+',
+    label: t('home.stats.countries_label'),
+    ariaLabel: t('home.stats.countries_aria')
+  },
+  {
+    value: 1000,
+    suffix: '+',
+    label: t('home.stats.students_label'),
+    ariaLabel: t('home.stats.students_aria')
+  }
+]
 ---
 
 <FoundationPageLayout
@@ -38,5 +68,9 @@ const t = useTranslations(pageLang)
         />
       </div>
     </TextMediaSection>
+    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
+      <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
+      <p>{t('home.stats.body')}</p>
+    </StatsSection>
   </main>
 </FoundationPageLayout>
