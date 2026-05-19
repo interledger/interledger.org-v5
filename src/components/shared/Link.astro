@@ -1,5 +1,4 @@
 ---
-import { cva } from 'class-variance-authority'
 import { buildUmamiAttrs, type UmamiSection } from '@/utils'
 
 interface Props {
@@ -25,61 +24,38 @@ const {
 const { routeLocale } = Astro.locals
 
 const isSecondary = style === 'secondary'
+const isHero = variant === 'hero'
 
-const linkVariants = cva(
-  [
-    'font-poppins text-body-sm-standard md:text-body-lg-standard font-medium',
-    'inline-flex w-fit shrink-0 items-center justify-center gap-spacing-md rounded-cta border px-spacing-lg py-spacing-md no-underline transition-colors',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
-  ],
-  {
-    variants: {
-      style: {
-        primary:
-          'border-transparent bg-cta-primary text-white hover:bg-cta-primary-hover',
-        secondary: ''
-      },
-      variant: {
-        hero: '',
-        default: ''
-      }
-    },
-    compoundVariants: [
-      {
-        style: 'primary',
-        variant: 'hero',
-        class: 'focus-visible:ring-white focus-visible:ring-offset-transparent'
-      },
-      {
-        style: 'primary',
-        variant: 'default',
-        class:
-          'focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0'
-      },
-      {
-        style: 'secondary',
-        variant: 'hero',
-        class:
-          'border-neutral-50 bg-transparent text-neutral-0 hover:border-neutral-0 hover:bg-white/[0.08] focus-visible:ring-neutral-0 focus-visible:ring-offset-transparent'
-      },
-      {
-        style: 'secondary',
-        variant: 'default',
-        class:
-          'border-neutral-900 bg-transparent text-neutral-900 hover:bg-neutral-900/[0.06] focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0'
-      }
-    ],
-    defaultVariants: {
-      style: 'primary',
-      variant: 'default'
-    }
-  }
-)
+const fontClasses =
+  'font-poppins text-body-sm-standard md:text-body-lg-standard font-medium'
 
-const className = linkVariants({
-  style: isSecondary ? 'secondary' : 'primary',
-  variant: variant ?? 'default'
-})
+/* Padding tuned to Figma button assets: ~16px horizontal, ~10px vertical, with
+   a 12px gap between label and trailing icon. Keep these in sync with
+   CtaBanner.astro and HomePage.astro hero buttons. */
+const buttonBase =
+  'inline-flex w-fit shrink-0 items-center justify-center gap-spacing-md rounded-cta border px-spacing-lg py-spacing-md no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+
+const primaryLayout = `${buttonBase} border-transparent bg-cta-primary text-white hover:bg-cta-primary-hover`
+
+const heroPrimaryClasses = `${primaryLayout} focus-visible:ring-white focus-visible:ring-offset-transparent`
+
+const defaultPrimaryClasses = `${primaryLayout} focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0`
+
+const heroSecondaryLayout = `${buttonBase} border-neutral-50 bg-transparent text-neutral-0 hover:border-neutral-0 hover:bg-white/[0.08] focus-visible:ring-neutral-0 focus-visible:ring-offset-transparent`
+
+const defaultSecondaryLayout = `${buttonBase} border-neutral-900 bg-transparent text-neutral-900 hover:bg-neutral-900/[0.06] focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0`
+
+function primaryClassesForVariant(): string {
+  return `${fontClasses} ${isHero ? heroPrimaryClasses : defaultPrimaryClasses}`
+}
+
+function secondaryClassesForVariant(): string {
+  return `${fontClasses} ${isHero ? heroSecondaryLayout : defaultSecondaryLayout}`
+}
+
+const className = isSecondary
+  ? secondaryClassesForVariant()
+  : primaryClassesForVariant()
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
