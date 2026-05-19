@@ -174,7 +174,8 @@
         },
         {
           "label": "Courses",
-          "href": "/courses"
+          "href": "/courses",
+          "openInNewTab": true
         },
         {
           "label": "Research & Reports",

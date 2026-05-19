@@ -7,6 +7,7 @@ import {
   localizeRoute,
   type UiKey
 } from '@/utils'
+import type { MenuGroup } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
@@ -16,7 +17,7 @@ const t = useTranslations(routeLocale)
 
 const { mainMenu } = getNavigation('foundation', routeLocale)
 
-const resourcesColumn = {
+const resourcesColumn: MenuGroup = {
   label: 'Resources',
   items: [
     { label: 'Terms of Service', href: '/terms-of-service' },
@@ -182,7 +183,7 @@ const socialLinks: Array<{
           {t('footer.social_links')}
         </h5>
         <ul
-          class="mb-0 mt-space-xs flex list-none flex-wrap gap-xl p-0 desktop:gap-[14px] mx-0"
+          class="mb-0 mt-space-xs flex list-none flex-wrap gap-md p-0 tablet:gap-xl mx-0"
           role="list"
         >
           {
