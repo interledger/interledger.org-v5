@@ -79,9 +79,10 @@ export const buttonVariants = cva(
         true: 'aspect-square px-0',
         false: ''
       },
-      hasIcon: {
-        true: '',
-        false: ''
+      iconSide: {
+        left: '',
+        right: '',
+        none: ''
       }
     },
     compoundVariants: [
@@ -137,10 +138,12 @@ export const buttonVariants = cva(
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
-      { iconOnly: false, hasIcon: true, size: 'lg', class: 'px-xl' },
-      { iconOnly: false, hasIcon: false, size: 'lg', class: 'px-lg' },
-      { iconOnly: false, hasIcon: true, size: 'sm', class: 'px-lg' },
-      { iconOnly: false, hasIcon: false, size: 'sm', class: 'px-md' },
+      { iconOnly: false, iconSide: 'left', size: 'lg', class: 'pl-lg pr-xl' },
+      { iconOnly: false, iconSide: 'right', size: 'lg', class: 'pl-xl pr-lg' },
+      { iconOnly: false, iconSide: 'none', size: 'lg', class: 'px-lg' },
+      { iconOnly: false, iconSide: 'left', size: 'sm', class: 'pl-md pr-lg' },
+      { iconOnly: false, iconSide: 'right', size: 'sm', class: 'pl-lg pr-md' },
+      { iconOnly: false, iconSide: 'none', size: 'sm', class: 'px-md' },
       { variant: 'fab', class: 'py-md px-md' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
@@ -156,7 +159,7 @@ export const buttonVariants = cva(
       mode: 'light',
       size: 'lg',
       iconOnly: false,
-      hasIcon: false
+      iconSide: 'none'
     }
   }
 )

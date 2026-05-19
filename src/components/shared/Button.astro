@@ -13,14 +13,19 @@ const {
   mode,
   size,
   iconOnly,
-  hasIcon,
+  iconSide,
   class: className,
   type = 'button',
   ...rest
 } = Astro.props
 
-const resolvedHasIcon =
-  hasIcon ?? !!(Astro.slots.has('icon-left') || Astro.slots.has('icon-right'))
+const resolvedIconSide =
+  iconSide ??
+  (Astro.slots.has('icon-left')
+    ? 'left'
+    : Astro.slots.has('icon-right')
+      ? 'right'
+      : 'none')
 
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
@@ -36,7 +41,7 @@ if (iconOnly && !rest['aria-label']) {
       mode,
       size,
       iconOnly,
-      hasIcon: resolvedHasIcon,
+      iconSide: resolvedIconSide,
       class: className
     })
   )}
