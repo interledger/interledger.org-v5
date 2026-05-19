@@ -1,8 +1,9 @@
 ---
 // Reusable counter that animates from 0 to `value` the first time it scrolls
-// into view. SSR renders the final value so no-JS users, screen readers, and
-// search bots see the real number; the script swaps to 0 and animates only
-// when JS runs AND the user hasn't requested reduced motion.
+// into view. The final value is baked into the static HTML at build time so
+// no-JS users, screen readers, and search bots see the real number; the
+// client script swaps it to 0 and animates only when JS runs AND the user
+// hasn't requested reduced motion.
 //
 // Group triggering: counters that share a `[data-animated-number-trigger]`
 // ancestor all start the moment any one of them enters the viewport. This is
@@ -107,8 +108,8 @@ const formatted = value.toLocaleString('en-US')
     }
 
     // Swap visible content to "0" before the observer can fire. Without this,
-    // the first paint shows the SSR final value and the animation would start
-    // mid-flight. Done only when we plan to animate.
+    // the first paint shows the build-time final value and the animation
+    // would start mid-flight. Done only when we plan to animate.
     if (!reduceMotion) {
       elements.forEach((el) => {
         const display = el.querySelector<HTMLElement>(
