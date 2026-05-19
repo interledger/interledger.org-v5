@@ -37,7 +37,7 @@ export const buttonVariants = cva(
           // once design specifies per-pillar focus colours.
           'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
-          'disabled:bg-button-primary-disabled aria-disabled:bg-button-primary-disabled'
+          'disabled:bg-button-primary-disabled disabled:text-neutral-0 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-0'
         ],
         secondary: ['bg-transparent border'],
         // Footer ghost button. Inline text-with-padding link, no fill, no
@@ -51,7 +51,7 @@ export const buttonVariants = cva(
         ghost: [
           'bg-transparent border border-transparent',
           'text-h4 text-neutral-900',
-          'md:text-body-sm-standard md:text-neutral-75',
+          'tablet:text-body-sm-standard tablet:text-neutral-75',
           'hover:text-neutral-900',
           'aria-[current=page]:text-orchid-100',
           // The 1px orchid border is the entire focus indicator;
@@ -78,6 +78,11 @@ export const buttonVariants = cva(
       iconOnly: {
         true: 'aspect-square px-0',
         false: ''
+      },
+      iconSide: {
+        left: '',
+        right: '',
+        none: ''
       }
     },
     compoundVariants: [
@@ -133,8 +138,12 @@ export const buttonVariants = cva(
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
         ]
       },
-      { iconOnly: false, size: 'lg', class: 'px-xl' },
-      { iconOnly: false, size: 'sm', class: 'px-md' },
+      { iconOnly: false, iconSide: 'left', size: 'lg', class: 'pl-lg pr-xl' },
+      { iconOnly: false, iconSide: 'right', size: 'lg', class: 'pl-xl pr-lg' },
+      { iconOnly: false, iconSide: 'none', size: 'lg', class: 'px-lg' },
+      { iconOnly: false, iconSide: 'left', size: 'sm', class: 'pl-md pr-lg' },
+      { iconOnly: false, iconSide: 'right', size: 'sm', class: 'pl-lg pr-md' },
+      { iconOnly: false, iconSide: 'none', size: 'sm', class: 'px-md' },
       { variant: 'fab', class: 'py-md px-md' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
@@ -149,7 +158,8 @@ export const buttonVariants = cva(
       variant: 'primary',
       mode: 'light',
       size: 'lg',
-      iconOnly: false
+      iconOnly: false,
+      iconSide: 'none'
     }
   }
 )

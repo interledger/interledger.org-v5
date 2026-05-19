@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_navigation_menu_sub_groups",
+  "info": {
+    "displayName": "Menu Sub-Group",
+    "icon": "bulletList",
+    "description": "A labelled section nested inside a menu group, used to render the footer's tiered link columns"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-item",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
