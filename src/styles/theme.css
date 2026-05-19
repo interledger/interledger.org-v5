@@ -42,7 +42,6 @@
 /* Static design tokens — single source of truth for values */
 @theme {
   /* Fluid typography scale */
-  --text-step--3: clamp(0.65rem, 0.5635rem + 0.3757vi, 0.865rem);
   --text-step--2: clamp(0.72rem, 0.6261rem + 0.4174vi, 0.96rem);
   --text-step--1: clamp(0.9rem, 0.7826rem + 0.5217vi, 1.2rem);
   --text-step-0: clamp(1.125rem, 0.9783rem + 0.6522vi, 1.5rem);

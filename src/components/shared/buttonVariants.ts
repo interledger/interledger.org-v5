@@ -51,7 +51,7 @@ export const buttonVariants = cva(
         ghost: [
           'bg-transparent border border-transparent',
           'text-h4 text-neutral-900',
-          'md:text-body-sm-standard md:text-neutral-75',
+          'tablet:text-body-sm-standard tablet:text-neutral-75',
           'hover:text-neutral-900',
           'aria-[current=page]:text-orchid-100',
           // The 1px orchid border is the entire focus indicator;
