@@ -1,6 +1,8 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import HomepageHero from '@/components/pages/HomepageHero.astro'
+import TextMediaSection from '@/components/shared/TextMediaSection.astro'
+import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import { useTranslations, type Locale } from '@/utils'
 
 interface Props {
@@ -17,5 +19,24 @@ const t = useTranslations(pageLang)
 >
   <main>
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
+    <TextMediaSection
+      mediaSide="right"
+      theme="dark"
+      ariaLabel={t('home.problem.heading')}
+      class="bg-royal-purple-100 tablet:bg-neutral-900 tablet:px-3xl-tight tablet:py-5xl"
+    >
+      <h2 slot="heading">{t('home.problem.heading')}</h2>
+      <p>{t('home.problem.body_1')}</p>
+      <p>{t('home.problem.body_2')}</p>
+      <div
+        slot="media"
+        class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-full"
+      >
+        <VideoEmbed
+          url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+          title={t('home.problem.video_title')}
+        />
+      </div>
+    </TextMediaSection>
   </main>
 </FoundationPageLayout>

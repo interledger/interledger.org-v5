@@ -24,11 +24,11 @@ const videoAttrs = buildUmamiAttrs({
 
 {
   provider === 'youtube' ? (
-    <div class="aspect-video w-full">
+    <div class="w-full">
       <YouTube id={url} playlabel={title} />
     </div>
   ) : provider === 'vimeo' ? (
-    <div class="aspect-video w-full">
+    <div class="w-full">
       <Vimeo id={url} playlabel={title} />
     </div>
   ) : (
@@ -37,3 +37,9 @@ const videoAttrs = buildUmamiAttrs({
     </a>
   )
 }
+
+<style>
+  lite-youtube {
+    max-width: unset;
+  }
+</style>
