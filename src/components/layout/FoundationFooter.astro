@@ -47,11 +47,6 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     linkText
   })
 
-const focusRing =
-  'focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 focus-visible:outline-none'
-
-const navLinkClass = `inline-flex items-center gap-space-3xs text-[18px] md:text-[14px] whitespace-nowrap text-neutral-75 transition-colors hover:text-black aria-[current=page]:text-orchid-100 rounded-sm ${focusRing}`
-
 const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
@@ -235,29 +230,29 @@ const socialLinks: Array<{
                   >
                     {group.items.map((item) => (
                       <li>
-                        <a
+                        <LinkButton
+                          variant="ghost"
                           href={item.href ?? '#'}
-                          class={navLinkClass}
+                          class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
                           aria-current={
                             isActive(item.href) ? 'page' : undefined
                           }
+                          external={item.openInNewTab}
                           {...footerLink(
                             item.href ?? '#',
                             undefined,
                             item.label
                           )}
-                          {...(item.openInNewTab
-                            ? { target: '_blank', rel: 'noopener noreferrer' }
-                            : {})}
                         >
                           {item.label}
                           {item.openInNewTab && (
                             <Icon
+                              slot="icon-right"
                               name="external-link"
                               class={footerExternalLinkIconClass}
                             />
                           )}
-                        </a>
+                        </LinkButton>
                       </li>
                     ))}
                   </ul>
@@ -284,32 +279,29 @@ const socialLinks: Array<{
                           >
                             {sub.items.map((item) => (
                               <li>
-                                <a
+                                <LinkButton
+                                  variant="ghost"
                                   href={item.href ?? '#'}
-                                  class={navLinkClass}
+                                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
                                   aria-current={
                                     isActive(item.href) ? 'page' : undefined
                                   }
+                                  external={item.openInNewTab}
                                   {...footerLink(
                                     item.href ?? '#',
                                     undefined,
                                     item.label
                                   )}
-                                  {...(item.openInNewTab
-                                    ? {
-                                        target: '_blank',
-                                        rel: 'noopener noreferrer'
-                                      }
-                                    : {})}
                                 >
                                   {item.label}
                                   {item.openInNewTab && (
                                     <Icon
+                                      slot="icon-right"
                                       name="external-link"
                                       class={footerExternalLinkIconClass}
                                     />
                                   )}
-                                </a>
+                                </LinkButton>
                               </li>
                             ))}
                           </ul>
