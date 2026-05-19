@@ -1,11 +1,12 @@
 ---
-import { twMerge } from '@/utils'
+import { twMerge, type UmamiAttrs } from '@/utils'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 interface Props {
   title: string
   description: string
   href: string
+  umamiAttr: UmamiAttrs
   external?: boolean
   class?: string
 }
@@ -14,6 +15,7 @@ const {
   title,
   description,
   href,
+  umamiAttr,
   external = false,
   class: className
 } = Astro.props
@@ -39,7 +41,13 @@ flex flex-col gap-lg desktop:text-center
     <p>{description}</p>
   </div>
 
-  <LinkButton variant="fab" href={href} aria-label={title} external={external}>
+  <LinkButton
+    variant="fab"
+    href={href}
+    aria-label={title}
+    external={external}
+    {...umamiAttr}
+  >
     <Icon name="arrow-right" />
   </LinkButton>
 </article>
