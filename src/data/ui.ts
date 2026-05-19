@@ -167,7 +167,18 @@ export const ui = {
       'We connect people, tech and systems to advance open payments and unlock financial agency for all.',
     'homepageHero.cta_explore_tech': 'Explore Tech',
     'homepageHero.cta_get_involved': 'Get Involved',
-    'homepageHero.cta_navigation': 'Featured actions'
+    'homepageHero.cta_navigation': 'Featured actions',
+    'pillarsSection.heading':
+      "We see a world where money moves freely and opportunity follows. Here's how we work to get there:",
+    'pillarsSection.card1_title': 'We build the technology',
+    'pillarsSection.card1_description':
+      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
+    'pillarsSection.card2_title': 'We grow the movement',
+    'pillarsSection.card2_description':
+      'We bring together developers, policymakers, advocates, and institutions to advance open payments.',
+    'pillarsSection.card3_title': 'This is the pillar heading',
+    'pillarsSection.card3_description':
+      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.'
   },
   es: {
     'site.title': '',
@@ -325,6 +336,13 @@ export const ui = {
       'Unimos personas, tecnología y sistemas para impulsar pagos abiertos y ampliar la autonomía financiera de todas.',
     'homepageHero.cta_explore_tech': 'Explora la tecnología',
     'homepageHero.cta_get_involved': 'Participa',
-    'homepageHero.cta_navigation': 'Acciones destacadas'
+    'homepageHero.cta_navigation': 'Acciones destacadas',
+    'pillarsSection.heading': '',
+    'pillarsSection.card1_title': '',
+    'pillarsSection.card1_description': '',
+    'pillarsSection.card2_title': '',
+    'pillarsSection.card2_description': '',
+    'pillarsSection.card3_title': '',
+    'pillarsSection.card3_description': ''
   }
 } as const

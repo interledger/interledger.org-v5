@@ -4,6 +4,10 @@
 // Mobile/tablet: plain vertical stack.
 // All animations are scroll-driven (animation-timeline) — no JS.
 import PillarCard from '@/components/shared/PillarCard.astro'
+import { useTranslations } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const sectionClasses = `
   px-lg py-5xl font-poppins bg-ice-indigo-100 
@@ -41,25 +45,22 @@ const cardDivs = `
   desktop:nth-[3]:mt-[calc(300px+2*75vh)]
   desktop:sticky desktop:top-[45vh]
 `
-const pillars = [
+const threePillars = [
   {
-    title: 'We build the technology',
-    description:
-      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
+    title: t('pillarsSection.card1_title'),
+    description: t('pillarsSection.card1_description'),
     href: '#',
     bg: 'bg-aqua-mint-100'
   },
   {
-    title: 'We grow the movement',
-    description:
-      'We bring together developers, policymakers, advocates, and institutions to advance open payments.',
+    title: t('pillarsSection.card2_title'),
+    description: t('pillarsSection.card2_description'),
     href: '#',
     bg: 'bg-apricot-100'
   },
   {
-    title: 'This is the pillar heading',
-    description:
-      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
+    title: t('pillarsSection.card3_title'),
+    description: t('pillarsSection.card3_description'),
     href: '#',
     bg: 'bg-soft-indigo-100'
   }
@@ -69,12 +70,11 @@ const pillars = [
 <section aria-labelledby="pillars-heading" class={sectionClasses}>
   <div class={sectionContainerClasses}>
     <h2 id="pillars-heading" class={headingClasses}>
-      We see a world where money moves freely and opportunity follows. Here's
-      how we work to get there:
+      {t('pillarsSection.heading')}
     </h2>
     <div class={cardsContainerClasses}>
       {
-        pillars.map((pillar) => (
+        threePillars.map((pillar) => (
           <div class={cardDivs}>
             <PillarCard
               title={pillar.title}
