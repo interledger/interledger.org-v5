@@ -189,7 +189,7 @@ export const ui = {
       'For any institution or developer building on open infrastructure, governance matters as much as technology. The Interledger Foundation does not operate payment networks, take fees, or represent commercial interests, which means the standards we steward are open by structure, not just by intention.',
     'home.independent_by_design.body_2':
       'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
-    'home.independent_by_design.cta_label': 'Get involved',
+    'home.independent_by_design.cta_label': 'Our tech governance',
     'home.independent_by_design.image_alt': 'Speaker at a community event'
   },
   es: {
