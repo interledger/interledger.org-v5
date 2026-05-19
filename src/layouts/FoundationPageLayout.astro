@@ -14,10 +14,18 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   datePublished?: string
+  headerTheme?: 'light' | 'dark'
 }
 
-const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
-  Astro.props
+const {
+  title,
+  description,
+  ogType,
+  ogImageUrl,
+  canonicalURL,
+  datePublished,
+  headerTheme = 'dark'
+} = Astro.props
 ---
 
 <BaseLayout
@@ -32,7 +40,7 @@ const { title, description, ogType, ogImageUrl, canonicalURL, datePublished } =
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <FoundationHeader slot="header" />
+  <FoundationHeader slot="header" theme={headerTheme} />
   <slot />
   <FoundationFooter slot="footer" />
 </BaseLayout>

@@ -61,7 +61,7 @@ export function initHeaderNav(navId: string, iconId: string) {
     }
   }
 
-  const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
+  const wideNavMinWidth = window.matchMedia('(min-width: 1200px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
   // On initial load at wide viewport, remove inert so the nav is reachable by keyboard.

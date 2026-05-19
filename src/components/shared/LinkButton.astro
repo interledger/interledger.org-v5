@@ -8,7 +8,7 @@ type ButtonVariant = ButtonOpts['variant']
 type ButtonMode = ButtonOpts['mode']
 type ButtonSize = ButtonOpts['size']
 type ButtonIconOnly = ButtonOpts['iconOnly']
-type ButtonIconSide = ButtonOpts['iconSide']
+type ButtonHasIcon = ButtonOpts['hasIcon']
 
 interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   href: string
@@ -16,7 +16,7 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   mode?: ButtonMode
   size?: ButtonSize
   iconOnly?: ButtonIconOnly
-  iconSide?: ButtonIconSide
+  hasIcon?: ButtonHasIcon
   external?: boolean
   ariaDisabled?: boolean
   class?: string
@@ -30,18 +30,13 @@ const {
   mode,
   size,
   iconOnly,
-  iconSide,
+  hasIcon,
   class: className,
   ...rest
 } = Astro.props
 
-const resolvedIconSide: ButtonIconSide =
-  iconSide ??
-  (Astro.slots.has('icon-left')
-    ? 'left'
-    : Astro.slots.has('icon-right')
-      ? 'right'
-      : 'none')
+const resolvedHasIcon =
+  hasIcon ?? !!(Astro.slots.has('icon-left') || Astro.slots.has('icon-right'))
 
 if (iconOnly && !rest['aria-label']) {
   // eslint-disable-next-line no-console
@@ -68,7 +63,7 @@ const resolvedHref = ariaDisabled ? undefined : href
       mode,
       size,
       iconOnly,
-      iconSide: resolvedIconSide,
+      hasIcon: resolvedHasIcon,
       class: className
     })
   )}

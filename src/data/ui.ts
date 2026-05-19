@@ -5,6 +5,7 @@ export const ui = {
     'nav.main': 'Main navigation',
     'nav.summit': 'Summit navigation',
     'nav.toggle_menu': 'Toggle Menu',
+    'nav.language': 'Language',
     'nav.foundation': 'Foundation',
     'nav.about_us': 'About Us',
     'nav.policy_advocacy': 'Policy & Advocacy',
@@ -52,6 +53,11 @@ export const ui = {
     'footer.instagram': "Interledger's Instagram account",
     'footer.linkedin': "Interledger's LinkedIn account",
     'footer.slack': 'Interledger Community Slack',
+    'footer.social.mastodon': 'Mastodon',
+    'footer.social.twitter': 'Twitter',
+    'footer.social.slack': 'Slack',
+    'footer.social.github': 'Github',
+    'footer.social.linkedin': 'Linkedin',
     'footer.stay_up_to_date': 'Stay up to date',
     'footer.newsletter_description':
       'Sign up for our newsletter and keep up to date with our news and events',
@@ -172,13 +178,7 @@ export const ui = {
       'We connect people, tech and systems to advance open payments and unlock financial agency for all.',
     'homepageHero.cta_explore_tech': 'Explore Tech',
     'homepageHero.cta_get_involved': 'Get Involved',
-    'homepageHero.cta_navigation': 'Featured actions',
-    'home.problem.heading': "The Problem We're Solving",
-    'home.problem.body_1':
-      "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - if they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
-    'home.problem.body_2':
-      'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
-    'home.problem.video_title': "The Problem We're Solving"
+    'homepageHero.cta_navigation': 'Featured actions'
   },
   es: {
     'site.title': '',
@@ -186,6 +186,7 @@ export const ui = {
     'nav.main': '',
     'nav.summit': '',
     'nav.toggle_menu': '',
+    'nav.language': '',
     'nav.foundation': '',
     'nav.about_us': '',
     'nav.policy_advocacy': '',
@@ -233,6 +234,11 @@ export const ui = {
     'footer.instagram': '',
     'footer.linkedin': '',
     'footer.slack': '',
+    'footer.social.mastodon': '',
+    'footer.social.twitter': '',
+    'footer.social.slack': '',
+    'footer.social.github': '',
+    'footer.social.linkedin': '',
     'footer.stay_up_to_date': '',
     'footer.newsletter_description': '',
     'footer.contact_description': '',

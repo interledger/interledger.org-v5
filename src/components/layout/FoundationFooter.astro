@@ -47,11 +47,17 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     linkText
   })
 
-const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
+const focusRing =
+  'focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 focus-visible:outline-none'
+
+const navLinkClass = `text-[18px] md:text-[14px] whitespace-nowrap text-neutral-75 transition-colors hover:text-black aria-[current=page]:text-orchid-100 rounded-sm ${focusRing}`
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
 const isActive = (href: string | null | undefined) =>
   !!href && currentPath === localizeRoute(href, routeLocale).replace(/\/$/, '')
+
+const socialBtnClass =
+  'inline-flex h-13 w-13 shrink-0 items-center justify-center rounded-card border border-neutral-50 bg-transparent transition-colors hover:border-neutral-900 hover:text-neutral-900 focus-visible:bg-neutral-25 focus-visible:text-neutral-900 focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900'
 
 type SocialIconName =
   | 'youtube'
@@ -107,11 +113,11 @@ const socialLinks: Array<{
   role="contentinfo"
 >
   <div
-    class="mx-auto max-w-wide min-w-[360px] px-lg tablet:px-xl desktop:px-3xl-tight"
+    class="mx-auto max-w-wide min-w-[360px] px-lg md:px-xl desktop:px-3xl-tight"
   >
     <!-- Top: Subscribe | Contact | Social -->
     <div
-      class="grid grid-cols-1 gap-3xl pt-4xl pb-3xl tablet:pt-3xl-tight tablet:gap-2xl desktop:pt-4xl desktop:grid-cols-6 desktop:gap-space-xl"
+      class="grid grid-cols-1 gap-3xl py-3xl desktop:grid-cols-6 desktop:gap-space-xl"
     >
       <!-- Subscribe -->
       <section
@@ -120,17 +126,17 @@ const socialLinks: Array<{
       >
         <h5
           id="footer-subscribe-heading"
-          class="mb-md text-h5-md desktop:text-h5-lg"
+          class="mb-space-2xs text-h5-md lg:text-h5-lg"
         >
           {t('footer.stay_up_to_date')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-lg max-w-[44ch] text-body-sm-standard text-neutral-75">
           {t('footer.newsletter_description')}
         </p>
         <LinkButton
           href={subscribeHref}
           size="lg"
-          class="w-full tablet:w-auto"
+          class="max-md:w-full"
           {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
         >
           {t('footer.subscribe')}
@@ -145,18 +151,18 @@ const socialLinks: Array<{
       >
         <h5
           id="footer-contact-heading"
-          class="mb-md text-h5-md desktop:text-h5-lg"
+          class="mb-space-2xs text-h5-md lg:text-h5-lg"
         >
           {t('footer.contact_us')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-lg max-w-[44ch] text-body-sm-standard text-neutral-75">
           {t('footer.contact_description')}
         </p>
         <LinkButton
           href={contactHref}
           variant="secondary"
           size="lg"
-          class="w-full tablet:max-w-fit"
+          class="max-md:w-full"
           {...footerLink(contactHref, undefined, t('footer.contact_us'))}
         >
           {t('footer.contact_us')}
@@ -170,29 +176,24 @@ const socialLinks: Array<{
       >
         <h5
           id="footer-social-heading"
-          class="mb-md text-h5-md desktop:text-h5-lg"
+          class="mb-space-2xs text-h5-md lg:text-h5-lg"
         >
           {t('footer.social_links')}
         </h5>
-        <ul
-          class="mb-0 mt-space-xs mx-0 flex list-none flex-wrap gap-md p-0 tablet:gap-xl
-          desktop:gap-lg"
-          role="list"
-        >
+        <ul class="m-0 flex list-none flex-wrap gap-[14px] p-0" role="list">
           {
             socialLinks.map((link) => (
               <li>
-                <LinkButton
+                <a
                   href={link.href}
-                  variant="secondary"
-                  size="lg"
-                  iconOnly
-                  external
                   aria-label={t(link.labelKey)}
+                  class={socialBtnClass}
                   {...footerLink(link.href, t(link.labelKey))}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <Icon name={link.icon} class="size-6" />
-                </LinkButton>
+                </a>
               </li>
             ))
           }
@@ -206,7 +207,7 @@ const socialLinks: Array<{
       class="border-t border-neutral-50 py-3xl"
     >
       <ul
-        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6 desktop:gap-space-xl"
+        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 md:gap-space-l md:grid-cols-3 desktop:grid-cols-6 desktop:gap-space-xl"
         role="list"
       >
         {
@@ -216,91 +217,94 @@ const socialLinks: Array<{
               <li class="min-w-0">
                 <h6
                   id={groupHeadingId}
-                  class="mb-xl text-h4 tablet:text-body-lg-standard-md font-normal uppercase tracking-wide text-neutral-900"
+                  class="mb-space-s whitespace-nowrap text-[20px] md:text-body-lg-standard-md font-normal uppercase tracking-wide text-black md:text-gray"
                 >
                   {group.label}
                 </h6>
 
                 {group.items && group.items.length > 0 && !group.subGroups && (
                   <ul
-                    class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
+                    class="m-0 flex list-none flex-col gap-md md:gap-space-2xs p-0"
                     role="list"
                     aria-labelledby={groupHeadingId}
                   >
                     {group.items.map((item) => (
                       <li>
-                        <LinkButton
-                          variant="ghost"
+                        <a
                           href={item.href ?? '#'}
-                          class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
+                          class={navLinkClass}
                           aria-current={
                             isActive(item.href) ? 'page' : undefined
                           }
-                          external={item.openInNewTab}
                           {...footerLink(
                             item.href ?? '#',
                             undefined,
                             item.label
                           )}
+                          {...(item.openInNewTab
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
                         >
                           {item.label}
                           {item.openInNewTab && (
                             <Icon
-                              slot="icon-right"
                               name="external-link"
-                              class={footerExternalLinkIconClass}
+                              class="inline size-4 align-middle"
                             />
                           )}
-                        </LinkButton>
+                        </a>
                       </li>
                     ))}
                   </ul>
                 )}
 
                 {group.subGroups && group.subGroups.length > 0 && (
-                  <div class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col desktop:gap-space-m">
+                  <div class="flex flex-col gap-xl md:flex-wrap md:flex-row md:gap-x-10 md:gap-y-space-m lg:flex-col lg:gap-space-m">
                     {group.subGroups.map((sub, subIndex) => {
                       const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
                       return (
                         <div class="flex flex-col gap-md">
                           <p
                             id={subHeadingId}
-                            class="mb-2 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
+                            class="mb-2 text-caption font-normal uppercase tracking-wide text-black"
                           >
-                            <span class="border-b border-neutral-100 pb-space-3xs tablet:border-neutral-900">
+                            <span class="whitespace-nowrap border-b border-black pb-space-3xs">
                               {sub.label}
                             </span>
                           </p>
                           <ul
-                            class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
+                            class="m-0 flex list-none flex-col gap-md md:gap-space-2xs p-0"
                             role="list"
                             aria-labelledby={subHeadingId}
                           >
                             {sub.items.map((item) => (
                               <li>
-                                <LinkButton
-                                  variant="ghost"
+                                <a
                                   href={item.href ?? '#'}
-                                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
+                                  class={navLinkClass}
                                   aria-current={
                                     isActive(item.href) ? 'page' : undefined
                                   }
-                                  external={item.openInNewTab}
                                   {...footerLink(
                                     item.href ?? '#',
                                     undefined,
                                     item.label
                                   )}
+                                  {...(item.openInNewTab
+                                    ? {
+                                        target: '_blank',
+                                        rel: 'noopener noreferrer'
+                                      }
+                                    : {})}
                                 >
                                   {item.label}
                                   {item.openInNewTab && (
                                     <Icon
-                                      slot="icon-right"
                                       name="external-link"
-                                      class={footerExternalLinkIconClass}
+                                      class="inline size-4 align-middle"
                                     />
                                   )}
-                                </LinkButton>
+                                </a>
                               </li>
                             ))}
                           </ul>
@@ -317,8 +321,8 @@ const socialLinks: Array<{
     </nav>
 
     <!-- Bottom: copyright, legal links, logo -->
-    <div class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center">
-      <p class="mb-3xl text-body-sm-standard text-neutral-75">
+    <div class="border-t border-neutral-50 py-space-m text-center">
+      <p class="mb-space-m text-step--3 text-neutral-75">
         {t('footer.copyright')}
       </p>
 

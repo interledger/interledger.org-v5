@@ -20,7 +20,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 export const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'font-poppins text-caption',
+    'text-body-sm-emphasis',
     'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
     'motion-safe:transition motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'
@@ -51,7 +51,7 @@ export const buttonVariants = cva(
         ghost: [
           'bg-transparent border border-transparent',
           'text-h4 text-neutral-900',
-          'tablet:text-body-sm-standard tablet:text-neutral-75',
+          'md:text-body-sm-standard md:text-neutral-75',
           'hover:text-neutral-900',
           'aria-[current=page]:text-orchid-100',
           // The 1px orchid border is the entire focus indicator;
