@@ -281,9 +281,8 @@
        <h1 class="text-h1 leading-h2">            size + weight from text-h1, leading from leading-h2
        <h1 class="text-h1 font-medium">           size + leading from text-h1, weight overridden
 
-     Font family is NOT in --text-*; apply font-poppins (or another font-*)
-     alongside if you want Poppins. The body's default font-family is still
-     Titillium, so opt in per element when adopting the new typography utilities.
+     Font family is NOT in --text-*; the body's default font-family is Poppins.
+     Use font-poppins explicitly only if overriding a different font context.
 
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */

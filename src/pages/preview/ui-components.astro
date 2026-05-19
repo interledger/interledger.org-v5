@@ -4,6 +4,7 @@ import Button from '@/components/shared/Button.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
+import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 
 const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
 ---
@@ -24,6 +25,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
       <nav aria-label="Sections" class="mb-2xl">
         <ul class="flex flex-wrap gap-md list-none [&>a]:underline">
           <li><a href="#buttons">Buttons</a></li>
+          <li><a href="#text-media-section">Text + media section</a></li>
           <li><a href="#pillars-section">Pillars Section</a></li>
         </ul>
       </nav>
@@ -66,91 +68,6 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
             <Icon name="swap" />
           </Button>
         </div>
-
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Symmetric vs asymmetric padding (text + icon)
-        </h3>
-        <p class="mb-md text-body-sm-standard">
-          Figma calls for asymmetric horizontal padding on text+icon buttons:
-          wider on the text side, tighter on the icon side. The current
-          implementation uses symmetric padding (the <code>px-xl</code> /
-          <code>px-md</code> compound variant) for code simplicity. Compare below
-          and pick one to ship.
-        </p>
-        <p class="mb-md text-body-sm-standard text-neutral-75">
-          Asymmetric values used here step the icon-side padding down by one
-          t-shirt size (lg buttons: <code>xl</code> → <code>lg</code>; sm
-          buttons:
-          <code>md</code> → <code>sm</code>). Tweak the values in this preview
-          if Figma specifies different exact tokens.
-        </p>
-        <dl
-          class="grid grid-cols-[max-content_1fr_1fr] gap-x-xl gap-y-md items-center"
-        >
-          <dt class="text-body-sm-standard"></dt>
-          <dt class="text-body-sm-standard text-neutral-75">
-            Symmetric (current)
-          </dt>
-          <dt class="text-body-sm-standard text-neutral-75">
-            Asymmetric (Figma)
-          </dt>
-
-          <dt class="text-body-sm-standard">lg, icon-left</dt>
-          <dd>
-            <Button>
-              <Icon slot="icon-left" name="swap" />
-              Continue
-            </Button>
-          </dd>
-          <dd>
-            <Button class="ps-lg!">
-              <Icon slot="icon-left" name="swap" />
-              Continue
-            </Button>
-          </dd>
-
-          <dt class="text-body-sm-standard">lg, icon-right</dt>
-          <dd>
-            <Button>
-              Continue
-              <Icon slot="icon-right" name="swap" />
-            </Button>
-          </dd>
-          <dd>
-            <Button class="pe-lg!">
-              Continue
-              <Icon slot="icon-right" name="swap" />
-            </Button>
-          </dd>
-
-          <dt class="text-body-sm-standard">sm, icon-left</dt>
-          <dd>
-            <Button size="sm">
-              <Icon slot="icon-left" name="swap" />
-              Continue
-            </Button>
-          </dd>
-          <dd>
-            <Button size="sm" class="ps-sm!">
-              <Icon slot="icon-left" name="swap" />
-              Continue
-            </Button>
-          </dd>
-
-          <dt class="text-body-sm-standard">sm, icon-right</dt>
-          <dd>
-            <Button size="sm">
-              Continue
-              <Icon slot="icon-right" name="swap" />
-            </Button>
-          </dd>
-          <dd>
-            <Button size="sm" class="pe-sm!">
-              Continue
-              <Icon slot="icon-right" name="swap" />
-            </Button>
-          </dd>
-        </dl>
 
         <h3 class="font-poppins mt-xl mb-md text-h4">
           Secondary (lg, light mode)
@@ -421,6 +338,88 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
         </div>
       </section>
     </div>
+
+    <section id="text-media-section" aria-label="Text + media section examples">
+      <div class="mx-auto mb-xl max-w-(--max-content-width) px-lg">
+        <h2 class="font-poppins mb-md text-h3">Text + media section</h2>
+        <p class="text-body-lg-standard text-neutral-75">
+          Each example below is one full instance of <code
+            >TextMediaSection</code
+          >. Section dimensions are intentionally full-bleed: 100vh min-height,
+          1440px content cap, side margins 16 / 24 / 80 at mobile / tablet /
+          desktop. Resize through the 810 and 1200 thresholds to see the
+          breakpoint behaviour.
+        </p>
+      </div>
+
+      <TextMediaSection
+        mediaSide="right"
+        theme="light"
+        ariaLabel="Light theme, media right"
+      >
+        <h2 slot="heading">Light theme, media right</h2>
+        <p>
+          Sample body copy. Resize through 810 / 1200 to see the stack-to-split
+          transition and the side-padding step (16 → 24 → 80).
+        </p>
+        <div
+          slot="media"
+          class="aspect-square mx-auto flex w-full max-w-[426px] items-center justify-center bg-neutral-25 text-neutral-75 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+
+      <TextMediaSection
+        mediaSide="left"
+        theme="light"
+        ariaLabel="Light theme, media left"
+      >
+        <h2 slot="heading">Light theme, media left</h2>
+        <p>
+          Same component with <code>mediaSide="left"</code>. Mobile order
+          reverses to put the media slot on top; tablet keeps text-first;
+          desktop puts media on the left of the row. DOM order stays text →
+          media on every tier.
+        </p>
+        <LinkButton
+          slot="cta"
+          href="#"
+          variant="secondary"
+          size="lg"
+          class="px-lg"
+        >
+          Optional CTA
+        </LinkButton>
+        <div
+          slot="media"
+          class="aspect-square mx-auto flex w-full max-w-[426px] items-center justify-center bg-neutral-25 text-neutral-75 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+
+      <TextMediaSection
+        mediaSide="right"
+        theme="dark"
+        ariaLabel="Dark theme, media right"
+        class="bg-neutral-900"
+      >
+        <h2 slot="heading">Dark theme, media right</h2>
+        <p>
+          Dark variant: heading is <code>text-neutral-0</code>, body is
+          <code>text-neutral-25</code>. The component itself sets no background;
+          the caller wraps with the appropriate dark bg (here
+          <code>bg-neutral-900</code>).
+        </p>
+        <div
+          slot="media"
+          class="aspect-[426/286] mx-auto flex w-full max-w-[426px] items-center justify-center rounded-3xl bg-neutral-75 text-neutral-25 desktop:mx-0 desktop:w-full"
+        >
+          media slot
+        </div>
+      </TextMediaSection>
+    </section>
 
     <div class={containerClass}>
       <section id="pillars-section" class="mb-3xl">

@@ -17,7 +17,11 @@ import {
   type JsxBlockNode,
   type ParserContext
 } from './mdxBlockParser'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 
 /**
  * Walk AST children looking for nested JSX elements (flow or text).
@@ -86,49 +90,51 @@ function extractChildrenContent(
 async function handleParagraph(
   node: JsxBlockNode,
   ctx: ParserContext
-): Promise<ParsedBlock[]> {
-  // Prefer content prop if present: <Paragraph content="..." />
-  const contentAttr = getStringAttr(node, 'content')
+): Promise<ParsedBlock[] | MdxParserError> {
+  return tryCatchParserError(() => {
+    // Prefer content prop if present: <Paragraph content="..." />
+    const contentAttr = getStringAttr(node, 'content')
 
-  let content: string
-  if (contentAttr !== undefined) {
-    content = contentAttr
-  } else {
-    // Extract from children: <Paragraph>...children...</Paragraph>
-    const children = node.children
+    let content: string
+    if (contentAttr !== undefined) {
+      content = contentAttr
+    } else {
+      // Extract from children: <Paragraph>...children...</Paragraph>
+      const children = node.children
 
-    // Guard: detect nested JSX before extracting content
-    if (children && children.length > 0) {
-      const nestedJsx = findNestedJsx(children)
-      if (nestedJsx) {
-        throw new MdxParserError({
-          code: ParserErrorCode.NESTED_JSX,
-          message: `Paragraph contains nested JSX component \`<${nestedJsx.name}>\` at line ${nestedJsx.line ?? '?'}. Move it to a top-level sibling, or wrap it in a code block if it's meant to be literal text.`,
-          component: 'Paragraph',
-          line: nestedJsx.line,
-          column: nestedJsx.column
-        })
+      // Guard: detect nested JSX before extracting content
+      if (children && children.length > 0) {
+        const nestedJsx = findNestedJsx(children)
+        if (nestedJsx) {
+          throw new MdxParserError({
+            code: ParserErrorCode.NESTED_JSX,
+            message: `Paragraph contains nested JSX component \`<${nestedJsx.name}>\` at line ${nestedJsx.line ?? '?'}. Move it to a top-level sibling, or wrap it in a code block if it's meant to be literal text.`,
+            component: 'Paragraph',
+            line: nestedJsx.line,
+            column: nestedJsx.column
+          })
+        }
       }
+
+      // Prefer raw source slicing when available to avoid lossy AST
+      // re-serialization (HTML entity decoding, bracket escaping).
+      content = extractChildrenContent(children, ctx) ?? ''
     }
 
-    // Prefer raw source slicing when available to avoid lossy AST
-    // re-serialization (HTML entity decoding, bracket escaping).
-    content = extractChildrenContent(children, ctx) ?? ''
-  }
+    if (!content) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message:
+          'Paragraph requires non-empty content. Strapi blocks.paragraph has content as required.',
+        component: 'Paragraph',
+        prop: 'content',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
 
-  if (!content) {
-    throw new MdxParserError({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      message:
-        'Paragraph requires non-empty content. Strapi blocks.paragraph has content as required.',
-      component: 'Paragraph',
-      prop: 'content',
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
-  }
-
-  return [buildParagraphBlock(node, content)]
+    return [buildParagraphBlock(node, content)]
+  })
 }
 
 function buildParagraphBlock(

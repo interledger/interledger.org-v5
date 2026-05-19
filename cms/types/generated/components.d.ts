@@ -504,6 +504,12 @@ export interface NavigationMenuGroup extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    subGroups: Schema.Attribute.Component<'navigation.menu-sub-group', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -535,6 +541,30 @@ export interface NavigationMenuItem extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<false>
+  }
+}
+
+export interface NavigationMenuSubGroup extends Struct.ComponentSchema {
+  collectionName: 'components_navigation_menu_sub_groups'
+  info: {
+    description: "A labelled section nested inside a menu group, used to render the footer's tiered link columns"
+    displayName: 'Menu Sub-Group'
+    icon: 'bulletList'
+  }
+  attributes: {
+    items: Schema.Attribute.Component<'navigation.menu-item', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -741,6 +771,7 @@ declare module '@strapi/strapi' {
       'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
+      'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero

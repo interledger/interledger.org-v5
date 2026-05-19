@@ -18,79 +18,51 @@ describe('parseMdxToBlocks', () => {
     expect(await parseMdxToBlocks('   \n\n  ', ctx)).toEqual([])
   })
 
-  it('throws MdxParserError for malformed MDX', async () => {
+  it('returns MdxParserError for malformed MDX', async () => {
     // Unclosed JSX tag that remark-mdx cannot parse
-    await expect(parseMdxToBlocks('<Broken attr={>', ctx)).rejects.toThrow(
-      MdxParserError
-    )
-
-    await expect(
-      parseMdxToBlocks('<Broken attr={>', ctx)
-    ).rejects.toMatchObject({ code: ParserErrorCode.MDX_PARSE_ERROR })
+    const result = await parseMdxToBlocks('<Broken attr={>', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.MDX_PARSE_ERROR })
   })
 
-  it('throws UNSUPPORTED_COMPONENT for unregistered JSX', async () => {
-    await expect(
-      parseMdxToBlocks('<UnknownWidget foo="bar" />', ctx)
-    ).rejects.toThrow(MdxParserError)
-
-    await expect(
-      parseMdxToBlocks('<UnknownWidget foo="bar" />', ctx)
-    ).rejects.toMatchObject({
+  it('returns UNSUPPORTED_COMPONENT for unregistered JSX', async () => {
+    const result = await parseMdxToBlocks('<UnknownWidget foo="bar" />', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.UNSUPPORTED_COMPONENT,
       component: 'UnknownWidget'
     })
   })
 
-  it('throws DYNAMIC_EXPRESSION for bare top-level expressions', async () => {
+  it('returns DYNAMIC_EXPRESSION for bare top-level expressions', async () => {
     // {someVariable} becomes mdxFlowExpression in the AST
-    await expect(parseMdxToBlocks('{someVariable}', ctx)).rejects.toThrow(
-      MdxParserError
-    )
-
-    await expect(parseMdxToBlocks('{someVariable}', ctx)).rejects.toMatchObject(
-      {
-        code: ParserErrorCode.DYNAMIC_EXPRESSION
-      }
-    )
+    const result = await parseMdxToBlocks('{someVariable}', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws DYNAMIC_EXPRESSION for arrow function expressions', async () => {
-    await expect(
-      parseMdxToBlocks('{() => doSomething()}', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.DYNAMIC_EXPRESSION
-    })
+  it('returns DYNAMIC_EXPRESSION for arrow function expressions', async () => {
+    const result = await parseMdxToBlocks('{() => doSomething()}', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws DYNAMIC_EXPRESSION for import statements', async () => {
-    await expect(
-      parseMdxToBlocks('import { foo } from "bar"', ctx)
-    ).rejects.toThrow(MdxParserError)
-
-    await expect(
-      parseMdxToBlocks('import { foo } from "bar"', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.DYNAMIC_EXPRESSION
-    })
+  it('returns DYNAMIC_EXPRESSION for import statements', async () => {
+    const result = await parseMdxToBlocks('import { foo } from "bar"', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws DYNAMIC_EXPRESSION for export statements', async () => {
-    await expect(
-      parseMdxToBlocks('export const x = 1', ctx)
-    ).rejects.toMatchObject({
-      code: ParserErrorCode.DYNAMIC_EXPRESSION
-    })
+  it('returns DYNAMIC_EXPRESSION for export statements', async () => {
+    const result = await parseMdxToBlocks('export const x = 1', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws UNSUPPORTED_COMPONENT for JSX fragments', async () => {
-    await expect(parseMdxToBlocks('<>\n  content\n</>', ctx)).rejects.toThrow(
-      MdxParserError
-    )
-
-    await expect(
-      parseMdxToBlocks('<>\n  content\n</>', ctx)
-    ).rejects.toMatchObject({
+  it('returns UNSUPPORTED_COMPONENT for JSX fragments', async () => {
+    const result = await parseMdxToBlocks('<>\n  content\n</>', ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.UNSUPPORTED_COMPONENT
     })
   })

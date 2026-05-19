@@ -155,10 +155,10 @@ describe('Ambassador handler', () => {
     ])
   })
 
-  it('throws MISSING_REQUIRED_PROP when pathSlug is missing', async () => {
-    await expect(
-      parseMdxToBlocks('<Ambassador />', ctxWith({}))
-    ).rejects.toMatchObject({
+  it('returns MISSING_REQUIRED_PROP when pathSlug is missing', async () => {
+    const result = await parseMdxToBlocks('<Ambassador />', ctxWith({}))
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.MISSING_REQUIRED_PROP
     })
   })
@@ -208,10 +208,13 @@ describe('AmbassadorGrid handler', () => {
     expect(blocks[0]).not.toHaveProperty('heading')
   })
 
-  it('throws MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
-    await expect(
-      parseMdxToBlocks('<AmbassadorGrid heading="Team" />', ctxWith({}))
-    ).rejects.toMatchObject({
+  it('returns MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
+    const result = await parseMdxToBlocks(
+      '<AmbassadorGrid heading="Team" />',
+      ctxWith({})
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.MISSING_REQUIRED_PROP
     })
   })
@@ -244,13 +247,13 @@ describe('AmbassadorGrid handler', () => {
     expect(blocks[0]).not.toHaveProperty('heading')
   })
 
-  it('throws UNRESOLVED_RELATION when any pathSlug is unresolved', async () => {
-    await expect(
-      parseMdxToBlocks(
-        '<AmbassadorGrid pathSlugs={["alice","ghost"]} />',
-        ctxWith({ alice: 'doc-alice' })
-      )
-    ).rejects.toMatchObject({
+  it('returns UNRESOLVED_RELATION when any pathSlug is unresolved', async () => {
+    const result = await parseMdxToBlocks(
+      '<AmbassadorGrid pathSlugs={["alice","ghost"]} />',
+      ctxWith({ alice: 'doc-alice' })
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
       code: ParserErrorCode.UNRESOLVED_RELATION
     })
   })

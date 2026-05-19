@@ -1,3 +1,6 @@
+// Error handling
+export { tryCatchAsync } from './tryCatch'
+
 // Paths & configuration
 export {
   getProjectRoot,
@@ -60,6 +63,9 @@ export {
   createFlatLocaleMdxLifecycle
 } from './flatContentLifecycle'
 export {
+  type MenuItem,
+  type MenuSubGroup,
+  type MenuGroup,
   type NavigationLifecycleConfig,
   createNavigationLifecycle,
   normalizeNavigationInput

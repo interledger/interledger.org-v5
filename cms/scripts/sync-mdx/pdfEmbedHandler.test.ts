@@ -36,9 +36,13 @@ describe('PdfEmbed handler — not yet registered', () => {
     // Since this test file imports './pdfEmbedHandler' below, we verify the
     // pre-registration state by checking that the handler IS registered after import.
     // The "before" scenario is covered by the UNSUPPORTED_COMPONENT path in mdxBlockParser.
-    await expect(
-      parseMdxToBlocks('<UnknownComponent />', { locale: 'en' })
-    ).rejects.toMatchObject({ code: ParserErrorCode.UNSUPPORTED_COMPONENT })
+    const result = await parseMdxToBlocks('<UnknownComponent />', {
+      locale: 'en'
+    })
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.UNSUPPORTED_COMPONENT
+    })
   })
 })
 
@@ -139,33 +143,39 @@ describe('PdfEmbed handler — all props present', () => {
 // ---------------------------------------------------------------------------
 
 describe('PdfEmbed handler — errors', () => {
-  it('throws MISSING_REQUIRED_PROP when url is missing', async () => {
-    await expect(
-      parseMdxToBlocks('<PdfEmbed />', ctxWith())
-    ).rejects.toMatchObject({ code: ParserErrorCode.MISSING_REQUIRED_PROP })
+  it('returns MISSING_REQUIRED_PROP when url is missing', async () => {
+    const result = await parseMdxToBlocks('<PdfEmbed />', ctxWith())
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP
+    })
   })
 
-  it('throws DYNAMIC_EXPRESSION when url is a dynamic expression', async () => {
-    await expect(
-      parseMdxToBlocks('<PdfEmbed url={someVar} />', ctxWith())
-    ).rejects.toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  it('returns DYNAMIC_EXPRESSION when url is a dynamic expression', async () => {
+    const result = await parseMdxToBlocks(
+      '<PdfEmbed url={someVar} />',
+      ctxWith()
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('throws UNRESOLVED_RELATION when internal URL is not found in Strapi', async () => {
-    await expect(
-      parseMdxToBlocks(
-        '<PdfEmbed url="/uploads/missing.pdf" />',
-        ctxWith({}) // no entries
-      )
-    ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+  it('returns UNRESOLVED_RELATION when internal URL is not found in Strapi', async () => {
+    const result = await parseMdxToBlocks(
+      '<PdfEmbed url="/uploads/missing.pdf" />',
+      ctxWith({}) // no entries
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
   })
 
-  it('throws UNRESOLVED_RELATION when resolveMediaUpload is not in context', async () => {
-    await expect(
-      parseMdxToBlocks('<PdfEmbed url="/uploads/file.pdf" />', {
-        locale: 'en'
-      })
-    ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+  it('returns UNRESOLVED_RELATION when resolveMediaUpload is not in context', async () => {
+    const result = await parseMdxToBlocks(
+      '<PdfEmbed url="/uploads/file.pdf" />',
+      { locale: 'en' }
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
   })
 })
 

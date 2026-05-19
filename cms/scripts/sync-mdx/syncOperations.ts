@@ -7,6 +7,9 @@
  * - syncUnmatchedLocales: Handle locale files whose English parent is in Strapi but not MDX
  * - deleteOrphanedEntries: Remove Strapi entries that no longer have MDX files
  *
+ * Errors-as-values: each operation returns `T | Error`. Callers in
+ * syncCoordinator narrow on the return and increment `results.errors`.
+ *
  * All operations support dry-run mode for previewing changes.
  */
 import { getLocalesToCheck } from './scan'
@@ -16,7 +19,7 @@ import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { hasMdxFile } from './localeMatch'
 
-/** Sync a single English entry (create or update). Returns the entry if successful. */
+/** Sync a single English entry (create or update). Returns the entry, or Error on failure. */
 export async function syncEnglishEntry(
   _contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
@@ -24,18 +27,21 @@ export async function syncEnglishEntry(
   ctx: SyncContext,
   results: SyncResults,
   dryRun: boolean
-): Promise<StrapiEntry | undefined> {
+): Promise<StrapiEntry | undefined | Error> {
   const existingByIdentifier = await ctx.strapi.findByPathSlug(
     config.apiId,
     englishMdx.pathSlug,
     'en'
   )
+  if (existingByIdentifier instanceof Error) return existingByIdentifier
+
   const englishData = await config.buildPayload(
     englishMdx,
     ctx.strapi,
     existingByIdentifier ?? null,
     dryRun
   )
+  if (englishData instanceof Error) return englishData
 
   if (existingByIdentifier) {
     if (dryRun) {
@@ -48,6 +54,7 @@ export async function syncEnglishEntry(
       existingByIdentifier.documentId,
       englishData
     )
+    if (result instanceof Error) return result
     console.log(`   🔄 Updated: ${englishMdx.pathSlug} (en)`)
     results.updated++
     return result.data || existingByIdentifier
@@ -63,12 +70,13 @@ export async function syncEnglishEntry(
   }
 
   const result = await ctx.strapi.createEntry(config.apiId, englishData)
+  if (result instanceof Error) return result
   console.log(`   ✅ Created: ${englishMdx.pathSlug} (en)`)
   results.created++
   return result.data
 }
 
-/** Sync a single locale (create or update localization). */
+/** Sync a single locale (create or update localization). Returns void on success, Error on failure. */
 export async function syncLocaleEntry(
   _contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
@@ -77,7 +85,7 @@ export async function syncLocaleEntry(
   ctx: SyncContext,
   results: SyncResults,
   dryRun: boolean
-): Promise<void> {
+): Promise<void | Error> {
   const localeCode = localeMdx.locale || 'en'
 
   const existingLocale = await ctx.strapi.findByPathSlug(
@@ -85,6 +93,7 @@ export async function syncLocaleEntry(
     localeMdx.pathSlug,
     localeCode
   )
+  if (existingLocale instanceof Error) return existingLocale
 
   const localeData = await config.buildPayload(
     localeMdx,
@@ -92,6 +101,7 @@ export async function syncLocaleEntry(
     existingLocale ?? null,
     dryRun
   )
+  if (localeData instanceof Error) return localeData
 
   if (existingLocale) {
     if (dryRun) {
@@ -99,12 +109,13 @@ export async function syncLocaleEntry(
         `      🌍 [DRY-RUN] Would update localization: ${localeMdx.pathSlug} (${localeCode})`
       )
     } else {
-      await ctx.strapi.updateLocalization(
+      const result = await ctx.strapi.updateLocalization(
         config.apiId,
         englishEntry.documentId,
         localeCode,
         localeData
       )
+      if (result instanceof Error) return result
       console.log(
         `      🌍 Updated localization: ${localeMdx.pathSlug} (${localeCode})`
       )
@@ -116,12 +127,13 @@ export async function syncLocaleEntry(
         `      🌍 [DRY-RUN] Would create localization: ${localeMdx.pathSlug} (${localeCode})`
       )
     } else {
-      await ctx.strapi.createLocalization(
+      const result = await ctx.strapi.createLocalization(
         config.apiId,
         englishEntry.documentId,
         localeCode,
         localeData
       )
+      if (result instanceof Error) return result
       console.log(
         `      🌍 Created localization: ${localeMdx.pathSlug} (${localeCode})`
       )
@@ -153,6 +165,13 @@ export async function syncUnmatchedLocales(
   )
 
   const allStrapiEntries = await ctx.strapi.getAllEntries(config.apiId, 'en')
+  if (allStrapiEntries instanceof Error) {
+    console.error(
+      `      ❌ Error fetching English entries to match unmatched locales: ${allStrapiEntries.message}`
+    )
+    results.errors++
+    return
+  }
 
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
@@ -168,19 +187,18 @@ export async function syncUnmatchedLocales(
       )
       matchedPathSlugs.add(`${localeCode}:${localeMdx.pathSlug}`)
 
-      try {
-        await syncLocaleEntry(
-          contentType,
-          config,
-          localeMdx,
-          matchedEnglishEntry,
-          ctx,
-          results,
-          dryRun
-        )
-      } catch (error) {
+      const result = await syncLocaleEntry(
+        contentType,
+        config,
+        localeMdx,
+        matchedEnglishEntry,
+        ctx,
+        results,
+        dryRun
+      )
+      if (result instanceof Error) {
         console.error(
-          `      ❌ Error processing localization ${localeMdx.pathSlug} (${localeCode}): ${(error as Error).message}`
+          `      ❌ Error processing localization ${localeMdx.pathSlug} (${localeCode}): ${result.message}`
         )
         results.errors++
       }
@@ -235,20 +253,21 @@ export async function deleteOrphanedEntries(
     }
   }
 
-  // locale=all first (catches entries per-locale queries may miss)
-  try {
-    addBatch(await ctx.strapi.getAllEntries(config.apiId, 'all'), 'en')
-  } catch {
-    // locale=all may not be supported — fall through to per-locale
+  // locale=all first (catches entries per-locale queries may miss).
+  // An error here is non-fatal: locale=all may not be supported, so we
+  // fall through to per-locale queries.
+  const allLocaleResult = await ctx.strapi.getAllEntries(config.apiId, 'all')
+  if (!(allLocaleResult instanceof Error)) {
+    addBatch(allLocaleResult, 'en')
   }
 
-  // Per-locale queries as safety net
+  // Per-locale queries as safety net. Per-locale errors are also non-fatal:
+  // a locale may not exist for this content type.
   const locales = getLocalesToCheck(contentType, contentTypes)
   for (const locale of locales) {
-    try {
-      addBatch(await ctx.strapi.getAllEntries(config.apiId, locale), locale)
-    } catch {
-      // locale may not exist for this content type
+    const localeResult = await ctx.strapi.getAllEntries(config.apiId, locale)
+    if (!(localeResult instanceof Error)) {
+      addBatch(localeResult, locale)
     }
   }
 
@@ -285,39 +304,40 @@ export async function deleteOrphanedEntries(
 
     let deletedAny = false
     for (const locale of sortedLocales) {
-      try {
-        await ctx.strapi.deleteLocalization(config.apiId, documentId, locale)
-        console.log(
-          `   🗑️  Deleted: ${doc.slugs.get(locale) ?? slugLabel} (${locale})`
-        )
-        results.deleted++
-        deletedAny = true
-      } catch (error) {
-        if (isNotFoundError((error as Error).message)) {
+      const result = await ctx.strapi.deleteLocalization(
+        config.apiId,
+        documentId,
+        locale
+      )
+      if (result instanceof Error) {
+        if (isNotFoundError(result.message)) {
           // Already gone (cascaded delete) — not an error
           results.deleted++
           deletedAny = true
         } else {
           console.error(
-            `   ❌ Error deleting ${doc.slugs.get(locale) ?? slugLabel} (${locale}): ${(error as Error).message}`
+            `   ❌ Error deleting ${doc.slugs.get(locale) ?? slugLabel} (${locale}): ${result.message}`
           )
           results.errors++
         }
+        continue
       }
+      console.log(
+        `   🗑️  Deleted: ${doc.slugs.get(locale) ?? slugLabel} (${locale})`
+      )
+      results.deleted++
+      deletedAny = true
     }
 
     // Clean up document root
     if (deletedAny) {
-      try {
-        await ctx.strapi.deleteEntry(config.apiId, documentId)
-      } catch (error) {
+      const result = await ctx.strapi.deleteEntry(config.apiId, documentId)
+      if (result instanceof Error && !isNotFoundError(result.message)) {
         // 404 = document was already fully removed by locale deletes. Expected.
-        if (!isNotFoundError((error as Error).message)) {
-          console.error(
-            `   ❌ Error deleting document root ${slugLabel}: ${(error as Error).message}`
-          )
-          results.errors++
-        }
+        console.error(
+          `   ❌ Error deleting document root ${slugLabel}: ${result.message}`
+        )
+        results.errors++
       }
     }
   }
