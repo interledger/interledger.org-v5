@@ -37,11 +37,12 @@ const headingClasses = `
   `
 const cardsContainerClasses = `
   flex flex-col gap-lg 
+  list-none pl-0
   tablet:pt-4xl
   desktop:flex-row desktop:gap-4xl desktop:items-start
   desktop:pt-0 
-  desktop:z-1
-  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-1
+  desktop:z-[1]
+  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-[1]
   desktop:after:bg-gradient-to-b desktop:after:from-ice-indigo-100/0 desktop:after:via-ice-indigo-100/100 desktop:after:to-ice-indigo-100/100
   `
 //300px (initial offset), 75vh (stagger step), 45vh (sticky pin point), 100px (rise distance)
@@ -80,10 +81,10 @@ const threePillars = [
     <h2 id="pillars-heading" class={headingClasses}>
       {t('pillarsSection.heading')}
     </h2>
-    <div class={cardsContainerClasses}>
+    <ul class={cardsContainerClasses} role="list">
       {
         threePillars.map((pillar) => (
-          <div class={cardDivs}>
+          <li class={cardDivs}>
             <PillarCard
               title={pillar.title}
               description={pillar.description}
@@ -91,10 +92,10 @@ const threePillars = [
               class={pillar.bg}
               umamiAttr={pillarUmamiAttrs(pillar.href)}
             />
-          </div>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </section>
 
