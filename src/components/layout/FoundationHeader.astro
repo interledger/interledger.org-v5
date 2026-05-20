@@ -60,8 +60,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     ariaLabel
   })
 
-const headerClass =
-  'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
+const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 ---
 
 <header
@@ -92,9 +91,7 @@ const headerClass =
       data-offscreen="true"
       id="siteNavLinks"
     >
-      <div
-        class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl"
-      >
+      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl">
         <div class="flex items-center justify-between gap-xl">
           {
             alternateLocaleHref && alternateLocaleLabel ? (
