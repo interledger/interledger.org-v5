@@ -223,6 +223,12 @@
   color: var(--color-neutral-25);
 }
 
+/* Only the hovered pill is filled — de-emphasize the selected pill while another is hovered */
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher']:has(a:hover) a[aria-current='true']:not(:hover) {
+  background-color: transparent;
+  color: var(--color-neutral-50);
+}
+
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] {
   background-color: var(--color-neutral-0);
   border-color: var(--color-neutral-25);
@@ -241,6 +247,11 @@
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]):hover {
   background-color: var(--color-neutral-25);
   color: var(--color-neutral-100);
+}
+
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:has(a:hover) a[aria-current='true']:not(:hover) {
+  background-color: transparent;
+  color: var(--color-neutral-75);
 }
 
 /* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
