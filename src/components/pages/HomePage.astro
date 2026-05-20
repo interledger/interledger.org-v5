@@ -1,6 +1,7 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import HomepageHero from '@/components/pages/HomepageHero.astro'
+import AnimatedNetwork from '@/components/homepage/AnimatedNetwork.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -21,6 +22,7 @@ const t = useTranslations(pageLang)
 >
   <main>
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
+    <AnimatedNetwork />
     <TextMediaSection
       mediaSide="right"
       theme="dark"
