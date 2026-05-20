@@ -3,21 +3,23 @@ import Icon from '@/components/shared/Icon.astro'
 import { useTranslations } from '@/utils'
 
 interface Props {
-  menuId: string
+  controlsId: string
   iconId: string
 }
 
-const { menuId, iconId } = Astro.props
+const { controlsId, iconId } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 ---
 
 <button
   type="button"
-  class="desktop:hidden border-0 bg-transparent py-space-xs"
-  aria-controls={menuId}
+  class="desktop:hidden border-0 bg-transparent py-space-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+  aria-controls={controlsId}
+  aria-expanded="false"
   aria-label={t('nav.toggle_menu')}
   title={t('nav.toggle_menu')}
+  data-component="HamburgerButton"
   data-nav-toggle
 >
   <div

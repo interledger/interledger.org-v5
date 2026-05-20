@@ -66,16 +66,15 @@
     }
   }
 
-  /* Drawer backgrounds: only painted at the mobile-drawer breakpoint so the
-     desktop wrapper stays transparent and inherits the parent header's bg.
-     The dark variant is keyed off `data-theme="dark"` set on <header>. */
+  /* Drawer backgrounds: scoped to foundation header theme only — not <html data-theme>,
+     which stays dark on the homepage while JS toggles the header to light on scroll. */
   @media (max-width: 1199px) {
-    .header-nav-wrapper--foundation {
-      background: white;
+    .foundation-header[data-theme='light'] .header-nav-wrapper--foundation {
+      background-color: #ffffff;
     }
 
-    [data-theme='dark'] .header-nav-wrapper--foundation {
-      background: #0d0d0d;
+    .foundation-header[data-theme='dark'] .header-nav-wrapper--foundation {
+      background-color: #0d0d0d;
     }
 
     .header-nav-wrapper--summit {
@@ -130,13 +129,13 @@
   box-shadow: var(--shadow);
 }
 
-/* Nav button hover backgrounds (desktop only) */
+/* Nav button hover/focus backgrounds (desktop only) */
 @media (min-width: 1200px) {
-  .foundation-header[data-theme='dark'] [data-submenu-button]:hover {
+  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible) {
     background-color: var(--color-neutral-100);
   }
 
-  .foundation-header[data-theme='light'] [data-submenu-button]:hover {
+  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
     background-color: var(--color-gray-header);
   }
 }
@@ -184,79 +183,74 @@
   background-color: var(--color-neutral-50);
 }
 
+/* Mobile language label */
+.foundation-header[data-theme='dark'] .foundation-mobile-language-label {
+  color: var(--color-neutral-50);
+}
+
+.foundation-header[data-theme='light'] .foundation-mobile-language-label {
+  color: black;
+}
+
+.foundation-header[data-theme='dark'] .foundation-mobile-language-label:is(:hover, :focus-visible) {
+  color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] .foundation-mobile-language-label:is(:hover, :focus-visible) {
+  color: var(--color-neutral-100);
+}
+
 /* Language switcher */
-.foundation-header[data-theme='dark'] [aria-label='Language'] {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] {
   background-color: var(--color-neutral-150);
   border-color: var(--color-neutral-100);
 }
 
-.foundation-header[data-theme='dark'] [aria-label='Language'] [aria-current='true'] {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='true'] {
   background-color: var(--color-neutral-100);
   color: var(--color-orchid-50);
 }
 
-.foundation-header[data-theme='dark'] [aria-label='Language'] a:not([aria-current]) {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
   color: var(--color-neutral-50);
 }
 
-.foundation-header[data-theme='dark'] [aria-label='Language'] a:not([aria-current]):hover {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:not([aria-current]):hover {
   color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] [aria-label='Language'] {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] {
   background-color: var(--color-neutral-0);
   border-color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] [aria-label='Language'] a {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a {
   font-weight: 400;
 }
 
-.foundation-header[data-theme='light'] [aria-label='Language'] [aria-current='true'] {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='true'] {
   background-color: var(--color-neutral-25);
   color: var(--color-orchid-100);
 }
 
-.foundation-header[data-theme='light'] [aria-label='Language'] a:not([aria-current]) {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
   color: var(--color-neutral-75);
 }
 
-.foundation-header[data-theme='light'] [aria-label='Language'] a:not([aria-current]):hover {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]):hover {
   color: var(--color-neutral-100);
 }
 
-/* Mobile drawer: flat submenu link hover/focus — filled background */
+/* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
 @media (max-width: 1199px) {
-  .foundation-header[data-theme='dark'] .nav-link:not(.mega-nav-link):is(:hover, :focus-visible) {
+  .foundation-header[data-theme='dark'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
+  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
     outline: none;
     background-color: var(--color-neutral-100);
   }
 
-  .foundation-header[data-theme='light'] .nav-link:not(.mega-nav-link):is(:hover, :focus-visible) {
-    outline: none;
-    background-color: var(--color-gray-header);
-  }
-
-  /* Mobile drawer: mega menu link hover/focus — inner contrast ring + outer orchid outline */
-  .foundation-header[data-theme='dark'] .mega-nav-link:is(:hover, :focus-visible) {
-    outline: 2px solid var(--color-orchid-100);
-    outline-offset: 2px;
-    box-shadow: inset 0 0 0 1px var(--color-neutral-0);
-  }
-
-  .foundation-header[data-theme='light'] .mega-nav-link:is(:hover, :focus-visible) {
-    outline: 2px solid var(--color-orchid-100);
-    outline-offset: 2px;
-    box-shadow: inset 0 0 0 1px var(--color-neutral-900);
-  }
-
-  /* Mobile drawer: parent toggle hover/focus — filled background, no outline ring */
-  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible) {
-    outline: none;
-    background-color: var(--color-neutral-100);
-  }
-
-  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
+  .foundation-header[data-theme='light'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
+  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
     outline: none;
     background-color: var(--color-gray-header);
   }

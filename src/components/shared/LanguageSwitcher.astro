@@ -1,11 +1,8 @@
 ---
 import {
-  translationMap,
-  buildRoutePath,
-  normalizeBasePath,
+  getLanguageSwitcherHrefs,
   switcherLocales,
-  type Locale,
-  localizeRoute
+  useTranslations
 } from '@/utils'
 
 /**
@@ -22,27 +19,15 @@ interface Props {
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
 const { class: className } = Astro.props
+const t = useTranslations(routeLocale)
 
-const entry = translationMap[currentSlug]
-
-function toDefaultSectionHref(locale: Locale, basePath: string): string {
-  return localizeRoute(normalizeBasePath(basePath), locale)
-}
-
-const hrefs = Object.fromEntries(
-  switcherLocales.map((locale) => {
-    const slug = entry?.[locale]
-    const href = slug
-      ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)
-      : toDefaultSectionHref(locale, currentBasePath)
-    return [locale, href]
-  })
-) as Record<Locale, string>
+const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
 ---
 
 <div
   role="group"
-  aria-label="Language"
+  aria-label={t('nav.language')}
+  data-component="LanguageSwitcher"
   class:list={[
     'inline-flex items-stretch gap-0 rounded-lg border border-neutral-100 bg-neutral-150 p-[2px]',
     'motion-safe:transition-colors motion-safe:duration-500',
@@ -59,7 +44,7 @@ const hrefs = Object.fromEntries(
           aria-current={isActive ? 'true' : undefined}
           class:list={[
             'inline-flex h-[38px] w-10 items-center justify-center rounded-md',
-            'font-poppins text-caption font-semibold leading-none no-underline',
+            'text-caption font-semibold leading-none no-underline',
             'motion-safe:transition-colors motion-safe:duration-500',
             'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
             isActive

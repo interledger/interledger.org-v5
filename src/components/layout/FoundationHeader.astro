@@ -21,7 +21,9 @@ import {
   HOME_CONTENT_SLUG,
   useTranslations,
   getNavigation,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  getAlternateLocale,
+  getAlternateLocaleHref
 } from '@/utils'
 
 interface Props {
@@ -32,6 +34,14 @@ const { theme = 'dark' } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const alternateLocale = getAlternateLocale(routeLocale)
+const alternateLocaleHref = getAlternateLocaleHref(
+  routeLocale,
+  Astro.locals.currentSlug,
+  Astro.locals.currentBasePath
+)
+const alternateLocaleLabel = alternateLocale?.toUpperCase() ?? ''
 
 const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
 const homeHref = translatePath(
@@ -54,7 +64,12 @@ const headerClass =
   'foundation-header sticky top-0 z-[2] px-space-xs desktop:px-space-m'
 ---
 
-<header class={headerClass} role="banner" data-theme={theme}>
+<header
+  class={headerClass}
+  role="banner"
+  data-theme={theme}
+  data-component="FoundationHeader"
+>
   <nav
     class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-space-s desktop:h-[76px] max-desktop:h-[var(--site-header-height)]"
     role="navigation"
@@ -81,12 +96,34 @@ const headerClass =
       id="siteNavLinks"
     >
       <div
-        class="max-desktop:flex desktop:hidden items-center justify-between gap-space-s px-lg pt-space-xs pb-space-s"
+        class="max-desktop:block desktop:hidden px-lg pt-space-xs pb-space-s"
       >
-        <span class="font-poppins text-h3 text-neutral-75">
-          {t('nav.language')}
-        </span>
-        <LanguageSwitcher />
+        <div class="flex items-center justify-between gap-space-s">
+          {
+            alternateLocaleHref && alternateLocaleLabel ? (
+              <a
+                href={alternateLocaleHref}
+                hreflang={alternateLocale}
+                class="foundation-mobile-language-label font-poppins text-h3 font-normal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+                aria-label={t('nav.switch_language', {
+                  locale: alternateLocaleLabel
+                })}
+                {...navLink(
+                  alternateLocaleHref,
+                  t('nav.language'),
+                  t('nav.switch_language', { locale: alternateLocaleLabel })
+                )}
+              >
+                {t('nav.language')}
+              </a>
+            ) : (
+              <span class="foundation-mobile-language-label font-poppins text-h3 font-normal">
+                {t('nav.language')}
+              </span>
+            )
+          }
+          <LanguageSwitcher />
+        </div>
       </div>
       <hr
         class="desktop:hidden mx-space-s my-0 mb-xl h-px border-0 bg-neutral-100"
@@ -111,7 +148,7 @@ const headerClass =
       }
     </div>
     <FoundationNavActions ctaButton={ctaButton} />
-    <HamburgerButton menuId="siteNavMenu" iconId="foundationMenuIcon" />
+    <HamburgerButton controlsId="siteNavLinks" iconId="foundationMenuIcon" />
   </nav>
 </header>
 

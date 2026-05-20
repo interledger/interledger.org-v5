@@ -1,13 +1,10 @@
 ---
-import { cva } from 'class-variance-authority'
 import { buildUmamiAttrs, type UmamiSection } from '@/utils'
 
 interface Props {
   href?: string
   text?: string
-  /** `primary`: filled CTA + arrow. `secondary`: outline button. */
   style?: string
-  /** `hero` switches secondary to the dark-background treatment. */
   variant?: 'hero' | 'default'
   external?: boolean
   /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
@@ -24,62 +21,25 @@ const {
 } = Astro.props as Props
 const { routeLocale } = Astro.locals
 
-const isSecondary = style === 'secondary'
+const classes: Record<string, string> = {
+  'hero-primary':
+    'inline-block w-fit rounded-pill bg-white text-primary font-semibold no-underline transition-colors hover:bg-white/90',
+  'hero-secondary':
+    'inline-block w-fit rounded-pill border-2 border-white text-white font-semibold no-underline transition-colors hover:bg-white/15',
+  secondary:
+    'inline-block w-fit rounded-pill bg-white/70 text-primary no-underline transition-colors hover:bg-white/90',
+  primary:
+    'inline-block w-fit rounded-pill bg-primary text-white no-underline transition-colors hover:bg-primary-hover'
+}
 
-const linkVariants = cva(
-  [
-    'font-poppins text-body-sm-standard md:text-body-lg-standard font-medium',
-    'inline-flex w-fit shrink-0 items-center justify-center gap-spacing-md rounded-cta border px-spacing-lg py-spacing-md no-underline transition-colors',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
-  ],
-  {
-    variants: {
-      style: {
-        primary:
-          'border-transparent bg-cta-primary text-white hover:bg-cta-primary-hover',
-        secondary: ''
-      },
-      variant: {
-        hero: '',
-        default: ''
-      }
-    },
-    compoundVariants: [
-      {
-        style: 'primary',
-        variant: 'hero',
-        class: 'focus-visible:ring-white focus-visible:ring-offset-transparent'
-      },
-      {
-        style: 'primary',
-        variant: 'default',
-        class:
-          'focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0'
-      },
-      {
-        style: 'secondary',
-        variant: 'hero',
-        class:
-          'border-neutral-50 bg-transparent text-neutral-0 hover:border-neutral-0 hover:bg-white/[0.08] focus-visible:ring-neutral-0 focus-visible:ring-offset-transparent'
-      },
-      {
-        style: 'secondary',
-        variant: 'default',
-        class:
-          'border-neutral-900 bg-transparent text-neutral-900 hover:bg-neutral-900/[0.06] focus-visible:ring-neutral-900 focus-visible:ring-offset-neutral-0'
-      }
-    ],
-    defaultVariants: {
-      style: 'primary',
-      variant: 'default'
-    }
-  }
-)
-
-const className = linkVariants({
-  style: isSecondary ? 'secondary' : 'primary',
-  variant: variant ?? 'default'
-})
+const key =
+  variant === 'hero'
+    ? style === 'secondary'
+      ? 'hero-secondary'
+      : 'hero-primary'
+    : style === 'secondary'
+      ? 'secondary'
+      : 'primary'
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
@@ -92,31 +52,27 @@ const umamiAttrs = buildUmamiAttrs({
 
 <a
   href={href ?? ''}
-  class={className}
+  class={classes[key]}
+  style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
   {...umamiAttrs}
   {...external && {
     target: '_blank',
     rel: 'noopener noreferrer'
   }}
->
-  <span>{text ?? 'Click'}</span>
-  {external ? <span class="sr-only"> (opens in a new tab)</span> : null}
+  >{text ?? 'Click'}
   {
-    !isSecondary && (
+    external && (
       <svg
-        class="size-5 shrink-0"
-        aria-hidden="true"
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
+        class="inline-block h-[0.75em] w-[0.75em]"
         fill="none"
+        viewBox="0 0 18 18"
       >
         <path
-          d="M4 10h12M11 5l5 5-5 5"
           stroke="currentColor"
-          stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          stroke-width="2"
+          d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
         />
       </svg>
     )

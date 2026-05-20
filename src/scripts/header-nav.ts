@@ -30,6 +30,9 @@ export function initHeaderNav(navId: string, iconId: string) {
     if (menuIcon instanceof HTMLElement) {
       menuIcon.dataset.open = isOpen ? 'true' : 'false'
     }
+    if (navToggle instanceof HTMLElement) {
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false')
+    }
   }
 
   function handleMobileNavToggle() {
@@ -76,7 +79,11 @@ export function initHeaderNav(navId: string, iconId: string) {
   // Escape closes the mobile nav drawer when focus is inside it.
   // Bound to root (not document) so it's naturally scoped and won't duplicate on re-init.
   root.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && linksWrapper?.dataset.offscreen === 'false') {
+    if (
+      event.key === 'Escape' &&
+      !wideNavMinWidth.matches &&
+      linksWrapper?.dataset.offscreen === 'false'
+    ) {
       setOffscreenState(true)
       setMenuIconOpenState(false)
       navToggle?.focus()
@@ -157,6 +164,7 @@ function initSubmenuToggle(root: HTMLElement) {
   const submenuButtons = root.querySelectorAll<HTMLElement>(
     '[data-submenu-button]'
   )
+  const menuItems = root.querySelectorAll<HTMLElement>('[data-menu-level="1"]')
 
   submenuButtons.forEach((submenuButton) => {
     submenuButton.setAttribute('aria-expanded', 'false')
@@ -179,8 +187,26 @@ function initSubmenuToggle(root: HTMLElement) {
     })
   })
 
+  // Close a submenu when focus leaves its menu group (Tab-out on desktop).
+  menuItems.forEach((menuItem) => {
+    menuItem.addEventListener('focusout', (event) => {
+      const relatedTarget = (event as FocusEvent).relatedTarget as Node | null
+      if (!relatedTarget || !menuItem.contains(relatedTarget)) {
+        const btn = menuItem.querySelector<HTMLElement>('[data-submenu-button]')
+        if (btn) {
+          btn.setAttribute('aria-expanded', 'false')
+          btn.setAttribute('data-open', 'false')
+        }
+      }
+    })
+  })
+
   navList.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
+      const openButton = Array.from(submenuButtons).find(
+        (btn) => btn.getAttribute('data-open') === 'true'
+      )
+      openButton?.focus()
       resetSubMenus()
     }
   })
