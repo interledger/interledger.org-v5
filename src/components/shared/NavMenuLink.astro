@@ -1,4 +1,5 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
 import { buildUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
@@ -31,8 +32,10 @@ const umamiAttrs = buildUmamiAttrs({
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
 
+const externalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
+
 const navLinkClass =
-  'nav-link relative block no-underline focus-visible:outline-none after:absolute after:inset-x-0 after:bottom-0 after:h-px ' +
+  'nav-link relative no-underline focus-visible:outline-none after:absolute after:inset-x-0 after:bottom-0 after:h-px ' +
   'after:origin-left after:bg-current after:scale-x-0 after:transition-transform after:content-[""] ' +
   'after:hidden desktop:after:block desktop:hover:after:scale-x-100 desktop:focus-visible:after:scale-x-100 ' +
   'motion-reduce:after:transition-none'
@@ -43,8 +46,9 @@ const activeClass =
 const className = [
   navLinkClass,
   itemTextClass,
-  'max-desktop:-mx-space-s max-desktop:px-lg max-desktop:py-lg',
-  'px-0 desktop:py-space-2xs desktop:pe-space-2xs',
+  openInNewTab ? 'inline-flex items-center gap-xs' : 'block',
+  'max-desktop:-mx-xl max-desktop:px-lg max-desktop:py-lg',
+  'px-0 desktop:py-md desktop:pe-md',
   activeClass,
   variant === 'mega' && 'whitespace-nowrap'
 ]
@@ -60,5 +64,12 @@ const className = [
   {...openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
 >
   {label}
-  {openInNewTab ? <span class="sr-only">{t('aria.opens_new_tab')}</span> : null}
+  {
+    openInNewTab && (
+      <>
+        <Icon name="external-link" class={externalLinkIconClass} aria-hidden="true" />
+        <span class="sr-only">{t('aria.opens_new_tab')}</span>
+      </>
+    )
+  }
 </a>

@@ -37,10 +37,10 @@ const navAttrs = (
     action
   })
 
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-space-s px-lg text-[1.25rem] desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-space-xs desktop:pr-space-3xs desktop:text-base`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-xl px-lg text-[1.25rem] desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
 
 const navButtonChevronClass =
-  'ml-sm inline-flex size-8 shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
+  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
 
 const panelBgClass = isDark
   ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
@@ -56,7 +56,7 @@ const panelDesktopClass =
   'desktop:max-h-none desktop:overflow-visible ' +
   'desktop:transition-opacity desktop:duration-fast ' +
   'desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
-  'desktop:before:absolute desktop:before:bottom-full desktop:before:inset-x-0 desktop:before:h-6 desktop:before:content-[""] ' +
+  'desktop:before:absolute desktop:before:bottom-full desktop:before:inset-x-0 desktop:before:h-xl desktop:before:content-[""] ' +
   'desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:left-0 ' +
   'desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:left-0'
 
@@ -65,9 +65,9 @@ const panelToggleClass = `submenu-panel ${panelMobileClass} ${panelDesktopClass}
 const submenuListClass =
   'list-none flex flex-col gap-y-0 desktop:block desktop:gap-0 desktop:ps-0'
 
-const flatSubmenuPanelClass = `w-full px-space-s ${panelToggleClass} desktop:min-w-full desktop:px-space-m desktop:py-space-s desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
+const flatSubmenuPanelClass = `w-full px-xl ${panelToggleClass} desktop:min-w-full desktop:px-2xl desktop:py-xl desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
 
-const megaMenuClass = `flex flex-col gap-y-0 px-space-s ${panelToggleClass} desktop:grid desktop:gap-space-l desktop:p-space-l`
+const megaMenuClass = `flex flex-col gap-y-0 px-xl ${panelToggleClass} desktop:grid desktop:gap-3xl desktop:p-3xl`
 
 const subGroupHeadingTextClass = isDark
   ? 'text-neutral-50 border-neutral-75'
@@ -76,11 +76,11 @@ const subGroupHeadingTextClass = isDark
 const megaSubGroupClass =
   'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
 
-const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap desktop:mb-space-3xs desktop:w-fit desktop:pb-space-2xs ${subGroupHeadingTextClass}`
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap desktop:mb-xs desktop:w-fit desktop:pb-md ${subGroupHeadingTextClass}`
 ---
 
 <ul
-  class="list-none flex flex-col gap-space-s ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-space-2xs desktop:relative"
+  class="list-none flex flex-col gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
   id="siteNavMenu"
   data-component="FoundationNavMenu"
   data-nav-list

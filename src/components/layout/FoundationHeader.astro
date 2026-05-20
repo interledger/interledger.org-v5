@@ -61,7 +61,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   })
 
 const headerClass =
-  'foundation-header sticky top-0 z-[2] px-space-xs desktop:px-space-m'
+  'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 ---
 
 <header
@@ -70,7 +70,7 @@ const headerClass =
   data-component="FoundationHeader"
 >
   <nav
-    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-space-s desktop:h-[var(--site-header-height-desktop)] max-desktop:h-[var(--site-header-height)]"
+    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
@@ -93,9 +93,9 @@ const headerClass =
       id="siteNavLinks"
     >
       <div
-        class="max-desktop:block desktop:hidden px-lg pt-space-xs pb-space-s"
+        class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl"
       >
-        <div class="flex items-center justify-between gap-space-s">
+        <div class="flex items-center justify-between gap-xl">
           {
             alternateLocaleHref && alternateLocaleLabel ? (
               <a
@@ -128,7 +128,7 @@ const headerClass =
       <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
-          <div class="desktop:hidden mx-lg mt-space-m mb-space-xl">
+          <div class="desktop:hidden mx-lg mt-2xl mb-4xl">
             <LinkButton
               href={ctaButton.href || '#'}
               variant="primary"
