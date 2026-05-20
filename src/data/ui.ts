@@ -179,6 +179,17 @@ export const ui = {
     'home.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
     'home.problem.video_title': "The Problem We're Solving",
+    'pillarsSection.heading':
+      'We see a world where money moves freely and opportunity follows.',
+    'pillarsSection.card1_title': 'We Build the Tech',
+    'pillarsSection.card1_description':
+      'We steward open standards and build infrastructure so financial systems can connect once, and integrate with many.',
+    'pillarsSection.card2_title': 'We Grow the Movement',
+    'pillarsSection.card2_description':
+      'We bring together developers, institutions, and policymakers to test, implement, and scale open payment systems in the real world.',
+    'pillarsSection.card3_title': 'We Shift the System',
+    'pillarsSection.card3_description':
+      'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.',
     'home.making_money_move.heading': 'Making Money Move like Data',
     'home.making_money_move.body_1':
       'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
@@ -353,6 +364,13 @@ export const ui = {
     'homepageHero.description': '',
     'homepageHero.cta_explore_tech': '',
     'homepageHero.cta_get_involved': '',
-    'homepageHero.cta_navigation': ''
+    'homepageHero.cta_navigation': '',
+    'pillarsSection.heading': '',
+    'pillarsSection.card1_title': '',
+    'pillarsSection.card1_description': '',
+    'pillarsSection.card2_title': '',
+    'pillarsSection.card2_description': '',
+    'pillarsSection.card3_title': '',
+    'pillarsSection.card3_description': ''
   }
 } as const

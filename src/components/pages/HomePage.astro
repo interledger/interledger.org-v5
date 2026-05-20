@@ -5,6 +5,7 @@ import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import { useTranslations, type Locale } from '@/utils'
+import PillarsSection from '@/components/shared/PillarsSection.astro'
 
 interface Props {
   pageLang: Locale
@@ -39,6 +40,7 @@ const t = useTranslations(pageLang)
         />
       </div>
     </TextMediaSection>
+    <PillarsSection />
     <TextMediaSection
       mediaSide="left"
       theme="light"

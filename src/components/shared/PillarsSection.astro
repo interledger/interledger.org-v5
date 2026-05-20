@@ -1,0 +1,189 @@
+---
+// Three Card layout
+// On desktop, cards stagger-pin via sticky offsets while the heading fades behind them.
+// Mobile/tablet: plain vertical stack.
+// All animations are scroll-driven (animation-timeline) — no JS.
+// Equal-height floor for cards lives in <style> as --card-min-h (see comment there for anchors).
+
+import PillarCard from '@/components/shared/PillarCard.astro'
+import { useTranslations, buildUmamiAttrs } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const pillarUmamiAttrs = (href: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'card',
+    href
+  })
+
+const sectionClasses = `
+  px-lg py-5xl font-poppins bg-ice-indigo-100 
+  tablet:py-0 tablet:px-xl tablet:min-h-screen
+  desktop:px-5xl
+  `
+const sectionContainerClasses = `
+  flex flex-col gap-2xl 
+  tablet:gap-lg tablet:pb-[20vh] 
+  desktop:relative
+  desktop:max-w-content desktop:mx-auto desktop:pb-[30vh]
+  `
+const headingClasses = `
+  pillars-heading
+  text-h3 text-center
+  tablet:text-h3-md tablet:pt-[20vh]
+  desktop:text-h3-lg
+  desktop:z-0 desktop:sticky desktop:top-0
+  `
+const cardsContainerClasses = `
+  flex flex-col gap-lg 
+  list-none pl-0 mb-0
+  tablet:pt-4xl
+  desktop:flex-row desktop:gap-4xl desktop:items-start
+  desktop:pt-0 
+  desktop:z-[1]
+  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-[1]
+  desktop:after:bg-gradient-to-b desktop:after:from-ice-indigo-100/0 desktop:after:via-ice-indigo-100/100 desktop:after:to-ice-indigo-100/100
+  `
+//300px (initial offset), 75vh (stagger step), 45vh (sticky pin point), 100px (rise distance)
+const cardDivs = `
+  pillar-card
+  flex-1 m-0
+  desktop:flex desktop:flex-col
+  desktop:min-h-[var(--card-min-h)]
+  desktop:first:mt-[300px]
+  desktop:nth-[2]:mt-[calc(300px+75vh)]
+  desktop:nth-[3]:mt-[calc(300px+2*75vh)]
+  desktop:sticky desktop:top-[45vh]
+  `
+const threePillars = [
+  {
+    title: t('pillarsSection.card1_title'),
+    description: t('pillarsSection.card1_description'),
+    href: '#',
+    bg: 'bg-aqua-mint-100'
+  },
+  {
+    title: t('pillarsSection.card2_title'),
+    description: t('pillarsSection.card2_description'),
+    href: '#',
+    bg: 'bg-apricot-100'
+  },
+  {
+    title: t('pillarsSection.card3_title'),
+    description: t('pillarsSection.card3_description'),
+    href: '/about-us',
+    bg: 'bg-soft-indigo-100'
+  }
+] as const
+---
+
+<section aria-labelledby="pillars-heading" class={sectionClasses}>
+  <div class={sectionContainerClasses}>
+    <h2 id="pillars-heading" class={headingClasses}>
+      {t('pillarsSection.heading')}
+    </h2>
+    <ul class={cardsContainerClasses} role="list">
+      {
+        threePillars.map((pillar) => (
+          <li class={cardDivs}>
+            <PillarCard
+              title={pillar.title}
+              description={pillar.description}
+              href={pillar.href}
+              class={pillar.bg}
+              umamiAttr={pillarUmamiAttrs(pillar.href)}
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .pillar-card {
+    /* Equal-height floor for the cards: the staggered top margins below would
+       otherwise make flex-stretch give them uneven heights. Anchors are the
+       tallest natural content measured per viewport width — 362px at 1200px,
+       310px at 2000px. Re-measure if card copy or layout changes. */
+    --card-min-h: clamp(310px, calc(440px - 6.5vw), 362px);
+    animation: rise linear forwards;
+    animation-timeline: view();
+    animation-range: 0% 30%;
+  }
+
+  @media (min-width: 810px) {
+    .pillars-heading {
+      animation: rise linear forwards;
+      animation-timeline: view();
+      animation-range: 0% 30%;
+    }
+  }
+  @media (min-width: 1200px) {
+    section:focus-within .pillar-card {
+      position: static;
+      margin-top: 0;
+      padding-top: var(--spacing-5xl);
+    }
+    section:focus-within ul {
+      align-items: stretch;
+    }
+    section:focus-within .pillar-card article {
+      height: 100%;
+    }
+    section:focus-within .pillars-heading {
+      position: static;
+    }
+    .pillar-card {
+      animation: none;
+    }
+    .pillars-heading {
+      animation: shrink linear forwards;
+      animation-timeline: scroll();
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pillar-card,
+    .pillars-heading {
+      animation: none;
+    }
+
+    @media (min-width: 1200px) {
+      .pillar-card {
+        position: static;
+        margin-top: 0;
+        padding-top: var(--spacing-5xl);
+      }
+      .pillars-heading {
+        position: static;
+      }
+      section:focus-within ul {
+        align-items: stretch;
+      }
+      section:focus-within .pillar-card article {
+        height: 100%;
+      }
+    }
+  }
+
+  @keyframes rise {
+    0% {
+      transform: translateY(100px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes shrink {
+    from {
+      scale: 1;
+    }
+    to {
+      scale: 0.8;
+    }
+  }
+</style>
