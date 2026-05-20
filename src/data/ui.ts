@@ -178,7 +178,24 @@ export const ui = {
       "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - if they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
     'home.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
-    'home.problem.video_title': "The Problem We're Solving"
+    'home.problem.video_title': "The Problem We're Solving",
+    'home.making_money_move.heading': 'Making Money Move like Data',
+    'home.making_money_move.body_1':
+      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
+    'home.making_money_move.body_2':
+      'In our connected world, money should move in the same way: reliably, across systems, as one network.',
+    'home.making_money_move.body_3':
+      'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
+    'home.making_money_move.image_alt':
+      'Interconnected network paths illustration',
+    'home.making_money_move.cta_label': 'About us',
+    'home.independent_by_design.heading': 'Independent by Design',
+    'home.independent_by_design.body_1':
+      'For any institution or developer building on open infrastructure, governance matters as much as technology. The Interledger Foundation does not operate payment networks, take fees, or represent commercial interests, which means the standards we steward are open by structure, not just by intention.',
+    'home.independent_by_design.body_2':
+      'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
+    'home.independent_by_design.cta_label': 'Our tech governance',
+    'home.independent_by_design.image_alt': 'Speaker at a community event'
   },
   es: {
     'site.title': '',
