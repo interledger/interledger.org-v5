@@ -49,6 +49,7 @@ const cardsContainerClasses = `
 const cardDivs = `
   pillar-card
   flex-1 m-0
+  desktop:flex desktop:flex-col desktop:min-h-[40vh]
   desktop:first:mt-[300px]
   desktop:nth-[2]:mt-[calc(300px+75vh)]
   desktop:nth-[3]:mt-[calc(300px+2*75vh)]
@@ -119,6 +120,12 @@ const threePillars = [
       margin-top: 0;
       padding-top: var(--spacing-5xl);
     }
+    section:focus-within ul {
+      align-items: stretch;
+    }
+    section:focus-within .pillar-card article {
+      height: 100%;
+    }
     section:focus-within .pillars-heading {
       position: static;
     }
@@ -145,6 +152,12 @@ const threePillars = [
       }
       .pillars-heading {
         position: static;
+      }
+      section:focus-within ul {
+        align-items: stretch;
+      }
+      section:focus-within .pillar-card article {
+        height: 100%;
       }
     }
   }
