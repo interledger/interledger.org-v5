@@ -180,16 +180,16 @@ export const ui = {
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
     'home.problem.video_title': "The Problem We're Solving",
     'pillarsSection.heading':
-      "We see a world where money moves freely and opportunity follows. Here's how we work to get there:",
-    'pillarsSection.card1_title': 'We build the technology',
+      'We see a world where money moves freely and opportunity follows.',
+    'pillarsSection.card1_title': 'We Build the Tech',
     'pillarsSection.card1_description':
-      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.',
-    'pillarsSection.card2_title': 'We grow the movement',
+      'We steward open standards and build infrastructure so financial systems can connect once, and integrate with many.',
+    'pillarsSection.card2_title': 'We Grow the Movement',
     'pillarsSection.card2_description':
-      'We bring together developers, policymakers, advocates, and institutions to advance open payments.',
-    'pillarsSection.card3_title': 'This is the pillar heading',
+      'We bring together developers, institutions, and policymakers to test, implement, and scale open payment systems in the real world.',
+    'pillarsSection.card3_title': 'We Shift the System',
     'pillarsSection.card3_description':
-      'We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many.'
+      'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.'
   },
   es: {
     'site.title': '',

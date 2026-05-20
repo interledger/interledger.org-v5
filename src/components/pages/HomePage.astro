@@ -4,6 +4,7 @@ import HomepageHero from '@/components/pages/HomepageHero.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import { useTranslations, type Locale } from '@/utils'
+import PillarsSection from '@/components/shared/PillarsSection.astro'
 
 interface Props {
   pageLang: Locale
@@ -38,5 +39,6 @@ const t = useTranslations(pageLang)
         />
       </div>
     </TextMediaSection>
+    <PillarsSection />
   </main>
 </FoundationPageLayout>
