@@ -47,9 +47,7 @@ const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
             'text-caption font-normal leading-none no-underline',
             'motion-safe:transition-colors motion-safe:duration-500',
             'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
-            isActive
-              ? 'bg-neutral-100 text-orchid-50'
-              : 'text-neutral-50'
+            isActive ? 'bg-neutral-100 text-orchid-50' : 'text-neutral-50'
           ]}
         >
           {locale.toUpperCase()}
