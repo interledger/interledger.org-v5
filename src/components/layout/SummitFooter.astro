@@ -1,6 +1,5 @@
 ---
 import { translatePath, useTranslations, buildUmamiAttrs } from '@/utils'
-import LinkButton from '@/components/shared/LinkButton.astro'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -228,13 +227,12 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     <li
       class="max-[479px]:mb-space-2xs min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-space-s min-[480px]:before:text-[var(--color-text)]"
     >
-      <LinkButton
+      <a
+        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
         href={contactHref}
-        variant="secondary"
         {...footerLink(contactHref, undefined, t('footer.contact_us'))}
+        >{t('footer.contact_us')}</a
       >
-        {t('footer.contact_us')}
-      </LinkButton>
     </li>
   </ul>
 </footer>

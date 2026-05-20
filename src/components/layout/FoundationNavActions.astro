@@ -24,7 +24,7 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-space-2xs min-[1200px]:col-start-3 min-[1200px]:col-end-4 max-[1199px]:flex-col max-[1199px]:items-start max-[1199px]:px-space-s"
+  class="flex items-center gap-space-2xs desktop:col-start-3 desktop:col-end-4 max-desktop:flex-col max-desktop:items-start max-desktop:px-space-s"
 >
   {
     ctaButton && (
@@ -33,7 +33,7 @@ const ctaAttrs =
         variant="primary"
         size="sm"
         external={ctaButton.openInNewTab}
-        class="max-[1199px]:hidden"
+        class="max-desktop:hidden"
         {...ctaAttrs}
       >
         {ctaButton.label}
@@ -41,5 +41,5 @@ const ctaAttrs =
       </LinkButton>
     )
   }
-  <LanguageSwitcher class="max-[1199px]:hidden" />
+  <LanguageSwitcher class="max-desktop:hidden" />
 </div>
