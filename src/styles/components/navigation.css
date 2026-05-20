@@ -112,10 +112,14 @@
   background-color: #ffffff;
 }
 
-/* Logo swapping: white shows by default; purple only on light foundation header */
-.foundation-logo--light { display: none; }
-.foundation-header[data-theme='light'] .foundation-logo--dark  { display: none; }
-.foundation-header[data-theme='light'] .foundation-logo--light { display: inline-block; }
+/* Logo wordmark: white on dark headers, purple on light foundation header */
+.foundation-logo-wordmark {
+  fill: #ffffff;
+}
+
+.foundation-header[data-theme='light'] .foundation-logo-wordmark {
+  fill: #4f1072;
+}
 
 .foundation-header[data-theme='dark'] {
   background-color: #0d0d0d;
