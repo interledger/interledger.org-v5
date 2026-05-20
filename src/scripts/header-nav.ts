@@ -165,6 +165,32 @@ function initSubmenuToggle(root: HTMLElement) {
     '[data-submenu-button]'
   )
   const menuItems = root.querySelectorAll<HTMLElement>('[data-menu-level="1"]')
+  const wideNav = window.matchMedia('(min-width: 1200px)')
+
+  function getPanel(btn: HTMLElement): HTMLElement | null {
+    const id = btn.getAttribute('aria-controls')
+    return id ? root.querySelector<HTMLElement>(`#${id}`) : null
+  }
+
+  // On mobile, inert closed panels so children aren't tabbable.
+  // On desktop, CSS visibility:hidden handles this.
+  function syncPanelInert(btn: HTMLElement) {
+    const panel = getPanel(btn)
+    if (!panel) return
+    const isOpen = btn.getAttribute('data-open') === 'true'
+    if (!wideNav.matches && !isOpen) {
+      panel.setAttribute('inert', '')
+    } else {
+      panel.removeAttribute('inert')
+    }
+  }
+
+  function syncAllPanelInert() {
+    submenuButtons.forEach(syncPanelInert)
+  }
+
+  syncAllPanelInert()
+  wideNav.addEventListener('change', syncAllPanelInert)
 
   submenuButtons.forEach((submenuButton) => {
     submenuButton.setAttribute('aria-expanded', 'false')
@@ -179,11 +205,13 @@ function initSubmenuToggle(root: HTMLElement) {
       otherButtons.forEach((btn) => {
         btn.setAttribute('aria-expanded', 'false')
         btn.setAttribute('data-open', 'false')
+        syncPanelInert(btn)
       })
 
       const isOpen = clickedButton.getAttribute('aria-expanded') === 'true'
       clickedButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
       clickedButton.setAttribute('data-open', isOpen ? 'false' : 'true')
+      syncPanelInert(clickedButton)
     })
   })
 
@@ -196,6 +224,7 @@ function initSubmenuToggle(root: HTMLElement) {
         if (btn) {
           btn.setAttribute('aria-expanded', 'false')
           btn.setAttribute('data-open', 'false')
+          syncPanelInert(btn)
         }
       }
     })
@@ -221,6 +250,7 @@ function initSubmenuToggle(root: HTMLElement) {
     submenuButtons.forEach((btn) => {
       btn.setAttribute('aria-expanded', 'false')
       btn.setAttribute('data-open', 'false')
+      syncPanelInert(btn)
     })
   }
 }
