@@ -7,26 +7,40 @@ if (headerRoot) {
   markActiveNavLink(headerRoot)
 }
 
-// Switch from dark to light after scrolling past the hero.
+// Switch from dark to light after scrolling past all dark sections.
 // Only activates on pages that start dark (e.g. homepage) and have a hero.
 const header = document.querySelector<HTMLElement>('.foundation-header')
-const hero = document.querySelector('[data-component="HomepageHero"]')
+const darkSections = [
+  document.querySelector('[data-component="HomepageHero"]'),
+  ...Array.from(document.querySelectorAll('[data-nav-dark]')),
+].filter(Boolean) as Element[]
 
-if (header && hero && header.dataset.theme === 'dark') {
-  const updateTheme = (entry: IntersectionObserverEntry) => {
+if (header && darkSections.length > 0 && header.dataset.theme === 'dark') {
+  const intersecting = new Set<Element>()
+
+  const updateTheme = () => {
     // Keep dark at the page top — the observer can fire before layout with
-    // isIntersecting=false, which briefly flipped the bar to light (grey).
+    // isIntersecting=false, which briefly flipped the bar to light.
     const atPageTop = window.scrollY <= 0
-    header.dataset.theme = entry.isIntersecting || atPageTop ? 'dark' : 'light'
+    header.dataset.theme =
+      intersecting.size > 0 || atPageTop ? 'dark' : 'light'
   }
 
   const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry) updateTheme(entry)
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          intersecting.add(entry.target)
+        } else {
+          intersecting.delete(entry.target)
+        }
+      }
+      updateTheme()
     },
     { threshold: 0 }
   )
-  observer.observe(hero)
+
+  darkSections.forEach((el) => observer.observe(el))
 
   // Background cross-fade only after the user scrolls — avoids a load-time flash.
   window.addEventListener(

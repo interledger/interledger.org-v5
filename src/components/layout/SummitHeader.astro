@@ -36,11 +36,11 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
 ---
 
 <header
-  class="bg-black px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white text-[1rem]"
+  class="bg-black px-2xl sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white text-[1rem]"
   role="banner"
 >
   <nav
-    class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-space-s max-desktop:h-[var(--site-header-height)]"
+    class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-summit-navigation-menu"
     id="block-summit-navigation"
@@ -65,7 +65,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
       {
         ctaButton && (
           <a
-            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
+            class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
             href={ctaButton.href || '#'}
             {...navLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab

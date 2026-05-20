@@ -25,7 +25,7 @@ const navAttrs = (
   })
 
 const navItemBase =
-  'text-current whitespace-nowrap py-space-s px-space-2xs transition-colors duration-150 max-desktop:px-space-s'
+  'text-current whitespace-nowrap py-xl px-md transition-colors duration-150 max-desktop:px-lg'
 const navItemActive =
   'hover:bg-[#444] data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
 const topNavLinkClass = `block ${navItemBase} ${navItemActive}`
@@ -35,10 +35,10 @@ const topNavButtonChevronClass =
   'ml-2 inline-flex size-5 shrink-0 items-center justify-center origin-center transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180'
 
 const submenuClass =
-  'list-none max-desktop:ps-space-m desktop:ps-0 max-desktop:hidden desktop:absolute desktop:bg-black desktop:border-l-2 desktop:border-[#444] desktop:transition-opacity desktop:duration-fast desktop:invisible desktop:opacity-0 desktop:min-w-full desktop:top-[calc(1.4em+var(--spacing-space-s)*2)] desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:w-max desktop:group-hover:left-0 desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:w-max desktop:peer-data-[open=true]:left-0 max-desktop:peer-data-[open=true]:block'
+  'list-none max-desktop:ps-2xl desktop:ps-0 max-desktop:hidden desktop:absolute desktop:bg-black desktop:border-l-2 desktop:border-[#444] desktop:transition-opacity desktop:duration-fast desktop:invisible desktop:opacity-0 desktop:min-w-full desktop:top-[calc(1.4em+var(--spacing-xl)*2)] desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:w-max desktop:group-hover:left-0 desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:w-max desktop:peer-data-[open=true]:left-0 max-desktop:peer-data-[open=true]:block'
 
 const submenuItemBase =
-  'block no-underline text-white max-desktop:py-space-s max-desktop:px-space-s desktop:py-space-2xs desktop:px-space-2xs transition-colors duration-150'
+  'block no-underline text-white max-desktop:py-xl max-desktop:px-lg desktop:py-md desktop:px-md transition-colors duration-150'
 const submenuItemClass = `${submenuItemBase} ${navItemActive}`
 ---
 

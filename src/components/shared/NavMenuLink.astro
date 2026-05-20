@@ -32,7 +32,7 @@ const umamiAttrs = buildUmamiAttrs({
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
 
-const externalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
+const externalLinkIconClass = 'ms-sm size-4 shrink-0 translate-y-[-1px]'
 
 const navLinkClass =
   'nav-link relative no-underline focus-visible:outline-none after:absolute after:inset-x-0 after:bottom-0 after:h-px ' +
@@ -46,7 +46,7 @@ const activeClass =
 const className = [
   navLinkClass,
   itemTextClass,
-  openInNewTab ? 'inline-flex items-center gap-xs' : 'block',
+  openInNewTab ? 'inline-flex items-center' : 'block',
   'max-desktop:-mr-lg max-desktop:pr-lg max-desktop:py-lg',
   'px-0 desktop:py-md desktop:pe-md',
   activeClass,

@@ -11,7 +11,7 @@ const { ctaButton } = Astro.props
 const { routeLocale } = Astro.locals
 
 const ctaLinkClass =
-  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-desktop:hidden'
+  'self-center py-xl no-underline hover:underline transition-colors duration-150 max-desktop:hidden'
 
 const ctaAttrs =
   ctaButton &&
@@ -25,7 +25,7 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-space-s desktop:col-start-3 desktop:col-end-4 max-desktop:flex-col max-desktop:items-start max-desktop:px-space-s"
+  class="flex items-center gap-md desktop:col-start-3 desktop:col-end-4 max-desktop:flex-col max-desktop:items-start max-desktop:px-lg"
 >
   {
     ctaButton && (
