@@ -6,15 +6,13 @@ interface Props {
   theme?: 'light' | 'dark'
   ariaLabel?: string
   class?: string
-  [key: string]: unknown
 }
 
 const {
   mediaSide = 'right',
   theme = 'light',
   ariaLabel,
-  class: className,
-  ...rest
+  class: className
 } = Astro.props
 
 // DOM order stays text → media regardless of `mediaSide`. The visual flip
@@ -76,7 +74,6 @@ const mediaColumnClasses = twMerge(
   aria-label={ariaLabel}
   class={sectionClasses}
   data-umami-component="text-media-section"
-  {...rest}
 >
   <div class={innerClasses}>
     <div class={textColumnClasses}>
