@@ -3,8 +3,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro'
 import Button from '@/components/shared/Button.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import PillarCard from '@/components/shared/PillarCard.astro'
+import PillarsSection from '@/components/shared/PillarsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
+
+const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
 ---
 
 <BaseLayout title="UI Components Preview">
@@ -13,7 +15,7 @@ import TextMediaSection from '@/components/shared/TextMediaSection.astro'
   </Fragment>
 
   <main class="py-2xl">
-    <div class="mx-auto max-w-(--max-content-width) px-lg">
+    <div class={containerClass}>
       <h1 class="font-poppins mb-lg text-h2">UI Components Preview</h1>
       <p class="mb-2xl text-body-lg-standard">
         Internal reference for the new design-system components. SEO-excluded
@@ -21,21 +23,15 @@ import TextMediaSection from '@/components/shared/TextMediaSection.astro'
       </p>
 
       <nav aria-label="Sections" class="mb-2xl">
-        <ul class="flex flex-wrap gap-md">
-          <li><a class="underline" href="#buttons">Buttons</a></li>
-          <li>
-            <a class="underline" href="#text-media-section">
-              Text + media section
-            </a>
-          </li>
-          <li>
-            <a class="underline" href="#pillars-section">Pillars Section</a>
-          </li>
+        <ul class="flex flex-wrap gap-md list-none [&>a]:underline">
+          <li><a href="#buttons">Buttons</a></li>
+          <li><a href="#text-media-section">Text + media section</a></li>
+          <li><a href="#pillars-section">Pillars Section</a></li>
         </ul>
       </nav>
     </div>
 
-    <div class="mx-auto max-w-(--max-content-width) px-lg">
+    <div class={containerClass}>
       <section id="buttons" class="mb-3xl">
         <h2 class="font-poppins mb-xl text-h3">Buttons</h2>
 
@@ -425,38 +421,54 @@ import TextMediaSection from '@/components/shared/TextMediaSection.astro'
       </TextMediaSection>
     </section>
 
-    <section
-      id="pillars-section"
-      aria-label="Pillars"
-      class="px-lg py-5xl tablet:px-xl"
-    >
-      <h2 class="font-poppins mb-xl text-h3">Pillars section</h2>
-      <p class="mb-2xl text-body-lg-standard">
-        This section is work in progress. For the moment this is a placeholder
-        for the pillar cards.
+    <div class={containerClass}>
+      <section id="pillars-section" class="mb-3xl">
+        <h2 class="font-poppins mb-xl text-h3">Pillars Section</h2>
+        <p class="mb-2xl text-body-lg-standard">
+          Three-card section introducing the foundation's pillars. On desktop,
+          cards stagger-pin via sticky offsets and the heading fades behind them
+          as you scroll past. Mobile and tablet collapse to a plain vertical
+          stack with no pinning. All motion is driven by
+          <code>animation-timeline</code> — no JavaScript runs at any breakpoint.
+        </p>
+      </section>
+    </div>
+    <PillarsSection />
+    <div class={containerClass}>
+      <p class="mb-4">
+        <em
+          >Placeholder filler — gives the page enough scroll past <code
+            >PillarsSection</code
+          > to see the desktop heading-fade effect. Remove once real content lives
+          below.</em
+        >
       </p>
-      <div
-        class="flex flex-col gap-lg desktop:max-w-content desktop:mx-auto desktop:flex-row desktop:gap-4xl"
-      >
-        <PillarCard
-          title="We build the technology"
-          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-          href="#"
-          class="bg-aqua-mint-100"
-        />
-        <PillarCard
-          title="We grow the movement"
-          description="We bring together developers, policymakers, advocates, and institutions to dvance open payments."
-          href="#"
-          class="bg-apricot-100"
-        />
-        <PillarCard
-          title="This is the pillar heading"
-          description="We steward open standards and build production-ready infrastructure that connects financial systems. Connect once, integrate with many."
-          href="#"
-          class="bg-soft-indigo-100"
-        />
-      </div>
-    </section>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde eaque id
+        voluptate tempore veritatis, officia inventore exercitationem? Quos
+        velit nobis atque, enim porro nesciunt dignissimos, facere deserunt iste
+        dolor sapiente corrupti quasi quo ab sunt? Nulla omnis nesciunt unde
+        quis sunt obcaecati optio molestias. Eveniet quibusdam commodi
+        recusandae. Ex, harum! Ipsum numquam, obcaecati voluptatum facilis
+        aliquid sint nulla illum velit nostrum ullam expedita itaque tempore
+        dolor rerum praesentium veritatis voluptatibus? Tenetur tempore
+        excepturi distinctio, facilis accusamus sunt! Aut soluta laudantium
+        similique reiciendis impedit quo nesciunt enim cumque rem dicta iste,
+        delectus, nisi quidem suscipit officiis fugit perferendis officia
+        recusandae culpa a labore odio ipsam dolore. Dolore voluptatibus
+        asperiores, provident natus cumque consectetur iure maxime velit veniam
+        quidem explicabo. Aliquam corrupti sequi molestias dolor, rem animi,
+        velit repudiandae vero hic rerum exercitationem odio enim, cum
+        blanditiis ab voluptatem. Impedit sunt corporis, beatae aspernatur nulla
+        saepe ullam fuga molestias iure sapiente alias perferendis doloremque
+        nisi perspiciatis debitis dolorem praesentium fugit tempora.
+        Dignissimos, recusandae quas? Repellat modi repudiandae voluptatum
+        soluta veniam sint. Voluptatibus aspernatur vero hic autem, ipsa
+        repellat facilis tenetur officia earum laudantium non? Repellendus
+        impedit cupiditate facilis ea. Aperiam soluta blanditiis ex
+        necessitatibus nulla laboriosam, suscipit doloremque fugit corrupti
+        fugiat at.
+      </p>
+    </div>
   </main>
 </BaseLayout>
