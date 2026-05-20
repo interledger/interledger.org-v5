@@ -6,6 +6,7 @@ import StatsSection, {
 } from '@/components/shared/StatsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
 import { useTranslations, type Locale } from '@/utils'
 
 interface Props {
@@ -67,6 +68,62 @@ const stats: StatItem[] = [
           title={t('home.problem.video_title')}
         />
       </div>
+    </TextMediaSection>
+    <TextMediaSection
+      mediaSide="left"
+      theme="light"
+      ariaLabel={t('home.making_money_move.heading')}
+      class="py-5xl tablet:py-3xl-tight"
+    >
+      <h2 slot="heading">{t('home.making_money_move.heading')}</h2>
+      <p>{t('home.making_money_move.body_1')}</p>
+      <p>{t('home.making_money_move.body_2')}</p>
+      <p>{t('home.making_money_move.body_3')}</p>
+      <LinkButton
+        slot="cta"
+        href="/about-us"
+        variant="secondary"
+        mode="light"
+        size="lg"
+        class="w-full tablet:w-auto tablet:mx-auto"
+      >
+        {t('home.making_money_move.cta_label')}
+      </LinkButton>
+      <img
+        slot="media"
+        src="/img/home/animated-path-vector.svg"
+        width="426"
+        height="431"
+        alt={t('home.making_money_move.image_alt')}
+        class="mx-auto h-auto w-full max-w-[426px] desktop:mx-0"
+      />
+    </TextMediaSection>
+    <TextMediaSection
+      mediaSide="right"
+      theme="light"
+      ariaLabel={t('home.independent_by_design.heading')}
+    >
+      <h2 slot="heading">{t('home.independent_by_design.heading')}</h2>
+      <p>{t('home.independent_by_design.body_1')}</p>
+      <p>{t('home.independent_by_design.body_2')}</p>
+      <LinkButton
+        slot="cta"
+        href="/interledger"
+        variant="secondary"
+        mode="light"
+        size="lg"
+        class="w-full tablet:w-auto tablet:mx-auto"
+      >
+        {t('home.independent_by_design.cta_label')}
+      </LinkButton>
+      <img
+        slot="media"
+        src="/img/home/independent-by-design.png"
+        width="426"
+        height="427"
+        alt={t('home.independent_by_design.image_alt')}
+        class="mx-auto h-auto w-full max-w-[426px] tablet:w-[40%] desktop:mx-0"
+      />
     </TextMediaSection>
     <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
       <Fragment slot="heading">{t('home.stats.heading')}</Fragment>

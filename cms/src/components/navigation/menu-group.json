@@ -33,6 +33,16 @@
           "localized": true
         }
       }
+    },
+    "subGroups": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-sub-group",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

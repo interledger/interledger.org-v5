@@ -52,11 +52,16 @@ export const ui = {
     'footer.instagram': "Interledger's Instagram account",
     'footer.linkedin': "Interledger's LinkedIn account",
     'footer.slack': 'Interledger Community Slack',
-    'footer.social.mastodon': 'Mastodon',
-    'footer.social.twitter': 'Twitter',
-    'footer.social.slack': 'Slack',
-    'footer.social.github': 'Github',
-    'footer.social.linkedin': 'Linkedin',
+    'footer.stay_up_to_date': 'Stay up to date',
+    'footer.newsletter_description':
+      'Sign up for our newsletter and keep up to date with our news and events',
+    'footer.contact_description':
+      'Have a question? We have answers. Send us a message, and we will get back to you.',
+    'footer.social_links': 'Social Links',
+    'footer.nav_label': 'Footer navigation',
+    'footer.copyright':
+      'Content on this website and Interledger Foundation publications are licensed under CC BY 4.0, unless otherwise noted. Interledger technologies and software are licensed under the Apache License 2.0, unless otherwise noted. Interledger Protocol® and ILP® are registered trademarks of the Interledger Foundation.',
+    'footer.logo_home': 'Go to homepage',
     'blog.foundation.title': 'Foundation Blog',
     'blog.foundation.description':
       'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.',
@@ -174,6 +179,23 @@ export const ui = {
     'home.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
     'home.problem.video_title': "The Problem We're Solving",
+    'home.making_money_move.heading': 'Making Money Move like Data',
+    'home.making_money_move.body_1':
+      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
+    'home.making_money_move.body_2':
+      'In our connected world, money should move in the same way: reliably, across systems, as one network.',
+    'home.making_money_move.body_3':
+      'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
+    'home.making_money_move.image_alt':
+      'Interconnected network paths illustration',
+    'home.making_money_move.cta_label': 'About us',
+    'home.independent_by_design.heading': 'Independent by Design',
+    'home.independent_by_design.body_1':
+      'For any institution or developer building on open infrastructure, governance matters as much as technology. The Interledger Foundation does not operate payment networks, take fees, or represent commercial interests, which means the standards we steward are open by structure, not just by intention.',
+    'home.independent_by_design.body_2':
+      'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
+    'home.independent_by_design.cta_label': 'Our tech governance',
+    'home.independent_by_design.image_alt': 'Speaker at a community event',
     'home.stats.heading': 'Real-world progress',
     'home.stats.body':
       'From early experiments to real-world systems, this is what progress looks like in practice.',
@@ -239,11 +261,13 @@ export const ui = {
     'footer.instagram': '',
     'footer.linkedin': '',
     'footer.slack': '',
-    'footer.social.mastodon': '',
-    'footer.social.twitter': '',
-    'footer.social.slack': '',
-    'footer.social.github': '',
-    'footer.social.linkedin': '',
+    'footer.stay_up_to_date': '',
+    'footer.newsletter_description': '',
+    'footer.contact_description': '',
+    'footer.social_links': '',
+    'footer.nav_label': '',
+    'footer.copyright': '',
+    'footer.logo_home': '',
     'blog.foundation.title': '',
     'blog.foundation.description': '',
     'blog.foundation.tag_title': '',
@@ -335,13 +359,11 @@ export const ui = {
     'contact.success_thanks': '',
     'contact.error.captcha': '',
     'contact.error.submit': '',
-    'homepageHero.title_lead':
-      'Los sistemas financieros deberían funcionar juntos,',
-    'homepageHero.title_accent': 'para todas las personas',
-    'homepageHero.description':
-      'Unimos personas, tecnología y sistemas para impulsar pagos abiertos y ampliar la autonomía financiera de todas.',
-    'homepageHero.cta_explore_tech': 'Explora la tecnología',
-    'homepageHero.cta_get_involved': 'Participa',
-    'homepageHero.cta_navigation': 'Acciones destacadas'
+    'homepageHero.title_lead': '',
+    'homepageHero.title_accent': '',
+    'homepageHero.description': '',
+    'homepageHero.cta_explore_tech': '',
+    'homepageHero.cta_get_involved': '',
+    'homepageHero.cta_navigation': ''
   }
 } as const

@@ -14,10 +14,16 @@ export interface MenuItem {
   openInNewTab?: boolean | null
 }
 
-interface MenuGroup {
+export interface MenuSubGroup {
+  label: string
+  items?: MenuItem[] | null
+}
+
+export interface MenuGroup {
   label: string
   href?: string | null
   items?: MenuItem[] | null
+  subGroups?: MenuSubGroup[] | null
 }
 
 interface NavigationData {
@@ -58,13 +64,24 @@ export function sanitizeMenuItem(
   }
 }
 
+export function sanitizeMenuSubGroup(subGroup: MenuSubGroup): MenuSubGroup {
+  const items =
+    subGroup.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
+  return {
+    label: subGroup.label,
+    ...(items && items.length > 0 ? { items: items as MenuItem[] } : {})
+  }
+}
+
 export function sanitizeMenuGroup(group: MenuGroup): MenuGroup {
   const items = group.items?.map(sanitizeMenuItem).filter(Boolean) ?? undefined
   const href = normalizeHref(group.href)
+  const subGroups = group.subGroups?.map(sanitizeMenuSubGroup) ?? undefined
   return {
     label: group.label,
     ...(href ? { href } : {}),
-    ...(items && items.length > 0 ? { items: items as MenuItem[] } : {})
+    ...(items && items.length > 0 ? { items: items as MenuItem[] } : {}),
+    ...(subGroups && subGroups.length > 0 ? { subGroups } : {})
   }
 }
 
@@ -221,6 +238,11 @@ export function normalizeNavigationInput(data: NavigationData): void {
     group.href = normalizeHref(group.href) ?? group.href
     group.items?.forEach((item) => {
       item.href = normalizeHref(item.href) ?? item.href
+    })
+    group.subGroups?.forEach((subGroup) => {
+      subGroup.items?.forEach((item) => {
+        item.href = normalizeHref(item.href) ?? item.href
+      })
     })
   })
   if (data.ctaButton) {
