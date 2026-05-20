@@ -4,12 +4,13 @@
  * Composes navigation menu, action links, and mobile toggle.
  *
  * `theme="dark"` is used on pages where the nav sits over a dark hero
- * (e.g. the homepage). It renders a translucent backdrop-blurred bar,
- * light text, and dark dropdown panels. Default `"light"` is the
- * white-bar treatment used on inner pages.
+ * (e.g. the homepage). It renders a solid dark bar, light text, and dark
+ * dropdown panels. Default `"light"` is the white-bar treatment used on
+ * inner pages after scrolling past the hero.
  */
 import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
 import FoundationNavActions from '@/components/layout/FoundationNavActions.astro'
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -27,8 +28,7 @@ interface Props {
   theme?: 'light' | 'dark'
 }
 
-const { theme = 'light' } = Astro.props
-const isDark = theme === 'dark'
+const { theme = 'dark' } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -50,9 +50,8 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     ariaLabel
   })
 
-const headerClass = isDark
-  ? 'foundation-header sticky top-0 z-[2] px-space-xs desktop:px-space-m bg-[rgba(13,13,13,0.7)] text-neutral-50'
-  : 'foundation-header sticky top-0 z-[2] px-space-xs desktop:px-space-m bg-[rgba(255,255,255,0.7)] shadow'
+const headerClass =
+  'foundation-header sticky top-0 z-[2] px-space-xs desktop:px-space-m'
 ---
 
 <header class={headerClass} role="banner" data-theme={theme}>
@@ -72,26 +71,7 @@ const headerClass = isDark
       aria-label={t('aria.logo.foundation')}
       {...navLink(homeHref, undefined, t('aria.logo.foundation'))}
     >
-      <img
-        src="/img/interledger-foundation-logo-white.svg"
-        alt=""
-        width="236"
-        height="40"
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        class="foundation-logo--dark block h-10 w-auto"
-      />
-      <img
-        src="/img/interledger-foundation-logo-purple.svg"
-        alt=""
-        width="148"
-        height="40"
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        class="foundation-logo--light block h-10 w-auto"
-      />
+      <FoundationLogo />
     </a>
     <div
       class="header-nav-wrapper header-nav-wrapper--foundation"
@@ -101,18 +81,20 @@ const headerClass = isDark
       id="siteNavLinks"
     >
       <div
-        class="max-desktop:flex desktop:hidden items-center justify-between gap-space-s px-space-s pt-space-xs pb-space-s"
+        class="max-desktop:flex desktop:hidden items-center justify-between gap-space-s px-lg pt-space-xs pb-space-s"
       >
         <span class="font-poppins text-h3 text-neutral-75">
           {t('nav.language')}
         </span>
         <LanguageSwitcher />
       </div>
-      <hr class="desktop:hidden mx-space-s my-0 h-px border-0 bg-neutral-100" />
+      <hr
+        class="desktop:hidden mx-space-s my-0 mb-xl h-px border-0 bg-neutral-100"
+      />
       <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
-          <div class="desktop:hidden mx-space-s mt-space-m mb-space-xl">
+          <div class="desktop:hidden mx-lg mt-space-m mb-space-xl">
             <LinkButton
               href={ctaButton.href || '#'}
               variant="primary"

@@ -26,60 +26,74 @@ const navAttrs = (
     action
   })
 
-const navButtonHoverClass = isDark
-  ? 'min-[1200px]:hover:bg-neutral-100'
-  : 'min-[1200px]:hover:bg-gray-header'
-
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap py-2 pl-space-xs pr-1.5 rounded-lg border-none bg-transparent transition-colors duration-200 ${navButtonHoverClass} group/submenu data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8 max-[1199px]:w-full max-[1199px]:justify-between max-[1199px]:py-space-s max-[1199px]:px-space-s max-[1199px]:text-[1.25rem]`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8 w-full justify-between py-space-s px-lg text-[1.25rem] focus-visible:outline-none desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-space-xs desktop:pr-space-3xs desktop:text-base`
 
 const navButtonChevronClass =
-  'ml-2 inline-flex size-5 max-[1199px]:size-8 shrink-0 items-center justify-center origin-center transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 max-[1199px]:text-neutral-75'
+  'ml-sm inline-flex size-8 shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
 
-// Visibility + positioning toggles shared by both panel variants.
-// Hidden by default; shown on group-hover (desktop pointer), peer-data-open
-// (keyboard/click via data-submenu-button), or peer-data-open on mobile.
 const panelBgClass = isDark
-  ? 'min-[1200px]:bg-neutral-150 min-[1200px]:border min-[1200px]:border-neutral-100'
-  : 'min-[1200px]:bg-white min-[1200px]:border min-[1200px]:border-gray-header'
+  ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
+  : 'desktop:bg-white desktop:border desktop:border-gray-header'
 
-const panelToggleClass =
-  'submenu-panel ' +
-  'min-[1200px]:absolute ' +
-  `${panelBgClass} ` +
-  'min-[1200px]:transition-opacity min-[1200px]:duration-fast ' +
-  'min-[1200px]:invisible min-[1200px]:opacity-0 ' +
-  'min-[1200px]:top-[calc(100%+1.5rem)] ' +
-  'min-[1200px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
-  'min-[1200px]:before:content-[""] min-[1200px]:before:absolute min-[1200px]:before:bottom-full min-[1200px]:before:inset-x-0 min-[1200px]:before:h-6 ' +
-  'min-[1200px]:group-hover:visible min-[1200px]:group-hover:opacity-100 min-[1200px]:group-hover:left-0 ' +
-  'min-[1200px]:peer-data-[open=true]:visible min-[1200px]:peer-data-[open=true]:opacity-100 min-[1200px]:peer-data-[open=true]:left-0'
+const panelMobileClass =
+  'block max-h-0 overflow-hidden border-0 bg-transparent shadow-none ' +
+  'transition-[max-height] duration-500 ease-out motion-reduce:transition-none ' +
+  'peer-data-[open=true]:max-h-screen'
 
-const flatSubmenuClass = `list-none ps-0 max-[1199px]:ps-space-s min-[1200px]:min-w-full min-[1200px]:px-space-m min-[1200px]:py-space-s min-[1200px]:group-hover:w-max min-[1200px]:peer-data-[open=true]:w-max ${panelToggleClass}`
+const panelDesktopClass =
+  'desktop:absolute desktop:invisible desktop:opacity-0 desktop:top-[calc(100%+1.5rem)] ' +
+  'desktop:max-h-none desktop:overflow-visible ' +
+  'desktop:transition-opacity desktop:duration-fast ' +
+  'desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
+  'desktop:before:absolute desktop:before:bottom-full desktop:before:inset-x-0 desktop:before:h-6 desktop:before:content-[""] ' +
+  'desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:left-0 ' +
+  'desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:left-0'
+
+const panelToggleClass = `submenu-panel ${panelMobileClass} ${panelDesktopClass} ${panelBgClass}`
+
+const submenuListClass =
+  'list-none flex flex-col gap-y-0 desktop:block desktop:gap-0 desktop:ps-0'
+
+const flatSubmenuPanelClass = `w-full px-space-s ${panelToggleClass} desktop:min-w-full desktop:px-space-m desktop:py-space-s desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
+
+const flatSubmenuListClass = submenuListClass
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
 
-const submenuItemClass = `nav-link block no-underline ${itemTextClass} max-[1199px]:py-space-s max-[1199px]:px-space-s min-[1200px]:py-space-2xs min-[1200px]:pe-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
+const navLinkClass =
+  'nav-link relative block no-underline after:absolute after:inset-x-0 after:bottom-0 after:h-px ' +
+  'after:origin-left after:bg-current after:scale-x-0 after:transition-transform after:content-[""] ' +
+  'after:hidden desktop:after:block desktop:hover:after:scale-x-100 desktop:focus-visible:after:scale-x-100 ' +
+  'motion-reduce:after:transition-none'
 
-const megaMenuClass = `max-[1199px]:ps-space-s min-[1200px]:grid min-[1200px]:gap-space-l min-[1200px]:p-space-l ${panelToggleClass}`
+const mobileNavLinkLayoutClass =
+  'max-desktop:-mx-space-s max-desktop:rounded-lg max-desktop:px-lg max-desktop:py-lg'
+
+const submenuItemClass = `${navLinkClass} ${itemTextClass} ${mobileNavLinkLayoutClass} px-0 desktop:py-space-2xs desktop:pe-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
+
+const megaMenuClass = `flex flex-col gap-y-0 px-space-s ${panelToggleClass} desktop:grid desktop:gap-space-l desktop:p-space-l`
 
 const subGroupHeadingTextClass = isDark
   ? 'text-neutral-50 border-neutral-75'
   : 'text-neutral-75 border-neutral-100'
 
-const subGroupHeadingClass = `nav-subgroup-heading font-poppins text-caption uppercase tracking-wide whitespace-nowrap pb-space-2xs border-b mb-space-3xs max-[1199px]:mt-space-xl max-[1199px]:first:mt-0 ${subGroupHeadingTextClass}`
+const megaSubGroupClass =
+  'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
 
-const megaMenuLinkClass = `nav-link block no-underline whitespace-nowrap ${itemTextClass} data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8 max-[1199px]:py-space-xs min-[1200px]:py-space-2xs min-[1200px]:pe-space-2xs`
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b font-poppins text-caption uppercase tracking-wide whitespace-nowrap desktop:mb-space-3xs desktop:w-fit desktop:pb-space-2xs ${subGroupHeadingTextClass}`
+
+const megaMenuLinkClass = `${navLinkClass} ${mobileNavLinkLayoutClass} whitespace-nowrap ${itemTextClass} px-0 desktop:py-space-2xs desktop:pe-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8`
 ---
 
 <ul
-  class="list-none ps-0 justify-center font-poppins min-[1200px]:flex min-[1200px]:items-center min-[1200px]:gap-space-2xs min-[1200px]:relative"
+  class="list-none flex flex-col gap-[20px] ps-0 font-poppins desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-space-2xs desktop:relative"
   id="siteNavMenu"
   data-nav-list
 >
   {
     menuGroups.map((group) => (
       <li
-        class={`group ${group.subGroups && group.subGroups.length > 3 ? 'min-[1200px]:static' : 'min-[1200px]:relative'}`}
+        class={`group ${group.subGroups && group.subGroups.length > 3 ? 'desktop:static' : 'desktop:relative'}`}
         data-menu-level="1"
       >
         <button
@@ -91,7 +105,7 @@ const megaMenuLinkClass = `nav-link block no-underline whitespace-nowrap ${itemT
         >
           {group.label}
           <span class={navButtonChevronClass} aria-hidden="true">
-            <Icon name="arrow-down" class="size-5 max-[1199px]:size-8" />
+            <Icon name="arrow-down" class="size-8 desktop:size-5" />
           </span>
         </button>
 
@@ -101,9 +115,9 @@ const megaMenuLinkClass = `nav-link block no-underline whitespace-nowrap ${itemT
             style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
           >
             {group.subGroups.map((subGroup) => (
-              <div>
+              <div class={megaSubGroupClass}>
                 <p class={subGroupHeadingClass}>{subGroup.label}</p>
-                <ul class="list-none ps-0 max-[1199px]:ps-space-s">
+                <ul class={submenuListClass}>
                   {subGroup.items.map((item) => (
                     <li data-menu-level="2">
                       <a
@@ -123,87 +137,26 @@ const megaMenuLinkClass = `nav-link block no-underline whitespace-nowrap ${itemT
             ))}
           </div>
         ) : group.items && group.items.length > 0 ? (
-          <ul class={flatSubmenuClass}>
-            {group.items.map((item) => (
-              <li data-menu-level="2">
-                <a
-                  href={item.href || '#'}
-                  {...navAttrs(item.href || '#', item.label)}
-                  class={submenuItemClass}
-                  {...(item.openInNewTab
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div class={flatSubmenuPanelClass}>
+            <ul class={flatSubmenuListClass}>
+              {group.items.map((item) => (
+                <li data-menu-level="2">
+                  <a
+                    href={item.href || '#'}
+                    {...navAttrs(item.href || '#', item.label)}
+                    class={submenuItemClass}
+                    {...(item.openInNewTab
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
       </li>
     ))
   }
 </ul>
-
-<style>
-  /* Growing-underline hover on dropdown links: scales an ::after bar from 0
-     to full width on hover. Active state (aria-current="page") gets the same
-     bar already drawn. */
-  .nav-link {
-    position: relative;
-  }
-
-  .nav-link::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 1px;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 200ms ease-out;
-  }
-
-  .nav-link:hover::after,
-  .nav-link:focus-visible::after {
-    transform: scaleX(1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .nav-link::after {
-      transition: none;
-    }
-  }
-
-  /* Suppress the growing-underline hover on touch/mobile — accordion items
-     don't get a hover state on tap. */
-  @media (max-width: 1199px) {
-    .nav-link::after {
-      display: none;
-    }
-  }
-
-  /* Mobile accordion: replaces the display:hidden/block toggle so the panel
-     can transition. Closed = max-height:0 + overflow:hidden; open = a generous
-     max-height that fits any realistic menu. Tied to the sibling pill's
-     data-open attribute via the peer pattern. */
-  @media (max-width: 1199px) {
-    .submenu-panel {
-      display: block;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 500ms ease-out;
-    }
-
-    .peer[data-open='true'] ~ .submenu-panel {
-      max-height: 100vh;
-    }
-  }
-
-  @media (max-width: 1199px) and (prefers-reduced-motion: reduce) {
-    .submenu-panel {
-      transition: none;
-    }
-  }
-</style>
