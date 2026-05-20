@@ -1,14 +1,29 @@
 ---
+import { twMerge } from '@/utils'
+import foundationLogoWhite from './foundation-logo-white.svg?raw'
+import foundationLogoPurple from './foundation-logo-purple.svg?raw'
+
+interface Props {
+  class?: string
+}
+
 const { class: className } = Astro.props
+
+const baseClass = twMerge(
+  '[&>svg]:block [&>svg]:h-10 [&>svg]:w-auto inline-block shrink-0',
+  className
+)
 ---
 
-<img
-  src="/img/interledger-foundation-logo.avif"
-  alt=""
-  width={512}
-  height={139}
-  loading="eager"
-  fetchpriority="high"
-  decoding="async"
-  class:list={['h-10 w-auto', className]}
+<span
+  class={`${baseClass} foundation-logo--dark`}
+  role="img"
+  aria-hidden="true"
+  set:html={foundationLogoWhite}
+/>
+<span
+  class={`${baseClass} foundation-logo--light`}
+  role="img"
+  aria-hidden="true"
+  set:html={foundationLogoPurple}
 />
