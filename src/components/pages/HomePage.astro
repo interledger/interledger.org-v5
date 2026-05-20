@@ -68,5 +68,32 @@ const t = useTranslations(pageLang)
         class="mx-auto h-auto w-full max-w-[426px] desktop:mx-0"
       />
     </TextMediaSection>
+    <TextMediaSection
+      mediaSide="right"
+      theme="light"
+      ariaLabel={t('home.independent_by_design.heading')}
+    >
+      <h2 slot="heading">{t('home.independent_by_design.heading')}</h2>
+      <p>{t('home.independent_by_design.body_1')}</p>
+      <p>{t('home.independent_by_design.body_2')}</p>
+      <LinkButton
+        slot="cta"
+        href="/interledger"
+        variant="secondary"
+        mode="light"
+        size="lg"
+        class="w-full tablet:w-auto tablet:mx-auto"
+      >
+        {t('home.independent_by_design.cta_label')}
+      </LinkButton>
+      <img
+        slot="media"
+        src="/img/home/independent-by-design.png"
+        width="426"
+        height="427"
+        alt={t('home.independent_by_design.image_alt')}
+        class="mx-auto h-auto w-full max-w-[426px] tablet:w-[40%] desktop:mx-0"
+      />
+    </TextMediaSection>
   </main>
 </FoundationPageLayout>
