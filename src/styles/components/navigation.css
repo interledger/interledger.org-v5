@@ -170,11 +170,6 @@
   color: var(--color-neutral-75);
 }
 
-/* Subgroup heading: border spans text only, not full container width */
-.nav-subgroup-heading {
-  width: fit-content;
-}
-
 /* Subgroup heading text and divider */
 .foundation-header[data-theme='dark'] .nav-subgroup-heading {
   color: var(--color-neutral-50);
