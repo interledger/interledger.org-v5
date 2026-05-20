@@ -14,7 +14,7 @@ const t = useTranslations(routeLocale)
 
 <button
   type="button"
-  class="desktop:hidden border-0 bg-transparent py-space-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+  class="desktop:hidden cursor-pointer border-0 bg-transparent py-space-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
   aria-controls={controlsId}
   aria-expanded="false"
   aria-label={t('nav.toggle_menu')}
@@ -24,7 +24,7 @@ const t = useTranslations(routeLocale)
 >
   <div
     id={iconId}
-    class="group relative inline-flex size-6 items-center justify-center"
+    class="group relative inline-flex size-8 items-center justify-center"
     data-open="false"
   >
     <Icon

@@ -133,6 +133,10 @@
   box-shadow: var(--shadow);
 }
 
+.foundation-header[data-theme='dark'] [data-component='HamburgerButton'] {
+  color: var(--color-neutral-25);
+}
+
 /* Nav button hover/focus backgrounds (desktop only) */
 @media (min-width: 1200px) {
   .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible) {
@@ -234,7 +238,7 @@
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='true'] {
   background-color: var(--color-neutral-25);
-  color: var(--color-orchid-100);
+  color: var(--color-orchid-150);
 }
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
