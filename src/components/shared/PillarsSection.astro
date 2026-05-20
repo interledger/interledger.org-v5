@@ -3,6 +3,8 @@
 // On desktop, cards stagger-pin via sticky offsets while the heading fades behind them.
 // Mobile/tablet: plain vertical stack.
 // All animations are scroll-driven (animation-timeline) — no JS.
+// Equal-height floor for cards lives in <style> as --card-min-h (see comment there for anchors).
+
 import PillarCard from '@/components/shared/PillarCard.astro'
 import { useTranslations, buildUmamiAttrs } from '@/utils'
 
@@ -49,12 +51,13 @@ const cardsContainerClasses = `
 const cardDivs = `
   pillar-card
   flex-1 m-0
-  desktop:flex desktop:flex-col desktop:min-h-[40vh]
+  desktop:flex desktop:flex-col
+  desktop:min-h-[var(--card-min-h)]
   desktop:first:mt-[300px]
   desktop:nth-[2]:mt-[calc(300px+75vh)]
   desktop:nth-[3]:mt-[calc(300px+2*75vh)]
   desktop:sticky desktop:top-[45vh]
-`
+  `
 const threePillars = [
   {
     title: t('pillarsSection.card1_title'),
@@ -102,6 +105,11 @@ const threePillars = [
 
 <style>
   .pillar-card {
+    /* Equal-height floor for the cards: the staggered top margins below would
+       otherwise make flex-stretch give them uneven heights. Anchors are the
+       tallest natural content measured per viewport width — 362px at 1200px,
+       310px at 2000px. Re-measure if card copy or layout changes. */
+    --card-min-h: clamp(310px, calc(440px - 6.5vw), 362px);
     animation: rise linear forwards;
     animation-timeline: view();
     animation-range: 0% 30%;
