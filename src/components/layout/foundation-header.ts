@@ -12,7 +12,7 @@ if (headerRoot) {
 const header = document.querySelector<HTMLElement>('.foundation-header')
 const darkSections = [
   document.querySelector('[data-component="HomepageHero"]'),
-  ...Array.from(document.querySelectorAll('[data-nav-dark]')),
+  ...Array.from(document.querySelectorAll('[data-nav-dark]'))
 ].filter(Boolean) as Element[]
 
 if (header && darkSections.length > 0 && header.dataset.theme === 'dark') {
@@ -22,8 +22,7 @@ if (header && darkSections.length > 0 && header.dataset.theme === 'dark') {
     // Keep dark at the page top — the observer can fire before layout with
     // isIntersecting=false, which briefly flipped the bar to light.
     const atPageTop = window.scrollY <= 0
-    header.dataset.theme =
-      intersecting.size > 0 || atPageTop ? 'dark' : 'light'
+    header.dataset.theme = intersecting.size > 0 || atPageTop ? 'dark' : 'light'
   }
 
   const observer = new IntersectionObserver(
