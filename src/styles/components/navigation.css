@@ -224,6 +224,7 @@
 }
 
 .foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:not([aria-current]):hover {
+  background-color: var(--color-neutral-100);
   color: var(--color-neutral-25);
 }
 
@@ -232,9 +233,6 @@
   border-color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a {
-  font-weight: 400;
-}
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='true'] {
   background-color: var(--color-neutral-25);
@@ -246,6 +244,7 @@
 }
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]):hover {
+  background-color: var(--color-neutral-25);
   color: var(--color-neutral-100);
 }
 
