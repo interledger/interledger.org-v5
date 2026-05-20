@@ -18,6 +18,9 @@ export function initHeaderNav(navId: string, iconId: string) {
   function setOffscreenState(isOffscreen: boolean) {
     if (linksWrapper instanceof HTMLElement) {
       linksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
+      // inert is applied by JS only — not in the HTML template — so desktop
+      // nav stays keyboard-accessible when JS fails to load. Mobile drawer
+      // toggle still requires JS; closed drawer uses visibility:hidden via CSS.
       if (isOffscreen) {
         linksWrapper.setAttribute('inert', '')
       } else {
@@ -67,9 +70,11 @@ export function initHeaderNav(navId: string, iconId: string) {
   const wideNavMinWidth = window.matchMedia('(min-width: 1200px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
-  // On initial load at wide viewport, remove inert so the nav is reachable by keyboard.
+  // Sync drawer + inert to viewport on load (markup defaults to mobile-closed).
   if (wideNavMinWidth.matches) {
     setOffscreenState(false)
+  } else {
+    setOffscreenState(true)
   }
 
   if (navToggle) {

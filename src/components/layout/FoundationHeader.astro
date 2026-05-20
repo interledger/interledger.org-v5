@@ -66,13 +66,11 @@ const headerClass =
 
 <header
   class={headerClass}
-  role="banner"
   data-theme={theme}
   data-component="FoundationHeader"
 >
   <nav
-    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-space-s desktop:h-[76px] max-desktop:h-[var(--site-header-height)]"
-    role="navigation"
+    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-space-s desktop:h-[var(--site-header-height-desktop)] max-desktop:h-[var(--site-header-height)]"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
@@ -92,7 +90,6 @@ const headerClass =
       class="header-nav-wrapper header-nav-wrapper--foundation"
       data-nav-wrapper
       data-offscreen="true"
-      inert
       id="siteNavLinks"
     >
       <div
@@ -104,7 +101,7 @@ const headerClass =
               <a
                 href={alternateLocaleHref}
                 hreflang={alternateLocale}
-                class="foundation-mobile-language-label font-poppins text-h3 font-normal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+                class="foundation-drawer-language-label font-poppins text-h3 font-normal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
                 aria-label={t('nav.switch_language', {
                   locale: alternateLocaleLabel
                 })}
@@ -117,7 +114,7 @@ const headerClass =
                 {t('nav.language')}
               </a>
             ) : (
-              <span class="foundation-mobile-language-label font-poppins text-h3 font-normal">
+              <span class="foundation-drawer-language-label font-poppins text-h3 font-normal">
                 {t('nav.language')}
               </span>
             )
@@ -126,7 +123,7 @@ const headerClass =
         </div>
       </div>
       <hr
-        class="desktop:hidden mx-lg my-0 mb-xl h-px border-0 bg-neutral-100"
+        class="desktop:hidden mx-lg mt-0 mb-xl h-px border-0 bg-neutral-100"
       />
       <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {

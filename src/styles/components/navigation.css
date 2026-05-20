@@ -187,20 +187,20 @@
   background-color: var(--color-neutral-50);
 }
 
-/* Mobile language label */
-.foundation-header[data-theme='dark'] .foundation-mobile-language-label {
+/* Mobile drawer language label */
+.foundation-header[data-theme='dark'] .foundation-drawer-language-label {
   color: var(--color-neutral-50);
 }
 
-.foundation-header[data-theme='light'] .foundation-mobile-language-label {
+.foundation-header[data-theme='light'] .foundation-drawer-language-label {
   color: black;
 }
 
-.foundation-header[data-theme='dark'] .foundation-mobile-language-label:is(:hover, :focus-visible) {
+.foundation-header[data-theme='dark'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
   color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] .foundation-mobile-language-label:is(:hover, :focus-visible) {
+.foundation-header[data-theme='light'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
   color: var(--color-neutral-100);
 }
 
