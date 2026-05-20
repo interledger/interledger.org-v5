@@ -190,6 +190,12 @@ function initSubmenuToggle(root: HTMLElement) {
     }
   }
 
+  function closeSubmenu(btn: HTMLElement) {
+    btn.setAttribute('aria-expanded', 'false')
+    btn.setAttribute('data-open', 'false')
+    syncPanelInert(btn)
+  }
+
   function syncAllPanelInert() {
     submenuButtons.forEach(syncPanelInert)
   }
@@ -207,11 +213,7 @@ function initSubmenuToggle(root: HTMLElement) {
         (btn) => btn !== clickedButton
       )
 
-      otherButtons.forEach((btn) => {
-        btn.setAttribute('aria-expanded', 'false')
-        btn.setAttribute('data-open', 'false')
-        syncPanelInert(btn)
-      })
+      otherButtons.forEach(closeSubmenu)
 
       const isOpen = clickedButton.getAttribute('aria-expanded') === 'true'
       clickedButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
@@ -226,11 +228,7 @@ function initSubmenuToggle(root: HTMLElement) {
       const relatedTarget = (event as FocusEvent).relatedTarget as Node | null
       if (!relatedTarget || !menuItem.contains(relatedTarget)) {
         const btn = menuItem.querySelector<HTMLElement>('[data-submenu-button]')
-        if (btn) {
-          btn.setAttribute('aria-expanded', 'false')
-          btn.setAttribute('data-open', 'false')
-          syncPanelInert(btn)
-        }
+        if (btn) closeSubmenu(btn)
       }
     })
   })
@@ -252,10 +250,6 @@ function initSubmenuToggle(root: HTMLElement) {
   })
 
   function resetSubMenus() {
-    submenuButtons.forEach((btn) => {
-      btn.setAttribute('aria-expanded', 'false')
-      btn.setAttribute('data-open', 'false')
-      syncPanelInert(btn)
-    })
+    submenuButtons.forEach(closeSubmenu)
   }
 }
