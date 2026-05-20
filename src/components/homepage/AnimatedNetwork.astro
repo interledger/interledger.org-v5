@@ -11,18 +11,20 @@
 
 <section
   data-component="AnimatedNetwork"
-  class="relative -mt-[10vh] lg:-mt-[20vh]"
+  class="relative isolate z-0 hidden flow-root bg-neutral-150 md:block"
   aria-hidden="true"
 >
-  <img
-    src="/img/homepage/hero-animated-network.svg"
-    alt=""
-    width="1920"
-    height="3186"
-    loading="lazy"
-    decoding="async"
-    class="network-svg block w-full max-w-none opacity-50"
-  />
+  <div class="-mt-[10vh] lg:-mt-[20vh]">
+    <img
+      src="/img/homepage/hero-animated-network.svg"
+      alt=""
+      width="1920"
+      height="3186"
+      loading="lazy"
+      decoding="async"
+      class="network-svg block w-full max-w-none opacity-50"
+    />
+  </div>
   <div class="circle-overlay">
     <div class="circle-pin">
       <div class="growing-circle"></div>
@@ -32,7 +34,6 @@
 
 <style>
   [data-component='AnimatedNetwork'] {
-    /* Names the section as the view-timeline source for child animations. */
     view-timeline-name: --network-track;
   }
 
@@ -44,18 +45,6 @@
     animation-range: entry 0% exit 100%;
   }
 
-  @keyframes network-rotate {
-    from {
-      transform: rotate(-15deg) scale(1.25);
-    }
-    to {
-      transform: rotate(65deg) scale(1.25);
-    }
-  }
-
-  /* Overlay fills the section so the sticky pin has a containing block that
-     spans the full network height. pointer-events:none keeps it from blocking
-     anything beneath. */
   [data-component='AnimatedNetwork'] .circle-overlay {
     position: absolute;
     inset: 0;
@@ -69,23 +58,29 @@
     height: 100vh;
     align-items: center;
     justify-content: center;
-    /* Clip the growing disc here (not on the overlay) so it can't break the
-       sticky context above. */
     overflow: hidden;
   }
 
   [data-component='AnimatedNetwork'] .growing-circle {
     width: 4vw;
     aspect-ratio: 1;
-    flex: none; /* don't let the flex parent shrink the disc as it grows */
+    flex: none;
     border-radius: 50%;
-    background-color: #48156e; /* matches the SVG centre node */
-    opacity: 0; /* invisible until the scroll-driven animation kicks in */
+    background-color: #48156e;
+    opacity: 0;
     animation: growing-circle-grow linear forwards;
     animation-timeline: --network-track;
-    /* Hold off until the section is well into view, then grow through to exit. */
     animation-range: cover 50% cover 100%;
     will-change: width;
+  }
+
+  @keyframes network-rotate {
+    from {
+      transform: rotate(-15deg) scale(1.25);
+    }
+    to {
+      transform: rotate(65deg) scale(1.25);
+    }
   }
 
   @keyframes growing-circle-grow {
