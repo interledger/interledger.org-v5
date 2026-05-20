@@ -50,7 +50,8 @@
             },
             {
               "label": "Web Monetization",
-              "href": "/web-monetization"
+              "href": "/web-monetization",
+              "openInNewTab": true
             }
           ]
         },
@@ -63,7 +64,8 @@
             },
             {
               "label": "Wallet",
-              "href": "/wallet"
+              "href": "/wallet",
+              "openInNewTab": true
             },
             {
               "label": "Cards",
@@ -75,7 +77,8 @@
             },
             {
               "label": "Web Monetization",
-              "href": "/web-monetization"
+              "href": "/web-monetization",
+              "openInNewTab": true
             }
           ]
         }
@@ -85,11 +88,11 @@
       "label": "Grants",
       "subGroups": [
         {
-          "label": "Our Grantsmaking",
+          "label": "Our Grantmaking",
           "items": [
             {
-              "label": "Grantsmaking Overview",
-              "href": "/grantsmaking-overview"
+              "label": "Grantmaking overview",
+              "href": "/grantmaking-overview"
             },
             {
               "label": "Grantee Directory",
@@ -161,15 +164,23 @@
     {
       "label": "Learn",
       "items": [
-        { "label": "Foundation Blog", "href": "/blog" },
-        { "label": "Tech Blog", "href": "/developers/blog" },
-        { "label": "Podcasts", "href": "#" },
+        {
+          "label": "Blog",
+          "href": "/blog"
+        },
+        {
+          "label": "Podcasts",
+          "href": "/podcasts"
+        },
         {
           "label": "Courses",
           "href": "/courses",
           "openInNewTab": true
         },
-        { "label": "Research & Reports", "href": "#" }
+        {
+          "label": "Research & Reports",
+          "href": "/research-and-reports"
+        }
       ]
     },
     {
@@ -184,11 +195,13 @@
             },
             {
               "label": "Interledger Summit",
-              "href": "/interledger-summit"
+              "href": "/interledger-summit",
+              "openInNewTab": true
             },
             {
               "label": "Hackathons",
-              "href": "/hackathons"
+              "href": "/hackathons",
+              "openInNewTab": true
             }
           ]
         },
@@ -217,7 +230,7 @@
     }
   ],
   "ctaButton": {
-    "label": "Support us",
+    "label": "Interledger Summit",
     "href": "/summit"
   }
 }
