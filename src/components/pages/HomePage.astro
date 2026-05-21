@@ -34,7 +34,7 @@ const t = useTranslations(pageLang)
       <p>{t('home.problem.body_2')}</p>
       <div
         slot="media"
-        class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-full"
+        class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-[512px]"
       >
         <VideoEmbed
           url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
@@ -97,8 +97,8 @@ const t = useTranslations(pageLang)
         height={427}
         alt={t('home.independent_by_design.image_alt')}
         sizes="(min-width: 1280px) 426px, (min-width: 768px) 40vw, 100vw"
-        pictureClass="mx-auto block w-full max-w-[426px] tablet:w-[40%] desktop:w-full desktop:mx-0"
-        class="h-auto w-full"
+        pictureClass="mx-auto block w-full max-w-[426px] tablet:w-[40%] desktop:w-auto desktop:mx-0"
+        class="h-auto max-w-full"
       />
     </TextMediaSection>
   </main>

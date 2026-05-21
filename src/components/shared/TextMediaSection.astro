@@ -33,9 +33,13 @@ const {
 // mobile/tablet (e.g. "Designed to connect") add `text-center
 // desktop:text-left` on the section via the `class` prop.
 //
-// Media column reserves ~40% of the row on desktop per Radu's layout
-// rules. Mobile/tablet items-stretch keeps it full-width; consumers can
-// constrain via classes on the media slot wrapper.
+// Media column shrinks to its content on desktop so the visible space
+// between text and media equals `gap-6xl` and the text column gets the
+// remaining width. A fixed 40% basis with a narrower media slot left
+// dead column space adjacent to the gap and starved the text column.
+// Consumers whose media has no intrinsic width (e.g. a `<picture>` or a
+// container div wrapping an embed) must give the slot an explicit
+// desktop width so the column has something to size to.
 const sectionClasses = twMerge(
   'relative flex min-h-screen flex-col items-center justify-center',
   'px-lg tablet:px-xl desktop:px-5xl',
@@ -61,15 +65,7 @@ const textColumnClasses = twMerge(
   theme === 'dark' && '[&_p]:text-neutral-25'
 )
 
-// When the media column sits on the right, push the media element to the
-// container's right edge on desktop so it hugs the section gutter instead
-// of floating mid-column when the media is narrower than the 40% basis.
-// Not applied for mediaSide='left' since the column already hugs the left
-// edge via the row-reverse flip.
-const mediaColumnClasses = twMerge(
-  'desktop:basis-[40%] desktop:shrink-0',
-  mediaSide === 'right' && 'desktop:flex desktop:justify-end'
-)
+const mediaColumnClasses = 'desktop:shrink-0'
 ---
 
 <section
