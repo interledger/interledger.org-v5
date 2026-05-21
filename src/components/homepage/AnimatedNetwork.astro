@@ -32,12 +32,9 @@ const t = useTranslations(Astro.locals.routeLocale)
         decoding="async"
         class="network-svg block w-full max-w-none opacity-50"
       />
-    </div>
-  </div>
-
-  <div class="circle-overlay hidden md:block" aria-hidden="true">
-    <div class="circle-pin">
-      <div class="growing-circle"></div>
+      <div class="circle-anchor">
+        <div class="growing-circle"></div>
+      </div>
     </div>
   </div>
 
@@ -128,23 +125,14 @@ const t = useTranslations(Astro.locals.routeLocale)
     animation-range: entry 0% exit 100%;
   }
 
-  /* Spans stage + problem footer so the disc can grow into the problem background. */
-  [data-component='AnimatedNetwork'] .circle-overlay {
+  /* Same hub as .network-svg transform-origin (50% / 52%) — moves with image reflow on resize. */
+  [data-component='AnimatedNetwork'] .circle-anchor {
     position: absolute;
-    inset: 0;
-    z-index: 2;
-    overflow: hidden;
+    top: 52%;
+    left: 50%;
+    z-index: 1;
+    transform: translate(-50%, -50%);
     pointer-events: none;
-  }
-
-  [data-component='AnimatedNetwork'] .circle-pin {
-    position: sticky;
-    top: 0;
-    display: flex;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
   }
 
   [data-component='AnimatedNetwork'] .growing-circle {
