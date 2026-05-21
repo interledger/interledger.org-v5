@@ -67,7 +67,6 @@ const viewportClasses = `
   logo-carousel
   overflow-x-hidden
   cursor-grab touch-pan-y select-none
-  [--cycle-seconds:30s]
   [--mask-fade-width:20%]
   tablet:[--mask-fade-width:25%]
 `
@@ -75,11 +74,11 @@ const trackClasses = `
   flex items-center gap-[var(--logo-carousel-gap)]
   list-none p-0 m-0
   w-max
-  animate-[scroll-left_var(--cycle-seconds)_linear_infinite]
+  animate-[scroll-left_var(--logo-carousel-cycle)_linear_infinite]
   motion-reduce:animate-none
 `
 const logoClasses = `
-  h-10 w-auto shrink-0
+  h-[40px] w-auto shrink-0
 `
 ---
 
@@ -175,7 +174,7 @@ const logoClasses = `
     const gap = parseFloat(getComputedStyle(track).columnGap) || 0
     const cycleSeconds =
       parseFloat(
-        getComputedStyle(carousel).getPropertyValue('--cycle-seconds')
+        getComputedStyle(carousel).getPropertyValue('--logo-carousel-cycle')
       ) || 30
 
     const updateMeasurements = (): void => {
