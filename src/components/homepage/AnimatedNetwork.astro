@@ -95,6 +95,9 @@ const t = useTranslations(Astro.locals.routeLocale)
     view-timeline-name: --network-track;
     --network-stage-height: 115vh;
     --network-hero-overlap: 10vh;
+    /* Extra top room for scale(1.25) + rotation; bottom edge clips SVG and disc in-section. */
+    --network-clip-top: calc(var(--network-hero-overlap) + 18vh);
+    clip-path: inset(calc(-1 * var(--network-clip-top)) 0 0 0);
   }
 
   @media (min-width: 1024px) {
