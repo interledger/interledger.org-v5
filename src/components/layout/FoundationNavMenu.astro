@@ -1,13 +1,27 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
+import NavMenuLink from '@/components/shared/NavMenuLink.astro'
 import type { MenuGroup } from '@/types/navigation'
-import { buildUmamiAttrs } from '@/utils'
+import { buildUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
+  theme?: 'light' | 'dark'
 }
 
-const { menuGroups } = Astro.props
+const { menuGroups, theme = 'light' } = Astro.props
+const isDark = theme === 'dark'
 const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+/** Wide mega menus need a static parent so multi-column panels align to the header. */
+const MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD = 3
+
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 
 const navAttrs = (
   href: string | null | undefined,
@@ -23,52 +37,130 @@ const navAttrs = (
     action
   })
 
-const navButtonClass =
-  "peer block text-current whitespace-nowrap py-space-s px-space-2xs border-none bg-transparent transition-colors duration-200 hover:bg-gray-header max-[1059px]:px-space-s after:content-[url('/img/arrow-menu.svg')] after:inline-block after:w-[9px] after:ml-2 after:transition-transform after:duration-500 motion-reduce:after:transition-none group-hover:after:translate-y-[30%] group-hover:after:rotate-180 data-[open=true]:after:translate-y-[30%] data-[open=true]:after:rotate-180 data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8"
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-xl px-lg text-[1.25rem] desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
 
-const submenuClass =
-  'list-none ps-0 max-[1059px]:hidden max-[1059px]:ps-space-m min-[1060px]:absolute min-[1060px]:bg-white min-[1060px]:border-l-2 min-[1060px]:border-gray-header min-[1060px]:transition-opacity min-[1060px]:duration-fast min-[1060px]:invisible min-[1060px]:opacity-0 min-[1060px]:min-w-full min-[1060px]:top-[calc(1.4em+var(--spacing-space-s)*2)] min-[1060px]:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] min-[1060px]:group-hover:visible min-[1060px]:group-hover:opacity-100 min-[1060px]:group-hover:w-max min-[1060px]:group-hover:left-0 min-[1060px]:peer-data-[open=true]:visible min-[1060px]:peer-data-[open=true]:opacity-100 min-[1060px]:peer-data-[open=true]:w-max min-[1060px]:peer-data-[open=true]:left-0 max-[1059px]:peer-data-[open=true]:block'
+const navButtonChevronClass =
+  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
 
-const submenuItemClass =
-  'block no-underline text-black hover:bg-gray-header max-[1059px]:py-space-s max-[1059px]:px-space-s min-[1060px]:py-space-2xs min-[1060px]:px-space-2xs data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
+const panelBgClass = isDark
+  ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
+  : 'desktop:bg-white desktop:border desktop:border-gray-header'
+
+const panelMobileClass =
+  'block max-h-0 overflow-hidden border-0 bg-transparent shadow-none ' +
+  'transition-[max-height] duration-500 ease-out motion-reduce:transition-none ' +
+  'peer-data-[open=true]:max-h-screen'
+
+const panelDesktopClass =
+  'desktop:absolute desktop:invisible desktop:opacity-0 desktop:top-[calc(100%+1.5rem)] ' +
+  'desktop:max-h-none desktop:overflow-visible ' +
+  'desktop:transition-opacity desktop:duration-fast ' +
+  'desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
+  'desktop:before:absolute desktop:before:bottom-full desktop:before:inset-x-0 desktop:before:h-xl desktop:before:content-[""] ' +
+  'desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:left-0 ' +
+  'desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:left-0'
+
+const panelToggleClass = `submenu-panel ${panelMobileClass} ${panelDesktopClass} ${panelBgClass}`
+
+const submenuListClass =
+  'list-none flex flex-col gap-y-0 desktop:block desktop:gap-0 desktop:ps-0'
+
+const flatSubmenuPanelClass = `w-full px-lg ${panelToggleClass} desktop:min-w-full desktop:px-2xl desktop:py-xl desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
+
+const megaMenuClass = `flex flex-col gap-y-0 px-lg ${panelToggleClass} desktop:grid desktop:gap-3xl desktop:p-3xl`
+
+const subGroupHeadingTextClass = isDark
+  ? 'text-neutral-50 border-neutral-75'
+  : 'text-neutral-75 border-neutral-100'
+
+const megaSubGroupClass =
+  'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
+
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
 ---
 
 <ul
-  class="list-none ps-0 justify-center min-[1060px]:flex min-[1060px]:items-center"
+  class="list-none flex flex-col gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
   id="siteNavMenu"
+  data-component="FoundationNavMenu"
   data-nav-list
 >
   {
-    menuGroups.map((group) => (
-      <li class="group min-[1060px]:relative" data-menu-level="1">
-        <button
-          aria-expanded="false"
-          {...navAttrs(undefined, group.label, `${group.label}_menu`)}
-          class={navButtonClass}
-          data-submenu-button
-          data-open="false"
+    menuGroups.map((group) => {
+      const groupSlug = toSlug(group.label)
+      const buttonId = `nav-menu-${groupSlug}-button`
+      const panelId = `nav-menu-${groupSlug}-panel`
+
+      return (
+        <li
+          class={`group ${group.subGroups && group.subGroups.length > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD ? 'desktop:static' : 'desktop:relative'}`}
+          data-menu-level="1"
         >
-          {group.label}
-        </button>
-        {group.items && group.items.length > 0 && (
-          <ul class={submenuClass}>
-            {group.items.map((item) => (
-              <li data-menu-level="2">
-                <a
-                  href={item.href || '#'}
-                  {...navAttrs(item.href || '#', item.label)}
-                  class={submenuItemClass}
-                  {...(item.openInNewTab
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </li>
-    ))
+          <button
+            type="button"
+            id={buttonId}
+            aria-expanded="false"
+            aria-controls={panelId}
+            aria-label={t('nav.submenu_toggle', { label: group.label })}
+            {...navAttrs(undefined, group.label, `${group.label}_menu`)}
+            class={navButtonClass}
+            data-submenu-button
+            data-open="false"
+          >
+            <span aria-hidden="true">{group.label}</span>
+            <span class={navButtonChevronClass} aria-hidden="true">
+              <Icon name="arrow-down" class="size-8 desktop:size-5" />
+            </span>
+          </button>
+
+          {group.subGroups && group.subGroups.length > 0 ? (
+            <section
+              id={panelId}
+              class={megaMenuClass}
+              aria-labelledby={buttonId}
+              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
+            >
+              {group.subGroups.map((subGroup) => (
+                <div class={megaSubGroupClass}>
+                  <h3 class={subGroupHeadingClass}>{subGroup.label}</h3>
+                  <ul class={submenuListClass}>
+                    {subGroup.items.map((item) => (
+                      <li data-menu-level="2">
+                        <NavMenuLink
+                          href={item.href || '#'}
+                          label={item.label}
+                          theme={theme}
+                          variant="mega"
+                          openInNewTab={item.openInNewTab}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          ) : group.items && group.items.length > 0 ? (
+            <section
+              id={panelId}
+              class={flatSubmenuPanelClass}
+              aria-labelledby={buttonId}
+            >
+              <ul class={submenuListClass}>
+                {group.items.map((item) => (
+                  <li data-menu-level="2">
+                    <NavMenuLink
+                      href={item.href || '#'}
+                      label={item.label}
+                      theme={theme}
+                      openInNewTab={item.openInNewTab}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </li>
+      )
+    })
   }
 </ul>

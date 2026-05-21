@@ -31,7 +31,8 @@
     --color-header-bg: var(--color-white);
 
     /* Layout tokens — no @theme namespace available */
-    --site-header-height: 4.375rem;
+    --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
+    --site-header-height-desktop: 4.75rem; /* 76px — foundation desktop nav row */
     --max-content-width: 1160px;
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).

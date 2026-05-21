@@ -36,11 +36,11 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
 ---
 
 <header
-  class="bg-black px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white text-[1rem]"
+  class="bg-black px-2xl sticky top-0 z-[2] border-t-2 border-gray-header shadow text-white text-[1rem]"
   role="banner"
 >
   <nav
-    class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
+    class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-summit-navigation-menu"
     id="block-summit-navigation"
@@ -49,24 +49,23 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     <h2 class="sr-only" id="block-summit-navigation-menu">{t('nav.summit')}</h2>
     <a
       href={summitHomePath}
-      class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
+      class="w-[11em] flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
       aria-label={t('aria.logo.summit')}
       {...navLink(summitHomePath, undefined, t('aria.logo.summit'))}
     >
-      <FoundationLogo class="text-white" />
+      <FoundationLogo />
     </a>
     <div
       class="header-nav-wrapper header-nav-wrapper--summit"
       data-nav-wrapper
       data-offscreen="true"
-      inert
       id="summitNavLinks"
     >
       <SummitNavMenu menuGroups={mainMenu} />
       {
         ctaButton && (
           <a
-            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-150 hover:bg-[#444] min-[1060px]:hidden"
+            class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
             href={ctaButton.href || '#'}
             {...navLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab
@@ -79,7 +78,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
       }
     </div>
     <SummitNavActions ctaButton={ctaButton} />
-    <HamburgerButton menuId="summitNavMenu" iconId="summitMenuIcon" />
+    <HamburgerButton controlsId="summitNavLinks" iconId="summitMenuIcon" />
   </nav>
 </header>
 

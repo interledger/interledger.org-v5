@@ -1,44 +1,39 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
 import { useTranslations } from '@/utils'
 
 interface Props {
-  menuId: string
+  controlsId: string
   iconId: string
 }
 
-const { menuId, iconId } = Astro.props
+const { controlsId, iconId } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const barClass =
-  'absolute left-0 block h-[4px] w-full rounded bg-current opacity-100 transition-[transform,top,width,left] duration-200 ease-in-out'
 ---
 
 <button
   type="button"
-  class="min-[1060px]:hidden border-0 bg-transparent py-space-xs"
-  aria-controls={menuId}
+  class="desktop:hidden cursor-pointer border-0 bg-transparent py-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+  aria-controls={controlsId}
+  aria-expanded="false"
   aria-label={t('nav.toggle_menu')}
   title={t('nav.toggle_menu')}
+  data-component="HamburgerButton"
   data-nav-toggle
 >
   <div
     id={iconId}
-    class="group relative h-[1em] w-[1.5em] cursor-pointer transition-[transform] duration-500 ease-in-out"
+    class="group relative inline-flex size-8 items-center justify-center"
     data-open="false"
   >
-    <span
-      class:list={[
-        barClass,
-        'top-0 group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2'
-      ]}></span>
-    <span class:list={[barClass, 'top-1/2 group-data-[open=true]:rotate-45']}
-    ></span>
-    <span class:list={[barClass, 'top-1/2 group-data-[open=true]:-rotate-45']}
-    ></span>
-    <span
-      class:list={[
-        barClass,
-        'top-full group-data-[open=true]:top-1/2 group-data-[open=true]:w-0 group-data-[open=true]:left-1/2'
-      ]}></span>
+    <Icon
+      name="menu"
+      class="absolute inset-0 size-full group-data-[open=true]:hidden"
+    />
+    <Icon
+      name="close"
+      class="absolute inset-0 size-full group-data-[open=false]:hidden"
+    />
   </div>
 </button>

@@ -1,55 +1,58 @@
 ---
 import {
-  translationMap,
-  buildRoutePath,
-  normalizeBasePath,
+  getLanguageSwitcherHrefs,
   switcherLocales,
-  type Locale,
-  localizeRoute
+  useTranslations
 } from '@/utils'
 
+/**
+ * Segmented-pill language switcher. Renders one anchor per supported locale
+ * inside a bordered, rounded container. The anchor for the active locale gets
+ * a filled background + orchid accent; inactive locales stay transparent.
+ *
+ * Anchors (not buttons) so navigation works without JS, middle-click opens in
+ * a new tab, and search engines see locale alternates.
+ */
 interface Props {
-  listClass?: string
-  itemClass?: string
-  linkClass?: string
+  class?: string
 }
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
-const {
-  listClass = 'flex items-center p-0 list-none',
-  itemClass = "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none",
-  linkClass = 'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
-} = Astro.props
+const { class: className } = Astro.props
+const t = useTranslations(routeLocale)
 
-const entry = translationMap[currentSlug]
-function toDefaultSectionHref(locale: Locale, basePath: string): string {
-  return localizeRoute(normalizeBasePath(basePath), locale)
-}
-
-const hrefs = Object.fromEntries(
-  switcherLocales.map((locale) => {
-    const slug = entry?.[locale]
-    const href = slug
-      ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)
-      : toDefaultSectionHref(locale, currentBasePath)
-    return [locale, href]
-  })
-) as Record<Locale, string>
+const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
 ---
 
-<ul class={listClass}>
+<div
+  role="group"
+  aria-label={t('nav.language')}
+  data-component="LanguageSwitcher"
+  class:list={[
+    'inline-flex items-stretch gap-0 rounded-lg border border-neutral-100 bg-neutral-150 p-[2px]',
+    'motion-safe:transition-colors motion-safe:duration-500',
+    className
+  ]}
+>
   {
-    switcherLocales.map((locale) => (
-      <li class={itemClass}>
+    switcherLocales.map((locale) => {
+      const isActive = routeLocale === locale
+      return (
         <a
           href={hrefs[locale]}
-          class={linkClass}
-          data-active={routeLocale === locale ? 'true' : 'false'}
           hreflang={locale}
+          aria-current={isActive ? 'true' : undefined}
+          class:list={[
+            'inline-flex h-[38px] w-10 items-center justify-center rounded-md',
+            'text-caption font-normal leading-none no-underline',
+            'motion-safe:transition-colors motion-safe:duration-500',
+            'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
+            isActive ? 'bg-neutral-100 text-orchid-50' : 'text-neutral-50'
+          ]}
         >
           {locale.toUpperCase()}
         </a>
-      </li>
-    ))
+      )
+    })
   }
-</ul>
+</div>

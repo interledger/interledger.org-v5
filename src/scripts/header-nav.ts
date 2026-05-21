@@ -18,6 +18,9 @@ export function initHeaderNav(navId: string, iconId: string) {
   function setOffscreenState(isOffscreen: boolean) {
     if (linksWrapper instanceof HTMLElement) {
       linksWrapper.dataset.offscreen = isOffscreen ? 'true' : 'false'
+      // inert is applied by JS only — not in the HTML template — so desktop
+      // nav stays keyboard-accessible when JS fails to load. Mobile drawer
+      // toggle still requires JS; closed drawer uses visibility:hidden via CSS.
       if (isOffscreen) {
         linksWrapper.setAttribute('inert', '')
       } else {
@@ -29,6 +32,9 @@ export function initHeaderNav(navId: string, iconId: string) {
   function setMenuIconOpenState(isOpen: boolean) {
     if (menuIcon instanceof HTMLElement) {
       menuIcon.dataset.open = isOpen ? 'true' : 'false'
+    }
+    if (navToggle instanceof HTMLElement) {
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false')
     }
   }
 
@@ -61,12 +67,14 @@ export function initHeaderNav(navId: string, iconId: string) {
     }
   }
 
-  const wideNavMinWidth = window.matchMedia('(min-width: 1060px)')
+  const wideNavMinWidth = window.matchMedia('(min-width: 1200px)')
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
-  // On initial load at wide viewport, remove inert so the nav is reachable by keyboard.
+  // Sync drawer + inert to viewport on load (markup defaults to mobile-closed).
   if (wideNavMinWidth.matches) {
     setOffscreenState(false)
+  } else {
+    setOffscreenState(true)
   }
 
   if (navToggle) {
@@ -76,7 +84,11 @@ export function initHeaderNav(navId: string, iconId: string) {
   // Escape closes the mobile nav drawer when focus is inside it.
   // Bound to root (not document) so it's naturally scoped and won't duplicate on re-init.
   root.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && linksWrapper?.dataset.offscreen === 'false') {
+    if (
+      event.key === 'Escape' &&
+      !wideNavMinWidth.matches &&
+      linksWrapper?.dataset.offscreen === 'false'
+    ) {
       setOffscreenState(true)
       setMenuIconOpenState(false)
       navToggle?.focus()
@@ -157,6 +169,39 @@ function initSubmenuToggle(root: HTMLElement) {
   const submenuButtons = root.querySelectorAll<HTMLElement>(
     '[data-submenu-button]'
   )
+  const menuItems = root.querySelectorAll<HTMLElement>('[data-menu-level="1"]')
+  const wideNav = window.matchMedia('(min-width: 1200px)')
+
+  function getPanel(btn: HTMLElement): HTMLElement | null {
+    const id = btn.getAttribute('aria-controls')
+    return id ? root.querySelector<HTMLElement>(`#${id}`) : null
+  }
+
+  // On mobile, inert closed panels so children aren't tabbable.
+  // On desktop, CSS visibility:hidden handles this.
+  function syncPanelInert(btn: HTMLElement) {
+    const panel = getPanel(btn)
+    if (!panel) return
+    const isOpen = btn.getAttribute('data-open') === 'true'
+    if (!wideNav.matches && !isOpen) {
+      panel.setAttribute('inert', '')
+    } else {
+      panel.removeAttribute('inert')
+    }
+  }
+
+  function closeSubmenu(btn: HTMLElement) {
+    btn.setAttribute('aria-expanded', 'false')
+    btn.setAttribute('data-open', 'false')
+    syncPanelInert(btn)
+  }
+
+  function syncAllPanelInert() {
+    submenuButtons.forEach(syncPanelInert)
+  }
+
+  syncAllPanelInert()
+  wideNav.addEventListener('change', syncAllPanelInert)
 
   submenuButtons.forEach((submenuButton) => {
     submenuButton.setAttribute('aria-expanded', 'false')
@@ -168,19 +213,32 @@ function initSubmenuToggle(root: HTMLElement) {
         (btn) => btn !== clickedButton
       )
 
-      otherButtons.forEach((btn) => {
-        btn.setAttribute('aria-expanded', 'false')
-        btn.setAttribute('data-open', 'false')
-      })
+      otherButtons.forEach(closeSubmenu)
 
       const isOpen = clickedButton.getAttribute('aria-expanded') === 'true'
       clickedButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
       clickedButton.setAttribute('data-open', isOpen ? 'false' : 'true')
+      syncPanelInert(clickedButton)
+    })
+  })
+
+  // Close a submenu when focus leaves its menu group (Tab-out on desktop).
+  menuItems.forEach((menuItem) => {
+    menuItem.addEventListener('focusout', (event) => {
+      const relatedTarget = (event as FocusEvent).relatedTarget as Node | null
+      if (!relatedTarget || !menuItem.contains(relatedTarget)) {
+        const btn = menuItem.querySelector<HTMLElement>('[data-submenu-button]')
+        if (btn) closeSubmenu(btn)
+      }
     })
   })
 
   navList.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
+      const openButton = Array.from(submenuButtons).find(
+        (btn) => btn.getAttribute('data-open') === 'true'
+      )
+      openButton?.focus()
       resetSubMenus()
     }
   })
@@ -192,9 +250,6 @@ function initSubmenuToggle(root: HTMLElement) {
   })
 
   function resetSubMenus() {
-    submenuButtons.forEach((btn) => {
-      btn.setAttribute('aria-expanded', 'false')
-      btn.setAttribute('data-open', 'false')
-    })
+    submenuButtons.forEach(closeSubmenu)
   }
 }

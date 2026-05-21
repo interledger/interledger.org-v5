@@ -1,6 +1,6 @@
 ---
 import { buttonVariants } from './buttonVariants'
-import { twMerge } from '@/utils'
+import { twMerge, useTranslations } from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
 
 type ButtonOpts = NonNullable<Parameters<typeof buttonVariants>[0]>
@@ -34,6 +34,9 @@ const {
   class: className,
   ...rest
 } = Astro.props
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const resolvedIconSide: ButtonIconSide =
   iconSide ??
@@ -72,6 +75,7 @@ const resolvedHref = ariaDisabled ? undefined : href
       class: className
     })
   )}
+  data-component="LinkButton"
   {...targetAttrs}
   aria-disabled={ariaDisabled ? true : undefined}
   tabindex={ariaDisabled ? -1 : undefined}
@@ -79,5 +83,5 @@ const resolvedHref = ariaDisabled ? undefined : href
   <slot name="icon-left" />
   <slot />
   <slot name="icon-right" />
-  {external && <span class="sr-only">(opens in new tab)</span>}
+  {external && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
 </a>

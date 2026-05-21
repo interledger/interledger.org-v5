@@ -33,6 +33,11 @@ export {
   COLLECTION_INDEX_SLUG,
   buildRoutePath
 } from './main/i18'
+export {
+  getAlternateLocale,
+  getAlternateLocaleHref,
+  getLanguageSwitcherHrefs
+} from './main/languageSwitcherHrefs'
 export { buildMap } from './main/translationMap'
 export { translationMap } from './main/translationMapData'
 

@@ -11,13 +11,7 @@ const { ctaButton } = Astro.props
 const { routeLocale } = Astro.locals
 
 const ctaLinkClass =
-  'self-center py-space-s no-underline hover:underline transition-colors duration-150 max-[1059px]:hidden'
-
-const langItemClass =
-  "flex items-center after:mx-space-2xs after:text-white/70 after:content-['|'] last:after:content-none"
-
-const langLinkClass =
-  'block px-space-2xs py-space-s text-white/80 no-underline transition-colors duration-200 hover:text-[hsl(180,100%,50%)] data-[active=true]:text-[hsl(180,100%,50%)] data-[active=true]:underline data-[active=true]:decoration-[hsl(180,100%,50%)] data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
+  'self-center py-xl no-underline hover:underline transition-colors duration-150 max-desktop:hidden'
 
 const ctaAttrs =
   ctaButton &&
@@ -31,7 +25,7 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-space-s min-[1060px]:col-start-3 min-[1060px]:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+  class="flex items-center gap-md desktop:col-start-3 desktop:col-end-4 max-desktop:flex-col max-desktop:items-start max-desktop:px-lg"
 >
   {
     ctaButton && (
@@ -47,5 +41,5 @@ const ctaAttrs =
       </a>
     )
   }
-  <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
+  <LanguageSwitcher />
 </div>

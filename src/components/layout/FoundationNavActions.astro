@@ -1,6 +1,8 @@
 ---
 import type { MenuItem } from '@/types/navigation'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
@@ -9,15 +11,6 @@ interface Props {
 
 const { ctaButton } = Astro.props
 const { routeLocale } = Astro.locals
-
-const ctaLinkClass =
-  'self-center no-underline py-space-s hover:underline max-[1059px]:hidden'
-
-const langItemClass =
-  "flex items-center after:mx-space-2xs after:opacity-80 after:text-primary-fallback after:content-['|'] last:after:content-none"
-
-const langLinkClass =
-  'block px-space-2xs py-space-s text-primary-fallback no-underline transition-colors duration-200 hover:text-primary data-[active=true]:underline data-[active=true]:decoration-2 data-[active=true]:underline-offset-[4px]'
 
 const ctaAttrs =
   ctaButton &&
@@ -31,21 +24,23 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-space-s min-[1060px]:col-start-3 min-[1060px]:col-end-4 max-[1059px]:flex-col max-[1059px]:items-start max-[1059px]:px-space-s"
+  class="flex items-center gap-md desktop:col-start-3 desktop:col-end-4 max-desktop:flex-col max-desktop:items-start max-desktop:px-lg"
+  data-component="FoundationNavActions"
 >
   {
     ctaButton && (
-      <a
-        class={ctaLinkClass}
+      <LinkButton
         href={ctaButton.href || '#'}
+        variant="primary"
+        size="sm"
+        external={ctaButton.openInNewTab}
+        class="max-desktop:hidden"
         {...ctaAttrs}
-        {...(ctaButton.openInNewTab
-          ? { target: '_blank', rel: 'noopener noreferrer' }
-          : {})}
       >
         {ctaButton.label}
-      </a>
+        <Icon slot="icon-right" name="arrow-right" />
+      </LinkButton>
     )
   }
-  <LanguageSwitcher itemClass={langItemClass} linkClass={langLinkClass} />
+  <LanguageSwitcher class="max-desktop:hidden" />
 </div>

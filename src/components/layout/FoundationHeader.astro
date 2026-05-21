@@ -2,22 +2,46 @@
 /**
  * Foundation site header.
  * Composes navigation menu, action links, and mobile toggle.
+ *
+ * `theme="dark"` is used on pages where the nav sits over a dark hero
+ * (e.g. the homepage). It renders a solid dark bar, light text, and dark
+ * dropdown panels. Default `"light"` is the white-bar treatment used on
+ * inner pages after scrolling past the hero.
  */
-import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
 import FoundationNavActions from '@/components/layout/FoundationNavActions.astro'
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import HamburgerButton from '@/components/shared/HamburgerButton.astro'
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 
 import {
   translatePath,
   HOME_CONTENT_SLUG,
   useTranslations,
   getNavigation,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  getAlternateLocale,
+  getAlternateLocaleHref
 } from '@/utils'
+
+interface Props {
+  theme?: 'light' | 'dark'
+}
+
+const { theme = 'dark' } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const alternateLocale = getAlternateLocale(routeLocale)
+const alternateLocaleHref = getAlternateLocaleHref(
+  routeLocale,
+  Astro.locals.currentSlug,
+  Astro.locals.currentBasePath
+)
+const alternateLocaleLabel = alternateLocale?.toUpperCase() ?? ''
 
 const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
 const homeHref = translatePath(
@@ -35,15 +59,17 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     linkText,
     ariaLabel
   })
+
+const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 ---
 
 <header
-  class="bg-white px-space-m sticky top-0 z-[2] border-t-2 border-gray-header shadow"
-  role="banner"
+  class={headerClass}
+  data-theme={theme}
+  data-component="FoundationHeader"
 >
   <nav
-    class="flex items-center justify-between min-[1060px]:grid min-[1060px]:grid-cols-[auto_1fr_auto] min-[1060px]:gap-space-s max-[1059px]:h-[var(--site-header-height)]"
-    role="navigation"
+    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
@@ -53,37 +79,70 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     </h2>
     <a
       href={homeHref}
-      class="w-[11em] flex-none min-[1060px]:col-start-1 min-[1060px]:col-end-2 min-[1060px]:z-[1]"
+      class="flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
       aria-label={t('aria.logo.foundation')}
       {...navLink(homeHref, undefined, t('aria.logo.foundation'))}
     >
-      <FoundationLogo class="text-black" />
+      <FoundationLogo />
     </a>
     <div
       class="header-nav-wrapper header-nav-wrapper--foundation"
       data-nav-wrapper
       data-offscreen="true"
-      inert
       id="siteNavLinks"
     >
-      <FoundationNavMenu menuGroups={mainMenu} />
+      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl">
+        <div class="flex items-center justify-between gap-xl">
+          {
+            alternateLocaleHref && alternateLocaleLabel ? (
+              <a
+                href={alternateLocaleHref}
+                hreflang={alternateLocale}
+                class="foundation-drawer-language-label font-poppins text-h3 font-normal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100"
+                aria-label={t('nav.switch_language', {
+                  locale: alternateLocaleLabel
+                })}
+                {...navLink(
+                  alternateLocaleHref,
+                  t('nav.language'),
+                  t('nav.switch_language', { locale: alternateLocaleLabel })
+                )}
+              >
+                {t('nav.language')}
+              </a>
+            ) : (
+              <span class="foundation-drawer-language-label font-poppins text-h3 font-normal">
+                {t('nav.language')}
+              </span>
+            )
+          }
+          <LanguageSwitcher />
+        </div>
+      </div>
+      <hr
+        class="desktop:hidden mx-lg mt-0 mb-xl h-px border-0 bg-neutral-100"
+      />
+      <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
-          <a
-            class="block whitespace-nowrap py-space-s px-space-s no-underline text-current transition-colors duration-200 hover:bg-gray-header min-[1060px]:hidden"
-            href={ctaButton.href || '#'}
-            {...navLink(ctaButton.href || '#', ctaButton.label)}
-            {...(ctaButton.openInNewTab
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            {ctaButton.label}
-          </a>
+          <div class="desktop:hidden mx-lg mt-2xl mb-4xl">
+            <LinkButton
+              href={ctaButton.href || '#'}
+              variant="primary"
+              size="sm"
+              external={ctaButton.openInNewTab}
+              class="w-full"
+              {...navLink(ctaButton.href || '#', ctaButton.label)}
+            >
+              {ctaButton.label}
+              <Icon slot="icon-right" name="arrow-right" />
+            </LinkButton>
+          </div>
         )
       }
     </div>
     <FoundationNavActions ctaButton={ctaButton} />
-    <HamburgerButton menuId="siteNavMenu" iconId="foundationMenuIcon" />
+    <HamburgerButton controlsId="siteNavLinks" iconId="foundationMenuIcon" />
   </nav>
 </header>
 

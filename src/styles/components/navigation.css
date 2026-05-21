@@ -12,10 +12,10 @@
 
   /* Shared responsive wrapper used by Foundation/Summit header menus. */
   .header-nav-wrapper {
-    will-change: transform;
+    will-change: clip-path;
   }
 
-  @media (min-width: 1060px) {
+  @media (min-width: 1200px) {
     .header-nav-wrapper {
       grid-column-start: 2;
       grid-column-end: 3;
@@ -25,35 +25,37 @@
     }
   }
 
-  @media (max-width: 1059px) {
+  @media (max-width: 1199px) {
+    /* Keep logo and hamburger above the drawer in the header stacking context. */
+    [data-nav] > *:not([data-nav-wrapper]) {
+      position: relative;
+      z-index: 1;
+    }
+
     .header-nav-wrapper {
       position: absolute;
+      left: 0;
       right: 0;
       top: var(--site-header-height);
-      border-top-width: 1px;
-      border-top-style: solid;
-      transition-property: transform;
-      transition-duration: var(--duration-slow);
+      max-height: calc(100dvh - var(--site-header-height));
+      overflow-y: auto;
+      z-index: 0;
+      clip-path: inset(0 0 0 0);
+      visibility: visible;
+      transition-property: clip-path, visibility;
+      transition-duration: 450ms, 0ms;
+      transition-delay: 0ms, 0ms;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .header-nav-wrapper[data-offscreen='true'] {
-      transform: translateX(100%);
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      transition-delay: 0ms, 450ms;
     }
   }
 
-  @media (max-width: 479px) {
-    .header-nav-wrapper {
-      width: 100%;
-    }
-  }
-
-  @media (min-width: 480px) and (max-width: 1059px) {
-    .header-nav-wrapper {
-      width: max-content;
-    }
-  }
-
-  @media (min-width: 1060px) {
+  @media (min-width: 1200px) {
     .header-nav-wrapper {
       position: relative;
       top: 0;
@@ -64,13 +66,192 @@
     }
   }
 
-  .header-nav-wrapper--foundation {
-    background: white;
-    border-top-color: var(--color-gray-header);
+  /* Drawer backgrounds: scoped to foundation header theme only — not <html data-theme>,
+     which stays dark on the homepage while JS toggles the header to light on scroll. */
+  @media (max-width: 1199px) {
+    .foundation-header[data-theme='light'] .header-nav-wrapper--foundation {
+      background-color: #ffffff;
+    }
+
+    .foundation-header[data-theme='dark'] .header-nav-wrapper--foundation {
+      background-color: #0d0d0d;
+    }
+
+    .header-nav-wrapper--summit {
+      background: black;
+    }
+  }
+}
+
+/* ================================================================
+   Foundation header: dark/light theme switching
+   Unlayered — beats @layer utilities so these override baked-in
+   Tailwind classes when JS toggles data-theme on scroll.
+   ================================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .foundation-header {
+    transition:
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .header-nav-wrapper--summit {
-    background: black;
-    border-top-color: var(--color-gray-header);
+  .foundation-header[data-theme-animate] {
+    transition:
+      background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.foundation-header[data-theme='dark']:has([data-offscreen='false']) {
+  background-color: #0d0d0d;
+}
+
+.foundation-header[data-theme='light']:has([data-offscreen='false']) {
+  background-color: #ffffff;
+}
+
+/* Logo wordmark: white on dark headers, purple on light foundation header */
+.foundation-logo-wordmark {
+  fill: #ffffff;
+}
+
+.foundation-header[data-theme='light'] .foundation-logo-wordmark {
+  fill: #4f1072;
+}
+
+.foundation-header[data-theme='dark'] {
+  background-color: #0d0d0d;
+  color: var(--color-neutral-50);
+  box-shadow: none;
+}
+
+.foundation-header[data-theme='light'] {
+  background-color: #ffffff;
+  color: black;
+  box-shadow: var(--shadow);
+}
+
+.foundation-header[data-theme='dark'] [data-component='HamburgerButton'] {
+  color: var(--color-neutral-25);
+}
+
+/* Nav button hover/focus backgrounds (desktop only) */
+@media (min-width: 1200px) {
+  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible) {
+    background-color: var(--color-neutral-100);
+  }
+
+  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
+    background-color: var(--color-gray-header);
+  }
+}
+
+/* Dropdown panel backgrounds (desktop only) */
+@media (min-width: 1200px) {
+  .foundation-header[data-theme='dark'] .submenu-panel {
+    background-color: var(--color-neutral-150);
+    border-color: var(--color-neutral-100);
+  }
+
+  .foundation-header[data-theme='light'] .submenu-panel {
+    background-color: white;
+    border-color: var(--color-gray-header);
+  }
+}
+
+/* Nav link text */
+.foundation-header[data-theme='dark'] .nav-link {
+  color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] .nav-link {
+  color: var(--color-neutral-75);
+}
+
+/* Subgroup heading text and divider */
+.foundation-header[data-theme='dark'] .nav-subgroup-heading {
+  color: var(--color-neutral-50);
+  border-color: var(--color-neutral-75);
+}
+
+.foundation-header[data-theme='light'] .nav-subgroup-heading {
+  color: var(--color-neutral-75);
+  border-color: var(--color-neutral-50);
+}
+
+/* Mobile drawer divider */
+.foundation-header[data-theme='light'] .header-nav-wrapper hr {
+  background-color: var(--color-neutral-50);
+}
+
+/* Mobile drawer language label */
+.foundation-header[data-theme='dark'] .foundation-drawer-language-label {
+  color: var(--color-neutral-50);
+}
+
+.foundation-header[data-theme='light'] .foundation-drawer-language-label {
+  color: black;
+}
+
+.foundation-header[data-theme='dark'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
+  color: var(--color-neutral-25);
+}
+
+.foundation-header[data-theme='light'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
+  color: var(--color-neutral-100);
+}
+
+/* Language switcher */
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] {
+  background-color: var(--color-neutral-150);
+  border-color: var(--color-neutral-100);
+}
+
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='true'] {
+  background-color: var(--color-neutral-100);
+  color: var(--color-orchid-50);
+}
+
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
+  color: var(--color-neutral-50);
+}
+
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher']:hover {
+  border-color: var(--color-neutral-75);
+}
+
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] {
+  background-color: var(--color-neutral-0);
+  border-color: var(--color-neutral-25);
+}
+
+
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='true'] {
+  background-color: var(--color-neutral-25);
+  color: var(--color-orchid-150);
+}
+
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
+  color: var(--color-neutral-75);
+}
+
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
+  border-color: var(--color-neutral-100);
+}
+
+/* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
+@media (max-width: 1199px) {
+  .foundation-header[data-theme='dark'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
+  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
+    outline: none;
+    background-color: var(--color-neutral-100);
+  }
+
+  .foundation-header[data-theme='light'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
+  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
+    outline: none;
+    background-color: var(--color-gray-header);
   }
 }

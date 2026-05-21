@@ -13,7 +13,6 @@ export interface MenuGroup {
   label: string
   href?: string
   items?: MenuItem[]
-  /** Nested sub-sections rendered in the footer nav; ignored by the header. */
   subGroups?: MenuSubGroup[]
 }
 

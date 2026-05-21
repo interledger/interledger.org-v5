@@ -31,6 +31,8 @@ interface Props {
     | 'github'
     | 'youtube'
     | 'interledger'
+    | 'close'
+    | 'menu'
   class?: string
 }
 
@@ -99,6 +101,25 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   youtube: {
     viewBox: '0 0 24 24',
     body: '<path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-linejoin="round" d="M20.6236 7.27968C20.5214 6.8874 20.3207 6.52942 20.0415 6.24144C19.7623 5.95345 19.4143 5.7455 19.0323 5.63832C17.6291 5.25 12 5.25 12 5.25C12 5.25 6.37091 5.25 4.96773 5.63832C4.58568 5.7455 4.23771 5.95345 3.9585 6.24144C3.67928 6.52942 3.47857 6.8874 3.37636 7.27968C3 8.72897 3 11.75 3 11.75C3 11.75 3 14.771 3.37636 16.2203C3.47844 16.6128 3.6791 16.9709 3.95833 17.259C4.23755 17.5472 4.58559 17.7553 4.96773 17.8625C6.37173 18.25 12 18.25 12 18.25C12 18.25 17.6291 18.25 19.0323 17.8625C19.4144 17.7553 19.7625 17.5472 20.0417 17.259C20.3209 16.9709 20.5216 16.6128 20.6236 16.2203C21 14.7727 21 11.75 21 11.75C21 11.75 21 8.72897 20.6236 7.27968ZM10.1591 14.4934V9.00742L14.8636 11.7508L10.1591 14.4934Z"/>'
+  },
+
+  close: {
+    viewBox: '0 0 24 24',
+    body:
+      '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M 12 0 L 0 12" transform="translate(6 6)"/>' +
+      '<path d="M 0 0 L 12 12" transform="translate(6 6)"/>' +
+      '</g>'
+  },
+
+  menu: {
+    viewBox: '0 0 24 24',
+    body:
+      '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M 0 0 L 18 0" transform="translate(3 6)"/>' +
+      '<path d="M 0 0 L 18 0" transform="translate(3 12)"/>' +
+      '<path d="M 0 0 L 18 0" transform="translate(3 18)"/>' +
+      '</g>'
   },
 
   interledger: {
