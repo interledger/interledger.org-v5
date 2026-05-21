@@ -66,12 +66,15 @@ const headerClasses = `
 const viewportClasses = `
   logo-carousel
   overflow-x-hidden
+  [--mask-fade-width:20%]
+  tablet:[--mask-fade-width:25%]
 `
 const trackClasses = `
-  logos
   flex items-center gap-[var(--logo-carousel-gap)]
   list-none p-0 m-0
   w-max
+  animate-[scroll-left_30s_linear_infinite]
+  motion-reduce:animate-none
 `
 const logoClasses = `
   h-12 w-auto shrink-0
@@ -106,7 +109,7 @@ const logoClasses = `
         {
           /* Duplicate batch for seamless loop — hidden from AT and keyboard. */
           partners.map((partner) => (
-            <li aria-hidden="true" inert>
+            <li class="motion-reduce:hidden" aria-hidden="true" inert>
               <img
                 src={partner.src}
                 alt=""
@@ -127,26 +130,10 @@ const logoClasses = `
     mask-image: linear-gradient(
       to right,
       transparent 0%,
-      black 20%,
-      black 80%,
+      black var(--mask-fade-width),
+      black calc(100% - var(--mask-fade-width)),
       transparent 100%
     );
-  }
-
-  @media (min-width: 810px) {
-    .logo-carousel {
-      mask-image: linear-gradient(
-        to right,
-        transparent 0%,
-        black 25%,
-        black 75%,
-        transparent 100%
-      );
-    }
-  }
-
-  .logos {
-    animation: scroll-left 30s linear infinite;
   }
 
   @keyframes scroll-left {
@@ -155,15 +142,6 @@ const logoClasses = `
     }
     to {
       transform: translateX(calc(-50% - var(--logo-carousel-gap) / 2));
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .logos {
-      animation: none;
-    }
-    .logos li[aria-hidden='true'] {
-      display: none;
     }
   }
 </style>
