@@ -7,8 +7,8 @@
  * JS, no library. Browsers without support (older Safari) fall back to the
  * reduced-motion end state.
  *
- * "The problem we're solving" lives inside this section: after the hero on mobile
- * (animation hidden), at the bottom of the scroll block on desktop.
+ * "The problem we're solving" overlaps the art in-flow on desktop (margin tracks SVG
+ * height via container query); after the hero on mobile (animation hidden).
  */
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
@@ -21,8 +21,8 @@ const t = useTranslations(Astro.locals.routeLocale)
   data-component="AnimatedNetwork"
   class="relative isolate z-0 flex flex-col bg-neutral-150"
 >
-  <div class="network-stage relative hidden md:block" aria-hidden="true">
-    <div class="network-art">
+  <div class="network-stage relative hidden md:flex md:flex-col">
+    <div class="network-art" aria-hidden="true">
       <img
         src="/img/homepage/hero-animated-network.svg"
         alt=""
@@ -36,6 +36,32 @@ const t = useTranslations(Astro.locals.routeLocale)
         <div class="growing-circle"></div>
       </div>
     </div>
+
+    <div class="network-footer relative z-[3]">
+      <TextMediaSection
+        mediaSide="right"
+        theme="dark"
+        ariaLabel={t('home.problem.heading')}
+        class="relative z-[3] min-h-0 bg-transparent tablet:px-3xl-tight tablet:py-5xl"
+        data-nav-dark
+        data-section="home-problem"
+      >
+        <h2 slot="heading">{t('home.problem.heading')}</h2>
+        <p>{t('home.problem.body_1')}</p>
+        <p>{t('home.problem.body_2')}</p>
+        <div
+          slot="media"
+          class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-full"
+        >
+          <VideoEmbed
+            url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+            title={t('home.problem.video_title')}
+          />
+        </div>
+      </TextMediaSection>
+    </div>
+
+    <div class="network-stage-spacer" aria-hidden="true"></div>
   </div>
 
   <TextMediaSection
@@ -59,32 +85,6 @@ const t = useTranslations(Astro.locals.routeLocale)
       />
     </div>
   </TextMediaSection>
-
-  <div
-    class="network-footer relative z-[3] -mt-[22vh] hidden md:block lg:-mt-[30vh]"
-  >
-    <TextMediaSection
-      mediaSide="right"
-      theme="dark"
-      ariaLabel={t('home.problem.heading')}
-      class="relative z-[3] min-h-0 bg-transparent tablet:px-3xl-tight tablet:py-5xl"
-      data-nav-dark
-      data-section="home-problem"
-    >
-      <h2 slot="heading">{t('home.problem.heading')}</h2>
-      <p>{t('home.problem.body_1')}</p>
-      <p>{t('home.problem.body_2')}</p>
-      <div
-        slot="media"
-        class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-full"
-      >
-        <VideoEmbed
-          url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
-          title={t('home.problem.video_title')}
-        />
-      </div>
-    </TextMediaSection>
-  </div>
 </section>
 
 <style>
@@ -92,6 +92,9 @@ const t = useTranslations(Astro.locals.routeLocale)
     view-timeline-name: --network-track;
     --network-stage-height: 115vh;
     --network-hero-overlap: 10vh;
+    /* Fraction from art top where problem copy begins (tracks SVG hub ~52%). */
+    --network-problem-start: 0.78;
+    --network-svg-aspect: calc(3186 / 1920);
     /* Extra top room for scale(1.25) + rotation; bottom edge clips SVG and disc in-section. */
     --network-clip-top: calc(var(--network-hero-overlap) + 18vh);
     clip-path: inset(calc(-1 * var(--network-clip-top)) 0 0 0);
@@ -104,17 +107,42 @@ const t = useTranslations(Astro.locals.routeLocale)
   }
 
   [data-component='AnimatedNetwork'] .network-stage {
-    height: var(--network-stage-height);
+    container-type: inline-size;
+    position: relative;
+    min-height: var(--network-stage-height);
     overflow: visible;
   }
 
-  /* Out of flow so the stage stays short while the SVG overlaps the hero above. */
+  [data-component='AnimatedNetwork'] .network-stage-spacer {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   [data-component='AnimatedNetwork'] .network-art {
-    position: absolute;
-    top: calc(-1 * var(--network-hero-overlap));
-    left: 0;
-    right: 0;
+    position: relative;
+    flex-shrink: 0;
+    margin-top: calc(-1 * var(--network-hero-overlap));
     width: 100%;
+  }
+
+  /*
+   * In document flow (reserves height, no overlap with next section). Pull-up is
+   * a fraction of art height via container query so it tracks width reflow.
+   */
+  [data-component='AnimatedNetwork'] .network-footer {
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: calc(
+      (var(--network-problem-start) - 1) * 100cqi * var(--network-svg-aspect)
+    );
+  }
+
+  @supports not (width: 100cqi) {
+    [data-component='AnimatedNetwork'] .network-footer {
+      margin-top: -30vh;
+    }
   }
 
   [data-component='AnimatedNetwork'] .network-svg {
