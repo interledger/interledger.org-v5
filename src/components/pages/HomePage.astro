@@ -1,6 +1,9 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import HomepageHero from '@/components/pages/HomepageHero.astro'
+import StatsSection, {
+  type StatItem
+} from '@/components/shared/StatsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -14,6 +17,33 @@ interface Props {
 
 const { pageLang } = Astro.props
 const t = useTranslations(pageLang)
+
+const stats: StatItem[] = [
+  {
+    value: 21,
+    suffix: 'M+',
+    label: t('home.stats.grants_label'),
+    ariaLabel: t('home.stats.grants_aria')
+  },
+  {
+    value: 300,
+    suffix: '+',
+    label: t('home.stats.projects_label'),
+    ariaLabel: t('home.stats.projects_aria')
+  },
+  {
+    value: 130,
+    suffix: '+',
+    label: t('home.stats.countries_label'),
+    ariaLabel: t('home.stats.countries_aria')
+  },
+  {
+    value: 1000,
+    suffix: '+',
+    label: t('home.stats.students_label'),
+    ariaLabel: t('home.stats.students_aria')
+  }
+]
 ---
 
 <FoundationPageLayout
@@ -59,7 +89,7 @@ const t = useTranslations(pageLang)
         variant="secondary"
         mode="light"
         size="lg"
-        class="w-full tablet:w-auto tablet:mx-auto"
+        class="w-full tablet:w-auto tablet:mx-auto desktop:mx-0"
       >
         {t('home.making_money_move.cta_label')}
       </LinkButton>
@@ -86,7 +116,7 @@ const t = useTranslations(pageLang)
         variant="secondary"
         mode="light"
         size="lg"
-        class="w-full tablet:w-auto tablet:mx-auto"
+        class="w-full tablet:w-auto tablet:mx-auto desktop:mx-0"
       >
         {t('home.independent_by_design.cta_label')}
       </LinkButton>
@@ -99,6 +129,10 @@ const t = useTranslations(pageLang)
         class="mx-auto h-auto w-full max-w-[426px] tablet:w-[40%] desktop:mx-0"
       />
     </TextMediaSection>
+    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
+      <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
+      <p>{t('home.stats.body')}</p>
+    </StatsSection>
     <LogoCarousel />
   </main>
 </FoundationPageLayout>

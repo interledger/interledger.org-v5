@@ -212,7 +212,18 @@ export const ui = {
     'home.independent_by_design.cta_label': 'Our tech governance',
     'home.independent_by_design.image_alt': 'Speaker at a community event',
     'carousel.heading': 'In partnership with',
-    'carousel.partners_label': 'Partner logos'
+    'carousel.partners_label': 'Partner logos',
+    'home.stats.heading': 'Real-world progress',
+    'home.stats.body':
+      'From early experiments to real-world systems, this is what progress looks like in practice.',
+    'home.stats.grants_label': 'In Grants',
+    'home.stats.grants_aria': '21 million dollars in grants',
+    'home.stats.projects_label': 'Projects worldwide',
+    'home.stats.projects_aria': '300 plus projects worldwide',
+    'home.stats.countries_label': 'Countries with active tech',
+    'home.stats.countries_aria': '130 plus countries with active tech',
+    'home.stats.students_label': 'Students skilled',
+    'home.stats.students_aria': '1,000 plus students skilled'
   },
   es: {
     'site.title': '',
