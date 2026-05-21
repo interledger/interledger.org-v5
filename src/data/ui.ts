@@ -210,7 +210,9 @@ export const ui = {
     'home.independent_by_design.body_2':
       'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
     'home.independent_by_design.cta_label': 'Our tech governance',
-    'home.independent_by_design.image_alt': 'Speaker at a community event'
+    'home.independent_by_design.image_alt': 'Speaker at a community event',
+    'carousel.heading': 'In partnership with',
+    'carousel.partners_label': 'Partner logos'
   },
   es: {
     'site.title': '',
@@ -379,6 +381,8 @@ export const ui = {
     'pillarsSection.card2_title': '',
     'pillarsSection.card2_description': '',
     'pillarsSection.card3_title': '',
-    'pillarsSection.card3_description': ''
+    'pillarsSection.card3_description': '',
+    'carousel.heading': '',
+    'carousel.partners_label': ''
   }
 } as const

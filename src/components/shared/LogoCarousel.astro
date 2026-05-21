@@ -1,0 +1,169 @@
+---
+import { useTranslations } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const partners = [
+  { name: 'Alabama A&M University', src: '/img/partner-logos/Alabama-AM.png' },
+  {
+    name: 'The AUC Data Science Initiative',
+    src: '/img/partner-logos/AUCDSI.png'
+  },
+  { name: 'BessPay', src: '/img/partner-logos/BessPay.png' },
+  { name: 'Chimoney', src: '/img/partner-logos/Chimoney.png' },
+  { name: 'Confab', src: '/img/partner-logos/Confab.png' },
+  {
+    name: 'Instituto Politécnico Nacional ESCOM',
+    src: '/img/partner-logos/Escudo-ESCOM.png'
+  },
+  { name: 'Gatehub', src: '/img/partner-logos/Gatehub.png' },
+  {
+    name: 'ISSRA - Institute for Strategic Studies Research & Analysis',
+    src: '/img/partner-logos/ISSRA.png'
+  },
+  { name: 'Mydata Rights', src: '/img/partner-logos/Mydata-rights.png' },
+  { name: 'Nyu', src: '/img/partner-logos/Nyu.png' },
+  { name: 'Paysys', src: '/img/partner-logos/Paysys.png' },
+  { name: 'Plata', src: '/img/partner-logos/plata.png' },
+  {
+    name: 'Smashing Magazine',
+    src: '/img/partner-logos/Smashing-Magazine.png'
+  },
+  {
+    name: 'The Hague University of Applied Sciences',
+    src: '/img/partner-logos/The-Hague-university-of-applied-sciences.png'
+  },
+  {
+    name: 'University of Cape Town',
+    src: '/img/partner-logos/University-of-Cape-Town-UCT.png'
+  },
+  {
+    name: 'The University of Hong Kong',
+    src: '/img/partner-logos/University-of-Hong-Kong.png'
+  },
+  {
+    name: 'Western Sydney University',
+    src: '/img/partner-logos/Western-Sydney-university.png'
+  }
+] as const
+
+const sectionClasses = `
+  px-lg pb-3xl-tight
+  bg-neutral-0
+  tablet:px-xl
+  desktop:px-5xl desktop:pb-5xl
+`
+const containerClasses = `
+  max-w-content py-5xl m-auto
+  border-t border-neutral-50
+`
+const headerClasses = `
+  mb-xl text-center text-h3
+  tablet:text-h3-md
+  desktop:text-h3-lg
+`
+const viewportClasses = `
+  logo-carousel
+  overflow-x-hidden
+`
+const trackClasses = `
+  logos
+  flex items-center gap-[var(--logo-carousel-gap)]
+  list-none p-0 m-0
+  w-max
+`
+const logoClasses = `
+  h-12 w-auto shrink-0
+`
+---
+
+<section aria-labelledby="logo-carousel-heading" class={sectionClasses}>
+  <div class={containerClasses}>
+    <h2 id="logo-carousel-heading" class={headerClasses}>
+      {t('carousel.heading')}
+    </h2>
+
+    <div
+      class={viewportClasses}
+      role="group"
+      aria-label={t('carousel.partners_label')}
+    >
+      <ul class={trackClasses} role="list">
+        {
+          partners.map((partner) => (
+            <li>
+              <img
+                src={partner.src}
+                alt={partner.name}
+                class={logoClasses}
+                loading="lazy"
+                decoding="async"
+              />
+            </li>
+          ))
+        }
+        {
+          /* Duplicate batch for seamless loop — hidden from AT and keyboard. */
+          partners.map((partner) => (
+            <li aria-hidden="true" inert>
+              <img
+                src={partner.src}
+                alt=""
+                class={logoClasses}
+                loading="lazy"
+                decoding="async"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .logo-carousel {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 20%,
+      black 80%,
+      transparent 100%
+    );
+  }
+
+  @media (min-width: 810px) {
+    .logo-carousel {
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 25%,
+        black 75%,
+        transparent 100%
+      );
+    }
+  }
+
+  .logos {
+    animation: scroll-left 30s linear infinite;
+  }
+
+  @keyframes scroll-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-50% - var(--logo-carousel-gap) / 2));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logos {
+      animation: none;
+    }
+    .logos li[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

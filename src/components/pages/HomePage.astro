@@ -6,6 +6,7 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import { useTranslations, type Locale } from '@/utils'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
+import LogoCarousel from '@/components/shared/LogoCarousel.astro'
 
 interface Props {
   pageLang: Locale
@@ -98,5 +99,6 @@ const t = useTranslations(pageLang)
         class="mx-auto h-auto w-full max-w-[426px] tablet:w-[40%] desktop:mx-0"
       />
     </TextMediaSection>
+    <LogoCarousel />
   </main>
 </FoundationPageLayout>
