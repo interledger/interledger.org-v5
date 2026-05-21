@@ -101,9 +101,9 @@ export function getOptimizedImage(src: string): OptimizedImage {
   const publicDir = path.join(process.cwd(), 'public')
   const exists = (rel: string) => fs.existsSync(path.join(publicDir, rel))
 
-  const variants = TARGET_WIDTHS.filter((w) =>
-    exists(`${base}-${w}.webp`)
-  ).map((w) => ({ src: `${base}-${w}.webp`, width: w }))
+  const variants = TARGET_WIDTHS.filter((w) => exists(`${base}-${w}.webp`)).map(
+    (w) => ({ src: `${base}-${w}.webp`, width: w })
+  )
 
   const avifVariants = TARGET_WIDTHS.filter((w) =>
     exists(`${base}-${w}.avif`)

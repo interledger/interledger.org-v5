@@ -21,13 +21,7 @@ const WEBP_QUALITY = 80
 const AVIF_QUALITY = 75
 // GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
 // would become static. They're passed through as-is by OptimizedImage.
-const RASTER_EXTENSIONS = new Set([
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.webp',
-  '.avif'
-])
+const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif'])
 
 interface SourceConfig {
   dir: string

@@ -52,7 +52,12 @@ const imgSrc = media ? undefined : src
           media={media}
         />
       )}
-      <source type="image/webp" srcset={webpSrcset} sizes={sizes} media={media} />
+      <source
+        type="image/webp"
+        srcset={webpSrcset}
+        sizes={sizes}
+        media={media}
+      />
       <img
         src={imgSrc}
         alt={alt}
