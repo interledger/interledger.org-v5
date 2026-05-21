@@ -66,6 +66,8 @@ const headerClasses = `
 const viewportClasses = `
   logo-carousel
   overflow-x-hidden
+  cursor-grab touch-pan-y select-none
+  [--cycle-seconds:30s]
   [--mask-fade-width:20%]
   tablet:[--mask-fade-width:25%]
 `
@@ -73,11 +75,11 @@ const trackClasses = `
   flex items-center gap-[var(--logo-carousel-gap)]
   list-none p-0 m-0
   w-max
-  animate-[scroll-left_30s_linear_infinite]
+  animate-[scroll-left_var(--cycle-seconds)_linear_infinite]
   motion-reduce:animate-none
 `
 const logoClasses = `
-  h-12 w-auto shrink-0
+  h-10 w-auto shrink-0
 `
 ---
 
@@ -95,13 +97,15 @@ const logoClasses = `
       <ul class={trackClasses} role="list">
         {
           partners.map((partner) => (
-            <li>
+            <li class="m-0">
               <img
                 src={partner.src}
                 alt={partner.name}
                 class={logoClasses}
+                height="40"
                 loading="lazy"
                 decoding="async"
+                draggable={false}
               />
             </li>
           ))
@@ -109,13 +113,14 @@ const logoClasses = `
         {
           /* Duplicate batch for seamless loop — hidden from AT and keyboard. */
           partners.map((partner) => (
-            <li class="motion-reduce:hidden" aria-hidden="true" inert>
+            <li class="motion-reduce:hidden m-0" aria-hidden="true" inert>
               <img
                 src={partner.src}
                 alt=""
                 class={logoClasses}
                 loading="lazy"
                 decoding="async"
+                draggable={false}
               />
             </li>
           ))
@@ -145,3 +150,121 @@ const logoClasses = `
     }
   }
 </style>
+
+<script>
+  /* Drag + auto-scroll for the logo carousel.
+     We take over from the CSS @keyframes, but keep them defined above as a 
+     fallback if this script fails to load */
+
+  const carousels = document.querySelectorAll<HTMLElement>('.logo-carousel')
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  carousels.forEach((carousel) => {
+    const track = carousel.querySelector<HTMLUListElement>('ul')
+    if (!track) return
+
+    const state = {
+      offset: 0,
+      wrapDistance: 0,
+      speedPxPerSec: 0,
+      isDragging: false,
+      dragStart: { x: 0, offset: 0 },
+      lastTime: 0,
+      rafId: 0
+    }
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0
+    const cycleSeconds =
+      parseFloat(
+        getComputedStyle(carousel).getPropertyValue('--cycle-seconds')
+      ) || 30
+
+    const updateMeasurements = (): void => {
+      // Track contains 2× the visual logo set. Wrap point is the distance after
+      // which the visual pattern repeats: half the track + half a gap (mirrors
+      // the CSS `-50% - gap/2` end keyframe).
+      const halfTrack = track.scrollWidth / 2
+      state.wrapDistance = halfTrack + gap / 2
+      state.speedPxPerSec = state.wrapDistance / cycleSeconds
+    }
+
+    const wrapOffset = (value: number): number => {
+      if (state.wrapDistance <= 0) return value
+
+      let wrappedOffset = value % state.wrapDistance
+
+      // Keep offsets negative so scrolling direction remains consistent.
+      if (wrappedOffset > 0) wrappedOffset -= state.wrapDistance
+
+      return wrappedOffset
+    }
+
+    const render = (): void => {
+      track.style.transform = `translateX(${state.offset}px)`
+    }
+
+    const updateOffset = (value: number): void => {
+      state.offset = wrapOffset(value)
+      render()
+    }
+
+    const tick = (now: number): void => {
+      if (!state.isDragging && !reducedMotion.matches) {
+        const dt = (now - state.lastTime) / 1000
+        updateOffset(state.offset - state.speedPxPerSec * dt)
+      }
+      state.lastTime = now
+      state.rafId = requestAnimationFrame(tick)
+    }
+
+    // Override the `animate-[scroll-left_...]` utility; JS now drives the transform.
+    track.style.animation = 'none'
+
+    updateMeasurements()
+    state.lastTime = performance.now()
+    state.rafId = requestAnimationFrame(tick)
+
+    // Recompute wrap distance when the track resizes (images loading, viewport
+    // resize, font swaps — anything that changes scrollWidth).
+    const resizeObserver = new ResizeObserver(updateMeasurements)
+    resizeObserver.observe(track)
+
+    carousel.addEventListener('pointerdown', (event) => {
+      // Ignore non-primary mouse buttons (right/middle/back/forward) and
+      // secondary touch points on multi-touch devices.
+      if (event.button !== 0 || !event.isPrimary) return
+      state.isDragging = true
+      state.dragStart.x = event.clientX
+      state.dragStart.offset = state.offset
+      carousel.setPointerCapture(event.pointerId)
+      carousel.style.cursor = 'grabbing'
+    })
+
+    carousel.addEventListener('pointermove', (event) => {
+      if (!state.isDragging) return
+      updateOffset(state.dragStart.offset + (event.clientX - state.dragStart.x))
+    })
+
+    const endDrag = (event: PointerEvent): void => {
+      if (!state.isDragging) return
+
+      state.isDragging = false
+
+      if (carousel.hasPointerCapture(event.pointerId)) {
+        carousel.releasePointerCapture(event.pointerId)
+      }
+      carousel.style.cursor = ''
+      // Reset lastTime so the resumed auto-scroll doesn't jump by the drag duration.
+      state.lastTime = performance.now()
+    }
+    carousel.addEventListener('pointerup', endDrag)
+    carousel.addEventListener('pointercancel', endDrag)
+
+    // Cleanup when the page is unloaded
+    const cleanup = (): void => {
+      cancelAnimationFrame(state.rafId)
+      resizeObserver.disconnect()
+    }
+
+    window.addEventListener('pagehide', cleanup, { once: true })
+  })
+</script>
