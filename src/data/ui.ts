@@ -201,7 +201,7 @@ export const ui = {
       'From early experiments to real-world systems, this is what progress looks like in practice.',
     'home.stats.grants_label': 'In Grants',
     'home.stats.grants_aria': '21 million dollars in grants',
-    'home.stats.projects_label': 'Project worldwide',
+    'home.stats.projects_label': 'Projects worldwide',
     'home.stats.projects_aria': '300 plus projects worldwide',
     'home.stats.countries_label': 'Countries with active tech',
     'home.stats.countries_aria': '130 plus countries with active tech',
