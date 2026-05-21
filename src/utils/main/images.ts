@@ -18,6 +18,8 @@ export interface ImageVariant {
 export interface OptimizedImage {
   variants: ImageVariant[]
   fullSrc: string | null
+  avifVariants: ImageVariant[]
+  avifFullSrc: string | null
 }
 
 export function pathToSegments(urlPath: string): string[] {
@@ -92,21 +94,28 @@ function getOptimizedBase(src: string): string | null {
  */
 export function getOptimizedImage(src: string): OptimizedImage {
   const base = getOptimizedBase(src)
-  if (!base) return { variants: [], fullSrc: null }
+  if (!base) {
+    return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
+  }
 
   const publicDir = path.join(process.cwd(), 'public')
+  const exists = (rel: string) => fs.existsSync(path.join(publicDir, rel))
 
   const variants = TARGET_WIDTHS.filter((w) =>
-    fs.existsSync(path.join(publicDir, `${base}-${w}.webp`))
-  ).map((w) => ({
-    src: `${base}-${w}.webp`,
-    width: w
-  }))
+    exists(`${base}-${w}.webp`)
+  ).map((w) => ({ src: `${base}-${w}.webp`, width: w }))
+
+  const avifVariants = TARGET_WIDTHS.filter((w) =>
+    exists(`${base}-${w}.avif`)
+  ).map((w) => ({ src: `${base}-${w}.avif`, width: w }))
 
   const fullWebP = `${base}-full.webp`
-  const fullSrc = fs.existsSync(path.join(publicDir, fullWebP))
-    ? fullWebP
-    : null
+  const fullAvif = `${base}-full.avif`
 
-  return { variants, fullSrc }
+  return {
+    variants,
+    fullSrc: exists(fullWebP) ? fullWebP : null,
+    avifVariants,
+    avifFullSrc: exists(fullAvif) ? fullAvif : null
+  }
 }

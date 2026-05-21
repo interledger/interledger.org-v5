@@ -28,12 +28,13 @@ const {
   media
 } = Astro.props
 
-const { variants, fullSrc } = src
+const { variants, fullSrc, avifVariants, avifFullSrc } = src
   ? getOptimizedImage(src)
-  : { variants: [], fullSrc: null }
+  : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const hasResponsive = variants.length > 0
-const srcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
+const webpSrcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
+const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const decoding: 'async' | 'sync' | 'auto' = 'async'
 // When a media query is provided, omit <img> src so browsers that don't match
 // the <source> media condition don't fetch the image at all.
@@ -43,7 +44,15 @@ const imgSrc = media ? undefined : src
 {
   hasResponsive ? (
     <picture class={pictureClassName}>
-      <source type="image/webp" srcset={srcset} sizes={sizes} media={media} />
+      {avifSrcset && (
+        <source
+          type="image/avif"
+          srcset={avifSrcset}
+          sizes={sizes}
+          media={media}
+        />
+      )}
+      <source type="image/webp" srcset={webpSrcset} sizes={sizes} media={media} />
       <img
         src={imgSrc}
         alt={alt}
@@ -57,6 +66,9 @@ const imgSrc = media ? undefined : src
     </picture>
   ) : fullSrc ? (
     <picture class={pictureClassName}>
+      {avifFullSrc && (
+        <source type="image/avif" srcset={avifFullSrc} media={media} />
+      )}
       <source type="image/webp" srcset={fullSrc} media={media} />
       <img
         src={imgSrc}
