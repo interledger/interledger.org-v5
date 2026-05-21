@@ -44,9 +44,17 @@ const heroUmami = (href: string, linkText: string) =>
 
 <section
   data-component="HomepageHero"
-  class="relative overflow-hidden bg-black text-white isolate"
+  class="relative bg-black text-white isolate"
   aria-labelledby="home-hero-title"
 >
+  <div
+    class="pointer-events-none absolute top-full left-0 right-0 h-[100vh] -z-10 bg-[#0e0e0e]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="bottom-mask" aria-hidden="true"></div>
+
   <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
     <OptimizedImage
       src="/img/homepage/stefan-thomas.webp"
@@ -102,3 +110,49 @@ const heroUmami = (href: string, linkText: string) =>
     </div>
   </div>
 </section>
+
+<style>
+  [data-component='HomepageHero']::before,
+  [data-component='HomepageHero']::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    background-color: #0d0d0d;
+    pointer-events: none;
+    display: none;
+  }
+
+  [data-component='HomepageHero']::before {
+    left: 0;
+    width: 60%;
+    -webkit-mask: linear-gradient(270deg, #0000 3%, #000 100%);
+    mask: linear-gradient(270deg, #0000 3%, #000 100%);
+  }
+
+  [data-component='HomepageHero']::after {
+    right: 0;
+    width: 30%;
+    -webkit-mask: linear-gradient(90deg, #0000 18%, #000 81%);
+    mask: linear-gradient(90deg, #0000 18%, #000 81%);
+  }
+
+  [data-component='HomepageHero'] .bottom-mask {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 40%;
+    background-color: #0e0e0e;
+    pointer-events: none;
+    display: none;
+    -webkit-mask: linear-gradient(180deg, #0000 0%, #000 100%);
+    mask: linear-gradient(180deg, #0000 0%, #000 100%);
+  }
+
+  @media (min-width: 1024px) {
+    [data-component='HomepageHero']::before,
+    [data-component='HomepageHero']::after,
+    [data-component='HomepageHero'] .bottom-mask {
+      display: block;
+    }
+  }
+</style>
