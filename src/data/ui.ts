@@ -196,10 +196,8 @@ export const ui = {
       'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.',
     'home.making_money_move.heading': 'Making Money Move like Data',
     'home.making_money_move.body_1':
-      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
+      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible. In our connected world, money should move in the same way: reliably, across systems, as one network.',
     'home.making_money_move.body_2':
-      'In our connected world, money should move in the same way: reliably, across systems, as one network.',
-    'home.making_money_move.body_3':
       'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
     'home.making_money_move.image_alt':
       'Interconnected network paths illustration',
