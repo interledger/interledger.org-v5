@@ -1,0 +1,154 @@
+---
+// Reusable counter that animates from 0 to `value` the first time it scrolls
+// into view. The final value is baked into the static HTML at build time so
+// no-JS users, screen readers, and search bots see the real number; the
+// client script swaps it to 0 and animates only when JS runs AND the user
+// hasn't requested reduced motion.
+//
+// Group triggering: counters that share a `[data-animated-number-trigger]`
+// ancestor all start the moment any one of them enters the viewport. This is
+// what makes a row of stats feel like a single coordinated "wave" — on mobile,
+// where cards stack vertically, the lower cards animate while still below the
+// fold and have settled by the time the user scrolls down. Counters without
+// such an ancestor fire individually on their own intersection.
+//
+// Accessibility: the animating digits are aria-hidden (announcing every frame
+// would spam assistive tech). A visually-hidden sibling carries the final
+// value as a single, stable string. When this component sits inside a parent
+// with its own aria-label, that label takes precedence.
+
+interface Props {
+  value: number
+  durationMs?: number
+  ariaLabel?: string
+  class?: string
+}
+
+// Fixed default duration — every counter on the page completes in the same
+// span regardless of target. This is what makes a group of counters feel
+// cohesive: small numbers tick fewer times but everyone crosses the finish
+// line together (the "wave" effect from Radu's Framer prototype, measured at
+// ~1.2s linear). Scaling duration to the target would desync the row.
+const DEFAULT_DURATION_MS = 1200
+
+const {
+  value,
+  durationMs = DEFAULT_DURATION_MS,
+  ariaLabel,
+  class: className
+} = Astro.props
+
+const formatted = String(value)
+---
+
+<span
+  class:list={['inline-block tabular-nums', className]}
+  data-animated-number
+  data-target={value}
+  data-duration={durationMs}
+>
+  <span aria-hidden="true" data-animated-number-display>{formatted}</span>
+  <span class="sr-only">{ariaLabel ?? formatted}</span>
+</span>
+
+<script>
+  const elements = document.querySelectorAll<HTMLElement>(
+    '[data-animated-number]'
+  )
+
+  if (elements.length > 0) {
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
+
+    // Linear progress: each integer is shown for an equal slice of time, so
+    // the display feels like a steady ticker. easing curves like easeOut put
+    // long pauses on the final integers (e.g. 1500ms of easeOutCubic for
+    // target=21 leaves the value stuck on 20 for ~500ms before flipping),
+    // which reads as choppy. The duration is pre-scaled to the target so
+    // small numbers don't undershoot 25 ticks/sec.
+    const animate = (el: HTMLElement) => {
+      const display = el.querySelector<HTMLElement>(
+        '[data-animated-number-display]'
+      )
+      if (!display) return
+
+      const target = Number(el.dataset.target ?? '0')
+      const duration = Number(el.dataset.duration ?? '1500')
+
+      if (reduceMotion || duration <= 0 || !Number.isFinite(target)) {
+        display.textContent = String(target)
+        return
+      }
+
+      // Re-render only when the displayed integer actually changes —
+      // requestAnimationFrame fires ~60×/sec but for big targets we may flip
+      // integers faster than the screen refresh, and for small targets we'll
+      // hold the same integer across many frames. Skipping no-op writes keeps
+      // the DOM quiet either way.
+      let lastValue = -Infinity
+      let startTs: number | null = null
+      const step = (ts: number) => {
+        if (startTs === null) startTs = ts
+        const progress = Math.min((ts - startTs) / duration, 1)
+        const current = Math.floor(progress * target)
+        if (current !== lastValue) {
+          display.textContent = String(current)
+          lastValue = current
+        }
+        if (progress < 1) {
+          requestAnimationFrame(step)
+        } else if (lastValue !== target) {
+          display.textContent = String(target)
+        }
+      }
+      requestAnimationFrame(step)
+    }
+
+    // Swap visible content to "0" before the observer can fire. Without this,
+    // the first paint shows the build-time final value and the animation
+    // would start mid-flight. Done only when we plan to animate.
+    if (!reduceMotion) {
+      elements.forEach((el) => {
+        const display = el.querySelector<HTMLElement>(
+          '[data-animated-number-display]'
+        )
+        if (display) display.textContent = '0'
+      })
+    }
+
+    // Build groups: each counter's group key is its closest ancestor with
+    // [data-animated-number-trigger], or the counter itself if none exists.
+    // When any counter in a group crosses the threshold, all counters in the
+    // group fire together — matching the prototype's synchronized "wave".
+    const groupKeyFor = (el: HTMLElement): HTMLElement =>
+      el.closest<HTMLElement>('[data-animated-number-trigger]') ?? el
+
+    const groups = new Map<HTMLElement, HTMLElement[]>()
+    elements.forEach((el) => {
+      const key = groupKeyFor(el)
+      const bucket = groups.get(key)
+      if (bucket) bucket.push(el)
+      else groups.set(key, [el])
+    })
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const key = groupKeyFor(entry.target as HTMLElement)
+          const bucket = groups.get(key)
+          if (!bucket) continue
+          bucket.forEach((member) => {
+            animate(member)
+            observer.unobserve(member)
+          })
+          groups.delete(key)
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    elements.forEach((el) => observer.observe(el))
+  }
+</script>
