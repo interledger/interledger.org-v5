@@ -75,4 +75,27 @@
   a:hover {
     color: var(--color-primary);
   }
+
+  /* Lenis smooth scroll — see src/scripts/smooth-scroll.ts.
+     Classes are added/removed by Lenis at runtime. Rules are inert when
+     the script is not loaded on a page. */
+  html.lenis {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
 }

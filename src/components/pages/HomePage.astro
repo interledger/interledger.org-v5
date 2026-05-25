@@ -7,6 +7,7 @@ import StatsSection, {
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, type Locale } from '@/utils'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
 
@@ -49,6 +50,7 @@ const stats: StatItem[] = [
   title={t('site.title')}
   description={t('site.description')}
 >
+  <SmoothScroll />
   <main>
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
     <TextMediaSection
