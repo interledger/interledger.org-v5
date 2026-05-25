@@ -5,46 +5,107 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const partners = [
-  { name: 'Alabama A&M University', src: '/img/partner-logos/Alabama-AM.png' },
+  {
+    name: 'Alabama A&M University',
+    src: '/img/partner-logos/Alabama-AM.png',
+    width: 240,
+    height: 80
+  },
   {
     name: 'The AUC Data Science Initiative',
-    src: '/img/partner-logos/AUCDSI.png'
+    src: '/img/partner-logos/AUCDSI.png',
+    width: 160,
+    height: 80
   },
-  { name: 'BessPay', src: '/img/partner-logos/BessPay.png' },
-  { name: 'Chimoney', src: '/img/partner-logos/Chimoney.png' },
-  { name: 'Confab', src: '/img/partner-logos/Confab.png' },
+  {
+    name: 'BessPay',
+    src: '/img/partner-logos/BessPay.png',
+    width: 240,
+    height: 80
+  },
+  {
+    name: 'Chimoney',
+    src: '/img/partner-logos/Chimoney.png',
+    width: 240,
+    height: 80
+  },
+  {
+    name: 'Confab',
+    src: '/img/partner-logos/Confab.png',
+    width: 240,
+    height: 80
+  },
   {
     name: 'Instituto Politécnico Nacional ESCOM',
-    src: '/img/partner-logos/Escudo-ESCOM.png'
+    src: '/img/partner-logos/Escudo-ESCOM.png',
+    width: 160,
+    height: 80
   },
-  { name: 'Gatehub', src: '/img/partner-logos/Gatehub.png' },
+  {
+    name: 'Gatehub',
+    src: '/img/partner-logos/Gatehub.png',
+    width: 240,
+    height: 80
+  },
   {
     name: 'ISSRA - Institute for Strategic Studies Research & Analysis',
-    src: '/img/partner-logos/ISSRA.png'
+    src: '/img/partner-logos/ISSRA.png',
+    width: 240,
+    height: 80
   },
-  { name: 'Mydata Rights', src: '/img/partner-logos/Mydata-rights.png' },
-  { name: 'Nyu', src: '/img/partner-logos/Nyu.png' },
-  { name: 'Paysys', src: '/img/partner-logos/Paysys.png' },
-  { name: 'Plata', src: '/img/partner-logos/plata.png' },
+  {
+    name: 'Mydata Rights',
+    src: '/img/partner-logos/Mydata-rights.png',
+    width: 240,
+    height: 80
+  },
+  {
+    name: 'Nyu',
+    src: '/img/partner-logos/Nyu.png',
+    width: 240,
+    height: 80
+  },
+  {
+    name: 'Paysys',
+    src: '/img/partner-logos/Paysys.png',
+    width: 240,
+    height: 80
+  },
+  {
+    name: 'Plata',
+    src: '/img/partner-logos/plata.png',
+    width: 240,
+    height: 80
+  },
   {
     name: 'Smashing Magazine',
-    src: '/img/partner-logos/Smashing-Magazine.png'
+    src: '/img/partner-logos/Smashing-Magazine.png',
+    width: 240,
+    height: 80
   },
   {
     name: 'The Hague University of Applied Sciences',
-    src: '/img/partner-logos/The-Hague-university-of-applied-sciences.png'
+    src: '/img/partner-logos/The-Hague-university-of-applied-sciences.png',
+    width: 240,
+    height: 80
   },
   {
     name: 'University of Cape Town',
-    src: '/img/partner-logos/University-of-Cape-Town-UCT.png'
+    src: '/img/partner-logos/University-of-Cape-Town-UCT.png',
+    width: 271,
+    height: 80
   },
   {
     name: 'The University of Hong Kong',
-    src: '/img/partner-logos/University-of-Hong-Kong.png'
+    src: '/img/partner-logos/University-of-Hong-Kong.png',
+    width: 240,
+    height: 80
   },
   {
     name: 'Western Sydney University',
-    src: '/img/partner-logos/Western-Sydney-university.png'
+    src: '/img/partner-logos/Western-Sydney-university.png',
+    width: 240,
+    height: 80
   }
 ] as const
 
@@ -101,7 +162,8 @@ const logoClasses = `
                 src={partner.src}
                 alt={partner.name}
                 class={logoClasses}
-                height="40"
+                width={partner.width / 2}
+                height={partner.height / 2}
                 loading="lazy"
                 decoding="async"
                 draggable={false}
@@ -117,7 +179,8 @@ const logoClasses = `
                 src={partner.src}
                 alt=""
                 class={logoClasses}
-                height="40"
+                width={partner.width / 2}
+                height={partner.height / 2}
                 loading="lazy"
                 decoding="async"
                 draggable={false}
