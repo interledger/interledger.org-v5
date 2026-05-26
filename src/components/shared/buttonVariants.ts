@@ -59,7 +59,7 @@ export const buttonVariants = cva(
           'focus-visible:border-orchid-100 focus-visible:outline-none'
         ],
         fab: [
-          'self-end rounded-full border -rotate-45',
+          'self-end shrink-0 rounded-full border -rotate-45',
           'tablet:self-center',
           'desktop:self-end',
           'hover:rotate-0',
@@ -121,7 +121,7 @@ export const buttonVariants = cva(
         variant: 'fab',
         mode: 'light',
         class: [
-          'border-neutral-50 text-neutral-900',
+          'border-neutral-75 text-neutral-900',
           'hover:border-neutral-900',
           'focus-visible:outline-solid focus-visible:outline-neutral-900',
           'disabled:text-neutral-50 aria-disabled:text-neutral-50'
@@ -131,7 +131,7 @@ export const buttonVariants = cva(
         variant: 'fab',
         mode: 'dark',
         class: [
-          'border-neutral-75 text-neutral-25',
+          'border-neutral-50 text-neutral-25',
           'hover:border-neutral-0 hover:text-neutral-0',
           'focus-visible:outline-neutral-0 focus-visible:text-neutral-0',
           'disabled:border-neutral-100 disabled:text-neutral-75',
@@ -144,7 +144,7 @@ export const buttonVariants = cva(
       { iconOnly: false, iconSide: 'left', size: 'sm', class: 'pl-md pr-lg' },
       { iconOnly: false, iconSide: 'right', size: 'sm', class: 'pl-lg pr-md' },
       { iconOnly: false, iconSide: 'none', size: 'sm', class: 'px-md' },
-      { variant: 'fab', class: 'py-md px-md' },
+      { variant: 'fab', class: 'aspect-square py-md px-md' },
       // Ghost overrides the boxed-button geometry: no fixed height, no
       // y-padding, no min-width, no rounded corners except on focus, and
       // a tight 4px x-padding regardless of the size variant.
