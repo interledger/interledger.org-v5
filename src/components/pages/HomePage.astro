@@ -2,10 +2,16 @@
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import HomepageHero from '@/components/pages/HomepageHero.astro'
 import AnimatedNetwork from '@/components/homepage/AnimatedNetwork.astro'
+import StatsSection, {
+  type StatItem
+} from '@/components/shared/StatsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, type Locale } from '@/utils'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
+import LogoCarousel from '@/components/shared/LogoCarousel.astro'
 
 interface Props {
   pageLang: Locale
@@ -13,12 +19,40 @@ interface Props {
 
 const { pageLang } = Astro.props
 const t = useTranslations(pageLang)
+
+const stats: StatItem[] = [
+  {
+    value: 21,
+    suffix: 'M+',
+    label: t('home.stats.grants_label'),
+    ariaLabel: t('home.stats.grants_aria')
+  },
+  {
+    value: 300,
+    suffix: '+',
+    label: t('home.stats.projects_label'),
+    ariaLabel: t('home.stats.projects_aria')
+  },
+  {
+    value: 130,
+    suffix: '+',
+    label: t('home.stats.countries_label'),
+    ariaLabel: t('home.stats.countries_aria')
+  },
+  {
+    value: 1000,
+    suffix: '+',
+    label: t('home.stats.students_label'),
+    ariaLabel: t('home.stats.students_aria')
+  }
+]
 ---
 
 <FoundationPageLayout
   title={t('site.title')}
   description={t('site.description')}
 >
+  <SmoothScroll />
   <main>
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
     <AnimatedNetwork />
@@ -32,14 +66,13 @@ const t = useTranslations(pageLang)
       <h2 slot="heading">{t('home.making_money_move.heading')}</h2>
       <p>{t('home.making_money_move.body_1')}</p>
       <p>{t('home.making_money_move.body_2')}</p>
-      <p>{t('home.making_money_move.body_3')}</p>
       <LinkButton
         slot="cta"
         href="/about-us"
         variant="secondary"
         mode="light"
         size="lg"
-        class="w-full tablet:w-auto tablet:mx-auto"
+        class="w-full tablet:w-auto tablet:mx-auto desktop:mx-0"
       >
         {t('home.making_money_move.cta_label')}
       </LinkButton>
@@ -66,18 +99,25 @@ const t = useTranslations(pageLang)
         variant="secondary"
         mode="light"
         size="lg"
-        class="w-full tablet:w-auto tablet:mx-auto"
+        class="w-full tablet:w-auto tablet:mx-auto desktop:mx-0"
       >
         {t('home.independent_by_design.cta_label')}
       </LinkButton>
-      <img
+      <OptimizedImage
         slot="media"
         src="/img/home/independent-by-design.png"
-        width="426"
-        height="427"
+        width={426}
+        height={427}
         alt={t('home.independent_by_design.image_alt')}
-        class="mx-auto h-auto w-full max-w-[426px] tablet:w-[40%] desktop:mx-0"
+        sizes="(min-width: 1280px) 426px, (min-width: 768px) 40vw, 100vw"
+        pictureClass="mx-auto block w-full max-w-[426px] tablet:w-[40%] desktop:w-auto desktop:mx-0"
+        class="h-auto max-w-full"
       />
     </TextMediaSection>
+    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
+      <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
+      <p>{t('home.stats.body')}</p>
+    </StatsSection>
+    <LogoCarousel />
   </main>
 </FoundationPageLayout>

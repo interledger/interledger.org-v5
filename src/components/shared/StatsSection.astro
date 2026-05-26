@@ -1,0 +1,55 @@
+---
+import { twMerge } from '@/utils'
+import StatCard, { type StatItem } from './StatCard.astro'
+
+export type { StatItem }
+
+interface Props {
+  ariaLabel?: string
+  stats: StatItem[]
+  class?: string
+}
+
+const { ariaLabel, stats, class: className } = Astro.props
+
+// Layout rules per Figma (nodes 466:58427 desktop, 475:60244 tablet,
+// 372:49380 mobile). Mobile is natural height; tablet & desktop are
+// min-h-screen and vertically centered.
+const sectionClasses = twMerge(
+  'relative flex flex-col items-center justify-center',
+  'bg-blush-100 text-neutral-900',
+  'px-lg py-3xl-tight tablet:px-xl desktop:p-5xl',
+  'tablet:min-h-screen',
+  className
+)
+---
+
+<section
+  aria-label={ariaLabel}
+  class={sectionClasses}
+  data-animated-number-trigger
+>
+  <div
+    class="mx-auto flex w-full max-w-content flex-col items-center gap-3xl desktop:flex-row desktop:justify-center desktop:gap-6xl"
+  >
+    <div
+      class="flex w-full flex-col items-center gap-xl text-center desktop:flex-1 desktop:items-start desktop:text-left"
+    >
+      <h2
+        class="font-poppins text-h2 tablet:text-h2-md desktop:text-h2-lg desktop:max-w-[685px]"
+      >
+        <slot name="heading" />
+      </h2>
+      <div class="font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg">
+        <slot />
+      </div>
+    </div>
+
+    <ul
+      role="list"
+      class="m-0 flex list-none flex-col items-center gap-md p-0 tablet:w-full tablet:max-w-[600px] tablet:flex-row tablet:flex-wrap tablet:items-start tablet:justify-between tablet:gap-y-2xl desktop:grid desktop:w-auto desktop:max-w-none desktop:grid-cols-2 desktop:gap-md"
+    >
+      {stats.map((stat) => <StatCard {...stat} />)}
+    </ul>
+  </div>
+</section>

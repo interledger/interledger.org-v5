@@ -196,10 +196,8 @@ export const ui = {
       'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.',
     'home.making_money_move.heading': 'Making Money Move like Data',
     'home.making_money_move.body_1':
-      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
+      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible. In our connected world, money should move in the same way: reliably, across systems, as one network.',
     'home.making_money_move.body_2':
-      'In our connected world, money should move in the same way: reliably, across systems, as one network.',
-    'home.making_money_move.body_3':
       'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
     'home.making_money_move.image_alt':
       'Interconnected network paths illustration',
@@ -210,7 +208,20 @@ export const ui = {
     'home.independent_by_design.body_2':
       'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
     'home.independent_by_design.cta_label': 'Our tech governance',
-    'home.independent_by_design.image_alt': 'Speaker at a community event'
+    'home.independent_by_design.image_alt': 'Speaker at a community event',
+    'carousel.heading': 'In partnership with',
+    'carousel.partners_label': 'Partner logos',
+    'home.stats.heading': 'Real-world progress',
+    'home.stats.body':
+      'From early experiments to real-world systems, this is what progress looks like in practice.',
+    'home.stats.grants_label': 'In Grants',
+    'home.stats.grants_aria': '21 million dollars in grants',
+    'home.stats.projects_label': 'Projects worldwide',
+    'home.stats.projects_aria': '300 plus projects worldwide',
+    'home.stats.countries_label': 'Countries with active tech',
+    'home.stats.countries_aria': '130 plus countries with active tech',
+    'home.stats.students_label': 'Students skilled',
+    'home.stats.students_aria': '1,000 plus students skilled'
   },
   es: {
     'site.title': '',
@@ -379,6 +390,8 @@ export const ui = {
     'pillarsSection.card2_title': '',
     'pillarsSection.card2_description': '',
     'pillarsSection.card3_title': '',
-    'pillarsSection.card3_description': ''
+    'pillarsSection.card3_description': '',
+    'carousel.heading': '',
+    'carousel.partners_label': ''
   }
 } as const

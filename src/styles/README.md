@@ -330,27 +330,29 @@ The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600)
 Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tailwind's responsive prefixes; the token suffix mirrors the variant prefix:
 
 ```html
-<h1 class="font-poppins text-h1 md:text-h1-md lg:text-h1-lg">Headline</h1>
-<p class="font-poppins text-body-lg-standard md:text-body-lg-standard-md">
+<h1 class="font-poppins text-h1 tablet:text-h1-md desktop:text-h1-lg">
+  Headline
+</h1>
+<p class="font-poppins text-body-lg-standard tablet:text-body-lg-standard-md">
   Body
 </p>
 <small class="font-poppins text-caption">Caption</small>
 ```
 
-Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `md:` (≥768px, Tablet) and `lg:` (≥1024px, Desktop) from `tailwind.config.mjs`.
+Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
-| Token base              | Mobile (default)   | Tablet (`-md`)   | Desktop (`-lg`)    |
-| ----------------------- | ------------------ | ---------------- | ------------------ |
-| `text-h1`               | 56 / 68 SemiBold   | 70 / 76 SemiBold | 100 / 100 SemiBold |
-| `text-h2`               | 32 / 40 SemiBold   | 36 / 48 SemiBold | 56 / 64 SemiBold   |
-| `text-h3`               | 20 / 28 **Medium** | 28 / 36 Regular  | 40 / 56 Regular    |
-| `text-h4`               | 18 / 28 Regular    | 20 / 30 Regular  | 24 / 34 Regular    |
-| `text-h5`               | 16 / 26 Regular    | 18 / 28 Regular  | 20 / 30 Regular    |
-| `text-body-lg-emphasis` | 15 / 24 Medium     | 16 / 26 Medium   | _(same as -md)_    |
-| `text-body-lg-standard` | 15 / 24 Regular    | 16 / 26 Regular  | _(same as -md)_    |
-| `text-body-sm-emphasis` | 14 / 24 Medium     | _(same)_         | _(same)_           |
-| `text-body-sm-standard` | 14 / 24 Regular    | _(same)_         | _(same)_           |
-| `text-caption`          | 13 / 16 Regular    | _(same)_         | _(same)_           |
+| Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)    |
+| ----------------------- | ---------------- | ---------------- | ------------------ |
+| `text-h1`               | 56 / 68 SemiBold | 70 / 76 SemiBold | 100 / 100 SemiBold |
+| `text-h2`               | 32 / 40 SemiBold | 36 / 48 SemiBold | 56 / 64 SemiBold   |
+| `text-h3`               | 20 / 28 Medium   | 28 / 36 Medium   | 40 / 56 Medium     |
+| `text-h4`               | 18 / 28 Regular  | 20 / 30 Regular  | 24 / 34 Regular    |
+| `text-h5`               | 16 / 26 Regular  | 18 / 28 Regular  | 20 / 30 Regular    |
+| `text-body-lg-emphasis` | 15 / 24 Medium   | 16 / 26 Medium   | _(same as -md)_    |
+| `text-body-lg-standard` | 15 / 24 Regular  | 16 / 26 Regular  | _(same as -md)_    |
+| `text-body-sm-emphasis` | 14 / 24 Medium   | _(same)_         | _(same)_           |
+| `text-body-sm-standard` | 14 / 24 Regular  | _(same)_         | _(same)_           |
+| `text-caption`          | 13 / 16 Regular  | _(same)_         | _(same)_           |
 
 `body-lg-*` only ships mobile + `-md` tokens (Tablet and Desktop are identical in the spec). `body-sm-*` and `caption` are identical across all tiers, so they have a single token each.
 
@@ -361,7 +363,7 @@ The line-heights baked into `text-*` utilities are also exposed as standalone `l
 ```html
 <p class="text-h1 leading-h2">…</p>
 <!-- H1 size + weight, H2 line-height -->
-<div class="leading-h3 md:leading-h3-md lg:leading-h3-lg">…</div>
+<div class="leading-h3 tablet:leading-h3-md desktop:leading-h3-lg">…</div>
 ```
 
 Available: `leading-h{1..5}` (with `-md` / `-lg` tiers), `leading-body-lg` + `leading-body-lg-md`, `leading-body-sm`, `leading-caption`. (`body-lg-emphasis` and `body-lg-standard` share line-heights, so there's a single `leading-body-lg`.)
