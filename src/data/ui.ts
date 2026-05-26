@@ -190,7 +190,7 @@ export const ui = {
       'We steward open standards and build infrastructure so financial systems can connect once, and integrate with many.',
     'pillarsSection.card2_title': 'We Grow the Movement',
     'pillarsSection.card2_description':
-      'We bring together developers, institutions, and policymakers to test, implement, and scale open payment systems in the real world.',
+      'We fund and connect those working to make digital financial services more open, accessible, and functional for everyone.',
     'pillarsSection.card3_title': 'We Shift the System',
     'pillarsSection.card3_description':
       'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.',
