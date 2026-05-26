@@ -33,7 +33,7 @@ const sectionContainerClasses = `
 const headingClasses = `
   pillars-heading
   text-h3 text-center
-  tablet:text-h3-md tablet:pt-[20vh] tablet:scroll-rise
+  tablet:text-h3-md tablet:pt-[20vh] tablet:animate-rise-in-view
   desktop:text-h3-lg
   desktop:z-0 desktop:sticky desktop:top-0
   `
@@ -49,7 +49,7 @@ const cardsContainerClasses = `
   `
 //300px (initial offset), 75vh (stagger step), 45vh (sticky pin point), 100px (rise distance)
 const cardDivs = `
-  pillar-card scroll-rise
+  pillar-card animate-rise-in-view
   flex-1 m-0
   desktop:flex desktop:flex-col desktop:animate-none
   desktop:min-h-[var(--card-min-h)]

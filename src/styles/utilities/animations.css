@@ -1,18 +1,9 @@
 /* Reusable scroll-driven animation utility.
-Scroll-rise: rises 100px into place over the first 30% of the element's viewport entry.  */
+animate-rise-in-view: rises 100px into place over the first 30% of the element's viewport entry.  */
 
-@keyframes rise {
-  0% {
-    transform: translateY(100px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-@utility scroll-rise {
+@utility animate-rise-in-view {
   /* Easing approximates an overdamped spring (stiffness 300, damping 60, mass 1.5). */
-  animation: rise cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  animation: var(--animate-scroll-rise);
   animation-timeline: view();
   animation-range: 0% 30%;
 

@@ -48,6 +48,14 @@
       transform: rotate(-360deg);
     }
   }
+  @keyframes rise {
+    0% {
+      transform: translateY(100px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
 
   /* Custom element styles extending Preflight */
   html {
