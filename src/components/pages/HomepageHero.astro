@@ -91,10 +91,10 @@ const heroUmami = (href: string, linkText: string) =>
   </div>
 
   <div
-    class="relative z-[1] mx-auto flex w-full max-w-wide items-center px-space-m py-space-2xl tablet:min-h-[90dvh] md:py-space-3xl"
+    class="relative z-[1] mx-auto flex w-full max-w-full items-center px-space-m py-space-2xl tablet:max-w-wide tablet:min-h-[90dvh] md:py-space-3xl"
   >
     <div
-      class="max-w-[50%] motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100 desktop:max-w-[var(--layout-homepage-hero-copy-max-lg)]"
+      class="w-full max-w-full motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100 tablet:max-w-[50%] desktop:max-w-[var(--layout-homepage-hero-copy-max-lg)]"
     >
       <h1 id="home-hero-title" class="text-h2-md desktop:text-h2-lg">
         <span class="inline desktop:block"
@@ -182,6 +182,7 @@ const heroUmami = (href: string, linkText: string) =>
 
   @media (min-width: 810px) {
     [data-component='HomepageHero'] {
+      --hero-stefan-object-x: 78%;
       --hero-stefan-object-y: 70%;
     }
 
@@ -205,20 +206,20 @@ const heroUmami = (href: string, linkText: string) =>
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: right var(--hero-stefan-object-y);
+      object-position: var(--hero-stefan-object-x) var(--hero-stefan-object-y);
     }
   }
 
   @media (min-width: 810px) and (max-width: 1879px) {
     [data-component='HomepageHero'] {
       --hero-stefan-width: 58vw;
-      --hero-stefan-offset-x: 8vw;
+      --hero-stefan-offset-x: -2vw;
     }
 
     [data-component='HomepageHero'] .hero-stefan-picture {
       inset: auto;
       top: 0;
-      right: 0;
+      right: 5vw;
       bottom: 0;
       left: auto;
       width: var(--hero-stefan-width);
@@ -233,6 +234,7 @@ const heroUmami = (href: string, linkText: string) =>
 
   @media (min-width: 1880px) {
     [data-component='HomepageHero'] {
+      --hero-stefan-object-x: 80%;
       --hero-stefan-object-y: 76%;
     }
   }
