@@ -11,7 +11,8 @@ Scroll-rise: rises 100px into place over the first 30% of the element's viewport
 }
 
 @utility scroll-rise {
-  animation: rise linear forwards;
+  /* Easing approximates an overdamped spring (stiffness 300, damping 60, mass 1.5). */
+  animation: rise cubic-bezier(0.33, 1, 0.68, 1) forwards;
   animation-timeline: view();
   animation-range: 0% 30%;
 
