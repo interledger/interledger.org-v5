@@ -1,0 +1,21 @@
+/* Reusable scroll-driven animation utility.
+Scroll-rise: rises 100px into place over the first 30% of the element's viewport entry.  */
+
+@keyframes rise {
+  0% {
+    transform: translateY(100px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@utility scroll-rise {
+  animation: rise linear forwards;
+  animation-timeline: view();
+  animation-range: 0% 30%;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
