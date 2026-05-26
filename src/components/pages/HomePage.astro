@@ -11,6 +11,7 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, type Locale } from '@/utils'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
+import LogoCarousel from '@/components/shared/LogoCarousel.astro'
 
 interface Props {
   pageLang: Locale
@@ -135,5 +136,6 @@ const stats: StatItem[] = [
       <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
       <p>{t('home.stats.body')}</p>
     </StatsSection>
+    <LogoCarousel />
   </main>
 </FoundationPageLayout>

@@ -1,0 +1,300 @@
+---
+import { useTranslations } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+// All source logos are 240×80 px, rendered at 120×40 for 2x retina sharpness.
+const partners = [
+  {
+    name: 'Alabama A&M University',
+    src: '/img/partner-logos/Alabama-AM.png'
+  },
+  {
+    name: 'The AUC Data Science Initiative',
+    src: '/img/partner-logos/AUCDSI.png'
+  },
+  {
+    name: 'BessPay',
+    src: '/img/partner-logos/BessPay.png'
+  },
+  {
+    name: 'Chimoney',
+    src: '/img/partner-logos/Chimoney.png'
+  },
+  {
+    name: 'Confab',
+    src: '/img/partner-logos/Confab.png'
+  },
+  {
+    name: 'Instituto Politécnico Nacional ESCOM',
+    src: '/img/partner-logos/Escudo-ESCOM.png'
+  },
+  {
+    name: 'Gatehub',
+    src: '/img/partner-logos/Gatehub.png'
+  },
+  {
+    name: 'ISSRA - Institute for Strategic Studies Research & Analysis',
+    src: '/img/partner-logos/ISSRA.png'
+  },
+  {
+    name: 'Mydata Rights',
+    src: '/img/partner-logos/Mydata-rights.png'
+  },
+  {
+    name: 'Nyu',
+    src: '/img/partner-logos/Nyu.png'
+  },
+  {
+    name: 'Paysys',
+    src: '/img/partner-logos/Paysys.png'
+  },
+  {
+    name: 'Plata',
+    src: '/img/partner-logos/plata.png'
+  },
+  {
+    name: 'Smashing Magazine',
+    src: '/img/partner-logos/Smashing-Magazine.png'
+  },
+  {
+    name: 'The Hague University of Applied Sciences',
+    src: '/img/partner-logos/The-Hague-university-of-applied-sciences.png'
+  },
+  {
+    name: 'University of Cape Town',
+    src: '/img/partner-logos/University-of-Cape-Town-UCT.png'
+  },
+  {
+    name: 'The University of Hong Kong',
+    src: '/img/partner-logos/University-of-Hong-Kong.png'
+  },
+  {
+    name: 'Western Sydney University',
+    src: '/img/partner-logos/Western-Sydney-university.png'
+  }
+] as const
+
+const sectionClasses = `
+  px-lg pb-3xl-tight
+  bg-neutral-0 text-neutral-900
+  tablet:px-xl
+  desktop:px-5xl desktop:pb-5xl
+`
+const containerClasses = `
+  max-w-content py-5xl m-auto
+  border-t border-neutral-50
+`
+const headerClasses = `
+  mb-xl text-center text-h3
+  tablet:text-h3-md
+  desktop:text-h3-lg
+`
+const viewportClasses = `
+  logo-carousel
+  overflow-x-hidden
+  cursor-grab touch-pan-y select-none
+  [--mask-fade-width:20%]
+  tablet:[--mask-fade-width:25%]
+`
+const trackClasses = `
+  flex items-center gap-[var(--logo-carousel-gap)]
+  list-none p-0 m-0
+  w-max
+  animate-[scroll-left_var(--logo-carousel-cycle)_linear_infinite]
+  motion-reduce:animate-none
+`
+const logoClasses = `
+  h-[40px] w-[120px] shrink-0
+`
+---
+
+<section aria-labelledby="logo-carousel-heading" class={sectionClasses}>
+  <div class={containerClasses}>
+    <h2 id="logo-carousel-heading" class={headerClasses}>
+      {t('carousel.heading')}
+    </h2>
+
+    <div
+      class={viewportClasses}
+      role="group"
+      aria-label={t('carousel.partners_label')}
+    >
+      <ul class={trackClasses} role="list">
+        {
+          partners.map((partner) => (
+            <li class="m-0">
+              <img
+                src={partner.src}
+                alt={partner.name}
+                class={logoClasses}
+                width="120"
+                height="40"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+              />
+            </li>
+          ))
+        }
+        {
+          /* Duplicate batch for seamless loop — hidden from AT and keyboard. */
+          partners.map((partner) => (
+            <li class="motion-reduce:hidden m-0" aria-hidden="true" inert>
+              <img
+                src={partner.src}
+                alt=""
+                class={logoClasses}
+                width="120"
+                height="40"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .logo-carousel {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--mask-fade-width),
+      black calc(100% - var(--mask-fade-width)),
+      transparent 100%
+    );
+  }
+
+  @keyframes scroll-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-50% - var(--logo-carousel-gap) / 2));
+    }
+  }
+</style>
+
+<script>
+  /* Drag + auto-scroll for the logo carousel.
+     We take over from the CSS @keyframes, but keep them defined above as a 
+     fallback if this script fails to load */
+
+  const carousels = document.querySelectorAll<HTMLElement>('.logo-carousel')
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  carousels.forEach((carousel) => {
+    const track = carousel.querySelector<HTMLUListElement>('ul')
+    if (!track) return
+
+    const state = {
+      offset: 0,
+      wrapDistance: 0,
+      speedPxPerSec: 0,
+      isDragging: false,
+      dragStart: { x: 0, offset: 0 },
+      lastTime: 0,
+      rafId: 0
+    }
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0
+    const cycleSeconds =
+      parseFloat(
+        getComputedStyle(carousel).getPropertyValue('--logo-carousel-cycle')
+      ) || 30
+
+    const updateMeasurements = (): void => {
+      // Track contains 2× the visual logo set. Wrap point is the distance after
+      // which the visual pattern repeats: half the track + half a gap (mirrors
+      // the CSS `-50% - gap/2` end keyframe).
+      const halfTrack = track.scrollWidth / 2
+      state.wrapDistance = halfTrack + gap / 2
+      state.speedPxPerSec = state.wrapDistance / cycleSeconds
+    }
+
+    const wrapOffset = (value: number): number => {
+      if (state.wrapDistance <= 0) return value
+
+      let wrappedOffset = value % state.wrapDistance
+
+      // Keep offsets negative so scrolling direction remains consistent.
+      if (wrappedOffset > 0) wrappedOffset -= state.wrapDistance
+
+      return wrappedOffset
+    }
+
+    const render = (): void => {
+      track.style.transform = `translateX(${state.offset}px)`
+    }
+
+    const updateOffset = (value: number): void => {
+      state.offset = wrapOffset(value)
+      render()
+    }
+
+    const tick = (now: number): void => {
+      if (!state.isDragging && !reducedMotion.matches) {
+        const dt = (now - state.lastTime) / 1000
+        updateOffset(state.offset - state.speedPxPerSec * dt)
+      }
+      state.lastTime = now
+      state.rafId = requestAnimationFrame(tick)
+    }
+
+    // Override the `animate-[scroll-left_...]` utility; JS now drives the transform.
+    track.style.animation = 'none'
+
+    updateMeasurements()
+    state.lastTime = performance.now()
+    state.rafId = requestAnimationFrame(tick)
+
+    // Recompute wrap distance when the track resizes (images loading, viewport
+    // resize, font swaps — anything that changes scrollWidth).
+    const resizeObserver = new ResizeObserver(updateMeasurements)
+    resizeObserver.observe(track)
+
+    carousel.addEventListener('pointerdown', (event) => {
+      // Ignore non-primary mouse buttons (right/middle/back/forward) and
+      // secondary touch points on multi-touch devices.
+      if (event.button !== 0 || !event.isPrimary) return
+      state.isDragging = true
+      state.dragStart.x = event.clientX
+      state.dragStart.offset = state.offset
+      carousel.setPointerCapture(event.pointerId)
+      carousel.style.cursor = 'grabbing'
+    })
+
+    carousel.addEventListener('pointermove', (event) => {
+      if (!state.isDragging) return
+      updateOffset(state.dragStart.offset + (event.clientX - state.dragStart.x))
+    })
+
+    const endDrag = (event: PointerEvent): void => {
+      if (!state.isDragging) return
+
+      state.isDragging = false
+
+      if (carousel.hasPointerCapture(event.pointerId)) {
+        carousel.releasePointerCapture(event.pointerId)
+      }
+      carousel.style.cursor = ''
+      // Reset lastTime so the resumed auto-scroll doesn't jump by the drag duration.
+      state.lastTime = performance.now()
+    }
+    carousel.addEventListener('pointerup', endDrag)
+    carousel.addEventListener('pointercancel', endDrag)
+
+    // Cleanup when the page is unloaded
+    const cleanup = (): void => {
+      cancelAnimationFrame(state.rafId)
+      resizeObserver.disconnect()
+    }
+
+    window.addEventListener('pagehide', cleanup, { once: true })
+  })
+</script>
