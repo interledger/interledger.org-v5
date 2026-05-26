@@ -58,6 +58,9 @@
 @import './components/prose/summit.css';
 @import './components/navigation.css';
 
+/* Utilities layer - custom @utility definitions */
+@import './utilities/animations.css';
+
 /* @interledger/docs-design-system's ilf-docs.css ships three unlayered rules
    with universal-ish selectors (:focus-visible, img, and thead first-row
    corners). Starlight auto-registers an Astro middleware that imports its

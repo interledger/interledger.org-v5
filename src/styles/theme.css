@@ -104,6 +104,7 @@
   --animate-zoom: zoom 2s forwards;
   --animate-clockwise: clockwise 22s linear infinite;
   --animate-anticlockwise: anticlockwise 22s linear infinite;
+  --animate-scroll-rise: rise cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
