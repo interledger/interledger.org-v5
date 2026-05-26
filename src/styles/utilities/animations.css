@@ -5,7 +5,7 @@ animate-rise-in-view: rises 100px into place over the first 30% of the element's
   /* Easing approximates an overdamped spring (stiffness 300, damping 60, mass 1.5). */
   animation: var(--animate-scroll-rise);
   animation-timeline: view();
-  animation-range: 0% 30%;
+  animation-range: 0% 35%;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
