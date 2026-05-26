@@ -103,6 +103,10 @@ const stats: StatItem[] = [
         class="mx-auto h-auto w-full max-w-[426px] desktop:mx-0"
       />
     </TextMediaSection>
+    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
+      <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
+      <p>{t('home.stats.body')}</p>
+    </StatsSection>
     <TextMediaSection
       mediaSide="right"
       theme="light"
@@ -132,10 +136,6 @@ const stats: StatItem[] = [
         class="h-auto max-w-full"
       />
     </TextMediaSection>
-    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
-      <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
-      <p>{t('home.stats.body')}</p>
-    </StatsSection>
     <LogoCarousel />
   </main>
 </FoundationPageLayout>
