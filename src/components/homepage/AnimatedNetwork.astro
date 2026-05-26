@@ -7,8 +7,8 @@
  * JS, no library. Browsers without support (older Safari) fall back to the
  * reduced-motion end state.
  *
- * "The problem we're solving" overlaps the art in-flow on desktop (margin tracks SVG
- * height via container query); after the hero on mobile (animation hidden).
+ * Below 810px: static SVG, no growing circle; problem copy in-flow. From 810px: scroll
+ * animation, circle, and problem block anchored to the art.
  */
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
@@ -21,7 +21,22 @@ const t = useTranslations(Astro.locals.routeLocale)
   data-component="AnimatedNetwork"
   class="relative isolate z-0 flex flex-col bg-neutral-150"
 >
-  <div class="network-stage relative hidden md:flex md:flex-col">
+  <div
+    class="network-art-below-tablet tablet:hidden"
+    aria-hidden="true"
+  >
+    <img
+      src="/img/homepage/hero-animated-network.svg"
+      alt=""
+      width="1920"
+      height="3186"
+      loading="lazy"
+      decoding="async"
+      class="network-svg network-svg--static block w-full max-w-none opacity-50"
+    />
+  </div>
+
+  <div class="network-stage relative hidden tablet:flex tablet:flex-col">
     <div class="network-art" aria-hidden="true">
       <img
         src="/img/homepage/hero-animated-network.svg"
@@ -68,7 +83,7 @@ const t = useTranslations(Astro.locals.routeLocale)
     mediaSide="right"
     theme="dark"
     ariaLabel={t('home.problem.heading')}
-    class="bg-transparent md:hidden tablet:px-3xl-tight tablet:py-5xl"
+    class="bg-royal-purple-100 px-lg py-5xl tablet:hidden"
     data-nav-dark
     data-section="home-problem"
   >
@@ -118,6 +133,16 @@ const t = useTranslations(Astro.locals.routeLocale)
     min-height: 0;
   }
 
+  [data-component='AnimatedNetwork'] .network-art-below-tablet {
+    width: 100%;
+    margin-top: calc(-1 * var(--network-hero-overlap));
+  }
+
+  [data-component='AnimatedNetwork'] .network-svg--static {
+    transform: rotate(20deg) scale(1.25);
+    transform-origin: 50% 52%;
+  }
+
   [data-component='AnimatedNetwork'] .network-art {
     position: relative;
     flex-shrink: 0;
@@ -145,16 +170,19 @@ const t = useTranslations(Astro.locals.routeLocale)
     }
   }
 
-  [data-component='AnimatedNetwork'] .network-svg {
-    transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
-    will-change: transform;
-    animation: network-rotate linear both;
-    animation-timeline: --network-track;
-    animation-range: entry 0% exit 100%;
+  @media (min-width: 810px) {
+    [data-component='AnimatedNetwork'] .network-svg:not(.network-svg--static) {
+      transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
+      will-change: transform;
+      animation: network-rotate linear both;
+      animation-timeline: --network-track;
+      animation-range: entry 0% exit 100%;
+    }
   }
 
   /* Same hub as .network-svg transform-origin (50% / 52%) — moves with image reflow on resize. */
   [data-component='AnimatedNetwork'] .circle-anchor {
+    display: none;
     position: absolute;
     top: 52%;
     left: 50%;
@@ -163,17 +191,23 @@ const t = useTranslations(Astro.locals.routeLocale)
     pointer-events: none;
   }
 
-  [data-component='AnimatedNetwork'] .growing-circle {
-    width: 4vw;
-    aspect-ratio: 1;
-    flex: none;
-    border-radius: 50%;
-    background-color: #48156e;
-    opacity: 0;
-    animation: growing-circle-grow linear forwards;
-    animation-timeline: --network-track;
-    animation-range: cover 50% cover 100%;
-    will-change: width;
+  @media (min-width: 810px) {
+    [data-component='AnimatedNetwork'] .circle-anchor {
+      display: block;
+    }
+
+    [data-component='AnimatedNetwork'] .growing-circle {
+      width: 4vw;
+      aspect-ratio: 1;
+      flex: none;
+      border-radius: 50%;
+      background-color: #48156e;
+      opacity: 0;
+      animation: growing-circle-grow linear forwards;
+      animation-timeline: --network-track;
+      animation-range: cover 50% cover 100%;
+      will-change: width;
+    }
   }
 
   @keyframes network-rotate {
@@ -196,8 +230,8 @@ const t = useTranslations(Astro.locals.routeLocale)
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    [data-component='AnimatedNetwork'] .network-svg {
+  @media (prefers-reduced-motion: reduce) and (min-width: 810px) {
+    [data-component='AnimatedNetwork'] .network-svg:not(.network-svg--static) {
       animation: none;
       transform: rotate(20deg) scale(1.25);
     }
