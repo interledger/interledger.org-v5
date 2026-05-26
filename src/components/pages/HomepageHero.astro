@@ -44,18 +44,38 @@ const heroUmami = (href: string, linkText: string) =>
 
 <section
   data-component="HomepageHero"
-  class="relative bg-black text-white isolate"
+  data-umami-component="homepage-hero"
+  class="relative isolate bg-black text-white tablet:h-[90dvh] tablet:min-h-[90dvh]"
   aria-labelledby="home-hero-title"
 >
   <div
-    class="pointer-events-none absolute top-full left-0 right-0 h-screen -z-10 bg-[#0e0e0e]"
+    class="pointer-events-none absolute top-full left-0 right-0 h-screen -z-10 bg-neutral-150"
     aria-hidden="true"
   >
   </div>
 
   <div class="bottom-mask" aria-hidden="true"></div>
 
-  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+  <figure
+    class="hero-network-bg pointer-events-none absolute inset-0 overflow-hidden tablet:hidden"
+    aria-hidden="true"
+  >
+    <img
+      src="/img/homepage/hero-animated-network.svg"
+      alt=""
+      width="1920"
+      height="3186"
+      loading="eager"
+      fetchpriority="low"
+      decoding="async"
+      class="hero-network-svg block h-auto w-full max-w-none opacity-50"
+    />
+  </figure>
+
+  <div
+    class="hero-stefan-wrap pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    aria-hidden="true"
+  >
     <OptimizedImage
       src="/img/homepage/stefan-thomas.webp"
       alt=""
@@ -63,36 +83,39 @@ const heroUmami = (href: string, linkText: string) =>
       height={HERO_LCP_IMAGE_HEIGHT}
       loading="eager"
       fetchpriority="high"
-      media="(min-width: 1024px)"
-      sizes="60vw"
-      pictureClass="absolute inset-0 hidden h-full w-full lg:block"
-      class="h-full w-full object-cover object-right"
+      media="(min-width: 810px)"
+      sizes="(min-width: 1880px) 100vw, 58vw"
+      pictureClass="hero-stefan-picture absolute inset-0 hidden tablet:block"
+      class="hero-stefan-photo h-full w-full object-cover"
     />
   </div>
 
   <div
-    class="mx-auto w-full max-w-wide px-space-m py-space-2xl md:py-space-3xl lg:min-h-[var(--layout-homepage-hero-min-block-size-lg)] flex items-center"
+    class="relative z-[1] mx-auto flex w-full max-w-wide items-center px-space-m py-space-2xl tablet:min-h-[90dvh] md:py-space-3xl"
   >
     <div
-      class="max-w-[var(--layout-homepage-hero-copy-max-base)] md:max-w-[var(--layout-homepage-hero-copy-max-md)] lg:max-w-[var(--layout-homepage-hero-copy-max-lg)] motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100"
+      class="max-w-[50%] motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100 desktop:max-w-[var(--layout-homepage-hero-copy-max-lg)]"
     >
-      <h1 id="home-hero-title" class="text-h2 md:text-h2-md lg:text-h2-lg">
-        <span class="block">{t('homepageHero.title_lead')}</span>
-        <span class="block text-aqua-mint-100">
+      <h1 id="home-hero-title" class="text-h2-md desktop:text-h2-lg">
+        <span class="inline desktop:block"
+          >{t('homepageHero.title_lead')}
+        </span>
+        <span class="inline text-aqua-mint-100 desktop:block">
           {t('homepageHero.title_accent')}
         </span>
       </h1>
 
-      <p class="mt-space-m text-h4 md:text-h4-md lg:text-h4-lg text-white/85">
+      <p class="mt-space-m text-h4-md desktop:text-h4-lg text-white/85">
         {t('homepageHero.description')}
       </p>
 
       <nav
         aria-label={t('homepageHero.cta_navigation')}
-        class="mt-space-s flex flex-wrap gap-space-s"
+        class="mt-space-s flex w-full flex-col gap-space-s tablet:flex-row tablet:flex-wrap"
       >
         <LinkButton
           href={exploreTechHref}
+          class="w-full tablet:w-auto"
           {...heroUmami(exploreTechHref, t('homepageHero.cta_explore_tech'))}
         >
           {t('homepageHero.cta_explore_tech')}
@@ -102,6 +125,7 @@ const heroUmami = (href: string, linkText: string) =>
           href={getInvolvedHref}
           variant="secondary"
           mode="dark"
+          class="w-full tablet:w-auto"
           {...heroUmami(getInvolvedHref, t('homepageHero.cta_get_involved'))}
         >
           {t('homepageHero.cta_get_involved')}
@@ -110,3 +134,126 @@ const heroUmami = (href: string, linkText: string) =>
     </div>
   </div>
 </section>
+
+<style>
+  [data-component='HomepageHero'] {
+    --hero-fade-fill: var(--color-neutral-150);
+  }
+
+  /* Gradient masks fading neutral-150 in from left, right, and bottom.
+     Hidden below tablet since the hero image only renders at 810px+. */
+  [data-component='HomepageHero']::before,
+  [data-component='HomepageHero']::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    background-color: var(--hero-fade-fill);
+    pointer-events: none;
+    display: none;
+    z-index: 0;
+  }
+
+  [data-component='HomepageHero']::before {
+    left: 0;
+    width: 60%;
+    -webkit-mask: linear-gradient(270deg, #0000 3%, #000 100%);
+    mask: linear-gradient(270deg, #0000 3%, #000 100%);
+  }
+
+  [data-component='HomepageHero']::after {
+    right: 0;
+    width: 30%;
+    -webkit-mask: linear-gradient(90deg, #0000 18%, #000 81%);
+    mask: linear-gradient(90deg, #0000 18%, #000 81%);
+  }
+
+  [data-component='HomepageHero'] .bottom-mask {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 40%;
+    background-color: var(--hero-fade-fill);
+    pointer-events: none;
+    display: none;
+    z-index: 0;
+    -webkit-mask: linear-gradient(180deg, #0000 0%, #000 100%);
+    mask: linear-gradient(180deg, #0000 0%, #000 100%);
+  }
+
+  @media (min-width: 810px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-object-y: 70%;
+    }
+
+    [data-component='HomepageHero']::before,
+    [data-component='HomepageHero']::after,
+    [data-component='HomepageHero'] .bottom-mask {
+      display: block;
+    }
+
+    [data-component='HomepageHero'] .hero-stefan-wrap {
+      height: 100%;
+    }
+
+    [data-component='HomepageHero'] .hero-stefan-picture {
+      display: block;
+      height: 100%;
+    }
+
+    [data-component='HomepageHero'] .hero-stefan-photo {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: right var(--hero-stefan-object-y);
+    }
+  }
+
+  @media (min-width: 810px) and (max-width: 1879px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-width: 58vw;
+      --hero-stefan-offset-x: 8vw;
+    }
+
+    [data-component='HomepageHero'] .hero-stefan-picture {
+      inset: auto;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: auto;
+      width: var(--hero-stefan-width);
+      height: 100%;
+    }
+
+    [data-component='HomepageHero'] .hero-stefan-photo {
+      transform: translateX(var(--hero-stefan-offset-x));
+      transform-origin: right top;
+    }
+  }
+
+  @media (min-width: 1880px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-object-y: 76%;
+    }
+  }
+
+  @media (max-width: 809px) {
+    [data-component='HomepageHero'] {
+      overflow: hidden;
+    }
+
+    [data-component='HomepageHero'] .hero-network-bg {
+      z-index: 0;
+    }
+
+    [data-component='HomepageHero'] .hero-network-svg {
+      position: absolute;
+      top: 8%;
+      left: 0;
+      width: 100%;
+      max-width: none;
+      transform: translateX(1vw) translateY(-6vh) rotate(-2deg) scale(1.55);
+      transform-origin: 50% 52%;
+    }
+  }
+</style>

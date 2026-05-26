@@ -3,38 +3,29 @@
  * Decorative network graphic that rotates as it scrolls through the viewport,
  * with a purple disc that grows from a centre dot to a viewport-sized backdrop
  * over the same scroll. Both effects share the section's view-timeline so they
- * stay in lockstep. Driven entirely by the scroll-driven animations API — no
- * JS, no library. Browsers without support (older Safari) fall back to the
- * reduced-motion end state.
+ * stay in lockstep. Driven by the scroll-driven animations API where supported;
+ * Firefox and other browsers without `animation-timeline: view()` use the JS
+ * fallback in src/scripts/animated-network.ts. Reduced motion uses the end state.
  *
- * Below 810px: static SVG, no growing circle; problem copy in-flow. From 810px: scroll
- * animation, circle, and problem block anchored to the art.
+ * Below 810px (tablet:): problem copy in-flow; network SVG is the HomepageHero background.
+ * From 810px: scroll animation, circle, and problem block anchored to the art.
+ *
+ * Problem copy (heading, body, video) lives only in AnimatedNetworkProblem.astro — one
+ * instance in the tree, repositioned via responsive classes (not duplicated markup).
  */
-import TextMediaSection from '@/components/shared/TextMediaSection.astro'
-import VideoEmbed from '@/components/shared/VideoEmbed.astro'
-import { useTranslations } from '@/utils'
-
-const t = useTranslations(Astro.locals.routeLocale)
+import AnimatedNetworkProblem, {
+  ANIMATED_NETWORK_PROBLEM_HEADING_ID
+} from '@/components/homepage/AnimatedNetworkProblem.astro'
 ---
 
 <section
   data-component="AnimatedNetwork"
+  data-umami-component="animated-network"
+  aria-labelledby={ANIMATED_NETWORK_PROBLEM_HEADING_ID}
   class="relative isolate z-0 flex flex-col bg-neutral-150"
 >
-  <div class="network-art-below-tablet tablet:hidden" aria-hidden="true">
-    <img
-      src="/img/homepage/hero-animated-network.svg"
-      alt=""
-      width="1920"
-      height="3186"
-      loading="lazy"
-      decoding="async"
-      class="network-svg network-svg--static block w-full max-w-none opacity-50"
-    />
-  </div>
-
-  <div class="network-stage relative hidden tablet:flex tablet:flex-col">
-    <div class="network-art" aria-hidden="true">
+  <div class="network-stage relative flex flex-col">
+    <figure class="network-art hidden tablet:block" aria-hidden="true">
       <img
         src="/img/homepage/hero-animated-network.svg"
         alt=""
@@ -42,66 +33,25 @@ const t = useTranslations(Astro.locals.routeLocale)
         height="3186"
         loading="lazy"
         decoding="async"
-        class="network-svg block w-full max-w-none opacity-50"
+        class="network-svg block h-auto w-full max-w-none opacity-50"
       />
-      <div class="circle-anchor">
+      <div class="circle-anchor" aria-hidden="true">
         <div class="growing-circle"></div>
       </div>
+    </figure>
+
+    <div class="network-problem relative z-3">
+      <AnimatedNetworkProblem class="relative z-3" />
     </div>
 
-    <div class="network-footer relative z-[3]">
-      <TextMediaSection
-        mediaSide="right"
-        theme="dark"
-        ariaLabel={t('home.problem.heading')}
-        class="relative z-[3] min-h-0 bg-transparent tablet:px-3xl-tight tablet:py-5xl"
-        data-nav-dark
-        data-section="home-problem"
-      >
-        <h2 slot="heading">{t('home.problem.heading')}</h2>
-        <p>{t('home.problem.body_1')}</p>
-        <p>{t('home.problem.body_2')}</p>
-        <div
-          slot="media"
-          class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-[512px]"
-        >
-          <VideoEmbed
-            url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
-            title={t('home.problem.video_title')}
-          />
-        </div>
-      </TextMediaSection>
+    <div class="network-stage-spacer hidden tablet:block" aria-hidden="true">
     </div>
-
-    <div class="network-stage-spacer" aria-hidden="true"></div>
   </div>
-
-  <TextMediaSection
-    mediaSide="right"
-    theme="dark"
-    ariaLabel={t('home.problem.heading')}
-    class="bg-royal-purple-100 px-lg py-5xl tablet:hidden"
-    data-nav-dark
-    data-section="home-problem"
-  >
-    <h2 slot="heading">{t('home.problem.heading')}</h2>
-    <p>{t('home.problem.body_1')}</p>
-    <p>{t('home.problem.body_2')}</p>
-    <div
-      slot="media"
-      class="mx-auto flex w-full items-center overflow-hidden rounded-3xl bg-black tablet:w-[80%] desktop:mx-0 desktop:w-[512px]"
-    >
-      <VideoEmbed
-        url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
-        title={t('home.problem.video_title')}
-      />
-    </div>
-  </TextMediaSection>
 </section>
 
 <style>
   [data-component='AnimatedNetwork'] {
-    view-timeline-name: --network-track;
+    view-timeline: --network-track block;
     --network-stage-height: 115vh;
     --network-hero-overlap: 10vh;
     /* Fraction from art top where problem copy begins (tracks SVG hub ~52%). */
@@ -112,32 +62,33 @@ const t = useTranslations(Astro.locals.routeLocale)
     clip-path: inset(calc(-1 * var(--network-clip-top)) 0 0 0);
   }
 
+  @media (max-width: 809px) {
+    [data-component='AnimatedNetwork'] {
+      clip-path: none;
+    }
+
+    [data-component='AnimatedNetwork'] .network-problem-section > div {
+      gap: var(--spacing-xl);
+    }
+  }
+
   @media (min-width: 1024px) {
     [data-component='AnimatedNetwork'] {
       --network-hero-overlap: 20vh;
     }
   }
 
-  [data-component='AnimatedNetwork'] .network-stage {
-    container-type: inline-size;
-    position: relative;
-    min-height: var(--network-stage-height);
-    overflow: visible;
+  @media (min-width: 810px) {
+    [data-component='AnimatedNetwork'] .network-stage {
+      container-type: inline-size;
+      min-height: var(--network-stage-height);
+      overflow: visible;
+    }
   }
 
   [data-component='AnimatedNetwork'] .network-stage-spacer {
     flex: 1 1 auto;
     min-height: 0;
-  }
-
-  [data-component='AnimatedNetwork'] .network-art-below-tablet {
-    width: 100%;
-    margin-top: calc(-1 * var(--network-hero-overlap));
-  }
-
-  [data-component='AnimatedNetwork'] .network-svg--static {
-    transform: rotate(20deg) scale(1.25);
-    transform-origin: 50% 52%;
   }
 
   [data-component='AnimatedNetwork'] .network-art {
@@ -151,29 +102,37 @@ const t = useTranslations(Astro.locals.routeLocale)
    * In document flow (reserves height, no overlap with next section). Pull-up is
    * a fraction of art height via container query so it tracks width reflow.
    */
-  [data-component='AnimatedNetwork'] .network-footer {
-    position: relative;
-    z-index: 3;
-    flex-shrink: 0;
-    width: 100%;
-    margin-top: calc(
-      (var(--network-problem-start) - 1) * 100cqi * var(--network-svg-aspect)
-    );
+  @media (min-width: 810px) {
+    [data-component='AnimatedNetwork'] .network-problem {
+      flex-shrink: 0;
+      width: 100%;
+      margin-top: calc(
+        (var(--network-problem-start) - 1) * 100cqi * var(--network-svg-aspect)
+      );
+    }
   }
 
   @supports not (width: 100cqi) {
-    [data-component='AnimatedNetwork'] .network-footer {
-      margin-top: -30vh;
+    @media (min-width: 810px) {
+      [data-component='AnimatedNetwork'] .network-problem {
+        margin-top: -30vh;
+      }
     }
   }
 
   @media (min-width: 810px) {
     [data-component='AnimatedNetwork'] .network-svg:not(.network-svg--static) {
       transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
-      will-change: transform;
-      animation: network-rotate linear both;
+      /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
+      animation: network-rotate 1ms linear both;
       animation-timeline: --network-track;
       animation-range: entry 0% exit 100%;
+    }
+
+    [data-component='AnimatedNetwork'].network--compositing
+      .network-svg:not(.network-svg--static),
+    [data-component='AnimatedNetwork'].network--compositing .growing-circle {
+      will-change: transform;
     }
   }
 
@@ -193,18 +152,30 @@ const t = useTranslations(Astro.locals.routeLocale)
       display: block;
     }
 
+    /* Grows via transform scale (not width) to limit compositor layer size on low-end devices. */
     [data-component='AnimatedNetwork'] .growing-circle {
-      width: 4vw;
+      --network-circle-size: 4vw;
+      /* 4vw × scale covers viewport; ~375 when vmax≈vw, 500 is safe headroom. */
+      --network-circle-max-scale: 500;
+      width: var(--network-circle-size);
       aspect-ratio: 1;
       flex: none;
       border-radius: 50%;
-      background-color: #48156e;
+      background-color: var(--color-royal-purple-100);
       opacity: 0;
-      animation: growing-circle-grow linear forwards;
+      transform: scale(1);
+      transform-origin: center center;
+      /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
+      animation: growing-circle-grow 1ms linear forwards;
       animation-timeline: --network-track;
       animation-range: cover 50% cover 100%;
-      will-change: width;
     }
+  }
+
+  [data-component='AnimatedNetwork'].network--js-fallback
+    .network-svg:not(.network-svg--static),
+  [data-component='AnimatedNetwork'].network--js-fallback .growing-circle {
+    animation: none;
   }
 
   @keyframes network-rotate {
@@ -218,11 +189,11 @@ const t = useTranslations(Astro.locals.routeLocale)
 
   @keyframes growing-circle-grow {
     from {
-      width: 4vw;
+      transform: scale(1);
       opacity: 1;
     }
     to {
-      width: 1500vmax;
+      transform: scale(var(--network-circle-max-scale));
       opacity: 1;
     }
   }
@@ -235,7 +206,12 @@ const t = useTranslations(Astro.locals.routeLocale)
 
     [data-component='AnimatedNetwork'] .growing-circle {
       animation: none;
-      width: 1500vmax;
+      opacity: 1;
+      transform: scale(var(--network-circle-max-scale));
     }
   }
 </style>
+
+<script>
+  import '@/scripts/animated-network'
+</script>
