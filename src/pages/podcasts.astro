@@ -3,29 +3,7 @@ import CalloutText from '@/components/shared/CalloutText.astro'
 import HeroSection from '@/components/shared/HeroSection.astro'
 import Podcast from '@/components/shared/Podcast.astro'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-
-const podcasts = [
-  {
-    title: 'podcast 1',
-    description: 'This is the description for podcast no 1',
-    href: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/from-casual-hang-to-cultural-movement-and-why-inclusion-matters-modi-oyewole-founder-of-swang/embed/light'
-  },
-  {
-    title: 'podcast 2',
-    description: 'This is the description for podcast no 2',
-    href: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/arts-as-civic-infrastructure-kristina-newman-scott-on-cultivating-equitable-communities/embed/light'
-  },
-  {
-    title: 'podcast 3',
-    description: 'This is the description for podcast no 3',
-    href: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/from-casual-hang-to-cultural-movement-and-why-inclusion-matters-modi-oyewole-founder-of-swang/embed/light'
-  },
-  {
-    title: 'podcast 4',
-    description: 'This is the description for podcast no 4',
-    href: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/arts-as-civic-infrastructure-kristina-newman-scott-on-cultivating-equitable-communities/embed/light'
-  }
-]
+import { podcasts } from '@/data/podcasts'
 ---
 
 <FoundationPageLayout
@@ -36,11 +14,11 @@ const podcasts = [
   <HeroSection title="F|M podcast" content="with Kokayi Walker" />
   <main data-prose class="p-2xl max-w-content m-auto">
     <section aria-label="About the podcast">
-      <CalloutText
-        >Future Money is a podcast exploring the evolving intersections of
+      <CalloutText>
+        Future Money is a podcast exploring the evolving intersections of
         technology, finance, and culture, because finance touches every industry
-        and every life.</CalloutText
-      >
+        and every life.
+      </CalloutText>
       <p>
         At its core Future Money is about self-sovereignty and empowerment:
         reimagining how people, especially those in underserved communities and
@@ -54,15 +32,7 @@ const podcasts = [
     <section aria-labelledby="podcast-heading">
       <h2 id="podcast-heading">Podcast episodes</h2>
       <ul class="list-none m-0 p-0" role="list">
-        {
-          podcasts.map((podcast) => (
-            <Podcast
-              title={podcast.title}
-              description={podcast.description}
-              href={podcast.href}
-            />
-          ))
-        }
+        {podcasts.map((podcast) => <Podcast podcast={podcast} />)}
       </ul>
     </section>
   </main>

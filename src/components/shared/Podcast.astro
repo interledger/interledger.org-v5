@@ -1,10 +1,12 @@
 ---
+import type { Podcast } from '@/types/podcast'
+
 interface Props {
-  title: string
-  description: string
-  href: string
+  podcast: Podcast
 }
-const { title, description, href } = Astro.props
+const {
+  podcast: { title, description, href }
+} = Astro.props
 ---
 
 <li>
