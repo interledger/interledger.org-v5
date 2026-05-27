@@ -197,24 +197,30 @@ const logoClasses = `
       offset: 0,
       wrapDistance: 0,
       speedPxPerSec: 0,
+      gap: 0,
+      cycleSeconds: 30,
       isDragging: false,
       dragStart: { x: 0, offset: 0 },
       lastTime: 0,
-      rafId: 0
+      rafId: 0,
+      measureRafId: 0
     }
-    const gap = parseFloat(getComputedStyle(track).columnGap) || 0
-    const cycleSeconds =
-      parseFloat(
-        getComputedStyle(carousel).getPropertyValue('--logo-carousel-cycle')
-      ) || 30
 
     const updateMeasurements = (): void => {
       // Track contains 2× the visual logo set. Wrap point is the distance after
       // which the visual pattern repeats: half the track + half a gap (mirrors
       // the CSS `-50% - gap/2` end keyframe).
       const halfTrack = track.scrollWidth / 2
-      state.wrapDistance = halfTrack + gap / 2
-      state.speedPxPerSec = state.wrapDistance / cycleSeconds
+      state.wrapDistance = halfTrack + state.gap / 2
+      state.speedPxPerSec = state.wrapDistance / state.cycleSeconds
+    }
+
+    const scheduleMeasurements = (): void => {
+      if (state.measureRafId !== 0) return
+      state.measureRafId = requestAnimationFrame(() => {
+        state.measureRafId = 0
+        updateMeasurements()
+      })
     }
 
     const wrapOffset = (value: number): number => {
@@ -249,13 +255,20 @@ const logoClasses = `
     // Override the `animate-[scroll-left_...]` utility; JS now drives the transform.
     track.style.animation = 'none'
 
-    updateMeasurements()
-    state.lastTime = performance.now()
-    state.rafId = requestAnimationFrame(tick)
+    // Batch layout reads: write (animation off) then read in the next frame.
+    requestAnimationFrame(() => {
+      const carouselStyles = getComputedStyle(carousel)
+      state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
+      state.cycleSeconds =
+        parseFloat(carouselStyles.getPropertyValue('--logo-carousel-cycle')) || 30
+      updateMeasurements()
+      state.lastTime = performance.now()
+      state.rafId = requestAnimationFrame(tick)
+    })
 
     // Recompute wrap distance when the track resizes (images loading, viewport
     // resize, font swaps — anything that changes scrollWidth).
-    const resizeObserver = new ResizeObserver(updateMeasurements)
+    const resizeObserver = new ResizeObserver(scheduleMeasurements)
     resizeObserver.observe(track)
 
     carousel.addEventListener('pointerdown', (event) => {
@@ -292,6 +305,7 @@ const logoClasses = `
     // Cleanup when the page is unloaded
     const cleanup = (): void => {
       cancelAnimationFrame(state.rafId)
+      if (state.measureRafId !== 0) cancelAnimationFrame(state.measureRafId)
       resizeObserver.disconnect()
     }
 

@@ -7,11 +7,12 @@ const DURATION_SECONDS = 0.9
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
 let lenis: Lenis | null = null
-let rafId: number | null = null
+let cachedHeaderOffset = 0
 
-function getHeaderOffset(): number {
+function refreshHeaderOffset(): void {
   const header = document.querySelector('.foundation-header')
-  return header instanceof HTMLElement ? header.offsetHeight : 0
+  cachedHeaderOffset =
+    header instanceof HTMLElement ? header.offsetHeight : 0
 }
 
 function findAnchorTarget(hash: string): HTMLElement | null {
@@ -54,28 +55,28 @@ function onAnchorClick(event: MouseEvent): void {
   event.preventDefault()
   const scrollMarginTop =
     parseFloat(getComputedStyle(destination).scrollMarginTop) || 0
-  const offset = scrollMarginTop || getHeaderOffset()
+  const offset = scrollMarginTop || cachedHeaderOffset
   lenis.scrollTo(destination, { offset: -offset })
 }
 
 function start(): void {
   if (lenis) return
-  lenis = new Lenis({ duration: DURATION_SECONDS })
+  refreshHeaderOffset()
+  lenis = new Lenis({
+    duration: DURATION_SECONDS,
+    autoRaf: true,
+    // ResizeObserver in Lenis triggers layout reads; window resize is enough here.
+    autoResize: false
+  })
 
-  const raf = (time: number) => {
-    lenis?.raf(time)
-    rafId = lenis ? requestAnimationFrame(raf) : null
-  }
-  rafId = requestAnimationFrame(raf)
-
+  window.addEventListener('resize', refreshHeaderOffset, { passive: true })
   document.addEventListener('click', onAnchorClick)
 }
 
 function stop(): void {
   if (!lenis) return
   document.removeEventListener('click', onAnchorClick)
-  if (rafId !== null) cancelAnimationFrame(rafId)
-  rafId = null
+  window.removeEventListener('resize', refreshHeaderOffset)
   lenis.destroy()
   lenis = null
 }
@@ -85,10 +86,19 @@ function init(): void {
   start()
 }
 
+function scheduleInit(): void {
+  const run = (): void => init()
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(run, { timeout: 2000 })
+  } else {
+    requestAnimationFrame(run)
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init, { once: true })
+  document.addEventListener('DOMContentLoaded', scheduleInit, { once: true })
 } else {
-  init()
+  scheduleInit()
 }
 
 reducedMotion.addEventListener('change', () => {

@@ -8,7 +8,6 @@ import StatsSection, {
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, type Locale } from '@/utils'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
 import LogoCarousel from '@/components/shared/LogoCarousel.astro'
@@ -52,7 +51,6 @@ const stats: StatItem[] = [
   title={t('site.title')}
   description={t('site.description')}
 >
-  <SmoothScroll />
   <main data-umami-component="foundation-home-page">
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
     <AnimatedNetwork />
