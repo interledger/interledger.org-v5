@@ -217,7 +217,10 @@ function updateCompositingFromNear(section: HTMLElement): void {
   setCompositing(section, scrollController.isNear && !reducedMotion.matches)
 }
 
-function attachScrollController(section: HTMLElement, tabletUp: MediaQueryList): void {
+function attachScrollController(
+  section: HTMLElement,
+  tabletUp: MediaQueryList
+): void {
   destroyScrollController()
 
   const abort = new AbortController()

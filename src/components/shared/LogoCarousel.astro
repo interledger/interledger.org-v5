@@ -260,7 +260,8 @@ const logoClasses = `
       const carouselStyles = getComputedStyle(carousel)
       state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
       state.cycleSeconds =
-        parseFloat(carouselStyles.getPropertyValue('--logo-carousel-cycle')) || 30
+        parseFloat(carouselStyles.getPropertyValue('--logo-carousel-cycle')) ||
+        30
       updateMeasurements()
       state.lastTime = performance.now()
       state.rafId = requestAnimationFrame(tick)

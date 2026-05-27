@@ -11,8 +11,7 @@ let cachedHeaderOffset = 0
 
 function refreshHeaderOffset(): void {
   const header = document.querySelector('.foundation-header')
-  cachedHeaderOffset =
-    header instanceof HTMLElement ? header.offsetHeight : 0
+  cachedHeaderOffset = header instanceof HTMLElement ? header.offsetHeight : 0
 }
 
 function findAnchorTarget(hash: string): HTMLElement | null {

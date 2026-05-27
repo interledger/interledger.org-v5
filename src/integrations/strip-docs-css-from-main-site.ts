@@ -154,7 +154,9 @@ export function stripDocsCssFromMainSite(): AstroIntegration {
         const removedNames = [...docsStylesheets]
         logger.info(
           `[strip-docs-css] Stripped Starlight docs CSS from ${updatedPages} main-site page(s)` +
-            (removedNames.length > 0 ? ` (links: ${removedNames.join(', ')})` : '') +
+            (removedNames.length > 0
+              ? ` (links: ${removedNames.join(', ')})`
+              : '') +
             (docsCssSources.size > 0
               ? `; ${docsCssSources.size} inlined chunk(s) removed`
               : '')
