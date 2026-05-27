@@ -1,0 +1,15 @@
+---
+interface Props {
+  title: string
+  description: string
+  href: string
+}
+const { title, description, href } = Astro.props
+---
+
+<li>
+  <h3>{title}</h3>
+  <p>{description}</p>
+  <iframe title="Podcast player" class="w-full h-28" loading="lazy" src={href}
+  ></iframe>
+</li>
