@@ -212,7 +212,10 @@ function tick(section: HTMLElement, tabletUp: MediaQueryList): void {
   }
 }
 
-function attachScrollController(section: HTMLElement, tabletUp: MediaQueryList): void {
+function attachScrollController(
+  section: HTMLElement,
+  tabletUp: MediaQueryList
+): void {
   destroyScrollController()
 
   const abort = new AbortController()
@@ -230,7 +233,7 @@ function attachScrollController(section: HTMLElement, tabletUp: MediaQueryList):
 
   // IntersectionObserver keeps isNear updated without touching the DOM on scroll.
   const observer = new IntersectionObserver(
-    entries => {
+    (entries) => {
       scrollController.isNear = entries[0].isIntersecting
     },
     { rootMargin: `${VIEWPORT_NEAR_MARGIN_PX}px` }
@@ -258,7 +261,10 @@ function attachScrollController(section: HTMLElement, tabletUp: MediaQueryList):
   }
 
   window.addEventListener('scroll', scheduleTick, { passive: true, signal })
-  window.addEventListener('resize', scheduleResizeTick, { passive: true, signal })
+  window.addEventListener('resize', scheduleResizeTick, {
+    passive: true,
+    signal
+  })
   getMediaQueries().reducedMotion.addEventListener('change', scheduleTick, {
     signal
   })
@@ -299,8 +305,12 @@ export function initAnimatedNetwork(): () => void {
     syncScrollController()
   }
 
-  getMediaQueries().tabletUp.addEventListener('change', onTabletChange, { signal })
-  window.addEventListener('pagehide', () => destroyScrollController(), { signal })
+  getMediaQueries().tabletUp.addEventListener('change', onTabletChange, {
+    signal
+  })
+  window.addEventListener('pagehide', () => destroyScrollController(), {
+    signal
+  })
   window.addEventListener('pageshow', syncScrollController, { signal })
 
   // Forward-compatible with Astro ClientRouter / view transitions.

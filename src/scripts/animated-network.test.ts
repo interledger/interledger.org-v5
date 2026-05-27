@@ -27,7 +27,8 @@ describe('supportsScrollDrivenAnimations', () => {
   it('requires named view-timeline and animation-timeline, not scroll() alone', () => {
     vi.stubGlobal('CSS', {
       supports: (property: string, value: string) => {
-        if (property === 'animation-timeline' && value === 'scroll()') return true
+        if (property === 'animation-timeline' && value === 'scroll()')
+          return true
         if (property === 'animation-timeline' && value === 'view()') return true
         return false
       }
