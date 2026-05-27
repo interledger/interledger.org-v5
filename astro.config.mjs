@@ -9,10 +9,15 @@ import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
+import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
+  build: {
+    // Inline project CSS so Lighthouse does not wait on extra /_astro/*.css round trips.
+    inlineStylesheets: 'always'
+  },
   i18n: {
     locales: ['es', 'en'],
     defaultLocale: 'en',
@@ -30,6 +35,7 @@ export default defineConfig({
     rehypePlugins: [rehypeUmamiLinks]
   },
   integrations: [
+    stripDocsCssFromMainSite(),
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
