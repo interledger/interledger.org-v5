@@ -9,15 +9,6 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 let lenis: Lenis | null = null
 let rafId: number | null = null
 
-function tagOverflowElements(): void {
-  for (const el of document.querySelectorAll('*')) {
-    if (!(el instanceof HTMLElement)) continue
-    if (getComputedStyle(el).overflow === 'auto') {
-      el.setAttribute('data-lenis-prevent', '')
-    }
-  }
-}
-
 function getHeaderOffset(): number {
   const header = document.querySelector('.foundation-header')
   return header instanceof HTMLElement ? header.offsetHeight : 0
@@ -70,7 +61,6 @@ function onAnchorClick(event: MouseEvent): void {
 function start(): void {
   if (lenis) return
   lenis = new Lenis({ duration: DURATION_SECONDS })
-  tagOverflowElements()
 
   const raf = (time: number) => {
     lenis?.raf(time)
