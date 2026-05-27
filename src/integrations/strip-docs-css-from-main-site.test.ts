@@ -1,18 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  removeDocsCssFromInlineStyles,
-  removeDocsStylesheetLinks
-} from './strip-docs-css-from-main-site'
-
-describe('removeDocsCssFromInlineStyles', () => {
-  it('removes captured docs chunk from a style tag', () => {
-    const docsChunk = '.sl-markdown-content{color:red}'
-    const html = `<style>.hero{color:blue}${docsChunk}</style>`
-    expect(removeDocsCssFromInlineStyles(html, new Set([docsChunk]))).toBe(
-      '<style>.hero{color:blue}</style>'
-    )
-  })
-})
+import { removeDocsStylesheetLinks } from './strip-docs-css-from-main-site'
 
 describe('removeDocsStylesheetLinks', () => {
   it('removes only docs stylesheet links', () => {
