@@ -6,9 +6,10 @@ import { detectVideoProvider, buildUmamiAttrs } from '@/utils'
 interface Props {
   url: string
   title: string
+  poster?: string
 }
 
-const { url, title } = Astro.props
+const { url, title, poster } = Astro.props
 const { routeLocale } = Astro.locals
 const provider = detectVideoProvider(url)
 
@@ -25,7 +26,7 @@ const videoAttrs = buildUmamiAttrs({
 {
   provider === 'youtube' ? (
     <div class="w-full">
-      <YouTube id={url} playlabel={title} />
+      <YouTube id={url} playlabel={title} poster={poster} />
     </div>
   ) : provider === 'vimeo' ? (
     <div class="w-full">
