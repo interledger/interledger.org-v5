@@ -265,7 +265,6 @@ function attachScrollController(
     return
   }
 
-
   let ticking = false
 
   const scheduleTick = (): void => {
