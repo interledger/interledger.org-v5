@@ -44,7 +44,7 @@ const imgSrc = media ? undefined : src
 {
   hasResponsive ? (
     <picture class={pictureClassName}>
-      {avifSrcset && (
+      {avifVariants.length > 0 && (
         <source
           type="image/avif"
           srcset={avifSrcset}
