@@ -177,12 +177,12 @@ export const ui = {
     'homepageHero.cta_explore_tech': 'Explore Tech',
     'homepageHero.cta_get_involved': 'Get Involved',
     'homepageHero.cta_navigation': 'Featured actions',
-    'home.problem.heading': "The Problem We're Solving",
-    'home.problem.body_1':
+    'animatedNetwork.problem.heading': "The Problem We're Solving",
+    'animatedNetwork.problem.body_1':
       "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - if they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
-    'home.problem.body_2':
+    'animatedNetwork.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
-    'home.problem.video_title': "The Problem We're Solving",
+    'animatedNetwork.problem.video_title': "The Problem We're Solving — video",
     'pillarsSection.heading':
       'We see a world where money moves freely and opportunity follows.',
     'pillarsSection.card1_title': 'We Build the Tech',
@@ -384,6 +384,10 @@ export const ui = {
     'homepageHero.cta_explore_tech': '',
     'homepageHero.cta_get_involved': '',
     'homepageHero.cta_navigation': '',
+    'animatedNetwork.problem.heading': '',
+    'animatedNetwork.problem.body_1': '',
+    'animatedNetwork.problem.body_2': '',
+    'animatedNetwork.problem.video_title': '',
     'pillarsSection.heading': '',
     'pillarsSection.card1_title': '',
     'pillarsSection.card1_description': '',
