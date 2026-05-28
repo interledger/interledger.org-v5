@@ -1,0 +1,39 @@
+---
+import CalloutText from '@/components/shared/CalloutText.astro'
+import HeroSection from '@/components/shared/HeroSection.astro'
+import Podcast from '@/components/shared/Podcast.astro'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import { podcasts } from '@/data/podcasts'
+---
+
+<FoundationPageLayout
+  title="Podcasts"
+  description="Brought to you by the Interledger Foundation the F|M Podcast is a place where we invite people of all backgrounds and disciplines to change the status quo and provoke new ways of thinking about what digital financial futures are possible."
+  headerTheme="light"
+>
+  <HeroSection title="F|M podcast" content="with Kokayi Walker" />
+  <main data-prose class="p-2xl max-w-content m-auto">
+    <section aria-label="About the podcast">
+      <CalloutText>
+        Future Money is a podcast exploring the evolving intersections of
+        technology, finance, and culture, because finance touches every industry
+        and every life.
+      </CalloutText>
+      <p>
+        At its core Future Money is about self-sovereignty and empowerment:
+        reimagining how people, especially those in underserved communities and
+        those who are underbanked or unbanked, access, manage, and grow their
+        financial lives. Each episode engages founders, creatives, innovators,
+        and thought leaders in conversations that bridge their past experiences,
+        their present work, and their visions for the future of their industries
+        and the world at large.
+      </p>
+    </section>
+    <section aria-labelledby="podcast-heading">
+      <h2 id="podcast-heading">Podcast episodes</h2>
+      <ul class="list-none m-0 p-0" role="list">
+        {podcasts.map((podcast) => <Podcast podcast={podcast} />)}
+      </ul>
+    </section>
+  </main>
+</FoundationPageLayout>

@@ -18,14 +18,16 @@ src/styles/
 │   ├── typography.css        # Font-face declarations
 │   ├── reset.css            # Tailwind Preflight + keyframes + element styles
 │   └── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
-└── components/              # Component layer - overridable by utilities
-    ├── navigation.css       # Breadcrumb nav styles
-    └── prose/              # Prose variants by content type
-        ├── default.css      # Default prose (all pages)
-        ├── base-typography.css  # Common h2, h3, p, lists
-        ├── foundation.css   # [data-prose] specific
-        ├── blog.css        # [data-prose-blog] specific
-        └── summit.css      # [data-prose-summit] specific
+├── components/              # Component layer - overridable by utilities
+│   ├── navigation.css       # Breadcrumb nav styles
+│   └── prose/              # Prose variants by content type
+│       ├── default.css      # Default prose (all pages)
+│       ├── base-typography.css  # Common h2, h3, p, lists
+│       ├── foundation.css   # [data-prose] specific
+│       ├── blog.css        # [data-prose-blog] specific
+│       └── summit.css      # [data-prose-summit] specific
+└── utilities/              # Utilities layer - custom @utility definitions
+    └── animations.css       # Scroll-driven animation utilities (animate-rise-in-view, etc.)
 ```
 
 ## Critical: Import Order
@@ -45,7 +47,10 @@ src/styles/
 3. **Components layer** (`components/**/*.css`)
    - Prose styles, navigation, etc.
    - Can be overridden by utility classes
-   - Must load last
+
+4. **Utilities layer** (`utilities/*.css`)
+   - Custom `@utility` definitions for behaviors that can't be expressed as a `@theme` token alone (e.g. scroll-driven animations that need `animation-timeline` / `animation-range` / reduced-motion branches alongside the `animation` shorthand)
+   - `@utility` rules are placed in `@layer utilities` automatically and win over component styles regardless of import order — keeping these imports last is for readability, not cascade priority
 
 ## Pillar Theming System
 
@@ -464,6 +469,26 @@ Edit `base/variables.css` - change `--color-primary` in `:root`.
 1. If it fits a @theme namespace (`--color-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--animate-*`): add to `theme.css`
 2. If it needs selectors or depends on other vars: add to `base/variables.css`
 3. Use in components via `var(--your-variable)` or as a Tailwind utility class
+
+### Add a Custom Utility
+
+Use `@utility` in `src/styles/utilities/` when a single `@theme` token isn't enough — e.g. an animation needing `animation-timeline`, `animation-range`, or a `prefers-reduced-motion` branch:
+
+```css
+/* src/styles/utilities/animations.css */
+@utility animate-rise-in-view {
+  animation: var(--animate-scroll-rise);
+  animation-timeline: view();
+  animation-range: 0% 30%;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+```
+
+Import the new file from `tailwind.css` so it lands in the utilities layer.
+
+**Don't name a `@utility` the same as an existing `--<namespace>-*` token** (e.g. `@utility animate-fade-in` alongside `--animate-fade-in`) — they collide and the `@utility` can be silently dropped. Either use a different class name (as `animate-rise-in-view` does, consuming `--animate-scroll-rise` via `var()`) or skip the token.
 
 ### Override Component Style
 
