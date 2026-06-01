@@ -12,8 +12,7 @@ export interface TypographyPreset {
   lineHeightPx: number
 }
 
-export const TYPOGRAPHY_SAMPLE =
-  'The quick brown fox jumps over the lazy dog'
+export const TYPOGRAPHY_SAMPLE = 'The quick brown fox jumps over the lazy dog'
 
 export const TYPOGRAPHY_TIER_HEADINGS: Record<
   TypographyTier,
@@ -24,18 +23,50 @@ export const TYPOGRAPHY_TIER_HEADINGS: Record<
   desktop: { title: 'Desktop', breakpoint: '1200px+ (desktop: / *-lg tokens)' }
 }
 
-export function fontWeightLabel(weight: TypographyPreset['fontWeight']): string {
+export function fontWeightLabel(
+  weight: TypographyPreset['fontWeight']
+): string {
   if (weight === 600) return 'SemiBold'
   if (weight === 500) return 'Medium'
   return 'Regular'
 }
 
 const MOBILE_PRESETS: TypographyPreset[] = [
-  { label: 'H1', className: 'text-h1', fontWeight: 600, fontSizePx: 56, lineHeightPx: 68 },
-  { label: 'H2', className: 'text-h2', fontWeight: 600, fontSizePx: 32, lineHeightPx: 40 },
-  { label: 'H3', className: 'text-h3', fontWeight: 500, fontSizePx: 20, lineHeightPx: 28 },
-  { label: 'H4', className: 'text-h4', fontWeight: 400, fontSizePx: 18, lineHeightPx: 28 },
-  { label: 'H5', className: 'text-h5', fontWeight: 400, fontSizePx: 16, lineHeightPx: 26 },
+  {
+    label: 'H1',
+    className: 'text-h1',
+    fontWeight: 600,
+    fontSizePx: 56,
+    lineHeightPx: 68
+  },
+  {
+    label: 'H2',
+    className: 'text-h2',
+    fontWeight: 600,
+    fontSizePx: 32,
+    lineHeightPx: 40
+  },
+  {
+    label: 'H3',
+    className: 'text-h3',
+    fontWeight: 500,
+    fontSizePx: 20,
+    lineHeightPx: 28
+  },
+  {
+    label: 'H4',
+    className: 'text-h4',
+    fontWeight: 400,
+    fontSizePx: 18,
+    lineHeightPx: 28
+  },
+  {
+    label: 'H5',
+    className: 'text-h5',
+    fontWeight: 400,
+    fontSizePx: 16,
+    lineHeightPx: 26
+  },
   {
     label: 'Body LG emphasis',
     className: 'text-body-lg-emphasis',
@@ -74,11 +105,41 @@ const MOBILE_PRESETS: TypographyPreset[] = [
 ]
 
 const TABLET_PRESETS: TypographyPreset[] = [
-  { label: 'H1', className: 'text-h1-md', fontWeight: 600, fontSizePx: 70, lineHeightPx: 76 },
-  { label: 'H2', className: 'text-h2-md', fontWeight: 600, fontSizePx: 36, lineHeightPx: 48 },
-  { label: 'H3', className: 'text-h3-md', fontWeight: 500, fontSizePx: 28, lineHeightPx: 36 },
-  { label: 'H4', className: 'text-h4-md', fontWeight: 400, fontSizePx: 20, lineHeightPx: 30 },
-  { label: 'H5', className: 'text-h5-md', fontWeight: 400, fontSizePx: 18, lineHeightPx: 28 },
+  {
+    label: 'H1',
+    className: 'text-h1-md',
+    fontWeight: 600,
+    fontSizePx: 70,
+    lineHeightPx: 76
+  },
+  {
+    label: 'H2',
+    className: 'text-h2-md',
+    fontWeight: 600,
+    fontSizePx: 36,
+    lineHeightPx: 48
+  },
+  {
+    label: 'H3',
+    className: 'text-h3-md',
+    fontWeight: 500,
+    fontSizePx: 28,
+    lineHeightPx: 36
+  },
+  {
+    label: 'H4',
+    className: 'text-h4-md',
+    fontWeight: 400,
+    fontSizePx: 20,
+    lineHeightPx: 30
+  },
+  {
+    label: 'H5',
+    className: 'text-h5-md',
+    fontWeight: 400,
+    fontSizePx: 18,
+    lineHeightPx: 28
+  },
   {
     label: 'Body LG emphasis',
     className: 'text-body-lg-emphasis-md',
@@ -117,11 +178,41 @@ const TABLET_PRESETS: TypographyPreset[] = [
 ]
 
 const DESKTOP_PRESETS: TypographyPreset[] = [
-  { label: 'H1', className: 'text-h1-lg', fontWeight: 600, fontSizePx: 100, lineHeightPx: 100 },
-  { label: 'H2', className: 'text-h2-lg', fontWeight: 600, fontSizePx: 56, lineHeightPx: 64 },
-  { label: 'H3', className: 'text-h3-lg', fontWeight: 500, fontSizePx: 40, lineHeightPx: 56 },
-  { label: 'H4', className: 'text-h4-lg', fontWeight: 400, fontSizePx: 24, lineHeightPx: 34 },
-  { label: 'H5', className: 'text-h5-lg', fontWeight: 400, fontSizePx: 20, lineHeightPx: 30 },
+  {
+    label: 'H1',
+    className: 'text-h1-lg',
+    fontWeight: 600,
+    fontSizePx: 100,
+    lineHeightPx: 100
+  },
+  {
+    label: 'H2',
+    className: 'text-h2-lg',
+    fontWeight: 600,
+    fontSizePx: 56,
+    lineHeightPx: 64
+  },
+  {
+    label: 'H3',
+    className: 'text-h3-lg',
+    fontWeight: 500,
+    fontSizePx: 40,
+    lineHeightPx: 56
+  },
+  {
+    label: 'H4',
+    className: 'text-h4-lg',
+    fontWeight: 400,
+    fontSizePx: 24,
+    lineHeightPx: 34
+  },
+  {
+    label: 'H5',
+    className: 'text-h5-lg',
+    fontWeight: 400,
+    fontSizePx: 20,
+    lineHeightPx: 30
+  },
   {
     label: 'Body LG emphasis',
     className: 'text-body-lg-emphasis-md',
@@ -159,12 +250,14 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
   }
 ]
 
-export const TYPOGRAPHY_PRESETS_BY_TIER: Record<TypographyTier, TypographyPreset[]> =
-  {
-    mobile: MOBILE_PRESETS,
-    tablet: TABLET_PRESETS,
-    desktop: DESKTOP_PRESETS
-  }
+export const TYPOGRAPHY_PRESETS_BY_TIER: Record<
+  TypographyTier,
+  TypographyPreset[]
+> = {
+  mobile: MOBILE_PRESETS,
+  tablet: TABLET_PRESETS,
+  desktop: DESKTOP_PRESETS
+}
 
 export const TYPOGRAPHY_TIER_ORDER: TypographyTier[] = [
   'mobile',
