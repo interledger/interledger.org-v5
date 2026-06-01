@@ -1,0 +1,35 @@
+---
+import { fontWeightLabel, TYPOGRAPHY_SAMPLE } from '@/data/typography-preview'
+import type { TypographyPreset } from '@/data/typography-preview'
+
+interface Props {
+  preset: TypographyPreset
+}
+
+const { preset } = Astro.props
+---
+
+<div
+  class="typography-preset-row grid grid-cols-1 border-b border-neutral-25 tablet:grid-cols-[240px_1fr]"
+>
+  <dl
+    class="grid grid-cols-[max-content_1fr] gap-x-lg gap-y-xs border-neutral-25 p-lg text-body-sm-standard text-neutral-75 tablet:border-r"
+  >
+    <dt>Font family</dt>
+    <dd>Poppins</dd>
+    <dt>Font style</dt>
+    <dd>{fontWeightLabel(preset.fontWeight)}</dd>
+    <dt>Font size</dt>
+    <dd>{preset.fontSizePx}</dd>
+    <dt>Line height</dt>
+    <dd>{preset.lineHeightPx}</dd>
+    <dt>Class</dt>
+    <dd>
+      <code class="text-neutral-100">{preset.className}</code>
+    </dd>
+  </dl>
+  <div class="p-lg">
+    <p class="mb-sm text-body-sm-standard text-neutral-75">{preset.label}</p>
+    <p class={`font-poppins ${preset.className}`}>{TYPOGRAPHY_SAMPLE}</p>
+  </div>
+</div>

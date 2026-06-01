@@ -1,0 +1,63 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import TypographyPresetRow from '@/components/preview/TypographyPresetRow.astro'
+import {
+  TYPOGRAPHY_PRESETS_BY_TIER,
+  TYPOGRAPHY_TIER_HEADINGS,
+  TYPOGRAPHY_TIER_ORDER
+} from '@/data/typography-preview'
+
+const containerClass = 'mx-auto max-w-(--max-content-width) px-lg'
+---
+
+<BaseLayout title="Typography Preview">
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow" />
+  </Fragment>
+
+  <main class="py-2xl">
+    <div class={containerClass}>
+      <h1 class="font-poppins mb-lg text-h2">Typography</h1>
+      <p class="mb-2xl text-body-lg-standard">
+        Internal reference for Poppins text presets from
+        <code>src/styles/theme.css</code>. SEO-excluded and not linked from any
+        nav. Each tier shows the token sizes used at that breakpoint — apply
+        with responsive prefixes in production (e.g.
+        <code>text-h2 tablet:text-h2-md desktop:text-h2-lg</code>).
+      </p>
+
+      <nav aria-label="Sections" class="mb-2xl">
+        <ul class="flex flex-wrap gap-md list-none [&>li>a]:underline">
+          {
+            TYPOGRAPHY_TIER_ORDER.map((tier) => (
+              <li>
+                <a href={`#${tier}`}>{TYPOGRAPHY_TIER_HEADINGS[tier].title}</a>
+              </li>
+            ))
+          }
+          <li><a href="/preview/ui-components">UI components</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    {
+      TYPOGRAPHY_TIER_ORDER.map((tier) => (
+        <section id={tier} class="mb-3xl">
+          <div class={`${containerClass} mb-lg`}>
+            <h2 class="font-poppins text-h3">
+              {TYPOGRAPHY_TIER_HEADINGS[tier].title}
+            </h2>
+            <p class="mt-xs text-body-sm-standard text-neutral-75">
+              {TYPOGRAPHY_TIER_HEADINGS[tier].breakpoint}
+            </p>
+          </div>
+          <div class={`${containerClass} border-t border-neutral-25`}>
+            {TYPOGRAPHY_PRESETS_BY_TIER[tier].map((preset) => (
+              <TypographyPresetRow preset={preset} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+</BaseLayout>
