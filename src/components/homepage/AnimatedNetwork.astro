@@ -5,7 +5,8 @@
  * over the same scroll. Both effects share the section's view-timeline so they
  * stay in lockstep. Driven by the scroll-driven animations API where supported;
  * Firefox and other browsers without `animation-timeline: view()` use the JS
- * fallback in src/scripts/animated-network.ts. Reduced motion uses the end state.
+ * fallback in src/scripts/animated-network.ts. Reduced motion hides the art on
+ * tablet+ and shows the problem block in-flow with a solid purple background.
  *
  * Below 810px (tablet:): problem copy in-flow; network SVG is the HomepageHero background.
  * From 810px: scroll animation, circle, and problem block anchored to the art.
@@ -199,15 +200,20 @@ import AnimatedNetworkProblem, {
   }
 
   @media (prefers-reduced-motion: reduce) and (min-width: 810px) {
-    [data-component='AnimatedNetwork'] .network-svg:not(.network-svg--static) {
-      animation: none;
-      transform: rotate(20deg) scale(1.25);
+    [data-component='AnimatedNetwork'] {
+      clip-path: none;
     }
 
-    [data-component='AnimatedNetwork'] .growing-circle {
-      animation: none;
-      opacity: 1;
-      transform: scale(var(--network-circle-max-scale));
+    [data-component='AnimatedNetwork'] .network-art {
+      display: none;
+    }
+
+    [data-component='AnimatedNetwork'] .network-problem {
+      margin-top: 0;
+    }
+
+    [data-component='AnimatedNetwork'] .network-problem-section {
+      background-color: var(--color-royal-purple-100);
     }
   }
 </style>
