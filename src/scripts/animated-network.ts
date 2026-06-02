@@ -20,7 +20,7 @@ const ROTATE_START_DEG = -15
 const ROTATE_END_DEG = 65
 const SCALE = 1.25
 /** Matches `--network-circle-max-scale` in AnimatedNetwork.astro (transform scale factor). */
-const CIRCLE_SCALE_FACTOR = 500
+const CIRCLE_SCALE_FACTOR = 80
 
 const NETWORK_SECTION_SELECTOR = '[data-component="AnimatedNetwork"]'
 
@@ -107,9 +107,17 @@ export function getViewProgress(): number {
   return Math.min(1, Math.max(0, progress))
 }
 
-/** View progress slice for `animation-range: cover 50% cover 100%`. */
+/** Matches `animation-range: cover 35% cover 91%` in AnimatedNetwork.astro */
+const CIRCLE_ANIMATION_RANGE_START = 0.35
+const CIRCLE_ANIMATION_RANGE_END = 0.91
+
+/** View progress slice for circle growth animation range. */
 export function getCircleProgress(viewProgress: number): number {
-  return Math.min(1, Math.max(0, (viewProgress - 0.5) / 0.5))
+  const range = CIRCLE_ANIMATION_RANGE_END - CIRCLE_ANIMATION_RANGE_START
+  return Math.min(
+    1,
+    Math.max(0, (viewProgress - CIRCLE_ANIMATION_RANGE_START) / range)
+  )
 }
 
 function getCircleScale(circleProgress: number): number {
