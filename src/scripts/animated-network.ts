@@ -273,10 +273,10 @@ function attachScrollController(
 }
 
 function syncScrollController(): void {
-  const { tabletUp } = getMediaQueries()
+  const { tabletUp, reducedMotion } = getMediaQueries()
   const section = getNetworkSection()
 
-  if (!section?.isConnected || !tabletUp.matches) {
+  if (!section?.isConnected || !tabletUp.matches || reducedMotion.matches) {
     destroyScrollController()
     return
   }
@@ -306,6 +306,9 @@ export function initAnimatedNetwork(): () => void {
   }
 
   getMediaQueries().tabletUp.addEventListener('change', onTabletChange, {
+    signal
+  })
+  getMediaQueries().reducedMotion.addEventListener('change', onTabletChange, {
     signal
   })
   window.addEventListener('pagehide', () => destroyScrollController(), {
