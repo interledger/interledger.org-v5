@@ -1,4 +1,4 @@
-/** Typography preset catalog for the internal /preview/typography page. Values mirror @theme tokens in src/styles/theme.css. */
+/** Typography preset catalog for the internal /preview/typography page. Displayed px values mirror @theme tokens in src/styles/theme.css — kept in sync by typography-preview.test.ts. */
 
 export type TypographyTier = 'mobile' | 'tablet' | 'desktop'
 
