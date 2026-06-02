@@ -40,7 +40,7 @@ function parseLengthToPx(value: string): number {
 function parseThemeTextTokens(css: string): Map<string, ThemeTextToken> {
   const tokens = new Map<string, Partial<ThemeTextToken>>()
 
-  for (const match of css.matchAll(/^  --text-([\w-]+):\s*([^;]+);/gm)) {
+  for (const match of css.matchAll(/^ {2}--text-([\w-]+):\s*([^;]+);/gm)) {
     const [, name, value] = match
 
     if (name.endsWith('--line-height')) {
@@ -95,7 +95,10 @@ function expectPresetMatchesTheme(
   const tokenName = classNameToTokenName(preset.className)
   const themeToken = themeTokens.get(tokenName)
 
-  expect(themeToken, `Missing theme.css token for ${preset.className}`).toBeDefined()
+  expect(
+    themeToken,
+    `Missing theme.css token for ${preset.className}`
+  ).toBeDefined()
   expect(preset.fontSizePx).toBe(themeToken!.fontSizePx)
   expect(preset.lineHeightPx).toBe(themeToken!.lineHeightPx)
   expect(preset.fontWeight).toBe(themeToken!.fontWeight)
