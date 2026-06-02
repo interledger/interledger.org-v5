@@ -2,7 +2,9 @@
 import {
   getLanguageSwitcherHrefs,
   switcherLocales,
-  useTranslations
+  useTranslations,
+  type Locale,
+  type UiKey
 } from '@/utils'
 
 /**
@@ -17,6 +19,11 @@ interface Props {
   class?: string
 }
 
+const localeNameKeys: Record<Locale, UiKey> = {
+  en: 'nav.locale_name.en',
+  es: 'nav.locale_name.es'
+}
+
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
 const { class: className } = Astro.props
 const t = useTranslations(routeLocale)
@@ -24,12 +31,11 @@ const t = useTranslations(routeLocale)
 const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
 ---
 
-<div
-  role="group"
-  aria-label={t('nav.language')}
+<ul
+  aria-label={t('nav.language_switcher')}
   data-component="LanguageSwitcher"
   class:list={[
-    'inline-flex items-stretch gap-0 rounded-lg border border-neutral-100 bg-neutral-150 p-[2px]',
+    'inline-flex list-none items-stretch gap-0 rounded-lg border border-neutral-100 bg-neutral-150 p-[2px]',
     'motion-safe:transition-colors motion-safe:duration-500',
     className
   ]}
@@ -38,21 +44,25 @@ const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
     switcherLocales.map((locale) => {
       const isActive = routeLocale === locale
       return (
-        <a
-          href={hrefs[locale]}
-          hreflang={locale}
-          aria-current={isActive ? 'true' : undefined}
-          class:list={[
-            'inline-flex h-[38px] w-10 items-center justify-center rounded-md',
-            'text-caption font-normal leading-none no-underline',
-            'motion-safe:transition-colors motion-safe:duration-500',
-            'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
-            isActive ? 'bg-neutral-100 text-orchid-50' : 'text-neutral-50'
-          ]}
-        >
-          {locale.toUpperCase()}
-        </a>
+        <li class="flex">
+          <a
+            href={hrefs[locale]}
+            hreflang={locale}
+            lang={locale}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={[
+              'inline-flex h-[38px] w-10 items-center justify-center rounded-md',
+              'text-caption font-normal leading-none no-underline',
+              'motion-safe:transition-colors motion-safe:duration-500',
+              'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchid-100',
+              isActive ? 'bg-neutral-100 text-orchid-50' : 'text-neutral-50'
+            ]}
+          >
+            <span aria-hidden="true">{locale.toUpperCase()}</span>
+            <span class="sr-only">{t(localeNameKeys[locale])}</span>
+          </a>
+        </li>
       )
     })
   }
-</div>
+</ul>
