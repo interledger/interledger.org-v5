@@ -47,16 +47,12 @@ import AnimatedNetworkProblem, {
     <div class="network-problem relative z-3">
       <AnimatedNetworkProblem class="relative z-3" />
     </div>
-
-    <div class="network-stage-spacer hidden tablet:block" aria-hidden="true">
-    </div>
   </div>
 </section>
 
 <style>
   [data-component='AnimatedNetwork'] {
     view-timeline: --network-track block;
-    --network-stage-height: 115vh;
     --network-hero-overlap: 10vh;
     /* Fraction from art top where problem copy begins (tracks SVG hub ~52%). */
     --network-problem-start: 0.78;
@@ -89,13 +85,8 @@ import AnimatedNetworkProblem, {
   @media (min-width: 810px) {
     [data-component='AnimatedNetwork'] .network-stage {
       container-type: inline-size;
-      min-height: var(--network-stage-height);
+      overflow: visible;
     }
-  }
-
-  [data-component='AnimatedNetwork'] .network-stage-spacer {
-    flex: 1 1 auto;
-    min-height: 0;
   }
 
   [data-component='AnimatedNetwork'] .network-art {
