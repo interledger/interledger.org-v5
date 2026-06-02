@@ -33,6 +33,7 @@ interface Props {
     | 'interledger'
     | 'close'
     | 'menu'
+    | 'search'
   class?: string
 }
 
@@ -120,6 +121,11 @@ const ICONS: Record<Props['name'], IconDefinition> = {
       '<path d="M 0 0 L 18 0" transform="translate(3 12)"/>' +
       '<path d="M 0 0 L 18 0" transform="translate(3 18)"/>' +
       '</g>'
+  },
+
+  search: {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35"/>'
   },
 
   interledger: {

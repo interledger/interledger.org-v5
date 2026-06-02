@@ -84,6 +84,8 @@ export const ui = {
     'blog.header.image_alt': 'Ernie holding an envelope',
     'blog.filter.label': 'Filter by tag:',
     'blog.filter.all': 'All',
+    'blog.search.label': 'Search blog posts',
+    'blog.search.placeholder': 'Search',
     'blog.read_more': 'Read more',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
@@ -301,6 +303,8 @@ export const ui = {
     'blog.header.image_alt': '',
     'blog.filter.label': '',
     'blog.filter.all': '',
+    'blog.search.label': 'Buscar entradas del blog',
+    'blog.search.placeholder': 'Buscar',
     'blog.read_more': '',
     'blog.community.foundation.start': '',
     'blog.community.foundation.middle': '',

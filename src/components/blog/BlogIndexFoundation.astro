@@ -9,6 +9,7 @@ import {
 import type { CollectionEntry } from 'astro:content'
 import TagFilter from './TagFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import BlogSearch from './BlogSearch.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -48,6 +49,8 @@ const postAttrs = (
   imgHref="/img/ernie-teal.svg"
   imgAlt={t('blog.header.image_alt')}
 />
+
+<BlogSearch />
 
 <TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
 
