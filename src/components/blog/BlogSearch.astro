@@ -6,7 +6,11 @@ const t = useTranslations(Astro.locals.routeLocale)
 const searchInputId = 'foundation-blog-search'
 ---
 
-<div role="search" aria-labelledby={`${searchInputId}-label`} class="mb-space-m">
+<div
+  role="search"
+  aria-labelledby={`${searchInputId}-label`}
+  class="mb-space-m"
+>
   <label id={`${searchInputId}-label`} for={searchInputId} class="sr-only">
     {t('blog.search.label')}
   </label>
