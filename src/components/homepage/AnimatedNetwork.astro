@@ -25,7 +25,10 @@ import AnimatedNetworkProblem, {
   class="relative isolate z-0 flex flex-col bg-neutral-150"
 >
   <div class="network-stage relative flex flex-col">
-    <figure class="network-art hidden tablet:block" aria-hidden="true">
+    <figure
+      class="network-art pointer-events-none hidden tablet:block"
+      aria-hidden="true"
+    >
       <img
         src="/img/homepage/hero-animated-network.svg"
         alt=""
@@ -57,8 +60,11 @@ import AnimatedNetworkProblem, {
     /* Fraction from art top where problem copy begins (tracks SVG hub ~52%). */
     --network-problem-start: 0.78;
     --network-svg-aspect: calc(3186 / 1920);
-    /* Extra top room for scale(1.25) + rotation; bottom edge clips SVG and disc in-section. */
-    --network-clip-top: calc(var(--network-hero-overlap) + 18vh);
+    /* Pull circle anchor up from the SVG hub (52% of art height). */
+    --network-circle-y-nudge: 2vh;
+    /* Extra top room for scale(1.25) + rotation bleeding into HomepageHero. */
+    --network-clip-top: calc(var(--network-hero-overlap) + 22vh);
+    /* Negative top inset lets transformed SVG paint above this section's top edge. */
     clip-path: inset(calc(-1 * var(--network-clip-top)) 0 0 0);
   }
 
@@ -82,7 +88,6 @@ import AnimatedNetworkProblem, {
     [data-component='AnimatedNetwork'] .network-stage {
       container-type: inline-size;
       min-height: var(--network-stage-height);
-      overflow: visible;
     }
   }
 
@@ -93,9 +98,12 @@ import AnimatedNetworkProblem, {
 
   [data-component='AnimatedNetwork'] .network-art {
     position: relative;
+    z-index: 1;
     flex-shrink: 0;
     margin-top: calc(-1 * var(--network-hero-overlap));
     width: 100%;
+    /* Must stay visible so rotate/scale paint can bleed into HomepageHero below tablet. */
+    overflow: visible;
   }
 
   /*
@@ -136,13 +144,12 @@ import AnimatedNetworkProblem, {
     }
   }
 
-  /* Same hub as .network-svg transform-origin (50% / 52%) — moves with image reflow on resize. */
+  /* Hub at SVG registration point (50% / 52%) — nudge pulls anchor up from there. */
   [data-component='AnimatedNetwork'] .circle-anchor {
     display: none;
     position: absolute;
-    top: 52%;
     left: 50%;
-    z-index: 1;
+    z-index: 2;
     transform: translate(-50%, -50%);
     pointer-events: none;
   }
@@ -150,13 +157,15 @@ import AnimatedNetworkProblem, {
   @media (min-width: 810px) {
     [data-component='AnimatedNetwork'] .circle-anchor {
       display: block;
+      /* % is art height; nudge subtracts viewport height to move hub up. */
+      top: calc(52% - var(--network-circle-y-nudge));
     }
 
     /* Grows via transform scale (not width) to limit compositor layer size on low-end devices. */
     [data-component='AnimatedNetwork'] .growing-circle {
       --network-circle-size: 4vw;
-      /* 4vw × scale covers viewport; ~375 when vmax≈vw, 500 is safe headroom. */
-      --network-circle-max-scale: 500;
+      /* ~80× covers viewport from hub; 500× inflated document scroll height. */
+      --network-circle-max-scale: 80;
       width: var(--network-circle-size);
       aspect-ratio: 1;
       flex: none;

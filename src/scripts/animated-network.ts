@@ -20,7 +20,7 @@ const ROTATE_START_DEG = -15
 const ROTATE_END_DEG = 65
 const SCALE = 1.25
 /** Matches `--network-circle-max-scale` in AnimatedNetwork.astro (transform scale factor). */
-const CIRCLE_SCALE_FACTOR = 500
+const CIRCLE_SCALE_FACTOR = 80
 
 const NETWORK_SECTION_SELECTOR = '[data-component="AnimatedNetwork"]'
 
