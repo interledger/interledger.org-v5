@@ -107,9 +107,17 @@ export function getViewProgress(): number {
   return Math.min(1, Math.max(0, progress))
 }
 
-/** View progress slice for `animation-range: cover 50% cover 100%`. */
+/** Matches `animation-range: cover 35% cover 91%` in AnimatedNetwork.astro */
+const CIRCLE_ANIMATION_RANGE_START = 0.35
+const CIRCLE_ANIMATION_RANGE_END = 0.91
+
+/** View progress slice for circle growth animation range. */
 export function getCircleProgress(viewProgress: number): number {
-  return Math.min(1, Math.max(0, (viewProgress - 0.5) / 0.5))
+  const range = CIRCLE_ANIMATION_RANGE_END - CIRCLE_ANIMATION_RANGE_START
+  return Math.min(
+    1,
+    Math.max(0, (viewProgress - CIRCLE_ANIMATION_RANGE_START) / range)
+  )
 }
 
 function getCircleScale(circleProgress: number): number {

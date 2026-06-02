@@ -6,11 +6,12 @@ import {
 } from './animated-network'
 
 describe('animated-network helpers', () => {
-  it('getCircleProgress maps second half of view progress', () => {
+  it('getCircleProgress maps circle growth animation range', () => {
     expect(getCircleProgress(0)).toBe(0)
     expect(getCircleProgress(0.25)).toBe(0)
-    expect(getCircleProgress(0.5)).toBe(0)
-    expect(getCircleProgress(0.75)).toBe(0.5)
+    expect(getCircleProgress(0.35)).toBe(0)
+    expect(getCircleProgress(0.63)).toBeCloseTo(0.5)
+    expect(getCircleProgress(0.91)).toBe(1)
     expect(getCircleProgress(1)).toBe(1)
   })
 

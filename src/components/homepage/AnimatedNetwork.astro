@@ -62,6 +62,7 @@ import AnimatedNetworkProblem, {
     --network-svg-aspect: calc(3186 / 1920);
     /* Pull circle anchor up from the SVG hub (52% of art height). */
     --network-circle-y-nudge: 2vh;
+    --network-circle-x-nudge: 0.75vw;
     /* Extra top room for scale(1.25) + rotation bleeding into HomepageHero. */
     --network-clip-top: calc(var(--network-hero-overlap) + 22vh);
     /* Negative top inset lets transformed SVG paint above this section's top edge. */
@@ -144,11 +145,11 @@ import AnimatedNetworkProblem, {
     }
   }
 
-  /* Hub at SVG registration point (50% / 52%) — nudge pulls anchor up from there. */
+  /* Hub at SVG registration point (50% / 52%) — nudge adjusts anchor from there. */
   [data-component='AnimatedNetwork'] .circle-anchor {
     display: none;
     position: absolute;
-    left: 50%;
+    left: calc(50% + var(--network-circle-x-nudge));
     z-index: 2;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -177,7 +178,7 @@ import AnimatedNetworkProblem, {
       /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
       animation: growing-circle-grow 1ms linear forwards;
       animation-timeline: --network-track;
-      animation-range: cover 50% cover 100%;
+      animation-range: cover 35% cover 91%;
     }
   }
 
