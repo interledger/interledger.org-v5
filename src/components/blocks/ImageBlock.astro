@@ -36,119 +36,154 @@ const TABLET_MQ = '(max-width: 1199px)'
 <figure class="my-0">
   <picture>
     {/* Mobile variant (max-width: 809px) */}
-    {mobile && mobile.avifVariants.length > 0 && (
-      <source
-        type="image/avif"
-        srcset={srcset(mobile.avifVariants)}
-        sizes="100vw"
-        media={MOBILE_MQ}
-      />
-    )}
-    {mobile && mobile.variants.length > 0 && (
-      <source
-        type="image/webp"
-        srcset={srcset(mobile.variants)}
-        sizes="100vw"
-        media={MOBILE_MQ}
-      />
-    )}
-    {mobile && !mobile.variants.length && mobile.avifFullSrc && (
-      <source type="image/avif" srcset={mobile.avifFullSrc} media={MOBILE_MQ} />
-    )}
-    {mobile && !mobile.variants.length && mobile.fullSrc && (
-      <source type="image/webp" srcset={mobile.fullSrc} media={MOBILE_MQ} />
-    )}
+    {
+      mobile && mobile.avifVariants.length > 0 && (
+        <source
+          type="image/avif"
+          srcset={srcset(mobile.avifVariants)}
+          sizes="100vw"
+          media={MOBILE_MQ}
+        />
+      )
+    }
+    {
+      mobile && mobile.variants.length > 0 && (
+        <source
+          type="image/webp"
+          srcset={srcset(mobile.variants)}
+          sizes="100vw"
+          media={MOBILE_MQ}
+        />
+      )
+    }
+    {
+      mobile && !mobile.variants.length && mobile.avifFullSrc && (
+        <source
+          type="image/avif"
+          srcset={mobile.avifFullSrc}
+          media={MOBILE_MQ}
+        />
+      )
+    }
+    {
+      mobile && !mobile.variants.length && mobile.fullSrc && (
+        <source type="image/webp" srcset={mobile.fullSrc} media={MOBILE_MQ} />
+      )
+    }
     {/* Fallback: no optimized variants exist — use original URL directly */}
-    {mobileSrc && !mobile?.variants.length && !mobile?.fullSrc && (
-      <source srcset={mobileSrc} media={MOBILE_MQ} />
-    )}
+    {
+      mobileSrc && !mobile?.variants.length && !mobile?.fullSrc && (
+        <source srcset={mobileSrc} media={MOBILE_MQ} />
+      )
+    }
 
     {/* Tablet variant (max-width: 1199px, after mobile has already matched) */}
-    {tablet && tablet.avifVariants.length > 0 && (
-      <source
-        type="image/avif"
-        srcset={srcset(tablet.avifVariants)}
-        sizes="100vw"
-        media={TABLET_MQ}
-      />
-    )}
-    {tablet && tablet.variants.length > 0 && (
-      <source
-        type="image/webp"
-        srcset={srcset(tablet.variants)}
-        sizes="100vw"
-        media={TABLET_MQ}
-      />
-    )}
-    {tablet && !tablet.variants.length && tablet.avifFullSrc && (
-      <source type="image/avif" srcset={tablet.avifFullSrc} media={TABLET_MQ} />
-    )}
-    {tablet && !tablet.variants.length && tablet.fullSrc && (
-      <source type="image/webp" srcset={tablet.fullSrc} media={TABLET_MQ} />
-    )}
+    {
+      tablet && tablet.avifVariants.length > 0 && (
+        <source
+          type="image/avif"
+          srcset={srcset(tablet.avifVariants)}
+          sizes="100vw"
+          media={TABLET_MQ}
+        />
+      )
+    }
+    {
+      tablet && tablet.variants.length > 0 && (
+        <source
+          type="image/webp"
+          srcset={srcset(tablet.variants)}
+          sizes="100vw"
+          media={TABLET_MQ}
+        />
+      )
+    }
+    {
+      tablet && !tablet.variants.length && tablet.avifFullSrc && (
+        <source
+          type="image/avif"
+          srcset={tablet.avifFullSrc}
+          media={TABLET_MQ}
+        />
+      )
+    }
+    {
+      tablet && !tablet.variants.length && tablet.fullSrc && (
+        <source type="image/webp" srcset={tablet.fullSrc} media={TABLET_MQ} />
+      )
+    }
     {/* Fallback: no optimized variants exist — use original URL directly */}
-    {tabletSrc && !tablet?.variants.length && !tablet?.fullSrc && (
-      <source srcset={tabletSrc} media={TABLET_MQ} />
-    )}
+    {
+      tabletSrc && !tablet?.variants.length && !tablet?.fullSrc && (
+        <source srcset={tabletSrc} media={TABLET_MQ} />
+      )
+    }
 
     {/* Desktop (default — no media query, catches everything else) */}
-    {desktop.avifVariants.length > 0 && (
-      <source
-        type="image/avif"
-        srcset={srcset(desktop.avifVariants)}
-        sizes="100vw"
-      />
-    )}
-    {desktop.variants.length > 0 && (
-      <source
-        type="image/webp"
-        srcset={srcset(desktop.variants)}
-        sizes="100vw"
-      />
-    )}
-    {desktop.avifFullSrc && !desktop.avifVariants.length && (
-      <source type="image/avif" srcset={desktop.avifFullSrc} />
-    )}
-    {desktop.fullSrc && !desktop.variants.length && (
-      <source type="image/webp" srcset={desktop.fullSrc} />
-    )}
+    {
+      desktop.avifVariants.length > 0 && (
+        <source
+          type="image/avif"
+          srcset={srcset(desktop.avifVariants)}
+          sizes="100vw"
+        />
+      )
+    }
+    {
+      desktop.variants.length > 0 && (
+        <source
+          type="image/webp"
+          srcset={srcset(desktop.variants)}
+          sizes="100vw"
+        />
+      )
+    }
+    {
+      desktop.avifFullSrc && !desktop.avifVariants.length && (
+        <source type="image/avif" srcset={desktop.avifFullSrc} />
+      )
+    }
+    {
+      desktop.fullSrc && !desktop.variants.length && (
+        <source type="image/webp" srcset={desktop.fullSrc} />
+      )
+    }
 
     <img
       src={src}
       alt={alt}
       loading="lazy"
       decoding="async"
-      class:list={[
-        'w-full rounded',
-        needsOutline && 'ring-1 ring-neutral-25'
-      ]}
+      class:list={['w-full rounded', needsOutline && 'ring-1 ring-neutral-25']}
     />
   </picture>
 
-  {needsFullView && (
-    <figcaption class="mt-space-2xs text-right">
-      <a
-        href={src}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-space-3xs text-step--1 text-neutral-75 hover:text-primary underline-offset-2 hover:underline transition-colors"
-      >
-        View full image
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 18 18"
-          class="h-3 w-3 shrink-0"
-          fill="none"
+  {
+    needsFullView && (
+      <figcaption class="mt-space-2xs text-right">
+        <a
+          href={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-space-3xs text-step--1 text-neutral-75 hover:text-primary underline-offset-2 hover:underline transition-colors"
         >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
-          />
-        </svg>
-      </a>
-    </figcaption>
-  )}
+          View full image
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 18 18"
+            class="h-3 w-3 shrink-0"
+            fill="none"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
+            />
+          </svg>
+        </a>
+      </figcaption>
+    )
+  }
 </figure>
