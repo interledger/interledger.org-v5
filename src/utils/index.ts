@@ -57,6 +57,9 @@ export {
   paginatePostsByTag
 } from './main/tagFilter'
 
+// Main site: Search
+export { searchFoundationBlog } from './main/foundationBlogSearch'
+
 // Main site: Text
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'

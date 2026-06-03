@@ -1,0 +1,48 @@
+---
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import BlogIndexHeader from '@/components/blog/BlogIndexHeader.astro'
+import BlogSearch from '@/components/blog/BlogSearch.astro'
+import {
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  useTranslations,
+} from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const developersHref = translatePath('developers-blog', routeLocale, COLLECTION_INDEX_SLUG)
+---
+
+<FoundationPageLayout
+  title={t('blog.foundation.title')}
+  description={t('blog.foundation.description')}
+  ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
+>
+  <main class="pt-space-m pb-space-xl">
+    <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
+      <BlogIndexHeader
+        title={t('blog.foundation.title')}
+        href={developersHref}
+        message={t('blog.foundation.cta')}
+        imgHref="/img/ernie-teal.svg"
+        imgAlt={t('blog.header.image_alt')}
+      />
+      <BlogSearch />
+      <div
+        id="search-output"
+        aria-live="polite"
+        aria-atomic="true"
+        data-no-results={t('blog.search.no_results')}
+        data-result-count={t('blog.search.result_count')}
+        data-error={t('blog.search.error')}
+        data-read-more={t('blog.read_more')}
+      >
+      </div>
+    </div>
+  </main>
+</FoundationPageLayout>
+
+<script>
+  import { initFoundationBlogSearch } from '@/scripts/foundation-blog-search'
+  initFoundationBlogSearch('/es/blog/search-index.json', '/es/blog')
+</script>
