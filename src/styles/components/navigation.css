@@ -209,7 +209,7 @@
   border-color: var(--color-neutral-100);
 }
 
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='true'] {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='page'] {
   background-color: var(--color-neutral-100);
   color: var(--color-orchid-50);
 }
@@ -228,7 +228,7 @@
 }
 
 
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='true'] {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='page'] {
   background-color: var(--color-neutral-25);
   color: var(--color-orchid-150);
 }
