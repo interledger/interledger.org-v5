@@ -220,6 +220,11 @@ function tick(section: HTMLElement, tabletUp: MediaQueryList): void {
   }
 }
 
+function updateCompositingFromNear(section: HTMLElement): void {
+  const { reducedMotion } = getMediaQueries()
+  setCompositing(section, scrollController.isNear && !reducedMotion.matches)
+}
+
 function attachScrollController(
   section: HTMLElement,
   tabletUp: MediaQueryList
@@ -228,26 +233,45 @@ function attachScrollController(
 
   const abort = new AbortController()
   const { signal } = abort
+  const useJsFallback = !supportsScrollDrivenAnimations()
   scrollController.section = section
   scrollController.abort = abort
 
-  // Single layout read to seed geometry cache and initial near state.
-  const initRect = section.getBoundingClientRect()
-  scrollController.sectionTop = initRect.top + window.scrollY
-  scrollController.sectionHeight = section.offsetHeight
-  scrollController.isNear =
-    initRect.bottom >= -VIEWPORT_NEAR_MARGIN_PX &&
-    initRect.top <= window.innerHeight + VIEWPORT_NEAR_MARGIN_PX
+  if (useJsFallback) {
+    // Single layout read to seed geometry cache and initial near state.
+    const initRect = section.getBoundingClientRect()
+    scrollController.sectionTop = initRect.top + window.scrollY
+    scrollController.sectionHeight = section.offsetHeight
+    scrollController.isNear =
+      initRect.bottom >= -VIEWPORT_NEAR_MARGIN_PX &&
+      initRect.top <= window.innerHeight + VIEWPORT_NEAR_MARGIN_PX
+  } else {
+    scrollController.sectionTop = 0
+    scrollController.sectionHeight = 0
+    scrollController.isNear = false
+  }
 
-  // IntersectionObserver keeps isNear updated without touching the DOM on scroll.
+  // IntersectionObserver keeps isNear updated without layout reads on scroll.
   const observer = new IntersectionObserver(
     (entries) => {
       scrollController.isNear = entries[0].isIntersecting
+      if (useJsFallback) return
+      updateCompositingFromNear(section)
     },
     { rootMargin: `${VIEWPORT_NEAR_MARGIN_PX}px` }
   )
   observer.observe(section)
   signal.addEventListener('abort', () => observer.disconnect())
+
+  if (!useJsFallback) {
+    updateCompositingFromNear(section)
+    getMediaQueries().reducedMotion.addEventListener(
+      'change',
+      () => updateCompositingFromNear(section),
+      { signal }
+    )
+    return
+  }
 
   let ticking = false
 
