@@ -424,6 +424,27 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksImageBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_image_blocks'
+  info: {
+    description: 'Standalone image with optional responsive variants, outline, and full-view support'
+    displayName: 'Image Block'
+    icon: 'picture'
+  }
+  attributes: {
+    altText: Schema.Attribute.String
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
+    mobileImage: Schema.Attribute.Media<'images'>
+    needsFullView: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>
+    needsOutline: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>
+    tabletImage: Schema.Attribute.Media<'images'>
+  }
+}
+
 export interface BlocksImageRow extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_rows'
   info: {
@@ -836,6 +857,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel-item': BlocksCarouselItem
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.image-block': BlocksImageBlock
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed

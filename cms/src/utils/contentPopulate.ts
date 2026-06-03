@@ -30,7 +30,10 @@ const FOUNDATION_PAGE_BLOCKS = {
 
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
-  'blocks.video-embed': {}
+  'blocks.video-embed': {},
+  'blocks.image-block': {
+    populate: { image: true, tabletImage: true, mobileImage: true }
+  }
 } as const
 
 /** Populate config for foundation-page and summit-page content fields. */
