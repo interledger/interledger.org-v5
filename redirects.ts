@@ -131,5 +131,22 @@ export const redirects = {
   '/network-fees-interledger-ecosystem':
     '/policy-and-advocacy/network-fees-interledger-ecosystem',
   '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions'
+    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
+
+  // Foundation blog: tags renamed to categories (INTORG-765).
+  // Explicit base-page redirects for the canonical term URLs (these are the
+  // links that existed in the wild). Static→static so they resolve cleanly,
+  // unlike the empty-splat case of the paginated rule below.
+  '/blog/tag/announcements': '/blog/category/announcements',
+  '/blog/tag/community-&-events': '/blog/category/community-&-events',
+  '/blog/tag/grants-&-grantee-insights':
+    '/blog/category/grants-&-grantee-insights',
+  '/blog/tag/interledger-technology': '/blog/category/interledger-technology',
+  '/blog/tag/thought-leadership': '/blog/category/thought-leadership',
+  '/es/blog/tag/announcements': '/es/blog/category/announcements',
+  '/es/blog/tag/grants-&-grantee-insights':
+    '/es/blog/category/grants-&-grantee-insights',
+  // Paginated term pages (/2, /3, …) — spread maps to a Netlify splat.
+  '/blog/tag/[category]/[...page]': '/blog/category/[category]/[...page]',
+  '/es/blog/tag/[category]/[...page]': '/es/blog/category/[category]/[...page]'
 }

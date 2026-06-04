@@ -4,20 +4,21 @@ import {
   COLLECTION_INDEX_SLUG,
   translatePath,
   useTranslations,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  getBlogThumbnail
 } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
-import TagFilter from './TagFilter.astro'
+import TaxonomyFilter from './TaxonomyFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
-  allTags?: string[]
-  selectedTag?: string
+  allTerms?: string[]
+  selectedTerm?: string
   showTagFilter?: boolean
   blogIndexHref: string
 }
-const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
+const { posts, allTerms = [], selectedTerm, blogIndexHref } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const developersHref = translatePath(
@@ -49,20 +50,26 @@ const postAttrs = (
   imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
+<TaxonomyFilter
+  collection="foundation-blog"
+  terms={allTerms}
+  selectedTerm={selectedTerm}
+  href={blogIndexHref}
+/>
 
 <ol class="list-none p-0">
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
       const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
+      const thumbnail = getBlogThumbnail(blogPostEntry)
       return (
         <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
           <div class="shrink-0">
-            {blogPostEntry.data.thumbnailImage && (
+            {thumbnail && (
               <img
                 loading="lazy"
-                src={blogPostEntry.data.thumbnailImage}
+                src={thumbnail}
                 width="250"
                 height="250"
                 alt={blogPostEntry.data.thumbnailImageAlt ?? ''}

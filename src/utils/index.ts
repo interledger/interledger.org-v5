@@ -50,12 +50,20 @@ export { applyPreviewNoStore } from './main/cache'
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export { type CollectionType, getLocalizedPaths } from './main/static-paths'
 export {
-  getTagSlug,
-  getTagUrl,
-  translateTag,
+  type BlogTaxonomy,
+  getBlogTaxonomy,
+  getTermSlug,
+  getTermUrl,
+  translateTerm,
   paginateAllPosts,
-  paginatePostsByTag
+  paginatePostsByTerm
 } from './main/tagFilter'
+export {
+  FEATURED_POST_LIMIT,
+  TECH_BLOG_FALLBACK_THUMBNAIL,
+  getFeaturedPosts,
+  getBlogThumbnail
+} from './main/blog'
 
 // Main site: Text
 export { generateSlug } from './main/slug'

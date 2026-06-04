@@ -1,6 +1,6 @@
 ---
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
-import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
+import BlogPostLayout from '@/layouts/BlogPostLayout.astro'
 import { fetchStrapi } from '@/utils'
 import { marked } from 'marked'
 
@@ -10,8 +10,10 @@ interface BlogPostPreview {
   pathSlug: string
   locale: string
   publishedAt: string
-  pillar: string
+  lastUpdated?: string
+  featured?: boolean
   featureImage?: { url?: string; alternativeText?: string }
+  featureImageMobile?: { url?: string; alternativeText?: string }
   content?: string
 }
 
@@ -32,24 +34,29 @@ if (!article) {
   throw new Error(`Preview: No article found for documentId "${documentId}"`)
 }
 
-// Map Strapi fields to FoundationBlogLayout frontmatter
+// Map Strapi fields to BlogPostLayout frontmatter
 const frontmatter = {
   title: article.title,
   description: article.description,
   pathSlug: article.pathSlug,
   locale: article.locale,
-  date: article.publishedAt,
-  pillar: article.pillar,
+  date: new Date(article.publishedAt),
+  lastUpdated: article.lastUpdated ? new Date(article.lastUpdated) : undefined,
+  featured: article.featured ?? false,
   featureImage: article.featureImage?.url,
   featureImageAlt: article.featureImage?.alternativeText ?? '',
+  featureImageMobile: article.featureImageMobile?.url,
+  featureImageMobileAlt: article.featureImageMobile?.alternativeText ?? '',
   articleBios: [],
-  tags: []
+  categories: [],
+  relatedArticles: [],
+  legacy: false
 }
 
 const bodyHtml = marked.parse(article.content ? article.content : '')
 ---
 
-<FoundationBlogLayout frontmatter={frontmatter}>
+<BlogPostLayout frontmatter={frontmatter}>
   <article set:html={bodyHtml} />
   <CommunityLinksFoundation />
-</FoundationBlogLayout>
+</BlogPostLayout>

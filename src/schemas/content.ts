@@ -17,7 +17,11 @@ const pathSlugSchema = (required = true) => {
     : base
 }
 
-const foundationTags = [
+// Allowed blog categories. Keep in sync with the `shared.category` Strapi component
+// (cms/src/components/shared/category.json) and the `blog.categories.*` keys in
+// src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
+// lands, add the new values here and retire the legacy ones.
+const blogCategories = [
   'Announcements',
   'Community & Events',
   'Grants & Grantee Insights',
@@ -37,7 +41,7 @@ const developersTags = [
   'Work Week'
   // Please add a matching translation in src/data/ui.ts for any new tag
 ] as const
-export type FoundationTag = (typeof foundationTags)[number]
+export type BlogCategory = (typeof blogCategories)[number]
 
 export const developersBlogFrontmatterSchema = z.object({
   title: z.string(),
@@ -59,6 +63,7 @@ export type DevelopersBlogFrontmatterType = z.infer<
 
 const ArticleBioSchema = z.object({
   author: z.string(),
+  link: z.string().optional(),
   text: z.string().optional(),
   image: z.string().optional(),
   imageAlt: z.string().nullable().optional()
@@ -68,14 +73,27 @@ export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
   date: z.coerce.date(),
+  // Optional manual entry — only set when a post has a meaningful editorial update.
+  lastUpdated: z.coerce.date().optional(),
   pathSlug: pathSlugSchema(),
-  pillar: z.enum(['vision', 'mission', 'tech', 'values']),
+  // Pins the post into the featured section at the top of the blog listing.
+  featured: z.boolean().default(false),
+  // Desktop feature image. Kept optional in zod so mid-migration files don't break;
+  // Strapi enforces it as required for editors.
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
+  // Optional mobile feature image; falls back to the desktop image when absent.
+  featureImageMobile: z.string().optional(),
+  featureImageMobileAlt: z.string().nullable().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(ArticleBioSchema).optional().default([]),
-  tags: z.array(z.enum(foundationTags)).default([]),
+  categories: z.array(z.enum(blogCategories)).default([]),
+  // Exactly 3 slugs of related posts when populated; optional for now so builds pass.
+  relatedArticles: z.array(z.string()).max(3).optional().default([]),
+  // Reserved for migrated v4 developer blog posts; lets them render without
+  // a feature image or thumbnail. Hidden from Strapi editors.
+  legacy: z.boolean().optional().default(false),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })

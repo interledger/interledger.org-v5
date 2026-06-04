@@ -7,17 +7,17 @@ import {
   buildUmamiAttrs
 } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
-import TagFilter from './TagFilter.astro'
+import TaxonomyFilter from './TaxonomyFilter.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
 
 interface Props {
   posts: CollectionEntry<'developers-blog'>[]
-  allTags?: string[]
-  selectedTag?: string
+  allTerms?: string[]
+  selectedTerm?: string
   showTagFilter?: boolean
   blogIndexHref: string
 }
-const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
+const { posts, allTerms = [], selectedTerm, blogIndexHref } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const foundationHref = translatePath(
@@ -45,7 +45,12 @@ const postAttrs = (href: string, linkText: string) =>
   imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
+<TaxonomyFilter
+  collection="developers-blog"
+  terms={allTerms}
+  selectedTerm={selectedTerm}
+  href={blogIndexHref}
+/>
 
 <ol class="list-none p-0">
   {

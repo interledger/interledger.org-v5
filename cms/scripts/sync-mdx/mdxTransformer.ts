@@ -408,11 +408,20 @@ export async function buildBlogPayload(
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.featureImage
     })
+    const featureImageMobile = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed.featureImageMobile
+    })
     const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.thumbnailImage
     })
 
-    const tags = (parsed.tags ?? []).map((tag) => ({ tagValue: tag }))
+    const categories = (parsed.categories ?? []).map((category) => ({
+      categoryValue: category
+    }))
+
+    const relatedArticles = (parsed.relatedArticles ?? []).map((slug) => ({
+      slug
+    }))
 
     const articleBio = await Promise.all(
       (parsed.articleBios ?? []).map(async (bio) => {
@@ -434,6 +443,7 @@ export async function buildBlogPayload(
 
         return {
           author: bio.author,
+          link: bio.link || null,
           profileBio: bio.text || null,
           profileImage: profileImageId
         }
@@ -447,6 +457,16 @@ export async function buildBlogPayload(
         strapiUploadContext.strapi,
         featureImage,
         nullOrValue(parsed.featureImageAlt),
+        updatedAltIds,
+        mdx.pathSlug,
+        dryRun
+      )
+    }
+    if (featureImageMobile && parsed.featureImageMobileAlt !== undefined) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        featureImageMobile,
+        nullOrValue(parsed.featureImageMobileAlt),
         updatedAltIds,
         mdx.pathSlug,
         dryRun
@@ -492,11 +512,21 @@ export async function buildBlogPayload(
       description: parsed.description,
       pathSlug: parsed.pathSlug,
       date: date.toISOString().split('T')[0],
-      pillar: parsed.pillar,
+      ...(parsed.lastUpdated
+        ? {
+            lastUpdated: new Date(parsed.lastUpdated)
+              .toISOString()
+              .split('T')[0]
+          }
+        : {}),
+      featured: parsed.featured ?? false,
       featureImage,
+      featureImageMobile,
       thumbnailImage,
       articleBio,
-      tags,
+      categories,
+      relatedArticles,
+      legacy: parsed.legacy ?? false,
       locale: parsed.locale,
       content,
       publishedAt: date.toISOString()

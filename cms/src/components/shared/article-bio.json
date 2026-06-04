@@ -8,6 +8,11 @@
     "author": {
       "type": "string"
     },
+    "link": {
+      "type": "string",
+      "required": false,
+      "description": "A URL to the author's profile, personal site, or LinkedIn."
+    },
     "profileBio": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",

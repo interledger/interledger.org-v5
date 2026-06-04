@@ -5,7 +5,7 @@ import DevelopersBlogListingPage from '@/components/pages/DevelopersBlogListingP
 
 type Props = {
   page: Page
-  allTags: string[]
+  allTerms: string[]
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
@@ -17,7 +17,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   return paths
 }
 
-const { page, allTags } = Astro.props
+const { page, allTerms } = Astro.props
 ---
 
-<DevelopersBlogListingPage page={page} allTags={allTags} />
+<DevelopersBlogListingPage page={page} allTerms={allTerms} />
