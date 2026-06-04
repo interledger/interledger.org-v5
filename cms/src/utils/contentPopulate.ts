@@ -33,7 +33,8 @@ const FOUNDATION_BLOG_BLOCKS = {
   'blocks.video-embed': {},
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
-  }
+  },
+  'blocks.code-block': {}
 } as const
 
 /** Populate config for foundation-page and summit-page content fields. */

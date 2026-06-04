@@ -686,6 +686,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       needsFullView: 'Needs full view',
       needsOutline: 'Needs outline'
     },
+    'blocks.code-block': {
+      code: 'Code',
+      language: 'Language',
+      title: 'Title (optional)'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -721,6 +726,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'blocks.code-block': {
+      title: 'Displayed as the filename label above the code. Leave blank to show the language name.',
+      code: 'Paste or type your code here.'
     }
   }
 
@@ -984,7 +993,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'hero_call_to_action', size: 12 }]
     ],
-    'shared.seo': [[{ name: 'metaDescription', size: 12 }]]
+    'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
+    'blocks.table-block': [[{ name: 'content', size: 12 }]],
+    'blocks.code-block': [
+      [
+        { name: 'language', size: 4 },
+        { name: 'title', size: 8 }
+      ],
+      [{ name: 'code', size: 12 }]
+    ]
   }
 
   const contentTypeService = plugin.service('content-types') as

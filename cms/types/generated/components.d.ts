@@ -308,6 +308,50 @@ export interface BlocksCarouselItem extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCodeBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_code_blocks'
+  info: {
+    description: 'Syntax-highlighted code snippet with optional title and copy button'
+    displayName: 'Code Block'
+    icon: 'code'
+  }
+  attributes: {
+    code: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    language: Schema.Attribute.Enumeration<
+      [
+        'javascript',
+        'typescript',
+        'jsx',
+        'tsx',
+        'html',
+        'css',
+        'bash',
+        'json',
+        'yaml',
+        'python',
+        'rust',
+        'go',
+        'sql',
+        'markdown'
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'javascript'>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksCtaBanner extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_banners'
   info: {
@@ -855,6 +899,7 @@ declare module '@strapi/strapi' {
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-item': BlocksCarouselItem
+      'blocks.code-block': BlocksCodeBlock
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
       'blocks.image-block': BlocksImageBlock

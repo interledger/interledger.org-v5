@@ -123,7 +123,8 @@
       "components": [
         "blocks.paragraph",
         "blocks.video-embed",
-        "blocks.image-block"
+        "blocks.image-block",
+        "blocks.code-block"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     },

@@ -220,7 +220,9 @@ export const ui = {
     'home.stats.countries_label': 'Countries with active tech',
     'home.stats.countries_aria': '45 plus countries with active tech',
     'home.stats.students_label': 'Students skilled',
-    'home.stats.students_aria': '1,000 plus students skilled'
+    'home.stats.students_aria': '1,000 plus students skilled',
+    'codeBlock.copy': 'Copy',
+    'codeBlock.copied': 'Copied!'
   },
   es: {
     'site.title': '',
@@ -434,6 +436,8 @@ export const ui = {
     'home.stats.countries_label': 'Países con tecnología activa',
     'home.stats.countries_aria': 'Más de 45 países con tecnología activa',
     'home.stats.students_label': 'Estudiantes capacitados',
-    'home.stats.students_aria': 'Más de 1,000 estudiantes capacitados'
+    'home.stats.students_aria': 'Más de 1,000 estudiantes capacitados',
+    'codeBlock.copy': '',
+    'codeBlock.copied': ''
   }
 } as const
