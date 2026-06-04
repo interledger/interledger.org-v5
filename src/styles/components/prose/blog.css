@@ -68,43 +68,88 @@
     }
 
     /* === Table styles === */
-    & table {
-      display: table;
-      width: 100%;
-      border-collapse: collapse;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    & :has(> table) {
+      overflow-x: auto;
       margin-block-end: var(--spacing-space-m);
     }
 
-    & th {
-      text-align: left;
-      padding-block: var(--spacing-space-3xs);
-      padding-inline: var(--spacing-space-2xs);
+    & table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--color-neutral-50);
+      border-top: none;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      background-color: var(--color-neutral-0);
     }
 
+    & th,
     & td {
-      padding-block: var(--spacing-space-3xs);
-      padding-inline: var(--spacing-space-2xs);
+      padding-block: var(--spacing-lg);
+      padding-inline: var(--spacing-lg);
+      border-block-end: 1px solid var(--color-neutral-50);
+      border-inline-end: 1px solid var(--color-neutral-50);
+      color: var(--color-neutral-100);
+      text-align: start;
+      vertical-align: top;
     }
 
-    & thead tr {
-      background-color: var(--color-table-stripe);
+    & tbody td,
+    & tbody th {
+      font-size: var(--text-body-sm-standard);
+      line-height: var(--text-body-sm-standard--line-height);
+      font-weight: var(--text-body-sm-standard--font-weight);
     }
-    & thead tr:first-of-type th:first-of-type {
-      border-start-start-radius: var(--radius);
+
+    & tr > :last-child {
+      border-inline-end: none;
     }
-    & thead tr:first-of-type th:last-of-type {
-      border-start-end-radius: var(--radius);
+
+    & thead tr > :last-child {
+      border-inline-end: 1px solid var(--color-neutral-75);
     }
-    & thead + tbody tr:nth-child(2n) {
-      background-color: var(--color-table-stripe);
+
+    & tbody tr:last-child > * {
+      border-block-end: none;
     }
-    & tbody tr:last-of-type td:first-child {
-      border-end-start-radius: var(--radius);
+
+    & th p,
+    & td p {
+      margin-block: 0;
     }
-    & tbody tr:last-of-type td:last-child {
-      border-end-end-radius: var(--radius);
+
+    & td p + p {
+      margin-block-start: var(--spacing-sm);
+    }
+
+    & tbody tr:nth-child(odd) > * {
+      background-color: var(--color-rose-mint-50);
+    }
+
+    & tbody tr:nth-child(even) > * {
+      background-color: var(--color-ice-indigo-50);
+    }
+
+    & thead th,
+    & tbody > tr:first-child > th {
+      font-size: var(--text-body-lg-emphasis-md);
+      line-height: var(--text-body-lg-emphasis-md--line-height);
+      font-weight: var(--text-body-lg-emphasis-md--font-weight);
+      background-color: var(--color-neutral-0);
+      border: 1px solid var(--color-neutral-75);
+    }
+
+    & thead th:first-child,
+    & tbody > tr:first-child > th:first-child {
+      border-inline-start: 1px solid var(--color-neutral-75);
+      border-start-start-radius: var(--radius-2xl);
+    }
+
+    & thead th:last-child,
+    & tbody > tr:first-child > th:last-child {
+      border-inline-end: 1px solid var(--color-neutral-75);
+      border-start-end-radius: var(--radius-2xl);
     }
 
     /* === Inline code === */
