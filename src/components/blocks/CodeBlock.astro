@@ -19,26 +19,22 @@ const highlighted = await codeToHtml(code, {
 ---
 
 <figure
-  class="my-0 rounded-lg overflow-hidden border border-neutral-25 text-step--1"
+  class="my-0 w-full min-w-0 rounded-lg border border-neutral-25 text-step--1"
   data-component="code-block"
 >
-  {/* Title bar */}
   <div
-    class="flex items-center gap-space-xs px-space-s py-space-2xs bg-[#f6f8fa] border-b border-neutral-25"
+    class="flex items-center gap-space-xs px-space-s py-space-2xs bg-[#f6f8fa] border-b border-neutral-25 rounded-t-lg"
   >
-    {/* Decorative window dots */}
     <div class="flex items-center gap-[6px] shrink-0" aria-hidden="true">
       <span class="block h-3 w-3 rounded-full bg-[#ff5f57]"></span>
       <span class="block h-3 w-3 rounded-full bg-[#febc2e]"></span>
       <span class="block h-3 w-3 rounded-full bg-[#28c840]"></span>
     </div>
 
-    {/* Filename / title */}
-    <span class="flex-1 text-neutral-900 text-step--2 truncate">
+    <span class="flex-1 min-w-0 truncate text-neutral-900 text-step--2">
       {title ?? language}
     </span>
 
-    {/* Copy button */}
     <button
       type="button"
       class="copy-btn shrink-0 inline-flex items-center gap-[5px] cursor-pointer
@@ -75,19 +71,61 @@ const highlighted = await codeToHtml(code, {
     </button>
   </div>
 
-  {/* Highlighted code */}
   <div
-    class="overflow-x-auto
-           [&_pre]:m-0 [&_pre]:p-space-s [&_pre]:leading-relaxed [&_pre]:bg-white!
-           [&_code]:font-mono [&_code]:text-step--1
-           [&_.line]:min-h-[1.5em]"
+    class="code-block-scroll rounded-b-lg"
+    data-lenis-prevent-touch
     set:html={highlighted}
   />
 </figure>
 
+<style>
+  /* Shiki: block .line + newline nodes between spans; contain:inline-size for mobile scroll. */
+  [data-component='code-block'] {
+    contain: inline-size;
+  }
+
+  [data-component='code-block'] .code-block-scroll {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    line-height: 1.5;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(pre) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: var(--spacing-space-s);
+    background-color: #fff !important;
+    white-space: normal;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(code),
+  [data-component='code-block'] .code-block-scroll :global(.line) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    font-family: ui-monospace, monospace;
+    font-size: var(--text-step--1);
+    line-height: inherit;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(.line) {
+    white-space: pre;
+  }
+</style>
+
 <script>
   document.addEventListener('click', (e) => {
-    const btn = (e.target as Element)?.closest<HTMLButtonElement>('.copy-btn')
+    const btn = (e.target as Element)?.closest<HTMLButtonElement>(
+      '[data-component="code-block"] .copy-btn'
+    )
     if (!btn) return
 
     const code = btn.dataset.code ?? ''
