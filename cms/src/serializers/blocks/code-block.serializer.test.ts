@@ -54,9 +54,9 @@ describe('code-block serializer', () => {
   })
 
   it('throws when code is missing', () => {
-    expect(() =>
-      serialize({ code: '', language: 'javascript' })
-    ).toThrow('CodeBlock block is missing code')
+    expect(() => serialize({ code: '', language: 'javascript' })).toThrow(
+      'CodeBlock block is missing code'
+    )
   })
 
   it('throws when language is missing', () => {

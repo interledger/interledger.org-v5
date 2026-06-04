@@ -728,7 +728,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
     },
     'blocks.code-block': {
-      title: 'Displayed as the filename label above the code. Leave blank to show the language name.',
+      title:
+        'Displayed as the filename label above the code. Leave blank to show the language name.',
       code: 'Paste or type your code here.'
     }
   }
