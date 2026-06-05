@@ -96,22 +96,10 @@
     }
 
     & tbody td,
-    & tbody th {
+    & thead th {
       font-size: var(--text-body-sm-standard);
       line-height: var(--text-body-sm-standard--line-height);
       font-weight: var(--text-body-sm-standard--font-weight);
-    }
-
-    & tr > :last-child {
-      border-inline-end: none;
-    }
-
-    & thead tr > :last-child {
-      border-inline-end: 1px solid var(--color-neutral-75);
-    }
-
-    & tbody tr:last-child > * {
-      border-block-end: none;
     }
 
     & th p,
@@ -131,25 +119,12 @@
       background-color: var(--color-ice-indigo-50);
     }
 
-    & thead th,
-    & tbody > tr:first-child > th {
+    & thead th {
       font-size: var(--text-body-lg-emphasis-md);
       line-height: var(--text-body-lg-emphasis-md--line-height);
       font-weight: var(--text-body-lg-emphasis-md--font-weight);
       background-color: var(--color-neutral-0);
-      border: 1px solid var(--color-neutral-75);
-    }
-
-    & thead th:first-child,
-    & tbody > tr:first-child > th:first-child {
-      border-inline-start: 1px solid var(--color-neutral-75);
-      border-start-start-radius: var(--radius-2xl);
-    }
-
-    & thead th:last-child,
-    & tbody > tr:first-child > th:last-child {
-      border-inline-end: 1px solid var(--color-neutral-75);
-      border-start-end-radius: var(--radius-2xl);
+      border-top: 1px solid var(--color-neutral-50);
     }
 
     /* === Inline code === */
