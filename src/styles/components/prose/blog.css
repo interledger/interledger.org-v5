@@ -77,8 +77,6 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      border: 1px solid var(--color-neutral-50);
-      border-top: none;
       border-radius: var(--radius-2xl);
       overflow: hidden;
       background-color: var(--color-neutral-0);
@@ -93,6 +91,11 @@
       color: var(--color-neutral-100);
       text-align: start;
       vertical-align: top;
+    }
+
+    /* Perimeter borders on cells — avoids corner fade when table radius clips thead. */
+    & :is(th, td):first-child {
+      border-inline-start: 1px solid var(--color-neutral-50);
     }
 
     & tbody td,
@@ -125,6 +128,22 @@
       font-weight: var(--text-body-lg-emphasis-md--font-weight);
       background-color: var(--color-neutral-0);
       border-top: 1px solid var(--color-neutral-50);
+    }
+
+    & thead th:first-child {
+      border-start-start-radius: var(--radius-2xl);
+    }
+
+    & thead th:last-child {
+      border-start-end-radius: var(--radius-2xl);
+    }
+
+    & tbody tr:last-child > :first-child {
+      border-end-start-radius: var(--radius-2xl);
+    }
+
+    & tbody tr:last-child > :last-child {
+      border-end-end-radius: var(--radius-2xl);
     }
 
     /* === Inline code === */
