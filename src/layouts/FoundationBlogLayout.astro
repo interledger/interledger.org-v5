@@ -4,6 +4,7 @@
  * Grants, policy, announcements - distinct from Tech Blog.
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 
 interface Props {
@@ -29,6 +30,7 @@ const longDate = dateObj.toDateString().substring(4)
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
 >
+  <TableScrollSupport />
   <main
     class="flex flex-col bg-white/70 pt-space-m pb-space-xl"
     data-pillar={frontmatter.pillar}

@@ -1,8 +1,7 @@
 ---
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import FoundationBlogLayout from '@/layouts/FoundationBlogLayout.astro'
-import { applyPreviewNoStore, fetchStrapi } from '@/utils'
-import { marked } from 'marked'
+import { applyPreviewNoStore, fetchStrapi, parseMarkdown } from '@/utils'
 
 interface BlogPostPreview {
   title: string
@@ -47,7 +46,10 @@ const frontmatter = {
   tags: []
 }
 
-const bodyHtml = marked.parse(article.content ? article.content : '')
+const bodyHtml = await parseMarkdown(article.content, {
+  lang: article.locale,
+  pathname: Astro.url.pathname
+})
 ---
 
 <FoundationBlogLayout frontmatter={frontmatter}>

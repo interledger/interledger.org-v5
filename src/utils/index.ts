@@ -61,6 +61,11 @@ export {
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'
 export { parseMarkdown, parseMarkdownInline } from './main/mdx'
+export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
+export {
+  TABLE_SCROLL_CLASS,
+  wrapScrollableTables
+} from './main/wrapScrollableTables'
 export { createExcerpt } from './main/create-excerpt'
 
 // Main site: Formatting
