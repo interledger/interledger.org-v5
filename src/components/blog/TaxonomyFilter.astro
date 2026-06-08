@@ -1,0 +1,63 @@
+---
+import type { BlogCollectionType } from '@/content.config'
+import {
+  getBlogTaxonomy,
+  getTermUrl,
+  translateTerm,
+  useTranslations,
+  buildUmamiAttrs
+} from '@/utils'
+interface Props {
+  collection: BlogCollectionType
+  terms: string[]
+  selectedTerm?: string
+  href: string
+}
+const { collection, terms, selectedTerm, href } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const taxonomy = getBlogTaxonomy(collection)
+const activeClass = ['bg-primary', 'text-white']
+const inactiveClass = ['bg-white']
+
+const filterAttrs = (action: string, label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: label,
+    action
+  })
+---
+
+<div class="mb-space-m bg-transparent rounded-[var(--border-radius)]">
+  <div class="font-semibold mb-3xs text-step--1">
+    {t(taxonomy.filterLabelKey)}
+  </div>
+  <div
+    class="flex flex-wrap gap-space-3xs
+  [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
+  >
+    <a
+      href={href}
+      class:list={!selectedTerm ? activeClass : inactiveClass}
+      {...filterAttrs('filter_all', t('blog.filter.all'))}
+    >
+      {t('blog.filter.all')}
+    </a>
+    {
+      terms.map((term) => (
+        <a
+          href={getTermUrl(href, taxonomy.segment, term)}
+          class:list={selectedTerm === term ? activeClass : inactiveClass}
+          {...filterAttrs(
+            `filter_${taxonomy.segment}`,
+            translateTerm(taxonomy.i18nPrefix, term, t)
+          )}
+        >
+          {translateTerm(taxonomy.i18nPrefix, term, t)}
+        </a>
+      ))
+    }
+  </div>
+</div>

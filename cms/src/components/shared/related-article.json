@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_shared_related_articles",
+  "info": {
+    "displayName": "Related Article"
+  },
+  "options": {},
+  "attributes": {
+    "slug": {
+      "type": "string",
+      "required": true,
+      "description": "pathSlug of a related blog post (relative to /blog/, no leading slash)."
+    }
+  },
+  "config": {}
+}

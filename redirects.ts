@@ -131,5 +131,22 @@ export const redirects = {
   '/network-fees-interledger-ecosystem':
     '/policy-and-advocacy/network-fees-interledger-ecosystem',
   '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions'
+    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
+
+  // Foundation blog: tags renamed to categories (INTORG-765).
+  // Explicit base-page redirects for the canonical term URLs (the links that
+  // existed in the wild — page 1 of each tag). Static→static so they resolve
+  // cleanly. Paginated old tag URLs (/2, /3, …) are intentionally not
+  // redirected: Astro's spread→Netlify mapping emits a literal `*` rather than
+  // a splat, so those would 301 to a 404. A tag needed >10 posts to ever have
+  // a page 2, so these barely existed; a clean 404 is preferable to a bad 301.
+  '/blog/tag/announcements': '/blog/category/announcements',
+  '/blog/tag/community-&-events': '/blog/category/community-&-events',
+  '/blog/tag/grants-&-grantee-insights':
+    '/blog/category/grants-&-grantee-insights',
+  '/blog/tag/interledger-technology': '/blog/category/interledger-technology',
+  '/blog/tag/thought-leadership': '/blog/category/thought-leadership',
+  '/es/blog/tag/announcements': '/es/blog/category/announcements',
+  '/es/blog/tag/grants-&-grantee-insights':
+    '/es/blog/category/grants-&-grantee-insights'
 }

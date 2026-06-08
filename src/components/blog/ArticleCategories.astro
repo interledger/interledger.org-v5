@@ -1,0 +1,45 @@
+---
+import type { BlogCategory } from '@/schemas/content'
+import {
+  buildUmamiAttrs,
+  getTermUrl,
+  translateTerm,
+  useTranslations
+} from '@/utils'
+interface Props {
+  categories: BlogCategory[]
+  path: string
+}
+const { categories, path } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const categoryAttrs = (label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: `#${label}`,
+    action: 'category'
+  })
+---
+
+<footer>
+  <ul class="flex gap-space-xs mb-space-s list-none! ps-0!">
+    {
+      categories.map((category) => {
+        const label = translateTerm('blog.categories', category, t)
+        return (
+          <li class="mb-space-xs">
+            <a
+              href={getTermUrl(path, 'category', category)}
+              {...categoryAttrs(label)}
+            >
+              #{label}
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+</footer>

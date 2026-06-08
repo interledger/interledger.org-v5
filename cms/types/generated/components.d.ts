@@ -575,6 +575,7 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
   }
   attributes: {
     author: Schema.Attribute.String
+    link: Schema.Attribute.String
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -583,6 +584,24 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
         }
       >
     profileImage: Schema.Attribute.Media<'images'>
+  }
+}
+
+export interface SharedCategory extends Struct.ComponentSchema {
+  collectionName: 'components_shared_categories'
+  info: {
+    displayName: 'Category'
+  }
+  attributes: {
+    categoryValue: Schema.Attribute.Enumeration<
+      [
+        'Announcements',
+        'Community & Events',
+        'Grants & Grantee Insights',
+        'Interledger Technology',
+        'Thought Leadership'
+      ]
+    >
   }
 }
 
@@ -686,6 +705,16 @@ export interface SharedHeroSection extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedRelatedArticle extends Struct.ComponentSchema {
+  collectionName: 'components_shared_related_articles'
+  info: {
+    displayName: 'Related Article'
+  }
+  attributes: {
+    slug: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface SharedSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_sections'
   info: {
@@ -733,24 +762,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
   }
 }
 
-export interface SharedTags extends Struct.ComponentSchema {
-  collectionName: 'components_shared_tags'
-  info: {
-    displayName: 'Tags'
-  }
-  attributes: {
-    tagValue: Schema.Attribute.Enumeration<
-      [
-        'Announcements',
-        'Community & Events',
-        'Grants & Grantee Insights',
-        'Interledger Technology',
-        'Thought Leadership'
-      ]
-    >
-  }
-}
-
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -773,12 +784,13 @@ declare module '@strapi/strapi' {
       'navigation.menu-item': NavigationMenuItem
       'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
+      'shared.category': SharedCategory
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
+      'shared.related-article': SharedRelatedArticle
       'shared.section': SharedSection
       'shared.seo': SharedSeo
-      'shared.tags': SharedTags
     }
   }
 }

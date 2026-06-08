@@ -8,17 +8,17 @@ import {
   stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
-  translateTag,
+  translateTerm,
   useTranslations
 } from '@/utils'
 
 interface Props {
   page: Page
-  allTags: string[]
-  selectedTag?: string
+  allTerms: string[]
+  selectedTerm?: string
 }
 
-const { page, allTags, selectedTag } = Astro.props
+const { page, allTerms, selectedTerm } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -33,12 +33,14 @@ const developersHomePath = translatePath(
   routeLocale,
   'developers'
 )
-const translatedTag = selectedTag ? translateTag(selectedTag, t) : undefined
-const title = translatedTag
-  ? t('blog.developers.tag_title', { tag: translatedTag })
+const translatedTerm = selectedTerm
+  ? translateTerm('blog.tags', selectedTerm, t)
+  : undefined
+const title = translatedTerm
+  ? t('blog.developers.tag_title', { tag: translatedTerm })
   : t('blog.developers.title')
-const description = translatedTag
-  ? t('blog.developers.tag_description', { tag: translatedTag })
+const description = translatedTerm
+  ? t('blog.developers.tag_description', { tag: translatedTerm })
   : t('blog.developers.description')
 const breadcrumbs = [
   {
@@ -47,7 +49,7 @@ const breadcrumbs = [
   }
 ]
 
-if (selectedTag) {
+if (selectedTerm) {
   breadcrumbs.push({
     name: t('blog.developers.title'),
     href: blogPath
@@ -65,8 +67,8 @@ if (selectedTag) {
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <BlogIndexDevelopers
         posts={page.data || []}
-        allTags={allTags}
-        selectedTag={selectedTag}
+        allTerms={allTerms}
+        selectedTerm={selectedTerm}
         showTagFilter={true}
         blogIndexHref={blogPath}
       />

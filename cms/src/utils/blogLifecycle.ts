@@ -29,13 +29,20 @@ interface BlogResult {
   description: string
   pathSlug: string
   date: string
+  lastUpdated?: string
+  featured: boolean
+  legacy?: boolean
   content: ContentBlock[] | string
   createdAt: Date
   updatedAt: Date
   publishedAt?: Date
   locale: string
-  pillar: 'vision' | 'mission' | 'tech' | 'values'
   featureImage?: {
+    name: string
+    alternativeText?: string
+    url: string
+  }
+  featureImageMobile?: {
     name: string
     alternativeText?: string
     url: string
@@ -47,10 +54,12 @@ interface BlogResult {
   }
   articleBio?: {
     author: string
+    link?: string
     profileBio?: string
     profileImage?: { url: string; name: string; alternativeText?: string }
   }[]
-  tags?: { tagValue: string }[]
+  categories?: { categoryValue: string }[]
+  relatedArticles?: { slug: string }[]
   localizations: { pathSlug: string }[]
 }
 
@@ -76,9 +85,11 @@ async function fetchBlogPost(
       status: 'published',
       populate: {
         featureImage: true,
+        featureImageMobile: true,
         thumbnailImage: true,
         articleBio: { populate: { profileImage: true } },
-        tags: true,
+        categories: true,
+        relatedArticles: true,
         localizations: true,
         content: BLOG_CONTENT_POPULATE
       }
@@ -110,6 +121,7 @@ function generateBlogMDX(post: BlogResult) {
           .map((bio) => {
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
+              bio.link ? `\n    link: ${yqs(bio.link)}` : null,
               bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
               bio.profileImage
                 ? `\n    image: ${yqs(bio.profileImage.url)}`
@@ -129,13 +141,20 @@ function generateBlogMDX(post: BlogResult) {
     `title: ${yqs(post.title)}`,
     `description: ${yqs(post.description)}`,
     `date: ${post.date}`,
+    post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
-    `pillar: ${yqs(post.pillar)}`,
+    `featured: ${post.featured ?? false}`,
     post.featureImage?.url
       ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
     post.featureImage?.url
       ? `featureImageAlt: ${yqs(post.featureImage.alternativeText ?? '')}`
+      : null,
+    post.featureImageMobile?.url
+      ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
+      : null,
+    post.featureImageMobile?.url
+      ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText ?? '')}`
       : null,
     post.thumbnailImage?.url
       ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
@@ -144,11 +163,19 @@ function generateBlogMDX(post: BlogResult) {
       ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
-    post.tags
-      ? post.tags.length === 0
-        ? `tags: []`
-        : `tags:${post.tags.map((tag) => `\n  - ${yqs(tag.tagValue)}`).join('')}`
+    post.categories
+      ? post.categories.length === 0
+        ? `categories: []`
+        : `categories:${post.categories
+            .map((category) => `\n  - ${yqs(category.categoryValue)}`)
+            .join('')}`
       : null,
+    post.relatedArticles?.length
+      ? `relatedArticles:${post.relatedArticles
+          .map((related) => `\n  - ${yqs(related.slug)}`)
+          .join('')}`
+      : null,
+    post.legacy ? `legacy: true` : null,
     post.locale ? `locale: ${yqs(post.locale)}` : null,
     post.localizations?.[0]?.pathSlug
       ? `localizes: ${post.localizations[0].pathSlug}`

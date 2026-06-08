@@ -1,23 +1,26 @@
 ---
 import type { Page } from 'astro'
+import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
+import FeaturedPosts from '@/components/blog/FeaturedPosts.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import {
   stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
-  translateTag,
+  translateTerm,
+  getFeaturedPosts,
   useTranslations
 } from '@/utils'
 
 interface Props {
   page: Page
-  allTags: string[]
-  selectedTag?: string
+  allTerms: string[]
+  selectedTerm?: string
 }
 
-const { page, allTags, selectedTag } = Astro.props
+const { page, allTerms, selectedTerm } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
@@ -26,13 +29,27 @@ const blogPath = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
-const translatedTag = selectedTag ? translateTag(selectedTag, t) : undefined
-const title = translatedTag
-  ? t('blog.foundation.tag_title', { tag: translatedTag })
+const translatedTerm = selectedTerm
+  ? translateTerm('blog.categories', selectedTerm, t)
+  : undefined
+const title = translatedTerm
+  ? t('blog.foundation.tag_title', { tag: translatedTerm })
   : t('blog.foundation.title')
-const description = translatedTag
-  ? t('blog.foundation.tag_description', { tag: translatedTag })
+const description = translatedTerm
+  ? t('blog.foundation.tag_description', { tag: translatedTerm })
   : t('blog.foundation.description')
+
+// Featured posts only show on the unfiltered first page. They are drawn from
+// the full collection, not the current page slice.
+const showFeatured = !selectedTerm && page.currentPage === 1
+const featuredPosts = showFeatured
+  ? getFeaturedPosts(
+      await getCollection(
+        'foundation-blog',
+        ({ data }) => data.locale === routeLocale
+      )
+    )
+  : []
 ---
 
 <FoundationPageLayout
@@ -42,10 +59,15 @@ const description = translatedTag
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
+      {
+        featuredPosts.length > 0 && (
+          <FeaturedPosts posts={featuredPosts} blogIndexHref={blogPath} />
+        )
+      }
       <BlogIndexFoundation
         posts={page.data || []}
-        allTags={allTags}
-        selectedTag={selectedTag}
+        allTerms={allTerms}
+        selectedTerm={selectedTerm}
         showTagFilter={true}
         blogIndexHref={blogPath}
       />

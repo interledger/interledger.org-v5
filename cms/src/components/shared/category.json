@@ -1,11 +1,11 @@
 {
-  "collectionName": "components_shared_tags",
+  "collectionName": "components_shared_categories",
   "info": {
-    "displayName": "Tags"
+    "displayName": "Category"
   },
   "options": {},
   "attributes": {
-    "tagValue": {
+    "categoryValue": {
       "type": "enumeration",
       "enum": [
         "Announcements",
