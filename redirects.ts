@@ -134,9 +134,12 @@ export const redirects = {
     '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
 
   // Foundation blog: tags renamed to categories (INTORG-765).
-  // Explicit base-page redirects for the canonical term URLs (these are the
-  // links that existed in the wild). Static→static so they resolve cleanly,
-  // unlike the empty-splat case of the paginated rule below.
+  // Explicit base-page redirects for the canonical term URLs (the links that
+  // existed in the wild — page 1 of each tag). Static→static so they resolve
+  // cleanly. Paginated old tag URLs (/2, /3, …) are intentionally not
+  // redirected: Astro's spread→Netlify mapping emits a literal `*` rather than
+  // a splat, so those would 301 to a 404. A tag needed >10 posts to ever have
+  // a page 2, so these barely existed; a clean 404 is preferable to a bad 301.
   '/blog/tag/announcements': '/blog/category/announcements',
   '/blog/tag/community-&-events': '/blog/category/community-&-events',
   '/blog/tag/grants-&-grantee-insights':
@@ -145,8 +148,5 @@ export const redirects = {
   '/blog/tag/thought-leadership': '/blog/category/thought-leadership',
   '/es/blog/tag/announcements': '/es/blog/category/announcements',
   '/es/blog/tag/grants-&-grantee-insights':
-    '/es/blog/category/grants-&-grantee-insights',
-  // Paginated term pages (/2, /3, …) — spread maps to a Netlify splat.
-  '/blog/tag/[category]/[...page]': '/blog/category/[category]/[...page]',
-  '/es/blog/tag/[category]/[...page]': '/es/blog/category/[category]/[...page]'
+    '/es/blog/category/grants-&-grantee-insights'
 }
