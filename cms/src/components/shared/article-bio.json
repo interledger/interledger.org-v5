@@ -6,18 +6,18 @@
   "options": {},
   "attributes": {
     "author": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "link": {
       "type": "string",
-      "required": false,
-      "description": "A URL to the author's profile, personal site, or LinkedIn."
+      "required": false
     },
     "profileBio": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",
       "options": {
-        "preset": "defaultMarkdown"
+        "preset": "basicMarkdownPreset"
       }
     },
     "profileImage": {

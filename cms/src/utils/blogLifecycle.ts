@@ -8,6 +8,7 @@ import {
   defaultLang,
   formatMdx,
   yamlSingleQuoteScalar,
+  yamlLiteralBlockScalar,
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
@@ -122,7 +123,9 @@ function generateBlogMDX(post: BlogResult) {
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
-              bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
+              bio.profileBio
+                ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
+                : null,
               bio.profileImage
                 ? `\n    image: ${yqs(bio.profileImage.url)}`
                 : null,

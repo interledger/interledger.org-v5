@@ -24,6 +24,7 @@ export {
   LOCALES,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
+  yamlLiteralBlockScalar,
   getImageUrl,
   htmlToMarkdown,
   formatBlockquote,
