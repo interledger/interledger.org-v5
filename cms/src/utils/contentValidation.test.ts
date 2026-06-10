@@ -44,6 +44,42 @@ describe('validateNoNestedJsx', () => {
     expect(validateNoNestedJsx(content)).toBeUndefined()
   })
 
+  it('ignores JSX inside inline code spans (INTORG-793)', () => {
+    const content = [
+      {
+        __component: 'blocks.paragraph',
+        content:
+          'Use the `<WalletAddress />` component and the `<Blockquote>` tag inline.'
+      }
+    ]
+
+    expect(validateNoNestedJsx(content)).toBeUndefined()
+  })
+
+  it('ignores JSX inside double-backtick inline code', () => {
+    const content = [
+      {
+        __component: 'blocks.paragraph',
+        content: 'Render ``<CalloutText prop="`x`" />`` literally.'
+      }
+    ]
+
+    expect(validateNoNestedJsx(content)).toBeUndefined()
+  })
+
+  it('still flags bare JSX even when other JSX is in inline code', () => {
+    const content = [
+      {
+        __component: 'blocks.paragraph',
+        content: 'Inline `<Safe />` is fine but <Blockquote> is not.'
+      }
+    ]
+
+    const err = validateNoNestedJsx(content)
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toContain('<Blockquote>')
+  })
+
   it('ignores non-paragraph blocks', () => {
     const content = [
       {
