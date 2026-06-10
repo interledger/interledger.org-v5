@@ -6,7 +6,8 @@
   "options": {},
   "attributes": {
     "author": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "link": {
       "type": "string",

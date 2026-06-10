@@ -53,7 +53,8 @@ interface BlogResult {
     url: string
   }
   articleBio?: {
-    author: string
+    // Nullable: Strapi populates an empty bio component's unset author as null.
+    author: string | null
     link?: string
     profileBio?: string
     profileImage?: { url: string; name: string; alternativeText?: string }
@@ -112,12 +113,19 @@ function generateFilename({
   return `${prefix}${pathSlug}.mdx`
 }
 
-function generateBlogMDX(post: BlogResult) {
+export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
 
+  // Skip bios with no author: the Astro content schema requires
+  // articleBios[].author to be a string, and an empty bio component in Strapi
+  // would otherwise export as `author: null` and fail the build (INTORG-794).
+  const bios = (post.articleBio ?? []).filter(
+    (bio) => typeof bio.author === 'string' && bio.author.trim() !== ''
+  )
+
   const articleBios =
-    post.articleBio?.length > 0
-      ? `articleBios:${post.articleBio
+    bios.length > 0
+      ? `articleBios:${bios
           .map((bio) => {
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
