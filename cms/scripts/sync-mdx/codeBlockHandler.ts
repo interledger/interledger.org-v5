@@ -5,7 +5,11 @@ import {
   type JsxBlockNode,
   type ParserContext
 } from './mdxBlockParser'
-import { MdxParserError, ParserErrorCode, tryCatchParserError } from './parserErrors'
+import {
+  MdxParserError,
+  ParserErrorCode,
+  tryCatchParserError
+} from './parserErrors'
 
 const CODE_BLOCK_LANGUAGES = [
   'javascript',
