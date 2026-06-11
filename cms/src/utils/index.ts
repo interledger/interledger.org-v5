@@ -30,7 +30,10 @@ export {
   uidToLogLabel,
   resolveFilenameSlug
 } from './mdx'
-export { validateNoNestedJsx } from './contentValidation'
+export {
+  validateNoNestedJsx,
+  validateArticleBioAuthors
+} from './contentValidation'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles

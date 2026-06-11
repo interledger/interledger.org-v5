@@ -574,7 +574,7 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
     displayName: 'Article Bio'
   }
   attributes: {
-    author: Schema.Attribute.String
+    author: Schema.Attribute.String & Schema.Attribute.Required
     link: Schema.Attribute.String
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
