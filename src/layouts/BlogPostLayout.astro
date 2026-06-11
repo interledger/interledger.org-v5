@@ -10,6 +10,7 @@
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import { useTranslations } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import FallbackAuthorIcon from '@/components/blog/FallbackAuthorIcon.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -107,10 +108,13 @@ const authors = frontmatter.articleBios ?? []
       {
         authors.length > 0 && (
           <address class="text-step-0 mb-space-s not-italic">
-            {t('blog.written_by')}{' '}
             {authors.map((bio, index) => (
               <Fragment>
-                {index > 0 && ', '}
+                {bio.image ? (
+                  <img src={bio.image} alt="" />
+                ) : (
+                  <FallbackAuthorIcon index={index} />
+                )}
                 {bio.link ? (
                   <a href={bio.link} rel="author">
                     {bio.author}

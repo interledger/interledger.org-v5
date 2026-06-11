@@ -1,0 +1,58 @@
+---
+import type { HTMLAttributes } from 'astro/types'
+import { twMerge } from '@/utils'
+
+interface Props {
+  index?: number
+  svgClasses?: string
+  aria?: string
+  role?: HTMLAttributes<'svg'>['role']
+}
+
+const { index = 0, svgClasses, aria, role = 'img' } = Astro.props
+
+const AUTHOR_COLORS = [
+  'text-[var(--color-orchid-100)]',
+  'text-[var(--color-lagoon-100)]',
+  'text-[var(--color-emerald-100)]',
+  'text-[var(--color-coral-red-100)]',
+  'text-[var(--color-periwinkle-100)]',
+  'text-[var(--color-deep-teal-100)]',
+  'text-[var(--color-tangerine-100)]',
+  'text-[var(--color-raspberry-100)]',
+  'text-[var(--color-soft-indigo-100)]',
+  'text-[var(--color-sea-foam-100)]',
+  'text-[var(--color-apricot-100)]',
+  'text-[var(--color-flamingo-100)]',
+  'text-[var(--color-lavender-100)]',
+  'text-[var(--color-aqua-mint-100)]',
+  'text-[var(--color-pistachio-100)]',
+  'text-[var(--color-blush-100)]'
+]
+
+const className = twMerge(AUTHOR_COLORS[index], svgClasses)
+
+const svgBody = `<g clip-path="url(#clip0_1061_8624)">
+<rect width="252" height="252" rx="126" fill="#E4E4E4"/>
+<circle cx="126" cy="273" r="128" fill="currentColor"/>
+<circle cx="125.5" cy="90.5" r="54.5" fill="currentColor"/>
+</g>
+<defs>
+<clipPath id="clip0_1061_8624">
+<rect width="252" height="252" rx="126" fill="white"/>
+</clipPath>
+</defs>`
+const attr = aria ? { 'aria-label': aria } : { 'aria-hidden': true }
+---
+
+<svg
+  width="252"
+  height="252"
+  viewBox="0 0 252 252"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  set:html={svgBody}
+  class={className}
+  role={role}
+  {...attr}
+/>

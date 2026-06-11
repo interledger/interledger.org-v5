@@ -1,19 +1,32 @@
 ---
-const { text, imageUrl, imageAlt = '' } = Astro.props
+import { marked } from 'marked'
+import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+
+interface Props {
+  author: string
+  text: string
+  imageUrl?: string
+  imageAlt: string
+  index?: number
+}
+const { author, text, imageUrl, imageAlt, index = 0 } = Astro.props
+const htmlText = text ? await marked.parse(text) : ''
 ---
 
 <div
   class="flex flex-col mb-space-s xs:gap-space-xs xs:flex-row xs:items-center"
 >
   {
-    imageUrl && (
+    imageUrl ? (
       <img
         loading="lazy"
         src={imageUrl}
         alt={imageAlt}
         class="mb-space-s aspect-150/150 object-cover"
       />
+    ) : (
+      <FallbackAuthorIcon index={index} svgClasses="mb-space-s" aria={author} />
     )
   }
-  <p class="italic">{text}</p>
+  <div set:html={htmlText} />
 </div>
