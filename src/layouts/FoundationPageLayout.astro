@@ -16,7 +16,11 @@ interface Props {
   datePublished?: string
   headerTheme?: 'light' | 'dark'
   pageTheme?: 'light' | 'dark'
+  bodyClass?: string
 }
+
+const defaultBodyClass =
+  "flex flex-col min-h-full min-w-[360px] overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden"
 
 const {
   title,
@@ -26,7 +30,8 @@ const {
   canonicalURL,
   datePublished,
   headerTheme = 'dark',
-  pageTheme = 'light'
+  pageTheme = 'light',
+  bodyClass = defaultBodyClass
 } = Astro.props
 ---
 
@@ -38,7 +43,7 @@ const {
   canonicalURL={canonicalURL}
   datePublished={datePublished}
   theme={pageTheme}
-  bodyClass="flex flex-col min-h-full min-w-[360px] overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden"
+  bodyClass={bodyClass}
 >
   <Fragment slot="head">
     <slot name="head" />
