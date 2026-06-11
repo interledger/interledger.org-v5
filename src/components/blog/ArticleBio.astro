@@ -1,6 +1,7 @@
 ---
 import { marked } from 'marked'
 import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+import OptimizedImage from '../shared/OptimizedImage.astro'
 
 interface Props {
   author: string
@@ -18,14 +19,15 @@ const htmlText = text ? await marked.parse(text) : ''
 >
   {
     imageUrl ? (
-      <img
-        loading="lazy"
-        src={imageUrl}
+      <OptimizedImage src={imageUrl}
         alt={imageAlt}
-        class="mb-space-s aspect-150/150 object-cover"
+        width={160}
+        height={160}
+        class="rounded-full w-[120px] h-[120px] max-w-none tablet:w-[160px] tablet:h-[160px]"
+        loading="lazy"
       />
     ) : (
-      <FallbackAuthorIcon index={index} svgClasses="mb-space-s" aria={author} />
+      <FallbackAuthorIcon index={index} svgClasses="w-[120px] h-[120px] tablet:w-[160px] tablet:h-[160px]" aria={author} />
     )
   }
   <div set:html={htmlText} />

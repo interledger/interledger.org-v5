@@ -12,6 +12,7 @@ import { useTranslations } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import FallbackAuthorIcon from '@/components/blog/FallbackAuthorIcon.astro'
 import Icon from '@/components/shared/Icon.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -112,9 +113,9 @@ const authors = frontmatter.articleBios ?? []
             {authors.map((bio, index) => (
               <Fragment>
                 {bio.image ? (
-                  <img src={bio.image} alt="" />
+                  <OptimizedImage src={bio.image} alt="" width={40} height={40} class="w-[40px] h-[40px] m-0" loading="lazy"/>
                 ) : (
-                  <FallbackAuthorIcon index={index} />
+                  <FallbackAuthorIcon index={index} svgClasses="w-[40px] h-[40px]"/>
                 )}
                 {bio.link ? (
                   <a
