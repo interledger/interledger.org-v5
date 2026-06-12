@@ -62,7 +62,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: public/img/optimized
-          key: optimized-images-${{ hashFiles('public/img/**', 'public/uploads/img/original/**') }}
+          key: optimized-images-${{ github.run_id }}
           restore-keys: |
             optimized-images-
 
