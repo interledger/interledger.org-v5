@@ -78,7 +78,9 @@ async function withConcurrency<T, R>(
       results.push(await fn(item))
     }
   }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, worker)
+  )
   return results
 }
 

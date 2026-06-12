@@ -6,7 +6,9 @@ module.exports = {
     if (restored) {
       console.log(`[cache-images] Restored ${CACHE_DIR} from cache`)
     } else {
-      console.log(`[cache-images] No cache found — all images will be optimized`)
+      console.log(
+        `[cache-images] No cache found — all images will be optimized`
+      )
     }
   },
 
