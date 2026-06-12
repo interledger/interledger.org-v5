@@ -31,14 +31,15 @@ const AUTHOR_COLORS = [
 ]
 
 const className = twMerge(AUTHOR_COLORS[index], svgClasses)
+const clipId = `author-clip-${crypto.randomUUID()}`
 
-const svgBody = `<g clip-path="url(#clip0_1061_8624)">
+const svgBody = `<g clip-path="url(#${clipId})">
 <rect width="252" height="252" rx="126" fill="#E4E4E4"/>
 <circle cx="126" cy="273" r="128" fill="currentColor"/>
 <circle cx="125.5" cy="90.5" r="54.5" fill="currentColor"/>
 </g>
 <defs>
-<clipPath id="clip0_1061_8624">
+<clipPath id="${clipId}">
 <rect width="252" height="252" rx="126" fill="white"/>
 </clipPath>
 </defs>`
