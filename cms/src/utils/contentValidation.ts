@@ -48,7 +48,7 @@ export function validateNoNestedJsx(
       continue
     }
 
-    const stripped = stripInlineCode(stripFencedCodeBlocks(block.content))
+    const stripped = stripInlineCode(block.content)
     const match = stripped.match(/<([A-Z][a-zA-Z]*)/)
     if (match) {
       return new errors.ValidationError(
