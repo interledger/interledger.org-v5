@@ -44,6 +44,22 @@ describe('validateNoNestedJsx', () => {
     expect(validateNoNestedJsx(content)).toBeUndefined()
   })
 
+  it('ignores a standalone multi-line fenced block', () => {
+    const content = [
+      {
+        __component: 'blocks.paragraph',
+        content: [
+          '```tsx',
+          '<Ambassador name="A" />',
+          '<CalloutText>note</CalloutText>',
+          '```'
+        ].join('\n')
+      }
+    ]
+
+    expect(validateNoNestedJsx(content)).toBeUndefined()
+  })
+
   it('ignores JSX inside inline code spans (INTORG-793)', () => {
     const content = [
       {

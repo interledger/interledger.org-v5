@@ -8,19 +8,12 @@
 import { errors } from '@strapi/utils'
 
 /**
- * Strip fenced code blocks so their contents aren't mistaken for JSX.
- */
-function stripFencedCodeBlocks(text: string): string {
-  return text.replace(/^```[^\n]*\n[\s\S]*?^```/gm, '')
-}
-
-/**
- * Strip inline code spans (`…`, ``…``) so JSX/HTML tags written as literal
- * inline code aren't mistaken for bare JSX. The developers blog routinely uses
- * inline backticks to show tags like `<wallet-address />` in prose, so the
- * merged blog must accept the same (INTORG-793).
- *
- * Runs after fenced blocks are removed; the remaining backtick runs are inline.
+ * Strip backtick-delimited code so JSX/HTML tags written as literal code aren't
+ * mistaken for bare JSX. Covers inline spans (`…`, ``…``) and fenced
+ * (```…```) blocks alike — a fenced block is just a 3-backtick span, so this
+ * single pass over balanced backtick runs handles both. The developers blog
+ * routinely shows tags like `<wallet-address />` inline, so the merged blog
+ * must accept the same (INTORG-793).
  */
 function stripInlineCode(text: string): string {
   return text.replace(/(`+)[\s\S]*?\1/g, '')
