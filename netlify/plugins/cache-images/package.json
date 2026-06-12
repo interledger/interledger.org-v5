@@ -1,0 +1,6 @@
+{
+  "name": "netlify-plugin-cache-images",
+  "version": "1.0.0",
+  "description": "Cache optimized image variants between Netlify builds",
+  "main": "index.js"
+}
