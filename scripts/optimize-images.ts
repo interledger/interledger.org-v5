@@ -14,6 +14,8 @@ const getPublicAssetPath = (urlPath: string): string =>
 
 const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
 
+const CONCURRENCY = 4
+
 const WEBP_QUALITY = 80
 // AVIF at q75 with 4:4:4 chroma subsampling is visually comparable to webp at
 // q80 but typically 20-30% smaller, with cleaner dark gradients (no banding).
@@ -61,6 +63,23 @@ function collectFiles(dir: string, exclude: string[]): string[] {
 function isFresh(source: string, output: string): boolean {
   if (!fs.existsSync(output)) return false
   return fs.statSync(output).mtimeMs >= fs.statSync(source).mtimeMs
+}
+
+async function withConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const queue = [...items]
+  const results: R[] = []
+  async function worker(): Promise<void> {
+    while (queue.length > 0) {
+      const item = queue.shift()!
+      results.push(await fn(item))
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return results
 }
 
 async function processImage(
@@ -149,13 +168,17 @@ async function main(): Promise<void> {
     const label = path.relative(PROJECT_ROOT, dir)
     console.log(`  ${label}: ${files.length} raster image(s)`)
 
-    for (const file of files) {
-      const { created, cached } = await processImage(file, dir, outputPrefix)
-      if (created > 0) {
+    const results = await withConcurrency(files, CONCURRENCY, async (file) => {
+      const result = await processImage(file, dir, outputPrefix)
+      if (result.created > 0) {
         console.log(
-          `    ${path.relative(dir, file)} → ${created} new variant(s)`
+          `    ${path.relative(dir, file)} → ${result.created} new variant(s)`
         )
       }
+      return result
+    })
+
+    for (const { created, cached } of results) {
       totalCreated += created
       totalCached += cached
       totalFiles++
