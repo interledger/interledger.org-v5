@@ -79,16 +79,12 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
   <CommunityLinksFoundation />
 
   {
-    mdxData?.articleBios?.map((bio) => {
-      if (!bio.text) return
-      return (
+    mdxData?.articleBios?.length > 0 &&
+      mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
         <ArticleBio
-          text={bio.text}
-          imageUrl={bio.image}
-          imageAlt={bio.imageAlt ?? bio.author}
+          articleBios={mdxData.articleBios.filter((bio) => bio.text)}
         />
       )
-    })
   }
 
   {

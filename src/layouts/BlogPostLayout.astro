@@ -10,6 +10,7 @@
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import { useTranslations } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import AuthorByline from '@/components/blog/AuthorByline.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -104,25 +105,7 @@ const authors = frontmatter.articleBios ?? []
           </time>
         )
       }
-      {
-        authors.length > 0 && (
-          <address class="text-step-0 mb-space-s not-italic">
-            {t('blog.written_by')}{' '}
-            {authors.map((bio, index) => (
-              <Fragment>
-                {index > 0 && ', '}
-                {bio.link ? (
-                  <a href={bio.link} rel="author">
-                    {bio.author}
-                  </a>
-                ) : (
-                  <span>{bio.author}</span>
-                )}
-              </Fragment>
-            ))}
-          </address>
-        )
-      }
+      {authors.length > 0 && <AuthorByline authors={authors} />}
       <slot />
     </article>
   </main>

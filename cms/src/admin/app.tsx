@@ -124,8 +124,30 @@ const markdownPresetNoH1: Preset = {
   }
 }
 
+// Minimal editor for short rich-text fields (e.g. author bios):
+// paragraphs, bold, italic, links, and source editing only
+const basicMarkdownPreset: Preset = {
+  ...markdownPresetNoH1,
+  name: 'basicMarkdownPreset',
+  description:
+    'Basic Markdown editor (paragraphs, bold, italic, links, source)',
+  editorConfig: {
+    ...markdownPresetNoH1.editorConfig,
+    toolbar: [
+      'sourceEditing',
+      '|',
+      'bold',
+      'italic',
+      'link',
+      '|',
+      'undo',
+      'redo'
+    ]
+  }
+}
+
 const myPluginConfig: PluginConfig = {
-  presets: [markdownPresetNoH1]
+  presets: [markdownPresetNoH1, basicMarkdownPreset]
 }
 
 export default {

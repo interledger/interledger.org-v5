@@ -580,7 +580,7 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
-          preset: 'defaultMarkdown'
+          preset: 'basicMarkdownPreset'
         }
       >
     profileImage: Schema.Attribute.Media<'images'>

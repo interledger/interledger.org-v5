@@ -6,7 +6,14 @@
 // into Starlight chunks (see src/styles/README.md "Starlight Docs Isolation").
 
 // Shared (safe on either side)
-export { stripTrailingSlash, addTrailingSlash } from './shared/url'
+export {
+  stripTrailingSlash,
+  addTrailingSlash,
+  ensureAbsoluteUrl,
+  getSocialIconName,
+  FALLBACK_SOCIAL_ICON,
+  type SocialIconName
+} from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 

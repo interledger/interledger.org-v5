@@ -8,6 +8,7 @@ import {
   defaultLang,
   formatMdx,
   yamlSingleQuoteScalar,
+  yamlLiteralBlockScalar,
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
@@ -115,7 +116,6 @@ function generateFilename({
 
 export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
-
   // Skip bios with no author: the Astro content schema requires
   // articleBios[].author to be a string, and an empty bio component in Strapi
   // would otherwise export as `author: null` and fail the build (INTORG-794).
@@ -130,7 +130,9 @@ export function generateBlogMDX(post: BlogResult) {
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
-              bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
+              bio.profileBio
+                ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
+                : null,
               bio.profileImage
                 ? `\n    image: ${yqs(bio.profileImage.url)}`
                 : null,

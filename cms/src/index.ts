@@ -575,10 +575,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       openInNewTab: 'Open in New Tab'
     },
     'shared.article-bio': {
-      author: 'Author Name',
-      link: 'Author Link',
-      profileBio: 'Author Bio',
-      profileImage: 'Profile Photo'
+      author: 'Name',
+      link: 'Link',
+      profileBio: 'Short Author Bio',
+      profileImage: 'Photo'
     },
     'shared.hero': {
       title: 'Hero Title',
@@ -683,9 +683,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'You can select multiple categories — click "+ Add an entry" for each category'
     },
     'shared.article-bio': {
-      link: "A URL to the author's profile, personal site, or LinkedIn.",
+      link: 'A URL to a personal website, LinkedIn profile, or similar.',
       profileImage:
-        'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.'
+        'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
+      profileBio: 'We recommend a max of 255 characters'
     },
     'blocks.ambassadors-grid': {
       category:

@@ -79,6 +79,26 @@ export function yamlSingleQuoteScalar(
 }
 
 /**
+ * Serializes a multi-line string as a YAML literal block scalar (`|`), keyed by
+ * `key` at `keyIndent` spaces. Every content line is indented two spaces deeper
+ * so blank lines survive as real paragraph breaks (`\n\n`)
+ */
+export function yamlLiteralBlockScalar(
+  key: string,
+  value: string | null | undefined,
+  keyIndent: number
+): string | null {
+  if (!value) return null
+  const contentIndent = ' '.repeat(keyIndent + 2)
+  const body = String(value)
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => (line ? `${contentIndent}${line}` : line))
+    .join('\n')
+  return `${' '.repeat(keyIndent)}${key}: |\n${body}`
+}
+
+/**
  * Gets the resolved URL for a Strapi media field.
  * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
  * falling back to the original URL if that format is unavailable.
