@@ -57,7 +57,7 @@ export {
   createPageLifecycle,
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
-export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
+export { createBlogLifecycle } from './blogLifecycle'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,
