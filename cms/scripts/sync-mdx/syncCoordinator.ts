@@ -140,24 +140,26 @@ export async function syncAll(
     errors: 0
   }
 
-  for (const contentType of Object.keys(ctx.contentTypes) as Array<
-    keyof ContentTypes
-  >) {
-    try {
-      const results = await syncContentType(contentType, ctx, dryRun)
-      allResults.created += results.created
-      allResults.updated += results.updated
-      allResults.deleted += results.deleted
-      allResults.errors += results.errors
-    } catch (error) {
-      // syncContentType doesn't return Error directly (it accumulates errors
-      // into the per-content-type SyncResults), but we keep this guard for
-      // truly unexpected exceptions (programmer bugs, OOM, etc).
-      console.error(
-        `\n❌ Error syncing ${contentType}: ${(error as Error).message}`
-      )
-      allResults.errors++
-    }
+  const perTypeResults = await Promise.all(
+    (Object.keys(ctx.contentTypes) as Array<keyof ContentTypes>).map(
+      (contentType) =>
+        syncContentType(contentType, ctx, dryRun).catch((error) => {
+          // syncContentType doesn't return Error directly (it accumulates errors
+          // into the per-content-type SyncResults), but we keep this guard for
+          // truly unexpected exceptions (programmer bugs, OOM, etc).
+          console.error(
+            `\n❌ Error syncing ${contentType}: ${(error as Error).message}`
+          )
+          return { created: 0, updated: 0, deleted: 0, errors: 1 }
+        })
+    )
+  )
+
+  for (const results of perTypeResults) {
+    allResults.created += results.created
+    allResults.updated += results.updated
+    allResults.deleted += results.deleted
+    allResults.errors += results.errors
   }
 
   return allResults
