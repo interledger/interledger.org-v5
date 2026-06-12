@@ -1,17 +1,22 @@
 ---
 import { marked } from 'marked'
+import { ensureAbsoluteUrl, getSocialIconName, useTranslations } from '@/utils'
 import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
-import OptimizedImage from '../shared/OptimizedImage.astro'
-
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
 interface Props {
   author: string
+  link?: string
   text: string
   imageUrl?: string
   imageAlt: string
   index?: number
 }
-const { author, text, imageUrl, imageAlt, index = 0 } = Astro.props
+const { author, link, text, imageUrl, imageAlt, index = 0 } = Astro.props
 const htmlText = text ? await marked.parse(text) : ''
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
 <div
@@ -19,7 +24,8 @@ const htmlText = text ? await marked.parse(text) : ''
 >
   {
     imageUrl ? (
-      <OptimizedImage src={imageUrl}
+      <OptimizedImage
+        src={imageUrl}
         alt={imageAlt}
         width={160}
         height={160}
@@ -27,8 +33,28 @@ const htmlText = text ? await marked.parse(text) : ''
         loading="lazy"
       />
     ) : (
-      <FallbackAuthorIcon index={index} svgClasses="w-[120px] h-[120px] tablet:w-[160px] tablet:h-[160px]" aria={author} />
+      <FallbackAuthorIcon
+        index={index}
+        svgClasses="w-[120px] h-[120px] tablet:w-[160px] tablet:h-[160px]"
+        aria={author}
+      />
     )
   }
   <div set:html={htmlText} />
+  {
+    link && (
+      <LinkButton
+        href={ensureAbsoluteUrl(link)}
+        external={true}
+        variant="secondary"
+        iconOnly={true}
+        aria-label={t('aria.author_profile', {
+          author,
+          newTab: t('aria.opens_new_tab')
+        })}
+      >
+        <Icon name={getSocialIconName(link)} />
+      </LinkButton>
+    )
+  }
 </div>

@@ -8,7 +8,7 @@
  * related-articles section via slots.
  */
 import FoundationPageLayout from './FoundationPageLayout.astro'
-import { useTranslations } from '@/utils'
+import { ensureAbsoluteUrl, useTranslations } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import FallbackAuthorIcon from '@/components/blog/FallbackAuthorIcon.astro'
 import Icon from '@/components/shared/Icon.astro'
@@ -109,19 +109,37 @@ const authors = frontmatter.articleBios ?? []
       }
       {
         authors.length > 0 && (
-          <address class="text-step-0 mb-space-s not-italic">
+          <address
+            class="text-step-0 mb-space-s not-italic"
+            aria-label={t('aria.authors')}
+          >
             {authors.map((bio, index) => (
               <Fragment>
                 {bio.image ? (
-                  <OptimizedImage src={bio.image} alt="" width={40} height={40} class="w-[40px] h-[40px] m-0" loading="lazy"/>
+                  <OptimizedImage
+                    src={bio.image}
+                    alt=""
+                    width={40}
+                    height={40}
+                    class="w-[40px] h-[40px] m-0"
+                    loading="lazy"
+                  />
                 ) : (
-                  <FallbackAuthorIcon index={index} svgClasses="w-[40px] h-[40px]"/>
+                  <FallbackAuthorIcon
+                    index={index}
+                    svgClasses="w-[40px] h-[40px]"
+                  />
                 )}
                 {bio.link ? (
                   <a
-                    href={bio.link}
-                    rel="author"
+                    href={ensureAbsoluteUrl(bio.link)}
+                    aria-label={t('aria.author_profile', {
+                      author: bio.author,
+                      newTab: t('aria.opens_new_tab')
+                    })}
                     class="flex items-center text-neutral-900 decoration-transparent  transition-all duration-200 [&_svg]:text-primary hover:text-primary hover:decoration-primary"
+                    target="_blank"
+                    rel="author noopener noreferrer"
                   >
                     {bio.author} <Icon name="link-rounded" />
                   </a>
