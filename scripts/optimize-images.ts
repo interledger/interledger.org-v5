@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
@@ -13,6 +14,7 @@ const getPublicAssetPath = (urlPath: string): string =>
   path.join(PUBLIC_DIR, ...pathToSegments(urlPath))
 
 const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
+const MANIFEST_PATH = path.join(OUTPUT_BASE, '.manifest.json')
 
 const CONCURRENCY = 4
 
@@ -60,9 +62,32 @@ function collectFiles(dir: string, exclude: string[]): string[] {
   return results
 }
 
-function isFresh(source: string, output: string): boolean {
-  if (!fs.existsSync(output)) return false
-  return fs.statSync(output).mtimeMs >= fs.statSync(source).mtimeMs
+// Manifest maps source path (relative to project root) → SHA-256 of source content.
+// Stored alongside the optimized images so the cache carries it between builds.
+// Mtime-based checks are intentionally avoided: git checkout resets source mtimes
+// to the current time, making mtime comparisons unreliable in CI environments.
+function loadManifest(): Record<string, string> {
+  try {
+    if (fs.existsSync(MANIFEST_PATH)) {
+      return JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8')) as Record<
+        string,
+        string
+      >
+    }
+  } catch {
+    // Corrupt or unreadable manifest — rebuild all images.
+  }
+  return {}
+}
+
+function saveManifest(manifest: Record<string, string>): void {
+  fs.mkdirSync(OUTPUT_BASE, { recursive: true })
+  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2))
+}
+
+async function hashFile(filePath: string): Promise<string> {
+  const buf = await fs.promises.readFile(filePath)
+  return crypto.createHash('sha256').update(buf).digest('hex')
 }
 
 async function withConcurrency<T, R>(
@@ -88,76 +113,52 @@ async function processImage(
   filePath: string,
   sourceDir: string,
   outputPrefix: string
-): Promise<{ created: number; cached: number }> {
+): Promise<number> {
   const relative = path.relative(sourceDir, filePath)
   const { dir, name } = path.parse(relative)
   const outputDir = path.join(OUTPUT_BASE, outputPrefix, dir)
+  fs.mkdirSync(outputDir, { recursive: true })
 
   const metadata = await sharp(filePath).metadata()
   const originalWidth = metadata.width ?? 0
-  if (originalWidth === 0) return { created: 0, cached: 0 }
+  if (originalWidth === 0) return 0
 
   let created = 0
-  let cached = 0
-
   const widths = TARGET_WIDTHS.filter((w) => w <= originalWidth)
 
   for (const width of widths) {
-    const webpPath = path.join(outputDir, `${name}-${width}.webp`)
-    const avifPath = path.join(outputDir, `${name}-${width}.avif`)
-
-    if (isFresh(filePath, webpPath)) {
-      cached++
-    } else {
-      fs.mkdirSync(outputDir, { recursive: true })
-      await sharp(filePath)
-        .resize(width)
-        .webp({ quality: WEBP_QUALITY })
-        .toFile(webpPath)
-      created++
-    }
-
-    if (isFresh(filePath, avifPath)) {
-      cached++
-    } else {
-      fs.mkdirSync(outputDir, { recursive: true })
-      await sharp(filePath)
-        .resize(width)
-        .avif({ quality: AVIF_QUALITY, chromaSubsampling: '4:4:4' })
-        .toFile(avifPath)
-      created++
-    }
-  }
-
-  const fullWebpPath = path.join(outputDir, `${name}-full.webp`)
-  if (isFresh(filePath, fullWebpPath)) {
-    cached++
-  } else {
-    fs.mkdirSync(outputDir, { recursive: true })
-    await sharp(filePath).webp({ quality: WEBP_QUALITY }).toFile(fullWebpPath)
-    created++
-  }
-
-  const fullAvifPath = path.join(outputDir, `${name}-full.avif`)
-  if (isFresh(filePath, fullAvifPath)) {
-    cached++
-  } else {
-    fs.mkdirSync(outputDir, { recursive: true })
     await sharp(filePath)
+      .resize(width)
+      .webp({ quality: WEBP_QUALITY })
+      .toFile(path.join(outputDir, `${name}-${width}.webp`))
+    await sharp(filePath)
+      .resize(width)
       .avif({ quality: AVIF_QUALITY, chromaSubsampling: '4:4:4' })
-      .toFile(fullAvifPath)
-    created++
+      .toFile(path.join(outputDir, `${name}-${width}.avif`))
+    created += 2
   }
 
-  return { created, cached }
+  await sharp(filePath)
+    .webp({ quality: WEBP_QUALITY })
+    .toFile(path.join(outputDir, `${name}-full.webp`))
+  await sharp(filePath)
+    .avif({ quality: AVIF_QUALITY, chromaSubsampling: '4:4:4' })
+    .toFile(path.join(outputDir, `${name}-full.avif`))
+  created += 2
+
+  return created
 }
 
 async function main(): Promise<void> {
   const startTime = Date.now()
   console.log('Optimizing images...\n')
 
+  const manifest = loadManifest()
+  // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
+  const updatedManifest: Record<string, string> = {}
+
   let totalCreated = 0
-  let totalCached = 0
+  let totalSkipped = 0
   let totalFiles = 0
 
   for (const { dir, outputPrefix } of SOURCES) {
@@ -170,26 +171,41 @@ async function main(): Promise<void> {
     const label = path.relative(PROJECT_ROOT, dir)
     console.log(`  ${label}: ${files.length} raster image(s)`)
 
-    const results = await withConcurrency(files, CONCURRENCY, async (file) => {
-      const result = await processImage(file, dir, outputPrefix)
-      if (result.created > 0) {
-        console.log(
-          `    ${path.relative(dir, file)} → ${result.created} new variant(s)`
-        )
-      }
-      return result
-    })
+    const results = await withConcurrency(
+      files,
+      CONCURRENCY,
+      async (file): Promise<{ created: number; skipped: boolean }> => {
+        const manifestKey = path.relative(PROJECT_ROOT, file)
+        const hash = await hashFile(file)
 
-    for (const { created, cached } of results) {
+        if (manifest[manifestKey] === hash) {
+          updatedManifest[manifestKey] = hash
+          return { created: 0, skipped: true }
+        }
+
+        const created = await processImage(file, dir, outputPrefix)
+        updatedManifest[manifestKey] = hash
+        if (created > 0) {
+          console.log(
+            `    ${path.relative(dir, file)} → ${created} new variant(s)`
+          )
+        }
+        return { created, skipped: false }
+      }
+    )
+
+    for (const { created, skipped } of results) {
       totalCreated += created
-      totalCached += cached
+      if (skipped) totalSkipped++
       totalFiles++
     }
   }
 
+  saveManifest(updatedManifest)
+
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
   console.log(
-    `\nDone in ${elapsed}s — ${totalFiles} images, ${totalCreated} created, ${totalCached} cached`
+    `\nDone in ${elapsed}s — ${totalFiles} images, ${totalCreated} created, ${totalSkipped} cached`
   )
 }
 
