@@ -104,14 +104,6 @@
   }
 }
 
-.foundation-header[data-theme='dark']:has([data-offscreen='false']) {
-  background-color: #0d0d0d;
-}
-
-.foundation-header[data-theme='light']:has([data-offscreen='false']) {
-  background-color: #ffffff;
-}
-
 /* Logo wordmark: white on dark headers, purple on light foundation header */
 .foundation-logo-wordmark {
   fill: #ffffff;
@@ -121,16 +113,46 @@
   fill: #4f1072;
 }
 
-.foundation-header[data-theme='dark'] {
-  background-color: #0d0d0d;
-  color: var(--color-neutral-50);
-  box-shadow: none;
+/* Mobile/tablet: solid bar + drawer (hamburger layout). */
+@media (max-width: 1199px) {
+  .foundation-header[data-theme='dark'] {
+    background-color: #0d0d0d;
+    color: var(--color-neutral-50);
+    box-shadow: none;
+  }
+
+  .foundation-header[data-theme='light'] {
+    background-color: #ffffff;
+    color: black;
+    box-shadow: var(--shadow);
+  }
+
+  .foundation-header[data-theme='dark']:has([data-offscreen='false']) {
+    background-color: #0d0d0d;
+  }
+
+  .foundation-header[data-theme='light']:has([data-offscreen='false']) {
+    background-color: #ffffff;
+  }
 }
 
-.foundation-header[data-theme='light'] {
-  background-color: #ffffff;
-  color: black;
-  box-shadow: var(--shadow);
+/* Desktop: translucent bar; dropdown panels keep their own solid backgrounds. */
+@media (min-width: 1200px) {
+  .foundation-header[data-theme='dark'] {
+    background-color: rgb(13 13 13 / 0.7);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: var(--color-neutral-50);
+    box-shadow: none;
+  }
+
+  .foundation-header[data-theme='light'] {
+    background-color: rgb(255 255 255 / 0.7);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: black;
+    box-shadow: var(--shadow);
+  }
 }
 
 .foundation-header[data-theme='dark'] [data-component='HamburgerButton'] {

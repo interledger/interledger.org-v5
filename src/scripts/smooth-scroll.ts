@@ -63,9 +63,10 @@ function start(): void {
   refreshHeaderOffset()
   lenis = new Lenis({
     duration: DURATION_SECONDS,
-    autoRaf: true,
-    // ResizeObserver in Lenis triggers layout reads; window resize is enough here.
-    autoResize: false
+    autoRaf: true
+    // autoResize (default true) recomputes Lenis's scroll limit on reflow
+    // (zoom, late-loading media). Without it the limit goes stale and
+    // wheel/key scrolling can't reach the bottom of a taller page.
   })
 
   window.addEventListener('resize', refreshHeaderOffset, { passive: true })
