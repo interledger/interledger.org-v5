@@ -308,7 +308,7 @@ async function updateUploadAltOnce(
 
   if (dryRun) {
     console.log(
-      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} from "${pathSlug}".`
+      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} to "${alt ?? 'null'}" (entry: "${pathSlug}").`
     )
     updatedAltIds.set(id, alt)
     return
