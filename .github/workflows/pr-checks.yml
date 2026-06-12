@@ -58,6 +58,14 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: Cache optimized images
+        uses: actions/cache@v4
+        with:
+          path: public/img/optimized
+          key: optimized-images-${{ hashFiles('public/img/**', 'public/uploads/img/original/**') }}
+          restore-keys: |
+            optimized-images-
+
       - name: Build and Dry Run
         env:
           STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_TOKEN_DRY_RUN }}
