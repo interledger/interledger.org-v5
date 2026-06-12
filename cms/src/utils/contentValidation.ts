@@ -48,30 +48,3 @@ export function validateNoNestedJsx(
 
   return undefined
 }
-
-/**
- * Validate that every article bio has a non-empty author.
- *
- * Strapi 5 does not enforce `required` on fields nested in (repeatable)
- * components when saving via the content manager (strapi/strapi#10030,
- * #14780), so an authorless bio can otherwise reach the DB and export as
- * `author: null`, which breaks the Astro build (INTORG-794). This middleware
- * check closes that gap. Returns a `ValidationError` for the first offending
- * bio, or `undefined` when all bios are valid or the field is absent.
- */
-export function validateArticleBioAuthors(
-  articleBio: unknown
-): errors.ValidationError | undefined {
-  if (!Array.isArray(articleBio)) return undefined
-
-  const hasEmptyAuthor = articleBio.some(
-    (bio) => typeof bio?.author !== 'string' || bio.author.trim() === ''
-  )
-  if (hasEmptyAuthor) {
-    return new errors.ValidationError(
-      'Each article bio requires an author name. Add a name, or remove the empty bio.'
-    )
-  }
-
-  return undefined
-}

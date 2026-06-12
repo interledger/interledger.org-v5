@@ -5,7 +5,6 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
-  validateArticleBioAuthors,
   normalizeNavigationInput,
   LOCALES,
   shouldSkipMdxExport
@@ -1009,7 +1008,7 @@ export default {
         ctx: {
           method?: string
           url?: string
-          request?: { body?: { content?: unknown; articleBio?: unknown } }
+          request?: { body?: { content?: unknown } }
           status?: number
           body?: unknown
         },
@@ -1019,9 +1018,7 @@ export default {
           (ctx.method === 'PUT' || ctx.method === 'POST') &&
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
-          const validationErr =
-            validateNoNestedJsx(ctx.request?.body?.content) ??
-            validateArticleBioAuthors(ctx.request?.body?.articleBio)
+          const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
           if (validationErr) {
             ctx.status = 400
             ctx.body = {
