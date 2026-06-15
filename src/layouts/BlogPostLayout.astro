@@ -2,14 +2,14 @@
 /**
  * Single-column layout for the blog post template.
  *
- * Styling is intentionally minimal — the visual design lands in INTORG-768.
  * This layout owns the article chrome (feature image, title, dates, byline);
  * the page component supplies body content, author bios, categories and the
  * related-articles section via slots.
  */
-import FoundationPageLayout from './FoundationPageLayout.astro'
 import { useTranslations } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import FoundationPageLayout from './FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import AuthorByline from '@/components/blog/AuthorByline.astro'
 
 interface Props {
@@ -39,6 +39,11 @@ const updatedIso = updatedDate?.toISOString().slice(0, 10)
 const updatedLong = updatedDate?.toDateString().substring(4)
 
 const authors = frontmatter.articleBios ?? []
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Blog', href: '/blog' },
+  { name: frontmatter.title, href: `/blog/${frontmatter.pathSlug}` }
+]
 ---
 
 <FoundationPageLayout
@@ -48,65 +53,71 @@ const authors = frontmatter.articleBios ?? []
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={publishedDate.toISOString()}
+  headerTheme="light"
 >
-  <main class="flex flex-col pt-space-m pb-space-xl">
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
     <slot name="disclaimer" />
-    <article
-      data-prose-blog
-      itemscope
-      itemtype="http://schema.org/Article"
-      class="mx-auto w-full max-w-180 px-[5%]"
-    >
-      {
-        frontmatter.featureImage && (
-          <picture>
-            {frontmatter.featureImageMobile && (
-              <source
-                media="(max-width: 767px)"
-                srcset={frontmatter.featureImageMobile}
-                width={FEATURE_MOBILE.width}
-                height={FEATURE_MOBILE.height}
+    <div class="max-w-narrow m-auto">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <article
+        data-prose-blog
+        itemscope
+        itemtype="http://schema.org/Article"
+        class=""
+      >
+        {
+          frontmatter.featureImage && (
+            <picture>
+              {frontmatter.featureImageMobile && (
+                <source
+                  media="(max-width: 767px)"
+                  srcset={frontmatter.featureImageMobile}
+                  width={FEATURE_MOBILE.width}
+                  height={FEATURE_MOBILE.height}
+                />
+              )}
+              <img
+                src={frontmatter.featureImage}
+                alt={frontmatter.featureImageAlt ?? ''}
+                width={FEATURE_DESKTOP.width}
+                height={FEATURE_DESKTOP.height}
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                class="mb-space-xs w-full h-auto"
               />
-            )}
-            <img
-              src={frontmatter.featureImage}
-              alt={frontmatter.featureImageAlt ?? ''}
-              width={FEATURE_DESKTOP.width}
-              height={FEATURE_DESKTOP.height}
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-              class="mb-space-xs w-full h-auto"
-            />
-          </picture>
-        )
-      }
-      <h1
-        itemprop="headline"
-        class="text-primary font-bold text-step-4 leading-tight mb-space-2xs"
-      >
-        {frontmatter.title}
-      </h1>
-      <time
-        datetime={publishedIso}
-        itemprop="datePublished"
-        class="block mb-space-3xs text-step--1"
-      >
-        {publishedLong}
-      </time>
-      {
-        updatedDate && (
-          <time
-            datetime={updatedIso}
-            itemprop="dateModified"
-            class="block mb-space-3xs text-step--1"
-          >
-            {t('blog.updated')} {updatedLong}
-          </time>
-        )
-      }
-      {authors.length > 0 && <AuthorByline authors={authors} />}
-      <slot />
-    </article>
+            </picture>
+          )
+        }
+        <h1
+          itemprop="headline"
+          class="text-primary font-bold text-step-4 leading-tight mb-space-2xs"
+        >
+          {frontmatter.title}
+        </h1>
+        <time
+          datetime={publishedIso}
+          itemprop="datePublished"
+          class="block mb-space-3xs text-step--1"
+        >
+          {publishedLong}
+        </time>
+        {
+          updatedDate && (
+            <time
+              datetime={updatedIso}
+              itemprop="dateModified"
+              class="block mb-space-3xs text-step--1"
+            >
+              {t('blog.updated')} {updatedLong}
+            </time>
+          )
+        }
+        {authors.length > 0 && <AuthorByline authors={authors} />}
+        <slot />
+      </article>
+    </div>
   </main>
 </FoundationPageLayout>
