@@ -61,25 +61,15 @@ const targetAttrs = external
 // the link.
 const resolvedHref = ariaDisabled ? undefined : href
 
-const slotHtml = Astro.slots.has('default')
-  ? await Astro.slots.render('default')
-  : ''
-// Strip nested markup (e.g. <Icon/>) and collapse whitespace to get plain link
-// text; fall back to aria-label for icon-only buttons with no text slot.
 const ariaLabel =
   typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''
-const linkText =
-  slotHtml
-    .replace(/<[^>]*>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim() || ariaLabel
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
   section: 'link',
   href: resolvedHref,
-  linkText
+  ariaLabel: ariaLabel
 })
 ---
 
