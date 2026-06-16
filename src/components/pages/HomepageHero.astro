@@ -26,11 +26,7 @@ const exploreTechHref = translatePath(
   pageLang,
   'developers'
 )
-const getInvolvedHref = translatePath(
-  'foundation-pages',
-  pageLang,
-  'get-involved'
-)
+const exploreGrantsHref = translatePath('foundation-pages', pageLang, 'grants')
 
 const heroUmami = (href: string, linkText: string) =>
   buildUmamiAttrs({
@@ -128,13 +124,16 @@ const heroUmami = (href: string, linkText: string) =>
           <Icon slot="icon-right" name="arrow-right" />
         </LinkButton>
         <LinkButton
-          href={getInvolvedHref}
+          href={exploreGrantsHref}
           variant="secondary"
           mode="dark"
           class="w-full tablet:w-auto"
-          {...heroUmami(getInvolvedHref, t('homepageHero.cta_get_involved'))}
+          {...heroUmami(
+            exploreGrantsHref,
+            t('homepageHero.cta_explore_grants')
+          )}
         >
-          {t('homepageHero.cta_get_involved')}
+          {t('homepageHero.cta_explore_grants')}
         </LinkButton>
       </nav>
     </div>

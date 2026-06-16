@@ -39,7 +39,7 @@ const t = useTranslations(Astro.locals.routeLocale)
   <h2 slot="heading" id={ANIMATED_NETWORK_PROBLEM_HEADING_ID}>
     {t('animatedNetwork.problem.heading')}
   </h2>
-  <p>{t('animatedNetwork.problem.body_1')}</p>
+  <p set:html={t('animatedNetwork.problem.body_1')} />
   <p>{t('animatedNetwork.problem.body_2')}</p>
   <div
     slot="media"
