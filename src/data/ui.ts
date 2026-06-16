@@ -194,7 +194,7 @@ export const ui = {
     'homepageHero.cta_navigation': 'Featured actions',
     'animatedNetwork.problem.heading': "The Problem We're Solving",
     'animatedNetwork.problem.body_1':
-      "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - if they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
+      "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - <em>if</em> they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
     'animatedNetwork.problem.body_2':
       'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
     'animatedNetwork.problem.video_title': "The Problem We're Solving — video",
@@ -217,11 +217,10 @@ export const ui = {
     'home.making_money_move.image_alt':
       'Interconnected network paths illustration',
     'home.making_money_move.cta_label': 'About us',
-    'home.independent_by_design.heading': 'Independent by Design',
+    'home.independent_by_design.heading':
+      'Open Standards, Independently Governed',
     'home.independent_by_design.body_1':
-      'For any institution or developer building on open infrastructure, governance matters as much as technology. The Interledger Foundation does not operate payment networks, take fees, or represent commercial interests, which means the standards we steward are open by structure, not just by intention.',
-    'home.independent_by_design.body_2':
-      'As an independent foundation, our mandate is to maintain and advance that infrastructure in the public interest, for as long as it takes.',
+      'Open standards only stay open if the organization behind them has no reason to close them. The Interledger Protocol and Open Payments are stewarded by a foundation with no commercial stake in either, no fees, no investors, and no business model that benefits from closing what was built openly. The standards exist for public benefit, and the Interledger Foundation was founded and structured to keep them that way.',
     'home.independent_by_design.cta_label': 'Our tech governance',
     'home.independent_by_design.image_alt': 'Speaker at a community event',
     'carousel.heading': 'In partnership with',
@@ -234,7 +233,7 @@ export const ui = {
     'home.stats.projects_label': 'Projects worldwide',
     'home.stats.projects_aria': '300 plus projects worldwide',
     'home.stats.countries_label': 'Countries with active tech',
-    'home.stats.countries_aria': '130 plus countries with active tech',
+    'home.stats.countries_aria': '45 plus countries with active tech',
     'home.stats.students_label': 'Students skilled',
     'home.stats.students_aria': '1,000 plus students skilled'
   },
