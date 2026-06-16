@@ -13,6 +13,7 @@ import { serialize as ambassador } from './ambassador.serializer'
 import { serialize as ambassadorsGrid } from './ambassadors-grid.serializer'
 import { serialize as blockquote } from './blockquote.serializer'
 import { serialize as calloutText } from './callout-text.serializer'
+import { serialize as ctaStrip } from './cta-strip.serializer'
 import { serialize as pdfEmbed } from './pdf-embed.serializer'
 import { serialize as videoEmbed } from './video-embed.serializer'
 
@@ -27,6 +28,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.ambassadors-grid': ambassadorsGrid,
   'blocks.blockquote': blockquote,
   'blocks.callout-text': calloutText,
+  'blocks.cta-strip': ctaStrip,
   'blocks.pdf-embed': pdfEmbed,
   'blocks.video-embed': videoEmbed
 }

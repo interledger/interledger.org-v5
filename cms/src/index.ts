@@ -662,6 +662,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonLink: 'Secondary Button URL',
       backgroundColor: 'Background Color'
     },
+    'blocks.cta-strip': {
+      heading: 'Heading',
+      description: 'Description',
+      primaryButtonText: 'Primary Button Text',
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL',
+      color: 'Strip Color'
+    },
     'blocks.image-row': {
       heading: 'Heading',
       content: 'Content',
@@ -921,6 +930,19 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'secondaryButtonLink', size: 6 }
       ],
       [{ name: 'backgroundColor', size: 4 }]
+    ],
+    'blocks.cta-strip': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [
+        { name: 'primaryButtonText', size: 6 },
+        { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [{ name: 'color', size: 4 }]
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],

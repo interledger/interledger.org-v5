@@ -21,6 +21,7 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
+  'blocks.cta-strip': {},
   'blocks.pdf-embed': {
     populate: { file: true }
   },

@@ -365,6 +365,65 @@ export interface BlocksCtaBanner extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCtaStrip extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cta_strips'
+  info: {
+    description: 'Call-to-action strip with heading, description, a primary CTA, an optional secondary CTA, and a background colour'
+    displayName: 'CTA Strip'
+    icon: 'cursor'
+  }
+  attributes: {
+    color: Schema.Attribute.Enumeration<['purple', 'green']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'purple'>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksImageRow extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_rows'
   info: {
@@ -776,6 +835,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-item': BlocksCarouselItem
       'blocks.cta-banner': BlocksCtaBanner
+      'blocks.cta-strip': BlocksCtaStrip
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed

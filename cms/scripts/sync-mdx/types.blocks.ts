@@ -72,6 +72,25 @@ export interface CalloutTextBlock extends StrapiBlockBase {
   content: string
 }
 
+/**
+ * blocks.cta-strip – call-to-action strip with a primary CTA, an optional
+ * secondary CTA, and a background colour.
+ *
+ * `description` comes from the JSX children (markdown); the buttons and
+ * `color` come from attributes. The secondary CTA is all-or-nothing: either
+ * both `secondaryButtonText` and `secondaryButtonLink` are present, or neither.
+ */
+export interface CtaStripBlock extends StrapiBlockBase {
+  __component: 'blocks.cta-strip'
+  heading: string
+  description: string
+  primaryButtonText: string
+  primaryButtonLink: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
+  color: 'purple' | 'green'
+}
+
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
 export interface PdfEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.pdf-embed'
@@ -101,5 +120,6 @@ export type ParsedBlock =
   | AmbassadorsGridBlock
   | BlockquoteBlock
   | CalloutTextBlock
+  | CtaStripBlock
   | PdfEmbedBlock
   | VideoEmbedBlock
