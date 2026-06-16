@@ -188,9 +188,9 @@ export const ui = {
     'homepageHero.title_lead': 'Financial systems should work together,',
     'homepageHero.title_accent': 'for everyone',
     'homepageHero.description':
-      'We connect people, tech and systems to advance open payments and unlock financial agency for all.',
-    'homepageHero.cta_explore_tech': 'Explore Tech',
-    'homepageHero.cta_get_involved': 'Get Involved',
+      'We build the open infrastructure, fund the innovators, and shape the conditions that make it possible.',
+    'homepageHero.cta_explore_tech': 'Explore our Tech',
+    'homepageHero.cta_explore_grants': 'Explore our Grants',
     'homepageHero.cta_navigation': 'Featured actions',
     'animatedNetwork.problem.heading': "The Problem We're Solving",
     'animatedNetwork.problem.body_1':
@@ -412,7 +412,7 @@ export const ui = {
     'homepageHero.title_accent': '',
     'homepageHero.description': '',
     'homepageHero.cta_explore_tech': '',
-    'homepageHero.cta_get_involved': '',
+    'homepageHero.cta_explore_grants': '',
     'homepageHero.cta_navigation': '',
     'animatedNetwork.problem.heading': '',
     'animatedNetwork.problem.body_1': '',
