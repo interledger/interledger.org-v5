@@ -1,0 +1,8 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import type { ComponentProps } from 'astro/types'
+
+type Props = ComponentProps<typeof OptimizedImage>
+---
+
+<OptimizedImage class="rounded-3xl" {...Astro.props} />
