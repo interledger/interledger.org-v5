@@ -407,24 +407,59 @@ export const ui = {
     'contact.success_thanks': '',
     'contact.error.captcha': '',
     'contact.error.submit': '',
-    'homepageHero.title_lead': '',
-    'homepageHero.title_accent': '',
-    'homepageHero.description': '',
-    'homepageHero.cta_explore_tech': '',
-    'homepageHero.cta_explore_grants': '',
-    'homepageHero.cta_navigation': '',
-    'animatedNetwork.problem.heading': '',
-    'animatedNetwork.problem.body_1': '',
-    'animatedNetwork.problem.body_2': '',
-    'animatedNetwork.problem.video_title': '',
-    'pillarsSection.heading': '',
-    'pillarsSection.card1_title': '',
-    'pillarsSection.card1_description': '',
-    'pillarsSection.card2_title': '',
-    'pillarsSection.card2_description': '',
-    'pillarsSection.card3_title': '',
-    'pillarsSection.card3_description': '',
-    'carousel.heading': '',
-    'carousel.partners_label': ''
+    'homepageHero.title_lead':
+      'Los sistemas financieros deberían funcionar juntos,',
+    'homepageHero.title_accent': 'para todos',
+    'homepageHero.description':
+      'Construimos la infraestructura abierta, financiamos a los innovadores y creamos las condiciones que lo hacen posible.',
+    'homepageHero.cta_explore_tech': 'Explorar nuestra tecnología',
+    'homepageHero.cta_explore_grants': 'Explorar nuestras subvenciones',
+    'homepageHero.cta_navigation': 'Acciones destacadas',
+    'animatedNetwork.problem.heading': 'El problema que estamos resolviendo',
+    'animatedNetwork.problem.body_1':
+      'Los sistemas financieros nunca fueron diseñados para funcionar juntos. Diferentes reglas, distintos formatos y diferentes formas de conectarse - <em>si</em> es que se conectan. Para quienes los administran, es una pesadilla operativa. Para los demás, significa incertidumbre, costos más altos y oportunidades negadas.',
+    'animatedNetwork.problem.body_2':
+      'Interledger está diseñado para cambiar eso: una infraestructura abierta que permite a los sistemas financieros conectarse, y una fundación comprometida con poner esa infraestructura al alcance de todos.',
+    'animatedNetwork.problem.video_title':
+      'El problema que estamos resolviendo — video',
+    'pillarsSection.heading':
+      'Vemos un mundo donde el dinero circula libremente y la oportunidad le sigue.',
+    'pillarsSection.card1_title': 'Construimos la tecnología',
+    'pillarsSection.card1_description':
+      'Administramos estándares abiertos y construimos infraestructura para que los sistemas financieros puedan conectarse una vez e integrarse con muchos.',
+    'pillarsSection.card2_title': 'Hacemos crecer el movimiento',
+    'pillarsSection.card2_description':
+      'Financiamos y conectamos a quienes trabajan para que los servicios financieros digitales sean más abiertos, accesibles y funcionales para todos.',
+    'pillarsSection.card3_title': 'Transformamos el sistema',
+    'pillarsSection.card3_description':
+      'Trabajamos con reguladores e instituciones para crear las condiciones que permitan a los sistemas financieros abiertos operar y escalar en la práctica.',
+    'home.making_money_move.heading':
+      'Haciendo que el dinero fluya como los datos',
+    'home.making_money_move.body_1':
+      'Internet fue construido sobre estándares abiertos. Protocolos que ninguna empresa posee, que cualquiera puede utilizar y que hicieron posible el intercambio de información a escala global. En nuestro mundo conectado, el dinero debería moverse de la misma manera: de forma confiable, entre sistemas, como una sola red.',
+    'home.making_money_move.body_2':
+      'A esto lo llamamos el Internet de la Oportunidad: una infraestructura financiera abierta e interconectada que crea oportunidades para personas, empresas y economías en todo el mundo.',
+    'home.making_money_move.image_alt':
+      'Ilustración de rutas de red interconectadas',
+    'home.making_money_move.cta_label': 'Sobre nosotros',
+    'home.independent_by_design.heading':
+      'Estándares abiertos, gobernados de forma independiente',
+    'home.independent_by_design.body_1':
+      'Los estándares abiertos solo permanecen abiertos si la organización que los respalda no tiene razón para cerrarlos. El Protocolo Interledger y Open Payments son administrados por una fundación sin participación comercial en ninguno de ellos, sin tarifas, sin inversionistas y sin un modelo de negocio que se beneficie de cerrar lo que se construyó abiertamente. Los estándares existen para el beneficio público, y la Fundación Interledger fue fundada y estructurada para mantenerlos así.',
+    'home.independent_by_design.cta_label': 'Nuestra gobernanza tecnológica',
+    'home.independent_by_design.image_alt': 'Ponente en un evento comunitario',
+    'carousel.heading': 'En alianza con',
+    'carousel.partners_label': 'Logotipos de socios',
+    'home.stats.heading': 'Progreso en el mundo real',
+    'home.stats.body':
+      'De los primeros experimentos a los sistemas reales, así se ve el progreso en la práctica.',
+    'home.stats.grants_label': 'En subvenciones',
+    'home.stats.grants_aria': '21 millones de dólares en subvenciones',
+    'home.stats.projects_label': 'Proyectos en todo el mundo',
+    'home.stats.projects_aria': 'Más de 300 proyectos en todo el mundo',
+    'home.stats.countries_label': 'Países con tecnología activa',
+    'home.stats.countries_aria': 'Más de 45 países con tecnología activa',
+    'home.stats.students_label': 'Estudiantes capacitados',
+    'home.stats.students_aria': 'Más de 1,000 estudiantes capacitados'
   }
 } as const
