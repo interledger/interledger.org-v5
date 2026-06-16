@@ -8,7 +8,6 @@ import {
 import { getCollection, render } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
-import ArticleCategories from '@/components/blog/ArticleCategories.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import RelatedArticles from '@/components/blog/RelatedArticles.astro'
 import BlogPostLayout from '@/layouts/BlogPostLayout.astro'
@@ -76,8 +75,6 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
     }}
   />
 
-  <CommunityLinksFoundation />
-
   {
     mdxData?.articleBios?.length > 0 &&
       mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
@@ -87,11 +84,7 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
       )
   }
 
-  {
-    mdxData?.categories?.length > 0 && (
-      <ArticleCategories categories={mdxData.categories} path={blogPath} />
-    )
-  }
+  <CommunityLinksFoundation />
 
   {
     relatedPosts.length > 0 && (

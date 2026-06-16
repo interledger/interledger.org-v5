@@ -1,5 +1,5 @@
 ---
-import { buildUmamiAttrs } from '@/utils'
+import { buildUmamiAttrs, useTranslations } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 
 interface BreadcrumbItem {
@@ -13,49 +13,47 @@ interface Props {
 const { breadcrumbs } = Astro.props
 const { routeLocale } = Astro.locals
 const currentPath = Astro.url.pathname
+const t = useTranslations(routeLocale)
 ---
 
-<!-- <ol
-  class="flex list-none ps-0 text-step--1 font-bold [&_a]:text-primary [&_a]:no-underline"
-  itemscope
-  itemtype="https://schema.org/BreadcrumbList"
-> -->
-<ol
-  class="flex gap-xs list-none m-0 mb-2xl p-0 desktop:mb-3xl [&_a]:no-underline text-neutral-75 [&_a[aria-current='page']]:text-primary [&_svg]:text-current"
-  itemscope
-  itemtype="https://schema.org/BreadcrumbList"
->
-  {
-    breadcrumbs.map((crumb, index) => {
-      const isCurrent = crumb.href === currentPath
-      return (
-        <li
-          itemprop="itemListElement"
-          itemscope
-          itemtype="https://schema.org/ListItem"
-          class="flex m-0"
-        >
-          {index !== 0 && (
-            <Icon name="arrow-right-keyboard" class="size-6 my-xs shrink-0" />
-          )}
-          <a
-            itemprop="item"
-            href={crumb.href}
-            class="inline-block p-xs text-body-lg-standard text-inherit rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-primary hover:text-neutral-900 "
-            aria-current={isCurrent ? 'page' : undefined}
-            {...buildUmamiAttrs({
-              pathname: Astro.url.pathname,
-              lang: routeLocale,
-              section: 'nav',
-              href: crumb.href,
-              linkText: crumb.name
-            })}
+<nav aria-label={t('nav.breadcrumb')}>
+  <ol
+    class="flex gap-xs list-none m-0 mb-2xl p-0 desktop:mb-3xl [&_a]:no-underline text-neutral-75 [&_a[aria-current='page']]:text-orchid-100 [&_svg]:text-current"
+    itemscope
+    itemtype="https://schema.org/BreadcrumbList"
+  >
+    {
+      breadcrumbs.map((crumb, index) => {
+        const isCurrent = crumb.href === currentPath
+        return (
+          <li
+            itemprop="itemListElement"
+            itemscope
+            itemtype="https://schema.org/ListItem"
+            class="flex m-0"
           >
-            <span itemprop="name">{crumb.name}</span>
-          </a>
-          <meta itemprop="position" content={String(index + 1)} />
-        </li>
-      )
-    })
-  }
-</ol>
+            {index !== 0 && (
+              <Icon name="arrow-right-keyboard" class="size-6 my-xs shrink-0" />
+            )}
+            <a
+              itemprop="item"
+              href={crumb.href}
+              class="inline-block p-xs text-body-lg-standard text-inherit rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900 "
+              aria-current={isCurrent ? 'page' : undefined}
+              {...buildUmamiAttrs({
+                pathname: Astro.url.pathname,
+                lang: routeLocale,
+                section: 'nav',
+                href: crumb.href,
+                linkText: crumb.name
+              })}
+            >
+              <span itemprop="name">{crumb.name}</span>
+            </a>
+            <meta itemprop="position" content={String(index + 1)} />
+          </li>
+        )
+      })
+    }
+  </ol>
+</nav>
