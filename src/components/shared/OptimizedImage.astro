@@ -1,5 +1,11 @@
 ---
-import { getOptimizedImage } from '@/utils'
+import { buildImageSrcset, getOptimizedImage } from '@/utils'
+
+export interface OptimizedImageAlternateSource {
+  src: string
+  media: string
+  sizes: string
+}
 
 interface Props {
   src: string
@@ -13,6 +19,8 @@ interface Props {
   sizes?: string
   fetchpriority?: 'high' | 'low' | 'auto'
   media?: string
+  /** Optional art-directed sources (most specific `media` first). */
+  alternateSources?: OptimizedImageAlternateSource[]
 }
 
 const {
@@ -25,14 +33,47 @@ const {
   loading = 'lazy',
   sizes = '100vw',
   fetchpriority,
-  media
+  media,
+  alternateSources = []
 } = Astro.props
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
   ? getOptimizedImage(src)
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
-const hasResponsive = variants.length > 0
+const alternatePictureSources = alternateSources.flatMap(
+  ({ src: alternateSrc, media: alternateMedia, sizes: alternateSizes }) => {
+    const alternate = getOptimizedImage(alternateSrc)
+    const sources: Array<{
+      type: string
+      media: string
+      srcset: string
+      sizes: string
+    }> = []
+
+    if (alternate.avifVariants.length > 0) {
+      sources.push({
+        type: 'image/avif',
+        media: alternateMedia,
+        srcset: buildImageSrcset(alternate.avifVariants),
+        sizes: alternateSizes
+      })
+    }
+
+    if (alternate.variants.length > 0) {
+      sources.push({
+        type: 'image/webp',
+        media: alternateMedia,
+        srcset: buildImageSrcset(alternate.variants),
+        sizes: alternateSizes
+      })
+    }
+
+    return sources
+  }
+)
+
+const hasResponsive = variants.length > 0 || alternatePictureSources.length > 0
 const webpSrcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const decoding: 'async' | 'sync' | 'auto' = 'async'
@@ -44,6 +85,14 @@ const imgSrc = media ? undefined : src
 {
   hasResponsive ? (
     <picture class={pictureClassName}>
+      {alternatePictureSources.map((source) => (
+        <source
+          type={source.type}
+          media={source.media}
+          srcset={source.srcset}
+          sizes={source.sizes}
+        />
+      ))}
       {avifVariants.length > 0 && (
         <source
           type="image/avif"
@@ -52,12 +101,14 @@ const imgSrc = media ? undefined : src
           media={media}
         />
       )}
-      <source
-        type="image/webp"
-        srcset={webpSrcset}
-        sizes={sizes}
-        media={media}
-      />
+      {variants.length > 0 && (
+        <source
+          type="image/webp"
+          srcset={webpSrcset}
+          sizes={sizes}
+          media={media}
+        />
+      )}
       <img
         src={imgSrc}
         alt={alt}

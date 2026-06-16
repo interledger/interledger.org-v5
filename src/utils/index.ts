@@ -103,6 +103,8 @@ export {
 // Main site: Images
 export {
   getOptimizedImage,
+  buildImageSrcset,
+  hasOptimizedVariants,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments
