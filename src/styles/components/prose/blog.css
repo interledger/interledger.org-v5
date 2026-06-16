@@ -31,6 +31,7 @@
     & img {
       display: block;
       margin-inline: auto;
+      border-radius: var(--spacing-3xl);
     }
 
     /* === Table styles === */
@@ -86,6 +87,12 @@
     /* === Code blocks (expressive-code) === */
     & .expressive-code {
       margin-block-end: var(--spacing-space-s);
+    }
+    
+    .video-embed {
+      border-radius: var(--spacing-3xl);
+      overflow: hidden;
+      margin-block-end: var(--spacing-2xl)
     }
   }
 }
