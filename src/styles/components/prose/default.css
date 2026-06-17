@@ -7,7 +7,7 @@
 @layer components {
   main {
     color: var(--color-neutral-100);
-    p, a, ul, ol {
+    p, a, ul, ol, blockquote {
       font-size: var(--text-h5);
       line-height: var(--text-h5--line-height);
       font-weight: var(--text-h5--font-weight);

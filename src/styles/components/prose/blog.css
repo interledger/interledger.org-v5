@@ -21,14 +21,20 @@
       font-style: italic;
     }
 
-    & blockquote {
-      border-inline-start: 4px solid var(--color-primary);
-      padding-inline-start: var(--spacing-space-s);
-      font-size: var(--text-step-1);
-      font-weight: 300;
+    blockquote {
+      border-inline: 2px solid var(--color-raspberry-100);
+      padding-inline: var(--spacing-md);
+      margin-block: var(--spacing-2xl);
+      
+      @variant tablet {
+        padding-inline: var(--spacing-lg);
+      }
+      @variant desktop {
+        padding-inline: var(--spacing-xl);
+      }
     }
 
-    & img {
+    img {
       display: block;
       margin-inline: auto;
       border-radius: var(--spacing-3xl);
@@ -88,7 +94,7 @@
     & .expressive-code {
       margin-block-end: var(--spacing-space-s);
     }
-    
+
     .video-embed {
       border-radius: var(--spacing-3xl);
       overflow: hidden;
