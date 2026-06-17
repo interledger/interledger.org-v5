@@ -151,8 +151,8 @@ export const ui = {
     'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'contact.error.submit':
       'Something went wrong sending your message. Please try again.',
-    'homepageHero.title_lead': 'Financial systems should work together,',
-    'homepageHero.title_accent': 'for everyone',
+    'homepageHero.title_lead': 'Financial Systems Should Work Together,',
+    'homepageHero.title_accent': 'for Everyone',
     'homepageHero.description':
       'We build the open infrastructure, fund the innovators, and shape the conditions that make it possible.',
     'homepageHero.cta_explore_tech': 'Explore our Tech',
@@ -191,7 +191,7 @@ export const ui = {
     'home.independent_by_design.image_alt': 'Speaker at a community event',
     'carousel.heading': 'In partnership with',
     'carousel.partners_label': 'Partner logos',
-    'home.stats.heading': 'Real-world progress',
+    'home.stats.heading': 'Real-world Progress',
     'home.stats.body':
       'From early experiments to real-world systems, this is what progress looks like in practice.',
     'home.stats.grants_label': 'In Grants',

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-export const TARGET_WIDTHS = [640, 1280, 1920] as const
+export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 
 export const IMAGE_URL_PATHS = {
   publicSource: '/img',
@@ -20,6 +20,14 @@ export interface OptimizedImage {
   fullSrc: string | null
   avifVariants: ImageVariant[]
   avifFullSrc: string | null
+}
+
+export function buildImageSrcset(variants: ImageVariant[]): string {
+  return variants.map((v) => `${v.src} ${v.width}w`).join(', ')
+}
+
+export function hasOptimizedVariants(image: OptimizedImage): boolean {
+  return image.variants.length > 0 || image.fullSrc !== null
 }
 
 export function pathToSegments(urlPath: string): string[] {
