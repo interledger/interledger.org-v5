@@ -30,7 +30,10 @@ describe('video-embed serializer', () => {
       title: 'Q&A: "Live" Session'
     })
 
-    expect(result).toContain('Q&A: \\"Live\\" Session')
+    // HTML-entity encoded for the JSX attribute; backslash escapes (\") would
+    // break MDX parsing.
+    expect(result).toContain('Q&amp;A: &quot;Live&quot; Session')
+    expect(result).not.toContain('\\"')
   })
 
   it('produces a self-closing VideoEmbed tag', () => {

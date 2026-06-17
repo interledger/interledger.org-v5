@@ -11,15 +11,22 @@ export function serialize(block: {
   secondaryButtonLink?: string
   color?: string
 }): string {
+  // Secondary CTA is all-or-nothing: only emit it when both the text and link
+  // are present, so a half-filled pair in Strapi is dropped on export (matching
+  // the import handler and how CtaStrip.astro renders it).
+  const hasSecondary = Boolean(
+    block.secondaryButtonText && block.secondaryButtonLink
+  )
+
   const attrs = [
     `heading="${esc(block.heading)}"`,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,
     `primaryButtonLink="${esc(block.primaryButtonLink)}"`,
-    block.secondaryButtonText
-      ? `secondaryButtonText="${esc(block.secondaryButtonText)}"`
+    hasSecondary
+      ? `secondaryButtonText="${esc(block.secondaryButtonText!)}"`
       : null,
-    block.secondaryButtonLink
-      ? `secondaryButtonLink="${esc(block.secondaryButtonLink)}"`
+    hasSecondary
+      ? `secondaryButtonLink="${esc(block.secondaryButtonLink!)}"`
       : null,
     block.color ? `color="${esc(block.color)}"` : null
   ]

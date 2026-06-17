@@ -55,14 +55,31 @@ describe('cta-strip serializer', () => {
     expect(result).toContain('\\{tokens\\}')
   })
 
-  it('escapes double quotes in attribute values', () => {
+  it('drops an incomplete secondary CTA (only one field set)', () => {
     const result = serialize({
-      heading: 'The "best" offer',
+      heading: 'H',
+      description: 'Body.',
+      primaryButtonText: 'P',
+      primaryButtonLink: '/p',
+      secondaryButtonText: 'orphaned'
+    })
+
+    expect(result).not.toContain('secondaryButtonText')
+    expect(result).not.toContain('secondaryButtonLink')
+  })
+
+  it('HTML-entity encodes characters that would break a JSX attribute', () => {
+    const result = serialize({
+      heading: 'The "best" offer & more <here>',
       description: 'Body.',
       primaryButtonText: 'P',
       primaryButtonLink: '/p'
     })
 
-    expect(result).toContain('heading="The \\"best\\" offer"')
+    // Not backslash-escaped (\" breaks MDX parsing); entity-encoded instead.
+    expect(result).toContain(
+      'heading="The &quot;best&quot; offer &amp; more &lt;here&gt;"'
+    )
+    expect(result).not.toContain('\\"')
   })
 })

@@ -69,4 +69,33 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
     const description = (blocks[0] as { description: string }).description
     expect(description).toContain('{tokens}')
   })
+
+  it('round-trips attribute values with quotes, ampersands and angle brackets', async () => {
+    const original = {
+      heading: 'The "best" offer & <friends>',
+      description: 'Body.',
+      primaryButtonText: 'Read "more"',
+      primaryButtonLink: '/a?x=1&y=2'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.cta-strip', ...original, color: 'purple' }
+    ])
+  })
+
+  it('drops a half-filled secondary CTA across the round-trip', async () => {
+    const original = {
+      heading: 'H',
+      description: 'Body.',
+      primaryButtonText: 'P',
+      primaryButtonLink: '/p',
+      secondaryButtonText: 'orphaned'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonText')
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonLink')
+  })
 })
