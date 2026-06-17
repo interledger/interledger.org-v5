@@ -27,9 +27,9 @@ const t = useTranslations(Astro.locals.routeLocale)
   theme="dark"
   ariaLabel={t('animatedNetwork.problem.heading')}
   class={twMerge(
-    'network-problem-section relative z-1 min-h-0 justify-start',
+    'network-problem-section relative z-1 min-h-min justify-start',
     'bg-royal-purple-100 px-lg pt-5xl pb-3xl',
-    'tablet:bg-transparent tablet:px-3xl-tight tablet:py-5xl',
+    'tablet:min-h-screen tablet:justify-center tablet:bg-transparent tablet:px-3xl-tight tablet:py-5xl',
     className
   )}
   data-nav-dark
@@ -39,7 +39,7 @@ const t = useTranslations(Astro.locals.routeLocale)
   <h2 slot="heading" id={ANIMATED_NETWORK_PROBLEM_HEADING_ID}>
     {t('animatedNetwork.problem.heading')}
   </h2>
-  <p>{t('animatedNetwork.problem.body_1')}</p>
+  <p set:html={t('animatedNetwork.problem.body_1')} />
   <p>{t('animatedNetwork.problem.body_2')}</p>
   <div
     slot="media"
