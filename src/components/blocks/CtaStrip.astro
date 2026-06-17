@@ -28,14 +28,14 @@ const {
 
 const { routeLocale } = Astro.locals
 
-// Analytics: every CTA click is labelled `cta_button` (see INTORG-789), so both
-// buttons share the action segment and are distinguished by their link text.
+// Analytics: `section: 'cta'` marks these as CTA clicks; the action segment is
+// auto-derived from each button's href and the label is carried in
+// `data-umami-event-link-text` (consistent with the other blocks).
 const umamiBase = {
   page: umamiContext,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'cta' as const,
-  action: 'cta_button'
+  section: 'cta' as const
 }
 
 const bgClasses: Record<NonNullable<Props['color']>, string> = {
