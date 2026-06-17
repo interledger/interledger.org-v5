@@ -25,11 +25,11 @@ const videoAttrs = buildUmamiAttrs({
 
 {
   provider === 'youtube' ? (
-    <div class="w-full">
+    <div class="video-embed w-full">
       <YouTube id={url} playlabel={title} poster={poster} />
     </div>
   ) : provider === 'vimeo' ? (
-    <div class="w-full">
+    <div class="video-embed w-full">
       <Vimeo id={url} playlabel={title} />
     </div>
   ) : (

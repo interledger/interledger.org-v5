@@ -2,6 +2,8 @@ export const ui = {
   en: {
     'site.title': 'Interledger Foundation',
     'site.description': 'Making payments as easy as sending an email',
+    'nav.home': 'Home',
+    'nav.breadcrumb': 'Breadcrumb',
     'nav.language': 'Language',
     'nav.language_switcher': 'Language switcher',
     'nav.locale_name.en': 'English',
@@ -34,7 +36,7 @@ export const ui = {
     'footer.copyright':
       'Content on this website and Interledger Foundation publications are licensed under CC BY 4.0, unless otherwise noted. Interledger technologies and software are licensed under the Apache License 2.0, unless otherwise noted. Interledger Protocol® and ILP® are registered trademarks of the Interledger Foundation.',
     'footer.logo_home': 'Go to homepage',
-    'blog.foundation.title': 'Foundation Blog',
+    'blog.foundation.title': 'Blog',
     'blog.foundation.description':
       'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.',
     'blog.foundation.tag_title': 'Foundation Blog - {tag}',
@@ -55,7 +57,8 @@ export const ui = {
     'blog.filter.tag.label': 'Filter by tag:',
     'blog.filter.all': 'All',
     'blog.featured.title': 'Featured',
-    'blog.updated': 'Updated',
+    'blog.published': 'Published',
+    'blog.updated': 'Last updated',
     'blog.read_more': 'Read more',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
@@ -129,6 +132,7 @@ export const ui = {
     'aria.authors': 'Authors',
     'aria.author_profile': "{author}'s profile {newTab}",
     'aria.authors_bios': 'About the authors',
+    'aria.article_categories': 'Article categories',
     'contact.title': 'Contact',
     'contact.description': 'Get in touch with the Interledger Foundation.',
     'contact.name': 'Name',
@@ -206,6 +210,8 @@ export const ui = {
   es: {
     'site.title': '',
     'site.description': '',
+    'nav.home': '',
+    'nav.breadcrumb': '',
     'nav.main': 'Navegación principal',
     'nav.summit': 'Navegación del Summit',
     'nav.toggle_menu': 'Abrir/cerrar menú',
@@ -258,6 +264,7 @@ export const ui = {
     'blog.filter.tag.label': '',
     'blog.filter.all': '',
     'blog.featured.title': '',
+    'blog.published': '',
     'blog.updated': '',
     'blog.read_more': '',
     'blog.community.foundation.start': '',
@@ -326,6 +333,7 @@ export const ui = {
     'aria.authors': '',
     'aria.author_profile': '',
     'aria.authors_bios': '',
+    'aria.article_categories': '',
     'contact.title': '',
     'contact.description': '',
     'contact.name': '',

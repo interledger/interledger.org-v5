@@ -24,7 +24,7 @@ const umamiAttrs = (href: string, linkText: string) =>
 ---
 
 <address
-  class="flex flex-wrap gap-lg not-italic"
+  class="flex flex-wrap gap-lg mb-xl not-italic"
   role="group"
   aria-label={t('aria.authors')}
 >
@@ -38,7 +38,8 @@ const umamiAttrs = (href: string, linkText: string) =>
             width={40}
             height={40}
             class="w-[40px] h-[40px] m-0 rounded-full"
-            loading="lazy"
+            loading="eager"
+            fetchpriority="high"
           />
         ) : (
           <FallbackAuthorIcon
@@ -53,7 +54,7 @@ const umamiAttrs = (href: string, linkText: string) =>
               author: bio.author,
               newTab: t('aria.opens_new_tab')
             })}
-            class="flex items-center gap-sm text-neutral-100 decoration-transparent  transition-all duration-200 [&_svg]:text-primary hover:text-primary hover:decoration-primary"
+            class="flex items-center gap-sm text-neutral-100 text-body-sm-standard decoration-transparent transition-all duration-200 [&_svg]:text-orchid-100 hover:text-orchid-100 hover:decoration-orchid-100"
             target="_blank"
             rel="author noopener noreferrer"
             {...umamiAttrs(bio.link, bio.author)}

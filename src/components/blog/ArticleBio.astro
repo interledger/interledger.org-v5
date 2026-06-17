@@ -24,7 +24,7 @@ const htmlBios = await Promise.all(
 
 <section
   aria-label={t('aria.authors_bios')}
-  class="flex flex-col gap-2xl border-y border-neutral-50 py-2xl desktop:gap-3xl desktop:py-3xl"
+  class="flex flex-col gap-2xl border-t border-neutral-50 mt-5xl py-2xl tablet:mt-4xl desktop:gap-3xl desktop:mt-5xl desktop:py-3xl"
 >
   {
     htmlBios.map((bio, index) => (
@@ -46,7 +46,10 @@ const htmlBios = await Promise.all(
           />
         )}
         <div>
-          <div set:html={bio.text} class="text-body-sm-standard [&_p]:mb-lg" />
+          <div
+            set:html={bio.text}
+            class="text-body-sm-standard [&_p]:text-body-sm-standard [&_a]:text-body-sm-standard [&_p]:mb-lg"
+          />
           {bio.link && (
             <LinkButton
               href={ensureAbsoluteUrl(bio.link)}

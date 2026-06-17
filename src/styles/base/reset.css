@@ -77,10 +77,6 @@
     @apply flex-1 text-step-0;
   }
 
-  strong {
-    color: var(--color-primary);
-  }
-
   a {
     @apply text-current transition-colors duration-slow;
   }

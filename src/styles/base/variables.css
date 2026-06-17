@@ -15,7 +15,7 @@
   :root {
     /* Base value for --color-primary (the pillar theming hook).
        @theme inline reads this; [data-pillar] selectors override it below. */
-    --color-primary: oklch(51.54% 0.088 194.77);
+    --color-primary: var(--color-orchid-100);
 
     /* Pillar-aware button colour. Orchid is the :root default, effectively
        "the orchid pillar." Future pillars override these three vars under

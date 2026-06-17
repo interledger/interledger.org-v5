@@ -22,24 +22,32 @@ const categoryAttrs = (label: string) =>
     linkText: `#${label}`,
     action: 'category'
   })
+const categoryClasses = `
+  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
+  border border-neutral-50 rounded-full 
+  transition-all duration-200 ease-in-out
+  hover:border-neutral-75 hover:text-neutral-150
+  focus-visible:outline-none focus-visible:border-orchid-100
+`
 ---
 
-<footer>
-  <ul class="flex gap-space-xs mb-space-s list-none! ps-0!">
+<nav aria-label={t('aria.article_categories')} class="mb-2xl desktop:mb-3xl">
+  <ul class="flex flex-wrap gap-xs list-none m-0 p-0">
     {
       categories.map((category) => {
         const label = translateTerm('blog.categories', category, t)
         return (
-          <li class="mb-space-xs">
+          <li class="m-0">
             <a
               href={getTermUrl(path, 'category', category)}
+              class={categoryClasses}
               {...categoryAttrs(label)}
             >
-              #{label}
+              {label}
             </a>
           </li>
         )
       })
     }
   </ul>
-</footer>
+</nav>

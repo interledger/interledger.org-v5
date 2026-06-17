@@ -2,15 +2,20 @@
 /**
  * Single-column layout for the blog post template.
  *
- * Styling is intentionally minimal — the visual design lands in INTORG-768.
  * This layout owns the article chrome (feature image, title, dates, byline);
  * the page component supplies body content, author bios, categories and the
  * related-articles section via slots.
  */
-import FoundationPageLayout from './FoundationPageLayout.astro'
-import { useTranslations } from '@/utils'
+import {
+  useTranslations,
+  localizeRoute,
+  translatePath,
+  COLLECTION_INDEX_SLUG
+} from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
-import AuthorByline from '@/components/blog/AuthorByline.astro'
+import FoundationPageLayout from './FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import BlogPostHeader from '@/components/blog/BlogPostHeader.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -24,21 +29,24 @@ const t = useTranslations(routeLocale)
 const site = Astro.site!
 const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
 
-// Desktop feature image: 720 x 428. Mobile: 358 x 240.
-const FEATURE_DESKTOP = { width: 720, height: 428 }
-const FEATURE_MOBILE = { width: 358, height: 240 }
-
 const publishedDate = new Date(frontmatter.date)
-const publishedIso = publishedDate.toISOString().slice(0, 10)
-const publishedLong = publishedDate.toDateString().substring(4)
 
-const updatedDate = frontmatter.lastUpdated
-  ? new Date(frontmatter.lastUpdated)
-  : null
-const updatedIso = updatedDate?.toISOString().slice(0, 10)
-const updatedLong = updatedDate?.toDateString().substring(4)
+const blogPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
+const postPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  frontmatter.pathSlug
+)
 
-const authors = frontmatter.articleBios ?? []
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: t('blog.foundation.title'), href: blogPath },
+  { name: frontmatter.title, href: postPath }
+]
 ---
 
 <FoundationPageLayout
@@ -48,65 +56,24 @@ const authors = frontmatter.articleBios ?? []
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={publishedDate.toISOString()}
+  headerTheme="light"
 >
-  <main class="flex flex-col pt-space-m pb-space-xl">
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
     <slot name="disclaimer" />
-    <article
-      data-prose-blog
-      itemscope
-      itemtype="http://schema.org/Article"
-      class="mx-auto w-full max-w-180 px-[5%]"
-    >
-      {
-        frontmatter.featureImage && (
-          <picture>
-            {frontmatter.featureImageMobile && (
-              <source
-                media="(max-width: 767px)"
-                srcset={frontmatter.featureImageMobile}
-                width={FEATURE_MOBILE.width}
-                height={FEATURE_MOBILE.height}
-              />
-            )}
-            <img
-              src={frontmatter.featureImage}
-              alt={frontmatter.featureImageAlt ?? ''}
-              width={FEATURE_DESKTOP.width}
-              height={FEATURE_DESKTOP.height}
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-              class="mb-space-xs w-full h-auto"
-            />
-          </picture>
-        )
-      }
-      <h1
-        itemprop="headline"
-        class="text-primary font-bold text-step-4 leading-tight mb-space-2xs"
+    <div class="max-w-narrow m-auto">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <article
+        data-prose-blog
+        itemscope
+        itemtype="http://schema.org/Article"
+        class="mb-5xl tablet:mb-4xl desktop:mb-5xl"
       >
-        {frontmatter.title}
-      </h1>
-      <time
-        datetime={publishedIso}
-        itemprop="datePublished"
-        class="block mb-space-3xs text-step--1"
-      >
-        {publishedLong}
-      </time>
-      {
-        updatedDate && (
-          <time
-            datetime={updatedIso}
-            itemprop="dateModified"
-            class="block mb-space-3xs text-step--1"
-          >
-            {t('blog.updated')} {updatedLong}
-          </time>
-        )
-      }
-      {authors.length > 0 && <AuthorByline authors={authors} />}
-      <slot />
-    </article>
+        <BlogPostHeader frontmatter={frontmatter} />
+        <slot />
+      </article>
+      <slot name="after-article" />
+    </div>
   </main>
 </FoundationPageLayout>
