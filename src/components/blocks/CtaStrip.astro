@@ -43,13 +43,6 @@ const bgClasses: Record<NonNullable<Props['color']>, string> = {
   green: 'bg-pistachio-100'
 }
 
-// Decorative network motif per colour: the green strip uses a variant whose
-// largest node is recoloured green (the shared purple node reads muddy on green).
-const gridSrc: Record<NonNullable<Props['color']>, string> = {
-  purple: '/img/blocks/cta-strip-network.svg',
-  green: '/img/blocks/cta-strip-network-green.svg'
-}
-
 // `description` arrives as a prop from the Strapi dynamic-zone renderer, but as
 // slot children when the component is used in exported MDX. Support both.
 const hasDescription = Boolean(description) || Astro.slots.has('default')
@@ -73,7 +66,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
       the a11y tree. Low opacity so the nodes read as muted over the card. */
   }
   <img
-    src={gridSrc[color] ?? gridSrc.purple}
+    src="/img/blocks/cta-strip-network.svg"
     alt=""
     aria-hidden="true"
     width="450"
