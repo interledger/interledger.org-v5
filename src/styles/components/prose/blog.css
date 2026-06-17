@@ -12,9 +12,6 @@
     & figure {
       margin-block-end: var(--spacing-space-s);
     }
-    & hr {
-      margin-block-end: var(--spacing-space-s);
-    }
 
     & figcaption {
       font-size: var(--text-step--1);

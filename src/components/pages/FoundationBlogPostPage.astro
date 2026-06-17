@@ -66,25 +66,26 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
       VideoEmbed
     }}
   />
+  <Fragment slot="after-article">
+    {
+      mdxData?.articleBios?.length > 0 &&
+        mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
+          <ArticleBio
+            articleBios={mdxData.articleBios.filter((bio) => bio.text)}
+          />
+        )
+    }
 
-  {
-    mdxData?.articleBios?.length > 0 &&
-      mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
-        <ArticleBio
-          articleBios={mdxData.articleBios.filter((bio) => bio.text)}
+    <CommunityLinksFoundation />
+
+    {
+      relatedPosts.length > 0 && (
+        <RelatedArticles
+          posts={relatedPosts}
+          blogIndexHref={blogPath}
+          heading={t('blog.related.title')}
         />
       )
-  }
-
-  <CommunityLinksFoundation />
-
-  {
-    relatedPosts.length > 0 && (
-      <RelatedArticles
-        posts={relatedPosts}
-        blogIndexHref={blogPath}
-        heading={t('blog.related.title')}
-      />
-    )
-  }
+    }
+  </Fragment>
 </BlogPostLayout>

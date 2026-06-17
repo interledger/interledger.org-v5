@@ -64,10 +64,16 @@ const breadcrumbs = [
     <slot name="disclaimer" />
     <div class="max-w-narrow m-auto">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <article data-prose-blog itemscope itemtype="http://schema.org/Article">
+      <article
+        data-prose-blog
+        itemscope
+        itemtype="http://schema.org/Article"
+        class="mb-5xl tablet:mb-4xl desktop:mb-5xl"
+      >
         <BlogPostHeader frontmatter={frontmatter} />
         <slot />
       </article>
+      <slot name="after-article" />
     </div>
   </main>
 </FoundationPageLayout>
