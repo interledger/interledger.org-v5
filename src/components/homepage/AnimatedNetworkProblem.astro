@@ -28,10 +28,8 @@ const t = useTranslations(Astro.locals.routeLocale)
   ariaLabel={t('animatedNetwork.problem.heading')}
   class={twMerge(
     'network-problem-section relative z-1 min-h-min justify-start',
-    'py-0 pt-5xl',
-    'tablet:bg-transparent tablet:px-3xl-tight tablet:py-0 tablet:pt-5xl',
-    'desktop:py-0 desktop:pt-5xl',
-    'bg-royal-purple-100 px-lg',
+    'bg-royal-purple-100 px-lg pt-5xl pb-3xl',
+    'tablet:min-h-screen tablet:justify-center tablet:bg-transparent tablet:px-3xl-tight tablet:py-5xl',
     className
   )}
   data-nav-dark

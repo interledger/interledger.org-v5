@@ -62,7 +62,6 @@ import AnimatedNetworkProblem, {
     --network-circle-x-nudge: 0.75vw;
     /* Extra top room for scale(1.25) + rotation bleeding into HomepageHero. */
     --network-clip-top: calc(var(--network-hero-overlap) + 22vh);
-    --network-problem-padding-bottom: clamp(12rem, 7.5rem + 8vw, 16rem);
     /* Negative top inset lets transformed SVG paint above this section's top edge. */
     clip-path: inset(calc(-1 * var(--network-clip-top)) 0 0 0);
   }
@@ -74,10 +73,6 @@ import AnimatedNetworkProblem, {
 
     [data-component='AnimatedNetwork'] .network-problem-section > div {
       gap: var(--spacing-xl);
-    }
-
-    [data-component='AnimatedNetwork'] .network-problem-section {
-      padding-bottom: var(--network-problem-padding-bottom);
     }
   }
 
@@ -115,10 +110,6 @@ import AnimatedNetworkProblem, {
       margin-top: calc(
         (var(--network-problem-start) - 1) * 100cqi * var(--network-svg-aspect)
       );
-    }
-
-    [data-component='AnimatedNetwork'] .network-problem-section {
-      padding-bottom: var(--network-problem-padding-bottom);
     }
   }
 
