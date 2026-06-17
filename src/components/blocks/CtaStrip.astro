@@ -1,7 +1,7 @@
 ---
 import { buildUmamiAttrs } from '@/utils'
-import Icon from '../shared/Icon.astro'
-import LinkButton from '../shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
   heading: string
@@ -91,7 +91,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
 
     {
       hasDescription && (
-        <div class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
+        <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
           <slot>{description}</slot>
         </div>
       )

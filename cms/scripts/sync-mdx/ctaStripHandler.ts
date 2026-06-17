@@ -63,22 +63,6 @@ async function handleCtaStrip(
       })
     }
 
-    // Secondary CTA is all-or-nothing.
-    if (
-      (secondaryButtonText === undefined) !==
-      (secondaryButtonLink === undefined)
-    ) {
-      throw new MdxParserError({
-        code: ParserErrorCode.CONFLICTING_PROPS,
-        message:
-          'CtaStrip secondary CTA requires both "secondaryButtonText" and "secondaryButtonLink", or neither.',
-        component: 'CtaStrip',
-        prop: 'secondaryButtonText',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
-
     if (
       color !== undefined &&
       !VALID_COLORS.includes(color as CtaStripBlock['color'])
@@ -102,10 +86,15 @@ async function handleCtaStrip(
       color: (color as CtaStripBlock['color']) ?? DEFAULT_COLOR
     }
 
-    if (secondaryButtonText !== undefined) {
+    // Secondary CTA is all-or-nothing: include it only when both the text and
+    // link are present. A partial pair (one field filled in Strapi) is dropped
+    // here too, matching how CtaStrip.astro renders it — rather than hard-
+    // failing the whole sync over one incomplete entry.
+    if (
+      secondaryButtonText !== undefined &&
+      secondaryButtonLink !== undefined
+    ) {
       block.secondaryButtonText = secondaryButtonText
-    }
-    if (secondaryButtonLink !== undefined) {
       block.secondaryButtonLink = secondaryButtonLink
     }
 

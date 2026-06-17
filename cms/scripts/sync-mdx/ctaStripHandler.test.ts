@@ -138,7 +138,7 @@ describe('CtaStrip handler', () => {
     expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 
-  it('returns CONFLICTING_PROPS when only one secondary field is present', async () => {
+  it('drops an incomplete secondary CTA (only one field present)', async () => {
     const mdx = [
       open(
         'heading="H" primaryButtonText="P" primaryButtonLink="/p" secondaryButtonText="S"'
@@ -147,9 +147,10 @@ describe('CtaStrip handler', () => {
       '</CtaStrip>'
     ].join('\n')
 
-    const result = await parseMdxToBlocks(mdx, ctx)
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.CONFLICTING_PROPS })
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    expect(blocks[0]).toMatchObject({ __component: 'blocks.cta-strip' })
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonText')
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonLink')
   })
 })
 
