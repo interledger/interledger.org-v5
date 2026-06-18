@@ -4,7 +4,8 @@ import {
   useTranslations,
   buildUmamiAttrs,
   getBlogThumbnail,
-  createExcerpt
+  createExcerpt,
+  getReadingTime
 } from '@/utils'
 import BlogCard from './BlogCard.astro'
 
@@ -46,6 +47,7 @@ const postAttrs = (href: string, linkText: string) =>
             excerpt={excerpt}
             postPath={postPath}
             thumbnail={thumbnail}
+            readingTime={getReadingTime(post.body)}
           />
         )
       })

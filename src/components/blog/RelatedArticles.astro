@@ -1,6 +1,11 @@
 ---
 import type { CollectionEntry } from 'astro:content'
-import { buildUmamiAttrs, getBlogThumbnail, createExcerpt } from '@/utils'
+import {
+  buildUmamiAttrs,
+  getBlogThumbnail,
+  createExcerpt,
+  getReadingTime
+} from '@/utils'
 import BlogCard from './BlogCard.astro'
 
 interface Props {
@@ -41,6 +46,7 @@ const linkAttrs = (href: string, linkText: string) =>
             excerpt={excerpt}
             postPath={postPath}
             thumbnail={thumbnail}
+            readingTime={getReadingTime(post.body)}
           />
         )
       })

@@ -69,7 +69,8 @@ export {
   FEATURED_POST_LIMIT,
   TECH_BLOG_FALLBACK_THUMBNAIL,
   getFeaturedPosts,
-  getBlogThumbnail
+  getBlogThumbnail,
+  getReadingTime
 } from './main/blog'
 
 // Main site: Text

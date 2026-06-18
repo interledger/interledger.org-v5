@@ -2,7 +2,7 @@
 import { useTranslations, COLLECTION_INDEX_SLUG, translatePath } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import ArticleCategories from '@/components/blog/ArticleCategories.astro'
-import AuthorByline from '@/components/blog/AuthorByline.astro'
+import ArticleByline from '@/components/blog/ArticleByline.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -48,7 +48,7 @@ const blogPath = translatePath(
     <ArticleCategories categories={frontmatter.categories} path={blogPath} />
   )
 }
-{authors.length > 0 && <AuthorByline authors={authors} />}
+{authors.length > 0 && <ArticleByline authors={authors} />}
 <div class="text-body-lg-standard-md text-neutral-900 mb-2xl desktop:mb-3xl">
   <time
     datetime={publishedIso}

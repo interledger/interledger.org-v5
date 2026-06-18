@@ -50,3 +50,12 @@ export function getBlogThumbnail(post: FoundationBlogEntry): string | null {
   if (legacy) return TECH_BLOG_FALLBACK_THUMBNAIL
   return null
 }
+
+export function getReadingTime(text: string | undefined): number {
+  if (!text) return 0
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length
+  //Average reading speed: 200 words/minute
+  const minutes = Math.max(1, Math.ceil(wordCount / 200))
+
+  return minutes
+}

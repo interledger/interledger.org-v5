@@ -1,0 +1,40 @@
+---
+import type { ArticleBioType } from '@/schemas/content'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+
+interface Props {
+  bio: ArticleBioType | null
+  date: Date
+  readingTime: number
+}
+
+const { bio, date, readingTime } = Astro.props
+---
+
+<div>
+  {
+    bio && (
+      <div class="flex flex-nowrap items-center gap-sm text-body-sm-standard text-neutral-100">
+        {bio.image ? (
+          <OptimizedImage
+            src={bio.image}
+            alt=""
+            width={40}
+            height={40}
+            class="w-[40px] h-[40px] m-0 rounded-full"
+            loading="eager"
+            fetchpriority="high"
+          />
+        ) : (
+          <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full" />
+        )}
+        <span>{bio.author}</span>
+      </div>
+    )
+  }
+  <time class="block text-step--1 mb-space-2xs" datetime={date.toISOString()}>
+    {date.toDateString().substring(4)}
+  </time>
+  <p>{readingTime} min read</p>
+</div>

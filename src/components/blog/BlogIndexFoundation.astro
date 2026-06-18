@@ -5,7 +5,8 @@ import {
   translatePath,
   useTranslations,
   buildUmamiAttrs,
-  getBlogThumbnail
+  getBlogThumbnail,
+  getReadingTime
 } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
 import TaxonomyFilter from './TaxonomyFilter.astro'
@@ -28,18 +29,14 @@ const developersHref = translatePath(
   COLLECTION_INDEX_SLUG
 )
 
-const postAttrs = (
-  href: string,
-  linkText: string,
-  variant: 'title' | 'read_more'
-) =>
+const postAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'card',
     href,
     linkText,
-    action: `post_${variant}`
+    action: `post_title`
   })
 ---
 
@@ -71,6 +68,7 @@ const postAttrs = (
           excerpt={excerpt}
           postPath={postPath}
           thumbnail={thumbnail}
+          readingTime={getReadingTime(blogPostEntry.body)}
         />
       )
     })

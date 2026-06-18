@@ -59,7 +59,6 @@ export const ui = {
     'blog.featured.title': 'Featured',
     'blog.published': 'Published',
     'blog.updated': 'Last updated',
-    'blog.read_more': 'Read more',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
     'blog.community.foundation.middle': 'We also welcome you to join our',
@@ -266,7 +265,6 @@ export const ui = {
     'blog.featured.title': '',
     'blog.published': '',
     'blog.updated': '',
-    'blog.read_more': '',
     'blog.community.foundation.start': '',
     'blog.community.foundation.middle': '',
     'blog.community.foundation.or': '',
