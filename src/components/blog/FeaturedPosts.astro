@@ -1,6 +1,12 @@
 ---
 import type { CollectionEntry } from 'astro:content'
-import { useTranslations, buildUmamiAttrs, getBlogThumbnail } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  getBlogThumbnail,
+  createExcerpt
+} from '@/utils'
+import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -30,23 +36,17 @@ const postAttrs = (href: string, linkText: string) =>
   <ul class="list-none p-0">
     {
       posts.map((post) => {
+        const excerpt = `${createExcerpt(post.body).substring(0, 300)}...`
         const postPath = `${blogIndexHref}/${post.data.pathSlug}`
         const thumbnail = getBlogThumbnail(post)
         return (
-          <li class="mb-space-2xs">
-            {thumbnail && (
-              <img
-                loading="lazy"
-                src={thumbnail}
-                width="260"
-                height="160"
-                alt={post.data.thumbnailImageAlt ?? ''}
-              />
-            )}
-            <a href={postPath} {...postAttrs(postPath, post.data.title)}>
-              {post.data.title}
-            </a>
-          </li>
+          <BlogCard
+            blogData={post.data}
+            umamiAttrs={postAttrs}
+            excerpt={excerpt}
+            postPath={postPath}
+            thumbnail={thumbnail}
+          />
         )
       })
     }
