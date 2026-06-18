@@ -5,6 +5,7 @@ import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
 
 const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
 ---
@@ -25,6 +26,7 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
       <nav aria-label="Sections" class="mb-2xl">
         <ul class="flex flex-wrap gap-md list-none [&>a]:underline">
           <li><a href="#buttons">Buttons</a></li>
+          <li><a href="#cta-strip">CTA strip</a></li>
           <li><a href="#text-media-section">Text + media section</a></li>
           <li><a href="#pillars-section">Pillars Section</a></li>
           <li><a href="/preview/typography">Typography</a></li>
@@ -336,6 +338,56 @@ const containerClass = `mx-auto max-w-(--max-content-width) px-lg`
         <div dir="rtl" class="flex flex-wrap items-center gap-md">
           <Button>RTL primary</Button>
           <Button variant="secondary" mode="light">RTL secondary</Button>
+        </div>
+      </section>
+    </div>
+
+    <div class={containerClass}>
+      <section id="cta-strip" class="mb-3xl">
+        <h2 class="font-poppins mb-xl text-h3">CTA strip</h2>
+        <p class="mb-2xl text-body-lg-standard">
+          Heading, description, a required primary CTA and an optional secondary
+          (outline) CTA, on a selectable background colour (purple / green,
+          default purple). Decorative network motif bleeds off the left edge.
+          Resize through the 810 / 1200 thresholds to see the type and padding
+          scale.
+        </p>
+
+        <div class="flex flex-col gap-2xl">
+          <CtaStrip
+            heading="Stay up to date"
+            description="Sign up for our newsletter and keep up to date with our news and events."
+            primaryButtonText="Subscribe"
+            primaryButtonLink="#cta-strip"
+          />
+
+          <CtaStrip
+            heading="Apply until 24.08.2026"
+            description="This is a reminder text."
+            primaryButtonText="Stay in touch"
+            primaryButtonLink="#cta-strip"
+            secondaryButtonText="Get involved"
+            secondaryButtonLink="#cta-strip"
+            color="green"
+          />
+
+          <CtaStrip
+            heading="Purple with a secondary CTA"
+            description="Both colour variants support an optional secondary outline button alongside the solid primary."
+            primaryButtonText="Primary action"
+            primaryButtonLink="#cta-strip"
+            secondaryButtonText="Secondary action"
+            secondaryButtonLink="#cta-strip"
+            color="purple"
+          />
+
+          <CtaStrip
+            heading="Green, primary only"
+            description="When no secondary CTA is provided, only the primary button renders."
+            primaryButtonText="Get started"
+            primaryButtonLink="#cta-strip"
+            color="green"
+          />
         </div>
       </section>
     </div>

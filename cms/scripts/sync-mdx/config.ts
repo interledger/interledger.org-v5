@@ -17,6 +17,7 @@ import {
 import './ambassadorHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
+import './ctaStripHandler'
 import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
