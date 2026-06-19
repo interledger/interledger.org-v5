@@ -44,8 +44,13 @@ export function getFeaturedPosts(
  * image rather than render a broken one.
  */
 export function getBlogThumbnail(post: FoundationBlogEntry): string | null {
-  const { thumbnailImage, featureImage, legacy } = post.data
-  if (thumbnailImage) return thumbnailImage
+  // const { thumbnailImage, featureImage, legacy } = post.data
+  // if (thumbnailImage) return thumbnailImage
+
+  // Existing thumbnails have the wrong aspect ratio for the redesigned card layout.
+  // Using featureImage as a fallback until thumbnails are replaced. Restore
+  // thumbnailImage as the first check once new assets are in place.
+  const { featureImage, legacy } = post.data
   if (featureImage) return featureImage
   if (legacy) return TECH_BLOG_FALLBACK_THUMBNAIL
   return null
