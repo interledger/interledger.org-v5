@@ -13,14 +13,25 @@ import {
   getFeaturedPosts,
   useTranslations
 } from '@/utils'
+import type { Locale } from '@/utils'
 
 interface Props {
   page: Page
   allTerms: string[]
+  enabledTerms: string[]
   selectedTerm?: string
+  contentLang: Locale
+  isTermFallback?: boolean
 }
 
-const { page, allTerms, selectedTerm } = Astro.props
+const {
+  page,
+  allTerms,
+  enabledTerms,
+  selectedTerm,
+  contentLang,
+  isTermFallback
+} = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
@@ -39,9 +50,14 @@ const description = translatedTerm
   ? t('blog.foundation.tag_description', { tag: translatedTerm })
   : t('blog.foundation.description')
 
-// Featured posts only show on the unfiltered first page. They are drawn from
-// the full collection, not the current page slice.
-const showFeatured = !selectedTerm && page.currentPage === 1
+// Featured posts only show on the bare blog index (first page, no filters).
+// Suppressed by any active category/tag filter (including /category/all) or explicit lang filter.
+const hasLangFilter = Astro.url.pathname.includes('/lang/')
+const hasTermFilter =
+  Astro.url.pathname.includes('/category/') ||
+  Astro.url.pathname.includes('/tag/')
+const showFeatured =
+  !selectedTerm && !hasTermFilter && !hasLangFilter && page.currentPage === 1
 const featuredPosts = showFeatured
   ? getFeaturedPosts(
       await getCollection(
@@ -68,8 +84,10 @@ const featuredPosts = showFeatured
         posts={page.data || []}
         allTerms={allTerms}
         selectedTerm={selectedTerm}
-        showTagFilter={true}
+        enabledTerms={enabledTerms}
         blogIndexHref={blogPath}
+        contentLang={contentLang}
+        isTermFallback={isTermFallback}
       />
       <Pagination
         baseUrl={basePath}

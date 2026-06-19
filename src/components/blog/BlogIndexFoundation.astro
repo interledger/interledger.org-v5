@@ -8,21 +8,38 @@ import {
   getBlogThumbnail,
   getReadingTime
 } from '@/utils'
+import type { Locale } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
 import TaxonomyFilter from './TaxonomyFilter.astro'
+import ContentLangFilter from './ContentLangFilter.astro'
+import ContentLangNotice from './ContentLangNotice.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
 import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
   allTerms?: string[]
+  enabledTerms?: string[]
   selectedTerm?: string
-  showTagFilter?: boolean
   blogIndexHref: string
+  contentLang: Locale
+  isTermFallback?: boolean
 }
-const { posts, allTerms = [], selectedTerm, blogIndexHref } = Astro.props
+const {
+  posts,
+  allTerms = [],
+  enabledTerms,
+  selectedTerm,
+  blogIndexHref,
+  contentLang,
+  isTermFallback
+} = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const contentLangOverride =
+  Astro.url.pathname.includes('/lang/') || contentLang !== routeLocale
+    ? contentLang
+    : undefined
 const developersHref = translatePath(
   'developers-blog',
   routeLocale,
@@ -48,12 +65,26 @@ const postAttrs = (href: string, linkText: string) =>
   imgAlt={t('blog.header.image_alt')}
 />
 
+<ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+
+<ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
+
 <TaxonomyFilter
   collection="foundation-blog"
   terms={allTerms}
+  enabledTerms={enabledTerms}
   selectedTerm={selectedTerm}
   href={blogIndexHref}
+  contentLangOverride={contentLangOverride}
 />
+
+{
+  isTermFallback && (
+    <p class="mb-space-s text-step--1 text-gray-600 italic">
+      {t('blog.empty_tag_lang.message')}
+    </p>
+  )
+}
 
 <ol class="list-none p-0 m-0 flex flex-col gap-2xl">
   {

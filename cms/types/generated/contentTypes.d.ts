@@ -725,6 +725,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.ambassadors-grid',
         'blocks.blockquote',
         'blocks.callout-text',
+        'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
       ]
@@ -853,6 +854,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.ambassadors-grid',
         'blocks.blockquote',
         'blocks.callout-text',
+        'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
       ]
