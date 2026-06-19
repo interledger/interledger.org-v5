@@ -1,6 +1,11 @@
 ---
 import type { FoundationBlogFrontmatterType } from '@/schemas/content'
-import { type UmamiAttrs, translatePath, COLLECTION_INDEX_SLUG } from '@/utils'
+import {
+  type UmamiAttrs,
+  translatePath,
+  COLLECTION_INDEX_SLUG,
+  twMerge
+} from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ArticleCategories from './ArticleCategories.astro'
 import BlogCardByline from './BlogCardByline.astro'
@@ -12,27 +17,48 @@ interface Props {
   postPath: string
   thumbnail: string | null
   readingTime: number
+  featured?: boolean
 }
 
-const { blogData, umamiAttrs, excerpt, postPath, thumbnail, readingTime } =
-  Astro.props
+const {
+  blogData,
+  umamiAttrs,
+  excerpt,
+  postPath,
+  thumbnail,
+  readingTime,
+  featured = false
+} = Astro.props
 const { routeLocale } = Astro.locals
 const blogPath = translatePath(
   'foundation-blog',
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
-const priority = blogData.featured
+
+const cardClasses = twMerge(
+  'flex flex-col-reverse gap-xl m-0 desktop:flex-1',
+  !featured &&
+    'pb-2xl border-b border-neutral-25 tablet:flex-row desktop:gap-3xl'
+)
+const cardHeaderClasses = twMerge(
+  'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit desktop:text-h4-lg',
+  featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
+)
+const cardImageClasses = twMerge(
+  'object-cover rounded-3xl',
+  featured
+    ? 'w-full max-h-[220px]'
+    : 'max-w-[220px] max-h-[140px] tablet:max-h-[160px] desktop:max-w-[260px]'
+)
 ---
 
-<li
-  class="flex flex-col-reverse gap-xl m-0 pb-2xl border-b border-neutral-25 tablet:flex-row desktop:gap-3xl"
->
+<li class={cardClasses}>
   <div class="flex flex-col gap-lg">
     <h3 class="m-0">
       <a
         href={postPath}
-        class="text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit tablet:text-h4-md desktop:text-h4-lg"
+        class={cardHeaderClasses}
         {...umamiAttrs(postPath, blogData.title)}
       >
         {blogData.title}
@@ -52,20 +78,21 @@ const priority = blogData.featured
       bio={blogData.articleBios[0] ?? null}
       date={blogData.date}
       readingTime={readingTime}
-      priority={priority}
+      featured={featured}
+      bylineClasses={featured ? 'flex-row' : ''}
     />
   </div>
   <div>
     {
       thumbnail && (
         <OptimizedImage
-          loading={priority ? 'eager' : 'lazy'}
-          fetchpriority={priority ? 'high' : 'auto'}
+          loading={featured ? 'eager' : 'lazy'}
+          fetchpriority={featured ? 'high' : 'auto'}
           src={thumbnail}
           width={350}
           height={350}
           alt={blogData.thumbnailImageAlt ?? ''}
-          class="max-w-[220px] max-h-[140px] object-cover rounded-3xl tablet:max-h-[160px] desktop:max-w-[260px]"
+          class={cardImageClasses}
         />
       )
     }

@@ -29,12 +29,16 @@ const postAttrs = (href: string, linkText: string) =>
   })
 ---
 
-{/* Unstyled featured section — visual design lands in INTORG-768. */}
-<section aria-labelledby="featured-posts-heading" class="mb-space-m">
-  <h2 id="featured-posts-heading" class="text-step-1 mb-space-2xs">
+<section aria-labelledby="featured-posts-heading">
+  <h2
+    id="featured-posts-heading"
+    class="mb-xl text-h4-lg text-neutral-100 tablet:text-h4-md desktop:mb-2xl desktop:text-h4-lg"
+  >
     {t('blog.featured.title')}
   </h2>
-  <ul class="list-none p-0">
+  <ul
+    class="list-none p-0 m-0 flex flex-col gap-4xl tablet:gap-3xl desktop:flex-row desktop:items-start desktop:gap-4xl"
+  >
     {
       posts.map((post) => {
         const excerpt = `${createExcerpt(post.body).substring(0, 300)}...`
@@ -48,6 +52,7 @@ const postAttrs = (href: string, linkText: string) =>
             postPath={postPath}
             thumbnail={thumbnail}
             readingTime={getReadingTime(post.body)}
+            featured={true}
           />
         )
       })
