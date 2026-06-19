@@ -48,7 +48,7 @@ const cardHeaderClasses = twMerge(
 const cardImageClasses = twMerge(
   'object-cover rounded-3xl',
   featured
-    ? 'w-full max-h-[220px]'
+    ? 'w-full max-h-[220px] aspect-2/1'
     : 'max-w-[220px] max-h-[140px] tablet:max-h-[160px] desktop:max-w-[260px]'
 )
 ---
@@ -89,8 +89,8 @@ const cardImageClasses = twMerge(
           loading={featured ? 'eager' : 'lazy'}
           fetchpriority={featured ? 'high' : 'auto'}
           src={thumbnail}
-          width={350}
-          height={350}
+          width={1100}
+          height={600}
           alt={blogData.thumbnailImageAlt ?? ''}
           class={cardImageClasses}
         />
