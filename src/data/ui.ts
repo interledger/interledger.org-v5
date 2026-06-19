@@ -95,7 +95,7 @@ export const ui = {
     'blog.categories.grants-&-grantee-insights': 'Grants & Grantee Insights',
     'blog.categories.interledger-technology': 'Interledger Technology',
     'blog.categories.thought-leadership': 'Thought Leadership',
-    'blog.related.title': 'You may also like',
+    'blog.related.title': 'Other relevant articles',
     'pagination.pages': '{label} pages',
     'pagination.first': 'First page',
     'pagination.previous': 'Previous page',
