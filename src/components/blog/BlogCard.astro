@@ -26,43 +26,46 @@ const priority = blogData.featured
 ---
 
 <li
-  class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row"
+  class="flex flex-col-reverse gap-xl pb-2xl border-b border-neutral-25 tablet:flex-row desktop:gap-3xl"
 >
-  <div class="flex flex-col flex-1">
-    <h3 class="text-step-1 mb-space-3xs">
+  <div class="flex flex-col gap-lg">
+    <h3 class="m-0">
       <a
         href={postPath}
-        class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
+        class="text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit tablet:text-h4-md desktop:text-h4-lg"
         {...umamiAttrs(postPath, blogData.title)}
       >
         {blogData.title}
       </a>
     </h3>
-    <p class="leading-snug mb-space-2xs grow">
+    <p
+      class="m-0 text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+    >
       {blogData.description ? blogData.description : excerpt}
     </p>
     {
-      blogData.categories && (
+      blogData.categories.length > 0 && (
         <ArticleCategories categories={blogData.categories} path={blogPath} />
       )
     }
     <BlogCardByline
-      bio={blogData.articleBios.length > 0 ? blogData.articleBios[0] : null}
+      bio={blogData.articleBios[0] ?? null}
       date={blogData.date}
       readingTime={readingTime}
       priority={priority}
     />
   </div>
-  <div class="shrink-0">
+  <div>
     {
       thumbnail && (
         <OptimizedImage
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : 'auto'}
           src={thumbnail}
-          width={250}
-          height={250}
+          width={350}
+          height={350}
           alt={blogData.thumbnailImageAlt ?? ''}
-          class="w-62.5 h-62.5 object-cover"
+          class="max-w-[220px] max-h-[140px] object-cover rounded-3xl tablet:max-h-[160px] desktop:max-w-[260px]"
         />
       )
     }
