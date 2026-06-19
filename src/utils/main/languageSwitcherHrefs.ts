@@ -7,6 +7,46 @@ function toDefaultSectionHref(locale: Locale, basePath: string): string {
   return localizeRoute(normalizeBasePath(basePath), locale)
 }
 
+function isBlogPath(basePath: string): boolean {
+  return basePath.endsWith('/blog')
+}
+
+function parseBlogSlug(slug: string): {
+  term?: string
+  contentLang?: Locale
+  segment?: 'tag' | 'category'
+} {
+  const parts = slug.split('/').filter(Boolean)
+  const last = parts.at(-1)
+  const relevant = last && /^\d+$/.test(last) ? parts.slice(0, -1) : parts
+
+  const tagIdx = relevant.indexOf('tag')
+  const categoryIdx = relevant.indexOf('category')
+  const termIdx = tagIdx >= 0 ? tagIdx : categoryIdx
+  const langIdx = relevant.indexOf('lang')
+  return {
+    term: termIdx >= 0 ? relevant[termIdx + 1] : undefined,
+    contentLang: langIdx >= 0 ? (relevant[langIdx + 1] as Locale) : undefined,
+    segment: tagIdx >= 0 ? 'tag' : categoryIdx >= 0 ? 'category' : undefined
+  }
+}
+
+function buildBlogSwitchHref(
+  basePath: string,
+  slug: string,
+  targetLocale: Locale
+): string {
+  const { term, contentLang, segment } = parseBlogSlug(slug)
+  const targetContentLang = contentLang ?? targetLocale
+  const hasExplicitLang = contentLang !== undefined
+  let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
+  if (term) {
+    href += `/${segment ?? 'category'}/${term}`
+  }
+  if (hasExplicitLang) href += `/lang/${targetContentLang}`
+  return href
+}
+
 export function getLanguageSwitcherHrefs(
   currentSlug: string,
   currentBasePath: string
@@ -15,6 +55,16 @@ export function getLanguageSwitcherHrefs(
 
   return Object.fromEntries(
     switcherLocales.map((locale) => {
+      if (isBlogPath(currentBasePath)) {
+        const { term, contentLang } = parseBlogSlug(currentSlug)
+        if (term || contentLang) {
+          return [
+            locale,
+            buildBlogSwitchHref(currentBasePath, currentSlug, locale)
+          ]
+        }
+      }
+
       const slug = entry?.[locale]
       const href = slug
         ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)

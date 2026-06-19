@@ -1,6 +1,6 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
-import { paginateAllPosts } from '@/utils'
+import { paginatePostsByTerm } from '@/utils'
 import type { Locale } from '@/utils'
 import FoundationBlogListingPage from '@/components/pages/FoundationBlogListingPage.astro'
 
@@ -9,14 +9,24 @@ type Props = {
   allTerms: string[]
   enabledTerms: string[]
   contentLang: Locale
+  selectedTerm?: string
+  isTermFallback?: boolean
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  return paginateAllPosts({
+  const enPaths = await paginatePostsByTerm({
     paginate,
     collection: 'foundation-blog',
-    lang: 'es'
+    lang: 'en',
+    contentLang: 'en'
   })
+  const esPaths = await paginatePostsByTerm({
+    paginate,
+    collection: 'foundation-blog',
+    lang: 'en',
+    contentLang: 'es'
+  })
+  return [...enPaths, ...esPaths]
 }
 ---
 
