@@ -22,6 +22,7 @@ const blogPath = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
+const priority = blogData.featured
 ---
 
 <li
@@ -49,6 +50,7 @@ const blogPath = translatePath(
       bio={blogData.articleBios.length > 0 ? blogData.articleBios[0] : null}
       date={blogData.date}
       readingTime={readingTime}
+      priority={priority}
     />
   </div>
   <div class="shrink-0">

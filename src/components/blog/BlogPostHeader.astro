@@ -1,5 +1,10 @@
 ---
-import { useTranslations, COLLECTION_INDEX_SLUG, translatePath } from '@/utils'
+import {
+  useTranslations,
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  formatDate
+} from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import ArticleCategories from '@/components/blog/ArticleCategories.astro'
 import ArticleByline from '@/components/blog/ArticleByline.astro'
@@ -16,17 +21,17 @@ const t = useTranslations(routeLocale)
 const FEATURE_DESKTOP = { width: 720, height: 428 }
 const FEATURE_MOBILE = { width: 358, height: 240 }
 
-const dateConfig = { month: 'short', day: 'numeric', year: 'numeric' } as const
-
 const publishedDate = new Date(frontmatter.date)
 const publishedIso = publishedDate.toISOString().slice(0, 10)
-const publishedLong = publishedDate.toLocaleDateString(routeLocale, dateConfig)
+const publishedLong = formatDate(publishedDate, routeLocale)
 
 const updatedDate = frontmatter.lastUpdated
   ? new Date(frontmatter.lastUpdated)
   : null
 const updatedIso = updatedDate?.toISOString().slice(0, 10)
-const updatedLong = updatedDate?.toLocaleDateString(routeLocale, dateConfig)
+const updatedLong = updatedDate
+  ? formatDate(updatedDate, routeLocale)
+  : undefined
 
 const authors = frontmatter.articleBios ?? []
 

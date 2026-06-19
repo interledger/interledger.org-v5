@@ -80,7 +80,7 @@ export { parseMarkdown, parseMarkdownInline } from './main/mdx'
 export { createExcerpt } from './main/create-excerpt'
 
 // Main site: Formatting
-export { formatDate, getDurationInMinutes } from './main/time'
+export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'

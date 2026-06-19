@@ -57,6 +57,7 @@ export const ui = {
     'blog.filter.tag.label': 'Filter by tag:',
     'blog.filter.all': 'All',
     'blog.featured.title': 'Featured',
+    'blog.reading_time': '{readingTime} min read',
     'blog.published': 'Published',
     'blog.updated': 'Last updated',
     'blog.community.foundation.start':
@@ -263,6 +264,7 @@ export const ui = {
     'blog.filter.tag.label': '',
     'blog.filter.all': '',
     'blog.featured.title': '',
+    'blog.reading_time': '',
     'blog.published': '',
     'blog.updated': '',
     'blog.community.foundation.start': '',

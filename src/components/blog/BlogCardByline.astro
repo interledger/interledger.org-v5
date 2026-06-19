@@ -1,5 +1,6 @@
 ---
 import type { ArticleBioType } from '@/schemas/content'
+import { useTranslations, formatDate } from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
 
@@ -7,15 +8,20 @@ interface Props {
   bio: ArticleBioType | null
   date: Date
   readingTime: number
+  priority: boolean
 }
 
-const { bio, date, readingTime } = Astro.props
+const { bio, date, readingTime, priority } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 ---
 
-<div>
+<div
+  class="flex flex-col gap-md text-neutral-100 **:text-body-sm-standard tablet:flex-row tablet:flex-wrap tablet:gap-xl"
+>
   {
     bio && (
-      <div class="flex flex-nowrap items-center gap-sm text-body-sm-standard text-neutral-100">
+      <div class="flex flex-nowrap items-center gap-sm">
         {bio.image ? (
           <OptimizedImage
             src={bio.image}
@@ -23,18 +29,23 @@ const { bio, date, readingTime } = Astro.props
             width={40}
             height={40}
             class="w-[40px] h-[40px] m-0 rounded-full"
-            loading="eager"
-            fetchpriority="high"
+            pictureClass="shrink-0"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchpriority={priority ? 'high' : 'auto'}
           />
         ) : (
-          <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full" />
+          <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full shrink-0" />
         )}
         <span>{bio.author}</span>
       </div>
     )
   }
-  <time class="block text-step--1 mb-space-2xs" datetime={date.toISOString()}>
-    {date.toDateString().substring(4)}
-  </time>
-  <p>{readingTime} min read</p>
+  <div class="flex gap-xl py-sm">
+    <time datetime={date.toISOString()}>
+      {formatDate(date, routeLocale)}
+    </time>
+    <span class="text-neutral-75"
+      >{t('blog.reading_time', { readingTime })}</span
+    >
+  </div>
 </div>
