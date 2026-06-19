@@ -62,6 +62,7 @@ export {
   getTermSlug,
   getTermUrl,
   translateTerm,
+  buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm
 } from './main/tagFilter'

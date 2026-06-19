@@ -59,6 +59,20 @@ export const ui = {
     'blog.featured.title': 'Featured',
     'blog.published': 'Published',
     'blog.updated': 'Last updated',
+    'blog.lang_filter.label': 'Filter by language:',
+    'blog.lang_filter.english': 'English',
+    'blog.lang_filter.spanish': 'Spanish',
+    // Only rendered on the English site when the Spanish filter is active.
+    // TRANSLATION NOTE: No translation needed
+    'blog.lang_filter.viewing_es_posts': 'Showing Spanish posts',
+    // Only rendered on the Spanish site when the English filter is active.
+    'blog.lang_filter.viewing_en_posts': 'Showing English posts',
+    // Shown whenever the Spanish content filter is active (on either EN or ES site)
+    'blog.lang_filter.more_en_available': 'More posts available in English',
+    'blog.lang_filter.view_in_en': 'View in English',
+    'blog.empty_tag_lang.message':
+      'No posts found for this tag in the selected language.',
+    'blog.empty_tag_lang.cta': 'View all posts',
     'blog.read_more': 'Read more',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
@@ -266,6 +280,18 @@ export const ui = {
     'blog.featured.title': '',
     'blog.published': '',
     'blog.updated': '',
+    'blog.lang_filter.label': 'Filtrar por idioma:',
+    'blog.lang_filter.english': 'Inglés',
+    'blog.lang_filter.spanish': 'Español',
+    // Shown on ES pages when the English filter is active
+    'blog.lang_filter.viewing_en_posts': 'Mostrando publicaciones en inglés',
+    // Shown whenever the Spanish content filter is active (on either EN or ES site)
+    'blog.lang_filter.more_en_available':
+      'Nota: hay más publicaciones disponibles en inglés',
+    'blog.lang_filter.view_in_en': 'Ver en inglés',
+    'blog.empty_tag_lang.message':
+      'No se encontraron publicaciones para esta etiqueta en el idioma seleccionado.',
+    'blog.empty_tag_lang.cta': 'Ver todas las publicaciones',
     'blog.read_more': '',
     'blog.community.foundation.start': '',
     'blog.community.foundation.middle': '',
