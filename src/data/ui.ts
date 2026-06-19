@@ -57,6 +57,7 @@ export const ui = {
     'blog.filter.tag.label': 'Filter by tag:',
     'blog.filter.all': 'All',
     'blog.featured.title': 'Featured',
+    'blog.reading_time': '{readingTime} min read',
     'blog.published': 'Published',
     'blog.updated': 'Last updated',
     'blog.lang_filter.label': 'Filter by language:',
@@ -73,7 +74,6 @@ export const ui = {
     'blog.empty_tag_lang.message':
       'No posts found for this tag in the selected language.',
     'blog.empty_tag_lang.cta': 'View all posts',
-    'blog.read_more': 'Read more',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
     'blog.community.foundation.middle': 'We also welcome you to join our',
@@ -109,7 +109,7 @@ export const ui = {
     'blog.categories.grants-&-grantee-insights': 'Grants & Grantee Insights',
     'blog.categories.interledger-technology': 'Interledger Technology',
     'blog.categories.thought-leadership': 'Thought Leadership',
-    'blog.related.title': 'You may also like',
+    'blog.related.title': 'Other relevant articles',
     'pagination.pages': '{label} pages',
     'pagination.first': 'First page',
     'pagination.previous': 'Previous page',
@@ -278,6 +278,7 @@ export const ui = {
     'blog.filter.tag.label': '',
     'blog.filter.all': '',
     'blog.featured.title': '',
+    'blog.reading_time': '',
     'blog.published': '',
     'blog.updated': '',
     'blog.lang_filter.label': 'Filtrar por idioma:',
@@ -292,7 +293,6 @@ export const ui = {
     'blog.empty_tag_lang.message':
       'No se encontraron publicaciones para esta etiqueta en el idioma seleccionado.',
     'blog.empty_tag_lang.cta': 'Ver todas las publicaciones',
-    'blog.read_more': '',
     'blog.community.foundation.start': '',
     'blog.community.foundation.middle': '',
     'blog.community.foundation.or': '',

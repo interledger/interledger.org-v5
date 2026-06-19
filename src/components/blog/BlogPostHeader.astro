@@ -1,8 +1,13 @@
 ---
-import { useTranslations, COLLECTION_INDEX_SLUG, translatePath } from '@/utils'
+import {
+  useTranslations,
+  COLLECTION_INDEX_SLUG,
+  translatePath,
+  formatDate
+} from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import ArticleCategories from '@/components/blog/ArticleCategories.astro'
-import AuthorByline from '@/components/blog/AuthorByline.astro'
+import ArticleByline from '@/components/blog/ArticleByline.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -16,17 +21,17 @@ const t = useTranslations(routeLocale)
 const FEATURE_DESKTOP = { width: 720, height: 428 }
 const FEATURE_MOBILE = { width: 358, height: 240 }
 
-const dateConfig = { month: 'short', day: 'numeric', year: 'numeric' } as const
-
 const publishedDate = new Date(frontmatter.date)
 const publishedIso = publishedDate.toISOString().slice(0, 10)
-const publishedLong = publishedDate.toLocaleDateString(routeLocale, dateConfig)
+const publishedLong = formatDate(publishedDate, routeLocale)
 
 const updatedDate = frontmatter.lastUpdated
   ? new Date(frontmatter.lastUpdated)
   : null
 const updatedIso = updatedDate?.toISOString().slice(0, 10)
-const updatedLong = updatedDate?.toLocaleDateString(routeLocale, dateConfig)
+const updatedLong = updatedDate
+  ? formatDate(updatedDate, routeLocale)
+  : undefined
 
 const authors = frontmatter.articleBios ?? []
 
@@ -37,61 +42,65 @@ const blogPath = translatePath(
 )
 ---
 
-<h1
-  itemprop="headline"
-  class="mb-2xl text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg desktop:mb-3xl"
->
-  {frontmatter.title}
-</h1>
-{
-  frontmatter.categories?.length > 0 && (
-    <ArticleCategories categories={frontmatter.categories} path={blogPath} />
-  )
-}
-{authors.length > 0 && <AuthorByline authors={authors} />}
-<div class="text-body-lg-standard-md text-neutral-900 mb-2xl desktop:mb-3xl">
-  <time
-    datetime={publishedIso}
-    itemprop="datePublished"
-    aria-label={`${t('blog.published')}`}
+<div class="flex flex-col gap-2xl desktop:gap-3xl">
+  <h1
+    itemprop="headline"
+    class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
   >
-    {publishedLong}
-  </time>
+    {frontmatter.title}
+  </h1>
   {
-    updatedDate && (
+    frontmatter.categories?.length > 0 && (
+      <ArticleCategories categories={frontmatter.categories} path={blogPath} />
+    )
+  }
+  <div class="flex flex-col gap-xl">
+    {authors.length > 0 && <ArticleByline authors={authors} />}
+    <div class="text-body-lg-standard-md text-neutral-900">
       <time
-        datetime={updatedIso}
-        itemprop="dateModified"
-        class="pl-sm ml-sm text-neutral-75 border-l border-l-neutral-75"
+        datetime={publishedIso}
+        itemprop="datePublished"
+        aria-label={`${t('blog.published')}`}
       >
-        {t('blog.updated')} {updatedLong}
+        {publishedLong}
       </time>
+      {
+        updatedDate && (
+          <time
+            datetime={updatedIso}
+            itemprop="dateModified"
+            class="pl-sm ml-sm text-neutral-75 border-l border-l-neutral-75"
+          >
+            {t('blog.updated')} {updatedLong}
+          </time>
+        )
+      }
+    </div>
+  </div>
+  {
+    frontmatter.featureImage && (
+      <div class="mb-3xl rounded-3xl overflow-hidden tablet:mb-4xl desktop:mb-5xl">
+        <picture>
+          {frontmatter.featureImageMobile && (
+            <source
+              media="(max-width: 809px)"
+              srcset={frontmatter.featureImageMobile}
+              width={FEATURE_MOBILE.width}
+              height={FEATURE_MOBILE.height}
+            />
+          )}
+          <img
+            src={frontmatter.featureImage}
+            alt={frontmatter.featureImageAlt ?? ''}
+            width={FEATURE_DESKTOP.width}
+            height={FEATURE_DESKTOP.height}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="w-full h-auto"
+          />
+        </picture>
+      </div>
     )
   }
 </div>
-{
-  frontmatter.featureImage && (
-    <div class="mb-3xl rounded-3xl overflow-hidden tablet:mb-4xl desktop:mb-5xl">
-      <picture>
-        {frontmatter.featureImageMobile && (
-          <source
-            media="(max-width: 809px)"
-            srcset={frontmatter.featureImageMobile}
-            width={FEATURE_MOBILE.width}
-            height={FEATURE_MOBILE.height}
-          />
-        )}
-        <img
-          src={frontmatter.featureImage}
-          alt={frontmatter.featureImageAlt ?? ''}
-          width={FEATURE_DESKTOP.width}
-          height={FEATURE_DESKTOP.height}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="w-full h-auto"
-        />
-      </picture>
-    </div>
-  )
-}

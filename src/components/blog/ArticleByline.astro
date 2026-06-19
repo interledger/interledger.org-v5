@@ -24,7 +24,7 @@ const umamiAttrs = (href: string, linkText: string) =>
 ---
 
 <address
-  class="flex flex-wrap gap-lg mb-xl not-italic"
+  class="flex flex-wrap gap-lg not-italic"
   role="group"
   aria-label={t('aria.authors')}
 >
@@ -38,13 +38,14 @@ const umamiAttrs = (href: string, linkText: string) =>
             width={40}
             height={40}
             class="w-[40px] h-[40px] m-0 rounded-full"
+            pictureClass="shrink-0"
             loading="eager"
             fetchpriority="high"
           />
         ) : (
           <FallbackAuthorIcon
             index={index}
-            svgClasses="w-[40px] h-[40px] rounded-full"
+            svgClasses="w-[40px] h-[40px] rounded-full shrink-0"
           />
         )}
         {bio.link ? (

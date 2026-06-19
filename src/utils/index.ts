@@ -70,7 +70,8 @@ export {
   FEATURED_POST_LIMIT,
   TECH_BLOG_FALLBACK_THUMBNAIL,
   getFeaturedPosts,
-  getBlogThumbnail
+  getBlogThumbnail,
+  getReadingTime
 } from './main/blog'
 
 // Main site: Text
@@ -80,7 +81,7 @@ export { parseMarkdown, parseMarkdownInline } from './main/mdx'
 export { createExcerpt } from './main/create-excerpt'
 
 // Main site: Formatting
-export { formatDate, getDurationInMinutes } from './main/time'
+export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
