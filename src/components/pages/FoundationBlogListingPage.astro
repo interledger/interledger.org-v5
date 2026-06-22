@@ -3,17 +3,20 @@ import type { Page } from 'astro'
 import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
-import FeaturedPosts from '@/components/blog/FeaturedPosts.astro'
-import Pagination from '@/components/shared/Pagination.astro'
 import {
   stripPagination,
   COLLECTION_INDEX_SLUG,
   translatePath,
   translateTerm,
   getFeaturedPosts,
-  useTranslations
+  useTranslations,
+  localizeRoute
 } from '@/utils'
 import type { Locale } from '@/utils'
+import FeaturedPosts from '@/components/blog/FeaturedPosts.astro'
+import Pagination from '@/components/shared/Pagination.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
 
 interface Props {
   page: Page
@@ -40,6 +43,15 @@ const blogPath = translatePath(
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
+const subscribePath = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'subscribe'
+)
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: t('blog.foundation.title'), href: blogPath }
+]
 const translatedTerm = selectedTerm
   ? translateTerm('blog.categories', selectedTerm, t)
   : undefined
@@ -72,14 +84,11 @@ const featuredPosts = showFeatured
   title={title}
   description={description}
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
+  headerTheme="light"
 >
   <main class="pt-space-m pb-space-xl">
     <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
-      {
-        featuredPosts.length > 0 && (
-          <FeaturedPosts posts={featuredPosts} blogIndexHref={blogPath} />
-        )
-      }
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
       <BlogIndexFoundation
         posts={page.data || []}
         allTerms={allTerms}
@@ -88,7 +97,21 @@ const featuredPosts = showFeatured
         blogIndexHref={blogPath}
         contentLang={contentLang}
         isTermFallback={isTermFallback}
-      />
+      >
+        {
+          featuredPosts.length > 0 && (
+            <Fragment slot="featured">
+              <FeaturedPosts posts={featuredPosts} blogIndexHref={blogPath} />
+              <CtaStrip
+                heading={t('blog.cta.heading')}
+                description={t('blog.cta.description')}
+                primaryButtonText={t('blog.cta.link_text')}
+                primaryButtonLink={subscribePath}
+              />
+            </Fragment>
+          )
+        }
+      </BlogIndexFoundation>
       <Pagination
         baseUrl={basePath}
         length={page.lastPage}

@@ -1,8 +1,6 @@
 ---
 import {
   createExcerpt,
-  COLLECTION_INDEX_SLUG,
-  translatePath,
   useTranslations,
   buildUmamiAttrs,
   getBlogThumbnail,
@@ -13,7 +11,6 @@ import type { CollectionEntry } from 'astro:content'
 import TaxonomyFilter from './TaxonomyFilter.astro'
 import ContentLangFilter from './ContentLangFilter.astro'
 import ContentLangNotice from './ContentLangNotice.astro'
-import BlogIndexHeader from './BlogIndexHeader.astro'
 import BlogCard from './BlogCard.astro'
 
 interface Props {
@@ -40,11 +37,6 @@ const contentLangOverride =
   Astro.url.pathname.includes('/lang/') || contentLang !== routeLocale
     ? contentLang
     : undefined
-const developersHref = translatePath(
-  'developers-blog',
-  routeLocale,
-  COLLECTION_INDEX_SLUG
-)
 
 const postAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
@@ -57,13 +49,11 @@ const postAttrs = (href: string, linkText: string) =>
   })
 ---
 
-<BlogIndexHeader
-  title={t('blog.foundation.title')}
-  href={developersHref}
-  message={t('blog.foundation.cta')}
-  imgHref="/img/ernie-teal.svg"
-  imgAlt={t('blog.header.image_alt')}
-/>
+<h1 class="text-step-3 font-bold">
+  {t('blog.foundation.title')}
+</h1>
+
+<slot name="featured" />
 
 <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
