@@ -11,27 +11,25 @@ document.addEventListener('keydown', (event) => {
   if (!isTableScrollRegion(document.activeElement)) return
 
   const region = document.activeElement
-  let delta = 0
 
   switch (event.key) {
     case 'ArrowLeft':
-      delta = -SCROLL_STEP_PX
+      region.scrollLeft += -SCROLL_STEP_PX
+      event.preventDefault()
       break
     case 'ArrowRight':
-      delta = SCROLL_STEP_PX
+      region.scrollLeft += SCROLL_STEP_PX
+      event.preventDefault()
       break
     case 'Home':
       region.scrollLeft = 0
       event.preventDefault()
-      return
+      break
     case 'End':
       region.scrollLeft = region.scrollWidth
       event.preventDefault()
-      return
+      break
     default:
       return
   }
-
-  region.scrollLeft += delta
-  event.preventDefault()
 })
