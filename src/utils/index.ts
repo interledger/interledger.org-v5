@@ -114,7 +114,8 @@ export {
   hasOptimizedVariants,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
-  pathToSegments
+  pathToSegments,
+  type OptimizedImage
 } from './main/images'
 
 // Main site: Ambassadors

@@ -165,8 +165,31 @@ export default {
       aside[aria-labelledby="additional-information"]:nth-child(2) { display: none !important; }
       /* TEMP UI Fix: enum dropdowns should show all options without scrolling */
       [role="listbox"] { max-height: none !important; }
+      /* TEMP UI Fix: image block — divider between asset row and options row */
+      [data-image-block-divider="true"] {
+        border-top: 1px solid #dcdce4;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+      }
     `
     document.head.appendChild(style)
+
+    // TEMP UI Fix: image block layout has no separator row type; mark options panel via DOM
+    function applyImageBlockSeparators() {
+      for (const altInput of document.querySelectorAll<HTMLInputElement>(
+        'input[name$=".altText"]'
+      )) {
+        let node: HTMLElement | null = altInput
+        for (let depth = 0; depth < 15 && node; depth++) {
+          const prev = node.previousElementSibling
+          if (prev?.querySelector('[aria-label="Image"]')) {
+            node.setAttribute('data-image-block-divider', 'true')
+            break
+          }
+          node = node.parentElement
+        }
+      }
+    }
 
     // TEMP UI Fix: apply DOM tweaks (MutationObserver, no polling)
     function applyUITweaks() {
@@ -258,6 +281,8 @@ export default {
           break
         }
       }
+
+      applyImageBlockSeparators()
 
       // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')

@@ -547,7 +547,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }>
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.video-embed']
+      ['blocks.paragraph', 'blocks.video-embed', 'blocks.image-block']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

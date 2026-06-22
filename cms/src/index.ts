@@ -678,6 +678,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
     },
+    'blocks.image-block': {
+      image: 'Image',
+      tabletImage: 'Tablet image variant (optional)',
+      mobileImage: 'Mobile image variant (optional)',
+      altText: 'Image alt text',
+      needsFullView: 'Needs full view',
+      needsOutline: 'Needs outline'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -701,6 +709,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       category:
         'Option A: show ambassadors by category (leave ambassadors empty)',
       ambassadors: 'Option B: pick ambassadors manually (leave category empty)'
+    },
+    'blocks.image-block': {
+      tabletImage:
+        'Use if your image needs different proportions or cropping on medium-sized screens.',
+      mobileImage:
+        'Use if your image needs different proportions or cropping on small screens.',
+      altText:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
+      needsFullView:
+        'Enable for complex images, diagrams, or anything where fine detail matters.',
+      needsOutline:
+        'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
     }
   }
 
@@ -913,6 +933,18 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'imagePosition', size: 6 }
       ],
       [{ name: 'content', size: 12 }]
+    ],
+    'blocks.image-block': [
+      [
+        { name: 'image', size: 4 },
+        { name: 'tabletImage', size: 4 },
+        { name: 'mobileImage', size: 4 }
+      ],
+      [
+        { name: 'altText', size: 4 },
+        { name: 'needsFullView', size: 4 },
+        { name: 'needsOutline', size: 4 }
+      ]
     ],
     'blocks.blockquote': [
       [{ name: 'quote', size: 12 }],

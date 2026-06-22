@@ -16,6 +16,7 @@ import { serialize as calloutText } from './callout-text.serializer'
 import { serialize as ctaStrip } from './cta-strip.serializer'
 import { serialize as pdfEmbed } from './pdf-embed.serializer'
 import { serialize as videoEmbed } from './video-embed.serializer'
+import { serialize as imageBlock } from './image-block.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cards-grid': cardsGrid,
@@ -30,7 +31,8 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.callout-text': calloutText,
   'blocks.cta-strip': ctaStrip,
   'blocks.pdf-embed': pdfEmbed,
-  'blocks.video-embed': videoEmbed
+  'blocks.video-embed': videoEmbed,
+  'blocks.image-block': imageBlock
 }
 
 export function serializeContent(
