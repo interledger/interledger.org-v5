@@ -86,8 +86,10 @@ const featuredPosts = showFeatured
   ogImageUrl={new URL('/img/blog/og-ilf.png', Astro.site).href}
   headerTheme="light"
 >
-  <main class="pt-space-m pb-space-xl">
-    <div class="mx-auto max-w-360 min-w-90 px-[5%] min-[1600px]:px-0">
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <div class="w-full max-w-content m-auto">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <BlogIndexFoundation
         posts={page.data || []}
@@ -100,7 +102,7 @@ const featuredPosts = showFeatured
       >
         {
           featuredPosts.length > 0 && (
-            <Fragment slot="featured">
+            <div class="flex flex-col gap-4xl desktop:gap-5xl" slot="featured">
               <FeaturedPosts posts={featuredPosts} blogIndexHref={blogPath} />
               <CtaStrip
                 heading={t('blog.cta.heading')}
@@ -108,7 +110,7 @@ const featuredPosts = showFeatured
                 primaryButtonText={t('blog.cta.link_text')}
                 primaryButtonLink={subscribePath}
               />
-            </Fragment>
+            </div>
           )
         }
       </BlogIndexFoundation>
@@ -121,6 +123,7 @@ const featuredPosts = showFeatured
         nextUrl={page.url.next}
         lastUrl={page.url.last}
         label={title}
+        class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
       />
     </div>
   </main>

@@ -49,32 +49,39 @@ const postAttrs = (href: string, linkText: string) =>
   })
 ---
 
-<h1 class="text-step-3 font-bold">
+<h1
+  class="my-xl text-neutral-900 text-h2 tablet:text-h2-md desktop:my-3xl desktop:text-h2-lg"
+>
   {t('blog.foundation.title')}
 </h1>
 
 <slot name="featured" />
 
-<ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+<section
+  aria-label={t('aria.blog.filters_label')}
+  class="mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+>
+  <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
-<ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
+  <ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
 
-<TaxonomyFilter
-  collection="foundation-blog"
-  terms={allTerms}
-  enabledTerms={enabledTerms}
-  selectedTerm={selectedTerm}
-  href={blogIndexHref}
-  contentLangOverride={contentLangOverride}
-/>
+  <TaxonomyFilter
+    collection="foundation-blog"
+    terms={allTerms}
+    enabledTerms={enabledTerms}
+    selectedTerm={selectedTerm}
+    href={blogIndexHref}
+    contentLangOverride={contentLangOverride}
+  />
 
-{
-  isTermFallback && (
-    <p class="mb-space-s text-step--1 text-gray-600 italic">
-      {t('blog.empty_tag_lang.message')}
-    </p>
-  )
-}
+  {
+    isTermFallback && (
+      <p class="mb-space-s text-step--1 text-gray-600 italic">
+        {t('blog.empty_tag_lang.message')}
+      </p>
+    )
+  }
+</section>
 
 <ol class="list-none p-0 m-0 flex flex-col gap-2xl">
   {

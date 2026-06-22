@@ -1,5 +1,5 @@
 ---
-import { useTranslations, buildUmamiAttrs } from '@/utils'
+import { useTranslations, buildUmamiAttrs, twMerge } from '@/utils'
 
 const {
   baseUrl,
@@ -9,7 +9,8 @@ const {
   prevUrl,
   nextUrl,
   lastUrl,
-  label
+  label,
+  class: className
 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -23,12 +24,10 @@ const pageAttrs = (action: string, ariaLabel: string) =>
     ariaLabel,
     action
   })
+const paginationClasses = twMerge('flex justify-center', className)
 ---
 
-<nav
-  aria-label={t('pagination.pages', { label })}
-  class="flex justify-center my-space-m"
->
+<nav aria-label={t('pagination.pages', { label })} class={paginationClasses}>
   {
     firstUrl ? (
       <a

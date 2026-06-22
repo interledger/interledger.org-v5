@@ -1,5 +1,10 @@
 ---
-import { buildUmamiAttrs, useTranslations, stripTrailingSlash } from '@/utils'
+import {
+  buildUmamiAttrs,
+  useTranslations,
+  stripTrailingSlash,
+  twMerge
+} from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 
 interface BreadcrumbItem {
@@ -8,17 +13,22 @@ interface BreadcrumbItem {
 }
 interface Props {
   breadcrumbs: BreadcrumbItem[]
+  class?: string
 }
 
-const { breadcrumbs } = Astro.props
+const { breadcrumbs, class: className } = Astro.props
 const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
+const breadcrumbClasses = twMerge(
+  'flex gap-xs list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
+  className
+)
 ---
 
 <nav aria-label={t('nav.breadcrumb')}>
   <ol
-    class="flex gap-xs list-none m-0 mb-2xl p-0 desktop:mb-3xl [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current='page']]:text-orchid-100 [&_svg]:text-current"
+    class={breadcrumbClasses}
     itemscope
     itemtype="https://schema.org/BreadcrumbList"
   >
