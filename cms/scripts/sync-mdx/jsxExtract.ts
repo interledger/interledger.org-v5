@@ -261,6 +261,27 @@ export function getStringArrayAttr(
   })
 }
 
+/**
+ * Detects genuine `${...}` interpolation inside a template-literal body.
+ *
+ * Only an *unescaped* `$` immediately followed by `{` is interpolation. A
+ * `\${` (as produced by the CodeBlock serializer for literal `${`) is escaped
+ * and must not be flagged. Backslashes are consumed in pairs so an escaped
+ * backslash (`\\`) does not mask the `$` that follows it.
+ */
+function hasTemplateInterpolation(inner: string): boolean {
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\') {
+      i++ // skip the escaped character
+      continue
+    }
+    if (inner[i] === '$' && inner[i + 1] === '{') {
+      return true
+    }
+  }
+  return false
+}
+
 function unescapeTemplateLiteral(inner: string): string {
   let result = ''
   for (let i = 0; i < inner.length; i++) {
@@ -342,7 +363,9 @@ function parseStaticExpressionLiteral(
     })
   }
 
-  if (trimmed.includes('${')) {
+  const inner = trimmed.slice(1, -1)
+
+  if (hasTemplateInterpolation(inner)) {
     throw new MdxParserError({
       code: ParserErrorCode.DYNAMIC_EXPRESSION,
       message: `Prop "${meta.prop}" must be a static template literal without \${...} interpolation.`,
@@ -353,7 +376,7 @@ function parseStaticExpressionLiteral(
     })
   }
 
-  return unescapeTemplateLiteral(trimmed.slice(1, -1))
+  return unescapeTemplateLiteral(inner)
 }
 
 /**
