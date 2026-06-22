@@ -1,0 +1,61 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  getBlogThumbnail,
+  createExcerpt,
+  getReadingTime
+} from '@/utils'
+import BlogCard from './BlogCard.astro'
+
+interface Props {
+  posts: CollectionEntry<'foundation-blog'>[]
+  blogIndexHref: string
+}
+
+const { posts, blogIndexHref } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const postAttrs = (href: string, linkText: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'featured_content',
+    href,
+    linkText,
+    action: 'featured_post'
+  })
+---
+
+<section aria-labelledby="featured-posts-heading">
+  <h2
+    id="featured-posts-heading"
+    class="mb-xl text-h4-lg text-neutral-100 tablet:text-h4-md desktop:mb-2xl desktop:text-h4-lg"
+  >
+    {t('blog.featured.title')}
+  </h2>
+  <ul
+    class="list-none p-0 m-0 flex flex-col gap-4xl tablet:gap-3xl desktop:flex-row desktop:items-start desktop:gap-4xl"
+  >
+    {
+      posts.map((post) => {
+        const excerpt = `${createExcerpt(post.body).substring(0, 300)}...`
+        const postPath = `${blogIndexHref}/${post.data.pathSlug}`
+        const thumbnail = getBlogThumbnail(post)
+        return (
+          <BlogCard
+            blogData={post.data}
+            umamiAttrs={postAttrs}
+            excerpt={excerpt}
+            postPath={postPath}
+            thumbnail={thumbnail}
+            readingTime={getReadingTime(post.body)}
+            featured={true}
+          />
+        )
+      })
+    }
+  </ul>
+</section>

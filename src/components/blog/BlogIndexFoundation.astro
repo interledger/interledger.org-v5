@@ -4,40 +4,56 @@ import {
   COLLECTION_INDEX_SLUG,
   translatePath,
   useTranslations,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  getBlogThumbnail,
+  getReadingTime
 } from '@/utils'
+import type { Locale } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
-import TagFilter from './TagFilter.astro'
+import TaxonomyFilter from './TaxonomyFilter.astro'
+import ContentLangFilter from './ContentLangFilter.astro'
+import ContentLangNotice from './ContentLangNotice.astro'
 import BlogIndexHeader from './BlogIndexHeader.astro'
+import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
-  allTags?: string[]
-  selectedTag?: string
-  showTagFilter?: boolean
+  allTerms?: string[]
+  enabledTerms?: string[]
+  selectedTerm?: string
   blogIndexHref: string
+  contentLang: Locale
+  isTermFallback?: boolean
 }
-const { posts, allTags = [], selectedTag, blogIndexHref } = Astro.props
+const {
+  posts,
+  allTerms = [],
+  enabledTerms,
+  selectedTerm,
+  blogIndexHref,
+  contentLang,
+  isTermFallback
+} = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const contentLangOverride =
+  Astro.url.pathname.includes('/lang/') || contentLang !== routeLocale
+    ? contentLang
+    : undefined
 const developersHref = translatePath(
   'developers-blog',
   routeLocale,
   COLLECTION_INDEX_SLUG
 )
 
-const postAttrs = (
-  href: string,
-  linkText: string,
-  variant: 'title' | 'read_more'
-) =>
+const postAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'card',
     href,
     linkText,
-    action: `post_${variant}`
+    action: `post_title`
   })
 ---
 
@@ -49,66 +65,42 @@ const postAttrs = (
   imgAlt={t('blog.header.image_alt')}
 />
 
-<TagFilter allTags={allTags} selectedTag={selectedTag} href={blogIndexHref} />
+<ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
-<ol class="list-none p-0">
+<ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
+
+<TaxonomyFilter
+  collection="foundation-blog"
+  terms={allTerms}
+  enabledTerms={enabledTerms}
+  selectedTerm={selectedTerm}
+  href={blogIndexHref}
+  contentLangOverride={contentLangOverride}
+/>
+
+{
+  isTermFallback && (
+    <p class="mb-space-s text-step--1 text-gray-600 italic">
+      {t('blog.empty_tag_lang.message')}
+    </p>
+  )
+}
+
+<ol class="list-none p-0 m-0 flex flex-col gap-2xl">
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
       const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
+      const thumbnail = getBlogThumbnail(blogPostEntry)
       return (
-        <li class="flex flex-col gap-space-s pb-space-m mb-space-m rounded shadow-[0_10px_6px_-10px_rgba(0,0,0,0.25)] md:flex-row">
-          <div class="shrink-0">
-            {blogPostEntry.data.thumbnailImage && (
-              <img
-                loading="lazy"
-                src={blogPostEntry.data.thumbnailImage}
-                width="250"
-                height="250"
-                alt={blogPostEntry.data.thumbnailImageAlt ?? ''}
-                class="w-62.5 h-62.5 object-cover"
-              />
-            )}
-          </div>
-          <div class="flex flex-col flex-1">
-            <h2 class="text-step-1 mb-space-3xs">
-              <a
-                href={postPath}
-                class="text-black font-bold underline decoration-transparent transition-all duration-300 hover:underline hover:decoration-inherit"
-                {...postAttrs(postPath, blogPostEntry.data.title, 'title')}
-              >
-                {blogPostEntry.data.title}
-              </a>
-            </h2>
-            <time
-              class="block text-step--1 mb-space-2xs"
-              datetime={blogPostEntry.data.date.toISOString()}
-            >
-              {blogPostEntry.data.date.toDateString().substring(4)}
-            </time>
-            <p class="leading-snug mb-space-2xs grow">
-              {blogPostEntry.data.description
-                ? blogPostEntry.data.description
-                : excerpt}
-            </p>
-            <a
-              href={postPath}
-              class="group self-start flex gap-space-2xs text-step--1 underline decoration-transparent transition-all duration-300 hover:underline hover:text-inherit hover:decoration-inherit"
-              {...postAttrs(postPath, t('blog.read_more'), 'read_more')}
-            >
-              {t('blog.read_more')}
-              <svg
-                viewBox="0 0 12 12"
-                class="w-[0.75em] group-hover:translate-x-[0.25em] transition-all duration-300"
-              >
-                <path
-                  d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </a>
-          </div>
-        </li>
+        <BlogCard
+          blogData={blogPostEntry.data}
+          umamiAttrs={postAttrs}
+          excerpt={excerpt}
+          postPath={postPath}
+          thumbnail={thumbnail}
+          readingTime={getReadingTime(blogPostEntry.body)}
+        />
       )
     })
   }

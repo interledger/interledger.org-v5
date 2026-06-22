@@ -8,38 +8,9 @@
 
 @layer components {
   [data-prose-blog] {
-    & h4,
-    & h5 {
-      font-weight: 700;
-    }
-
-    & h5 {
-      font-size: 0.83em;
-    }
-
-    /* === Links: underline by default for discoverability === */
-    & a {
-      color: var(--color-primary);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
-      transition: text-decoration-color 200ms ease-in-out;
-    }
-    & a:hover {
-      text-decoration-color: transparent;
-    }
-
     /* === Extended element spacing === */
-    & ol {
-      margin-block-end: var(--spacing-space-s);
-    }
     & figure {
       margin-block-end: var(--spacing-space-s);
-    }
-    & hr {
-      margin-block-end: var(--spacing-space-s);
-    }
-    & h4 {
-      margin-block-end: var(--spacing-space-xs);
     }
 
     & figcaption {
@@ -47,24 +18,23 @@
       font-style: italic;
     }
 
-    & blockquote {
-      border-inline-start: 4px solid var(--color-primary);
-      padding-inline-start: var(--spacing-space-s);
-      font-size: var(--text-step-1);
-      font-weight: 300;
+    blockquote {
+      border-inline: 2px solid var(--color-raspberry-100);
+      padding-inline: var(--spacing-md);
+      margin-block: var(--spacing-2xl);
+      
+      @variant tablet {
+        padding-inline: var(--spacing-lg);
+      }
+      @variant desktop {
+        padding-inline: var(--spacing-xl);
+      }
     }
 
-    & strong {
-      color: inherit;
-    }
-
-    & ul li {
-      margin-block-end: var(--spacing-space-2xs);
-    }
-
-    & img {
+    img {
       display: block;
       margin-inline: auto;
+      border-radius: var(--spacing-3xl);
     }
 
     /* === Table styles === */
@@ -174,6 +144,12 @@
     /* === Code blocks (expressive-code) === */
     & .expressive-code {
       margin-block-end: var(--spacing-space-s);
+    }
+
+    .video-embed {
+      border-radius: var(--spacing-3xl);
+      overflow: hidden;
+      margin-block-end: var(--spacing-2xl)
     }
   }
 }

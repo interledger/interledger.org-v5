@@ -15,7 +15,12 @@ interface Props {
   canonicalURL?: string
   datePublished?: string
   headerTheme?: 'light' | 'dark'
+  pageTheme?: 'light' | 'dark'
+  bodyClass?: string
 }
+
+const defaultBodyClass =
+  'flex flex-col min-h-full min-w-[360px] overflow-x-clip'
 
 const {
   title,
@@ -24,7 +29,9 @@ const {
   ogImageUrl,
   canonicalURL,
   datePublished,
-  headerTheme = 'dark'
+  headerTheme = 'dark',
+  pageTheme = 'light',
+  bodyClass = defaultBodyClass
 } = Astro.props
 ---
 
@@ -35,8 +42,8 @@ const {
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={datePublished}
-  theme={headerTheme}
-  bodyClass="flex flex-col min-h-full min-w-[360px] overflow-x-clip before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:150%] before:blur-[150px] before:opacity-25 before:transform-gpu max-[430px]:before:hidden"
+  theme={pageTheme}
+  bodyClass={bodyClass}
 >
   <Fragment slot="head">
     <slot name="head" />

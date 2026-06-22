@@ -3,6 +3,9 @@
   base = "/"
   publish = "dist"
 
+[[plugins]]
+  package = "./netlify/plugins/cache-images"
+
 # Redirect old singular summit routes to plural (EN and ES)
 [[redirects]]
   from = "/summit/:year/talk/:slug"

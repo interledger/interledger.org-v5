@@ -1,0 +1,81 @@
+---
+/**
+ * Single-column layout for the blog post template.
+ *
+ * This layout owns the article chrome (feature image, title, dates, byline);
+ * the page component supplies body content, author bios, categories and the
+ * related-articles section via slots.
+ */
+import {
+  useTranslations,
+  localizeRoute,
+  translatePath,
+  COLLECTION_INDEX_SLUG
+} from '@/utils'
+import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import FoundationPageLayout from './FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import BlogPostHeader from '@/components/blog/BlogPostHeader.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
+
+interface Props {
+  frontmatter: FoundationBlogFrontmatterType
+  canonicalURL?: string
+}
+
+const { frontmatter, canonicalURL } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const site = Astro.site!
+const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
+
+const publishedDate = new Date(frontmatter.date)
+
+const blogPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  COLLECTION_INDEX_SLUG
+)
+const postPath = translatePath(
+  'foundation-blog',
+  routeLocale,
+  frontmatter.pathSlug
+)
+
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: t('blog.foundation.title'), href: blogPath },
+  { name: frontmatter.title, href: postPath }
+]
+---
+
+<FoundationPageLayout
+  title={frontmatter.title}
+  description={frontmatter.description}
+  ogType="article"
+  ogImageUrl={ogImageUrl}
+  canonicalURL={canonicalURL}
+  datePublished={publishedDate.toISOString()}
+  headerTheme="light"
+>
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <TableScrollSupport />
+    <slot name="disclaimer" />
+    <div class="max-w-narrow m-auto">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <article
+        data-prose-blog
+        itemscope
+        itemtype="http://schema.org/Article"
+        class="mb-5xl tablet:mb-4xl desktop:mb-5xl"
+      >
+        <BlogPostHeader frontmatter={frontmatter} />
+        <slot />
+      </article>
+      <slot name="after-article" />
+    </div>
+  </main>
+</FoundationPageLayout>

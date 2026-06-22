@@ -1,0 +1,72 @@
+---
+import { ensureAbsoluteUrl, useTranslations, buildUmamiAttrs } from '@/utils'
+import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import FallbackAuthorIcon from '@/components/blog/FallbackAuthorIcon.astro'
+import Icon from '@/components/shared/Icon.astro'
+
+interface Props {
+  authors: FoundationBlogFrontmatterType['articleBios']
+}
+
+const { authors } = Astro.props
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const umamiAttrs = (href: string, linkText: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'link',
+    href,
+    linkText
+  })
+---
+
+<address
+  class="flex flex-wrap gap-lg not-italic"
+  role="group"
+  aria-label={t('aria.authors')}
+>
+  {
+    authors.map((bio, index) => (
+      <div class="flex flex-nowrap items-center gap-sm text-body-sm-standard text-neutral-100">
+        {bio.image ? (
+          <OptimizedImage
+            src={bio.image}
+            alt=""
+            width={40}
+            height={40}
+            class="w-[40px] h-[40px] m-0 rounded-full"
+            pictureClass="shrink-0"
+            loading="eager"
+            fetchpriority="high"
+          />
+        ) : (
+          <FallbackAuthorIcon
+            index={index}
+            svgClasses="w-[40px] h-[40px] rounded-full shrink-0"
+          />
+        )}
+        {bio.link ? (
+          <a
+            href={ensureAbsoluteUrl(bio.link)}
+            aria-label={t('aria.author_profile', {
+              author: bio.author,
+              newTab: t('aria.opens_new_tab')
+            })}
+            class="flex items-center gap-sm text-neutral-100 text-body-sm-standard decoration-transparent transition-all duration-200 [&_svg]:text-orchid-100 hover:text-orchid-100 hover:decoration-orchid-100"
+            target="_blank"
+            rel="author noopener noreferrer"
+            {...umamiAttrs(bio.link, bio.author)}
+          >
+            {bio.author}
+            <Icon name="link-rounded" class="size-6" />
+          </a>
+        ) : (
+          <span>{bio.author}</span>
+        )}
+      </div>
+    ))
+  }
+</address>

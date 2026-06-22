@@ -24,6 +24,7 @@ export {
   LOCALES,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
+  yamlLiteralBlockScalar,
   getImageUrl,
   htmlToMarkdown,
   formatBlockquote,
@@ -56,7 +57,7 @@ export {
   createPageLifecycle,
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
-export { createBlogLifecycle } from './blogLifecycle'
+export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,

@@ -492,15 +492,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
-      description: 'Description',
+      description: 'Short Description',
       pathSlug: 'Full Path Slug',
       date: 'Publish Date',
-      pillar: 'Pillar',
-      featureImage: 'Feature Image',
+      lastUpdated: 'Last Updated',
+      featured: 'Featured',
+      featureImage: 'Feature Image (Desktop)',
+      featureImageMobile: 'Feature Image (Mobile)',
       thumbnailImage: 'Article Thumbnail',
       content: 'Content',
-      articleBio: 'Article Bio',
-      tags: 'Tags',
+      articleBio: 'Author',
+      categories: 'Categories',
+      relatedArticles: 'Other Relevant Articles',
       language: 'Language'
     },
     'api::foundation-page.foundation-page': {
@@ -544,10 +547,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.',
+      description: 'Aim for 120–160 characters.',
+      lastUpdated:
+        'Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts).',
+      featured:
+        'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
       featureImage:
-        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
+        'Desktop feature image (required). Dimensions: 720 x 428. Click the edit (pencil) icon on the selected image to set Alternative text.',
+      featureImageMobile:
+        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
       thumbnailImage:
-        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").'
+        'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
+      relatedArticles:
+        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     }
   }
 
@@ -563,9 +575,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       openInNewTab: 'Open in New Tab'
     },
     'shared.article-bio': {
-      author: 'Author Name',
-      profileBio: 'Author Bio',
-      profileImage: 'Profile Photo'
+      author: 'Name',
+      link: 'Link',
+      profileBio: 'Short Author Bio',
+      profileImage: 'Photo'
     },
     'shared.hero': {
       title: 'Hero Title',
@@ -649,6 +662,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonLink: 'Secondary Button URL',
       backgroundColor: 'Background Color'
     },
+    'blocks.cta-strip': {
+      heading: 'Heading',
+      description: 'Description',
+      primaryButtonText: 'Primary Button Text',
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL',
+      color: 'Strip Color'
+    },
     'blocks.image-row': {
       heading: 'Heading',
       content: 'Content',
@@ -656,15 +678,24 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
     },
-    'shared.tags': {
-      tagValue: 'Tag'
+    'shared.category': {
+      categoryValue: 'Category'
+    },
+    'shared.related-article': {
+      slug: 'Related Post Slug'
     }
   }
 
   const componentDescriptions: Record<string, Record<string, string>> = {
-    'shared.tags': {
-      tagValue:
-        'You can select multiple tags — click "+ Add an entry" for each tag'
+    'shared.category': {
+      categoryValue:
+        'You can select multiple categories — click "+ Add an entry" for each category'
+    },
+    'shared.article-bio': {
+      link: 'A URL to a personal website, LinkedIn profile, or similar.',
+      profileImage:
+        'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
+      profileBio: 'We recommend a max of 255 characters'
     },
     'blocks.ambassadors-grid': {
       category:
@@ -782,17 +813,22 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'pathSlug', size: 12 }],
       [
         { name: 'date', size: 4 },
-        { name: 'pillar', size: 4 },
+        { name: 'lastUpdated', size: 4 },
         { name: 'language', size: 4 }
       ],
       [
-        { name: 'featureImage', size: 6 },
-        { name: 'thumbnailImage', size: 6 }
+        { name: 'featured', size: 6 },
+        { name: 'categories', size: 6 }
       ],
+      [
+        { name: 'featureImage', size: 6 },
+        { name: 'featureImageMobile', size: 6 }
+      ],
+      [{ name: 'thumbnailImage', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'articleBio', size: 12 }],
-      [{ name: 'tags', size: 12 }]
+      [{ name: 'relatedArticles', size: 12 }]
     ],
     'api::ambassador.ambassador': [
       [
@@ -835,7 +871,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'shared.article-bio': [
-      [{ name: 'author', size: 6 }],
+      [
+        { name: 'author', size: 6 },
+        { name: 'link', size: 6 }
+      ],
       [
         { name: 'profileImage', size: 6 },
         { name: 'profileBio', size: 6 }
@@ -891,6 +930,19 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'secondaryButtonLink', size: 6 }
       ],
       [{ name: 'backgroundColor', size: 4 }]
+    ],
+    'blocks.cta-strip': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [
+        { name: 'primaryButtonText', size: 6 },
+        { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [{ name: 'color', size: 4 }]
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],

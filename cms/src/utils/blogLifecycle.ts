@@ -8,6 +8,7 @@ import {
   defaultLang,
   formatMdx,
   yamlSingleQuoteScalar,
+  yamlLiteralBlockScalar,
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
@@ -29,13 +30,20 @@ interface BlogResult {
   description: string
   pathSlug: string
   date: string
+  lastUpdated?: string
+  featured: boolean
+  legacy?: boolean
   content: ContentBlock[] | string
   createdAt: Date
   updatedAt: Date
   publishedAt?: Date
   locale: string
-  pillar: 'vision' | 'mission' | 'tech' | 'values'
   featureImage?: {
+    name: string
+    alternativeText?: string
+    url: string
+  }
+  featureImageMobile?: {
     name: string
     alternativeText?: string
     url: string
@@ -46,11 +54,14 @@ interface BlogResult {
     url: string
   }
   articleBio?: {
-    author: string
+    // Nullable: Strapi populates an empty bio component's unset author as null.
+    author: string | null
+    link?: string
     profileBio?: string
     profileImage?: { url: string; name: string; alternativeText?: string }
   }[]
-  tags?: { tagValue: string }[]
+  categories?: { categoryValue: string }[]
+  relatedArticles?: { slug: string }[]
   localizations: { pathSlug: string }[]
 }
 
@@ -76,9 +87,11 @@ async function fetchBlogPost(
       status: 'published',
       populate: {
         featureImage: true,
+        featureImageMobile: true,
         thumbnailImage: true,
         articleBio: { populate: { profileImage: true } },
-        tags: true,
+        categories: true,
+        relatedArticles: true,
         localizations: true,
         content: BLOG_CONTENT_POPULATE
       }
@@ -101,16 +114,25 @@ function generateFilename({
   return `${prefix}${pathSlug}.mdx`
 }
 
-function generateBlogMDX(post: BlogResult) {
+export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
+  // Skip bios with no author: the Astro content schema requires
+  // articleBios[].author to be a string, and an empty bio component in Strapi
+  // would otherwise export as `author: null` and fail the build (INTORG-794).
+  const bios = (post.articleBio ?? []).filter(
+    (bio) => typeof bio.author === 'string' && bio.author.trim() !== ''
+  )
 
   const articleBios =
-    post.articleBio?.length > 0
-      ? `articleBios:${post.articleBio
+    bios.length > 0
+      ? `articleBios:${bios
           .map((bio) => {
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
-              bio.profileBio ? `\n    text: ${yqs(bio.profileBio)}` : null,
+              bio.link ? `\n    link: ${yqs(bio.link)}` : null,
+              bio.profileBio
+                ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
+                : null,
               bio.profileImage
                 ? `\n    image: ${yqs(bio.profileImage.url)}`
                 : null,
@@ -129,13 +151,20 @@ function generateBlogMDX(post: BlogResult) {
     `title: ${yqs(post.title)}`,
     `description: ${yqs(post.description)}`,
     `date: ${post.date}`,
+    post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
-    `pillar: ${yqs(post.pillar)}`,
+    `featured: ${post.featured ?? false}`,
     post.featureImage?.url
       ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
     post.featureImage?.url
       ? `featureImageAlt: ${yqs(post.featureImage.alternativeText ?? '')}`
+      : null,
+    post.featureImageMobile?.url
+      ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
+      : null,
+    post.featureImageMobile?.url
+      ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText ?? '')}`
       : null,
     post.thumbnailImage?.url
       ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
@@ -144,11 +173,19 @@ function generateBlogMDX(post: BlogResult) {
       ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
-    post.tags
-      ? post.tags.length === 0
-        ? `tags: []`
-        : `tags:${post.tags.map((tag) => `\n  - ${yqs(tag.tagValue)}`).join('')}`
+    post.categories
+      ? post.categories.length === 0
+        ? `categories: []`
+        : `categories:${post.categories
+            .map((category) => `\n  - ${yqs(category.categoryValue)}`)
+            .join('')}`
       : null,
+    post.relatedArticles?.length
+      ? `relatedArticles:${post.relatedArticles
+          .map((related) => `\n  - ${yqs(related.slug)}`)
+          .join('')}`
+      : null,
+    post.legacy ? `legacy: true` : null,
     post.locale ? `locale: ${yqs(post.locale)}` : null,
     post.localizations?.[0]?.pathSlug
       ? `localizes: ${post.localizations[0].pathSlug}`

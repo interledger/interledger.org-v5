@@ -4,8 +4,8 @@
   "info": {
     "singularName": "foundation-blog-post",
     "pluralName": "foundation-blog-posts",
-    "displayName": "Foundation Blog Post",
-    "description": "Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog"
+    "displayName": "Blog post",
+    "description": "Blog posts (grants, policy, announcements, technology)"
   },
   "options": {
     "draftAndPublish": false
@@ -46,22 +46,42 @@
       },
       "required": true
     },
-    "pillar": {
-      "type": "enumeration",
+    "lastUpdated": {
+      "type": "date",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "description": "Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts)."
+    },
+    "featured": {
+      "type": "boolean",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
       "required": true,
-      "enum": [
-        "vision",
-        "mission",
-        "tech",
-        "values"
-      ]
+      "default": false,
+      "description": "Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page."
     },
     "featureImage": {
+      "type": "media",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Desktop feature image (required). Dimensions: 720 x 428. Click the edit (pencil) icon on the selected image to set Alternative text."
+    },
+    "featureImageMobile": {
       "type": "media",
       "pluginOptions": {
         "i18n": {
@@ -72,7 +92,8 @@
       "required": false,
       "allowedTypes": [
         "images"
-      ]
+      ],
+      "description": "Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty."
     },
     "thumbnailImage": {
       "type": "media",
@@ -84,7 +105,8 @@
       "multiple": false,
       "allowedTypes": [
         "images"
-      ]
+      ],
+      "description": "Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text."
     },
     "description": {
       "type": "text",
@@ -93,7 +115,8 @@
           "localized": true
         }
       },
-      "required": true
+      "required": true,
+      "description": "Short description shown on listings and link previews. Aim for 120–160 characters."
     },
     "content": {
       "type": "dynamiczone",
@@ -110,15 +133,41 @@
       "component": "shared.article-bio",
       "repeatable": true
     },
-    "tags": {
+    "categories": {
       "type": "component",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "component": "shared.tags",
+      "component": "shared.category",
       "repeatable": true
+    },
+    "relatedArticles": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.related-article",
+      "repeatable": true,
+      "max": 3,
+      "required": false,
+      "description": "Add exactly 3 slugs of related blog posts to display in the \"You may also like\" section. Enter the slug only (e.g. my-related-post), not the full URL."
+    },
+    "legacy": {
+      "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "default": false,
+      "conditions": {
+        "visible": { "==": [true, false] }
+      }
     }
   }
 }

@@ -34,7 +34,7 @@ const stats: StatItem[] = [
     ariaLabel: t('home.stats.projects_aria')
   },
   {
-    value: 130,
+    value: 45,
     suffix: '+',
     label: t('home.stats.countries_label'),
     ariaLabel: t('home.stats.countries_aria')
@@ -51,9 +51,10 @@ const stats: StatItem[] = [
 <FoundationPageLayout
   title={t('site.title')}
   description={t('site.description')}
+  bodyClass="flex flex-col min-h-full min-w-[360px] overflow-x-clip bg-black"
 >
   <SmoothScroll />
-  <main data-umami-component="foundation-home-page">
+  <main class="bg-black" data-umami-component="foundation-home-page">
     <HomepageHero pageLang={pageLang} pathname={Astro.url.pathname} />
     <AnimatedNetwork />
     <PillarsSection />
@@ -96,7 +97,6 @@ const stats: StatItem[] = [
     >
       <h2 slot="heading">{t('home.independent_by_design.heading')}</h2>
       <p>{t('home.independent_by_design.body_1')}</p>
-      <p>{t('home.independent_by_design.body_2')}</p>
       <LinkButton
         slot="cta"
         href="/interledger"

@@ -61,6 +61,11 @@
   html {
     height: 100%;
     overflow-x: clip;
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
   }
 
   body {
@@ -70,10 +75,6 @@
 
   main {
     @apply flex-1 text-step-0;
-  }
-
-  strong {
-    color: var(--color-primary);
   }
 
   a {

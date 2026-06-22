@@ -7,6 +7,7 @@ import AmbassadorGrid from '@/components/shared/AmbassadorGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
@@ -104,6 +105,7 @@ if (isNotFound) return Astro.redirect('/404')
               Blockquote,
               CalloutText,
               Paragraph,
+              CtaStrip,
               PdfEmbed,
               VideoEmbed
             }}

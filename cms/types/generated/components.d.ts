@@ -365,6 +365,65 @@ export interface BlocksCtaBanner extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCtaStrip extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cta_strips'
+  info: {
+    description: 'Call-to-action strip with heading, description, a primary CTA, an optional secondary CTA, and a background colour'
+    displayName: 'CTA Strip'
+    icon: 'cursor'
+  }
+  attributes: {
+    color: Schema.Attribute.Enumeration<['purple', 'green']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'purple'>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    primaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksImageRow extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_rows'
   info: {
@@ -574,15 +633,34 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
     displayName: 'Article Bio'
   }
   attributes: {
-    author: Schema.Attribute.String
+    author: Schema.Attribute.String & Schema.Attribute.Required
+    link: Schema.Attribute.String
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
-          preset: 'defaultMarkdown'
+          preset: 'basicMarkdownPreset'
         }
       >
     profileImage: Schema.Attribute.Media<'images'>
+  }
+}
+
+export interface SharedCategory extends Struct.ComponentSchema {
+  collectionName: 'components_shared_categories'
+  info: {
+    displayName: 'Category'
+  }
+  attributes: {
+    categoryValue: Schema.Attribute.Enumeration<
+      [
+        'Announcements',
+        'Community & Events',
+        'Grants & Grantee Insights',
+        'Interledger Technology',
+        'Thought Leadership'
+      ]
+    >
   }
 }
 
@@ -686,6 +764,16 @@ export interface SharedHeroSection extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedRelatedArticle extends Struct.ComponentSchema {
+  collectionName: 'components_shared_related_articles'
+  info: {
+    displayName: 'Related Article'
+  }
+  attributes: {
+    slug: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface SharedSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_sections'
   info: {
@@ -733,24 +821,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
   }
 }
 
-export interface SharedTags extends Struct.ComponentSchema {
-  collectionName: 'components_shared_tags'
-  info: {
-    displayName: 'Tags'
-  }
-  attributes: {
-    tagValue: Schema.Attribute.Enumeration<
-      [
-        'Announcements',
-        'Community & Events',
-        'Grants & Grantee Insights',
-        'Interledger Technology',
-        'Thought Leadership'
-      ]
-    >
-  }
-}
-
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -765,6 +835,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-item': BlocksCarouselItem
       'blocks.cta-banner': BlocksCtaBanner
+      'blocks.cta-strip': BlocksCtaStrip
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
@@ -773,12 +844,13 @@ declare module '@strapi/strapi' {
       'navigation.menu-item': NavigationMenuItem
       'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
+      'shared.category': SharedCategory
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
+      'shared.related-article': SharedRelatedArticle
       'shared.section': SharedSection
       'shared.seo': SharedSeo
-      'shared.tags': SharedTags
     }
   }
 }

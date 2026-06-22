@@ -1,0 +1,70 @@
+---
+import { useTranslations, buildUmamiAttrs, stripPagination } from '@/utils'
+import type { Locale } from '@/utils'
+
+interface Props {
+  routeLocale: Locale
+  contentLang: Locale
+}
+
+const { routeLocale, contentLang } = Astro.props
+const t = useTranslations(routeLocale)
+
+// Derive lang-switch hrefs from the current pathname so that any active
+// category filter (including /category/all) is preserved when switching.
+// - On a /lang/ URL: swap the locale suffix, keeping the rest of the path.
+// - Otherwise: append /lang/<locale> to the current path.
+const pathname = stripPagination(Astro.url.pathname)
+const base = pathname.includes('/lang/')
+  ? pathname.replace(/\/lang\/[^/]+$/, '')
+  : pathname.includes('/category/')
+    ? pathname
+    : `${pathname}/category/all`
+const enHref = `${base}/lang/en`
+const esHref = `${base}/lang/es`
+
+const isEnActive = contentLang === 'en'
+const isEsActive = contentLang === 'es'
+
+const activeClass = ['bg-primary', 'text-white']
+const inactiveClass = ['bg-white']
+
+const btnAttrs = (lang: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    action: `lang_filter_${lang}`
+  })
+---
+
+<div class="mb-space-m">
+  <div class="font-semibold mb-3xs text-step--1">
+    {t('blog.lang_filter.label')}
+  </div>
+  <ul
+    class="flex flex-wrap gap-space-3xs list-none
+    [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
+  >
+    <li>
+      <a
+        href={enHref}
+        class:list={isEnActive ? activeClass : inactiveClass}
+        aria-current={isEnActive ? 'page' : undefined}
+        {...btnAttrs('en')}
+      >
+        {t('blog.lang_filter.english')}
+      </a>
+    </li>
+    <li>
+      <a
+        href={esHref}
+        class:list={isEsActive ? activeClass : inactiveClass}
+        aria-current={isEsActive ? 'page' : undefined}
+        {...btnAttrs('es')}
+      >
+        {t('blog.lang_filter.spanish')}
+      </a>
+    </li>
+  </ul>
+</div>

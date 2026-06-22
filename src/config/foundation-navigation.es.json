@@ -1,44 +1,44 @@
 {
   "mainMenu": [
     {
-      "label": "About",
+      "label": "Acerca de",
       "items": [
         {
-          "label": "Our Journey",
+          "label": "Nuestra historia",
           "href": "/about-us"
         },
         {
-          "label": "How interledger works",
+          "label": "Cómo funciona Interledger",
           "href": "/how-interledger-works"
         },
         {
-          "label": "Our Team",
+          "label": "Nuestro equipo",
           "href": "/team"
         },
         {
-          "label": "Policy & Advocacy",
+          "label": "Política e incidencia",
           "href": "/policy-and-advocacy"
         }
       ]
     },
     {
-      "label": "Tech",
+      "label": "Tecnología",
       "subGroups": [
         {
-          "label": "Our Technology",
+          "label": "Nuestra tecnología",
           "items": [
             {
-              "label": "Interledger Tech",
+              "label": "Tecnología Interledger",
               "href": "/interledger"
             },
             {
-              "label": "Join the network",
+              "label": "Únete a la red",
               "href": "/join-network"
             }
           ]
         },
         {
-          "label": "Standards",
+          "label": "Estándares",
           "items": [
             {
               "label": "ILP",
@@ -55,7 +55,7 @@
           ]
         },
         {
-          "label": "Tools & Products",
+          "label": "Herramientas y productos",
           "items": [
             {
               "label": "Rafiki",
@@ -68,11 +68,11 @@
               "openInNewTab": true
             },
             {
-              "label": "Cards",
+              "label": "Tarjetas",
               "href": "/cards"
             },
             {
-              "label": "Test Tools",
+              "label": "Herramientas de prueba",
               "href": "/test-tools"
             },
             {
@@ -85,26 +85,26 @@
       ]
     },
     {
-      "label": "Grants",
+      "label": "Subvenciones",
       "subGroups": [
         {
-          "label": "Our Grantmaking",
+          "label": "Nuestras subvenciones",
           "items": [
             {
-              "label": "Grantmaking overview",
+              "label": "Descripción general",
               "href": "/grants"
             },
             {
-              "label": "Grantee Directory",
+              "label": "Directorio de beneficiarios",
               "href": "/grantee-directory"
             }
           ]
         },
         {
-          "label": "Education Grants",
+          "label": "Subvenciones educativas",
           "items": [
             {
-              "label": "Overview",
+              "label": "Descripción general",
               "href": "/grants/education"
             },
             {
@@ -112,20 +112,20 @@
               "href": "/grants/education/on-campus"
             },
             {
-              "label": "Interledger on Campus",
+              "label": "Interledger en el campus",
               "href": "/grants/education/next-gen"
             }
           ]
         },
         {
-          "label": "Innovation Grants",
+          "label": "Subvenciones de innovación",
           "items": [
             {
-              "label": "Overview",
+              "label": "Descripción general",
               "href": "/grants/innovation"
             },
             {
-              "label": "Digital Financial Services",
+              "label": "Servicios financieros digitales",
               "href": "/grants/innovation/financial-services"
             },
             {
@@ -143,18 +143,18 @@
           ]
         },
         {
-          "label": "Advocacy Grants",
+          "label": "Subvenciones de incidencia",
           "items": [
             {
-              "label": "Research Grants",
+              "label": "Subvenciones de investigación",
               "href": "/grants/call-for-papers"
             },
             {
-              "label": "Policy Grants",
+              "label": "Subvenciones de política",
               "href": "/grants/public-policy-activation"
             },
             {
-              "label": "Fellowships",
+              "label": "Becas",
               "href": "/grants/fellowship"
             }
           ]
@@ -162,7 +162,7 @@
       ]
     },
     {
-      "label": "Learn",
+      "label": "Aprender",
       "items": [
         {
           "label": "Blog",
@@ -173,19 +173,19 @@
           "href": "/podcasts"
         },
         {
-          "label": "Research & Reports",
+          "label": "Investigación e informes",
           "href": "/research-and-reports"
         }
       ]
     },
     {
-      "label": "Get Involved",
+      "label": "Participa",
       "subGroups": [
         {
-          "label": "Events",
+          "label": "Eventos",
           "items": [
             {
-              "label": "Calendar",
+              "label": "Calendario",
               "href": "/events"
             },
             {
@@ -199,18 +199,18 @@
           ]
         },
         {
-          "label": "Join the Community",
+          "label": "Únete a la comunidad",
           "items": [
             {
-              "label": "Start Here",
+              "label": "Empieza aquí",
               "href": "/community"
             },
             {
-              "label": "Support Interledger",
+              "label": "Apoya a Interledger",
               "href": "/support-us"
             },
             {
-              "label": "Community Forum",
+              "label": "Foro comunitario",
               "href": "https://community.interledger.org/",
               "openInNewTab": true
             }
@@ -220,7 +220,7 @@
     }
   ],
   "ctaButton": {
-    "label": "Interledger Summit",
+    "label": "Apóyanos",
     "href": "/summit"
   }
 }

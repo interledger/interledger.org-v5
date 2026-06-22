@@ -1,0 +1,101 @@
+---
+import type { BlogCollectionType } from '@/content.config'
+import {
+  getBlogTaxonomy,
+  getTermUrl,
+  translateTerm,
+  useTranslations,
+  buildUmamiAttrs
+} from '@/utils'
+import type { Locale } from '@/utils'
+interface Props {
+  collection: BlogCollectionType
+  terms: string[]
+  enabledTerms?: string[]
+  selectedTerm?: string
+  href: string
+  contentLangOverride?: Locale
+}
+const {
+  collection,
+  terms,
+  enabledTerms,
+  selectedTerm,
+  href,
+  contentLangOverride
+} = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const taxonomy = getBlogTaxonomy(collection)
+const enabledSet = enabledTerms ? new Set(enabledTerms) : null
+// Cross-lang routes always use "tag" as the URL segment (see tagFilter.ts).
+const allHref = contentLangOverride
+  ? `${href}/${taxonomy.segment}/all/lang/${contentLangOverride}`
+  : `${href}/${taxonomy.segment}/all`
+const activeClass = ['bg-primary', 'text-white']
+const inactiveClass = ['bg-white']
+const disabledClass = ['bg-white', 'opacity-50', 'cursor-not-allowed']
+
+const filterAttrs = (action: string, label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: label,
+    action
+  })
+---
+
+<div class="mb-space-m bg-transparent rounded-[var(--border-radius)]">
+  <div class="font-semibold mb-3xs text-step--1">
+    {t(taxonomy.filterLabelKey)}
+  </div>
+  <div
+    class="flex flex-wrap gap-space-3xs
+  [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
+  >
+    <a
+      href={allHref}
+      class:list={!selectedTerm ? activeClass : inactiveClass}
+      {...filterAttrs('filter_all', t('blog.filter.all'))}
+    >
+      {t('blog.filter.all')}
+    </a>
+    {
+      terms.map((term) => {
+        const label = translateTerm(taxonomy.i18nPrefix, term, t)
+        const isEnabled = enabledSet === null || enabledSet.has(term)
+        const isActive = selectedTerm === term
+
+        if (!isEnabled) {
+          return (
+            <span
+              class:list={[
+                'px-space-2xs',
+                'py-space-3xs',
+                'text-step--1',
+                'rounded',
+                'shadow',
+                ...disabledClass
+              ]}
+              aria-disabled="true"
+            >
+              {label}
+            </span>
+          )
+        }
+        return (
+          <a
+            href={getTermUrl(href, taxonomy.segment, term, contentLangOverride)}
+            class:list={isActive ? activeClass : inactiveClass}
+            aria-current={isActive ? 'page' : undefined}
+            {...filterAttrs(`filter_${taxonomy.segment}`, label)}
+          >
+            {label}
+          </a>
+        )
+      })
+    }
+  </div>
+</div>

@@ -520,8 +520,8 @@ export interface ApiFoundationBlogPostFoundationBlogPost
   extends Struct.CollectionTypeSchema {
   collectionName: 'foundation_blog_posts'
   info: {
-    description: 'Foundation blog posts (grants, policy, announcements) with distinct styling from Tech Blog'
-    displayName: 'Foundation Blog Post'
+    description: 'Blog posts (grants, policy, announcements, technology)'
+    displayName: 'Blog post'
     pluralName: 'foundation-blog-posts'
     singularName: 'foundation-blog-post'
   }
@@ -535,6 +535,12 @@ export interface ApiFoundationBlogPostFoundationBlogPost
   }
   attributes: {
     articleBio: Schema.Attribute.Component<'shared.article-bio', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    categories: Schema.Attribute.Component<'shared.category', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -565,12 +571,40 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
+    featured: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     featureImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
+    featureImageMobile: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    lastUpdated: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    legacy: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -583,22 +617,22 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
-    pillar: Schema.Attribute.Enumeration<
-      ['vision', 'mission', 'tech', 'values']
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     publishedAt: Schema.Attribute.DateTime
-    tags: Schema.Attribute.Component<'shared.tags', true> &
+    relatedArticles: Schema.Attribute.Component<
+      'shared.related-article',
+      true
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
-      }>
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 3
+        },
+        number
+      >
     thumbnailImage: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -691,6 +725,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.ambassadors-grid',
         'blocks.blockquote',
         'blocks.callout-text',
+        'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
       ]
@@ -819,6 +854,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.ambassadors-grid',
         'blocks.blockquote',
         'blocks.callout-text',
+        'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
       ]

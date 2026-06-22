@@ -1,0 +1,53 @@
+---
+import type { BlogCategory } from '@/schemas/content'
+import {
+  buildUmamiAttrs,
+  getTermUrl,
+  translateTerm,
+  useTranslations
+} from '@/utils'
+interface Props {
+  categories: BlogCategory[]
+  path: string
+}
+const { categories, path } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const categoryAttrs = (label: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: `#${label}`,
+    action: 'category'
+  })
+const categoryClasses = `
+  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
+  border border-neutral-50 rounded-full 
+  transition-all duration-200 ease-in-out
+  hover:border-neutral-75 hover:text-neutral-150
+  focus-visible:outline-none focus-visible:border-orchid-100
+`
+---
+
+<nav aria-label={t('aria.article_categories')}>
+  <ul class="flex flex-wrap gap-xs list-none m-0 p-0">
+    {
+      categories.map((category) => {
+        const label = translateTerm('blog.categories', category, t)
+        return (
+          <li class="m-0">
+            <a
+              href={getTermUrl(path, 'category', category)}
+              class={categoryClasses}
+              {...categoryAttrs(label)}
+            >
+              {label}
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+</nav>

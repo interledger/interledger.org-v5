@@ -1,6 +1,6 @@
 ---
 import { buttonVariants } from './buttonVariants'
-import { twMerge, useTranslations } from '@/utils'
+import { twMerge, useTranslations, buildUmamiAttrs } from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
 
 type ButtonOpts = NonNullable<Parameters<typeof buttonVariants>[0]>
@@ -60,6 +60,17 @@ const targetAttrs = external
 // without stripping href, keyboard users can still navigate to and activate
 // the link.
 const resolvedHref = ariaDisabled ? undefined : href
+
+const ariaLabel =
+  typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''
+
+const umamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'link',
+  href: resolvedHref,
+  ariaLabel: ariaLabel
+})
 ---
 
 <a
@@ -79,6 +90,7 @@ const resolvedHref = ariaDisabled ? undefined : href
   {...targetAttrs}
   aria-disabled={ariaDisabled ? true : undefined}
   tabindex={ariaDisabled ? -1 : undefined}
+  {...umamiAttrs}
 >
   <slot name="icon-left" />
   <slot />

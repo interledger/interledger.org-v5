@@ -1,0 +1,54 @@
+---
+import type { ArticleBioType } from '@/schemas/content'
+import { useTranslations, formatDate, twMerge } from '@/utils'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+
+interface Props {
+  bio: ArticleBioType | null
+  date: Date
+  readingTime: number
+  featured: boolean
+  bylineClasses: string
+}
+
+const { bio, date, readingTime, featured, bylineClasses: classes } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const bylineClasses = twMerge(
+  'flex flex-col gap-md text-neutral-100 **:text-body-sm-standard tablet:flex-row tablet:flex-wrap tablet:gap-xl',
+  classes
+)
+---
+
+<div class={bylineClasses}>
+  {
+    bio && (
+      <div class="flex flex-nowrap items-center gap-sm">
+        {bio.image ? (
+          <OptimizedImage
+            src={bio.image}
+            alt=""
+            width={40}
+            height={40}
+            class="w-[40px] h-[40px] m-0 rounded-full"
+            pictureClass="shrink-0"
+            loading={featured ? 'eager' : 'lazy'}
+            fetchpriority={featured ? 'high' : 'auto'}
+          />
+        ) : (
+          <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full shrink-0" />
+        )}
+        <span>{bio.author}</span>
+      </div>
+    )
+  }
+  <div class="flex gap-xl py-sm">
+    <time datetime={date.toISOString()}>
+      {formatDate(date, routeLocale)}
+    </time>
+    <span class="text-neutral-75"
+      >{t('blog.reading_time', { readingTime })}</span
+    >
+  </div>
+</div>

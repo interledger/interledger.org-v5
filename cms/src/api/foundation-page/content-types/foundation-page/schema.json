@@ -54,6 +54,7 @@
         "blocks.ambassadors-grid",
         "blocks.blockquote",
         "blocks.callout-text",
+        "blocks.cta-strip",
         "blocks.pdf-embed",
         "blocks.video-embed"
       ],

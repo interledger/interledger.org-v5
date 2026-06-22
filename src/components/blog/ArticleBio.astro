@@ -1,19 +1,71 @@
 ---
-const { text, imageUrl, imageAlt = '' } = Astro.props
+import { marked } from 'marked'
+import { ensureAbsoluteUrl, getSocialIconName, useTranslations } from '@/utils'
+import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+
+interface Props {
+  articleBios: FoundationBlogFrontmatterType['articleBios']
+}
+
+const { articleBios } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const htmlBios = await Promise.all(
+  articleBios.map(async (bio) => ({
+    ...bio,
+    text: bio.text ? await marked.parse(bio.text) : ''
+  }))
+)
 ---
 
-<div
-  class="flex flex-col mb-space-s xs:gap-space-xs xs:flex-row xs:items-center"
+<section
+  aria-label={t('aria.authors_bios')}
+  class="flex flex-col gap-2xl border-t border-neutral-50 mt-5xl py-2xl tablet:mt-4xl desktop:gap-3xl desktop:mt-5xl desktop:py-3xl"
 >
   {
-    imageUrl && (
-      <img
-        loading="lazy"
-        src={imageUrl}
-        alt={imageAlt}
-        class="mb-space-s aspect-150/150 object-cover"
-      />
-    )
+    htmlBios.map((bio, index) => (
+      <div class="flex flex-col gap-xl tablet:flex-row tablet:gap-2xl desktop:items-center">
+        {bio.image ? (
+          <OptimizedImage
+            src={bio.image}
+            alt={bio.author}
+            width={160}
+            height={160}
+            class="shrink-0 rounded-full w-[120px] h-[120px] max-w-none m-0 tablet:w-[160px] tablet:h-[160px]"
+            loading="lazy"
+          />
+        ) : (
+          <FallbackAuthorIcon
+            index={index}
+            svgClasses="shrink-0 w-[120px] h-[120px] tablet:w-[160px] tablet:h-[160px]"
+            aria={bio.author}
+          />
+        )}
+        <div>
+          <div
+            set:html={bio.text}
+            class="text-body-sm-standard [&_p]:text-body-sm-standard [&_a]:text-body-sm-standard [&_p]:mb-lg"
+          />
+          {bio.link && (
+            <LinkButton
+              href={ensureAbsoluteUrl(bio.link)}
+              external={true}
+              variant="secondary"
+              iconOnly={true}
+              aria-label={t('aria.author_profile', {
+                author: bio.author,
+                newTab: t('aria.opens_new_tab')
+              })}
+            >
+              <Icon name={getSocialIconName(bio.link)} />
+            </LinkButton>
+          )}
+        </div>
+      </div>
+    ))
   }
-  <p class="italic">{text}</p>
-</div>
+</section>

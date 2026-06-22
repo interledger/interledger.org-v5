@@ -8,19 +8,25 @@
 import { errors } from '@strapi/utils'
 
 /**
- * Strip fenced code blocks so their contents aren't mistaken for JSX.
+ * Strip backtick-delimited code so JSX/HTML tags written as literal code aren't
+ * mistaken for bare JSX. Covers inline spans (`…`, ``…``) and fenced
+ * (```…```) blocks alike — a fenced block is just a 3-backtick span, so this
+ * single pass over balanced backtick runs handles both. The developers blog
+ * routinely shows tags like `<wallet-address />` inline, so the merged blog
+ * must accept the same (INTORG-793).
  */
-function stripFencedCodeBlocks(text: string): string {
-  return text.replace(/^```[^\n]*\n[\s\S]*?^```/gm, '')
+function stripInlineCode(text: string): string {
+  return text.replace(/(`+)[\s\S]*?\1/g, '')
 }
 
 /**
  * Validate that no Paragraph block contains bare JSX-like tags.
  *
  * Returns a Strapi `ValidationError` when a `<CapitalLetter...` pattern is
- * found outside fenced code blocks in any blocks.paragraph content field;
- * returns `undefined` otherwise. The Strapi middleware that calls this
- * narrows on the return and translates a returned error into a 400 response.
+ * found outside code (fenced blocks or inline spans) in any blocks.paragraph
+ * content field; returns `undefined` otherwise. The Strapi middleware that
+ * calls this narrows on the return and translates a returned error into a 400
+ * response.
  */
 export function validateNoNestedJsx(
   content: unknown
@@ -35,13 +41,14 @@ export function validateNoNestedJsx(
       continue
     }
 
-    const stripped = stripFencedCodeBlocks(block.content)
+    const stripped = stripInlineCode(block.content)
     const match = stripped.match(/<([A-Z][a-zA-Z]*)/)
     if (match) {
       return new errors.ValidationError(
         `Paragraph block contains JSX-like tag <${match[1]}>. ` +
-          `Move it to its own top-level block, or wrap it in a code block (\`\`\`) ` +
-          `if it's meant to be displayed as text.`
+          `Move it to its own top-level block, or wrap it in code ` +
+          `(inline \`backticks\` or a \`\`\` fenced block) if it's meant to be ` +
+          `displayed as text.`
       )
     }
   }

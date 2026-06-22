@@ -6,7 +6,14 @@
 // into Starlight chunks (see src/styles/README.md "Starlight Docs Isolation").
 
 // Shared (safe on either side)
-export { stripTrailingSlash, addTrailingSlash } from './shared/url'
+export {
+  stripTrailingSlash,
+  addTrailingSlash,
+  ensureAbsoluteUrl,
+  getSocialIconName,
+  FALLBACK_SOCIAL_ICON,
+  type SocialIconName
+} from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 
@@ -50,12 +57,22 @@ export { applyPreviewNoStore } from './main/cache'
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export { type CollectionType, getLocalizedPaths } from './main/static-paths'
 export {
-  getTagSlug,
-  getTagUrl,
-  translateTag,
+  type BlogTaxonomy,
+  getBlogTaxonomy,
+  getTermSlug,
+  getTermUrl,
+  translateTerm,
+  buildContentLangHrefs,
   paginateAllPosts,
-  paginatePostsByTag
+  paginatePostsByTerm
 } from './main/tagFilter'
+export {
+  FEATURED_POST_LIMIT,
+  TECH_BLOG_FALLBACK_THUMBNAIL,
+  getFeaturedPosts,
+  getBlogThumbnail,
+  getReadingTime
+} from './main/blog'
 
 // Main site: Text
 export { generateSlug } from './main/slug'
@@ -69,7 +86,7 @@ export {
 export { createExcerpt } from './main/create-excerpt'
 
 // Main site: Formatting
-export { formatDate, getDurationInMinutes } from './main/time'
+export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
@@ -93,6 +110,8 @@ export {
 // Main site: Images
 export {
   getOptimizedImage,
+  buildImageSrcset,
+  hasOptimizedVariants,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments

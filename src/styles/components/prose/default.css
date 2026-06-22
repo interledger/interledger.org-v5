@@ -6,38 +6,56 @@
 
 @layer components {
   main {
-    /* Links: visible underline, accent color on hover */
-    & a {
+    color: var(--color-neutral-100);
+    p, a, ul, ol, blockquote {
+      font-size: var(--text-h5);
+      line-height: var(--text-h5--line-height);
+      font-weight: var(--text-h5--font-weight);
+    }
+    @variant tablet {
+      p, a, ul, ol  {
+        font-size: var(--text-h5-md);
+        line-height: var(--text-h5-md--line-height);
+      }
+    }
+    @variant desktop {
+      p, a, ul, ol { 
+        font-size: var(--text-h5-lg);
+        line-height: var(--text-h5-lg--line-height);
+      }
+    }
+
+    /* Links: visible underline, accent color */
+    a {
       color: var(--color-primary);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
       transition: text-decoration-color 200ms ease-in-out;
     }
-    & a:hover {
+    a:hover {
       text-decoration-color: transparent;
     }
 
-    /* Paragraphs: tighter line-height for body text */
-    & p {
-      line-height: 1.39;
+    p, h2, h3, h4, h5, h6, ul, ol {
+      margin-block-end: var(--spacing-2xl);
     }
 
     /* Lists */
-    & ul {
-      margin-block-end: var(--spacing-space-s);
-      padding-inline-start: var(--spacing-space-m);
+    ul, ol {
+      list-style-position: inside;
+      padding-inline-start: 0;
+    }
+    ul {
       list-style-type: disc;
     }
-
-    & ol {
-      margin-block-end: var(--spacing-space-s);
-      padding-inline-start: var(--spacing-space-m);
+    ol {
       list-style-type: decimal;
     }
-
-    & li {
-      margin-block-end: var(--spacing-space-xs);
-      line-height: 1.6;
+    ol li, ul li {
+      margin-block-end: var(--spacing-md);
+    }
+    ol li:last-of-type, ul li:last-of-type {
+      margin-block-end: 0;
     }
   }
 }
