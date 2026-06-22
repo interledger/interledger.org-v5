@@ -1,5 +1,6 @@
 ---
 import { getOptimizedImage } from '@/utils'
+import ResponsiveSources from '@/components/shared/ResponsiveSources.astro'
 
 interface Props {
   src: string
@@ -23,10 +24,6 @@ const desktop = getOptimizedImage(src)
 const tablet = tabletSrc ? getOptimizedImage(tabletSrc) : null
 const mobile = mobileSrc ? getOptimizedImage(mobileSrc) : null
 
-function srcset(variants: { src: string; width: number }[]): string {
-  return variants.map((v) => `${v.src} ${v.width}w`).join(', ')
-}
-
 // Breakpoints from tailwind.config.mjs: tablet=810px, desktop=1200px
 // Sources are ordered narrow-first so the first matching <source> wins.
 const MOBILE_MQ = '(max-width: 809px)'
@@ -35,119 +32,9 @@ const TABLET_MQ = '(max-width: 1199px)'
 
 <figure class="my-0">
   <picture>
-    {/* Mobile variant (max-width: 809px) */}
-    {
-      mobile && mobile.avifVariants.length > 0 && (
-        <source
-          type="image/avif"
-          srcset={srcset(mobile.avifVariants)}
-          sizes="100vw"
-          media={MOBILE_MQ}
-        />
-      )
-    }
-    {
-      mobile && mobile.variants.length > 0 && (
-        <source
-          type="image/webp"
-          srcset={srcset(mobile.variants)}
-          sizes="100vw"
-          media={MOBILE_MQ}
-        />
-      )
-    }
-    {
-      mobile && !mobile.variants.length && mobile.avifFullSrc && (
-        <source
-          type="image/avif"
-          srcset={mobile.avifFullSrc}
-          media={MOBILE_MQ}
-        />
-      )
-    }
-    {
-      mobile && !mobile.variants.length && mobile.fullSrc && (
-        <source type="image/webp" srcset={mobile.fullSrc} media={MOBILE_MQ} />
-      )
-    }
-    {/* Fallback: no optimized variants exist — use original URL directly */}
-    {
-      mobileSrc && !mobile?.variants.length && !mobile?.fullSrc && (
-        <source srcset={mobileSrc} media={MOBILE_MQ} />
-      )
-    }
-
-    {/* Tablet variant (max-width: 1199px, after mobile has already matched) */}
-    {
-      tablet && tablet.avifVariants.length > 0 && (
-        <source
-          type="image/avif"
-          srcset={srcset(tablet.avifVariants)}
-          sizes="100vw"
-          media={TABLET_MQ}
-        />
-      )
-    }
-    {
-      tablet && tablet.variants.length > 0 && (
-        <source
-          type="image/webp"
-          srcset={srcset(tablet.variants)}
-          sizes="100vw"
-          media={TABLET_MQ}
-        />
-      )
-    }
-    {
-      tablet && !tablet.variants.length && tablet.avifFullSrc && (
-        <source
-          type="image/avif"
-          srcset={tablet.avifFullSrc}
-          media={TABLET_MQ}
-        />
-      )
-    }
-    {
-      tablet && !tablet.variants.length && tablet.fullSrc && (
-        <source type="image/webp" srcset={tablet.fullSrc} media={TABLET_MQ} />
-      )
-    }
-    {/* Fallback: no optimized variants exist — use original URL directly */}
-    {
-      tabletSrc && !tablet?.variants.length && !tablet?.fullSrc && (
-        <source srcset={tabletSrc} media={TABLET_MQ} />
-      )
-    }
-
-    {/* Desktop (default — no media query, catches everything else) */}
-    {
-      desktop.avifVariants.length > 0 && (
-        <source
-          type="image/avif"
-          srcset={srcset(desktop.avifVariants)}
-          sizes="100vw"
-        />
-      )
-    }
-    {
-      desktop.variants.length > 0 && (
-        <source
-          type="image/webp"
-          srcset={srcset(desktop.variants)}
-          sizes="100vw"
-        />
-      )
-    }
-    {
-      desktop.avifFullSrc && !desktop.avifVariants.length && (
-        <source type="image/avif" srcset={desktop.avifFullSrc} />
-      )
-    }
-    {
-      desktop.fullSrc && !desktop.variants.length && (
-        <source type="image/webp" srcset={desktop.fullSrc} />
-      )
-    }
+    <ResponsiveSources image={mobile} rawSrc={mobileSrc} media={MOBILE_MQ} />
+    <ResponsiveSources image={tablet} rawSrc={tabletSrc} media={TABLET_MQ} />
+    <ResponsiveSources image={desktop} />
 
     <img
       src={src}
