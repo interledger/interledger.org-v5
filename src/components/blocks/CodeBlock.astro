@@ -119,6 +119,12 @@ const highlighted = await codeToHtml(code, {
   [data-component='code-block'] .code-block-scroll :global(.line) {
     white-space: pre;
   }
+
+  /* Empty .line spans (blank lines) have no content, so browsers give them
+     zero height; a zero-width space forces a line box so the blank line renders. */
+  [data-component='code-block'] .code-block-scroll :global(.line:empty::before) {
+    content: '\200b';
+  }
 </style>
 
 <script>
