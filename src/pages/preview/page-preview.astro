@@ -6,6 +6,7 @@
  */
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import Link from '@/components/shared/Link.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
@@ -77,6 +78,7 @@ const content = page.content || []
 ---
 
 <BaseLayout title={`[PREVIEW] ${title}`} description={description}>
+  <TableScrollSupport />
   <main class="pb-space-l">
     <!-- Preview Banner -->
     <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
@@ -118,7 +120,10 @@ const content = page.content || []
     {
       content.length > 0 && (
         <section class="py-space-xl">
-          <div class="mx-auto max-w-content min-w-90 max-[1324px]:px-[5%]">
+          <div
+            class="mx-auto w-full min-w-0 max-w-content max-[1324px]:px-[5%]"
+            data-prose-blog
+          >
             <DynamicZone blocks={content} />
           </div>
         </section>

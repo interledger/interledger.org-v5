@@ -120,10 +120,7 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": [
-        "blocks.paragraph",
-        "blocks.video-embed"
-      ],
+      "components": ["blocks.paragraph", "blocks.video-embed"],
       "pluginOptions": { "i18n": { "localized": true } }
     },
     "articleBio": {

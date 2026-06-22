@@ -16,6 +16,7 @@ import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import FoundationPageLayout from './FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import BlogPostHeader from '@/components/blog/BlogPostHeader.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -61,6 +62,7 @@ const breadcrumbs = [
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
+    <TableScrollSupport />
     <slot name="disclaimer" />
     <div class="max-w-narrow m-auto">
       <Breadcrumbs breadcrumbs={breadcrumbs} />

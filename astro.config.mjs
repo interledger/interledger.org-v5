@@ -9,6 +9,7 @@ import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
+import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTables.ts'
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 
 // https://astro.build/config
@@ -32,7 +33,7 @@ export default defineConfig({
   },
   adapter: netlify(),
   markdown: {
-    rehypePlugins: [rehypeUmamiLinks]
+    rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
   },
   integrations: [
     stripDocsCssFromMainSite(),
