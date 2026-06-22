@@ -12,10 +12,7 @@ function escapeAttr(value: string): string {
 /**
  * Wraps each `<table>` in a focusable scroll region for keyboard users (WCAG 2.1.1).
  */
-export function wrapScrollableTables(
-  html: string,
-  ariaLabel: string
-): string {
+export function wrapScrollableTables(html: string, ariaLabel: string): string {
   if (!html.includes('<table')) return html
 
   const root = parse(`<div data-wrap-root>${html}</div>`, {

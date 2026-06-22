@@ -9,9 +9,7 @@ const FILE_PATH =
   '/repo/src/content/foundation-blog-posts/2025-06-11-2025-digital-financial-services-grant.mdx'
 
 function processor() {
-  return unified()
-    .use(rehypeWrapScrollableTables)
-    .use(rehypeStringify)
+  return unified().use(rehypeWrapScrollableTables).use(rehypeStringify)
 }
 
 async function run(tree: Root, path = FILE_PATH): Promise<string> {

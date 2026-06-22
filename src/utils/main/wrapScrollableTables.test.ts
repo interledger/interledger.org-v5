@@ -23,10 +23,7 @@ describe('wrapScrollableTables', () => {
   })
 
   it('escapes quotes in aria-label', () => {
-    const out = wrapScrollableTables(
-      '<table></table>',
-      'Table "wide" version'
-    )
+    const out = wrapScrollableTables('<table></table>', 'Table "wide" version')
     expect(out).toContain('aria-label="Table &quot;wide&quot; version"')
   })
 

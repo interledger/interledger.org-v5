@@ -5,7 +5,6 @@ const DEFAULT_LOCALE = 'en' as const
 
 /** Localized accessible name for horizontally scrollable table regions. */
 export function getTableScrollAriaLabel(lang?: string): string {
-  const locale =
-    lang && lang in ui ? (lang as keyof typeof ui) : DEFAULT_LOCALE
+  const locale = lang && lang in ui ? (lang as keyof typeof ui) : DEFAULT_LOCALE
   return ui[locale][TABLE_SCROLL_LABEL_KEY]
 }

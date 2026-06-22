@@ -16,10 +16,7 @@ function isTableParent(parent: Parents | null | undefined): parent is Parents {
   )
 }
 
-function createTableScrollWrapper(
-  table: Element,
-  ariaLabel: string
-): Element {
+function createTableScrollWrapper(table: Element, ariaLabel: string): Element {
   return {
     type: 'element',
     tagName: 'div',
@@ -47,7 +44,10 @@ const rehypeWrapScrollableTables: Plugin<[], Root> = () => (tree, file) => {
   const [collection] = match.slice(1)
   if (collection === 'docs') return
 
-  const slugSegments = match[2].replace(/\/index$/, '').split('/').filter(Boolean)
+  const slugSegments = match[2]
+    .replace(/\/index$/, '')
+    .split('/')
+    .filter(Boolean)
   const locale =
     slugSegments[0] && LOCALE_CODES.has(slugSegments[0])
       ? slugSegments[0]

@@ -8,10 +8,7 @@ export async function parseMarkdown(
 ): Promise<string> {
   if (!text) return ''
   const html = await createMarked(context).parse(text)
-  return wrapScrollableTables(
-    html,
-    getTableScrollAriaLabel(context.lang)
-  )
+  return wrapScrollableTables(html, getTableScrollAriaLabel(context.lang))
 }
 
 export function parseMarkdownInline(
