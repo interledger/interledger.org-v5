@@ -39,30 +39,47 @@ const pageAttrs = (action: string, ariaLabel: string) =>
     action
   })
 const paginationClasses = twMerge('flex justify-center', className)
-const linkClasses = `px-space-s py-space-xs 
-[&[aria-current='page']]:border [&[aria-current='page']]:border-primary [&[aria-current='page']]:pointer-events-none
-[&[aria-disabled='true']]:cursor-not-allowed [&[aria-disabled='true']]:opacity-50
+const listClasses =
+  'flex flex-row flex-wrap gap-sm items-center m-0 p-0 list-none [&_li]:mb-0 [&_li]:flex'
+const linkClasses = `
+inline-block p-sm no-underline bg-transparent rounded-lg
+text-body-sm-standard text-neutral-75 transition-all duration-200 ease-in-out 
+hover:bg-neutral-25 hover:text-primary
+focus-visible:bg-neutral-25 focus-visible:text-primary focus-visible:outline-none
+[&[aria-current='page']]:border [&[aria-current='page']]:border-primary 
+[&[aria-current='page']]:pointer-events-none [&[aria-current='page']]:text-primary
+[&_span]:inline-block [&_span]:w-[24px] [&_span]:h-[24px] [&_span]:text-center
+`
+const iconLinkClasses = `
+text-primary bg-transparent rounded-lg transition-all duration-200 ease-in-out
+hover:bg-primary hover:text-neutral-0 
+focus-visible:bg-primary focus-visible:text-neutral-0 focus-visible:outline-none
+[&[aria-disabled='true']]:cursor-not-allowed [&[aria-disabled='true']]:text-orchid-50 
+[&[aria-disabled='true']]:hover:bg-transparent
 `
 ---
 
 <nav aria-label={t('pagination.pages', { label })} class={paginationClasses}>
-  <ul>
+  <ul class={listClasses}>
     <li>
       <a
         href={prevUrl}
         aria-disabled={!prevUrl || undefined}
         aria-label={t('pagination.previous')}
-        class={linkClasses}
+        class={twMerge(linkClasses, iconLinkClasses)}
         {...pageAttrs('pagination_prev', t('pagination.previous'))}
       >
-        <Icon name="arrow-right-keyboard" class="rotate-180" />
+        <Icon name="arrow-right-keyboard" class="rotate-180 size-6" />
       </a>
     </li>
     {
       pages.map((page) =>
         page === '...' ? (
           <li>
-            <span class="px-space-s py-space-xs" aria-hidden="true">
+            <span
+              aria-hidden="true"
+              class="inline-block m-sm w-[24px] h-[24px] text-center"
+            >
               &hellip;
             </span>
           </li>
@@ -71,14 +88,14 @@ const linkClasses = `px-space-s py-space-xs
             <a
               href={`${baseUrl}${page === 1 ? '' : '/' + page}`}
               aria-current={currentPage === page ? 'page' : undefined}
-              aria-label={t('pagination.page', { number: page })}
+              aria-label={`${t('pagination.pages', { label })} ${page}`}
               class={linkClasses}
               {...pageAttrs(
                 `pagination_${page}`,
                 `${t('pagination.pages', { label })} ${page}`
               )}
             >
-              {page}
+              <span>{page}</span>
             </a>
           </li>
         )
@@ -89,10 +106,10 @@ const linkClasses = `px-space-s py-space-xs
         href={nextUrl}
         aria-disabled={!nextUrl || undefined}
         aria-label={t('pagination.next')}
-        class={linkClasses}
+        class={twMerge(linkClasses, iconLinkClasses)}
         {...pageAttrs('pagination_next', t('pagination.next'))}
       >
-        <Icon name="arrow-right-keyboard" />
+        <Icon name="arrow-right-keyboard" class="size-6" />
       </a>
     </li>
   </ul>
