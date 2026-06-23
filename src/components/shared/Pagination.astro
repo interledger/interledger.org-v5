@@ -1,20 +1,34 @@
 ---
-import { useTranslations, buildUmamiAttrs, twMerge } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  twMerge,
+  getVisiblePages
+} from '@/utils'
+import Icon from './Icon.astro'
 
+interface Props {
+  baseUrl: string
+  length: number
+  currentPage: number
+  prevUrl?: string
+  nextUrl?: string
+  label: string
+  class?: string
+}
 const {
   baseUrl,
   length,
   currentPage,
-  firstUrl,
   prevUrl,
   nextUrl,
-  lastUrl,
   label,
   class: className
 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const paginationList = Array.from({ length }, (_, i) => i + 1)
+
+const pages = getVisiblePages(currentPage, length)
 
 const pageAttrs = (action: string, ariaLabel: string) =>
   buildUmamiAttrs({
@@ -25,89 +39,61 @@ const pageAttrs = (action: string, ariaLabel: string) =>
     action
   })
 const paginationClasses = twMerge('flex justify-center', className)
+const linkClasses = `px-space-s py-space-xs 
+[&[aria-current='page']]:border [&[aria-current='page']]:border-primary [&[aria-current='page']]:pointer-events-none
+[&[aria-disabled='true']]:cursor-not-allowed [&[aria-disabled='true']]:opacity-50
+`
 ---
 
 <nav aria-label={t('pagination.pages', { label })} class={paginationClasses}>
-  {
-    firstUrl ? (
+  <ul>
+    <li>
       <a
-        href={`${firstUrl}`}
-        aria-label={t('pagination.first')}
-        class="px-space-s py-space-xs"
-        {...pageAttrs('pagination_first', t('pagination.first'))}
-      >
-        &#171;
-      </a>
-    ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
-        &#171;
-      </span>
-    )
-  }
-
-  {
-    prevUrl ? (
-      <a
-        href={`${prevUrl}`}
+        href={prevUrl}
+        aria-disabled={!prevUrl || undefined}
         aria-label={t('pagination.previous')}
-        class="px-space-s py-space-xs"
+        class={linkClasses}
         {...pageAttrs('pagination_prev', t('pagination.previous'))}
       >
-        &#8249;
+        <Icon name="arrow-right-keyboard" class="rotate-180" />
       </a>
-    ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
-        &#8249;
-      </span>
-    )
-  }
-
-  {
-    paginationList.map((num) => (
+    </li>
+    {
+      pages.map((page) =>
+        page === '...' ? (
+          <li>
+            <span class="px-space-s py-space-xs" aria-hidden="true">
+              &hellip;
+            </span>
+          </li>
+        ) : (
+          <li>
+            <a
+              href={`${baseUrl}${page === 1 ? '' : '/' + page}`}
+              aria-current={currentPage === page ? 'page' : undefined}
+              aria-label={t('pagination.page', { number: page })}
+              class={linkClasses}
+              {...pageAttrs(
+                `pagination_${page}`,
+                `${t('pagination.pages', { label })} ${page}`
+              )}
+            >
+              {page}
+            </a>
+          </li>
+        )
+      )
+    }
+    <li>
       <a
-        href={`${baseUrl}${num == 1 ? '' : '/' + num}`}
-        class={`px-space-s py-space-xs ${currentPage == num ? 'text-primary-fallback pointer-events-none' : ''}`}
-        {...pageAttrs(
-          `pagination_${num}`,
-          `${t('pagination.pages', { label })} ${num}`
-        )}
-      >
-        {num}
-      </a>
-    ))
-  }
-
-  {
-    !nextUrl ? (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
-        &#8250;
-      </span>
-    ) : (
-      <a
-        href={`${nextUrl}`}
+        href={nextUrl}
+        aria-disabled={!nextUrl || undefined}
         aria-label={t('pagination.next')}
-        class="px-space-s py-space-xs"
+        class={linkClasses}
         {...pageAttrs('pagination_next', t('pagination.next'))}
       >
-        &#8250;
+        <Icon name="arrow-right-keyboard" />
       </a>
-    )
-  }
-
-  {
-    lastUrl ? (
-      <a
-        href={`${lastUrl}`}
-        aria-label={t('pagination.last')}
-        class="px-space-s py-space-xs"
-        {...pageAttrs('pagination_last', t('pagination.last'))}
-      >
-        &#187;
-      </a>
-    ) : (
-      <span class="px-space-s py-space-xs opacity-50 cursor-not-allowed">
-        &#187;
-      </span>
-    )
-  }
+    </li>
+  </ul>
 </nav>

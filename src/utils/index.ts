@@ -16,6 +16,7 @@ export {
 } from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
+export { getVisiblePages } from './shared/pagination'
 
 // Main site: URL & routing
 export {
