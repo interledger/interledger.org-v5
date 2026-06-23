@@ -63,8 +63,6 @@ const postAttrs = (href: string, linkText: string) =>
 >
   <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
-  <ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
-
   <TaxonomyFilter
     collection="foundation-blog"
     terms={allTerms}
@@ -73,6 +71,8 @@ const postAttrs = (href: string, linkText: string) =>
     href={blogIndexHref}
     contentLangOverride={contentLangOverride}
   />
+
+  <ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
 
   {
     isTermFallback && (

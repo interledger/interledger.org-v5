@@ -63,7 +63,7 @@ export const ui = {
     'blog.cta.description':
       'Sign up for our newsletter and keep up to date with our news and events.',
     'blog.cta.link_text': 'Subscribe',
-    'blog.lang_filter.label': 'Filter by language:',
+    'blog.lang_filter.label': 'Filter by language',
     'blog.lang_filter.english': 'English',
     'blog.lang_filter.spanish': 'Spanish',
     // Only rendered on the English site when the Spanish filter is active.
@@ -286,7 +286,7 @@ export const ui = {
     'blog.cta.heading': '',
     'blog.cta.description': '',
     'blog.cta.link_text': '',
-    'blog.lang_filter.label': 'Filtrar por idioma:',
+    'blog.lang_filter.label': 'Filtrar por idioma',
     'blog.lang_filter.english': 'Inglés',
     'blog.lang_filter.spanish': 'Español',
     // Shown on ES pages when the English filter is active

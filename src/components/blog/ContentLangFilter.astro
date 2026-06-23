@@ -1,6 +1,7 @@
 ---
 import { useTranslations, buildUmamiAttrs, stripPagination } from '@/utils'
 import type { Locale } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
   routeLocale: Locale
@@ -26,9 +27,24 @@ const esHref = `${base}/lang/es`
 const isEnActive = contentLang === 'en'
 const isEsActive = contentLang === 'es'
 
-const activeClass = ['bg-primary', 'text-white']
-const inactiveClass = ['bg-white']
-
+const buttonClasses = `
+flex gap-xs items-center cursor-pointer
+p-xs rounded-lg border border-transparent
+[&[aria-expanded='true']]:text-neutral-100 [&[aria-expanded='true']_svg]:-rotate-90
+[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
+focus-visible:outline-none focus-visible:border focus-visible:border-primary
+`
+const dropdownClasses = `
+hidden list-none m-0 p-sm [&_li]:m-0
+absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))]
+bg-neutral-0 rounded-xl border border-neutral-25 
+`
+const linkClasses = `
+flex gap-md items-center px-sm py-xs rounded-lg border border-transparent
+no-underline text-body-sm-standard text-neutral-75
+hover:bg-neutral-25 hover:text-neutral-100
+focus-visible:outline-none focus-visible:border focus-visible:border-primary
+`
 const btnAttrs = (lang: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
@@ -38,33 +54,95 @@ const btnAttrs = (lang: string) =>
   })
 ---
 
-<div class="mb-space-m">
-  <div class="font-semibold mb-3xs text-step--1">
-    {t('blog.lang_filter.label')}
+<div
+  class="flex flex-col flex-wrap gap-xl text-body-sm-emphasis text-neutral-75 tablet:flex-row tablet:items-center tablet:gap-md relative"
+>
+  <div class="flex flex-wrap items-center gap-md">
+    <button
+      id="language-filter"
+      aria-controls="language-dropdown"
+      aria-expanded="false"
+      class={buttonClasses}
+    >
+      {t('blog.lang_filter.label')}
+      <Icon name="arrow-right-keyboard" class="rotate-90" />
+    </button>
+    <span class="text-primary"
+      >{
+        isEsActive
+          ? t('blog.lang_filter.spanish')
+          : t('blog.lang_filter.english')
+      }</span
+    >
   </div>
-  <ul
-    class="flex flex-wrap gap-space-3xs list-none
-    [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
-  >
+  {
+    isEsActive && (
+      <span class="text-body-sm-standard italic">
+        ({t('blog.lang_filter.more_en_available')})
+      </span>
+    )
+  }
+  <ul class={dropdownClasses} id="language-dropdown" role="list">
     <li>
       <a
         href={enHref}
-        class:list={isEnActive ? activeClass : inactiveClass}
+        class={linkClasses}
         aria-current={isEnActive ? 'page' : undefined}
         {...btnAttrs('en')}
       >
         {t('blog.lang_filter.english')}
+        {isEnActive && <Icon name="check" class="size-2.5" />}
       </a>
     </li>
     <li>
       <a
         href={esHref}
-        class:list={isEsActive ? activeClass : inactiveClass}
+        class={linkClasses}
         aria-current={isEsActive ? 'page' : undefined}
         {...btnAttrs('es')}
       >
         {t('blog.lang_filter.spanish')}
+        {isEsActive && <Icon name="check" class="size-2.5" />}
       </a>
     </li>
   </ul>
 </div>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('#language-filter')
+  const dropdown = document.querySelector<HTMLElement>('#language-dropdown')
+  const firstLink = dropdown?.querySelector<HTMLAnchorElement>('a')
+
+  button?.addEventListener('click', () => {
+    const isOpen = !dropdown?.classList.contains('hidden')
+    dropdown?.classList.toggle('hidden')
+    button.setAttribute('aria-expanded', String(!isOpen))
+    if (!isOpen) firstLink?.focus()
+  })
+
+  dropdown?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      dropdown.classList.add('hidden')
+      button?.setAttribute('aria-expanded', 'false')
+      button?.focus()
+    }
+  })
+
+  dropdown?.addEventListener('focusout', (e: FocusEvent) => {
+    if (
+      !button?.contains(e.relatedTarget as Node) &&
+      !dropdown.contains(e.relatedTarget as Node)
+    ) {
+      dropdown.classList.add('hidden')
+      button?.setAttribute('aria-expanded', 'false')
+    }
+  })
+
+  document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as Node
+    if (!button?.contains(target) && !dropdown?.contains(target)) {
+      dropdown?.classList.add('hidden')
+      button?.setAttribute('aria-expanded', 'false')
+    }
+  })
+</script>
