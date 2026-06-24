@@ -1,6 +1,7 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
+import { roadmapWindow, projectOverlapsWindow } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
 
 interface Props {
@@ -11,7 +12,11 @@ const { snapshot } = Astro.props
 const projects = snapshot?.projects ?? []
 const teams = snapshot?.teams ?? []
 const generatedAt = snapshot?.generatedAt ?? null
-const hasData = projects.length > 0
+
+// Mirror RoadmapBoard's windowing so the empty state shows when no project falls
+// in the visible window (otherwise the board would render with zero rows).
+const { start, end } = roadmapWindow(new Date())
+const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
 ---
 
 <FoundationPageLayout

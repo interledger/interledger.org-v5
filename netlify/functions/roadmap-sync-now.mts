@@ -2,9 +2,12 @@ import { timingSafeEqual } from 'node:crypto'
 import { getStore } from '@netlify/blobs'
 import type { Context } from '@netlify/functions'
 import { buildSnapshot } from '../../src/linear/build-snapshot'
-import { API_SECRET, isNetlifyDev } from '../../src/linear/env'
+import { isNetlifyDev } from '../../src/linear/env'
 import { purgeRoadmapCache } from './utils/purge-roadmap-cache.mts'
 
+// Read directly here (not from the shared env module) so the scheduled sync,
+// which never uses it, doesn't fail at cold start when it is unset.
+const API_SECRET = process.env.API_SECRET ?? ''
 const FIVE_MINUTES_MS = 5 * 60 * 1000
 const RL_KEY = 'sync-rate-limit'
 
@@ -36,6 +39,9 @@ export default async function handler(
 
   const store = getStore('roadmap')
 
+  // Throttle on the last SUCCESSFUL sync. The read-then-write is not atomic, so
+  // two near-simultaneous calls could both pass — acceptable for a secret-gated
+  // manual endpoint.
   const lastSync = (await store.get(RL_KEY, { type: 'json' })) as {
     ts: number
   } | null
@@ -54,12 +60,14 @@ export default async function handler(
       }
     )
   }
-  await store.setJSON(RL_KEY, { ts: Date.now() })
 
   try {
     const snapshot = await buildSnapshot()
     await store.setJSON('roadmap-snapshot', snapshot)
     await purgeRoadmapCache()
+    // Only burn the rate-limit window after a successful sync, so a failed run
+    // (502 below) can be retried immediately.
+    await store.setJSON(RL_KEY, { ts: Date.now() })
     return new Response(
       JSON.stringify({ ok: true, generatedAt: snapshot.generatedAt }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }

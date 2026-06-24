@@ -27,8 +27,11 @@ export const LINEAR_API_KEY = requireEnv('LINEAR_API_KEY')
 export const LINEAR_CUSTOM_VIEW_ID =
   process.env.LINEAR_CUSTOM_VIEW_ID ?? '27df73bc-50ec-4fc1-bbb2-d906236a5bbc'
 
-// Bearer token for the manual POST /api/roadmap-sync trigger.
-export const API_SECRET = requireEnv('API_SECRET')
+// Note: API_SECRET is intentionally NOT exported here. It is only used by the
+// manual roadmap-sync-now function, which reads it directly. Keeping it out of
+// this shared module means the scheduled sync (which imports LINEAR_CUSTOM_VIEW_ID
+// from here via build-snapshot) does not fail at cold start when API_SECRET is
+// unset, since it never uses it.
 
 // Note: CDN cache purging uses Netlify's token-free purgeCache() from the
 // function runtime (see netlify/functions/utils/purge-roadmap-cache.mts), so no

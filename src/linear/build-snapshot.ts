@@ -142,9 +142,10 @@ type ProjectIssueTeamsQueryResult = {
 }
 
 const PROJECT_LABELS_QUERY = `
-  query FetchProjectLabels {
-    projectLabels {
+  query FetchProjectLabels($first: Int!, $after: String) {
+    projectLabels(first: $first, after: $after) {
       nodes { id name }
+      pageInfo { hasNextPage endCursor }
     }
   }
 `
@@ -152,6 +153,7 @@ const PROJECT_LABELS_QUERY = `
 type ProjectLabelsQueryResult = {
   projectLabels: {
     nodes: Array<{ id: string; name: string }>
+    pageInfo: { hasNextPage: boolean; endCursor: string | null }
   }
 }
 
@@ -212,15 +214,28 @@ async function fetchTeams(): Promise<TeamsQueryResult['teams']['nodes']> {
 }
 
 async function fetchPublicLabelIds(): Promise<Set<string>> {
-  const result = await withRetry(() =>
-    linear.client.request<ProjectLabelsQueryResult, Record<string, never>>(
-      PROJECT_LABELS_QUERY
+  const ids = new Set<string>()
+  let hasNextPage = true
+  let endCursor: string | null = null
+
+  // Paginated: Linear connections default to 50 nodes, and if a workspace has
+  // more than 50 project labels with `public` past the first page, an unpaginated
+  // query would miss it and drop every project from the roadmap.
+  while (hasNextPage) {
+    const result = await withRetry(() =>
+      linear.client.request<
+        ProjectLabelsQueryResult,
+        { first: number; after: string | null }
+      >(PROJECT_LABELS_QUERY, { first: 50, after: endCursor })
     )
-  )
-  const ids = result.projectLabels.nodes
-    .filter((l) => l.name.toLowerCase() === 'public')
-    .map((l) => l.id)
-  return new Set(ids)
+    for (const label of result.projectLabels.nodes) {
+      if (label.name.toLowerCase() === 'public') ids.add(label.id)
+    }
+    hasNextPage = result.projectLabels.pageInfo.hasNextPage
+    endCursor = result.projectLabels.pageInfo.endCursor
+  }
+
+  return ids
 }
 
 async function fetchProjectIssueTeamCounts(

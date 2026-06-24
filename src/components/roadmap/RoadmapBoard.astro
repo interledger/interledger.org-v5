@@ -58,7 +58,10 @@ function fmtDate(iso: string | null | undefined): string {
   try {
     return new Date(iso).toLocaleDateString('en-US', {
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      // Date-only strings parse as UTC midnight; format in UTC so a Jan-1 target
+      // doesn't render as the previous December on a non-UTC host.
+      timeZone: 'UTC'
     })
   } catch {
     return iso ?? ''

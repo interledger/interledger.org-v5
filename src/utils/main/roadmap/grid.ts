@@ -28,7 +28,8 @@ export function buildMonths(minDate: Date, maxDate: Date): MonthEntry[] {
   while (cmy < endYear || (cmy === endYear && cm <= endMonth)) {
     months.push({
       label: new Date(Date.UTC(cmy, cm, 1)).toLocaleString('en-US', {
-        month: 'short'
+        month: 'short',
+        timeZone: 'UTC'
       }),
       year: cmy,
       month: cm,
