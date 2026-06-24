@@ -33,9 +33,16 @@ const enabledSet = enabledTerms ? new Set(enabledTerms) : null
 const allHref = contentLangOverride
   ? `${href}/${taxonomy.segment}/all/lang/${contentLangOverride}`
   : `${href}/${taxonomy.segment}/all`
-const activeClass = ['bg-primary', 'text-white']
-const inactiveClass = ['bg-white']
-const disabledClass = ['bg-white', 'opacity-50', 'cursor-not-allowed']
+
+const linkClasses = `
+  inline-block py-xs px-sm text-body-sm-standard text-neutral-100 
+  rounded-full no-underline border border-neutral-50 transition-all duration-200
+  hover:text-neutral-150 hover:border-neutral-75 
+  focus-visible:outline-none focus-visible:border-primary 
+  [&[aria-current='page']]:text-primary [&[aria-current='page']]:border-2 [&[aria-current='page']]:border-primary
+  [&[aria-disabled='true']]:text-neutral-50 [&[aria-disabled='true']]:cursor-not-allowed 
+  [&[aria-disabled='true']]:hover:border-neutral-50 [&[aria-disabled='true']]:hover:text-neutral-50
+`
 
 const filterAttrs = (action: string, label: string) =>
   buildUmamiAttrs({
@@ -47,55 +54,45 @@ const filterAttrs = (action: string, label: string) =>
   })
 ---
 
-<div class="bg-transparent rounded-[var(--border-radius)]">
-  <div class="font-semibold mb-3xs text-step--1">
-    {t(taxonomy.filterLabelKey)}
-  </div>
-  <div
-    class="flex flex-wrap gap-space-3xs
-  [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
-  >
+<ul
+  role="list"
+  aria-label={t(taxonomy.filterLabelKey)}
+  class="flex flex-wrap gap-x-xs gap-y-md list-none m-0 p-0 [&_li]:m-0 [&_li]:bg-neutral-0"
+>
+  <li>
     <a
       href={allHref}
-      class:list={!selectedTerm ? activeClass : inactiveClass}
+      class={linkClasses}
+      aria-current={!selectedTerm ? 'page' : undefined}
       {...filterAttrs('filter_all', t('blog.filter.all'))}
     >
       {t('blog.filter.all')}
     </a>
-    {
-      terms.map((term) => {
-        const label = translateTerm(taxonomy.i18nPrefix, term, t)
-        const isEnabled = enabledSet === null || enabledSet.has(term)
-        const isActive = selectedTerm === term
+  </li>
+  {
+    terms.map((term) => {
+      const label = translateTerm(taxonomy.i18nPrefix, term, t)
+      const isEnabled = enabledSet === null || enabledSet.has(term)
+      const isActive = selectedTerm === term
+      const termHref = isEnabled
+        ? getTermUrl(href, taxonomy.segment, term, contentLangOverride)
+        : undefined
 
-        if (!isEnabled) {
-          return (
-            <span
-              class:list={[
-                'px-space-2xs',
-                'py-space-3xs',
-                'text-step--1',
-                'rounded',
-                'shadow',
-                ...disabledClass
-              ]}
-              aria-disabled="true"
-            >
-              {label}
-            </span>
-          )
-        }
-        return (
+      return (
+        <li>
           <a
-            href={getTermUrl(href, taxonomy.segment, term, contentLangOverride)}
-            class:list={isActive ? activeClass : inactiveClass}
+            href={termHref}
+            class={linkClasses}
             aria-current={isActive ? 'page' : undefined}
-            {...filterAttrs(`filter_${taxonomy.segment}`, label)}
+            aria-disabled={!isEnabled ? 'true' : undefined}
+            {...(isEnabled
+              ? filterAttrs(`filter_${taxonomy.segment}`, label)
+              : {})}
           >
             {label}
           </a>
-        )
-      })
-    }
-  </div>
-</div>
+        </li>
+      )
+    })
+  }
+</ul>
