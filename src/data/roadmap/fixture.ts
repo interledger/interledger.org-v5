@@ -1,9 +1,9 @@
 import type { Snapshot } from '@/types/roadmap'
 
-// Placeholder roadmap data for the presentation-first migration (INTORG-737).
-// Shapes match the live Linear snapshot so swapping in a build-time fetch later
-// (pending Sarah's data-approach decision) touches only the data layer, not the
-// board. Dates are bounded to 2026–2027 per Sarah's INTORG-636 windowing note.
+// Local-dev fallback for the roadmap page. `astro dev` has no Netlify Blobs
+// runtime, so the SSR page renders this instead of the live snapshot (see
+// src/pages/developers/roadmap.astro). The shape mirrors the real Linear
+// snapshot; dates are illustrative and sit in the current timeline window.
 export const ROADMAP_FIXTURE: Snapshot = {
   generatedAt: '2026-06-22T00:00:00.000Z',
   teams: [
