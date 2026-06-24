@@ -6,6 +6,14 @@
 [[plugins]]
   package = "./netlify/plugins/cache-images"
 
+# Local dev only: map the manual roadmap sync trigger to its function.
+# In production the function self-registers at /api/roadmap-sync (see its config).
+[[context.dev.redirects]]
+  from = "/api/roadmap-sync"
+  to = "/.netlify/functions/roadmap-sync-now"
+  status = 200
+  force = true
+
 # Redirect old singular summit routes to plural (EN and ES)
 [[redirects]]
   from = "/summit/:year/talk/:slug"

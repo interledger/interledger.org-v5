@@ -1,0 +1,36 @@
+---
+export const prerender = false
+
+import { getStore } from '@netlify/blobs'
+import DevelopersRoadmapPage from '@/components/pages/DevelopersRoadmapPage.astro'
+import { ROADMAP_FIXTURE } from '@/data/roadmap/fixture'
+import { tryCatchAsync } from '@/utils'
+import type { Snapshot } from '@/types/roadmap'
+
+// SSR (INTORG-737): read the roadmap snapshot from Netlify Blobs at request time.
+// The scheduled sync function (netlify/functions/roadmap-sync) populates the store
+// from Linear; the CDN caches this rendered HTML between syncs (see the header below).
+const result = await tryCatchAsync(async () => {
+  const store = getStore('roadmap')
+  return (await store.get('roadmap-snapshot', {
+    type: 'json'
+  })) as Snapshot | null
+})
+
+// Fall back to the bundled fixture only in local dev (plain `astro dev` has no
+// Netlify Blobs runtime, so getStore throws). In production a missing/failed blob
+// renders the page's empty state rather than placeholder data.
+const snapshot: Snapshot | null =
+  result instanceof Error || !result
+    ? import.meta.env.DEV
+      ? ROADMAP_FIXTURE
+      : null
+    : result
+
+Astro.response.headers.set(
+  'Netlify-CDN-Cache-Control',
+  'public, max-age=43200, stale-while-revalidate=86400'
+)
+---
+
+<DevelopersRoadmapPage snapshot={snapshot} />

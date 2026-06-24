@@ -1,0 +1,765 @@
+---
+import type { Project, Team } from '@/types/roadmap'
+import {
+  resolveIcon,
+  computeDateRange,
+  roadmapWindow,
+  projectOverlapsWindow,
+  clampRangeToWindow,
+  buildMonths,
+  buildQuarterHeaders,
+  createPositioner,
+  buildGridItems,
+  computeProjectBarProps
+} from '@/utils'
+
+interface Props {
+  projects?: Project[]
+  teams?: Team[]
+}
+
+const { projects = [], teams = [] }: Props = Astro.props
+
+const now = new Date()
+const nowYear = now.getUTCFullYear()
+const nowMonth = now.getUTCMonth()
+const nowQuarter = Math.floor(nowMonth / 3) + 1
+
+// Cap the timeline to the near-term window (current year + next) and drop
+// projects whose activity falls entirely outside it. See roadmapWindow().
+const { start: windowStart, end: windowEnd } = roadmapWindow(now)
+const windowedProjects = projects.filter((p) =>
+  projectOverlapsWindow(p, windowStart, windowEnd)
+)
+
+const dataRange = computeDateRange(windowedProjects)
+const { minDate, maxDate } = clampRangeToWindow(
+  dataRange.minDate,
+  dataRange.maxDate,
+  windowStart,
+  windowEnd
+)
+const months = buildMonths(minDate, maxDate)
+const quarterHeaders = buildQuarterHeaders(months)
+
+const nMonths = months.length
+const nQuarters = quarterHeaders.length
+
+const timelineStart = months[0].start.getTime()
+const timelineEnd = months[months.length - 1].end.getTime()
+const pos = createPositioner(timelineStart, timelineEnd)
+
+const nowLeft = pos.pctLeft(now).toFixed(2)
+
+const gridItems = buildGridItems(windowedProjects, teams)
+
+function fmtDate(iso: string | null | undefined): string {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
+    })
+  } catch {
+    return iso ?? ''
+  }
+}
+
+// Running index over project rows only, used for accessible alternating row
+// colors (team-header rows are styled as distinct bands and don't participate).
+let projectRowIndex = -1
+---
+
+<div
+  class="board-outer isolate mx-auto max-w-content"
+  role="region"
+  aria-label="Project roadmap"
+>
+  <div class="mobile-toggle-wrap hidden justify-end pb-sm max-tablet:flex">
+    <button
+      type="button"
+      class="mobile-toggle-btn cursor-pointer rounded border border-gray-200 bg-gray-50 px-md py-xs text-step--2 text-gray-600 hover:bg-gray-200"
+      aria-pressed="false"
+    >
+      Full timeline
+    </button>
+  </div>
+
+  {
+    /*
+    .board-frame clips children to the border-radius without becoming a scroll
+    container (overflow: clip does not create one, unlike overflow: hidden), so
+    .board-header-sticky can stick relative to the viewport.
+  */
+  }
+  <div
+    class="board-frame overflow-clip rounded-lg border border-gray-200 shadow-sm"
+    style={`--n-months: ${nMonths}; --n-quarters: ${nQuarters}`}
+  >
+    {
+      /*
+      Sticky header lives OUTSIDE .board-scroll so it can pin to the viewport.
+      aria-hidden because column context is conveyed via the visually-hidden
+      <thead> + per-row aria. JS keeps its scrollLeft in sync with .board-scroll.
+    */
+    }
+    <div
+      class="board-header-sticky sticky z-20 border-b-2 border-gray-200 bg-gray-50 top-(--site-header-height) desktop:top-(--site-header-height-desktop)"
+      aria-hidden="true"
+    >
+      <div class="board-header-inner overflow-x-auto">
+        <table
+          class="board-header-table font-titillium text-step--1 text-gray-900"
+        >
+          <colgroup>
+            <col class="col-label" />
+            {months.map(() => <col class="col-month" />)}
+          </colgroup>
+          <thead>
+            <tr>
+              <th
+                class="hd-label sticky left-0 z-5 border-r border-gray-200 bg-gray-50 px-md align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600"
+                rowspan="2"
+              >
+                Team / Project
+              </th>
+
+              {
+                /* Desktop: quarter headers spanning their months. The quarter
+                  divider is a left border (skipped on the first quarter) so it
+                  lands on the exact same boundary + width as the months'
+                  quarter-start border below it. */
+              }
+              {
+                quarterHeaders.map((qh, qi) => (
+                  <th
+                    class:list={[
+                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600',
+                      { 'border-l-2 border-l-gray-300': qi > 0 },
+                      {
+                        'hd-quarter--current bg-primary/10! text-primary!':
+                          qh.q === nowQuarter && qh.year === nowYear
+                      }
+                    ]}
+                    colspan={qh.span}
+                  >
+                    {qh.label}
+                  </th>
+                ))
+              }
+
+              {/* Mobile: one column per quarter */}
+              {
+                quarterHeaders.map((qh) => (
+                  <th
+                    class:list={[
+                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600',
+                      {
+                        'hd-quarter--current bg-primary/10! text-primary!':
+                          qh.q === nowQuarter && qh.year === nowYear
+                      }
+                    ]}
+                  >
+                    {qh.label}
+                  </th>
+                ))
+              }
+            </tr>
+
+            {/* Month header cells */}
+            <tr>
+              {
+                months.map((m, mi) => (
+                  <th
+                    class:list={[
+                      'hd-month whitespace-nowrap border-r border-gray-200 bg-gray-50 px-sm py-xs text-center align-middle text-step--2 font-medium text-gray-700',
+                      {
+                        // Skip on the first month: the label column's right
+                        // border already divides it, so a 2px left border here
+                        // would double up and misalign with the quarter row.
+                        'hd-month--qstart border-l-2 border-l-gray-300!':
+                          m.isQuarterStart && mi > 0
+                      },
+                      {
+                        'hd-month--current bg-primary/10! font-bold text-primary!':
+                          m.year === nowYear && m.month === nowMonth
+                      }
+                    ]}
+                  >
+                    {m.label}
+                    {m.year === nowYear && m.month === nowMonth && (
+                      <span class="now-badge mx-auto mt-0.5 block w-fit rounded-full bg-primary px-1 py-0.5 text-[0.55rem] font-bold uppercase tracking-wide text-white">
+                        Now
+                      </span>
+                    )}
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+
+    {/* Scrollable body — project rows only */}
+    <div class="board-scroll overflow-x-auto">
+      <table
+        class="board font-titillium text-step--1 text-gray-900"
+        style={`--now-pct: ${nowLeft}%`}
+        aria-label="Projects"
+      >
+        <colgroup>
+          <col class="col-label" />
+          {months.map(() => <col class="col-month" />)}
+        </colgroup>
+
+        {
+          /*
+          Visually-hidden column headers give assistive tech proper column
+          associations. Sighted users read the sticky aria-hidden header above.
+        */
+        }
+        <thead class="sr-only">
+          <tr>
+            <th scope="col" rowspan="2">Team / Project</th>
+            {
+              quarterHeaders.map((qh) => (
+                <th scope="colgroup" colspan={qh.span}>
+                  {qh.label}
+                </th>
+              ))
+            }
+          </tr>
+          <tr>
+            {months.map((m) => <th scope="col">{m.label}</th>)}
+          </tr>
+        </thead>
+
+        <tbody>
+          {
+            gridItems.map((item) => {
+              if (item.type === 'team-header') {
+                const { team } = item
+                return (
+                  <tr aria-label={`Team: ${team.name}`}>
+                    <th
+                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-step--2 font-bold uppercase tracking-wider text-gray-700"
+                      scope="rowgroup"
+                    >
+                      <div class="inline-flex items-center gap-sm px-md py-xs">
+                        {team.name}
+                      </div>
+                    </th>
+                    <td
+                      class="team-header-track border-y border-gray-300 bg-gray-100"
+                      colspan={nMonths}
+                    />
+                  </tr>
+                )
+              }
+
+              const { project: proj } = item
+              projectRowIndex++
+              const zebra =
+                projectRowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+              const iconEmoji = resolveIcon(proj.icon)
+              const {
+                hasDates,
+                barLeft,
+                barWidth,
+                hasCompletedBar,
+                completedBarLeft,
+                completedBarWidth,
+                hasExtension,
+                extensionLeft,
+                extensionWidth,
+                datedMilestones
+              } = computeProjectBarProps(proj, pos)
+
+              return (
+                <tr>
+                  <th
+                    class:list={[
+                      'proj-label sticky left-0 z-4 h-13 border-r border-gray-200 px-md align-middle',
+                      zebra
+                    ]}
+                    scope="row"
+                    title={proj.name}
+                  >
+                    <span class="inline-flex items-center gap-1.5 text-step--1 font-medium leading-snug text-gray-900">
+                      {iconEmoji && (
+                        <span class="shrink-0" aria-hidden="true">
+                          {iconEmoji}
+                        </span>
+                      )}
+                      <span class="proj-name-text overflow-hidden text-ellipsis whitespace-nowrap">
+                        {proj.name}
+                      </span>
+                    </span>
+                  </th>
+
+                  <td
+                    class:list={[
+                      'proj-track relative h-13 overflow-visible align-top',
+                      zebra
+                    ]}
+                    colspan={nMonths}
+                  >
+                    {/* Visually-hidden date summary, always read by screen readers */}
+                    <span class="sr-only">
+                      {' '}
+                      Project
+                      {[
+                        fmtDate(proj.startDate) &&
+                          `starts ${fmtDate(proj.startDate)}`,
+                        fmtDate(proj.targetDate) &&
+                          `target ${fmtDate(proj.targetDate)}`
+                      ]
+                        .filter(Boolean)
+                        .join('; ') || ' has no dates set'}
+                    </span>
+
+                    <div class="now-line" aria-hidden="true" />
+
+                    {hasDates && (
+                      <div
+                        class="proj-bar bg-primary/25 border-primary/70"
+                        aria-hidden="true"
+                        style={`left: ${barLeft}%; width: ${barWidth}%;`}
+                      />
+                    )}
+
+                    {hasExtension && (
+                      <div
+                        class="proj-bar proj-bar--extension border-primary/50"
+                        aria-hidden="true"
+                        style={`left: ${extensionLeft}%; width: ${extensionWidth}%;`}
+                        title="Milestones extend past the project target date"
+                      />
+                    )}
+
+                    {hasCompletedBar && (
+                      <div
+                        class="proj-bar proj-bar--completed bg-primary/15 border-primary/60"
+                        aria-hidden="true"
+                        style={`left: ${completedBarLeft}%; width: ${completedBarWidth}%;`}
+                        title="Completed"
+                      />
+                    )}
+
+                    {/* Milestone diamonds, sorted chronologically so DOM order
+                        matches visual order (matters for screen readers) */}
+                    {[...datedMilestones]
+                      .sort(
+                        (a, b) =>
+                          new Date(a.targetDate!).getTime() -
+                          new Date(b.targetDate!).getTime()
+                      )
+                      .map((ms) => {
+                        const left = pos
+                          .pctLeft(new Date(ms.targetDate!))
+                          .toFixed(2)
+                        return (
+                          <button
+                            type="button"
+                            class="ms-pin"
+                            aria-label={`${ms.name}, target ${fmtDate(ms.targetDate)}`}
+                            style={`left: ${left}%`}
+                            data-umami-event="developers_roadmap:milestone:open"
+                            data-umami-event-project={proj.name}
+                            data-umami-event-milestone={ms.name}
+                          >
+                            <span
+                              class="ms-diamond bg-primary"
+                              aria-hidden="true"
+                            />
+                            <span class="ms-pin-name" aria-hidden="true">
+                              {ms.name}
+                              <span class="ms-pin-date">
+                                {fmtDate(ms.targetDate)}
+                              </span>
+                            </span>
+                          </button>
+                        )
+                      })}
+                  </td>
+                </tr>
+              )
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{
+  /*
+  Scoped CSS is intentionally limited to what Tailwind cannot express cleanly:
+  fixed table column widths + the responsive quarter/month column swap and its
+  "full timeline" toggle state, the milestone tooltip (pseudo-element arrow),
+  scrollbar theming, the duration-bar geometry, and reduced-motion. Everything
+  static is Tailwind utilities above; data-driven positions are inline styles.
+*/
+}
+<style>
+  /* Header + body tables share one column template. */
+  .board-header-table,
+  .board {
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: max(calc(300px + var(--n-months) * 88px), 100%);
+  }
+
+  .col-label {
+    width: 300px;
+  }
+  .col-month {
+    width: 88px;
+  }
+
+  .proj-name-text {
+    max-width: 240px;
+  }
+
+  /* Hide the header's scrollbar; JS mirrors it to the body's. */
+  .board-header-inner {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .board-header-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Body scrollbar, themed with the brand color. */
+  .board-scroll::-webkit-scrollbar {
+    height: 6px;
+  }
+  .board-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10em;
+  }
+  .board-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 10em;
+  }
+
+  /* "Today" vertical line. */
+  .now-line {
+    position: absolute;
+    inset-block: 0;
+    left: var(--now-pct);
+    width: 1.5px;
+    background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Project duration bar geometry (color comes from Tailwind utilities). */
+  .proj-bar {
+    position: absolute;
+    top: 18%;
+    height: 28%;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1.5px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .proj-bar--completed {
+    border-style: dashed;
+  }
+  .proj-bar--extension {
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(0, 0, 0, 0.07) 4px,
+      rgba(0, 0, 0, 0.07) 8px
+    );
+    border-style: dashed;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* Milestone pin. */
+  .ms-pin {
+    position: absolute;
+    inset-block: 0;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.35rem;
+    z-index: 3;
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: default;
+  }
+
+  .ms-diamond {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 150ms ease;
+  }
+
+  .ms-pin:hover .ms-diamond,
+  .ms-pin:focus-visible .ms-diamond {
+    transform: rotate(45deg) scale(1.3);
+  }
+  .ms-pin:focus-visible {
+    outline: none;
+  }
+  .ms-pin:focus-visible .ms-diamond {
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px var(--color-primary);
+  }
+  .ms-pin:hover,
+  .ms-pin:focus-visible,
+  .ms-pin--active {
+    z-index: 16;
+  }
+
+  /* Tooltip — revealed on hover, keyboard focus, or tap-activation. */
+  .ms-pin-name {
+    display: none;
+  }
+  .ms-pin:hover .ms-pin-name,
+  .ms-pin:focus-visible .ms-pin-name,
+  .ms-pin--active .ms-pin-name {
+    display: block;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 25, 25, 0.92);
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: normal;
+    max-width: 130px;
+    text-align: center;
+    line-height: 1.3;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+  .ms-pin:hover .ms-pin-name::after,
+  .ms-pin:focus-visible .ms-pin-name::after,
+  .ms-pin--active .ms-pin-name::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(25, 25, 25, 0.92);
+  }
+
+  /* Flip the tooltip below the diamond when there isn't room above (set by JS
+     for pins near the sticky header), so the first rows aren't clipped. */
+  .ms-pin--below .ms-pin-name {
+    top: calc(100% + 8px);
+    bottom: auto;
+  }
+  .ms-pin--below .ms-pin-name::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: rgba(25, 25, 25, 0.92);
+  }
+  .ms-pin-date {
+    display: block;
+    margin-top: 2px;
+    opacity: 0.75;
+    font-weight: 400;
+  }
+
+  /* Desktop default: month columns shown, mobile quarter headers hidden. */
+  .hd-quarter--mobile {
+    display: none;
+  }
+
+  /* Mobile: collapse to one column per quarter. */
+  @media (max-width: 809px) {
+    .board-header-table,
+    .board {
+      width: max(calc(130px + var(--n-quarters) * 72px), 100%);
+    }
+    .col-label {
+      width: 130px;
+    }
+    .col-month {
+      width: 0;
+      display: none;
+    }
+    .hd-quarter--desktop {
+      display: none;
+    }
+    .hd-quarter--mobile {
+      display: table-cell;
+      width: 72px;
+    }
+    .hd-month {
+      height: 0;
+      min-height: 0;
+      padding: 0;
+      border: none;
+      overflow: hidden;
+      visibility: hidden;
+    }
+    .proj-name-text {
+      max-width: 96px;
+    }
+    .ms-pin {
+      cursor: pointer;
+    }
+
+    /* "Full timeline" mode restores the month-column view on mobile. */
+    .board-outer--full .board-header-table,
+    .board-outer--full .board {
+      width: max(calc(300px + var(--n-months) * 88px), 100%);
+    }
+    .board-outer--full .col-label {
+      width: 300px;
+    }
+    .board-outer--full .col-month {
+      width: 88px;
+      display: table-column;
+    }
+    .board-outer--full .hd-quarter--desktop {
+      display: table-cell;
+    }
+    .board-outer--full .hd-quarter--mobile {
+      display: none;
+    }
+    .board-outer--full .hd-month {
+      height: auto;
+      min-height: unset;
+      padding: 0.25rem 0.5rem;
+      border-right: 1px solid #e8e8e8;
+      overflow: visible;
+      visibility: visible;
+    }
+    .board-outer--full .proj-name-text {
+      max-width: 240px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ms-diamond {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Centre the board so the "today" line sits mid-viewport on load.
+  function centreOnNow() {
+    const boardScroll = document.querySelector<HTMLElement>('.board-scroll')
+    const board = document.querySelector<HTMLElement>('.board')
+    if (!boardScroll || !board) return
+
+    const rawPct = getComputedStyle(board).getPropertyValue('--now-pct').trim()
+    const nowPct = parseFloat(rawPct)
+    if (isNaN(nowPct)) return
+
+    const labelCell = document.querySelector<HTMLElement>('.hd-label')
+    const labelWidth = labelCell?.offsetWidth ?? 300
+    const timelineWidth = board.scrollWidth - labelWidth
+    const nowPxFromBoardLeft = labelWidth + (nowPct / 100) * timelineWidth
+
+    boardScroll.scrollLeft = nowPxFromBoardLeft - boardScroll.clientWidth / 2
+  }
+
+  // Keep the sticky header's horizontal scroll in sync with the body's.
+  function initScrollSync() {
+    const boardScroll = document.querySelector<HTMLElement>('.board-scroll')
+    const headerInner = document.querySelector<HTMLElement>(
+      '.board-header-inner'
+    )
+    if (!boardScroll || !headerInner) return
+    let syncing = false
+    boardScroll.addEventListener('scroll', () => {
+      if (syncing) return
+      syncing = true
+      headerInner.scrollLeft = boardScroll.scrollLeft
+      syncing = false
+    })
+    headerInner.addEventListener('scroll', () => {
+      if (syncing) return
+      syncing = true
+      boardScroll.scrollLeft = headerInner.scrollLeft
+      syncing = false
+    })
+  }
+
+  // Toggle quarter view ↔ full month view on mobile.
+  document
+    .querySelectorAll<HTMLButtonElement>('.mobile-toggle-btn')
+    .forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const outer = btn.closest<HTMLElement>('.board-outer')
+        if (!outer) return
+        const isFull = outer.classList.toggle('board-outer--full')
+        btn.textContent = isFull ? 'Quarter view' : 'Full timeline'
+        btn.setAttribute('aria-pressed', String(isFull))
+        requestAnimationFrame(centreOnNow)
+      })
+    })
+
+  // Approx tooltip height + arrow + gap. If a pin has less room than this above
+  // it (down to the sticky header's bottom), flip the tooltip below so it isn't
+  // covered by the header or clipped at the top of the scroll viewport.
+  const TOOLTIP_CLEARANCE = 72
+
+  function positionTooltip(pin: HTMLElement) {
+    const header = document.querySelector<HTMLElement>('.board-header-sticky')
+    const headerBottom = header?.getBoundingClientRect().bottom ?? 0
+    const roomAbove = pin.getBoundingClientRect().top - headerBottom
+    pin.classList.toggle('ms-pin--below', roomAbove < TOOLTIP_CLEARANCE)
+  }
+
+  // Reveal the tooltip on tap (mobile/touch); hover/focus are handled in CSS.
+  // positionTooltip runs for all three so the flip is decided before it shows.
+  document.querySelectorAll<HTMLElement>('.ms-pin').forEach((pin) => {
+    pin.addEventListener('mouseenter', () => positionTooltip(pin))
+    pin.addEventListener('focus', () => positionTooltip(pin))
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const nowActive = !pin.classList.contains('ms-pin--active')
+      document
+        .querySelectorAll('.ms-pin--active')
+        .forEach((p) => p.classList.remove('ms-pin--active'))
+      if (nowActive) {
+        positionTooltip(pin)
+        pin.classList.add('ms-pin--active')
+      }
+    })
+  })
+
+  document.addEventListener('click', () => {
+    document
+      .querySelectorAll('.ms-pin--active')
+      .forEach((p) => p.classList.remove('ms-pin--active'))
+  })
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initScrollSync()
+      centreOnNow()
+    })
+  } else {
+    initScrollSync()
+    centreOnNow()
+  }
+</script>

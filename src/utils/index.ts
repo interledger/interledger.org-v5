@@ -140,3 +140,29 @@ export {
   type CanonicalMeta,
   type HreflangMeta
 } from './main/seoMeta'
+
+// Main site: Roadmap (developers tech roadmap timeline)
+export {
+  createPositioner,
+  type TimelinePositioner
+} from './main/roadmap/timeline'
+export {
+  monthStart,
+  monthEnd,
+  computeDateRange,
+  roadmapWindow,
+  projectOverlapsWindow,
+  clampRangeToWindow
+} from './main/roadmap/dateRange'
+export {
+  buildMonths,
+  buildQuarterHeaders,
+  type MonthEntry,
+  type QuarterHeader
+} from './main/roadmap/grid'
+export { buildGridItems, type GridItem } from './main/roadmap/grouping'
+export {
+  computeProjectBarProps,
+  type ProjectBarProps
+} from './main/roadmap/projectBar'
+export { resolveIcon } from './main/roadmap/icons'
