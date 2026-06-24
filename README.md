@@ -31,9 +31,10 @@ It represents the **fifth major iteration** of interledger.org. For background o
    - [Translations](#translations)
    - [Image Handling](#image-handling)
 9. [Grantee Data (Airtable Integration)](#grantee-data-airtable-integration)
-10. [Image Optimization](#image-optimization)
+10. [Developers Roadmap (Linear Integration)](#developers-roadmap-linear-integration)
+11. [Image Optimization](#image-optimization)
 
-11. [More Info](#more-info)
+12. [More Info](#more-info)
 
 ## About the Project
 
@@ -734,6 +735,68 @@ pnpm run sync:airtable
 - `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
 
 The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as constants at the top of `scripts/import-airtable.ts`. They reference Airtable IDs (stable across renames), not field names — so editors can rename fields in Airtable without breaking the script.
+
+## Developers Roadmap (Linear Integration)
+
+The `/developers/roadmap` page shows a public timeline of tech projects sourced from a Linear custom view. It is server-side rendered (`export const prerender = false`): the page reads a pre-built snapshot from Netlify Blobs at request time and never calls the Linear API itself.
+
+```text
+Linear API ──(sync function)──▶ Netlify Blob ──(SSR read at request time)──▶ /developers/roadmap ──▶ Netlify CDN cache
+```
+
+Two Netlify Functions build the snapshot from Linear and write it to the blob (store `roadmap`, key `roadmap-snapshot`):
+
+- `netlify/functions/roadmap-sync.mts` runs on a 12-hour cron (`0 */12 * * *`, UTC) on Netlify's scheduled-functions infrastructure.
+- `netlify/functions/roadmap-sync-now.mts` is a manual trigger at `POST /api/roadmap-sync`, protected by a bearer `API_SECRET` and rate-limited to once per 5 minutes.
+
+Both fetch Linear, overwrite the blob, and purge the CDN cache. The page renders whatever is in the blob.
+
+### When does the roadmap refresh?
+
+- **Automatically every 12 hours**, via the scheduled function. This runs on Netlify's cron independently of site builds and traffic.
+- **On demand**, when someone calls the manual endpoint.
+- **Not on build.** Builds do not re-fetch Linear or seed the blob; the blob persists across deploys.
+- **Not instantly on a Linear edit.** There is no Linear webhook, so a change in Linear appears at the next scheduled sync (within 12h) or whenever the manual endpoint is called. A Linear webhook pointed at the manual endpoint would make this near-instant and is a possible future addition.
+
+### Triggering a manual sync
+
+There is no UI button. Anyone with the `API_SECRET` can force an immediate refresh:
+
+```sh
+curl -X POST https://<site>/api/roadmap-sync \
+  -H "Authorization: Bearer $API_SECRET"
+```
+
+### CDN caching (important)
+
+The page sets `Netlify-CDN-Cache-Control: public, max-age=43200, stale-while-revalidate=86400`, so Netlify's CDN caches the rendered HTML for 12 hours. This keeps the page fast, but it means a freshly-synced blob is not visible until that cached HTML is invalidated.
+
+The sync functions invalidate it by calling Netlify's cache-purge API after each write, but **only if `NETLIFY_API_TOKEN` is set**. Without that token:
+
+- The blob still updates on schedule.
+- The CDN keeps serving the previously-rendered HTML until its 12h `max-age` expires, then `stale-while-revalidate` re-renders in the background.
+- So a manual sync will not make fresh data appear promptly. If you want an immediate refresh after a sync, `NETLIFY_API_TOKEN` is effectively required.
+
+### Environment variables
+
+| Variable                | Required   | Notes                                                                                 |
+| ----------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| `LINEAR_API_KEY`        | Production | Read-only Linear API key used by the sync functions.                                  |
+| `API_SECRET`            | Production | Bearer token gating `POST /api/roadmap-sync`.                                         |
+| `LINEAR_CUSTOM_VIEW_ID` | No         | Defaults to the public roadmap view, baked into `src/linear/env.ts`. Set to override. |
+| `NETLIFY_API_TOKEN`     | No         | Enables the CDN cache purge after a sync (see above).                                 |
+| `NETLIFY_SITE_ID`       | Auto       | Injected by Netlify at runtime.                                                       |
+
+Only the sync functions read these; the page does not. A missing `LINEAR_API_KEY` fails the sync (logged in Netlify's function logs) without breaking the page.
+
+### Local development
+
+The roadmap page works locally with no secrets:
+
+- `pnpm start` renders the board with a bundled fixture (`src/data/roadmap/fixture.ts`), since `astro dev` has no Blobs runtime.
+- To exercise the real data path, run `netlify dev`, set `LINEAR_API_KEY` in `.env`, then POST to `/api/roadmap-sync` with the bearer `API_SECRET`.
+
+In production, an empty or unreadable blob renders a graceful empty state rather than placeholder data.
 
 ## Image Optimization
 
