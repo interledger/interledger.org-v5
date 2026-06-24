@@ -8,9 +8,6 @@
 // returning null.
 const isProd = import.meta.env?.PROD !== false
 
-// Netlify CLI sets NETLIFY_DEV=true when running `netlify dev` locally.
-export const isNetlifyDev = process.env.NETLIFY_DEV === 'true'
-
 function requireEnv(name: string): string {
   const value = process.env[name]
   if (!value && isProd) {

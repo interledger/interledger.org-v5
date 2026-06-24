@@ -2,7 +2,6 @@ import { timingSafeEqual } from 'node:crypto'
 import { getStore } from '@netlify/blobs'
 import type { Context } from '@netlify/functions'
 import { buildSnapshot } from '../../src/linear/build-snapshot'
-import { isNetlifyDev } from '../../src/linear/env'
 import { purgeRoadmapCache } from './utils/purge-roadmap-cache.mts'
 
 // Read directly here (not from the shared env module) so the scheduled sync,
@@ -81,7 +80,7 @@ export default async function handler(
   }
 }
 
-// In local dev (`netlify dev`), the [[context.dev.redirects]] rule in netlify.toml
-// maps /api/roadmap-sync to this function. Self-registering a path here as well
-// conflicts with that redirect, so set the path only outside dev.
-export const config = isNetlifyDev ? {} : { path: '/api/roadmap-sync' }
+// Static object literal: Netlify extracts function config by static analysis, so
+// a computed/ternary value here would not register the path (the route would
+// 404). This path works in both `netlify dev` and production.
+export const config = { path: '/api/roadmap-sync' }
