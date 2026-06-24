@@ -30,8 +30,6 @@ export const LINEAR_CUSTOM_VIEW_ID =
 // Bearer token for the manual POST /api/roadmap-sync trigger.
 export const API_SECRET = requireEnv('API_SECRET')
 
-// Optional: Netlify Personal Access Token for purging the CDN cache after a sync.
-export const NETLIFY_API_TOKEN = process.env.NETLIFY_API_TOKEN ?? null
-
-// Auto-injected by Netlify; set manually for local `netlify dev`.
-export const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID ?? null
+// Note: CDN cache purging uses Netlify's token-free purgeCache() from the
+// function runtime (see netlify/functions/utils/purge-roadmap-cache.mts), so no
+// NETLIFY_API_TOKEN / NETLIFY_SITE_ID is needed.

@@ -31,6 +31,8 @@ Astro.response.headers.set(
   'Netlify-CDN-Cache-Control',
   'public, max-age=43200, stale-while-revalidate=86400'
 )
+// Cache tag so the sync functions can purge just this page via purgeCache({ tags }).
+Astro.response.headers.set('Netlify-Cache-ID', 'roadmap')
 ---
 
 <DevelopersRoadmapPage snapshot={snapshot} />

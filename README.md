@@ -771,11 +771,7 @@ curl -X POST https://<site>/api/roadmap-sync \
 
 The page sets `Netlify-CDN-Cache-Control: public, max-age=43200, stale-while-revalidate=86400`, so Netlify's CDN caches the rendered HTML for 12 hours. This keeps the page fast, but it means a freshly-synced blob is not visible until that cached HTML is invalidated.
 
-The sync functions invalidate it by calling Netlify's cache-purge API after each write, but **only if `NETLIFY_API_TOKEN` is set**. Without that token:
-
-- The blob still updates on schedule.
-- The CDN keeps serving the previously-rendered HTML until its 12h `max-age` expires, then `stale-while-revalidate` re-renders in the background.
-- So a manual sync will not make fresh data appear promptly. If you want an immediate refresh after a sync, `NETLIFY_API_TOKEN` is effectively required.
+The page also tags its response with `Netlify-Cache-ID: roadmap`. After each write, the sync functions call `purgeCache({ tags: ['roadmap'] })` (from `@netlify/functions`) to invalidate that tag, so the next request re-renders with the new data. A manual sync therefore shows fresh data on the next request.
 
 ### Environment variables
 
@@ -784,8 +780,6 @@ The sync functions invalidate it by calling Netlify's cache-purge API after each
 | `LINEAR_API_KEY`        | Production | Read-only Linear API key used by the sync functions.                                  |
 | `API_SECRET`            | Production | Bearer token gating `POST /api/roadmap-sync`.                                         |
 | `LINEAR_CUSTOM_VIEW_ID` | No         | Defaults to the public roadmap view, baked into `src/linear/env.ts`. Set to override. |
-| `NETLIFY_API_TOKEN`     | No         | Enables the CDN cache purge after a sync (see above).                                 |
-| `NETLIFY_SITE_ID`       | Auto       | Injected by Netlify at runtime.                                                       |
 
 Only the sync functions read these; the page does not. A missing `LINEAR_API_KEY` fails the sync (logged in Netlify's function logs) without breaking the page.
 
