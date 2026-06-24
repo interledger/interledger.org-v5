@@ -627,13 +627,12 @@ let projectRowIndex = -1
       cursor: pointer;
     }
 
-    /* "Full timeline" mode restores the month-column view on mobile. */
+    /* "Full timeline" mode swaps quarter columns for scrollable month columns.
+       The label column stays at the mobile width (130px, inherited) so the
+       narrow viewport keeps room for the timeline to scroll. */
     .board-outer--full .board-header-table,
     .board-outer--full .board {
-      width: max(calc(300px + var(--n-months) * 88px), 100%);
-    }
-    .board-outer--full .col-label {
-      width: 300px;
+      width: max(calc(130px + var(--n-months) * 88px), 100%);
     }
     .board-outer--full .col-month {
       width: 88px;
@@ -652,9 +651,6 @@ let projectRowIndex = -1
       border-right: 1px solid #e8e8e8;
       overflow: visible;
       visibility: visible;
-    }
-    .board-outer--full .proj-name-text {
-      max-width: 240px;
     }
   }
 
