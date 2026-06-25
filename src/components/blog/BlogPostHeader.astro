@@ -79,7 +79,7 @@ const blogPath = translatePath(
   </div>
   {
     frontmatter.featureImage && (
-      <div class="mb-3xl rounded-3xl overflow-hidden tablet:mb-4xl desktop:mb-5xl">
+      <div class="mb-3xl tablet:mb-4xl desktop:mb-5xl">
         <picture>
           {frontmatter.featureImageMobile && (
             <source
@@ -97,7 +97,7 @@ const blogPath = translatePath(
             loading="eager"
             fetchpriority="high"
             decoding="async"
-            class="w-full h-auto"
+            class="w-full h-auto rounded-3xl"
           />
         </picture>
       </div>
