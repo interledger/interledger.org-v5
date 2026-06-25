@@ -76,7 +76,7 @@ export const ui = {
     'blog.lang_filter.view_in_en': 'View in English',
     'blog.lang_filter.results': '{totalEntries} Results',
     'blog.empty_tag_lang.message':
-      'No posts found for this tag in the selected language.',
+      'No posts found for this tag in the selected language - showing all posts instead.',
     'blog.empty_tag_lang.cta': 'View all posts',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
