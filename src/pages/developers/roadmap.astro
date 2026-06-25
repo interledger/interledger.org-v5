@@ -7,6 +7,35 @@ import { ROADMAP_FIXTURE } from '@/data/roadmap/fixture'
 import { tryCatchAsync } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
 
+// Cached for the dev server's lifetime so reloads don't re-hit Linear on every
+// request. Dev-only; production never calls loadDevSnapshot().
+let liveDevSnapshot: Snapshot | undefined
+
+// Dev data source. Prefers live Linear data when a key is configured (so devs see
+// real content with just `netlify dev`, no manual sync) and falls back to the
+// bundled fixture otherwise. The dynamic import keeps build-snapshot — and its
+// required-env check in src/linear/env.ts — out of the production page runtime.
+async function loadDevSnapshot(): Promise<Snapshot | null> {
+  if (liveDevSnapshot) return liveDevSnapshot
+  if (process.env.LINEAR_API_KEY) {
+    const live = await tryCatchAsync(async () => {
+      const { buildSnapshot } = await import('@/linear/build-snapshot')
+      return buildSnapshot()
+    })
+    if (live instanceof Error) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[roadmap] dev: live Linear fetch failed, using fixture',
+        live
+      )
+    } else if (live) {
+      liveDevSnapshot = live
+      return live
+    }
+  }
+  return ROADMAP_FIXTURE
+}
+
 // SSR (INTORG-737): read the roadmap snapshot from Netlify Blobs at request time.
 // The scheduled sync function (netlify/functions/roadmap-sync) populates the store
 // from Linear; the CDN caches this rendered HTML between syncs (see the header below).
@@ -17,13 +46,15 @@ const result = await tryCatchAsync(async () => {
   })) as Snapshot | null
 })
 
-// Fall back to the bundled fixture only in local dev (plain `astro dev` has no
-// Netlify Blobs runtime, so getStore throws). In production a missing/failed blob
-// renders the page's empty state rather than placeholder data.
+// Local dev: the blob is usually empty (no scheduled sync has run), so source the
+// data here instead of making a dev hit the manual /api/roadmap-sync endpoint. With
+// LINEAR_API_KEY set we fetch Linear directly; otherwise we render the bundled
+// fixture so the page works with zero setup. In production a missing/failed blob
+// renders the empty state rather than placeholder data.
 const snapshot: Snapshot | null =
   result instanceof Error || !result
     ? import.meta.env.DEV
-      ? ROADMAP_FIXTURE
+      ? await loadDevSnapshot()
       : null
     : result
 
