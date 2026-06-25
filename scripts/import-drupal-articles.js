@@ -218,21 +218,22 @@ async function generateMDXContent(post) {
   )
   const frontmatterTags =
     tagNames.length === 0
-      ? 'tags: []'
-      : `tags:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
+      ? 'categories: []'
+      : `categories:\n${tagNames.map((a) => `  - ${a}`).join('\n')}`
 
   const frontmatterLines = [
-    `title: "${escapeQuotes(post.attributes.title)}"`,
-    `description: "${escapeQuotes(post.attributes.body?.summary ?? '')}"`,
+    `title: '${escapeQuotes(post.attributes.title)}'`,
+    `description: '${escapeQuotes(post.attributes.body?.summary ?? '')}'`,
     `date: ${formatDate(post.attributes.created)}`,
     `pathSlug: ${post.attributes.path.alias.replace('/news/', '')}`,
-    `pillar: "${post.attributes.field_pillar ?? 'tech'}"`,
-    featureImage?.url ? `featureImage: "${featureImage.url}"` : undefined,
-    `featureImageAlt: "${featureImage?.alt ?? undefined}"`,
-    thumbnail?.url ? `thumbnailImage: "${thumbnail.url}"` : undefined,
-    `thumbnailImageAlt: "${thumbnail?.alt ?? undefined}"`,
+    'featured: false',
+    `locale: en`,
+    featureImage?.url ? `featureImage: '${featureImage.url}'` : undefined,
+    `featureImageAlt: '${featureImage?.alt ?? undefined}'`,
+    thumbnail?.url ? `thumbnailImage: '${thumbnail.url}'` : undefined,
+    `thumbnailImageAlt: '${thumbnail?.alt ?? undefined}'`,
     post.attributes.field_byline
-      ? `authors:\n  - ${post.attributes.field_byline}`
+      ? `articleBios:\n  - author: ${post.attributes.field_byline}\n    text: ''\n    image: ''`
       : undefined,
     tagNames ? frontmatterTags : undefined
   ].filter(Boolean)
@@ -255,7 +256,7 @@ async function writeMDXFile(post) {
   const mdxContent = await generateMDXContent(post)
 
   fs.writeFileSync(filepath, mdxContent, 'utf-8')
-  // console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
+  console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
 }
 
 async function importArticlesFromDrupal() {

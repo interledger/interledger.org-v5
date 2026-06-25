@@ -1,0 +1,36 @@
+---
+title: 'SDK Grant funds security features in OpenAPI Specification and Arazzo workflow support in Kiota'
+description: 'The Interledger Foundation awarded its first SDK Grants to improve OpenAPI, Arazzo, and Kiota support for secure API automation and SDK generation. The funded projects add GNAP security support and Arazzo workflow capabilities, helping developers build safer, more automated API integrations.'
+date: 2026-05-25
+pathSlug: sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota
+featured: false
+locale: en
+featureImage: '/img/foundation-blog/sdk-grant-banner.png'
+featureImageAlt: 'Interledger Foundation logo beside a vertical stack of the OpenAPI, Arazzo, and Kiota API client generator logos.'
+thumbnailImage: '/img/foundation-blog/sdk-grant-thumbnail.png'
+thumbnailImageAlt: 'OpenAPI, Arazzo, and Kiota API client generator logos stacked vertically.'
+categories:
+  - Grants & Grantee Insights
+---
+
+The Interledger Foundation’s [SDK Grant program](/grant/open-payments-sdk) awarded its first three proposals to improve security and automation features in the OpenAPI and Arazzo specifications and their implementations in Kiota.
+
+[OpenAPI Specification](https://www.openapis.org/) is the industry standard for documenting web APIs for use by both humans and other software. [Arazzo Specification](https://www.openapis.org/arazzo-specification) is a complementary standard for defining workflow automations.
+
+[Kiota](https://github.com/microsoft/kiota) generates software development kits (SDKs) from OpenAPI documents. SDKs reduce the effort, time, and likelihood of bugs for software developers to integrate an API into their applications. Kiota is an open source project created at Microsoft and is also used by GitHub and Autodesk.
+
+The foundation hopes to improve the developer experience of its [Open Payments API](https://openpayments.dev/) standard by generating SDKs from an [OpenAPI document](https://github.com/interledger/open-payments-node/tree/main/packages/openapi) using Kiota. It can’t do that today because Open Payments API uses features that are not yet supported in OpenAPI Specification and Kiota. The first three grants support efforts to address these feature gaps.
+
+[Henry Andrews](https://github.com/handrews) will lead a proposal to add [RFC 9635](https://www.rfc-editor.org/rfc/rfc9635) Grant Negotiation and Authorization Protocol (GNAP) as a security scheme to the OpenAPI Specification. Henry currently works with the OpenAPI Initiative on security-related efforts that GNAP support will depend on.
+
+> “I'm excited to help bring GNAP support to the OpenAPI Specification! Since OpenAPI first emerged, tools have expanded beyond documentation into code generation and now AI agents. OpenAPI’s security descriptions need to become more powerful to support these kinds of tools. The Interledger Foundation’s grant will allow me to include GNAP in our efforts to support API security automation, ensuring that its needs are part of our design from the start.<br /><br />I am also looking forward to benefitting from the industry knowledge and implementation experience of the other Interledger grantees. Having access to domain experts and getting early feedback from implementation work is the best way to ensure that our GNAP and other security automation designs meet the community's needs.”<br />—Henry Andrews
+
+[Chris Wood](https://www.linkedin.com/in/sensiblewood/) will assist with the proposal to add GNAP support to the OpenAPI Specification, create a TypeScript implementation in Kiota, and update the OpenAPI Initiative's educational materials. Chris is a standards author in open banking and security. He also serves as the Content Director for the OpenAPI Initiative.
+
+> “I am so pleased to be taking part in the development of the GNAP extensions to the OpenAPI Specification, the associated development of a TypeScript implementation for Kiota, and extending education materials published by the OpenAPI Initiative to help students learn more about GNAP.<br /><br/>GNAP provides a dynamic and flexible grant resource access that breaks the mold on more static grant selection typical in current OAuth 2.0 and OpenID Connect profiles. Providing affordances for GNAP in the OpenAPI Specification is critical in supporting API consumers and providers offering services implementing GNAP and OpenAPI should provide a clear, easy to use, and deterministic mechanism for authorization and security enforcement.<br /> <br />I look forward to working with the Interledger Foundation and my fellow grantees in bringing GNAP support to life and providing the education resources to the community that will help them leverage GNAP successfully.” <br />—Chris Wood
+
+[Vincent Biret](https://about.me/vincentbiret) will implement support Arazzo-defined workflows in Kiota in C#/.Net. This will provide validation testing of the emerging Arazzo Specification and serve as a reference implementation for other programming languages supported by Kiota. Vincent is the co-creator and a maintainer of Kiota.
+
+> “I’m honoured to have been selected for this program. Especially among people like Henry and Chris who have contributed so much to the ecosystem! Implementing Arazzo as a dotnet library following the design principles from the Microsoft.OpenAPI library will pave the way forward to parse, serialize and manipulate Arazzo documents in dotnet. It will also guarantee interoperability with the existing libraries and deliver a consistent experience to application developers.<br /><br />Once we have that stepping stone, along with the other aspects Henry and Chris are working on, we’ll be able to unlock generating workflows in API clients from Kiota. If you think of a user provisioning workflow, Kiota can already generate code to create the user, and add a user to a group. And with Arazzo support, it’ll also be able to generate a combined “create a user and add them to their team’s group” higher level API in the clients.” <br />—Vincent Biret
+
+The Interledger Foundation is committed to supporting the development of free and open source software and standards. These grants benefit every web API that utilizes these tools, not just the Open Payments API. The SDK Grant program is still accepting proposals for several areas. More information is available [here](https://github.com/interledger/Grants/wiki/SDK-grant-program/).
