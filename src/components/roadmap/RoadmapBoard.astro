@@ -549,6 +549,9 @@ let projectRowIndex = -1
     border-radius: 5px;
     font-size: 0.65rem;
     font-weight: 600;
+    /* Size the box to its content (the pin is only a few px wide, so without
+       this the absolute box collapses and the text spills off the background). */
+    width: max-content;
     white-space: normal;
     max-width: 130px;
     text-align: center;

@@ -14,18 +14,33 @@ export interface ProjectBarProps {
   datedMilestones: Milestone[]
 }
 
+// Keep a sliver visible for in-window bars whose span rounds to ~0%.
+const MIN_VISIBLE_WIDTH = 0.5
+
+// A bar runs from `start` to `end`, but both endpoints are clamped to the
+// visible window (pctLeft is 0–100), and the width is the gap between them. This
+// guarantees `left + width <= 100`, so a project that starts before or ends after
+// the window can't render a bar wider than the track. An unclamped width here
+// would overflow the track, inflate the scroll container's scrollWidth, and break
+// the sticky label column (the column releases once you scroll past the table).
+function clampedBar(
+  pos: TimelinePositioner,
+  start: Date,
+  end: Date
+): { left: string; width: string } {
+  const left = pos.pctLeft(start)
+  const right = pos.pctLeft(end)
+  const width = Math.min(Math.max(right - left, MIN_VISIBLE_WIDTH), 100 - left)
+  return { left: left.toFixed(2), width: Math.max(width, 0).toFixed(2) }
+}
+
 export function computeProjectBarProps(
   proj: Project,
   pos: TimelinePositioner
 ): ProjectBarProps {
   const hasDates = !!(proj.startDate && proj.targetDate)
-  const barLeft = hasDates
-    ? pos.pctLeft(new Date(proj.startDate!)).toFixed(2)
-    : null
-  const barWidth = hasDates
-    ? pos
-        .pctWidth(new Date(proj.startDate!), new Date(proj.targetDate!))
-        .toFixed(2)
+  const bar = hasDates
+    ? clampedBar(pos, new Date(proj.startDate!), new Date(proj.targetDate!))
     : null
 
   const datedMilestones = proj.milestones.filter((ms) => ms.targetDate)
@@ -35,13 +50,8 @@ export function computeProjectBarProps(
     !proj.targetDate &&
     proj.completedAt
   )
-  const completedBarLeft = hasCompletedBar
-    ? pos.pctLeft(new Date(proj.startDate!)).toFixed(2)
-    : null
-  const completedBarWidth = hasCompletedBar
-    ? pos
-        .pctWidth(new Date(proj.startDate!), new Date(proj.completedAt!))
-        .toFixed(2)
+  const completedBar = hasCompletedBar
+    ? clampedBar(pos, new Date(proj.startDate!), new Date(proj.completedAt!))
     : null
 
   const lastMilestoneDate =
@@ -57,24 +67,21 @@ export function computeProjectBarProps(
     hasDates &&
     lastMilestoneDate !== null &&
     lastMilestoneDate > new Date(proj.targetDate!)
-  const extensionLeft = hasExtension
-    ? pos.pctLeft(new Date(proj.targetDate!)).toFixed(2)
-    : null
-  const extensionWidth =
+  const extension =
     hasExtension && lastMilestoneDate
-      ? pos.pctWidth(new Date(proj.targetDate!), lastMilestoneDate).toFixed(2)
+      ? clampedBar(pos, new Date(proj.targetDate!), lastMilestoneDate)
       : null
 
   return {
     hasDates,
-    barLeft,
-    barWidth,
+    barLeft: bar?.left ?? null,
+    barWidth: bar?.width ?? null,
     hasCompletedBar,
-    completedBarLeft,
-    completedBarWidth,
+    completedBarLeft: completedBar?.left ?? null,
+    completedBarWidth: completedBar?.width ?? null,
     hasExtension,
-    extensionLeft,
-    extensionWidth,
+    extensionLeft: extension?.left ?? null,
+    extensionWidth: extension?.width ?? null,
     datedMilestones
   }
 }

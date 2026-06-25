@@ -16,6 +16,32 @@ describe('computeProjectBarProps', () => {
     expect(Number(props.barWidth)).toBeGreaterThan(0)
   })
 
+  it('clamps a bar that spans beyond the window so left + width never exceeds 100%', () => {
+    // Spans well before and after the 2026 window. An unclamped width here would
+    // overflow the track and create phantom horizontal scroll (breaks the sticky
+    // label column). Both endpoints clamp to [0,100], so the bar fills the window.
+    const props = computeProjectBarProps(
+      makeProject({ startDate: '2024-01-01', targetDate: '2028-06-01' }),
+      pos
+    )
+    expect(props.barLeft).toBe('0.00')
+    expect(Number(props.barLeft) + Number(props.barWidth)).toBeLessThanOrEqual(
+      100
+    )
+    expect(props.barWidth).toBe('100.00')
+  })
+
+  it('keeps a bar starting before the window within bounds', () => {
+    const props = computeProjectBarProps(
+      makeProject({ startDate: '2023-06-01', targetDate: '2026-07-01' }),
+      pos
+    )
+    expect(props.barLeft).toBe('0.00')
+    expect(Number(props.barLeft) + Number(props.barWidth)).toBeLessThanOrEqual(
+      100
+    )
+  })
+
   it('has no duration bar when dates are missing', () => {
     const props = computeProjectBarProps(makeProject(), pos)
     expect(props.hasDates).toBe(false)
