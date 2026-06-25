@@ -55,13 +55,15 @@ Because all profiles are disprsed acros the foundation, hackathon and summit gen
 const fellows = await getCollection(
   'foundation-pages',
   (entry) =>
-    entry.data.templateType === 'profiles' && entry.data.category === 'fellow' && entry.data.locale === currentLocale
+    entry.data.templateType === 'profiles' &&
+    entry.data.category === 'fellow' &&
+    entry.data.locale === currentLocale
 )
 ```
 
 ## Alternatives considered
 
-**A flat file approach**  — where each template type has its own collection and Astro renderes them from a single catch-all entry route at `src/pages/[...page].astro`. But then we lose clean nesting where it is appropriate (like for blogs) and it will incur more technical effort to make structural changes acros the code base. All pages share a single route file; the routing surface is less immediately legible than file-based routes.
+**A flat file approach** — where each template type has its own collection and Astro renderes them from a single catch-all entry route at `src/pages/[...page].astro`. But then we lose clean nesting where it is appropriate (like for blogs) and it will incur more technical effort to make structural changes acros the code base. All pages share a single route file; the routing surface is less immediately legible than file-based routes.
 
 **Section-first routing (status quo)** — routes split by section, not template. Adding a new section is a structural change and may force template logic to be duplicated per section.
 
