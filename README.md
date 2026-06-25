@@ -791,8 +791,12 @@ Only the sync functions read these; the page does not. A missing `LINEAR_API_KEY
 
 The roadmap page works locally with no secrets:
 
-- `pnpm start` renders the board with a bundled fixture (`src/data/roadmap/fixture.ts`), since `astro dev` has no Blobs runtime.
-- To exercise the real data path, run `netlify dev`, set `LINEAR_API_KEY` in `.env`, then POST to `/api/roadmap-sync` with the bearer `API_SECRET`.
+`astro dev` has no Blobs runtime, so the blob read always fails locally and the page falls back to `loadDevSnapshot()` (`src/utils/main/roadmap/devSnapshot.ts`):
+
+- **No `LINEAR_API_KEY`** → renders the bundled fixture (`src/data/roadmap/fixture.ts`), so the page works with zero setup.
+- **`LINEAR_API_KEY` set** → fetches live Linear data directly, under either `pnpm start` or `netlify dev`. (`netlify dev` injects `.env` into `process.env`; `pnpm start` exposes it via `import.meta.env` — the helper reads both.) No manual `/api/roadmap-sync` POST is needed locally.
+
+To avoid re-hitting Linear on every reload or code change, the live snapshot is cached two ways: an in-memory memo for repeat requests, plus a 10-minute on-disk cache in the OS temp dir that survives HMR / dev-server restarts. So Linear is fetched at most once per 10 minutes during local dev. The blob/sync/function path itself still requires `netlify dev`.
 
 In production, an empty or unreadable blob renders a graceful empty state rather than placeholder data.
 

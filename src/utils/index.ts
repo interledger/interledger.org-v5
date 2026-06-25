@@ -166,3 +166,4 @@ export {
   type ProjectBarProps
 } from './main/roadmap/projectBar'
 export { resolveIcon } from './main/roadmap/icons'
+export { loadDevSnapshot } from './main/roadmap/devSnapshot'

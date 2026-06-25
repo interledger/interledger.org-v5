@@ -3,38 +3,8 @@ export const prerender = false
 
 import { getStore } from '@netlify/blobs'
 import DevelopersRoadmapPage from '@/components/pages/DevelopersRoadmapPage.astro'
-import { ROADMAP_FIXTURE } from '@/data/roadmap/fixture'
-import { tryCatchAsync } from '@/utils'
+import { tryCatchAsync, loadDevSnapshot } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
-
-// Cached for the dev server's lifetime so reloads don't re-hit Linear on every
-// request. Dev-only; production never calls loadDevSnapshot().
-let liveDevSnapshot: Snapshot | undefined
-
-// Dev data source. Prefers live Linear data when a key is configured (so devs see
-// real content with just `netlify dev`, no manual sync) and falls back to the
-// bundled fixture otherwise. The dynamic import keeps build-snapshot — and its
-// required-env check in src/linear/env.ts — out of the production page runtime.
-async function loadDevSnapshot(): Promise<Snapshot | null> {
-  if (liveDevSnapshot) return liveDevSnapshot
-  if (process.env.LINEAR_API_KEY) {
-    const live = await tryCatchAsync(async () => {
-      const { buildSnapshot } = await import('@/linear/build-snapshot')
-      return buildSnapshot()
-    })
-    if (live instanceof Error) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[roadmap] dev: live Linear fetch failed, using fixture',
-        live
-      )
-    } else if (live) {
-      liveDevSnapshot = live
-      return live
-    }
-  }
-  return ROADMAP_FIXTURE
-}
 
 // SSR (INTORG-737): read the roadmap snapshot from Netlify Blobs at request time.
 // The scheduled sync function (netlify/functions/roadmap-sync) populates the store
