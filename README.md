@@ -755,7 +755,7 @@ Both fetch Linear, overwrite the blob, and purge the CDN cache. The page renders
 
 - **Automatically every 12 hours**, via the scheduled function. This runs on Netlify's cron independently of site builds and traffic.
 - **On demand**, when someone calls the manual endpoint.
-- **Not on build.** Builds do not re-fetch Linear or seed the blob; the blob persists across deploys.
+- **Not on build.** Builds do not re-fetch Linear or seed the blob; the blob persists across deploys. (A deploy _does_ purge the CDN cache via the `purge-roadmap` plugin so code changes render, but it re-renders from the existing blob, not fresh Linear data.)
 - **Not instantly on a Linear edit.** There is no Linear webhook, so a change in Linear appears at the next scheduled sync (within 12h) or whenever the manual endpoint is called. A Linear webhook pointed at the manual endpoint would make this near-instant and is a possible future addition.
 
 ### Triggering a manual sync
@@ -772,6 +772,10 @@ curl -X POST https://<site>/api/roadmap-sync \
 The page sets `Netlify-CDN-Cache-Control: public, max-age=43200, stale-while-revalidate=86400`, so Netlify's CDN caches the rendered HTML for 12 hours. This keeps the page fast, but it means a freshly-synced blob is not visible until that cached HTML is invalidated.
 
 The page also tags its response with `Netlify-Cache-ID: roadmap`. After each write, the sync functions call `purgeCache({ tags: ['roadmap'] })` (from `@netlify/functions`) to invalidate that tag, so the next request re-renders with the new data. A manual sync therefore shows fresh data on the next request.
+
+This is Netlify _Durable Cache_ (confirmed by the `cache-status: "Netlify Durable"` response header), which persists across deploys by design. The data sync above purges on **data** changes, but a pure **code** change — e.g. editing the inline styles in `RoadmapBoard.astro` — would otherwise deploy successfully and keep serving the old cached HTML for up to 12h, because nothing tied to the deploy calls `purgeCache`. (Symptom: the fix works in `pnpm start` but the deploy preview looks stale.)
+
+The `netlify/plugins/purge-roadmap` build plugin closes that gap. Its `onSuccess` hook calls `purgeCache({ tags: ['roadmap'] })` on every successful deploy, so code/CSS changes show up immediately. It runs in the build context (auto-authenticated, no token) and is scoped to the deploy (preview purges preview, prod purges prod). It is registered as a second `[[plugins]]` entry in `netlify.toml`, separate from `cache-images` (which is a build-time _image_ cache, unrelated to this CDN cache).
 
 ### Environment variables
 
