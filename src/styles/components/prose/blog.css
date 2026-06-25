@@ -34,7 +34,7 @@
     img {
       display: block;
       margin-inline: auto;
-      border-radius: var(--spacing-3xl);
+      border-radius: var(--radius-3xl);
     }
 
     /* === Table styles === */
@@ -147,7 +147,7 @@
     }
 
     .video-embed {
-      border-radius: var(--spacing-3xl);
+      border-radius: var(--radius-3xl);
       overflow: hidden;
       margin-block-end: var(--spacing-2xl)
     }
