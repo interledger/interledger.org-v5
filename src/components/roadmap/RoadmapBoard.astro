@@ -572,12 +572,20 @@ let projectRowIndex = -1
   }
 
   /* Flip the tooltip below the diamond when there isn't room above (set by JS
-     for pins near the sticky header), so the first rows aren't clipped. */
-  .ms-pin--below .ms-pin-name {
+     for pins near the sticky header), so the first rows aren't clipped. These
+     mirror the three reveal triggers so they match the specificity of the
+     rules above; a bare `.ms-pin--below .ms-pin-name` would lose the cascade
+     for `bottom` on hover/focus, leaving the box anchored top and bottom and
+     collapsing its height. */
+  .ms-pin--below:hover .ms-pin-name,
+  .ms-pin--below:focus-visible .ms-pin-name,
+  .ms-pin--below.ms-pin--active .ms-pin-name {
     top: calc(100% + 8px);
     bottom: auto;
   }
-  .ms-pin--below .ms-pin-name::after {
+  .ms-pin--below:hover .ms-pin-name::after,
+  .ms-pin--below:focus-visible .ms-pin-name::after,
+  .ms-pin--below.ms-pin--active .ms-pin-name::after {
     top: auto;
     bottom: 100%;
     border-top-color: transparent;
