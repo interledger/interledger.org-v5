@@ -15,6 +15,7 @@ import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
+  totalEntries: number
   allTerms?: string[]
   enabledTerms?: string[]
   selectedTerm?: string
@@ -24,6 +25,7 @@ interface Props {
 }
 const {
   posts,
+  totalEntries,
   allTerms = [],
   enabledTerms,
   selectedTerm,
@@ -59,7 +61,7 @@ const postAttrs = (href: string, linkText: string) =>
 
 <section
   aria-label={t('aria.blog.filters_label')}
-  class="mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
   <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
@@ -72,16 +74,20 @@ const postAttrs = (href: string, linkText: string) =>
     contentLangOverride={contentLangOverride}
   />
 
-  <ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
-
-  {
-    isTermFallback && (
-      <p class="mb-space-s text-step--1 text-gray-600 italic">
-        {t('blog.empty_tag_lang.message')}
-      </p>
-    )
-  }
+  <ContentLangNotice
+    routeLocale={routeLocale}
+    contentLang={contentLang}
+    totalEntries={totalEntries}
+  />
 </section>
+
+{
+  isTermFallback && (
+    <p class="mb-space-s text-step--1 text-gray-600 italic">
+      {t('blog.empty_tag_lang.message')}
+    </p>
+  )
+}
 
 <ol class="list-none p-0 m-0 flex flex-col gap-2xl">
   {

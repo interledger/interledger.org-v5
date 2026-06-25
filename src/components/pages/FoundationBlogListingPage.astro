@@ -20,6 +20,7 @@ import CtaStrip from '@/components/blocks/CtaStrip.astro'
 
 interface Props {
   page: Page
+  totalEntries: number
   allTerms: string[]
   enabledTerms: string[]
   selectedTerm?: string
@@ -29,6 +30,7 @@ interface Props {
 
 const {
   page,
+  totalEntries,
   allTerms,
   enabledTerms,
   selectedTerm,
@@ -93,6 +95,7 @@ const featuredPosts = showFeatured
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <BlogIndexFoundation
         posts={page.data || []}
+        totalEntries={totalEntries}
         allTerms={allTerms}
         selectedTerm={selectedTerm}
         enabledTerms={enabledTerms}

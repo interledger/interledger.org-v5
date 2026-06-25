@@ -74,6 +74,7 @@ export const ui = {
     // Shown whenever the Spanish content filter is active (on either EN or ES site)
     'blog.lang_filter.more_en_available': 'More posts available in English',
     'blog.lang_filter.view_in_en': 'View in English',
+    'blog.lang_filter.results': '{totalEntries} Results',
     'blog.empty_tag_lang.message':
       'No posts found for this tag in the selected language.',
     'blog.empty_tag_lang.cta': 'View all posts',
@@ -295,6 +296,7 @@ export const ui = {
     'blog.lang_filter.more_en_available':
       'Nota: hay más publicaciones disponibles en inglés',
     'blog.lang_filter.view_in_en': 'Ver en inglés',
+    'blog.lang_filter.results': '',
     'blog.empty_tag_lang.message':
       'No se encontraron publicaciones para esta etiqueta en el idioma seleccionado.',
     'blog.empty_tag_lang.cta': 'Ver todas las publicaciones',
