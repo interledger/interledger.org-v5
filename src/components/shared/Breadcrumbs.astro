@@ -48,7 +48,9 @@ const t = useTranslations(routeLocale)
                 linkText: crumb.name
               })}
             >
-              <span itemprop="name">{crumb.name}</span>
+              <span itemprop="name" class="line-clamp-2" title={crumb.name}>
+                {crumb.name}
+              </span>
             </a>
             <meta itemprop="position" content={String(index + 1)} />
           </li>
