@@ -38,7 +38,11 @@ const developersTags = [
   'Web Monetization',
   'Card Payments',
   'Integration',
-  'Work Week'
+  'Work Week',
+  'Subscriptions',
+  'Pay in installments',
+  'HSM',
+  'Interledger Wallet'
   // Please add a matching translation in src/data/ui.ts for any new tag
 ] as const
 export type BlogCategory = (typeof blogCategories)[number]
