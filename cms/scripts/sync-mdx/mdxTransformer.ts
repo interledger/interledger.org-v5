@@ -23,8 +23,9 @@ import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { tryCatchAsync } from '@/utils'
+import { tryCatchAsync, getProjectRoot } from '@/utils'
 import path from 'path'
+import fs from 'fs'
 
 export interface StrapiUploadContext {
   strapi: StrapiClient
@@ -81,7 +82,11 @@ async function getImageFromStrapi(
   if (byName instanceof Error) throw byName
   if (byName) return byName
 
-  if (dryRun && isLocalAssetPath(photoUrl)) {
+  if (
+    dryRun &&
+    isLocalAssetPath(photoUrl) &&
+    fs.existsSync(path.join(getProjectRoot(), 'public', photoUrl))
+  ) {
     console.log(
       `   ⚠️  [DRY-RUN] Image not yet in Strapi: "${photoUrl}" (will be seeded on next Strapi start)`
     )
