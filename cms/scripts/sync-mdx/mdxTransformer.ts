@@ -81,6 +81,13 @@ async function getImageFromStrapi(
   if (byName instanceof Error) throw byName
   if (byName) return byName
 
+  if (dryRun && isLocalAssetPath(photoUrl)) {
+    console.log(
+      `   ⚠️  [DRY-RUN] Image not yet in Strapi: "${photoUrl}" (will be seeded on next Strapi start)`
+    )
+    return null
+  }
+
   const localHint = isLocalAssetPath(photoUrl)
     ? ' Start Strapi to run bootstrap seeding, or register this file in Media Library.'
     : ''
