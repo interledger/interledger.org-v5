@@ -26,7 +26,7 @@ async function fetchTags() {
 }
 
 function escapeQuotes(value) {
-  return value.replace(/"/g, '\\"')
+  return value.replace(/'/g, "''")
 }
 
 function formatDate(dateString) {
@@ -231,9 +231,9 @@ async function generateMDXContent(post) {
     featureImage?.url ? `featureImage: '${featureImage.url}'` : undefined,
     `featureImageAlt: '${featureImage?.alt ?? undefined}'`,
     thumbnail?.url ? `thumbnailImage: '${thumbnail.url}'` : undefined,
-    `thumbnailImageAlt: '${thumbnail?.alt ?? undefined}'`,
+    thumbnail?.alt ? `thumbnailImageAlt: '${thumbnail?.alt}'` : undefined,
     post.attributes.field_byline
-      ? `articleBios:\n  - author: ${post.attributes.field_byline}\n    text: ''\n    image: ''`
+      ? `articleBios:\n  - author: '${escapeQuotes(post.attributes.field_byline)}'\n    text: ''\n    image: ''`
       : undefined,
     tagNames ? frontmatterTags : undefined
   ].filter(Boolean)
@@ -260,7 +260,8 @@ async function writeMDXFile(post) {
 }
 
 async function importArticlesFromDrupal() {
-  let articleUrl = 'https://staging.interledger.org/jsonapi/node/article'
+  let articleUrl =
+    'https://staging.interledger.org/jsonapi/node/article?filter[title]=Designing%20Digital%20Money:%20A%202026%20Blog%20Series'
 
   const articles = []
   while (articleUrl) {
