@@ -62,7 +62,7 @@ const stats: StatItem[] = [
       mediaSide="left"
       theme="light"
       ariaLabel={t('home.making_money_move.heading')}
-      class="py-5xl tablet:py-3xl-tight"
+      class="desktop:min-h-[80vh] py-3xl tablet:py-3xl-tight"
     >
       <h2 slot="heading">{t('home.making_money_move.heading')}</h2>
       <p>{t('home.making_money_move.body_1')}</p>
@@ -86,7 +86,11 @@ const stats: StatItem[] = [
         class="mx-auto h-auto w-full max-w-[426px] desktop:mx-0"
       />
     </TextMediaSection>
-    <StatsSection ariaLabel={t('home.stats.heading')} stats={stats}>
+    <StatsSection
+      ariaLabel={t('home.stats.heading')}
+      stats={stats}
+      class="desktop:min-h-[80vh]"
+    >
       <Fragment slot="heading">{t('home.stats.heading')}</Fragment>
       <p>{t('home.stats.body')}</p>
     </StatsSection>
@@ -94,6 +98,7 @@ const stats: StatItem[] = [
       mediaSide="right"
       theme="light"
       ariaLabel={t('home.independent_by_design.heading')}
+      class="desktop:min-h-[80vh]"
     >
       <h2 slot="heading">{t('home.independent_by_design.heading')}</h2>
       <p>{t('home.independent_by_design.body_1')}</p>

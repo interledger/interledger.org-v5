@@ -23,21 +23,24 @@ const {
 const articleClasses = twMerge(
   'flex-1 rounded-3xl p-lg flex flex-col gap-lg',
   'tablet:flex-row tablet:justify-between tablet:gap-xl',
-  'desktop:flex-col',
+  'desktop:flex-col desktop:p-xl',
   className
 )
 const textContentClasses = `
-flex flex-col gap-lg desktop:text-center
-[&>h3]:text-h2 tablet:[&>h3]:text-h3-md desktop:[&>h3]:text-h3-lg
+flex flex-col gap-lg 
 [&>p]:text-body-lg-standard tablet:[&>p]:text-body-lg-standard-md
 `
+const doubleRowHeader = `flex flex-row items-center
+[&>h3]:text-h2 tablet:[&>h3]:text-h3-md desktop:[&>h3]:text-h3-lg desktop:h-[4lh]`
 ---
 
 <article class={articleClasses}>
   <div class={textContentClasses}>
-    <h3>
-      {title}
-    </h3>
+    <div class={doubleRowHeader}>
+      <h3>
+        {title}
+      </h3>
+    </div>
     <p>{description}</p>
   </div>
 

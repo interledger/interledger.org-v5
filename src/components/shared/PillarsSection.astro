@@ -28,14 +28,14 @@ const sectionContainerClasses = `
   flex flex-col gap-2xl 
   tablet:gap-lg tablet:pb-[20vh] 
   desktop:relative
-  desktop:max-w-content desktop:mx-auto desktop:pb-[30vh]
+  desktop:max-w-content desktop:mx-auto desktop:pb-[20vh]
   `
 const headingClasses = `
   pillars-heading
-  text-h3 text-center
+  text-h3
   tablet:text-h3-md tablet:pt-[20vh] tablet:animate-rise-in-view
-  desktop:text-h3-lg
-  desktop:z-0 desktop:sticky desktop:top-0
+  desktop:text-h2-lg
+  desktop:z-0 desktop:sticky desktop:top-0 
   `
 const cardsContainerClasses = `
   flex flex-col gap-lg 
@@ -44,7 +44,7 @@ const cardsContainerClasses = `
   desktop:flex-row desktop:gap-4xl desktop:items-start
   desktop:pt-0 
   desktop:z-[1]
-  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[30vh] desktop:after:-z-[1]
+  desktop:after:content-[''] desktop:after:absolute desktop:after:w-full desktop:after:h-[50vh] desktop:after:bottom-[20vh] desktop:after:-z-[1]
   desktop:after:bg-gradient-to-b desktop:after:from-ice-indigo-100/0 desktop:after:via-ice-indigo-100/100 desktop:after:to-ice-indigo-100/100
   `
 //300px (initial offset), 75vh (stagger step), 45vh (sticky pin point), 100px (rise distance)
@@ -109,7 +109,7 @@ const threePillars = [
        otherwise make flex-stretch give them uneven heights. Anchors are the
        tallest natural content measured per viewport width — 362px at 1200px,
        310px at 2000px. Re-measure if card copy or layout changes. */
-    --card-min-h: clamp(310px, calc(440px - 6.5vw), 362px);
+    --card-min-h: clamp(420px, calc(528px - 7.8vw), 434.4px);
   }
 
   @media (min-width: 1200px) {
@@ -155,10 +155,10 @@ const threePillars = [
 
   @keyframes shrink {
     from {
-      scale: 1;
+      scale: 1.1;
     }
     to {
-      scale: 0.8;
+      scale: 0.6;
     }
   }
 </style>
