@@ -6,6 +6,12 @@
 [[plugins]]
   package = "./netlify/plugins/cache-images"
 
+# Purge the roadmap CDN cache tag after each deploy. Durable Cache survives
+# deploys, so without this a code/CSS-only change to /developers/roadmap keeps
+# serving stale HTML until the cache expires. See README "CDN caching".
+[[plugins]]
+  package = "./netlify/plugins/purge-roadmap"
+
 # Redirect old singular summit routes to plural (EN and ES)
 [[redirects]]
   from = "/summit/:year/talk/:slug"

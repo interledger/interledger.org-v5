@@ -1,0 +1,39 @@
+---
+export const prerender = false
+
+import { getStore } from '@netlify/blobs'
+import DevelopersRoadmapPage from '@/components/pages/DevelopersRoadmapPage.astro'
+import { tryCatchAsync, loadDevSnapshot } from '@/utils'
+import type { Snapshot } from '@/types/roadmap'
+
+// SSR (INTORG-737): read the roadmap snapshot from Netlify Blobs at request time.
+// The scheduled sync function (netlify/functions/roadmap-sync) populates the store
+// from Linear; the CDN caches this rendered HTML between syncs (see the header below).
+const result = await tryCatchAsync(async () => {
+  const store = getStore('roadmap')
+  return (await store.get('roadmap-snapshot', {
+    type: 'json'
+  })) as Snapshot | null
+})
+
+// Local dev: the blob is usually empty (no scheduled sync has run), so source the
+// data here instead of making a dev hit the manual /api/roadmap-sync endpoint. With
+// LINEAR_API_KEY set we fetch Linear directly; otherwise we render the bundled
+// fixture so the page works with zero setup. In production a missing/failed blob
+// renders the empty state rather than placeholder data.
+const snapshot: Snapshot | null =
+  result instanceof Error || !result
+    ? import.meta.env.DEV
+      ? await loadDevSnapshot()
+      : null
+    : result
+
+Astro.response.headers.set(
+  'Netlify-CDN-Cache-Control',
+  'public, max-age=43200, stale-while-revalidate=86400'
+)
+// Cache tag so the sync functions can purge just this page via purgeCache({ tags }).
+Astro.response.headers.set('Netlify-Cache-ID', 'roadmap')
+---
+
+<DevelopersRoadmapPage snapshot={snapshot} />
