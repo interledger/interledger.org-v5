@@ -1,7 +1,7 @@
 # ADR-003: Reusable Page Templates and Cross-Section Routing
 
 **Status:** Proposed
-**Date:** 2026-04-17
+**Date:** 2026-06-29
 **Issue:** [INTORG-560](https://linear.app/interledger/issue/INTORG-560/fellows-creata-id-pages)
 
 ---
