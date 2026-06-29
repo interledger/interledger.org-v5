@@ -364,11 +364,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
 
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
       const currentEnSlug = enPost?.pathSlug
+      const currentDate = enPost?.date
 
-      // If the EN slug changed, delete old files for all locales and re-export
-      if (oldPathSlug && oldDate && currentEnSlug && currentEnSlug) {
+      // If the EN slug or the date changed, delete old files for all locales and re-export
+      if (
+        oldPathSlug &&
+        oldDate &&
+        currentEnSlug &&
+        currentDate &&
+        (oldPathSlug !== currentEnSlug || oldDate !== currentDate)
+      ) {
         console.log(
-          `🗑️  Blog pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
+          `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`
         )
         deleteOldBlogFiles(oldPathSlug, oldDate)
         console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
