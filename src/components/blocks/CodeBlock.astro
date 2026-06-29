@@ -47,7 +47,7 @@ const highlighted = await codeToHtml(code, {
       data-umami-event="button"
       aria-label={t('codeBlock.copy')}
     >
-      {t('codeBlock.copy')}
+      <span data-copy-label-text>{t('codeBlock.copy')}</span>
       <svg
         aria-hidden="true"
         viewBox="0 0 16 16"
@@ -137,12 +137,14 @@ const highlighted = await codeToHtml(code, {
     const code = btn.dataset.code ?? ''
     const copyLabel = btn.dataset.copyLabel ?? 'Copy'
     const copiedLabel = btn.dataset.copiedLabel ?? 'Copied!'
+    const label = btn.querySelector('[data-copy-label-text]')
+    if (!label) return
 
     navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = copiedLabel
+      label.textContent = copiedLabel
       btn.setAttribute('aria-label', copiedLabel)
       setTimeout(() => {
-        btn.textContent = copyLabel
+        label.textContent = copyLabel
         btn.setAttribute('aria-label', copyLabel)
       }, 2000)
     })
