@@ -30,12 +30,6 @@ const CODE_BLOCK_LANGUAGES = [
 
 type CodeBlockLanguage = (typeof CODE_BLOCK_LANGUAGES)[number]
 
-function normalizeCodeIndent(code: string): string {
-  return code.replace(/^((?: {4})+)/gm, (indent) =>
-    '  '.repeat(indent.length / 4)
-  )
-}
-
 async function handleCodeBlock(
   node: JsxBlockNode,
   ctx: ParserContext
@@ -61,7 +55,7 @@ async function handleCodeBlock(
 
     const block: CodeBlockBlock = {
       __component: 'blocks.code-block',
-      code: normalizeCodeIndent(code),
+      code,
       language
     }
 

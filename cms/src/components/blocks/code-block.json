@@ -10,7 +10,6 @@
     "code": {
       "type": "text",
       "required": true,
-      "description": "4-space indentation is normalized to 2 spaces.",
       "pluginOptions": {
         "i18n": {
           "localized": true

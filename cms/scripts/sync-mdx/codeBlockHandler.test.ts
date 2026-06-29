@@ -35,11 +35,11 @@ describe('CodeBlock handler', () => {
       __component: 'blocks.code-block',
       language: 'python',
       title: 'hello.py',
-      code: 'def hello():\n  print("world")'
+      code: 'def hello():\n    print("world")'
     })
   })
 
-  it('normalizes 4-space indentation to 2 spaces', async () => {
+  it('preserves source indentation as-is', async () => {
     const blocks = await parseMdxToBlocks(
       `<CodeBlock language="javascript" code={\`function run() {
     if (true) {
@@ -50,7 +50,7 @@ describe('CodeBlock handler', () => {
     )
 
     expect((blocks[0] as { code: string }).code).toBe(
-      'function run() {\n  if (true) {\n    return 1\n  }\n}'
+      'function run() {\n    if (true) {\n        return 1\n    }\n}'
     )
   })
 
