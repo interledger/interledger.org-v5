@@ -107,8 +107,8 @@ const threePillars = [
   .pillar-card {
     /* Equal-height floor for the cards: the staggered top margins below would
        otherwise make flex-stretch give them uneven heights. Anchors are the
-       tallest natural content measured per viewport width — 362px at 1200px,
-       310px at 2000px. Re-measure if card copy or layout changes. */
+       tallest natural content measured per viewport width — 434.4px at
+       1200px, 420px at 2000px. Re-measure if card copy or layout changes. */
     --card-min-h: clamp(420px, calc(528px - 7.8vw), 434.4px);
   }
 
