@@ -73,8 +73,11 @@ Each cross-section template type has its own Astro content collection. The colle
 ```
 src/content/
   profiles/           # all profile pages across all sections
-  faqs/               # all FAQ pages across all sections
+    es/               # Spanish-locale profiles
+  faq/                # all FAQ pages across all sections
+    es/               # Spanish-locale FAQs
   reports/            # all report/research pages across all sections
+      es/             # Spanish-locale reports
   foundation-pages/   # custom pages specific to the Foundation section
   summit-pages/       # custom pages specific to the Summit section
   hackathon-pages/    # custom pages specific to the Hackathon section
@@ -82,7 +85,9 @@ src/content/
 
 Each collection has its own flat Zod schema matched to its template, giving correct TypeScript inference with no discriminated union complexity.
 
-The Strapi lifecycle for each content type always writes MDX to its own collection directory — profiles always go to `src/content/profiles/`, FAQs always go to `src/content/faqs/`. The `section` field stored in frontmatter is metadata used by Astro routing; it does not affect where files are written.
+**Locale organisation within collections:** locale variants live in subdirectories of the collection directory. The default (English) locale files sit directly under the collection root (e.g. `src/content/faq/`); translated files go into a subdirectory named after the locale (e.g. `src/content/faq/es/`). A `locale` frontmatter field is required on every entry.
+
+The Strapi lifecycle for each content type always writes MDX to its own collection directory, placing files in the correct locale subdirectory — profiles always go to `src/content/profiles/` (or `src/content/profiles/es/` for Spanish), FAQs always go to `src/content/faq/` (or `src/content/faq/es/`). The `section` field stored in frontmatter is metadata used by Astro routing; it does not affect where files are written.
 
 ### Cross-section template registry
 
@@ -95,7 +100,7 @@ import type { CollectionKey } from 'astro:content'
 
 export const crossSectionCollections = [
   'profiles',
-  'faqs',
+  'faq',
   'reports'
 ] as const satisfies readonly CollectionKey[]
 
@@ -114,7 +119,7 @@ Cross-section template pages and section-specific custom pages are served by sec
 - `src/pages/summit/[...page].astro` — Summit
 - `src/pages/hackathon/[...page].astro` — Hackathon
 
-Each catch-all's `getStaticPaths` queries its own section-specific custom page collection and all cross-section collections filtered by `section`, using the registry so no collection needs to be added manually to each route file:
+Each catch-all's `getStaticPaths` queries its own section-specific custom page collection and all cross-section collections filtered by `section`, using the registry so no collection needs to be added manually to each route file. Filtering and path generation are both locale-aware: every entry carries a `locale` frontmatter field for that purpose.
 
 ```ts
 // src/pages/[...page].astro
@@ -144,7 +149,7 @@ Pages are rendered by switching on `entry.collection` in the section renderer. B
 ```ts
 switch (entry.collection) {
   case 'profiles':         return <ProfilePage entry={entry} />
-  case 'faqs':             return <FaqPage entry={entry} />
+  case 'faq':              return <FaqPage entry={entry} />
   case 'reports':          return <ReportPage entry={entry} />
   case 'foundation-pages': return <FoundationContentPage entry={entry} />
 }
@@ -208,8 +213,8 @@ The existing `ambassadors` Strapi content type and `src/content/ambassadors/` co
 
 - Editors control URL slugs, template selection, and content entirely from Strapi. Storage is invisible to them.
 - Each collection has a single, flat schema — no discriminated union complexity.
-- `getCollection('profiles')` returns correctly-typed profiles with no type guard. Listing views are a straightforward filter.
-- File organisation is semantically meaningful on disk: all profiles together, all FAQs together.
+- `getCollection('profiles')` returns correctly-typed profiles with no type guard. Listing views are a straightforward filter on `section`, `category`, and `locale`.
+- File organisation is semantically meaningful on disk: all profiles together, all FAQs together, locale variants clearly separated by subdirectory (`faq/`, `faq/es/`).
 - The cross-section template registry means adding a new template type is a localized change — one registry entry, one new collection, one new renderer `case`. No changes to existing collections, schemas, or route files.
 - `entry.collection` is the single source of truth for both TypeScript narrowing and renderer dispatch. A separate `templateType` frontmatter field is unnecessary.
 - Because template types are grouped by collection rather than section, listing views query only the content they need.
