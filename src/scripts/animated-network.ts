@@ -19,8 +19,8 @@ const VIEWPORT_NEAR_MARGIN_PX = 200
 const ROTATE_START_DEG = -15
 const ROTATE_END_DEG = 65
 const SCALE = 1.25
-/** Matches `--network-circle-max-scale` in AnimatedNetwork.astro (transform scale factor). */
-const CIRCLE_SCALE_FACTOR = 80
+/** Default max scale — matches `--network-circle-max-scale` in AnimatedNetwork.astro */
+export const CIRCLE_SCALE_FACTOR = 80
 
 const NETWORK_SECTION_SELECTOR = '[data-component="AnimatedNetwork"]'
 
@@ -107,33 +107,71 @@ export function getViewProgress(): number {
   return Math.min(1, Math.max(0, progress))
 }
 
-/** Matches `animation-range: cover 35% cover 91%` in AnimatedNetwork.astro */
-const CIRCLE_ANIMATION_RANGE_START = 0.35
-const CIRCLE_ANIMATION_RANGE_END = 0.91
+/** Default circle range — matches `--network-circle-range-*` in AnimatedNetwork.astro */
+export const CIRCLE_ANIMATION_RANGE_START = 0.35
+export const CIRCLE_ANIMATION_RANGE_END = 0.91
 
 /** View progress slice for circle growth animation range. */
-export function getCircleProgress(viewProgress: number): number {
-  const range = CIRCLE_ANIMATION_RANGE_END - CIRCLE_ANIMATION_RANGE_START
-  return Math.min(
-    1,
-    Math.max(0, (viewProgress - CIRCLE_ANIMATION_RANGE_START) / range)
-  )
+export function getCircleProgress(
+  viewProgress: number,
+  rangeStart = CIRCLE_ANIMATION_RANGE_START,
+  rangeEnd = CIRCLE_ANIMATION_RANGE_END
+): number {
+  const range = rangeEnd - rangeStart
+  return Math.min(1, Math.max(0, (viewProgress - rangeStart) / range))
 }
 
-function getCircleScale(circleProgress: number): number {
-  return 1 + circleProgress * (CIRCLE_SCALE_FACTOR - 1)
+function parseCircleRangePercent(value: string, fallback: number): number {
+  const trimmed = value.trim()
+  if (!trimmed.endsWith('%')) return fallback
+  const parsed = Number.parseFloat(trimmed)
+  return Number.isFinite(parsed) ? parsed / 100 : fallback
+}
+
+/** Read scroll-driven circle range from section CSS variables (tablet overrides). */
+function getCircleRangeFromSection(section: HTMLElement): {
+  start: number
+  end: number
+} {
+  const styles = getComputedStyle(section)
+  return {
+    start: parseCircleRangePercent(
+      styles.getPropertyValue('--network-circle-range-start'),
+      CIRCLE_ANIMATION_RANGE_START
+    ),
+    end: parseCircleRangePercent(
+      styles.getPropertyValue('--network-circle-range-end'),
+      CIRCLE_ANIMATION_RANGE_END
+    )
+  }
+}
+
+function getCircleMaxScaleFromSection(section: HTMLElement): number {
+  const circle = section.querySelector('.growing-circle')
+  const styles = getComputedStyle(
+    circle instanceof HTMLElement ? circle : section
+  )
+  const parsed = Number.parseFloat(
+    styles.getPropertyValue('--network-circle-max-scale')
+  )
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : CIRCLE_SCALE_FACTOR
+}
+
+function getCircleScale(circleProgress: number, maxScale: number): number {
+  return 1 + circleProgress * (maxScale - 1)
 }
 
 function applyReducedMotionState(section: HTMLElement): void {
   const svg = section.querySelector('.network-svg:not(.network-svg--static)')
   const circle = section.querySelector('.growing-circle')
+  const maxScale = getCircleMaxScaleFromSection(section)
 
   if (svg instanceof HTMLElement) {
     svg.style.transform = `rotate(20deg) scale(${SCALE})`
   }
 
   if (circle instanceof HTMLElement) {
-    circle.style.transform = `scale(${CIRCLE_SCALE_FACTOR})`
+    circle.style.transform = `scale(${maxScale})`
     circle.style.opacity = '1'
   }
 }
@@ -150,8 +188,10 @@ function updateNetwork(section: HTMLElement): void {
 
   svg.style.transform = `rotate(${rotate}deg) scale(${SCALE})`
 
-  const circleProgress = getCircleProgress(viewProgress)
-  circle.style.transform = `scale(${getCircleScale(circleProgress)})`
+  const { start, end } = getCircleRangeFromSection(section)
+  const maxScale = getCircleMaxScaleFromSection(section)
+  const circleProgress = getCircleProgress(viewProgress, start, end)
+  circle.style.transform = `scale(${getCircleScale(circleProgress, maxScale)})`
   circle.style.opacity = circleProgress > 0 ? '1' : '0'
 }
 
