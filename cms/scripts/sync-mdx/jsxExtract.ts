@@ -379,6 +379,30 @@ function parseStaticExpressionLiteral(
   return unescapeTemplateLiteral(inner)
 }
 
+/** ESTree expression range for recovering raw JSX attribute source text. */
+function getEstreeExpressionRange(
+  value: MdxJsxAttribute['value']
+): [number, number] | undefined {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    value.type !== 'mdxJsxAttributeValueExpression'
+  ) {
+    return undefined
+  }
+
+  const estree = value.data?.estree
+  const statement = estree?.body?.[0]
+  const expression =
+    statement?.type === 'ExpressionStatement' ? statement.expression : undefined
+
+  return Array.isArray(expression?.range) &&
+    expression.range.length === 2 &&
+    expression.range.every((offset) => typeof offset === 'number')
+    ? (expression.range as [number, number])
+    : undefined
+}
+
 /**
  * Extract a static JSX expression string (template literal or quoted string).
  *
@@ -440,16 +464,16 @@ export function getStaticExpressionAttr(
   }
 
   let raw = attr.value.value.trim()
-  if (
+  const expressionRange = getEstreeExpressionRange(attr.value)
+  if (opts.sourceText && expressionRange) {
+    raw = opts.sourceText.slice(expressionRange[0], expressionRange[1]).trim()
+  } else if (
     opts.sourceText &&
     attr.value.position?.start.offset != null &&
     attr.value.position?.end.offset != null
   ) {
-    raw = opts
-      .sourceText!.slice(
-        attr.value.position.start.offset,
-        attr.value.position.end.offset
-      )
+    raw = opts.sourceText
+      .slice(attr.value.position.start.offset, attr.value.position.end.offset)
       .trim()
   }
 
