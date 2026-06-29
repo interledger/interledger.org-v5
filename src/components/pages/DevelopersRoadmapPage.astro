@@ -64,15 +64,31 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
 
     {
       generatedAt && (
-        <div class="mx-auto max-w-content px-[5%] pt-s text-gray-500">
-          <span>
-            Roadmap data refreshed at:{' '}
-            <time datetime={generatedAt}>
-              {new Date(generatedAt).toUTCString()}
-            </time>
-          </span>
+        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-step--2 text-gray-700">
+          Roadmap data refreshed at:{' '}
+          <time class="roadmap-refreshed" datetime={generatedAt}>
+            {new Date(generatedAt).toUTCString()}
+          </time>
         </div>
       )
     }
   </main>
 </FoundationPageLayout>
+
+<script>
+  // The page is SSR + CDN-cached, so the server can't know the viewer's locale
+  // or timezone — it renders a UTC fallback (readable without JS). Localize it
+  // here to the visitor's own locale and timezone.
+  document
+    .querySelectorAll<HTMLTimeElement>('time.roadmap-refreshed')
+    .forEach((el) => {
+      const iso = el.getAttribute('datetime')
+      if (!iso) return
+      const date = new Date(iso)
+      if (Number.isNaN(date.getTime())) return
+      el.textContent = date.toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })
+    })
+</script>
