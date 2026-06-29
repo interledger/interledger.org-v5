@@ -13,6 +13,7 @@ const RESERVED_WORD_COLOR = '#994DE4'
 const VARIABLE_NAME_COLOR = '#F69F42'
 const TYPE_COLOR = '#3D79E0'
 const INTEGER_COLOR = '#F3762F'
+const COMMENT_COLOR = '#9B9DA2'
 
 const baseTheme = (await bundledThemes['github-light']()).default
 const codeTheme: ThemeRegistration = {
@@ -53,6 +54,10 @@ const codeTheme: ThemeRegistration = {
     {
       scope: ['constant', 'constant.numeric'],
       settings: { foreground: INTEGER_COLOR }
+    },
+    {
+      scope: ['comment', 'punctuation.definition.comment'],
+      settings: { foreground: COMMENT_COLOR }
     }
   ]
 }
@@ -68,7 +73,7 @@ const highlighted = await codeToHtml(code, {
 ---
 
 <figure
-  class="my-0 w-full min-w-0 rounded-xl border border-neutral-25 text-step--1"
+  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 text-step--1"
   data-component="code-block"
 >
   <div class="code-block-header flex items-center rounded-t-xl">
