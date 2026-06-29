@@ -23,6 +23,13 @@ export default async function handler(
   req: Request,
   _ctx: Context
 ): Promise<Response> {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
+      status: 405,
+      headers: { Allow: 'POST', 'Content-Type': 'application/json' }
+    })
+  }
+
   const token = (req.headers.get('authorization') ?? '').replace(
     /^Bearer\s+/i,
     ''
