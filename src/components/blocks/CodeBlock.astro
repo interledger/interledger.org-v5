@@ -1,5 +1,6 @@
 ---
-import { codeToHtml } from 'shiki'
+import { bundledThemes, codeToHtml } from 'shiki'
+import type { ThemeRegistration } from 'shiki'
 import { useTranslations } from '@/utils'
 
 interface Props {
@@ -8,37 +9,69 @@ interface Props {
   title?: string
 }
 
+const RESERVED_WORD_COLOR = '#994DE4'
+const VARIABLE_NAME_COLOR = '#F69F42'
+const TYPE_COLOR = '#3D79E0'
+const INTEGER_COLOR = '#F3762F'
+
+const baseTheme = (await bundledThemes['github-light']()).default
+const codeTheme: ThemeRegistration = {
+  ...baseTheme,
+  name: 'interledger-code-light',
+  tokenColors: [
+    ...(baseTheme.tokenColors ?? []),
+    {
+      scope: ['storage.type', 'storage.modifier', 'keyword.control', 'variable.language'],
+      settings: { foreground: RESERVED_WORD_COLOR }
+    },
+    { scope: 'keyword.operator', settings: { foreground: '#24292e' } },
+    {
+      scope: ['variable', 'variable.other', 'variable.other.constant', 'variable.other.readwrite'],
+      settings: { foreground: VARIABLE_NAME_COLOR }
+    },
+    {
+      scope: [
+        'entity.name.function',
+        'entity.name.type',
+        'entity.name.class',
+        'support.class',
+        'support.type',
+        'support.function'
+      ],
+      settings: { foreground: TYPE_COLOR }
+    },
+    { scope: ['constant', 'constant.numeric'], settings: { foreground: INTEGER_COLOR } }
+  ]
+}
+
 const { code, language, title } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const highlighted = await codeToHtml(code, {
   lang: language,
-  theme: 'github-light'
+  theme: codeTheme
 })
 ---
 
 <figure
-  class="my-0 w-full min-w-0 rounded-lg border border-neutral-25 text-step--1"
+  class="my-0 w-full min-w-0 rounded-xl border border-neutral-25 text-step--1"
   data-component="code-block"
 >
-  <div
-    class="flex items-center gap-space-xs px-space-s py-space-2xs bg-[#f6f8fa] border-b border-neutral-25 rounded-t-lg"
-  >
+  <div class="code-block-header flex items-center rounded-t-xl">
     <div class="flex items-center gap-[6px] shrink-0" aria-hidden="true">
       <span class="block h-3 w-3 rounded-full bg-[#ff5f57]"></span>
       <span class="block h-3 w-3 rounded-full bg-[#febc2e]"></span>
       <span class="block h-3 w-3 rounded-full bg-[#28c840]"></span>
     </div>
 
-    <span class="flex-1 min-w-0 truncate text-neutral-900 text-step--2">
+    <span class="code-block-title flex-1 min-w-0 truncate">
       {title ?? language}
     </span>
 
     <button
       type="button"
-      class="copy-btn shrink-0 inline-flex items-center gap-[5px] cursor-pointer
-             text-step--2 text-neutral-900/40 hover:text-neutral-900
+      class="copy-btn code-block-copy-btn shrink-0 inline-flex items-center cursor-pointer
              transition-colors focus-visible:outline focus-visible:outline-2
              focus-visible:outline-offset-2 focus-visible:outline-neutral-900/40"
       data-code={code}
@@ -72,7 +105,7 @@ const highlighted = await codeToHtml(code, {
   </div>
 
   <div
-    class="code-block-scroll rounded-b-lg"
+    class="code-block-scroll rounded-b-xl"
     data-lenis-prevent-touch
     set:html={highlighted}
   />
@@ -82,6 +115,32 @@ const highlighted = await codeToHtml(code, {
   /* Shiki: block .line + newline nodes between spans; contain:inline-size for mobile scroll. */
   [data-component='code-block'] {
     contain: inline-size;
+  }
+
+  [data-component='code-block'] .code-block-header {
+    gap: var(--spacing-space-xs);
+    padding-block: var(--spacing-space-2xs);
+    padding-inline: var(--spacing-space-s);
+    background-color: var(--color-table-stripe);
+    border-bottom: 1px solid var(--color-neutral-25);
+  }
+
+  [data-component='code-block'] .code-block-title,
+  [data-component='code-block'] .code-block-copy-btn {
+    font-size: var(--text-step--2);
+  }
+
+  [data-component='code-block'] .code-block-title {
+    color: var(--color-neutral-900);
+  }
+
+  [data-component='code-block'] .code-block-copy-btn {
+    gap: 5px;
+    color: color-mix(in srgb, var(--color-neutral-900) 40%, transparent);
+  }
+
+  [data-component='code-block'] .code-block-copy-btn:hover {
+    color: var(--color-neutral-900);
   }
 
   [data-component='code-block'] .code-block-scroll {
@@ -102,27 +161,40 @@ const highlighted = await codeToHtml(code, {
     min-width: 100%;
     margin: 0;
     padding: var(--spacing-space-s);
-    background-color: #fff !important;
     white-space: normal;
   }
 
-  [data-component='code-block'] .code-block-scroll :global(code),
-  [data-component='code-block'] .code-block-scroll :global(.line) {
+  [data-component='code-block'] .code-block-scroll :global(code) {
     display: block;
     width: max-content;
     min-width: 100%;
+    counter-reset: code-line;
     font-family: ui-monospace, monospace;
-    font-size: var(--text-step--1);
+    font-size: 0.8125rem;
     line-height: inherit;
   }
 
   [data-component='code-block'] .code-block-scroll :global(.line) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
     white-space: pre;
+    counter-increment: code-line;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(.line::before) {
+    content: counter(code-line);
+    display: inline-block;
+    width: 1.75em;
+    margin-right: var(--spacing-space-xs);
+    text-align: right;
+    color: var(--color-neutral-50);
+    user-select: none;
   }
 
   /* Empty .line spans (blank lines) have no content, so browsers give them
      zero height; a zero-width space forces a line box so the blank line renders. */
-  [data-component='code-block'] .code-block-scroll :global(.line:empty::before) {
+  [data-component='code-block'] .code-block-scroll :global(.line:empty::after) {
     content: '\200b';
   }
 </style>
