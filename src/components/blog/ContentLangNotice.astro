@@ -15,9 +15,9 @@ const isViewingEsOnEnPage = routeLocale === 'en' && contentLang === 'es'
 const isViewingEnOnEsPage = routeLocale === 'es' && contentLang === 'en'
 ---
 
-<div class="flex text-body-sm-emphasis text-primary">
+<div class="flex gap-xs text-body-sm-emphasis text-primary">
   <p class="m-0 text-body-sm-emphasis">
-    {t('blog.lang_filter.results', { totalEntries })}&nbsp;
+    {t('blog.lang_filter.results', { totalEntries })}
   </p>
   {
     isViewingEsOnEnPage && (

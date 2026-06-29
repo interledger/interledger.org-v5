@@ -27,17 +27,17 @@ const esHref = `${base}/lang/es`
 const isEnActive = contentLang === 'en'
 const isEsActive = contentLang === 'es'
 
-const buttonClasses = `
-flex gap-xs items-center cursor-pointer
+const summaryClasses = `
+list-none flex gap-xs items-center cursor-pointer
 p-xs rounded-lg border border-transparent
-[&[aria-expanded='true']]:text-neutral-100 [&[aria-expanded='true']_svg]:-rotate-90
+group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
 [&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
 focus-visible:outline-none focus-visible:border focus-visible:border-primary
 `
 const dropdownClasses = `
-hidden list-none m-0 p-sm [&_li]:m-0
+list-none m-0 p-sm [&_li]:m-0
 absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))] z-1
-bg-neutral-0 rounded-xl border border-neutral-25 
+bg-neutral-0 rounded-xl border border-neutral-25
 `
 const linkClasses = `
 flex gap-md items-center px-sm py-xs rounded-lg border border-transparent
@@ -55,18 +55,39 @@ const btnAttrs = (lang: string) =>
 ---
 
 <div
-  class="flex flex-col flex-wrap gap-xl text-body-sm-emphasis text-neutral-75 tablet:flex-row tablet:items-center tablet:gap-md relative"
+  class="flex flex-col flex-wrap gap-xl text-body-sm-emphasis text-neutral-75 tablet:flex-row tablet:items-center tablet:gap-md"
 >
   <div class="flex flex-wrap items-center gap-md">
-    <button
-      id="language-filter"
-      aria-controls="language-dropdown"
-      aria-expanded="false"
-      class={buttonClasses}
-    >
-      {t('blog.lang_filter.label')}
-      <Icon name="arrow-right-keyboard" class="rotate-90" />
-    </button>
+    <details id="language-filter-details" class="group relative">
+      <summary class={summaryClasses}>
+        {t('blog.lang_filter.label')}
+        <Icon name="arrow-right-keyboard" class="rotate-90" />
+      </summary>
+      <ul class={dropdownClasses}>
+        <li>
+          <a
+            href={enHref}
+            class={linkClasses}
+            aria-current={isEnActive ? 'page' : undefined}
+            {...btnAttrs('en')}
+          >
+            {t('blog.lang_filter.english')}
+            {isEnActive && <Icon name="check" class="size-2.5" />}
+          </a>
+        </li>
+        <li>
+          <a
+            href={esHref}
+            class={linkClasses}
+            aria-current={isEsActive ? 'page' : undefined}
+            {...btnAttrs('es')}
+          >
+            {t('blog.lang_filter.spanish')}
+            {isEsActive && <Icon name="check" class="size-2.5" />}
+          </a>
+        </li>
+      </ul>
+    </details>
     <span class="text-primary"
       >{
         isEsActive
@@ -82,67 +103,24 @@ const btnAttrs = (lang: string) =>
       </span>
     )
   }
-  <ul class={dropdownClasses} id="language-dropdown" role="list">
-    <li>
-      <a
-        href={enHref}
-        class={linkClasses}
-        aria-current={isEnActive ? 'page' : undefined}
-        {...btnAttrs('en')}
-      >
-        {t('blog.lang_filter.english')}
-        {isEnActive && <Icon name="check" class="size-2.5" />}
-      </a>
-    </li>
-    <li>
-      <a
-        href={esHref}
-        class={linkClasses}
-        aria-current={isEsActive ? 'page' : undefined}
-        {...btnAttrs('es')}
-      >
-        {t('blog.lang_filter.spanish')}
-        {isEsActive && <Icon name="check" class="size-2.5" />}
-      </a>
-    </li>
-  </ul>
 </div>
 
 <script>
-  const button = document.querySelector<HTMLButtonElement>('#language-filter')
-  const dropdown = document.querySelector<HTMLElement>('#language-dropdown')
-  const firstLink = dropdown?.querySelector<HTMLAnchorElement>('a')
+  const details = document.querySelector<HTMLDetailsElement>(
+    '#language-filter-details'
+  )
+  const summary = details?.querySelector<HTMLElement>('summary')
 
-  button?.addEventListener('click', () => {
-    const isOpen = !dropdown?.classList.contains('hidden')
-    dropdown?.classList.toggle('hidden')
-    button.setAttribute('aria-expanded', String(!isOpen))
-    if (!isOpen) firstLink?.focus()
-  })
-
-  dropdown?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      dropdown.classList.add('hidden')
-      button?.setAttribute('aria-expanded', 'false')
-      button?.focus()
+  details?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && details.open) {
+      details.open = false
+      summary?.focus()
     }
   })
 
-  dropdown?.addEventListener('focusout', (e: FocusEvent) => {
-    if (
-      !button?.contains(e.relatedTarget as Node) &&
-      !dropdown.contains(e.relatedTarget as Node)
-    ) {
-      dropdown.classList.add('hidden')
-      button?.setAttribute('aria-expanded', 'false')
-    }
-  })
-
-  document.addEventListener('click', (e: MouseEvent) => {
-    const target = e.target as Node
-    if (!button?.contains(target) && !dropdown?.contains(target)) {
-      dropdown?.classList.add('hidden')
-      button?.setAttribute('aria-expanded', 'false')
+  details?.addEventListener('focusout', (e: FocusEvent) => {
+    if (!details.contains(e.relatedTarget as Node)) {
+      details.open = false
     }
   })
 </script>
