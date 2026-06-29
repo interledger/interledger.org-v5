@@ -21,12 +21,22 @@ const codeTheme: ThemeRegistration = {
   tokenColors: [
     ...(baseTheme.tokenColors ?? []),
     {
-      scope: ['storage.type', 'storage.modifier', 'keyword.control', 'variable.language'],
+      scope: [
+        'storage.type',
+        'storage.modifier',
+        'keyword.control',
+        'variable.language'
+      ],
       settings: { foreground: RESERVED_WORD_COLOR }
     },
     { scope: 'keyword.operator', settings: { foreground: '#24292e' } },
     {
-      scope: ['variable', 'variable.other', 'variable.other.constant', 'variable.other.readwrite'],
+      scope: [
+        'variable',
+        'variable.other',
+        'variable.other.constant',
+        'variable.other.readwrite'
+      ],
       settings: { foreground: VARIABLE_NAME_COLOR }
     },
     {
@@ -40,7 +50,10 @@ const codeTheme: ThemeRegistration = {
       ],
       settings: { foreground: TYPE_COLOR }
     },
-    { scope: ['constant', 'constant.numeric'], settings: { foreground: INTEGER_COLOR } }
+    {
+      scope: ['constant', 'constant.numeric'],
+      settings: { foreground: INTEGER_COLOR }
+    }
   ]
 }
 
