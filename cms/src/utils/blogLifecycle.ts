@@ -13,6 +13,7 @@ import {
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import type { Core } from '@strapi/strapi'
+import { errors } from '@strapi/utils'
 
 declare const strapi: Core.Strapi
 
@@ -116,17 +117,11 @@ function generateFilename({
 
 export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
-  // Skip bios with no author: the Astro content schema requires
-  // articleBios[].author to be a string, and an empty bio component in Strapi
-  // would otherwise export as `author: null` and fail the build (INTORG-794).
-  const bios = (post.articleBio ?? []).filter(
-    (bio) => typeof bio.author === 'string' && bio.author.trim() !== ''
-  )
-
   const articleBios =
-    bios.length > 0
-      ? `articleBios:${bios
+    post.articleBio.length > 0
+      ? `articleBios:${post.articleBio
           .map((bio) => {
+            if (!bio.author) throw new Error('Author Bio: Name is required')
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
@@ -177,12 +172,17 @@ export function generateBlogMDX(post: BlogResult) {
       ? post.categories.length === 0
         ? `categories: []`
         : `categories:${post.categories
-            .map((category) => `\n  - ${yqs(category.categoryValue)}`)
+            .filter((c) => c?.categoryValue)
+            .map((c) => `\n  - ${yqs(c.categoryValue)}`)
             .join('')}`
       : null,
     post.relatedArticles?.length
       ? `relatedArticles:${post.relatedArticles
-          .map((related) => `\n  - ${yqs(related.slug)}`)
+          .map((related) => {
+            if (!related.slug)
+              throw new Error('Related Articles: Slug is required')
+            return `\n  - ${yqs(related.slug)}`
+          })
           .join('')}`
       : null,
     post.legacy ? `legacy: true` : null,
@@ -294,15 +294,15 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     const enPost = await fetchBlogPost(documentId, defaultLang)
 
     for (const locale of LOCALES) {
+      const post =
+        locale === defaultLang
+          ? enPost
+          : await fetchBlogPost(documentId, locale)
+      if (!post) {
+        console.log(`⏭️  No published ${locale} blog post for ${documentId}`)
+        continue
+      }
       try {
-        const post =
-          locale === defaultLang
-            ? enPost
-            : await fetchBlogPost(documentId, locale)
-        if (!post) {
-          console.log(`⏭️  No published ${locale} blog post for ${documentId}`)
-          continue
-        }
         const filepath = await writeMDXFile({
           outputPath: getOutputPath(post.locale),
           post
@@ -312,6 +312,9 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         console.error(
           `⚠️  Failed to export ${locale} blog post for ${documentId}:`,
           error
+        )
+        throw new errors.ValidationError(
+          error instanceof Error ? error.message : String(error)
         )
       }
     }
@@ -384,7 +387,13 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         const post = await fetchBlogPost(result.documentId, result.locale)
         if (!post) return
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
-        await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+        try {
+          await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+        } catch (error) {
+          throw new errors.ValidationError(
+            error instanceof Error ? error.message : String(error)
+          )
+        }
       }
 
       const ctx: SyncContext = {
