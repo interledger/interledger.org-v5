@@ -5,7 +5,7 @@
  */
 
 import type { Core, UID, Modules } from '@strapi/strapi'
-
+import { errors } from '@strapi/utils'
 declare const strapi: Core.Strapi
 
 import fs from 'fs'
@@ -161,7 +161,14 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
-  const heroData = heroFrontmatter(page.hero)
+  let heroData: Record<string, unknown>
+  try {
+    heroData = heroFrontmatter(page.hero)
+  } catch (error) {
+    throw new errors.ValidationError(
+      error instanceof Error ? error.message : String(error)
+    )
+  }
   const seoData = seoFrontmatter(page.seo)
 
   // Spread preserved fields first, then Strapi-managed fields overwrite
@@ -226,6 +233,7 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     return filepath
   } catch (error) {
+    if (error instanceof errors.ValidationError) throw error
     return error instanceof Error
       ? new Error(
           `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file ${filepath}: ${error.message}`,
