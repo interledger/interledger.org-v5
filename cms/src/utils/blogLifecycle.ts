@@ -60,6 +60,7 @@ interface BlogResult {
     profileBio?: string
     profileImage?: { url: string; name: string; alternativeText?: string }
   }[]
+  footerNote?: string
   categories?: { categoryValue: string }[]
   relatedArticles?: { slug: string }[]
   localizations: { pathSlug: string }[]
@@ -173,6 +174,7 @@ export function generateBlogMDX(post: BlogResult) {
       ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
+    yamlLiteralBlockScalar('footerNote', post.footerNote, 0),
     post.categories
       ? post.categories.length === 0
         ? `categories: []`

@@ -138,6 +138,19 @@
       "component": "shared.article-bio",
       "repeatable": true
     },
+    "footerNote": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Optional note shown at the foot of the post (e.g. \"This article was originally published at…\", corrections, disclaimers)."
+    },
     "categories": {
       "type": "component",
       "pluginOptions": {

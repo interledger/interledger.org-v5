@@ -536,6 +536,7 @@ export async function buildBlogPayload(
       featureImageMobile,
       thumbnailImage,
       articleBio,
+      footerNote: parsed.footerNote || null,
       categories,
       relatedArticles,
       legacy: parsed.legacy ?? false,

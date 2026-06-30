@@ -63,3 +63,41 @@ describe('generateBlogMDX — article bios', () => {
     expect(mdx.match(/- author:/g)).toHaveLength(1)
   })
 })
+
+describe('generateBlogMDX — footer note', () => {
+  it('emits footerNote as a YAML literal block when present (INTORG-838)', () => {
+    const mdx = generateBlogMDX(
+      makePost({
+        footerNote:
+          'This article was originally published at [medium.com](https://medium.com/x).'
+      })
+    )
+
+    expect(mdx).toContain('footerNote: |')
+    expect(mdx).toContain(
+      'This article was originally published at [medium.com](https://medium.com/x).'
+    )
+  })
+
+  it('omits footerNote when absent', () => {
+    const mdx = generateBlogMDX(makePost())
+
+    expect(mdx).not.toContain('footerNote')
+  })
+
+  it('omits footerNote when empty', () => {
+    const mdx = generateBlogMDX(makePost({ footerNote: '' }))
+
+    expect(mdx).not.toContain('footerNote')
+  })
+
+  it('preserves multi-line markdown in the footer note', () => {
+    const mdx = generateBlogMDX(
+      makePost({ footerNote: 'Line one.\n\nLine two.' })
+    )
+
+    expect(mdx).toContain('footerNote: |')
+    expect(mdx).toContain('Line one.')
+    expect(mdx).toContain('Line two.')
+  })
+})
