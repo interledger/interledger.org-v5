@@ -25,6 +25,7 @@ const enHref = `${base}/lang/en`
 const esHref = `${base}/lang/es`
 
 const isEnActive = contentLang === 'en'
+const isEnActiveOnEs = isEnActive && routeLocale === 'es'
 const isEsActive = contentLang === 'es'
 
 const summaryClasses = `
@@ -100,6 +101,13 @@ const btnAttrs = (lang: string) =>
     isEsActive && (
       <span class="text-body-sm-standard italic">
         ({t('blog.lang_filter.more_en_available')})
+      </span>
+    )
+  }
+  {
+    isEnActiveOnEs && (
+      <span class="text-body-sm-standard italic">
+        ({t('blog.lang_filter.es_available')})
       </span>
     )
   }

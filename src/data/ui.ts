@@ -66,17 +66,15 @@ export const ui = {
     'blog.lang_filter.label': 'Filter by language',
     'blog.lang_filter.english': 'English',
     'blog.lang_filter.spanish': 'Spanish',
-    // Only rendered on the English site when the Spanish filter is active.
-    // TRANSLATION NOTE: No translation needed
-    'blog.lang_filter.viewing_es_posts': 'Showing Spanish posts',
+    'blog.lang_filter.viewing_es_posts': 'Showing posts in Spanish',
+    'blog.lang_filter.viewing_en_posts': 'Showing English Results',
     // Only rendered on the Spanish site when the English filter is active.
-    'blog.lang_filter.viewing_en_posts': 'Showing English posts',
-    // Shown whenever the Spanish content filter is active (on either EN or ES site)
-    'blog.lang_filter.more_en_available': 'More posts available in English',
+    'blog.lang_filter.es_available': '',
+    'blog.lang_filter.more_en_available': 'More posts are available in English',
     'blog.lang_filter.view_in_en': 'View in English',
     'blog.lang_filter.results': '{totalEntries} Results',
     'blog.empty_tag_lang.message':
-      'No posts found for this tag in the selected language - showing all posts instead.',
+      'No posts found for this tag in the selected language',
     'blog.empty_tag_lang.cta': 'View all posts',
     'blog.community.foundation.start':
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
@@ -290,15 +288,15 @@ export const ui = {
     'blog.lang_filter.label': 'Filtrar por idioma',
     'blog.lang_filter.english': 'Inglés',
     'blog.lang_filter.spanish': 'Español',
-    // Shown on ES pages when the English filter is active
-    'blog.lang_filter.viewing_en_posts': 'Mostrando publicaciones en inglés',
-    // Shown whenever the Spanish content filter is active (on either EN or ES site)
-    'blog.lang_filter.more_en_available':
-      'Nota: hay más publicaciones disponibles en inglés',
+    'blog.lang_filter.viewing_es_posts': 'Mostrando resultados en español',
+    'blog.lang_filter.viewing_en_posts': 'Mostrando resultados en inglés',
+    'blog.lang_filter.es_available':
+      'Tenemos publicaciones disponibles en español',
+    'blog.lang_filter.more_en_available': 'Tenemos más publicaciones en inglés',
     'blog.lang_filter.view_in_en': 'Ver en inglés',
     'blog.lang_filter.results': '',
     'blog.empty_tag_lang.message':
-      'No se encontraron publicaciones para esta etiqueta en el idioma seleccionado.',
+      'No se encontraron publicaciones con esta etiqueta en el idioma seleccionado',
     'blog.empty_tag_lang.cta': 'Ver todas las publicaciones',
     'blog.community.foundation.start': '',
     'blog.community.foundation.middle': '',

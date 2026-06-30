@@ -11,8 +11,8 @@ interface Props {
 const { routeLocale, contentLang, totalEntries } = Astro.props
 const t = useTranslations(routeLocale)
 
-const isViewingEsOnEnPage = routeLocale === 'en' && contentLang === 'es'
-const isViewingEnOnEsPage = routeLocale === 'es' && contentLang === 'en'
+const isViewingEsContent = contentLang === 'es'
+const isViewingEnContent = contentLang === 'en'
 ---
 
 <div class="flex gap-xs text-body-sm-emphasis text-primary">
@@ -20,13 +20,13 @@ const isViewingEnOnEsPage = routeLocale === 'es' && contentLang === 'en'
     {t('blog.lang_filter.results', { totalEntries })}
   </p>
   {
-    isViewingEsOnEnPage && (
+    isViewingEsContent && (
       <aside role="note">({t('blog.lang_filter.viewing_es_posts')})</aside>
     )
   }
 
   {
-    isViewingEnOnEsPage && (
+    isViewingEnContent && (
       <aside role="note">({t('blog.lang_filter.viewing_en_posts')})</aside>
     )
   }
