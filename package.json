@@ -38,6 +38,7 @@
     "marked": "^17.0.4",
     "node-html-parser": "^7.1.0",
     "sharp": "^0.34.5",
+    "shiki": "^4.2.0",
     "showdown": "^2.1.0",
     "starlight-fullview-mode": "^0.2.6",
     "starlight-links-validator": "^0.20.0",

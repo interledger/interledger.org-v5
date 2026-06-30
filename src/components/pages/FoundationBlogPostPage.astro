@@ -17,6 +17,7 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
+import CodeBlock from '@/components/blocks/CodeBlock.astro'
 
 interface Props {
   slug: string
@@ -65,7 +66,8 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
       Blockquote,
       Paragraph,
       VideoEmbed,
-      ImageBlock
+      ImageBlock,
+      CodeBlock
     }}
   />
   <Fragment slot="after-article">
