@@ -118,6 +118,22 @@ When content is published or updated in Strapi:
 
 - Strapi is configured as a contributor to the codebase. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
 
+### Lifecycle Validation
+
+On **create**, Strapi's built-in Yup schema handles validation fully - required fields are enforced before the lifecycle hook runs.
+
+On **update**, Strapi uses a partial Yup validator that skips required-field checks, so some fields can be blanked out without error. Custom validation runs in `afterUpdate` to catch these cases.
+
+Validation can't run in `beforeUpdate` because Strapi only passes component IDs there: field values aren't available until after the document is saved and re-fetched with full populate.
+
+**Fields validated on update**
+
+Each lifecycle validates the required fields for its content type — labels, titles, and key identifiers that Strapi's partial validator would otherwise allow to be blanked out.
+
+Block serializers (used by pages with a dynamic zone) add a second layer: each block validates its own required fields when the content is serialized to MDX.
+
+Serializer errors bubble up as `ValidationError` via `serializeContent` in `src/serializers/blocks/index.ts` and are surfaced in the Strapi admin UI.
+
 ### Astro → Strapi (MDX Sync)
 
 - It is also possible for mdx file changes to happen in PRs that get merged into the `staging` branch.
