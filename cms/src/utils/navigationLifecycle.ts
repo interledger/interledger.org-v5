@@ -5,6 +5,7 @@ import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 
 import type { Core, UID, Modules } from '@strapi/strapi'
+import { errors } from '@strapi/utils'
 
 declare const strapi: Core.Strapi
 
@@ -29,6 +30,7 @@ export interface MenuGroup {
 interface NavigationData {
   id?: number
   documentId?: string
+  locale?: string
   mainMenu?: MenuGroup[]
   ctaButton?: MenuItem | null
   publishedAt?: string | null
@@ -255,6 +257,40 @@ interface BeforeEvent {
   params: { data: NavigationData }
 }
 
+function validateNavigationData(data: NavigationData): void {
+  data.mainMenu?.forEach((group, groupIndex) => {
+    if (!group.label?.trim()) {
+      throw new errors.ValidationError(
+        `Main Menu: Item ${groupIndex + 1} is missing a required label`
+      )
+    }
+    group.items?.forEach((item, itemIndex) => {
+      if (!item.label?.trim()) {
+        throw new errors.ValidationError(
+          `"${group.label}": Item ${itemIndex + 1} is missing a required label`
+        )
+      }
+    })
+    group.subGroups?.forEach((subGroup, subGroupIndex) => {
+      if (!subGroup.label?.trim()) {
+        throw new errors.ValidationError(
+          `"${group.label}": Sub-group ${subGroupIndex + 1} is missing a required label`
+        )
+      }
+      subGroup.items?.forEach((item, itemIndex) => {
+        if (!item.label?.trim()) {
+          throw new errors.ValidationError(
+            `"${group.label}" / "${subGroup.label}": Item ${itemIndex + 1} is missing a required label`
+          )
+        }
+      })
+    })
+  })
+  if (data.ctaButton && !data.ctaButton.label?.trim()) {
+    throw new errors.ValidationError('CTA Button: Label is required')
+  }
+}
+
 export function createNavigationLifecycle<T extends UID.ContentType>(
   config: NavigationLifecycleConfig<T>
 ) {
@@ -271,7 +307,10 @@ export function createNavigationLifecycle<T extends UID.ContentType>(
       await exportAndCommitNavigation(config, 'Create')
     },
 
-    async afterUpdate(_event: Event) {
+    async afterUpdate(event: Event) {
+      const locale = event.result?.locale ?? defaultLang
+      const nav = await fetchPublishedNavigation(config, locale)
+      if (nav) validateNavigationData(nav)
       await exportAndCommitNavigation(config, 'Update')
     },
 

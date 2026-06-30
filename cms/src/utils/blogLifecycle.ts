@@ -118,7 +118,7 @@ function generateFilename({
 export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
   const articleBios =
-    post.articleBio.length > 0
+    post.articleBio?.length > 0
       ? `articleBios:${post.articleBio
           .map((bio) => {
             if (!bio.author?.trim())
