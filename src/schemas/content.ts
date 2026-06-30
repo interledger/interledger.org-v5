@@ -94,6 +94,9 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(ArticleBioSchema).optional().default([]),
+  // Optional markdown note rendered at the foot of the post (e.g. "originally
+  // published at…", corrections, disclaimers). Styling lands in INTORG-839.
+  footerNote: z.string().optional(),
   categories: z.array(z.enum(blogCategories)).default([]),
   // Exactly 3 slugs of related posts when populated; optional for now so builds pass.
   relatedArticles: z.array(z.string()).max(3).optional().default([]),

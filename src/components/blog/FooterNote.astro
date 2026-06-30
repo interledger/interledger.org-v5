@@ -1,0 +1,27 @@
+---
+/**
+ * End-of-article note (e.g. "originally published at…", corrections,
+ * disclaimers). Authored as markdown and rendered at the foot of the post.
+ *
+ * Styling here is intentionally minimal — the finished design lands in
+ * INTORG-839 (blocked on the footer-component design, INTORG-837).
+ */
+import { marked } from 'marked'
+import { useTranslations } from '@/utils'
+
+interface Props {
+  note: string
+}
+
+const { note } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const html = await marked.parse(note)
+---
+
+<aside
+  aria-label={t('aria.footer_note')}
+  set:html={html}
+  class="text-body-sm-standard italic border-t border-neutral-50 mt-5xl pt-2xl [&_p]:mb-lg [&_p:last-child]:mb-0 [&_a]:underline"
+/>
