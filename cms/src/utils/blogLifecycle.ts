@@ -121,7 +121,8 @@ export function generateBlogMDX(post: BlogResult) {
     post.articleBio.length > 0
       ? `articleBios:${post.articleBio
           .map((bio) => {
-            if (!bio.author) throw new Error('Author Bio: Name is required')
+            if (!bio.author?.trim())
+              throw new Error('Author Bio: Name is required')
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
