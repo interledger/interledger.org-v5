@@ -40,10 +40,11 @@ function generateGrantPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // metaDescription is owned by the Strapi seo component. Strip it from the
-  // preserved pass-through so that deleting the seo field in Strapi removes it
-  // from the MDX rather than leaving the old value behind.
+  // Fields owned by Strapi components must be explicitly deleted from
+  // restPreserved so that removing them in Strapi clears them from the MDX
+  // rather than leaving the old value behind.
   delete (restPreserved as Record<string, unknown>).metaDescription
+  delete (restPreserved as Record<string, unknown>).primaryCta
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
