@@ -1,0 +1,18 @@
+---
+import GrantPage from '@/components/pages/GrantPage.astro'
+import { getLocalizedPaths, type Locale } from '@/utils'
+
+interface Props {
+  slug: string
+  locale: Locale
+  isFallback?: boolean
+}
+
+export async function getStaticPaths() {
+  return getLocalizedPaths('grant-pages', 'en', 'page')
+}
+
+const { slug, locale: contentLocale } = Astro.props
+---
+
+<GrantPage slug={slug} contentLocale={contentLocale} />
