@@ -3,6 +3,7 @@ import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
   | 'foundation-pages'
+  | 'grant-pages'
   | 'summit-pages'
   | 'foundation-blog'
   | 'developers-blog'
