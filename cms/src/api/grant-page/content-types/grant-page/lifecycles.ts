@@ -19,6 +19,9 @@ interface CtaStrip {
   description?: string
   primaryButtonText?: string
   primaryButtonLink?: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
+  color?: string
 }
 
 interface GrantPageData extends PageData {
@@ -37,6 +40,10 @@ function generateGrantPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
+  // metaDescription is owned by the Strapi seo component. Strip it from the
+  // preserved pass-through so that deleting the seo field in Strapi removes it
+  // from the MDX rather than leaving the old value behind.
+  delete (restPreserved as Record<string, unknown>).metaDescription
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -65,7 +72,14 @@ function generateGrantPageMDX(
             heading: ctaStrip.heading,
             description: ctaStrip.description ?? '',
             buttonText: ctaStrip.primaryButtonText ?? '',
-            buttonLink: ctaStrip.primaryButtonLink ?? ''
+            buttonLink: ctaStrip.primaryButtonLink ?? '',
+            color: ctaStrip.color ?? 'purple',
+            ...(ctaStrip.secondaryButtonText
+              ? { secondaryButtonText: ctaStrip.secondaryButtonText }
+              : {}),
+            ...(ctaStrip.secondaryButtonLink
+              ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
+              : {})
           }
         }
       : {}),

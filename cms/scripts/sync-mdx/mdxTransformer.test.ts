@@ -29,7 +29,10 @@ vi.mock('./siteSchemas', async () => {
     heading: z.string(),
     description: z.string(),
     buttonText: z.string(),
-    buttonLink: z.string()
+    buttonLink: z.string(),
+    color: z.enum(['purple', 'green']).default('purple'),
+    secondaryButtonText: z.string().optional(),
+    secondaryButtonLink: z.string().optional()
   })
   const grantPageSchema = z.object({
     title: z.string().min(1, 'title is required'),
@@ -878,6 +881,58 @@ describe('buildGrantPagePayload', () => {
       >
       expect(ctaStrip.heading).toBe('Apply now')
       expect(ctaStrip.description).toBe('Deadline approaching.')
+    })
+
+    it('passes through color when set to green', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          ctaStrip: { ...baseGrantFrontmatter.ctaStrip, color: 'green' }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const ctaStrip = (payload as Record<string, unknown>)
+        .ctaStrip as Record<string, unknown>
+      expect(ctaStrip.color).toBe('green')
+    })
+
+    it('does not include secondary button fields when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const ctaStrip = (payload as Record<string, unknown>)
+        .ctaStrip as Record<string, unknown>
+      expect(
+        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonText')
+      ).toBe(false)
+      expect(
+        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonLink')
+      ).toBe(false)
+    })
+
+    it('includes secondary button fields when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          ctaStrip: {
+            ...baseGrantFrontmatter.ctaStrip,
+            secondaryButtonText: 'Learn more',
+            secondaryButtonLink: 'https://example.com/info'
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const ctaStrip = (payload as Record<string, unknown>)
+        .ctaStrip as Record<string, unknown>
+      expect(ctaStrip.secondaryButtonText).toBe('Learn more')
+      expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/info')
     })
   })
 

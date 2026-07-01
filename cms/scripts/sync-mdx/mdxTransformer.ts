@@ -423,7 +423,13 @@ export async function buildGrantPagePayload(
       description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: 'purple' as const
+      color: ctaStripFm.color,
+      ...(ctaStripFm.secondaryButtonText
+        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
+        : {}),
+      ...(ctaStripFm.secondaryButtonLink
+        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+        : {})
     }
 
     const seo =
