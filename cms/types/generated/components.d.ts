@@ -785,6 +785,36 @@ export interface SharedHeroSection extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedPrimaryCtaLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_primary_cta_links'
+  info: {
+    displayName: 'Primary CTA Link'
+  }
+  attributes: {
+    external: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    link: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    text: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface SharedRelatedArticle extends Struct.ComponentSchema {
   collectionName: 'components_shared_related_articles'
   info: {
@@ -870,6 +900,7 @@ declare module '@strapi/strapi' {
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
+      'shared.primary-cta-link': SharedPrimaryCtaLink
       'shared.related-article': SharedRelatedArticle
       'shared.section': SharedSection
       'shared.seo': SharedSeo

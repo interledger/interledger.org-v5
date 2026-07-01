@@ -61,7 +61,7 @@
     "primaryCta": {
       "type": "component",
       "repeatable": false,
-      "component": "shared.cta-link",
+      "component": "shared.primary-cta-link",
       "pluginOptions": {
         "i18n": {
           "localized": true

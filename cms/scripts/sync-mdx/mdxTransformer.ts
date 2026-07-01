@@ -412,8 +412,7 @@ export async function buildGrantPagePayload(
       ? {
           text: parsed.primaryCta.text,
           link: parsed.primaryCta.link,
-          external: parsed.primaryCta.external ?? false,
-          style: 'primary'
+          external: parsed.primaryCta.external ?? false
         }
       : null
 

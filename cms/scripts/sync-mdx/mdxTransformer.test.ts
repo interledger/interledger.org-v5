@@ -972,8 +972,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).primaryCta).toEqual({
         text: 'Apply Now',
         link: 'https://example.com/apply',
-        external: true,
-        style: 'primary'
+        external: true
       })
     })
 

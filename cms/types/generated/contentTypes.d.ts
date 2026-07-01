@@ -832,7 +832,7 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
-    primaryCta: Schema.Attribute.Component<'shared.cta-link', false> &
+    primaryCta: Schema.Attribute.Component<'shared.primary-cta-link', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
