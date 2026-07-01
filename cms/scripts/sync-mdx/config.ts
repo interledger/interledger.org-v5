@@ -5,12 +5,14 @@ import {
   buildPagePayload,
   buildBlogPayload,
   buildAmbassadorPayload,
+  buildGrantPagePayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
   ambassadorFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
+  grantPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
@@ -57,6 +59,7 @@ export interface ContentTypeConfig {
 
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
+  'grant-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   ambassadors: ContentTypeConfig
@@ -110,6 +113,13 @@ export function buildContentTypes(
   const pageAltIds = new Map<number, string | null>()
 
   return {
+    'grant-pages': {
+      dir: getContentPath(projectRoot, 'grantPages'),
+      apiId: 'grant-pages',
+      schema: grantPageFrontmatterSchema,
+      buildPayload: (mdx, _strapi, _existing, _dryRun) =>
+        buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+    },
     ambassadors: {
       dir: getContentPath(projectRoot, 'ambassadors'),
       apiId: 'ambassadors',
