@@ -1,45 +1,33 @@
 ---
-import { useTranslations, stripPagination } from '@/utils'
+import { useTranslations } from '@/utils'
 import type { Locale } from '@/utils'
 
 interface Props {
   routeLocale: Locale
   contentLang: Locale
+  totalEntries: number
 }
 
-const { routeLocale, contentLang } = Astro.props
+const { routeLocale, contentLang, totalEntries } = Astro.props
 const t = useTranslations(routeLocale)
-const base = stripPagination(Astro.url.pathname).replace(/\/lang\/[^/]+$/, '')
-const enHref = `${base}/lang/en`
 
-const isViewingEsOnEnPage = routeLocale === 'en' && contentLang === 'es'
-const isViewingEnOnEsPage = routeLocale === 'es' && contentLang === 'en'
-const showEsDisclaimer = contentLang === 'es'
+const isViewingEsContent = contentLang === 'es'
+const isViewingEnContent = contentLang === 'en'
 ---
 
-{
-  isViewingEsOnEnPage && (
-    <aside role="note" class="text-step--1 text-gray-600 italic">
-      {t('blog.lang_filter.viewing_es_posts')}
-    </aside>
-  )
-}
+<div class="flex gap-xs text-body-sm-emphasis text-primary">
+  <p class="m-0 text-body-sm-emphasis">
+    {t('blog.lang_filter.results', { totalEntries })}
+  </p>
+  {
+    isViewingEsContent && (
+      <aside role="note">({t('blog.lang_filter.viewing_es_posts')})</aside>
+    )
+  }
 
-{
-  isViewingEnOnEsPage && (
-    <aside role="note" class="text-step--1 text-gray-600 italic">
-      {t('blog.lang_filter.viewing_en_posts')}
-    </aside>
-  )
-}
-
-{
-  showEsDisclaimer && (
-    <p class="text-step--1 text-gray-600">
-      {t('blog.lang_filter.more_en_available')}{' '}
-      <a href={enHref} class="underline hover:text-primary">
-        {t('blog.lang_filter.view_in_en')}
-      </a>
-    </p>
-  )
-}
+  {
+    isViewingEnContent && (
+      <aside role="note">({t('blog.lang_filter.viewing_en_posts')})</aside>
+    )
+  }
+</div>
