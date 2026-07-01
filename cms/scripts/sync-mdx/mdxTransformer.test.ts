@@ -157,7 +157,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.title).toBe('About Us')
+      expect((payload as Record<string, unknown>).title).toBe('About Us')
     })
 
     it('includes slug from mdx file', async () => {
@@ -172,7 +172,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.pathSlug).toBe('about-page')
+      expect((payload as Record<string, unknown>).pathSlug).toBe('about-page')
     })
 
     it('includes publishedAt timestamp', async () => {
@@ -187,8 +187,10 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.publishedAt).toBeDefined()
-      expect(typeof payload.publishedAt).toBe('string')
+      expect((payload as Record<string, unknown>).publishedAt).toBeDefined()
+      expect(typeof (payload as Record<string, unknown>).publishedAt).toBe(
+        'string'
+      )
     })
 
     it('accepts optional schema fields (description, heroImage, sections)', async () => {
@@ -215,8 +217,8 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.title).toBe('About')
-      expect(payload.pathSlug).toBe('about')
+      expect((payload as Record<string, unknown>).title).toBe('About')
+      expect((payload as Record<string, unknown>).pathSlug).toBe('about')
     })
   })
 
@@ -239,7 +241,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.hero).toEqual({
+      expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: 'Learn about us'
       })
@@ -261,7 +263,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.hero).toEqual({
+      expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'About Page',
         description: 'Description only'
       })
@@ -282,7 +284,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.hero).toEqual({
+      expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Hero Only',
         description: ''
       })
@@ -307,7 +309,7 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect(payload.hero).toEqual({
+      expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Existing Hero',
         description: 'Kept intact'
       })
@@ -326,7 +328,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.hero).toBeUndefined()
+      expect((payload as Record<string, unknown>).hero).toBeUndefined()
     })
 
     // MDX hero fields take precedence over Strapi — intentional override
@@ -351,7 +353,7 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect(payload.hero).toEqual({
+      expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'New Hero',
         description: 'New desc'
       })
@@ -373,7 +375,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         {
           __component: 'blocks.paragraph',
           content: '## Heading\n\nParagraph text'
@@ -399,7 +401,7 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Existing' }
       ])
     })
@@ -423,7 +425,7 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Kept' }
       ])
     })
@@ -440,7 +442,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.content).toBeUndefined()
+      expect((payload as Record<string, unknown>).content).toBeUndefined()
     })
 
     it('overrides existing content when mdx has body', async () => {
@@ -461,7 +463,7 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'New content' }
       ])
     })
@@ -479,7 +481,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.content).toBeUndefined()
+      expect((payload as Record<string, unknown>).content).toBeUndefined()
     })
   })
 
@@ -497,9 +499,9 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect(payload.title).toBe('Schedule')
-      expect(payload.pathSlug).toBe('schedule')
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).title).toBe('Schedule')
+      expect((payload as Record<string, unknown>).pathSlug).toBe('schedule')
+      expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Summit content' }
       ])
     })
@@ -532,7 +534,7 @@ describe('buildPagePayload', () => {
         parserCtx
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         {
           __component: 'blocks.ambassador',
           ambassador: { connect: [{ documentId: 'doc-alice' }] }
@@ -591,7 +593,7 @@ describe('buildPagePayload', () => {
         parserCtx
       )
 
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         {
           __component: 'blocks.blockquote',
           quote: 'Una cita.',
@@ -632,7 +634,7 @@ describe('buildPagePayload', () => {
       )
 
       expect(resolveRelation).toHaveBeenCalledWith('ambassadors', 'alice')
-      expect(payload.content).toEqual([
+      expect((payload as Record<string, unknown>).content).toEqual([
         {
           __component: 'blocks.ambassador',
           ambassador: { connect: [{ documentId: 'doc-alice' }] }
@@ -672,7 +674,9 @@ describe('buildPagePayload', () => {
         parserCtx
       )
 
-      const content = payload.content as Array<Record<string, unknown>>
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
       expect(content).toHaveLength(3)
       expect(content[0]).toMatchObject({ __component: 'blocks.paragraph' })
       expect(content[1]).toMatchObject({
@@ -892,9 +896,14 @@ describe('buildGrantPagePayload', () => {
         }
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
-      const ctaStrip = (payload as Record<string, unknown>)
-        .ctaStrip as Record<string, unknown>
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
       expect(ctaStrip.color).toBe('green')
     })
 
@@ -904,9 +913,14 @@ describe('buildGrantPagePayload', () => {
         frontmatter: baseGrantFrontmatter
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
-      const ctaStrip = (payload as Record<string, unknown>)
-        .ctaStrip as Record<string, unknown>
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
       expect(
         Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonText')
       ).toBe(false)
@@ -928,9 +942,14 @@ describe('buildGrantPagePayload', () => {
         }
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
-      const ctaStrip = (payload as Record<string, unknown>)
-        .ctaStrip as Record<string, unknown>
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
       expect(ctaStrip.secondaryButtonText).toBe('Learn more')
       expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/info')
     })
