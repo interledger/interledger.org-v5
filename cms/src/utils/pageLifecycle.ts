@@ -29,7 +29,7 @@ import {
 } from './localeMdxUtils'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 
-interface PageData {
+export interface PageData {
   id: number
   documentId: string
   title: string
@@ -104,6 +104,19 @@ export interface PageLifecycleConfig<
   outputDir: string
   /** Strapi populate clause for fetching published content. */
   populate: Modules.Documents.Params.Populate.Any<T>
+  /**
+   * Optional MDX generation override. When provided, replaces the default
+   * `generateMDX` which assumes hero/seo/content dynamic zone fields.
+   * Receives the raw Strapi page data, preserved frontmatter fields from the
+   * existing file, and the English slug for localized entries.
+   * 
+   * We can remove this later if we standardize the hero/seo/content fields across all page content types.
+   */
+  generateMDX?: (
+    page: PageData,
+    preservedFields: Record<string, unknown>,
+    englishSlug?: string
+  ) => string
 }
 
 function normalizePathSlug(pathSlug: unknown): string {
@@ -218,7 +231,9 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     // Preserve fields that exist in MDX but not in Strapi
     const preservedFields = getPreservedFields(filepath)
-    const mdxContent = generateMDX(config, page, preservedFields, englishSlug)
+    const mdxContent = config.generateMDX
+      ? config.generateMDX(page, preservedFields, englishSlug)
+      : generateMDX(config, page, preservedFields, englishSlug)
     fs.writeFileSync(filepath, await formatMdx(mdxContent), 'utf-8')
     console.log(
       `✅ Generated ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`

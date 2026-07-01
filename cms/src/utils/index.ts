@@ -11,7 +11,8 @@ export {
 } from './paths'
 export {
   FOUNDATION_PAGE_CONTENT_POPULATE,
-  BLOG_CONTENT_POPULATE
+  BLOG_CONTENT_POPULATE,
+  GRANT_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -48,6 +49,7 @@ export {
 
 // Lifecycle factories
 export {
+  type PageData,
   type PageLifecycleConfig,
   type StrapiDocumentServiceUpdateWhere,
   shouldSkipMdxExport,

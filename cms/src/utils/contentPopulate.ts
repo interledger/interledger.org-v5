@@ -45,3 +45,10 @@ export const FOUNDATION_PAGE_CONTENT_POPULATE = {
 export const BLOG_CONTENT_POPULATE = {
   on: { ...FOUNDATION_BLOG_BLOCKS }
 } as const
+
+/** Populate config for grant-page top-level component fields. */
+export const GRANT_PAGE_CONTENT_POPULATE = {
+  primaryCta: true,
+  ctaStrip: true,
+  seo: { populate: '*' }
+} as const
