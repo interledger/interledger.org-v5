@@ -109,7 +109,7 @@ export interface PageLifecycleConfig<
    * `generateMDX` which assumes hero/seo/content dynamic zone fields.
    * Receives the raw Strapi page data, preserved frontmatter fields from the
    * existing file, and the English slug for localized entries.
-   * 
+   *
    * We can remove this later if we standardize the hero/seo/content fields across all page content types.
    */
   generateMDX?: (
