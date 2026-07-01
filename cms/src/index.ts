@@ -528,6 +528,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-navigation.summit-navigation': {
       mainMenu: 'Main Menu',
       ctaButton: 'CTA Button'
+    },
+    'api::grant-page.grant-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      programOverview: 'Program Overview',
+      primaryCta: 'Primary Call to Action',
+      ctaStrip: 'CTA Strip',
+      seo: 'SEO'
     }
   }
 
@@ -543,6 +552,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       pathSlug:
         'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+    },
+    'api::grant-page.grant-page': {
+      pathSlug:
+        'Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:

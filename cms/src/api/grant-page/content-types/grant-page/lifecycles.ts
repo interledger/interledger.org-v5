@@ -4,7 +4,6 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  htmlToMarkdown,
   seoFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
@@ -60,7 +59,7 @@ function generateGrantPageMDX(
           }
         }
       : {}),
-    ...(ctaStrip?.heading
+    ...(ctaStrip
       ? {
           ctaStrip: {
             heading: ctaStrip.heading,
@@ -75,9 +74,7 @@ function generateGrantPageMDX(
     locale
   }
 
-  const body = grantPage.programOverview
-    ? htmlToMarkdown(grantPage.programOverview)
-    : ''
+  const body = grantPage.programOverview ?? ''
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

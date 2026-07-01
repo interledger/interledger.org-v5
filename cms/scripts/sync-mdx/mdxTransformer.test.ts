@@ -25,16 +25,46 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const grantCtaStripSchema = z.object({
+    heading: z.string(),
+    description: z.string(),
+    buttonText: z.string(),
+    buttonLink: z.string()
+  })
+  const grantPageSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    description: z.string().min(1, 'description is required'),
+    primaryCta: z
+      .object({
+        text: z.string(),
+        link: z.string(),
+        external: z.boolean().optional()
+      })
+      .optional(),
+    ctaStrip: grantCtaStripSchema,
+    metaDescription: z.string().optional(),
+    metaImage: z.string().optional(),
+    canonicalUrl: z.string().optional(),
+    localizes: z.string().optional(),
+    locale: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
-    summitPageFrontmatterSchema: pageSchema
+    summitPageFrontmatterSchema: pageSchema,
+    grantPageFrontmatterSchema: grantPageSchema
   }
 })
 
-import { getEntryField, buildPagePayload } from './mdxTransformer'
+import {
+  getEntryField,
+  buildPagePayload,
+  buildGrantPagePayload
+} from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
-  summitPageFrontmatterSchema
+  summitPageFrontmatterSchema,
+  grantPageFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
@@ -651,6 +681,379 @@ describe('buildPagePayload', () => {
         __component: 'blocks.callout-text',
         content: 'Nota importante.'
       })
+    })
+  })
+})
+
+// Helpers for grant-page tests
+const baseGrantFrontmatter = {
+  title: 'On-Campus Grant',
+  description: 'Funding for campus programmes.',
+  ctaStrip: {
+    heading: 'Apply now',
+    description: 'Deadline approaching.',
+    buttonText: 'Start application',
+    buttonLink: 'https://example.com/apply'
+  }
+}
+
+// Maps grant-page MDX frontmatter to the Strapi grant-page payload shape.
+// Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
+// and optional primaryCta / seo being omitted when absent.
+describe('buildGrantPagePayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          description: 'Some description',
+          ctaStrip: baseGrantFrontmatter.ctaStrip
+        }
+      })
+
+      const result = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when description is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          title: 'On-Campus Grant',
+          ctaStrip: baseGrantFrontmatter.ctaStrip
+        }
+      })
+
+      const result = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when ctaStrip is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: { title: 'On-Campus Grant', description: 'Funding.' }
+      })
+
+      const result = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).title).toBe('On-Campus Grant')
+    })
+
+    it('includes pathSlug from mdx file', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).pathSlug).toBe(
+        'education/on-campus'
+      )
+    })
+
+    it('includes description from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).description).toBe(
+        'Funding for campus programmes.'
+      )
+    })
+
+    it('includes publishedAt timestamp', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(typeof (payload as Record<string, unknown>).publishedAt).toBe(
+        'string'
+      )
+    })
+  })
+
+  // CTA strip field names differ between MDX frontmatter and the Strapi
+  // blocks.cta-strip component. Wrong mapping here silently wipes button text.
+  describe('CTA strip field mapping', () => {
+    it('maps buttonText to primaryButtonText', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.primaryButtonText).toBe('Start application')
+    })
+
+    it('maps buttonLink to primaryButtonLink', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.primaryButtonLink).toBe('https://example.com/apply')
+    })
+
+    it('sets default color to purple', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.color).toBe('purple')
+    })
+
+    it('includes heading and description from ctaStrip frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.heading).toBe('Apply now')
+      expect(ctaStrip.description).toBe('Deadline approaching.')
+    })
+  })
+
+  describe('optional primaryCta', () => {
+    it('is not included in payload when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(Object.prototype.hasOwnProperty.call(payload, 'primaryCta')).toBe(
+        false
+      )
+    })
+
+    it('is included with correct fields when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          primaryCta: {
+            text: 'Apply Now',
+            link: 'https://example.com/apply',
+            external: true
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).primaryCta).toEqual({
+        text: 'Apply Now',
+        link: 'https://example.com/apply',
+        external: true,
+        style: 'primary'
+      })
+    })
+
+    it('defaults external to false when not specified', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          primaryCta: { text: 'Apply Now', link: 'https://example.com/apply' }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const primaryCta = (payload as Record<string, unknown>)
+        .primaryCta as Record<string, unknown>
+      expect(primaryCta.external).toBe(false)
+    })
+  })
+
+  // SEO fields are optional; the block should only appear when at least one is set.
+  describe('SEO fields', () => {
+    it('seo is not included when no SEO frontmatter fields are set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect(Object.prototype.hasOwnProperty.call(payload, 'seo')).toBe(false)
+    })
+
+    it('seo is included when metaDescription is set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          metaDescription: 'SEO description for the grant page.'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).seo).toMatchObject({
+        metaDescription: 'SEO description for the grant page.'
+      })
+    })
+
+    it('seo is included when metaImage is set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          metaImage: '/img/grant-og.png'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).seo).toMatchObject({
+        metaImage: '/img/grant-og.png'
+      })
+    })
+
+    it('seo is included when canonicalUrl is set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          canonicalUrl: 'https://interledger.org/grant/education/on-campus'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).seo).toMatchObject({
+        canonicalUrl: 'https://interledger.org/grant/education/on-campus'
+      })
+    })
+  })
+
+  describe('programOverview', () => {
+    it('is set from mdx.content when body is present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: '## Eligibility\n\n- Accredited institutions'
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).programOverview).toBe(
+        '## Eligibility\n\n- Accredited institutions'
+      )
+    })
+
+    it('is null when mdx body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).programOverview).toBeNull()
+    })
+
+    it('is null when mdx body is whitespace only', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).programOverview).toBeNull()
     })
   })
 })

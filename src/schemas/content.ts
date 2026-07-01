@@ -177,8 +177,7 @@ const grantCtaStripSchema = z.object({
   heading: z.string(),
   description: z.string(),
   buttonText: z.string(),
-  buttonLink: z.string(),
-  external: z.boolean().optional()
+  buttonLink: z.string()
 })
 
 export const grantPageFrontmatterSchema = z.object({
