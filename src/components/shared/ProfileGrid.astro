@@ -1,0 +1,89 @@
+---
+/**
+ * Profile Grid — summary view of profile pages.
+ *
+ * Accepts one of three mutually exclusive props (checked in priority order):
+ * 1. Explicit data:   <ProfileGrid profiles={data} />
+ * 2. Full pathSlugs:  <ProfileGrid pathSlugs={["summit/2025/judges/jane-doe"]} />
+ *    When pathSlugs is an array (even empty), category is ignored.
+ * 3. Category filter:  <ProfileGrid category="2025 Hackathon Judges" />
+ *
+ * The category filter is the common case: it renders every profile in
+ * the current locale that shares the given category, which is how a page
+ * surfaces e.g. "2025 hackathon judges", "leadership team", or "Fellows 2026".
+ *
+ * Avatar colors follow each profile's position in this grid (left-to-right,
+ * top-to-bottom). Category-filtered grids sort by pathSlug so order stays
+ * stable. The detail page uses the same rules via `getProfileColorIndex`.
+ */
+
+import { getCollection, type CollectionEntry } from 'astro:content'
+import ProfileCard from './ProfileCard.astro'
+import type { ProfileData } from './profile.types'
+import { useTranslations, toProfileData } from '@/utils'
+
+const normalizePathSlug = (slug: string) => slug.replace(/^\/+|\/+$/g, '')
+
+interface Props {
+  profiles?: ProfileData[]
+  pathSlugs?: string[]
+  heading?: string
+  category?: string
+}
+
+const { profiles: propProfiles, pathSlugs, heading, category } = Astro.props
+const { routeLocale, profileEntries: preloadedProfileEntries } = Astro.locals
+const t = useTranslations(routeLocale)
+
+async function loadProfileEntries(): Promise<CollectionEntry<'profiles'>[]> {
+  return preloadedProfileEntries ?? (await getCollection('profiles'))
+}
+
+let profiles: ProfileData[] = []
+
+if (propProfiles) {
+  profiles = propProfiles
+} else if (Array.isArray(pathSlugs)) {
+  const all = await loadProfileEntries()
+  const bySlug = new Map(all.map((entry) => [entry.data.pathSlug, entry]))
+  profiles = pathSlugs
+    .map((slug: string) => bySlug.get(normalizePathSlug(slug)))
+    .filter(
+      (entry): entry is CollectionEntry<'profiles'> => entry !== undefined
+    )
+    .map((entry) => toProfileData(entry.data))
+} else if (category) {
+  const all = await loadProfileEntries()
+  profiles = all
+    .filter(
+      (entry) =>
+        entry.data.category === category && entry.data.locale === routeLocale
+    )
+    .map((entry) => toProfileData(entry.data))
+    .sort((a, b) => a.pathSlug.localeCompare(b.pathSlug))
+}
+
+---
+
+{
+  profiles.length > 0 ? (
+    <section aria-label={heading ?? t('profile.profiles')}>
+      {heading && <h2 class="mb-space-s">{heading}</h2>}
+      <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-space-m">
+        {profiles.map((profile, index) => (
+          <ProfileCard
+            name={profile.name}
+            pathSlug={profile.pathSlug}
+            photo={profile.photo || undefined}
+            photoAlt={profile.photoAlt ?? profile.name}
+            tagline={profile.tagline || undefined}
+            colorIndex={index}
+          />
+        ))}
+      </div>
+    </section>
+  ) : (
+    <p class="text-gray">{t('profile.no_profiles')}</p>
+  )
+}
+

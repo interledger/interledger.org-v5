@@ -1,0 +1,91 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import { defaultLocale, buildUmamiAttrs } from '@/utils'
+import { getProfileAvatarColorClass } from '@/components/shared/profileColors'
+
+interface Props {
+  name: string
+  /** Full path from the site root, e.g. summit/2025/judges/jane-doe, grant/fellowship/jane-doe. */
+  pathSlug: string
+  photo?: string
+  photoAlt?: string
+  tagline?: string
+  umamiContext?: string
+  colorIndex?: number
+}
+
+const {
+  name,
+  pathSlug,
+  photo,
+  photoAlt,
+  tagline,
+  umamiContext,
+  colorIndex = 0
+} = Astro.props
+const colorClass = getProfileAvatarColorClass(colorIndex)
+const { routeLocale } = Astro.locals
+const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
+const profileLink = `${langPrefix}/${pathSlug}`
+
+const umamiBase = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card' as const
+}
+---
+
+<article class="text-center">
+  <a
+    href={profileLink}
+    class="text-black no-underline"
+    {...buildUmamiAttrs({
+      ...umamiBase,
+      href: profileLink,
+      linkText: `${name} profile`
+    })}
+  >
+    <div
+      class={`mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-full ${colorClass}`}
+    >
+      {
+        photo ? (
+          <OptimizedImage
+            src={photo}
+            alt={photoAlt ?? name}
+            width={240}
+            height={240}
+            loading="lazy"
+            sizes="150px"
+            class="h-full w-full object-contain object-bottom"
+          />
+        ) : (
+          <div class="h-full w-full flex items-end justify-center">
+            <svg
+              viewBox="0 0 100 100"
+              aria-hidden="true"
+              class="w-[90%] h-[90%] text-white/60"
+              fill="currentColor"
+            >
+              <circle cx="50" cy="36" r="20" />
+              <ellipse cx="50" cy="90" rx="34" ry="26" />
+            </svg>
+          </div>
+        )
+      }
+    </div>
+    <div class="max-w-100 mx-auto mt-space-s">
+      <h3 class="text-h4 md:text-h4-md lg:text-h4-lg text-neutral-900 mb-space-3xs">
+        {name}
+      </h3>
+      {
+        tagline && (
+          <p class="text-body-lg-standard md:text-body-lg-standard-md mb-space-s">
+            {tagline}
+          </p>
+        )
+      }
+    </div>
+  </a>
+</article>
