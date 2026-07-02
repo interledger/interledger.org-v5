@@ -1,0 +1,7 @@
+{
+  "name": "netlify-plugin-purge-roadmap",
+  "version": "1.0.0",
+  "description": "Purge the roadmap CDN cache tag on each deploy so code/CSS changes are not masked by Durable Cache",
+  "type": "module",
+  "main": "index.js"
+}

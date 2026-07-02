@@ -18,13 +18,17 @@
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
-import type { foundationBlogFrontmatterSchema } from '@site/schemas/content'
+import type {
+  foundationBlogFrontmatterSchema,
+  grantPageFrontmatterSchema
+} from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { tryCatchAsync } from '@/utils'
+import { tryCatchAsync, getProjectRoot } from '@/utils'
 import path from 'path'
+import fs from 'fs'
 
 export interface StrapiUploadContext {
   strapi: StrapiClient
@@ -80,6 +84,17 @@ async function getImageFromStrapi(
   const byName = await strapi.findUploadByName(name)
   if (byName instanceof Error) throw byName
   if (byName) return byName
+
+  if (
+    dryRun &&
+    isLocalAssetPath(photoUrl) &&
+    fs.existsSync(path.join(getProjectRoot(), 'public', photoUrl))
+  ) {
+    console.log(
+      `   ⚠️  [DRY-RUN] Image not yet in Strapi: "${photoUrl}" (will be seeded on next Strapi start)`
+    )
+    return null
+  }
 
   const localHint = isLocalAssetPath(photoUrl)
     ? ' Start Strapi to run bootstrap seeding, or register this file in Media Library.'
@@ -319,7 +334,7 @@ async function updateUploadAltOnce(
 
   if (dryRun) {
     console.log(
-      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} from "${pathSlug}".`
+      `   🏷️  [DRY-RUN] Would update alt text for upload #${id} to "${alt ?? 'null'}" (entry: "${pathSlug}").`
     )
     updatedAltIds.set(id, alt)
     return
@@ -413,6 +428,59 @@ export async function buildProfilePayload(
       tagline: nullOrValue(mdx.frontmatter.tagline),
       role: nullOrValue(mdx.frontmatter.role),
       cta,
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for a grant-page MDX file.
+ *
+ * Maps frontmatter fields and MDX body to the grant-page Strapi schema.
+ * No image resolution needed — grant pages contain no managed media fields.
+ */
+export async function buildGrantPagePayload(
+  schema: typeof grantPageFrontmatterSchema,
+  mdx: MDXFile
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const primaryCta = parsed.primaryCta
+      ? {
+          text: parsed.primaryCta.text,
+          link: parsed.primaryCta.link,
+          external: parsed.primaryCta.external ?? false
+        }
+      : null
+
+    const ctaStripFm = parsed.ctaStrip
+    const ctaStrip = {
+      heading: ctaStripFm.heading,
+      description: ctaStripFm.description,
+      primaryButtonText: ctaStripFm.buttonText,
+      primaryButtonLink: ctaStripFm.buttonLink,
+      color: ctaStripFm.color,
+      ...(ctaStripFm.secondaryButtonText
+        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
+        : {}),
+      ...(ctaStripFm.secondaryButtonLink
+        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+        : {})
+    }
+
+    const seo = parsed.metaDescription
+      ? { metaDescription: parsed.metaDescription }
+      : null
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      description: parsed.description,
+      programOverview: (mdx.content || '').trim() || null,
+      primaryCta,
+      ctaStrip,
+      seo,
       publishedAt: new Date().toISOString()
     }
   })

@@ -5,11 +5,13 @@ import {
   buildPagePayload,
   buildBlogPayload,
   buildProfilePayload,
+  buildGrantPagePayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
+  grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   profileFrontmatterSchema
 } from './siteSchemas'
@@ -21,6 +23,7 @@ import './ctaStripHandler'
 import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
+import './codeBlockHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -57,6 +60,7 @@ export interface ContentTypeConfig {
 
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
+  'grant-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
@@ -140,6 +144,13 @@ export function buildContentTypes(
           dryRun
         )
       }
+    },
+    'grant-pages': {
+      dir: getContentPath(projectRoot, 'grantPages'),
+      apiId: 'grant-pages',
+      schema: grantPageFrontmatterSchema,
+      buildPayload: (mdx, _strapi, _existing, _dryRun) =>
+        buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),

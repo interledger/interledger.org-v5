@@ -260,3 +260,234 @@ export function getStringArrayAttr(
     column: node.position?.start.column
   })
 }
+
+/**
+ * Detects genuine `${...}` interpolation inside a template-literal body.
+ *
+ * Only an *unescaped* `$` immediately followed by `{` is interpolation. A
+ * `\${` (as produced by the CodeBlock serializer for literal `${`) is escaped
+ * and must not be flagged. Backslashes are consumed in pairs so an escaped
+ * backslash (`\\`) does not mask the `$` that follows it.
+ */
+function hasTemplateInterpolation(inner: string): boolean {
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\') {
+      i++ // skip the escaped character
+      continue
+    }
+    if (inner[i] === '$' && inner[i + 1] === '{') {
+      return true
+    }
+  }
+  return false
+}
+
+function unescapeTemplateLiteral(inner: string): string {
+  let result = ''
+  for (let i = 0; i < inner.length; i++) {
+    const char = inner[i]
+    if (char !== '\\') {
+      result += char
+      continue
+    }
+
+    const next = inner[++i]
+    switch (next) {
+      case 'n':
+        result += '\n'
+        break
+      case 't':
+        result += '\t'
+        break
+      case 'r':
+        result += '\r'
+        break
+      case '`':
+        result += '`'
+        break
+      case '\\':
+        result += '\\'
+        break
+      case '$':
+        result += '$'
+        break
+      default:
+        result += next ?? ''
+        break
+    }
+  }
+  return result
+}
+
+function parseStaticExpressionLiteral(
+  raw: string,
+  meta: {
+    component?: string
+    prop: string
+    line?: number
+    column?: number
+  }
+): string {
+  const trimmed = raw.trim()
+
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    try {
+      const parsed: unknown = JSON.parse(
+        trimmed.startsWith("'") ? trimmed.replace(/'/g, '"') : trimmed
+      )
+      if (typeof parsed === 'string') return parsed
+    } catch {
+      // Fall through to invalid value
+    }
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "${meta.prop}" must be a static string or template literal.`,
+      component: meta.component,
+      prop: meta.prop,
+      line: meta.line,
+      column: meta.column
+    })
+  }
+
+  if (!trimmed.startsWith('`') || !trimmed.endsWith('`')) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "${meta.prop}" must be a static string or template literal.`,
+      component: meta.component,
+      prop: meta.prop,
+      line: meta.line,
+      column: meta.column
+    })
+  }
+
+  const inner = trimmed.slice(1, -1)
+
+  if (hasTemplateInterpolation(inner)) {
+    throw new MdxParserError({
+      code: ParserErrorCode.DYNAMIC_EXPRESSION,
+      message: `Prop "${meta.prop}" must be a static template literal without \${...} interpolation.`,
+      component: meta.component,
+      prop: meta.prop,
+      line: meta.line,
+      column: meta.column
+    })
+  }
+
+  return unescapeTemplateLiteral(inner)
+}
+
+/** ESTree expression range for recovering raw JSX attribute source text. */
+function getEstreeExpressionRange(
+  value: MdxJsxAttribute['value']
+): [number, number] | undefined {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    value.type !== 'mdxJsxAttributeValueExpression'
+  ) {
+    return undefined
+  }
+
+  const estree = value.data?.estree
+  const statement = estree?.body?.[0]
+  const expression =
+    statement?.type === 'ExpressionStatement' ? statement.expression : undefined
+
+  return Array.isArray(expression?.range) &&
+    expression.range.length === 2 &&
+    expression.range.every((offset) => typeof offset === 'number')
+    ? (expression.range as [number, number])
+    : undefined
+}
+
+/**
+ * Extract a static JSX expression string (template literal or quoted string).
+ *
+ * Supports MDX export shapes such as:
+ * - `code={\`const x = 1\`}`
+ * - `code={"const x = 1"}`
+ */
+export function getStaticExpressionAttr(
+  node: JsxBlockNode,
+  name: string,
+  opts: { required: true; sourceText?: string }
+): string
+export function getStaticExpressionAttr(
+  node: JsxBlockNode,
+  name: string,
+  opts?: { required?: false; sourceText?: string }
+): string | undefined
+export function getStaticExpressionAttr(
+  node: JsxBlockNode,
+  name: string,
+  opts: { required?: boolean; sourceText?: string } = {}
+): string | undefined {
+  const attr = findAttr(node, name)
+  const meta = {
+    component: node.name ?? undefined,
+    prop: name,
+    line: node.position?.start.line,
+    column: node.position?.start.column
+  }
+
+  if (!attr) {
+    if (opts.required) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: `Required prop "${name}" is missing.`,
+        ...meta
+      })
+    }
+    return undefined
+  }
+
+  if (typeof attr.value === 'string') {
+    return attr.value
+  }
+
+  if (
+    !attr.value ||
+    typeof attr.value !== 'object' ||
+    attr.value.type !== 'mdxJsxAttributeValueExpression'
+  ) {
+    if (opts.required) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `Prop "${name}" must be a static JSX expression.`,
+        ...meta
+      })
+    }
+    return undefined
+  }
+
+  let raw = attr.value.value.trim()
+  const expressionRange = getEstreeExpressionRange(attr.value)
+  if (opts.sourceText && expressionRange) {
+    raw = opts.sourceText.slice(expressionRange[0], expressionRange[1]).trim()
+  } else if (
+    opts.sourceText &&
+    attr.value.position?.start.offset != null &&
+    attr.value.position?.end.offset != null
+  ) {
+    raw = opts.sourceText
+      .slice(attr.value.position.start.offset, attr.value.position.end.offset)
+      .trim()
+  }
+
+  if (raw.startsWith('{') && raw.endsWith('}')) {
+    raw = raw.slice(1, -1).trim()
+  }
+
+  const parsed = parseStaticExpressionLiteral(raw, meta)
+  if (!parsed && opts.required) {
+    throw new MdxParserError({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP,
+      message: `Required prop "${name}" is empty.`,
+      ...meta
+    })
+  }
+  return parsed || undefined
+}

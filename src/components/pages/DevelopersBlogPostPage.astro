@@ -6,6 +6,7 @@ import DevelopersBlogLayout from '@/layouts/DevelopersBlogLayout.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
+import CodeBlock from '@/components/blocks/CodeBlock.astro'
 
 interface Props {
   slug: string
@@ -45,6 +46,6 @@ const blogPath = translatePath(
   <Fragment slot="disclaimer">
     <TranslationDisclaimer isVisible={isFallback} />
   </Fragment>
-  <MdxContent components={{ img: OptimizedImage, ImageBlock }} />
+  <MdxContent components={{ img: OptimizedImage, ImageBlock, CodeBlock }} />
   <CommunityLinksDevelopers />
 </DevelopersBlogLayout>

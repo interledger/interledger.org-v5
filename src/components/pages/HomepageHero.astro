@@ -115,7 +115,7 @@ const heroUmami = (href: string, linkText: string) =>
   </div>
 
   <div
-    class="relative z-[1] mx-auto flex w-full max-w-full items-center px-space-m py-space-2xl tablet:max-w-wide tablet:min-h-[90dvh] md:py-space-3xl"
+    class="relative z-[1] mx-auto flex w-full max-w-full items-center px-lg tablet:px-3xl-tight desktop:px-5xl py-space-2xl tablet:max-w-wide tablet:min-h-[90dvh] md:py-space-3xl"
   >
     <div
       class="w-full max-w-full motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100 tablet:max-w-[50%] desktop:max-w-[var(--layout-homepage-hero-copy-max-lg)]"
@@ -210,10 +210,9 @@ const heroUmami = (href: string, linkText: string) =>
   @media (min-width: 810px) {
     [data-component='HomepageHero'] {
       --hero-stefan-object-x: 78%;
-      --hero-stefan-object-y: top;
+      --hero-stefan-object-y: 30%;
       --hero-stefan-offset-x: 0;
-      /* Negative = shift photo up to trim source headroom; height calc keeps bottom filled. */
-      --hero-stefan-offset-y: -18vh;
+      --hero-stefan-offset-y: 0;
     }
 
     [data-component='HomepageHero']::before,
@@ -266,6 +265,19 @@ const heroUmami = (href: string, linkText: string) =>
 
     [data-component='HomepageHero'] .hero-stefan-photo {
       transform-origin: right top;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-object-y: 15%;
+      --hero-stefan-offset-y: -10vh;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-object-y: top;
     }
   }
 

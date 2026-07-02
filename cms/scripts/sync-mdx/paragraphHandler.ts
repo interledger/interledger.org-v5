@@ -69,7 +69,7 @@ function extractChildrenContent(
 
   // When sourceText is available and children have position info,
   // slice the raw source to preserve original formatting byte-for-byte.
-  if (ctx.sourceText) {
+  if (ctx.sourceText && ctx.sourceTextWasProvided !== false) {
     const first = children[0]
     const last = children[children.length - 1]
     if (

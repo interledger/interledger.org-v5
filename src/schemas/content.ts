@@ -38,7 +38,11 @@ const developersTags = [
   'Web Monetization',
   'Card Payments',
   'Integration',
-  'Work Week'
+  'Work Week',
+  'Subscriptions',
+  'Pay in installments',
+  'HSM',
+  'Interledger Wallet'
   // Please add a matching translation in src/data/ui.ts for any new tag
 ] as const
 export type BlogCategory = (typeof blogCategories)[number]
@@ -168,6 +172,39 @@ export const summitPageFrontmatterSchema = z.object({
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
+
+const grantCtaStripSchema = z.object({
+  heading: z.string(),
+  description: z.string(),
+  buttonText: z.string(),
+  buttonLink: z.string(),
+  color: z.enum(['purple', 'green']).default('purple'),
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonLink: z.string().optional()
+})
+
+export const grantPageFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  description: z.string().min(1, 'description is required'),
+  primaryCta: z
+    .object({
+      text: z.string(),
+      link: z.string(),
+      external: z.boolean().optional()
+    })
+    .optional(),
+  ctaStrip: grantCtaStripSchema,
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
+})
+
+export type GrantPageFrontmatterType = z.infer<
+  typeof grantPageFrontmatterSchema
+>
 
 // Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
 // `category` field) use a full-path pathSlug (e.g. summit/2025/judges/jane-doe,

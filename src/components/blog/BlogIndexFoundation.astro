@@ -1,8 +1,6 @@
 ---
 import {
   createExcerpt,
-  COLLECTION_INDEX_SLUG,
-  translatePath,
   useTranslations,
   buildUmamiAttrs,
   getBlogThumbnail,
@@ -13,11 +11,11 @@ import type { CollectionEntry } from 'astro:content'
 import TaxonomyFilter from './TaxonomyFilter.astro'
 import ContentLangFilter from './ContentLangFilter.astro'
 import ContentLangNotice from './ContentLangNotice.astro'
-import BlogIndexHeader from './BlogIndexHeader.astro'
 import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
+  totalEntries: number
   allTerms?: string[]
   enabledTerms?: string[]
   selectedTerm?: string
@@ -27,6 +25,7 @@ interface Props {
 }
 const {
   posts,
+  totalEntries,
   allTerms = [],
   enabledTerms,
   selectedTerm,
@@ -40,11 +39,6 @@ const contentLangOverride =
   Astro.url.pathname.includes('/lang/') || contentLang !== routeLocale
     ? contentLang
     : undefined
-const developersHref = translatePath(
-  'developers-blog',
-  routeLocale,
-  COLLECTION_INDEX_SLUG
-)
 
 const postAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
@@ -57,30 +51,39 @@ const postAttrs = (href: string, linkText: string) =>
   })
 ---
 
-<BlogIndexHeader
-  title={t('blog.foundation.title')}
-  href={developersHref}
-  message={t('blog.foundation.cta')}
-  imgHref="/img/ernie-teal.svg"
-  imgAlt={t('blog.header.image_alt')}
-/>
+<h1
+  class="my-xl text-neutral-900 text-h2 tablet:text-h2-md desktop:my-3xl desktop:text-h2-lg"
+>
+  {t('blog.foundation.title')}
+</h1>
 
-<ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+<slot name="featured" />
 
-<ContentLangNotice routeLocale={routeLocale} contentLang={contentLang} />
+<section
+  aria-label={t('aria.blog.filters_label')}
+  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+>
+  <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
 
-<TaxonomyFilter
-  collection="foundation-blog"
-  terms={allTerms}
-  enabledTerms={enabledTerms}
-  selectedTerm={selectedTerm}
-  href={blogIndexHref}
-  contentLangOverride={contentLangOverride}
-/>
+  <TaxonomyFilter
+    collection="foundation-blog"
+    terms={allTerms}
+    enabledTerms={enabledTerms}
+    selectedTerm={selectedTerm}
+    href={blogIndexHref}
+    contentLangOverride={contentLangOverride}
+  />
+
+  <ContentLangNotice
+    routeLocale={routeLocale}
+    contentLang={contentLang}
+    totalEntries={totalEntries}
+  />
+</section>
 
 {
   isTermFallback && (
-    <p class="mb-space-s text-step--1 text-gray-600 italic">
+    <p class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg">
       {t('blog.empty_tag_lang.message')}
     </p>
   )

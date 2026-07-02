@@ -12,7 +12,8 @@ export {
 export {
   FOUNDATION_PAGE_CONTENT_POPULATE,
   BLOG_CONTENT_POPULATE,
-  PROFILE_PAGE_CONTENT_POPULATE
+  PROFILE_PAGE_CONTENT_POPULATE,
+  GRANT_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -32,7 +33,10 @@ export {
   uidToLogLabel,
   resolveFilenameSlug
 } from './mdx'
-export { validateNoNestedJsx } from './contentValidation'
+export {
+  validateNoNestedJsx,
+  validateGrantPagePrimaryCta
+} from './contentValidation'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -49,6 +53,7 @@ export {
 
 // Lifecycle factories
 export {
+  type PageData,
   type PageLifecycleConfig,
   type StrapiDocumentServiceUpdateWhere,
   shouldSkipMdxExport,

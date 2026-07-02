@@ -1,0 +1,50 @@
+{
+  "collectionName": "components_blocks_code_blocks",
+  "info": {
+    "displayName": "Code Block",
+    "icon": "code",
+    "description": "Syntax-highlighted code snippet with optional title and copy button"
+  },
+  "options": {},
+  "attributes": {
+    "code": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "language": {
+      "type": "enumeration",
+      "required": true,
+      "default": "javascript",
+      "enum": [
+        "javascript",
+        "typescript",
+        "jsx",
+        "tsx",
+        "html",
+        "css",
+        "bash",
+        "json",
+        "yaml",
+        "python",
+        "rust",
+        "go",
+        "sql",
+        "markdown"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

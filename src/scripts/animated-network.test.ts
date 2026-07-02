@@ -6,13 +6,21 @@ import {
 } from './animated-network'
 
 describe('animated-network helpers', () => {
-  it('getCircleProgress maps circle growth animation range', () => {
+  it('getCircleProgress maps default circle growth animation range', () => {
     expect(getCircleProgress(0)).toBe(0)
     expect(getCircleProgress(0.25)).toBe(0)
     expect(getCircleProgress(0.35)).toBe(0)
     expect(getCircleProgress(0.63)).toBeCloseTo(0.5)
     expect(getCircleProgress(0.91)).toBe(1)
     expect(getCircleProgress(1)).toBe(1)
+  })
+
+  it('getCircleProgress accepts custom range (tablet)', () => {
+    expect(getCircleProgress(0.04, 0.05, 0.58)).toBe(0)
+    expect(getCircleProgress(0.05, 0.05, 0.58)).toBe(0)
+    expect(getCircleProgress(0.315, 0.05, 0.58)).toBeCloseTo(0.5)
+    expect(getCircleProgress(0.58, 0.05, 0.58)).toBe(1)
+    expect(getCircleProgress(0.91, 0.05, 0.58)).toBe(1)
   })
 
   it('uses the tablet breakpoint token from tailwind config', () => {

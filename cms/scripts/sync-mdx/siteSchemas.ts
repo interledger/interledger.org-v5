@@ -1,5 +1,6 @@
 export {
   foundationPageFrontmatterSchema,
+  grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   profileFrontmatterSchema

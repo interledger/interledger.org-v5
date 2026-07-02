@@ -1,6 +1,7 @@
 ---
 import { useTranslations, buildUmamiAttrs, stripPagination } from '@/utils'
 import type { Locale } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
   routeLocale: Locale
@@ -24,11 +25,27 @@ const enHref = `${base}/lang/en`
 const esHref = `${base}/lang/es`
 
 const isEnActive = contentLang === 'en'
+const isEnActiveOnEs = isEnActive && routeLocale === 'es'
 const isEsActive = contentLang === 'es'
 
-const activeClass = ['bg-primary', 'text-white']
-const inactiveClass = ['bg-white']
-
+const summaryClasses = `
+list-none flex gap-xs items-center cursor-pointer
+p-xs rounded-lg border border-transparent
+group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
+[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
+focus-visible:outline-none focus-visible:border focus-visible:border-primary
+`
+const dropdownClasses = `
+list-none m-0 p-sm [&_li]:m-0
+absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))] z-1
+bg-neutral-0 rounded-xl border border-neutral-25
+`
+const linkClasses = `
+flex gap-md items-center px-sm py-xs rounded-lg border border-transparent
+no-underline text-body-sm-standard text-neutral-75
+hover:bg-neutral-25 hover:text-neutral-100
+focus-visible:outline-none focus-visible:border focus-visible:border-primary
+`
 const btnAttrs = (lang: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
@@ -38,33 +55,80 @@ const btnAttrs = (lang: string) =>
   })
 ---
 
-<div class="mb-space-m">
-  <div class="font-semibold mb-3xs text-step--1">
-    {t('blog.lang_filter.label')}
+<div
+  class="flex flex-col flex-wrap gap-xl text-body-sm-emphasis text-neutral-75 tablet:flex-row tablet:items-center tablet:gap-md"
+>
+  <div class="flex flex-wrap items-center gap-md">
+    <details id="language-filter-details" class="group relative">
+      <summary class={summaryClasses}>
+        {t('blog.lang_filter.label')}
+        <Icon name="arrow-right-keyboard" class="rotate-90" />
+      </summary>
+      <ul class={dropdownClasses}>
+        <li>
+          <a
+            href={enHref}
+            class={linkClasses}
+            aria-current={isEnActive ? 'page' : undefined}
+            {...btnAttrs('en')}
+          >
+            {t('blog.lang_filter.english')}
+            {isEnActive && <Icon name="check" class="size-2.5" />}
+          </a>
+        </li>
+        <li>
+          <a
+            href={esHref}
+            class={linkClasses}
+            aria-current={isEsActive ? 'page' : undefined}
+            {...btnAttrs('es')}
+          >
+            {t('blog.lang_filter.spanish')}
+            {isEsActive && <Icon name="check" class="size-2.5" />}
+          </a>
+        </li>
+      </ul>
+    </details>
+    <span class="text-primary"
+      >{
+        isEsActive
+          ? t('blog.lang_filter.spanish')
+          : t('blog.lang_filter.english')
+      }</span
+    >
   </div>
-  <ul
-    class="flex flex-wrap gap-space-3xs list-none
-    [&_a]:px-space-2xs [&_a]:py-space-3xs [&_a]:text-step--1 [&_a]:rounded [&_a]:shadow [&_a]:underline [&_a]:decoration-transparent [&_a]:transition-all [&_a]:duration-300 [&_a]:hover:decoration-inherit"
-  >
-    <li>
-      <a
-        href={enHref}
-        class:list={isEnActive ? activeClass : inactiveClass}
-        aria-current={isEnActive ? 'page' : undefined}
-        {...btnAttrs('en')}
-      >
-        {t('blog.lang_filter.english')}
-      </a>
-    </li>
-    <li>
-      <a
-        href={esHref}
-        class:list={isEsActive ? activeClass : inactiveClass}
-        aria-current={isEsActive ? 'page' : undefined}
-        {...btnAttrs('es')}
-      >
-        {t('blog.lang_filter.spanish')}
-      </a>
-    </li>
-  </ul>
+  {
+    isEsActive && (
+      <span class="text-body-sm-standard italic">
+        ({t('blog.lang_filter.more_en_available')})
+      </span>
+    )
+  }
+  {
+    isEnActiveOnEs && (
+      <span class="text-body-sm-standard italic">
+        ({t('blog.lang_filter.es_available')})
+      </span>
+    )
+  }
 </div>
+
+<script>
+  const details = document.querySelector<HTMLDetailsElement>(
+    '#language-filter-details'
+  )
+  const summary = details?.querySelector<HTMLElement>('summary')
+
+  details?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && details.open) {
+      details.open = false
+      summary?.focus()
+    }
+  })
+
+  details?.addEventListener('focusout', (e: FocusEvent) => {
+    if (!details.contains(e.relatedTarget as Node)) {
+      details.open = false
+    }
+  })
+</script>

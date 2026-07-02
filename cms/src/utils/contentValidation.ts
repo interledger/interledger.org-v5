@@ -20,6 +20,35 @@ function stripInlineCode(text: string): string {
 }
 
 /**
+ * Validate the optional primaryCta component on a grant page.
+ *
+ * When `primaryCta` is absent the CTA is simply not rendered — that is valid.
+ * When it is present both `text` and `link` are required; Strapi's partial
+ * update validator skips required-field checks on PUT, so this fills the gap.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateGrantPagePrimaryCta(
+  body: unknown
+): errors.ValidationError | undefined {
+  const cta = (body as Record<string, unknown>)?.primaryCta
+  if (!cta || typeof cta !== 'object') return undefined
+
+  const { text, link } = cta as Record<string, unknown>
+  if (!text || typeof text !== 'string' || text.trim() === '') {
+    return new errors.ValidationError(
+      'Primary Call to Action: Text is required'
+    )
+  }
+  if (!link || typeof link !== 'string' || link.trim() === '') {
+    return new errors.ValidationError(
+      'Primary Call to Action: Link is required'
+    )
+  }
+  return undefined
+}
+
+/**
  * Validate that no Paragraph block contains bare JSX-like tags.
  *
  * Returns a Strapi `ValidationError` when a `<CapitalLetter...` pattern is

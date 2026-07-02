@@ -7,6 +7,7 @@ export const ROUTE_BASES = {
   'foundation-blog': '/blog',
   'developers-blog': '/developers/blog',
   'summit-pages': '/summit',
+  'grant-pages': '/grant',
   // Profile pages carry their full section path in `pathSlug` (e.g. summit/2025/...,
   // grant/fellowship/...), so the base is the site root.
   profiles: ''
