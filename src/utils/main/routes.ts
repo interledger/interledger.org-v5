@@ -7,7 +7,9 @@ export const ROUTE_BASES = {
   'foundation-blog': '/blog',
   'developers-blog': '/developers/blog',
   'summit-pages': '/summit',
-  ambassadors: '/grant/fellowship'
+  // Profile pages carry their full section path in `pathSlug` (e.g. summit/2025/...,
+  // grant/fellowship/...), so the base is the site root.
+  profiles: ''
 } as const
 
 export type RouteCollection = keyof typeof ROUTE_BASES

@@ -55,7 +55,13 @@ export { applyPreviewNoStore } from './main/cache'
 
 // Main site: Static paths
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
-export { type CollectionType, getLocalizedPaths } from './main/static-paths'
+export {
+  type CollectionType,
+  type ProfileSection,
+  getLocalizedPaths,
+  getProfilePaths,
+  profileSection
+} from './main/static-paths'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,
@@ -118,8 +124,12 @@ export {
   type OptimizedImage
 } from './main/images'
 
-// Main site: Ambassadors
-export { toAmbassadorData } from './main/ambassadors'
+// Main site: Profiles
+export {
+  toProfileData,
+  getProfileColorIndex,
+  getProfileColorIndexMap
+} from './main/profiles'
 
 // Main site: Analytics
 export {

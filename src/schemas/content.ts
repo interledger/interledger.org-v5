@@ -169,21 +169,24 @@ export const summitPageFrontmatterSchema = z.object({
   locale: z.string().optional()
 })
 
-export const ambassadorFrontmatterSchema = z.object({
+// Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
+// `category` field) use a full-path pathSlug (e.g. summit/2025/judges/jane-doe,
+// grant/fellowship/jane-doe) whose first segment maps to the storage folder and
+// URL section.
+export const profileFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
-  /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
   category: z.string().nullable().optional(),
+  /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),
   tagline: z.string().nullable().optional(),
-  quote: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  cta: heroCtaSchema.optional(),
   locale: z.string().optional(),
   localizes: z.string().optional()
 })
-export type AmbassadorFrontmatterType = z.infer<
-  typeof ambassadorFrontmatterSchema
->
+export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema
