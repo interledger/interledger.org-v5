@@ -1,0 +1,16 @@
+---
+import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import { getProfilePaths } from '@/utils'
+
+export async function getStaticPaths() {
+  return getProfilePaths('hackathon', 'es', 'page')
+}
+
+const { slug, locale: contentLocale, isFallback } = Astro.props
+---
+
+<ProfileDetailPage
+  slug={slug}
+  contentLocale={contentLocale}
+  isFallback={isFallback}
+/>

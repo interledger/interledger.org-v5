@@ -2,12 +2,12 @@
 import { type Locale, getHeroSectionStyle } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import AmbassadorGrid from '@/components/shared/AmbassadorGrid.astro'
+import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
-import Ambassador from '@/components/shared/Ambassador.astro'
+import ProfileCard from '@/components/shared/ProfileCard.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
@@ -28,6 +28,8 @@ const mdxPage = pages.find(
 )
 
 if (!mdxPage) return Astro.redirect('/404')
+
+Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
@@ -103,8 +105,8 @@ const gradient =
           <MdxContent
             components={{
               img: OptimizedImage,
-              Ambassador,
-              AmbassadorGrid,
+              ProfileCard,
+              ProfileGrid,
               Blockquote,
               CalloutText,
               Paragraph,

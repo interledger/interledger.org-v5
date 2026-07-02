@@ -1,0 +1,129 @@
+---
+/**
+ * Profile Preview Route (SSR)
+ * Fetches draft profile-page content from Strapi for preview before publishing.
+ * URL: /profile-preview?documentId={documentId}
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import { applyPreviewNoStore, fetchStrapi, buildUmamiAttrs } from '@/utils'
+
+interface ProfileCtaPreview {
+  text?: string
+  link?: string
+  style?: string
+  external?: boolean
+}
+
+interface ProfilePreview {
+  name?: string
+  tagline?: string
+  role?: string
+  locale?: string
+  photo?: { url?: string; alternativeText?: string }
+  content?: Array<{ __component: string; [key: string]: unknown }>
+  cta?: ProfileCtaPreview | null
+}
+
+export const prerender = false
+applyPreviewNoStore(Astro.response.headers)
+
+const documentId = Astro.url.searchParams.get('documentId')
+if (!documentId) {
+  return Astro.redirect('/404')
+}
+
+const populateParams = new URLSearchParams({
+  status: 'draft',
+  'populate[photo]': 'true',
+  'populate[cta]': 'true',
+  'populate[content][on][blocks.paragraph][populate]': '*'
+})
+
+const response = await fetchStrapi<ProfilePreview>(
+  `api/profile-pages/${documentId}?${populateParams.toString()}`
+)
+if (response instanceof Error) {
+  return Astro.redirect('/404')
+}
+const profile = response.data
+if (!profile) {
+  return Astro.redirect('/404')
+}
+
+const name = profile.name || 'Preview'
+const { tagline, role, photo, content = [] } = profile
+const displayRole = role ?? tagline
+const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
+---
+
+<BaseLayout title={`[PREVIEW] ${name}`} description={displayRole ?? name}>
+  <main class="pb-space-l">
+    <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
+      PREVIEW MODE - This content is not published
+    </div>
+    <header class="bg-[var(--color-primary)]/10">
+      <div
+        class="max-w-250 m-auto flex justify-between mb-4 items-end px-space-m"
+      >
+        <div class="flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0">
+          <h2 class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg">
+            {name}
+          </h2>
+          {
+            displayRole && (
+              <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-2 border-orchid-100 pb-space-2xs font-normal">
+                {displayRole}
+              </h4>
+            )
+          }
+        </div>
+        {
+          photo?.url && (
+            <img
+              src={photo.url}
+              alt={photo.alternativeText ?? name}
+              width={400}
+              height={400}
+              loading="lazy"
+            />
+          )
+        }
+      </div>
+    </header>
+    <div class="max-w-250 m-auto my-4 px-space-m">
+      {
+        content.length > 0 && (
+          <section data-prose class="my-8">
+            <DynamicZone blocks={content} />
+          </section>
+        )
+      }
+      {
+        cta && (
+          <div class="my-8">
+            <LinkButton
+              href={cta.link}
+              variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+              size="lg"
+              external={cta.external}
+              {...buildUmamiAttrs({
+                pathname: Astro.url.pathname,
+                lang: profile.locale ?? 'en',
+                section: 'cta',
+                href: cta.link,
+                linkText: cta.text,
+                action: 'cta_button'
+              })}
+            >
+              {cta.text}
+              <Icon name="arrow-right" slot="icon-right" />
+            </LinkButton>
+          </div>
+        )
+      }
+    </div>
+  </main>
+</BaseLayout>
