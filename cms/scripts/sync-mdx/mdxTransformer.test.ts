@@ -956,7 +956,7 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('optional primaryCta', () => {
-    it('is not included in payload when absent', async () => {
+    it('is null in payload when absent', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -966,9 +966,7 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect(Object.prototype.hasOwnProperty.call(payload, 'primaryCta')).toBe(
-        false
-      )
+      expect((payload as Record<string, unknown>).primaryCta).toBeNull()
     })
 
     it('is included with correct fields when present', async () => {
@@ -1014,9 +1012,11 @@ describe('buildGrantPagePayload', () => {
     })
   })
 
-  // SEO fields are optional; the block should only appear when at least one is set.
+  // Only metaDescription is synced to Strapi's seo component.
+  // metaImage requires a media upload ID (not a URL) so it is not synced;
+  // canonicalUrl is not currently supported by the grant-page sync.
   describe('SEO fields', () => {
-    it('seo is not included when no SEO frontmatter fields are set', async () => {
+    it('seo is null when metaDescription is not set', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -1026,10 +1026,27 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect(Object.prototype.hasOwnProperty.call(payload, 'seo')).toBe(false)
+      expect((payload as Record<string, unknown>).seo).toBeNull()
     })
 
-    it('seo is included when metaDescription is set', async () => {
+    it('seo is null even when only metaImage or canonicalUrl are set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          metaImage: '/img/grant-og.png',
+          canonicalUrl: 'https://interledger.org/grant/education/on-campus'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).seo).toBeNull()
+    })
+
+    it('seo contains metaDescription when metaDescription is set', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -1042,44 +1059,8 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect((payload as Record<string, unknown>).seo).toMatchObject({
+      expect((payload as Record<string, unknown>).seo).toEqual({
         metaDescription: 'SEO description for the grant page.'
-      })
-    })
-
-    it('seo is included when metaImage is set', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'education/on-campus',
-        frontmatter: {
-          ...baseGrantFrontmatter,
-          metaImage: '/img/grant-og.png'
-        }
-      })
-
-      const payload = await buildGrantPagePayload(
-        grantPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toMatchObject({
-        metaImage: '/img/grant-og.png'
-      })
-    })
-
-    it('seo is included when canonicalUrl is set', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'education/on-campus',
-        frontmatter: {
-          ...baseGrantFrontmatter,
-          canonicalUrl: 'https://interledger.org/grant/education/on-campus'
-        }
-      })
-
-      const payload = await buildGrantPagePayload(
-        grantPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toMatchObject({
-        canonicalUrl: 'https://interledger.org/grant/education/on-campus'
       })
     })
   })
