@@ -1,0 +1,102 @@
+{
+  "kind": "collectionType",
+  "collectionName": "profile_pages",
+  "info": {
+    "singularName": "profile-page",
+    "pluralName": "profile-pages",
+    "displayName": "Profile Page",
+    "description": "Person profiles (ambassadors, judges, leadership, etc.), grouped by the free-text `category` field. The full pathSlug sets both the URL and the file location: a 'summit/' prefix stores under summit, 'hackathon/' under hackathon, anything else under foundation."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Full path from the site root, no leading slash. Determines the URL and storage folder. Examples: hackathon/2025/judges/jane-doe; summit/2025/speakers/jane-doe; team/jane-doe."
+    },
+    "tagline": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "role": {
+      "type": "string",
+      "description": "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "photo": {
+      "type": "media",
+      "description": "Image alt text comes from the media Alternative text field when set; otherwise MDX export uses the profile name as photoAlt.",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "category": {
+      "type": "string",
+      "required": true,
+      "description": "Groups profiles for summary views (e.g. '2025 Hackathon Judges', 'Leadership Team', 'Fellows 2026').",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "content": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.paragraph"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta-link",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

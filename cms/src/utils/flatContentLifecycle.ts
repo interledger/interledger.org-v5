@@ -1,8 +1,9 @@
 /**
  * Factory for flat (non-page) Strapi lifecycle hooks.
  * Handles MDX file writes, deletes, and git commits for content types
- * with flat frontmatter (no dynamic zones, no hero/SEO components).
- * Used by ambassador and similar non-page content types.
+ * content types with flat frontmatter (hero/SEO are separate; profile biography
+ * uses a paragraph-only dynamic zone exported as MDX body).
+ * Used by profile-page and similar non-page content types.
  */
 
 import fs from 'fs'
@@ -27,7 +28,7 @@ export interface FlatContentLifecycleConfig<
   generateContent: (entry: T) => string
   /** Returns the output directory for the given locale (undefined = English). */
   getBaseDir: (locale?: string) => string
-  /** Label used in log messages and git commit messages, e.g. 'ambassador'. */
+  /** Label used in log messages and git commit messages, e.g. 'profile-page'. */
   label: string
 }
 
@@ -102,7 +103,9 @@ export function createFlatLocaleMdxLifecycle<
       englishSlug
     )
     const filepath = path.join(baseDir, `${slug}.mdx`)
-    await fs.promises.mkdir(baseDir, { recursive: true })
+    // `slug` may contain nested segments (e.g. summit/2025/judges/jane-doe),
+    // so create the file's parent directory rather than just the base dir.
+    await fs.promises.mkdir(path.dirname(filepath), { recursive: true })
     await fs.promises.writeFile(
       filepath,
       await formatMdx(generateContent(entry, englishSlug)),

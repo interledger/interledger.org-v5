@@ -1,6 +1,6 @@
 /**
  * Shared utilities for locale-aware MDX lifecycle hooks.
- * Used by pageLifecycle and flat locale lifecycles (e.g. ambassador).
+ * Used by pageLifecycle and flat locale lifecycles (e.g. profile-page).
  */
 
 import fs from 'fs'

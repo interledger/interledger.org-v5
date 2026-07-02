@@ -36,6 +36,13 @@ const FOUNDATION_BLOG_BLOCKS = {
   }
 } as const
 
+/** Populate config for profile-page content field (paragraph blocks only). */
+export const PROFILE_PAGE_CONTENT_POPULATE = {
+  on: {
+    'blocks.paragraph': {}
+  }
+} as const
+
 /** Populate config for foundation-page and summit-page content fields. */
 export const FOUNDATION_PAGE_CONTENT_POPULATE = {
   on: { ...FOUNDATION_PAGE_BLOCKS }

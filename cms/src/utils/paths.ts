@@ -31,11 +31,11 @@ export const PATHS = {
   UPLOADS: 'public/uploads/img/original',
   /** Content subdirs for each type (used under CONTENT_ROOT and CONTENT_ROOT/<type>/{locale}). */
   CONTENT: {
-    ambassadors: 'ambassadors',
     blog: 'foundation-blog-posts',
     developersBlog: 'developers-blog-posts',
     foundationPages: 'foundation-pages',
-    summitPages: 'summit-pages'
+    summitPages: 'summit-pages',
+    profiles: 'profiles'
   },
   /** Public asset paths. */
   PUBLIC: 'public',
