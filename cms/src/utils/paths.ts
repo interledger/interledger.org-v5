@@ -35,6 +35,7 @@ export const PATHS = {
     blog: 'foundation-blog-posts',
     developersBlog: 'developers-blog-posts',
     foundationPages: 'foundation-pages',
+    grantPages: 'grant-pages',
     summitPages: 'summit-pages'
   },
   /** Public asset paths. */

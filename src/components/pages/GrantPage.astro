@@ -1,0 +1,95 @@
+---
+import { type Locale } from '@/utils'
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const pages = await getCollection('grant-pages')
+
+const mdxPage = pages.find(
+  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
+)
+
+if (!mdxPage) return Astro.redirect('/404')
+
+const { Content: MdxContent } = await render(mdxPage)
+const {
+  title,
+  description,
+  metaDescription,
+  metaImage,
+  canonicalUrl,
+  primaryCta,
+  ctaStrip
+} = mdxPage.data
+---
+
+<FoundationPageLayout
+  title={title}
+  description={metaDescription || description}
+  ogImageUrl={metaImage}
+  canonicalURL={canonicalUrl}
+>
+  <main class="pb-space-l">
+    <TranslationDisclaimer isVisible={isFallback} />
+
+    <section
+      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
+    >
+      <div class="mx-auto w-full max-w-wide px-space-m">
+        <div class="max-w-narrow">
+          <h1
+            class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]"
+          >
+            {title}
+          </h1>
+          <p class="mb-space-m text-[1.125rem] max-w-[600px]">{description}</p>
+          {
+            primaryCta && (
+              <LinkButton
+                href={primaryCta.link}
+                variant="primary"
+                external={primaryCta.external}
+              >
+                {primaryCta.text}
+                <Icon name="arrow-right" slot="icon-right" />
+              </LinkButton>
+            )
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="py-space-xl">
+      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <div data-prose class="mx-auto max-w-narrow">
+          <MdxContent />
+        </div>
+      </div>
+    </section>
+
+    <section class="py-space-xl">
+      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <CtaStrip
+          heading={ctaStrip.heading}
+          description={ctaStrip.description}
+          primaryButtonText={ctaStrip.buttonText}
+          primaryButtonLink={ctaStrip.buttonLink}
+          color={ctaStrip.color}
+          secondaryButtonText={ctaStrip.secondaryButtonText}
+          secondaryButtonLink={ctaStrip.secondaryButtonLink}
+        />
+      </div>
+    </section>
+  </main>
+</FoundationPageLayout>

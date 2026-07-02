@@ -173,6 +173,39 @@ export const summitPageFrontmatterSchema = z.object({
   locale: z.string().optional()
 })
 
+const grantCtaStripSchema = z.object({
+  heading: z.string(),
+  description: z.string(),
+  buttonText: z.string(),
+  buttonLink: z.string(),
+  color: z.enum(['purple', 'green']).default('purple'),
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonLink: z.string().optional()
+})
+
+export const grantPageFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  description: z.string().min(1, 'description is required'),
+  primaryCta: z
+    .object({
+      text: z.string(),
+      link: z.string(),
+      external: z.boolean().optional()
+    })
+    .optional(),
+  ctaStrip: grantCtaStripSchema,
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
+})
+
+export type GrantPageFrontmatterType = z.infer<
+  typeof grantPageFrontmatterSchema
+>
+
 export const ambassadorFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),

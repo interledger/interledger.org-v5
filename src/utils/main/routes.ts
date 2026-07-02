@@ -7,6 +7,7 @@ export const ROUTE_BASES = {
   'foundation-blog': '/blog',
   'developers-blog': '/developers/blog',
   'summit-pages': '/summit',
+  'grant-pages': '/grant',
   ambassadors: '/grant/fellowship'
 } as const
 
