@@ -1,6 +1,6 @@
 export {
-  ambassadorFrontmatterSchema,
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  foundationBlogFrontmatterSchema
+  foundationBlogFrontmatterSchema,
+  profileFrontmatterSchema
 } from '@site/schemas/content'

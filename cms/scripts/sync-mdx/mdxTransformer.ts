@@ -235,43 +235,54 @@ export async function buildPagePayload(
     }
 
     // Handle content import
-    const mdxBody = (mdx.content || '').trim()
-    if (mdxBody.length > 0) {
-      if (parserCtx) {
-        const parsedBlocks = await parseMdxToBlocks(mdxBody, {
-          ...parserCtx,
-          sourceText: mdxBody
-        })
-        if (parsedBlocks instanceof MdxParserError) {
-          throw new MdxParserError({
-            code: parsedBlocks.code,
-            message: `[${mdx.pathSlug}] ${parsedBlocks.message}`,
-            component: parsedBlocks.component,
-            prop: parsedBlocks.prop,
-            line: parsedBlocks.line,
-            column: parsedBlocks.column
-          })
-        }
-        data.content = parsedBlocks
-      } else {
-        // Fallback: store entire body as a single paragraph block
-        data.content = [
-          {
-            __component: 'blocks.paragraph',
-            content: mdx.content
-          }
-        ]
-      }
-    } else {
-      // Preserve existing content if MDX file has no body
-      const existingContent = getEntryField(existingEntry, 'content')
-      if (existingContent) {
-        data.content = existingContent
-      }
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    if (content !== undefined) {
+      data.content = content
     }
 
     return data
   })
+}
+
+async function buildContentFromMdxBody(
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null,
+  parserCtx?: ParserContext
+): Promise<unknown> {
+  const mdxBody = (mdx.content || '').trim()
+  if (mdxBody.length > 0) {
+    if (parserCtx) {
+      const parsedBlocks = await parseMdxToBlocks(mdxBody, {
+        ...parserCtx,
+        sourceText: mdxBody
+      })
+      if (parsedBlocks instanceof MdxParserError) {
+        throw new MdxParserError({
+          code: parsedBlocks.code,
+          message: `[${mdx.pathSlug}] ${parsedBlocks.message}`,
+          component: parsedBlocks.component,
+          prop: parsedBlocks.prop,
+          line: parsedBlocks.line,
+          column: parsedBlocks.column
+        })
+      }
+      return parsedBlocks
+    }
+
+    return [
+      {
+        __component: 'blocks.paragraph',
+        content: mdx.content
+      }
+    ]
+  }
+
+  const existingContent = getEntryField(existingEntry, 'content')
+  if (existingContent) {
+    return existingContent
+  }
+
+  return undefined
 }
 
 /** Coerce YAML null / "null" / empty-string values to null. */
@@ -319,18 +330,41 @@ async function updateUploadAltOnce(
   updatedAltIds.set(id, alt)
 }
 
+interface ProfileCtaFrontmatter {
+  text?: string
+  link?: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
+/** Normalize the frontmatter CTA into a Strapi component payload, or null. */
+function ctaPayload(value: unknown): ProfileCtaFrontmatter | null {
+  if (!value || typeof value !== 'object') return null
+  const cta = value as ProfileCtaFrontmatter
+  if (!cta.text || !cta.link) return null
+  return {
+    text: cta.text,
+    link: cta.link,
+    style: cta.style === 'secondary' ? 'secondary' : 'primary',
+    external: cta.external === true
+  }
+}
+
 /**
- * Builds a Strapi payload for an ambassador MDX file.
+ * Builds a Strapi payload for a profile-page MDX file.
  *
  * Also patches the photo upload file's alternativeText when photoAlt is
- * present in frontmatter, so alt text survives re-exports.
+ * present in frontmatter, so alt text survives re-exports, and maps the
+ * optional `cta` frontmatter object to the `shared.cta-link` component.
  *
  * Returns `Record<string, unknown> | Error`.
  */
-export async function buildAmbassadorPayload(
+export async function buildProfilePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
   strapi: StrapiClient,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown> | Error> {
@@ -367,14 +401,18 @@ export async function buildAmbassadorPayload(
       }
     }
 
+    const cta = ctaPayload(mdx.frontmatter.cta)
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
     return {
       name: nullOrValue(mdx.frontmatter.name),
       pathSlug: mdx.pathSlug,
-      description: nullOrValue(mdx.content),
+      ...(content !== undefined ? { content } : {}),
       ...(photoId ? { photo: photoId } : {}),
       category: nullOrValue(mdx.frontmatter.category),
       tagline: nullOrValue(mdx.frontmatter.tagline),
-      quote: nullOrValue(mdx.frontmatter.quote),
+      role: nullOrValue(mdx.frontmatter.role),
+      cta,
       publishedAt: new Date().toISOString()
     }
   })

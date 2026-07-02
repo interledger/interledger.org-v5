@@ -24,7 +24,7 @@ import './sync-mdx/videoEmbedHandler'
 import './sync-mdx/blockquoteHandler'
 import './sync-mdx/calloutTextHandler'
 import './sync-mdx/pdfEmbedHandler'
-import './sync-mdx/ambassadorHandler'
+import './sync-mdx/profileHandler'
 
 import { parseMdxToBlocks, type ParserContext } from './sync-mdx/mdxBlockParser'
 import { serializeContent } from '../src/serializers/blocks/index'

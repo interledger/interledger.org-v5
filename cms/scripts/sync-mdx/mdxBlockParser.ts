@@ -45,7 +45,7 @@ export type JsxBlockNode = MdxJsxFlowElement | MdxJsxTextElement
  * if the input fails validation. Handlers do not throw `MdxParserError`
  * to their caller; they catch their own internal throws and return them.
  *
- * Handlers are async to support relation lookups (e.g. ambassador pathSlug
+ * Handlers are async to support relation lookups (e.g. profile pathSlug
  * resolution).
  */
 export type ComponentHandler = (
@@ -71,7 +71,7 @@ export interface ParserContext {
    * Resolve a relation pathSlug to a Strapi document ID.
    * Provided by the caller for handlers that reference other content types.
    *
-   * @param apiId - Strapi API identifier (e.g. 'ambassadors')
+   * @param apiId - Strapi API identifier (e.g. 'profile-pages')
    * @param pathSlug  - Content pathSlug to look up
    */
   resolveRelation?: (
@@ -95,12 +95,12 @@ export interface ParserContext {
  * Singleton handler registry: JSX component name → handler function.
  *
  * This is a module-level object — Node's module cache guarantees only one
- * instance exists per process. Handler modules (e.g. ambassadorHandler.ts)
+ * instance exists per process. Handler modules (e.g. profileHandler.ts)
  * call `registerComponentHandler()` at the top level, so importing the
  * module is enough to populate this map (side-effect registration).
  *
  * The pipeline triggers registration via bare imports in config.ts:
- *   import './ambassadorHandler'  // populates COMPONENT_HANDLERS['Ambassador']
+ *   import './profileHandler'  // populates COMPONENT_HANDLERS['ProfileCard']
  */
 const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
 
