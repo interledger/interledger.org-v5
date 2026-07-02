@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_blocks_profile_grids",
+  "info": {
+    "displayName": "Profile Grid",
+    "icon": "user",
+    "description": "Displays profile pages as a summary grid. Option A: show profiles by category (leave profiles empty). Option B: pick profiles manually (leave category empty)."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "profiles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::profile-page.profile-page"
+    },
+    "category": {
+      "type": "string",
+      "description": "Renders all profiles whose category matches this value. Leave empty when picking profiles manually via profiles."
+    }
+  }
+}

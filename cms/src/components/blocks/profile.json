@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_blocks_profiles",
+  "info": {
+    "displayName": "Profile",
+    "icon": "user",
+    "description": "Display a single profile page from the collection"
+  },
+  "options": {},
+  "attributes": {
+    "profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::profile-page.profile-page"
+    }
+  }
+}
