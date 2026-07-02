@@ -32,7 +32,10 @@ export {
   uidToLogLabel,
   resolveFilenameSlug
 } from './mdx'
-export { validateNoNestedJsx } from './contentValidation'
+export {
+  validateNoNestedJsx,
+  validateGrantPagePrimaryCta
+} from './contentValidation'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
