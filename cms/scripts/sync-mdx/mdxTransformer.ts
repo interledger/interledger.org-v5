@@ -434,9 +434,15 @@ export async function buildGrantPagePayload(
     const seo =
       parsed.metaDescription || parsed.metaImage || parsed.canonicalUrl
         ? {
-            metaDescription: parsed.metaDescription ?? null,
-            metaImage: parsed.metaImage ?? null,
-            canonicalUrl: parsed.canonicalUrl ?? null
+            ...(parsed.metaDescription != null
+              ? { metaDescription: parsed.metaDescription }
+              : {}),
+            ...(parsed.metaImage != null
+              ? { metaImage: parsed.metaImage }
+              : {}),
+            ...(parsed.canonicalUrl != null
+              ? { canonicalUrl: parsed.canonicalUrl }
+              : {})
           }
         : null
 
