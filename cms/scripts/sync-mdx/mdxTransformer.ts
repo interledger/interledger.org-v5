@@ -431,29 +431,18 @@ export async function buildGrantPagePayload(
         : {})
     }
 
-    const seo =
-      parsed.metaDescription || parsed.metaImage || parsed.canonicalUrl
-        ? {
-            ...(parsed.metaDescription != null
-              ? { metaDescription: parsed.metaDescription }
-              : {}),
-            ...(parsed.metaImage != null
-              ? { metaImage: parsed.metaImage }
-              : {}),
-            ...(parsed.canonicalUrl != null
-              ? { canonicalUrl: parsed.canonicalUrl }
-              : {})
-          }
-        : null
+    const seo = parsed.metaDescription
+      ? { metaDescription: parsed.metaDescription }
+      : null
 
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       programOverview: (mdx.content || '').trim() || null,
-      ...(primaryCta ? { primaryCta } : {}),
+      primaryCta,
       ctaStrip,
-      ...(seo ? { seo } : {}),
+      seo,
       publishedAt: new Date().toISOString()
     }
   })
