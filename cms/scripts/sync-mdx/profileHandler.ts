@@ -12,7 +12,11 @@
 
 import type { JsxBlockNode } from './mdxBlockParser'
 import type { StrapiClient } from './strapiClient'
-import type { ParsedBlock, ProfileBlock, ProfileGridBlock } from './types.blocks'
+import type {
+  ParsedBlock,
+  ProfileBlock,
+  ProfileGridBlock
+} from './types.blocks'
 import {
   MdxParserError,
   ParserErrorCode,

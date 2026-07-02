@@ -62,7 +62,6 @@ if (propProfiles) {
     .map((entry) => toProfileData(entry.data))
     .sort((a, b) => a.pathSlug.localeCompare(b.pathSlug))
 }
-
 ---
 
 {
@@ -86,4 +85,3 @@ if (propProfiles) {
     <p class="text-gray">{t('profile.no_profiles')}</p>
   )
 }
-

@@ -301,7 +301,10 @@ describe('ProfileCard handler (locale import)', () => {
     const resolve = createRelationResolver(strapi, 'es')
     const esCtx: ParserContext = { locale: 'es', resolveRelation: resolve }
 
-    const blocks = await parseMdxToBlocks('<ProfileCard pathSlug="alice" />', esCtx)
+    const blocks = await parseMdxToBlocks(
+      '<ProfileCard pathSlug="alice" />',
+      esCtx
+    )
 
     expect(blocks).toEqual([
       {

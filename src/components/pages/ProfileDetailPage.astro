@@ -11,7 +11,12 @@ import {
   getProfileHeroColorClass,
   getProfileAvatarColorClass
 } from '@/components/shared/profileColors'
-import { type Locale, useTranslations, getProfileColorIndex, buildUmamiAttrs } from '@/utils'
+import {
+  type Locale,
+  useTranslations,
+  getProfileColorIndex,
+  buildUmamiAttrs
+} from '@/utils'
 
 interface Props {
   slug: string
@@ -36,7 +41,10 @@ const image = photo ?? '/sessionize-speakers/img/no-photo.svg'
 const title = `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
-const colorIndex = await getProfileColorIndex(entry.data.pathSlug, contentLocale)
+const colorIndex = await getProfileColorIndex(
+  entry.data.pathSlug,
+  contentLocale
+)
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
@@ -80,8 +88,12 @@ const breadcrumbs = [
           class="block w-full h-full object-contain object-bottom"
         />
       </div>
-      <div class="mt-space-s flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0">
-        <h2 class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg">
+      <div
+        class="mt-space-s flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0"
+      >
+        <h2
+          class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
+        >
           {name}
         </h2>
         {

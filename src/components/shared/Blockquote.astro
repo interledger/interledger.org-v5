@@ -17,7 +17,9 @@ const htmlSource = parseMarkdownInline(source, {
 })
 ---
 
-<div class="px-space-s py-space-2xs border-l-4 border-r-4 border-primary mb-space-s">
+<div
+  class="px-space-s py-space-2xs border-l-4 border-r-4 border-primary mb-space-s"
+>
   <blockquote class="text-step-1">
     {quote ?? <slot />}
   </blockquote>

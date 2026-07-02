@@ -114,10 +114,7 @@ export function profileSection(pathSlug: string): ProfileSection {
 }
 
 /** Strip the section prefix so the remainder can be used as the route param. */
-function stripSectionPrefix(
-  pathSlug: string,
-  section: ProfileSection
-): string {
+function stripSectionPrefix(pathSlug: string, section: ProfileSection): string {
   if (section === 'foundation') return pathSlug
   return pathSlug.slice(PROFILE_SECTION_PREFIX[section].length)
 }

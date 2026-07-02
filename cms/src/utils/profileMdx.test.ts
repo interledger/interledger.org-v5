@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import matter from 'gray-matter'
 import { generateProfileMdx, type ProfileMdxInput } from './profileMdx'
 
-function makeProfile(overrides: Partial<ProfileMdxInput> = {}): ProfileMdxInput {
+function makeProfile(
+  overrides: Partial<ProfileMdxInput> = {}
+): ProfileMdxInput {
   return {
     name: 'Jane Doe',
     pathSlug: 'hackathon/2025/judges/jane-doe',
@@ -34,7 +36,9 @@ describe('generateProfileMdx', () => {
     const { content } = matter(
       generateProfileMdx(
         makeProfile({
-          content: [{ __component: 'blocks.paragraph', content: 'A short bio.' }]
+          content: [
+            { __component: 'blocks.paragraph', content: 'A short bio.' }
+          ]
         })
       )
     )

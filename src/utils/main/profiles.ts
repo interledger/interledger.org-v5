@@ -31,7 +31,7 @@ export const toProfileData = (
     photoAlt,
     tagline: entry.tagline,
     category: entry.category,
-    cta: isProfileFrontmatterType(entry) ? entry.cta ?? null : null
+    cta: isProfileFrontmatterType(entry) ? (entry.cta ?? null) : null
   }
 }
 
@@ -77,7 +77,9 @@ export const getProfileColorIndexMap = async (
 ): Promise<Map<string, number>> => {
   const all = await getCollection('profiles')
   const knownPathSlugs = new Set(
-    all.filter((entry) => entry.data.locale === locale).map((entry) => entry.data.pathSlug)
+    all
+      .filter((entry) => entry.data.locale === locale)
+      .map((entry) => entry.data.pathSlug)
   )
 
   const colorIndexByPathSlug = await indexPathSlugGridsFromPages(

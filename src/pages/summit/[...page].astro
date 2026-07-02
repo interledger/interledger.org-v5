@@ -1,11 +1,7 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import {
-  getLocalizedPaths,
-  getProfilePaths,
-  HOME_CONTENT_SLUG
-} from '@/utils'
+import { getLocalizedPaths, getProfilePaths, HOME_CONTENT_SLUG } from '@/utils'
 
 export async function getStaticPaths() {
   const pages = (

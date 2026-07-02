@@ -32,7 +32,8 @@ export default createFlatLocaleMdxLifecycle<
 >({
   contentTypeUid: 'api::profile-page.profile-page',
   label: 'profile-page',
-  getBaseDir: (locale) => getContentPath(getTargetRepoRoot(), 'profiles', locale),
+  getBaseDir: (locale) =>
+    getContentPath(getTargetRepoRoot(), 'profiles', locale),
   generateContent: generateProfileMdx,
   populate: {
     photo: true,
