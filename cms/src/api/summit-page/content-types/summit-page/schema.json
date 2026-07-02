@@ -44,8 +44,8 @@
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
-        "blocks.ambassador",
-        "blocks.ambassadors-grid",
+        "blocks.profile",
+        "blocks.profile-grid",
         "blocks.blockquote",
         "blocks.callout-text",
         "blocks.cta-strip",

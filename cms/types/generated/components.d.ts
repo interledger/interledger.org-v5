@@ -1,37 +1,5 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
-export interface BlocksAmbassador extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_ambassadors'
-  info: {
-    description: 'Display a single ambassador from the collection'
-    displayName: 'Ambassador'
-    icon: 'user'
-  }
-  attributes: {
-    ambassador: Schema.Attribute.Relation<
-      'oneToOne',
-      'api::ambassador.ambassador'
-    >
-  }
-}
-
-export interface BlocksAmbassadorsGrid extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_ambassadors_grids'
-  info: {
-    description: 'Displays selected ambassadors in a grid layout'
-    displayName: 'Ambassadors Grid'
-    icon: 'user'
-  }
-  attributes: {
-    ambassadors: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::ambassador.ambassador'
-    >
-    category: Schema.Attribute.Enumeration<['Fellows 2026']>
-    heading: Schema.Attribute.String
-  }
-}
-
 export interface BlocksBlockquote extends Struct.ComponentSchema {
   collectionName: 'components_blocks_blockquotes'
   info: {
@@ -544,6 +512,38 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksProfile extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_profiles'
+  info: {
+    description: 'Display a single profile page from the collection'
+    displayName: 'Profile'
+    icon: 'user'
+  }
+  attributes: {
+    profile: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::profile-page.profile-page'
+    >
+  }
+}
+
+export interface BlocksProfileGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_profile_grids'
+  info: {
+    description: 'Displays profile pages as a summary grid. Option A: show profiles by category (leave profiles empty). Option B: pick profiles manually (leave category empty).'
+    displayName: 'Profile Grid'
+    icon: 'user'
+  }
+  attributes: {
+    category: Schema.Attribute.String
+    heading: Schema.Attribute.String
+    profiles: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::profile-page.profile-page'
+    >
+  }
+}
+
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
@@ -845,8 +845,6 @@ export interface SharedSeo extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
-      'blocks.ambassador': BlocksAmbassador
-      'blocks.ambassadors-grid': BlocksAmbassadorsGrid
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
@@ -861,6 +859,8 @@ declare module '@strapi/strapi' {
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
+      'blocks.profile': BlocksProfile
+      'blocks.profile-grid': BlocksProfileGrid
       'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem

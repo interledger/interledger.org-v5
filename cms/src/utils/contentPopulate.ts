@@ -13,11 +13,11 @@
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
-  'blocks.ambassador': {
-    populate: { ambassador: { populate: { photo: true } } }
+  'blocks.profile': {
+    populate: { profile: { populate: { photo: true } } }
   },
-  'blocks.ambassadors-grid': {
-    populate: { ambassadors: true }
+  'blocks.profile-grid': {
+    populate: { profiles: true }
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
