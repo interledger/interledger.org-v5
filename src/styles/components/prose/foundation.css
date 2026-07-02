@@ -14,4 +14,17 @@
   [data-prose] a:hover {
     text-decoration-color: transparent;
   }
+  [data-prose] hr {
+    border-color: var(--color-neutral-50);
+  }
+  [data-prose] blockquote {
+    border-left: 4px solid var(--color-primary);
+    border-right: 4px solid var(--color-primary);
+    padding-inline: var(--spacing-space-s);
+    padding-block: var(--spacing-space-2xs);
+    margin-block: var(--spacing-space-s);
+  }
+  [data-prose] blockquote p {
+    margin-bottom: 0;
+  }
 }
