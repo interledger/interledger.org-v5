@@ -65,12 +65,12 @@ const breadcrumbs = [
     <TableScrollSupport />
     <slot name="disclaimer" />
     <div class="max-w-narrow m-auto">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs breadcrumbs={breadcrumbs} class="mb-2xl desktop:mb-3xl" />
       <article
         data-prose-blog
         itemscope
         itemtype="http://schema.org/Article"
-        class="mb-5xl tablet:mb-4xl desktop:mb-5xl"
+        class="mb-5xl min-w-0 tablet:mb-4xl desktop:mb-5xl"
       >
         <BlogPostHeader frontmatter={frontmatter} />
         <slot />

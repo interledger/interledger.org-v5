@@ -1,0 +1,242 @@
+---
+import { bundledThemes, codeToHtml } from 'shiki'
+import type { ThemeRegistration } from 'shiki'
+import { useTranslations } from '@/utils'
+
+interface Props {
+  code: string
+  language: string
+  title?: string
+}
+
+const RESERVED_WORD_COLOR = '#994DE4'
+const VARIABLE_NAME_COLOR = '#F69F42'
+const TYPE_COLOR = '#3D79E0'
+const INTEGER_COLOR = '#F3762F'
+const COMMENT_COLOR = '#9B9DA2'
+
+const baseTheme = (await bundledThemes['github-light']()).default
+const codeTheme: ThemeRegistration = {
+  ...baseTheme,
+  name: 'interledger-code-light',
+  tokenColors: [
+    ...(baseTheme.tokenColors ?? []),
+    {
+      scope: [
+        'storage.type',
+        'storage.modifier',
+        'keyword.control',
+        'variable.language'
+      ],
+      settings: { foreground: RESERVED_WORD_COLOR }
+    },
+    { scope: 'keyword.operator', settings: { foreground: '#24292e' } },
+    {
+      scope: [
+        'variable',
+        'variable.other',
+        'variable.other.constant',
+        'variable.other.readwrite'
+      ],
+      settings: { foreground: VARIABLE_NAME_COLOR }
+    },
+    {
+      scope: [
+        'entity.name.function',
+        'entity.name.type',
+        'entity.name.class',
+        'support.class',
+        'support.type',
+        'support.function'
+      ],
+      settings: { foreground: TYPE_COLOR }
+    },
+    {
+      scope: ['constant', 'constant.numeric'],
+      settings: { foreground: INTEGER_COLOR }
+    },
+    {
+      scope: ['comment', 'punctuation.definition.comment'],
+      settings: { foreground: COMMENT_COLOR }
+    }
+  ]
+}
+
+const { code, language, title } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const highlighted = await codeToHtml(code, {
+  lang: language,
+  theme: codeTheme
+})
+---
+
+<figure
+  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 text-step--1"
+  data-component="code-block"
+>
+  <div class="code-block-header flex items-center rounded-t-xl">
+    <div class="flex items-center gap-[6px] shrink-0" aria-hidden="true">
+      <span class="block h-3 w-3 rounded-full bg-[#ff5f57]"></span>
+      <span class="block h-3 w-3 rounded-full bg-[#febc2e]"></span>
+      <span class="block h-3 w-3 rounded-full bg-[#28c840]"></span>
+    </div>
+
+    <span class="code-block-title flex-1 min-w-0 truncate">
+      {title ?? language}
+    </span>
+
+    <button
+      type="button"
+      class="copy-btn code-block-copy-btn shrink-0 inline-flex items-center cursor-pointer
+             transition-colors focus-visible:outline focus-visible:outline-2
+             focus-visible:outline-offset-2 focus-visible:outline-neutral-900/40"
+      data-code={code}
+      data-copy-label={t('codeBlock.copy')}
+      data-copied-label={t('codeBlock.copied')}
+      data-umami-event="button"
+      aria-label={t('codeBlock.copy')}
+    >
+      <span data-copy-label-text>{t('codeBlock.copy')}</span>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        class="h-3.5 w-3.5 shrink-0"
+        fill="none"
+      >
+        <rect
+          x="5.5"
+          y="1.5"
+          width="9"
+          height="11"
+          rx="1.5"
+          stroke="currentColor"
+          stroke-width="1.25"></rect>
+        <path
+          d="M3.5 4.5H2a1 1 0 0 0-1 1V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1.5"
+          stroke="currentColor"
+          stroke-width="1.25"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div
+    class="code-block-scroll rounded-b-xl"
+    data-lenis-prevent-touch
+    set:html={highlighted}
+  />
+</figure>
+
+<style>
+  /* Shiki: block .line + newline nodes between spans; contain:inline-size for mobile scroll. */
+  [data-component='code-block'] {
+    contain: inline-size;
+  }
+
+  [data-component='code-block'] .code-block-header {
+    gap: var(--spacing-space-xs);
+    padding-block: var(--spacing-space-2xs);
+    padding-inline: var(--spacing-space-s);
+    background-color: var(--color-table-stripe);
+    border-bottom: 1px solid var(--color-neutral-25);
+  }
+
+  [data-component='code-block'] .code-block-title,
+  [data-component='code-block'] .code-block-copy-btn {
+    font-size: var(--text-step--2);
+  }
+
+  [data-component='code-block'] .code-block-title {
+    color: var(--color-neutral-900);
+  }
+
+  [data-component='code-block'] .code-block-copy-btn {
+    gap: 5px;
+    color: color-mix(in srgb, var(--color-neutral-900) 40%, transparent);
+  }
+
+  [data-component='code-block'] .code-block-copy-btn:hover {
+    color: var(--color-neutral-900);
+  }
+
+  [data-component='code-block'] .code-block-scroll {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    line-height: 1.5;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(pre) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: var(--spacing-space-s);
+    white-space: normal;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(code) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    counter-reset: code-line;
+    font-family: ui-monospace, monospace;
+    font-size: 0.8125rem;
+    line-height: inherit;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(.line) {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    white-space: pre;
+    counter-increment: code-line;
+  }
+
+  [data-component='code-block'] .code-block-scroll :global(.line::before) {
+    content: counter(code-line);
+    display: inline-block;
+    width: 1.75em;
+    margin-right: var(--spacing-space-xs);
+    text-align: right;
+    color: var(--color-neutral-50);
+    user-select: none;
+  }
+
+  /* Empty .line spans (blank lines) have no content, so browsers give them
+     zero height; a zero-width space forces a line box so the blank line renders. */
+  [data-component='code-block'] .code-block-scroll :global(.line:empty::after) {
+    content: '\200b';
+  }
+</style>
+
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element)?.closest<HTMLButtonElement>(
+      '[data-component="code-block"] .copy-btn'
+    )
+    if (!btn) return
+
+    const code = btn.dataset.code ?? ''
+    const copyLabel = btn.dataset.copyLabel ?? 'Copy'
+    const copiedLabel = btn.dataset.copiedLabel ?? 'Copied!'
+    const label = btn.querySelector('[data-copy-label-text]')
+    if (!label) return
+
+    navigator.clipboard.writeText(code).then(() => {
+      label.textContent = copiedLabel
+      btn.setAttribute('aria-label', copiedLabel)
+      setTimeout(() => {
+        label.textContent = copyLabel
+        btn.setAttribute('aria-label', copyLabel)
+      }, 2000)
+    })
+  })
+</script>

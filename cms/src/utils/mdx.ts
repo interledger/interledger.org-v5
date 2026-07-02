@@ -220,12 +220,38 @@ const PRETTIER_MDX_OPTIONS: prettier.Options = {
 }
 
 /**
+ * Matches a `code={\`...\`}` JSX attribute as produced by the CodeBlock
+ * serializer. `(?:\\.|[^\`\\])*` walks escaped chars (\\, \`, \${) as single
+ * units so an escaped backtick never closes the match early.
+ */
+const CODE_BLOCK_ATTR_RE = /code=\{`(?:\\.|[^`\\])*`\}/g
+
+/**
  * Formats MDX content with Prettier using the project's code style.
  * Returns the original content unchanged if formatting fails.
+ *
+ * Prettier's MDX parser treats `code={\`...\`}` as a live JS expression and
+ * re-indents the template literal's contents as JavaScript source, which
+ * destroys the verbatim formatting of embedded CodeBlock samples. Those
+ * attributes are swapped for placeholders before formatting and restored
+ * verbatim afterward.
  */
 export async function formatMdx(content: string): Promise<string> {
+  const codeBlockAttrs: string[] = []
+  const protectedContent = content.replace(CODE_BLOCK_ATTR_RE, (match) => {
+    const index = codeBlockAttrs.push(match) - 1
+    return `code={__CODE_BLOCK_ATTR_${index}__}`
+  })
+
   try {
-    return await prettier.format(content, PRETTIER_MDX_OPTIONS)
+    const formatted = await prettier.format(
+      protectedContent,
+      PRETTIER_MDX_OPTIONS
+    )
+    return formatted.replace(
+      /code=\{__CODE_BLOCK_ATTR_(\d+)__\}/g,
+      (_match, index) => codeBlockAttrs[Number(index)]!
+    )
   } catch (error) {
     console.warn('prettier formatting failed, writing unformatted MDX:', error)
     return content

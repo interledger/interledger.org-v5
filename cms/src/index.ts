@@ -5,6 +5,7 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
+  validateGrantPagePrimaryCta,
   normalizeNavigationInput,
   LOCALES,
   shouldSkipMdxExport
@@ -528,6 +529,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-navigation.summit-navigation': {
       mainMenu: 'Main Menu',
       ctaButton: 'CTA Button'
+    },
+    'api::grant-page.grant-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      programOverview: 'Program Overview',
+      primaryCta: 'Primary Call to Action',
+      ctaStrip: 'CTA Strip',
+      seo: 'SEO'
     }
   }
 
@@ -543,6 +553,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       pathSlug:
         'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+    },
+    'api::grant-page.grant-page': {
+      pathSlug:
+        'Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
@@ -686,6 +702,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       needsFullView: 'Needs full view',
       needsOutline: 'Needs outline'
     },
+    'blocks.code-block': {
+      code: 'Code',
+      language: 'Language',
+      title: 'Title (optional)'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -721,6 +742,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'blocks.code-block': {
+      title:
+        'Displayed as the filename label above the code. Leave blank to show the language name.',
+      code: 'Paste or type your code here.'
     }
   }
 
@@ -984,7 +1010,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'hero_call_to_action', size: 12 }]
     ],
-    'shared.seo': [[{ name: 'metaDescription', size: 12 }]]
+    'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
+    'blocks.table-block': [[{ name: 'content', size: 12 }]],
+    'blocks.code-block': [
+      [
+        { name: 'language', size: 4 },
+        { name: 'title', size: 8 }
+      ],
+      [{ name: 'code', size: 12 }]
+    ]
   }
 
   const contentTypeService = plugin.service('content-types') as
@@ -1074,6 +1108,44 @@ export default {
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
           const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
+          if (validationErr) {
+            ctx.status = 400
+            ctx.body = {
+              data: null,
+              error: {
+                status: 400,
+                name: 'ValidationError',
+                message: validationErr.message
+              }
+            }
+            return
+          }
+        }
+        await next()
+      }
+    )
+
+    // Validate required fields within optional grant-page components on save.
+    // Strapi's partial update validator skips required-field checks on PUT,
+    // so this middleware fills the gap for the primaryCta component.
+    const GRANT_PAGE_PATTERN =
+      /\/content-manager\/collection-types\/api::grant-page\.grant-page/
+    strapi.server?.use?.(
+      async (
+        ctx: {
+          method?: string
+          url?: string
+          request?: { body?: unknown }
+          status?: number
+          body?: unknown
+        },
+        next: () => Promise<void>
+      ) => {
+        if (
+          (ctx.method === 'PUT' || ctx.method === 'POST') &&
+          GRANT_PAGE_PATTERN.test(ctx.url ?? '')
+        ) {
+          const validationErr = validateGrantPagePrimaryCta(ctx.request?.body)
           if (validationErr) {
             ctx.status = 400
             ctx.body = {

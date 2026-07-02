@@ -140,6 +140,7 @@ export async function paginateAllPosts({
     params: langParam,
     pageSize: 10,
     props: {
+      totalEntries: blogEntries.length,
       allTerms,
       enabledTerms: [...enabledTerms],
       contentLang: effectiveLang
@@ -189,6 +190,7 @@ export async function paginatePostsByTerm({
       pageSize: 10,
       props: {
         allTerms,
+        totalEntries: pageEntries.length,
         enabledTerms: [...enabledTerms],
         selectedTerm: tag,
         contentLang: effectiveLang,
@@ -208,6 +210,7 @@ export async function paginatePostsByTerm({
     pageSize: 10,
     props: {
       allTerms,
+      totalEntries: blogEntries.length,
       enabledTerms: [...enabledTerms],
       selectedTerm: undefined,
       contentLang: effectiveLang,

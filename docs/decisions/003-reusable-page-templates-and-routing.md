@@ -1,112 +1,167 @@
-# ADR-003: Reusable page templates and cross-section routing
+# ADR-003: Reusable Page Templates and Cross-Section Routing
 
-**Status:** Proposed
-**Date:** 2026-04-17
+**Status:** Accepted
+**Date:** 2026-06-29
 **Issue:** [INTORG-560](https://linear.app/interledger/issue/INTORG-560/fellows-creata-id-pages)
+
+---
 
 ## Context
 
-The redesign moves to a template-based approach: grant pages, FAQs, and profiles each follow a fixed structure. The site also splits into three sections — Foundation, Summit, and Hackathon — after the hackathon becomes a separate microsite.
+The redesign moves to a template-based approach: grant pages, FAQs, and profiles each follow a fixed structure. The site splits into three sections — Foundation (the main site) and two microsites, Summit and Hackathon.
 
-Templates must work across all three sections without duplicating template types in Strapi. Two problems make this non-trivial:
+The core architectural challenge is that **template type and site section are independent concerns**. An FAQ is an FAQ whether it lives at `/faq` or `/hackathon/faq`. These two dimensions must stay independent while still producing correct URLs, layouts, and routing in Astro.
+
+Two specific problems make this non-trivial:
 
 **Single-instance templates** (e.g. FAQ) must generate correct routes and layouts regardless of section. **Collection-driven templates** (e.g. profiles) must also power listing and summary views — filtering by category and locale — without duplicating content or route logic.
 
-Additionally, two concerns must stay separate but coordinate correctly: content composition (what components make up a page, i.e. how templates are defined) and page rendering (where a page lives and how it looks, i.e. where it's placed in the file system, what layoputs it uses, what components it uses). The bridge between them must be explicit but can be handled in various ways (how we nest the content collections, how we link them to the correct layout for rendering, how best to iterate through collection-driven templates to create views).
+### Template types
+
+At time of writing, known template types fall into three groups:
+
+**Fixed-location templates** — blog and grant pages have a predictable URL structure and a dedicated section of the site. They are served from their own route files (`src/pages/blog/`, `src/pages/grant/`) and are not addressed further by this ADR.
+
+**Cross-section templates** — FAQ pages, profile pages (fellows, judges, speakers, team members), and report/research pages have no fixed home. They can appear under any section and at any path. These are the primary subject of this ADR.
+
+**Tech templates** — the template requirements for the tech/developer section (e.g. `/interledger-protocol`, `/open-payments`, `/web-monetization`) are not yet fully defined, as these pages sit at flat top-level paths rather than a predictable nested structure. This ADR assumes they will follow one of the two patterns above once scoped.
+
+This ADR addresses how content collections are structured, how they link to the correct layout, and how routing iterates over collection-driven templates to produce the correct static paths.
+
+---
+
+## Design Principles
+
+Three fields capture everything needed to identify, store, and route any page:
+
+| Concern                | Source of truth                 |
+| ---------------------- | ------------------------------- |
+| What is this page?     | Collection (i.e. template type) |
+| Where does it belong?  | `section` field in frontmatter  |
+| What URL does it have? | `section` + `pathSlug`          |
+
+Two invariants follow from this:
+
+> **The collection identifies what the content is. The section identifies where the content belongs.**
+
+> **The `section` field is metadata only. It controls routing but never where content is stored.**
+
+---
 
 ## Decision
 
 ### Editor experience in Strapi
 
-Editors create a new page by choosing a template type first: FAQ, grant, profile, or custom page. The template type determines what fields are available and what the page composition looks like — not which section it belongs to.
+Editors create a new page by choosing a template type (profile, FAQ, report, custom page, etc.). Each template type is its own Strapi content type with its own field schema and MDX export lifecycle. The template type determines what fields are available and what the page looks like — not which section it belongs to.
 
-Once a template is selected, the editor provides a required field before filling in content:
+Editors never think about which Astro collection their content lands in. Storage is an implementation detail derived from the template type they selected.
 
-- **Path** — composed from three parts in the UI: a static `interledger.org` label, a section dropdown (`/`, `/summit`, `/hackathon`), and a free-text slug field for the remaining path. Together these produce the full URL, e.g. `interledger.org/summit/speakers/jane-doe`. The section dropdown is the canonical way an editor assigns a page to a section — no free-text prefix to mistype.
+All pages share one common required field:
 
-Strapi stores section and slug as separate fields and validates their combination via `beforeCreate`/`beforeUpdate` hooks. Astro verifies the section has a matching `LAYOUT_MAP` entry at build time — a mismatch fails the build.
+**Path** — composed from three parts in the Strapi UI:
 
-### Template type as frontmatter bridge
+1. A static `interledger.org` label.
+2. A section dropdown: `/` (Foundation), `/summit`, or `/hackathon`.
+3. A free-text slug for the remaining path.
 
-When an editor creates a page in Strapi, `templateType`, `section`, and `locale` are written into the exported MDX frontmatter. Astro reads these to select the correct collection, layout, and rendering behaviour.
+Together these produce a full URL, e.g. `interledger.org/summit/speakers/jane-doe`. The section dropdown is the canonical way to assign a page to a section — no free-text prefix to mistype, and no ambiguity about which site a page belongs to.
 
-Collection entries carry four frontmatter fields that drive routing, layout selection, and filtering:
+### Content storage
 
-```
-templateType: profile   # selects components and layout
-category: fellow        # used by listing views to filter within a collection
-section: foundation     # set via section dropdown; determines layout component
-locale: en              # drives translation routing and listing view filtering
-```
-
-### Single catch-all route
-
-All content is served through a single catch-all route:
+Each cross-section template type has its own Astro content collection. The collection name is the template type — no additional frontmatter discriminant is needed.
 
 ```
-src/pages/[...slug].astro
+src/content/
+  profiles/           # all profile pages across all sections
+    es/               # Spanish-locale profiles
+  faq/                # all FAQ pages across all sections
+    es/               # Spanish-locale FAQs
+  reports/            # all report/research pages across all sections
+      es/             # Spanish-locale reports
+  foundation-pages/   # custom pages specific to the Foundation section
+  summit-pages/       # custom pages specific to the Summit section
+  hackathon-pages/    # custom pages specific to the Hackathon section
 ```
 
-`getStaticPaths` collects all content collections and builds paths from frontmatter:
+Each collection has its own flat Zod schema matched to its template, giving correct TypeScript inference with no discriminated union complexity.
+
+**Locale organisation within collections:** locale variants live in subdirectories of the collection directory. The default (English) locale files sit directly under the collection root (e.g. `src/content/faq/`); translated files go into a subdirectory named after the locale (e.g. `src/content/faq/es/`). A `locale` frontmatter field is required on every entry.
+
+The Strapi lifecycle for each content type always writes MDX to its own collection directory, placing files in the correct locale subdirectory — profiles always go to `src/content/profiles/` (or `src/content/profiles/es/` for Spanish), FAQs always go to `src/content/faq/` (or `src/content/faq/es/`). The `section` field stored in frontmatter is metadata used by Astro routing; it does not affect where files are written.
+
+### Cross-section template registry
+
+To avoid each catch-all route manually listing every cross-section collection (and to ensure a newly added template type is not silently omitted from one section), all cross-section template types are registered in one place:
 
 ```ts
+// src/lib/templates.ts
+
+import type { CollectionKey } from 'astro:content'
+
+export const crossSectionCollections = [
+  'profiles',
+  'faq',
+  'reports'
+] as const satisfies readonly CollectionKey[]
+
+export type CrossSectionCollection = (typeof crossSectionCollections)[number]
+```
+
+Adding a new cross-section template type means adding one entry here. The catch-all routes, routing logic, and `getStaticPaths` all derive from this registry automatically.
+
+### Routing
+
+Fixed-location templates keep their dedicated route files (`src/pages/blog/[id].astro`, `src/pages/grant/[...page].astro`).
+
+Cross-section template pages and section-specific custom pages are served by section catch-all routes:
+
+- `src/pages/[...page].astro` — Foundation
+- `src/pages/summit/[...page].astro` — Summit
+- `src/pages/hackathon/[...page].astro` — Hackathon
+
+Each catch-all's `getStaticPaths` queries its own section-specific custom page collection and all cross-section collections filtered by `section`, using the registry so no collection needs to be added manually to each route file. Filtering and path generation are both locale-aware: every entry carries a `locale` frontmatter field for that purpose.
+
+```ts
+// src/pages/[...page].astro
+import { crossSectionCollections } from '@/lib/templates'
+
 export async function getStaticPaths() {
-  const allContent = [
-    ...(await getCollection('profiles')),
-    ...(await getCollection('faqs'))
-    // add new collections here when new templates are added
-  ]
+  const crossSectionEntries = await Promise.all(
+    crossSectionCollections.map((collection) =>
+      getCollection(collection, (e) => e.data.section === 'foundation')
+    )
+  )
 
-  return allContent.map((entry) => ({
-    params: { slug: buildPagePath(entry.data.section, entry.slug) },
-    props: { entry }
-  }))
+  const customPages = await getCollection('foundation-pages')
+
+  return [...customPages, ...crossSectionEntries.flat()].flatMap((entry) =>
+    getLocalizedPathsFromEntry(entry)
+  )
 }
 ```
 
-### Section prefix and layout maps
+A build-time check asserts that no two entries across the merged collections share the same `pathSlug` + `locale` combination, catching collisions before they produce silent routing bugs.
 
-URL paths are assembled from a `PREFIX_MAP`:
+### Rendering
+
+Pages are rendered by switching on `entry.collection` in the section renderer. Because `collection` is a literal type on `CollectionEntry`, TypeScript narrows `entry.data` automatically in each branch — no type guard required:
 
 ```ts
-export const PREFIX_MAP: Record<Section, string> = {
-  foundation: '',
-  summit: 'summit',
-  hackathon: 'hackathon'
-}
-
-export function buildPagePath(section: Section, slug: string): string {
-  const prefix = PREFIX_MAP[section]
-  return [prefix, slug].filter(Boolean).join('/')
+switch (entry.collection) {
+  case 'profiles':         return <ProfilePage entry={entry} />
+  case 'faq':              return <FaqPage entry={entry} />
+  case 'reports':          return <ReportPage entry={entry} />
+  case 'foundation-pages': return <FoundationContentPage entry={entry} />
 }
 ```
 
-The correct layout component is selected at render time from a `LAYOUT_MAP`:
+Each template component passes only the MDX components relevant to its template to `<MdxContent components={...} />`. An MDX file that uses a component outside its template's allowed set will fail visibly at build time.
 
-```ts
-export const LAYOUT_MAP: Record<Section, AstroComponent> = {
-  foundation: FoundationContentPage,
-  summit: SummitContentPage,
-  hackathon: HackathonContentPage
-}
-```
+A separate `templateType` frontmatter field is not needed. The collection is already the discriminant for both TypeScript narrowing and renderer dispatch. Adding a separate field would duplicate information.
 
-```astro
----
-const { entry } = Astro.props
-const Layout = LAYOUT_MAP[entry.data.section]
----
+### Listing and summary views
 
-<Layout slug={entry.slug} contentLocale={entry.data.locale} />
-```
-
-If a `section` value appears in content with no matching entry in `LAYOUT_MAP`, the build fails.
-
-Build-time validation also checks that the components used in an MDX file are compatible with its declared `templateType`, failing loudly on any mismatch.
-
-### Listing views via frontmatter filters
-
-Because all profiles share a single collection, listing views filter by frontmatter — no separate collections or route logic required. Locale must always be included as a filter so listing views only surface content in the correct language:
+Listing views query the template-type collection directly and filter by `category`, `section`, and `locale`. Because all profiles live in a single `profiles` collection, a listing never searches unrelated custom pages or FAQ entries:
 
 ```ts
 const fellows = await getCollection(
@@ -114,38 +169,57 @@ const fellows = await getCollection(
   (entry) =>
     entry.data.category === 'fellow' && entry.data.locale === currentLocale
 )
+// entry.data is ProfileFrontmatterType — no further narrowing needed
 ```
 
-### Developer ownership surface
+---
 
-Developers own exactly three things:
+## Adding a new cross-section template type
 
-- **New section** — add to `PREFIX_MAP`, `LAYOUT_MAP`, and create the layout component.
-- **New content collection** — add to `getStaticPaths`.
-- **Template composition** — define the rules for each template type, enforce them at build time, and expose the required fields in Strapi.
+1. Create a Strapi content type with the required field schema.
+2. Create the Astro content collection and its Zod schema.
+3. Add the collection name to `crossSectionCollections` in `src/lib/templates.ts`.
+4. Add a `case` for it in each section renderer's switch statement.
 
-Everything else — URL slugs, page content — can be handled directly by editors in Strapi.
+No changes are needed to `getStaticPaths`, existing collections, or existing schemas.
 
-## Alternatives considered
+---
 
-**Section-first routing (status quo)** — routes split by section, not template. Adding a new section is a structural change and may force template logic to be duplicated per section.
+## Alternatives Considered
 
-**Separate collections per profile category** — a `fellows` collection, a `judges` collection, etc. Requires a developer change for every new category.
+**Section-level collections with a discriminated union schema** — all template types live in `foundation-pages`, `summit-pages`, and `hackathon-pages` with a discriminant field selecting the schema branch. Rejected because the union grows with every new template type, TypeScript inference at the collection boundary is unreliable, and listing views require a type guard to recover per-template types after filtering.
 
-**Strapi-led template+section compatibility** — dynamic UI restrictions are not reliably achievable with Strapi's conditional field support. Validation will need to be enforced at build time instead.
+**Section-specific template collections** (e.g. `foundation-profiles`, `summit-profiles`) — each combination of section and template gets its own collection. Clean schemas and no section filtering at query time, but produces N×M collections as template types and sections grow. `content.config.ts` and `getStaticPaths` must be updated for every new combination.
+
+**A single flat collection** — one catch-all route and one collection for all pages. Loses the clean per-template typing that makes listing views simple, and makes structural routing changes harder.
+
+**Section-first routing (status quo)** — routes split by section rather than template. Adding a new section forces template logic to be duplicated across section route files.
+
+**Separate collections per profile category** — a `fellows` collection, a `judges` collection, etc. Requires a developer change for every new category, and makes cross-category queries awkward.
+
+**Strapi-led template-section compatibility enforcement** — dynamic UI restrictions are not reliably achievable with Strapi's conditional field support. Validation is enforced at build time instead.
+
+---
+
+## Migration
+
+The existing `ambassadors` Strapi content type and `src/content/ambassadors/` collection will migrate to the `profiles` collection with `category: fellow` and `section: foundation`. The Strapi lifecycle will be updated to write to `src/content/profiles/`. The `ambassadors` collection and its dedicated route (`src/pages/grant/fellowship/[id].astro`) will be removed once migration is complete.
+
+---
 
 ## Consequences
 
 **Positive:**
 
-- Adding a new section is a two-line config change; no route restructuring needed.
-- Editors control URL slugs, template selection, and content entirely from Strapi.
-- Listing views are simple frontmatter filters — no duplication, no separate route logic.
-- A missing `LAYOUT_MAP` entry is a hard build failure, not a silent runtime error.
-- Translations work naturally: shared collections with locale frontmatter, path generation via `buildPagePath`.
+- Editors control URL slugs, template selection, and content entirely from Strapi. Storage is invisible to them.
+- Each collection has a single, flat schema — no discriminated union complexity.
+- `getCollection('profiles')` returns correctly-typed profiles with no type guard. Listing views are a straightforward filter on `section`, `category`, and `locale`.
+- File organisation is semantically meaningful on disk: all profiles together, all FAQs together, locale variants clearly separated by subdirectory (`faq/`, `faq/es/`).
+- The cross-section template registry means adding a new template type is a localized change — one registry entry, one new collection, one new renderer `case`. No changes to existing collections, schemas, or route files.
+- `entry.collection` is the single source of truth for both TypeScript narrowing and renderer dispatch. A separate `templateType` frontmatter field is unnecessary.
+- Because template types are grouped by collection rather than section, listing views query only the content they need.
 
 **Negative:**
 
-- All pages share a single route file; the routing surface is less immediately legible than file-based routes.
-- `PREFIX_MAP` and `LAYOUT_MAP` must be kept in sync manually — a section added to one but not the other will break the build.
-- Strapi does not validate section/template compatibility by default; mismatches are only caught at build unless `beforeCreate` and `beforeUpdate` lifecycle hooks are added to enforce path prefix rules at save time.
+- Each catch-all `getStaticPaths` queries multiple collections and merges them — more code than querying a single collection, though it is contained to one place per section and driven by the shared registry.
+- `pathSlug` collisions across collections (e.g. a `profiles` entry and a `foundation-pages` entry sharing the same slug within the same section) are possible and must be caught by a build-time check.

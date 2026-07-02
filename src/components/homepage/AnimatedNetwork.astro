@@ -60,6 +60,11 @@ import AnimatedNetworkProblem, {
     /* Pull circle anchor up from the SVG hub (52% of art height). */
     --network-circle-y-nudge: 2vh;
     --network-circle-x-nudge: 0.75vw;
+    /* Scroll-driven circle growth window (cover timeline). */
+    --network-circle-range-start: 35%;
+    --network-circle-range-end: 91%;
+    /* ~80× covers viewport from hub at default; raised on tablet when needed. */
+    --network-circle-max-scale: 80;
     /* Extra top room for scale(1.25) + rotation bleeding into HomepageHero. */
     --network-clip-top: calc(var(--network-hero-overlap) + 22vh);
     /* Negative top inset lets transformed SVG paint above this section's top edge. */
@@ -73,6 +78,15 @@ import AnimatedNetworkProblem, {
 
     [data-component='AnimatedNetwork'] .network-problem-section > div {
       gap: var(--spacing-xl);
+    }
+  }
+
+  @media (min-width: 810px) and (max-width: 1199px) {
+    [data-component='AnimatedNetwork'] {
+      /* Tablet: start sooner, finish earlier, and scale slightly larger to fill the backdrop. */
+      --network-circle-range-start: 5%;
+      --network-circle-range-end: 58%;
+      --network-circle-max-scale: 92;
     }
   }
 
@@ -157,8 +171,6 @@ import AnimatedNetworkProblem, {
     /* Grows via transform scale (not width) to limit compositor layer size on low-end devices. */
     [data-component='AnimatedNetwork'] .growing-circle {
       --network-circle-size: 4vw;
-      /* ~80× covers viewport from hub; 500× inflated document scroll height. */
-      --network-circle-max-scale: 80;
       width: var(--network-circle-size);
       aspect-ratio: 1;
       flex: none;
@@ -170,7 +182,8 @@ import AnimatedNetworkProblem, {
       /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
       animation: growing-circle-grow 1ms linear forwards;
       animation-timeline: --network-track;
-      animation-range: cover 35% cover 91%;
+      animation-range: cover var(--network-circle-range-start) cover
+        var(--network-circle-range-end);
     }
   }
 

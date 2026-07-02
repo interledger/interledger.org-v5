@@ -109,6 +109,14 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
   title: string
 }
 
+/** blocks.code-block — syntax-highlighted code snippet. */
+export interface CodeBlockBlock extends StrapiBlockBase {
+  __component: 'blocks.code-block'
+  code: string
+  language: string
+  title?: string
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -123,3 +131,4 @@ export type ParsedBlock =
   | CtaStripBlock
   | PdfEmbedBlock
   | VideoEmbedBlock
+  | CodeBlockBlock

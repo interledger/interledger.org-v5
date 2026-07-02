@@ -7,6 +7,7 @@ import {
   developersBlogFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
+  grantPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
 import { CONTENT, CONTENT_ROOT } from '@/utils/main/contentCollections'
@@ -25,6 +26,14 @@ const foundationPagesCollection = defineCollection({
     base: `./${CONTENT_ROOT}/${CONTENT.foundationPages}`
   }),
   schema: foundationPageFrontmatterSchema
+})
+
+const grantPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.grantPages}`
+  }),
+  schema: grantPageFrontmatterSchema
 })
 
 const summitPagesCollection = defineCollection({
@@ -57,6 +66,7 @@ export const collections = {
   'developers-blog': developersBlogCollection,
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
+  'grant-pages': grantPagesCollection,
   'summit-pages': summitPagesCollection,
   ambassadors: ambassadorCollection
 }

@@ -68,6 +68,12 @@ export interface ParserContext {
    */
   sourceText?: string
   /**
+   * Internal parser flag: false when `sourceText` was filled from `mdxBody`.
+   * Some handlers use parser-provided source only for JSX attribute recovery,
+   * while caller-provided sourceText means "preserve raw markdown exactly".
+   */
+  sourceTextWasProvided?: boolean
+  /**
    * Resolve a relation pathSlug to a Strapi document ID.
    * Provided by the caller for handlers that reference other content types.
    *
@@ -162,6 +168,11 @@ export async function parseMdxToBlocks(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   if (!mdxBody.trim()) return []
+  const parserContext: ParserContext = {
+    ...ctx,
+    sourceText: ctx.sourceText ?? mdxBody,
+    sourceTextWasProvided: ctx.sourceText !== undefined
+  }
 
   // Parse MDX into AST.
   // unified() creates the processing pipeline that remark plugins attach to.
@@ -229,7 +240,7 @@ export async function parseMdxToBlocks(
         })
       }
 
-      const result = await handler(jsxNode, ctx)
+      const result = await handler(jsxNode, parserContext)
       if (result instanceof MdxParserError) return result
       blocks.push(...result)
       // Skip to next node — don't let handled JSX fall through to

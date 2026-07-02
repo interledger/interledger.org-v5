@@ -1,0 +1,94 @@
+---
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
+import { roadmapWindow, projectOverlapsWindow } from '@/utils'
+import type { Snapshot } from '@/types/roadmap'
+
+interface Props {
+  snapshot: Snapshot | null
+}
+
+const { snapshot } = Astro.props
+const projects = snapshot?.projects ?? []
+const teams = snapshot?.teams ?? []
+const generatedAt = snapshot?.generatedAt ?? null
+
+// Mirror RoadmapBoard's windowing so the empty state shows when no project falls
+// in the visible window (otherwise the board would render with zero rows).
+const { start, end } = roadmapWindow(new Date())
+const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
+---
+
+<FoundationPageLayout
+  title="Developers Roadmap"
+  description="Track upcoming milestones, work in progress, and completed items across the Interledger open-source ecosystem."
+>
+  <main class="pb-xl">
+    <section
+      class="bg-gradient-primary-fallback bg-gradient-primary py-2xl text-white"
+    >
+      <div class="mx-auto max-w-content min-w-[360px] px-[5%]">
+        <h1 class="text-step-3 font-semibold leading-tight text-white">
+          Developers Roadmap
+        </h1>
+        <p class="mt-xs max-w-[56ch] opacity-90">
+          Track milestones, active work, and shipped items across the
+          Interledger open-source ecosystem.
+        </p>
+      </div>
+    </section>
+
+    <section class="px-[5%] pt-md">
+      {
+        hasData ? (
+          <RoadmapBoard projects={projects} teams={teams} />
+        ) : (
+          <div class="mx-auto max-w-content py-xl text-gray-600">
+            <p>
+              The roadmap could not be loaded right now. Please check back
+              shortly or visit our{' '}
+              <a
+                class="text-primary underline"
+                href="https://github.com/interledger"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub organisation
+              </a>{' '}
+              for the latest project status.
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    {
+      generatedAt && (
+        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-step--2 text-gray-700">
+          Roadmap data refreshed at:{' '}
+          <time class="roadmap-refreshed" datetime={generatedAt}>
+            {new Date(generatedAt).toUTCString()}
+          </time>
+        </div>
+      )
+    }
+  </main>
+</FoundationPageLayout>
+
+<script>
+  // The page is SSR + CDN-cached, so the server can't know the viewer's locale
+  // or timezone — it renders a UTC fallback (readable without JS). Localize it
+  // here to the visitor's own locale and timezone.
+  document
+    .querySelectorAll<HTMLTimeElement>('time.roadmap-refreshed')
+    .forEach((el) => {
+      const iso = el.getAttribute('datetime')
+      if (!iso) return
+      const date = new Date(iso)
+      if (Number.isNaN(date.getTime())) return
+      el.textContent = date.toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })
+    })
+</script>

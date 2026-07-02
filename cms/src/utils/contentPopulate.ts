@@ -33,7 +33,8 @@ const FOUNDATION_BLOG_BLOCKS = {
   'blocks.video-embed': {},
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
-  }
+  },
+  'blocks.code-block': {}
 } as const
 
 /** Populate config for foundation-page and summit-page content fields. */
@@ -44,4 +45,11 @@ export const FOUNDATION_PAGE_CONTENT_POPULATE = {
 /** Populate config for foundation-blog-post content fields. */
 export const BLOG_CONTENT_POPULATE = {
   on: { ...FOUNDATION_BLOG_BLOCKS }
+} as const
+
+/** Populate config for grant-page top-level component fields. */
+export const GRANT_PAGE_CONTENT_POPULATE = {
+  primaryCta: true,
+  ctaStrip: true,
+  seo: { populate: '*' }
 } as const
