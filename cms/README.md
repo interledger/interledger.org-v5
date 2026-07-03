@@ -218,11 +218,11 @@ When adding a new handler, follow:
 
 ### Lifecycle Validation
 
-Strapi's required-field validation has a gap on **optional components with required fields inside them**. On create, it's fully enforced: adding the component without filling its required subfields (e.g. `description`) rejects the create. But if a post is created *without* that component and later updated to add it, Strapi's partial-update validator doesn't re-check those subfields — the update goes through with a blank `description`. Each content type's lifecycle hooks fill that gap with explicit checks.
+Strapi's required-field validation has a gap on **optional components with required fields inside them**. On create, it's fully enforced: adding the component without filling its required subfields (e.g. `description`) rejects the create. But if a post is created _without_ that component and later updated to add it, Strapi's partial-update validator doesn't re-check those subfields — the update goes through with a blank `description`. Each content type's lifecycle hooks fill that gap with explicit checks.
 
 **Why lifecycle hooks, not Koa middleware**
 
-Content reaches the database through two entry points: the admin panel (`/content-manager/...`) and the public REST API (`/api/...`, used by `sync:mdx`/`sync:navigation`). Middleware could match both, but it's the wrong shape here: the two entry points send different body shapes (raw vs. `{data: {...}}`), and this bug can only be caught by checking the *resulting, merged* document, not the raw request body — a middleware would have to fetch and merge that itself. Lifecycle hooks (`afterCreate`/`afterUpdate`) run at the Document Service layer, after both entry points converge, already carrying the merged document.
+Content reaches the database through two entry points: the admin panel (`/content-manager/...`) and the public REST API (`/api/...`, used by `sync:mdx`/`sync:navigation`). Middleware could match both, but it's the wrong shape here: the two entry points send different body shapes (raw vs. `{data: {...}}`), and this bug can only be caught by checking the _resulting, merged_ document, not the raw request body — a middleware would have to fetch and merge that itself. Lifecycle hooks (`afterCreate`/`afterUpdate`) run at the Document Service layer, after both entry points converge, already carrying the merged document.
 
 **Why a throw here doesn't leave bad data half-saved**
 
