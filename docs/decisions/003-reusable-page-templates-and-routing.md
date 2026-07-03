@@ -22,6 +22,8 @@ At time of writing, known template types fall into three groups:
 
 **Fixed-location templates** — blog and grant pages have a predictable URL structure and a dedicated section of the site. They are served from their own route files (`src/pages/blog/`, `src/pages/grant/`) and are not addressed further by this ADR.
 
+> **Note (2026-07-02):** The `/grant/` route now serves _two_ fixed-location template collections: `grant-pages` (individual grant program pages) and `grant-overview-pages` (category overview pages). Both share `src/pages/grant/[...page].astro`. `getStaticPaths` merges both collections and adds a `collection` discriminant prop; the route dispatches to `GrantPage` or `GrantOverviewPage` based on that prop. Slugs must be unique across both collections — a build-time check is a planned follow-up. This multi-collection dispatch at a single fixed-location route mirrors the cross-section template pattern (switch on `entry.collection`) described below.
+
 **Cross-section templates** — FAQ pages, profile pages (fellows, judges, speakers, team members), and report/research pages have no fixed home. They can appear under any section and at any path. These are the primary subject of this ADR.
 
 **Tech templates** — the template requirements for the tech/developer section (e.g. `/interledger-protocol`, `/open-payments`, `/web-monetization`) are not yet fully defined, as these pages sit at flat top-level paths rather than a predictable nested structure. This ADR assumes they will follow one of the two patterns above once scoped.

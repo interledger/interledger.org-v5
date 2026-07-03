@@ -52,22 +52,36 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const grantOverviewPageSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    description: z.string().min(1, 'description is required'),
+    ctaStrip: grantCtaStripSchema,
+    metaDescription: z.string().optional(),
+    metaImage: z.string().optional(),
+    canonicalUrl: z.string().optional(),
+    localizes: z.string().optional(),
+    locale: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
     summitPageFrontmatterSchema: pageSchema,
-    grantPageFrontmatterSchema: grantPageSchema
+    grantPageFrontmatterSchema: grantPageSchema,
+    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema
   }
 })
 
 import {
   getEntryField,
   buildPagePayload,
-  buildGrantPagePayload
+  buildGrantPagePayload,
+  buildGrantOverviewPagePayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  grantPageFrontmatterSchema
+  grantPageFrontmatterSchema,
+  grantOverviewPageFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
@@ -1108,6 +1122,236 @@ describe('buildGrantPagePayload', () => {
         mdx
       )
       expect((payload as Record<string, unknown>).programOverview).toBeNull()
+    })
+  })
+})
+
+const baseGrantOverviewFrontmatter = {
+  title: 'Digital Finance Grants',
+  description: 'We fund digital finance initiatives.',
+  ctaStrip: {
+    heading: 'Ready to apply?',
+    description: 'Explore our grant programs.',
+    buttonText: 'See grant programs',
+    buttonLink: 'https://example.com/grants'
+  }
+}
+
+// Maps grant-overview-page MDX frontmatter to the Strapi grant-overview-page payload shape.
+// Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
+// and optional seo / external being omitted when absent.
+describe('buildGrantOverviewPagePayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          description: 'Some description',
+          ctaStrip: baseGrantOverviewFrontmatter.ctaStrip
+        }
+      })
+
+      const result = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when description is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          title: 'Digital Finance Grants',
+          ctaStrip: baseGrantOverviewFrontmatter.ctaStrip
+        }
+      })
+
+      const result = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when ctaStrip is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          title: 'Digital Finance Grants',
+          description: 'Some description.'
+        }
+      })
+
+      const result = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('Digital Finance Grants')
+      expect(p.pathSlug).toBe('digital-finance')
+      expect(p.description).toBe('We fund digital finance initiatives.')
+    })
+
+    it('maps ctaStrip frontmatter names to Strapi field names', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.heading).toBe('Ready to apply?')
+      expect(ctaStrip.description).toBe('Explore our grant programs.')
+      expect(ctaStrip.primaryButtonText).toBe('See grant programs')
+      expect(ctaStrip.primaryButtonLink).toBe('https://example.com/grants')
+    })
+
+    it('includes color in ctaStrip (defaults to purple)', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.color).toBe('purple')
+    })
+
+    it('omits secondaryButtonText/Link when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
+      expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
+    })
+
+    it('includes secondaryButtonText/Link when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          ctaStrip: {
+            ...baseGrantOverviewFrontmatter.ctaStrip,
+            secondaryButtonText: 'Learn more',
+            secondaryButtonLink: 'https://example.com/learn'
+          }
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.secondaryButtonText).toBe('Learn more')
+      expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/learn')
+    })
+  })
+
+  describe('seo', () => {
+    it('omits seo when metaDescription is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).seo).toBeNull()
+    })
+
+    it('includes metaDescription in seo when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          metaDescription: 'SEO description.'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect(
+        ((payload as Record<string, unknown>).seo as Record<string, unknown>)
+          .metaDescription
+      ).toBe('SEO description.')
+    })
+  })
+
+  describe('followUpContent', () => {
+    it('includes MDX body as followUpContent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content: 'Some follow-up text.'
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).followUpContent).toBe(
+        'Some follow-up text.'
+      )
+    })
+
+    it('sets followUpContent to null when body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).followUpContent).toBeNull()
     })
   })
 })

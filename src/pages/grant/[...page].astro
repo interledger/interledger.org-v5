@@ -1,22 +1,52 @@
 ---
 import GrantPage from '@/components/pages/GrantPage.astro'
+import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import { getLocalizedPaths, type Locale } from '@/utils'
+
+type GrantCollection = 'grant-pages' | 'grant-overview-pages'
 
 interface Props {
   slug: string
   locale: Locale
   isFallback?: boolean
+  collection: GrantCollection
 }
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('grant-pages', 'en', 'page')
+  const [grantPaths, overviewPaths] = await Promise.all([
+    getLocalizedPaths('grant-pages', 'en', 'page'),
+    getLocalizedPaths('grant-overview-pages', 'en', 'page')
+  ])
+  return [
+    ...grantPaths.map((p) => ({
+      ...p,
+      props: { ...p.props, collection: 'grant-pages' as GrantCollection }
+    })),
+    ...overviewPaths.map((p) => ({
+      ...p,
+      props: {
+        ...p.props,
+        collection: 'grant-overview-pages' as GrantCollection
+      }
+    }))
+  ]
 }
 
-const { slug, locale: contentLocale } = Astro.props
+const { slug, locale: contentLocale, collection } = Astro.props
 ---
 
-<GrantPage
-  slug={slug}
-  contentLocale={contentLocale}
-  isFallback={Astro.props.isFallback}
-/>
+{
+  collection === 'grant-pages' ? (
+    <GrantPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={Astro.props.isFallback}
+    />
+  ) : (
+    <GrantOverviewPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={Astro.props.isFallback}
+    />
+  )
+}
