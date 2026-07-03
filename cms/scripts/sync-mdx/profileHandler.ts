@@ -74,7 +74,14 @@ async function handleProfile(
   return tryCatchParserError(async () => {
     const pathSlug = getStringAttr(node, 'pathSlug', { required: true })
 
-    const { documentId } = await ctx.resolveRelation!('profile-pages', pathSlug)
+    if (!ctx.resolveRelation) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: 'ProfileCard requires a resolveRelation function on the parser context.'
+      })
+    }
+
+    const { documentId } = await ctx.resolveRelation('profile-pages', pathSlug)
 
     const block: ProfileBlock = {
       __component: 'blocks.profile',
@@ -116,10 +123,15 @@ async function handleProfileGrid(
       block.category = category
     }
     if (pathSlugs && pathSlugs.length > 0) {
+      if (!ctx.resolveRelation) {
+        throw new MdxParserError({
+          code: ParserErrorCode.MISSING_REQUIRED_PROP,
+          message: 'ProfileGrid with pathSlugs requires a resolveRelation function on the parser context.'
+        })
+      }
+      const resolve = ctx.resolveRelation
       const resolved = await Promise.all(
-        pathSlugs.map((pathSlug) =>
-          ctx.resolveRelation!('profile-pages', pathSlug)
-        )
+        pathSlugs.map((pathSlug) => resolve('profile-pages', pathSlug))
       )
       block.profiles = { connect: resolved }
     }
