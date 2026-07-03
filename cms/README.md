@@ -114,6 +114,21 @@ When content is published or updated in Strapi:
 - MDX files for **blog posts** use a date-prefixed format: `yyyy-mm-dd-{pathSlug}.mdx`<br/>
   Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
+- MDX files for **profile pages** use the **full path slug** from Strapi (same nested-folder rule as foundation/summit pages). Files live under `src/content/profiles/` (and `src/content/profiles/{locale}/` for localized entries). The slug determines both the URL and the folder layout — no separate route prefix.<br/>
+  Example: slug `grant/fellowship/jane-doe` → `src/content/profiles/grant/fellowship/jane-doe.mdx` → `/grant/fellowship/jane-doe`. Slug `summit/2025/speakers/jane-doe` → `src/content/profiles/summit/2025/speakers/jane-doe.mdx`.
+
+**Profile pages**
+
+- Strapi type: `profile-page` (REST API ID: `profile-pages`)
+- Used for ambassadors, fellows, judges, leadership, and other person profiles grouped by the free-text `category` field
+- Fields: `name`, `pathSlug`, `photo`, `category`, `tagline`, `role`, optional `cta`, and a paragraph-only `content` dynamic zone for the biography
+- Summary grids on pages use `<ProfileGrid />` (by `category` or explicit `pathSlugs`); single cards use `<ProfileCard />`
+- Preview route: `/profile-preview?documentId=…` (see `config/admin.ts`)
+
+**Migrating from ambassadors**
+
+The legacy `ambassador` content type and `AmbassadorGrid` blocks were replaced by `profile-page` and `blocks.profile` / `blocks.profile-grid`. Existing Strapi entries must be recreated or migrated manually — there is no automated DB migration in this repo.
+
 **Git Commits**
 
 - Strapi is configured as a contributor to the codebase. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
@@ -124,13 +139,14 @@ When content is published or updated in Strapi:
 
 - This allows Astro content (blog posts, events, navigation, etc.) to remain the source of truth while keeping the Strapi database synchronized.
 
-- On pushes to `staging`, changes to `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/ambassadors` trigger the `sync:mdx` workflow job, including localized files under `src/content/<locale>/...`.
+- On pushes to `staging`, changes to `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/grant-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/profiles` trigger the `sync:mdx` workflow job, including localized files under `src/content/<collection>/{locale}/...`.
 
 **Features**
 
 - Scans MDX files in
-  - `src/content/ambassadors`
+  - `src/content/profiles`
   - `src/content/foundation-pages`
+  - `src/content/grant-pages`
   - `src/content/summit-pages`
   - `src/content/foundation-blog-posts`
 - Also scans localized content under each content-type directory, e.g. `src/content/foundation-pages/es` for those same content roots
@@ -174,7 +190,7 @@ pnpm run sync:navigation
 
 **GitHub Actions**
 
-The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX files to Strapi when changes are pushed to the `staging` branch.
+The workflow in `.github/workflows/merge.yml` automatically syncs MDX files to Strapi when changes are pushed to the `staging` branch.
 
 **Required GitHub Secrets**
 
@@ -196,8 +212,9 @@ The workflow in `.github/workflows/staging-merge.yml` automatically syncs MDX fi
 **Content Type Mappings**
 
 - `src/content/foundation-pages/**/*.mdx` → `foundation-pages` (API ID)
+- `src/content/grant-pages/**/*.mdx` → `grant-pages` (API ID)
 - `src/content/summit-pages/**/*.mdx` → `summit-pages` (API ID)
-- `src/content/ambassadors/**/*.mdx` → `ambassadors` (API ID)
+- `src/content/profiles/**/*.mdx` → `profile-pages` (API ID)
 - `src/content/foundation-blog-posts/**/*.{md,mdx}` → `foundation-blog-posts` (API ID)
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
@@ -275,11 +292,13 @@ If the Strapi API data can be used directly with minimal transformation, one com
 
 If the Strapi API returns a different shape than what the presentational component expects (nested objects, markdown fields that need conversion, etc.), you need a block adapter to bridge the gap. For example:
 
-- `src/components/shared/Ambassador.astro` — **Presentational component**. Accepts simple, flat props (`name`, `description` as HTML string, `photo` as URL string) and renders the UI. Used by both the published site and preview. Has no knowledge of where the data comes from.
+- `src/components/shared/ProfileCard.astro` — **Presentational component**. Accepts flat props (`name`, `pathSlug`, `photo` as URL string, `tagline`, etc.) and renders the grid card UI. Used in published MDX and by block adapters during preview.
 
-- `src/components/blocks/AmbassadorBlock.astro` — **Block adapter for preview**. Used only by `DynamicZone` during SSR preview. Receives raw Strapi API data (nested `photo` object, markdown `description`) and transforms it into the simple props the presentational component expects (extracts `photo.url`, converts markdown to HTML via `marked`).
+- `src/components/blocks/ProfileBlock.astro` — **Block adapter for preview**. Used by `DynamicZone` during SSR preview. Receives a populated `profile-page` relation (`photo` as nested media object) and maps it to `ProfileCard` props.
 
-For published content, the MDX lifecycle hook in Strapi handles these transformations at publish time, so the presentational component is used directly in the generated MDX. The block adapters are only needed for preview.
+- `src/components/blocks/ProfileGridBlock.astro` — **Block adapter for preview**. Renders a populated `blocks.profile-grid` (manual profile list or category filter) using the same `ProfileCard` presentational component.
+
+For published content, lifecycle hooks and MDX serializers (`profile.serializer.ts`, `profile-grid.serializer.ts`) emit `<ProfileCard />` / `<ProfileGrid />` in generated MDX, so the presentational components are used directly on the static site. Block adapters are only needed for preview.
 
 **Rule of thumb:** If you need to transform Strapi's API response before rendering (flatten nested objects, convert markdown to HTML, resolve relations), create a block adapter in `src/components/blocks/` that does the transformation and delegates to a presentational component. Otherwise, a single component in `src/components/blocks/` is fine.
 
