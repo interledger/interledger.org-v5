@@ -17,6 +17,20 @@ export async function getStaticPaths() {
     getLocalizedPaths('grant-pages', 'en', 'page'),
     getLocalizedPaths('grant-overview-pages', 'en', 'page')
   ])
+
+  const seen = new Set<string>()
+  const duplicates = new Set<string>()
+  for (const p of [...grantPaths, ...overviewPaths]) {
+    const slug = p.params.page
+    if (seen.has(slug)) duplicates.add(slug)
+    else seen.add(slug)
+  }
+  if (duplicates.size > 0) {
+    throw new Error(
+      `[grant/[...page]] Duplicate slugs found across grant-pages and grant-overview-pages: ${[...duplicates].join(', ')}. Each slug must be unique within /grant/.`
+    )
+  }
+
   return [
     ...grantPaths.map((p) => ({
       ...p,
