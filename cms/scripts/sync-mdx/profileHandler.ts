@@ -77,7 +77,8 @@ async function handleProfile(
     if (!ctx.resolveRelation) {
       throw new MdxParserError({
         code: ParserErrorCode.MISSING_REQUIRED_PROP,
-        message: 'ProfileCard requires a resolveRelation function on the parser context.'
+        message:
+          'ProfileCard requires a resolveRelation function on the parser context.'
       })
     }
 
@@ -126,7 +127,8 @@ async function handleProfileGrid(
       if (!ctx.resolveRelation) {
         throw new MdxParserError({
           code: ParserErrorCode.MISSING_REQUIRED_PROP,
-          message: 'ProfileGrid with pathSlugs requires a resolveRelation function on the parser context.'
+          message:
+            'ProfileGrid with pathSlugs requires a resolveRelation function on the parser context.'
         })
       }
       const resolve = ctx.resolveRelation
