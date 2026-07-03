@@ -3,7 +3,7 @@
  * Add a new block: create xxx.serializer.ts + register below.
  */
 
-import { errors } from '@strapi/utils'
+import { toValidationError } from '../../utils'
 import { serialize as cardsGrid } from './cards-grid.serializer'
 import { serialize as cardLinksGrid } from './card-links-grid.serializer'
 import { serialize as carousel } from './carousel.serializer'
@@ -50,9 +50,7 @@ export function serializeContent(
       try {
         blocks.push(fn(block))
       } catch (err) {
-        throw new errors.ValidationError(
-          err instanceof Error ? err.message : String(err)
-        )
+        throw toValidationError(err)
       }
     } else {
       console.warn(`Unknown block component: ${block.__component}`)

@@ -12,8 +12,8 @@ import {
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
+import { toValidationError } from './contentValidation'
 import type { Core } from '@strapi/strapi'
-import { errors } from '@strapi/utils'
 
 declare const strapi: Core.Strapi
 
@@ -314,9 +314,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
           `⚠️  Failed to export ${locale} blog post for ${documentId}:`,
           error
         )
-        throw new errors.ValidationError(
-          error instanceof Error ? error.message : String(error)
-        )
+        throw toValidationError(error)
       }
     }
     return filepaths
@@ -391,9 +389,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         try {
           await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
         } catch (error) {
-          throw new errors.ValidationError(
-            error instanceof Error ? error.message : String(error)
-          )
+          throw toValidationError(error)
         }
       }
 

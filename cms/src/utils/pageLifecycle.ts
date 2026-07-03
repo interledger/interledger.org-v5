@@ -27,6 +27,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+import { toValidationError } from './contentValidation'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 
 export interface PageData {
@@ -178,9 +179,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   try {
     heroData = heroFrontmatter(page.hero)
   } catch (error) {
-    throw new errors.ValidationError(
-      error instanceof Error ? error.message : String(error)
-    )
+    throw toValidationError(error)
   }
   const seoData = seoFrontmatter(page.seo)
 

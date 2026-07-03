@@ -9,6 +9,16 @@ import { errors } from '@strapi/utils'
 import type { NavigationData } from './navigationLifecycle'
 
 /**
+ * Wrap a caught error as a Strapi `ValidationError`, preserving its message.
+ */
+export function toValidationError(error: unknown): errors.ValidationError {
+  if (error instanceof errors.ValidationError) return error
+  return new errors.ValidationError(
+    error instanceof Error ? error.message : String(error)
+  )
+}
+
+/**
  * Strip backtick-delimited code so JSX/HTML tags written as literal code aren't
  * mistaken for bare JSX. Covers inline spans (`…`, ``…``) and fenced
  * (```…```) blocks alike — a fenced block is just a 3-backtick span, so this
