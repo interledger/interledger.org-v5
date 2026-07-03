@@ -35,6 +35,7 @@ export {
 export {
   validateNoNestedJsx,
   validateGrantPagePrimaryCta,
+  validateHeroFields,
   validateNavigationLabels,
   toValidationError
 } from './contentValidation'

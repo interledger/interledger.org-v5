@@ -5,7 +5,6 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
-  validateGrantPagePrimaryCta,
   normalizeNavigationInput,
   LOCALES,
   shouldSkipMdxExport
@@ -1108,44 +1107,6 @@ export default {
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
           const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
-          if (validationErr) {
-            ctx.status = 400
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                name: 'ValidationError',
-                message: validationErr.message
-              }
-            }
-            return
-          }
-        }
-        await next()
-      }
-    )
-
-    // Validate required fields within optional grant-page components on save.
-    // Strapi's partial update validator skips required-field checks on PUT,
-    // so this middleware fills the gap for the primaryCta component.
-    const GRANT_PAGE_PATTERN =
-      /\/content-manager\/collection-types\/api::grant-page\.grant-page/
-    strapi.server?.use?.(
-      async (
-        ctx: {
-          method?: string
-          url?: string
-          request?: { body?: unknown }
-          status?: number
-          body?: unknown
-        },
-        next: () => Promise<void>
-      ) => {
-        if (
-          (ctx.method === 'PUT' || ctx.method === 'POST') &&
-          GRANT_PAGE_PATTERN.test(ctx.url ?? '')
-        ) {
-          const validationErr = validateGrantPagePrimaryCta(ctx.request?.body)
           if (validationErr) {
             ctx.status = 400
             ctx.body = {

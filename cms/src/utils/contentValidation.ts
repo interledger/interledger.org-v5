@@ -6,7 +6,9 @@
  */
 
 import { errors } from '@strapi/utils'
+import { heroFrontmatter } from './mdx'
 import type { NavigationData } from './navigationLifecycle'
+import type { PageData } from './pageLifecycle'
 
 /**
  * Wrap a caught error as a Strapi `ValidationError`, preserving its message.
@@ -55,6 +57,24 @@ export function validateGrantPagePrimaryCta(
     return new errors.ValidationError(
       'Primary Call to Action: Link is required'
     )
+  }
+  return undefined
+}
+
+/**
+ * Validate the Hero component on page-like content types (foundation-page,
+ * summit-page). Delegates to `heroFrontmatter`
+ *
+ * Returns a `ValidationError` on failure, `undefined` when hero is absent or valid.
+ */
+export function validateHeroFields(
+  page: Pick<PageData, 'hero'>
+): errors.ValidationError | undefined {
+  if (!page.hero) return undefined
+  try {
+    heroFrontmatter(page.hero)
+  } catch (error) {
+    return toValidationError(error)
   }
   return undefined
 }

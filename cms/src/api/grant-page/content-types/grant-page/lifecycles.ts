@@ -5,7 +5,8 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   seoFrontmatter,
-  GRANT_PAGE_CONTENT_POPULATE
+  GRANT_PAGE_CONTENT_POPULATE,
+  validateGrantPagePrimaryCta
 } from '../../../../utils'
 
 interface CtaLink {
@@ -56,7 +57,7 @@ function generateGrantPageMDX(
     title: page.title,
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
-    ...(primaryCta?.text && primaryCta?.link
+    ...(primaryCta
       ? {
           primaryCta: {
             text: primaryCta.text,
@@ -104,5 +105,6 @@ export default createPageLifecycle({
   populate: GRANT_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantPageMDX
+  generateMDX: generateGrantPageMDX,
+  validate: validateGrantPagePrimaryCta
 })

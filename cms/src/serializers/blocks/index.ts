@@ -58,3 +58,20 @@ export function serializeContent(
   }
   return blocks.join('\n\n')
 }
+
+/**
+ * Validate required fields on dynamic-zone content blocks by attempting the
+ * real serialization and discarding the output. Delegates to `serializeContent`
+ * rather than re-checking each block's required fields separately
+ * Returns a `ValidationError` on the first invalid block, `undefined` otherwise.
+ */
+export function validateContentBlocks(
+  content: Array<{ __component: string; [key: string]: unknown }> | undefined
+) {
+  try {
+    serializeContent(content)
+    return undefined
+  } catch (error) {
+    return toValidationError(error)
+  }
+}
