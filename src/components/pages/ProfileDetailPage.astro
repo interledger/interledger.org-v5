@@ -15,6 +15,7 @@ import {
   type Locale,
   useTranslations,
   getProfileColorIndex,
+  localizeRoute,
   buildUmamiAttrs
 } from '@/utils'
 
@@ -57,12 +58,12 @@ const toLabel = (seg: string) =>
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 const breadcrumbs = [
-  { name: t('nav.home'), href: '/' },
+  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
   ...parentParts.map((_, i) => ({
     name: toLabel(parentParts[i]),
-    href: '/' + parentParts.slice(0, i + 1).join('/')
+    href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
   })),
-  { name, href: `/${entry.data.pathSlug}` }
+  { name, href: localizeRoute(entry.data.pathSlug, contentLocale) }
 ]
 ---
 
