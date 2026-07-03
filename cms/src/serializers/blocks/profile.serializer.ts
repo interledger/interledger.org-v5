@@ -7,12 +7,12 @@ export function serialize(block: { profile?: ProfilePageBase | null }): string {
   if (!block.profile) return ''
 
   const profile = block.profile
-  const photo = profile.photo ? (getImageUrl(profile.photo) ?? '') : ''
+  const photoUrl = profile.photo ? getImageUrl(profile.photo) : undefined
 
   return `<ProfileCard
   name="${escAttr(profile.name)}"
   pathSlug="${escAttr(profile.pathSlug)}"
-  photo="${escAttr(photo)}"
+  ${photoUrl ? `photo="${escAttr(photoUrl)}"` : ''}
   ${profile.photo?.alternativeText !== undefined && profile.photo?.alternativeText !== null ? `photoAlt="${escAttr(profile.photo.alternativeText)}"` : ''}
   tagline="${escAttr(profile.tagline || '')}"
 />`

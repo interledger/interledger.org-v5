@@ -20,7 +20,7 @@ describe('profile serializer', () => {
 
     expect(result).toContain('name="Alice Example"')
     expect(result).toContain('pathSlug="alice-example"')
-    expect(result).toContain('photo="')
+    expect(result).toContain('photo="/uploads/alice.jpg"')
     expect(result).toContain('photoAlt="Alice smiling"')
     expect(result).toContain('tagline="Tagline of Alice"')
   })
@@ -84,6 +84,7 @@ describe('profile serializer', () => {
 
     expect(result).toContain('name="Bob"')
     expect(result).toContain('pathSlug="bob"')
+    expect(result).not.toContain('photo=')
     expect(result).toContain('tagline=""')
   })
 })
