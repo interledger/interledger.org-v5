@@ -123,7 +123,9 @@ export default {
   async beforeCreate(event: { params: { data: Record<string, unknown> } }) {
     if (shouldSkipMdxExport()) return
     const pathSlug = event.params.data.pathSlug as string | undefined
-    if (pathSlug) await assertUniqueGrantPathSlug(pathSlug, null)
+    const documentId =
+      (event.params.data.documentId as string | undefined) ?? null
+    if (pathSlug) await assertUniqueGrantPathSlug(pathSlug, documentId)
   },
   async beforeUpdate(event: Parameters<typeof lifecycle.beforeUpdate>[0]) {
     if (!shouldSkipMdxExport()) {
