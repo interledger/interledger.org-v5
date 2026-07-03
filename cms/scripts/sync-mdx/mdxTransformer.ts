@@ -539,11 +539,13 @@ export async function buildBlogPayload(
       )
     }
 
-    // Parse MDX body into structured blocks when parser context is provided.
-    // Falls back to normalized markdown string for backwards compatibility.
+    // content is a Strapi dynamiczone (always an array), so an empty body
+    // must become `[]`, not `''` — otherwise Strapi rejects the type.
     const mdxBody = (mdx.content || '').trim()
     let content: unknown
-    if (parserCtx && mdxBody.length > 0) {
+    if (mdxBody.length === 0) {
+      content = []
+    } else if (parserCtx) {
       const parsedBlocks = await parseMdxToBlocks(mdxBody, {
         ...parserCtx,
         sourceText: mdxBody
