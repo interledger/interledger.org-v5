@@ -34,7 +34,8 @@ export {
 } from './mdx'
 export {
   validateNoNestedJsx,
-  validateGrantPagePrimaryCta
+  validateGrantPagePrimaryCta,
+  validateNavigationLabels
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,

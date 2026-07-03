@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateNoNestedJsx } from '@/utils'
+import { validateNoNestedJsx, validateNavigationLabels } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -111,5 +111,97 @@ describe('validateNoNestedJsx', () => {
     expect(validateNoNestedJsx(undefined)).toBeUndefined()
     expect(validateNoNestedJsx('raw string')).toBeUndefined()
     expect(validateNoNestedJsx(null)).toBeUndefined()
+  })
+})
+
+describe('validateNavigationLabels', () => {
+  it('returns undefined when there is no mainMenu or ctaButton', () => {
+    expect(validateNavigationLabels({})).toBeUndefined()
+  })
+
+  it('returns undefined for fully labeled navigation data', () => {
+    const data = {
+      mainMenu: [
+        {
+          label: 'Group',
+          items: [{ label: 'Item' }],
+          subGroups: [
+            {
+              label: 'Sub Group',
+              items: [{ label: 'Sub Item' }]
+            }
+          ]
+        }
+      ],
+      ctaButton: { label: 'CTA' }
+    }
+
+    expect(validateNavigationLabels(data)).toBeUndefined()
+  })
+
+  it('returns a ValidationError when a top-level menu group is missing a label', () => {
+    const data = { mainMenu: [{ label: '' }] }
+
+    const err = validateNavigationLabels(data)
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toBe('Main Menu: Item 1 is missing a required label')
+  })
+
+  it('treats a whitespace-only label as missing', () => {
+    const data = { mainMenu: [{ label: '   ' }] }
+
+    expect(validateNavigationLabels(data)?.message).toBe(
+      'Main Menu: Item 1 is missing a required label'
+    )
+  })
+
+  it('returns a ValidationError when a menu item is missing a label', () => {
+    const data = {
+      mainMenu: [{ label: 'Group', items: [{ label: 'Valid' }, { label: '' }] }]
+    }
+
+    expect(validateNavigationLabels(data)?.message).toBe(
+      '"Group": Item 2 is missing a required label'
+    )
+  })
+
+  it('returns a ValidationError when a sub-group is missing a label', () => {
+    const data = {
+      mainMenu: [
+        {
+          label: 'Group',
+          subGroups: [{ label: 'Valid' }, { label: '' }]
+        }
+      ]
+    }
+
+    expect(validateNavigationLabels(data)?.message).toBe(
+      '"Group": Sub-group 2 is missing a required label'
+    )
+  })
+
+  it('returns a ValidationError when an item inside a sub-group is missing a label', () => {
+    const data = {
+      mainMenu: [
+        {
+          label: 'Group',
+          subGroups: [
+            { label: 'Sub Group', items: [{ label: 'Valid' }, { label: '' }] }
+          ]
+        }
+      ]
+    }
+
+    expect(validateNavigationLabels(data)?.message).toBe(
+      '"Group" / "Sub Group": Item 2 is missing a required label'
+    )
+  })
+
+  it('returns a ValidationError when the CTA button is missing a label', () => {
+    const data = { ctaButton: { label: '' } }
+
+    expect(validateNavigationLabels(data)?.message).toBe(
+      'CTA Button: Label is required'
+    )
   })
 })

@@ -6,6 +6,7 @@
  */
 
 import { errors } from '@strapi/utils'
+import type { NavigationData } from './navigationLifecycle'
 
 /**
  * Strip backtick-delimited code so JSX/HTML tags written as literal code aren't
@@ -80,6 +81,51 @@ export function validateNoNestedJsx(
           `displayed as text.`
       )
     }
+  }
+
+  return undefined
+}
+
+/**
+ * Validate that every Main Menu group/item/sub-group and the CTA button
+ * carry a non-empty label.
+ *
+ * Returns a `ValidationError` on the first missing label found, `undefined` otherwise.
+ */
+export function validateNavigationLabels(
+  data: NavigationData
+): errors.ValidationError | undefined {
+  for (const [groupIndex, group] of (data.mainMenu ?? []).entries()) {
+    if (!group.label?.trim()) {
+      return new errors.ValidationError(
+        `Main Menu: Item ${groupIndex + 1} is missing a required label`
+      )
+    }
+    for (const [itemIndex, item] of (group.items ?? []).entries()) {
+      if (!item.label?.trim()) {
+        return new errors.ValidationError(
+          `"${group.label}": Item ${itemIndex + 1} is missing a required label`
+        )
+      }
+    }
+    for (const [subGroupIndex, subGroup] of (group.subGroups ?? []).entries()) {
+      if (!subGroup.label?.trim()) {
+        return new errors.ValidationError(
+          `"${group.label}": Sub-group ${subGroupIndex + 1} is missing a required label`
+        )
+      }
+      for (const [itemIndex, item] of (subGroup.items ?? []).entries()) {
+        if (!item.label?.trim()) {
+          return new errors.ValidationError(
+            `"${group.label}" / "${subGroup.label}": Item ${itemIndex + 1} is missing a required label`
+          )
+        }
+      }
+    }
+  }
+
+  if (data.ctaButton && !data.ctaButton.label?.trim()) {
+    return new errors.ValidationError('CTA Button: Label is required')
   }
 
   return undefined
