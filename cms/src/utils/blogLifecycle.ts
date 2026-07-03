@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { serializeContent } from '../serializers/blocks'
+import { serializeContent, validateContentBlocks } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
   LOCALES,
@@ -12,7 +12,7 @@ import {
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
-import { toValidationError } from './contentValidation'
+import { toValidationError, validateBlogFields } from './contentValidation'
 import type { Core } from '@strapi/strapi'
 
 declare const strapi: Core.Strapi
@@ -102,6 +102,21 @@ async function fetchBlogPost(
     console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
     return null
   }
+}
+
+/**
+ * Validates a fetched blog post's Article Bio, Related Articles, and content
+ * blocks, and throws if any are invalid. Called before `shouldSkipMdxExport()`
+ * so a save from the sync-mdx script can't skip validation the way a plain
+ * `generateBlogMDX` throw (gated behind that check) would allow.
+ */
+function assertValidBlogPost(post: BlogResult): void {
+  const validationErr =
+    validateBlogFields(post) ??
+    (Array.isArray(post.content)
+      ? validateContentBlocks(post.content)
+      : undefined)
+  if (validationErr) throw validationErr
 }
 
 function generateFilename({
@@ -322,12 +337,13 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
 
   return {
     async afterCreate(event: BlogEvent) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
-      const label = event.model.singularName
       const post = await fetchBlogPost(result.documentId, result.locale)
+      if (post) assertValidBlogPost(post)
+      if (shouldSkipMdxExport()) return
       if (!post) return
+      const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
       const ctx: SyncContext = {
@@ -358,12 +374,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       event.state.oldDate = enPost.date
     },
     async afterUpdate(event: BlogEvent) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
+
+      const currentLocalePost = await fetchBlogPost(
+        result.documentId,
+        result.locale
+      )
+      if (currentLocalePost) assertValidBlogPost(currentLocalePost)
+      if (shouldSkipMdxExport()) return
+
       const label = event.model.singularName
       const { oldPathSlug, oldDate } = event.state
-
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
       const currentEnSlug = enPost?.pathSlug
       const currentDate = enPost?.date
@@ -383,7 +405,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
         await exportAllBlogLocales(result.documentId)
       } else {
-        const post = await fetchBlogPost(result.documentId, result.locale)
+        const post = currentLocalePost
         if (!post) return
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
         try {

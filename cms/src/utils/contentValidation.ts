@@ -80,6 +80,31 @@ export function validateHeroFields(
 }
 
 /**
+ * Validate a blog post's Article Bio and Related Articles components. Both
+ * fields are marked `required` in their component schemas, so Strapi
+ * enforces them on create; this fills the same partial-update gap as the
+ * other validators here.
+ *
+ * Returns a `ValidationError` on the first missing field found, `undefined` otherwise.
+ */
+export function validateBlogFields(post: {
+  articleBio?: { author: string | null }[]
+  relatedArticles?: { slug: string }[]
+}): errors.ValidationError | undefined {
+  for (const bio of post.articleBio ?? []) {
+    if (!bio.author?.trim()) {
+      return new errors.ValidationError('Author Bio: Name is required')
+    }
+  }
+  for (const related of post.relatedArticles ?? []) {
+    if (!related.slug) {
+      return new errors.ValidationError('Related Articles: Slug is required')
+    }
+  }
+  return undefined
+}
+
+/**
  * Validate that no Paragraph block contains bare JSX-like tags.
  *
  * Returns a Strapi `ValidationError` when a `<CapitalLetter...` pattern is
