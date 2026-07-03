@@ -118,22 +118,6 @@ When content is published or updated in Strapi:
 
 - Strapi is configured as a contributor to the codebase. When editors use the Strapi interface to make changes, Strapi's lifecycle hooks make commits to the `staging` branch on behalf of the editors.
 
-### Lifecycle Validation
-
-On **create**, Strapi's built-in Yup schema handles validation fully - required fields are enforced before the lifecycle hook runs.
-
-On **update**, Strapi uses a partial Yup validator that skips required-field checks, so some fields can be blanked out without error. Custom validation runs in `afterUpdate` to catch these cases.
-
-Validation can't run in `beforeUpdate` because Strapi only passes component IDs there: field values aren't available until after the document is saved and re-fetched with full populate.
-
-**Fields validated on update**
-
-Each lifecycle validates the required fields for its content type — labels, titles, and key identifiers that Strapi's partial validator would otherwise allow to be blanked out.
-
-Block serializers (used by pages with a dynamic zone) add a second layer: each block validates its own required fields when the content is serialized to MDX.
-
-Serializer errors bubble up as `ValidationError` via `serializeContent` in `src/serializers/blocks/index.ts` and are surfaced in the Strapi admin UI.
-
 ### Astro → Strapi (MDX Sync)
 
 - It is also possible for mdx file changes to happen in PRs that get merged into the `staging` branch.
@@ -231,6 +215,43 @@ Current handlers are registered through side-effect imports in `scripts/sync-mdx
 When adding a new handler, follow:
 
 - [`COMPONENT_IMPORT_TEMPLATE.md`](scripts/sync-mdx/COMPONENT_IMPORT_TEMPLATE.md)
+
+### Lifecycle Validation
+
+Strapi's required-field validation has a gap on **optional components with required fields inside them**. On create, it's fully enforced: adding the component without filling its required subfields (e.g. `description`) rejects the create. But if a post is created *without* that component and later updated to add it, Strapi's partial-update validator doesn't re-check those subfields — the update goes through with a blank `description`. Each content type's lifecycle hooks fill that gap with explicit checks.
+
+**Why lifecycle hooks, not Koa middleware**
+
+Content reaches the database through two entry points: the admin panel (`/content-manager/...`) and the public REST API (`/api/...`, used by `sync:mdx`/`sync:navigation`). Middleware could match both, but it's the wrong shape here: the two entry points send different body shapes (raw vs. `{data: {...}}`), and this bug can only be caught by checking the *resulting, merged* document, not the raw request body — a middleware would have to fetch and merge that itself. Lifecycle hooks (`afterCreate`/`afterUpdate`) run at the Document Service layer, after both entry points converge, already carrying the merged document.
+
+**Why a throw here doesn't leave bad data half-saved**
+
+Strapi wraps every document-service write in one database transaction (`wrapInTransaction` in `@strapi/core`) spanning validation, component/relation writes, and lifecycle hooks. Throwing from `afterCreate`/`afterUpdate` rolls the whole thing back, so invalid data never persists even though the hook runs after Strapi's own row-level writes.
+
+**Why `afterCreate`/`afterUpdate`, not `beforeCreate`/`beforeUpdate`**
+
+The checks validate the fully merged, populated document (`pageLifecycle.ts`'s `validate` hook re-fetches it by `documentId` after the write), not the raw incoming payload — for an update, the "before" payload is often just the changed fields, not the full resulting entity, so there's nothing to merge against yet. Running after the write means the document already exists to query. This is only safe because of the transaction guarantee below: an `afterCreate`/`afterUpdate` throw still rolls back the write it's validating, so nothing is visible outside the request even though the check runs after Strapi's own write.
+
+**Validation must run before `shouldSkipMdxExport()`**
+
+`sync:mdx`/`sync:navigation` send an `x-skip-mdx-export: true` header so Strapi doesn't re-export content it just imported. Every `afterCreate`/`afterUpdate` checks that header early and returns if set — anything placed after, including validation, is silently skipped for sync-originated saves. So validation must run **before** that check:
+
+- Page-like types (foundation-page, summit-page, grant-page) share `createPageLifecycle` (`src/utils/pageLifecycle.ts`), which exposes a `validate` config option called before `shouldSkipMdxExport()`, against a freshly re-fetched, fully populated document (not the raw event `result`).
+- `blogLifecycle.ts` and `navigationLifecycle.ts` don't share that factory, so they run the equivalent check inline in the same position.
+
+**Adding a required field to a new content type or component**
+
+Don't assume Strapi enforces `required: true` on a field inside an optional component — verify it on the update path specifically. If a required subfield can end up blank via an update, add a check:
+
+- Standalone concern (e.g. "does every menu group have a label?") → a function in `src/utils/contentValidation.ts`, wired into the relevant `afterCreate`/`afterUpdate` (or the shared `validate` config for page-like types).
+- Precondition for a transformation (e.g. "a hero needs a title", "a block needs its required prop") → colocate with that transformation (`heroFrontmatter`, the block's serializer, `generateBlogMDX`) instead of splitting "what's required" from the code that depends on it.
+- Either way, run it before `shouldSkipMdxExport()`.
+
+**Where checks live today**
+
+- `validateHeroFields`, `validateGrantPagePrimaryCta`, `validateBlogFields`, `validateNavigationLabels` — `src/utils/contentValidation.ts`
+- `validateContentBlocks` (`src/serializers/blocks/index.ts`) — delegates to `serializeContent` rather than re-implementing per-block requirements
+- Each block's own required-field checks live in its serializer under `src/serializers/blocks/`
 
 ### Unpublishing Content
 
