@@ -244,6 +244,22 @@ const heroUmami = (href: string, linkText: string) =>
         var(--hero-stefan-offset-y)
       );
       transform-origin: top center;
+      /* Hold the image invisible until custom-property positioning is applied,
+         then fade in. Prevents a visible layout jump on slower devices. */
+      opacity: 0;
+      animation: hero-photo-appear 0.3s ease-in 0.1s forwards;
+    }
+  }
+
+  @media (min-width: 810px) and (prefers-reduced-motion: reduce) {
+    [data-component='HomepageHero'] .hero-stefan-photo {
+      animation-duration: 0s;
+    }
+  }
+
+  @keyframes hero-photo-appear {
+    to {
+      opacity: 1;
     }
   }
 
