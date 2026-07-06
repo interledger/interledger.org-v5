@@ -183,6 +183,20 @@ const grantCtaStripSchema = z.object({
   secondaryButtonLink: z.string().optional()
 })
 
+const grantFaqItemSchema = z.object({
+  question: z.string(),
+  answer: z.string()
+})
+
+const grantFaqSectionSchema = z.object({
+  title: z.string(),
+  subtitle: z.string(),
+  description: z.string(),
+  ctaText: z.string(),
+  ctaLink: z.string(),
+  items: z.array(grantFaqItemSchema).min(2)
+})
+
 export const grantPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
@@ -194,6 +208,7 @@ export const grantPageFrontmatterSchema = z.object({
       external: z.boolean().optional()
     })
     .optional(),
+  faqSection: grantFaqSectionSchema.optional(),
   ctaStrip: grantCtaStripSchema,
   metaDescription: z.string().optional(),
   metaImage: z.string().optional(),

@@ -1,0 +1,81 @@
+---
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+
+interface FaqItem {
+  question: string
+  answer: string
+}
+
+interface Props {
+  title: string
+  subtitle: string
+  description: string
+  ctaText: string
+  ctaLink: string
+  items: FaqItem[]
+}
+
+const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
+
+const isExternal = (href: string) => /^https?:\/\//i.test(href)
+---
+
+<div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+  <div
+    class="flex flex-col gap-space-xl tablet:flex-row tablet:items-start tablet:gap-0"
+  >
+    <!-- Left column: title at top, contact CTA pinned to bottom -->
+    <div
+      class="flex flex-col tablet:w-[38%] tablet:shrink-0 tablet:pr-space-xl tablet:self-stretch"
+    >
+      <h2
+        class="font-poppins text-h2 tablet:text-h2-md desktop:text-h2-lg font-medium text-neutral-900 my-0"
+      >
+        {title}
+      </h2>
+
+      <div class="mt-auto pt-space-xl">
+        <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
+          {subtitle}
+        </h3>
+        <p
+          class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-400 mb-0"
+        >
+          {description}
+        </p>
+        <div class="mt-space-m">
+          <LinkButton
+            href={ctaLink}
+            variant="secondary"
+            external={isExternal(ctaLink)}
+          >
+            {ctaText}
+          </LinkButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: accordion -->
+    <div class="flex-1 tablet:pl-space-xl">
+      {
+        items.map((item) => (
+          <details class="group border-b border-neutral-200 py-space-m first:border-t">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-space-s [&::-webkit-details-marker]:hidden">
+              <span class="font-poppins text-base font-normal text-neutral-700 group-open:text-neutral-900 tablet:text-xl tablet:font-medium desktop:text-2xl desktop:font-medium">
+                {item.question}
+              </span>
+              <Icon
+                name="arrow-down"
+                class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
+              />
+            </summary>
+            <p class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-400 mb-0">
+              {item.answer}
+            </p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</div>
