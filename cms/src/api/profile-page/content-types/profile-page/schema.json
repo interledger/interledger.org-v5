@@ -45,6 +45,17 @@
         }
       }
     },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta-link",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "role": {
       "type": "string",
       "description": "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
@@ -81,17 +92,6 @@
       "components": [
         "blocks.paragraph"
       ],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "cta": {
-      "type": "component",
-      "repeatable": false,
-      "component": "shared.cta-link",
-      "required": false,
       "pluginOptions": {
         "i18n": {
           "localized": true

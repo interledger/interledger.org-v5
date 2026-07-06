@@ -70,14 +70,14 @@ const breadcrumbs = [
 <FoundationPageLayout title={title} description={displayRole ?? name}>
   <main class="pb-space-l" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
-    <header class={`${heroColorClass} h-[320px]`}>
-      <div class="max-w-250 m-auto px-space-m pt-[80px]">
-        <Breadcrumbs breadcrumbs={breadcrumbs} />
+    <header class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}>
+      <div class="max-w-250 m-auto px-space-m pt-space-m tablet:pt-[56px] desktop:pt-[80px]">
+        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
       </div>
     </header>
-    <div class="max-w-250 m-auto px-space-m -mt-[170px]">
+    <div class="max-w-250 m-auto px-space-m -mt-[105px] tablet:-mt-[115px] desktop:-mt-[170px]">
       <div
-        class={`rounded-full overflow-hidden w-[240px] h-[240px] ${avatarColorClass}`}
+        class={`rounded-full overflow-hidden w-[160px] h-[160px] tablet:w-[220px] tablet:h-[220px] desktop:w-[240px] desktop:h-[240px] ${avatarColorClass}`}
       >
         <OptimizedImage
           src={image}
@@ -85,12 +85,12 @@ const breadcrumbs = [
           width={240}
           height={240}
           loading="eager"
-          sizes="240px"
+          sizes="(min-width: 1200px) 240px, (min-width: 810px) 220px, 160px"
           class="block w-full h-full object-contain object-bottom"
         />
       </div>
       <div
-        class="mt-space-s flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0"
+        class="mt-space-s flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0 [&_h4]:mb-space-s [&_h4]:pb-0"
       >
         <h2
           class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
@@ -99,13 +99,13 @@ const breadcrumbs = [
         </h2>
         {
           displayRole && (
-            <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-4 border-orchid-100 pb-space-2xs font-normal">
+            <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-4 border-orchid-100 font-normal">
               {displayRole}
             </h4>
           )
         }
       </div>
-      <section data-prose aria-label={t('profile.biography')} class="my-8">
+      <section data-prose aria-label={t('profile.biography')} class="mb-8">
         <MdxContent components={{ Paragraph }} />
       </section>
       {
