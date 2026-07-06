@@ -120,19 +120,18 @@ interface StrapiHeroPayload {
 function buildHeroPayload(
   heroTitle: string | undefined,
   heroDescription: string | undefined,
-  fallbackTitle: string,
   ctas: HeroCta[] | undefined
 ): StrapiHeroPayload {
   const hero: StrapiHeroPayload = {
-    title: heroTitle || fallbackTitle,
-    description: heroDescription || ''
+    title: heroTitle ?? '',
+    description: heroDescription ?? ''
   }
 
-  const validCtas = ctas?.filter((c) => c.text && c.link)
-  if (validCtas && validCtas.length > 0) {
-    hero.hero_call_to_action = validCtas.map((c) => ({
-      text: c.text!,
-      link: c.link!,
+  // Send CTAs as-is; Strapi's validateHeroFields now rejects incomplete ones.
+  if (ctas && ctas.length > 0) {
+    hero.hero_call_to_action = ctas.map((c) => ({
+      text: c.text ?? '',
+      link: c.link ?? '',
       style: c.style ?? 'primary',
       external: c.external ?? false
     }))
@@ -142,40 +141,34 @@ function buildHeroPayload(
 }
 
 /**
- * Resolves hero from frontmatter (title, description, CTAs), preserves the
- * existing Strapi hero when those fields are omitted, and optionally syncs
- * heroImage / heroImageAlt to Strapi uploads (including alt patches).
+ * Resolves hero from frontmatter (title, description, CTAs)
+ * Returns `null` when the frontmatter has no hero fields at all — the MDX
+ * file is the source of truth, so a hero removed from Astro gets cleared in Strapi too.
  */
 async function buildHeroWithImage(
   parsed: Record<string, unknown>,
-  existingEntry: StrapiEntry | null,
   strapiUploadContext: StrapiUploadContext | undefined,
   updatedAltIds: Map<number, string | null>,
   pathSlug: string,
   dryRun: boolean
-): Promise<Record<string, unknown> | undefined> {
-  const existingHeroRaw = getEntryField(existingEntry, 'hero')
-  const existingHero =
-    existingHeroRaw && typeof existingHeroRaw === 'object'
-      ? { ...(existingHeroRaw as Record<string, unknown>) }
-      : null
+): Promise<Record<string, unknown> | null> {
+  const hasField = (key: string) =>
+    Object.prototype.hasOwnProperty.call(parsed, key)
+  const hasHeroImageField = hasField('heroImage')
+  const heroFieldsPresent =
+    hasField('heroTitle') ||
+    hasField('heroDescription') ||
+    hasField('heroCtas') ||
+    hasHeroImageField
 
-  let heroPayload: Record<string, unknown> | undefined
-  if (parsed.heroTitle || parsed.heroDescription) {
-    heroPayload = buildHeroPayload(
-      parsed.heroTitle as string | undefined,
-      parsed.heroDescription as string | undefined,
-      parsed.title as string,
-      parsed.heroCtas as HeroCta[] | undefined
-    ) as unknown as Record<string, unknown>
-  } else if (existingHero) {
-    heroPayload = existingHero
-  }
+  let heroPayload: Record<string, unknown> | null = heroFieldsPresent
+    ? (buildHeroPayload(
+        parsed.heroTitle as string | undefined,
+        parsed.heroDescription as string | undefined,
+        parsed.heroCtas as HeroCta[] | undefined
+      ) as unknown as Record<string, unknown>)
+    : null
 
-  const hasHeroImageField = Object.prototype.hasOwnProperty.call(
-    parsed,
-    'heroImage'
-  )
   if (hasHeroImageField && strapiUploadContext) {
     const heroImage = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.heroImage as string | undefined
@@ -236,18 +229,13 @@ export async function buildPagePayload(
       ...(parsed.pillar ? { pillar: parsed.pillar } : {})
     }
 
-    const heroPayload = await buildHeroWithImage(
+    data.hero = await buildHeroWithImage(
       parsed,
-      existingEntry,
       strapiUploadContext,
       updatedAltIds,
       mdx.pathSlug,
       dryRun
     )
-
-    if (heroPayload) {
-      data.hero = heroPayload
-    }
 
     // Handle content import
     const mdxBody = (mdx.content || '').trim()
@@ -551,11 +539,13 @@ export async function buildBlogPayload(
       )
     }
 
-    // Parse MDX body into structured blocks when parser context is provided.
-    // Falls back to normalized markdown string for backwards compatibility.
+    // content is a Strapi dynamiczone (always an array), so an empty body
+    // must become `[]`, not `''` — otherwise Strapi rejects the type.
     const mdxBody = (mdx.content || '').trim()
     let content: unknown
-    if (parserCtx && mdxBody.length > 0) {
+    if (mdxBody.length === 0) {
+      content = []
+    } else if (parserCtx) {
       const parsedBlocks = await parseMdxToBlocks(mdxBody, {
         ...parserCtx,
         sourceText: mdxBody

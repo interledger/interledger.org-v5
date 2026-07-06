@@ -3,6 +3,7 @@ import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
+import { validateNavigationLabels } from './contentValidation'
 
 import type { Core, UID, Modules } from '@strapi/strapi'
 
@@ -26,9 +27,10 @@ export interface MenuGroup {
   subGroups?: MenuSubGroup[] | null
 }
 
-interface NavigationData {
+export interface NavigationData {
   id?: number
   documentId?: string
+  locale?: string
   mainMenu?: MenuGroup[]
   ctaButton?: MenuItem | null
   publishedAt?: string | null
@@ -271,7 +273,13 @@ export function createNavigationLifecycle<T extends UID.ContentType>(
       await exportAndCommitNavigation(config, 'Create')
     },
 
-    async afterUpdate(_event: Event) {
+    async afterUpdate(event: Event) {
+      const locale = event.result?.locale ?? defaultLang
+      const nav = await fetchPublishedNavigation(config, locale)
+      if (nav) {
+        const validationErr = validateNavigationLabels(nav)
+        if (validationErr) throw validationErr
+      }
       await exportAndCommitNavigation(config, 'Update')
     },
 

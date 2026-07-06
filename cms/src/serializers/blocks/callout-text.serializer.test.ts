@@ -23,8 +23,10 @@ describe('callout-text serializer', () => {
     expect(result).toContain('\\{expressions\\}')
   })
 
-  it('returns empty string for empty content', () => {
-    expect(serialize({ content: '' })).toBe('')
+  it('throws for empty content', () => {
+    expect(() => serialize({ content: '' })).toThrow(
+      'Callout Text block is missing content'
+    )
   })
 
   it('serializes Spanish content identically', () => {

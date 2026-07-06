@@ -34,7 +34,11 @@ export {
 } from './mdx'
 export {
   validateNoNestedJsx,
-  validateGrantPagePrimaryCta
+  validateGrantPagePrimaryCta,
+  validateHeroFields,
+  validateBlogFields,
+  validateNavigationLabels,
+  toValidationError
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,

@@ -23,19 +23,20 @@ function makePost(overrides: Record<string, unknown> = {}) {
 }
 
 describe('generateBlogMDX — article bios', () => {
-  it('omits articleBios entirely when a bio has a null author (INTORG-794)', () => {
-    const mdx = generateBlogMDX(makePost({ articleBio: [{ author: null }] }))
-
-    expect(mdx).not.toContain('articleBios')
-    expect(mdx).not.toContain('author: null')
+  it('throws when a bio has a null author', () => {
+    expect(() =>
+      generateBlogMDX(makePost({ articleBio: [{ author: null }] }))
+    ).toThrow('Author Bio: Name is required')
   })
 
-  it('skips bios with empty or whitespace-only authors', () => {
-    const mdx = generateBlogMDX(
-      makePost({ articleBio: [{ author: '' }, { author: '   ' }] })
-    )
+  it('throws when a bio has an empty or whitespace-only author', () => {
+    expect(() =>
+      generateBlogMDX(makePost({ articleBio: [{ author: '' }] }))
+    ).toThrow('Author Bio: Name is required')
 
-    expect(mdx).not.toContain('articleBios')
+    expect(() =>
+      generateBlogMDX(makePost({ articleBio: [{ author: '   ' }] }))
+    ).toThrow('Author Bio: Name is required')
   })
 
   it('serializes valid bios with author and link', () => {
@@ -48,18 +49,5 @@ describe('generateBlogMDX — article bios', () => {
     expect(mdx).toContain('articleBios:')
     expect(mdx).toContain("- author: 'Jane Doe'")
     expect(mdx).toContain("link: 'https://example.com'")
-  })
-
-  it('keeps valid bios and drops empty ones in a mixed list', () => {
-    const mdx = generateBlogMDX(
-      makePost({
-        articleBio: [{ author: null }, { author: 'Jane Doe' }, { author: '' }]
-      })
-    )
-
-    expect(mdx).toContain("- author: 'Jane Doe'")
-    expect(mdx).not.toContain('author: null')
-    // Only one bio entry survives.
-    expect(mdx.match(/- author:/g)).toHaveLength(1)
   })
 })

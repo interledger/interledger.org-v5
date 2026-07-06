@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { serializeContent } from '../serializers/blocks'
+import { serializeContent, validateContentBlocks } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
   LOCALES,
@@ -12,6 +12,7 @@ import {
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
+import { toValidationError, validateBlogFields } from './contentValidation'
 import type { Core } from '@strapi/strapi'
 
 declare const strapi: Core.Strapi
@@ -103,6 +104,21 @@ async function fetchBlogPost(
   }
 }
 
+/**
+ * Validates a fetched blog post's Article Bio, Related Articles, and content
+ * blocks, and throws if any are invalid. Called before `shouldSkipMdxExport()`
+ * so a save from the sync-mdx script can't skip validation the way a plain
+ * `generateBlogMDX` throw (gated behind that check) would allow.
+ */
+function assertValidBlogPost(post: BlogResult): void {
+  const validationErr =
+    validateBlogFields(post) ??
+    (Array.isArray(post.content)
+      ? validateContentBlocks(post.content)
+      : undefined)
+  if (validationErr) throw validationErr
+}
+
 function generateFilename({
   date,
   pathSlug
@@ -116,17 +132,12 @@ function generateFilename({
 
 export function generateBlogMDX(post: BlogResult) {
   const yqs = yamlSingleQuoteScalar
-  // Skip bios with no author: the Astro content schema requires
-  // articleBios[].author to be a string, and an empty bio component in Strapi
-  // would otherwise export as `author: null` and fail the build (INTORG-794).
-  const bios = (post.articleBio ?? []).filter(
-    (bio) => typeof bio.author === 'string' && bio.author.trim() !== ''
-  )
-
   const articleBios =
-    bios.length > 0
-      ? `articleBios:${bios
+    post.articleBio?.length > 0
+      ? `articleBios:${post.articleBio
           .map((bio) => {
+            if (!bio.author?.trim())
+              throw new Error('Author Bio: Name is required')
             const articleBio = [
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
@@ -177,12 +188,17 @@ export function generateBlogMDX(post: BlogResult) {
       ? post.categories.length === 0
         ? `categories: []`
         : `categories:${post.categories
-            .map((category) => `\n  - ${yqs(category.categoryValue)}`)
+            .filter((c) => c?.categoryValue)
+            .map((c) => `\n  - ${yqs(c.categoryValue)}`)
             .join('')}`
       : null,
     post.relatedArticles?.length
       ? `relatedArticles:${post.relatedArticles
-          .map((related) => `\n  - ${yqs(related.slug)}`)
+          .map((related) => {
+            if (!related.slug)
+              throw new Error('Related Articles: Slug is required')
+            return `\n  - ${yqs(related.slug)}`
+          })
           .join('')}`
       : null,
     post.legacy ? `legacy: true` : null,
@@ -294,15 +310,15 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     const enPost = await fetchBlogPost(documentId, defaultLang)
 
     for (const locale of LOCALES) {
+      const post =
+        locale === defaultLang
+          ? enPost
+          : await fetchBlogPost(documentId, locale)
+      if (!post) {
+        console.log(`⏭️  No published ${locale} blog post for ${documentId}`)
+        continue
+      }
       try {
-        const post =
-          locale === defaultLang
-            ? enPost
-            : await fetchBlogPost(documentId, locale)
-        if (!post) {
-          console.log(`⏭️  No published ${locale} blog post for ${documentId}`)
-          continue
-        }
         const filepath = await writeMDXFile({
           outputPath: getOutputPath(post.locale),
           post
@@ -313,6 +329,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
           `⚠️  Failed to export ${locale} blog post for ${documentId}:`,
           error
         )
+        throw toValidationError(error)
       }
     }
     return filepaths
@@ -320,12 +337,13 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
 
   return {
     async afterCreate(event: BlogEvent) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
-      const label = event.model.singularName
       const post = await fetchBlogPost(result.documentId, result.locale)
+      if (post) assertValidBlogPost(post)
+      if (shouldSkipMdxExport()) return
       if (!post) return
+      const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
       const ctx: SyncContext = {
@@ -356,28 +374,45 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       event.state.oldDate = enPost.date
     },
     async afterUpdate(event: BlogEvent) {
-      if (shouldSkipMdxExport()) return
       const { result } = event
       if (!result || !result.publishedAt) return
+
+      const currentLocalePost = await fetchBlogPost(
+        result.documentId,
+        result.locale
+      )
+      if (currentLocalePost) assertValidBlogPost(currentLocalePost)
+      if (shouldSkipMdxExport()) return
+
       const label = event.model.singularName
       const { oldPathSlug, oldDate } = event.state
-
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
       const currentEnSlug = enPost?.pathSlug
+      const currentDate = enPost?.date
 
-      // If the EN slug changed, delete old files for all locales and re-export
-      if (oldPathSlug && oldDate && currentEnSlug && currentEnSlug) {
+      // If the EN slug or the date changed, delete old files for all locales and re-export
+      if (
+        oldPathSlug &&
+        oldDate &&
+        currentEnSlug &&
+        currentDate &&
+        (oldPathSlug !== currentEnSlug || oldDate !== currentDate)
+      ) {
         console.log(
-          `🗑️  Blog pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
+          `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`
         )
         deleteOldBlogFiles(oldPathSlug, oldDate)
         console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
         await exportAllBlogLocales(result.documentId)
       } else {
-        const post = await fetchBlogPost(result.documentId, result.locale)
+        const post = currentLocalePost
         if (!post) return
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
-        await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+        try {
+          await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+        } catch (error) {
+          throw toValidationError(error)
+        }
       }
 
       const ctx: SyncContext = {

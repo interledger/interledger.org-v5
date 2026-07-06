@@ -222,8 +222,8 @@ describe('buildPagePayload', () => {
     })
   })
 
-  // Hero section can come from MDX frontmatter OR be preserved from existing Strapi entry.
-  // This lets us update title/content without losing hero images set in Strapi admin.
+  // Hero is built from MDX frontmatter; absent hero fields clear the hero
+  // in Strapi rather than preserving whatever was there before.
   describe('hero fallback logic', () => {
     it('uses frontmatter heroTitle and heroDescription when provided', async () => {
       const mdx = createMdxFile({
@@ -244,28 +244,6 @@ describe('buildPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: 'Learn about us'
-      })
-    })
-
-    // If only description is provided, use the page title as hero title
-    it('uses title as hero title when heroTitle not provided but heroDescription is', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'about',
-        frontmatter: {
-          title: 'About Page',
-          heroDescription: 'Description only'
-        }
-      })
-
-      const payload = await buildPagePayload(
-        foundationPageFrontmatterSchema,
-        mdx,
-        null
-      )
-
-      expect((payload as Record<string, unknown>).hero).toEqual({
-        title: 'About Page',
-        description: 'Description only'
       })
     })
 
@@ -290,9 +268,9 @@ describe('buildPagePayload', () => {
       })
     })
 
-    // Key feature: if MDX doesn't have hero fields, keep whatever's in Strapi.
-    // This preserves hero images uploaded via Strapi admin UI.
-    it('preserves existing hero when no hero fields in frontmatter', async () => {
+    // The MDX file is the source of truth: a hero removed from Astro must be
+    // cleared in Strapi too, not left as whatever Strapi already had.
+    it('clears the existing hero when no hero fields in frontmatter', async () => {
       const existingEntry: StrapiEntry = {
         documentId: '1',
         pathSlug: 'about',
@@ -309,14 +287,11 @@ describe('buildPagePayload', () => {
         existingEntry
       )
 
-      expect((payload as Record<string, unknown>).hero).toEqual({
-        title: 'Existing Hero',
-        description: 'Kept intact'
-      })
+      expect((payload as Record<string, unknown>).hero).toBeNull()
     })
 
-    // No hero in MDX + no existing entry = no hero in payload
-    it('does not include hero when no frontmatter hero and no existing entry', async () => {
+    // No hero in MDX + no existing entry = hero explicitly cleared, not omitted
+    it('sends null hero when no frontmatter hero and no existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
         frontmatter: { title: 'About' }
@@ -328,7 +303,7 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect((payload as Record<string, unknown>).hero).toBeUndefined()
+      expect((payload as Record<string, unknown>).hero).toBeNull()
     })
 
     // MDX hero fields take precedence over Strapi — intentional override

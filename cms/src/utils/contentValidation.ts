@@ -6,6 +6,19 @@
  */
 
 import { errors } from '@strapi/utils'
+import { heroFrontmatter } from './mdx'
+import type { NavigationData } from './navigationLifecycle'
+import type { PageData } from './pageLifecycle'
+
+/**
+ * Wrap a caught error as a Strapi `ValidationError`, preserving its message.
+ */
+export function toValidationError(error: unknown): errors.ValidationError {
+  if (error instanceof errors.ValidationError) return error
+  return new errors.ValidationError(
+    error instanceof Error ? error.message : String(error)
+  )
+}
 
 /**
  * Strip backtick-delimited code so JSX/HTML tags written as literal code aren't
@@ -49,6 +62,49 @@ export function validateGrantPagePrimaryCta(
 }
 
 /**
+ * Validate the Hero component on page-like content types (foundation-page,
+ * summit-page). Delegates to `heroFrontmatter`
+ *
+ * Returns a `ValidationError` on failure, `undefined` when hero is absent or valid.
+ */
+export function validateHeroFields(
+  page: Pick<PageData, 'hero'>
+): errors.ValidationError | undefined {
+  if (!page.hero) return undefined
+  try {
+    heroFrontmatter(page.hero)
+  } catch (error) {
+    return toValidationError(error)
+  }
+  return undefined
+}
+
+/**
+ * Validate a blog post's Article Bio and Related Articles components. Both
+ * fields are marked `required` in their component schemas, so Strapi
+ * enforces them on create; this fills the same partial-update gap as the
+ * other validators here.
+ *
+ * Returns a `ValidationError` on the first missing field found, `undefined` otherwise.
+ */
+export function validateBlogFields(post: {
+  articleBio?: { author: string | null }[]
+  relatedArticles?: { slug: string }[]
+}): errors.ValidationError | undefined {
+  for (const bio of post.articleBio ?? []) {
+    if (!bio.author?.trim()) {
+      return new errors.ValidationError('Author Bio: Name is required')
+    }
+  }
+  for (const related of post.relatedArticles ?? []) {
+    if (!related.slug) {
+      return new errors.ValidationError('Related Articles: Slug is required')
+    }
+  }
+  return undefined
+}
+
+/**
  * Validate that no Paragraph block contains bare JSX-like tags.
  *
  * Returns a Strapi `ValidationError` when a `<CapitalLetter...` pattern is
@@ -80,6 +136,51 @@ export function validateNoNestedJsx(
           `displayed as text.`
       )
     }
+  }
+
+  return undefined
+}
+
+/**
+ * Validate that every Main Menu group/item/sub-group and the CTA button
+ * carry a non-empty label.
+ *
+ * Returns a `ValidationError` on the first missing label found, `undefined` otherwise.
+ */
+export function validateNavigationLabels(
+  data: NavigationData
+): errors.ValidationError | undefined {
+  for (const [groupIndex, group] of (data.mainMenu ?? []).entries()) {
+    if (!group.label?.trim()) {
+      return new errors.ValidationError(
+        `Main Menu: Item ${groupIndex + 1} is missing a required label`
+      )
+    }
+    for (const [itemIndex, item] of (group.items ?? []).entries()) {
+      if (!item.label?.trim()) {
+        return new errors.ValidationError(
+          `"${group.label}": Item ${itemIndex + 1} is missing a required label`
+        )
+      }
+    }
+    for (const [subGroupIndex, subGroup] of (group.subGroups ?? []).entries()) {
+      if (!subGroup.label?.trim()) {
+        return new errors.ValidationError(
+          `"${group.label}": Sub-group ${subGroupIndex + 1} is missing a required label`
+        )
+      }
+      for (const [itemIndex, item] of (subGroup.items ?? []).entries()) {
+        if (!item.label?.trim()) {
+          return new errors.ValidationError(
+            `"${group.label}" / "${subGroup.label}": Item ${itemIndex + 1} is missing a required label`
+          )
+        }
+      }
+    }
+  }
+
+  if (data.ctaButton && !data.ctaButton.label?.trim()) {
+    return new errors.ValidationError('CTA Button: Label is required')
   }
 
   return undefined

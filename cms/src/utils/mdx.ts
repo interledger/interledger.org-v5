@@ -185,9 +185,8 @@ export function heroFrontmatter(
 ): Record<string, unknown> {
   const data: Record<string, unknown> = {}
   if (!hero) return data
-  if (hero.title) {
-    data.heroTitle = hero.title
-  }
+  if (!hero.title?.trim()) throw new Error('Hero is missing required title')
+  data.heroTitle = hero.title
   if (hero.description) {
     data.heroDescription = hero.description
   }
@@ -196,9 +195,13 @@ export function heroFrontmatter(
     data.heroImage = heroImage
     data.heroImageAlt = hero.backgroundImage?.alternativeText ?? ''
   }
-  const ctas = hero.hero_call_to_action?.filter((c) => c.text && c.link)
-  if (ctas && ctas.length > 0) {
-    data.heroCtas = ctas.map((c) => ({
+  const rawCtas = hero.hero_call_to_action ?? []
+  if (rawCtas.length > 0) {
+    for (const cta of rawCtas) {
+      if (!cta.text) throw new Error('Hero CTA is missing required text')
+      if (!cta.link) throw new Error('Hero CTA is missing required link')
+    }
+    data.heroCtas = rawCtas.map((c) => ({
       text: c.text!,
       link: c.link!,
       ...(c.style && c.style !== 'primary' ? { style: c.style } : {}),

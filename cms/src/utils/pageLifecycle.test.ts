@@ -64,13 +64,56 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       title: 'Test Page',
       pathSlug: 'test',
       locale: 'en',
-      hero: { backgroundImage: { url: 'https://example.com/image.jpg' } }
+      hero: {
+        title: 'Hero Title',
+        backgroundImage: { url: 'https://example.com/image.jpg' }
+      }
     }
 
     const result = generateMDX(testConfig, page)
 
     expect(result).toContain('heroImage')
     expect(result).toContain('https://example.com/image.jpg')
+  })
+})
+
+describe('generateMDX — required field validation', () => {
+  const base = {
+    id: 1,
+    documentId: 'doc1',
+    title: 'Test Page',
+    pathSlug: 'test',
+    locale: 'en'
+  }
+
+  it('throws when hero is present but title is empty', () => {
+    expect(() =>
+      generateMDX(testConfig, { ...base, hero: { title: '' } })
+    ).toThrow('Hero is missing required title')
+  })
+
+  it('throws when a hero CTA is missing text', () => {
+    expect(() =>
+      generateMDX(testConfig, {
+        ...base,
+        hero: {
+          title: 'Hero',
+          hero_call_to_action: [{ text: '', link: '/about' }]
+        }
+      })
+    ).toThrow('Hero CTA is missing required text')
+  })
+
+  it('throws when a hero CTA is missing link', () => {
+    expect(() =>
+      generateMDX(testConfig, {
+        ...base,
+        hero: {
+          title: 'Hero',
+          hero_call_to_action: [{ text: 'Learn more', link: '' }]
+        }
+      })
+    ).toThrow('Hero CTA is missing required link')
   })
 })
 
