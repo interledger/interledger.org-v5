@@ -1,0 +1,83 @@
+{
+  "kind": "collectionType",
+  "collectionName": "grant-overview-pages",
+  "info": {
+    "singularName": "grant-overview-page",
+    "pluralName": "grant-overview-pages",
+    "displayName": "Grant Overview Page",
+    "description": "Overview pages for grant categories. Path slug is relative to /grant/ — e.g. education → /grant/education. Slugs must not clash with Grant Page slugs."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug."
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+    },
+    "ctaStrip": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.cta-strip",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "followUpContent": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
