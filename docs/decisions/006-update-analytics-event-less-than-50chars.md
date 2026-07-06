@@ -9,7 +9,9 @@
 
 ## Context
 
-ADR-005's `{page}:{component}:{label}` schema has a fatal flaw: on long detail-page slugs it overflows Umami's 50-character event name cap, producing unpredictable event names, dropping useful information, and creating inconsistent labels that break aggregation. Any replacement schema must guarantee that every generated name fits within the cap.
+Umami event tracking had grown inconsistent and hard to query, for four reasons carried over from ADR-005: events were named by hand and drifted into inconsistent variants; over-specific, date-stamped events (`Blog - 2026-01-07`) produced near-unique names that couldn't be grouped; there was no enforced separation between page context, component, and destination; and naming didn't reflect the site's reusable Astro components or `locales` export. ADR-005 addressed all four with a `{page}:{component}:{label}` schema generated from code and content identifiers rather than typed by hand.
+
+That schema has a fatal flaw: on long detail-page slugs it overflows Umami's 50-character event name cap, producing unpredictable event names, dropping useful information, and creating inconsistent labels that break aggregation. Any replacement schema must guarantee that every generated name fits within the cap, while still respecting the constraint that shaped ADR-005 in the first place: Umami's UI treats the event name as the primary filter and properties as a secondary breakdown, so page context needs to stay queryable even once it's no longer part of the name.
 
 This proposal has the event label encode **what kind of interaction this is**, and uses event properties to convey **where it happened and where it goes**. Page details no longer need to live in the event name, since page-level filtering can be handled through segments in Umami instead.
 
@@ -32,6 +34,8 @@ The trade-off: we lose the ability to filter on destination directly, but gain b
 | `link`        | yes              | `inline_link` — a link inside rich-text/editor-driven body content (paragraph).                                                                                                            |
 
 Every link-click label is prefixed `button_`, so a segment or breakdown built on `Event contains "button_"` catches every destination-bearing interaction in one query, while `toggle` and `link` stay bare since neither is a destination-bearing chrome link.
+
+As in ADR-005, rich text is a deliberate exception: body content is editor-driven and open-ended, so encoding every inline destination into its own name would produce a large, unstructured, low-volume tail that clutters the Umami event list. A custom Markdown link renderer still intercepts every link at build time and stamps on the tracking attributes automatically — it now emits the flat `link` label with `inline_link` as `base_component`, rather than the `{page}:{component}` pair ADR-005 used.
 
 ### Properties on every event
 
@@ -74,11 +78,19 @@ This list of special-case domains will need ongoing maintenance as new destinati
 
 ---
 
+### Implementation
+
+As in ADR-005, none of this is hand-typed. Labels, `base_component`, and the grouped path properties are generated at build time from code and content identifiers through a single shared instrumentation point, so casing drift and copy-paste duplication stay structurally impossible. `lang` is still populated from `Astro.currentLocale`, and `link_text` still falls back to `aria-label`, resolving to `null` for icon/image-only links — unchanged from ADR-005.
+
+---
+
 ## Alternatives considered
 
 **Three-segment name with a detail-page allow-list.** Fixes the character cap, but produces unreadable names and requires manual maintenance and ongoing awareness of the allow-list.
 
 **Encoding destination in the name for funnel-ability.** Considered, since destination isn't filterable as a property and therefore can't be a hard funnel/segment condition. Ruled out for now because the two-step funnel pattern (Viewed page → Triggered event) already answers the actual stated use case ("land on X, then click X's CTA") without it. If a future report genuinely needs "specifically clicked through to Submittable" as a filterable condition rather than an eyeballed property breakdown, that's the trigger to give that one component a destination-bearing name — not a reason to put destination in every name now.
+
+**Selective tracking.** Not revisited here — ADR-005 already rejected tracking fewer events upfront, since analytics questions are usually retrospective and a link that was never tracked can never be reconstructed later. That reasoning still holds: this schema keeps the event set finite and predictable (bounded components) or collapsed to a single flat label (rich text), so capturing everything remains cheap to ignore and costly to have missed.
 
 ---
 
@@ -86,13 +98,17 @@ This list of special-case domains will need ongoing maintenance as new destinati
 
 **Positive**
 
+- Names and properties are still generated at build time from code and content identifiers, never typed by hand — the casing drift and copy-paste duplication ADR-005 set out to fix remain structurally impossible.
 - Names are short (`button_cta`, `faq`) — the 50-character cap is never a design constraint again.
 - Funnels work via chained Path + Event steps; the page never needs to be encoded in the name.
 - `Event contains "button_"` gives a one-query view of all destination-bearing interactions across the whole site.
 - `base_component` gives Dev/Design their component-comparison view directly, with no name design required.
 - Grouped `current_path`/`destination_path` keep trend breakdowns readable instead of producing a long tail of near-unique paths.
+- Additive by default, as in ADR-005 — no central registry of event names to maintain by hand.
 
 **Negative**
 
 - Destination is not filterable — only viewable per-event via the Properties tab. If a page has two destination-bearing components sharing a label (e.g., two `button_cta` instances on the same page pointing at different destinations), you cannot isolate them in a segment or funnel; you can only see both in that event's destination breakdown.
 - `button_ui`'s `base_component` vocabulary is a placeholder pending further UI-element review; expect it to grow, which is fine since it's a property, not a name segment.
+- As in ADR-005, the shared instrumentation point must be adopted across every component for these consistency benefits to hold — a manually authored `data-umami-event` attribute still bypasses generation entirely.
+- Rich text instrumentation still depends on the build-time Markdown link renderer running correctly, unchanged from ADR-005.
