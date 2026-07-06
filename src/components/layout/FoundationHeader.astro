@@ -153,7 +153,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
      initial attribute to match the viewport. -->
 <script is:inline>
   ;(function () {
-    var w = document.getElementById('siteNavLinks')
+    const w = document.getElementById('siteNavLinks')
     if (w && window.matchMedia('(min-width: 1200px)').matches) {
       w.dataset.offscreen = 'false'
       w.removeAttribute('inert')
