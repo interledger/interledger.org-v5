@@ -147,6 +147,20 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
   </nav>
 </header>
 
+<!-- Synchronous init: set data-offscreen before first paint on desktop so the
+     browser never renders the drawer in mobile-closed state then flips it.
+     The module script below handles all interactions; this only sets the
+     initial attribute to match the viewport. -->
+<script is:inline>
+  ;(function () {
+    var w = document.getElementById('siteNavLinks')
+    if (w && window.matchMedia('(min-width: 1200px)').matches) {
+      w.dataset.offscreen = 'false'
+      w.removeAttribute('inert')
+    }
+  })()
+</script>
+
 <script>
   import './foundation-header.ts'
 </script>
