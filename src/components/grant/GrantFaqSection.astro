@@ -27,10 +27,10 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
   >
     <!-- Left column: title at top, contact CTA pinned to bottom -->
     <div
-      class="flex flex-col tablet:w-[38%] tablet:shrink-0 tablet:pr-space-xl tablet:self-stretch"
+      class="flex flex-col tablet:w-[38%] tablet:shrink-0 tablet:pr-space-xl tablet:sticky tablet:top-[120px]"
     >
       <h2
-        class="font-poppins text-h2 tablet:text-h2-md desktop:text-h2-lg font-medium text-neutral-900 my-0"
+        class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg font-medium text-neutral-900 my-0"
       >
         {title}
       </h2>
@@ -40,7 +40,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
           {subtitle}
         </h3>
         <p
-          class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-400 mb-0"
+          class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
         >
           {description}
         </p>
@@ -59,10 +59,13 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
     <!-- Right column: accordion -->
     <div class="flex-1 tablet:pl-space-xl">
       {
-        items.map((item) => (
-          <details class="group border-b border-neutral-200 py-space-m first:border-t">
+        items.map((item, index) => (
+          <details
+            open={index === 0}
+            class="group border-b border-neutral-200 py-space-m"
+          >
             <summary class="flex cursor-pointer list-none items-center justify-between gap-space-s [&::-webkit-details-marker]:hidden">
-              <span class="font-poppins text-base font-normal text-neutral-700 group-open:text-neutral-900 tablet:text-xl tablet:font-medium desktop:text-2xl desktop:font-medium">
+              <span class="font-poppins text-base text-neutral-700 font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
                 {item.question}
               </span>
               <Icon
@@ -70,7 +73,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
                 class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
               />
             </summary>
-            <p class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-400 mb-0">
+            <p class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0">
               {item.answer}
             </p>
           </details>
