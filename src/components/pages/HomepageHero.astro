@@ -199,12 +199,10 @@ const heroUmami = (href: string, linkText: string) =>
     inset-inline: 0;
     bottom: 0;
     height: 40%;
-    background-color: var(--hero-fade-fill);
+    background: linear-gradient(to top, var(--hero-fade-fill), transparent);
     pointer-events: none;
     display: none;
     z-index: 0;
-    -webkit-mask: linear-gradient(180deg, #0000 0%, #000 100%);
-    mask: linear-gradient(180deg, #0000 0%, #000 100%);
   }
 
   @media (min-width: 810px) {
@@ -223,20 +221,25 @@ const heroUmami = (href: string, linkText: string) =>
 
     [data-component='HomepageHero'] .hero-stefan-wrap {
       height: 100%;
+      contain: paint;
     }
 
     [data-component='HomepageHero'] .hero-stefan-picture {
-      display: block;
+      /* Start invisible. visibility: hidden is used (not opacity/display) so it
+         cascades correctly to children while still allowing the image to load
+         eagerly as an LCP candidate. */
+      visibility: hidden;
+      opacity: 0;
       width: 100%;
-      height: 100%;
+      height: auto;
       min-height: 100%;
+      animation: hero-photo-appear 0.3s ease-in 0.1s forwards;
     }
 
     [data-component='HomepageHero'] .hero-stefan-photo {
       display: block;
       width: 100%;
       min-height: 100%;
-      height: calc(100% - var(--hero-stefan-offset-y));
       object-fit: cover;
       object-position: var(--hero-stefan-object-x) var(--hero-stefan-object-y);
       transform: translate(
@@ -244,6 +247,26 @@ const heroUmami = (href: string, linkText: string) =>
         var(--hero-stefan-offset-y)
       );
       transform-origin: top center;
+    }
+  }
+
+  @media (min-width: 810px) and (prefers-reduced-motion: reduce) {
+    [data-component='HomepageHero'] .hero-stefan-picture {
+      animation-duration: 0s;
+    }
+  }
+
+  @keyframes hero-photo-appear {
+    /* from sets visibility: visible immediately when the active phase starts
+       (after the 100ms delay). During the delay the element's own CSS keeps
+       visibility: hidden — so no painting happens until the fade begins. */
+    from {
+      visibility: visible;
+      opacity: 0;
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
     }
   }
 
@@ -260,24 +283,11 @@ const heroUmami = (href: string, linkText: string) =>
       bottom: 0;
       left: auto;
       width: var(--hero-stefan-width);
-      height: 100%;
+      height: auto;
     }
 
     [data-component='HomepageHero'] .hero-stefan-photo {
       transform-origin: right top;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    [data-component='HomepageHero'] {
-      --hero-stefan-object-y: 15%;
-      --hero-stefan-offset-y: -10vh;
-    }
-  }
-
-  @media (min-width: 1536px) {
-    [data-component='HomepageHero'] {
-      --hero-stefan-object-y: top;
     }
   }
 

@@ -536,8 +536,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
       ctaStrip: 'CTA Strip',
-      seo: 'SEO',
-      faqSection: 'FAQ Section'
+      faqSection: 'FAQ Section',
+      seo: 'SEO'
+    },
+    'api::grant-overview-page.grant-overview-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      ctaStrip: 'CTA Strip',
+      followUpContent: 'Follow-up Content',
+      seo: 'SEO'
     }
   }
 
@@ -557,6 +565,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::grant-page.grant-page': {
       pathSlug:
         'Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.'
+    },
+    'api::grant-overview-page.grant-overview-page': {
+      pathSlug:
+        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },

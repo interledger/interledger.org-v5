@@ -20,6 +20,7 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import type { FrontmatterSchema } from './config'
 import type {
   foundationBlogFrontmatterSchema,
+  grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
@@ -448,6 +449,50 @@ export async function buildGrantPagePayload(
       primaryCta,
       faqSection,
       ctaStrip,
+      seo,
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for a grant-overview-page MDX file.
+ *
+ * Maps frontmatter fields and MDX body to the grant-overview-page Strapi schema.
+ * No image resolution needed — grant overview pages contain no managed media fields.
+ */
+export async function buildGrantOverviewPagePayload(
+  schema: typeof grantOverviewPageFrontmatterSchema,
+  mdx: MDXFile
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const ctaStripFm = parsed.ctaStrip
+    const ctaStrip = {
+      heading: ctaStripFm.heading,
+      description: ctaStripFm.description,
+      primaryButtonText: ctaStripFm.buttonText,
+      primaryButtonLink: ctaStripFm.buttonLink,
+      color: ctaStripFm.color,
+      ...(ctaStripFm.secondaryButtonText
+        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
+        : {}),
+      ...(ctaStripFm.secondaryButtonLink
+        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+        : {})
+    }
+
+    const seo = parsed.metaDescription
+      ? { metaDescription: parsed.metaDescription }
+      : null
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      description: parsed.description,
+      ctaStrip,
+      followUpContent: (mdx.content || '').trim() || null,
       seo,
       publishedAt: new Date().toISOString()
     }

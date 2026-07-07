@@ -7,6 +7,7 @@ import {
   developersBlogFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
+  grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
@@ -34,6 +35,14 @@ const grantPagesCollection = defineCollection({
     base: `./${CONTENT_ROOT}/${CONTENT.grantPages}`
   }),
   schema: grantPageFrontmatterSchema
+})
+
+const grantOverviewPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.grantOverviewPages}`
+  }),
+  schema: grantOverviewPageFrontmatterSchema
 })
 
 const summitPagesCollection = defineCollection({
@@ -67,6 +76,7 @@ export const collections = {
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'grant-pages': grantPagesCollection,
+  'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,
   ambassadors: ambassadorCollection
 }
