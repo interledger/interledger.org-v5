@@ -238,7 +238,7 @@ export const profileFrontmatterSchema = z.object({
   description: z.string().nullable().optional(),
   role: z.string().nullable().optional(),
   cta: heroCtaSchema.optional(),
-  locale: z.string().optional(),
+  locale: z.string(),
   localizes: z.string().optional()
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
