@@ -4,21 +4,21 @@ import type { StrapiClient, StrapiEntry } from './strapiClient'
 import {
   buildPagePayload,
   buildBlogPayload,
-  buildAmbassadorPayload,
+  buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
-  ambassadorFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
-  summitPageFrontmatterSchema
+  summitPageFrontmatterSchema,
+  profileFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
-import './ambassadorHandler'
+import './profileHandler'
 import './blockquoteHandler'
 import './calloutTextHandler'
 import './ctaStripHandler'
@@ -26,7 +26,7 @@ import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
 import './codeBlockHandler'
-import { createRelationResolver } from './ambassadorHandler'
+import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -66,7 +66,7 @@ export interface ContentTypes {
   'grant-overview-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
-  ambassadors: ContentTypeConfig
+  profiles: ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -112,11 +112,42 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const ambassadorAltIds = new Map<number, string | null>()
+  const profileAltIds = new Map<number, string | null>()
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
 
   return {
+    profiles: {
+      dir: getContentPath(projectRoot, 'profiles'),
+      apiId: 'profile-pages',
+      schema: profileFrontmatterSchema,
+      buildPayload: (mdx, strapi, existing, dryRun) => {
+        const locale = mdx.locale || 'en'
+        return buildProfilePayload(
+          profileFrontmatterSchema,
+          mdx,
+          strapi,
+          existing,
+          {
+            locale,
+            resolveRelation: createRelationResolver(strapi, locale),
+            resolveMediaUpload: async (url: string) => {
+              const id = await strapi.findUploadByUrl(url)
+              if (id instanceof Error) throw id
+              if (!id) {
+                throw new MdxParserError({
+                  code: ParserErrorCode.UNRESOLVED_RELATION,
+                  message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+                })
+              }
+              return id
+            }
+          },
+          profileAltIds,
+          dryRun
+        )
+      }
+    },
     'grant-pages': {
       dir: getContentPath(projectRoot, 'grantPages'),
       apiId: 'grant-pages',
@@ -130,19 +161,6 @@ export function buildContentTypes(
       schema: grantOverviewPageFrontmatterSchema,
       buildPayload: (mdx, _strapi, _existing, _dryRun) =>
         buildGrantOverviewPagePayload(grantOverviewPageFrontmatterSchema, mdx)
-    },
-    ambassadors: {
-      dir: getContentPath(projectRoot, 'ambassadors'),
-      apiId: 'ambassadors',
-      schema: ambassadorFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing, dryRun) =>
-        buildAmbassadorPayload(
-          ambassadorFrontmatterSchema,
-          mdx,
-          strapi,
-          ambassadorAltIds,
-          dryRun
-        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),

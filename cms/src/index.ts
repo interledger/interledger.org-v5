@@ -481,14 +481,16 @@ function collectImagePaths(dir: string): string[] {
  */
 async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
-    'api::ambassador.ambassador': {
+    'api::profile-page.profile-page': {
       name: 'Name',
       pathSlug: 'URL Slug',
-      description: 'Description',
+      section: 'Section',
       photo: 'Photo',
-      quote: 'Quote',
       tagline: 'Tag line',
-      category: 'Category'
+      description: 'Description',
+      role: 'Role',
+      category: 'Category',
+      content: 'Biography'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
@@ -549,9 +551,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   }
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
-    'api::ambassador.ambassador': {
+    'api::profile-page.profile-page': {
       photo:
-        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").'
+        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
+      role: "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
+      description:
+        'Short intro blurb shown on the profile detail page, above the CTA and biography sections.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
@@ -618,13 +625,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.seo': {
       metaDescription: 'Meta Description'
     },
-    'blocks.ambassador': {
-      ambassador: 'Ambassador'
+    'blocks.profile': {
+      profile: 'Profile'
     },
-    'blocks.ambassadors-grid': {
+    'blocks.profile-grid': {
       heading: 'Heading',
       category: 'Category',
-      ambassadors: 'Ambassadors'
+      profiles: 'Profiles'
     },
     'blocks.blockquote': {
       quote: 'Quote',
@@ -739,10 +746,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
     },
-    'blocks.ambassadors-grid': {
-      category:
-        'Option A: show ambassadors by category (leave ambassadors empty)',
-      ambassadors: 'Option B: pick ambassadors manually (leave category empty)'
+    'blocks.profile-grid': {
+      category: 'Option A: show profiles by category (leave profiles empty)',
+      profiles: 'Option B: pick profiles manually (leave category empty)'
     },
     'blocks.image-block': {
       tabletImage:
@@ -889,18 +895,21 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'articleBio', size: 12 }],
       [{ name: 'relatedArticles', size: 12 }]
     ],
-    'api::ambassador.ambassador': [
+    'api::profile-page.profile-page': [
       [
         { name: 'name', size: 6 },
-        { name: 'pathSlug', size: 6 }
+        { name: 'section', size: 6 }
       ],
+      [{ name: 'pathSlug', size: 12 }],
       [
         { name: 'category', size: 6 },
         { name: 'photo', size: 6 }
       ],
+      [{ name: 'role', size: 12 }],
       [{ name: 'tagline', size: 12 }],
-      [{ name: 'quote', size: 12 }],
-      [{ name: 'description', size: 12 }]
+      [{ name: 'description', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [{ name: 'cta', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
       [
@@ -939,10 +948,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'profileBio', size: 6 }
       ]
     ],
-    'blocks.ambassadors-grid': [
+    'blocks.profile-grid': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
-      [{ name: 'ambassadors', size: 12 }]
+      [{ name: 'profiles', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],

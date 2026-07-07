@@ -1,8 +1,9 @@
 /**
  * Factory for flat (non-page) Strapi lifecycle hooks.
  * Handles MDX file writes, deletes, and git commits for content types
- * with flat frontmatter (no dynamic zones, no hero/SEO components).
- * Used by ambassador and similar non-page content types.
+ * content types with flat frontmatter (hero/SEO are separate; profile biography
+ * uses a paragraph-only dynamic zone exported as MDX body).
+ * Used by profile-page and similar non-page content types.
  */
 
 import fs from 'fs'
@@ -27,7 +28,7 @@ export interface FlatContentLifecycleConfig<
   generateContent: (entry: T) => string
   /** Returns the output directory for the given locale (undefined = English). */
   getBaseDir: (locale?: string) => string
-  /** Label used in log messages and git commit messages, e.g. 'ambassador'. */
+  /** Label used in log messages and git commit messages, e.g. 'profile-page'. */
   label: string
 }
 
@@ -52,6 +53,8 @@ export interface FlatLocaleMdxLifecycleConfig<
   getBaseDir: (locale?: string) => string
   /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
   generateContent: (entry: T, englishSlug?: string) => string
+  /** Maps pathSlug to a flat filename stem (no .mdx). Defaults to identity. */
+  toMdxFilename?: (pathSlug: string) => string
   populate?: Modules.Documents.Params.Populate.Any<U>
 }
 
@@ -70,8 +73,22 @@ export function createFlatLocaleMdxLifecycle<
   },
   U extends UID.ContentType = UID.ContentType
 >(config: FlatLocaleMdxLifecycleConfig<T, U>) {
-  const { contentTypeUid, label, getBaseDir, generateContent, populate } =
-    config
+  const {
+    contentTypeUid,
+    label,
+    getBaseDir,
+    generateContent,
+    populate,
+    toMdxFilename = (pathSlug) => pathSlug
+  } = config
+
+  function resolveFileSlug(
+    locale: string,
+    pathSlug: string,
+    englishSlug?: string
+  ): string {
+    return toMdxFilename(resolveFilenameSlug(locale, pathSlug, englishSlug))
+  }
 
   async function fetchPublished(
     documentId: string,
@@ -96,7 +113,7 @@ export function createFlatLocaleMdxLifecycle<
 
   async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
     const baseDir = getBaseDir(entry.locale)
-    const slug = resolveFilenameSlug(
+    const slug = resolveFileSlug(
       entry.locale ?? defaultLang,
       entry.pathSlug,
       englishSlug
@@ -140,7 +157,7 @@ export function createFlatLocaleMdxLifecycle<
   }
 
   function getFilePath(locale: string, pathSlug: string): string {
-    return path.join(getBaseDir(locale), `${pathSlug}.mdx`)
+    return path.join(getBaseDir(locale), `${toMdxFilename(pathSlug)}.mdx`)
   }
 
   function deleteMdxIfExists(filepath: string, locale: string): void {

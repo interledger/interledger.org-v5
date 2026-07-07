@@ -33,29 +33,30 @@ export interface ParagraphBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.ambassador – single ambassador relation block.
+ * blocks.profile – single profile-page relation block.
  *
- * The `ambassador` field uses Strapi v5's `connect` syntax for
+ * The `profile` field uses Strapi v5's `connect` syntax for
  * relations inside dynamic zone components.
  */
-export interface AmbassadorBlock extends StrapiBlockBase {
-  __component: 'blocks.ambassador'
-  ambassador: { connect: Array<{ documentId: string }> }
+export interface ProfileBlock extends StrapiBlockBase {
+  __component: 'blocks.profile'
+  profile: { connect: Array<{ documentId: string }> }
 }
 
 /**
- * blocks.ambassadors-grid – ordered grid of ambassador relations.
+ * blocks.profile-grid – summary grid of profile pages, either
+ * category-driven or an ordered set of manually picked relations.
  *
- * `ambassadors` uses Strapi v5's `connect` syntax. Order of entries
+ * `profiles` uses Strapi v5's `connect` syntax. Order of entries
  * must match the input slug order.
  *
- * Either `ambassadors` (explicit slugs) or `category` (dynamic filter)
- * must be provided;
+ * Either `profiles` (explicit slugs) or `category` (dynamic filter)
+ * must be provided.
  */
-export interface AmbassadorsGridBlock extends StrapiBlockBase {
-  __component: 'blocks.ambassadors-grid'
+export interface ProfileGridBlock extends StrapiBlockBase {
+  __component: 'blocks.profile-grid'
   heading?: string
-  ambassadors?: { connect: Array<{ documentId: string }> }
+  profiles?: { connect: Array<{ documentId: string }> }
   category?: string
 }
 
@@ -124,8 +125,8 @@ export interface CodeBlockBlock extends StrapiBlockBase {
 /** Any block the parser can produce. */
 export type ParsedBlock =
   | ParagraphBlock
-  | AmbassadorBlock
-  | AmbassadorsGridBlock
+  | ProfileBlock
+  | ProfileGridBlock
   | BlockquoteBlock
   | CalloutTextBlock
   | CtaStripBlock

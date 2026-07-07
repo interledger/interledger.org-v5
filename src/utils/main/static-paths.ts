@@ -1,4 +1,8 @@
 import { getCollection } from 'astro:content'
+import {
+  crossSectionCollections,
+  type CrossSectionCollection
+} from '@/lib/templates'
 import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
@@ -8,7 +12,7 @@ export type CollectionType =
   | 'summit-pages'
   | 'foundation-blog'
   | 'developers-blog'
-  | 'ambassadors'
+  | 'profiles'
 
 type Entry = Awaited<ReturnType<typeof getCollection>>[number]
 
@@ -94,6 +98,115 @@ export async function getLocalizedPaths(
 /** URL segment from collection entry (`pathSlug` is normalized by content schemas). */
 function routeSegmentForCollection(data: Entry['data']): string {
   return (data as { pathSlug: string }).pathSlug
+}
+
+/** Site sections a profile page can live in. Matches the `section` frontmatter field. */
+export type ProfileSection = 'foundation' | 'summit' | 'hackathon'
+
+type ProfilePath = {
+  params: Record<string, string>
+  props: {
+    slug: string
+    locale: Locale
+    isFallback: boolean
+    kind: 'profile'
+  }
+}
+
+function toProfilePath(
+  paramName: string,
+  slug: string,
+  locale: Locale,
+  isFallback: boolean
+): ProfilePath {
+  return {
+    params: { [paramName]: slug },
+    props: { slug, locale, isFallback, kind: 'profile' }
+  }
+}
+
+/**
+ * Builds static paths for profile pages within a single site section.
+ *
+ * All profiles live in one `profiles` collection but render under different
+ * URL trees driven by the `section` frontmatter field. The route param and
+ * `props.slug` are both the section-relative `pathSlug` (no section prefix).
+ *
+ * Localization follows the same EN-canonical / ES-fallback rules as
+ * {@link getLocalizedPaths}.
+ */
+export async function getProfilePaths(
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<ProfilePath[]> {
+  const allEntries = await getCollection('profiles')
+
+  const enEntries = allEntries.filter(
+    (e) => e.data.locale === defaultLocale && e.data.section === section
+  )
+
+  if (lang === defaultLocale) {
+    return enEntries.map((e) =>
+      toProfilePath(
+        paramName,
+        routeSegmentForCollection(e.data),
+        defaultLocale,
+        false
+      )
+    )
+  }
+
+  const localizedByLocalizes = indexLocalizedEntriesByLocalizes(
+    allEntries,
+    lang
+  )
+
+  return enEntries.map((enEntry) => {
+    const enSlug = routeSegmentForCollection(enEntry.data)
+    const localizedEntry = localizedByLocalizes.get(enSlug)
+    return localizedEntry
+      ? toProfilePath(
+          paramName,
+          routeSegmentForCollection(localizedEntry.data),
+          lang,
+          false
+        )
+      : toProfilePath(paramName, enSlug, defaultLocale, true)
+  })
+}
+
+async function getPathsForCrossSectionCollection(
+  collection: CrossSectionCollection,
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<ProfilePath[]> {
+  switch (collection) {
+    case 'profiles':
+      return getProfilePaths(section, lang, paramName)
+    default: {
+      const _exhaustive: never = collection
+      return _exhaustive
+    }
+  }
+}
+
+/**
+ * Builds static paths for all cross-section template collections in a section.
+ * Driven by {@link crossSectionCollections} — add new template types there.
+ */
+export async function getCrossSectionPaths(
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<ProfilePath[]> {
+  const results = await Promise.all(
+    crossSectionCollections.map((collection) =>
+      getPathsForCrossSectionCollection(collection, section, lang, paramName)
+    )
+  )
+  return results.flat()
 }
 
 function getEntriesForDefaultLocale(

@@ -1,0 +1,16 @@
+---
+import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import { getCrossSectionPaths } from '@/utils'
+
+export async function getStaticPaths() {
+  return getCrossSectionPaths('hackathon', 'en', 'page')
+}
+
+const { slug, locale: contentLocale, isFallback } = Astro.props
+---
+
+<ProfileDetailPage
+  slug={slug}
+  contentLocale={contentLocale}
+  isFallback={isFallback}
+/>

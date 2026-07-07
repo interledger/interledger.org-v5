@@ -2,8 +2,8 @@
 import { type Locale, getHeroSectionStyle } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import Ambassador from '@/components/shared/Ambassador.astro'
-import AmbassadorGrid from '@/components/shared/AmbassadorGrid.astro'
+import ProfileCard from '@/components/shared/ProfileCard.astro'
+import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -28,6 +28,11 @@ const mdxPage = pages.find(
 )
 
 if (!mdxPage) return Astro.redirect('/404')
+
+Astro.locals.profileEntries = await getCollection(
+  'profiles',
+  (entry) => entry.data.section === 'foundation'
+)
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
@@ -96,12 +101,12 @@ if (isNotFound) return Astro.redirect('/404')
     }
     <section class="py-space-xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div data-prose class="mx-auto max-w-narrow">
+        <div data-prose class="mx-auto max-w-content">
           <MdxContent
             components={{
               img: OptimizedImage,
-              Ambassador,
-              AmbassadorGrid,
+              ProfileCard,
+              ProfileGrid,
               Blockquote,
               CalloutText,
               Paragraph,

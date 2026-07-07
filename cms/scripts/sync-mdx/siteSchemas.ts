@@ -1,8 +1,8 @@
 export {
-  ambassadorFrontmatterSchema,
   foundationPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  foundationBlogFrontmatterSchema
+  foundationBlogFrontmatterSchema,
+  profileFrontmatterSchema
 } from '@site/schemas/content'

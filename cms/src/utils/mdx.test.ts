@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest'
-import { formatMdx } from './mdx'
+import { formatMdx, pathSlugToMdxFilename } from './mdx'
+
+describe('pathSlugToMdxFilename', () => {
+  it('flattens nested path slugs to hyphenated filename stems', () => {
+    expect(pathSlugToMdxFilename('grant/fellowship/jane-doe')).toBe(
+      'grant-fellowship-jane-doe'
+    )
+    expect(pathSlugToMdxFilename('/summit/2025/speakers/jane-doe/')).toBe(
+      'summit-2025-speakers-jane-doe'
+    )
+  })
+})
 
 describe('formatMdx', () => {
   it('preserves indentation inside a CodeBlock code attribute', async () => {

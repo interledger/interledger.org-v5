@@ -50,7 +50,7 @@ describe('validateNoNestedJsx', () => {
         __component: 'blocks.paragraph',
         content: [
           '```tsx',
-          '<Ambassador name="A" />',
+          '<ProfileCard name="A" />',
           '<CalloutText>note</CalloutText>',
           '```'
         ].join('\n')

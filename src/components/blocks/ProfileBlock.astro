@@ -1,0 +1,32 @@
+---
+/**
+ * Single Profile Block for Dynamic Zones (SSR Preview)
+ * Displays a specific profile page from the collection
+ * Converts markdown description to HTML for preview rendering
+ */
+
+import ProfileCard from '@/components/shared/ProfileCard.astro'
+import type { StrapiProfile } from '@/components/shared/profile.types'
+
+interface Props {
+  profile?: StrapiProfile
+}
+
+const { profile } = Astro.props
+
+// Handle case where profile relation isn't populated
+if (!profile) {
+  return null
+}
+
+const photoUrl = profile.photo?.url
+const photoAlt = profile.photo?.alternativeText ?? profile.name
+---
+
+<ProfileCard
+  name={profile.name}
+  pathSlug={profile.pathSlug}
+  photo={photoUrl}
+  photoAlt={photoAlt}
+  tagline={profile.tagline || undefined}
+/>

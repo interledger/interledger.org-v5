@@ -222,21 +222,26 @@ export type GrantOverviewPageFrontmatterType = z.infer<
   typeof grantOverviewPageFrontmatterSchema
 >
 
-export const ambassadorFrontmatterSchema = z.object({
+// Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
+// `category` field). For `section: foundation`, pathSlug is the full site path
+// (e.g. grant/fellowship/jane-doe, team/jane-doe). For summit or hackathon,
+// pathSlug is relative to that section prefix (e.g. 2025/judges/jane-doe).
+export const profileFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
+  section: z.enum(['summit', 'hackathon', 'foundation']),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
-  category: z.string().nullable().optional(),
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
   tagline: z.string().nullable().optional(),
-  quote: z.string().nullable().optional(),
-  locale: z.string().optional(),
+  description: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  cta: heroCtaSchema.optional(),
+  locale: z.string(),
   localizes: z.string().optional()
 })
-export type AmbassadorFrontmatterType = z.infer<
-  typeof ambassadorFrontmatterSchema
->
+export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema

@@ -7,5 +7,7 @@ declare namespace App {
     routeLocale: import('@/utils/i18').Locale
     currentSlug: string
     currentBasePath: string
+    /** Preloaded in MDX page shells so ProfileGrid avoids stale collection reads on HMR. */
+    profileEntries?: import('astro:content').CollectionEntry<'profiles'>[]
   }
 }

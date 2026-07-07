@@ -12,6 +12,7 @@ export {
 export {
   FOUNDATION_PAGE_CONTENT_POPULATE,
   BLOG_CONTENT_POPULATE,
+  PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
@@ -31,7 +32,8 @@ export {
   htmlToMarkdown,
   formatBlockquote,
   uidToLogLabel,
-  resolveFilenameSlug
+  resolveFilenameSlug,
+  pathSlugToMdxFilename
 } from './mdx'
 export {
   validateNoNestedJsx,
@@ -68,6 +70,11 @@ export {
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
 export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
+export {
+  type ProfileMdxCta,
+  type ProfileMdxInput,
+  generateProfileMdx
+} from './profileMdx'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,

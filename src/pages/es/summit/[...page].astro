@@ -1,18 +1,37 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
-import { getLocalizedPaths, HOME_CONTENT_SLUG } from '@/utils'
+import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import {
+  getLocalizedPaths,
+  getCrossSectionPaths,
+  HOME_CONTENT_SLUG
+} from '@/utils'
 
 export async function getStaticPaths() {
-  return getLocalizedPaths('summit-pages', 'es', 'page', {
-    excludeSlug: HOME_CONTENT_SLUG
-  })
+  const pages = (
+    await getLocalizedPaths('summit-pages', 'es', 'page', {
+      excludeSlug: HOME_CONTENT_SLUG
+    })
+  ).map((p) => ({ ...p, props: { ...p.props, kind: 'page' as const } }))
+  const crossSectionPaths = await getCrossSectionPaths('summit', 'es', 'page')
+  return [...crossSectionPaths, ...pages]
 }
 
-const { slug, locale: contentLocale } = Astro.props
+const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 ---
 
-<SummitContentPage
-  slug={slug}
-  contentLocale={contentLocale}
-  isFallback={Astro.props.isFallback}
-/>
+{
+  kind === 'profile' ? (
+    <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : (
+    <SummitContentPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  )
+}

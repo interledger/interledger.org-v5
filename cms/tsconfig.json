@@ -25,5 +25,13 @@
     "config/**/*.ts",
     "types/**/*.ts"
   ],
-  "exclude": ["node_modules/**", "build/**", "dist/**", ".cache/**", ".tmp/**"]
+  "exclude": [
+    "node_modules/**",
+    "build/**",
+    "dist/**",
+    ".cache/**",
+    ".tmp/**",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ]
 }

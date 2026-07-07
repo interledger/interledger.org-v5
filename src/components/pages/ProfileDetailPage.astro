@@ -1,0 +1,199 @@
+---
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import {
+  getProfileHeroColorClass,
+  getProfileAvatarColorClass
+} from '@/components/shared/profileColors'
+import {
+  type Locale,
+  useTranslations,
+  getProfileColorIndex,
+  localizeRoute,
+  buildUmamiAttrs,
+  getOptimizedImage
+} from '@/utils'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const t = useTranslations(contentLocale)
+
+const allProfiles = await getCollection('profiles')
+const entry = allProfiles.find(
+  (p) => p.data.pathSlug === slug && p.data.locale === contentLocale
+)
+
+if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)
+
+const { Content: MdxContent } = await render(entry)
+const { name, photo, photoAlt, tagline, role, cta, description } = entry.data
+
+const title = `${name} | Interledger Foundation`
+const displayRole = role ?? tagline
+const hasCta = Boolean(cta?.text && cta?.link)
+const hasBody = Boolean(entry.body?.trim())
+const colorIndex = await getProfileColorIndex(
+  entry.data.pathSlug,
+  contentLocale
+)
+const heroColorClass = getProfileHeroColorClass(colorIndex)
+const avatarColorClass = getProfileAvatarColorClass(colorIndex)
+
+const avatarSrc = photo
+  ? (() => {
+      const { avifFullSrc, fullSrc } = getOptimizedImage(photo)
+      return avifFullSrc ?? fullSrc ?? photo
+    })()
+  : null
+const avatarPreloadType = avatarSrc?.endsWith('.avif')
+  ? 'image/avif'
+  : undefined
+
+const avatarSizeClass =
+  'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'
+
+// Build breadcrumbs: Home > [section base?] > [pathSlug parents] > name
+const sectionPrefix =
+  entry.data.section && entry.data.section !== 'foundation'
+    ? entry.data.section
+    : ''
+const fullPath = [sectionPrefix, entry.data.pathSlug].filter(Boolean).join('/')
+const allParts = fullPath.split('/')
+const parentParts = allParts.slice(0, -1)
+const toLabel = (seg: string) =>
+  seg
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  ...parentParts.map((_, i) => ({
+    name: toLabel(parentParts[i]),
+    href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
+  })),
+  { name, href: localizeRoute(fullPath, contentLocale) }
+]
+---
+
+<FoundationPageLayout
+  title={title}
+  description={description ?? displayRole ?? name}
+>
+  {
+    avatarSrc && (
+      <link
+        slot="head"
+        rel="preload"
+        as="image"
+        href={avatarSrc}
+        {...(avatarPreloadType ? { type: avatarPreloadType } : {})}
+      />
+    )
+  }
+  <main class="pb-3xl" data-pillar="mission">
+    <TranslationDisclaimer isVisible={isFallback} />
+    <header
+      class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
+    >
+      <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
+        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
+      </div>
+    </header>
+    <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
+      <div
+        class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
+      >
+        {
+          avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt={photoAlt ?? name}
+              width={240}
+              height={240}
+              loading="eager"
+              fetchpriority="high"
+              decoding="sync"
+              class="absolute inset-0 h-full w-full object-contain object-bottom"
+            />
+          ) : (
+            <div class="absolute inset-0">
+              <ProfileAvatarFallback />
+            </div>
+          )
+        }
+      </div>
+      <div
+        class="mt-xl flex flex-col gap-0 [&_h2]:mb-md [&_h2]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
+      >
+        <h2
+          class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
+        >
+          {name}
+        </h2>
+        {
+          displayRole && (
+            <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-4 border-orchid-100 font-normal">
+              {displayRole}
+            </h4>
+          )
+        }
+      </div>
+      {
+        description && (
+          <section
+            data-prose
+            aria-label={t('profile.description')}
+            class="mb-2xl"
+          >
+            <Paragraph content={description} />
+          </section>
+        )
+      }
+      {
+        hasCta && (
+          <div class="mb-2xl">
+            <LinkButton
+              href={cta!.link}
+              variant={cta!.style === 'secondary' ? 'secondary' : 'primary'}
+              size="lg"
+              external={cta!.external}
+              {...buildUmamiAttrs({
+                pathname: Astro.url.pathname,
+                lang: contentLocale,
+                section: 'cta',
+                href: cta!.link,
+                linkText: cta!.text,
+                action: 'cta_button'
+              })}
+            >
+              {cta!.text}
+              <Icon name="arrow-right" slot="icon-right" />
+            </LinkButton>
+          </div>
+        )
+      }
+      {
+        hasBody && (
+          <section
+            data-prose
+            aria-label={t('profile.biography')}
+            class="mb-2xl"
+          >
+            <MdxContent components={{ Paragraph }} />
+          </section>
+        )
+      }
+    </div>
+  </main>
+</FoundationPageLayout>

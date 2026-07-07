@@ -9,6 +9,8 @@ interface Props {
   external?: boolean
   /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
   section?: UmamiSection
+  /** Override the derived Umami action segment (e.g. `cta_button`). */
+  action?: string
 }
 
 const {
@@ -17,7 +19,8 @@ const {
   external,
   text,
   variant,
-  section = 'cta'
+  section = 'cta',
+  action
 } = Astro.props as Props
 const { routeLocale } = Astro.locals
 
@@ -46,7 +49,8 @@ const umamiAttrs = buildUmamiAttrs({
   lang: routeLocale,
   section,
   linkText: text,
-  href
+  href,
+  action
 })
 ---
 

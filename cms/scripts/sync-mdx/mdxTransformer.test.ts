@@ -500,8 +500,8 @@ describe('buildPagePayload', () => {
   // structured blocks instead of a single paragraph.
   describe('parser integration', () => {
     it('parses JSX into structured blocks when parserCtx is provided', async () => {
-      // Import handler side-effects to register Ambassador
-      await import('./ambassadorHandler')
+      // Import handler side-effects to register ProfileCard
+      await import('./profileHandler')
 
       const parserCtx = {
         locale: 'en',
@@ -511,9 +511,9 @@ describe('buildPagePayload', () => {
       }
 
       const mdx = createMdxFile({
-        pathSlug: 'ambassadors-page',
-        frontmatter: { title: 'Ambassadors' },
-        content: '<Ambassador pathSlug="alice" />'
+        pathSlug: 'profiles-page',
+        frontmatter: { title: 'Profiles' },
+        content: '<ProfileCard pathSlug="alice" />'
       })
 
       const payload = await buildPagePayload(
@@ -525,14 +525,14 @@ describe('buildPagePayload', () => {
 
       expect((payload as Record<string, unknown>).content).toEqual([
         {
-          __component: 'blocks.ambassador',
-          ambassador: { connect: [{ documentId: 'doc-alice' }] }
+          __component: 'blocks.profile',
+          profile: { connect: [{ documentId: 'doc-alice' }] }
         }
       ])
     })
 
     it('returns parser error with file slug context', async () => {
-      await import('./ambassadorHandler')
+      await import('./profileHandler')
 
       const parserCtx = {
         locale: 'en',
@@ -592,7 +592,7 @@ describe('buildPagePayload', () => {
     })
 
     it('passes locale through parserCtx for relation resolution', async () => {
-      await import('./ambassadorHandler')
+      await import('./profileHandler')
 
       const resolveRelation = vi.fn(
         async (_apiId: string, pathSlug: string) => ({
@@ -603,16 +603,16 @@ describe('buildPagePayload', () => {
       const parserCtx = { locale: 'es', resolveRelation }
 
       const mdx = createMdxFile({
-        pathSlug: 'embajadores',
+        pathSlug: 'perfiles',
         locale: 'es',
         isLocalization: true,
-        localizes: 'ambassadors-page',
+        localizes: 'profiles-page',
         frontmatter: {
-          title: 'Embajadores',
-          localizes: 'ambassadors-page',
+          title: 'Perfiles',
+          localizes: 'profiles-page',
           locale: 'es'
         },
-        content: '<Ambassador pathSlug="alice" />'
+        content: '<ProfileCard pathSlug="alice" />'
       })
 
       const payload = await buildPagePayload(
@@ -622,11 +622,11 @@ describe('buildPagePayload', () => {
         parserCtx
       )
 
-      expect(resolveRelation).toHaveBeenCalledWith('ambassadors', 'alice')
-      expect((payload as Record<string, unknown>).content).toEqual([
+      expect(resolveRelation).toHaveBeenCalledWith('profile-pages', 'alice')
+      expect(payload.content).toEqual([
         {
-          __component: 'blocks.ambassador',
-          ambassador: { connect: [{ documentId: 'doc-alice' }] }
+          __component: 'blocks.profile',
+          profile: { connect: [{ documentId: 'doc-alice' }] }
         }
       ])
     })

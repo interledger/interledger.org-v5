@@ -1,7 +1,7 @@
 # Adding a New Component to the MDX Import Pipeline
 
 Use this guide to add a JSX component handler for `sync:mdx`.
-Reference implementation: `ambassadorHandler.ts`.
+Reference implementation: `profileHandler.ts`.
 
 ## Files to Touch
 
@@ -124,7 +124,7 @@ Invalid input must raise `MdxParserError`.
 For relation fields inside blocks, use Strapi v5 `connect` syntax:
 
 ```ts
-ambassador: {
+author: {
   connect: [{ documentId: 'abc123' }]
 }
 ```
@@ -132,7 +132,7 @@ ambassador: {
 For arrays:
 
 ```ts
-ambassadors: {
+profiles: {
   connect: [{ documentId: 'abc' }, { documentId: 'def' }]
 }
 ```
@@ -140,7 +140,7 @@ ambassadors: {
 Resolve pathSlugs with `ctx.resolveRelation!(apiId, pathSlug)`:
 
 ```ts
-const { documentId } = await ctx.resolveRelation!('ambassadors', pathSlug)
+const { documentId } = await ctx.resolveRelation!('profile-pages', pathSlug)
 ```
 
 ## Error Rules

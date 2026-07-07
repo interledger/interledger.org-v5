@@ -13,11 +13,11 @@
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
-  'blocks.ambassador': {
-    populate: { ambassador: { populate: { photo: true } } }
+  'blocks.profile': {
+    populate: { profile: { populate: { photo: true } } }
   },
-  'blocks.ambassadors-grid': {
-    populate: { ambassadors: true }
+  'blocks.profile-grid': {
+    populate: { profiles: true }
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
@@ -35,6 +35,13 @@ const FOUNDATION_BLOG_BLOCKS = {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.code-block': {}
+} as const
+
+/** Populate config for profile-page content field (paragraph blocks only). */
+export const PROFILE_PAGE_CONTENT_POPULATE = {
+  on: {
+    'blocks.paragraph': {}
+  }
 } as const
 
 /** Populate config for foundation-page and summit-page content fields. */

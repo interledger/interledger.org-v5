@@ -28,7 +28,7 @@ import {
 
 /** REST plural API ids — matches sync-mdx */
 const DEFAULT_COLLECTIONS = [
-  'ambassadors',
+  'profile-pages',
   'foundation-pages',
   'summit-pages',
   'foundation-blog-posts'

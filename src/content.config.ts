@@ -3,12 +3,12 @@ import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 import {
-  ambassadorFrontmatterSchema,
   developersBlogFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
+  profileFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
 import { CONTENT, CONTENT_ROOT } from '@/utils/main/contentCollections'
@@ -61,12 +61,12 @@ const developersBlogCollection = defineCollection({
   schema: developersBlogFrontmatterSchema
 })
 
-const ambassadorCollection = defineCollection({
+const profilesCollection = defineCollection({
   loader: glob({
-    pattern: '**/[^_]*.mdx',
-    base: `./${CONTENT_ROOT}/${CONTENT.ambassadors}`
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.profiles}`
   }),
-  schema: ambassadorFrontmatterSchema
+  schema: profileFrontmatterSchema
 })
 
 export const collections = {
@@ -78,7 +78,7 @@ export const collections = {
   'grant-pages': grantPagesCollection,
   'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,
-  ambassadors: ambassadorCollection
+  profiles: profilesCollection
 }
 
 export type CollectionType = keyof typeof collections
