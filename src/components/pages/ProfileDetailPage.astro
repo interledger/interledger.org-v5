@@ -70,7 +70,9 @@ const breadcrumbs = [
 <FoundationPageLayout title={title} description={displayRole ?? name}>
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
-    <header class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}>
+    <header
+      class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
+    >
       <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
         <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
       </div>

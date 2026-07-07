@@ -87,9 +87,7 @@ export function createFlatLocaleMdxLifecycle<
     pathSlug: string,
     englishSlug?: string
   ): string {
-    return toMdxFilename(
-      resolveFilenameSlug(locale, pathSlug, englishSlug)
-    )
+    return toMdxFilename(resolveFilenameSlug(locale, pathSlug, englishSlug))
   }
 
   async function fetchPublished(

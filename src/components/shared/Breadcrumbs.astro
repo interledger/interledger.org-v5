@@ -18,8 +18,11 @@ interface Props {
   breakBeforeLastItem?: boolean
 }
 
-const { breadcrumbs, class: className, breakBeforeLastItem = false } =
-  Astro.props
+const {
+  breadcrumbs,
+  class: className,
+  breakBeforeLastItem = false
+} = Astro.props
 const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
@@ -77,7 +80,11 @@ const chevronMarginClass = breakBeforeLastItem
                   linkText: crumb.name
                 })}
               >
-                <span itemprop="name" class="whitespace-nowrap" title={crumb.name}>
+                <span
+                  itemprop="name"
+                  class="whitespace-nowrap"
+                  title={crumb.name}
+                >
                   {crumb.name}
                 </span>
               </a>
