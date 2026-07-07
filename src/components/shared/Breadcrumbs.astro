@@ -14,7 +14,7 @@ interface BreadcrumbItem {
 interface Props {
   breadcrumbs: BreadcrumbItem[]
   class?: string
-  /** On narrow viewports, put the current (last) crumb on its own row. */
+  /** Profile header spacing tweaks (single-line trail; last crumb truncates). */
   breakBeforeLastItem?: boolean
 }
 
@@ -27,14 +27,36 @@ const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
 const breadcrumbClasses = twMerge(
-  'flex flex-wrap items-center list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
-  breakBeforeLastItem ? 'gap-x-xs gap-y-2xs tablet:gap-xs' : 'gap-xs',
+  'flex flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
+  breakBeforeLastItem ? 'gap-x-xs tablet:gap-xs' : 'gap-xs',
   className
 )
 const linkPaddingClass = breakBeforeLastItem ? 'px-xs py-0 tablet:p-xs' : 'p-xs'
 const chevronMarginClass = breakBeforeLastItem
   ? 'shrink-0 tablet:my-xs'
   : 'my-xs shrink-0'
+
+function getItemClasses(isLast: boolean): string {
+  if (isLast) {
+    return 'flex min-w-0 flex-1 overflow-hidden m-0'
+  }
+  return 'flex shrink-0 m-0'
+}
+
+function getLinkClasses(isLast: boolean): string {
+  const base = `inline-block ${linkPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900`
+  if (isLast) {
+    return `${base} min-w-0 max-w-full overflow-hidden`
+  }
+  return base
+}
+
+function getNameClasses(isLast: boolean): string {
+  if (isLast) {
+    return 'block min-w-0 truncate'
+  }
+  return 'whitespace-nowrap'
+}
 ---
 
 <nav aria-label={t('nav.breadcrumb')}>
@@ -48,18 +70,11 @@ const chevronMarginClass = breakBeforeLastItem
         const isCurrent = crumb.href === currentPath
         const isLast = index === breadcrumbs.length - 1
         return (
-          <>
-            {breakBeforeLastItem && isLast && (
-              <li
-                class="basis-full h-0 p-0 m-0 tablet:hidden"
-                aria-hidden="true"
-              />
-            )}
             <li
               itemprop="itemListElement"
               itemscope
               itemtype="https://schema.org/ListItem"
-              class:list={['flex shrink-0 m-0']}
+              class:list={[getItemClasses(isLast)]}
             >
               {index !== 0 && (
                 <Icon
@@ -70,7 +85,7 @@ const chevronMarginClass = breakBeforeLastItem
               <a
                 itemprop="item"
                 href={crumb.href}
-                class={`inline-block ${linkPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900 `}
+                class={getLinkClasses(isLast)}
                 aria-current={isCurrent ? 'page' : undefined}
                 {...buildUmamiAttrs({
                   pathname: Astro.url.pathname,
@@ -80,17 +95,12 @@ const chevronMarginClass = breakBeforeLastItem
                   linkText: crumb.name
                 })}
               >
-                <span
-                  itemprop="name"
-                  class="whitespace-nowrap"
-                  title={crumb.name}
-                >
+                <span itemprop="name" class={getNameClasses(isLast)} title={crumb.name}>
                   {crumb.name}
                 </span>
               </a>
               <meta itemprop="position" content={String(index + 1)} />
             </li>
-          </>
         )
       })
     }
