@@ -6,9 +6,9 @@ import { getProfileAvatarColorClass } from '@/components/shared/profileColors'
 
 interface Props {
   name: string
-  /** Section-relative path, e.g. 'fellowship/jane-doe'. Combined with `section` to form the full URL. */
+  /** Full site path for foundation profiles, or section-relative path for summit/hackathon. */
   pathSlug: string
-  /** Site section — controls the URL prefix (/grant, /summit, /hackathon, or empty for foundation). */
+  /** Site section — controls the URL prefix (/summit, /hackathon, or none for foundation). */
   section?: string | null
   photo?: string
   photoAlt?: string

@@ -114,9 +114,9 @@ When content is published or updated in Strapi:
 - MDX files for **blog posts** use a date-prefixed format: `yyyy-mm-dd-{pathSlug}.mdx`<br/>
   Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
-- MDX files for **profile pages** are stored **flat** under `src/content/profiless/` (and `src/content/profiless/es/` for localized entries). The `pathSlug` is section-relative and sets the path within the section — it does not create nested folders. The filename is derived from the `pathSlug` with slashes replaced by hyphens.<br/>
-  Example: `section: grant`, `pathSlug: fellowship/jane-doe` → `src/content/profiless/fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe`.<br/>
-  Example: `section: summit`, `pathSlug: 2025/speakers/jane-doe` → `src/content/profiless/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe`.
+- MDX files for **profile pages** are stored **flat** under `src/content/profiles/` (and `src/content/profiles/es/` for localized entries). The filename is derived from the `pathSlug` with slashes replaced by hyphens.<br/>
+  Example: `section: foundation`, `pathSlug: grant/fellowship/jane-doe` → `src/content/profiles/grant-fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe`.<br/>
+  Example: `section: summit`, `pathSlug: 2025/speakers/jane-doe` → `src/content/profiles/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe`.
 
 **Profile pages**
 
@@ -128,24 +128,23 @@ When content is published or updated in Strapi:
 
 **Profile URL composition**
 
-Each profile's public URL is built from three parts visible in the Strapi editor:
+Each profile's public URL is built from the `section` and `pathSlug` fields:
 
 | Part | Field | Example |
 |---|---|---|
 | Domain | _(static label)_ | `interledger.org` |
-| Section | `section` dropdown | `/grant` |
-| Path | `pathSlug` | `fellowship/jane-doe` |
+| Section prefix | `section` dropdown | _(none for foundation)_ |
+| Path | `pathSlug` | `grant/fellowship/jane-doe` |
 
-The **section** dropdown controls which part of the site the profile belongs to:
+The **section** dropdown controls routing and breadcrumbs:
 
 | Dropdown value | URL prefix | Served by |
 |---|---|---|
-| Foundation (`foundation`) | _(none)_ | `src/pages/[...page].astro` |
-| Grant (`grant`) | `/grant` | `src/pages/grant/[...page].astro` |
+| Foundation (`foundation`) | _(none — use full path in pathSlug)_ | `src/pages/[...page].astro` |
 | Summit (`summit`) | `/summit` | `src/pages/summit/[...page].astro` |
 | Hackathon (`hackathon`) | `/hackathon` | `src/pages/hackathon/[...page].astro` |
 
-The **pathSlug** is the remaining path within that section — it does not include the section prefix. For example, a fellowship profile has `section: grant` and `pathSlug: fellowship/jane-doe`, producing the URL `/grant/fellowship/jane-doe`.
+For **foundation** profiles, `pathSlug` is the full site path (e.g. `grant/fellowship/jane-doe` → `/grant/fellowship/jane-doe`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `2025/speakers/jane-doe` → `/summit/2025/speakers/jane-doe`).
 
 **Migrating from ambassadors**
 

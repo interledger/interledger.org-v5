@@ -97,7 +97,7 @@ function routeSegmentForCollection(data: Entry['data']): string {
 }
 
 /** Site sections a profile page can live in. Matches the `section` frontmatter field. */
-export type ProfileSection = 'foundation' | 'grant' | 'summit' | 'hackathon'
+export type ProfileSection = 'foundation' | 'summit' | 'hackathon'
 
 type ProfilePath = {
   params: Record<string, string>

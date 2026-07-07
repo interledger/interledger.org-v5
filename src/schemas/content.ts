@@ -223,13 +223,13 @@ export type GrantOverviewPageFrontmatterType = z.infer<
 >
 
 // Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
-// `category` field) use a full-path pathSlug (e.g. summit/2025/judges/jane-doe,
-// grant/fellowship/jane-doe) whose first segment maps to the storage folder and
-// URL section.
+// `category` field). For `section: foundation`, pathSlug is the full site path
+// (e.g. grant/fellowship/jane-doe, team/jane-doe). For summit or hackathon,
+// pathSlug is relative to that section prefix (e.g. 2025/judges/jane-doe).
 export const profileFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
-  section: z.enum(['grant', 'summit', 'hackathon', 'foundation']),
+  section: z.enum(['summit', 'hackathon', 'foundation']),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),

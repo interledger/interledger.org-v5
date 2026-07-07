@@ -484,6 +484,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::profile-page.profile-page': {
       name: 'Name',
       pathSlug: 'URL Slug',
+      section: 'Section',
       photo: 'Photo',
       tagline: 'Tag line',
       description: 'Description',
@@ -554,6 +555,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       photo:
         'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
       role: "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
         'Short intro blurb shown on the profile detail page, above the CTA and biography sections.'
     },
@@ -895,8 +898,9 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::profile-page.profile-page': [
       [
         { name: 'name', size: 6 },
-        { name: 'pathSlug', size: 6 }
+        { name: 'section', size: 6 }
       ],
+      [{ name: 'pathSlug', size: 12 }],
       [
         { name: 'category', size: 6 },
         { name: 'photo', size: 6 }

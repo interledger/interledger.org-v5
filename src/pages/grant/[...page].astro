@@ -1,10 +1,9 @@
 ---
 import GrantPage from '@/components/pages/GrantPage.astro'
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
-import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import { getLocalizedPaths, getProfilePaths, type Locale } from '@/utils'
+import { getLocalizedPaths, type Locale } from '@/utils'
 
-type GrantCollection = 'grant-pages' | 'grant-overview-pages' | 'profiles'
+type GrantCollection = 'grant-pages' | 'grant-overview-pages'
 
 interface Props {
   slug: string
@@ -14,15 +13,14 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const [grantPaths, overviewPaths, profilePaths] = await Promise.all([
+  const [grantPaths, overviewPaths] = await Promise.all([
     getLocalizedPaths('grant-pages', 'en', 'page'),
-    getLocalizedPaths('grant-overview-pages', 'en', 'page'),
-    getProfilePaths('grant', 'en', 'page')
+    getLocalizedPaths('grant-overview-pages', 'en', 'page')
   ])
 
   const seen = new Set<string>()
   const duplicates = new Set<string>()
-  for (const p of [...grantPaths, ...overviewPaths, ...profilePaths]) {
+  for (const p of [...grantPaths, ...overviewPaths]) {
     const slug = p.params.page
     if (seen.has(slug)) duplicates.add(slug)
     else seen.add(slug)
@@ -44,10 +42,6 @@ export async function getStaticPaths() {
         ...p.props,
         collection: 'grant-overview-pages' as GrantCollection
       }
-    })),
-    ...profilePaths.map((p) => ({
-      ...p,
-      props: { ...p.props, collection: 'profiles' as GrantCollection }
     }))
   ]
 }
@@ -56,13 +50,7 @@ const { slug, locale: contentLocale, collection } = Astro.props
 ---
 
 {
-  collection === 'profiles' ? (
-    <ProfileDetailPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={Astro.props.isFallback}
-    />
-  ) : collection === 'grant-pages' ? (
+  collection === 'grant-pages' ? (
     <GrantPage
       slug={slug}
       contentLocale={contentLocale}

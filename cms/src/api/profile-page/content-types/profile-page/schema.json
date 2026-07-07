@@ -39,13 +39,13 @@
     },
     "section": {
       "type": "enumeration",
-      "enum": ["grant", "summit", "hackathon", "foundation"],
+      "enum": ["summit", "hackathon", "foundation"],
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
       },
-      "description": "Site section this profile belongs to. Controls the MDX storage folder prefix."
+      "description": "Site section for routing and breadcrumbs. Does not affect MDX file location."
     },
     "tagline": {
       "type": "string",

@@ -20,7 +20,7 @@ export interface ProfileMdxCta {
 export interface ProfileMdxInput {
   name: string
   pathSlug: string
-  section?: 'grant' | 'summit' | 'hackathon' | 'foundation' | null
+  section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null
   photo?: MediaFile | null
   category?: string | null

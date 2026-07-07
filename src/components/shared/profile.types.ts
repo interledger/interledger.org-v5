@@ -28,7 +28,7 @@ export interface ProfileData {
   name: string
   /** Section-relative path, e.g. 'fellowship/jane-doe'. Combined with `section` to form the full URL. */
   pathSlug: string
-  /** Site section — controls the URL prefix (/grant, /summit, /hackathon, or empty for foundation). */
+  /** Site section — controls the URL prefix (/summit, /hackathon, or empty for foundation). */
   section?: string | null
   photo?: string | null
   photoAlt?: string | null
