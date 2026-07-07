@@ -132,7 +132,7 @@ author: {
 For arrays:
 
 ```ts
-authors: {
+profiles: {
   connect: [{ documentId: 'abc' }, { documentId: 'def' }]
 }
 ```
@@ -140,7 +140,7 @@ authors: {
 Resolve pathSlugs with `ctx.resolveRelation!(apiId, pathSlug)`:
 
 ```ts
-const { documentId } = await ctx.resolveRelation!('authors', pathSlug)
+const { documentId } = await ctx.resolveRelation!('profile-pages', pathSlug)
 ```
 
 ## Error Rules
