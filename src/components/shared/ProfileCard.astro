@@ -1,5 +1,6 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import { defaultLocale, buildUmamiAttrs } from '@/utils'
 import { getProfileAvatarColorClass } from '@/components/shared/profileColors'
 
@@ -61,29 +62,19 @@ const umamiBase = {
             class="h-full w-full object-contain object-bottom"
           />
         ) : (
-          <div class="h-full w-full flex items-end justify-center">
-            <svg
-              viewBox="0 0 100 100"
-              aria-hidden="true"
-              class="w-[90%] h-[90%] text-white/60"
-              fill="currentColor"
-            >
-              <circle cx="50" cy="36" r="20" />
-              <ellipse cx="50" cy="90" rx="34" ry="26" />
-            </svg>
-          </div>
+          <ProfileAvatarFallback />
         )
       }
     </div>
-    <div class="max-w-100 mx-auto mt-space-s">
+    <div class="max-w-100 mx-auto mt-xl">
       <h3
-        class="text-h4 md:text-h4-md lg:text-h4-lg text-neutral-900 mb-space-3xs"
+        class="text-h4 md:text-h4-md lg:text-h4-lg text-neutral-900 mb-sm"
       >
         {name}
       </h3>
       {
         tagline && (
-          <p class="text-body-lg-standard md:text-body-lg-standard-md mb-space-s">
+          <p class="text-body-lg-standard md:text-body-lg-standard-md mb-xl">
             {tagline}
           </p>
         )

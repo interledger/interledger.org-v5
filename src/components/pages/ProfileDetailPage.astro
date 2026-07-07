@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -38,7 +39,6 @@ if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)
 const { Content: MdxContent } = await render(entry)
 const { name, photo, photoAlt, tagline, role, cta } = entry.data
 
-const image = photo ?? '/sessionize-speakers/img/no-photo.svg'
 const title = `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
@@ -68,29 +68,35 @@ const breadcrumbs = [
 ---
 
 <FoundationPageLayout title={title} description={displayRole ?? name}>
-  <main class="pb-space-l" data-pillar="mission">
+  <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <header class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}>
-      <div class="max-w-250 m-auto px-space-m pt-space-m tablet:pt-[56px] desktop:pt-[80px]">
+      <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
         <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
       </div>
     </header>
-    <div class="max-w-250 m-auto px-space-m -mt-[105px] tablet:-mt-[115px] desktop:-mt-[170px]">
+    <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
       <div
-        class={`rounded-full overflow-hidden w-[160px] h-[160px] tablet:w-[220px] tablet:h-[220px] desktop:w-[240px] desktop:h-[240px] ${avatarColorClass}`}
+        class={`rounded-full overflow-hidden size-7xl tablet:w-[220px] tablet:h-[220px] desktop:w-[240px] desktop:h-[240px] ${avatarColorClass}`}
       >
-        <OptimizedImage
-          src={image}
-          alt={photoAlt ?? name}
-          width={240}
-          height={240}
-          loading="eager"
-          sizes="(min-width: 1200px) 240px, (min-width: 810px) 220px, 160px"
-          class="block w-full h-full object-contain object-bottom"
-        />
+        {
+          photo ? (
+            <OptimizedImage
+              src={photo}
+              alt={photoAlt ?? name}
+              width={240}
+              height={240}
+              loading="eager"
+              sizes="(min-width: 1200px) 240px, (min-width: 810px) 220px, 160px"
+              class="block h-full w-full object-contain object-bottom"
+            />
+          ) : (
+            <ProfileAvatarFallback />
+          )
+        }
       </div>
       <div
-        class="mt-space-s flex flex-col gap-0 [&_h2]:mb-space-2xs [&_h2]:leading-tight [&_h4]:mt-0 [&_h4]:mb-space-s [&_h4]:pb-0"
+        class="mt-xl flex flex-col gap-0 [&_h2]:mb-md [&_h2]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
       >
         <h2
           class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
@@ -105,12 +111,12 @@ const breadcrumbs = [
           )
         }
       </div>
-      <section data-prose aria-label={t('profile.biography')} class="mb-8">
+      <section data-prose aria-label={t('profile.biography')} class="mb-2xl">
         <MdxContent components={{ Paragraph }} />
       </section>
       {
         hasCta && (
-          <div class="my-8">
+          <div class="my-2xl">
             <LinkButton
               href={cta!.link}
               variant={cta!.style === 'secondary' ? 'secondary' : 'primary'}

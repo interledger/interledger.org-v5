@@ -67,8 +67,8 @@ if (propProfiles) {
 {
   profiles.length > 0 ? (
     <section aria-label={heading ?? t('profile.profiles')}>
-      {heading && <h2 class="mb-space-s">{heading}</h2>}
-      <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-space-m">
+      {heading && <h2 class="mb-xl">{heading}</h2>}
+      <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-2xl">
         {profiles.map((profile, index) => (
           <ProfileCard
             name={profile.name}
