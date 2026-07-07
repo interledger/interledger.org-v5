@@ -70,4 +70,27 @@ describe('resolveGridColorIndexes', () => {
 
     expect(indexes.get('anca')).toBe(3)
   })
+
+  it('resolves legacy fellowship slugs to grant/fellowship pathSlugs', () => {
+    const known = new Set([
+      'grant/fellowship/lawil-karama',
+      'grant/fellowship/kokayi-walker',
+      'jonathan',
+      'grant/fellowship/sheena-allen'
+    ])
+    const indexes = resolveGridColorIndexes(
+      [
+        'fellowship/lawil-karama',
+        'fellowship/kokayi-walker',
+        'jonathan',
+        'fellowship/sheena-allen'
+      ],
+      known
+    )
+
+    expect(indexes.get('grant/fellowship/lawil-karama')).toBe(0)
+    expect(indexes.get('grant/fellowship/kokayi-walker')).toBe(1)
+    expect(indexes.get('jonathan')).toBe(2)
+    expect(indexes.get('grant/fellowship/sheena-allen')).toBe(3)
+  })
 })

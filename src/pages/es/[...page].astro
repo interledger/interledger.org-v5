@@ -15,6 +15,7 @@ export async function getStaticPaths() {
     ])
 
   return [
+    ...profiles,
     ...foundationPages.map((p) => ({
       ...p,
       props: { ...p.props, kind: 'page' as const }
@@ -26,8 +27,7 @@ export async function getStaticPaths() {
     ...grantOverviews.map((p) => ({
       params: { page: `grant/${p.params.page}` },
       props: { ...p.props, kind: 'grant-overview-page' as const }
-    })),
-    ...profiles
+    }))
   ]
 }
 

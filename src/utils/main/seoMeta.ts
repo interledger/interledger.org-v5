@@ -20,11 +20,15 @@ export function buildCanonicalMeta(
   currentSlug: string,
   currentBasePath: string
 ): CanonicalMeta {
-  const entry = translationMap[currentSlug]
+  const fullSlug = buildRoutePath(currentBasePath, currentSlug).replace(/^\//, '')
+  const entry = translationMap[currentSlug] ?? translationMap[fullSlug]
 
   function resolveHref(locale: Locale): string {
     const slug = entry?.[locale] ?? currentSlug
-    const path = buildRoutePath(currentBasePath, slug)
+    const path =
+      entry && translationMap[fullSlug] && !translationMap[currentSlug]
+        ? buildRoutePath('', slug)
+        : buildRoutePath(currentBasePath, slug)
     return new URL(localizeRoute(path, locale), site).href
   }
 

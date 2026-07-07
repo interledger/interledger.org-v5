@@ -1,6 +1,7 @@
 import { defaultLocale, locales, type Locale } from './i18'
 import { HOME_CONTENT_SLUG, ROUTE_BASES } from './routes'
 import { stripTrailingSlash } from '../shared/url'
+import { translationMap } from './translationMapData'
 
 const prefixedLocales = new Set(
   locales.filter((l) => l !== defaultLocale)
@@ -49,9 +50,19 @@ export function routeContextFromPathname(pathname: string): RouteContext {
       return { routeLocale, currentSlug: '', currentBasePath: base }
     }
     if (restPath.startsWith(`${base}/`)) {
+      const currentSlug = restPath.slice(base.length + 1)
+      const fullSlug = restPath.slice(1)
+      // Profiles and foundation grant pages use full pathSlugs in the translation
+      // map, while ROUTE_BASES still splits /grant/... for grant template pages.
+      if (
+        translationMap[fullSlug] &&
+        !translationMap[currentSlug]
+      ) {
+        return { routeLocale, currentSlug: fullSlug, currentBasePath: '' }
+      }
       return {
         routeLocale,
-        currentSlug: restPath.slice(base.length + 1),
+        currentSlug,
         currentBasePath: base
       }
     }

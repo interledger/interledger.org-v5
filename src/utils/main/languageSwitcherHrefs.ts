@@ -3,10 +3,6 @@ import { translationMap } from './translationMapData'
 import { localizeRoute, normalizeBasePath } from './routes'
 import { buildRoutePath } from './translatePath'
 
-function toDefaultSectionHref(locale: Locale, basePath: string): string {
-  return localizeRoute(normalizeBasePath(basePath), locale)
-}
-
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
 }
@@ -51,7 +47,10 @@ export function getLanguageSwitcherHrefs(
   currentSlug: string,
   currentBasePath: string
 ): Record<Locale, string> {
-  const entry = translationMap[currentSlug]
+  const fullSlug = normalizeBasePath(
+    buildRoutePath(currentBasePath, currentSlug)
+  ).slice(1)
+  const entry = translationMap[currentSlug] ?? translationMap[fullSlug]
 
   return Object.fromEntries(
     switcherLocales.map((locale) => {
@@ -65,10 +64,12 @@ export function getLanguageSwitcherHrefs(
         }
       }
 
-      const slug = entry?.[locale]
-      const href = slug
-        ? localizeRoute(buildRoutePath(currentBasePath, slug), locale)
-        : toDefaultSectionHref(locale, currentBasePath)
+      const slug = entry?.[locale] ?? currentSlug
+      const path =
+        entry && translationMap[fullSlug] && !translationMap[currentSlug]
+          ? buildRoutePath('', slug)
+          : buildRoutePath(currentBasePath, slug)
+      const href = localizeRoute(path, locale)
       return [locale, href]
     })
   ) as Record<Locale, string>

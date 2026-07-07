@@ -5,6 +5,22 @@ const PROFILE_GRID_PATHSLUGS_RE =
 
 const QUOTED_STRING_RE = /['"]([^'"]+)['"]/g
 
+function pathSlugLookupCandidates(slug: string): string[] {
+  const normalized = normalizePathSlug(slug)
+  return [...new Set([normalized, `grant/${normalized}`])]
+}
+
+/** Resolves a grid pathSlug to a canonical profile pathSlug in the collection. */
+export function resolveKnownProfilePathSlug(
+  slug: string,
+  knownPathSlugs: ReadonlySet<string>
+): string | undefined {
+  for (const candidate of pathSlugLookupCandidates(slug)) {
+    if (knownPathSlugs.has(candidate)) return candidate
+  }
+  return undefined
+}
+
 /** Parses every `pathSlugs={[...]}` array on a ProfileGrid in MDX source. */
 export function extractProfileGridPathSlugsFromMdx(body: string): string[][] {
   const grids: string[][] = []
@@ -35,9 +51,9 @@ export function resolveGridColorIndexes(
   let index = 0
 
   for (const slug of pathSlugs) {
-    const normalized = normalizePathSlug(slug)
-    if (!knownPathSlugs.has(normalized)) continue
-    colorIndexByPathSlug.set(normalized, index)
+    const resolved = resolveKnownProfilePathSlug(slug, knownPathSlugs)
+    if (!resolved) continue
+    colorIndexByPathSlug.set(resolved, index)
     index++
   }
 

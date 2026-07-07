@@ -21,8 +21,15 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import ProfileCard from './ProfileCard.astro'
 import type { ProfileData } from './profile.types'
 import { useTranslations, toProfileData } from '@/utils'
+import { resolveKnownProfilePathSlug } from '@/utils/main/profileGridColors'
 
-const normalizePathSlug = (slug: string) => slug.replace(/^\/+|\/+$/g, '')
+function resolveProfileByPathSlug(
+  slug: string,
+  bySlug: Map<string, CollectionEntry<'profiles'>>
+): CollectionEntry<'profiles'> | undefined {
+  const resolved = resolveKnownProfilePathSlug(slug, new Set(bySlug.keys()))
+  return resolved ? bySlug.get(resolved) : undefined
+}
 
 interface Props {
   profiles?: ProfileData[]
@@ -45,9 +52,13 @@ if (propProfiles) {
   profiles = propProfiles
 } else if (Array.isArray(pathSlugs)) {
   const all = await loadProfileEntries()
-  const bySlug = new Map(all.map((entry) => [entry.data.pathSlug, entry]))
+  const bySlug = new Map(
+    all
+      .filter((entry) => entry.data.locale === routeLocale)
+      .map((entry) => [entry.data.pathSlug, entry])
+  )
   profiles = pathSlugs
-    .map((slug: string) => bySlug.get(normalizePathSlug(slug)))
+    .map((slug: string) => resolveProfileByPathSlug(slug, bySlug))
     .filter(
       (entry): entry is CollectionEntry<'profiles'> => entry !== undefined
     )
