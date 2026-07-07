@@ -56,7 +56,9 @@ const avatarSrc = photo
       return avifFullSrc ?? fullSrc ?? photo
     })()
   : null
-const avatarPreloadType = avatarSrc?.endsWith('.avif') ? 'image/avif' : undefined
+const avatarPreloadType = avatarSrc?.endsWith('.avif')
+  ? 'image/avif'
+  : undefined
 
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'

@@ -130,19 +130,19 @@ When content is published or updated in Strapi:
 
 Each profile's public URL is built from the `section` and `pathSlug` fields:
 
-| Part | Field | Example |
-|---|---|---|
-| Domain | _(static label)_ | `interledger.org` |
-| Section prefix | `section` dropdown | _(none for foundation)_ |
-| Path | `pathSlug` | `grant/fellowship/jane-doe` |
+| Part           | Field              | Example                     |
+| -------------- | ------------------ | --------------------------- |
+| Domain         | _(static label)_   | `interledger.org`           |
+| Section prefix | `section` dropdown | _(none for foundation)_     |
+| Path           | `pathSlug`         | `grant/fellowship/jane-doe` |
 
 The **section** dropdown controls routing and breadcrumbs:
 
-| Dropdown value | URL prefix | Served by |
-|---|---|---|
-| Foundation (`foundation`) | _(none — use full path in pathSlug)_ | `src/pages/[...page].astro` |
-| Summit (`summit`) | `/summit` | `src/pages/summit/[...page].astro` |
-| Hackathon (`hackathon`) | `/hackathon` | `src/pages/hackathon/[...page].astro` |
+| Dropdown value            | URL prefix                           | Served by                             |
+| ------------------------- | ------------------------------------ | ------------------------------------- |
+| Foundation (`foundation`) | _(none — use full path in pathSlug)_ | `src/pages/[...page].astro`           |
+| Summit (`summit`)         | `/summit`                            | `src/pages/summit/[...page].astro`    |
+| Hackathon (`hackathon`)   | `/hackathon`                         | `src/pages/hackathon/[...page].astro` |
 
 For **foundation** profiles, `pathSlug` is the full site path (e.g. `grant/fellowship/jane-doe` → `/grant/fellowship/jane-doe`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `2025/speakers/jane-doe` → `/summit/2025/speakers/jane-doe`).
 
