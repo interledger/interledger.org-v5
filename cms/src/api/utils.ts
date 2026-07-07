@@ -15,5 +15,6 @@ export {
   htmlToMarkdown,
   LOCALES,
   getPreservedFields,
-  gitCommitAndPush
+  gitCommitAndPush,
+  validateHeroFields
 } from '../utils'

@@ -206,6 +206,22 @@ export type GrantPageFrontmatterType = z.infer<
   typeof grantPageFrontmatterSchema
 >
 
+export const grantOverviewPageFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  description: z.string().min(1, 'description is required'),
+  ctaStrip: grantCtaStripSchema,
+  metaDescription: z.string().optional(),
+  metaImage: z.string().optional(),
+  canonicalUrl: z.string().optional(),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
+})
+
+export type GrantOverviewPageFrontmatterType = z.infer<
+  typeof grantOverviewPageFrontmatterSchema
+>
+
 // Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
 // `category` field) use a full-path pathSlug (e.g. summit/2025/judges/jane-doe,
 // grant/fellowship/jane-doe) whose first segment maps to the storage folder and

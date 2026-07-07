@@ -6,11 +6,13 @@ import {
   buildBlogPayload,
   buildProfilePayload,
   buildGrantPagePayload,
+  buildGrantOverviewPagePayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
+  grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   profileFrontmatterSchema
@@ -61,6 +63,7 @@ export interface ContentTypeConfig {
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
   'grant-pages': ContentTypeConfig
+  'grant-overview-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
@@ -151,6 +154,13 @@ export function buildContentTypes(
       schema: grantPageFrontmatterSchema,
       buildPayload: (mdx, _strapi, _existing, _dryRun) =>
         buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+    },
+    'grant-overview-pages': {
+      dir: getContentPath(projectRoot, 'grantOverviewPages'),
+      apiId: 'grant-overview-pages',
+      schema: grantOverviewPageFrontmatterSchema,
+      buildPayload: (mdx, _strapi, _existing, _dryRun) =>
+        buildGrantOverviewPagePayload(grantOverviewPageFrontmatterSchema, mdx)
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),

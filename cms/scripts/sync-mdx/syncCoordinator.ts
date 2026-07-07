@@ -23,7 +23,7 @@ export async function syncContentType(
 
   if (invalid.length > 0) {
     for (const err of invalid) {
-      console.error(`   ⚠️  ${err.filepath}`)
+      console.error(`   ❌  ${err.filepath}`)
       for (const msg of err.errors) {
         console.error(`      - ${msg}`)
       }

@@ -105,7 +105,7 @@
           "items": [
             {
               "label": "Overview",
-              "href": "/grants/education"
+              "href": "/grant/education"
             },
             {
               "label": "NextGen",
@@ -113,7 +113,7 @@
             },
             {
               "label": "Interledger on Campus",
-              "href": "/grants/education/next-gen"
+              "href": "/grant/education/next-gen"
             }
           ]
         },
@@ -122,23 +122,23 @@
           "items": [
             {
               "label": "Overview",
-              "href": "/grants/innovation"
+              "href": "/grant/innovation"
             },
             {
               "label": "Digital Financial Services",
-              "href": "/grants/innovation/financial-services"
+              "href": "/grant/innovation/financial-services"
             },
             {
               "label": "Open Payments Accelerator",
-              "href": "/grants/innovation/accelerator"
+              "href": "/grant/innovation/accelerator"
             },
             {
               "label": "Open Payments SDK",
-              "href": "/grants/innovation/sdk"
+              "href": "/grant/innovation/sdk"
             },
             {
               "label": "Grant for the Web",
-              "href": "/grants/innovation/grant-web"
+              "href": "/grant/innovation/grant-web"
             }
           ]
         },
@@ -147,15 +147,15 @@
           "items": [
             {
               "label": "Research Grants",
-              "href": "/grants/call-for-papers"
+              "href": "/grant/call-for-papers"
             },
             {
               "label": "Policy Grants",
-              "href": "/grants/public-policy-activation"
+              "href": "/grant/public-policy-activation"
             },
             {
               "label": "Fellowships",
-              "href": "/grants/fellowship"
+              "href": "/grant/fellowship"
             }
           ]
         }

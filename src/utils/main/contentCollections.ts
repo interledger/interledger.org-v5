@@ -5,6 +5,7 @@ export const CONTENT = {
   developersBlog: 'developers-blog-posts',
   foundationPages: 'foundation-pages',
   grantPages: 'grant-pages',
+  grantOverviewPages: 'grant-overview-pages',
   summitPages: 'summit-pages',
   profiles: 'profiles'
 } as const

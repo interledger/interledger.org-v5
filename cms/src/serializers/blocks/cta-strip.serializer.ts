@@ -11,6 +11,14 @@ export function serialize(block: {
   secondaryButtonLink?: string
   color?: string
 }): string {
+  if (!block.heading) throw new Error('CTA Strip block is missing heading')
+  if (!block.description)
+    throw new Error('CTA Strip block is missing description')
+  if (!block.primaryButtonText)
+    throw new Error('CTA Strip block is missing primary button text')
+  if (!block.primaryButtonLink)
+    throw new Error('CTA Strip block is missing primary button link')
+
   // Secondary CTA is all-or-nothing: only emit it when both the text and link
   // are present, so a half-filled pair in Strapi is dropped on export (matching
   // the import handler and how CtaStrip.astro renders it).

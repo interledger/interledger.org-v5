@@ -3,6 +3,7 @@
  * Add a new block: create xxx.serializer.ts + register below.
  */
 
+import { toValidationError } from '../../utils'
 import { serialize as cardsGrid } from './cards-grid.serializer'
 import { serialize as cardLinksGrid } from './card-links-grid.serializer'
 import { serialize as carousel } from './carousel.serializer'
@@ -46,10 +47,31 @@ export function serializeContent(
   for (const block of content) {
     const fn = SERIALIZERS[block.__component]
     if (fn) {
-      blocks.push(fn(block))
+      try {
+        blocks.push(fn(block))
+      } catch (err) {
+        throw toValidationError(err)
+      }
     } else {
       console.warn(`Unknown block component: ${block.__component}`)
     }
   }
   return blocks.join('\n\n')
+}
+
+/**
+ * Validate required fields on dynamic-zone content blocks by attempting the
+ * real serialization and discarding the output. Delegates to `serializeContent`
+ * rather than re-checking each block's required fields separately
+ * Returns a `ValidationError` on the first invalid block, `undefined` otherwise.
+ */
+export function validateContentBlocks(
+  content: Array<{ __component: string; [key: string]: unknown }> | undefined
+) {
+  try {
+    serializeContent(content)
+    return undefined
+  } catch (error) {
+    return toValidationError(error)
+  }
 }

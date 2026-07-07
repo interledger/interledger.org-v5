@@ -5,7 +5,7 @@
  */
 
 import type { Core, UID, Modules } from '@strapi/strapi'
-
+import { errors } from '@strapi/utils'
 declare const strapi: Core.Strapi
 
 import fs from 'fs'
@@ -27,6 +27,7 @@ import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+import { toValidationError } from './contentValidation'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 
 export interface PageData {
@@ -117,6 +118,12 @@ export interface PageLifecycleConfig<
     preservedFields: Record<string, unknown>,
     englishSlug?: string
   ) => string
+  /**
+   * Required-field validation, run in afterCreate/afterUpdate before `shouldSkipMdxExport()`
+   * => also applies when save came from the sync-mdx script (public API)
+   * Receives the freshly-fetched published document (populated per `populate` above).
+   */
+  validate?: (page: PageData) => errors.ValidationError | undefined
 }
 
 function normalizePathSlug(pathSlug: unknown): string {
@@ -174,7 +181,12 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
-  const heroData = heroFrontmatter(page.hero)
+  let heroData: Record<string, unknown>
+  try {
+    heroData = heroFrontmatter(page.hero)
+  } catch (error) {
+    throw toValidationError(error)
+  }
   const seoData = seoFrontmatter(page.seo)
 
   // Spread preserved fields first, then Strapi-managed fields overwrite
@@ -241,6 +253,7 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     return filepath
   } catch (error) {
+    if (error instanceof errors.ValidationError) throw error
     return error instanceof Error
       ? new Error(
           `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file ${filepath}: ${error.message}`,
@@ -421,6 +434,29 @@ function deleteMdxIfExists(
 }
 
 /**
+ * Runs `config.validate` (if set) against a freshly-fetched, populated document
+ * rather than the event's `result`, which may not have the fields it needs.
+ * Throws on failure.
+ */
+async function runValidation<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
+  result: PageData
+): Promise<void> {
+  if (!config.validate) return
+
+  const locale = result.locale ?? defaultLang
+  const published = await fetchPublished(config, result.documentId, locale)
+  if (published instanceof Error) {
+    console.error(`⚠️  ${published.message}`)
+    return
+  }
+  if (!published) return
+
+  const validationErr = config.validate(published)
+  if (validationErr) throw validationErr
+}
+
+/**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
 export function createPageLifecycle<T extends UID.ContentType>(
@@ -430,6 +466,7 @@ export function createPageLifecycle<T extends UID.ContentType>(
     async afterCreate(event: Event) {
       const { result } = event
       if (!result) return
+      await runValidation(config, result)
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
@@ -481,6 +518,7 @@ export function createPageLifecycle<T extends UID.ContentType>(
     async afterUpdate(event: Event) {
       const { result } = event
       if (!result) return
+      await runValidation(config, result)
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)

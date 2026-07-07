@@ -13,7 +13,8 @@ export {
   FOUNDATION_PAGE_CONTENT_POPULATE,
   BLOG_CONTENT_POPULATE,
   PROFILE_PAGE_CONTENT_POPULATE,
-  GRANT_PAGE_CONTENT_POPULATE
+  GRANT_PAGE_CONTENT_POPULATE,
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -35,7 +36,11 @@ export {
 } from './mdx'
 export {
   validateNoNestedJsx,
-  validateGrantPagePrimaryCta
+  validateGrantPagePrimaryCta,
+  validateHeroFields,
+  validateBlogFields,
+  validateNavigationLabels,
+  toValidationError
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,
