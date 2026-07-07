@@ -27,6 +27,7 @@ export const toProfileData = (
   return {
     name: entry.name,
     pathSlug: entry.pathSlug,
+    section: isProfileFrontmatterType(entry) ? (entry.section ?? null) : null,
     photo,
     photoAlt,
     tagline: entry.tagline,

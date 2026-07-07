@@ -26,8 +26,10 @@ export interface ProfileCtaData {
 /** Normalised profile data — consumed by ProfileGrid, ProfileCard, and ProfileDetailPage. */
 export interface ProfileData {
   name: string
-  /** Full path from the site root, e.g. summit/2025/judges/jane-doe, grant/fellowship/jane-doe. */
+  /** Section-relative path, e.g. 'fellowship/jane-doe'. Combined with `section` to form the full URL. */
   pathSlug: string
+  /** Site section — controls the URL prefix (/grant, /summit, /hackathon, or empty for foundation). */
+  section?: string | null
   photo?: string | null
   photoAlt?: string | null
   tagline?: string | null
