@@ -54,10 +54,7 @@ export function routeContextFromPathname(pathname: string): RouteContext {
       const fullSlug = restPath.slice(1)
       // Profiles and foundation grant pages use full pathSlugs in the translation
       // map, while ROUTE_BASES still splits /grant/... for grant template pages.
-      if (
-        translationMap[fullSlug] &&
-        !translationMap[currentSlug]
-      ) {
+      if (translationMap[fullSlug] && !translationMap[currentSlug]) {
         return { routeLocale, currentSlug: fullSlug, currentBasePath: '' }
       }
       return {

@@ -20,7 +20,10 @@ export function buildCanonicalMeta(
   currentSlug: string,
   currentBasePath: string
 ): CanonicalMeta {
-  const fullSlug = buildRoutePath(currentBasePath, currentSlug).replace(/^\//, '')
+  const fullSlug = buildRoutePath(currentBasePath, currentSlug).replace(
+    /^\//,
+    ''
+  )
   const entry = translationMap[currentSlug] ?? translationMap[fullSlug]
 
   function resolveHref(locale: Locale): string {

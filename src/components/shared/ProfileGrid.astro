@@ -77,10 +77,7 @@ if (propProfiles) {
 
 {
   profiles.length > 0 ? (
-    <section
-      aria-label={heading ?? t('profile.profiles')}
-      class="mb-2xl"
-    >
+    <section aria-label={heading ?? t('profile.profiles')} class="mb-2xl">
       {heading && <h2 class="mb-xl">{heading}</h2>}
       <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-2xl">
         {profiles.map((profile, index) => (

@@ -70,37 +70,41 @@ function getNameClasses(isLast: boolean): string {
         const isCurrent = crumb.href === currentPath
         const isLast = index === breadcrumbs.length - 1
         return (
-            <li
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-              class:list={[getItemClasses(isLast)]}
+          <li
+            itemprop="itemListElement"
+            itemscope
+            itemtype="https://schema.org/ListItem"
+            class:list={[getItemClasses(isLast)]}
+          >
+            {index !== 0 && (
+              <Icon
+                name="arrow-right-keyboard"
+                class:list={['size-6', chevronMarginClass]}
+              />
+            )}
+            <a
+              itemprop="item"
+              href={crumb.href}
+              class={getLinkClasses(isLast)}
+              aria-current={isCurrent ? 'page' : undefined}
+              {...buildUmamiAttrs({
+                pathname: Astro.url.pathname,
+                lang: routeLocale,
+                section: 'nav',
+                href: crumb.href,
+                linkText: crumb.name
+              })}
             >
-              {index !== 0 && (
-                <Icon
-                  name="arrow-right-keyboard"
-                  class:list={['size-6', chevronMarginClass]}
-                />
-              )}
-              <a
-                itemprop="item"
-                href={crumb.href}
-                class={getLinkClasses(isLast)}
-                aria-current={isCurrent ? 'page' : undefined}
-                {...buildUmamiAttrs({
-                  pathname: Astro.url.pathname,
-                  lang: routeLocale,
-                  section: 'nav',
-                  href: crumb.href,
-                  linkText: crumb.name
-                })}
+              <span
+                itemprop="name"
+                class={getNameClasses(isLast)}
+                title={crumb.name}
               >
-                <span itemprop="name" class={getNameClasses(isLast)} title={crumb.name}>
-                  {crumb.name}
-                </span>
-              </a>
-              <meta itemprop="position" content={String(index + 1)} />
-            </li>
+                {crumb.name}
+              </span>
+            </a>
+            <meta itemprop="position" content={String(index + 1)} />
+          </li>
         )
       })
     }
