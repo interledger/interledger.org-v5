@@ -411,10 +411,12 @@ export async function buildProfilePayload(
     return {
       name: nullOrValue(mdx.frontmatter.name),
       pathSlug: mdx.pathSlug,
+      ...(mdx.frontmatter.section ? { section: mdx.frontmatter.section } : {}),
       ...(content !== undefined ? { content } : {}),
       ...(photoId ? { photo: photoId } : {}),
       category: nullOrValue(mdx.frontmatter.category),
       tagline: nullOrValue(mdx.frontmatter.tagline),
+      description: nullOrValue(mdx.frontmatter.description as string),
       role: nullOrValue(mdx.frontmatter.role),
       cta,
       publishedAt: new Date().toISOString()

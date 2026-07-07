@@ -40,7 +40,6 @@
     "section": {
       "type": "enumeration",
       "enum": ["grant", "summit", "hackathon", "foundation"],
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": false
