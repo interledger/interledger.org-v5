@@ -37,11 +37,12 @@ const entry = allProfiles.find(
 if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent } = await render(entry)
-const { name, photo, photoAlt, tagline, role, cta } = entry.data
+const { name, photo, photoAlt, tagline, role, cta, description } = entry.data
 
 const title = `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
+const hasBody = Boolean(entry.body?.trim())
 const colorIndex = await getProfileColorIndex(
   entry.data.pathSlug,
   contentLocale
@@ -67,7 +68,10 @@ const breadcrumbs = [
 ]
 ---
 
-<FoundationPageLayout title={title} description={displayRole ?? name}>
+<FoundationPageLayout
+  title={title}
+  description={description ?? displayRole ?? name}
+>
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <header
@@ -113,12 +117,20 @@ const breadcrumbs = [
           )
         }
       </div>
-      <section data-prose aria-label={t('profile.biography')} class="mb-2xl">
-        <MdxContent components={{ Paragraph }} />
-      </section>
+      {
+        description && (
+          <section
+            data-prose
+            aria-label={t('profile.description')}
+            class="mb-2xl"
+          >
+            <Paragraph content={description} />
+          </section>
+        )
+      }
       {
         hasCta && (
-          <div class="my-2xl">
+          <div class="mb-2xl">
             <LinkButton
               href={cta!.link}
               variant={cta!.style === 'secondary' ? 'secondary' : 'primary'}
@@ -137,6 +149,17 @@ const breadcrumbs = [
               <Icon name="arrow-right" slot="icon-right" />
             </LinkButton>
           </div>
+        )
+      }
+      {
+        hasBody && (
+          <section
+            data-prose
+            aria-label={t('profile.biography')}
+            class="mb-2xl"
+          >
+            <MdxContent components={{ Paragraph }} />
+          </section>
         )
       }
     </div>

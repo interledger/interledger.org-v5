@@ -60,8 +60,7 @@ export {
   type CollectionType,
   type ProfileSection,
   getLocalizedPaths,
-  getProfilePaths,
-  profileSection
+  getProfilePaths
 } from './main/static-paths'
 export {
   type BlogTaxonomy,

@@ -7,6 +7,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import { applyPreviewNoStore, fetchStrapi, buildUmamiAttrs } from '@/utils'
 
@@ -22,6 +23,7 @@ interface ProfilePreview {
   tagline?: string
   role?: string
   locale?: string
+  description?: string
   photo?: { url?: string; alternativeText?: string }
   content?: Array<{ __component: string; [key: string]: unknown }>
   cta?: ProfileCtaPreview | null
@@ -54,7 +56,7 @@ if (!profile) {
 }
 
 const name = profile.name || 'Preview'
-const { tagline, role, photo, content = [] } = profile
+const { tagline, role, photo, description, content = [] } = profile
 const displayRole = role ?? tagline
 const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
 ---
@@ -97,15 +99,15 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
     </header>
     <div class="max-w-250 m-auto my-lg px-2xl">
       {
-        content.length > 0 && (
-          <section data-prose class="my-2xl">
-            <DynamicZone blocks={content} />
+        description && (
+          <section data-prose class="mb-2xl">
+            <Paragraph content={description} />
           </section>
         )
       }
       {
         cta && (
-          <div class="my-2xl">
+          <div class="mb-2xl">
             <LinkButton
               href={cta.link}
               variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
@@ -124,6 +126,13 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
               <Icon name="arrow-right" slot="icon-right" />
             </LinkButton>
           </div>
+        )
+      }
+      {
+        content.length > 0 && (
+          <section data-prose class="mb-2xl">
+            <DynamicZone blocks={content} />
+          </section>
         )
       }
     </div>

@@ -32,6 +32,20 @@ describe('generateProfileMdx', () => {
     expect(content.trim()).toContain('A short bio.')
   })
 
+  it('writes description to frontmatter when provided', () => {
+    const { data } = matter(
+      generateProfileMdx(
+        makeProfile({
+          description:
+            'Santosh Viswanatham is an open web advocate and former Interledger Foundation Ambassador.'
+        })
+      )
+    )
+    expect(data.description).toBe(
+      'Santosh Viswanatham is an open web advocate and former Interledger Foundation Ambassador.'
+    )
+  })
+
   it('serializes paragraph blocks from the content dynamic zone', () => {
     const { content } = matter(
       generateProfileMdx(

@@ -229,7 +229,7 @@ export type GrantOverviewPageFrontmatterType = z.infer<
 export const profileFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
-  section: z.enum(['grant', 'summit', 'hackathon', 'foundation']).optional(),
+  section: z.enum(['grant', 'summit', 'hackathon', 'foundation']),
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),
