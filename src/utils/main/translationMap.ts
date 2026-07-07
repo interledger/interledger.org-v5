@@ -48,39 +48,6 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
     }
   }
 
-  // Profiles have full pathSlugs like 'grant/fellowship/andria-barrett', but
-  // routeContextFromPathname strips the matching route base prefix first, so the
-  // switcher looks up 'fellowship/andria-barrett' (not the full slug). Add alias
-  // entries under the stripped slug so the lookup succeeds.
-  const nonEmptyBases = Object.values(ROUTE_BASES)
-    .filter((b) => b.length > 0)
-    .sort((a, b) => b.length - a.length)
-    .map((b) => b.slice(1)) // remove leading /
-
-  const profileEntries = await getCollection('profiles')
-  for (const entry of profileEntries) {
-    const { pathSlug } = entry.data
-    const matchingBase = nonEmptyBases.find((base) =>
-      pathSlug.startsWith(`${base}/`)
-    )
-    if (!matchingBase) continue
-
-    const fullEntry = map[pathSlug]
-    if (!fullEntry) continue
-
-    const strippedKey = pathSlug.slice(matchingBase.length + 1)
-    const strippedEntry = Object.fromEntries(
-      Object.entries(fullEntry).map(([locale, fullSlug]) => {
-        const slug = fullSlug as string
-        const stripped = slug.startsWith(`${matchingBase}/`)
-          ? slug.slice(matchingBase.length + 1)
-          : slug
-        return [locale, stripped]
-      })
-    ) as TranslationEntry
-    map[strippedKey] = strippedEntry
-  }
-
   // Create map entries for sessionize pages, as they are not part of the
   // content collections and need to be added manually
   // The pages will have the same slug across all locales

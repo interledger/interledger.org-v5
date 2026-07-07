@@ -96,30 +96,8 @@ function routeSegmentForCollection(data: Entry['data']): string {
   return (data as { pathSlug: string }).pathSlug
 }
 
-/**
- * Site sections a profile page can live in. Derived from the first segment
- * of the profile `pathSlug`; anything that isn't summit/hackathon is
- * foundation.
- */
-export type ProfileSection = 'foundation' | 'summit' | 'hackathon'
-
-const PROFILE_SECTION_PREFIX = {
-  summit: 'summit/',
-  hackathon: 'hackathon/'
-} as const
-
-/** The section a profile page belongs to, from its full `pathSlug`. */
-export function profileSection(pathSlug: string): ProfileSection {
-  if (pathSlug.startsWith(PROFILE_SECTION_PREFIX.summit)) return 'summit'
-  if (pathSlug.startsWith(PROFILE_SECTION_PREFIX.hackathon)) return 'hackathon'
-  return 'foundation'
-}
-
-/** Strip the section prefix so the remainder can be used as the route param. */
-function stripSectionPrefix(pathSlug: string, section: ProfileSection): string {
-  if (section === 'foundation') return pathSlug
-  return pathSlug.slice(PROFILE_SECTION_PREFIX[section].length)
-}
+/** Site sections a profile page can live in. Matches the `section` frontmatter field. */
+export type ProfileSection = 'foundation' | 'grant' | 'summit' | 'hackathon'
 
 type ProfilePath = {
   params: Record<string, string>
@@ -133,25 +111,22 @@ type ProfilePath = {
 
 function toProfilePath(
   paramName: string,
-  fullSlug: string,
-  section: ProfileSection,
+  slug: string,
   locale: Locale,
   isFallback: boolean
 ): ProfilePath {
   return {
-    params: { [paramName]: stripSectionPrefix(fullSlug, section) },
-    props: { slug: fullSlug, locale, isFallback, kind: 'profile' }
+    params: { [paramName]: slug },
+    props: { slug, locale, isFallback, kind: 'profile' }
   }
 }
 
 /**
  * Builds static paths for profile pages within a single site section.
  *
- * Profile pages all live in one `profiles` collection but render under
- * different URL trees (foundation `/`, `/summit`, `/hackathon`). The
- * route param is the profile `pathSlug` with its section prefix
- * removed, while `props.slug` keeps the full pathSlug used to look the entry
- * up.
+ * All profiles live in one `profiles` collection but render under different
+ * URL trees driven by the `section` frontmatter field. The route param and
+ * `props.slug` are both the section-relative `pathSlug` (no section prefix).
  *
  * Localization follows the same EN-canonical / ES-fallback rules as
  * {@link getLocalizedPaths}.
@@ -164,40 +139,23 @@ export async function getProfilePaths(
   const allEntries = await getCollection('profiles')
 
   const enEntries = allEntries.filter(
-    (e) =>
-      e.data.locale === defaultLocale &&
-      profileSection(routeSegmentForCollection(e.data)) === section
+    (e) => e.data.locale === defaultLocale && e.data.section === section
   )
 
   if (lang === defaultLocale) {
     return enEntries.map((e) =>
-      toProfilePath(
-        paramName,
-        routeSegmentForCollection(e.data),
-        section,
-        defaultLocale,
-        false
-      )
+      toProfilePath(paramName, routeSegmentForCollection(e.data), defaultLocale, false)
     )
   }
 
-  const localizedByLocalizes = indexLocalizedEntriesByLocalizes(
-    allEntries,
-    lang
-  )
+  const localizedByLocalizes = indexLocalizedEntriesByLocalizes(allEntries, lang)
 
   return enEntries.map((enEntry) => {
     const enSlug = routeSegmentForCollection(enEntry.data)
     const localizedEntry = localizedByLocalizes.get(enSlug)
     return localizedEntry
-      ? toProfilePath(
-          paramName,
-          routeSegmentForCollection(localizedEntry.data),
-          section,
-          lang,
-          false
-        )
-      : toProfilePath(paramName, enSlug, section, defaultLocale, true)
+      ? toProfilePath(paramName, routeSegmentForCollection(localizedEntry.data), lang, false)
+      : toProfilePath(paramName, enSlug, defaultLocale, true)
   })
 }
 

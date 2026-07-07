@@ -50,9 +50,14 @@ const colorIndex = await getProfileColorIndex(
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
-// Build breadcrumbs from pathSlug segments: Home > [parent segments] > name
-const slugParts = entry.data.pathSlug.split('/')
-const parentParts = slugParts.slice(0, -1)
+// Build breadcrumbs: Home > [section base?] > [pathSlug parents] > name
+const sectionPrefix =
+  entry.data.section && entry.data.section !== 'foundation'
+    ? entry.data.section
+    : ''
+const fullPath = [sectionPrefix, entry.data.pathSlug].filter(Boolean).join('/')
+const allParts = fullPath.split('/')
+const parentParts = allParts.slice(0, -1)
 const toLabel = (seg: string) =>
   seg
     .split('-')
@@ -64,7 +69,7 @@ const breadcrumbs = [
     name: toLabel(parentParts[i]),
     href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
   })),
-  { name, href: localizeRoute(entry.data.pathSlug, contentLocale) }
+  { name, href: localizeRoute(fullPath, contentLocale) }
 ]
 ---
 

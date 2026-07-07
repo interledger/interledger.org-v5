@@ -7,5 +7,5 @@ export const CONTENT = {
   grantPages: 'grant-pages',
   grantOverviewPages: 'grant-overview-pages',
   summitPages: 'summit-pages',
-  profiles: 'profile'
+  profiles: 'profiles'
 } as const

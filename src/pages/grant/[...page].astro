@@ -1,9 +1,10 @@
 ---
 import GrantPage from '@/components/pages/GrantPage.astro'
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
-import { getLocalizedPaths, type Locale } from '@/utils'
+import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import { getLocalizedPaths, getProfilePaths, type Locale } from '@/utils'
 
-type GrantCollection = 'grant-pages' | 'grant-overview-pages'
+type GrantCollection = 'grant-pages' | 'grant-overview-pages' | 'profiles'
 
 interface Props {
   slug: string
@@ -13,21 +14,22 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const [grantPaths, overviewPaths] = await Promise.all([
+  const [grantPaths, overviewPaths, profilePaths] = await Promise.all([
     getLocalizedPaths('grant-pages', 'en', 'page'),
-    getLocalizedPaths('grant-overview-pages', 'en', 'page')
+    getLocalizedPaths('grant-overview-pages', 'en', 'page'),
+    getProfilePaths('grant', 'en', 'page')
   ])
 
   const seen = new Set<string>()
   const duplicates = new Set<string>()
-  for (const p of [...grantPaths, ...overviewPaths]) {
+  for (const p of [...grantPaths, ...overviewPaths, ...profilePaths]) {
     const slug = p.params.page
     if (seen.has(slug)) duplicates.add(slug)
     else seen.add(slug)
   }
   if (duplicates.size > 0) {
     throw new Error(
-      `[grant/[...page]] Duplicate slugs found across grant-pages and grant-overview-pages: ${[...duplicates].join(', ')}. Each slug must be unique within /grant/.`
+      `[grant/[...page]] Duplicate slugs found: ${[...duplicates].join(', ')}. Each slug must be unique within /grant/.`
     )
   }
 
@@ -38,10 +40,11 @@ export async function getStaticPaths() {
     })),
     ...overviewPaths.map((p) => ({
       ...p,
-      props: {
-        ...p.props,
-        collection: 'grant-overview-pages' as GrantCollection
-      }
+      props: { ...p.props, collection: 'grant-overview-pages' as GrantCollection }
+    })),
+    ...profilePaths.map((p) => ({
+      ...p,
+      props: { ...p.props, collection: 'profiles' as GrantCollection }
     }))
   ]
 }
@@ -50,7 +53,13 @@ const { slug, locale: contentLocale, collection } = Astro.props
 ---
 
 {
-  collection === 'grant-pages' ? (
+  collection === 'profiles' ? (
+    <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={Astro.props.isFallback}
+    />
+  ) : collection === 'grant-pages' ? (
     <GrantPage
       slug={slug}
       contentLocale={contentLocale}
