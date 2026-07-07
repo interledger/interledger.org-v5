@@ -1,11 +1,9 @@
 /**
  * Lifecycle callbacks for the profile-page content type.
  *
- * Profile pages are flat MDX (frontmatter + markdown body), but their pathSlug is a
- * full site path (e.g. summit/2025/judges/jane-doe, grant/fellowship/jane-doe), so files
- * are written into nested folders under src/content/profiles/ (and src/content/profiles/es/
- * for non-default locales). The first path segment (summit/hackathon/…) determines
- * the section purely through that nesting — no special-casing required.
+ * Profile pages are flat MDX (frontmatter + markdown body). Files always live
+ * under src/content/profile/ (and src/content/profile/es/ for non-default locales),
+ * regardless of pathSlug depth. pathSlug drives the public URL only.
  *
  * Uses createFlatLocaleMdxLifecycle: on any save, every locale is fetched from
  * Strapi and all locale MDX files are rewritten in one pass.
@@ -16,6 +14,7 @@ import {
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
   generateProfileMdx,
+  pathSlugToMdxFilename,
   PROFILE_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import type { ProfilePageBase } from '../../types'
@@ -34,6 +33,7 @@ export default createFlatLocaleMdxLifecycle<
   label: 'profile-page',
   getBaseDir: (locale) =>
     getContentPath(getTargetRepoRoot(), 'profiles', locale),
+  toMdxFilename: pathSlugToMdxFilename,
   generateContent: generateProfileMdx,
   populate: {
     photo: true,

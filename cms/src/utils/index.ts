@@ -32,7 +32,8 @@ export {
   htmlToMarkdown,
   formatBlockquote,
   uidToLogLabel,
-  resolveFilenameSlug
+  resolveFilenameSlug,
+  pathSlugToMdxFilename
 } from './mdx'
 export {
   validateNoNestedJsx,

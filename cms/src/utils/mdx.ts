@@ -45,6 +45,14 @@ export function resolveFilenameSlug(
   return locale !== defaultLang && englishSlug ? englishSlug : ownSlug
 }
 
+/**
+ * Converts a pathSlug to a flat MDX filename stem (no extension).
+ * Slashes become hyphens so storage stays flat regardless of URL depth.
+ */
+export function pathSlugToMdxFilename(pathSlug: string): string {
+  return pathSlug.replace(/^\/+|\/+$/g, '').replace(/\//g, '-')
+}
+
 /** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
 export function uidToLogLabel(uid: string): string {
   const parts = uid.split('.')

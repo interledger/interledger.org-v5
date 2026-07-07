@@ -53,6 +53,8 @@ export interface FlatLocaleMdxLifecycleConfig<
   getBaseDir: (locale?: string) => string
   /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
   generateContent: (entry: T, englishSlug?: string) => string
+  /** Maps pathSlug to a flat filename stem (no .mdx). Defaults to identity. */
+  toMdxFilename?: (pathSlug: string) => string
   populate?: Modules.Documents.Params.Populate.Any<U>
 }
 
@@ -71,8 +73,24 @@ export function createFlatLocaleMdxLifecycle<
   },
   U extends UID.ContentType = UID.ContentType
 >(config: FlatLocaleMdxLifecycleConfig<T, U>) {
-  const { contentTypeUid, label, getBaseDir, generateContent, populate } =
-    config
+  const {
+    contentTypeUid,
+    label,
+    getBaseDir,
+    generateContent,
+    populate,
+    toMdxFilename = (pathSlug) => pathSlug
+  } = config
+
+  function resolveFileSlug(
+    locale: string,
+    pathSlug: string,
+    englishSlug?: string
+  ): string {
+    return toMdxFilename(
+      resolveFilenameSlug(locale, pathSlug, englishSlug)
+    )
+  }
 
   async function fetchPublished(
     documentId: string,
@@ -97,15 +115,13 @@ export function createFlatLocaleMdxLifecycle<
 
   async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
     const baseDir = getBaseDir(entry.locale)
-    const slug = resolveFilenameSlug(
+    const slug = resolveFileSlug(
       entry.locale ?? defaultLang,
       entry.pathSlug,
       englishSlug
     )
     const filepath = path.join(baseDir, `${slug}.mdx`)
-    // `slug` may contain nested segments (e.g. summit/2025/judges/jane-doe),
-    // so create the file's parent directory rather than just the base dir.
-    await fs.promises.mkdir(path.dirname(filepath), { recursive: true })
+    await fs.promises.mkdir(baseDir, { recursive: true })
     await fs.promises.writeFile(
       filepath,
       await formatMdx(generateContent(entry, englishSlug)),
@@ -143,7 +159,7 @@ export function createFlatLocaleMdxLifecycle<
   }
 
   function getFilePath(locale: string, pathSlug: string): string {
-    return path.join(getBaseDir(locale), `${pathSlug}.mdx`)
+    return path.join(getBaseDir(locale), `${toMdxFilename(pathSlug)}.mdx`)
   }
 
   function deleteMdxIfExists(filepath: string, locale: string): void {

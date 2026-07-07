@@ -20,6 +20,8 @@ export interface ProfileMdxCta {
 export interface ProfileMdxInput {
   name: string
   pathSlug: string
+  section?: 'grant' | 'summit' | 'hackathon' | 'foundation' | null
+  description?: string | null
   photo?: MediaFile | null
   category?: string | null
   tagline?: string | null
@@ -56,10 +58,12 @@ export function generateProfileMdx(
   const frontmatter: Record<string, unknown> = {
     name: profile.name,
     pathSlug: profile.pathSlug,
+    ...(profile.section ? { section: profile.section } : {}),
     photo: photoUrl,
     photoAlt,
     category: profile.category ?? null,
     tagline: profile.tagline ?? null,
+    ...(profile.description ? { description: profile.description } : {}),
     role: profile.role ?? null,
     ...(cta ? { cta } : {}),
     locale: profile.locale ?? defaultLang,

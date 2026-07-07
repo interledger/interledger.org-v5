@@ -5,7 +5,7 @@
     "singularName": "profile-page",
     "pluralName": "profile-pages",
     "displayName": "Profile Page",
-    "description": "Person profiles (ambassadors, judges, leadership, etc.), grouped by the free-text `category` field. The full pathSlug sets both the URL and the file location: a 'summit/' prefix stores under summit, 'hackathon/' under hackathon, anything else under foundation."
+    "description": "Person profiles (ambassadors, judges, leadership, etc.), grouped by the free-text `category` field. pathSlug sets the public URL; MDX is always stored flat under src/content/profile/ (or profile/es/)."
   },
   "options": {
     "draftAndPublish": false
@@ -35,7 +35,18 @@
           "localized": true
         }
       },
-      "description": "Full path from the site root, no leading slash. Determines the URL and storage folder. Examples: hackathon/2025/judges/jane-doe; summit/2025/speakers/jane-doe; team/jane-doe."
+      "description": "Full path from the site root, no leading slash. Determines the public URL only. Examples: hackathon/2025/judges/jane-doe; summit/2025/speakers/jane-doe; grant/fellowship/jane-doe."
+    },
+    "section": {
+      "type": "enumeration",
+      "enum": ["grant", "summit", "hackathon", "foundation"],
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      },
+      "description": "Site section this profile belongs to. Controls the MDX storage folder prefix."
     },
     "tagline": {
       "type": "string",
@@ -44,6 +55,15 @@
           "localized": true
         }
       }
+    },
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Short optional description or bio blurb shown on profile cards and detail pages."
     },
     "cta": {
       "type": "component",

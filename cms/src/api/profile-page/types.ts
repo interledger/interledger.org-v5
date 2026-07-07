@@ -17,6 +17,8 @@ export interface ProfilePageBase {
   documentId?: string
   pathSlug: string
   name: string
+  section?: 'grant' | 'summit' | 'hackathon' | 'foundation' | null
+  description?: string | null
   photo?: MediaFile | null
   category?: string | null
   tagline?: string | null

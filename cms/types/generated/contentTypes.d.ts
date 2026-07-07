@@ -872,7 +872,7 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
 export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
   collectionName: 'profile_pages'
   info: {
-    description: "Person profiles (ambassadors, judges, leadership, etc.), grouped by the free-text `category` field. The full pathSlug sets both the URL and the file location: a 'summit/' prefix stores under summit, 'hackathon/' under hackathon, anything else under foundation."
+    description: 'Person profiles (ambassadors, judges, leadership, etc.), grouped by the free-text `category` field. pathSlug sets the public URL; MDX is always stored flat under src/content/profile/ (or profile/es/).'
     displayName: 'Profile Page'
     pluralName: 'profile-pages'
     singularName: 'profile-page'
@@ -903,6 +903,12 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
     cta: Schema.Attribute.Component<'shared.cta-link', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -942,6 +948,15 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
+        }
+      }>
+    section: Schema.Attribute.Enumeration<
+      ['grant', 'summit', 'hackathon', 'foundation']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
         }
       }>
     tagline: Schema.Attribute.String &

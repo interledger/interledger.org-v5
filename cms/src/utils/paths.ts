@@ -37,7 +37,7 @@ export const PATHS = {
     grantPages: 'grant-pages',
     grantOverviewPages: 'grant-overview-pages',
     summitPages: 'summit-pages',
-    profiles: 'profiles'
+    profiles: 'profile'
   },
   /** Public asset paths. */
   PUBLIC: 'public',
