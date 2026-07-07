@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
@@ -17,7 +16,8 @@ import {
   useTranslations,
   getProfileColorIndex,
   localizeRoute,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  getOptimizedImage
 } from '@/utils'
 
 interface Props {
@@ -50,6 +50,17 @@ const colorIndex = await getProfileColorIndex(
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
+const avatarSrc = photo
+  ? (() => {
+      const { avifFullSrc, fullSrc } = getOptimizedImage(photo)
+      return avifFullSrc ?? fullSrc ?? photo
+    })()
+  : null
+const avatarPreloadType = avatarSrc?.endsWith('.avif') ? 'image/avif' : undefined
+
+const avatarSizeClass =
+  'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'
+
 // Build breadcrumbs: Home > [section base?] > [pathSlug parents] > name
 const sectionPrefix =
   entry.data.section && entry.data.section !== 'foundation'
@@ -77,6 +88,17 @@ const breadcrumbs = [
   title={title}
   description={description ?? displayRole ?? name}
 >
+  {
+    avatarSrc && (
+      <link
+        slot="head"
+        rel="preload"
+        as="image"
+        href={avatarSrc}
+        {...(avatarPreloadType ? { type: avatarPreloadType } : {})}
+      />
+    )
+  }
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <header
@@ -88,21 +110,24 @@ const breadcrumbs = [
     </header>
     <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
       <div
-        class={`rounded-full overflow-hidden size-7xl tablet:w-[220px] tablet:h-[220px] desktop:w-[240px] desktop:h-[240px] ${avatarColorClass}`}
+        class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
       >
         {
-          photo ? (
-            <OptimizedImage
-              src={photo}
+          avatarSrc ? (
+            <img
+              src={avatarSrc}
               alt={photoAlt ?? name}
               width={240}
               height={240}
               loading="eager"
-              sizes="(min-width: 1200px) 240px, (min-width: 810px) 220px, 160px"
-              class="block h-full w-full object-contain object-bottom"
+              fetchpriority="high"
+              decoding="sync"
+              class="absolute inset-0 h-full w-full object-contain object-bottom"
             />
           ) : (
-            <ProfileAvatarFallback />
+            <div class="absolute inset-0">
+              <ProfileAvatarFallback />
+            </div>
           )
         }
       </div>
