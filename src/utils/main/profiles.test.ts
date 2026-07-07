@@ -75,14 +75,14 @@ describe('resolveGridColorIndexes', () => {
     const known = new Set([
       'grant/fellowship/lawil-karama',
       'grant/fellowship/kokayi-walker',
-      'jonathan',
+      'grant/fellowship/stephanie-perrin',
       'grant/fellowship/sheena-allen'
     ])
     const indexes = resolveGridColorIndexes(
       [
         'fellowship/lawil-karama',
         'fellowship/kokayi-walker',
-        'jonathan',
+        'fellowship/stephanie-perrin',
         'fellowship/sheena-allen'
       ],
       known
@@ -90,7 +90,7 @@ describe('resolveGridColorIndexes', () => {
 
     expect(indexes.get('grant/fellowship/lawil-karama')).toBe(0)
     expect(indexes.get('grant/fellowship/kokayi-walker')).toBe(1)
-    expect(indexes.get('jonathan')).toBe(2)
+    expect(indexes.get('grant/fellowship/stephanie-perrin')).toBe(2)
     expect(indexes.get('grant/fellowship/sheena-allen')).toBe(3)
   })
 })
