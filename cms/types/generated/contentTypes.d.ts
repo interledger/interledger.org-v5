@@ -951,8 +951,9 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
         }
       }>
     section: Schema.Attribute.Enumeration<
-      ['summit', 'hackathon', 'foundation']
+      ['foundation', 'summit', 'hackathon']
     > &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false

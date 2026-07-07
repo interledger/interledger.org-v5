@@ -39,7 +39,7 @@
     },
     "section": {
       "type": "enumeration",
-      "enum": ["grant", "summit", "hackathon", "foundation"],
+      "enum": ["foundation", "summit", "hackathon"],
       "required": true,
       "pluginOptions": {
         "i18n": {
