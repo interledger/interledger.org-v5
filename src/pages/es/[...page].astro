@@ -1,14 +1,34 @@
 ---
 import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
+import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
+import GrantPage from '@/components/pages/GrantPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
 import { getLocalizedPaths, getProfilePaths } from '@/utils'
 
 export async function getStaticPaths() {
-  const pages = (await getLocalizedPaths('foundation-pages', 'es', 'page')).map(
-    (p) => ({ ...p, props: { ...p.props, kind: 'page' as const } })
-  )
-  const profiles = await getProfilePaths('foundation', 'es', 'page')
-  return [...pages, ...profiles]
+  const [foundationPages, grantPages, grantOverviews, profiles] =
+    await Promise.all([
+      getLocalizedPaths('foundation-pages', 'es', 'page'),
+      getLocalizedPaths('grant-pages', 'es', 'page'),
+      getLocalizedPaths('grant-overview-pages', 'es', 'page'),
+      getProfilePaths('foundation', 'es', 'page')
+    ])
+
+  return [
+    ...foundationPages.map((p) => ({
+      ...p,
+      props: { ...p.props, kind: 'page' as const }
+    })),
+    ...grantPages.map((p) => ({
+      params: { page: `grant/${p.params.page}` },
+      props: { ...p.props, kind: 'grant-page' as const }
+    })),
+    ...grantOverviews.map((p) => ({
+      params: { page: `grant/${p.params.page}` },
+      props: { ...p.props, kind: 'grant-overview-page' as const }
+    })),
+    ...profiles
+  ]
 }
 
 const { slug, locale: contentLocale, kind, isFallback } = Astro.props
@@ -17,6 +37,18 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 {
   kind === 'profile' ? (
     <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'grant-page' ? (
+    <GrantPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'grant-overview-page' ? (
+    <GrantOverviewPage
       slug={slug}
       contentLocale={contentLocale}
       isFallback={isFallback}
