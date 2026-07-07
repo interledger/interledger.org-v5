@@ -114,8 +114,8 @@ When content is published or updated in Strapi:
 - MDX files for **blog posts** use a date-prefixed format: `yyyy-mm-dd-{pathSlug}.mdx`<br/>
   Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
-- MDX files for **profile pages** use the **full path slug** from Strapi (same nested-folder rule as foundation/summit pages). Files live under `src/content/profiles/` (and `src/content/profiles/{locale}/` for localized entries). The slug determines both the URL and the folder layout — no separate route prefix.<br/>
-  Example: slug `grant/fellowship/jane-doe` → `src/content/profiles/grant/fellowship/jane-doe.mdx` → `/grant/fellowship/jane-doe`. Slug `summit/2025/speakers/jane-doe` → `src/content/profiles/summit/2025/speakers/jane-doe.mdx`.
+- MDX files for **profile pages** are stored **flat** under `src/content/profile/` (and `src/content/profile/{locale}/` for localized entries). The `pathSlug` sets the public URL only — it does not create nested folders.<br/>
+  Example: slug `grant/fellowship/jane-doe` → `src/content/profile/grant-fellowship-jane-doe.mdx` → `/grant/fellowship/jane-doe`. Slug `summit/2025/speakers/jane-doe` → `src/content/profile/summit-2025-speakers-jane-doe.mdx`.
 
 **Profile pages**
 
@@ -139,12 +139,12 @@ The legacy `ambassador` content type and `AmbassadorGrid` blocks were replaced b
 
 - This allows Astro content (blog posts, events, navigation, etc.) to remain the source of truth while keeping the Strapi database synchronized.
 
-- On pushes to `staging`, changes to `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/grant-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/profiles` trigger the `sync:mdx` workflow job, including localized files under `src/content/<collection>/{locale}/...`.
+- On pushes to `staging`, changes to `.md` or `.mdx` files in `src/content/foundation-pages`, `src/content/grant-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, or `src/content/profile` trigger the `sync:mdx` workflow job, including localized files under `src/content/<collection>/{locale}/...`.
 
 **Features**
 
 - Scans MDX files in
-  - `src/content/profiles`
+  - `src/content/profile`
   - `src/content/foundation-pages`
   - `src/content/grant-pages`
   - `src/content/summit-pages`
@@ -214,7 +214,7 @@ The workflow in `.github/workflows/merge.yml` automatically syncs MDX files to S
 - `src/content/foundation-pages/**/*.mdx` → `foundation-pages` (API ID)
 - `src/content/grant-pages/**/*.mdx` → `grant-pages` (API ID)
 - `src/content/summit-pages/**/*.mdx` → `summit-pages` (API ID)
-- `src/content/profiles/**/*.mdx` → `profile-pages` (API ID)
+- `src/content/profile/**/*.mdx` → `profile-pages` (API ID)
 - `src/content/foundation-blog-posts/**/*.{md,mdx}` → `foundation-blog-posts` (API ID)
 
 These mappings are configured in: `scripts/sync-mdx/config.ts`
