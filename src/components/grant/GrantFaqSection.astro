@@ -21,7 +21,9 @@ const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
 const isExternal = (href: string) => /^https?:\/\//i.test(href)
 ---
 
-<div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+<div
+  class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-[1440px]"
+>
   <div
     class="flex flex-col gap-space-xl tablet:flex-row tablet:items-start tablet:gap-0"
   >
@@ -35,7 +37,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
         {title}
       </h2>
 
-      <div class="mt-auto pt-space-xl">
+      <div class="mt-5xl hidden tablet:block tablet:pt-0">
         <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
           {subtitle}
         </h3>
@@ -62,7 +64,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
         items.map((item, index) => (
           <details
             open={index === 0}
-            class="group border-b border-neutral-200 py-space-m"
+            class="group border-b border-neutral-200 py-space-m first:pt-0 "
           >
             <summary class="flex cursor-pointer list-none items-center justify-between gap-space-s [&::-webkit-details-marker]:hidden">
               <span class="font-poppins text-base text-neutral-700 font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
@@ -73,12 +75,33 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
                 class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
               />
             </summary>
-            <p class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0">
+            <p class="mt-space-xs font-poppins text-base  text-neutral-75 mb-0 tablet:text-xl desktop:text-xl">
               {item.answer}
             </p>
           </details>
         ))
       }
+    </div>
+
+    <!-- Bottom CTA for mobile -->
+    <div class="tablet:hidden">
+      <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
+        {subtitle}
+      </h3>
+      <p
+        class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+      >
+        {description}
+      </p>
+      <div class="mt-space-m">
+        <LinkButton
+          href={ctaLink}
+          variant="secondary"
+          external={isExternal(ctaLink)}
+        >
+          {ctaText}
+        </LinkButton>
+      </div>
     </div>
   </div>
 </div>

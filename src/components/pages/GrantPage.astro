@@ -48,7 +48,9 @@ const {
     <section
       class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
     >
-      <div class="mx-auto w-full max-w-wide px-space-m">
+      <div
+        class="mx-auto w-full max-w-wide px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-[1440px]"
+      >
         <div class="max-w-narrow">
           <h1
             class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]"
@@ -73,8 +75,10 @@ const {
     </section>
 
     <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div data-prose class="mx-auto max-w-narrow">
+      <div
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-[1440px]"
+      >
+        <div data-prose class="max-w-[800px]">
           <MdxContent />
         </div>
       </div>
@@ -89,7 +93,9 @@ const {
     }
 
     <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <div
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-[1440px]"
+      >
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}
