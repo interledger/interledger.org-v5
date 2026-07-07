@@ -3,19 +3,19 @@ import FoundationContentPage from '@/components/pages/FoundationContentPage.astr
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import GrantPage from '@/components/pages/GrantPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import { getLocalizedPaths, getProfilePaths } from '@/utils'
+import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
 
 export async function getStaticPaths() {
-  const [foundationPages, grantPages, grantOverviews, profiles] =
+  const [foundationPages, grantPages, grantOverviews, crossSectionPaths] =
     await Promise.all([
       getLocalizedPaths('foundation-pages', 'es', 'page'),
       getLocalizedPaths('grant-pages', 'es', 'page'),
       getLocalizedPaths('grant-overview-pages', 'es', 'page'),
-      getProfilePaths('foundation', 'es', 'page')
+      getCrossSectionPaths('foundation', 'es', 'page')
     ])
 
   return [
-    ...profiles,
+    ...crossSectionPaths,
     ...foundationPages.map((p) => ({
       ...p,
       props: { ...p.props, kind: 'page' as const }

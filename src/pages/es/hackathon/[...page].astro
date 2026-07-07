@@ -1,9 +1,9 @@
 ---
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import { getProfilePaths } from '@/utils'
+import { getCrossSectionPaths } from '@/utils'
 
 export async function getStaticPaths() {
-  return getProfilePaths('hackathon', 'es', 'page')
+  return getCrossSectionPaths('hackathon', 'es', 'page')
 }
 
 const { slug, locale: contentLocale, isFallback } = Astro.props

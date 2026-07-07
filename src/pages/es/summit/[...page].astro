@@ -1,7 +1,7 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import { getLocalizedPaths, getProfilePaths, HOME_CONTENT_SLUG } from '@/utils'
+import { getLocalizedPaths, getCrossSectionPaths, HOME_CONTENT_SLUG } from '@/utils'
 
 export async function getStaticPaths() {
   const pages = (
@@ -9,8 +9,8 @@ export async function getStaticPaths() {
       excludeSlug: HOME_CONTENT_SLUG
     })
   ).map((p) => ({ ...p, props: { ...p.props, kind: 'page' as const } }))
-  const profiles = await getProfilePaths('summit', 'es', 'page')
-  return [...pages, ...profiles]
+  const crossSectionPaths = await getCrossSectionPaths('summit', 'es', 'page')
+  return [...crossSectionPaths, ...pages]
 }
 
 const { slug, locale: contentLocale, kind, isFallback } = Astro.props

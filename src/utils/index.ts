@@ -60,6 +60,7 @@ export {
   type CollectionType,
   type ProfileSection,
   getLocalizedPaths,
+  getCrossSectionPaths,
   getProfilePaths
 } from './main/static-paths'
 export {

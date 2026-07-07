@@ -1,4 +1,8 @@
 import { getCollection } from 'astro:content'
+import {
+  crossSectionCollections,
+  type CrossSectionCollection
+} from '@/lib/templates'
 import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
@@ -170,6 +174,39 @@ export async function getProfilePaths(
         )
       : toProfilePath(paramName, enSlug, defaultLocale, true)
   })
+}
+
+async function getPathsForCrossSectionCollection(
+  collection: CrossSectionCollection,
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<ProfilePath[]> {
+  switch (collection) {
+    case 'profiles':
+      return getProfilePaths(section, lang, paramName)
+    default: {
+      const _exhaustive: never = collection
+      return _exhaustive
+    }
+  }
+}
+
+/**
+ * Builds static paths for all cross-section template collections in a section.
+ * Driven by {@link crossSectionCollections} — add new template types there.
+ */
+export async function getCrossSectionPaths(
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<ProfilePath[]> {
+  const results = await Promise.all(
+    crossSectionCollections.map((collection) =>
+      getPathsForCrossSectionCollection(collection, section, lang, paramName)
+    )
+  )
+  return results.flat()
 }
 
 function getEntriesForDefaultLocale(
