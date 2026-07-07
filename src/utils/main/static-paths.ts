@@ -144,17 +144,30 @@ export async function getProfilePaths(
 
   if (lang === defaultLocale) {
     return enEntries.map((e) =>
-      toProfilePath(paramName, routeSegmentForCollection(e.data), defaultLocale, false)
+      toProfilePath(
+        paramName,
+        routeSegmentForCollection(e.data),
+        defaultLocale,
+        false
+      )
     )
   }
 
-  const localizedByLocalizes = indexLocalizedEntriesByLocalizes(allEntries, lang)
+  const localizedByLocalizes = indexLocalizedEntriesByLocalizes(
+    allEntries,
+    lang
+  )
 
   return enEntries.map((enEntry) => {
     const enSlug = routeSegmentForCollection(enEntry.data)
     const localizedEntry = localizedByLocalizes.get(enSlug)
     return localizedEntry
-      ? toProfilePath(paramName, routeSegmentForCollection(localizedEntry.data), lang, false)
+      ? toProfilePath(
+          paramName,
+          routeSegmentForCollection(localizedEntry.data),
+          lang,
+          false
+        )
       : toProfilePath(paramName, enSlug, defaultLocale, true)
   })
 }

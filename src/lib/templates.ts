@@ -8,6 +8,8 @@ import type { CollectionKey } from 'astro:content'
  * 2. Add a `case` in each section renderer's switch.
  * No changes needed to getStaticPaths or existing collections.
  */
-export const crossSectionCollections = ['profiles'] as const satisfies readonly CollectionKey[]
+export const crossSectionCollections = [
+  'profiles'
+] as const satisfies readonly CollectionKey[]
 
 export type CrossSectionCollection = (typeof crossSectionCollections)[number]

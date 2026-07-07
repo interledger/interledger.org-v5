@@ -40,7 +40,10 @@ export async function getStaticPaths() {
     })),
     ...overviewPaths.map((p) => ({
       ...p,
-      props: { ...p.props, collection: 'grant-overview-pages' as GrantCollection }
+      props: {
+        ...p.props,
+        collection: 'grant-overview-pages' as GrantCollection
+      }
     })),
     ...profilePaths.map((p) => ({
       ...p,
