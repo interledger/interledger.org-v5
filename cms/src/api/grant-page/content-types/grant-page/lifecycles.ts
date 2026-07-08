@@ -4,7 +4,6 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  seoFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection
@@ -60,7 +59,6 @@ function generateGrantPageMDX(
   // Fields owned by Strapi components must be explicitly deleted from
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
-  delete (restPreserved as Record<string, unknown>).metaDescription
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).faqSection
   const localizesValue =
@@ -118,7 +116,6 @@ function generateGrantPageMDX(
           }
         }
       : {}),
-    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
