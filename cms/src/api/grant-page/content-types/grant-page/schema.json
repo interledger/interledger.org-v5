@@ -83,6 +83,10 @@
           "localized": true
         }
       },
+      "component": "blocks.cta-strip",
+      "repeatable": false,
+      "required": true
+    },
     "infoCards": {
       "type": "component",
       "repeatable": false,
@@ -92,10 +96,6 @@
           "localized": true
         }
       }
-    },
-      "component": "blocks.cta-strip",
-      "repeatable": false,
-      "required": true
     }
   }
 }

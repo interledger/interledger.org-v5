@@ -174,5 +174,7 @@ export default createPageLifecycle({
   >[0]['populate'],
   generateMDX: generateGrantPageMDX,
   validate: (page) =>
-    validateGrantPagePrimaryCta(page) ?? validateGrantInfoCards(page) ?? validateGrantPageFaqSection(page)
+    validateGrantPagePrimaryCta(page) ??
+    validateGrantInfoCards(page) ??
+    validateGrantPageFaqSection(page)
 })
