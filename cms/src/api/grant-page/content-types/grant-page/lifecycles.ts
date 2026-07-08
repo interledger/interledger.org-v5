@@ -6,7 +6,8 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   seoFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE,
-  validateGrantPagePrimaryCta
+  validateGrantPagePrimaryCta,
+  validateGrantInfoCards
 } from '../../../../utils'
 
 interface CtaLink {
@@ -25,11 +26,24 @@ interface CtaStrip {
   color?: string
 }
 
+interface InfoCard {
+  heading?: string
+  body?: string
+}
+
+interface InfoCards {
+  heading?: string
+  card1?: InfoCard
+  card2?: InfoCard
+  card3?: InfoCard
+}
+
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
   primaryCta?: CtaLink | null
   ctaStrip?: CtaStrip | null
+  infoCards?: InfoCards | null
 }
 
 function generateGrantPageMDX(
@@ -46,11 +60,13 @@ function generateGrantPageMDX(
   // rather than leaving the old value behind.
   delete (restPreserved as Record<string, unknown>).metaDescription
   delete (restPreserved as Record<string, unknown>).primaryCta
+  delete (restPreserved as Record<string, unknown>).infoCards
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = grantPage.ctaStrip
   const primaryCta = grantPage.primaryCta
+  const infoCards = grantPage.infoCards
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
@@ -85,6 +101,27 @@ function generateGrantPageMDX(
           }
         }
       : {}),
+    ...(infoCards
+      ? {
+          infoCards: {
+            ...(infoCards.heading ? { heading: infoCards.heading } : {}),
+            cards: [
+              {
+                heading: infoCards.card1?.heading ?? '',
+                body: infoCards.card1?.body ?? ''
+              },
+              {
+                heading: infoCards.card2?.heading ?? '',
+                body: infoCards.card2?.body ?? ''
+              },
+              {
+                heading: infoCards.card3?.heading ?? '',
+                body: infoCards.card3?.body ?? ''
+              }
+            ]
+          }
+        }
+      : {}),
     ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
@@ -106,5 +143,6 @@ export default createPageLifecycle({
     typeof createPageLifecycle
   >[0]['populate'],
   generateMDX: generateGrantPageMDX,
-  validate: validateGrantPagePrimaryCta
+  validate: (page) =>
+    validateGrantPagePrimaryCta(page) ?? validateGrantInfoCards(page)
 })

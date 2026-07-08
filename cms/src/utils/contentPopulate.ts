@@ -58,6 +58,7 @@ export const BLOG_CONTENT_POPULATE = {
 export const GRANT_PAGE_CONTENT_POPULATE = {
   primaryCta: true,
   ctaStrip: true,
+  infoCards: { populate: { card1: true, card2: true, card3: true } },
   seo: { populate: '*' }
 } as const
 

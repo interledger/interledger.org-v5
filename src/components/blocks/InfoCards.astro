@@ -1,0 +1,53 @@
+---
+import { parseMarkdown } from '@/utils'
+
+interface InfoCard {
+  heading: string
+  body: string
+}
+
+interface Props {
+  heading?: string
+  cards: [InfoCard, InfoCard, InfoCard]
+  umamiContext?: string
+}
+
+const { heading, cards, umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
+
+const htmlCards = await Promise.all(
+  cards.map(async (card) => ({
+    heading: card.heading,
+    html: await parseMarkdown(card.body, {
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  }))
+)
+---
+
+<div class="flex flex-col gap-xl">
+  {
+    heading && (
+      <h2 class="text-h2 tablet:text-h2-md desktop:text-h2-lg font-semibold text-neutral-900">
+        {heading}
+      </h2>
+    )
+  }
+  <div class="flex flex-col gap-xl tablet:flex-row">
+    {
+      htmlCards.map((card) => (
+        <article class="flex flex-1 flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg tablet:p-xl">
+          <h3 class="text-h3 tablet:text-h3-md desktop:text-h3-lg font-medium text-neutral-900">
+            {card.heading}
+          </h3>
+          <div
+            class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-900"
+            set:html={card.html}
+          />
+        </article>
+      ))
+    }
+  </div>
+</div>

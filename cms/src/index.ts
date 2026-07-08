@@ -538,6 +538,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
       ctaStrip: 'CTA Strip',
+      infoCards: 'Information Cards',
       seo: 'SEO'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -572,7 +573,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug:
         'Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash.',
       description:
-        'Short description used for SEO and card text. Aim for 120–160 characters.'
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      infoCards:
+        'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
     },
     'api::grant-overview-page.grant-overview-page': {
       pathSlug:

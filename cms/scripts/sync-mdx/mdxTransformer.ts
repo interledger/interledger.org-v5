@@ -464,6 +464,17 @@ export async function buildGrantPagePayload(
       ? { metaDescription: parsed.metaDescription }
       : null
 
+    const infoCards = parsed.infoCards
+      ? {
+          ...(parsed.infoCards.heading
+            ? { heading: parsed.infoCards.heading }
+            : {}),
+          card1: parsed.infoCards.cards[0],
+          card2: parsed.infoCards.cards[1],
+          card3: parsed.infoCards.cards[2]
+        }
+      : null
+
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
@@ -471,6 +482,7 @@ export async function buildGrantPagePayload(
       programOverview: (mdx.content || '').trim() || null,
       primaryCta,
       ctaStrip,
+      infoCards,
       seo,
       publishedAt: new Date().toISOString()
     }

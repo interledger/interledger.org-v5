@@ -62,6 +62,51 @@ export function validateGrantPagePrimaryCta(
 }
 
 /**
+ * Validate the optional infoCards component on a grant page.
+ *
+ * When `infoCards` is absent the section is simply not rendered — that is
+ * valid. When it is present, all three cards and their heading/body fields
+ * are required; Strapi's partial update validator skips required-field
+ * checks on PUT, so this fills the gap.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateGrantInfoCards(
+  body: unknown
+): errors.ValidationError | undefined {
+  const infoCards = (body as Record<string, unknown>)?.infoCards
+  if (!infoCards || typeof infoCards !== 'object') return undefined
+
+  for (const key of ['card1', 'card2', 'card3'] as const) {
+    const card = (infoCards as Record<string, unknown>)[key] as
+      | Record<string, unknown>
+      | undefined
+    if (!card || typeof card !== 'object') {
+      return new errors.ValidationError(`Information Cards: ${key} is required`)
+    }
+    if (
+      !card.heading ||
+      typeof card.heading !== 'string' ||
+      card.heading.trim() === ''
+    ) {
+      return new errors.ValidationError(
+        `Information Cards: ${key} heading is required`
+      )
+    }
+    if (
+      !card.body ||
+      typeof card.body !== 'string' ||
+      card.body.trim() === ''
+    ) {
+      return new errors.ValidationError(
+        `Information Cards: ${key} body is required`
+      )
+    }
+  }
+  return undefined
+}
+
+/**
  * Validate the Hero component on page-like content types (foundation-page,
  * summit-page). Delegates to `heroFrontmatter`
  *

@@ -38,6 +38,7 @@ export {
 export {
   validateNoNestedJsx,
   validateGrantPagePrimaryCta,
+  validateGrantInfoCards,
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,

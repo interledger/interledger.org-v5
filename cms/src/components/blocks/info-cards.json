@@ -1,0 +1,52 @@
+{
+  "collectionName": "components_blocks_info_cards",
+  "info": {
+    "displayName": "Info Cards",
+    "icon": "grid",
+    "description": "Optional heading with three required info cards, each with a heading and body"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "card1": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.info-card",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "card2": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.info-card",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "card3": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.info-card",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
