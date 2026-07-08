@@ -22,22 +22,22 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
 ---
 
 <div
-  class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-[1440px]"
+  class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:px-5xl desktop:max-w-content"
 >
   <div
-    class="flex flex-col gap-space-xl tablet:flex-row tablet:items-start tablet:gap-0"
+    class="flex flex-col gap-xl desktop:flex-row desktop:items-start desktop:gap-5xl"
   >
     <!-- Left column: title at top, contact CTA pinned to bottom -->
     <div
-      class="flex flex-col tablet:w-[38%] tablet:shrink-0 tablet:pr-space-xl tablet:sticky tablet:top-[120px]"
+      class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
     >
       <h2
-        class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg font-medium text-neutral-900 my-0"
+        class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900 my-0"
       >
         {title}
       </h2>
 
-      <div class="mt-5xl hidden tablet:block tablet:pt-0">
+      <div class="mt-5xl hidden desktop:block desktop:pt-0">
         <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
           {subtitle}
         </h3>
@@ -59,7 +59,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
     </div>
 
     <!-- Right column: accordion -->
-    <div class="flex-1 tablet:pl-space-xl">
+    <div class="flex-1">
       {
         items.map((item, index) => (
           <details
@@ -84,7 +84,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
     </div>
 
     <!-- Bottom CTA for mobile -->
-    <div class="tablet:hidden">
+    <div class="desktop:hidden">
       <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
         {subtitle}
       </h3>
@@ -98,6 +98,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
           href={ctaLink}
           variant="secondary"
           external={isExternal(ctaLink)}
+          class="w-full mx-auto"
         >
           {ctaText}
         </LinkButton>
