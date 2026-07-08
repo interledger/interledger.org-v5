@@ -59,7 +59,6 @@ vi.mock('./siteSchemas', async () => {
       .optional(),
     ctaStrip: grantCtaStripSchema,
     faqSection: grantFaqSectionSchema.optional(),
-    metaDescription: z.string().optional(),
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
     localizes: z.string().optional(),
@@ -70,7 +69,6 @@ vi.mock('./siteSchemas', async () => {
     pathSlug: z.string().min(1, 'pathSlug is required'),
     description: z.string().min(1, 'description is required'),
     ctaStrip: grantCtaStripSchema,
-    metaDescription: z.string().optional(),
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
     localizes: z.string().optional(),
@@ -1014,59 +1012,6 @@ describe('buildGrantPagePayload', () => {
     })
   })
 
-  // Only metaDescription is synced to Strapi's seo component.
-  // metaImage requires a media upload ID (not a URL) so it is not synced;
-  // canonicalUrl is not currently supported by the grant-page sync.
-  describe('SEO fields', () => {
-    it('seo is null when metaDescription is not set', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter
-      })
-
-      const payload = await buildGrantPagePayload(
-        grantPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toBeNull()
-    })
-
-    it('seo is null even when only metaImage or canonicalUrl are set', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'education/on-campus',
-        frontmatter: {
-          ...baseGrantFrontmatter,
-          metaImage: '/img/grant-og.png',
-          canonicalUrl: 'https://interledger.org/grant/education/on-campus'
-        }
-      })
-
-      const payload = await buildGrantPagePayload(
-        grantPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toBeNull()
-    })
-
-    it('seo contains metaDescription when metaDescription is set', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'education/on-campus',
-        frontmatter: {
-          ...baseGrantFrontmatter,
-          metaDescription: 'SEO description for the grant page.'
-        }
-      })
-
-      const payload = await buildGrantPagePayload(
-        grantPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toEqual({
-        metaDescription: 'SEO description for the grant page.'
-      })
-    })
-  })
-
   describe('programOverview', () => {
     it('is set from mdx.content when body is present', async () => {
       const mdx = createMdxFile({
@@ -1180,8 +1125,7 @@ const baseGrantOverviewFrontmatter = {
 }
 
 // Maps grant-overview-page MDX frontmatter to the Strapi grant-overview-page payload shape.
-// Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
-// and optional seo / external being omitted when absent.
+// Key risk: CTA field name translation (buttonText→primaryButtonText, etc.)
 describe('buildGrantOverviewPagePayload', () => {
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
@@ -1328,40 +1272,6 @@ describe('buildGrantOverviewPagePayload', () => {
       >
       expect(ctaStrip.secondaryButtonText).toBe('Learn more')
       expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/learn')
-    })
-  })
-
-  describe('seo', () => {
-    it('omits seo when metaDescription is absent', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'digital-finance',
-        frontmatter: baseGrantOverviewFrontmatter
-      })
-
-      const payload = await buildGrantOverviewPagePayload(
-        grantOverviewPageFrontmatterSchema,
-        mdx
-      )
-      expect((payload as Record<string, unknown>).seo).toBeNull()
-    })
-
-    it('includes metaDescription in seo when present', async () => {
-      const mdx = createMdxFile({
-        pathSlug: 'digital-finance',
-        frontmatter: {
-          ...baseGrantOverviewFrontmatter,
-          metaDescription: 'SEO description.'
-        }
-      })
-
-      const payload = await buildGrantOverviewPagePayload(
-        grantOverviewPageFrontmatterSchema,
-        mdx
-      )
-      expect(
-        ((payload as Record<string, unknown>).seo as Record<string, unknown>)
-          .metaDescription
-      ).toBe('SEO description.')
     })
   })
 

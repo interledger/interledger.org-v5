@@ -460,10 +460,6 @@ export async function buildGrantPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
-      : null
-
     const faqSectionFm = parsed.faqSection
     const faqSection = faqSectionFm
       ? {
@@ -489,7 +485,6 @@ export async function buildGrantPagePayload(
       primaryCta,
       faqSection,
       ctaStrip,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })
@@ -523,17 +518,12 @@ export async function buildGrantOverviewPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
-      : null
-
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       ctaStrip,
       followUpContent: (mdx.content || '').trim() || null,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })
