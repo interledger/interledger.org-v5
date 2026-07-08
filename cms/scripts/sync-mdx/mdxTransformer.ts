@@ -111,12 +111,12 @@ interface StrapiHeroPayload {
   description: string
   backgroundImage?: number | null
   backgroundImageMobile?: number | null
-  hero_call_to_action?: Array<{
+  hero_call_to_action?: {
     text: string
     link: string
     style: string
     external: boolean
-  }>
+  } | null
 }
 
 function buildHeroPayload(
@@ -129,14 +129,14 @@ function buildHeroPayload(
     description: heroDescription ?? ''
   }
 
-  // Send CTAs as-is; Strapi's validateHeroFields now rejects incomplete ones.
-  if (ctas && ctas.length > 0) {
-    hero.hero_call_to_action = ctas.map((c) => ({
-      text: c.text ?? '',
-      link: c.link ?? '',
-      style: c.style ?? 'primary',
-      external: c.external ?? false
-    }))
+  const cta = ctas?.[0]
+  if (cta) {
+    hero.hero_call_to_action = {
+      text: cta.text ?? '',
+      link: cta.link ?? '',
+      style: cta.style ?? 'primary',
+      external: cta.external ?? false
+    }
   }
 
   return hero

@@ -186,7 +186,7 @@ interface HeroData {
   description?: string
   backgroundImage?: { url?: string; alternativeText?: string }
   backgroundImageMobile?: { url?: string; alternativeText?: string }
-  hero_call_to_action?: HeroCta[]
+  hero_call_to_action?: HeroCta | null
 }
 
 export function heroFrontmatter(
@@ -209,18 +209,16 @@ export function heroFrontmatter(
     data.heroImageMobile = heroImageMobile
     data.heroImageMobileAlt = hero.backgroundImageMobile?.alternativeText ?? ''
   }
-  const rawCtas = hero.hero_call_to_action ?? []
-  if (rawCtas.length > 0) {
-    for (const cta of rawCtas) {
-      if (!cta.text) throw new Error('Hero CTA is missing required text')
-      if (!cta.link) throw new Error('Hero CTA is missing required link')
-    }
-    data.heroCtas = rawCtas.map((c) => ({
-      text: c.text!,
-      link: c.link!,
-      ...(c.style && c.style !== 'primary' ? { style: c.style } : {}),
-      ...(c.external ? { external: true } : {})
-    }))
+  const cta = hero.hero_call_to_action
+  if (cta) {
+    if (!cta.text) throw new Error('Hero CTA is missing required text')
+    if (!cta.link) throw new Error('Hero CTA is missing required link')
+    data.heroCtas = [{
+      text: cta.text!,
+      link: cta.link!,
+      ...(cta.style && cta.style !== 'primary' ? { style: cta.style } : {}),
+      ...(cta.external ? { external: true } : {})
+    }]
   }
   return data
 }

@@ -52,7 +52,7 @@ function generateGrantOverviewPageMDX(
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = overviewPage.ctaStrip
-  const hero = (overviewPage.hero ?? undefined) as Parameters<typeof heroFrontmatter>[0]
+  const hero = overviewPage.hero as Parameters<typeof heroFrontmatter>[0]
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,

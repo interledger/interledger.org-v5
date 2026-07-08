@@ -41,12 +41,12 @@ export interface PageData {
     title?: string
     description?: string
     backgroundImage?: { url?: string }
-    hero_call_to_action?: Array<{
+    hero_call_to_action?: {
       text?: string
       link?: string
       style?: 'primary' | 'secondary'
       external?: boolean
-    }>
+    } | null
   }
   seo?: {
     metaDescription?: string
