@@ -545,6 +545,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content',
       seo: 'SEO'

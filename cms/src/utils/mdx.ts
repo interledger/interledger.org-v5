@@ -185,6 +185,7 @@ interface HeroData {
   title?: string
   description?: string
   backgroundImage?: { url?: string; alternativeText?: string }
+  backgroundImageMobile?: { url?: string; alternativeText?: string }
   hero_call_to_action?: HeroCta[]
 }
 
@@ -202,6 +203,11 @@ export function heroFrontmatter(
   if (heroImage) {
     data.heroImage = heroImage
     data.heroImageAlt = hero.backgroundImage?.alternativeText ?? ''
+  }
+  const heroImageMobile = getImageUrl(hero.backgroundImageMobile)
+  if (heroImageMobile) {
+    data.heroImageMobile = heroImageMobile
+    data.heroImageMobileAlt = hero.backgroundImageMobile?.alternativeText ?? ''
   }
   const rawCtas = hero.hero_call_to_action ?? []
   if (rawCtas.length > 0) {

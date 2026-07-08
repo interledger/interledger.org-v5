@@ -862,6 +862,12 @@ export interface SharedHero extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    backgroundImageMobile: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     description: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

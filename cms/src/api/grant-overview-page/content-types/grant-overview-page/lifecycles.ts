@@ -8,6 +8,8 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   seoFrontmatter,
+  heroFrontmatter,
+  validateHeroFields,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 
@@ -26,6 +28,7 @@ interface CtaStrip {
 interface GrantOverviewPageData extends PageData {
   description?: string
   followUpContent?: string
+  hero?: Record<string, unknown> | null
   ctaStrip?: CtaStrip | null
 }
 
@@ -42,16 +45,21 @@ function generateGrantOverviewPageMDX(
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
   delete (restPreserved as Record<string, unknown>).metaDescription
+  // Clear hero fields — removing the hero in Strapi must also clear them from MDX.
+  for (const key of ['heroTitle', 'heroDescription', 'heroImage', 'heroImageAlt', 'heroImageMobile', 'heroImageMobileAlt', 'heroCtas'])
+    delete (restPreserved as Record<string, unknown>)[key]
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = overviewPage.ctaStrip
+  const hero = (overviewPage.hero ?? undefined) as Parameters<typeof heroFrontmatter>[0]
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: overviewPage.description ?? '',
+    ...heroFrontmatter(hero),
     ...(ctaStrip
       ? {
           ctaStrip: {
@@ -115,7 +123,8 @@ const lifecycle = createPageLifecycle({
   populate: GRANT_OVERVIEW_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantOverviewPageMDX
+  generateMDX: generateGrantOverviewPageMDX,
+  validate: (page) => validateHeroFields(page)
 })
 
 export default {

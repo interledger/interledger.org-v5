@@ -159,8 +159,14 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'grantOverviewPages'),
       apiId: 'grant-overview-pages',
       schema: grantOverviewPageFrontmatterSchema,
-      buildPayload: (mdx, _strapi, _existing, _dryRun) =>
-        buildGrantOverviewPagePayload(grantOverviewPageFrontmatterSchema, mdx)
+      buildPayload: (mdx, strapi, _existing, dryRun) =>
+        buildGrantOverviewPagePayload(
+          grantOverviewPageFrontmatterSchema,
+          mdx,
+          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
+          pageAltIds,
+          dryRun
+        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),

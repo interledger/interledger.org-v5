@@ -64,6 +64,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
+  hero: { populate: '*' },
   ctaStrip: true,
   seo: { populate: '*' }
 } as const

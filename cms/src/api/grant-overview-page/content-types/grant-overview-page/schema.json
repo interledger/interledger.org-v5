@@ -46,6 +46,16 @@
       },
       "description": "Short description used for SEO and card text. Aim for 120–160 characters."
     },
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.hero",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "ctaStrip": {
       "type": "component",
       "repeatable": false,

@@ -110,6 +110,7 @@ interface StrapiHeroPayload {
   title: string
   description: string
   backgroundImage?: number | null
+  backgroundImageMobile?: number | null
   hero_call_to_action?: Array<{
     text: string
     link: string
@@ -156,11 +157,13 @@ async function buildHeroWithImage(
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
   const hasHeroImageField = hasField('heroImage')
+  const hasHeroImageMobileField = hasField('heroImageMobile')
   const heroFieldsPresent =
     hasField('heroTitle') ||
     hasField('heroDescription') ||
     hasField('heroCtas') ||
-    hasHeroImageField
+    hasHeroImageField ||
+    hasHeroImageMobileField
 
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
@@ -170,25 +173,38 @@ async function buildHeroWithImage(
       ) as unknown as Record<string, unknown>)
     : null
 
-  if (hasHeroImageField && strapiUploadContext) {
-    const heroImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.heroImage as string | undefined
+  async function resolveHeroImage(
+    imageKey: 'heroImage' | 'heroImageMobile',
+    altKey: 'heroImageAlt' | 'heroImageMobileAlt',
+    targetKey: 'backgroundImage' | 'backgroundImageMobile'
+  ): Promise<void> {
+    if (!hasField(imageKey) || !strapiUploadContext) return
+
+    const uploadId = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed[imageKey] as string | undefined
     })
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
-    hero.backgroundImage = heroImage ?? null
+    hero[targetKey] = uploadId ?? null
 
-    if (heroImage && parsed.heroImageAlt !== undefined) {
+    if (uploadId && parsed[altKey] !== undefined) {
       await updateUploadAltOnce(
         strapiUploadContext.strapi,
-        heroImage,
-        nullOrValue(parsed.heroImageAlt),
+        uploadId,
+        nullOrValue(parsed[altKey]),
         updatedAltIds,
         pathSlug,
         dryRun
       )
     }
   }
+
+  await resolveHeroImage('heroImage', 'heroImageAlt', 'backgroundImage')
+  await resolveHeroImage(
+    'heroImageMobile',
+    'heroImageMobileAlt',
+    'backgroundImageMobile'
+  )
 
   return heroPayload
 }
@@ -499,11 +515,14 @@ export async function buildGrantPagePayload(
  * Builds a Strapi payload for a grant-overview-page MDX file.
  *
  * Maps frontmatter fields and MDX body to the grant-overview-page Strapi schema.
- * No image resolution needed — grant overview pages contain no managed media fields.
+ * Resolves hero image URLs to Strapi upload IDs when present.
  */
 export async function buildGrantOverviewPagePayload(
   schema: typeof grantOverviewPageFrontmatterSchema,
-  mdx: MDXFile
+  mdx: MDXFile,
+  strapiUploadContext?: StrapiUploadContext,
+  updatedAltIds: Map<number, string | null> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -527,10 +546,19 @@ export async function buildGrantOverviewPagePayload(
       ? { metaDescription: parsed.metaDescription }
       : null
 
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
+
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
+      hero,
       ctaStrip,
       followUpContent: (mdx.content || '').trim() || null,
       seo,
