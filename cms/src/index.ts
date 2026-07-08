@@ -678,16 +678,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.carousel': {
       heading: 'Section Heading',
-      items: 'Slides',
-      autoplay: 'Autoplay',
-      interval: 'Autoplay Interval (ms)'
-    },
-    'blocks.carousel-item': {
-      quote: 'Quote',
-      author: 'Author Name',
-      role: 'Job Title',
-      organization: 'Organization',
-      image: 'Photo'
+      logos: 'Logos',
+      accessibilityLabel: 'Accessible label (screen readers only)'
     },
     'blocks.cta-banner': {
       heading: 'Heading',
@@ -766,6 +758,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Displayed as the filename label above the code. Leave blank to show the language name.',
       code: 'Paste or type your code here.'
+    },
+    'blocks.carousel': {
+      accessibilityLabel:
+        'Describes this group of logos for screen reader users. Not visible on the page.',
+      logos:
+        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
     }
   }
 
@@ -967,11 +965,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.carousel': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'items', size: 12 }],
-      [
-        { name: 'autoplay', size: 4 },
-        { name: 'interval', size: 4 }
-      ]
+      [{ name: 'accessibilityLabel', size: 12 }],
+      [{ name: 'logos', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],

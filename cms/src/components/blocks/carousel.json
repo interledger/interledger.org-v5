@@ -15,33 +15,14 @@
         }
       }
     },
-    "items": {
-      "type": "component",
-      "repeatable": true,
-      "component": "blocks.carousel-item",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "accessibilityLabel": {
+      "type": "string"
     },
-    "autoplay": {
-      "type": "boolean",
-      "default": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "interval": {
-      "type": "integer",
-      "default": 5000,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "logos": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": ["images"]
     }
   }
 }

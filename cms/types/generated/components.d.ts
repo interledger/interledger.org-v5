@@ -205,74 +205,14 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
     icon: 'images'
   }
   attributes: {
-    autoplay: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<true>
+    accessibilityLabel: Schema.Attribute.String
     heading: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    interval: Schema.Attribute.Integer &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<5000>
-    items: Schema.Attribute.Component<'blocks.carousel-item', true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
-export interface BlocksCarouselItem extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_carousel_items'
-  info: {
-    description: 'Single carousel slide with quote and attribution'
-    displayName: 'Carousel Item'
-    icon: 'quote-right'
-  }
-  attributes: {
-    author: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    image: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    organization: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    quote: Schema.Attribute.Text &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    role: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    logos: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required
   }
 }
 
@@ -926,7 +866,6 @@ declare module '@strapi/strapi' {
       'blocks.card-links-grid': BlocksCardLinksGrid
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
-      'blocks.carousel-item': BlocksCarouselItem
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
