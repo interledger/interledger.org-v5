@@ -68,6 +68,16 @@
         }
       }
     },
+    "faqSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.grant-faq-section",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "ctaStrip": {
       "type": "component",
       "repeatable": false,

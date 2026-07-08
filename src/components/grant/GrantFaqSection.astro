@@ -1,0 +1,108 @@
+---
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+
+interface FaqItem {
+  question: string
+  answer: string
+}
+
+interface Props {
+  title: string
+  subtitle: string
+  description: string
+  ctaText: string
+  ctaLink: string
+  items: FaqItem[]
+}
+
+const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
+
+const isExternal = (href: string) => /^https?:\/\//i.test(href)
+---
+
+<div
+  class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:px-5xl desktop:max-w-content"
+>
+  <div
+    class="flex flex-col gap-xl desktop:flex-row desktop:items-start desktop:gap-5xl"
+  >
+    <!-- Left column: title at top, contact CTA pinned to bottom -->
+    <div
+      class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
+    >
+      <h2
+        class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900 my-0"
+      >
+        {title}
+      </h2>
+
+      <div class="mt-5xl hidden desktop:block desktop:pt-0">
+        <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
+          {subtitle}
+        </h3>
+        <p
+          class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+        >
+          {description}
+        </p>
+        <div class="mt-space-m">
+          <LinkButton
+            href={ctaLink}
+            variant="secondary"
+            external={isExternal(ctaLink)}
+          >
+            {ctaText}
+          </LinkButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: accordion -->
+    <div class="flex-1">
+      {
+        items.map((item, index) => (
+          <details
+            open={index === 0}
+            class="group border-b border-neutral-200 py-space-m first:pt-0 "
+          >
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-space-s [&::-webkit-details-marker]:hidden">
+              <span class="font-poppins text-base text-neutral-700 font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
+                {item.question}
+              </span>
+              <Icon
+                name="arrow-down"
+                class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
+              />
+            </summary>
+            <p class="mt-space-xs font-poppins text-base  text-neutral-75 mb-0 tablet:text-xl desktop:text-xl">
+              {item.answer}
+            </p>
+          </details>
+        ))
+      }
+    </div>
+
+    <!-- Bottom CTA for mobile -->
+    <div class="desktop:hidden">
+      <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
+        {subtitle}
+      </h3>
+      <p
+        class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+      >
+        {description}
+      </p>
+      <div class="mt-space-m">
+        <LinkButton
+          href={ctaLink}
+          variant="secondary"
+          external={isExternal(ctaLink)}
+          class="w-full mx-auto"
+        >
+          {ctaText}
+        </LinkButton>
+      </div>
+    </div>
+  </div>
+</div>

@@ -34,6 +34,18 @@ vi.mock('./siteSchemas', async () => {
     secondaryButtonText: z.string().optional(),
     secondaryButtonLink: z.string().optional()
   })
+  const grantFaqItemSchema = z.object({
+    question: z.string(),
+    answer: z.string()
+  })
+  const grantFaqSectionSchema = z.object({
+    title: z.string(),
+    subtitle: z.string(),
+    description: z.string(),
+    ctaText: z.string(),
+    ctaLink: z.string(),
+    items: z.array(grantFaqItemSchema).min(2)
+  })
   const grantPageSchema = z.object({
     title: z.string().min(1, 'title is required'),
     pathSlug: z.string().min(1, 'pathSlug is required'),
@@ -46,6 +58,7 @@ vi.mock('./siteSchemas', async () => {
       })
       .optional(),
     ctaStrip: grantCtaStripSchema,
+    faqSection: grantFaqSectionSchema.optional(),
     metaDescription: z.string().optional(),
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
@@ -1097,6 +1110,60 @@ describe('buildGrantPagePayload', () => {
         mdx
       )
       expect((payload as Record<string, unknown>).programOverview).toBeNull()
+    })
+  })
+
+  describe('optional faqSection', () => {
+    it('is null in payload when absent from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).faqSection).toBeNull()
+    })
+
+    it('serializes all fields and items when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          faqSection: {
+            title: 'Common Questions',
+            subtitle: 'Get in touch',
+            description: 'We are happy to help.',
+            ctaText: 'Contact us',
+            ctaLink: 'mailto:grants@interledger.foundation',
+            items: [
+              {
+                question: 'Who can apply?',
+                answer: 'Any accredited institution.'
+              },
+              { question: 'How much funding?', answer: 'Up to $50,000.' }
+            ]
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const faqSection = (payload as Record<string, unknown>)
+        .faqSection as Record<string, unknown>
+      expect(faqSection.title).toBe('Common Questions')
+      expect(faqSection.subtitle).toBe('Get in touch')
+      expect(faqSection.description).toBe('We are happy to help.')
+      expect(faqSection.ctaText).toBe('Contact us')
+      expect(faqSection.ctaLink).toBe('mailto:grants@interledger.foundation')
+      expect(faqSection.items).toEqual([
+        { question: 'Who can apply?', answer: 'Any accredited institution.' },
+        { question: 'How much funding?', answer: 'Up to $50,000.' }
+      ])
     })
   })
 })

@@ -538,6 +538,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
       ctaStrip: 'CTA Strip',
+      faqSection: 'FAQ Section',
       seo: 'SEO'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -649,6 +650,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.paragraph': {
       content: 'Content',
       alignment: 'Alignment'
+    },
+    'blocks.grant-faq-section': {
+      title: 'Section Title',
+      subtitle: 'Subtitle',
+      description: 'Description',
+      ctaText: 'Button Text',
+      ctaLink: 'Button Link',
+      items: 'FAQ Items'
+    },
+    'blocks.grant-faq-item': {
+      question: 'Question',
+      answer: 'Answer'
     },
     'blocks.cards-grid': {
       heading: 'Section Heading',

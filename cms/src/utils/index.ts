@@ -37,6 +37,7 @@ export {
 } from './mdx'
 export {
   validateNoNestedJsx,
+  validateGrantPageFaqSection,
   validateGrantPagePrimaryCta,
   validateHeroFields,
   validateBlogFields,

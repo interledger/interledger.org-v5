@@ -464,12 +464,30 @@ export async function buildGrantPagePayload(
       ? { metaDescription: parsed.metaDescription }
       : null
 
+    const faqSectionFm = parsed.faqSection
+    const faqSection = faqSectionFm
+      ? {
+          title: faqSectionFm.title,
+          subtitle: faqSectionFm.subtitle,
+          description: faqSectionFm.description,
+          ctaText: faqSectionFm.ctaText,
+          ctaLink: faqSectionFm.ctaLink,
+          items: (faqSectionFm.items ?? []).map(
+            (i: { question: string; answer: string }) => ({
+              question: i.question,
+              answer: i.answer
+            })
+          )
+        }
+      : null
+
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       programOverview: (mdx.content || '').trim() || null,
       primaryCta,
+      faqSection,
       ctaStrip,
       seo,
       publishedAt: new Date().toISOString()
