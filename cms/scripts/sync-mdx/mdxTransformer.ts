@@ -460,10 +460,6 @@ export async function buildGrantPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
-      : null
-
     const infoCards = parsed.infoCards
       ? {
           ...(parsed.infoCards.heading
@@ -501,7 +497,6 @@ export async function buildGrantPagePayload(
       faqSection,
       ctaStrip,
       infoCards,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })
@@ -535,17 +530,12 @@ export async function buildGrantOverviewPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
-      : null
-
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       ctaStrip,
       followUpContent: (mdx.content || '').trim() || null,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })

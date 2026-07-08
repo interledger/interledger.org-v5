@@ -28,7 +28,6 @@ const { Content: MdxContent } = await render(mdxPage)
 const {
   title,
   description,
-  metaDescription,
   metaImage,
   canonicalUrl,
   primaryCta,
@@ -40,7 +39,7 @@ const {
 
 <FoundationPageLayout
   title={title}
-  description={metaDescription || description}
+  description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
