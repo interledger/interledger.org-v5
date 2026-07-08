@@ -33,6 +33,83 @@ function stripInlineCode(text: string): string {
 }
 
 /**
+ * Validate the optional faqSection component on a grant page.
+ *
+ * When `faqSection` is absent the section is simply not rendered — that is valid.
+ * When it is present all scalar fields are required and `items` must have at least 2 entries.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateGrantPageFaqSection(
+  body: unknown
+): errors.ValidationError | undefined {
+  const faq = (body as Record<string, unknown>)?.faqSection
+  if (!faq || typeof faq !== 'object') return undefined
+
+  const { title, subtitle, description, ctaText, ctaLink, items } =
+    faq as Record<string, unknown>
+
+  if (!title || typeof title !== 'string' || (title as string).trim() === '') {
+    return new errors.ValidationError('FAQ Section: Title is required')
+  }
+  if (
+    !subtitle ||
+    typeof subtitle !== 'string' ||
+    (subtitle as string).trim() === ''
+  ) {
+    return new errors.ValidationError('FAQ Section: Subtitle is required')
+  }
+  if (
+    !description ||
+    typeof description !== 'string' ||
+    (description as string).trim() === ''
+  ) {
+    return new errors.ValidationError('FAQ Section: Description is required')
+  }
+  if (
+    !ctaText ||
+    typeof ctaText !== 'string' ||
+    (ctaText as string).trim() === ''
+  ) {
+    return new errors.ValidationError('FAQ Section: Button Text is required')
+  }
+  if (
+    !ctaLink ||
+    typeof ctaLink !== 'string' ||
+    (ctaLink as string).trim() === ''
+  ) {
+    return new errors.ValidationError('FAQ Section: Button Link is required')
+  }
+  if (!Array.isArray(items) || items.length < 2) {
+    return new errors.ValidationError(
+      'FAQ Section: At least 2 FAQ items are required'
+    )
+  }
+  for (const [i, item] of items.entries()) {
+    const { question, answer } = item as Record<string, unknown>
+    if (
+      !question ||
+      typeof question !== 'string' ||
+      (question as string).trim() === ''
+    ) {
+      return new errors.ValidationError(
+        `FAQ Section: Item ${i + 1} is missing a question`
+      )
+    }
+    if (
+      !answer ||
+      typeof answer !== 'string' ||
+      (answer as string).trim() === ''
+    ) {
+      return new errors.ValidationError(
+        `FAQ Section: Item ${i + 1} is missing an answer`
+      )
+    }
+  }
+  return undefined
+}
+
+/**
  * Validate the optional primaryCta component on a grant page.
  *
  * When `primaryCta` is absent the CTA is simply not rendered — that is valid.

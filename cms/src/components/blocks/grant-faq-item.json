@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_blocks_grant_faq_items",
+  "info": {
+    "displayName": "Grant FAQ Item",
+    "icon": "question-circle"
+  },
+  "options": {},
+  "attributes": {
+    "question": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "answer": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

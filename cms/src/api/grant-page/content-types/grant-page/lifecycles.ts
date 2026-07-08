@@ -7,7 +7,8 @@ import {
   seoFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE,
   validateGrantPagePrimaryCta,
-  validateGrantInfoCards
+  validateGrantInfoCards,
+  validateGrantPageFaqSection
 } from '../../../../utils'
 
 interface CtaLink {
@@ -38,10 +39,25 @@ interface InfoCards {
   card3?: InfoCard
 }
 
+interface FaqItem {
+  question?: string
+  answer?: string
+}
+
+interface FaqSection {
+  title?: string
+  subtitle?: string
+  description?: string
+  ctaText?: string
+  ctaLink?: string
+  items?: FaqItem[]
+}
+
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
   primaryCta?: CtaLink | null
+  faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   infoCards?: InfoCards | null
 }
@@ -61,12 +77,14 @@ function generateGrantPageMDX(
   delete (restPreserved as Record<string, unknown>).metaDescription
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).infoCards
+  delete (restPreserved as Record<string, unknown>).faqSection
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = grantPage.ctaStrip
   const primaryCta = grantPage.primaryCta
   const infoCards = grantPage.infoCards
+  const faqSection = grantPage.faqSection
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
@@ -81,6 +99,21 @@ function generateGrantPageMDX(
             ...(primaryCta.external != null
               ? { external: primaryCta.external }
               : {})
+          }
+        }
+      : {}),
+    ...(faqSection
+      ? {
+          faqSection: {
+            title: faqSection.title ?? '',
+            subtitle: faqSection.subtitle ?? '',
+            description: faqSection.description ?? '',
+            ctaText: faqSection.ctaText ?? '',
+            ctaLink: faqSection.ctaLink ?? '',
+            items: (faqSection.items ?? []).map((i) => ({
+              question: i.question ?? '',
+              answer: i.answer ?? ''
+            }))
           }
         }
       : {}),
@@ -144,5 +177,5 @@ export default createPageLifecycle({
   >[0]['populate'],
   generateMDX: generateGrantPageMDX,
   validate: (page) =>
-    validateGrantPagePrimaryCta(page) ?? validateGrantInfoCards(page)
+    validateGrantPagePrimaryCta(page) ?? validateGrantInfoCards(page) ?? validateGrantPageFaqSection(page)
 })

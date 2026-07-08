@@ -57,6 +57,7 @@ export const BLOG_CONTENT_POPULATE = {
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
   primaryCta: true,
+  faqSection: { populate: { items: true } },
   ctaStrip: true,
   infoCards: { populate: { card1: true, card2: true, card3: true } },
   seo: { populate: '*' }
