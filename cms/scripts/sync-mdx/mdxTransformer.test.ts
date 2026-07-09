@@ -95,7 +95,7 @@ import {
   grantPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema
 } from './siteSchemas'
-import type { StrapiEntry } from './strapiClient'
+import type { StrapiClient, StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
 
 beforeEach(() => {
@@ -1110,6 +1110,92 @@ describe('buildGrantPagePayload', () => {
         { question: 'Who can apply?', answer: 'Any accredited institution.' },
         { question: 'How much funding?', answer: 'Up to $50,000.' }
       ])
+    })
+  })
+
+  // Content parsing: the MDX body (e.g. <LogoCarousel>) is only parsed into
+  // `content` when a strapi client is supplied — mirrors buildPagePayload's
+  // parserCtx-gated behavior for foundation/summit pages.
+  describe('content parsing', () => {
+    function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+      return {
+        findUploadByUrl: async (url: string) => uploads[url] ?? null,
+        updateUploadAlt: async () => undefined
+      } as unknown as StrapiClient
+    }
+
+    it('parses a LogoCarousel body into a blocks.carousel content entry when strapi is provided', async () => {
+      // Import handler side-effects to register LogoCarousel
+      await import('./carouselHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: `<LogoCarousel logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/img/plata.png': 12 })
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.carousel', logos: [12] }
+      ])
+    })
+
+    it('omits content when body is empty and there is no existing entry', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).not.toHaveProperty('content')
+    })
+
+    it('preserves existing content when body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+      const existing = {
+        content: [{ __component: 'blocks.carousel', logos: [99] }]
+      } as unknown as StrapiEntry
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi(),
+        existing
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.carousel', logos: [99] }
+      ])
+    })
+
+    it('does not parse content when no strapi client is provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect(payload).not.toHaveProperty('content')
     })
   })
 })

@@ -118,6 +118,14 @@ export interface CodeBlockBlock extends StrapiBlockBase {
   title?: string
 }
 
+/** blocks.carousel — logo carousel. `logos` are Strapi upload file IDs. */
+export interface CarouselBlock extends StrapiBlockBase {
+  __component: 'blocks.carousel'
+  heading?: string
+  accessibilityLabel?: string
+  logos: number[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -133,3 +141,4 @@ export type ParsedBlock =
   | PdfEmbedBlock
   | VideoEmbedBlock
   | CodeBlockBlock
+  | CarouselBlock

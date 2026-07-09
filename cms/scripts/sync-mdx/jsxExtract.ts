@@ -491,3 +491,158 @@ export function getStaticExpressionAttr(
   }
   return parsed || undefined
 }
+
+// ---------------------------------------------------------------------------
+// Static literal (array/object) attributes
+// ---------------------------------------------------------------------------
+
+interface StaticLiteralMeta {
+  component?: string
+  prop: string
+  line?: number
+  column?: number
+}
+
+/**
+ * Minimal shape for any ESTree expression node — just enough to dispatch on
+ * `.type`. No index signature on purpose: real ESTree interfaces don't have
+ * one either, and TS rejects assigning into a type that does. Other fields
+ * are read via a cast per case below.
+ */
+type EstreeNode = { type: string }
+
+/**
+ * Recursively evaluates a static ESTree expression node (Literal,
+ * ArrayExpression, ObjectExpression) into a plain JS value. Anything
+ * dynamic (identifiers, calls, spreads, computed keys) throws
+ * DYNAMIC_EXPRESSION.
+ */
+function evaluateStaticLiteral(
+  node: EstreeNode,
+  meta: StaticLiteralMeta
+): unknown {
+  switch (node.type) {
+    case 'Literal':
+      return (node as unknown as { value: unknown }).value
+    case 'ArrayExpression': {
+      const { elements } = node as unknown as {
+        elements: Array<EstreeNode | null>
+      }
+      return elements.map((el) => {
+        if (!el) {
+          throw new MdxParserError({
+            code: ParserErrorCode.DYNAMIC_EXPRESSION,
+            message: `Prop "${meta.prop}" contains a sparse array element.`,
+            ...meta
+          })
+        }
+        return evaluateStaticLiteral(el, meta)
+      })
+    }
+    case 'ObjectExpression': {
+      const { properties } = node as unknown as {
+        properties: Array<{
+          type: string
+          computed?: boolean
+          method?: boolean
+          key: { type: string; name?: string; value?: unknown }
+          value: EstreeNode
+        }>
+      }
+      const result: Record<string, unknown> = {}
+      for (const prop of properties) {
+        if (prop.type !== 'Property' || prop.computed || prop.method) {
+          throw new MdxParserError({
+            code: ParserErrorCode.DYNAMIC_EXPRESSION,
+            message: `Prop "${meta.prop}" contains an unsupported object property (spread, computed key, or method).`,
+            ...meta
+          })
+        }
+        const keyName =
+          prop.key.type === 'Identifier'
+            ? prop.key.name
+            : prop.key.type === 'Literal' && typeof prop.key.value === 'string'
+              ? prop.key.value
+              : undefined
+        if (keyName === undefined) {
+          throw new MdxParserError({
+            code: ParserErrorCode.DYNAMIC_EXPRESSION,
+            message: `Prop "${meta.prop}" contains an object key that isn't a static identifier or string.`,
+            ...meta
+          })
+        }
+        result[keyName] = evaluateStaticLiteral(prop.value, meta)
+      }
+      return result
+    }
+    default:
+      throw new MdxParserError({
+        code: ParserErrorCode.DYNAMIC_EXPRESSION,
+        message: `Prop "${meta.prop}" must be a static literal (string, number, boolean, null, array, or object) — found "${node.type}".`,
+        ...meta
+      })
+  }
+}
+
+/**
+ * Extract a prop whose value is a static JS literal expression — strings,
+ * numbers, booleans, null, and arrays/objects nesting those.
+ *
+ * @example
+ * ```ts
+ * // <LogoCarousel logos={[{ name: 'Plata', src: '/x.png' }]} />
+ * getStaticLiteralAttr(node, 'logos', { required: true })
+ * // → [{ name: 'Plata', src: '/x.png' }]
+ * ```
+ */
+export function getStaticLiteralAttr(
+  node: JsxBlockNode,
+  name: string,
+  opts: { required?: boolean } = {}
+): unknown {
+  const attr = findAttr(node, name)
+  const meta: StaticLiteralMeta = {
+    component: node.name ?? undefined,
+    prop: name,
+    line: node.position?.start.line,
+    column: node.position?.start.column
+  }
+
+  if (!attr) {
+    if (opts.required) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: `Required prop "${name}" is missing.`,
+        ...meta
+      })
+    }
+    return undefined
+  }
+
+  if (
+    !attr.value ||
+    typeof attr.value !== 'object' ||
+    attr.value.type !== 'mdxJsxAttributeValueExpression'
+  ) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "${name}" must be a JSX expression (e.g. {[...]} or {{...}}).`,
+      ...meta
+    })
+  }
+
+  const estree = attr.value.data?.estree
+  const statement = estree?.body?.[0]
+  const expression =
+    statement?.type === 'ExpressionStatement' ? statement.expression : undefined
+
+  if (!expression) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "${name}" could not be statically analyzed.`,
+      ...meta
+    })
+  }
+
+  return evaluateStaticLiteral(expression, meta)
+}

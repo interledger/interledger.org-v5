@@ -24,7 +24,7 @@ import type {
   grantPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
-import { MdxParserError } from './parserErrors'
+import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
 import { tryCatchAsync, getProjectRoot } from '@/utils'
@@ -424,17 +424,14 @@ export async function buildProfilePayload(
   })
 }
 
-/**
- * Builds a Strapi payload for a grant-page MDX file.
- *
- * Maps frontmatter fields to the grant-page Strapi schema. The MDX body
- * (dynamiczone content, e.g. LogoCarousel) is not parsed here yet — reverse
- * parsing into `content` is a separate follow-up.
- * No image resolution needed — grant pages contain no managed media fields.
- */
+// Builds a Strapi payload for a grant-page MDX file.
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
-  mdx: MDXFile
+  mdx: MDXFile,
+  strapi?: StrapiClient,
+  existingEntry: StrapiEntry | null = null,
+  updatedAltIds: Map<number, string | null> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -479,6 +476,35 @@ export async function buildGrantPagePayload(
         }
       : null
 
+    const parserCtx: ParserContext | undefined = strapi
+      ? {
+          locale: mdx.locale || 'en',
+          resolveMediaUpload: async (url: string) => {
+            const id = await strapi.findUploadByUrl(url)
+            if (id instanceof Error) throw id
+            if (!id) {
+              throw new MdxParserError({
+                code: ParserErrorCode.UNRESOLVED_RELATION,
+                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+              })
+            }
+            return id
+          },
+          updateMediaAlt: async (id: number, alt: string | null) => {
+            await updateUploadAltOnce(
+              strapi,
+              id,
+              alt,
+              updatedAltIds,
+              mdx.pathSlug,
+              dryRun
+            )
+          }
+        }
+      : undefined
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
@@ -487,6 +513,7 @@ export async function buildGrantPagePayload(
       primaryCta,
       faqSection,
       ctaStrip,
+      ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
   })

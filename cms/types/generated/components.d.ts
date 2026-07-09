@@ -201,7 +201,7 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
   collectionName: 'components_blocks_carousels'
   info: {
     description: 'Carousel/slider for testimonials or featured content'
-    displayName: 'Carousel'
+    displayName: 'Logo Carousel'
     icon: 'images'
   }
   attributes: {
