@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { validateNoNestedJsx, validateNavigationLabels } from '@/utils'
+import { errors } from '@strapi/utils'
+import {
+  validateNoNestedJsx,
+  validateNavigationLabels,
+  validateGrantPagePrimaryCta,
+  validateGrantPageFaqSection,
+  validateHeroFields,
+  validateBlogFields,
+  mergeValidationErrors
+} from '@/utils'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -145,6 +154,18 @@ describe('validateNavigationLabels', () => {
     const err = validateNavigationLabels(data)
     expect(err).toBeInstanceOf(Error)
     expect(err?.message).toBe('Main Menu: Item 1 is missing a required label')
+    // The admin only highlights the specific field when details.errors[].path
+    // matches Strapi's own Yup error shape — this is what INTORG-796 was
+    // missing on the first pass (a generic toast, no field highlighting).
+    expect(err?.details).toEqual({
+      errors: [
+        {
+          path: ['mainMenu', '0', 'label'],
+          message: 'Main Menu: Item 1 is missing a required label',
+          name: 'ValidationError'
+        }
+      ]
+    })
   })
 
   it('treats a whitespace-only label as missing', () => {
@@ -203,5 +224,249 @@ describe('validateNavigationLabels', () => {
     expect(validateNavigationLabels(data)?.message).toBe(
       'CTA Button: Label is required'
     )
+  })
+})
+
+describe('validateGrantPagePrimaryCta', () => {
+  it('returns undefined when primaryCta is absent', () => {
+    expect(validateGrantPagePrimaryCta({})).toBeUndefined()
+  })
+
+  it('returns undefined when text and link are both present', () => {
+    expect(
+      validateGrantPagePrimaryCta({
+        primaryCta: { text: 'Apply now', link: 'https://example.com' }
+      })
+    ).toBeUndefined()
+  })
+
+  it('flags a missing text with a path pointing at primaryCta.text', () => {
+    const err = validateGrantPagePrimaryCta({
+      primaryCta: { text: '', link: 'https://example.com' }
+    })
+    expect(err?.message).toBe('Primary Call to Action: Text is required')
+    expect(err?.details).toEqual({
+      errors: [
+        {
+          path: ['primaryCta', 'text'],
+          message: 'Primary Call to Action: Text is required',
+          name: 'ValidationError'
+        }
+      ]
+    })
+  })
+
+  it('flags a missing link with a path pointing at primaryCta.link', () => {
+    const err = validateGrantPagePrimaryCta({
+      primaryCta: { text: 'Apply now', link: '' }
+    })
+    expect(err?.message).toBe('Primary Call to Action: Link is required')
+    expect(err?.details.errors[0].path).toEqual(['primaryCta', 'link'])
+  })
+
+  it('reports both text and link as separate entries when both are missing, not just the first', () => {
+    const err = validateGrantPagePrimaryCta({
+      primaryCta: { text: '', link: '' }
+    })
+    expect(err?.details.errors).toEqual([
+      {
+        path: ['primaryCta', 'text'],
+        message: 'Primary Call to Action: Text is required',
+        name: 'ValidationError'
+      },
+      {
+        path: ['primaryCta', 'link'],
+        message: 'Primary Call to Action: Link is required',
+        name: 'ValidationError'
+      }
+    ])
+  })
+})
+
+describe('validateGrantPageFaqSection', () => {
+  it('returns undefined when faqSection is absent', () => {
+    expect(validateGrantPageFaqSection({})).toBeUndefined()
+  })
+
+  it('flags a missing title with a path pointing at faqSection.title', () => {
+    const err = validateGrantPageFaqSection({
+      faqSection: {
+        title: '',
+        subtitle: 's',
+        description: 'd',
+        ctaText: 'c',
+        ctaLink: 'l',
+        items: [
+          { question: 'q1', answer: 'a1' },
+          { question: 'q2', answer: 'a2' }
+        ]
+      }
+    })
+    expect(err?.message).toBe('FAQ Section: Title is required')
+    expect(err?.details.errors[0].path).toEqual(['faqSection', 'title'])
+  })
+
+  it('flags a missing item answer with an index-aware path', () => {
+    const err = validateGrantPageFaqSection({
+      faqSection: {
+        title: 't',
+        subtitle: 's',
+        description: 'd',
+        ctaText: 'c',
+        ctaLink: 'l',
+        items: [
+          { question: 'q1', answer: 'a1' },
+          { question: 'q2', answer: '' }
+        ]
+      }
+    })
+    expect(err?.message).toBe('FAQ Section: Item 2 is missing an answer')
+    expect(err?.details.errors[0].path).toEqual([
+      'faqSection',
+      'items',
+      '1',
+      'answer'
+    ])
+  })
+
+  it('reports every missing scalar field at once, not just the first', () => {
+    const err = validateGrantPageFaqSection({
+      faqSection: {
+        title: '',
+        subtitle: '',
+        description: 'd',
+        ctaText: 'c',
+        ctaLink: 'l',
+        items: [
+          { question: 'q1', answer: 'a1' },
+          { question: 'q2', answer: 'a2' }
+        ]
+      }
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['faqSection', 'title'],
+      ['faqSection', 'subtitle']
+    ])
+  })
+})
+
+describe('validateHeroFields', () => {
+  it('returns undefined when hero is absent', () => {
+    expect(validateHeroFields({})).toBeUndefined()
+  })
+
+  it('returns undefined for a valid hero', () => {
+    expect(
+      validateHeroFields({
+        hero: {
+          title: 'Hello',
+          hero_call_to_action: [{ text: 'Go', link: '/go' }]
+        }
+      })
+    ).toBeUndefined()
+  })
+
+  it('flags a missing title with a path pointing at hero.title', () => {
+    const err = validateHeroFields({ hero: { title: '' } })
+    expect(err?.message).toBe('Hero is missing required title')
+    expect(err?.details.errors[0].path).toEqual(['hero', 'title'])
+  })
+
+  it('flags a CTA missing link with an index-aware path', () => {
+    const err = validateHeroFields({
+      hero: {
+        title: 'Hello',
+        hero_call_to_action: [
+          { text: 'Go', link: '/go' },
+          { text: 'Also go', link: '' }
+        ]
+      }
+    })
+    expect(err?.message).toBe('Hero CTA is missing required link')
+    expect(err?.details.errors[0].path).toEqual([
+      'hero',
+      'hero_call_to_action',
+      '1',
+      'link'
+    ])
+  })
+})
+
+describe('validateBlogFields', () => {
+  it('returns undefined when both fields are absent', () => {
+    expect(validateBlogFields({})).toBeUndefined()
+  })
+
+  it('flags a bio missing an author with an index-aware path', () => {
+    const err = validateBlogFields({
+      articleBio: [{ author: 'Jane' }, { author: null }]
+    })
+    expect(err?.message).toBe('Author Bio: Name is required')
+    expect(err?.details.errors[0].path).toEqual(['articleBio', '1', 'author'])
+  })
+
+  it('flags a related article missing a slug with an index-aware path', () => {
+    const err = validateBlogFields({
+      relatedArticles: [{ slug: 'valid' }, { slug: '' }]
+    })
+    expect(err?.message).toBe('Related Articles: Slug is required')
+    expect(err?.details.errors[0].path).toEqual([
+      'relatedArticles',
+      '1',
+      'slug'
+    ])
+  })
+
+  it('reports a missing bio author and a missing related-article slug together', () => {
+    const err = validateBlogFields({
+      articleBio: [{ author: null }],
+      relatedArticles: [{ slug: '' }]
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['articleBio', '0', 'author'],
+      ['relatedArticles', '0', 'slug']
+    ])
+  })
+})
+
+describe('mergeValidationErrors', () => {
+  it('returns undefined when no validators found anything', () => {
+    expect(mergeValidationErrors(undefined, undefined)).toBeUndefined()
+  })
+
+  it('passes a single validator error through unchanged', () => {
+    const err = new errors.ValidationError('bad field', {
+      errors: [{ path: ['a'], message: 'bad field', name: 'ValidationError' }]
+    })
+    const merged = mergeValidationErrors(err, undefined)
+    expect(merged?.message).toBe('bad field')
+    expect(merged?.details).toEqual(err.details)
+  })
+
+  it('combines details.errors from multiple validators into one response, using the first message as the top-level message', () => {
+    const primaryCtaErr = validateGrantPagePrimaryCta({
+      primaryCta: { text: '', link: 'https://x.com' }
+    })
+    const faqErr = validateGrantPageFaqSection({
+      faqSection: {
+        title: '',
+        subtitle: 's',
+        description: 'd',
+        ctaText: 'c',
+        ctaLink: 'l',
+        items: [
+          { question: 'q1', answer: 'a1' },
+          { question: 'q2', answer: 'a2' }
+        ]
+      }
+    })
+
+    const merged = mergeValidationErrors(primaryCtaErr, faqErr)
+
+    expect(merged?.message).toBe('Primary Call to Action: Text is required')
+    expect(merged?.details.errors.map((e) => e.path)).toEqual([
+      ['primaryCta', 'text'],
+      ['faqSection', 'title']
+    ])
   })
 })

@@ -6,7 +6,6 @@
  */
 
 import { errors } from '@strapi/utils'
-import { heroFrontmatter } from './mdx'
 import type { NavigationData } from './navigationLifecycle'
 import type { PageData } from './pageLifecycle'
 
@@ -18,6 +17,57 @@ export function toValidationError(error: unknown): errors.ValidationError {
   return new errors.ValidationError(
     error instanceof Error ? error.message : String(error)
   )
+}
+
+interface FieldError {
+  path: Array<string | number>
+  message: string
+}
+
+/**
+ * Combine every field-level failure found by a single validator into one
+ * `ValidationError`, shaped like Strapi's own Yup validation errors
+ * (`details.errors: [{ path, message }]`). The admin's
+ * `_unstableFormatValidationErrors` iterates that array and highlights every
+ * offending field — so collecting all failures here (rather than stopping at
+ * the first) lets an editor fix everything in one pass instead of one save
+ * attempt per mistake.
+ *
+ * Returns `undefined` when `fieldErrors` is empty (nothing to report).
+ */
+function combineFieldErrors(
+  fieldErrors: FieldError[]
+): errors.ValidationError | undefined {
+  if (fieldErrors.length === 0) return undefined
+  return new errors.ValidationError(fieldErrors[0]!.message, {
+    errors: fieldErrors.map(({ path, message }) => ({
+      path: path.map(String),
+      message,
+      name: 'ValidationError'
+    }))
+  })
+}
+
+/**
+ * Merge the `details.errors` of multiple validators (e.g. one content type's
+ * primaryCta check and its FAQ section check) into a single `ValidationError`,
+ * so a save reports every failing field across every validator in one
+ * response instead of only the first validator that found something.
+ */
+export function mergeValidationErrors(
+  ...validationErrors: Array<errors.ValidationError | undefined>
+): errors.ValidationError | undefined {
+  const present = validationErrors.filter(
+    (err): err is errors.ValidationError => err != null
+  )
+  if (present.length === 0) return undefined
+  const allFieldErrors = present.flatMap(
+    (err) =>
+      (err.details as { errors?: unknown[] } | undefined)?.errors ?? []
+  )
+  return new errors.ValidationError(present[0]!.message, {
+    errors: allFieldErrors
+  })
 }
 
 /**
@@ -38,7 +88,7 @@ function stripInlineCode(text: string): string {
  * When `faqSection` is absent the section is simply not rendered — that is valid.
  * When it is present all scalar fields are required and `items` must have at least 2 entries.
  *
- * Returns a `ValidationError` on failure, `undefined` on success.
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
  */
 export function validateGrantPageFaqSection(
   body: unknown
@@ -48,65 +98,84 @@ export function validateGrantPageFaqSection(
 
   const { title, subtitle, description, ctaText, ctaLink, items } =
     faq as Record<string, unknown>
+  const fieldErrors: FieldError[] = []
 
   if (!title || typeof title !== 'string' || (title as string).trim() === '') {
-    return new errors.ValidationError('FAQ Section: Title is required')
+    fieldErrors.push({
+      message: 'FAQ Section: Title is required',
+      path: ['faqSection', 'title']
+    })
   }
   if (
     !subtitle ||
     typeof subtitle !== 'string' ||
     (subtitle as string).trim() === ''
   ) {
-    return new errors.ValidationError('FAQ Section: Subtitle is required')
+    fieldErrors.push({
+      message: 'FAQ Section: Subtitle is required',
+      path: ['faqSection', 'subtitle']
+    })
   }
   if (
     !description ||
     typeof description !== 'string' ||
     (description as string).trim() === ''
   ) {
-    return new errors.ValidationError('FAQ Section: Description is required')
+    fieldErrors.push({
+      message: 'FAQ Section: Description is required',
+      path: ['faqSection', 'description']
+    })
   }
   if (
     !ctaText ||
     typeof ctaText !== 'string' ||
     (ctaText as string).trim() === ''
   ) {
-    return new errors.ValidationError('FAQ Section: Button Text is required')
+    fieldErrors.push({
+      message: 'FAQ Section: Button Text is required',
+      path: ['faqSection', 'ctaText']
+    })
   }
   if (
     !ctaLink ||
     typeof ctaLink !== 'string' ||
     (ctaLink as string).trim() === ''
   ) {
-    return new errors.ValidationError('FAQ Section: Button Link is required')
+    fieldErrors.push({
+      message: 'FAQ Section: Button Link is required',
+      path: ['faqSection', 'ctaLink']
+    })
   }
   if (!Array.isArray(items) || items.length < 2) {
-    return new errors.ValidationError(
-      'FAQ Section: At least 2 FAQ items are required'
-    )
+    fieldErrors.push({
+      message: 'FAQ Section: At least 2 FAQ items are required',
+      path: ['faqSection', 'items']
+    })
   }
-  for (const [i, item] of items.entries()) {
+  for (const [i, item] of (Array.isArray(items) ? items : []).entries()) {
     const { question, answer } = item as Record<string, unknown>
     if (
       !question ||
       typeof question !== 'string' ||
       (question as string).trim() === ''
     ) {
-      return new errors.ValidationError(
-        `FAQ Section: Item ${i + 1} is missing a question`
-      )
+      fieldErrors.push({
+        message: `FAQ Section: Item ${i + 1} is missing a question`,
+        path: ['faqSection', 'items', i, 'question']
+      })
     }
     if (
       !answer ||
       typeof answer !== 'string' ||
       (answer as string).trim() === ''
     ) {
-      return new errors.ValidationError(
-        `FAQ Section: Item ${i + 1} is missing an answer`
-      )
+      fieldErrors.push({
+        message: `FAQ Section: Item ${i + 1} is missing an answer`,
+        path: ['faqSection', 'items', i, 'answer']
+      })
     }
   }
-  return undefined
+  return combineFieldErrors(fieldErrors)
 }
 
 /**
@@ -116,7 +185,7 @@ export function validateGrantPageFaqSection(
  * When it is present both `text` and `link` are required; Strapi's partial
  * update validator skips required-field checks on PUT, so this fills the gap.
  *
- * Returns a `ValidationError` on failure, `undefined` on success.
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
  */
 export function validateGrantPagePrimaryCta(
   body: unknown
@@ -125,35 +194,56 @@ export function validateGrantPagePrimaryCta(
   if (!cta || typeof cta !== 'object') return undefined
 
   const { text, link } = cta as Record<string, unknown>
+  const fieldErrors: FieldError[] = []
   if (!text || typeof text !== 'string' || text.trim() === '') {
-    return new errors.ValidationError(
-      'Primary Call to Action: Text is required'
-    )
+    fieldErrors.push({
+      message: 'Primary Call to Action: Text is required',
+      path: ['primaryCta', 'text']
+    })
   }
   if (!link || typeof link !== 'string' || link.trim() === '') {
-    return new errors.ValidationError(
-      'Primary Call to Action: Link is required'
-    )
+    fieldErrors.push({
+      message: 'Primary Call to Action: Link is required',
+      path: ['primaryCta', 'link']
+    })
   }
-  return undefined
+  return combineFieldErrors(fieldErrors)
 }
 
 /**
  * Validate the Hero component on page-like content types (foundation-page,
- * summit-page). Delegates to `heroFrontmatter`
+ * summit-page): title is required, and each CTA needs both text and link.
  *
- * Returns a `ValidationError` on failure, `undefined` when hero is absent or valid.
+ * Returns a `ValidationError` combining every failing field, `undefined` when hero is absent or valid.
  */
 export function validateHeroFields(
   page: Pick<PageData, 'hero'>
 ): errors.ValidationError | undefined {
-  if (!page.hero) return undefined
-  try {
-    heroFrontmatter(page.hero)
-  } catch (error) {
-    return toValidationError(error)
+  const hero = page.hero
+  if (!hero) return undefined
+
+  const fieldErrors: FieldError[] = []
+  if (!hero.title?.trim()) {
+    fieldErrors.push({
+      message: 'Hero is missing required title',
+      path: ['hero', 'title']
+    })
   }
-  return undefined
+  for (const [i, cta] of (hero.hero_call_to_action ?? []).entries()) {
+    if (!cta.text) {
+      fieldErrors.push({
+        message: 'Hero CTA is missing required text',
+        path: ['hero', 'hero_call_to_action', i, 'text']
+      })
+    }
+    if (!cta.link) {
+      fieldErrors.push({
+        message: 'Hero CTA is missing required link',
+        path: ['hero', 'hero_call_to_action', i, 'link']
+      })
+    }
+  }
+  return combineFieldErrors(fieldErrors)
 }
 
 /**
@@ -162,23 +252,30 @@ export function validateHeroFields(
  * enforces them on create; this fills the same partial-update gap as the
  * other validators here.
  *
- * Returns a `ValidationError` on the first missing field found, `undefined` otherwise.
+ * Returns a `ValidationError` combining every missing field found, `undefined` otherwise.
  */
 export function validateBlogFields(post: {
   articleBio?: { author: string | null }[]
   relatedArticles?: { slug: string }[]
 }): errors.ValidationError | undefined {
-  for (const bio of post.articleBio ?? []) {
+  const fieldErrors: FieldError[] = []
+  for (const [i, bio] of (post.articleBio ?? []).entries()) {
     if (!bio.author?.trim()) {
-      return new errors.ValidationError('Author Bio: Name is required')
+      fieldErrors.push({
+        message: 'Author Bio: Name is required',
+        path: ['articleBio', i, 'author']
+      })
     }
   }
-  for (const related of post.relatedArticles ?? []) {
+  for (const [i, related] of (post.relatedArticles ?? []).entries()) {
     if (!related.slug) {
-      return new errors.ValidationError('Related Articles: Slug is required')
+      fieldErrors.push({
+        message: 'Related Articles: Slug is required',
+        path: ['relatedArticles', i, 'slug']
+      })
     }
   }
-  return undefined
+  return combineFieldErrors(fieldErrors)
 }
 
 /**
@@ -222,43 +319,60 @@ export function validateNoNestedJsx(
  * Validate that every Main Menu group/item/sub-group and the CTA button
  * carry a non-empty label.
  *
- * Returns a `ValidationError` on the first missing label found, `undefined` otherwise.
+ * Returns a `ValidationError` combining every missing label found, `undefined` otherwise.
  */
 export function validateNavigationLabels(
   data: NavigationData
 ): errors.ValidationError | undefined {
+  const fieldErrors: FieldError[] = []
+
   for (const [groupIndex, group] of (data.mainMenu ?? []).entries()) {
     if (!group.label?.trim()) {
-      return new errors.ValidationError(
-        `Main Menu: Item ${groupIndex + 1} is missing a required label`
-      )
+      fieldErrors.push({
+        message: `Main Menu: Item ${groupIndex + 1} is missing a required label`,
+        path: ['mainMenu', groupIndex, 'label']
+      })
     }
     for (const [itemIndex, item] of (group.items ?? []).entries()) {
       if (!item.label?.trim()) {
-        return new errors.ValidationError(
-          `"${group.label}": Item ${itemIndex + 1} is missing a required label`
-        )
+        fieldErrors.push({
+          message: `"${group.label}": Item ${itemIndex + 1} is missing a required label`,
+          path: ['mainMenu', groupIndex, 'items', itemIndex, 'label']
+        })
       }
     }
     for (const [subGroupIndex, subGroup] of (group.subGroups ?? []).entries()) {
       if (!subGroup.label?.trim()) {
-        return new errors.ValidationError(
-          `"${group.label}": Sub-group ${subGroupIndex + 1} is missing a required label`
-        )
+        fieldErrors.push({
+          message: `"${group.label}": Sub-group ${subGroupIndex + 1} is missing a required label`,
+          path: ['mainMenu', groupIndex, 'subGroups', subGroupIndex, 'label']
+        })
       }
       for (const [itemIndex, item] of (subGroup.items ?? []).entries()) {
         if (!item.label?.trim()) {
-          return new errors.ValidationError(
-            `"${group.label}" / "${subGroup.label}": Item ${itemIndex + 1} is missing a required label`
-          )
+          fieldErrors.push({
+            message: `"${group.label}" / "${subGroup.label}": Item ${itemIndex + 1} is missing a required label`,
+            path: [
+              'mainMenu',
+              groupIndex,
+              'subGroups',
+              subGroupIndex,
+              'items',
+              itemIndex,
+              'label'
+            ]
+          })
         }
       }
     }
   }
 
   if (data.ctaButton && !data.ctaButton.label?.trim()) {
-    return new errors.ValidationError('CTA Button: Label is required')
+    fieldErrors.push({
+      message: 'CTA Button: Label is required',
+      path: ['ctaButton', 'label']
+    })
   }
 
-  return undefined
+  return combineFieldErrors(fieldErrors)
 }

@@ -11,6 +11,7 @@ import {
   validateGrantPageFaqSection,
   validateBlogFields,
   validateNavigationLabels,
+  mergeValidationErrors,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
@@ -86,7 +87,8 @@ export function registerBodyValidationMiddleware(
             error: {
               status: 400,
               name: 'ValidationError',
-              message: validationErr.message
+              message: validationErr.message,
+              details: validationErr.details
             }
           }
           return
@@ -1223,35 +1225,42 @@ export default {
       strapi,
       /^\/content-manager\/collection-types\/api::grant-page\.grant-page/,
       (body) =>
-        validateGrantPagePrimaryCta(body) ?? validateGrantPageFaqSection(body)
+        mergeValidationErrors(
+          validateGrantPagePrimaryCta(body),
+          validateGrantPageFaqSection(body)
+        )
     )
     registerBodyValidationMiddleware(
       strapi,
       /^\/content-manager\/collection-types\/api::foundation-page\.foundation-page/,
       (body) =>
-        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]) ??
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerBodyValidationMiddleware(
       strapi,
       /^\/content-manager\/collection-types\/api::summit-page\.summit-page/,
       (body) =>
-        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]) ??
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerBodyValidationMiddleware(
       strapi,
       /^\/content-manager\/collection-types\/api::foundation-blog-post\.foundation-blog-post/,
       (body) =>
-        validateBlogFields(
-          body as Parameters<typeof validateBlogFields>[0]
-        ) ??
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validateBlogFields(body as Parameters<typeof validateBlogFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
 
@@ -1288,7 +1297,8 @@ export default {
               error: {
                 status: 400,
                 name: 'ValidationError',
-                message: validationErr.message
+                message: validationErr.message,
+                details: validationErr.details
               }
             }
             return

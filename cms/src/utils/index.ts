@@ -42,7 +42,8 @@ export {
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,
-  toValidationError
+  toValidationError,
+  mergeValidationErrors
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,

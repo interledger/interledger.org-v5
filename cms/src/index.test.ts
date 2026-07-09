@@ -39,10 +39,57 @@ describe('registerBodyValidationMiddleware', () => {
     expect(ctx.status).toBe(400)
     expect(ctx.body).toEqual({
       data: null,
-      error: { status: 400, name: 'ValidationError', message: 'bad primaryCta' }
+      error: {
+        status: 400,
+        name: 'ValidationError',
+        message: 'bad primaryCta',
+        details: {}
+      }
     })
     expect(next).not.toHaveBeenCalled()
     expect(validate).toHaveBeenCalledWith({ primaryCta: { text: '' } })
+  })
+
+  it('forwards details.errors[].path so the admin can highlight the specific field — INTORG-796 regression: this was previously dropped, so field highlighting never worked even though the validator produced a path', async () => {
+    const validate = vi.fn(
+      () =>
+        new errors.ValidationError('Primary Call to Action: Text is required', {
+          errors: [
+            {
+              path: ['primaryCta', 'text'],
+              message: 'Primary Call to Action: Text is required',
+              name: 'ValidationError'
+            }
+          ]
+        })
+    )
+    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const next = vi.fn()
+    const ctx = {
+      method: 'PUT',
+      url: '/content-manager/collection-types/api::grant-page.grant-page/doc1?locale=en',
+      request: { body: { primaryCta: { text: '' } } }
+    }
+
+    await middleware(ctx, next)
+
+    expect(ctx.body).toEqual({
+      data: null,
+      error: {
+        status: 400,
+        name: 'ValidationError',
+        message: 'Primary Call to Action: Text is required',
+        details: {
+          errors: [
+            {
+              path: ['primaryCta', 'text'],
+              message: 'Primary Call to Action: Text is required',
+              name: 'ValidationError'
+            }
+          ]
+        }
+      }
+    })
   })
 
   it('calls next without touching the response when validate passes', async () => {
