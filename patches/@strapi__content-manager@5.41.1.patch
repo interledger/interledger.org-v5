@@ -1,0 +1,102 @@
+diff --git a/dist/admin/services/documents.js b/dist/admin/services/documents.js
+index 91c63173e66aab5c8abfaad1c779776b510c0d82..06bce103448627ad601d16dd7ec34b93669b1334 100644
+--- a/dist/admin/services/documents.js
++++ b/dist/admin/services/documents.js
+@@ -269,7 +269,14 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (_result, _error, { collectionType, model, documentId })=>{
++                invalidatesTags: (_result, error, { collectionType, model, documentId })=>{
++                    // INTORG-796: a failed publish never wrote anything — invalidating
++                    // here refetches the (unchanged) document and can cause <Form> to
++                    // re-sync away from the user's in-progress edits. Only invalidate
++                    // on success.
++                    if (error) {
++                        return [];
++                    }
+                     return [
+                         {
+                             type: 'Document',
+@@ -320,7 +327,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (_result, _error, { collectionType, model, documentId })=>{
++                invalidatesTags: (_result, error, { collectionType, model, documentId })=>{
++                    // INTORG-796: a failed save never wrote anything — invalidating here
++                    // refetches the (unchanged) document and can cause <Form> to re-sync
++                    // away from the user's in-progress edits. Only invalidate on success.
++                    if (error) {
++                        return [];
++                    }
+                     return [
+                         {
+                             type: 'Document',
+@@ -348,8 +361,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+                     try {
+                         await queryFulfilled;
+                     } catch  {
+-                        // Rollback the optimistic update if there's an error
+-                        patchResult.undo();
++                        // INTORG-796: do not undo the optimistic cache patch on error.
++                        // Undoing it reverts `getDocument`'s cached data to the pre-save
++                        // (stale) values; <Form>'s initialValues-sync effect then wipes
++                        // the user's in-progress edits back to that stale state, even
++                        // though the failed save never touched the database. Leaving the
++                        // optimistic (attempted) values in place keeps the form showing
++                        // what the user typed alongside the validation error.
+                     }
+                 },
+                 transformResponse: (response, meta, arg)=>{
+diff --git a/dist/admin/services/documents.mjs b/dist/admin/services/documents.mjs
+index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..83c0941b8efd2c58711ffa771e23b62cc6b43383 100644
+--- a/dist/admin/services/documents.mjs
++++ b/dist/admin/services/documents.mjs
+@@ -267,7 +267,14 @@ const documentApi = contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (_result, _error, { collectionType, model, documentId })=>{
++                invalidatesTags: (_result, error, { collectionType, model, documentId })=>{
++                    // INTORG-796: a failed publish never wrote anything — invalidating
++                    // here refetches the (unchanged) document and can cause <Form> to
++                    // re-sync away from the user's in-progress edits. Only invalidate
++                    // on success.
++                    if (error) {
++                        return [];
++                    }
+                     return [
+                         {
+                             type: 'Document',
+@@ -318,7 +325,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (_result, _error, { collectionType, model, documentId })=>{
++                invalidatesTags: (_result, error, { collectionType, model, documentId })=>{
++                    // INTORG-796: a failed save never wrote anything — invalidating here
++                    // refetches the (unchanged) document and can cause <Form> to re-sync
++                    // away from the user's in-progress edits. Only invalidate on success.
++                    if (error) {
++                        return [];
++                    }
+                     return [
+                         {
+                             type: 'Document',
+@@ -346,8 +359,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+                     try {
+                         await queryFulfilled;
+                     } catch  {
+-                        // Rollback the optimistic update if there's an error
+-                        patchResult.undo();
++                        // INTORG-796: do not undo the optimistic cache patch on error.
++                        // Undoing it reverts `getDocument`'s cached data to the pre-save
++                        // (stale) values; <Form>'s initialValues-sync effect then wipes
++                        // the user's in-progress edits back to that stale state, even
++                        // though the failed save never touched the database. Leaving the
++                        // optimistic (attempted) values in place keeps the form showing
++                        // what the user typed alongside the validation error.
+                     }
+                 },
+                 transformResponse: (response, meta, arg)=>{
