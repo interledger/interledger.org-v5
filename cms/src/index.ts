@@ -537,6 +537,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      content: 'Content',
       ctaStrip: 'CTA Strip',
       seo: 'SEO'
     },
@@ -925,6 +926,26 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
+    ],
+    'api::grant-page.grant-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pathSlug', size: 6 }
+      ],
+      [{ name: 'description', size: 6 }],
+      [{ name: 'primaryCta', size: 12 }],
+      [{ name: 'programOverview', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }]
+    ],
+    'api::grant-overview-page.grant-overview-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pathSlug', size: 6 }
+      ],
+      [{ name: 'description', size: 6 }],
+      [{ name: 'ctaStrip', size: 12 }],
+      [{ name: 'followUpContent', size: 12 }]
     ]
   }
 

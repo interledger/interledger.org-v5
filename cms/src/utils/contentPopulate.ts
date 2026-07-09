@@ -58,11 +58,16 @@ export const BLOG_CONTENT_POPULATE = {
 export const GRANT_PAGE_CONTENT_POPULATE = {
   primaryCta: true,
   ctaStrip: true,
-  seo: { populate: '*' }
+  content: {
+    on: {
+      'blocks.carousel': {
+        populate: { logos: true }
+      }
+    }
+  }
 } as const
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
-  ctaStrip: true,
-  seo: { populate: '*' }
+  ctaStrip: true
 } as const

@@ -8,6 +8,7 @@ import {
   GRANT_PAGE_CONTENT_POPULATE,
   validateGrantPagePrimaryCta
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 interface CtaLink {
   text?: string
@@ -30,6 +31,7 @@ interface GrantPageData extends PageData {
   programOverview?: string
   primaryCta?: CtaLink | null
   ctaStrip?: CtaStrip | null
+  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -90,7 +92,9 @@ function generateGrantPageMDX(
     locale
   }
 
-  const body = grantPage.programOverview ?? ''
+  const programOverview = grantPage.programOverview ?? ''
+  const content = serializeContent(grantPage.content)
+  const body = [programOverview, content].filter(Boolean).join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
