@@ -39,10 +39,10 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext & {
 // ---------------------------------------------------------------------------
 
 describe('LogoCarousel handler', () => {
-  it('parses a single logo with heading and carouselLabel', async () => {
+  it('parses a single logo with heading and accessibilityLabel', async () => {
     const ctx = ctxWith({ '/img/plata.png': 12 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel heading="In partnership with" carouselLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`,
+      `<LogoCarousel heading="In partnership with" accessibilityLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`,
       ctx
     )
 

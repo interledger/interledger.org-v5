@@ -16,7 +16,7 @@ export function serialize(block: {
 
   const headingAttr = block.heading ? ` heading="${esc(block.heading)}"` : ''
   const labelAttr = block.accessibilityLabel
-    ? ` carouselLabel="${esc(block.accessibilityLabel)}"`
+    ? ` accessibilityLabel="${esc(block.accessibilityLabel)}"`
     : ''
   const logosAttr = logoItems.length
     ? ` logos={${JSON.stringify(logoItems)}}`

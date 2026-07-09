@@ -1,11 +1,11 @@
 ---
 interface Props {
   heading?: string
-  carouselLabel: string
+  accessibilityLabel: string
   logos: { name: string; src: string }[]
 }
 
-const { heading, carouselLabel, logos } = Astro.props
+const { heading, accessibilityLabel, logos } = Astro.props
 
 const sectionClasses = `
   px-lg pb-3xl-tight
@@ -47,7 +47,7 @@ const logoClasses = `
       {heading}
     </h2>
 
-    <div class={viewportClasses} role="group" aria-label={carouselLabel}>
+    <div class={viewportClasses} role="group" aria-label={accessibilityLabel}>
       <ul class={trackClasses} role="list">
         {
           logos.map((logo) => (

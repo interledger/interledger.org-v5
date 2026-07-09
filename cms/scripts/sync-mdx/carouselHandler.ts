@@ -1,6 +1,6 @@
 /**
  * LogoCarousel component handler for the MDX block parser. Handles:
- * <LogoCarousel heading="..." carouselLabel="..." logos={[{ name, src }, ...]} />
+ * <LogoCarousel heading="..." accessibilityLabel="..." logos={[{ name, src }, ...]} />
  *
  * `logos` isn't JSON — Prettier reformats it to JS object-literal syntax on write —
  * so it's extracted via getStaticLiteralAttr's ESTree evaluator, not JSON.parse.
@@ -37,7 +37,7 @@ async function handleCarousel(
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
     const heading = getStringAttr(node, 'heading')
-    const accessibilityLabel = getStringAttr(node, 'carouselLabel')
+    const accessibilityLabel = getStringAttr(node, 'accessibilityLabel')
     const rawLogos = getStaticLiteralAttr(node, 'logos', { required: true })
 
     if (!Array.isArray(rawLogos) || !rawLogos.every(isLogoEntry)) {
