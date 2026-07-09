@@ -57,7 +57,7 @@ const programOverviewHtml = programOverview
       class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
     >
       <div
-        class="mx-auto w-full max-w-wide px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+        class="mx-auto w-full max-w-wide px-lg min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
       >
         <div class="">
           <h1
@@ -86,36 +86,28 @@ const programOverviewHtml = programOverview
 
     {
       programOverviewHtml && (
-        <section class="py-space-xl">
-          <div class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content">
+        <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
+          <div class="mx-auto max-w-content min-w-[360px]">
             <div data-prose set:html={programOverviewHtml} />
           </div>
         </section>
       )
     }
 
-    <section class="py-space-xl">
-      <div
-        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
-      >
-        <div data-prose>
-          <MdxContent components={{ LogoCarousel }} />
-        </div>
-      </div>
-    </section>
+    <div data-prose>
+      <MdxContent components={{ LogoCarousel }} />
+    </div>
 
     {
       faqSection && (
-        <section class="py-space-xl">
+        <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
           <GrantFaqSection {...faqSection} />
         </section>
       )
     }
 
-    <section class="py-space-xl">
-      <div
-        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
-      >
+    <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
+      <div class="mx-auto max-w-content min-w-[360px]">
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

@@ -183,6 +183,7 @@ describe('LogoCarousel handler — mixed content', () => {
     ].join('\n')
 
     const blocks = await parseMdxToBlocks(mdx, ctx)
+    if (blocks instanceof MdxParserError) throw blocks
 
     expect(blocks).toHaveLength(3)
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
