@@ -427,7 +427,9 @@ export async function buildProfilePayload(
 /**
  * Builds a Strapi payload for a grant-page MDX file.
  *
- * Maps frontmatter fields and MDX body to the grant-page Strapi schema.
+ * Maps frontmatter fields to the grant-page Strapi schema. The MDX body
+ * (dynamiczone content, e.g. LogoCarousel) is not parsed here yet — reverse
+ * parsing into `content` is a separate follow-up.
  * No image resolution needed — grant pages contain no managed media fields.
  */
 export async function buildGrantPagePayload(
@@ -481,7 +483,7 @@ export async function buildGrantPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
-      programOverview: (mdx.content || '').trim() || null,
+      programOverview: nullOrValue(parsed.programOverview),
       primaryCta,
       faqSection,
       ctaStrip,

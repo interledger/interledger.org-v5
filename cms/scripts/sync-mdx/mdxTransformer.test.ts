@@ -50,6 +50,7 @@ vi.mock('./siteSchemas', async () => {
     title: z.string().min(1, 'title is required'),
     pathSlug: z.string().min(1, 'pathSlug is required'),
     description: z.string().min(1, 'description is required'),
+    programOverview: z.string().optional(),
     primaryCta: z
       .object({
         text: z.string(),
@@ -1013,11 +1014,13 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('programOverview', () => {
-    it('is set from mdx.content when body is present', async () => {
+    it('is set from frontmatter when present', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: '## Eligibility\n\n- Accredited institutions'
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          programOverview: '## Eligibility\n\n- Accredited institutions'
+        }
       })
 
       const payload = await buildGrantPagePayload(
@@ -1029,11 +1032,10 @@ describe('buildGrantPagePayload', () => {
       )
     })
 
-    it('is null when mdx body is empty', async () => {
+    it('is null when absent from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: ''
+        frontmatter: baseGrantFrontmatter
       })
 
       const payload = await buildGrantPagePayload(
@@ -1043,11 +1045,10 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).programOverview).toBeNull()
     })
 
-    it('is null when mdx body is whitespace only', async () => {
+    it('is null when frontmatter value is blank', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: '   \n\n   '
+        frontmatter: { ...baseGrantFrontmatter, programOverview: '' }
       })
 
       const payload = await buildGrantPagePayload(

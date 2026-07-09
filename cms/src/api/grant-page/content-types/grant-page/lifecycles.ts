@@ -63,6 +63,7 @@ function generateGrantPageMDX(
   // rather than leaving the old value behind.
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).faqSection
+  delete (restPreserved as Record<string, unknown>).programOverview
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -85,6 +86,9 @@ function generateGrantPageMDX(
               : {})
           }
         }
+      : {}),
+    ...(grantPage.programOverview
+      ? { programOverview: grantPage.programOverview }
       : {}),
     ...(faqSection
       ? {
@@ -122,9 +126,7 @@ function generateGrantPageMDX(
     locale
   }
 
-  const programOverview = grantPage.programOverview ?? ''
-  const content = serializeContent(grantPage.content)
-  const body = [programOverview, content].filter(Boolean).join('\n\n')
+  const body = serializeContent(grantPage.content)
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

@@ -1,5 +1,5 @@
 ---
-import { type Locale } from '@/utils'
+import { type Locale, parseMarkdown } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -32,8 +32,16 @@ const {
   canonicalUrl,
   primaryCta,
   faqSection,
-  ctaStrip
+  ctaStrip,
+  programOverview
 } = mdxPage.data
+
+const programOverviewHtml = programOverview
+  ? await parseMarkdown(programOverview, {
+      pathname: Astro.url.pathname,
+      lang: contentLocale
+    })
+  : null
 ---
 
 <FoundationPageLayout
@@ -75,6 +83,16 @@ const {
         </div>
       </div>
     </section>
+
+    {
+      programOverviewHtml && (
+        <section class="py-space-xl">
+          <div class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content">
+            <div data-prose set:html={programOverviewHtml} />
+          </div>
+        </section>
+      )
+    }
 
     <section class="py-space-xl">
       <div
