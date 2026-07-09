@@ -947,6 +947,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'primaryCta', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
       [{ name: 'content', size: 12 }],
+      [{ name: 'faqSection', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }]
     ],
     'api::grant-overview-page.grant-overview-page': [
