@@ -3,6 +3,7 @@ import { type Locale } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import InfoCards from '@/components/blocks/InfoCards.astro'
 import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
@@ -31,7 +32,8 @@ const {
   canonicalUrl,
   primaryCta,
   faqSection,
-  ctaStrip
+  ctaStrip,
+  infoCards
 } = mdxPage.data
 ---
 
@@ -84,6 +86,14 @@ const {
         </div>
       </div>
     </section>
+
+    {
+      infoCards && (
+        <section class="py-space-xl">
+          <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
+        </section>
+      )
+    }
 
     {
       faqSection && (

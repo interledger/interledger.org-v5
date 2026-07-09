@@ -538,6 +538,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
       ctaStrip: 'CTA Strip',
+      infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -687,6 +688,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       href: 'Link URL',
       openInNewTab: 'Open in New Tab'
     },
+    'blocks.info-cards': {
+      heading: 'Section Heading',
+      card1: 'Card 1',
+      card2: 'Card 2',
+      card3: 'Card 3'
+    },
+    'blocks.info-card': {
+      heading: 'Card Heading',
+      body: 'Card Body'
+    },
     'blocks.carousel': {
       heading: 'Section Heading',
       items: 'Slides',
@@ -772,6 +783,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'blocks.info-cards': {
+      heading:
+        'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
     },
     'blocks.code-block': {
       title:

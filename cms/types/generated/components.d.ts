@@ -590,6 +590,70 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksInfoCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_info_card'
+  info: {
+    description: 'Single info card with a required heading and body'
+    displayName: 'Info Card'
+    icon: 'layout'
+  }
+  attributes: {
+    body: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksInfoCards extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_info_cards'
+  info: {
+    description: 'Optional heading with three required info cards, each with a heading and body'
+    displayName: 'Info Cards'
+    icon: 'grid'
+  }
+  attributes: {
+    card1: Schema.Attribute.Component<'blocks.info-card', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    card2: Schema.Attribute.Component<'blocks.info-card', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    card3: Schema.Attribute.Component<'blocks.info-card', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksParagraph extends Struct.ComponentSchema {
   collectionName: 'components_blocks_paragraphs'
   info: {
@@ -1016,6 +1080,8 @@ declare module '@strapi/strapi' {
       'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.image-block': BlocksImageBlock
       'blocks.image-row': BlocksImageRow
+      'blocks.info-card': BlocksInfoCard
+      'blocks.info-cards': BlocksInfoCards
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile

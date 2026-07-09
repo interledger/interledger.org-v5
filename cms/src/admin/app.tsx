@@ -182,6 +182,8 @@ const basicMarkdownPreset: Preset = {
       'bold',
       'italic',
       'link',
+      'numberedList',
+      'bulletedList',
       '|',
       'undo',
       'redo'
