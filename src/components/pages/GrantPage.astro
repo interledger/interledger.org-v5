@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
+import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
@@ -27,17 +28,17 @@ const { Content: MdxContent } = await render(mdxPage)
 const {
   title,
   description,
-  metaDescription,
   metaImage,
   canonicalUrl,
   primaryCta,
+  faqSection,
   ctaStrip
 } = mdxPage.data
 ---
 
 <FoundationPageLayout
   title={title}
-  description={metaDescription || description}
+  description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
@@ -47,14 +48,18 @@ const {
     <section
       class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
     >
-      <div class="mx-auto w-full max-w-wide px-space-m">
-        <div class="max-w-narrow">
+      <div
+        class="mx-auto w-full max-w-wide px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+      >
+        <div class="">
           <h1
-            class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]"
+            class="text-white mb-space-xs text-h2 tablet:text-h2-md desktop:text-h2-lg"
           >
             {title}
           </h1>
-          <p class="mb-space-m text-[1.125rem] max-w-[600px]">{description}</p>
+          <p class="mb-space-m text-h4 tablet:text-h4-md desktop:text-h4-lg">
+            {description}
+          </p>
           {
             primaryCta && (
               <LinkButton
@@ -72,15 +77,27 @@ const {
     </section>
 
     <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div data-prose class="mx-auto max-w-narrow">
+      <div
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+      >
+        <div data-prose>
           <MdxContent components={{ LogoCarousel }} />
         </div>
       </div>
     </section>
 
+    {
+      faqSection && (
+        <section class="py-space-xl">
+          <GrantFaqSection {...faqSection} />
+        </section>
+      )
+    }
+
     <section class="py-space-xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <div
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+      >
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

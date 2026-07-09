@@ -4,9 +4,9 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  seoFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE,
-  validateGrantPagePrimaryCta
+  validateGrantPagePrimaryCta,
+  validateGrantPageFaqSection
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -26,10 +26,25 @@ interface CtaStrip {
   color?: string
 }
 
+interface FaqItem {
+  question?: string
+  answer?: string
+}
+
+interface FaqSection {
+  title?: string
+  subtitle?: string
+  description?: string
+  ctaText?: string
+  ctaLink?: string
+  items?: FaqItem[]
+}
+
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
   primaryCta?: CtaLink | null
+  faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   content?: Array<{ __component: string; [key: string]: unknown }>
 }
@@ -46,13 +61,14 @@ function generateGrantPageMDX(
   // Fields owned by Strapi components must be explicitly deleted from
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
-  delete (restPreserved as Record<string, unknown>).metaDescription
   delete (restPreserved as Record<string, unknown>).primaryCta
+  delete (restPreserved as Record<string, unknown>).faqSection
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = grantPage.ctaStrip
   const primaryCta = grantPage.primaryCta
+  const faqSection = grantPage.faqSection
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
@@ -67,6 +83,21 @@ function generateGrantPageMDX(
             ...(primaryCta.external != null
               ? { external: primaryCta.external }
               : {})
+          }
+        }
+      : {}),
+    ...(faqSection
+      ? {
+          faqSection: {
+            title: faqSection.title ?? '',
+            subtitle: faqSection.subtitle ?? '',
+            description: faqSection.description ?? '',
+            ctaText: faqSection.ctaText ?? '',
+            ctaLink: faqSection.ctaLink ?? '',
+            items: (faqSection.items ?? []).map((i) => ({
+              question: i.question ?? '',
+              answer: i.answer ?? ''
+            }))
           }
         }
       : {}),
@@ -87,7 +118,6 @@ function generateGrantPageMDX(
           }
         }
       : {}),
-    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
@@ -110,5 +140,6 @@ export default createPageLifecycle({
     typeof createPageLifecycle
   >[0]['populate'],
   generateMDX: generateGrantPageMDX,
-  validate: validateGrantPagePrimaryCta
+  validate: (page) =>
+    validateGrantPagePrimaryCta(page) ?? validateGrantPageFaqSection(page)
 })

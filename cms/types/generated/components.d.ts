@@ -376,6 +376,88 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksGrantFaqItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_grant_faq_items'
+  info: {
+    displayName: 'Grant FAQ Item'
+    icon: 'question-circle'
+  }
+  attributes: {
+    answer: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    question: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksGrantFaqSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_grant_faq_sections'
+  info: {
+    displayName: 'Grant FAQ Section'
+    icon: 'question'
+  }
+  attributes: {
+    ctaLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.grant-faq-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 2
+        },
+        number
+      >
+    subtitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksImageBlock extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_blocks'
   info: {
@@ -869,6 +951,8 @@ declare module '@strapi/strapi' {
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.grant-faq-item': BlocksGrantFaqItem
+      'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.image-block': BlocksImageBlock
       'blocks.image-row': BlocksImageRow
       'blocks.paragraph': BlocksParagraph

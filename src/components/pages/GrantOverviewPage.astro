@@ -23,19 +23,12 @@ if (!mdxPage) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPage)
 const hasBody = Boolean(mdxPage.body?.trim())
 
-const {
-  title,
-  description,
-  metaDescription,
-  metaImage,
-  canonicalUrl,
-  ctaStrip
-} = mdxPage.data
+const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
 ---
 
 <FoundationPageLayout
   title={title}
-  description={metaDescription || description}
+  description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >

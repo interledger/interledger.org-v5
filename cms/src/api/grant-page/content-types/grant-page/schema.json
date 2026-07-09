@@ -66,6 +66,16 @@
       "component": "shared.primary-cta-link",
       "repeatable": false
     },
+    "faqSection": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "blocks.grant-faq-section",
+      "repeatable": false
+    },
     "ctaStrip": {
       "type": "component",
       "pluginOptions": {

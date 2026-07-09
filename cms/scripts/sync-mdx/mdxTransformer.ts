@@ -460,8 +460,21 @@ export async function buildGrantPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
+    const faqSectionFm = parsed.faqSection
+    const faqSection = faqSectionFm
+      ? {
+          title: faqSectionFm.title,
+          subtitle: faqSectionFm.subtitle,
+          description: faqSectionFm.description,
+          ctaText: faqSectionFm.ctaText,
+          ctaLink: faqSectionFm.ctaLink,
+          items: (faqSectionFm.items ?? []).map(
+            (i: { question: string; answer: string }) => ({
+              question: i.question,
+              answer: i.answer
+            })
+          )
+        }
       : null
 
     return {
@@ -470,8 +483,8 @@ export async function buildGrantPagePayload(
       description: parsed.description,
       programOverview: (mdx.content || '').trim() || null,
       primaryCta,
+      faqSection,
       ctaStrip,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })
@@ -505,17 +518,12 @@ export async function buildGrantOverviewPagePayload(
         : {})
     }
 
-    const seo = parsed.metaDescription
-      ? { metaDescription: parsed.metaDescription }
-      : null
-
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       ctaStrip,
       followUpContent: (mdx.content || '').trim() || null,
-      seo,
       publishedAt: new Date().toISOString()
     }
   })

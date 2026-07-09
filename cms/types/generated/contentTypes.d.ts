@@ -765,12 +765,6 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -819,6 +813,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
       }>
     description: Schema.Attribute.Text &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    faqSection: Schema.Attribute.Component<'blocks.grant-faq-section', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

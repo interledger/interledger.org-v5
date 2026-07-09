@@ -7,7 +7,6 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  seoFrontmatter,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 
@@ -38,10 +37,7 @@ function generateGrantOverviewPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // Fields owned by Strapi components must be explicitly deleted from
-  // restPreserved so that removing them in Strapi clears them from the MDX
-  // rather than leaving the old value behind.
-  delete (restPreserved as Record<string, unknown>).metaDescription
+
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -69,7 +65,6 @@ function generateGrantOverviewPageMDX(
           }
         }
       : {}),
-    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
