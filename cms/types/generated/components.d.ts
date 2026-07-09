@@ -889,6 +889,7 @@ export interface SharedCategory extends Struct.ComponentSchema {
       [
         'Announcements',
         'Community & Events',
+        'Engineering',
         'Grants & Grantee Insights',
         'Interledger Technology',
         'Thought Leadership'

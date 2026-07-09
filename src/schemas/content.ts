@@ -24,46 +24,13 @@ const pathSlugSchema = (required = true) => {
 const blogCategories = [
   'Announcements',
   'Community & Events',
+  'Engineering',
   'Grants & Grantee Insights',
   'Interledger Technology',
   'Thought Leadership'
 ] as const
 
-const developersTags = [
-  'Interledger Protocol',
-  'Open Payments',
-  'Rafiki',
-  'Releases',
-  'Updates',
-  'Web Monetization',
-  'Card Payments',
-  'Integration',
-  'Work Week',
-  'Subscriptions',
-  'Pay in installments',
-  'HSM',
-  'Interledger Wallet'
-  // Please add a matching translation in src/data/ui.ts for any new tag
-] as const
 export type BlogCategory = (typeof blogCategories)[number]
-
-export const developersBlogFrontmatterSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  date: z.date(),
-  pathSlug: pathSlugSchema(),
-  locale: z.string().optional(),
-  localizes: z.string().optional(),
-  authors: z.array(z.string()).optional(),
-  author_urls: z.array(z.string()).optional(),
-  tags: z.array(z.enum(developersTags)),
-  ogImageUrl: z.string().optional(),
-  external_url: z.string().optional()
-})
-
-export type DevelopersBlogFrontmatterType = z.infer<
-  typeof developersBlogFrontmatterSchema
->
 
 const ArticleBioSchema = z.object({
   author: z.string(),
