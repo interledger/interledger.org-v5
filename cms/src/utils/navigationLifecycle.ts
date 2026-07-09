@@ -263,23 +263,21 @@ export function createNavigationLifecycle<T extends UID.ContentType>(
   return {
     beforeCreate(event: BeforeEvent) {
       normalizeNavigationInput(event.params.data)
+      const validationErr = validateNavigationLabels(event.params.data)
+      if (validationErr) throw validationErr
     },
 
     beforeUpdate(event: BeforeEvent) {
       normalizeNavigationInput(event.params.data)
+      const validationErr = validateNavigationLabels(event.params.data)
+      if (validationErr) throw validationErr
     },
 
     async afterCreate(_event: Event) {
       await exportAndCommitNavigation(config, 'Create')
     },
 
-    async afterUpdate(event: Event) {
-      const locale = event.result?.locale ?? defaultLang
-      const nav = await fetchPublishedNavigation(config, locale)
-      if (nav) {
-        const validationErr = validateNavigationLabels(nav)
-        if (validationErr) throw validationErr
-      }
+    async afterUpdate(_event: Event) {
       await exportAndCommitNavigation(config, 'Update')
     },
 

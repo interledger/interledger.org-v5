@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  createNavigationLifecycle,
   sanitizeMenuItem,
   sanitizeMenuGroup,
   sanitizeMenuSubGroup,
@@ -30,6 +31,34 @@ const testConfig = {
     ctaButton: true as const
   }
 }
+
+describe('createNavigationLifecycle — validate runs before the write, not after', () => {
+  const lifecycle = createNavigationLifecycle(testConfig)
+
+  it('beforeCreate throws when a menu item is missing a label, before any DB write', () => {
+    expect(() =>
+      lifecycle.beforeCreate({
+        params: { data: { mainMenu: [{ label: '' }] } }
+      })
+    ).toThrow('missing a required label')
+  })
+
+  it('beforeUpdate throws when a menu item is missing a label, before any DB write', () => {
+    expect(() =>
+      lifecycle.beforeUpdate({
+        params: { data: { mainMenu: [{ label: '' }] } }
+      })
+    ).toThrow('missing a required label')
+  })
+
+  it('beforeCreate does not throw when all labels are present', () => {
+    expect(() =>
+      lifecycle.beforeCreate({
+        params: { data: { mainMenu: [{ label: 'Docs' }] } }
+      })
+    ).not.toThrow()
+  })
+})
 
 describe('sanitizeMenuItem', () => {
   it('returns null for null input', () => {

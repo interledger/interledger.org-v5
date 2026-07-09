@@ -104,17 +104,21 @@ async function fetchBlogPost(
   }
 }
 
+interface BlogInputData {
+  articleBio?: { author: string | null }[]
+  relatedArticles?: { slug: string }[]
+  content?: ContentBlock[] | string
+}
+
 /**
- * Validates a fetched blog post's Article Bio, Related Articles, and content
- * blocks, and throws if any are invalid. Called before `shouldSkipMdxExport()`
- * so a save from the sync-mdx script can't skip validation the way a plain
- * `generateBlogMDX` throw (gated behind that check) would allow.
+ * Validates the raw incoming Article Bio, Related Articles, and content block
+ * data before it reaches the database, and throws if any are invalid.
  */
-function assertValidBlogPost(post: BlogResult): void {
+function assertValidBlogInput(data: BlogInputData): void {
   const validationErr =
-    validateBlogFields(post) ??
-    (Array.isArray(post.content)
-      ? validateContentBlocks(post.content)
+    validateBlogFields(data) ??
+    (Array.isArray(data.content)
+      ? validateContentBlocks(data.content)
       : undefined)
   if (validationErr) throw validationErr
 }
@@ -336,11 +340,13 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   }
 
   return {
+    beforeCreate(event: { params: { data: BlogInputData } }) {
+      assertValidBlogInput(event.params.data)
+    },
     async afterCreate(event: BlogEvent) {
       const { result } = event
       if (!result || !result.publishedAt) return
       const post = await fetchBlogPost(result.documentId, result.locale)
-      if (post) assertValidBlogPost(post)
       if (shouldSkipMdxExport()) return
       if (!post) return
       const label = event.model.singularName
@@ -357,10 +363,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       params?: {
         locale?: string
         documentId?: string
-        data?: { documentId?: string; locale?: string }
+        data?: BlogInputData & { documentId?: string; locale?: string }
       }
       state: { oldPathSlug?: string; oldDate?: string }
     }) {
+      if (event.params?.data) assertValidBlogInput(event.params.data)
+
       if (shouldSkipMdxExport()) return
       const documentId =
         event.params?.documentId ?? event.params?.data?.documentId
@@ -381,7 +389,6 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         result.documentId,
         result.locale
       )
-      if (currentLocalePost) assertValidBlogPost(currentLocalePost)
       if (shouldSkipMdxExport()) return
 
       const label = event.model.singularName

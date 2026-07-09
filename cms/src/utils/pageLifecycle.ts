@@ -119,11 +119,14 @@ export interface PageLifecycleConfig<
     englishSlug?: string
   ) => string
   /**
-   * Required-field validation, run in afterCreate/afterUpdate before `shouldSkipMdxExport()`
-   * => also applies when save came from the sync-mdx script (public API)
-   * Receives the freshly-fetched published document (populated per `populate` above).
+   * Required-field validation, run in beforeCreate/beforeUpdate — before the write
+   * reaches the database. Receives the raw incoming `event.params.data` payload (not a
+   * fetched/populated entity), so it can only rely on plain fields the client actually
+   * submits, not populated relations/media.
    */
-  validate?: (page: PageData) => errors.ValidationError | undefined
+  validate?: (
+    page: Partial<PageData>
+  ) => errors.ValidationError | undefined
 }
 
 function normalizePathSlug(pathSlug: unknown): string {
@@ -434,39 +437,19 @@ function deleteMdxIfExists(
 }
 
 /**
- * Runs `config.validate` (if set) against a freshly-fetched, populated document
- * rather than the event's `result`, which may not have the fields it needs.
- * Throws on failure.
- */
-async function runValidation<T extends UID.ContentType>(
-  config: PageLifecycleConfig<T>,
-  result: PageData
-): Promise<void> {
-  if (!config.validate) return
-
-  const locale = result.locale ?? defaultLang
-  const published = await fetchPublished(config, result.documentId, locale)
-  if (published instanceof Error) {
-    console.error(`⚠️  ${published.message}`)
-    return
-  }
-  if (!published) return
-
-  const validationErr = config.validate(published)
-  if (validationErr) throw validationErr
-}
-
-/**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
 export function createPageLifecycle<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>
 ) {
   return {
+    beforeCreate(event: { params: { data: Partial<PageData> } }) {
+      const validationErr = config.validate?.(event.params.data)
+      if (validationErr) throw validationErr
+    },
     async afterCreate(event: Event) {
       const { result } = event
       if (!result) return
-      await runValidation(config, result)
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
@@ -485,11 +468,18 @@ export function createPageLifecycle<T extends UID.ContentType>(
       params?: {
         locale?: string
         documentId?: string
-        data?: { documentId?: string; locale?: string; pathSlug?: string }
+        data?: Partial<PageData> & {
+          documentId?: string
+          locale?: string
+          pathSlug?: string
+        }
         where?: StrapiDocumentServiceUpdateWhere
       }
       state: { oldPathSlug?: string; locale?: string }
     }) {
+      const validationErr = config.validate?.(event.params?.data ?? {})
+      if (validationErr) throw validationErr
+
       if (shouldSkipMdxExport()) return
       // Strapi v5: documentId is in params.data.documentId
       const documentId =
@@ -518,7 +508,6 @@ export function createPageLifecycle<T extends UID.ContentType>(
     async afterUpdate(event: Event) {
       const { result } = event
       if (!result) return
-      await runValidation(config, result)
       if (shouldSkipMdxExport()) return
 
       const label = uidToLogLabel(config.contentTypeUid)
