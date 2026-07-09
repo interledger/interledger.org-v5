@@ -28,7 +28,7 @@ const htmlCards = await Promise.all(
 ---
 
 <div
-  class=""flex flex-col gap-xl mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:px-5xl [&_h2]:mb-0""
+  class="flex flex-col gap-xl mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:px-5xl [&_h2]:mb-0"
 >
   {
     heading && (
@@ -45,7 +45,7 @@ const htmlCards = await Promise.all(
             {card.heading}
           </h3>
           <div
-            class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-900"
+            class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900"
             set:html={card.html}
           />
         </article>
