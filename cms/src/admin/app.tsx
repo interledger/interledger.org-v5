@@ -145,9 +145,12 @@ const markdownPresetNoH1: Preset = {
         // footnotes. Authors write raw markdown; Astro's GFM renders them.
         const FOOTNOTE_MARKER = /\[\^[^\]]+\]/g
         const ESCAPED_FOOTNOTE = /\\(?=\[\^[^\]]+\])/g
-        // The writer also escapes the scheme colon of bare URLs inside footnote
-        // definitions (https:// -> https\://), which would break the autolink.
-        const ESCAPED_URL_SCHEME = /\\(?=:\/\/)/g
+        // The writer also escapes markdown punctuation throughout a bare
+        // (autolinked) URL — the scheme colon (https:// -> https\://) and host
+        // dots (example.com -> example\.com) — which corrupts the rendered
+        // link. Match each bare URL and strip the escapes back out. Markdown
+        // links ([text](url)) round-trip fine; only plain-text URLs need this.
+        const BARE_URL = /https?\\?:\/\/\S+/g
 
         const originalToView = processor.toView.bind(processor)
         const originalToData = processor.toData.bind(processor)
@@ -158,7 +161,7 @@ const markdownPresetNoH1: Preset = {
         processor.toData = (view: unknown) =>
           originalToData(view)
             .replace(ESCAPED_FOOTNOTE, '')
-            .replace(ESCAPED_URL_SCHEME, '')
+            .replace(BARE_URL, (url) => url.replace(/\\/g, ''))
       }
     ]
   }
