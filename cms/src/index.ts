@@ -690,6 +690,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       href: 'Link URL',
       openInNewTab: 'Open in New Tab'
     },
+    'blocks.info-cards': {
+      heading: 'Section Heading',
+      card1: 'Card 1',
+      card2: 'Card 2',
+      card3: 'Card 3'
+    },
+    'blocks.info-card': {
+      heading: 'Card Heading',
+      body: 'Card Body'
+    },
     'blocks.carousel': {
       heading: 'Section Heading',
       items: 'Slides',
