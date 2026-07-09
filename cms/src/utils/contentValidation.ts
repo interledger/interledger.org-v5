@@ -62,8 +62,7 @@ export function mergeValidationErrors(
   )
   if (present.length === 0) return undefined
   const allFieldErrors = present.flatMap(
-    (err) =>
-      (err.details as { errors?: unknown[] } | undefined)?.errors ?? []
+    (err) => (err.details as { errors?: unknown[] } | undefined)?.errors ?? []
   )
   return new errors.ValidationError(present[0]!.message, {
     errors: allFieldErrors

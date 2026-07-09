@@ -4,7 +4,9 @@ import { registerBodyValidationMiddleware } from './index'
 
 function getRegisteredMiddleware(
   pattern: RegExp,
-  validate: (body: Record<string, unknown>) => errors.ValidationError | undefined
+  validate: (
+    body: Record<string, unknown>
+  ) => errors.ValidationError | undefined
 ) {
   const use = vi.fn()
   registerBodyValidationMiddleware({ server: { use } }, pattern, validate)
@@ -18,11 +20,11 @@ function getRegisteredMiddleware(
     },
     next: () => Promise<void>
   ) => Promise<void>
-
 }
 
 describe('registerBodyValidationMiddleware', () => {
-  const PATTERN = /^\/content-manager\/collection-types\/api::grant-page\.grant-page/
+  const PATTERN =
+    /^\/content-manager\/collection-types\/api::grant-page\.grant-page/
 
   it('rejects a matching request with a 400 when validate returns an error, before calling next', async () => {
     const validate = vi.fn(() => new errors.ValidationError('bad primaryCta'))
@@ -99,7 +101,9 @@ describe('registerBodyValidationMiddleware', () => {
     const ctx = {
       method: 'PUT',
       url: '/content-manager/collection-types/api::grant-page.grant-page/doc1?locale=en',
-      request: { body: { primaryCta: { text: 'Apply now', link: 'https://x.com' } } }
+      request: {
+        body: { primaryCta: { text: 'Apply now', link: 'https://x.com' } }
+      }
     }
 
     await middleware(ctx, next)
