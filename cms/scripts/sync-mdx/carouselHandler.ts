@@ -63,7 +63,8 @@ async function handleCarousel(
     const logos = await Promise.all(
       rawLogos.map(async (logo) => {
         const id = await ctx.resolveMediaUpload!(logo.src)
-        await ctx.updateMediaAlt?.(id, logo.name ?? null)
+        // '' means "explicitly no alt text" in Strapi (see carousel.serializer.ts)
+        await ctx.updateMediaAlt?.(id, logo.name || null)
         return id
       })
     )

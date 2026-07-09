@@ -92,6 +92,17 @@ describe('LogoCarousel handler', () => {
     expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
   })
 
+  it('treats an empty string name the same as null', async () => {
+    const ctx = ctxWith({ '/img/a.png': 1 })
+    const blocks = await parseMdxToBlocks(
+      `<LogoCarousel logos={[{ name: '', src: '/img/a.png' }]} />`,
+      ctx
+    )
+
+    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1] }])
+    expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
+  })
+
   it('does not fail when updateMediaAlt is not provided', async () => {
     const blocks = await parseMdxToBlocks(
       `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,

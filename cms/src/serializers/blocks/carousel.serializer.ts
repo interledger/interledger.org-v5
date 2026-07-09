@@ -6,11 +6,17 @@ export function serialize(block: {
   logos?: {
     id: number
     url: string
-    alternativeText: string
+    alternativeText: string | null
   }[]
 }): string {
-  const logoItems = (block.logos ?? []).map((logo) => ({
-    name: logo.alternativeText,
+  // Strapi's `required: true` on the `logos` media field isn't enforced at save time
+  if (!block.logos || block.logos.length === 0) {
+    throw new Error('Carousel block is missing logos')
+  }
+
+  const logoItems = block.logos.map((logo) => ({
+    // '' (not null) so the rendered <img> gets alt=""
+    name: logo.alternativeText ?? '',
     src: logo.url
   }))
 
