@@ -6,9 +6,16 @@ import {
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   normalizeNavigationInput,
+  validateHeroFields,
+  validateGrantPagePrimaryCta,
+  validateGrantPageFaqSection,
+  validateBlogFields,
+  validateNavigationLabels,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
+import { validateContentBlocks } from './serializers/blocks'
+import { errors } from '@strapi/utils'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -39,6 +46,55 @@ function copySchemas() {
   } catch (error) {
     console.error('❌ Error copying schema files:', error)
   }
+}
+
+type ContentManagerCtx = {
+  method?: string
+  url?: string
+  request?: { body?: Record<string, unknown> }
+  status?: number
+  body?: unknown
+}
+
+/**
+ * Registers Koa middleware that validates a content-manager request body
+ * against the given content type's business rules and rejects it with a 400
+ * before Strapi's document service resolves component/dynamic-zone fields
+ * into `{ id, __pivot }` DB references — validators need the raw inline
+ * shape the admin actually submitted (e.g. `primaryCta: { text, link }`),
+ * which no longer exists by the time a `beforeCreate`/`beforeUpdate`
+ * content-type lifecycle hook sees `event.params.data`.
+ */
+export function registerBodyValidationMiddleware(
+  strapi: { server?: { use?: (middleware: unknown) => void } },
+  pattern: RegExp,
+  validate: (
+    body: Record<string, unknown>
+  ) => errors.ValidationError | undefined
+) {
+  strapi.server?.use?.(
+    async (ctx: ContentManagerCtx, next: () => Promise<void>) => {
+      if (
+        (ctx.method === 'PUT' || ctx.method === 'POST') &&
+        pattern.test(ctx.url ?? '')
+      ) {
+        const validationErr = validate(ctx.request?.body ?? {})
+        if (validationErr) {
+          ctx.status = 400
+          ctx.body = {
+            data: null,
+            error: {
+              status: 400,
+              name: 'ValidationError',
+              message: validationErr.message
+            }
+          }
+          return
+        }
+      }
+      await next()
+    }
+  )
 }
 
 // Strapi instance type for lifecycle functions
@@ -1158,7 +1214,49 @@ export default {
       }
     )
 
-    // Normalize nav href fields (force leading slash) before saving to DB
+    // Required-field validation for optional components/dynamic zones — must run
+    // on the raw request body (Koa middleware), not in beforeCreate/beforeUpdate
+    // lifecycle hooks: by the time those fire, Strapi has already resolved
+    // component fields into `{ id, __pivot }` DB references, so a validator
+    // reading `event.params.data.primaryCta.text` would always see `undefined`.
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::grant-page\.grant-page/,
+      (body) =>
+        validateGrantPagePrimaryCta(body) ?? validateGrantPageFaqSection(body)
+    )
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::foundation-page\.foundation-page/,
+      (body) =>
+        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]) ??
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+    )
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::summit-page\.summit-page/,
+      (body) =>
+        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]) ??
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+    )
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::foundation-blog-post\.foundation-blog-post/,
+      (body) =>
+        validateBlogFields(
+          body as Parameters<typeof validateBlogFields>[0]
+        ) ??
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+    )
+
+    // Normalize nav href fields (force leading slash), then validate required
+    // menu/CTA labels, before saving to DB
     const NAV_PATTERN =
       /\/content-manager\/single-types\/api::(foundation|summit)-navigation\./
     strapi.server?.use?.(
@@ -1167,6 +1265,8 @@ export default {
           method?: string
           url?: string
           request?: { body?: Record<string, unknown> }
+          status?: number
+          body?: unknown
         },
         next: () => Promise<void>
       ) => {
@@ -1178,6 +1278,21 @@ export default {
           normalizeNavigationInput(
             ctx.request.body as Parameters<typeof normalizeNavigationInput>[0]
           )
+          const validationErr = validateNavigationLabels(
+            ctx.request.body as Parameters<typeof validateNavigationLabels>[0]
+          )
+          if (validationErr) {
+            ctx.status = 400
+            ctx.body = {
+              data: null,
+              error: {
+                status: 400,
+                name: 'ValidationError',
+                message: validationErr.message
+              }
+            }
+            return
+          }
         }
         await next()
       }

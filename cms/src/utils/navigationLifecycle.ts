@@ -3,7 +3,6 @@ import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
-import { validateNavigationLabels } from './contentValidation'
 
 import type { Core, UID, Modules } from '@strapi/strapi'
 
@@ -263,14 +262,10 @@ export function createNavigationLifecycle<T extends UID.ContentType>(
   return {
     beforeCreate(event: BeforeEvent) {
       normalizeNavigationInput(event.params.data)
-      const validationErr = validateNavigationLabels(event.params.data)
-      if (validationErr) throw validationErr
     },
 
     beforeUpdate(event: BeforeEvent) {
       normalizeNavigationInput(event.params.data)
-      const validationErr = validateNavigationLabels(event.params.data)
-      if (validationErr) throw validationErr
     },
 
     async afterCreate(_event: Event) {

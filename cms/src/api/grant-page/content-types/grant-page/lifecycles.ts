@@ -4,9 +4,7 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  GRANT_PAGE_CONTENT_POPULATE,
-  validateGrantPagePrimaryCta,
-  validateGrantPageFaqSection
+  GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 
 interface CtaLink {
@@ -135,7 +133,5 @@ export default createPageLifecycle({
   populate: GRANT_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantPageMDX,
-  validate: (page) =>
-    validateGrantPagePrimaryCta(page) ?? validateGrantPageFaqSection(page)
+  generateMDX: generateGrantPageMDX
 })

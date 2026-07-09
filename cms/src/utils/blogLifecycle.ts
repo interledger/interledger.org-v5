@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { serializeContent, validateContentBlocks } from '../serializers/blocks'
+import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
   LOCALES,
@@ -12,7 +12,7 @@ import {
   resolveFilenameSlug
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
-import { toValidationError, validateBlogFields } from './contentValidation'
+import { toValidationError } from './contentValidation'
 import type { Core } from '@strapi/strapi'
 
 declare const strapi: Core.Strapi
@@ -102,25 +102,6 @@ async function fetchBlogPost(
     console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
     return null
   }
-}
-
-interface BlogInputData {
-  articleBio?: { author: string | null }[]
-  relatedArticles?: { slug: string }[]
-  content?: ContentBlock[] | string
-}
-
-/**
- * Validates the raw incoming Article Bio, Related Articles, and content block
- * data before it reaches the database, and throws if any are invalid.
- */
-function assertValidBlogInput(data: BlogInputData): void {
-  const validationErr =
-    validateBlogFields(data) ??
-    (Array.isArray(data.content)
-      ? validateContentBlocks(data.content)
-      : undefined)
-  if (validationErr) throw validationErr
 }
 
 function generateFilename({
@@ -340,9 +321,6 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   }
 
   return {
-    beforeCreate(event: { params: { data: BlogInputData } }) {
-      assertValidBlogInput(event.params.data)
-    },
     async afterCreate(event: BlogEvent) {
       const { result } = event
       if (!result || !result.publishedAt) return
@@ -363,12 +341,10 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       params?: {
         locale?: string
         documentId?: string
-        data?: BlogInputData & { documentId?: string; locale?: string }
+        data?: { documentId?: string; locale?: string }
       }
       state: { oldPathSlug?: string; oldDate?: string }
     }) {
-      if (event.params?.data) assertValidBlogInput(event.params.data)
-
       if (shouldSkipMdxExport()) return
       const documentId =
         event.params?.documentId ?? event.params?.data?.documentId

@@ -118,15 +118,6 @@ export interface PageLifecycleConfig<
     preservedFields: Record<string, unknown>,
     englishSlug?: string
   ) => string
-  /**
-   * Required-field validation, run in beforeCreate/beforeUpdate — before the write
-   * reaches the database. Receives the raw incoming `event.params.data` payload (not a
-   * fetched/populated entity), so it can only rely on plain fields the client actually
-   * submits, not populated relations/media.
-   */
-  validate?: (
-    page: Partial<PageData>
-  ) => errors.ValidationError | undefined
 }
 
 function normalizePathSlug(pathSlug: unknown): string {
@@ -443,10 +434,6 @@ export function createPageLifecycle<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>
 ) {
   return {
-    beforeCreate(event: { params: { data: Partial<PageData> } }) {
-      const validationErr = config.validate?.(event.params.data)
-      if (validationErr) throw validationErr
-    },
     async afterCreate(event: Event) {
       const { result } = event
       if (!result) return
@@ -468,18 +455,11 @@ export function createPageLifecycle<T extends UID.ContentType>(
       params?: {
         locale?: string
         documentId?: string
-        data?: Partial<PageData> & {
-          documentId?: string
-          locale?: string
-          pathSlug?: string
-        }
+        data?: { documentId?: string; locale?: string; pathSlug?: string }
         where?: StrapiDocumentServiceUpdateWhere
       }
       state: { oldPathSlug?: string; locale?: string }
     }) {
-      const validationErr = config.validate?.(event.params?.data ?? {})
-      if (validationErr) throw validationErr
-
       if (shouldSkipMdxExport()) return
       // Strapi v5: documentId is in params.data.documentId
       const documentId =

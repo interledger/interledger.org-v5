@@ -1,8 +1,6 @@
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { errors } from '@strapi/utils'
 import {
-  createPageLifecycle,
   defaultLang,
   generateMDX,
   readLocaleFromUpdateEvent,
@@ -117,42 +115,6 @@ describe('generateMDX — required field validation', () => {
       })
     ).toThrow('Hero CTA is missing required link')
   })
-})
-
-describe('createPageLifecycle — validate runs before the write, not after', () => {
-  const validate = vi.fn()
-  const lifecycle = createPageLifecycle({ ...testConfig, validate })
-
-  beforeEach(() => {
-    validate.mockReset()
-  })
-
-  it('beforeCreate throws when validate rejects the incoming data, before any DB write', () => {
-    validate.mockReturnValue(new errors.ValidationError('bad hero'))
-    expect(() =>
-      lifecycle.beforeCreate({ params: { data: { hero: {} } } })
-    ).toThrow('bad hero')
-    expect(validate).toHaveBeenCalledWith({ hero: {} })
-  })
-
-  it('beforeCreate does not throw when validate passes', () => {
-    validate.mockReturnValue(undefined)
-    expect(() =>
-      lifecycle.beforeCreate({ params: { data: { hero: { title: 'Hi' } } } })
-    ).not.toThrow()
-  })
-
-  it('beforeUpdate throws when validate rejects the incoming data, before any DB write', async () => {
-    validate.mockReturnValue(new errors.ValidationError('bad hero'))
-    await expect(
-      lifecycle.beforeUpdate({
-        params: { documentId: 'doc1', data: { hero: {} } },
-        state: {}
-      })
-    ).rejects.toThrow('bad hero')
-    expect(validate).toHaveBeenCalledWith({ hero: {} })
-  })
-
 })
 
 describe('resolvePageFilepath', () => {
