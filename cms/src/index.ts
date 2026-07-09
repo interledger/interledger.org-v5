@@ -9,6 +9,8 @@ import {
   validateHeroFields,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateProfileCta,
+  validateCtaStrip,
   validateBlogFields,
   validateNavigationLabels,
   mergeValidationErrors,
@@ -1227,7 +1229,24 @@ export default {
       (body) =>
         mergeValidationErrors(
           validateGrantPagePrimaryCta(body),
-          validateGrantPageFaqSection(body)
+          validateGrantPageFaqSection(body),
+          validateCtaStrip(body)
+        )
+    )
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::grant-overview-page\.grant-overview-page/,
+      (body) => validateCtaStrip(body)
+    )
+    registerBodyValidationMiddleware(
+      strapi,
+      /^\/content-manager\/collection-types\/api::profile-page\.profile-page/,
+      (body) =>
+        mergeValidationErrors(
+          validateProfileCta(body),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerBodyValidationMiddleware(

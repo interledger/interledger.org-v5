@@ -39,6 +39,8 @@ export {
   validateNoNestedJsx,
   validateGrantPageFaqSection,
   validateGrantPagePrimaryCta,
+  validateProfileCta,
+  validateCtaStrip,
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,

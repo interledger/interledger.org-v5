@@ -179,32 +179,115 @@ export function validateGrantPageFaqSection(
 }
 
 /**
- * Validate the optional primaryCta component on a grant page.
- *
- * When `primaryCta` is absent the CTA is simply not rendered — that is valid.
- * When it is present both `text` and `link` are required; Strapi's partial
- * update validator skips required-field checks on PUT, so this fills the gap.
- *
- * Returns a `ValidationError` combining every failing field, `undefined` on success.
+ * Validate an optional `shared.cta-link`-shaped component (or the
+ * `shared.primary-cta-link` variant, which is the same shape minus `style`):
+ * when absent it simply isn't rendered — that is valid. When present, both
+ * `text` and `link` are required; Strapi's partial update validator skips
+ * required-field checks on PUT, so this fills the gap.
  */
-export function validateGrantPagePrimaryCta(
-  body: unknown
+function validateCtaLinkField(
+  body: unknown,
+  fieldName: string,
+  label: string
 ): errors.ValidationError | undefined {
-  const cta = (body as Record<string, unknown>)?.primaryCta
+  const cta = (body as Record<string, unknown>)?.[fieldName]
   if (!cta || typeof cta !== 'object') return undefined
 
   const { text, link } = cta as Record<string, unknown>
   const fieldErrors: FieldError[] = []
   if (!text || typeof text !== 'string' || text.trim() === '') {
     fieldErrors.push({
-      message: 'Primary Call to Action: Text is required',
-      path: ['primaryCta', 'text']
+      message: `${label}: Text is required`,
+      path: [fieldName, 'text']
     })
   }
   if (!link || typeof link !== 'string' || link.trim() === '') {
     fieldErrors.push({
-      message: 'Primary Call to Action: Link is required',
-      path: ['primaryCta', 'link']
+      message: `${label}: Link is required`,
+      path: [fieldName, 'link']
+    })
+  }
+  return combineFieldErrors(fieldErrors)
+}
+
+/**
+ * Validate the optional primaryCta component on a grant page.
+ * See {@link validateCtaLinkField}.
+ */
+export function validateGrantPagePrimaryCta(
+  body: unknown
+): errors.ValidationError | undefined {
+  return validateCtaLinkField(body, 'primaryCta', 'Primary Call to Action')
+}
+
+/**
+ * Validate the optional cta component on a profile page.
+ * See {@link validateCtaLinkField}.
+ */
+export function validateProfileCta(
+  body: unknown
+): errors.ValidationError | undefined {
+  return validateCtaLinkField(body, 'cta', 'Call to Action')
+}
+
+/**
+ * Validate the required ctaStrip component on grant-page and
+ * grant-overview-page (`blocks.cta-strip`).
+ *
+ * Unlike primaryCta/faqSection above, ctaStrip itself is `required: true` on
+ * both content types, so an absent ctaStrip is an error, not a valid
+ * "not rendered" state.
+ *
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
+ */
+export function validateCtaStrip(
+  body: unknown
+): errors.ValidationError | undefined {
+  const ctaStrip = (body as Record<string, unknown>)?.ctaStrip
+  if (!ctaStrip || typeof ctaStrip !== 'object') {
+    return combineFieldErrors([
+      { message: 'CTA Strip is required', path: ['ctaStrip'] }
+    ])
+  }
+
+  const { heading, description, primaryButtonText, primaryButtonLink } =
+    ctaStrip as Record<string, unknown>
+  const fieldErrors: FieldError[] = []
+
+  if (!heading || typeof heading !== 'string' || heading.trim() === '') {
+    fieldErrors.push({
+      message: 'CTA Strip: Heading is required',
+      path: ['ctaStrip', 'heading']
+    })
+  }
+  if (
+    !description ||
+    typeof description !== 'string' ||
+    description.trim() === ''
+  ) {
+    fieldErrors.push({
+      message: 'CTA Strip: Description is required',
+      path: ['ctaStrip', 'description']
+    })
+  }
+  if (
+    !primaryButtonText ||
+    typeof primaryButtonText !== 'string' ||
+    primaryButtonText.trim() === ''
+  ) {
+    fieldErrors.push({
+      message: 'CTA Strip: Primary Button Text is required',
+      path: ['ctaStrip', 'primaryButtonText']
+    })
+  }
+  if (
+    !primaryButtonLink ||
+    typeof primaryButtonLink !== 'string' ||
+    primaryButtonLink.trim() === ''
+  ) {
+    fieldErrors.push({
+      message: 'CTA Strip: Primary Button Link is required',
+      path: ['ctaStrip', 'primaryButtonLink']
     })
   }
   return combineFieldErrors(fieldErrors)
