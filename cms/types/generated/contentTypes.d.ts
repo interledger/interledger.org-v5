@@ -795,6 +795,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    content: Schema.Attribute.DynamicZone<['blocks.carousel']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private

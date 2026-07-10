@@ -96,6 +96,17 @@
           "localized": true
         }
       }
+    },
+    "content": {
+      "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "components": [
+        "blocks.carousel"
+      ]
     }
   }
 }

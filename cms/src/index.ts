@@ -537,6 +537,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      content: 'Content',
       ctaStrip: 'CTA Strip',
       infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
@@ -700,16 +701,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.carousel': {
       heading: 'Section Heading',
-      items: 'Slides',
-      autoplay: 'Autoplay',
-      interval: 'Autoplay Interval (ms)'
-    },
-    'blocks.carousel-item': {
-      quote: 'Quote',
-      author: 'Author Name',
-      role: 'Job Title',
-      organization: 'Organization',
-      image: 'Photo'
+      logos: 'Logos',
+      accessibilityLabel: 'Accessible label (screen readers only)'
     },
     'blocks.cta-banner': {
       heading: 'Heading',
@@ -792,6 +785,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Displayed as the filename label above the code. Leave blank to show the language name.',
       code: 'Paste or type your code here.'
+    },
+    'blocks.carousel': {
+      accessibilityLabel:
+        'Describes this group of logos for screen reader users. Not visible on the page.',
+      logos:
+        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
     }
   }
 
@@ -953,6 +952,28 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'seo', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
+    ],
+    'api::grant-page.grant-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pathSlug', size: 6 }
+      ],
+      [{ name: 'description', size: 6 }],
+      [{ name: 'primaryCta', size: 12 }],
+      [{ name: 'programOverview', size: 12 }],
+      [{ name: 'infoCards', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [{ name: 'faqSection', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }]
+    ],
+    'api::grant-overview-page.grant-overview-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'pathSlug', size: 6 }
+      ],
+      [{ name: 'description', size: 6 }],
+      [{ name: 'ctaStrip', size: 12 }],
+      [{ name: 'followUpContent', size: 12 }]
     ]
   }
 
@@ -993,11 +1014,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.carousel': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'items', size: 12 }],
-      [
-        { name: 'autoplay', size: 4 },
-        { name: 'interval', size: 4 }
-      ]
+      [{ name: 'accessibilityLabel', size: 12 }],
+      [{ name: 'logos', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],

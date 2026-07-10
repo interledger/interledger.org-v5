@@ -1,39 +1,31 @@
-import { getImageUrl } from '../../utils'
 import { escDouble as esc } from '../shared'
 
 export function serialize(block: {
   heading?: string
-  items?: Array<{
-    title: string
-    description?: string
-    image?: { url?: string }
-    link?: string
-  }>
+  accessibilityLabel?: string
+  logos?: {
+    id: number
+    url: string
+    alternativeText: string | null
+  }[]
 }): string {
-  const lines: string[] = []
-
-  if (block.heading) {
-    lines.push(`## ${block.heading}`)
-    lines.push('')
+  // Strapi's `required: true` on `logos`/`accessibilityLabel` isn't enforced at save time
+  if (!block.logos || block.logos.length === 0) {
+    throw new Error('Carousel block is missing logos')
+  }
+  if (!block.accessibilityLabel) {
+    throw new Error('Carousel block is missing accessibilityLabel')
   }
 
-  lines.push('<Carousel>')
+  const logoItems = block.logos.map((logo) => ({
+    // '' (not null) so the rendered <img> gets alt=""
+    name: logo.alternativeText ?? '',
+    src: logo.url
+  }))
 
-  if (block.items) {
-    for (const item of block.items) {
-      const imageUrl = getImageUrl(item.image)
-      lines.push('')
-      lines.push(
-        `<CarouselItem title="${esc(item.title)}"${imageUrl ? ` image="${esc(imageUrl)}"` : ''}${item.link ? ` link="${esc(item.link)}"` : ''}>`
-      )
-      if (item.description) {
-        lines.push(item.description)
-      }
-      lines.push('</CarouselItem>')
-    }
-  }
+  const headingAttr = block.heading ? ` heading="${esc(block.heading)}"` : ''
+  const labelAttr = ` accessibilityLabel="${esc(block.accessibilityLabel)}"`
+  const logosAttr = ` logos={${JSON.stringify(logoItems)}}`
 
-  lines.push('')
-  lines.push('</Carousel>')
-  return lines.join('\n')
+  return `<LogoCarousel${headingAttr}${labelAttr}${logosAttr} />`
 }

@@ -9,6 +9,7 @@ import {
   validateGrantInfoCards,
   validateGrantPageFaqSection
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 interface CtaLink {
   text?: string
@@ -59,6 +60,7 @@ interface GrantPageData extends PageData {
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   infoCards?: InfoCards | null
+  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -76,6 +78,7 @@ function generateGrantPageMDX(
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
+  delete (restPreserved as Record<string, unknown>).programOverview
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -99,6 +102,9 @@ function generateGrantPageMDX(
               : {})
           }
         }
+      : {}),
+    ...(grantPage.programOverview
+      ? { programOverview: grantPage.programOverview }
       : {}),
     ...(faqSection
       ? {
@@ -157,7 +163,7 @@ function generateGrantPageMDX(
     locale
   }
 
-  const body = grantPage.programOverview ?? ''
+  const body = serializeContent(grantPage.content)
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
