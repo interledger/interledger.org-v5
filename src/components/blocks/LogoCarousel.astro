@@ -10,6 +10,7 @@ const { heading, accessibilityLabel, logos } = Astro.props
 // Single source of truth for the carousel geometry, piped into the CSS vars
 // below instead of duplicating numbers in <style>. Must be exact: repeatCount
 // assumes these match what's rendered, or the wrap point runs out of content.
+// logo-carousel-gap: var(--spacing-4xl) = 60px
 const LOGO_ITEM_WIDTH_PX = 120
 const LOGO_GAP_PX = 60
 // Widest the carousel can render at — must match Tailwind's max-w-content.
@@ -103,12 +104,13 @@ const logoClasses = `
         }
         {
           /* Duplicate batches for a seamless loop — hidden from AT and
-          keyboard. `repeatCount` (computed above) ensures there are always
-          enough copies that the track never runs out of content mid-wrap,
-          even with very few logos. */
+          keyboard via aria-hidden/inert, but kept in layout even under
+          reduced motion: dragging is user-initiated. `repeatCount` (computed above)
+          ensures there are always enough copies that the track never runs out 
+          of content mid-wrap, even with very few logos. */
           duplicateBatches.map(() =>
             logos.map((logo) => (
-              <li class="motion-reduce:hidden m-0" aria-hidden="true" inert>
+              <li class="m-0" aria-hidden="true" inert>
                 <img
                   src={logo.src}
                   alt=""
@@ -245,21 +247,21 @@ const logoClasses = `
     // animation-duration stays readable below as a resolved number.
     track.style.animationName = 'none'
 
-    // Batch layout reads: write (animation off) then read in the next frame.
-    requestAnimationFrame(() => {
-      state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
-      state.cycleSeconds =
-        parseFloat(getComputedStyle(track).animationDuration) || 30
-      state.repeatCount =
-        parseFloat(
-          getComputedStyle(carousel).getPropertyValue(
-            '--logo-carousel-repeat-count'
-          )
-        ) || 2
-      updateMeasurements()
-      state.lastTime = performance.now()
-      state.rafId = requestAnimationFrame(tick)
-    })
+    // Measured synchronously (not via rAF) so it's ready before the pointer
+    // listeners below — otherwise a drag could start against a stale/zero
+    // wrapDistance and snap once it lands.
+    state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
+    state.cycleSeconds =
+      parseFloat(getComputedStyle(track).animationDuration) || 30
+    state.repeatCount =
+      parseFloat(
+        getComputedStyle(carousel).getPropertyValue(
+          '--logo-carousel-repeat-count'
+        )
+      ) || 2
+    updateMeasurements()
+    state.lastTime = performance.now()
+    state.rafId = requestAnimationFrame(tick)
 
     // Recompute wrap distance when the track resizes (images loading, viewport
     // resize, font swaps — anything that changes scrollWidth).
