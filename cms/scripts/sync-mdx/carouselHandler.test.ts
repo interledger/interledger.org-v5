@@ -60,59 +60,89 @@ describe('LogoCarousel handler', () => {
   it('parses multiple logos, including a null name', async () => {
     const ctx = ctxWith({ '/img/a.png': 1, '/img/b.png': 2 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }, { name: null, src: '/img/b.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }, { name: null, src: '/img/b.png' }]} />`,
       ctx
     )
 
-    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1, 2] }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.carousel',
+        accessibilityLabel: 'Our Partners',
+        logos: [1, 2]
+      }
+    ])
     expect(ctx.updatedAlts).toEqual([
       { id: 1, alt: 'A' },
       { id: 2, alt: null }
     ])
   })
 
-  it('omits heading and accessibilityLabel when absent', async () => {
+  it('omits heading when absent', async () => {
     const ctx = ctxWith({ '/img/a.png': 1 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }]} />`,
       ctx
     )
 
-    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1] }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.carousel',
+        accessibilityLabel: 'Our Partners',
+        logos: [1]
+      }
+    ])
   })
 
   it('treats a missing name key the same as null', async () => {
     const ctx = ctxWith({ '/img/a.png': 1 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ src: '/img/a.png' }]} />`,
       ctx
     )
 
-    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1] }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.carousel',
+        accessibilityLabel: 'Our Partners',
+        logos: [1]
+      }
+    ])
     expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
   })
 
   it('treats an empty string name the same as null', async () => {
     const ctx = ctxWith({ '/img/a.png': 1 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: '', src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: '', src: '/img/a.png' }]} />`,
       ctx
     )
 
-    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1] }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.carousel',
+        accessibilityLabel: 'Our Partners',
+        logos: [1]
+      }
+    ])
     expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
   })
 
   it('does not fail when updateMediaAlt is not provided', async () => {
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }]} />`,
       {
         locale: 'en',
         resolveMediaUpload: async () => 1
       }
     )
 
-    expect(blocks).toEqual([{ __component: 'blocks.carousel', logos: [1] }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.carousel',
+        accessibilityLabel: 'Our Partners',
+        logos: [1]
+      }
+    ])
   })
 })
 
@@ -123,8 +153,19 @@ describe('LogoCarousel handler', () => {
 describe('LogoCarousel handler — errors', () => {
   it('returns MISSING_REQUIRED_PROP when logos is missing', async () => {
     const result = await parseMdxToBlocks(
-      '<LogoCarousel heading="Partners" />',
+      '<LogoCarousel heading="Partners" accessibilityLabel="Our Partners" />',
       ctxWith()
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP
+    })
+  })
+
+  it('returns MISSING_REQUIRED_PROP when accessibilityLabel is missing', async () => {
+    const result = await parseMdxToBlocks(
+      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,
+      ctxWith({ '/img/a.png': 1 })
     )
     expect(result).toBeInstanceOf(MdxParserError)
     expect(result).toMatchObject({
@@ -134,7 +175,7 @@ describe('LogoCarousel handler — errors', () => {
 
   it('returns DYNAMIC_EXPRESSION when logos is a dynamic expression', async () => {
     const result = await parseMdxToBlocks(
-      '<LogoCarousel logos={someVar} />',
+      '<LogoCarousel accessibilityLabel="Our Partners" logos={someVar} />',
       ctxWith()
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -143,7 +184,7 @@ describe('LogoCarousel handler — errors', () => {
 
   it('returns INVALID_PROP_VALUE when logos is not an array', async () => {
     const result = await parseMdxToBlocks(
-      `<LogoCarousel logos={{ name: 'A', src: '/img/a.png' }} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={{ name: 'A', src: '/img/a.png' }} />`,
       ctxWith()
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -152,7 +193,7 @@ describe('LogoCarousel handler — errors', () => {
 
   it('returns INVALID_PROP_VALUE when a logo entry is missing src', async () => {
     const result = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A' }]} />`,
       ctxWith()
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -161,7 +202,7 @@ describe('LogoCarousel handler — errors', () => {
 
   it('returns UNRESOLVED_RELATION when resolveMediaUpload is not in context', async () => {
     const result = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }]} />`,
       { locale: 'en' }
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -170,7 +211,7 @@ describe('LogoCarousel handler — errors', () => {
 
   it('propagates the error when resolveMediaUpload rejects', async () => {
     const result = await parseMdxToBlocks(
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/missing.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/missing.png' }]} />`,
       ctxWith({})
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -188,7 +229,7 @@ describe('LogoCarousel handler — mixed content', () => {
     const mdx = [
       'Our partners:',
       '',
-      `<LogoCarousel logos={[{ name: 'A', src: '/img/a.png' }]} />`,
+      `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }]} />`,
       '',
       'More content after the carousel.'
     ].join('\n')
@@ -198,7 +239,11 @@ describe('LogoCarousel handler — mixed content', () => {
 
     expect(blocks).toHaveLength(3)
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
-    expect(blocks[1]).toEqual({ __component: 'blocks.carousel', logos: [1] })
+    expect(blocks[1]).toEqual({
+      __component: 'blocks.carousel',
+      accessibilityLabel: 'Our Partners',
+      logos: [1]
+    })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
   })
 })

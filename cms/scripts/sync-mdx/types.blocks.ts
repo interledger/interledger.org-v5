@@ -122,7 +122,7 @@ export interface CodeBlockBlock extends StrapiBlockBase {
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
   heading?: string
-  accessibilityLabel?: string
+  accessibilityLabel: string
   logos: number[]
 }
 

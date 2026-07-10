@@ -9,9 +9,12 @@ export function serialize(block: {
     alternativeText: string | null
   }[]
 }): string {
-  // Strapi's `required: true` on the `logos` media field isn't enforced at save time
+  // Strapi's `required: true` on `logos`/`accessibilityLabel` isn't enforced at save time
   if (!block.logos || block.logos.length === 0) {
     throw new Error('Carousel block is missing logos')
+  }
+  if (!block.accessibilityLabel) {
+    throw new Error('Carousel block is missing accessibilityLabel')
   }
 
   const logoItems = block.logos.map((logo) => ({
@@ -21,12 +24,8 @@ export function serialize(block: {
   }))
 
   const headingAttr = block.heading ? ` heading="${esc(block.heading)}"` : ''
-  const labelAttr = block.accessibilityLabel
-    ? ` accessibilityLabel="${esc(block.accessibilityLabel)}"`
-    : ''
-  const logosAttr = logoItems.length
-    ? ` logos={${JSON.stringify(logoItems)}}`
-    : ''
+  const labelAttr = ` accessibilityLabel="${esc(block.accessibilityLabel)}"`
+  const logosAttr = ` logos={${JSON.stringify(logoItems)}}`
 
   return `<LogoCarousel${headingAttr}${labelAttr}${logosAttr} />`
 }

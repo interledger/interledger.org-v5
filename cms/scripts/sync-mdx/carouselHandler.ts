@@ -37,7 +37,9 @@ async function handleCarousel(
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
     const heading = getStringAttr(node, 'heading')
-    const accessibilityLabel = getStringAttr(node, 'accessibilityLabel')
+    const accessibilityLabel = getStringAttr(node, 'accessibilityLabel', {
+      required: true
+    })
     const rawLogos = getStaticLiteralAttr(node, 'logos', { required: true })
 
     if (!Array.isArray(rawLogos) || !rawLogos.every(isLogoEntry)) {
@@ -72,7 +74,7 @@ async function handleCarousel(
     const block: CarouselBlock = {
       __component: 'blocks.carousel',
       ...(heading ? { heading } : {}),
-      ...(accessibilityLabel ? { accessibilityLabel } : {}),
+      accessibilityLabel,
       logos
     }
 
