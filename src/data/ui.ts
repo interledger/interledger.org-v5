@@ -2,6 +2,10 @@ export const ui = {
   en: {
     'site.title': 'Interledger Foundation',
     'site.description': 'Making payments as easy as sending an email',
+    'error404.title': 'Page not found',
+    'error404.heading': 'We are sorry...',
+    'error404.description': 'This page is unavailable or it cannot be found',
+    'error404.cta': 'Return to Homepage',
     'nav.home': 'Home',
     'nav.breadcrumb': 'Breadcrumb',
     'nav.language': 'Language',
@@ -230,6 +234,10 @@ export const ui = {
   es: {
     'site.title': '',
     'site.description': '',
+    'error404.title': 'Página no encontrada',
+    'error404.heading': 'Lo sentimos...',
+    'error404.description': 'Esta página no está disponible o no se pudo encontrar',
+    'error404.cta': 'Volver a la página de inicio',
     'nav.home': '',
     'nav.breadcrumb': '',
     'nav.main': 'Navegación principal',

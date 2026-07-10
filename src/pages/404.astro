@@ -1,31 +1,50 @@
 ---
 /**
  * Custom 404 page for static hosting (Netlify serves 404.html).
+ * Static content only — not editable through Strapi.
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
-import { HOME_CONTENT_SLUG, translatePath } from '@/utils'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils'
 
 const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const homeHref = translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)
 ---
 
 <FoundationPageLayout
-  title="Page not found"
-  description="The page you requested could not be found."
+  title={t('error404.title')}
+  description={t('error404.description')}
+  headerTheme="light"
 >
-  <main class="flex-1 flex items-center justify-center py-space-xl">
-    <section class="text-center px-space-m">
-      <h1 class="text-6xl font-semibold text-primary mb-space-s">404</h1>
-      <p
-        class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-(--container-md) mx-auto"
+  <main class="pb-lg tablet:pb-3xl">
+    <section class="relative flex items-center overflow-hidden bg-white tablet:min-h-dvh">
+      <img
+        src="/img/network.svg"
+        alt=""
+        aria-hidden="true"
+        width="1044"
+        height="1044"
+        loading="eager"
+        class="pointer-events-none absolute top-1/2 left-1/2 h-full w-auto max-w-none -translate-x-1/2 -translate-y-1/2 opacity-60 desktop:opacity-100"
+      />
+      <div
+        class="relative mx-auto w-full max-w-content min-w-[360px] px-lg py-5xl tablet:px-xl tablet:py-6xl desktop:px-5xl"
       >
-        The page you requested could not be found.
-      </p>
-      <a
-        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
-        class="inline-block text-primary font-medium underline hover:no-underline"
-      >
-        ← Back to home
-      </a>
+        <h1
+          class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold mb-space-m"
+        >
+          {t('error404.heading')}
+        </h1>
+        <p class="text-h4 tablet:text-h4-md text-neutral-900 mb-space-l">
+          {t('error404.description')}
+        </p>
+        <LinkButton href={homeHref} variant="primary" size="lg">
+          {t('error404.cta')}
+          <Icon name="home" slot="icon-right" class="size-4" />
+        </LinkButton>
+      </div>
     </section>
   </main>
 </FoundationPageLayout>
