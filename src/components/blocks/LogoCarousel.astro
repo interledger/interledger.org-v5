@@ -37,7 +37,7 @@ const trackClasses = `
   motion-reduce:animate-none
 `
 const logoClasses = `
-  h-[40px] w-[120px] shrink-0
+  h-[40px] w-[var(--logo-carousel-item-width)] shrink-0
 `
 ---
 
@@ -47,7 +47,12 @@ const logoClasses = `
       {heading}
     </h2>
 
-    <div class={viewportClasses} role="group" aria-label={accessibilityLabel}>
+    <div
+      class={viewportClasses}
+      style={`--logo-count: ${logos.length}`}
+      role="group"
+      aria-label={accessibilityLabel}
+    >
       {
         /* loading="eager": this track loops forever, so lazy-loading only
         risks a late pop-in when a logo scrolls back into view. */
@@ -93,6 +98,19 @@ const logoClasses = `
 
 <style>
   .logo-carousel {
+    /* item-width must match the logo <img> width; --logo-count comes from
+      an inline style set per instance. */
+    --logo-carousel-gap: var(--spacing-4xl);
+    --logo-carousel-item-width: 120px;
+    --logo-carousel-speed: 96px; /* target scroll speed: px per second */
+    --logo-carousel-cycle: calc(
+      (
+          var(--logo-count, 1) *
+            (var(--logo-carousel-item-width) + var(--logo-carousel-gap))
+        ) /
+        var(--logo-carousel-speed) * 1s
+    );
+
     mask-image: linear-gradient(
       to right,
       transparent 0%,
@@ -183,16 +201,15 @@ const logoClasses = `
       state.rafId = requestAnimationFrame(tick)
     }
 
-    // Override the `animate-[scroll-left_...]` utility; JS now drives the transform.
-    track.style.animation = 'none'
+    // Clear only animation-name (not the whole shorthand), so
+    // animation-duration stays readable below as a resolved number.
+    track.style.animationName = 'none'
 
     // Batch layout reads: write (animation off) then read in the next frame.
     requestAnimationFrame(() => {
-      const carouselStyles = getComputedStyle(carousel)
       state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
       state.cycleSeconds =
-        parseFloat(carouselStyles.getPropertyValue('--logo-carousel-cycle')) ||
-        30
+        parseFloat(getComputedStyle(track).animationDuration) || 30
       updateMeasurements()
       state.lastTime = performance.now()
       state.rafId = requestAnimationFrame(tick)
