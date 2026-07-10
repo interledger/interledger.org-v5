@@ -1226,7 +1226,7 @@ describe('buildGrantPagePayload', () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter,
-        content: `<LogoCarousel logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`
+        content: `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`
       })
 
       const payload = await buildGrantPagePayload(
@@ -1236,7 +1236,11 @@ describe('buildGrantPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).content).toEqual([
-        { __component: 'blocks.carousel', logos: [12] }
+        {
+          __component: 'blocks.carousel',
+          accessibilityLabel: 'Our Partners',
+          logos: [12]
+        }
       ])
     })
 
