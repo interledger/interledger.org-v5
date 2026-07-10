@@ -961,6 +961,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 6 }],
       [{ name: 'primaryCta', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
+      [{ name: 'infoCards', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'faqSection', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }]
