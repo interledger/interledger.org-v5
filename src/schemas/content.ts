@@ -272,5 +272,20 @@ export const profileFrontmatterSchema = z.object({
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
+// Bare-bones FAQ page template (INTORG-865). FAQ items/accordion/TOC land in a
+// later pass (INTORG-749) as an optional dynamic-zone `content` field — this
+// schema intentionally has no body/component surface yet.
+export const faqFrontmatterSchema = z.object({
+  pathSlug: pathSlugSchema(),
+  title: z.string().min(1, 'title is required'),
+  section: z.enum(['summit', 'hackathon', 'foundation']),
+  description: z.string().min(1, 'description is required'),
+  heading: z.string().min(1, 'heading is required'),
+  introParagraph: z.string().nullable().optional(),
+  locale: z.string(),
+  localizes: z.string().optional()
+})
+export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
+
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema

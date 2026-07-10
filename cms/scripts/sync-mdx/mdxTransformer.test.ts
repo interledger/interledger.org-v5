@@ -88,11 +88,22 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const faqPageSchema = z.object({
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    title: z.string().min(1, 'title is required'),
+    section: z.enum(['summit', 'hackathon', 'foundation']),
+    description: z.string().min(1, 'description is required'),
+    heading: z.string().min(1, 'heading is required'),
+    introParagraph: z.string().nullable().optional(),
+    locale: z.string(),
+    localizes: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
     summitPageFrontmatterSchema: pageSchema,
     grantPageFrontmatterSchema: grantPageSchema,
-    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema
+    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
+    faqFrontmatterSchema: faqPageSchema
   }
 })
 
@@ -100,13 +111,15 @@ import {
   getEntryField,
   buildPagePayload,
   buildGrantPagePayload,
-  buildGrantOverviewPagePayload
+  buildGrantOverviewPagePayload,
+  buildFaqPagePayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   grantPageFrontmatterSchema,
-  grantOverviewPageFrontmatterSchema
+  grantOverviewPageFrontmatterSchema,
+  faqFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
@@ -1490,6 +1503,101 @@ describe('buildGrantOverviewPagePayload', () => {
         mdx
       )
       expect((payload as Record<string, unknown>).followUpContent).toBeNull()
+    })
+  })
+})
+
+const baseFaqFrontmatter = {
+  title: 'On-Campus Financial Education Grant FAQ',
+  section: 'foundation',
+  description: 'Answers to common questions about the grant.',
+  heading: 'Frequently Asked Questions'
+}
+
+// Maps faq-page MDX frontmatter to the Strapi faq-page payload shape.
+// Key risk: the bare-bones template has no body content yet, so a non-empty
+// MDX body must be rejected rather than silently dropped.
+describe('buildFaqPagePayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: {
+          section: 'foundation',
+          description: 'Some description',
+          heading: 'FAQ'
+        }
+      })
+
+      const result = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when heading is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: {
+          title: 'FAQ',
+          section: 'foundation',
+          description: 'Some description'
+        }
+      })
+
+      const result = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when the MDX body is non-empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: baseFaqFrontmatter,
+        content: 'Unexpected body content.'
+      })
+
+      const result = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, section, description, and heading', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('On-Campus Financial Education Grant FAQ')
+      expect(p.pathSlug).toBe('grant/education/on-campus/faq')
+      expect(p.section).toBe('foundation')
+      expect(p.description).toBe('Answers to common questions about the grant.')
+      expect(p.heading).toBe('Frequently Asked Questions')
+    })
+
+    it('includes introParagraph when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: {
+          ...baseFaqFrontmatter,
+          introParagraph: 'A short intro to the FAQ.'
+        }
+      })
+
+      const payload = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBe(
+        'A short intro to the FAQ.'
+      )
+    })
+
+    it('sets introParagraph to null when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'grant/education/on-campus/faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPagePayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
     })
   })
 })

@@ -21,7 +21,8 @@ import type { FrontmatterSchema } from './config'
 import type {
   foundationBlogFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
-  grantPageFrontmatterSchema
+  grantPageFrontmatterSchema,
+  faqFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -565,6 +566,40 @@ export async function buildGrantOverviewPagePayload(
       description: parsed.description,
       ctaStrip,
       followUpContent: (mdx.content || '').trim() || null,
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for a faq-page MDX file.
+ *
+ * Bare-bones FAQ template (INTORG-865): frontmatter only, no dynamic-zone
+ * content yet. The MDX body must be empty — FAQ items/accordion/TOC land in
+ * a later pass (INTORG-749), which is when a real component allowlist for
+ * the body is introduced.
+ */
+export async function buildFaqPagePayload(
+  schema: typeof faqFrontmatterSchema,
+  mdx: MDXFile
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    if (mdx.content?.trim()) {
+      throw new Error(
+        `FAQ page "${parsed.pathSlug}" has MDX body content, but the FAQ template ` +
+          `does not support body content yet (INTORG-749). Move it to introParagraph or remove it.`
+      )
+    }
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      section: parsed.section,
+      description: parsed.description,
+      heading: parsed.heading,
+      introParagraph: parsed.introParagraph ?? null,
       publishedAt: new Date().toISOString()
     }
   })

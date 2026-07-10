@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faq_pages",
+  "info": {
+    "singularName": "faq-page",
+    "pluralName": "faq-pages",
+    "displayName": "FAQ Page",
+    "description": "Bare-bones FAQ page template. FAQ items/accordion/TOC land in a later pass (INTORG-749). MDX is always stored flat under src/content/faq/ (or faq/es/)."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Used for the browser tab <title> and meta title. Distinct from the on-page Heading below."
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Full path from the site root, no leading slash. Can be nested under other sections' paths, e.g. grant/education/on-campus/faq."
+    },
+    "section": {
+      "type": "enumeration",
+      "enum": ["foundation", "summit", "hackathon"],
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      },
+      "description": "Site section for routing and breadcrumbs. Does not affect MDX file location."
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "120–160 characters. Used for SEO meta description and card text."
+    },
+    "heading": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "The on-page heading shown at the top of the page. Distinct from Page Title (used for the browser tab and meta title)."
+    },
+    "introParagraph": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Optional single paragraph shown below the heading. FAQ items, accordion, and table of contents are added in a later pass."
+    }
+  }
+}

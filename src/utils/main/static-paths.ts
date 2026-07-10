@@ -100,47 +100,55 @@ function routeSegmentForCollection(data: Entry['data']): string {
   return (data as { pathSlug: string }).pathSlug
 }
 
-/** Site sections a profile page can live in. Matches the `section` frontmatter field. */
+/** Site sections a cross-section page can live in. Matches the `section` frontmatter field. */
 export type ProfileSection = 'foundation' | 'summit' | 'hackathon'
 
-type ProfilePath = {
+/** Discriminant for cross-section template rendering dispatch in catch-all routes. */
+export type CrossSectionKind = 'profile' | 'faq'
+
+type CrossSectionPath = {
   params: Record<string, string>
   props: {
     slug: string
     locale: Locale
     isFallback: boolean
-    kind: 'profile'
+    kind: CrossSectionKind
   }
 }
 
-function toProfilePath(
+function toCrossSectionPath(
   paramName: string,
   slug: string,
   locale: Locale,
-  isFallback: boolean
-): ProfilePath {
+  isFallback: boolean,
+  kind: CrossSectionKind
+): CrossSectionPath {
   return {
     params: { [paramName]: slug },
-    props: { slug, locale, isFallback, kind: 'profile' }
+    props: { slug, locale, isFallback, kind }
   }
 }
 
 /**
- * Builds static paths for profile pages within a single site section.
+ * Builds static paths for a single cross-section template collection within
+ * one site section.
  *
- * All profiles live in one `profiles` collection but render under different
- * URL trees driven by the `section` frontmatter field. The route param and
- * `props.slug` are both the section-relative `pathSlug` (no section prefix).
+ * All entries of a cross-section collection (e.g. `profiles`, `faq`) live in
+ * one place but render under different URL trees driven by the `section`
+ * frontmatter field. The route param and `props.slug` are both the
+ * section-relative `pathSlug` (no section prefix).
  *
  * Localization follows the same EN-canonical / ES-fallback rules as
  * {@link getLocalizedPaths}.
  */
-export async function getProfilePaths(
+async function getPathsForCollection(
+  collection: CrossSectionCollection,
+  kind: CrossSectionKind,
   section: ProfileSection,
   lang: Locale,
   paramName: string
-): Promise<ProfilePath[]> {
-  const allEntries = await getCollection('profiles')
+): Promise<CrossSectionPath[]> {
+  const allEntries = await getCollection(collection)
 
   const enEntries = allEntries.filter(
     (e) => e.data.locale === defaultLocale && e.data.section === section
@@ -148,11 +156,12 @@ export async function getProfilePaths(
 
   if (lang === defaultLocale) {
     return enEntries.map((e) =>
-      toProfilePath(
+      toCrossSectionPath(
         paramName,
         routeSegmentForCollection(e.data),
         defaultLocale,
-        false
+        false,
+        kind
       )
     )
   }
@@ -166,14 +175,33 @@ export async function getProfilePaths(
     const enSlug = routeSegmentForCollection(enEntry.data)
     const localizedEntry = localizedByLocalizes.get(enSlug)
     return localizedEntry
-      ? toProfilePath(
+      ? toCrossSectionPath(
           paramName,
           routeSegmentForCollection(localizedEntry.data),
           lang,
-          false
+          false,
+          kind
         )
-      : toProfilePath(paramName, enSlug, defaultLocale, true)
+      : toCrossSectionPath(paramName, enSlug, defaultLocale, true, kind)
   })
+}
+
+/** Builds static paths for profile pages within a single site section. */
+export async function getProfilePaths(
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<CrossSectionPath[]> {
+  return getPathsForCollection('profiles', 'profile', section, lang, paramName)
+}
+
+/** Builds static paths for FAQ pages within a single site section. */
+export async function getFaqPaths(
+  section: ProfileSection,
+  lang: Locale,
+  paramName: string
+): Promise<CrossSectionPath[]> {
+  return getPathsForCollection('faq', 'faq', section, lang, paramName)
 }
 
 async function getPathsForCrossSectionCollection(
@@ -181,10 +209,12 @@ async function getPathsForCrossSectionCollection(
   section: ProfileSection,
   lang: Locale,
   paramName: string
-): Promise<ProfilePath[]> {
+): Promise<CrossSectionPath[]> {
   switch (collection) {
     case 'profiles':
-      return getProfilePaths(section, lang, paramName)
+      return getPathsForCollection(collection, 'profile', section, lang, paramName)
+    case 'faq':
+      return getPathsForCollection(collection, 'faq', section, lang, paramName)
     default: {
       const _exhaustive: never = collection
       return _exhaustive
@@ -200,7 +230,7 @@ export async function getCrossSectionPaths(
   section: ProfileSection,
   lang: Locale,
   paramName: string
-): Promise<ProfilePath[]> {
+): Promise<CrossSectionPath[]> {
   const results = await Promise.all(
     crossSectionCollections.map((collection) =>
       getPathsForCrossSectionCollection(collection, section, lang, paramName)

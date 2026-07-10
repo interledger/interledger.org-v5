@@ -77,6 +77,7 @@ export {
   type ProfileMdxInput,
   generateProfileMdx
 } from './profileMdx'
+export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,

@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildFaqPagePayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
@@ -15,7 +16,8 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  faqFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -68,6 +70,7 @@ export interface ContentTypes {
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
+  faq: ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -149,6 +152,12 @@ export function buildContentTypes(
           dryRun
         )
       }
+    },
+    faq: {
+      dir: getContentPath(projectRoot, 'faq'),
+      apiId: 'faq-pages',
+      schema: faqFrontmatterSchema,
+      buildPayload: (mdx) => buildFaqPagePayload(faqFrontmatterSchema, mdx)
     },
     'grant-pages': {
       dir: getContentPath(projectRoot, 'grantPages'),

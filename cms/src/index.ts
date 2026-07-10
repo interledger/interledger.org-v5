@@ -492,6 +492,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       category: 'Category',
       content: 'Biography'
     },
+    'api::faq-page.faq-page': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      description: 'Short Description',
+      heading: 'Heading',
+      introParagraph: 'Intro Paragraph'
+    },
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Short Description',
@@ -560,6 +568,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
         'Short intro blurb shown on the profile detail page, above the CTA and biography sections.'
+    },
+    'api::faq-page.faq-page': {
+      pathSlug:
+        "Full path from the site root, no leading slash. Can be nested under other sections' paths, e.g. grant/education/on-campus/faq.",
+      section: 'Site section for routing and breadcrumbs.',
+      description:
+        '120–160 characters. Used for SEO meta description and card text.',
+      heading:
+        'The on-page heading shown at the top of the page. Distinct from Page Title (used for the browser tab and meta title).',
+      introParagraph:
+        'Optional single paragraph shown below the heading. FAQ items, accordion, and table of contents are added in a later pass.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
@@ -935,6 +954,16 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'cta', size: 12 }]
+    ],
+    'api::faq-page.faq-page': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
       [

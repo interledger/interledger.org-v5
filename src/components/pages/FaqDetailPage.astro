@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import { type Locale, useTranslations, localizeRoute } from '@/utils'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const t = useTranslations(contentLocale)
+
+const allFaqs = await getCollection('faq')
+const entry = allFaqs.find(
+  (f) => f.data.pathSlug === slug && f.data.locale === contentLocale
+)
+
+if (!entry) throw new Error(`FAQ page not found: ${slug} (${contentLocale})`)
+
+const { title, heading, description, introParagraph, section } = entry.data
+
+// Build breadcrumbs: Home > [section base?] > [pathSlug parents] > title
+const sectionPrefix = section && section !== 'foundation' ? section : ''
+const fullPath = [sectionPrefix, entry.data.pathSlug].filter(Boolean).join('/')
+const allParts = fullPath.split('/')
+const parentParts = allParts.slice(0, -1)
+const toLabel = (seg: string) =>
+  seg
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  ...parentParts.map((_, i) => ({
+    name: toLabel(parentParts[i]),
+    href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
+  })),
+  { name: title, href: localizeRoute(fullPath, contentLocale) }
+]
+---
+
+<FoundationPageLayout title={title} description={description}>
+  <main class="pb-3xl" data-pillar="mission">
+    <TranslationDisclaimer isVisible={isFallback} />
+    <div class="max-w-250 m-auto px-2xl pt-2xl">
+      <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
+      <h1
+        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-xl mb-xl"
+      >
+        {heading}
+      </h1>
+      {
+        introParagraph && (
+          <section
+            data-prose
+            aria-label={t('faq.introduction')}
+            class="mb-2xl"
+          >
+            <Paragraph content={introParagraph} />
+          </section>
+        )
+      }
+    </div>
+  </main>
+</FoundationPageLayout>

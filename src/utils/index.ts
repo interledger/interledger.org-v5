@@ -59,9 +59,11 @@ export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export {
   type CollectionType,
   type ProfileSection,
+  type CrossSectionKind,
   getLocalizedPaths,
   getCrossSectionPaths,
-  getProfilePaths
+  getProfilePaths,
+  getFaqPaths
 } from './main/static-paths'
 export {
   type BlogTaxonomy,
