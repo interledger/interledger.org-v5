@@ -205,7 +205,13 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
     icon: 'images'
   }
   attributes: {
-    accessibilityLabel: Schema.Attribute.String
+    accessibilityLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     heading: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

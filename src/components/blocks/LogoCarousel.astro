@@ -7,6 +7,33 @@ interface Props {
 
 const { heading, accessibilityLabel, logos } = Astro.props
 
+// Single source of truth for the carousel geometry, piped into the CSS vars
+// below instead of duplicating numbers in <style>. Must be exact: repeatCount
+// assumes these match what's rendered, or the wrap point runs out of content.
+const LOGO_ITEM_WIDTH_PX = 120
+const LOGO_GAP_PX = 60
+// Widest the carousel can render at — must match Tailwind's max-w-content.
+const MAX_CAROUSEL_WIDTH_PX = 1440
+
+// The track wraps its scroll offset every `period` px (one pass through
+// `logos`). It needs enough duplicate copies to never run out of content at
+// the widest viewport, or the wrap point shows a gap. Solving
+// `MAX_CAROUSEL_WIDTH_PX <= (copies - 1) * period - LOGO_GAP_PX` for the
+// smallest integer `copies` gives the formula below.
+const period = logos.length * (LOGO_ITEM_WIDTH_PX + LOGO_GAP_PX)
+const repeatCount =
+  period > 0
+    ? Math.max(2, Math.ceil((MAX_CAROUSEL_WIDTH_PX + LOGO_GAP_PX) / period) + 1)
+    : 2
+const duplicateBatches = Array.from({ length: repeatCount - 1 })
+
+const carouselStyle = `
+  --logo-count: ${logos.length};
+  --logo-carousel-repeat-count: ${repeatCount};
+  --logo-carousel-item-width: ${LOGO_ITEM_WIDTH_PX}px;
+  --logo-carousel-gap: ${LOGO_GAP_PX}px;
+`
+
 const sectionClasses = `
   px-lg pb-3xl-tight
   bg-neutral-0 text-neutral-900
@@ -49,7 +76,7 @@ const logoClasses = `
 
     <div
       class={viewportClasses}
-      style={`--logo-count: ${logos.length}`}
+      style={carouselStyle}
       role="group"
       aria-label={accessibilityLabel}
     >
@@ -75,21 +102,26 @@ const logoClasses = `
           ))
         }
         {
-          /* Duplicate batch for seamless loop — hidden from AT and keyboard. */
-          logos.map((logo) => (
-            <li class="motion-reduce:hidden m-0" aria-hidden="true" inert>
-              <img
-                src={logo.src}
-                alt=""
-                class={logoClasses}
-                width="120"
-                height="40"
-                loading="eager"
-                decoding="async"
-                draggable={false}
-              />
-            </li>
-          ))
+          /* Duplicate batches for a seamless loop — hidden from AT and
+          keyboard. `repeatCount` (computed above) ensures there are always
+          enough copies that the track never runs out of content mid-wrap,
+          even with very few logos. */
+          duplicateBatches.map(() =>
+            logos.map((logo) => (
+              <li class="motion-reduce:hidden m-0" aria-hidden="true" inert>
+                <img
+                  src={logo.src}
+                  alt=""
+                  class={logoClasses}
+                  width="120"
+                  height="40"
+                  loading="eager"
+                  decoding="async"
+                  draggable={false}
+                />
+              </li>
+            ))
+          )
         }
       </ul>
     </div>
@@ -98,10 +130,11 @@ const logoClasses = `
 
 <style>
   .logo-carousel {
-    /* item-width must match the logo <img> width; --logo-count comes from
-      an inline style set per instance. */
-    --logo-carousel-gap: var(--spacing-4xl);
-    --logo-carousel-item-width: 120px;
+    /* --logo-count, --logo-carousel-repeat-count, --logo-carousel-item-width,
+      and --logo-carousel-gap all come from the inline `carouselStyle` set
+      per instance (see frontmatter) — kept there, not here, so the numbers
+      driving this calc can never drift from the numbers used to decide how
+      many duplicate batches got rendered. */
     --logo-carousel-speed: 96px; /* target scroll speed: px per second */
     --logo-carousel-cycle: calc(
       (
@@ -125,7 +158,14 @@ const logoClasses = `
       transform: translateX(0);
     }
     to {
-      transform: translateX(calc(-50% - var(--logo-carousel-gap) / 2));
+      /* One period's worth of the track, generalized from the exact
+        -50% - gap/2 for 2 copies to -100%/copies - gap/copies for N. */
+      transform: translateX(
+        calc(
+          (-100% - var(--logo-carousel-gap)) /
+            var(--logo-carousel-repeat-count, 2)
+        )
+      );
     }
   }
 </style>
@@ -147,6 +187,7 @@ const logoClasses = `
       wrapDistance: 0,
       speedPxPerSec: 0,
       gap: 0,
+      repeatCount: 2,
       cycleSeconds: 30,
       isDragging: false,
       dragStart: { x: 0, offset: 0 },
@@ -156,11 +197,10 @@ const logoClasses = `
     }
 
     const updateMeasurements = (): void => {
-      // Track contains 2× the visual logo set. Wrap point is the distance after
-      // which the visual pattern repeats: half the track + half a gap (mirrors
-      // the CSS `-50% - gap/2` end keyframe).
-      const halfTrack = track.scrollWidth / 2
-      state.wrapDistance = halfTrack + state.gap / 2
+      // Track contains `repeatCount`x the visual logo set. Wrap point is the
+      // distance after which the visual pattern repeats: one copy's worth of
+      // the track (mirrors the CSS `(-100% - gap) / repeatCount` end keyframe).
+      state.wrapDistance = (track.scrollWidth + state.gap) / state.repeatCount
       state.speedPxPerSec = state.wrapDistance / state.cycleSeconds
     }
 
@@ -210,6 +250,12 @@ const logoClasses = `
       state.gap = parseFloat(getComputedStyle(track).columnGap) || 0
       state.cycleSeconds =
         parseFloat(getComputedStyle(track).animationDuration) || 30
+      state.repeatCount =
+        parseFloat(
+          getComputedStyle(carousel).getPropertyValue(
+            '--logo-carousel-repeat-count'
+          )
+        ) || 2
       updateMeasurements()
       state.lastTime = performance.now()
       state.rafId = requestAnimationFrame(tick)
