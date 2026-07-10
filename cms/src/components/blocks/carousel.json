@@ -16,7 +16,13 @@
       }
     },
     "accessibilityLabel": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "logos": {
       "type": "media",
