@@ -48,6 +48,10 @@ const logoClasses = `
     </h2>
 
     <div class={viewportClasses} role="group" aria-label={accessibilityLabel}>
+      {
+        /* loading="eager": this track loops forever, so lazy-loading only
+        risks a late pop-in when a logo scrolls back into view. */
+      }
       <ul class={trackClasses} role="list">
         {
           logos.map((logo) => (
@@ -58,7 +62,7 @@ const logoClasses = `
                 class={logoClasses}
                 width="120"
                 height="40"
-                loading="lazy"
+                loading="eager"
                 decoding="async"
                 draggable={false}
               />
@@ -75,7 +79,7 @@ const logoClasses = `
                 class={logoClasses}
                 width="120"
                 height="40"
-                loading="lazy"
+                loading="eager"
                 decoding="async"
                 draggable={false}
               />
