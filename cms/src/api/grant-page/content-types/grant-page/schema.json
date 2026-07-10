@@ -87,6 +87,16 @@
       "repeatable": false,
       "required": true
     },
+    "infoCards": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.info-cards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "content": {
       "type": "dynamiczone",
       "pluginOptions": {

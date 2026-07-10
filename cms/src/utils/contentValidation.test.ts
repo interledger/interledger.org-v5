@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { validateNoNestedJsx, validateNavigationLabels } from '@/utils'
+import {
+  validateNoNestedJsx,
+  validateNavigationLabels,
+  validateGrantInfoCards
+} from '@/utils'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -202,6 +206,116 @@ describe('validateNavigationLabels', () => {
 
     expect(validateNavigationLabels(data)?.message).toBe(
       'CTA Button: Label is required'
+    )
+  })
+})
+
+const validCard = {
+  heading: 'Why Apply',
+  body: 'Funding to support your project.'
+}
+
+describe('validateGrantInfoCards', () => {
+  it('returns undefined when infoCards is absent', () => {
+    expect(validateGrantInfoCards({})).toBeUndefined()
+  })
+
+  it('returns undefined when infoCards is explicitly null', () => {
+    expect(validateGrantInfoCards({ infoCards: null })).toBeUndefined()
+  })
+
+  it('returns undefined for a fully valid infoCards object', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card2: validCard,
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)).toBeUndefined()
+  })
+
+  it('returns a ValidationError when card2 is missing entirely', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card3: validCard
+      }
+    }
+
+    const err = validateGrantInfoCards(data)
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toBe('Information Cards: card2 is required')
+  })
+
+  it('returns a ValidationError when a card heading is missing', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card2: { body: validCard.body },
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)?.message).toBe(
+      'Information Cards: card2 heading is required'
+    )
+  })
+
+  it('treats a whitespace-only heading as missing', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card2: { heading: '   ', body: validCard.body },
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)?.message).toBe(
+      'Information Cards: card2 heading is required'
+    )
+  })
+
+  it('returns a ValidationError when a card body is missing', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card2: { heading: validCard.heading },
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)?.message).toBe(
+      'Information Cards: card2 body is required'
+    )
+  })
+
+  it('treats a whitespace-only body as missing', () => {
+    const data = {
+      infoCards: {
+        card1: validCard,
+        card2: { heading: validCard.heading, body: '   ' },
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)?.message).toBe(
+      'Information Cards: card2 body is required'
+    )
+  })
+
+  it('checks cards in order, reporting the first failing card', () => {
+    const data = {
+      infoCards: {
+        card1: { heading: '', body: '' },
+        card2: validCard,
+        card3: validCard
+      }
+    }
+
+    expect(validateGrantInfoCards(data)?.message).toBe(
+      'Information Cards: card1 heading is required'
     )
   })
 })

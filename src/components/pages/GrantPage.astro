@@ -3,6 +3,7 @@ import { type Locale, parseMarkdown } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import InfoCards from '@/components/blocks/InfoCards.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -33,6 +34,7 @@ const {
   primaryCta,
   faqSection,
   ctaStrip,
+  infoCards,
   programOverview
 } = mdxPage.data
 
@@ -90,6 +92,14 @@ const programOverviewHtml = programOverview
           <div class="mx-auto max-w-content min-w-[360px]">
             <div data-prose set:html={programOverviewHtml} />
           </div>
+        </section>
+      )
+    }
+
+    {
+      infoCards && (
+        <section class="py-space-xl">
+          <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
         </section>
       )
     }

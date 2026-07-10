@@ -824,6 +824,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    infoCards: Schema.Attribute.Component<'blocks.info-cards', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',

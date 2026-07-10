@@ -459,6 +459,17 @@ export async function buildGrantPagePayload(
         : {})
     }
 
+    const infoCards = parsed.infoCards
+      ? {
+          ...(parsed.infoCards.heading
+            ? { heading: parsed.infoCards.heading }
+            : {}),
+          card1: parsed.infoCards.cards[0],
+          card2: parsed.infoCards.cards[1],
+          card3: parsed.infoCards.cards[2]
+        }
+      : null
+
     const faqSectionFm = parsed.faqSection
     const faqSection = faqSectionFm
       ? {
@@ -513,6 +524,7 @@ export async function buildGrantPagePayload(
       primaryCta,
       faqSection,
       ctaStrip,
+      infoCards,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
