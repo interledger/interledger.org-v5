@@ -4,7 +4,6 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
-import { parseMarkdown } from '@/utils'
 
 interface Props {
   layoutType?: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
@@ -13,8 +12,6 @@ interface Props {
   imageSrc?: string
   imageAlt?: string
   videoUrl?: string
-  /** Markdown or HTML body for the text column (from MDX children). */
-  content?: string
   quote?: string
   quoteSource?: string
   ctaText?: string
@@ -29,7 +26,6 @@ const {
   imageSrc,
   imageAlt,
   videoUrl,
-  content,
   quote,
   quoteSource,
   ctaText,
@@ -46,7 +42,6 @@ const isQuoteLayout = layoutType
   : Boolean(quote)
 const hasMedia = isVideoLayout ? Boolean(videoUrl) : Boolean(imageSrc)
 const mediaFirst = imagePosition === 'left'
-const contentHtml = content ? await parseMarkdown(content) : null
 ---
 
 <div
@@ -77,13 +72,6 @@ const contentHtml = content ? await parseMarkdown(content) : null
         <Blockquote quote={quote} source={quoteSource} />
       ) : (
         <>
-          {contentHtml && (
-            <div
-              data-prose
-              class="[&>*:last-child]:mb-0"
-              set:html={contentHtml}
-            />
-          )}
           <div class="[&>*:last-child]:mb-0">
             <slot />
           </div>
