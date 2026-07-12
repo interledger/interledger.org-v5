@@ -50,14 +50,10 @@ const contentHtml = content ? await parseMarkdown(content) : null
 ---
 
 <div
-  class:list={[
-    'mb-2xl grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center',
-    !mediaFirst && 'tablet:[&>*:first-child]:order-2'
-  ]}
+  class="mb-2xl grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center"
 >
-  <!-- Media column -->
   {
-    hasMedia && (
+    mediaFirst && hasMedia && (
       <div class="w-full">
         {isVideoLayout && videoUrl ? (
           <VideoEmbed url={videoUrl} title="Video" />
@@ -75,7 +71,6 @@ const contentHtml = content ? await parseMarkdown(content) : null
     )
   }
 
-  <!-- Content column -->
   <div class="w-full flex flex-col gap-space-m">
     {
       isQuoteLayout && quote ? (
@@ -108,4 +103,23 @@ const contentHtml = content ? await parseMarkdown(content) : null
       )
     }
   </div>
+
+  {
+    !mediaFirst && hasMedia && (
+      <div class="w-full">
+        {isVideoLayout && videoUrl ? (
+          <VideoEmbed url={videoUrl} title="Video" />
+        ) : imageSrc ? (
+          <OptimizedImage
+            src={imageSrc}
+            alt={imageAlt ?? ''}
+            width={640}
+            height={480}
+            loading="lazy"
+            class="w-full h-auto rounded-lg object-cover"
+          />
+        ) : null}
+      </div>
+    )
+  }
 </div>
