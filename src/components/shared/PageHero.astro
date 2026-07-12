@@ -73,7 +73,7 @@ const {
           external={cta.external}
         >
           {cta.text}
-          {cta.external && <Icon name="arrow-right" slot="icon-right" />}
+          <Icon name="arrow-right" slot="icon-right" />
         </LinkButton>
       )
     }
@@ -134,33 +134,36 @@ const {
     const img = document.querySelector<HTMLElement>('.parallax-img')
     if (img) {
       const container = img.parentElement!
-      let ticking = false
+      // Max translateY shift as scroll progresses through the strip.
+      const PARALLAX_STRENGTH = 40
+      // Trailing-lerp factor: lower = more drift/fluidity, higher = snappier.
+      const EASE = 0.08
 
-      function update() {
-        const rect = container.getBoundingClientRect()
-        // Only animate when the image strip is visible
-        if (rect.bottom < 0 || rect.top > window.innerHeight) return
-        // Shift image opposite to scroll at 30% speed
+      let currentY = 0
+      let rafId = 0
+
+      function tick() {
         const progress =
           (window.scrollY - container.offsetTop) / window.innerHeight
-        img.style.transform = `translateY(${progress * -15}%)`
+        const targetY = progress * -PARALLAX_STRENGTH
+        currentY += (targetY - currentY) * EASE
+        img.style.transform = `translateY(${currentY}%)`
+        rafId = requestAnimationFrame(tick)
       }
 
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (!ticking) {
-            requestAnimationFrame(() => {
-              update()
-              ticking = false
-            })
-            ticking = true
+      // Only run the loop while the strip is near the viewport.
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            if (!rafId) tick()
+          } else {
+            cancelAnimationFrame(rafId)
+            rafId = 0
           }
         },
-        { passive: true }
+        { rootMargin: '20% 0px' }
       )
-
-      update()
+      observer.observe(container)
     }
   }
 </script>
