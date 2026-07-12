@@ -2,15 +2,18 @@
 title: 'On-Campus Financial Education Grant'
 pathSlug: 'education/on-campus'
 description: 'Funding for universities and colleges developing financial literacy curricula for students from underserved communities.'
-primaryCta:
-  text: 'Apply Now'
-  link: 'https://interledger.submittable.com/submit'
-  external: true
 ctaStrip:
   heading: 'Ready to make an impact?'
   description: 'Applications for the 2026 cohort are open. Submit your proposal before the deadline.'
   buttonText: 'Start your application'
   buttonLink: 'https://interledger.submittable.com/submit'
+  color: 'purple'
+locale: 'en'
+primaryCta:
+  text: 'Apply Now'
+  link: 'https://interledger.submittable.com/submit'
+  external: true
+programOverview: "The On-Campus Financial Education Grant supports universities and colleges in developing financial literacy programs for students from underserved communities. Grants of up to $50,000 are available for projects that integrate open payments standards into coursework, workshops, or student-led initiatives.\n\n## Eligibility\n\n* Accredited higher education institutions\n* Projects with a clear student-facing component\n* Commitment to open-source outputs where applicable\n\n## What we fund\n\nResearch, curriculum development, faculty training, and student programme coordination that meaningfully engages with digital financial systems and the Interledger Protocol."
 faqSection:
   title: 'At a Glance — What You Need to Know'
   subtitle: 'Have more questions?'
@@ -26,17 +29,36 @@ faqSection:
       answer: 'We fund research, curriculum development, faculty training, and student programme coordination that meaningfully engages with digital financial systems and the Interledger Protocol.'
     - question: 'What is the Interledger Protocol?'
       answer: 'The Interledger Protocol (ILP) is an open protocol suite for sending payments across different payment networks, enabling interoperability between various ledgers and currencies regardless of the underlying technology.'
-locale: 'en'
+infoCards:
+  heading: 'What to expect'
+  cards:
+    - heading: 'Why Apply'
+      body: "* Point 1: Funding to support your project\n* Point 2: Mentorship from industry experts\n* Point 3: Access to a global network of Interledger developers"
+    - heading: 'Eligibility'
+      body: "* Point 1: Open to individuals and organizations\n* Point 2: Projects must advance the Interledger Protocol\n* Point 3: Applicants should have a clear plan for their project"
+    - heading: 'Application Steps'
+      body: "* Point 1: Complete the online application form\n* Point 2: Submit a detailed project proposal\n* Point 3: Participate in an interview with our team"
 ---
 
-The On-Campus Financial Education Grant supports universities and colleges in developing financial literacy programs for students from underserved communities. Grants of up to $50,000 are available for projects that integrate open payments standards into coursework, workshops, or student-led initiatives.
-
-## Eligibility
-
-- Accredited higher education institutions
-- Projects with a clear student-facing component
-- Commitment to open-source outputs where applicable
-
-## What we fund
-
-Research, curriculum development, faculty training, and student programme coordination that meaningfully engages with digital financial systems and the Interledger Protocol.
+<LogoCarousel
+  heading="In partnership with: "
+  accessibilityLabel="Our Partners"
+  logos={[
+    { name: 'Plata', src: '/img/partner-logos/plata.png' },
+    {
+      name: 'The Hague University',
+      src: '/img/partner-logos/The-Hague-university-of-applied-sciences.png'
+    },
+    {
+      name: 'Western Sydney University',
+      src: '/img/partner-logos/Western-Sydney-university.png'
+    },
+    { name: '', src: '/img/partner-logos/University-of-Cape-Town-UCT.png' },
+    { name: '', src: '/img/partner-logos/Paysys.png' },
+    { name: '', src: '/img/partner-logos/Smashing-Magazine.png' },
+    {
+      name: 'University of Hong Kong',
+      src: '/img/partner-logos/University-of-Hong-Kong.png'
+    }
+  ]}
+/>

@@ -18,86 +18,95 @@
   "attributes": {
     "title": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "required": true
     },
     "pathSlug": {
       "type": "string",
-      "required": true,
-      "unique": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash."
+      "required": true,
+      "unique": true
     },
     "description": {
       "type": "text",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+      "required": true
     },
     "programOverview": {
       "type": "customField",
-      "customField": "plugin::ckeditor5.CKEditor",
-      "options": {
-        "preset": "defaultMarkdown"
-      },
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
+      },
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
       }
     },
     "primaryCta": {
       "type": "component",
-      "repeatable": false,
-      "component": "shared.primary-cta-link",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "shared.primary-cta-link",
+      "repeatable": false
     },
     "faqSection": {
       "type": "component",
-      "repeatable": false,
-      "component": "blocks.grant-faq-section",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "blocks.grant-faq-section",
+      "repeatable": false
     },
     "ctaStrip": {
       "type": "component",
-      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "blocks.cta-strip",
-      "required": true,
+      "repeatable": false,
+      "required": true
+    },
+    "infoCards": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.info-cards",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       }
     },
-    "seo": {
-      "type": "component",
-      "repeatable": false,
-      "component": "shared.seo",
+    "content": {
+      "type": "dynamiczone",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "components": [
+        "blocks.carousel"
+      ]
     }
   }
 }

@@ -119,6 +119,49 @@ const markdownPresetNoH1: Preset = {
           },
           { priority: 'high' }
         )
+      },
+      // Preserve markdown footnotes ([^1] refs and [^1]: definitions) through
+      // the editor's markdown round-trip. The GFM processor otherwise turns
+      // them into plain links + an ordered list, which serialize back as dead
+      // anchors and destroy the footnotes on save. We swap footnote markers for
+      // private-use placeholders before md->view (so the processor treats them
+      // as literal text) and restore them after view->md. Footnotes stay
+      // verbatim in Strapi and are rendered by Astro's GFM at build time.
+      function preserveFootnotes(editor: CKEditor) {
+        const processor = editor.data.processor as unknown as {
+          toView: (markdown: string) => unknown
+          toData: (view: unknown) => string
+        }
+        if (!processor || typeof processor.toView !== 'function') return
+
+        // CKEditor's GFM markdown processor breaks footnotes two ways:
+        //  - on load (md -> view) it interprets [^1] into links + an ordered
+        //    list, so they no longer round-trip as footnotes;
+        //  - on save (view -> md) its writer escapes the bracket ([^1] ->
+        //    \[^1]), which renders as literal text instead of a footnote.
+        // Fix both edges: escape footnote markers before md->view so the
+        // processor leaves them as literal text (shown verbatim in the editor),
+        // then strip that escaping after view->md so they persist as real GFM
+        // footnotes. Authors write raw markdown; Astro's GFM renders them.
+        const FOOTNOTE_MARKER = /\[\^[^\]]+\]/g
+        const ESCAPED_FOOTNOTE = /\\(?=\[\^[^\]]+\])/g
+        // The writer also escapes markdown punctuation throughout a bare
+        // (autolinked) URL — the scheme colon (https:// -> https\://) and host
+        // dots (example.com -> example\.com) — which corrupts the rendered
+        // link. Match each bare URL and strip the escapes back out. Markdown
+        // links ([text](url)) round-trip fine; only plain-text URLs need this.
+        const BARE_URL = /https?\\?:\/\/\S+/g
+
+        const originalToView = processor.toView.bind(processor)
+        const originalToData = processor.toData.bind(processor)
+
+        processor.toView = (markdown: string) =>
+          originalToView(markdown.replace(FOOTNOTE_MARKER, (m) => `\\${m}`))
+
+        processor.toData = (view: unknown) =>
+          originalToData(view)
+            .replace(ESCAPED_FOOTNOTE, '')
+            .replace(BARE_URL, (url) => url.replace(/\\/g, ''))
       }
     ]
   }
@@ -139,6 +182,8 @@ const basicMarkdownPreset: Preset = {
       'bold',
       'italic',
       'link',
+      'numberedList',
+      'bulletedList',
       '|',
       'undo',
       'redo'

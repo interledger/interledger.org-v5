@@ -212,8 +212,8 @@ export const ui = {
       'Open standards only stay open if the organization behind them has no reason to close them. The Interledger Protocol and Open Payments are stewarded by a foundation with no commercial stake in either, no fees, no investors, and no business model that benefits from closing what was built openly. The standards exist for public benefit, and the Interledger Foundation was founded and structured to keep them that way.',
     'home.independent_by_design.cta_label': 'Our tech governance',
     'home.independent_by_design.image_alt': 'Speaker at a community event',
-    'carousel.heading': 'In partnership with',
-    'carousel.partners_label': 'Partner logos',
+    'home.carousel.heading': 'In partnership with',
+    'home.carousel.partners_label': 'Partner logos',
     'home.stats.heading': 'Real-world Progress',
     'home.stats.body':
       'From early experiments to real-world systems, this is what progress looks like in practice.',
@@ -434,8 +434,8 @@ export const ui = {
       'Los estándares abiertos solo permanecen abiertos si la organización que los respalda no tiene razón para cerrarlos. El Protocolo Interledger y Open Payments son administrados por una fundación sin participación comercial en ninguno de ellos, sin tarifas, sin inversionistas y sin un modelo de negocio que se beneficie de cerrar lo que se construyó abiertamente. Los estándares existen para el beneficio público, y la Fundación Interledger fue fundada y estructurada para mantenerlos así.',
     'home.independent_by_design.cta_label': 'Nuestra gobernanza tecnológica',
     'home.independent_by_design.image_alt': 'Ponente en un evento comunitario',
-    'carousel.heading': 'En alianza con',
-    'carousel.partners_label': 'Logotipos de socios',
+    'home.carousel.heading': 'En alianza con',
+    'home.carousel.partners_label': 'Logotipos de socios',
     'home.stats.heading': 'Progreso en el mundo real',
     'home.stats.body':
       'De los primeros experimentos a los sistemas reales, así se ve el progreso en la práctica.',

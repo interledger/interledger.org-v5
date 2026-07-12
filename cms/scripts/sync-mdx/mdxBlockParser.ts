@@ -91,6 +91,10 @@ export interface ParserContext {
    * @param url - Internal path (e.g. '/uploads/file.pdf')
    */
   resolveMediaUpload?: (url: string) => Promise<number>
+  /**
+   * Update the alternativeText (alt text) on a Strapi upload file record.
+   */
+  updateMediaAlt?: (id: number, alt: string | null) => Promise<void>
 }
 
 // ---------------------------------------------------------------------------

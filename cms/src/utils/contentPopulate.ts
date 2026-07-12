@@ -59,12 +59,18 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
   primaryCta: true,
   faqSection: { populate: { items: true } },
   ctaStrip: true,
-  seo: { populate: '*' }
+  infoCards: { populate: { card1: true, card2: true, card3: true } },
+  content: {
+    on: {
+      'blocks.carousel': {
+        populate: { logos: true }
+      }
+    }
+  }
 } as const
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   hero: { populate: '*' },
-  ctaStrip: true,
-  seo: { populate: '*' }
+  ctaStrip: true
 } as const

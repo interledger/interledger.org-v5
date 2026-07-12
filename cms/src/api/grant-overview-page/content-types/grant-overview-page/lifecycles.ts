@@ -7,7 +7,6 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  seoFrontmatter,
   heroFrontmatter,
   validateHeroFields,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
@@ -44,9 +43,16 @@ function generateGrantOverviewPageMDX(
   // Fields owned by Strapi components must be explicitly deleted from
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
-  delete (restPreserved as Record<string, unknown>).metaDescription
   // Clear hero fields — removing the hero in Strapi must also clear them from MDX.
-  for (const key of ['heroTitle', 'heroDescription', 'heroImage', 'heroImageAlt', 'heroImageMobile', 'heroImageMobileAlt', 'heroCtas'])
+  for (const key of [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroImageAlt',
+    'heroImageMobile',
+    'heroImageMobileAlt',
+    'heroCtas'
+  ])
     delete (restPreserved as Record<string, unknown>)[key]
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
@@ -77,7 +83,6 @@ function generateGrantOverviewPageMDX(
           }
         }
       : {}),
-    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }

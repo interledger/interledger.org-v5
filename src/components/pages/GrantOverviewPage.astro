@@ -34,7 +34,6 @@ const {
   heroImageMobile,
   heroImageMobileAlt,
   heroCtas,
-  metaDescription,
   metaImage,
   canonicalUrl,
   ctaStrip
@@ -45,13 +44,16 @@ const t = useTranslations(contentLocale)
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', contentLocale) },
   { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
-  { name: heroTitle ?? title, href: localizeRoute(`grant/${slug}`, contentLocale) }
+  {
+    name: heroTitle ?? title,
+    href: localizeRoute(`grant/${slug}`, contentLocale)
+  }
 ]
 ---
 
 <FoundationPageLayout
   title={title}
-  description={metaDescription || description}
+  description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
