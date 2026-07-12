@@ -383,6 +383,14 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
     videoUrlItem.style.display = showVideo ? '' : 'none'
   }
 
+  const imageAltEl = document.querySelector<HTMLElement>(
+    `input[name="${prefix}.imageAlt"]`
+  )
+  const imageAltRow = findGridItem(imageAltEl)?.parentElement as
+    | HTMLElement
+    | undefined
+  if (imageAltRow) imageAltRow.style.display = showImage ? '' : 'none'
+
   updatePositionLabel(imagePositionItem, layoutType)
   updatePositionHint(imagePositionItem, layoutType)
 
@@ -424,7 +432,10 @@ function clearIrrelevantFields(
   const showText = layoutType.endsWith('-text')
   const showQuote = layoutType.endsWith('-quote')
 
-  if (!showImage) setFieldValue(`${prefix}.image`, null)
+  if (!showImage) {
+    setFieldValue(`${prefix}.image`, null)
+    setFieldValue(`${prefix}.imageAlt`, null)
+  }
   if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
   if (!showText) {
     setFieldValue(`${prefix}.content`, null)

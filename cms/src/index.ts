@@ -748,6 +748,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType: 'Layout Type',
       imagePosition: 'Image position',
       image: 'Image',
+      imageAlt: 'Image alt text',
       videoUrl: 'Video URL',
       content: 'Content',
       quote: 'Quote',
@@ -802,6 +803,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType:
         'Choose the media type (image or video) and content type (text or quote) for this block.',
       imagePosition: 'Controls which side the image appears on.',
+      imageAlt:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
       quote:
@@ -1116,6 +1119,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'image', size: 6 },
         { name: 'videoUrl', size: 6 }
       ],
+      [{ name: 'imageAlt', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },

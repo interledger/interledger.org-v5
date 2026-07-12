@@ -30,7 +30,7 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>',
+      '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo alt" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>',
       '',
       'Some **body** copy.',
       '',
@@ -45,6 +45,7 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'left',
         image: 42,
+        imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
         cta: {
           text: 'Apply',
@@ -111,7 +112,7 @@ describe('SplitLayout handler', () => {
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
     const blocks = await parseMdxToBlocks(
-      '<SplitLayout layoutType="image-text" imageSrc="/img/foo.jpg" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>',
+      '<SplitLayout layoutType="image-text" imageSrc="/img/foo.jpg" imageAlt="Scoped alt" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>',
       ctxWith({ '/img/foo.jpg': 11 })
     )
 
@@ -121,6 +122,7 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'right',
         image: 11,
+        imageAlt: 'Scoped alt',
         content: 'Body.'
       }
     ])

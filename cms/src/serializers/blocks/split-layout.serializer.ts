@@ -19,6 +19,7 @@ export function serialize(block: {
   layoutType?: SplitLayoutType | null
   imagePosition?: 'left' | 'right'
   image?: { url?: string; alternativeText?: string } | null
+  imageAlt?: string | null
   videoUrl?: string | null
   content?: string | null
   quote?: string | null
@@ -43,7 +44,7 @@ export function serialize(block: {
   const imageUrl = getImageUrl(block.image)
   if (isImageLayout && imageUrl) {
     attrs.push(`imageSrc="${esc(imageUrl)}"`)
-    const alt = block.image?.alternativeText ?? ''
+    const alt = block.imageAlt ?? block.image?.alternativeText ?? ''
     if (alt) attrs.push(`imageAlt="${esc(alt)}"`)
   }
 

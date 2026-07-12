@@ -1124,6 +1124,7 @@ describe('buildGrantPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           image: 42,
+          imageAlt: 'Foo',
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -1612,6 +1613,7 @@ describe('buildGrantOverviewPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           image: 42,
+          imageAlt: 'Foo',
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }

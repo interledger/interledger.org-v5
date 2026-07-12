@@ -42,6 +42,15 @@
         }
       }
     },
+    "imageAlt": {
+      "type": "string",
+      "description": "Alt text for the image. Leave blank if the image is decorative.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "videoUrl": {
       "type": "string",
       "description": "YouTube or Vimeo URL for the media column. Takes precedence over image when both are set.",

@@ -10,9 +10,8 @@
  *
  * Maps to Strapi blocks.split-layout.
  * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload.
- * imageAlt has no destination on blocks.split-layout — alt text lives on the
- * Strapi Upload record itself, not the component — so it is read (to keep
- * the MDX/Astro-facing prop contract) but not sent to Strapi.
+ * imageAlt maps to blocks.split-layout.imageAlt so alt text remains scoped to
+ * this component instead of mutating the shared Strapi upload record.
  */
 
 import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
@@ -59,6 +58,7 @@ async function handleSplitLayout(
     }
 
     const imageSrc = getStringAttr(node, 'imageSrc')
+    const imageAlt = getStringAttr(node, 'imageAlt')
     const videoUrl = getStringAttr(node, 'videoUrl')
     const quote = getStringAttr(node, 'quote')
     const quoteSource = getStringAttr(node, 'quoteSource')
@@ -104,6 +104,7 @@ async function handleSplitLayout(
     }
 
     if (isImageLayout && imageId) block.image = imageId
+    if (isImageLayout && imageAlt !== undefined) block.imageAlt = imageAlt
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
     if (isTextLayout && content) block.content = content
     if (isQuoteLayout && quote) block.quote = quote

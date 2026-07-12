@@ -5,6 +5,7 @@ describe('split-layout serializer', () => {
   it('serializes left image position so Strapi publishes update MDX', () => {
     const result = serialize({
       imagePosition: 'left',
+      imageAlt: 'Component scoped alt',
       image: {
         url: '/uploads/education_grant.jpg',
         alternativeText: 'Students collaborating'
@@ -13,6 +14,20 @@ describe('split-layout serializer', () => {
     })
 
     expect(result).toContain('imagePosition="left"')
+    expect(result).toContain('imageAlt="Component scoped alt"')
+    expect(result).not.toContain('Students collaborating')
+  })
+
+  it('falls back to media alternativeText when component imageAlt is absent', () => {
+    const result = serialize({
+      image: {
+        url: '/uploads/education_grant.jpg',
+        alternativeText: 'Media library alt'
+      },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('imageAlt="Media library alt"')
   })
 
   it('omits image position when it is the default right value', () => {
