@@ -83,8 +83,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
   },
   faqSection: { populate: { items: true } },
   ctaStrip: true,
-  infoCards: { populate: { card1: true, card2: true, card3: true } },
-  seo: { populate: '*' }
+  infoCards: { populate: { card1: true, card2: true, card3: true } }
 } as const
 
 /** Populate config for grant-overview-page top-level component fields. */
@@ -97,6 +96,5 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
       }
     }
   },
-  ctaStrip: true,
-  seo: { populate: '*' }
+  ctaStrip: true
 } as const

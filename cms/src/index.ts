@@ -540,16 +540,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content',
       ctaStrip: 'CTA Strip',
       infoCards: 'Information Cards',
-      faqSection: 'FAQ Section',
-      seo: 'SEO'
+      faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
       ctaStrip: 'CTA Strip',
-      followUpContent: 'Follow-up Content',
-      seo: 'SEO'
+      followUpContent: 'Follow-up Content'
     }
   }
 

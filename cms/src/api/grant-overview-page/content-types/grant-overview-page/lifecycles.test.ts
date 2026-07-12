@@ -23,8 +23,7 @@ describe('generateGrantOverviewPageMDX', () => {
       {
         heroTitle: 'Preserved Hero',
         heroDescription: 'This is not managed by Strapi for grant overviews.',
-        heroImage: '/img/hero.jpg',
-        metaDescription: 'Old SEO text'
+        heroImage: '/img/hero.jpg'
       }
     )
 
@@ -35,6 +34,5 @@ describe('generateGrantOverviewPageMDX', () => {
       'This is not managed by Strapi for grant overviews.'
     )
     expect(parsed.data.heroImage).toBe('/img/hero.jpg')
-    expect(parsed.data).not.toHaveProperty('metaDescription')
   })
 })
