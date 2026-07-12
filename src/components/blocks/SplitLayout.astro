@@ -3,6 +3,7 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
+import Blockquote from '@/components/shared/Blockquote.astro'
 import { parseMarkdown } from '@/utils'
 
 interface Props {
@@ -78,16 +79,7 @@ const contentHtml = content ? await parseMarkdown(content) : null
   <div class="w-full flex flex-col gap-space-m">
     {
       isQuoteLayout && quote ? (
-        <blockquote class="border-l-4 border-primary pl-space-m">
-          <p class="text-h4 tablet:text-h4-md font-normal text-neutral-900 italic">
-            {quote}
-          </p>
-          {quoteSource && (
-            <footer class="mt-space-s text-body-lg-standard text-neutral-500">
-              — {quoteSource}
-            </footer>
-          )}
-        </blockquote>
+        <Blockquote quote={quote} source={quoteSource} />
       ) : (
         <>
           {contentHtml && (
