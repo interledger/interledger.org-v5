@@ -444,7 +444,10 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
-  const setFieldValue = useForm('SplitLayoutTypePicker', (form) => form.onChange)
+  const setFieldValue = useForm(
+    'SplitLayoutTypePicker',
+    (form) => form.onChange
+  )
 
   const handleSelect = (newValue: LayoutType) => {
     onChange({ target: { name, value: newValue, type: 'text' } })
