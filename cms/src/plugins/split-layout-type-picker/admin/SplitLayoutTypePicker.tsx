@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
-import {
-  LAYOUT_TYPE_LABELS,
-  type LayoutType
-} from './layoutTypeLabels'
+import { LAYOUT_TYPE_LABELS, type LayoutType } from './layoutTypeLabels'
 
 interface InputProps {
   name: string

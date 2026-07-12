@@ -274,7 +274,9 @@ export default {
         if (!trimmed) return
         const parent = node.parentElement
         if (!parent) return
-        if (parent.closest('button[aria-pressed], input, textarea, pre, code')) {
+        if (
+          parent.closest('button[aria-pressed], input, textarea, pre, code')
+        ) {
           return
         }
 
