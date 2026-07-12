@@ -7,7 +7,7 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 interface HeroCta {
   text: string
   link: string
-  style?: string
+  style?: 'primary' | 'secondary'
   external?: boolean
 }
 
@@ -96,8 +96,8 @@ const {
             class="parallax-img block tablet:hidden w-full h-full object-cover"
           />
           <OptimizedImage
-            src={image}
-            alt={imageAlt ?? ''}
+            src={image ?? imageMobile!}
+            alt={imageAlt ?? imageMobileAlt ?? ''}
             width={1440}
             height={640}
             loading="eager"
