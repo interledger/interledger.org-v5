@@ -246,7 +246,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
-  heroCtas: z.array(heroCtaSchema).optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
