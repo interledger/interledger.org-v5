@@ -5,6 +5,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   GRANT_PAGE_CONTENT_POPULATE,
+  seoFrontmatter,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateGrantPageFaqSection
@@ -56,11 +57,11 @@ interface FaqSection {
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   primaryCta?: CtaLink | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   infoCards?: InfoCards | null
-  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -75,6 +76,7 @@ function generateGrantPageMDX(
   // Fields owned by Strapi components must be explicitly deleted from
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
+  delete (restPreserved as Record<string, unknown>).metaDescription
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
@@ -159,11 +161,17 @@ function generateGrantPageMDX(
           }
         }
       : {}),
+    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
-  const body = serializeContent(grantPage.content)
+  const parts: string[] = []
+  if (grantPage.programOverview?.trim())
+    parts.push(grantPage.programOverview.trim())
+  const blocks = serializeContent(grantPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

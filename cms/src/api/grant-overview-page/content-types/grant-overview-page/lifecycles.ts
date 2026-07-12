@@ -7,8 +7,10 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
+  seoFrontmatter,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 declare const strapi: Core.Strapi
 
@@ -24,11 +26,12 @@ interface CtaStrip {
 
 interface GrantOverviewPageData extends PageData {
   description?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   followUpContent?: string
   ctaStrip?: CtaStrip | null
 }
 
-function generateGrantOverviewPageMDX(
+export function generateGrantOverviewPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
@@ -37,7 +40,10 @@ function generateGrantOverviewPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-
+  // Fields owned by Strapi components must be explicitly deleted from
+  // restPreserved so that removing them in Strapi clears them from the MDX
+  // rather than leaving the old value behind.
+  delete (restPreserved as Record<string, unknown>).metaDescription
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -65,11 +71,17 @@ function generateGrantOverviewPageMDX(
           }
         }
       : {}),
+    ...seoFrontmatter(page.seo as { metaDescription?: string } | undefined),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
-  const body = overviewPage.followUpContent ?? ''
+  const parts: string[] = []
+  if (overviewPage.followUpContent?.trim())
+    parts.push(overviewPage.followUpContent.trim())
+  const blocks = serializeContent(overviewPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

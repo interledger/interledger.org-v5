@@ -722,6 +722,24 @@ export interface ApiGrantOverviewPageGrantOverviewPage
     }
   }
   attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.split-layout',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.cta-strip',
+        'blocks.cta-banner',
+        'blocks.carousel'
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -765,6 +783,12 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         }
       }>
     publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -795,7 +819,19 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.carousel']> &
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.split-layout',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.cta-strip',
+        'blocks.cta-banner',
+        'blocks.carousel'
+      ]
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -862,6 +898,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         }
       }>
     publishedAt: Schema.Attribute.DateTime
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
