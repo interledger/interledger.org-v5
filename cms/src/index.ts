@@ -1118,7 +1118,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [
         { name: 'imagePosition', size: 4 },
         { name: 'image', size: 8 },
-        { name: 'videoUrl', size: 6 }
+        { name: 'videoUrl', size: 8 }
       ],
       [{ name: 'content', size: 12 }],
       [
