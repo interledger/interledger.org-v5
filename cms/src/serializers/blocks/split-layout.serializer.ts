@@ -74,7 +74,7 @@ export function serialize(block: {
   }
 
   const cta = block.cta
-  if (cta?.text && cta?.link) {
+  if (isTextLayout && cta?.text && cta?.link) {
     attrs.push(`ctaText="${esc(cta.text)}"`)
     attrs.push(`ctaLink="${esc(cta.link)}"`)
     if (cta.style && cta.style !== 'primary') {

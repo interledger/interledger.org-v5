@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { useForm } from '@strapi/admin/strapi-admin'
 import styled from 'styled-components'
 
 type LayoutType = 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
@@ -370,29 +369,6 @@ function normalizeText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
 }
 
-function findFieldScope(root: HTMLElement | null, prefix: string): ParentNode {
-  if (!root) return document
-
-  const knownFieldSelectors = [
-    `${prefix}.imagePosition`,
-    `${prefix}.imageAlt`,
-    `${prefix}.videoUrl`,
-    `${prefix}.quote`,
-    `${prefix}.quoteSource`
-  ]
-    .map(selectorsForPath)
-    .join(',')
-
-  let node: HTMLElement | null = root
-  for (let level = 0; level < 12; level++) {
-    if (node.querySelector(knownFieldSelectors)) return node
-    node = node.parentElement
-    if (!node) break
-  }
-
-  return document
-}
-
 function findFieldAnchor(path: string, scope: ParentNode): HTMLElement | null {
   const direct = scope.querySelector<HTMLElement>(selectorsForPath(path))
   if (direct) return direct
@@ -481,35 +457,6 @@ function applyFieldVisibility(
   )
 }
 
-// The picker only hides fields for the non-selected variant — it never clears
-// their values. Without this, switching layoutType leaves stale data behind
-// that still gets serialized (e.g. an old quote surviving a switch to Image +
-// Text). Mirrors the same show/hide rules as applyFieldVisibility.
-function clearIrrelevantFields(
-  prefix: string,
-  layoutType: LayoutType,
-  setFieldValue: (path: string, value: unknown) => void
-) {
-  const showImage = layoutType.startsWith('image')
-  const showVideo = layoutType.startsWith('video')
-  const showText = layoutType.endsWith('-text')
-  const showQuote = layoutType.endsWith('-quote')
-
-  if (!showImage) {
-    setFieldValue(`${prefix}.image`, null)
-    setFieldValue(`${prefix}.imageAlt`, null)
-  }
-  if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
-  if (!showText) {
-    setFieldValue(`${prefix}.content`, null)
-    setFieldValue(`${prefix}.cta`, null)
-  }
-  if (!showQuote) {
-    setFieldValue(`${prefix}.quote`, null)
-    setFieldValue(`${prefix}.quoteSource`, null)
-  }
-}
-
 export default function SplitLayoutTypePicker({
   name,
   onChange,
@@ -518,17 +465,12 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
-  const rootRef = useRef<HTMLDivElement>(null)
   const latestLayoutTypeRef = useRef(value)
   const visibilityFrameRef = useRef<number | null>(null)
   const labelId = idFromName(name, 'label')
   const hintId = idFromName(name, 'hint')
   const errorId = idFromName(name, 'error')
   const describedBy = error ? errorId : hint ? hintId : undefined
-  const setFieldValue = useForm(
-    'SplitLayoutTypePicker',
-    (form) => form.onChange
-  )
 
   const scheduleFieldVisibility = (layoutType: string) => {
     latestLayoutTypeRef.current = layoutType
@@ -541,14 +483,13 @@ export default function SplitLayoutTypePicker({
       applyFieldVisibility(
         prefix,
         latestLayoutTypeRef.current ?? layoutType,
-        findFieldScope(rootRef.current, prefix)
+        document
       )
     })
   }
 
   const handleSelect = (newValue: LayoutType) => {
     onChange({ target: { name, value: newValue, type: 'string' } })
-    clearIrrelevantFields(prefix, newValue, setFieldValue)
     scheduleFieldVisibility(newValue)
   }
 
@@ -604,7 +545,7 @@ export default function SplitLayoutTypePicker({
   }, [value, prefix])
 
   return (
-    <PickerRoot ref={rootRef}>
+    <PickerRoot>
       <PickerLabel id={labelId}>Layout type</PickerLabel>
       <PickerGrid
         role="radiogroup"

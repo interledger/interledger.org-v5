@@ -70,6 +70,31 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('Stale text body.')
   })
 
+  it('ignores a stale CTA left over from a text layout when switched to quote', () => {
+    const result = serialize({
+      layoutType: 'image-quote',
+      image: { url: '/uploads/education_grant.jpg' },
+      quote: 'Quoted body.',
+      cta: { text: 'Stale CTA', link: 'https://example.com' }
+    })
+
+    expect(result).toContain('quote="Quoted body."')
+    expect(result).not.toContain('ctaText=')
+    expect(result).not.toContain('ctaLink=')
+  })
+
+  it('serializes CTA for text layouts', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      image: { url: '/uploads/education_grant.jpg' },
+      content: 'Text body.',
+      cta: { text: 'Apply now', link: 'https://example.com' }
+    })
+
+    expect(result).toContain('ctaText="Apply now"')
+    expect(result).toContain('ctaLink="https://example.com"')
+  })
+
   it('rejects unsupported layoutType values', () => {
     expect(() =>
       serialize({
