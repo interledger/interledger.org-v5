@@ -34,6 +34,18 @@ async function handleSplitLayout(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
+    const layoutTypeAttr = getStringAttr(node, 'layoutType')
+    if (layoutTypeAttr !== undefined && !isSplitLayoutType(layoutTypeAttr)) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `SplitLayout "layoutType" must be "image-text", "image-quote", "video-text", or "video-quote". Received "${layoutTypeAttr}".`,
+        component: 'SplitLayout',
+        prop: 'layoutType',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
+
     const imagePosition = getStringAttr(node, 'imagePosition') ?? 'right'
     if (imagePosition !== 'left' && imagePosition !== 'right') {
       throw new MdxParserError({
@@ -72,15 +84,18 @@ async function handleSplitLayout(
       imageId = await ctx.resolveMediaUpload(imageSrc)
     }
 
-    const isVideo = Boolean(videoUrl)
-    const isQuote = Boolean(quote)
-    const layoutType: SplitLayoutBlock['layoutType'] = isVideo
-      ? isQuote
+    const inferredLayoutType: SplitLayoutBlock['layoutType'] = videoUrl
+      ? quote
         ? 'video-quote'
         : 'video-text'
-      : isQuote
+      : quote
         ? 'image-quote'
         : 'image-text'
+    const layoutType = layoutTypeAttr ?? inferredLayoutType
+    const isImageLayout = layoutType.startsWith('image')
+    const isVideoLayout = layoutType.startsWith('video')
+    const isTextLayout = layoutType.endsWith('-text')
+    const isQuoteLayout = layoutType.endsWith('-quote')
 
     const block: SplitLayoutBlock = {
       __component: 'blocks.split-layout',
@@ -88,11 +103,11 @@ async function handleSplitLayout(
       imagePosition: imagePosition as 'left' | 'right'
     }
 
-    if (imageId) block.image = imageId
-    if (videoUrl) block.videoUrl = videoUrl
-    if (content) block.content = content
-    if (quote) block.quote = quote
-    if (quoteSource) block.quoteSource = quoteSource
+    if (isImageLayout && imageId) block.image = imageId
+    if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
+    if (isTextLayout && content) block.content = content
+    if (isQuoteLayout && quote) block.quote = quote
+    if (isQuoteLayout && quoteSource) block.quoteSource = quoteSource
 
     if (ctaText && ctaLink) {
       block.cta = {
@@ -108,3 +123,14 @@ async function handleSplitLayout(
 }
 
 registerComponentHandler('SplitLayout', handleSplitLayout)
+
+function isSplitLayoutType(
+  value: string
+): value is SplitLayoutBlock['layoutType'] {
+  return (
+    value === 'image-text' ||
+    value === 'image-quote' ||
+    value === 'video-text' ||
+    value === 'video-quote'
+  )
+}

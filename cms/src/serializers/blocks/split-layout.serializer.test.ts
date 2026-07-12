@@ -24,4 +24,34 @@ describe('split-layout serializer', () => {
 
     expect(result).not.toContain('imagePosition=')
   })
+
+  it('uses layoutType to ignore stale quote fields for image-text layouts', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      image: { url: '/uploads/education_grant.jpg' },
+      content: 'Text body.',
+      quote: 'Stale quote from a previous layout.',
+      quoteSource: 'Stale source'
+    })
+
+    expect(result).toContain('Text body.')
+    expect(result).not.toContain('quote=')
+    expect(result).not.toContain('quoteSource=')
+    expect(result).not.toContain('Stale quote')
+  })
+
+  it('uses layoutType to serialize quote fields for image-quote layouts', () => {
+    const result = serialize({
+      layoutType: 'image-quote',
+      image: { url: '/uploads/education_grant.jpg' },
+      content: 'Stale text body.',
+      quote: 'Quoted body.',
+      quoteSource: 'Interledger'
+    })
+
+    expect(result).toContain('layoutType="image-quote"')
+    expect(result).toContain('quote="Quoted body."')
+    expect(result).toContain('quoteSource="Interledger"')
+    expect(result).not.toContain('Stale text body.')
+  })
 })

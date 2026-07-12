@@ -108,6 +108,23 @@ describe('SplitLayout handler', () => {
       }
     })
   })
+
+  it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<SplitLayout layoutType="image-text" imageSrc="/img/foo.jpg" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>',
+      ctxWith({ '/img/foo.jpg': 11 })
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.split-layout',
+        layoutType: 'image-text',
+        imagePosition: 'right',
+        image: 11,
+        content: 'Body.'
+      }
+    ])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -126,6 +143,20 @@ describe('SplitLayout handler — errors', () => {
       code: ParserErrorCode.INVALID_PROP_VALUE,
       component: 'SplitLayout',
       prop: 'imagePosition'
+    })
+  })
+
+  it('returns INVALID_PROP_VALUE for unsupported layoutType', async () => {
+    const result = await parseMdxToBlocks(
+      '<SplitLayout layoutType="image-grid">Body.</SplitLayout>',
+      { locale: 'en' }
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'SplitLayout',
+      prop: 'layoutType'
     })
   })
 
