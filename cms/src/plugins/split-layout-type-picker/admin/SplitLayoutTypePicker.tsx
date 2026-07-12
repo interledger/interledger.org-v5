@@ -41,9 +41,13 @@ function normalizeFieldText(value: string): string {
  * so it's identified by its exact label text instead. Exact match matters:
  * "Image position" and "Image alt text" both start with "Image".
  */
+function isImageLabel(el: HTMLElement): boolean {
+  return normalizeFieldText(el.textContent ?? '') === 'Image'
+}
+
 function hasImageLabel(root: ParentNode): boolean {
-  return Array.from(root.querySelectorAll('label')).some(
-    (el) => normalizeFieldText(el.textContent ?? '') === 'Image'
+  return Array.from(root.querySelectorAll<HTMLElement>('label')).some(
+    isImageLabel
   )
 }
 
@@ -58,7 +62,7 @@ function findFieldAnchor(prefix: string, key: FieldKey): HTMLElement | null {
   if (key === 'image') {
     return (
       Array.from(document.querySelectorAll<HTMLElement>('label')).find(
-        (el) => normalizeFieldText(el.textContent ?? '') === 'Image'
+        isImageLabel
       ) ?? null
     )
   }
@@ -170,35 +174,34 @@ function updatePositionHint(
   }
 }
 
+function layoutVisibility(layoutType: string) {
+  return {
+    showImage: layoutType.startsWith('image'),
+    showVideo: layoutType.startsWith('video'),
+    showText: layoutType.endsWith('-text'),
+    showQuote: layoutType.endsWith('-quote')
+  }
+}
+
+function setFieldVisibility(prefix: string, key: FieldKey, visible: boolean) {
+  const item = findFieldContainer(prefix, key)
+  if (item) item.style.display = visible ? '' : 'none'
+}
+
 function applyFieldVisibility(prefix: string, layoutType: string) {
-  const showImage = layoutType.startsWith('image')
-  const showVideo = layoutType.startsWith('video')
-  const showText = layoutType.endsWith('-text')
-  const showQuote = layoutType.endsWith('-quote')
+  const { showImage, showVideo, showText, showQuote } =
+    layoutVisibility(layoutType)
 
   const imagePositionItem = findFieldContainer(prefix, 'imagePosition')
   updatePositionLabel(imagePositionItem, layoutType)
   updatePositionHint(imagePositionItem, layoutType)
 
-  const imageItem = findFieldContainer(prefix, 'image')
-  if (imageItem) {
-    imageItem.style.display = showImage ? '' : 'none'
-  }
-
-  const imageAltItem = findFieldContainer(prefix, 'imageAlt')
-  if (imageAltItem) imageAltItem.style.display = showImage ? '' : 'none'
-
-  const videoUrlItem = findFieldContainer(prefix, 'videoUrl')
-  if (videoUrlItem) videoUrlItem.style.display = showVideo ? '' : 'none'
-
-  const quoteItem = findFieldContainer(prefix, 'quote')
-  if (quoteItem) quoteItem.style.display = showQuote ? '' : 'none'
-
-  const quoteSourceItem = findFieldContainer(prefix, 'quoteSource')
-  if (quoteSourceItem) quoteSourceItem.style.display = showQuote ? '' : 'none'
-
-  const ctaItem = findFieldContainer(prefix, 'cta')
-  if (ctaItem) ctaItem.style.display = showText ? '' : 'none'
+  setFieldVisibility(prefix, 'image', showImage)
+  setFieldVisibility(prefix, 'imageAlt', showImage)
+  setFieldVisibility(prefix, 'videoUrl', showVideo)
+  setFieldVisibility(prefix, 'quote', showQuote)
+  setFieldVisibility(prefix, 'quoteSource', showQuote)
+  setFieldVisibility(prefix, 'cta', showText)
 
   // content is only rendered by SplitLayout.astro in the non-quote branch.
   // CKEditor's field has no [name] attribute, but the plugin renders its
@@ -221,10 +224,8 @@ function clearIrrelevantFields(
   layoutType: LayoutType,
   setFieldValue: (path: string, value: unknown) => void
 ) {
-  const showImage = layoutType.startsWith('image')
-  const showVideo = layoutType.startsWith('video')
-  const showText = layoutType.endsWith('-text')
-  const showQuote = layoutType.endsWith('-quote')
+  const { showImage, showVideo, showText, showQuote } =
+    layoutVisibility(layoutType)
 
   if (!showImage) {
     setFieldValue(`${prefix}.image`, null)
