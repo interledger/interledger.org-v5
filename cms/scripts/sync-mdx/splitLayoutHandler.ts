@@ -110,7 +110,7 @@ async function handleSplitLayout(
     if (isQuoteLayout && quote) block.quote = quote
     if (isQuoteLayout && quoteSource) block.quoteSource = quoteSource
 
-    if (ctaText && ctaLink) {
+    if (isTextLayout && ctaText && ctaLink) {
       block.cta = {
         text: ctaText,
         link: ctaLink,
