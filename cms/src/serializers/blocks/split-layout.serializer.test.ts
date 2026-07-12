@@ -69,4 +69,16 @@ describe('split-layout serializer', () => {
     expect(result).toContain('quoteSource="Interledger"')
     expect(result).not.toContain('Stale text body.')
   })
+
+  it('rejects unsupported layoutType values', () => {
+    expect(() =>
+      serialize({
+        layoutType: 'image-grid',
+        image: { url: '/uploads/education_grant.jpg' },
+        content: 'Text body.'
+      })
+    ).toThrow(
+      'Split layout type must be one of image-text, image-quote, video-text, video-quote. Received "image-grid".'
+    )
+  })
 })

@@ -472,7 +472,7 @@ export default function SplitLayoutTypePicker({
   }
 
   const handleSelect = (newValue: LayoutType) => {
-    onChange({ target: { name, value: newValue, type: 'text' } })
+    onChange({ target: { name, value: newValue, type: 'string' } })
     clearIrrelevantFields(prefix, newValue, setFieldValue)
     scheduleFieldVisibility(newValue)
   }

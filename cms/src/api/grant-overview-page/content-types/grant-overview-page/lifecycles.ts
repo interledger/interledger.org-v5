@@ -8,7 +8,8 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   seoFrontmatter,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  validateContentBlocks
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -122,7 +123,9 @@ const lifecycle = createPageLifecycle({
   populate: GRANT_OVERVIEW_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantOverviewPageMDX
+  generateMDX: generateGrantOverviewPageMDX,
+  validate: (page) =>
+    validateContentBlocks((page as GrantOverviewPageData).content ?? undefined)
 })
 
 export default {

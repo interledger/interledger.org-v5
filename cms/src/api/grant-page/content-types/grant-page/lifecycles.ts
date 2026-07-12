@@ -8,7 +8,8 @@ import {
   seoFrontmatter,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
-  validateGrantPageFaqSection
+  validateGrantPageFaqSection,
+  validateContentBlocks
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -190,5 +191,8 @@ export default createPageLifecycle({
   validate: (page) =>
     validateGrantPagePrimaryCta(page) ??
     validateGrantInfoCards(page) ??
-    validateGrantPageFaqSection(page)
+    validateGrantPageFaqSection(page) ??
+    validateContentBlocks(
+      (page as { content?: Array<{ __component: string }> }).content
+    )
 })

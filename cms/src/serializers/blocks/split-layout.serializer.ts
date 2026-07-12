@@ -15,8 +15,15 @@ type SplitLayoutType =
   | 'video-text'
   | 'video-quote'
 
+const SPLIT_LAYOUT_TYPES = [
+  'image-text',
+  'image-quote',
+  'video-text',
+  'video-quote'
+] as const
+
 export function serialize(block: {
-  layoutType?: SplitLayoutType | null
+  layoutType?: string | null
   imagePosition?: 'left' | 'right'
   image?: { url?: string; alternativeText?: string } | null
   imageAlt?: string | null
@@ -28,6 +35,12 @@ export function serialize(block: {
 }): string {
   const attrs: string[] = []
   const layoutType = block.layoutType ?? inferLayoutType(block)
+  if (!isSplitLayoutType(layoutType)) {
+    throw new Error(
+      `Split layout type must be one of ${SPLIT_LAYOUT_TYPES.join(', ')}. Received "${layoutType}".`
+    )
+  }
+
   const isImageLayout = layoutType.startsWith('image')
   const isVideoLayout = layoutType.startsWith('video')
   const isTextLayout = layoutType.endsWith('-text')
@@ -89,4 +102,8 @@ function inferLayoutType(block: {
 }): SplitLayoutType {
   if (block.videoUrl) return block.quote ? 'video-quote' : 'video-text'
   return block.quote ? 'image-quote' : 'image-text'
+}
+
+function isSplitLayoutType(value: string): value is SplitLayoutType {
+  return SPLIT_LAYOUT_TYPES.includes(value as SplitLayoutType)
 }
