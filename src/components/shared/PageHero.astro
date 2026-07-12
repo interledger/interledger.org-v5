@@ -44,52 +44,72 @@ const {
 <!-- White content section -->
 <div class="bg-white px-space-m py-space-xl">
   <div class="mx-auto max-w-wide">
-    {breadcrumbs && breadcrumbs.length > 0 && (
-      <div class="mb-space-m">
-        <Breadcrumbs breadcrumbs={breadcrumbs} />
-      </div>
-    )}
+    {
+      breadcrumbs && breadcrumbs.length > 0 && (
+        <div class="mb-space-m">
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </div>
+      )
+    }
 
-    <h1 class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold leading-[1.2] mb-space-m max-w-[14em]">
+    <h1
+      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold leading-[1.2] mb-space-m max-w-[14em]"
+    >
       {title}
     </h1>
 
-    {description && (
-      <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-space-m">
-        {description}
-      </p>
-    )}
-    {cta && (
-      <LinkButton
-        href={cta.link}
-        variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-        external={cta.external}
-      >
-        {cta.text}
-        {cta.external && <Icon name="arrow-right" slot="icon-right" />}
-      </LinkButton>
-    )}
+    {
+      description && (
+        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-space-m">
+          {description}
+        </p>
+      )
+    }
+    {
+      cta && (
+        <LinkButton
+          href={cta.link}
+          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+          external={cta.external}
+        >
+          {cta.text}
+          {cta.external && <Icon name="arrow-right" slot="icon-right" />}
+        </LinkButton>
+      )
+    }
   </div>
 </div>
 
 <!-- Full-width parallax image strip -->
-{image && (
-  <div class="relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
-    <div
-      class="parallax-img absolute inset-0 will-change-transform scale-110"
-      aria-hidden="true"
-    >
-      {imageMobile ? (
-        <>
-          <OptimizedImage
-            src={imageMobile}
-            alt={imageMobileAlt ?? ''}
-            width={768}
-            height={480}
-            loading="eager"
-            fetchpriority="high"
-            class="block tablet:hidden w-full h-full object-cover"
-          />
+{
+  image && (
+    <div class="relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
+      <div
+        class="parallax-img absolute inset-0 will-change-transform scale-110"
+        aria-hidden="true"
+      >
+        {imageMobile ? (
+          <>
+            <OptimizedImage
+              src={imageMobile}
+              alt={imageMobileAlt ?? ''}
+              width={768}
+              height={480}
+              loading="eager"
+              fetchpriority="high"
+              class="block tablet:hidden w-full h-full object-cover"
+            />
+            <OptimizedImage
+              src={image}
+              alt={imageAlt ?? ''}
+              width={1440}
+              height={640}
+              loading="eager"
+              fetchpriority="high"
+              class="hidden tablet:block w-full h-full object-cover"
+            />
+          </>
+        ) : (
           <OptimizedImage
             src={image}
             alt={imageAlt ?? ''}
@@ -97,23 +117,13 @@ const {
             height={640}
             loading="eager"
             fetchpriority="high"
-            class="hidden tablet:block w-full h-full object-cover"
+            class="w-full h-full object-cover"
           />
-        </>
-      ) : (
-        <OptimizedImage
-          src={image}
-          alt={imageAlt ?? ''}
-          width={1440}
-          height={640}
-          loading="eager"
-          fetchpriority="high"
-          class="w-full h-full object-cover"
-        />
-      )}
+        )}
+      </div>
     </div>
-  </div>
-)}
+  )
+}
 
 <script>
   const prefersReducedMotion = window.matchMedia(
@@ -131,19 +141,24 @@ const {
         // Only animate when the image strip is visible
         if (rect.bottom < 0 || rect.top > window.innerHeight) return
         // Shift image opposite to scroll at 30% speed
-        const progress = (window.scrollY - container.offsetTop) / window.innerHeight
+        const progress =
+          (window.scrollY - container.offsetTop) / window.innerHeight
         img.style.transform = `translateY(${progress * -15}%)`
       }
 
-      window.addEventListener('scroll', () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            update()
-            ticking = false
-          })
-          ticking = true
-        }
-      }, { passive: true })
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              update()
+              ticking = false
+            })
+            ticking = true
+          }
+        },
+        { passive: true }
+      )
 
       update()
     }

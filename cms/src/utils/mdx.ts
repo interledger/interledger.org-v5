@@ -213,12 +213,14 @@ export function heroFrontmatter(
   if (cta) {
     if (!cta.text) throw new Error('Hero CTA is missing required text')
     if (!cta.link) throw new Error('Hero CTA is missing required link')
-    data.heroCtas = [{
-      text: cta.text!,
-      link: cta.link!,
-      ...(cta.style && cta.style !== 'primary' ? { style: cta.style } : {}),
-      ...(cta.external ? { external: true } : {})
-    }]
+    data.heroCtas = [
+      {
+        text: cta.text!,
+        link: cta.link!,
+        ...(cta.style && cta.style !== 'primary' ? { style: cta.style } : {}),
+        ...(cta.external ? { external: true } : {})
+      }
+    ]
   }
   return data
 }
