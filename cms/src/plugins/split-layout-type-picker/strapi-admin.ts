@@ -8,7 +8,7 @@ export default {
       type: 'string',
       intlLabel: {
         id: 'split-layout-type-picker.layout-type.label',
-        defaultMessage: 'Layout Type'
+        defaultMessage: 'Layout'
       },
       intlDescription: {
         id: 'split-layout-type-picker.layout-type.description',

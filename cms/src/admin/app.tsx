@@ -5,6 +5,10 @@ import {
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
 import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
 import type { Editor } from 'ckeditor5'
+import {
+  getLayoutTypeLabel,
+  isLayoutTypeSlug
+} from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 
 // Minimal clipboard callback types for the Google Docs paste cleanup plugin.
 interface CKEditorDataTransfer {
@@ -191,6 +195,23 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
+      /* TEMP UI Fix: split layout — taller image media picker */
+      [data-split-layout-image-field="true"] {
+        align-self: stretch;
+      }
+      [data-split-layout-image-field="true"] :is(div, section):has(> [aria-label="Image"]) {
+        min-height: 220px !important;
+        flex: 1;
+      }
+      [data-split-layout-image-field="true"] [aria-label="Image"] {
+        min-height: 220px !important;
+        width: 100% !important;
+      }
+      [data-split-layout-image-field="true"] img {
+        max-height: 200px !important;
+        width: 100% !important;
+        object-fit: contain !important;
+      }
     `
     document.head.appendChild(style)
 
@@ -208,6 +229,24 @@ export default {
           }
           node = node.parentElement
         }
+      }
+    }
+
+    function applySplitLayoutTypeLabels() {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT
+      )
+      let node: Text | null
+      while ((node = walker.nextNode() as Text | null)) {
+        const slug = node.textContent?.trim() ?? ''
+        if (!isLayoutTypeSlug(slug)) continue
+        const parent = node.parentElement
+        if (!parent) continue
+        if (parent.closest('button[aria-pressed], input, textarea, pre, code')) {
+          continue
+        }
+        node.textContent = getLayoutTypeLabel(slug)
       }
     }
 
@@ -303,6 +342,7 @@ export default {
       }
 
       applyImageBlockSeparators()
+      applySplitLayoutTypeLabels()
 
       // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')

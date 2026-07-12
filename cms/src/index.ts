@@ -745,7 +745,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Title (optional)'
     },
     'blocks.split-layout': {
-      layoutType: 'Layout Type',
+      layoutType: 'Layout',
       imagePosition: 'Image position',
       image: 'Image',
       imageAlt: 'Image alt text',
@@ -801,7 +801,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.split-layout': {
       layoutType:
-        'Choose the media type (image or video) and content type (text or quote) for this block.',
+        'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
       imageAlt:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
@@ -1115,9 +1115,9 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.split-layout': [
       [{ name: 'layoutType', size: 12 }],
       [
-        { name: 'imagePosition', size: 6 },
-        { name: 'image', size: 6 },
-        { name: 'videoUrl', size: 6 }
+        { name: 'imagePosition', size: 3 },
+        { name: 'image', size: 9 },
+        { name: 'videoUrl', size: 9 }
       ],
       [{ name: 'imageAlt', size: 12 }],
       [{ name: 'content', size: 12 }],

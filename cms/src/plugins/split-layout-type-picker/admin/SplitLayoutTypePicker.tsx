@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react'
-import styled from 'styled-components'
-
-type LayoutType = 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
+import React, { useEffect } from 'react'
+import { useForm } from '@strapi/admin/strapi-admin'
+import {
+  LAYOUT_TYPE_LABELS,
+  type LayoutType
+} from './layoutTypeLabels'
 
 interface InputProps {
   name: string
@@ -16,7 +18,7 @@ interface InputProps {
 const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   {
     value: 'image-text',
-    label: 'Image + Text',
+    label: LAYOUT_TYPE_LABELS['image-text'],
     icon: (
       <svg
         viewBox="0 0 56 36"
@@ -94,7 +96,7 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   },
   {
     value: 'image-quote',
-    label: 'Image + Quote',
+    label: LAYOUT_TYPE_LABELS['image-quote'],
     icon: (
       <svg
         viewBox="0 0 56 36"
@@ -159,7 +161,7 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   },
   {
     value: 'video-text',
-    label: 'Video + Text',
+    label: LAYOUT_TYPE_LABELS['video-text'],
     icon: (
       <svg
         viewBox="0 0 56 36"
@@ -222,7 +224,7 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   },
   {
     value: 'video-quote',
-    label: 'Video + Quote',
+    label: LAYOUT_TYPE_LABELS['video-quote'],
     icon: (
       <svg
         viewBox="0 0 56 36"
@@ -272,189 +274,237 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   }
 ]
 
-const PickerRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
+type FieldKey =
+  | 'imagePosition'
+  | 'image'
+  | 'imageAlt'
+  | 'videoUrl'
+  | 'quote'
+  | 'quoteSource'
+  | 'cta'
 
-const PickerLabel = styled.span`
-  color: ${({ theme }) => theme.colors.neutral800};
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.33;
-`
+const FIELD_KEYS: FieldKey[] = [
+  'imagePosition',
+  'image',
+  'imageAlt',
+  'videoUrl',
+  'quote',
+  'quoteSource',
+  'cta'
+]
 
-const PickerGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-`
-
-const PickerOption = styled.button<{ $selected: boolean }>`
-  align-items: center;
-  background: ${({ $selected, theme }) =>
-    $selected ? theme.colors.primary100 : theme.colors.neutral0};
-  border: 2px solid
-    ${({ $selected, theme }) =>
-      $selected ? theme.colors.primary600 : theme.colors.neutral200};
-  border-radius: 6px;
-  color: ${({ $selected, theme }) =>
-    $selected ? theme.colors.primary600 : theme.colors.neutral800};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
-  gap: 8px;
-  line-height: 1.3;
-  padding: 14px 10px;
-  text-align: center;
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.primary600};
-    outline-offset: 2px;
-  }
-`
-
-const FieldMessage = styled.p<{ $error?: boolean }>`
-  color: ${({ $error, theme }) =>
-    $error ? theme.colors.danger600 : theme.colors.neutral600};
-  font-size: 12px;
-  margin: 0;
-`
-
-function idFromName(name: string, suffix: string): string {
-  return `${name.replace(/[^A-Za-z0-9_-]+/g, '-')}-${suffix}`
-}
-
-function attrSelectorValue(value: string): string {
-  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-}
-
-function selectorsForPath(path: string): string {
-  const escaped = attrSelectorValue(path)
-  const hintId = attrSelectorValue(`${path}-hint`)
-
-  return [
-    `[name="${escaped}"]`,
-    `[id="${escaped}"]`,
-    `[for="${escaped}"]`,
-    `[aria-describedby~="${hintId}"]`,
-    `[id="${hintId}"]`
-  ].join(',')
-}
-
-const FIELD_LABELS: Record<string, string> = {
-  imagePosition: 'Image position',
-  image: 'Image',
-  imageAlt: 'Image alt text',
-  videoUrl: 'Video URL',
-  content: 'Content',
-  quote: 'Quote',
-  quoteSource: 'Quote Attribution',
-  cta: 'CTA'
-}
-
-function fieldNameFromPath(path: string): string {
-  return path.split('.').pop() ?? path
-}
-
-function normalizeText(value: string): string {
+function normalizeFieldText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
 }
 
-function findFieldAnchor(path: string, scope: ParentNode): HTMLElement | null {
-  const direct = scope.querySelector<HTMLElement>(selectorsForPath(path))
-  if (direct) return direct
-
-  const label = FIELD_LABELS[fieldNameFromPath(path)]
-  if (!label) return null
-
-  return (
-    Array.from(scope.querySelectorAll<HTMLElement>('label, legend')).find(
-      (el) => normalizeText(el.textContent ?? '').startsWith(label)
-    ) ?? null
+/**
+ * The "Image" field has no [name] attribute (it's a media-library picker),
+ * so it's identified by its exact label text instead. Exact match matters:
+ * "Image position" and "Image alt text" both start with "Image".
+ */
+function hasImageLabel(root: ParentNode): boolean {
+  return Array.from(root.querySelectorAll('label')).some(
+    (el) => normalizeFieldText(el.textContent ?? '') === 'Image'
   )
 }
 
-function findFieldContainer(
-  path: string,
-  scope: ParentNode
-): HTMLElement | null {
-  const anchor = findFieldAnchor(path, scope)
+/** cta.text/cta.link/cta.style/cta.external render as separate rows — any one counts as "the cta field present". */
+function fieldQuerySelector(prefix: string, key: FieldKey): string | null {
+  if (key === 'cta') return `[name^="${prefix}.cta"]`
+  if (key === 'image') return null
+  return `[name="${prefix}.${key}"]`
+}
+
+function findFieldAnchor(prefix: string, key: FieldKey): HTMLElement | null {
+  if (key === 'image') {
+    return (
+      Array.from(document.querySelectorAll<HTMLElement>('label')).find(
+        (el) => normalizeFieldText(el.textContent ?? '') === 'Image'
+      ) ?? null
+    )
+  }
+  const selector = fieldQuerySelector(prefix, key)
+  return selector ? document.querySelector<HTMLElement>(selector) : null
+}
+
+function countFieldsWithin(prefix: string, ancestor: HTMLElement): number {
+  let count = 0
+  for (const key of FIELD_KEYS) {
+    if (key === 'image') {
+      if (hasImageLabel(ancestor)) count++
+      continue
+    }
+    const selector = fieldQuerySelector(prefix, key)
+    if (selector && ancestor.querySelector(selector)) count++
+  }
+  return count
+}
+
+/**
+ * Walk up from a field's anchor only as far as the ancestor still contains
+ * exactly this one tracked field. The moment going up one more level would
+ * also sweep in a *different* field (imagePosition, quote, cta, etc.), stop
+ * and return the current node. This self-corrects for uneven internal
+ * wrapper nesting between field types (e.g. "Image" renders two extra
+ * wrapper divs that "Video URL" doesn't) and for DOM shape changes between
+ * an empty vs. a fully populated entry — both broke a fixed-level-count or
+ * generic "parent has >1 children" heuristic in practice.
+ */
+function findFieldContainer(prefix: string, key: FieldKey): HTMLElement | null {
+  const anchor = findFieldAnchor(prefix, key)
   if (!anchor) return null
 
-  let node: HTMLElement | null = anchor
-  let fallback: HTMLElement | null = null
-
-  for (let level = 0; level < 10; level++) {
+  let node: HTMLElement = anchor
+  for (let level = 0; level < 15; level++) {
     const parent = node.parentElement
     if (!parent) break
-
-    if (level >= 2 && !fallback) fallback = node
-
-    const parentDisplay = window.getComputedStyle(parent).display
-    if (parentDisplay.includes('grid') && level >= 1) return node
-
+    if (countFieldsWithin(prefix, parent) > 1) return node
     node = parent
   }
-
-  return fallback
+  return node
 }
 
-function setFieldVisibility(
-  paths: string[],
-  visible: boolean,
-  scope: ParentNode
+function positionLabelText(layoutType: string): string {
+  return layoutType.startsWith('video') ? 'Video position' : 'Image position'
+}
+
+function positionHintText(layoutType: string): string {
+  return layoutType.startsWith('video')
+    ? 'Controls which side the video appears on.'
+    : 'Controls which side the image appears on.'
+}
+
+/**
+ * Strapi FieldLabel renders as:
+ *   <label>Image position<span aria-hidden="true">*</span></label>
+ * The visible text is a direct text node; the aria-hidden span is only the
+ * required asterisk. Updating that span with the full label duplicates it in red.
+ */
+function updatePositionLabel(
+  imagePositionItem: HTMLElement | null,
+  layoutType: string
 ) {
-  const containers = new Set<HTMLElement>()
+  const label = imagePositionItem?.querySelector<HTMLElement>('label, legend')
+  if (!label) return
 
-  for (const path of paths) {
-    const container = findFieldContainer(path, scope)
-    if (container) containers.add(container)
+  const newText = positionLabelText(layoutType)
+  const requiredSpan = label.querySelector<HTMLElement>(
+    'span[aria-hidden="true"]'
+  )
+
+  let updatedVisibleText = false
+  for (const node of label.childNodes) {
+    if (node === requiredSpan) continue
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent = newText
+      updatedVisibleText = true
+    }
   }
 
-  for (const container of containers) {
-    container.style.display = visible ? '' : 'none'
+  if (!updatedVisibleText) {
+    const visibleSpan = Array.from(label.querySelectorAll('span')).find(
+      (span) => span.getAttribute('aria-hidden') !== 'true'
+    )
+    if (visibleSpan) {
+      visibleSpan.textContent = newText
+      updatedVisibleText = true
+    }
+  }
+
+  if (!updatedVisibleText) {
+    label.insertBefore(document.createTextNode(newText), requiredSpan)
+  }
+
+  if (requiredSpan) {
+    requiredSpan.textContent = '*'
   }
 }
 
-function applyFieldVisibility(
+function updatePositionHint(
+  imagePositionItem: HTMLElement | null,
+  layoutType: string
+) {
+  if (!imagePositionItem) return
+  const hint = imagePositionItem.querySelector<HTMLElement>('p[id$="-hint"]')
+  if (hint) {
+    hint.textContent = positionHintText(layoutType)
+  }
+}
+
+function applyFieldVisibility(prefix: string, layoutType: string) {
+  const showImage = layoutType.startsWith('image')
+  const showVideo = layoutType.startsWith('video')
+  const showText = layoutType.endsWith('-text')
+  const showQuote = layoutType.endsWith('-quote')
+
+  const imagePositionItem = findFieldContainer(prefix, 'imagePosition')
+  updatePositionLabel(imagePositionItem, layoutType)
+  updatePositionHint(imagePositionItem, layoutType)
+
+  const imageItem = findFieldContainer(prefix, 'image')
+  if (imageItem) {
+    imageItem.style.display = showImage ? '' : 'none'
+    if (showImage) {
+      imageItem.setAttribute('data-split-layout-image-field', 'true')
+    } else {
+      imageItem.removeAttribute('data-split-layout-image-field')
+    }
+  }
+
+  const imageAltItem = findFieldContainer(prefix, 'imageAlt')
+  if (imageAltItem) imageAltItem.style.display = showImage ? '' : 'none'
+
+  const videoUrlItem = findFieldContainer(prefix, 'videoUrl')
+  if (videoUrlItem) videoUrlItem.style.display = showVideo ? '' : 'none'
+
+  const quoteItem = findFieldContainer(prefix, 'quote')
+  if (quoteItem) quoteItem.style.display = showQuote ? '' : 'none'
+
+  const quoteSourceItem = findFieldContainer(prefix, 'quoteSource')
+  if (quoteSourceItem) quoteSourceItem.style.display = showQuote ? '' : 'none'
+
+  const ctaItem = findFieldContainer(prefix, 'cta')
+  if (ctaItem) ctaItem.style.display = showText ? '' : 'none'
+
+  // content is only rendered by SplitLayout.astro in the non-quote branch.
+  // CKEditor's field has no [name] attribute, but the plugin renders its
+  // hint paragraph with a predictable, prefix-scoped id
+  // (`${prefix}.content-hint`) — its parent is the whole field (label,
+  // editor, word count, expand button). No row/sibling guessing needed.
+  const contentHint = document.querySelector<HTMLElement>(
+    `[id="${prefix}.content-hint"]`
+  )
+  const contentRow = contentHint?.parentElement as HTMLElement | undefined
+  if (contentRow) contentRow.style.display = showText ? '' : 'none'
+}
+
+// The picker only hides fields for the non-selected variant — it never clears
+// their values. Without this, switching layoutType leaves stale data behind
+// that still gets serialized (e.g. an old quote surviving a switch to Image +
+// Text). Mirrors the same show/hide rules as applyFieldVisibility.
+function clearIrrelevantFields(
   prefix: string,
-  layoutType: string,
-  scope: ParentNode
+  layoutType: LayoutType,
+  setFieldValue: (path: string, value: unknown) => void
 ) {
   const showImage = layoutType.startsWith('image')
   const showVideo = layoutType.startsWith('video')
   const showText = layoutType.endsWith('-text')
   const showQuote = layoutType.endsWith('-quote')
 
-  setFieldVisibility([`${prefix}.image`], showImage, scope)
-  setFieldVisibility([`${prefix}.imageAlt`], showImage, scope)
-  setFieldVisibility([`${prefix}.videoUrl`], showVideo, scope)
-  setFieldVisibility([`${prefix}.content`], showText, scope)
-  setFieldVisibility(
-    [`${prefix}.quote`, `${prefix}.quoteSource`],
-    showQuote,
-    scope
-  )
-  setFieldVisibility(
-    [
-      `${prefix}.cta`,
-      `${prefix}.cta.text`,
-      `${prefix}.cta.link`,
-      `${prefix}.cta.style`,
-      `${prefix}.cta.external`
-    ],
-    showText,
-    scope
-  )
+  if (!showImage) {
+    setFieldValue(`${prefix}.image`, null)
+    setFieldValue(`${prefix}.imageAlt`, null)
+  }
+  if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
+  if (!showText) {
+    setFieldValue(`${prefix}.content`, null)
+    setFieldValue(`${prefix}.cta`, null)
+  }
+  if (!showQuote) {
+    setFieldValue(`${prefix}.quote`, null)
+    setFieldValue(`${prefix}.quoteSource`, null)
+  }
 }
 
 export default function SplitLayoutTypePicker({
@@ -465,119 +515,74 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
-  const latestLayoutTypeRef = useRef(value)
-  const visibilityFrameRef = useRef<number | null>(null)
-  const labelId = idFromName(name, 'label')
-  const hintId = idFromName(name, 'hint')
-  const errorId = idFromName(name, 'error')
-  const describedBy = error ? errorId : hint ? hintId : undefined
-
-  const scheduleFieldVisibility = (layoutType: string) => {
-    latestLayoutTypeRef.current = layoutType
-    if (visibilityFrameRef.current !== null) {
-      cancelAnimationFrame(visibilityFrameRef.current)
-    }
-
-    visibilityFrameRef.current = requestAnimationFrame(() => {
-      visibilityFrameRef.current = null
-      applyFieldVisibility(
-        prefix,
-        latestLayoutTypeRef.current ?? layoutType,
-        document
-      )
-    })
-  }
+  const setFieldValue = useForm(
+    'SplitLayoutTypePicker',
+    (form) => form.onChange
+  )
 
   const handleSelect = (newValue: LayoutType) => {
-    onChange({ target: { name, value: newValue, type: 'string' } })
-    scheduleFieldVisibility(newValue)
+    onChange({ target: { name, value: newValue, type: 'text' } })
+    clearIrrelevantFields(prefix, newValue, setFieldValue)
+    // Defer one frame so Strapi's re-render finishes before we query the DOM
+    requestAnimationFrame(() => applyFieldVisibility(prefix, newValue))
   }
 
-  const handleOptionKeyDown = (
-    event: React.KeyboardEvent<HTMLButtonElement>,
-    index: number
-  ) => {
-    const horizontalDelta =
-      event.key === 'ArrowRight' || event.key === 'ArrowDown'
-        ? 1
-        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
-          ? -1
-          : 0
-
-    if (horizontalDelta !== 0) {
-      event.preventDefault()
-      const nextIndex =
-        (index + horizontalDelta + LAYOUTS.length) % LAYOUTS.length
-      const nextLayout = LAYOUTS[nextIndex].value
-      handleSelect(nextLayout)
-      event.currentTarget.parentElement
-        ?.querySelectorAll<HTMLButtonElement>('[role="radio"]')
-        [nextIndex]?.focus()
-      return
-    }
-
-    if (event.key === ' ' || event.key === 'Enter') {
-      event.preventDefault()
-      handleSelect(LAYOUTS[index].value)
-    }
-  }
-
+  // Re-apply whenever the value changes (including initial load of saved content)
   useEffect(() => {
     if (!value) return
-    latestLayoutTypeRef.current = value
-
-    const scheduleApply = () => {
-      scheduleFieldVisibility(latestLayoutTypeRef.current ?? value)
-    }
-
-    scheduleApply()
-
-    const observer = new MutationObserver(scheduleApply)
-    observer.observe(document.body, { childList: true, subtree: true })
-
-    return () => {
-      observer.disconnect()
-      if (visibilityFrameRef.current !== null) {
-        cancelAnimationFrame(visibilityFrameRef.current)
-        visibilityFrameRef.current = null
-      }
-    }
+    // Small delay for Strapi's form to finish rendering on load
+    const id = setTimeout(() => applyFieldVisibility(prefix, value), 80)
+    return () => clearTimeout(id)
   }, [value, prefix])
 
   return (
-    <PickerRoot>
-      <PickerLabel id={labelId}>Layout type</PickerLabel>
-      <PickerGrid
-        role="radiogroup"
-        aria-labelledby={labelId}
-        aria-describedby={describedBy}
-        aria-invalid={Boolean(error)}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '10px'
+        }}
       >
-        {LAYOUTS.map((layout, index) => {
+        {LAYOUTS.map((layout) => {
           const isSelected = value === layout.value
           return (
-            <PickerOption
+            <button
               key={layout.value}
               type="button"
-              role="radio"
-              aria-checked={isSelected}
-              tabIndex={isSelected || (!value && index === 0) ? 0 : -1}
-              $selected={isSelected}
+              aria-pressed={isSelected}
               onClick={() => handleSelect(layout.value)}
-              onKeyDown={(event) => handleOptionKeyDown(event, index)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '14px 10px',
+                border: `2px solid ${isSelected ? '#4945FF' : '#DCDCE4'}`,
+                borderRadius: '6px',
+                background: isSelected ? '#EEF0FF' : '#FFFFFF',
+                cursor: 'pointer',
+                color: isSelected ? '#4945FF' : '#32324D',
+                transition: 'border-color 0.15s, background 0.15s',
+                fontFamily: 'inherit',
+                fontSize: '11px',
+                fontWeight: isSelected ? '600' : '400',
+                lineHeight: '1.3',
+                textAlign: 'center' as const
+              }}
             >
               {layout.icon}
               <span>{layout.label}</span>
-            </PickerOption>
+            </button>
           )
         })}
-      </PickerGrid>
-      {hint && !error && <FieldMessage id={hintId}>{hint}</FieldMessage>}
-      {error && (
-        <FieldMessage id={errorId} $error>
-          {error}
-        </FieldMessage>
+      </div>
+      {hint && !error && (
+        <p style={{ fontSize: '12px', color: '#666687', margin: 0 }}>{hint}</p>
       )}
-    </PickerRoot>
+      {error && (
+        <p style={{ fontSize: '12px', color: '#D02B20', margin: 0 }}>{error}</p>
+      )}
+    </div>
   )
 }

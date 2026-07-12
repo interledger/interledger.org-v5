@@ -12,7 +12,7 @@
       "customField": "plugin::split-layout-type-picker.layout-type",
       "required": true,
       "default": "image-text",
-      "description": "Controls which fields to fill in. Image+Text: fill image and content. Image+Quote: fill image and quote. Video+Text: fill videoUrl and content. Video+Quote: fill videoUrl and quote.",
+      "description": "Controls which fields to fill in. Image + Text: fill image and content. Image + Quote: fill image and quote. Video + Text: fill videoUrl and content. Video + Quote: fill videoUrl and quote.",
       "pluginOptions": {
         "i18n": {
           "localized": false

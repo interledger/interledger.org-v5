@@ -42,14 +42,17 @@ const isQuoteLayout = layoutType
   : Boolean(quote)
 const hasMedia = isVideoLayout ? Boolean(videoUrl) : Boolean(imageSrc)
 const mediaFirst = imagePosition === 'left'
+const mediaColumnClass =
+  'w-full tablet:w-[45%] tablet:max-w-[22rem] tablet:shrink-0'
+const contentColumnClass = 'w-full flex flex-col gap-space-m tablet:min-w-0 tablet:flex-1'
 ---
 
 <div
-  class="mb-2xl grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center"
+  class="my-space-2xl flex flex-col gap-3xl tablet:flex-row tablet:items-center tablet:gap-6xl"
 >
   {
     mediaFirst && hasMedia && (
-      <div class="w-full">
+      <div class={mediaColumnClass}>
         {isVideoLayout && videoUrl ? (
           <VideoEmbed url={videoUrl} title="Video" />
         ) : imageSrc ? (
@@ -66,7 +69,7 @@ const mediaFirst = imagePosition === 'left'
     )
   }
 
-  <div class="w-full flex flex-col gap-space-m">
+  <div class={contentColumnClass}>
     {
       isQuoteLayout && quote ? (
         <Blockquote quote={quote} source={quoteSource} />
@@ -94,7 +97,7 @@ const mediaFirst = imagePosition === 'left'
 
   {
     !mediaFirst && hasMedia && (
-      <div class="w-full">
+      <div class={mediaColumnClass}>
         {isVideoLayout && videoUrl ? (
           <VideoEmbed url={videoUrl} title="Video" />
         ) : imageSrc ? (
