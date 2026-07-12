@@ -231,6 +231,14 @@ export default {
         node.textContent = text.replace(trimmed, formatted)
       }
 
+      const candidates = document.querySelectorAll<HTMLElement>(
+        'span, button, p, h2, h3'
+      )
+      const hasSplitLayoutSlug = Array.from(candidates).some((el) =>
+        /(image|video)-(text|quote)/.test(el.textContent ?? '')
+      )
+      if (!hasSplitLayoutSlug) return
+
       const walker = document.createTreeWalker(
         document.body,
         NodeFilter.SHOW_TEXT
@@ -240,9 +248,7 @@ export default {
         formatNodeText(node)
       }
 
-      for (const el of document.querySelectorAll<HTMLElement>(
-        'span, button, p, h2, h3'
-      )) {
+      for (const el of Array.from(candidates)) {
         const text = el.textContent ?? ''
         if (!/(image|video)-(text|quote)/.test(text)) continue
         const formatted = formatSplitLayoutPanelTitle(text)
