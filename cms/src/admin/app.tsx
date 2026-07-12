@@ -5,10 +5,7 @@ import {
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
 import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
 import type { Editor } from 'ckeditor5'
-import {
-  getLayoutTypeLabel,
-  isLayoutTypeSlug
-} from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
+import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 
 // Minimal clipboard callback types for the Google Docs paste cleanup plugin.
 interface CKEditorDataTransfer {
@@ -195,6 +192,44 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
+      /* TEMP UI Fix: split layout — stack alt text under image position */
+      [data-split-layout-media-grid="true"] {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 16px;
+        align-items: start;
+      }
+      [data-split-layout-left-stack] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        grid-column: 1;
+        align-self: start;
+      }
+      [data-split-layout-left-stack] > * {
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+      }
+      [data-split-layout-image-position],
+      [data-split-layout-image-alt] {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      [data-split-layout-image-position] p[id$="-hint"] {
+        margin-bottom: 0 !important;
+      }
+      [data-split-layout-image-alt] label,
+      [data-split-layout-image-alt] legend {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+      [data-split-layout-image-field="true"],
+      [data-split-layout-video-field="true"] {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+        margin: 0 !important;
+      }
       /* TEMP UI Fix: split layout — taller image media picker */
       [data-split-layout-image-field="true"] {
         align-self: stretch;
@@ -233,20 +268,39 @@ export default {
     }
 
     function applySplitLayoutTypeLabels() {
+      const formatNodeText = (node: Text) => {
+        const text = node.textContent ?? ''
+        const trimmed = text.trim()
+        if (!trimmed) return
+        const parent = node.parentElement
+        if (!parent) return
+        if (parent.closest('button[aria-pressed], input, textarea, pre, code')) {
+          return
+        }
+
+        const formatted = formatSplitLayoutPanelTitle(trimmed)
+        if (!formatted || formatted === trimmed) return
+
+        node.textContent = text.replace(trimmed, formatted)
+      }
+
       const walker = document.createTreeWalker(
         document.body,
         NodeFilter.SHOW_TEXT
       )
       let node: Text | null
       while ((node = walker.nextNode() as Text | null)) {
-        const slug = node.textContent?.trim() ?? ''
-        if (!isLayoutTypeSlug(slug)) continue
-        const parent = node.parentElement
-        if (!parent) continue
-        if (parent.closest('button[aria-pressed], input, textarea, pre, code')) {
-          continue
-        }
-        node.textContent = getLayoutTypeLabel(slug)
+        formatNodeText(node)
+      }
+
+      for (const el of document.querySelectorAll<HTMLElement>(
+        'span, button, p, h2, h3'
+      )) {
+        const text = el.textContent ?? ''
+        if (!/(image|video)-(text|quote)/.test(text)) continue
+        const formatted = formatSplitLayoutPanelTitle(text)
+        if (!formatted || formatted === text.trim()) continue
+        el.textContent = formatted
       }
     }
 

@@ -1114,12 +1114,12 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.split-layout': [
       [{ name: 'layoutType', size: 12 }],
-      [
-        { name: 'imagePosition', size: 3 },
-        { name: 'image', size: 9 },
-        { name: 'videoUrl', size: 9 }
-      ],
       [{ name: 'imageAlt', size: 12 }],
+      [
+        { name: 'imagePosition', size: 4 },
+        { name: 'image', size: 8 },
+        { name: 'videoUrl', size: 6 }
+      ],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },

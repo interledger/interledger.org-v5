@@ -21,3 +21,24 @@ export function getLayoutTypeLabel(value: string | null | undefined): string {
   if (!value) return ''
   return isLayoutTypeSlug(value) ? LAYOUT_TYPE_LABELS[value] : value
 }
+
+const SPLIT_LAYOUT_TITLE_SUFFIX =
+  /^(.+?)(\s*[-–—]\s*)(image-text|image-quote|video-text|video-quote)$/
+
+/** Rewrites panel titles like "Split Layout - image-quote" to human labels. */
+export function formatSplitLayoutPanelTitle(text: string): string | null {
+  const trimmed = text.trim()
+  if (!trimmed) return null
+
+  if (isLayoutTypeSlug(trimmed)) {
+    return getLayoutTypeLabel(trimmed)
+  }
+
+  const match = trimmed.match(SPLIT_LAYOUT_TITLE_SUFFIX)
+  if (!match) return null
+
+  const [, prefix, separator, slug] = match
+  if (!isLayoutTypeSlug(slug)) return null
+
+  return `${prefix}${separator}${LAYOUT_TYPE_LABELS[slug]}`
+}
