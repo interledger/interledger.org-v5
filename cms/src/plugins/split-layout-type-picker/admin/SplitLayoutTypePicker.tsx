@@ -351,12 +351,67 @@ function selectorsForPath(path: string): string {
   ].join(',')
 }
 
-function findFieldAnchor(path: string): HTMLElement | null {
-  return document.querySelector<HTMLElement>(selectorsForPath(path))
+const FIELD_LABELS: Record<string, string> = {
+  imagePosition: 'Image position',
+  image: 'Image',
+  imageAlt: 'Image alt text',
+  videoUrl: 'Video URL',
+  content: 'Content',
+  quote: 'Quote',
+  quoteSource: 'Quote Attribution',
+  cta: 'CTA'
 }
 
-function findFieldContainer(path: string): HTMLElement | null {
-  const anchor = findFieldAnchor(path)
+function fieldNameFromPath(path: string): string {
+  return path.split('.').pop() ?? path
+}
+
+function normalizeText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim()
+}
+
+function findFieldScope(root: HTMLElement | null, prefix: string): ParentNode {
+  if (!root) return document
+
+  const knownFieldSelectors = [
+    `${prefix}.imagePosition`,
+    `${prefix}.imageAlt`,
+    `${prefix}.videoUrl`,
+    `${prefix}.quote`,
+    `${prefix}.quoteSource`
+  ]
+    .map(selectorsForPath)
+    .join(',')
+
+  let node: HTMLElement | null = root
+  for (let level = 0; level < 12; level++) {
+    if (node.querySelector(knownFieldSelectors)) return node
+    node = node.parentElement
+    if (!node) break
+  }
+
+  return document
+}
+
+function findFieldAnchor(path: string, scope: ParentNode): HTMLElement | null {
+  const direct = scope.querySelector<HTMLElement>(selectorsForPath(path))
+  if (direct) return direct
+
+  const label = FIELD_LABELS[fieldNameFromPath(path)]
+  if (!label) return null
+
+  return (
+    Array.from(scope.querySelectorAll<HTMLElement>('label, legend')).find(
+      (el) => normalizeText(el.textContent ?? '').startsWith(label)
+    ) ?? null
+  )
+}
+
+function findFieldContainer(
+  path: string,
+  scope: ParentNode
+): HTMLElement | null {
+  const anchor = findFieldAnchor(path, scope)
   if (!anchor) return null
 
   let node: HTMLElement | null = anchor
@@ -377,11 +432,15 @@ function findFieldContainer(path: string): HTMLElement | null {
   return fallback
 }
 
-function setFieldVisibility(paths: string[], visible: boolean) {
+function setFieldVisibility(
+  paths: string[],
+  visible: boolean,
+  scope: ParentNode
+) {
   const containers = new Set<HTMLElement>()
 
   for (const path of paths) {
-    const container = findFieldContainer(path)
+    const container = findFieldContainer(path, scope)
     if (container) containers.add(container)
   }
 
@@ -390,17 +449,25 @@ function setFieldVisibility(paths: string[], visible: boolean) {
   }
 }
 
-function applyFieldVisibility(prefix: string, layoutType: string) {
+function applyFieldVisibility(
+  prefix: string,
+  layoutType: string,
+  scope: ParentNode
+) {
   const showImage = layoutType.startsWith('image')
   const showVideo = layoutType.startsWith('video')
   const showText = layoutType.endsWith('-text')
   const showQuote = layoutType.endsWith('-quote')
 
-  setFieldVisibility([`${prefix}.image`], showImage)
-  setFieldVisibility([`${prefix}.imageAlt`], showImage)
-  setFieldVisibility([`${prefix}.videoUrl`], showVideo)
-  setFieldVisibility([`${prefix}.content`], showText)
-  setFieldVisibility([`${prefix}.quote`, `${prefix}.quoteSource`], showQuote)
+  setFieldVisibility([`${prefix}.image`], showImage, scope)
+  setFieldVisibility([`${prefix}.imageAlt`], showImage, scope)
+  setFieldVisibility([`${prefix}.videoUrl`], showVideo, scope)
+  setFieldVisibility([`${prefix}.content`], showText, scope)
+  setFieldVisibility(
+    [`${prefix}.quote`, `${prefix}.quoteSource`],
+    showQuote,
+    scope
+  )
   setFieldVisibility(
     [
       `${prefix}.cta`,
@@ -409,7 +476,8 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
       `${prefix}.cta.style`,
       `${prefix}.cta.external`
     ],
-    showText
+    showText,
+    scope
   )
 }
 
@@ -450,6 +518,8 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
+  const rootRef = useRef<HTMLDivElement>(null)
+  const latestLayoutTypeRef = useRef(value)
   const visibilityFrameRef = useRef<number | null>(null)
   const labelId = idFromName(name, 'label')
   const hintId = idFromName(name, 'hint')
@@ -461,13 +531,18 @@ export default function SplitLayoutTypePicker({
   )
 
   const scheduleFieldVisibility = (layoutType: string) => {
+    latestLayoutTypeRef.current = layoutType
     if (visibilityFrameRef.current !== null) {
       cancelAnimationFrame(visibilityFrameRef.current)
     }
 
     visibilityFrameRef.current = requestAnimationFrame(() => {
       visibilityFrameRef.current = null
-      applyFieldVisibility(prefix, layoutType)
+      applyFieldVisibility(
+        prefix,
+        latestLayoutTypeRef.current ?? layoutType,
+        findFieldScope(rootRef.current, prefix)
+      )
     })
   }
 
@@ -508,9 +583,10 @@ export default function SplitLayoutTypePicker({
 
   useEffect(() => {
     if (!value) return
+    latestLayoutTypeRef.current = value
 
     const scheduleApply = () => {
-      scheduleFieldVisibility(value)
+      scheduleFieldVisibility(latestLayoutTypeRef.current ?? value)
     }
 
     scheduleApply()
@@ -528,7 +604,7 @@ export default function SplitLayoutTypePicker({
   }, [value, prefix])
 
   return (
-    <PickerRoot>
+    <PickerRoot ref={rootRef}>
       <PickerLabel id={labelId}>Layout type</PickerLabel>
       <PickerGrid
         role="radiogroup"
