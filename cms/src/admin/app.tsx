@@ -192,61 +192,6 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
-      /* TEMP UI Fix: split layout — stack alt text under image position */
-      [data-split-layout-media-grid="true"] {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 16px;
-        align-items: start;
-      }
-      [data-split-layout-left-stack] {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 0 !important;
-        grid-column: 1;
-        align-self: start;
-      }
-      [data-split-layout-left-stack] > * {
-        flex: 0 0 auto !important;
-        min-height: 0 !important;
-      }
-      [data-split-layout-image-position],
-      [data-split-layout-image-alt] {
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      [data-split-layout-image-position] p[id$="-hint"] {
-        margin-bottom: 0 !important;
-      }
-      [data-split-layout-image-alt] label,
-      [data-split-layout-image-alt] legend {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-      }
-      [data-split-layout-image-field="true"],
-      [data-split-layout-video-field="true"] {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        margin: 0 !important;
-      }
-      /* TEMP UI Fix: split layout — taller image media picker */
-      [data-split-layout-image-field="true"] {
-        align-self: stretch;
-      }
-      [data-split-layout-image-field="true"] :is(div, section):has(> [aria-label="Image"]) {
-        min-height: 220px !important;
-        flex: 1;
-      }
-      [data-split-layout-image-field="true"] [aria-label="Image"] {
-        min-height: 220px !important;
-        width: 100% !important;
-      }
-      [data-split-layout-image-field="true"] img {
-        max-height: 200px !important;
-        width: 100% !important;
-        object-fit: contain !important;
-      }
     `
     document.head.appendChild(style)
 
