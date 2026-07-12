@@ -50,7 +50,7 @@ const contentHtml = content ? await parseMarkdown(content) : null
 
 <div
   class:list={[
-    'grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center',
+    'mb-2xl grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center',
     !mediaFirst && 'tablet:[&>*:first-child]:order-2'
   ]}
 >
@@ -90,8 +90,16 @@ const contentHtml = content ? await parseMarkdown(content) : null
         </blockquote>
       ) : (
         <>
-          {contentHtml && <div data-prose set:html={contentHtml} />}
-          {<slot />}
+          {contentHtml && (
+            <div
+              data-prose
+              class="[&>*:last-child]:mb-0"
+              set:html={contentHtml}
+            />
+          )}
+          <div class="[&>*:last-child]:mb-0">
+            <slot />
+          </div>
           {ctaText && ctaLink && (
             <div>
               <LinkButton
