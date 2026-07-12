@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
+import styled from 'styled-components'
 
 type LayoutType = 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
 
@@ -272,6 +273,67 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   }
 ]
 
+const PickerRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const PickerLabel = styled.span`
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.33;
+`
+
+const PickerGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+`
+
+const PickerOption = styled.button<{ $selected: boolean }>`
+  align-items: center;
+  background: ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary100 : theme.colors.neutral0};
+  border: 2px solid
+    ${({ $selected, theme }) =>
+      $selected ? theme.colors.primary600 : theme.colors.neutral200};
+  border-radius: 6px;
+  color: ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary600 : theme.colors.neutral800};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
+  gap: 8px;
+  line-height: 1.3;
+  padding: 14px 10px;
+  text-align: center;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary600};
+    outline-offset: 2px;
+  }
+`
+
+const FieldMessage = styled.p<{ $error?: boolean }>`
+  color: ${({ $error, theme }) =>
+    $error ? theme.colors.danger600 : theme.colors.neutral600};
+  font-size: 12px;
+  margin: 0;
+`
+
+function idFromName(name: string, suffix: string): string {
+  return `${name.replace(/[^A-Za-z0-9_-]+/g, '-')}-${suffix}`
+}
+
 function attrSelectorValue(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
@@ -389,6 +451,10 @@ export default function SplitLayoutTypePicker({
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
   const visibilityFrameRef = useRef<number | null>(null)
+  const labelId = idFromName(name, 'label')
+  const hintId = idFromName(name, 'hint')
+  const errorId = idFromName(name, 'error')
+  const describedBy = error ? errorId : hint ? hintId : undefined
   const setFieldValue = useForm(
     'SplitLayoutTypePicker',
     (form) => form.onChange
@@ -409,6 +475,35 @@ export default function SplitLayoutTypePicker({
     onChange({ target: { name, value: newValue, type: 'text' } })
     clearIrrelevantFields(prefix, newValue, setFieldValue)
     scheduleFieldVisibility(newValue)
+  }
+
+  const handleOptionKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    const horizontalDelta =
+      event.key === 'ArrowRight' || event.key === 'ArrowDown'
+        ? 1
+        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+          ? -1
+          : 0
+
+    if (horizontalDelta !== 0) {
+      event.preventDefault()
+      const nextIndex =
+        (index + horizontalDelta + LAYOUTS.length) % LAYOUTS.length
+      const nextLayout = LAYOUTS[nextIndex].value
+      handleSelect(nextLayout)
+      event.currentTarget.parentElement
+        ?.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+        [nextIndex]?.focus()
+      return
+    }
+
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault()
+      handleSelect(LAYOUTS[index].value)
+    }
   }
 
   useEffect(() => {
@@ -433,53 +528,39 @@ export default function SplitLayoutTypePicker({
   }, [value, prefix])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '10px'
-        }}
+    <PickerRoot>
+      <PickerLabel id={labelId}>Layout type</PickerLabel>
+      <PickerGrid
+        role="radiogroup"
+        aria-labelledby={labelId}
+        aria-describedby={describedBy}
+        aria-invalid={Boolean(error)}
       >
-        {LAYOUTS.map((layout) => {
+        {LAYOUTS.map((layout, index) => {
           const isSelected = value === layout.value
           return (
-            <button
+            <PickerOption
               key={layout.value}
               type="button"
-              aria-pressed={isSelected}
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={isSelected || (!value && index === 0) ? 0 : -1}
+              $selected={isSelected}
               onClick={() => handleSelect(layout.value)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '14px 10px',
-                border: `2px solid ${isSelected ? '#4945FF' : '#DCDCE4'}`,
-                borderRadius: '6px',
-                background: isSelected ? '#EEF0FF' : '#FFFFFF',
-                cursor: 'pointer',
-                color: isSelected ? '#4945FF' : '#32324D',
-                transition: 'border-color 0.15s, background 0.15s',
-                fontFamily: 'inherit',
-                fontSize: '11px',
-                fontWeight: isSelected ? '600' : '400',
-                lineHeight: '1.3',
-                textAlign: 'center' as const
-              }}
+              onKeyDown={(event) => handleOptionKeyDown(event, index)}
             >
               {layout.icon}
               <span>{layout.label}</span>
-            </button>
+            </PickerOption>
           )
         })}
-      </div>
-      {hint && !error && (
-        <p style={{ fontSize: '12px', color: '#666687', margin: 0 }}>{hint}</p>
-      )}
+      </PickerGrid>
+      {hint && !error && <FieldMessage id={hintId}>{hint}</FieldMessage>}
       {error && (
-        <p style={{ fontSize: '12px', color: '#D02B20', margin: 0 }}>{error}</p>
+        <FieldMessage id={errorId} $error>
+          {error}
+        </FieldMessage>
       )}
-    </div>
+    </PickerRoot>
   )
 }
