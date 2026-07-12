@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  },
+  "include": ["src/admin/**/*", "src/plugins/**/*"],
+  "exclude": ["node_modules/**", "build/**", "dist/**", ".cache/**", ".tmp/**"]
+}

@@ -2,8 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2022", "dom", "dom.iterable"],
-    "jsx": "react-jsx",
+    "lib": ["ES2022"],
     "outDir": "dist",
     "rootDir": ".",
     "strict": false,
@@ -37,6 +36,8 @@
     ".cache/**",
     ".tmp/**",
     "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+    "src/**/*.spec.ts",
+    "src/admin/**",
+    "src/plugins/**"
   ]
 }
