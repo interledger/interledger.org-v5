@@ -1,7 +1,11 @@
 import React from 'react'
 import { LAYOUT_TYPE_LABELS, type LayoutType } from './layoutTypeLabels'
 
-export const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
+export const LAYOUTS: {
+  value: LayoutType
+  label: string
+  icon: React.ReactNode
+}[] = [
   {
     value: 'image-text',
     label: LAYOUT_TYPE_LABELS['image-text'],

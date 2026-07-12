@@ -256,7 +256,7 @@ export default function SplitLayoutTypePicker({
   )
 
   const handleSelect = (newValue: LayoutType) => {
-    onChange({ target: { name, value: newValue, type: 'text' } })
+    onChange({ target: { name, value: newValue, type: 'string' } })
     clearIrrelevantFields(prefix, newValue, setFieldValue)
     // Defer one frame so Strapi's re-render finishes before we query the DOM
     requestAnimationFrame(() => applyFieldVisibility(prefix, newValue))
