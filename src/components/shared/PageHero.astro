@@ -83,33 +83,18 @@ const {
 <!-- Full-width parallax image strip -->
 {
   (image || imageMobile) && (
-    <div class="relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
-      <div
-        class="parallax-img absolute inset-0 will-change-transform scale-110"
-        aria-hidden="true"
-      >
-        {imageMobile ? (
-          <>
-            <OptimizedImage
-              src={imageMobile}
-              alt={imageMobileAlt ?? ''}
-              width={768}
-              height={480}
-              loading="eager"
-              fetchpriority="high"
-              class="block tablet:hidden w-full h-full object-cover"
-            />
-            <OptimizedImage
-              src={image}
-              alt={imageAlt ?? ''}
-              width={1440}
-              height={640}
-              loading="eager"
-              fetchpriority="high"
-              class="hidden tablet:block w-full h-full object-cover"
-            />
-          </>
-        ) : (
+    <div class="parallax-wrapper relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
+      {imageMobile ? (
+        <>
+          <OptimizedImage
+            src={imageMobile}
+            alt={imageMobileAlt ?? ''}
+            width={768}
+            height={480}
+            loading="eager"
+            fetchpriority="high"
+            class="parallax-img block tablet:hidden w-full h-full object-cover"
+          />
           <OptimizedImage
             src={image}
             alt={imageAlt ?? ''}
@@ -117,53 +102,38 @@ const {
             height={640}
             loading="eager"
             fetchpriority="high"
-            class="w-full h-full object-cover"
+            class="parallax-img hidden tablet:block w-full h-full object-cover"
           />
-        )}
-      </div>
+        </>
+      ) : (
+        <OptimizedImage
+          src={image}
+          alt={imageAlt ?? ''}
+          width={1440}
+          height={640}
+          loading="eager"
+          fetchpriority="high"
+          class="parallax-img w-full h-full object-cover"
+        />
+      )}
     </div>
   )
 }
 
 <script>
-  const prefersReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches
+  import SimpleParallax from 'simple-parallax-js/vanilla'
 
-  if (!prefersReducedMotion) {
-    const img = document.querySelector<HTMLElement>('.parallax-img')
-    if (img) {
-      const container = img.parentElement!
-      // Max translateY shift as scroll progresses through the strip.
-      const PARALLAX_STRENGTH = 40
-      // Trailing-lerp factor: lower = more drift/fluidity, higher = snappier.
-      const EASE = 0.08
-
-      let currentY = 0
-      let rafId = 0
-
-      function tick() {
-        const progress =
-          (window.scrollY - container.offsetTop) / window.innerHeight
-        const targetY = progress * -PARALLAX_STRENGTH
-        currentY += (targetY - currentY) * EASE
-        img.style.transform = `translateY(${currentY}%)`
-        rafId = requestAnimationFrame(tick)
-      }
-
-      // Only run the loop while the strip is near the viewport.
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            if (!rafId) tick()
-          } else {
-            cancelAnimationFrame(rafId)
-            rafId = 0
-          }
-        },
-        { rootMargin: '20% 0px' }
-      )
-      observer.observe(container)
-    }
+  const images = document.querySelectorAll<HTMLElement>('.parallax-img')
+  if (images.length > 0) {
+    // Library handles prefers-reduced-motion and <picture> nesting itself;
+    // customWrapper reuses our existing overflow-hidden strip instead of
+    // inserting a new wrapper element.
+    new SimpleParallax(images, {
+      scale: 1.4,
+      orientation: 'up',
+      delay: 0.6,
+      transition: 'cubic-bezier(0,0,0,1)',
+      customWrapper: '.parallax-wrapper'
+    })
   }
 </script>
