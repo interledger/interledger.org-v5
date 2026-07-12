@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
     "outDir": "dist",
     "rootDir": ".",
     "strict": false,
@@ -16,11 +17,15 @@
       "@/utils": ["./src/utils/index.ts"],
       "@/utils/*": ["./src/utils/*"],
       "@/*": ["./src/*"],
-      "@site/*": ["../src/*"]
+      "@site/*": ["../src/*"],
+      "@_sh/strapi-plugin-ckeditor": [
+        "./node_modules/@_sh/strapi-plugin-ckeditor/dist/admin/src/index"
+      ]
     }
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.json",
     "config/**/*.ts",
     "types/**/*.ts"

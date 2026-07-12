@@ -3,8 +3,10 @@ import {
   defaultMarkdownPreset
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
+import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
+import type { Editor } from 'ckeditor5'
 
-// CKEditor type definitions for the APIs we use
+// Minimal clipboard callback types for the Google Docs paste cleanup plugin.
 interface CKEditorDataTransfer {
   getData(format: string): string
 }
@@ -14,38 +16,11 @@ interface CKEditorInsertionData {
   content: unknown
 }
 
-interface CKEditorPlugin {
-  on(
-    event: string,
-    callback: (evt: unknown, data: CKEditorInsertionData) => void,
-    options?: { priority: string }
-  ): void
-}
-
-interface CKEditorPlugins {
-  get(name: string): CKEditorPlugin
-}
-
-interface CKEditorDataProcessor {
-  toView(html: string): unknown
-  toModel(view: unknown): unknown
-}
-
-interface CKEditorData {
-  processor: CKEditorDataProcessor
-  toModel(view: unknown): unknown
-}
-
-interface CKEditor {
-  plugins: CKEditorPlugins
-  data: CKEditorData
-}
-
 // Strapi document IDs: lowercase alphanumeric, typically 24 chars
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
-const headingOptionsWithoutH1 = [
+const headingOptionsWithoutH1: HeadingOption[] = [
   { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
   {
     model: 'heading2',
@@ -86,7 +61,7 @@ const markdownPresetNoH1: Preset = {
     ...defaultMarkdownPreset.editorConfig,
     heading: { options: headingOptionsWithoutH1 },
     extraPlugins: [
-      function cleanGoogleDocsOnPaste(editor: CKEditor) {
+      function cleanGoogleDocsOnPaste(editor: Editor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
 
         clipboardPlugin.on(
@@ -127,7 +102,7 @@ const markdownPresetNoH1: Preset = {
       // private-use placeholders before md->view (so the processor treats them
       // as literal text) and restore them after view->md. Footnotes stay
       // verbatim in Strapi and are rendered by Astro's GFM at build time.
-      function preserveFootnotes(editor: CKEditor) {
+      function preserveFootnotes(editor: Editor) {
         const processor = editor.data.processor as unknown as {
           toView: (markdown: string) => unknown
           toData: (view: unknown) => string

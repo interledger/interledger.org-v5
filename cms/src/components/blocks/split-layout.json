@@ -1,0 +1,96 @@
+{
+  "collectionName": "components_blocks_split_layouts",
+  "info": {
+    "displayName": "Split Layout",
+    "icon": "layout",
+    "description": "Two-column layout: media (image or video) on one side, content (text or quote) on the other."
+  },
+  "options": {},
+  "attributes": {
+    "layoutType": {
+      "type": "customField",
+      "customField": "plugin::split-layout-type-picker.layout-type",
+      "required": true,
+      "default": "image-text",
+      "description": "Controls which fields to fill in. Image+Text: fill image and content. Image+Quote: fill image and quote. Video+Text: fill videoUrl and content. Video+Quote: fill videoUrl and quote.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "imagePosition": {
+      "type": "enumeration",
+      "enum": ["left", "right"],
+      "required": true,
+      "default": "right",
+      "description": "Which side the image appears on.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"],
+      "description": "Image for the media column. Leave empty when using a video instead.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "videoUrl": {
+      "type": "string",
+      "description": "YouTube or Vimeo URL for the media column. Takes precedence over image when both are set.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "content": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "description": "Rich text for the content column. Leave empty when using a quote instead.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "quote": {
+      "type": "text",
+      "description": "Quote for the content column. When set, renders as a blockquote instead of rich text.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "quoteSource": {
+      "type": "string",
+      "description": "Attribution / source for the quote.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta-link",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

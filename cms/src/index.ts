@@ -540,14 +540,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content',
       ctaStrip: 'CTA Strip',
       infoCards: 'Information Cards',
-      faqSection: 'FAQ Section'
+      faqSection: 'FAQ Section',
+      seo: 'SEO'
     },
     'api::grant-overview-page.grant-overview-page': {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
       ctaStrip: 'CTA Strip',
-      followUpContent: 'Follow-up Content'
+      followUpContent: 'Follow-up Content',
+      seo: 'SEO'
     }
   }
 
@@ -742,6 +744,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language',
       title: 'Title (optional)'
     },
+    'blocks.split-layout': {
+      layoutType: 'Layout Type',
+      imagePosition: 'Image position',
+      image: 'Image',
+      videoUrl: 'Video URL',
+      content: 'Content',
+      quote: 'Quote',
+      quoteSource: 'Quote Attribution',
+      cta: 'Call-to-action Button'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -785,6 +797,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Displayed as the filename label above the code. Leave blank to show the language name.',
       code: 'Paste or type your code here.'
+    },
+    'blocks.split-layout': {
+      layoutType:
+        'Choose the media type (image or video) and content type (text or quote) for this block.',
+      imagePosition: 'Controls which side the image appears on.',
+      videoUrl:
+        'YouTube or Vimeo URL. When set, takes precedence over the image.',
+      quote:
+        'Quote text. When set, renders as a blockquote instead of the Content field.',
+      quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
+      content:
+        'Rich text for the content column. Leave empty when using a Quote.'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1084,6 +1108,20 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 8 }
       ],
       [{ name: 'code', size: 12 }]
+    ],
+    'blocks.split-layout': [
+      [{ name: 'layoutType', size: 12 }],
+      [
+        { name: 'imagePosition', size: 6 },
+        { name: 'image', size: 6 },
+        { name: 'videoUrl', size: 6 }
+      ],
+      [{ name: 'content', size: 12 }],
+      [
+        { name: 'quote', size: 8 },
+        { name: 'quoteSource', size: 4 }
+      ],
+      [{ name: 'cta', size: 12 }]
     ]
   }
 
