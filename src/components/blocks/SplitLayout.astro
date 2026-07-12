@@ -1,0 +1,103 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { parseMarkdown } from '@/utils'
+
+interface Props {
+  /** Which side the image or video column appears on. Default: right. */
+  imagePosition?: 'left' | 'right'
+  imageSrc?: string
+  imageAlt?: string
+  videoUrl?: string
+  /** Markdown or HTML body for the text column (from MDX children). */
+  content?: string
+  quote?: string
+  quoteSource?: string
+  ctaText?: string
+  ctaLink?: string
+  ctaStyle?: string
+  ctaExternal?: boolean
+}
+
+const {
+  imagePosition = 'right',
+  imageSrc,
+  imageAlt,
+  videoUrl,
+  content,
+  quote,
+  quoteSource,
+  ctaText,
+  ctaLink,
+  ctaStyle,
+  ctaExternal
+} = Astro.props
+
+const hasMedia = Boolean(imageSrc || videoUrl)
+const mediaFirst = imagePosition === 'left'
+const contentHtml = content ? await parseMarkdown(content) : null
+---
+
+<div
+  class:list={[
+    'grid grid-cols-1 tablet:grid-cols-2 gap-space-xl items-center',
+    !mediaFirst && 'tablet:[&>*:first-child]:order-2'
+  ]}
+>
+  <!-- Media column -->
+  {
+    hasMedia && (
+      <div class="w-full">
+        {videoUrl ? (
+          <VideoEmbed url={videoUrl} title="Video" />
+        ) : imageSrc ? (
+          <OptimizedImage
+            src={imageSrc}
+            alt={imageAlt ?? ''}
+            width={640}
+            height={480}
+            loading="lazy"
+            class="w-full h-auto rounded-lg object-cover"
+          />
+        ) : null}
+      </div>
+    )
+  }
+
+  <!-- Content column -->
+  <div class="w-full flex flex-col gap-space-m">
+    {
+      quote ? (
+        <blockquote class="border-l-4 border-primary pl-space-m">
+          <p class="text-h4 tablet:text-h4-md font-normal text-neutral-900 italic">
+            {quote}
+          </p>
+          {quoteSource && (
+            <footer class="mt-space-s text-body-lg-standard text-neutral-500">
+              — {quoteSource}
+            </footer>
+          )}
+        </blockquote>
+      ) : (
+        <>
+          {contentHtml && <div data-prose set:html={contentHtml} />}
+          {<slot />}
+          {ctaText && ctaLink && (
+            <div>
+              <LinkButton
+                href={ctaLink}
+                variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
+                external={ctaExternal}
+              >
+                {ctaText}
+                {ctaExternal && <Icon name="arrow-right" slot="icon-right" />}
+              </LinkButton>
+            </div>
+          )}
+        </>
+      )
+    }
+  </div>
+</div>

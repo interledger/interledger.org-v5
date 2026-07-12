@@ -9,6 +9,13 @@ import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
+import BlockquoteBlock from '@/components/blocks/BlockquoteBlock.astro'
+import CalloutTextBlock from '@/components/blocks/CalloutTextBlock.astro'
+import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
+import ImageBlock from '@/components/blocks/ImageBlock.astro'
+import CtaBanner from '@/components/blocks/CtaBanner.astro'
 
 interface Props {
   slug: string
@@ -29,6 +36,7 @@ const { Content: MdxContent } = await render(mdxPage)
 const {
   title,
   description,
+  metaDescription,
   metaImage,
   canonicalUrl,
   primaryCta,
@@ -48,7 +56,7 @@ const programOverviewHtml = programOverview
 
 <FoundationPageLayout
   title={title}
-  description={description}
+  description={metaDescription || description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
@@ -104,9 +112,27 @@ const programOverviewHtml = programOverview
       )
     }
 
-    <div data-prose>
-      <MdxContent components={{ LogoCarousel }} />
-    </div>
+    <section class="py-space-xl">
+      <div
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+      >
+        <div data-prose>
+          <MdxContent
+            components={{
+              Paragraph,
+              SplitLayout,
+              Blockquote: BlockquoteBlock,
+              CalloutText: CalloutTextBlock,
+              VideoEmbed: VideoEmbedBlock,
+              ImageBlock,
+              CtaStrip,
+              CtaBanner,
+              LogoCarousel
+            }}
+          />
+        </div>
+      </div>
+    </section>
 
     {
       faqSection && (
