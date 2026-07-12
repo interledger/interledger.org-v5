@@ -82,7 +82,7 @@ const {
 
 <!-- Full-width parallax image strip -->
 {
-  image && (
+  (image || imageMobile) && (
     <div class="relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
       <div
         class="parallax-img absolute inset-0 will-change-transform scale-110"
