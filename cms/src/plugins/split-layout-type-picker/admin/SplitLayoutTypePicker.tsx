@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
 
 type LayoutType = 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
@@ -272,90 +272,59 @@ const LAYOUTS: { value: LayoutType; label: string; icon: React.ReactNode }[] = [
   }
 ]
 
-/**
- * Walk up from an element until we find a node whose parent has more than one
- * child — that means the node is a grid column/cell alongside sibling fields.
- */
-function findGridItem(
-  el: Element | null,
-  minLevels = 2,
-  maxLevels = 10
-): HTMLElement | null {
-  if (!el) return null
-  let node: HTMLElement | null = el as HTMLElement
-  for (let i = 0; i < maxLevels; i++) {
+function attrSelectorValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
+function selectorsForPath(path: string): string {
+  const escaped = attrSelectorValue(path)
+  const hintId = attrSelectorValue(`${path}-hint`)
+
+  return [
+    `[name="${escaped}"]`,
+    `[id="${escaped}"]`,
+    `[for="${escaped}"]`,
+    `[aria-describedby~="${hintId}"]`,
+    `[id="${hintId}"]`
+  ].join(',')
+}
+
+function findFieldAnchor(path: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(selectorsForPath(path))
+}
+
+function findFieldContainer(path: string): HTMLElement | null {
+  const anchor = findFieldAnchor(path)
+  if (!anchor) return null
+
+  let node: HTMLElement | null = anchor
+  let fallback: HTMLElement | null = null
+
+  for (let level = 0; level < 10; level++) {
     const parent = node.parentElement
-    if (!parent) return null
-    if (i >= minLevels && parent.children.length > 1) return node
+    if (!parent) break
+
+    if (level >= 2 && !fallback) fallback = node
+
+    const parentDisplay = window.getComputedStyle(parent).display
+    if (parentDisplay.includes('grid') && level >= 1) return node
+
     node = parent
   }
-  return null
+
+  return fallback
 }
 
-function positionLabelText(layoutType: string): string {
-  return layoutType.startsWith('video') ? 'Video position' : 'Image position'
-}
+function setFieldVisibility(paths: string[], visible: boolean) {
+  const containers = new Set<HTMLElement>()
 
-function positionHintText(layoutType: string): string {
-  return layoutType.startsWith('video')
-    ? 'Controls which side the video appears on.'
-    : 'Controls which side the image appears on.'
-}
-
-/**
- * Strapi FieldLabel renders as:
- *   <label>Image position<span aria-hidden="true">*</span></label>
- * The visible text is a direct text node; the aria-hidden span is only the
- * required asterisk. Updating that span with the full label duplicates it in red.
- */
-function updatePositionLabel(
-  imagePositionItem: HTMLElement | null,
-  layoutType: string
-) {
-  const label = imagePositionItem?.querySelector<HTMLElement>('label, legend')
-  if (!label) return
-
-  const newText = positionLabelText(layoutType)
-  const requiredSpan = label.querySelector<HTMLElement>(
-    'span[aria-hidden="true"]'
-  )
-
-  let updatedVisibleText = false
-  for (const node of label.childNodes) {
-    if (node === requiredSpan) continue
-    if (node.nodeType === Node.TEXT_NODE) {
-      node.textContent = newText
-      updatedVisibleText = true
-    }
+  for (const path of paths) {
+    const container = findFieldContainer(path)
+    if (container) containers.add(container)
   }
 
-  if (!updatedVisibleText) {
-    const visibleSpan = Array.from(label.querySelectorAll('span')).find(
-      (span) => span.getAttribute('aria-hidden') !== 'true'
-    )
-    if (visibleSpan) {
-      visibleSpan.textContent = newText
-      updatedVisibleText = true
-    }
-  }
-
-  if (!updatedVisibleText) {
-    label.insertBefore(document.createTextNode(newText), requiredSpan)
-  }
-
-  if (requiredSpan) {
-    requiredSpan.textContent = '*'
-  }
-}
-
-function updatePositionHint(
-  imagePositionItem: HTMLElement | null,
-  layoutType: string
-) {
-  if (!imagePositionItem) return
-  const hint = imagePositionItem.querySelector<HTMLElement>('p[id$="-hint"]')
-  if (hint) {
-    hint.textContent = positionHintText(layoutType)
+  for (const container of containers) {
+    container.style.display = visible ? '' : 'none'
   }
 }
 
@@ -365,57 +334,21 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
   const showText = layoutType.endsWith('-text')
   const showQuote = layoutType.endsWith('-quote')
 
-  // Row order in the grid: imagePosition[0] | image[1] | videoUrl[2]
-  // Strapi's Select renders as a combobox <button>, not a native <select> with name attr,
-  // so we find imagePositionItem by grid index rather than by [name] selector.
-  const videoUrlEl = document.querySelector<HTMLElement>(
-    `input[name="${prefix}.videoUrl"]`
+  setFieldVisibility([`${prefix}.image`], showImage)
+  setFieldVisibility([`${prefix}.imageAlt`], showImage)
+  setFieldVisibility([`${prefix}.videoUrl`], showVideo)
+  setFieldVisibility([`${prefix}.content`], showText)
+  setFieldVisibility([`${prefix}.quote`, `${prefix}.quoteSource`], showQuote)
+  setFieldVisibility(
+    [
+      `${prefix}.cta`,
+      `${prefix}.cta.text`,
+      `${prefix}.cta.link`,
+      `${prefix}.cta.style`,
+      `${prefix}.cta.external`
+    ],
+    showText
   )
-  const videoUrlItem = findGridItem(videoUrlEl)
-  let imagePositionItem: HTMLElement | null = null
-  if (videoUrlItem) {
-    const gridRow = videoUrlItem.parentElement
-    if (gridRow) {
-      imagePositionItem = (gridRow.children[0] as HTMLElement) ?? null
-      const imageItem = gridRow.children[1] as HTMLElement | undefined
-      if (imageItem) imageItem.style.display = showImage ? '' : 'none'
-    }
-    videoUrlItem.style.display = showVideo ? '' : 'none'
-  }
-
-  const imageAltEl = document.querySelector<HTMLElement>(
-    `input[name="${prefix}.imageAlt"]`
-  )
-  const imageAltRow = findGridItem(imageAltEl)?.parentElement as
-    | HTMLElement
-    | undefined
-  if (imageAltRow) imageAltRow.style.display = showImage ? '' : 'none'
-
-  updatePositionLabel(imagePositionItem, layoutType)
-  updatePositionHint(imagePositionItem, layoutType)
-
-  // quote + quoteSource share a grid row — toggle the entire row
-  const quoteEl = document.querySelector<HTMLElement>(
-    `textarea[name="${prefix}.quote"]`
-  )
-  const quoteItem = findGridItem(quoteEl)
-  const quoteRow = quoteItem?.parentElement as HTMLElement | undefined
-  if (quoteRow) quoteRow.style.display = showQuote ? '' : 'none'
-
-  // content is only rendered by SplitLayout.astro in the non-quote branch —
-  // same rule as cta below. CKEditor's field has no [name] attribute, but the
-  // plugin renders its hint paragraph with a predictable, prefix-scoped id
-  // (`${prefix}.content-hint`) — its parent is the whole field (label,
-  // editor, word count, expand button). No row/sibling guessing needed.
-  const contentHint = document.querySelector<HTMLElement>(
-    `[id="${prefix}.content-hint"]`
-  )
-  const contentRow = contentHint?.parentElement as HTMLElement | undefined
-  if (contentRow) contentRow.style.display = showText ? '' : 'none'
-
-  // cta is the row immediately after the quote row
-  const ctaRow = quoteRow?.nextElementSibling as HTMLElement | undefined
-  if (ctaRow) ctaRow.style.display = showText ? '' : 'none'
 }
 
 // The picker only hides fields for the non-selected variant — it never clears
@@ -455,24 +388,48 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
+  const visibilityFrameRef = useRef<number | null>(null)
   const setFieldValue = useForm(
     'SplitLayoutTypePicker',
     (form) => form.onChange
   )
 
+  const scheduleFieldVisibility = (layoutType: string) => {
+    if (visibilityFrameRef.current !== null) {
+      cancelAnimationFrame(visibilityFrameRef.current)
+    }
+
+    visibilityFrameRef.current = requestAnimationFrame(() => {
+      visibilityFrameRef.current = null
+      applyFieldVisibility(prefix, layoutType)
+    })
+  }
+
   const handleSelect = (newValue: LayoutType) => {
     onChange({ target: { name, value: newValue, type: 'text' } })
     clearIrrelevantFields(prefix, newValue, setFieldValue)
-    // Defer one frame so Strapi's re-render finishes before we query the DOM
-    requestAnimationFrame(() => applyFieldVisibility(prefix, newValue))
+    scheduleFieldVisibility(newValue)
   }
 
-  // Re-apply whenever the value changes (including initial load of saved content)
   useEffect(() => {
     if (!value) return
-    // Small delay for Strapi's form to finish rendering on load
-    const id = setTimeout(() => applyFieldVisibility(prefix, value), 80)
-    return () => clearTimeout(id)
+
+    const scheduleApply = () => {
+      scheduleFieldVisibility(value)
+    }
+
+    scheduleApply()
+
+    const observer = new MutationObserver(scheduleApply)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      if (visibilityFrameRef.current !== null) {
+        cancelAnimationFrame(visibilityFrameRef.current)
+        visibilityFrameRef.current = null
+      }
+    }
   }, [value, prefix])
 
   return (
