@@ -1,9 +1,4 @@
-// All source logos are 240×80 px, rendered at 120×40 for 2x retina sharpness.
-export const partners = [
-  {
-    name: 'Covenant',
-    src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0000_Covenant_logo-328x350.png'
-  },
+// Logos are rendered at 120×40 for consistent layout; source asset dimensions may vary.
   {
     name: 'Western Sydney University',
     src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0001_WSU_Logo_LeftAligned_Centred_RGB.png'
