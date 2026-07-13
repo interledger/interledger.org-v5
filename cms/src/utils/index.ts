@@ -29,6 +29,7 @@ export {
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
   getImageUrl,
+  hasMediaValue,
   htmlToMarkdown,
   formatBlockquote,
   uidToLogLabel,

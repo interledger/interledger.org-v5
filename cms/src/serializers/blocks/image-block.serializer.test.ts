@@ -97,4 +97,11 @@ describe('image-block serializer', () => {
       'ImageBlock block is missing image'
     )
   })
+
+  it('accepts a raw upload ID for image (unpopulated document-service payload)', () => {
+    const result = serialize({ image: 42 })
+
+    expect(result).not.toContain('src=')
+    expect(result).toContain('alt=""')
+  })
 })
