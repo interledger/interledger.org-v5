@@ -795,6 +795,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    content: Schema.Attribute.DynamicZone<['blocks.carousel']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -813,6 +819,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         }
       }>
     faqSection: Schema.Attribute.Component<'blocks.grant-faq-section', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    infoCards: Schema.Attribute.Component<'blocks.info-cards', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

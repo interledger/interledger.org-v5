@@ -6,6 +6,7 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 interface CtaLink {
   text?: string
@@ -21,6 +22,18 @@ interface CtaStrip {
   secondaryButtonText?: string
   secondaryButtonLink?: string
   color?: string
+}
+
+interface InfoCard {
+  heading?: string
+  body?: string
+}
+
+interface InfoCards {
+  heading?: string
+  card1?: InfoCard
+  card2?: InfoCard
+  card3?: InfoCard
 }
 
 interface FaqItem {
@@ -43,6 +56,8 @@ interface GrantPageData extends PageData {
   primaryCta?: CtaLink | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
+  infoCards?: InfoCards | null
+  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -58,12 +73,15 @@ function generateGrantPageMDX(
   // restPreserved so that removing them in Strapi clears them from the MDX
   // rather than leaving the old value behind.
   delete (restPreserved as Record<string, unknown>).primaryCta
+  delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
+  delete (restPreserved as Record<string, unknown>).programOverview
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = grantPage.ctaStrip
   const primaryCta = grantPage.primaryCta
+  const infoCards = grantPage.infoCards
   const faqSection = grantPage.faqSection
 
   const frontmatter: Record<string, unknown> = {
@@ -81,6 +99,9 @@ function generateGrantPageMDX(
               : {})
           }
         }
+      : {}),
+    ...(grantPage.programOverview
+      ? { programOverview: grantPage.programOverview }
       : {}),
     ...(faqSection
       ? {
@@ -114,11 +135,32 @@ function generateGrantPageMDX(
           }
         }
       : {}),
+    ...(infoCards
+      ? {
+          infoCards: {
+            ...(infoCards.heading ? { heading: infoCards.heading } : {}),
+            cards: [
+              {
+                heading: infoCards.card1?.heading ?? '',
+                body: infoCards.card1?.body ?? ''
+              },
+              {
+                heading: infoCards.card2?.heading ?? '',
+                body: infoCards.card2?.body ?? ''
+              },
+              {
+                heading: infoCards.card3?.heading ?? '',
+                body: infoCards.card3?.body ?? ''
+              }
+            ]
+          }
+        }
+      : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
-  const body = grantPage.programOverview ?? ''
+  const body = serializeContent(grantPage.content)
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

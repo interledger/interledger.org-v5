@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_blocks_info_card",
+  "info": {
+    "displayName": "Info Card",
+    "icon": "layout",
+    "description": "Single info card with a required heading and body"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "body": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
+      "required": true
+    }
+  }
+}

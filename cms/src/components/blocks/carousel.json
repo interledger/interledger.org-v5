@@ -1,7 +1,7 @@
 {
   "collectionName": "components_blocks_carousels",
   "info": {
-    "displayName": "Carousel",
+    "displayName": "Logo Carousel",
     "icon": "images",
     "description": "Carousel/slider for testimonials or featured content"
   },
@@ -15,33 +15,20 @@
         }
       }
     },
-    "items": {
-      "type": "component",
-      "repeatable": true,
-      "component": "blocks.carousel-item",
+    "accessibilityLabel": {
+      "type": "string",
+      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       }
     },
-    "autoplay": {
-      "type": "boolean",
-      "default": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "interval": {
-      "type": "integer",
-      "default": 5000,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "logos": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": ["images"]
     }
   }
 }

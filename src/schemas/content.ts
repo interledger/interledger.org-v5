@@ -183,6 +183,20 @@ const grantCtaStripSchema = z.object({
   secondaryButtonLink: z.string().optional()
 })
 
+const grantInfoCardSchema = z.object({
+  heading: z.string().min(1, 'card heading is required'),
+  body: z.string().min(1, 'card body is required')
+})
+
+const grantInfoCardsSchema = z.object({
+  heading: z.string().optional(),
+  cards: z.tuple([
+    grantInfoCardSchema,
+    grantInfoCardSchema,
+    grantInfoCardSchema
+  ])
+})
+
 const grantFaqItemSchema = z.object({
   question: z.string().min(1, 'question is required'),
   answer: z.string().min(1, 'answer is required')
@@ -201,6 +215,7 @@ export const grantPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
   description: z.string().min(1, 'description is required'),
+  programOverview: z.string().optional(),
   primaryCta: z
     .object({
       text: z.string(),
@@ -210,6 +225,7 @@ export const grantPageFrontmatterSchema = z.object({
     .optional(),
   faqSection: grantFaqSectionSchema.optional(),
   ctaStrip: grantCtaStripSchema,
+  infoCards: grantInfoCardsSchema.optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
   localizes: z.string().optional(),

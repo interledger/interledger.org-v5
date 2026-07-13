@@ -46,10 +46,23 @@ vi.mock('./siteSchemas', async () => {
     ctaLink: z.string(),
     items: z.array(grantFaqItemSchema).min(2)
   })
+  const grantInfoCardSchema = z.object({
+    heading: z.string().min(1, 'card heading is required'),
+    body: z.string().min(1, 'card body is required')
+  })
+  const grantInfoCardsSchema = z.object({
+    heading: z.string().optional(),
+    cards: z.tuple([
+      grantInfoCardSchema,
+      grantInfoCardSchema,
+      grantInfoCardSchema
+    ])
+  })
   const grantPageSchema = z.object({
     title: z.string().min(1, 'title is required'),
     pathSlug: z.string().min(1, 'pathSlug is required'),
     description: z.string().min(1, 'description is required'),
+    programOverview: z.string().optional(),
     primaryCta: z
       .object({
         text: z.string(),
@@ -59,6 +72,7 @@ vi.mock('./siteSchemas', async () => {
       .optional(),
     ctaStrip: grantCtaStripSchema,
     faqSection: grantFaqSectionSchema.optional(),
+    infoCards: grantInfoCardsSchema.optional(),
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
     localizes: z.string().optional(),
@@ -94,7 +108,7 @@ import {
   grantPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema
 } from './siteSchemas'
-import type { StrapiEntry } from './strapiClient'
+import type { StrapiClient, StrapiEntry } from './strapiClient'
 import { createMdxFile } from './test-utils'
 
 beforeEach(() => {
@@ -1013,11 +1027,13 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('programOverview', () => {
-    it('is set from mdx.content when body is present', async () => {
+    it('is set from frontmatter when present', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: '## Eligibility\n\n- Accredited institutions'
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          programOverview: '## Eligibility\n\n- Accredited institutions'
+        }
       })
 
       const payload = await buildGrantPagePayload(
@@ -1029,11 +1045,10 @@ describe('buildGrantPagePayload', () => {
       )
     })
 
-    it('is null when mdx body is empty', async () => {
+    it('is null when absent from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: ''
+        frontmatter: baseGrantFrontmatter
       })
 
       const payload = await buildGrantPagePayload(
@@ -1043,11 +1058,10 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).programOverview).toBeNull()
     })
 
-    it('is null when mdx body is whitespace only', async () => {
+    it('is null when frontmatter value is blank', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
-        frontmatter: baseGrantFrontmatter,
-        content: '   \n\n   '
+        frontmatter: { ...baseGrantFrontmatter, programOverview: '' }
       })
 
       const payload = await buildGrantPagePayload(
@@ -1109,6 +1123,178 @@ describe('buildGrantPagePayload', () => {
         { question: 'Who can apply?', answer: 'Any accredited institution.' },
         { question: 'How much funding?', answer: 'Up to $50,000.' }
       ])
+    })
+  })
+
+  // infoCards.cards is a 3-tuple in frontmatter but maps to fixed
+  // card1/card2/card3 fields on the Strapi component. Wrong indexing here
+  // would silently swap or drop a card.
+  describe('optional infoCards', () => {
+    const threeCards = [
+      { heading: 'Why Apply', body: 'Funding to support your project.' },
+      { heading: 'Eligibility', body: 'Open to individuals and orgs.' },
+      { heading: 'Application Steps', body: 'Complete the online form.' }
+    ]
+
+    it('is null in payload when absent from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).infoCards).toBeNull()
+    })
+
+    it('maps cards[0..2] to card1/card2/card3', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          infoCards: { cards: threeCards }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const infoCards = (payload as Record<string, unknown>)
+        .infoCards as Record<string, unknown>
+      expect(infoCards.card1).toEqual(threeCards[0])
+      expect(infoCards.card2).toEqual(threeCards[1])
+      expect(infoCards.card3).toEqual(threeCards[2])
+    })
+
+    it('does not include heading when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          infoCards: { cards: threeCards }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const infoCards = (payload as Record<string, unknown>)
+        .infoCards as Record<string, unknown>
+      expect(Object.prototype.hasOwnProperty.call(infoCards, 'heading')).toBe(
+        false
+      )
+    })
+
+    it('includes heading when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          infoCards: { heading: 'What to expect', cards: threeCards }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const infoCards = (payload as Record<string, unknown>)
+        .infoCards as Record<string, unknown>
+      expect(infoCards.heading).toBe('What to expect')
+    })
+  })
+
+  // Content parsing: the MDX body (e.g. <LogoCarousel>) is only parsed into
+  // `content` when a strapi client is supplied — mirrors buildPagePayload's
+  // parserCtx-gated behavior for foundation/summit pages.
+  describe('content parsing', () => {
+    function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+      return {
+        findUploadByUrl: async (url: string) => uploads[url] ?? null,
+        updateUploadAlt: async () => undefined
+      } as unknown as StrapiClient
+    }
+
+    it('parses a LogoCarousel body into a blocks.carousel content entry when strapi is provided', async () => {
+      // Import handler side-effects to register LogoCarousel
+      await import('./carouselHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/img/plata.png': 12 })
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.carousel',
+          accessibilityLabel: 'Our Partners',
+          logos: [12]
+        }
+      ])
+    })
+
+    it('omits content when body is empty and there is no existing entry', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).not.toHaveProperty('content')
+    })
+
+    it('preserves existing content when body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+      const existing = {
+        content: [{ __component: 'blocks.carousel', logos: [99] }]
+      } as unknown as StrapiEntry
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi(),
+        existing
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.carousel', logos: [99] }
+      ])
+    })
+
+    it('does not parse content when no strapi client is provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect(payload).not.toHaveProperty('content')
     })
   })
 })
