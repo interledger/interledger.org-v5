@@ -4,8 +4,7 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  GRANT_PAGE_CONTENT_POPULATE,
-  validateContentBlocks
+  GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -175,11 +174,6 @@ function generateGrantPageMDX(
   )
 }
 
-/*
-  validateContentBlocks(
-      (page as { content?: Array<{ __component: string }> }).content
-    )
-*/
 export default createPageLifecycle({
   contentTypeUid: 'api::grant-page.grant-page',
   outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.grantPages}`,

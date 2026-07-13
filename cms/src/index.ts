@@ -1270,13 +1270,22 @@ export default {
         validateGrantPagePrimaryCta(body),
         validateGrantPageFaqSection(body),
         validateCtaStrip(body),
-        validateGrantInfoCards(body)
+        validateGrantInfoCards(body),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
       )
     )
     registerDocumentValidation(
       strapi,
       'api::grant-overview-page.grant-overview-page',
-      (body) => validateCtaStrip(body)
+      (body) =>
+        mergeValidationErrors(
+          validateCtaStrip(body),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
     )
     registerDocumentValidation(
       strapi,
