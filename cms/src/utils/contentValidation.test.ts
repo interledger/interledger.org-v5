@@ -256,7 +256,7 @@ describe('validateGrantInfoCards', () => {
     expect(validateGrantInfoCards(data)).toBeUndefined()
   })
 
-  it('returns a ValidationError when card2 is missing entirely', () => {
+  it('flags a missing card with a path pointing at infoCards.card2', () => {
     const data = {
       infoCards: {
         card1: validCard,
@@ -267,9 +267,10 @@ describe('validateGrantInfoCards', () => {
     const err = validateGrantInfoCards(data)
     expect(err).toBeInstanceOf(Error)
     expect(err?.message).toBe('Information Cards: card2 is required')
+    expect(err?.details.errors[0].path).toEqual(['infoCards', 'card2'])
   })
 
-  it('returns a ValidationError when a card heading is missing', () => {
+  it('flags a missing card heading with an index-aware path', () => {
     const data = {
       infoCards: {
         card1: validCard,
@@ -278,9 +279,13 @@ describe('validateGrantInfoCards', () => {
       }
     }
 
-    expect(validateGrantInfoCards(data)?.message).toBe(
-      'Information Cards: card2 heading is required'
-    )
+    const err = validateGrantInfoCards(data)
+    expect(err?.message).toBe('Information Cards: card2 heading is required')
+    expect(err?.details.errors[0].path).toEqual([
+      'infoCards',
+      'card2',
+      'heading'
+    ])
   })
 
   it('treats a whitespace-only heading as missing', () => {
@@ -325,18 +330,21 @@ describe('validateGrantInfoCards', () => {
     )
   })
 
-  it('checks cards in order, reporting the first failing card', () => {
+  it('reports every failing card at once, not just the first', () => {
     const data = {
       infoCards: {
         card1: { heading: '', body: '' },
         card2: validCard,
-        card3: validCard
+        card3: { heading: validCard.heading }
       }
     }
 
-    expect(validateGrantInfoCards(data)?.message).toBe(
-      'Information Cards: card1 heading is required'
-    )
+    const err = validateGrantInfoCards(data)
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['infoCards', 'card1', 'heading'],
+      ['infoCards', 'card1', 'body'],
+      ['infoCards', 'card3', 'body']
+    ])
   })
 })
 
@@ -655,6 +663,5 @@ describe('mergeValidationErrors', () => {
       ['primaryCta', 'text'],
       ['faqSection', 'title']
     ])
-  })
   })
 })

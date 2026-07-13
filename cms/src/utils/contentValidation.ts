@@ -300,7 +300,7 @@ export function validateCtaStrip(
  * are required; Strapi's partial update validator skips required-field
  * checks on PUT, so this fills the gap.
  *
- * Returns a `ValidationError` on failure, `undefined` on success.
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
  */
 export function validateGrantInfoCards(
   body: unknown
@@ -308,33 +308,41 @@ export function validateGrantInfoCards(
   const infoCards = (body as Record<string, unknown>)?.infoCards
   if (!infoCards || typeof infoCards !== 'object') return undefined
 
+  const fieldErrors: FieldError[] = []
+
   for (const key of ['card1', 'card2', 'card3'] as const) {
     const card = (infoCards as Record<string, unknown>)[key] as
       | Record<string, unknown>
       | undefined
     if (!card || typeof card !== 'object') {
-      return new errors.ValidationError(`Information Cards: ${key} is required`)
+      fieldErrors.push({
+        message: `Information Cards: ${key} is required`,
+        path: ['infoCards', key]
+      })
+      continue
     }
     if (
       !card.heading ||
       typeof card.heading !== 'string' ||
       card.heading.trim() === ''
     ) {
-      return new errors.ValidationError(
-        `Information Cards: ${key} heading is required`
-      )
+      fieldErrors.push({
+        message: `Information Cards: ${key} heading is required`,
+        path: ['infoCards', key, 'heading']
+      })
     }
     if (
       !card.body ||
       typeof card.body !== 'string' ||
       card.body.trim() === ''
     ) {
-      return new errors.ValidationError(
-        `Information Cards: ${key} body is required`
-      )
+      fieldErrors.push({
+        message: `Information Cards: ${key} body is required`,
+        path: ['infoCards', key, 'body']
+      })
     }
   }
-  return undefined
+  return combineFieldErrors(fieldErrors)
 }
 
 /**

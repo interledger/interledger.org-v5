@@ -9,6 +9,7 @@ import {
   validateHeroFields,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
@@ -1263,7 +1264,8 @@ export default {
         mergeValidationErrors(
           validateGrantPagePrimaryCta(body),
           validateGrantPageFaqSection(body),
-          validateCtaStrip(body)
+          validateCtaStrip(body),
+          validateGrantInfoCards(body)
         )
     )
     registerBodyValidationMiddleware(
