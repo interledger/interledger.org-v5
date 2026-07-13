@@ -53,6 +53,9 @@ export {
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 
+// Block serialization (dynamic-zone content -> MDX)
+export { serializeContent, validateContentBlocks } from '../serializers/blocks'
+
 // Git sync
 export {
   type SyncContext,

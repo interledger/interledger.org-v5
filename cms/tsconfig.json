@@ -16,11 +16,15 @@
       "@/utils": ["./src/utils/index.ts"],
       "@/utils/*": ["./src/utils/*"],
       "@/*": ["./src/*"],
-      "@site/*": ["../src/*"]
+      "@site/*": ["../src/*"],
+      "@_sh/strapi-plugin-ckeditor": [
+        "./node_modules/@_sh/strapi-plugin-ckeditor/dist/admin/src/index"
+      ]
     }
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.json",
     "config/**/*.ts",
     "types/**/*.ts"
@@ -32,6 +36,8 @@
     ".cache/**",
     ".tmp/**",
     "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+    "src/**/*.spec.ts",
+    "src/admin/**",
+    "src/plugins/**"
   ]
 }

@@ -4,7 +4,8 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  GRANT_PAGE_CONTENT_POPULATE
+  GRANT_PAGE_CONTENT_POPULATE,
+  validateContentBlocks
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -53,11 +54,11 @@ interface FaqSection {
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   primaryCta?: CtaLink | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   infoCards?: InfoCards | null
-  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -160,7 +161,12 @@ function generateGrantPageMDX(
     locale
   }
 
-  const body = serializeContent(grantPage.content)
+  const parts: string[] = []
+  if (grantPage.programOverview?.trim())
+    parts.push(grantPage.programOverview.trim())
+  const blocks = serializeContent(grantPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
@@ -169,6 +175,11 @@ function generateGrantPageMDX(
   )
 }
 
+/*
+  validateContentBlocks(
+      (page as { content?: Array<{ __component: string }> }).content
+    )
+*/
 export default createPageLifecycle({
   contentTypeUid: 'api::grant-page.grant-page',
   outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.grantPages}`,
