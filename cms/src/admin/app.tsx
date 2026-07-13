@@ -212,7 +212,7 @@ export default {
       }
     }
 
-    function applySplitLayoutTypeLabels() {
+    function applySplitLayoutTypeLabels(addedNodes?: Node[]) {
       const formatNodeText = (node: Text) => {
         const text = node.textContent ?? ''
         const trimmed = text.trim()
@@ -231,6 +231,25 @@ export default {
         node.textContent = text.replace(trimmed, formatted)
       }
 
+      if (addedNodes) {
+        // Mutation-triggered: only scan the subtrees of newly added nodes
+        for (const root of addedNodes) {
+          if (!/(image|video)-(text|quote)/.test(root.textContent ?? ''))
+            continue
+          if (root.nodeType === Node.TEXT_NODE) {
+            formatNodeText(root as Text)
+          } else {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+            let node: Text | null
+            while ((node = walker.nextNode() as Text | null)) {
+              formatNodeText(node)
+            }
+          }
+        }
+        return
+      }
+
+      // Initial full-scan path
       const candidates = document.querySelectorAll<HTMLElement>(
         'span, button, p, h2, h3'
       )
@@ -258,7 +277,7 @@ export default {
     }
 
     // TEMP UI Fix: apply DOM tweaks (MutationObserver, no polling)
-    function applyUITweaks() {
+    function applyUITweaks(addedNodes?: Node[]) {
       // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
       const openEntityLink = document.querySelector<HTMLAnchorElement>(
         'li a[href*="plugin::record-locking.open-entity"]'
@@ -349,7 +368,7 @@ export default {
       }
 
       applyImageBlockSeparators()
-      applySplitLayoutTypeLabels()
+      applySplitLayoutTypeLabels(addedNodes)
 
       // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')
@@ -365,11 +384,19 @@ export default {
     }
     applyUITweaks()
     let tweakScheduled = false
-    const uiObserver = new MutationObserver(() => {
+    let pendingAddedNodes: Node[] = []
+    const uiObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          pendingAddedNodes.push(node)
+        }
+      }
       if (tweakScheduled) return
       tweakScheduled = true
       requestAnimationFrame(() => {
-        applyUITweaks()
+        const addedNodes = pendingAddedNodes
+        pendingAddedNodes = []
+        applyUITweaks(addedNodes)
         tweakScheduled = false
       })
     })
