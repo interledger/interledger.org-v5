@@ -8,6 +8,11 @@ overrides:
   '@strapi/design-system': 2.2.0
   '@strapi/icons': 2.2.0
 
+patchedDependencies:
+  '@strapi/content-manager@5.41.1':
+    hash: 994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b
+    path: ../patches/@strapi__content-manager@5.41.1.patch
+
 importers:
 
   .:
@@ -3004,6 +3009,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vercel/oidc@3.0.5':
     resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
@@ -7167,6 +7173,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8flags@4.0.1:
@@ -7842,8 +7849,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-autoformat@47.4.0':
     dependencies:
@@ -7853,8 +7858,6 @@ snapshots:
       '@ckeditor/ckeditor5-typing': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-autosave@47.4.0':
     dependencies:
@@ -7862,8 +7865,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-basic-styles@47.4.0':
     dependencies:
@@ -7885,8 +7886,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-bookmark@47.4.0':
     dependencies:
@@ -7924,8 +7923,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-clipboard@47.4.0':
     dependencies:
@@ -8091,8 +8088,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-heading@47.4.0':
     dependencies:
@@ -8133,8 +8128,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       '@ckeditor/ckeditor5-widget': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-html-support@47.4.0':
     dependencies:
@@ -8150,8 +8143,6 @@ snapshots:
       '@ckeditor/ckeditor5-widget': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-icons@47.4.0': {}
 
@@ -8169,8 +8160,6 @@ snapshots:
       '@ckeditor/ckeditor5-widget': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-indent@47.4.0':
     dependencies:
@@ -8195,8 +8184,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-link@47.4.0':
     dependencies:
@@ -8276,8 +8263,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-minimap@47.4.0':
     dependencies:
@@ -8297,8 +8282,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       '@ckeditor/ckeditor5-widget': 47.4.0
       ckeditor5: 47.4.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-paragraph@47.4.0':
     dependencies:
@@ -8334,6 +8317,8 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-restricted-editing@47.4.0':
     dependencies:
@@ -8441,6 +8426,8 @@ snapshots:
       '@ckeditor/ckeditor5-icons': 47.4.0
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-upload@47.4.0':
     dependencies:
@@ -8451,6 +8438,8 @@ snapshots:
     dependencies:
       '@ckeditor/ckeditor5-ui': 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-watchdog@47.4.0':
     dependencies:
@@ -10257,7 +10246,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@strapi/content-manager@5.41.1(2ed87d6613e2b051c3e21b9ed7909c0d)':
+  '@strapi/content-manager@5.41.1(patch_hash=994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b)(2ed87d6613e2b051c3e21b9ed7909c0d)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
@@ -10331,11 +10320,11 @@ snapshots:
       - tedious
       - typescript
 
-  '@strapi/content-releases@5.41.1(35b304029c233906c82581e7350ea534)':
+  '@strapi/content-releases@5.41.1(5aca1208ca231513fe0b2dfc2479409a)':
     dependencies:
       '@reduxjs/toolkit': 1.9.7(react-redux@8.1.3(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1))(react@18.3.1)
       '@strapi/admin': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@strapi/data-transfer@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4))(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@strapi/content-manager': 5.41.1(2ed87d6613e2b051c3e21b9ed7909c0d)
+      '@strapi/content-manager': 5.41.1(patch_hash=994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b)(2ed87d6613e2b051c3e21b9ed7909c0d)
       '@strapi/database': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)
       '@strapi/design-system': 2.2.0(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@strapi/icons@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.14)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/icons': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
@@ -10675,11 +10664,11 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  '@strapi/i18n@5.41.1(f3cb0c15f28b2e2e7087ebca74ca1fc1)':
+  '@strapi/i18n@5.41.1(204e6ea460980918c395a4c863827e62)':
     dependencies:
       '@reduxjs/toolkit': 1.9.7(react-redux@8.1.3(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1))(react@18.3.1)
       '@strapi/admin': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@strapi/data-transfer@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4))(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@strapi/content-manager': 5.41.1(2ed87d6613e2b051c3e21b9ed7909c0d)
+      '@strapi/content-manager': 5.41.1(patch_hash=994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b)(2ed87d6613e2b051c3e21b9ed7909c0d)
       '@strapi/design-system': 2.2.0(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@strapi/icons@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.14)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/icons': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/utils': 5.41.1
@@ -10782,11 +10771,11 @@ snapshots:
       '@strapi/utils': 5.41.1
       fs-extra: 11.2.0
 
-  '@strapi/review-workflows@5.41.1(6d9d4bf50717dda097ab439406d5332a)':
+  '@strapi/review-workflows@5.41.1(e65a9e46eb8df708d934fea5c4c3fc41)':
     dependencies:
       '@reduxjs/toolkit': 1.9.7(react-redux@8.1.3(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1))(react@18.3.1)
       '@strapi/admin': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@strapi/data-transfer@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4))(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@strapi/content-manager': 5.41.1(2ed87d6613e2b051c3e21b9ed7909c0d)
+      '@strapi/content-manager': 5.41.1(patch_hash=994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b)(2ed87d6613e2b051c3e21b9ed7909c0d)
       '@strapi/design-system': 2.2.0(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@strapi/icons@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.14)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/icons': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/utils': 5.41.1
@@ -10855,19 +10844,19 @@ snapshots:
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.15(react-refresh@0.14.0)(type-fest@4.41.0)(webpack-hot-middleware@2.26.1)(webpack@5.105.4(esbuild@0.27.3))
       '@strapi/admin': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@strapi/data-transfer@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4))(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/cloud-cli': 5.41.1(@types/node@25.4.0)
-      '@strapi/content-manager': 5.41.1(2ed87d6613e2b051c3e21b9ed7909c0d)
-      '@strapi/content-releases': 5.41.1(35b304029c233906c82581e7350ea534)
+      '@strapi/content-manager': 5.41.1(patch_hash=994c527b10a2d1686c6be714648a87480d2302112b886b7f60d4f29a6542e24b)(2ed87d6613e2b051c3e21b9ed7909c0d)
+      '@strapi/content-releases': 5.41.1(5aca1208ca231513fe0b2dfc2479409a)
       '@strapi/content-type-builder': 5.41.1(206b7f88b82969c16b1e367782894786)
       '@strapi/core': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@strapi/data-transfer@5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4))(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@strapi/data-transfer': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.9.3)
       '@strapi/database': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)
       '@strapi/email': 5.41.1(504577f3149e84922851d29ddb5008ed)
       '@strapi/generators': 5.41.1(@types/node@25.4.0)
-      '@strapi/i18n': 5.41.1(f3cb0c15f28b2e2e7087ebca74ca1fc1)
+      '@strapi/i18n': 5.41.1(204e6ea460980918c395a4c863827e62)
       '@strapi/logger': 5.41.1
       '@strapi/openapi': 5.41.1
       '@strapi/permissions': 5.41.1
-      '@strapi/review-workflows': 5.41.1(6d9d4bf50717dda097ab439406d5332a)
+      '@strapi/review-workflows': 5.41.1(e65a9e46eb8df708d934fea5c4c3fc41)
       '@strapi/types': 5.41.1(@types/node@25.4.0)(better-sqlite3@12.8.0)(typescript@5.4.4)
       '@strapi/typescript-utils': 5.41.1
       '@strapi/upload': 5.41.1(875d5a09f0e66a339eb16219cd5704cd)

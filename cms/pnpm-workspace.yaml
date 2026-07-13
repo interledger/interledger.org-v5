@@ -6,3 +6,10 @@ onlyBuiltDependencies:
   - core-js-pure
   - esbuild
   - sharp
+
+overrides:
+  '@strapi/design-system': 2.2.0
+  '@strapi/icons': 2.2.0
+
+patchedDependencies:
+  '@strapi/content-manager@5.41.1': ../patches/@strapi__content-manager@5.41.1.patch

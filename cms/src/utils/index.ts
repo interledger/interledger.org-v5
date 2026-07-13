@@ -29,6 +29,7 @@ export {
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
   getImageUrl,
+  hasMediaValue,
   htmlToMarkdown,
   formatBlockquote,
   uidToLogLabel,
@@ -40,10 +41,13 @@ export {
   validateGrantPageFaqSection,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
+  validateProfileCta,
+  validateCtaStrip,
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,
-  toValidationError
+  toValidationError,
+  mergeValidationErrors
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,
