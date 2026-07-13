@@ -10,6 +10,22 @@
  * - foundation-blog-post/schema.json
  */
 
+/** Blocks available in grant page dynamic zones. */
+const GRANT_BLOCKS = {
+  'blocks.paragraph': {},
+  'blocks.split-layout': {
+    populate: { image: true, cta: true }
+  },
+  'blocks.blockquote': {},
+  'blocks.callout-text': {},
+  'blocks.video-embed': {},
+  'blocks.image-block': {
+    populate: { image: true, tabletImage: true, mobileImage: true }
+  },
+  'blocks.cta-strip': {},
+  'blocks.cta-banner': {}
+} as const
+
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
@@ -57,20 +73,29 @@ export const BLOG_CONTENT_POPULATE = {
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
   primaryCta: true,
-  faqSection: { populate: { items: true } },
-  ctaStrip: true,
-  infoCards: { populate: { card1: true, card2: true, card3: true } },
   content: {
     on: {
+      ...GRANT_BLOCKS,
       'blocks.carousel': {
         populate: { logos: true }
       }
     }
-  }
+  },
+  faqSection: { populate: { items: true } },
+  ctaStrip: true,
+  infoCards: { populate: { card1: true, card2: true, card3: true } }
 } as const
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   hero: { populate: '*' },
+  content: {
+    on: {
+      ...GRANT_BLOCKS,
+      'blocks.carousel': {
+        populate: { logos: true }
+      }
+    }
+  },
   ctaStrip: true
 } as const

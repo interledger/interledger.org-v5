@@ -680,6 +680,82 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksSplitLayout extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_split_layouts'
+  info: {
+    description: 'Two-column layout: media (image or video) on one side, content (text or quote) on the other.'
+    displayName: 'Split Layout'
+    icon: 'layout'
+  }
+  attributes: {
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    cta: Schema.Attribute.Component<'shared.cta-link', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    imageAlt: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'right'>
+    layoutType: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::split-layout-type-picker.layout-type'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'image-text'>
+    quote: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    quoteSource: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    videoUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
@@ -1037,6 +1113,7 @@ declare module '@strapi/strapi' {
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
+      'blocks.split-layout': BlocksSplitLayout
       'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem

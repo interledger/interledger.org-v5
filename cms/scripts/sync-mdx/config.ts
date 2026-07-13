@@ -26,6 +26,7 @@ import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
 import './codeBlockHandler'
+import './splitLayoutHandler'
 import './carouselHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
@@ -117,6 +118,7 @@ export function buildContentTypes(
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
+  const grantOverviewPageAltIds = new Map<number, string | null>()
 
   return {
     profiles: {
@@ -168,12 +170,13 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'grantOverviewPages'),
       apiId: 'grant-overview-pages',
       schema: grantOverviewPageFrontmatterSchema,
-      buildPayload: (mdx, strapi, _existing, dryRun) =>
+      buildPayload: (mdx, strapi, existing, dryRun) =>
         buildGrantOverviewPagePayload(
           grantOverviewPageFrontmatterSchema,
           mdx,
           { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
-          pageAltIds,
+          existing,
+          grantOverviewPageAltIds,
           dryRun
         )
     },

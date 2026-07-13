@@ -1,0 +1,117 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import Blockquote from '@/components/shared/Blockquote.astro'
+
+interface Props {
+  layoutType?: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
+  /** Which side the image or video column appears on. Default: right. */
+  imagePosition?: 'left' | 'right'
+  imageSrc?: string
+  imageAlt?: string
+  videoUrl?: string
+  quote?: string
+  quoteSource?: string
+  ctaText?: string
+  ctaLink?: string
+  ctaStyle?: string
+  ctaExternal?: boolean
+}
+
+const {
+  layoutType,
+  imagePosition = 'right',
+  imageSrc,
+  imageAlt,
+  videoUrl,
+  quote,
+  quoteSource,
+  ctaText,
+  ctaLink,
+  ctaStyle,
+  ctaExternal
+} = Astro.props
+
+const isVideoLayout = layoutType
+  ? layoutType.startsWith('video')
+  : Boolean(videoUrl)
+const isQuoteLayout = layoutType
+  ? layoutType.endsWith('-quote')
+  : Boolean(quote)
+const hasMedia = isVideoLayout ? Boolean(videoUrl) : Boolean(imageSrc)
+const mediaFirst = imagePosition === 'left'
+const mediaColumnClass =
+  'w-full tablet:w-[45%] tablet:max-w-[22rem] tablet:shrink-0'
+const contentColumnClass =
+  'w-full flex flex-col gap-space-m tablet:min-w-0 tablet:flex-1'
+---
+
+<div
+  class="my-space-2xl flex flex-col gap-3xl tablet:flex-row tablet:items-center tablet:gap-6xl"
+>
+  {
+    mediaFirst && hasMedia && (
+      <div class={mediaColumnClass}>
+        {isVideoLayout && videoUrl ? (
+          <VideoEmbed url={videoUrl} title="Video" />
+        ) : imageSrc ? (
+          <OptimizedImage
+            src={imageSrc}
+            alt={imageAlt ?? ''}
+            width={640}
+            height={480}
+            loading="lazy"
+            class="w-full h-auto rounded-lg object-cover"
+          />
+        ) : null}
+      </div>
+    )
+  }
+
+  <div class={contentColumnClass}>
+    {
+      isQuoteLayout && quote ? (
+        <Blockquote quote={quote} source={quoteSource} />
+      ) : (
+        <>
+          <div class="[&>*:last-child]:mb-0">
+            <slot />
+          </div>
+          {ctaText && ctaLink && (
+            <div>
+              <LinkButton
+                href={ctaLink}
+                variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
+                external={ctaExternal}
+              >
+                {ctaText}
+                {ctaExternal && <Icon name="arrow-right" slot="icon-right" />}
+              </LinkButton>
+            </div>
+          )}
+        </>
+      )
+    }
+  </div>
+
+  {
+    !mediaFirst && hasMedia && (
+      <div class={mediaColumnClass}>
+        {isVideoLayout && videoUrl ? (
+          <VideoEmbed url={videoUrl} title="Video" />
+        ) : imageSrc ? (
+          <OptimizedImage
+            src={imageSrc}
+            alt={imageAlt ?? ''}
+            width={640}
+            height={480}
+            loading="lazy"
+            class="w-full h-auto rounded-lg object-cover"
+          />
+        ) : null}
+      </div>
+    )
+  }
+</div>

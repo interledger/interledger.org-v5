@@ -722,6 +722,24 @@ export interface ApiGrantOverviewPageGrantOverviewPage
     }
   }
   attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.split-layout',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.cta-strip',
+        'blocks.cta-banner',
+        'blocks.carousel'
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -801,7 +819,19 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.carousel']> &
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.split-layout',
+        'blocks.blockquote',
+        'blocks.callout-text',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.cta-strip',
+        'blocks.cta-banner',
+        'blocks.carousel'
+      ]
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

@@ -764,6 +764,16 @@ const baseGrantFrontmatter = {
 // Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
 // and optional primaryCta / seo being omitted when absent.
 describe('buildGrantPagePayload', () => {
+  // Shared stub: content parsing (JSX -> dynamic-zone blocks) only runs when
+  // a strapi client is supplied — mirrors buildPagePayload's parserCtx-gated
+  // behavior for foundation/summit pages.
+  function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+    return {
+      findUploadByUrl: async (url: string) => uploads[url] ?? null,
+      updateUploadAlt: async () => undefined
+    } as unknown as StrapiClient
+  }
+
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
       const mdx = createMdxFile({
@@ -1069,7 +1079,7 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('programOverview', () => {
-    it('is set from frontmatter when present', async () => {
+    it('is always null — the body is carried by the content dynamic zone instead', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -1082,9 +1092,7 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect((payload as Record<string, unknown>).programOverview).toBe(
-        '## Eligibility\n\n- Accredited institutions'
-      )
+      expect((payload as Record<string, unknown>).programOverview).toBeNull()
     })
 
     it('is null when absent from frontmatter', async () => {
@@ -1111,6 +1119,73 @@ describe('buildGrantPagePayload', () => {
         mdx
       )
       expect((payload as Record<string, unknown>).programOverview).toBeNull()
+    })
+  })
+
+  describe('content dynamic zone', () => {
+    it('parses plain markdown body into a blocks.paragraph block', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: '## Eligibility\n\n- Accredited institutions'
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.paragraph',
+          content: '## Eligibility\n\n- Accredited institutions'
+        }
+      ])
+    })
+
+    it('parses a <SplitLayout> component into a blocks.split-layout block', async () => {
+      await import('./splitLayoutHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content:
+          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/img/foo.jpg': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.split-layout',
+          layoutType: 'image-text',
+          imagePosition: 'left',
+          image: 42,
+          imageAlt: 'Foo',
+          content: 'Some body copy.',
+          cta: { text: 'Apply', link: 'https://example.com' }
+        }
+      ])
+    })
+
+    it('does not include content when no mdx body and no existing entry', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).content).toBeUndefined()
     })
   })
 
@@ -1254,13 +1329,6 @@ describe('buildGrantPagePayload', () => {
   // `content` when a strapi client is supplied — mirrors buildPagePayload's
   // parserCtx-gated behavior for foundation/summit pages.
   describe('content parsing', () => {
-    function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
-      return {
-        findUploadByUrl: async (url: string) => uploads[url] ?? null,
-        updateUploadAlt: async () => undefined
-      } as unknown as StrapiClient
-    }
-
     it('parses a LogoCarousel body into a blocks.carousel content entry when strapi is provided', async () => {
       // Import handler side-effects to register LogoCarousel
       await import('./carouselHandler')
@@ -1355,6 +1423,16 @@ const baseGrantOverviewFrontmatter = {
 // Maps grant-overview-page MDX frontmatter to the Strapi grant-overview-page payload shape.
 // Key risk: CTA field name translation (buttonText→primaryButtonText, etc.)
 describe('buildGrantOverviewPagePayload', () => {
+  // Shared stub: content parsing (JSX -> dynamic-zone blocks) only runs when
+  // a strapi client is supplied — mirrors buildGrantPagePayload's
+  // parserCtx-gated behavior.
+  function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+    return {
+      findUploadByUrl: async (url: string) => uploads[url] ?? null,
+      updateUploadAlt: async () => undefined
+    } as unknown as StrapiClient
+  }
+
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
       const mdx = createMdxFile({
@@ -1504,7 +1582,7 @@ describe('buildGrantOverviewPagePayload', () => {
   })
 
   describe('followUpContent', () => {
-    it('includes MDX body as followUpContent', async () => {
+    it('is always null once content is parsed into dynamic-zone blocks', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
@@ -1515,12 +1593,10 @@ describe('buildGrantOverviewPagePayload', () => {
         grantOverviewPageFrontmatterSchema,
         mdx
       )
-      expect((payload as Record<string, unknown>).followUpContent).toBe(
-        'Some follow-up text.'
-      )
+      expect((payload as Record<string, unknown>).followUpContent).toBeNull()
     })
 
-    it('sets followUpContent to null when body is empty', async () => {
+    it('is null when body is empty', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
@@ -1686,6 +1762,83 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImage: null
       })
+    })
+  })
+
+  describe('content dynamic zone', () => {
+    it('parses plain markdown body into a blocks.paragraph block', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content: '## Eligibility\n\n- Accredited institutions'
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        {
+          strapi: stubStrapi(),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.paragraph',
+          content: '## Eligibility\n\n- Accredited institutions'
+        }
+      ])
+    })
+
+    it('parses a <SplitLayout> component into a blocks.split-layout block', async () => {
+      await import('./splitLayoutHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content:
+          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        {
+          strapi: stubStrapi({ '/img/foo.jpg': 42 }),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.split-layout',
+          layoutType: 'image-text',
+          imagePosition: 'left',
+          image: 42,
+          imageAlt: 'Foo',
+          content: 'Some body copy.',
+          cta: { text: 'Apply', link: 'https://example.com' }
+        }
+      ])
+    })
+
+    it('does not include content when no mdx body and no existing entry', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).content).toBeUndefined()
     })
   })
 })

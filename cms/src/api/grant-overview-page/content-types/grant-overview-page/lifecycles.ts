@@ -9,8 +9,10 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
   validateHeroFields,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  validateContentBlocks
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 declare const strapi: Core.Strapi
 
@@ -26,12 +28,13 @@ interface CtaStrip {
 
 interface GrantOverviewPageData extends PageData {
   description?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   followUpContent?: string
   hero?: Record<string, unknown> | null
   ctaStrip?: CtaStrip | null
 }
 
-function generateGrantOverviewPageMDX(
+export function generateGrantOverviewPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
@@ -40,9 +43,6 @@ function generateGrantOverviewPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // Fields owned by Strapi components must be explicitly deleted from
-  // restPreserved so that removing them in Strapi clears them from the MDX
-  // rather than leaving the old value behind.
   // Clear hero fields — removing the hero in Strapi must also clear them from MDX.
   for (const key of [
     'heroTitle',
@@ -87,7 +87,12 @@ function generateGrantOverviewPageMDX(
     locale
   }
 
-  const body = overviewPage.followUpContent ?? ''
+  const parts: string[] = []
+  if (overviewPage.followUpContent?.trim())
+    parts.push(overviewPage.followUpContent.trim())
+  const blocks = serializeContent(overviewPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
@@ -129,7 +134,9 @@ const lifecycle = createPageLifecycle({
     typeof createPageLifecycle
   >[0]['populate'],
   generateMDX: generateGrantOverviewPageMDX,
-  validate: (page) => validateHeroFields(page)
+  validate: (page) =>
+    validateHeroFields(page) ??
+    validateContentBlocks((page as GrantOverviewPageData).content ?? undefined)
 })
 
 export default {
