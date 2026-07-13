@@ -110,6 +110,23 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
   title: string
 }
 
+/**
+ * blocks.image-block — standalone image with optional responsive variants.
+ *
+ * `image`, `tabletImage`, and `mobileImage` are Strapi upload integer IDs
+ * (single media), resolved from repo asset paths via ctx.resolveMediaUpload.
+ * `needsFullView` and `needsOutline` are required on the schema (default false).
+ */
+export interface ImageBlockBlock extends StrapiBlockBase {
+  __component: 'blocks.image-block'
+  image: number
+  tabletImage?: number
+  mobileImage?: number
+  altText?: string
+  needsFullView: boolean
+  needsOutline: boolean
+}
+
 /** blocks.code-block — syntax-highlighted code snippet. */
 export interface CodeBlockBlock extends StrapiBlockBase {
   __component: 'blocks.code-block'
@@ -162,3 +179,4 @@ export type ParsedBlock =
   | CodeBlockBlock
   | SplitLayoutBlock
   | CarouselBlock
+  | ImageBlockBlock
