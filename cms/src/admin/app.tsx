@@ -249,30 +249,19 @@ export default {
         return
       }
 
-      // Initial full-scan path
-      const candidates = document.querySelectorAll<HTMLElement>(
-        'span, button, p, h2, h3'
-      )
-      const hasSplitLayoutSlug = Array.from(candidates).some((el) =>
-        /(image|video)-(text|quote)/.test(el.textContent ?? '')
-      )
-      if (!hasSplitLayoutSlug) return
+      // Initial full-scan path: only walk text nodes within matched elements
+      const matchingEls = Array.from(
+        document.querySelectorAll<HTMLElement>('span, button, p, h2, h3')
+      ).filter((el) => /(image|video)-(text|quote)/.test(el.textContent ?? ''))
 
-      const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT
-      )
-      let node: Text | null
-      while ((node = walker.nextNode() as Text | null)) {
-        formatNodeText(node)
-      }
+      if (matchingEls.length === 0) return
 
-      for (const el of Array.from(candidates)) {
-        const text = el.textContent ?? ''
-        if (!/(image|video)-(text|quote)/.test(text)) continue
-        const formatted = formatSplitLayoutPanelTitle(text)
-        if (!formatted || formatted === text.trim()) continue
-        el.textContent = formatted
+      for (const el of matchingEls) {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        let node: Text | null
+        while ((node = walker.nextNode() as Text | null)) {
+          formatNodeText(node)
+        }
       }
     }
 
