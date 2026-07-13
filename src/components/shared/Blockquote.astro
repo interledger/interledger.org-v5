@@ -18,15 +18,15 @@ const htmlSource = parseMarkdownInline(source, {
 ---
 
 <div
-  class="px-space-s py-space-2xs border-l-4 border-r-4 border-primary mb-space-s"
+  class="px-space-s py-0 border-l-2 border-r-2 border-primary mb-space-s [&_blockquote]:m-0 [&_blockquote]:border-0 [&_blockquote]:p-0 [&>p]:my-0"
 >
-  <blockquote class="text-step-1">
+  <blockquote class="text-h5 tablet:text-h5-md desktop:text-h5-lg">
     {quote ?? <slot />}
   </blockquote>
   {
     htmlSource && (
-      <p>
-        — <cite class="text-step-1" set:html={htmlSource} />
+      <p class="my-0">
+        — <cite class="text-body-lg-standard" set:html={htmlSource} />
       </p>
     )
   }

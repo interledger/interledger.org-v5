@@ -424,7 +424,17 @@ export async function buildProfilePayload(
   })
 }
 
-// Builds a Strapi payload for a grant-page MDX file.
+/**
+ * Builds a Strapi payload for a grant-page MDX file.
+ *
+ * Maps frontmatter fields to the grant-page Strapi schema. The MDX body is
+ * parsed into `content` dynamic-zone blocks (blocks.paragraph,
+ * blocks.split-layout, etc.) via the same JSX block parser used for
+ * foundation/summit pages — this is what lets `<SplitLayout>` and friends
+ * show up in Strapi's dynamic zone. `programOverview` is a legacy plain-text
+ * mirror of the body kept only for entries that predate the block parser;
+ * once a page is parsed into blocks it stays cleared.
+ */
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
   mdx: MDXFile,
@@ -520,7 +530,7 @@ export async function buildGrantPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
-      programOverview: nullOrValue(parsed.programOverview),
+      programOverview: null,
       primaryCta,
       faqSection,
       ctaStrip,
@@ -534,12 +544,21 @@ export async function buildGrantPagePayload(
 /**
  * Builds a Strapi payload for a grant-overview-page MDX file.
  *
- * Maps frontmatter fields and MDX body to the grant-overview-page Strapi schema.
- * No image resolution needed — grant overview pages contain no managed media fields.
+ * Maps frontmatter fields to the grant-overview-page Strapi schema. The MDX
+ * body is parsed into `content` dynamic-zone blocks (blocks.paragraph,
+ * blocks.split-layout, blocks.carousel, etc.) via the same JSX block parser
+ * used for grant-page — this is what lets `<SplitLayout>` and friends show
+ * up in Strapi's dynamic zone. `followUpContent` is a legacy plain-text
+ * mirror of the body kept only for entries that predate the block parser;
+ * once a page is parsed into blocks it stays cleared.
  */
 export async function buildGrantOverviewPagePayload(
   schema: typeof grantOverviewPageFrontmatterSchema,
-  mdx: MDXFile
+  mdx: MDXFile,
+  strapi?: StrapiClient,
+  existingEntry: StrapiEntry | null = null,
+  updatedAltIds: Map<number, string | null> = new Map(),
+  dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -559,12 +578,42 @@ export async function buildGrantOverviewPagePayload(
         : {})
     }
 
+    const parserCtx: ParserContext | undefined = strapi
+      ? {
+          locale: mdx.locale || 'en',
+          resolveMediaUpload: async (url: string) => {
+            const id = await strapi.findUploadByUrl(url)
+            if (id instanceof Error) throw id
+            if (!id) {
+              throw new MdxParserError({
+                code: ParserErrorCode.UNRESOLVED_RELATION,
+                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+              })
+            }
+            return id
+          },
+          updateMediaAlt: async (id: number, alt: string | null) => {
+            await updateUploadAltOnce(
+              strapi,
+              id,
+              alt,
+              updatedAltIds,
+              mdx.pathSlug,
+              dryRun
+            )
+          }
+        }
+      : undefined
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       ctaStrip,
-      followUpContent: (mdx.content || '').trim() || null,
+      followUpContent: null,
+      ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
   })

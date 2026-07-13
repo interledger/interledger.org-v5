@@ -7,7 +7,8 @@ import {
   GRANT_PAGE_CONTENT_POPULATE,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
-  validateGrantPageFaqSection
+  validateGrantPageFaqSection,
+  validateContentBlocks
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -56,11 +57,11 @@ interface FaqSection {
 interface GrantPageData extends PageData {
   description?: string
   programOverview?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   primaryCta?: CtaLink | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
   infoCards?: InfoCards | null
-  content?: Array<{ __component: string; [key: string]: unknown }>
 }
 
 function generateGrantPageMDX(
@@ -163,7 +164,12 @@ function generateGrantPageMDX(
     locale
   }
 
-  const body = serializeContent(grantPage.content)
+  const parts: string[] = []
+  if (grantPage.programOverview?.trim())
+    parts.push(grantPage.programOverview.trim())
+  const blocks = serializeContent(grantPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
@@ -182,5 +188,8 @@ export default createPageLifecycle({
   validate: (page) =>
     validateGrantPagePrimaryCta(page) ??
     validateGrantInfoCards(page) ??
-    validateGrantPageFaqSection(page)
+    validateGrantPageFaqSection(page) ??
+    validateContentBlocks(
+      (page as { content?: Array<{ __component: string }> }).content
+    )
 })

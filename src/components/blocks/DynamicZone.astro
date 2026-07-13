@@ -21,6 +21,7 @@ import PdfEmbedBlock from './PdfEmbedBlock.astro'
 import VideoEmbedBlock from './VideoEmbedBlock.astro'
 import ImageBlock from './ImageBlock.astro'
 import CodeBlock from './CodeBlock.astro'
+import SplitLayout from './SplitLayout.astro'
 
 interface Block {
   __component: string
@@ -48,7 +49,8 @@ const componentMap: Record<string, any> = {
   'blocks.pdf-embed': PdfEmbedBlock,
   'blocks.video-embed': VideoEmbedBlock,
   'blocks.image-block': ImageBlock,
-  'blocks.code-block': CodeBlock
+  'blocks.code-block': CodeBlock,
+  'blocks.split-layout': SplitLayout
 }
 
 const resolvedBlocks = blocks

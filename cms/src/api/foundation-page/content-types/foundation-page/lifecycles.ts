@@ -1,4 +1,8 @@
-import { createPageLifecycle, PATHS, validateHeroFields } from '../../../utils'
+import {
+  createPageLifecycle,
+  PATHS,
+  validateHeroFields
+} from '../../../../utils'
 import { FOUNDATION_PAGE_CONTENT_POPULATE } from '../../../../utils/contentPopulate'
 import { validateContentBlocks } from '../../../../serializers/blocks'
 
