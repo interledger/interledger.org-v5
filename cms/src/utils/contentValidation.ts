@@ -184,6 +184,30 @@ export function validateGrantInfoCards(
 }
 
 /**
+ * Validate the optional `date` component on a report.
+ *
+ * When `date` is absent, no dates render on the page — that is valid. When it
+ * is present, `publishDate` is required; Strapi's partial update validator
+ * skips required-field checks on PUT, so this fills the gap. `lastUpdated`
+ * has no separate check: it only ever exists alongside a `date` component,
+ * whose presence already requires `publishDate`.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateReportDate(
+  body: unknown
+): errors.ValidationError | undefined {
+  const date = (body as Record<string, unknown>)?.date
+  if (!date || typeof date !== 'object') return undefined
+
+  const { publishDate } = date as Record<string, unknown>
+  if (!publishDate || typeof publishDate !== 'string') {
+    return new errors.ValidationError('Date: Publish Date is required')
+  }
+  return undefined
+}
+
+/**
  * Validate the Hero component on page-like content types (foundation-page,
  * summit-page). Delegates to `heroFrontmatter`
  *

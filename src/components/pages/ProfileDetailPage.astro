@@ -15,7 +15,7 @@ import {
   type Locale,
   useTranslations,
   getProfileColorIndex,
-  localizeRoute,
+  buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
   getOptimizedImage
 } from '@/utils'
@@ -63,27 +63,13 @@ const avatarPreloadType = avatarSrc?.endsWith('.avif')
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'
 
-// Build breadcrumbs: Home > [section base?] > [pathSlug parents] > name
-const sectionPrefix =
-  entry.data.section && entry.data.section !== 'foundation'
-    ? entry.data.section
-    : ''
-const fullPath = [sectionPrefix, entry.data.pathSlug].filter(Boolean).join('/')
-const allParts = fullPath.split('/')
-const parentParts = allParts.slice(0, -1)
-const toLabel = (seg: string) =>
-  seg
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
-  ...parentParts.map((_, i) => ({
-    name: toLabel(parentParts[i]),
-    href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
-  })),
-  { name, href: localizeRoute(fullPath, contentLocale) }
-]
+const breadcrumbs = buildSectionEntryBreadcrumbs(
+  entry.data.pathSlug,
+  entry.data.section,
+  name,
+  contentLocale,
+  t('nav.home')
+)
 ---
 
 <FoundationPageLayout

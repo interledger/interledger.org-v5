@@ -1,0 +1,91 @@
+---
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import {
+  type Locale,
+  useTranslations,
+  buildSectionEntryBreadcrumbs,
+  formatDate
+} from '@/utils'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const t = useTranslations(contentLocale)
+
+const allReports = await getCollection('reports')
+const entry = allReports.find(
+  (r) => r.data.pathSlug === slug && r.data.locale === contentLocale
+)
+
+if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
+
+const { Content: MdxContent } = await render(entry)
+const { title, heading, description, introParagraph, date } = entry.data
+const hasBody = Boolean(entry.body?.trim())
+
+const breadcrumbs = buildSectionEntryBreadcrumbs(
+  entry.data.pathSlug,
+  entry.data.section,
+  heading,
+  contentLocale,
+  t('nav.home')
+)
+---
+
+<FoundationPageLayout title={title} description={description} headerTheme="light">
+  <main 
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+
+  >
+    <TranslationDisclaimer isVisible={isFallback} />
+    <div class="max-w-content">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <h2
+          class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
+        >
+        {heading}
+      </h2>
+      {
+        date && (
+          <div class="mt-md flex items-center gap-2">
+            <time datetime={date.publishDate.toISOString()} class="text-body-lg-standard text-neutral-900">
+              {t('report.published', { date: formatDate(date.publishDate, contentLocale) })}
+            </time>
+            {date.lastUpdated && (
+              <>
+                <span class="h-px w-6.5 rotate-90 bg-neutral-75" />
+                <time datetime={date.lastUpdated.toISOString()} class="text-body-lg-standard text-neutral-75">
+                  {t('report.updated', { date: formatDate(date.lastUpdated, contentLocale) })}
+                </time>
+              </>
+            )}
+          </div>
+        )
+      }
+      {
+        introParagraph && (
+          <section aria-label={t('report.introduction')} class="mt-xl">
+            <p class="text-body-xl-standard tablet:text-body-xl-standard-md text-neutral-900">
+              {introParagraph}
+            </p>
+          </section>
+        )
+      }
+      {
+        hasBody && (
+          <section data-prose aria-label={t('report.body')} class="mt-2xl">
+            <MdxContent components={{ Paragraph }} />
+          </section>
+        )
+      }
+    </div>
+  </main>
+</FoundationPageLayout>

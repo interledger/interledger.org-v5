@@ -5,6 +5,7 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
+  validateReportDate,
   normalizeNavigationInput,
   LOCALES,
   shouldSkipMdxExport
@@ -548,6 +549,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content'
+    },
+    'api::report.report': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      heading: 'Heading',
+      description: 'Short Description',
+      introParagraph: 'Intro Paragraph',
+      date: 'Date',
+      content: 'Content'
     }
   }
 
@@ -597,6 +608,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+    },
+    'api::report.report': {
+      pathSlug:
+        'Full path from the site root, no leading slash. Example: policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions.',
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      heading:
+        'The heading shown at the top of the report page. Can differ from the Page Title.',
+      introParagraph:
+        'Optional intro paragraph shown below the heading and dates.',
+      date: 'Optional. Add this component to show a Publish Date (required once added) and an optional Last Updated date.'
     }
   }
 
@@ -646,6 +670,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       style: 'Style',
       external: 'External Link'
+    },
+    'shared.report-date': {
+      publishDate: 'Publish Date',
+      lastUpdated: 'Last Updated'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -754,6 +782,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.category': {
       categoryValue:
         'You can select multiple categories — click "+ Add an entry" for each category'
+    },
+    'shared.report-date': {
+      lastUpdated:
+        'Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts).'
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
@@ -935,6 +967,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'cta', size: 12 }]
+    ],
+    'api::report.report': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'date', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }],
+      [{ name: 'content', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
       [
@@ -1174,6 +1218,47 @@ export default {
           CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
         ) {
           const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
+          if (validationErr) {
+            ctx.status = 400
+            ctx.body = {
+              data: null,
+              error: {
+                status: 400,
+                name: 'ValidationError',
+                message: validationErr.message
+              }
+            }
+            return
+          }
+        }
+        await next()
+      }
+    )
+
+    // Validate the optional `date` component on reports — reject a report
+    // saved without a Publish Date once the Date component has been added.
+    // Registered as Koa middleware (not beforeUpdate/beforeCreate) because
+    // `date` is nested inside a component: by the time a lifecycle hook runs,
+    // Strapi has already resolved it to a `{id, __pivot}` DB reference rather
+    // than the real field values.
+    const REPORT_PATTERN =
+      /^\/content-manager\/collection-types\/api::report\.report/
+    strapi.server?.use?.(
+      async (
+        ctx: {
+          method?: string
+          url?: string
+          request?: { body?: { date?: unknown } }
+          status?: number
+          body?: unknown
+        },
+        next: () => Promise<void>
+      ) => {
+        if (
+          (ctx.method === 'PUT' || ctx.method === 'POST') &&
+          REPORT_PATTERN.test(ctx.url ?? '')
+        ) {
+          const validationErr = validateReportDate(ctx.request?.body)
           if (validationErr) {
             ctx.status = 400
             ctx.body = {

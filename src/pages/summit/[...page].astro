@@ -1,6 +1,7 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import ReportPage from '@/components/pages/ReportPage.astro'
 import {
   getLocalizedPaths,
   getCrossSectionPaths,
@@ -27,6 +28,8 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
       contentLocale={contentLocale}
       isFallback={isFallback}
     />
+  ) : kind === 'report' ? (
+    <ReportPage slug={slug} contentLocale={contentLocale} isFallback={isFallback} />
   ) : (
     <SummitContentPage slug={slug} contentLocale={contentLocale} />
   )

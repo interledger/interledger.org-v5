@@ -3,6 +3,7 @@ import FoundationContentPage from '@/components/pages/FoundationContentPage.astr
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import GrantPage from '@/components/pages/GrantPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import ReportPage from '@/components/pages/ReportPage.astro'
 import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
 
 export async function getStaticPaths() {
@@ -41,6 +42,8 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
       contentLocale={contentLocale}
       isFallback={isFallback}
     />
+  ) : kind === 'report' ? (
+    <ReportPage slug={slug} contentLocale={contentLocale} isFallback={isFallback} />
   ) : kind === 'grant-page' ? (
     <GrantPage
       slug={slug}

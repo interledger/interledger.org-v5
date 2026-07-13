@@ -9,6 +9,7 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   profileFrontmatterSchema,
+  reportFrontmatterSchema,
   summitPageFrontmatterSchema
 } from './schemas/content'
 import { CONTENT, CONTENT_ROOT } from '@/utils/main/contentCollections'
@@ -69,6 +70,14 @@ const profilesCollection = defineCollection({
   schema: profileFrontmatterSchema
 })
 
+const reportsCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.reports}`
+  }),
+  schema: reportFrontmatterSchema
+})
+
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
@@ -78,7 +87,8 @@ export const collections = {
   'grant-pages': grantPagesCollection,
   'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,
-  profiles: profilesCollection
+  profiles: profilesCollection,
+  reports: reportsCollection
 }
 
 export type CollectionType = keyof typeof collections

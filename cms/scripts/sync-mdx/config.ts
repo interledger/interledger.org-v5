@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildReportPayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
@@ -15,7 +16,8 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  reportFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -68,6 +70,7 @@ export interface ContentTypes {
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
+  reports: ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -148,6 +151,29 @@ export function buildContentTypes(
           profileAltIds,
           dryRun
         )
+      }
+    },
+    reports: {
+      dir: getContentPath(projectRoot, 'reports'),
+      apiId: 'reports',
+      schema: reportFrontmatterSchema,
+      buildPayload: (mdx, strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
+          locale,
+          resolveRelation: createRelationResolver(strapi, locale),
+          resolveMediaUpload: async (url: string) => {
+            const id = await strapi.findUploadByUrl(url)
+            if (id instanceof Error) throw id
+            if (!id) {
+              throw new MdxParserError({
+                code: ParserErrorCode.UNRESOLVED_RELATION,
+                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+              })
+            }
+            return id
+          }
+        })
       }
     },
     'grant-pages': {
