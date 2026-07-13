@@ -1596,9 +1596,7 @@ describe('buildReportPayload', () => {
       })
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
-      expect(
-        (payload as Record<string, unknown>).introParagraph
-      ).toBeNull()
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
     })
   })
 
@@ -1659,8 +1657,9 @@ describe('buildReportPayload', () => {
       })
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
-      const content = (payload as Record<string, unknown>)
-        .content as Array<Record<string, unknown>>
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
       expect(content[0]?.__component).toBe('blocks.paragraph')
       expect(content[0]?.content).toBe('The full report body.')
     })

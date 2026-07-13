@@ -43,7 +43,11 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
       isFallback={isFallback}
     />
   ) : kind === 'report' ? (
-    <ReportPage slug={slug} contentLocale={contentLocale} isFallback={isFallback} />
+    <ReportPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
   ) : kind === 'grant-page' ? (
     <GrantPage
       slug={slug}

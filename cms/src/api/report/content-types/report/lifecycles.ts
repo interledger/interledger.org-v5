@@ -17,7 +17,8 @@ interface Report extends ReportBase {
 export default createFlatLocaleMdxLifecycle<Report, 'api::report.report'>({
   contentTypeUid: 'api::report.report',
   label: 'report',
-  getBaseDir: (locale) => getContentPath(getTargetRepoRoot(), 'reports', locale),
+  getBaseDir: (locale) =>
+    getContentPath(getTargetRepoRoot(), 'reports', locale),
   toMdxFilename: pathSlugToMdxFilename,
   generateContent: generateReportMdx,
   populate: { content: REPORT_CONTENT_POPULATE, date: true }

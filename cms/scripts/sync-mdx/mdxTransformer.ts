@@ -579,7 +579,9 @@ function reportDatePayload(
   const date = value as { publishDate?: unknown; lastUpdated?: unknown }
   if (!date.publishDate) return null
   return {
-    publishDate: new Date(date.publishDate as string).toISOString().split('T')[0]!,
+    publishDate: new Date(date.publishDate as string)
+      .toISOString()
+      .split('T')[0]!,
     ...(date.lastUpdated
       ? {
           lastUpdated: new Date(date.lastUpdated as string)

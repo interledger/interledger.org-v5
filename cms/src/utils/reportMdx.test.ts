@@ -53,7 +53,10 @@ describe('generateReportMdx', () => {
       generateReportMdx(
         makeReport({
           content: [
-            { __component: 'blocks.paragraph', content: 'The full report body.' }
+            {
+              __component: 'blocks.paragraph',
+              content: 'The full report body.'
+            }
           ]
         })
       )
@@ -64,9 +67,7 @@ describe('generateReportMdx', () => {
 
   it('writes the date component when publishDate is present', () => {
     const { data } = matter(
-      generateReportMdx(
-        makeReport({ date: { publishDate: '2026-06-15' } })
-      )
+      generateReportMdx(makeReport({ date: { publishDate: '2026-06-15' } }))
     )
     expect(data.date).toEqual({ publishDate: '2026-06-15' })
   })

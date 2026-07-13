@@ -54,9 +54,7 @@ export function generateReportMdx(
     ...(report.section ? { section: report.section } : {}),
     heading: report.heading,
     description: report.description,
-    ...(report.introParagraph
-      ? { introParagraph: report.introParagraph }
-      : {}),
+    ...(report.introParagraph ? { introParagraph: report.introParagraph } : {}),
     ...(date ? { date } : {}),
     locale: report.locale ?? defaultLang,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
