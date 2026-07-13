@@ -1,58 +1,45 @@
 import { describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
-import { registerBodyValidationMiddleware } from './index'
+import { registerDocumentValidation } from './index'
 
 function getRegisteredMiddleware(
-  pattern: RegExp,
+  uid: string,
   validate: (
     body: Record<string, unknown>
   ) => errors.ValidationError | undefined
 ) {
   const use = vi.fn()
-  registerBodyValidationMiddleware({ server: { use } }, pattern, validate)
+  registerDocumentValidation({ documents: { use } }, uid, validate)
   return use.mock.calls[0][0] as (
     ctx: {
-      method?: string
-      url?: string
-      request?: { body?: Record<string, unknown> }
-      status?: number
-      body?: unknown
+      uid: string
+      action: string
+      params: { data?: Record<string, unknown> }
     },
     next: () => Promise<void>
   ) => Promise<void>
 }
 
-describe('registerBodyValidationMiddleware', () => {
-  const PATTERN =
-    /^\/content-manager\/collection-types\/api::grant-page\.grant-page/
+describe('registerDocumentValidation', () => {
+  const UID = 'api::grant-page.grant-page'
 
-  it('rejects a matching request with a 400 when validate returns an error, before calling next', async () => {
+  it('rejects a matching document write by throwing the ValidationError, before calling next', async () => {
     const validate = vi.fn(() => new errors.ValidationError('bad primaryCta'))
-    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
     const ctx = {
-      method: 'PUT',
-      url: '/content-manager/collection-types/api::grant-page.grant-page/doc1?locale=en',
-      request: { body: { primaryCta: { text: '' } } }
+      uid: UID,
+      action: 'update',
+      params: { data: { primaryCta: { text: '' } } }
     }
 
-    await middleware(ctx, next)
+    await expect(middleware(ctx, next)).rejects.toThrow('bad primaryCta')
 
-    expect(ctx.status).toBe(400)
-    expect(ctx.body).toEqual({
-      data: null,
-      error: {
-        status: 400,
-        name: 'ValidationError',
-        message: 'bad primaryCta',
-        details: {}
-      }
-    })
     expect(next).not.toHaveBeenCalled()
     expect(validate).toHaveBeenCalledWith({ primaryCta: { text: '' } })
   })
 
-  it('forwards details.errors[].path so the admin can highlight the specific field — INTORG-796 regression: this was previously dropped, so field highlighting never worked even though the validator produced a path', async () => {
+  it('throws with details.errors[].path intact so the admin can highlight the specific field', async () => {
     const validate = vi.fn(
       () =>
         new errors.ValidationError('Primary Call to Action: Text is required', {
@@ -65,61 +52,55 @@ describe('registerBodyValidationMiddleware', () => {
           ]
         })
     )
-    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
     const ctx = {
-      method: 'PUT',
-      url: '/content-manager/collection-types/api::grant-page.grant-page/doc1?locale=en',
-      request: { body: { primaryCta: { text: '' } } }
+      uid: UID,
+      action: 'create',
+      params: { data: { primaryCta: { text: '' } } }
     }
 
-    await middleware(ctx, next)
+    let thrown: errors.ValidationError | undefined
+    try {
+      await middleware(ctx, next)
+    } catch (err) {
+      thrown = err as errors.ValidationError
+    }
 
-    expect(ctx.body).toEqual({
-      data: null,
-      error: {
-        status: 400,
-        name: 'ValidationError',
+    expect(thrown?.details.errors).toEqual([
+      {
+        path: ['primaryCta', 'text'],
         message: 'Primary Call to Action: Text is required',
-        details: {
-          errors: [
-            {
-              path: ['primaryCta', 'text'],
-              message: 'Primary Call to Action: Text is required',
-              name: 'ValidationError'
-            }
-          ]
-        }
+        name: 'ValidationError'
       }
-    })
+    ])
   })
 
-  it('calls next without touching the response when validate passes', async () => {
+  it('calls next without throwing when validate passes', async () => {
     const validate = vi.fn(() => undefined)
-    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
     const ctx = {
-      method: 'PUT',
-      url: '/content-manager/collection-types/api::grant-page.grant-page/doc1?locale=en',
-      request: {
-        body: { primaryCta: { text: 'Apply now', link: 'https://x.com' } }
+      uid: UID,
+      action: 'update',
+      params: {
+        data: { primaryCta: { text: 'Apply now', link: 'https://x.com' } }
       }
     }
 
     await middleware(ctx, next)
 
-    expect(ctx.status).toBeUndefined()
     expect(next).toHaveBeenCalledTimes(1)
   })
 
-  it('skips validation entirely for a non-matching URL', async () => {
+  it('skips validation when ctx.uid does not match', async () => {
     const validate = vi.fn(() => new errors.ValidationError('should not run'))
-    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
     const ctx = {
-      method: 'PUT',
-      url: '/content-manager/collection-types/api::foundation-page.foundation-page/doc1',
-      request: { body: {} }
+      uid: 'api::foundation-page.foundation-page',
+      action: 'update',
+      params: { data: {} }
     }
 
     await middleware(ctx, next)
@@ -128,19 +109,48 @@ describe('registerBodyValidationMiddleware', () => {
     expect(next).toHaveBeenCalledTimes(1)
   })
 
-  it('skips validation for a matching URL on a GET request', async () => {
+  it('skips validation for an action other than create/update (e.g. publish)', async () => {
     const validate = vi.fn(() => new errors.ValidationError('should not run'))
-    const middleware = getRegisteredMiddleware(PATTERN, validate)
+    const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
     const ctx = {
-      method: 'GET',
-      url: '/content-manager/collection-types/api::grant-page.grant-page/doc1',
-      request: { body: {} }
+      uid: UID,
+      action: 'publish',
+      params: { data: {} }
     }
 
     await middleware(ctx, next)
 
     expect(validate).not.toHaveBeenCalled()
     expect(next).toHaveBeenCalledTimes(1)
+  })
+
+  it('validates a content-manager-originating write and a public-API-originating write identically, since both produce the same ctx.params.data shape by the time this middleware runs', async () => {
+    const validate = vi.fn((body: Record<string, unknown>) =>
+      body.ctaStrip ? undefined : new errors.ValidationError('ctaStrip required')
+    )
+    const middleware = getRegisteredMiddleware(UID, validate)
+    const next = vi.fn()
+
+    // content-manager: documentManager.create/update calls
+    // strapi.documents(uid).create/update({ data: sanitizedBody, ... })
+    const fromContentManager = {
+      uid: UID,
+      action: 'update',
+      params: { data: { ctaStrip: { heading: 'h' } } }
+    }
+    await middleware(fromContentManager, next)
+    expect(next).toHaveBeenCalledTimes(1)
+
+    // public REST API: core-api controller strips its own `{ data }` envelope
+    // before calling strapi.documents(uid).create/update — ctx.params.data
+    // ends up the same shape, not a nested `{ data: { data: ... } }`.
+    const fromPublicApi = {
+      uid: UID,
+      action: 'create',
+      params: { data: { ctaStrip: { heading: 'h' } } }
+    }
+    await middleware(fromPublicApi, next)
+    expect(next).toHaveBeenCalledTimes(2)
   })
 })
