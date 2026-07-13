@@ -24,7 +24,7 @@ First of all, let's see what an ASE is responsible for, in comparison to what Ra
 
 ## Comparing responsibilities
 
-[![Overview of responsibilities between an ASE and Rafiki](/img/foundation-blog/2026-03-26/responsibilites.png)](/img/foundation-blog/2026-03-26/responsibilites.png)
+<ImageBlock src="/img/foundation-blog/2026-03-26/responsibilites.png" alt="Overview of responsibilities between an ASE and Rafiki" needsFullView={true} />
 
 ## Open Payments and ILP
 
@@ -107,7 +107,7 @@ Once the outgoing payment has been approved/funded, Rafiki will make the payment
 5. If the payment in Rafiki is successful, you will receive an outgoing payment completed webhook. When this is received, you should finalize the debit of the sending user's account.
 6. You will also receive an incoming payment completed (or incoming payment expired) webhook. For these webhooks, you should credit the recipient's user account.
 
-[![Sequence diagram for payment flow](/img/foundation-blog/2026-03-26/sequence-diagram.png)](/img/foundation-blog/2026-03-26/sequence-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-03-26/sequence-diagram.png" alt="Sequence diagram for payment flow" needsFullView={true} />
 
 The [Rafiki documentation](https://rafiki.dev/integration/requirements/webhook-events/) describes all of the webhook events and how they should be handled.
 
