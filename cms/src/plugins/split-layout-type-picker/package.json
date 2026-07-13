@@ -1,0 +1,15 @@
+{
+  "name": "strapi-plugin-split-layout-type-picker",
+  "version": "1.0.0",
+  "exports": {
+    "./strapi-admin": {
+      "import": "./strapi-admin.ts"
+    }
+  },
+  "strapi": {
+    "name": "split-layout-type-picker",
+    "kind": "plugin",
+    "displayName": "Split Layout Type Picker",
+    "description": "Icon button selector for the split-layout block type"
+  }
+}

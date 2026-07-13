@@ -30,6 +30,7 @@ export {
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
   getImageUrl,
+  hasMediaValue,
   htmlToMarkdown,
   formatBlockquote,
   uidToLogLabel,
@@ -42,15 +43,22 @@ export {
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateReportDate,
+  validateProfileCta,
+  validateCtaStrip,
+
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,
-  toValidationError
+  toValidationError,
+  mergeValidationErrors
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+
+// Block serialization (dynamic-zone content -> MDX)
+export { serializeContent, validateContentBlocks } from '../serializers/blocks'
 
 // Git sync
 export {

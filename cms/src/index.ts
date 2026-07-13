@@ -7,9 +7,20 @@ import {
   validateNoNestedJsx,
   validateReportDate,
   normalizeNavigationInput,
+  validateHeroFields,
+  validateGrantPagePrimaryCta,
+  validateGrantPageFaqSection,
+  validateGrantInfoCards,
+  validateProfileCta,
+  validateCtaStrip,
+  validateBlogFields,
+  validateNavigationLabels,
+  mergeValidationErrors,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
+import { validateContentBlocks } from './serializers/blocks'
+import { errors } from '@strapi/utils'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -40,6 +51,53 @@ function copySchemas() {
   } catch (error) {
     console.error('❌ Error copying schema files:', error)
   }
+}
+
+interface DocumentValidationContext {
+  uid: string
+  action: string
+  params: { data?: Record<string, unknown>; [key: string]: unknown }
+}
+
+type DocumentValidationMiddleware = (
+  ctx: DocumentValidationContext,
+  next: () => Promise<unknown>
+) => Promise<unknown>
+
+/**
+ * Registers a Strapi document-service middleware (`strapi.documents.use`) that
+ * validates a content type's business rules and rejects the write with a
+ * `ValidationError` before the repository resolves component/dynamic-zone
+ * fields into `{ id, __pivot }` DB references — validators need the raw
+ * inline shape actually submitted (e.g. `primaryCta: { text, link }`), which
+ * no longer exists by the time a `beforeCreate`/`beforeUpdate` content-type
+ * lifecycle hook sees `event.params.data`.
+ *
+ * This runs below both the content-manager admin API and the public content
+ * REST API — both controllers strip their own request envelope and call into
+ * `strapi.documents(uid).create/update(...)` before this middleware sees the
+ * request, so `ctx.params.data` is the same plain shape regardless of which
+ * surface (or a future in-process caller) wrote the document.
+ */
+export function registerDocumentValidation(
+  strapi: {
+    documents: { use: (middleware: DocumentValidationMiddleware) => void }
+  },
+  uid: string,
+  validate: (
+    body: Record<string, unknown>
+  ) => errors.ValidationError | undefined
+) {
+  strapi.documents.use(async (ctx, next) => {
+    if (
+      ctx.uid === uid &&
+      (ctx.action === 'create' || ctx.action === 'update')
+    ) {
+      const validationErr = validate(ctx.params.data ?? {})
+      if (validationErr) throw validationErr
+    }
+    return next()
+  })
 }
 
 // Strapi instance type for lifecycle functions
@@ -174,7 +232,9 @@ interface DbQueryApi {
   count: (params: { where: Record<string, unknown> }) => Promise<number>
 }
 interface StrapiInstance {
-  documents: (uid: string) => StrapiDocumentService
+  documents: ((uid: string) => StrapiDocumentService) & {
+    use: (middleware: DocumentValidationMiddleware) => void
+  }
   log: StrapiLogger
   dirs: { static: { public: string } }
   db?: {
@@ -770,6 +830,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language',
       title: 'Title (optional)'
     },
+    'blocks.split-layout': {
+      layoutType: 'Layout',
+      imagePosition: 'Image position',
+      image: 'Image',
+      imageAlt: 'Image alt text',
+      videoUrl: 'Video URL',
+      content: 'Content',
+      quote: 'Quote',
+      quoteSource: 'Quote Attribution',
+      cta: 'Call-to-action Button'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -817,6 +888,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Displayed as the filename label above the code. Leave blank to show the language name.',
       code: 'Paste or type your code here.'
+    },
+    'blocks.split-layout': {
+      layoutType:
+        'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
+      imagePosition: 'Controls which side the image appears on.',
+      imageAlt:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
+      videoUrl:
+        'YouTube or Vimeo URL. When set, takes precedence over the image.',
+      quote:
+        'Quote text. When set, renders as a blockquote instead of the Content field.',
+      quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
+      content:
+        'Rich text for the content column. Leave empty when using a Quote.'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1128,6 +1213,21 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'title', size: 8 }
       ],
       [{ name: 'code', size: 12 }]
+    ],
+    'blocks.split-layout': [
+      [{ name: 'layoutType', size: 12 }],
+      [
+        { name: 'imagePosition', size: 4 },
+        { name: 'image', size: 8 },
+        { name: 'videoUrl', size: 8 }
+      ],
+      [{ name: 'imageAlt', size: 12 }],
+      [{ name: 'content', size: 12 }],
+      [
+        { name: 'quote', size: 8 },
+        { name: 'quoteSource', size: 4 }
+      ],
+      [{ name: 'cta', size: 12 }]
     ]
   }
 
@@ -1191,115 +1291,117 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  async bootstrap({
-    strapi
-  }: {
-    strapi: StrapiInstance & {
-      server?: { use?: (middleware: unknown) => void }
-    }
-  }) {
-    // Validate paragraph content on save — reject nested JSX before it reaches the DB.
-    // Registered as Koa middleware so errors return a proper 400 with message in the UI.
-    const CONTENT_MANAGER_PATTERN =
-      /^\/content-manager\/collection-types\/api::/
-    strapi.server?.use?.(
-      async (
-        ctx: {
-          method?: string
-          url?: string
-          request?: { body?: { content?: unknown } }
-          status?: number
-          body?: unknown
-        },
-        next: () => Promise<void>
-      ) => {
-        if (
-          (ctx.method === 'PUT' || ctx.method === 'POST') &&
-          CONTENT_MANAGER_PATTERN.test(ctx.url ?? '')
-        ) {
-          const validationErr = validateNoNestedJsx(ctx.request?.body?.content)
-          if (validationErr) {
-            ctx.status = 400
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                name: 'ValidationError',
-                message: validationErr.message
-              }
-            }
-            return
-          }
-        }
-        await next()
+  async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Validate paragraph content on save — reject nested JSX before it reaches
+    // the DB. Registered as a document-service middleware (see
+    // registerDocumentValidation below for why) so it covers every content
+    // type's `content` dynamic zone, regardless of which API wrote it.
+    strapi.documents.use(async (ctx, next) => {
+      if (ctx.action === 'create' || ctx.action === 'update') {
+        const validationErr = validateNoNestedJsx(ctx.params.data?.content)
+        if (validationErr) throw validationErr
       }
-    )
+      return next()
+    })
 
-    // Validate the optional `date` component on reports — reject a report
-    // saved without a Publish Date once the Date component has been added.
-    // Registered as Koa middleware (not beforeUpdate/beforeCreate) because
-    // `date` is nested inside a component: by the time a lifecycle hook runs,
-    // Strapi has already resolved it to a `{id, __pivot}` DB reference rather
-    // than the real field values.
-    const REPORT_PATTERN =
-      /^\/content-manager\/collection-types\/api::report\.report/
-    strapi.server?.use?.(
-      async (
-        ctx: {
-          method?: string
-          url?: string
-          request?: { body?: { date?: unknown } }
-          status?: number
-          body?: unknown
-        },
-        next: () => Promise<void>
-      ) => {
-        if (
-          (ctx.method === 'PUT' || ctx.method === 'POST') &&
-          REPORT_PATTERN.test(ctx.url ?? '')
-        ) {
-          const validationErr = validateReportDate(ctx.request?.body)
-          if (validationErr) {
-            ctx.status = 400
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                name: 'ValidationError',
-                message: validationErr.message
-              }
-            }
-            return
-          }
-        }
-        await next()
-      }
+    // Required-field validation for optional components/dynamic zones — must run
+    // on the raw document data, not in beforeCreate/beforeUpdate lifecycle
+    // hooks: by the time those fire, Strapi has already resolved component
+    // fields into `{ id, __pivot }` DB references, so a validator reading
+    // `event.params.data.primaryCta.text` would always see `undefined`.
+    registerDocumentValidation(strapi, 'api::grant-page.grant-page', (body) =>
+      mergeValidationErrors(
+        validateGrantPagePrimaryCta(body),
+        validateGrantPageFaqSection(body),
+        validateCtaStrip(body),
+        validateGrantInfoCards(body),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+      )
     )
-
-    // Normalize nav href fields (force leading slash) before saving to DB
-    const NAV_PATTERN =
-      /\/content-manager\/single-types\/api::(foundation|summit)-navigation\./
-    strapi.server?.use?.(
-      async (
-        ctx: {
-          method?: string
-          url?: string
-          request?: { body?: Record<string, unknown> }
-        },
-        next: () => Promise<void>
-      ) => {
-        if (
-          (ctx.method === 'PUT' || ctx.method === 'POST') &&
-          NAV_PATTERN.test(ctx.url ?? '') &&
-          ctx.request?.body
-        ) {
-          normalizeNavigationInput(
-            ctx.request.body as Parameters<typeof normalizeNavigationInput>[0]
+    registerDocumentValidation(
+      strapi,
+      'api::grant-overview-page.grant-overview-page',
+      (body) =>
+        mergeValidationErrors(
+          validateCtaStrip(body),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
           )
-        }
-        await next()
-      }
+        )
     )
+    registerDocumentValidation(
+      strapi,
+      'api::profile-page.profile-page',
+      (body) =>
+        mergeValidationErrors(
+          validateProfileCta(body),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::foundation-page.foundation-page',
+      (body) =>
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
+    )
+    registerDocumentValidation(strapi, 'api::summit-page.summit-page', (body) =>
+      mergeValidationErrors(
+        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+      )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::foundation-blog-post.foundation-blog-post',
+      (body) =>
+        mergeValidationErrors(
+          validateBlogFields(body as Parameters<typeof validateBlogFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
+    )
+
+    // Normalize nav href fields (force leading slash), then validate required
+    // menu/CTA labels, before saving to DB
+    const NAV_UIDS = new Set([
+      'api::foundation-navigation.foundation-navigation',
+      'api::summit-navigation.summit-navigation'
+    ])
+    const REPORT_UID = 'api::report.report'
+    strapi.documents.use(async (ctx, next) => {
+      if (ctx.action === 'create' || ctx.action === 'update') {
+        if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
+          normalizeNavigationInput(
+            ctx.params.data as Parameters<typeof normalizeNavigationInput>[0]
+          )
+          const validationErr = validateNavigationLabels(
+            ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
+          )
+          if (validationErr) throw validationErr
+        }
+
+        if (ctx.uid === REPORT_UID && ctx.params.data) {
+          const validationErr = validateReportDate(
+            ctx.params.data as Parameters<typeof validateReportDate>[0]
+          )
+          if (validationErr) throw validationErr
+        }
+
+      }
+      return next()
+    })
 
     // Ensure database directory exists with proper permissions
     // Default database path is .tmp/data.db relative to process.cwd()

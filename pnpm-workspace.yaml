@@ -6,3 +6,8 @@ onlyBuiltDependencies:
   - better-sqlite3
   - esbuild
   - sharp
+
+overrides:
+  '@strapi/design-system': 2.2.0
+  '@strapi/icons': 2.2.0
+  prettier: 3.8.1

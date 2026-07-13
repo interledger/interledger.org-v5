@@ -3,8 +3,11 @@ import {
   defaultMarkdownPreset
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
+import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
+import type { Editor } from 'ckeditor5'
+import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 
-// CKEditor type definitions for the APIs we use
+// Minimal clipboard callback types for the Google Docs paste cleanup plugin.
 interface CKEditorDataTransfer {
   getData(format: string): string
 }
@@ -14,38 +17,11 @@ interface CKEditorInsertionData {
   content: unknown
 }
 
-interface CKEditorPlugin {
-  on(
-    event: string,
-    callback: (evt: unknown, data: CKEditorInsertionData) => void,
-    options?: { priority: string }
-  ): void
-}
-
-interface CKEditorPlugins {
-  get(name: string): CKEditorPlugin
-}
-
-interface CKEditorDataProcessor {
-  toView(html: string): unknown
-  toModel(view: unknown): unknown
-}
-
-interface CKEditorData {
-  processor: CKEditorDataProcessor
-  toModel(view: unknown): unknown
-}
-
-interface CKEditor {
-  plugins: CKEditorPlugins
-  data: CKEditorData
-}
-
 // Strapi document IDs: lowercase alphanumeric, typically 24 chars
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
-const headingOptionsWithoutH1 = [
+const headingOptionsWithoutH1: HeadingOption[] = [
   { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
   {
     model: 'heading2',
@@ -86,7 +62,7 @@ const markdownPresetNoH1: Preset = {
     ...defaultMarkdownPreset.editorConfig,
     heading: { options: headingOptionsWithoutH1 },
     extraPlugins: [
-      function cleanGoogleDocsOnPaste(editor: CKEditor) {
+      function cleanGoogleDocsOnPaste(editor: Editor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
 
         clipboardPlugin.on(
@@ -127,7 +103,7 @@ const markdownPresetNoH1: Preset = {
       // private-use placeholders before md->view (so the processor treats them
       // as literal text) and restore them after view->md. Footnotes stay
       // verbatim in Strapi and are rendered by Astro's GFM at build time.
-      function preserveFootnotes(editor: CKEditor) {
+      function preserveFootnotes(editor: Editor) {
         const processor = editor.data.processor as unknown as {
           toView: (markdown: string) => unknown
           toData: (view: unknown) => string
@@ -236,8 +212,61 @@ export default {
       }
     }
 
+    function applySplitLayoutTypeLabels(addedNodes?: Node[]) {
+      const formatNodeText = (node: Text) => {
+        const text = node.textContent ?? ''
+        const trimmed = text.trim()
+        if (!trimmed) return
+        const parent = node.parentElement
+        if (!parent) return
+        if (
+          parent.closest('button[aria-pressed], input, textarea, pre, code')
+        ) {
+          return
+        }
+
+        const formatted = formatSplitLayoutPanelTitle(trimmed)
+        if (!formatted || formatted === trimmed) return
+
+        node.textContent = text.replace(trimmed, formatted)
+      }
+
+      if (addedNodes) {
+        // Mutation-triggered: only scan the subtrees of newly added nodes
+        for (const root of addedNodes) {
+          if (!/(image|video)-(text|quote)/.test(root.textContent ?? ''))
+            continue
+          if (root.nodeType === Node.TEXT_NODE) {
+            formatNodeText(root as Text)
+          } else {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+            let node: Text | null
+            while ((node = walker.nextNode() as Text | null)) {
+              formatNodeText(node)
+            }
+          }
+        }
+        return
+      }
+
+      // Initial full-scan path: only walk text nodes within matched elements
+      const matchingEls = Array.from(
+        document.querySelectorAll<HTMLElement>('span, button, p, h2, h3')
+      ).filter((el) => /(image|video)-(text|quote)/.test(el.textContent ?? ''))
+
+      if (matchingEls.length === 0) return
+
+      for (const el of matchingEls) {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        let node: Text | null
+        while ((node = walker.nextNode() as Text | null)) {
+          formatNodeText(node)
+        }
+      }
+    }
+
     // TEMP UI Fix: apply DOM tweaks (MutationObserver, no polling)
-    function applyUITweaks() {
+    function applyUITweaks(addedNodes?: Node[]) {
       // TEMP UI Fix: hide "Open Entity" from the left nav sidebar (record-locking plugin link)
       const openEntityLink = document.querySelector<HTMLAnchorElement>(
         'li a[href*="plugin::record-locking.open-entity"]'
@@ -328,6 +357,7 @@ export default {
       }
 
       applyImageBlockSeparators()
+      applySplitLayoutTypeLabels(addedNodes)
 
       // TEMP UI Fix: rename Save to Publish for consistency
       const buttons = document.querySelectorAll('button')
@@ -343,11 +373,19 @@ export default {
     }
     applyUITweaks()
     let tweakScheduled = false
-    const uiObserver = new MutationObserver(() => {
+    let pendingAddedNodes: Node[] = []
+    const uiObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          pendingAddedNodes.push(node)
+        }
+      }
       if (tweakScheduled) return
       tweakScheduled = true
       requestAnimationFrame(() => {
-        applyUITweaks()
+        const addedNodes = pendingAddedNodes
+        pendingAddedNodes = []
+        applyUITweaks(addedNodes)
         tweakScheduled = false
       })
     })

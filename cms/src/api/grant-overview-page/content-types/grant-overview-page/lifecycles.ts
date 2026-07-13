@@ -9,6 +9,7 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
+import { serializeContent } from '../../../../serializers/blocks'
 
 declare const strapi: Core.Strapi
 
@@ -24,11 +25,12 @@ interface CtaStrip {
 
 interface GrantOverviewPageData extends PageData {
   description?: string
+  content?: Array<{ __component: string; [key: string]: unknown }> | null
   followUpContent?: string
   ctaStrip?: CtaStrip | null
 }
 
-function generateGrantOverviewPageMDX(
+export function generateGrantOverviewPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
@@ -37,7 +39,6 @@ function generateGrantOverviewPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -69,7 +70,12 @@ function generateGrantOverviewPageMDX(
     locale
   }
 
-  const body = overviewPage.followUpContent ?? ''
+  const parts: string[] = []
+  if (overviewPage.followUpContent?.trim())
+    parts.push(overviewPage.followUpContent.trim())
+  const blocks = serializeContent(overviewPage.content ?? undefined)
+  if (blocks) parts.push(blocks)
+  const body = parts.join('\n\n')
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

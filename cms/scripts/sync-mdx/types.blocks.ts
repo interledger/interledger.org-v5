@@ -118,6 +118,25 @@ export interface CodeBlockBlock extends StrapiBlockBase {
   title?: string
 }
 
+/** blocks.split-layout – two-column layout with media on one side and content on the other. */
+export interface SplitLayoutBlock extends StrapiBlockBase {
+  __component: 'blocks.split-layout'
+  layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
+  imagePosition: 'left' | 'right'
+  image?: number | null
+  imageAlt?: string
+  videoUrl?: string
+  content?: string
+  quote?: string
+  quoteSource?: string
+  cta?: {
+    text: string
+    link: string
+    style?: string
+    external?: boolean
+  }
+}
+
 /** blocks.carousel — logo carousel. `logos` are Strapi upload file IDs. */
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
@@ -141,4 +160,5 @@ export type ParsedBlock =
   | PdfEmbedBlock
   | VideoEmbedBlock
   | CodeBlockBlock
+  | SplitLayoutBlock
   | CarouselBlock
