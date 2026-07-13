@@ -1,6 +1,6 @@
 import { localizeRoute } from './routes'
 import type { Locale } from './i18'
-import type { ProfileSection } from './static-paths'
+import type { SiteSection } from './static-paths'
 
 export type BreadcrumbItem = {
   name: string
@@ -22,7 +22,7 @@ function toLabel(segment: string): string {
  */
 export function buildSectionEntryBreadcrumbs(
   pathSlug: string,
-  section: ProfileSection | null | undefined,
+  section: SiteSection | null | undefined,
   label: string,
   contentLocale: Locale,
   homeLabel: string

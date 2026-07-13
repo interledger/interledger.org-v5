@@ -101,7 +101,10 @@ function routeSegmentForCollection(data: Entry['data']): string {
 }
 
 /** Site sections a cross-section entry can live in. Matches the `section` frontmatter field. */
-export type ProfileSection = 'foundation' | 'summit' | 'hackathon'
+export type SiteSection = 'foundation' | 'summit' | 'hackathon'
+
+/** @deprecated Use {@link SiteSection} instead — kept for existing imports. */
+export type ProfileSection = SiteSection
 
 /** Render-dispatch discriminant for cross-section template collections. */
 type CrossSectionKind = 'profile' | 'report'
@@ -144,7 +147,7 @@ function toCrossSectionPath(
 async function getSectionFilteredPaths(
   collection: CrossSectionCollection,
   kind: CrossSectionKind,
-  section: ProfileSection,
+  section: SiteSection,
   lang: Locale,
   paramName: string
 ): Promise<CrossSectionPath[]> {
@@ -188,7 +191,7 @@ async function getSectionFilteredPaths(
 
 async function getPathsForCrossSectionCollection(
   collection: CrossSectionCollection,
-  section: ProfileSection,
+  section: SiteSection,
   lang: Locale,
   paramName: string
 ): Promise<CrossSectionPath[]> {
@@ -221,7 +224,7 @@ async function getPathsForCrossSectionCollection(
  * Driven by {@link crossSectionCollections} — add new template types there.
  */
 export async function getCrossSectionPaths(
-  section: ProfileSection,
+  section: SiteSection,
   lang: Locale,
   paramName: string
 ): Promise<CrossSectionPath[]> {

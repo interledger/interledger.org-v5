@@ -62,6 +62,8 @@ export { applyPreviewNoStore } from './main/cache'
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export {
   type CollectionType,
+  type SiteSection,
+  /** @deprecated Use {@link SiteSection} instead — kept for existing imports. */
   type ProfileSection,
   getLocalizedPaths,
   getCrossSectionPaths
