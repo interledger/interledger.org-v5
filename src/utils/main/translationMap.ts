@@ -22,9 +22,17 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   const collectionNames = Object.keys(ROUTE_BASES) as RouteCollection[]
 
   const map: Record<string, TranslationEntry> = {}
+  // Cross-section collections (profiles, reports) are always listed in
+  // ROUTE_BASES too, so cache their entries here instead of re-fetching
+  // them below for the pathSlug-alias pass.
+  const entriesByCollection = new Map<
+    RouteCollection,
+    Awaited<ReturnType<typeof getCollection>>
+  >()
 
   for (const name of collectionNames) {
     const entries = await getCollection(name)
+    entriesByCollection.set(name, entries)
     const defaultEntries = entries.filter(
       (entry) => entry.data.locale === defaultLocale
     )
@@ -61,7 +69,9 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
     .map((b) => b.slice(1)) // remove leading /
 
   for (const collectionName of crossSectionCollections) {
-    const crossSectionEntries = await getCollection(collectionName)
+    const crossSectionEntries =
+      entriesByCollection.get(collectionName) ??
+      (await getCollection(collectionName))
     for (const entry of crossSectionEntries) {
       const { pathSlug } = entry.data
       const matchingBase = nonEmptyBases.find((base) =>
