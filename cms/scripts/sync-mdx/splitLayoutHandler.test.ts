@@ -97,8 +97,8 @@ describe('SplitLayout handler', () => {
 
   it('parses CTA style when provided', async () => {
     const blocks = await parseMdxToBlocks(
-      '<SplitLayout ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>',
-      { locale: 'en' }
+      '<SplitLayout imageSrc="/img/foo.jpg" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>',
+      ctxWith({ '/img/foo.jpg': 5 })
     )
 
     expect(blocks[0]).toMatchObject({
