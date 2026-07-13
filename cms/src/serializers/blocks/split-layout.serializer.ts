@@ -46,6 +46,14 @@ export function serialize(block: {
   const isTextLayout = layoutType.endsWith('-text')
   const isQuoteLayout = layoutType.endsWith('-quote')
 
+  const imageUrl = getImageUrl(block.image)
+  if (isImageLayout && !imageUrl)
+    throw new Error('Split layout image variants require an image')
+  if (isVideoLayout && !block.videoUrl)
+    throw new Error('Split layout video variants require videoUrl')
+  if (isQuoteLayout && !block.quote)
+    throw new Error('Split layout quote variants require quote')
+
   if (layoutType !== 'image-text') {
     attrs.push(`layoutType="${layoutType}"`)
   }
@@ -54,8 +62,7 @@ export function serialize(block: {
     attrs.push(`imagePosition="${esc(block.imagePosition)}"`)
   }
 
-  const imageUrl = getImageUrl(block.image)
-  if (isImageLayout && imageUrl) {
+  if (isImageLayout) {
     attrs.push(`imageSrc="${esc(imageUrl)}"`)
     const alt = block.imageAlt ?? block.image?.alternativeText ?? ''
     if (alt) attrs.push(`imageAlt="${esc(alt)}"`)
