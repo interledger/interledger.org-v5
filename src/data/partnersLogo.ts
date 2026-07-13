@@ -78,7 +78,7 @@ export const partners = [
   },
   {
     name: 'MiPlata',
-    src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderón.png'
+    src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderon.avif'
   },
   {
     name: 'CTS',
