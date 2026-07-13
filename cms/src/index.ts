@@ -79,14 +79,19 @@ type DocumentValidationMiddleware = (
  * surface (or a future in-process caller) wrote the document.
  */
 export function registerDocumentValidation(
-  strapi: { documents: { use: (middleware: DocumentValidationMiddleware) => void } },
+  strapi: {
+    documents: { use: (middleware: DocumentValidationMiddleware) => void }
+  },
   uid: string,
   validate: (
     body: Record<string, unknown>
   ) => errors.ValidationError | undefined
 ) {
   strapi.documents.use(async (ctx, next) => {
-    if (ctx.uid === uid && (ctx.action === 'create' || ctx.action === 'update')) {
+    if (
+      ctx.uid === uid &&
+      (ctx.action === 'create' || ctx.action === 'update')
+    ) {
       const validationErr = validate(ctx.params.data ?? {})
       if (validationErr) throw validationErr
     }
@@ -1220,16 +1225,13 @@ export default {
     // hooks: by the time those fire, Strapi has already resolved component
     // fields into `{ id, __pivot }` DB references, so a validator reading
     // `event.params.data.primaryCta.text` would always see `undefined`.
-    registerDocumentValidation(
-      strapi,
-      'api::grant-page.grant-page',
-      (body) =>
-        mergeValidationErrors(
-          validateGrantPagePrimaryCta(body),
-          validateGrantPageFaqSection(body),
-          validateCtaStrip(body),
-          validateGrantInfoCards(body)
-        )
+    registerDocumentValidation(strapi, 'api::grant-page.grant-page', (body) =>
+      mergeValidationErrors(
+        validateGrantPagePrimaryCta(body),
+        validateGrantPageFaqSection(body),
+        validateCtaStrip(body),
+        validateGrantInfoCards(body)
+      )
     )
     registerDocumentValidation(
       strapi,
@@ -1258,16 +1260,13 @@ export default {
           )
         )
     )
-    registerDocumentValidation(
-      strapi,
-      'api::summit-page.summit-page',
-      (body) =>
-        mergeValidationErrors(
-          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
-          validateContentBlocks(
-            Array.isArray(body.content) ? body.content : undefined
-          )
+    registerDocumentValidation(strapi, 'api::summit-page.summit-page', (body) =>
+      mergeValidationErrors(
+        validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
         )
+      )
     )
     registerDocumentValidation(
       strapi,

@@ -127,7 +127,9 @@ describe('registerDocumentValidation', () => {
 
   it('validates a content-manager-originating write and a public-API-originating write identically, since both produce the same ctx.params.data shape by the time this middleware runs', async () => {
     const validate = vi.fn((body: Record<string, unknown>) =>
-      body.ctaStrip ? undefined : new errors.ValidationError('ctaStrip required')
+      body.ctaStrip
+        ? undefined
+        : new errors.ValidationError('ctaStrip required')
     )
     const middleware = getRegisteredMiddleware(UID, validate)
     const next = vi.fn()
