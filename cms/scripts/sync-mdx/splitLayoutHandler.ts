@@ -70,8 +70,20 @@ async function handleSplitLayout(
     const content =
       node.children.length > 0 ? childrenToMarkdown(node.children) : undefined
 
+    const wantsImage = layoutTypeAttr
+      ? layoutTypeAttr.startsWith('image')
+      : !videoUrl
+
     let imageId: number | null = null
-    if (imageSrc) {
+    if (wantsImage && !imageSrc) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: 'SplitLayout image layouts require an "imageSrc" prop.',
+        component: 'SplitLayout',
+        prop: 'imageSrc'
+      })
+    }
+    if (wantsImage && imageSrc) {
       if (!ctx.resolveMediaUpload) {
         throw new MdxParserError({
           code: ParserErrorCode.MISSING_REQUIRED_PROP,
