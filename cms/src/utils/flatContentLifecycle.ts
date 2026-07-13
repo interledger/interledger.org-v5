@@ -264,10 +264,7 @@ export function createFlatLocaleMdxLifecycle<
           (loc) => getBaseDir(loc),
           label
         )
-        deleteLocaleMdxFiles(
-          (loc) => getFilePath(loc, result.pathSlug),
-          label
-        )
+        deleteLocaleMdxFiles((loc) => getFilePath(loc, result.pathSlug), label)
       } else {
         // Non-English files are named after the English slug, not their own.
         const enEntry = await fetchPublished(result.documentId, defaultLang)

@@ -3,9 +3,9 @@ import { formatMdx, pathSlugToMdxFilename, resolveFilenameSlug } from './mdx'
 
 describe('resolveFilenameSlug', () => {
   it('uses the English slug for a non-English locale when provided', () => {
-    expect(resolveFilenameSlug('es', 'subvenciones/beca', 'grant/fellowship')).toBe(
-      'grant/fellowship'
-    )
+    expect(
+      resolveFilenameSlug('es', 'subvenciones/beca', 'grant/fellowship')
+    ).toBe('grant/fellowship')
   })
 
   it('falls back to its own slug for a non-English locale with no English sibling', () => {
@@ -15,9 +15,9 @@ describe('resolveFilenameSlug', () => {
   })
 
   it('always uses its own slug for the English locale, ignoring englishSlug', () => {
-    expect(resolveFilenameSlug('en', 'grant/fellowship', 'grant/fellowship')).toBe(
-      'grant/fellowship'
-    )
+    expect(
+      resolveFilenameSlug('en', 'grant/fellowship', 'grant/fellowship')
+    ).toBe('grant/fellowship')
   })
 })
 
