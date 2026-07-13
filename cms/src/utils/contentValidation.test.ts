@@ -10,7 +10,8 @@ import {
   validateCtaStrip,
   validateHeroFields,
   validateBlogFields,
-  mergeValidationErrors
+  mergeValidationErrors,
+  toValidationError
 } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
@@ -634,8 +635,16 @@ describe('mergeValidationErrors', () => {
       errors: [{ path: ['a'], message: 'bad field', name: 'ValidationError' }]
     })
     const merged = mergeValidationErrors(err, undefined)
-    expect(merged?.message).toBe('bad field')
-    expect(merged?.details).toEqual(err.details)
+    expect(merged).toBe(err)
+  })
+
+  it('does not fabricate an empty errors array for a plain ValidationError (e.g. from toValidationError)', () => {
+    const err = toValidationError(new Error('caught failure'))
+    expect(err.details).toEqual({})
+
+    const merged = mergeValidationErrors(err)
+    expect(merged).toBe(err)
+    expect(merged?.details).toEqual({})
   })
 
   it('combines details.errors from multiple validators into one response, using the first message as the top-level message', () => {
