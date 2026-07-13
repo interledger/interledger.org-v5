@@ -45,7 +45,6 @@ export {
   validateReportDate,
   validateProfileCta,
   validateCtaStrip,
-
   validateHeroFields,
   validateBlogFields,
   validateNavigationLabels,
