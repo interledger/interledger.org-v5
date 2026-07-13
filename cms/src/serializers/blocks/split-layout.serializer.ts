@@ -1,5 +1,5 @@
 import isHtml from 'is-html'
-import { getImageUrl, htmlToMarkdown } from '../../utils'
+import { getImageUrl, hasMediaValue, htmlToMarkdown } from '../../utils'
 import { escDouble as esc } from '../shared'
 
 interface SplitLayoutCta {
@@ -25,7 +25,7 @@ const SPLIT_LAYOUT_TYPES = [
 export function serialize(block: {
   layoutType?: string | null
   imagePosition?: 'left' | 'right'
-  image?: { url?: string; alternativeText?: string } | null
+  image?: { url?: string; alternativeText?: string } | number | null
   imageAlt?: string | null
   videoUrl?: string | null
   content?: string | null
@@ -46,8 +46,9 @@ export function serialize(block: {
   const isTextLayout = layoutType.endsWith('-text')
   const isQuoteLayout = layoutType.endsWith('-quote')
 
-  const imageUrl = getImageUrl(block.image)
-  if (isImageLayout && !imageUrl)
+  const imageObj = typeof block.image === 'object' ? block.image : undefined
+  const imageUrl = getImageUrl(imageObj)
+  if (isImageLayout && !hasMediaValue(block.image))
     throw new Error('Split layout image variants require an image')
   if (isVideoLayout && !block.videoUrl)
     throw new Error('Split layout video variants require videoUrl')
@@ -62,9 +63,9 @@ export function serialize(block: {
     attrs.push(`imagePosition="${esc(block.imagePosition)}"`)
   }
 
-  if (isImageLayout) {
+  if (isImageLayout && imageUrl) {
     attrs.push(`imageSrc="${esc(imageUrl)}"`)
-    const alt = block.imageAlt ?? block.image?.alternativeText ?? ''
+    const alt = block.imageAlt ?? imageObj?.alternativeText ?? ''
     if (alt) attrs.push(`imageAlt="${esc(alt)}"`)
   }
 

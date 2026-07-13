@@ -7,8 +7,7 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  validateContentBlocks
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -117,9 +116,7 @@ const lifecycle = createPageLifecycle({
   populate: GRANT_OVERVIEW_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantOverviewPageMDX,
-  validate: (page) =>
-    validateContentBlocks((page as GrantOverviewPageData).content ?? undefined)
+  generateMDX: generateGrantOverviewPageMDX
 })
 
 export default {
