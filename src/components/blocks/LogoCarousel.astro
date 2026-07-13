@@ -1,4 +1,6 @@
 ---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+
 interface Props {
   heading?: string
   accessibilityLabel: string
@@ -65,7 +67,7 @@ const trackClasses = `
   motion-reduce:animate-none
 `
 const logoClasses = `
-  h-[40px] w-[var(--logo-carousel-item-width)] shrink-0
+  h-[40px] w-[var(--logo-carousel-item-width)] shrink-0 object-contain
 `
 ---
 
@@ -89,14 +91,13 @@ const logoClasses = `
         {
           logos.map((logo) => (
             <li class="m-0">
-              <img
+              <OptimizedImage
                 src={logo.src}
                 alt={logo.name}
                 class={logoClasses}
-                width="120"
-                height="40"
+                width={120}
+                height={40}
                 loading="eager"
-                decoding="async"
                 draggable={false}
               />
             </li>
@@ -111,14 +112,13 @@ const logoClasses = `
           duplicateBatches.map(() =>
             logos.map((logo) => (
               <li class="m-0" aria-hidden="true" inert>
-                <img
+                <OptimizedImage
                   src={logo.src}
                   alt=""
                   class={logoClasses}
-                  width="120"
-                  height="40"
+                  width={120}
+                  height={40}
                   loading="eager"
-                  decoding="async"
                   draggable={false}
                 />
               </li>
