@@ -18,8 +18,8 @@
     border-color: var(--color-neutral-50);
   }
   [data-prose] blockquote {
-    border-left: 4px solid var(--color-primary);
-    border-right: 4px solid var(--color-primary);
+    border-left: 2px solid var(--color-primary);
+    border-right: 2px solid var(--color-primary);
     padding-inline: var(--spacing-space-s);
     padding-block: var(--spacing-space-2xs);
     margin-block: var(--spacing-space-s);

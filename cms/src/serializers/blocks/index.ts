@@ -19,6 +19,7 @@ import { serialize as pdfEmbed } from './pdf-embed.serializer'
 import { serialize as videoEmbed } from './video-embed.serializer'
 import { serialize as imageBlock } from './image-block.serializer'
 import { serialize as codeBlock } from './code-block.serializer'
+import { serialize as splitLayout } from './split-layout.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cards-grid': cardsGrid,
@@ -35,7 +36,8 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.pdf-embed': pdfEmbed,
   'blocks.video-embed': videoEmbed,
   'blocks.image-block': imageBlock,
-  'blocks.code-block': codeBlock
+  'blocks.code-block': codeBlock,
+  'blocks.split-layout': splitLayout
 }
 
 export function serializeContent(

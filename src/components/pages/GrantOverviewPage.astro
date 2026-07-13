@@ -3,7 +3,15 @@ import { type Locale } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
+import BlockquoteBlock from '@/components/blocks/BlockquoteBlock.astro'
+import CalloutTextBlock from '@/components/blocks/CalloutTextBlock.astro'
+import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
+import ImageBlock from '@/components/blocks/ImageBlock.astro'
+import CtaBanner from '@/components/blocks/CtaBanner.astro'
 
 interface Props {
   slug: string
@@ -54,8 +62,20 @@ const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
       hasBody && (
         <section class="py-space-xl">
           <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-            <div data-prose class="mx-auto max-w-narrow">
-              <MdxContent />
+            <div data-prose>
+              <MdxContent
+                components={{
+                  Paragraph,
+                  SplitLayout,
+                  Blockquote: BlockquoteBlock,
+                  CalloutText: CalloutTextBlock,
+                  VideoEmbed: VideoEmbedBlock,
+                  ImageBlock,
+                  CtaStrip,
+                  CtaBanner,
+                  LogoCarousel
+                }}
+              />
             </div>
           </div>
         </section>

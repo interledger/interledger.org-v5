@@ -26,6 +26,7 @@ import './paragraphHandler'
 import './pdfEmbedHandler'
 import './videoEmbedHandler'
 import './codeBlockHandler'
+import './splitLayoutHandler'
 import './carouselHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
@@ -117,6 +118,7 @@ export function buildContentTypes(
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
+  const grantOverviewPageAltIds = new Map<number, string | null>()
 
   return {
     profiles: {
@@ -168,8 +170,15 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'grantOverviewPages'),
       apiId: 'grant-overview-pages',
       schema: grantOverviewPageFrontmatterSchema,
-      buildPayload: (mdx, _strapi, _existing, _dryRun) =>
-        buildGrantOverviewPagePayload(grantOverviewPageFrontmatterSchema, mdx)
+      buildPayload: (mdx, strapi, existing, dryRun) =>
+        buildGrantOverviewPagePayload(
+          grantOverviewPageFrontmatterSchema,
+          mdx,
+          strapi,
+          existing,
+          grantOverviewPageAltIds,
+          dryRun
+        )
     },
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
