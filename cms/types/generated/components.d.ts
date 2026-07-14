@@ -759,7 +759,7 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
-    description: 'Embedded YouTube or Vimeo video'
+    description: 'Embedded YouTube or Vimeo video, or a direct video file (mp4/webm/ogg/ogv/mov)'
     displayName: 'Video Embed'
     icon: 'play'
   }
@@ -889,6 +889,7 @@ export interface SharedCategory extends Struct.ComponentSchema {
       [
         'Announcements',
         'Community & Events',
+        'Engineering',
         'Grants & Grantee Insights',
         'Interledger Technology',
         'Thought Leadership'

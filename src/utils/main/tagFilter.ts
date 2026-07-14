@@ -5,18 +5,18 @@ import type { BlogCollectionType } from '@/content.config'
 import type { Locale, UiKey } from './i18'
 
 /**
- * Each blog collection exposes a taxonomy under a different field and surfaces
- * it on a different URL segment and set of translation keys. The foundation
- * blog uses "categories"; the developer blog still uses "tags". Keeping this
- * map here lets the shared listing/filter code stay collection-agnostic.
+ * The blog exposes its taxonomy under a frontmatter field, a URL segment, and a
+ * set of translation keys. Kept as a small map (rather than inlined) so the
+ * shared listing/filter code stays collection-agnostic if a second blog
+ * collection is ever reintroduced.
  */
 export interface BlogTaxonomy {
   /** Frontmatter field holding the term list on the collection entry. */
-  field: 'categories' | 'tags'
+  field: 'categories'
   /** URL segment for filter pages, e.g. /blog/<segment>/<slug>/. */
-  segment: 'category' | 'tag'
+  segment: 'category'
   /** Translation-key prefix for individual terms, e.g. `blog.categories`. */
-  i18nPrefix: 'blog.categories' | 'blog.tags'
+  i18nPrefix: 'blog.categories'
   /** Translation key for the filter heading. */
   filterLabelKey: UiKey
 }
@@ -27,12 +27,6 @@ const BLOG_TAXONOMY: Record<BlogCollectionType, BlogTaxonomy> = {
     segment: 'category',
     i18nPrefix: 'blog.categories',
     filterLabelKey: 'blog.filter.category.label'
-  },
-  'developers-blog': {
-    field: 'tags',
-    segment: 'tag',
-    i18nPrefix: 'blog.tags',
-    filterLabelKey: 'blog.filter.tag.label'
   }
 }
 
