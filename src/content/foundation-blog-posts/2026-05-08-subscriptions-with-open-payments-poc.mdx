@@ -50,7 +50,7 @@ For simplicity the we don't surface a store backend to manage the product catalo
 
 The baseline architecture looked like this:
 
-[![The Test Network Architecture Diagram](/img/foundation-blog/2026-05-08/testnet-architecture-diagram.png)](/img/foundation-blog/2026-05-08/testnet-architecture-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/testnet-architecture-diagram.png" alt="The Test Network Architecture Diagram" needsFullView={true} />
 
 In that initial shape, the system was already useful, but the commerce side was intentionally simpler.
 
@@ -65,7 +65,7 @@ That meant the order and payment lifecycle remained bounded to one buyer interac
 
 The one-time boutique purchase flow is:
 
-[![The Test Network One Time Payment Boutique Baseline Flow Diagram](/img/foundation-blog/2026-05-08/testnet-one-time-payment-baseline-flow-diagram.png)](/img/foundation-blog/2026-05-08/testnet-one-time-payment-baseline-flow-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/testnet-one-time-payment-baseline-flow-diagram.png" alt="The Test Network One Time Payment Boutique Baseline Flow Diagram" needsFullView={true} />
 
 This flow is important because it highlights the boundary of the original design: the business object is the order, and the order exists to complete one checkout attempt. Once the payment succeeds or fails, the flow is effectively over.
 
@@ -90,7 +90,7 @@ Test Network is the environment used to run this experiment end to end. The goal
 
 The experiment introduces a new long-lived business object, a renewal processor, and a stronger runtime connection between Boutique and Wallet.
 
-[![The Test Network Open Payments Subscriptions Architecture Diagram](/img/foundation-blog/2026-05-08/testnet-open-payments-subscriptions-architecture-diagram.png)](/img/foundation-blog/2026-05-08/testnet-open-payments-subscriptions-architecture-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/testnet-open-payments-subscriptions-architecture-diagram.png" alt="The Test Network Open Payments Subscriptions Architecture Diagram" needsFullView={true} />
 
 The key architecture change is that Boutique becomes the source of truth for subscription lifecycle state, while Wallet composes boutique subscription data with wallet transaction data to present buyer and merchant views.
 
@@ -109,7 +109,7 @@ Two design decisions make the model more practical.
 
 The first subscription purchase deliberately mirrors the existing one-time checkout where possible, but adds a durable subscription record before the buyer leaves the boutique UI.
 
-[![Subscriptions Activation Flow Diagram](/img/foundation-blog/2026-05-08/subscriptions-activation-flow-diagram.png)](/img/foundation-blog/2026-05-08/subscriptions-activation-flow-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/subscriptions-activation-flow-diagram.png" alt="Subscriptions Activation Flow Diagram" needsFullView={true} />
 
 This sequence does two things that the baseline system never needed to do.
 
@@ -136,7 +136,7 @@ Operationally, the branch behaves like this:
 
 The recovery flow is explicitly split between authorization repair and actual money movement.
 
-[![Subscriptions Retry Flow Diagram](/img/foundation-blog/2026-05-08/subscriptions-retry-flow-diagram.png)](/img/foundation-blog/2026-05-08/subscriptions-retry-flow-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/subscriptions-retry-flow-diagram.png" alt="Subscriptions Retry Flow Diagram" needsFullView={true} />
 
 This separation is a strong property of the PoC. Re-authorization refreshes the buyer's grant, but does not automatically charge them as a side effect. The actual retry remains a distinct action. That keeps user intent clearer and reduces the risk of surprising money movement after an authorization repair.
 
@@ -150,7 +150,7 @@ _Subscription detail view showing a `PAST_DUE` subscription with re-authorize an
 
 The lifecycle now spans multiple user interactions and background jobs instead of a single checkout.
 
-[![Subscriptions State Model Flow](/img/foundation-blog/2026-05-08/subscriptions-state-model-diagram.png)](/img/foundation-blog/2026-05-08/subscriptions-state-model-diagram.png)
+<ImageBlock src="/img/foundation-blog/2026-05-08/subscriptions-state-model-diagram.png" alt="Subscriptions State Model Flow" needsFullView={true} />
 
 Compared with one-time purchases, this is the real architectural jump. The system must now reason about durable status, scheduled work, token lifetime, recovery behavior, and explicit user actions over time.
 
