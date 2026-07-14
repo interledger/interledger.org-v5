@@ -5,6 +5,17 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
 // Side-effect import: registers SplitLayout handler
 import './splitLayoutHandler'
 
+const TEST_IMAGE_SRC = '/img/foo.jpg'
+const MISSING_IMAGE_SRC = '/img/missing.jpg'
+
+/** Stub Strapi media-library IDs returned by resolveMediaUpload in tests. */
+const STRAPI_UPLOAD_ID = {
+  primaryImage: 42,
+  defaultLayoutImage: 7,
+  layoutTypeScopedImage: 11,
+  mixedContentImage: 3
+} as const
+
 function ctxWith(uploads: Record<string, number> = {}): ParserContext {
   return {
     locale: 'en',
@@ -30,21 +41,26 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo alt" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>',
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
       '',
       'Some **body** copy.',
       '',
       '</SplitLayout>'
     ].join('\n')
 
-    const blocks = await parseMdxToBlocks(mdx, ctxWith({ '/img/foo.jpg': 42 }))
+    const blocks = await parseMdxToBlocks(
+      mdx,
+      ctxWith({
+        [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage
+      })
+    )
 
     expect(blocks).toEqual([
       {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'left',
-        image: 42,
+        image: STRAPI_UPLOAD_ID.primaryImage,
         imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
         cta: {
@@ -58,8 +74,8 @@ describe('SplitLayout handler', () => {
 
   it('defaults imagePosition to right and omits optional fields when absent', async () => {
     const blocks = await parseMdxToBlocks(
-      '<SplitLayout imageSrc="/img/foo.jpg">Body.</SplitLayout>',
-      ctxWith({ '/img/foo.jpg': 7 })
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.defaultLayoutImage })
     )
 
     expect(blocks).toEqual([
@@ -67,7 +83,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        image: 7,
+        image: STRAPI_UPLOAD_ID.defaultLayoutImage,
         content: 'Body.'
       }
     ])
@@ -97,8 +113,8 @@ describe('SplitLayout handler', () => {
 
   it('parses CTA style when provided', async () => {
     const blocks = await parseMdxToBlocks(
-      '<SplitLayout videoUrl="https://vimeo.com/123" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>',
-      { locale: 'en' }
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
     )
 
     expect(blocks[0]).toMatchObject({
@@ -112,8 +128,8 @@ describe('SplitLayout handler', () => {
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
     const blocks = await parseMdxToBlocks(
-      '<SplitLayout layoutType="image-text" imageSrc="/img/foo.jpg" imageAlt="Scoped alt" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>',
-      ctxWith({ '/img/foo.jpg': 11 })
+      `<SplitLayout layoutType="image-text" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Scoped alt" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.layoutTypeScopedImage })
     )
 
     expect(blocks).toEqual([
@@ -121,7 +137,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        image: 11,
+        image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
         imageAlt: 'Scoped alt',
         content: 'Body.'
       }
@@ -184,7 +200,7 @@ describe('SplitLayout handler — errors', () => {
 
   it('returns MISSING_REQUIRED_PROP when imageSrc needs a media resolver', async () => {
     const result = await parseMdxToBlocks(
-      '<SplitLayout imageSrc="/img/foo.jpg">Body.</SplitLayout>',
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
       { locale: 'en' }
     )
 
@@ -198,7 +214,7 @@ describe('SplitLayout handler — errors', () => {
 
   it('returns UNRESOLVED_RELATION when imageSrc cannot be resolved', async () => {
     const result = await parseMdxToBlocks(
-      '<SplitLayout imageSrc="/img/missing.jpg">Body.</SplitLayout>',
+      `<SplitLayout imageSrc="${MISSING_IMAGE_SRC}">Body.</SplitLayout>`,
       ctxWith()
     )
 
@@ -216,18 +232,23 @@ describe('SplitLayout handler — mixed content', () => {
     const mdx = [
       'Intro copy.',
       '',
-      '<SplitLayout imageSrc="/img/foo.jpg">Split body.</SplitLayout>',
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Split body.</SplitLayout>`,
       '',
       'Outro copy.'
     ].join('\n')
 
-    const blocks = await parseMdxToBlocks(mdx, ctxWith({ '/img/foo.jpg': 3 }))
+    const blocks = await parseMdxToBlocks(
+      mdx,
+      ctxWith({
+        [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.mixedContentImage
+      })
+    )
 
     expect(blocks).toHaveLength(3)
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
     expect(blocks[1]).toMatchObject({
       __component: 'blocks.split-layout',
-      image: 3,
+      image: STRAPI_UPLOAD_ID.mixedContentImage,
       content: 'Split body.'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
