@@ -97,6 +97,7 @@ vi.mock('./siteSchemas', async () => {
           external: z.boolean().optional()
         })
       )
+      .max(1)
       .optional(),
     ctaStrip: grantCtaStripSchema,
     metaImage: z.string().optional(),
