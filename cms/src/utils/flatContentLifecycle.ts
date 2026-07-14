@@ -274,8 +274,17 @@ export function createFlatLocaleMdxLifecycle<
           enEntry?.pathSlug
         )
         const filepath = path.join(getBaseDir(locale), `${filenameSlug}.mdx`)
-        console.log(`🗑️  Deleting ${label} MDX (${locale}): ${filenameSlug}`)
-        deleteMdxIfExists(filepath, locale)
+        if (fs.existsSync(filepath)) {
+          try {
+            fs.unlinkSync(filepath)
+            console.log(`🗑️  Deleted ${locale} ${label} MDX: ${filepath}`)
+          } catch (error) {
+            console.error(
+              `Failed to delete ${locale} ${label} MDX: ${filepath}`,
+              error
+            )
+          }
+        }
       }
 
       const ctx: SyncContext = {
