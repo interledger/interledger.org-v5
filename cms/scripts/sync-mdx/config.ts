@@ -28,6 +28,7 @@ import './videoEmbedHandler'
 import './codeBlockHandler'
 import './splitLayoutHandler'
 import './carouselHandler'
+import './imageBlockHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -174,7 +175,7 @@ export function buildContentTypes(
         buildGrantOverviewPagePayload(
           grantOverviewPageFrontmatterSchema,
           mdx,
-          strapi,
+          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
           existing,
           grantOverviewPageAltIds,
           dryRun

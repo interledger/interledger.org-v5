@@ -252,19 +252,40 @@ export function createFlatLocaleMdxLifecycle<
       if (shouldSkipMdxExport()) return
       if (!result?.documentId) return
 
-      console.log(
-        `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
-      )
+      const locale = result.locale || defaultLang
 
-      removeLocalizesFromLocaleFiles(
-        result.pathSlug,
-        (locale) => getBaseDir(locale),
-        label
-      )
-      deleteLocaleMdxFiles(
-        (locale) => getFilePath(locale, result.pathSlug),
-        label
-      )
+      if (locale === defaultLang) {
+        // Non-English files are named after the English slug, so this cascades to them too.
+        console.log(
+          `🗑️  Deleting ${label} MDX for all locales: ${result.pathSlug}`
+        )
+        removeLocalizesFromLocaleFiles(
+          result.pathSlug,
+          (loc) => getBaseDir(loc),
+          label
+        )
+        deleteLocaleMdxFiles((loc) => getFilePath(loc, result.pathSlug), label)
+      } else {
+        // Non-English files are named after the English slug, not their own.
+        const enEntry = await fetchPublished(result.documentId, defaultLang)
+        const filenameSlug = resolveFileSlug(
+          locale,
+          result.pathSlug,
+          enEntry?.pathSlug
+        )
+        const filepath = path.join(getBaseDir(locale), `${filenameSlug}.mdx`)
+        if (fs.existsSync(filepath)) {
+          try {
+            fs.unlinkSync(filepath)
+            console.log(`🗑️  Deleted ${locale} ${label} MDX: ${filepath}`)
+          } catch (error) {
+            console.error(
+              `Failed to delete ${locale} ${label} MDX: ${filepath}`,
+              error
+            )
+          }
+        }
+      }
 
       const ctx: SyncContext = {
         slug: result.pathSlug,

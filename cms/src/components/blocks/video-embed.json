@@ -3,14 +3,14 @@
   "info": {
     "displayName": "Video Embed",
     "icon": "play",
-    "description": "Embedded YouTube or Vimeo video"
+    "description": "Embedded YouTube or Vimeo video, or a direct video file (mp4/webm/ogg/ogv/mov)"
   },
   "options": {},
   "attributes": {
     "url": {
       "type": "string",
       "required": true,
-      "regex": "^https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/"
+      "regex": "^(https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/|.*\\.(mp4|webm|ogg|ogv|mov)(\\?.*)?(#.*)?$)"
     },
     "title": {
       "type": "string",
