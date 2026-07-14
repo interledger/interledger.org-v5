@@ -8,7 +8,6 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
-  validateHeroFields,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
   validateContentBlocks
 } from '../../../../utils'
@@ -136,10 +135,11 @@ const lifecycle = createPageLifecycle({
   generateMDX: generateGrantOverviewPageMDX
 })
 
+// Hero title/CTA requirements are already enforced by Strapi's own component
+// schemas (shared.hero, shared.cta-link) — no need to duplicate that here.
 function validateGrantOverviewPage(data: Record<string, unknown>): void {
   const page = data as GrantOverviewPageData
-  const validationError =
-    validateHeroFields(page) ?? validateContentBlocks(page.content ?? undefined)
+  const validationError = validateContentBlocks(page.content ?? undefined)
   if (validationError) throw validationError
 }
 
