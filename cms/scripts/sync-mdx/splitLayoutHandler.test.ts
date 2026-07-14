@@ -48,9 +48,12 @@ describe('SplitLayout handler', () => {
       '</SplitLayout>'
     ].join('\n')
 
-    const blocks = await parseMdxToBlocks(mdx, ctxWith({
-      [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage
-    }))
+    const blocks = await parseMdxToBlocks(
+      mdx,
+      ctxWith({
+        [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage
+      })
+    )
 
     expect(blocks).toEqual([
       {
@@ -234,9 +237,12 @@ describe('SplitLayout handler — mixed content', () => {
       'Outro copy.'
     ].join('\n')
 
-    const blocks = await parseMdxToBlocks(mdx, ctxWith({
-      [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.mixedContentImage
-    }))
+    const blocks = await parseMdxToBlocks(
+      mdx,
+      ctxWith({
+        [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.mixedContentImage
+      })
+    )
 
     expect(blocks).toHaveLength(3)
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
