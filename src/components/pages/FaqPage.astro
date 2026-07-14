@@ -30,11 +30,13 @@ const { Content: MdxContent } = await render(entry)
 const { title, heading, description, introParagraph } = entry.data
 const hasBody = Boolean(entry.body?.trim())
 
+const { routeLocale } = Astro.locals
+
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
   entry.data.section,
   heading,
-  contentLocale,
+  routeLocale,
   t('nav.home')
 )
 ---

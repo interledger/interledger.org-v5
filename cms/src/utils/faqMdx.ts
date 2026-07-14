@@ -25,7 +25,8 @@ export interface FaqMdxInput {
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
 export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
-  const isLocalized = faq.locale !== defaultLang
+  const resolvedLocale = faq.locale ?? defaultLang
+  const isLocalized = resolvedLocale !== defaultLang
 
   const frontmatter: Record<string, unknown> = {
     title: faq.title,
@@ -34,7 +35,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     heading: faq.heading,
     description: faq.description,
     ...(faq.introParagraph ? { introParagraph: faq.introParagraph } : {}),
-    locale: faq.locale ?? defaultLang,
+    locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }
 
