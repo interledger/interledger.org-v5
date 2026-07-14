@@ -98,7 +98,7 @@ describe('generateMDX — required field validation', () => {
         ...base,
         hero: {
           title: 'Hero',
-          hero_call_to_action: [{ text: '', link: '/about' }]
+          hero_call_to_action: { text: '', link: '/about' }
         }
       })
     ).toThrow('Hero CTA is missing required text')
@@ -110,7 +110,7 @@ describe('generateMDX — required field validation', () => {
         ...base,
         hero: {
           title: 'Hero',
-          hero_call_to_action: [{ text: 'Learn more', link: '' }]
+          hero_call_to_action: { text: 'Learn more', link: '' }
         }
       })
     ).toThrow('Hero CTA is missing required link')

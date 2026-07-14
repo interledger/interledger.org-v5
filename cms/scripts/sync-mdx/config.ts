@@ -175,7 +175,7 @@ export function buildContentTypes(
         buildGrantOverviewPagePayload(
           grantOverviewPageFrontmatterSchema,
           mdx,
-          strapi,
+          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
           existing,
           grantOverviewPageAltIds,
           dryRun
