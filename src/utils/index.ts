@@ -58,11 +58,11 @@ export { applyPreviewNoStore } from './main/cache'
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export {
   type CollectionType,
-  type ProfileSection,
+  type SiteSection,
   getLocalizedPaths,
-  getCrossSectionPaths,
-  getProfilePaths
+  getCrossSectionPaths
 } from './main/static-paths'
+export { buildSectionEntryBreadcrumbs } from './main/breadcrumbs'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,

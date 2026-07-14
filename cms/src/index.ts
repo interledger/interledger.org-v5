@@ -608,6 +608,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content'
+    },
+    'api::faq.faq': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      heading: 'Heading',
+      description: 'Short Description',
+      introParagraph: 'Intro Paragraph',
+      content: 'Content'
     }
   }
 
@@ -657,6 +666,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+    },
+    'api::faq.faq': {
+      pathSlug:
+        'Full path from the site root, no leading slash. Example: grant/education/on-campus/faq.',
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      heading:
+        'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
+      introParagraph: 'Optional intro paragraph shown below the heading.'
     }
   }
 
@@ -1059,6 +1079,17 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 6 }],
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
+    ],
+    'api::faq.faq': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }],
+      [{ name: 'content', size: 12 }]
     ]
   }
 
@@ -1297,6 +1328,11 @@ export default {
             Array.isArray(body.content) ? body.content : undefined
           )
         )
+    )
+    registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
+      validateContentBlocks(
+        Array.isArray(body.content) ? body.content : undefined
+      )
     )
     registerDocumentValidation(
       strapi,

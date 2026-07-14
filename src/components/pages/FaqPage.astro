@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import {
+  type Locale,
+  useTranslations,
+  buildSectionEntryBreadcrumbs
+} from '@/utils'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+const t = useTranslations(contentLocale)
+
+const allFaqs = await getCollection('faqs')
+const entry = allFaqs.find(
+  (f) => f.data.pathSlug === slug && f.data.locale === contentLocale
+)
+
+if (!entry) throw new Error(`Faq not found: ${slug} (${contentLocale})`)
+
+const { Content: MdxContent } = await render(entry)
+const { title, heading, description, introParagraph } = entry.data
+const hasBody = Boolean(entry.body?.trim())
+
+const breadcrumbs = buildSectionEntryBreadcrumbs(
+  entry.data.pathSlug,
+  entry.data.section,
+  heading,
+  contentLocale,
+  t('nav.home')
+)
+---
+
+<FoundationPageLayout
+  title={title}
+  description={description}
+  headerTheme="light"
+>
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <TranslationDisclaimer isVisible={isFallback} />
+    <div class="max-w-content">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <h2
+        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
+      >
+        {heading}
+      </h2>
+      {
+        introParagraph && (
+          <section aria-label={t('faq.introduction')} class="mt-xl">
+            <p class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-900">
+              {introParagraph}
+            </p>
+          </section>
+        )
+      }
+      {
+        hasBody && (
+          <section data-prose aria-label={t('faq.body')} class="mt-2xl">
+            <MdxContent components={{ Paragraph }} />
+          </section>
+        )
+      }
+    </div>
+  </main>
+</FoundationPageLayout>

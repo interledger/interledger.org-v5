@@ -9,10 +9,11 @@ export const ROUTE_BASES = {
   'summit-pages': '/summit',
   'grant-pages': '/grant',
   'grant-overview-pages': '/grant',
-  // Profiles use section-relative pathSlugs (e.g. 'fellowship/andria-barrett').
+  // Profiles and faqs use section-relative pathSlugs (e.g. 'fellowship/andria-barrett').
   // The empty base means the translation map indexes them by their pathSlug directly;
   // routeContextFromPathname derives currentBasePath from the actual URL section.
-  profiles: ''
+  profiles: '',
+  faqs: ''
 } as const
 
 export type RouteCollection = keyof typeof ROUTE_BASES

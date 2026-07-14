@@ -14,7 +14,8 @@ export {
   BLOG_CONTENT_POPULATE,
   PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  FAQ_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -84,6 +85,7 @@ export {
   type ProfileMdxInput,
   generateProfileMdx
 } from './profileMdx'
+export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,
