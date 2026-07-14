@@ -37,7 +37,7 @@ src/styles/
 1. **Theme layer first** (`theme.css`)
    - Defines ALL design token VALUES in `@theme` (typography, spacing, colors, radius, shadows, animations)
    - Generates dynamic utilities via `@theme inline` (text-primary, bg-primary)
-   - MUST load before base files because reset.css uses `@apply text-step-0`
+   - MUST load before base files because reset.css uses `@apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg`
 
 2. **Base layer** (`base/*.css`)
    - typography.css: @font-face declarations
@@ -53,6 +53,8 @@ src/styles/
    - `@utility` rules are placed in `@layer utilities` automatically and win over component styles regardless of import order — keeping these imports last is for readability, not cascade priority
 
 ## Pillar Theming System
+
+> **Currently a no-op, by design.** The legacy pillar accent colors (`--color-tech-main`, `--color-mission-main`, `--color-vision-main`, `--color-values-main`) were removed from `theme.css` as part of the new-design-system token cleanup, and the `[data-pillar='X']` override blocks in `base/variables.css` were simplified to `--color-primary: var(--color-primary)` — a self-reference that CSS treats as invalid, so the property just inherits the `:root` default (`--color-orchid-100`). The scaffolding is kept in place rather than removed: this is the mechanism that will give `foundation`, `summit`, and `hackathon` each their own theme once those mini-sites need distinct pillar colors again. Until that work happens, every pillar silently renders the same default — see "Adding a New Pillar" below for how to wire in a real color when the time comes.
 
 ### How It Works
 
@@ -70,10 +72,12 @@ Pages can set a `data-pillar` attribute to override the primary color theme:
 
    ```css
    :root {
-     --color-primary: oklch(51.54% 0.088 194.77); /* Default: tech */
+     --color-primary: var(--color-orchid-100); /* Default */
    }
    [data-pillar='mission'] {
-     --color-primary: var(--color-mission-main);
+     --color-primary: var(
+       --color-orchid-100
+     ); /* placeholder — should map to a distinct hue */
    }
    ```
 
@@ -96,18 +100,17 @@ Pages can set a `data-pillar` attribute to override the primary color theme:
 
 ### Adding a New Pillar
 
-1. Add color token to `theme.css` (`@theme` block):
+1. Pick a hue family from the palette in `theme.css` (`@theme` block) to represent the pillar, e.g.:
 
    ```css
-   --color-newpillar-main: oklch(...);
-   --color-newpillar-main-fallback: #hexcolor;
+   --color-deep-teal-100: #09967e;
    ```
 
-2. Add pillar override to `base/variables.css`:
+2. Add pillar override to `base/variables.css`, pointing at that hue instead of `--color-primary` itself:
 
    ```css
    [data-pillar='newpillar'] {
-     --color-primary: var(--color-newpillar-main);
+     --color-primary: var(--color-deep-teal-100);
    }
    ```
 
@@ -180,20 +183,20 @@ Generates:
 
 ### When to Use Each
 
-| Approach          | Use When                                 | Example                                                                                          |
-| ----------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| **Config**        | Value never changes, no @theme namespace | Font families, breakpoints, maxWidth, gradients                                                  |
-| **@theme**        | Static design tokens needing utilities   | Typography (`--text-step-0`), spacing (`--spacing-space-s`), colors, radius, shadows, animations |
-| **@theme inline** | Value changes by context                 | `--color-primary` (pillar theming)                                                               |
-| **variables.css** | Needs selectors or depends on other vars | `--color-primary` base, `[data-pillar]` overrides, `--color-btn-txt: var(--color-white)`         |
+| Approach          | Use When                                 | Example                                                                                  |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Config**        | Value never changes, no @theme namespace | Font families, breakpoints, maxWidth, gradients                                          |
+| **@theme**        | Static design tokens needing utilities   | Typography (`--text-h4`), spacing (`--spacing-lg`), colors, radius, animations           |
+| **@theme inline** | Value changes by context                 | `--color-primary` (pillar theming)                                                       |
+| **variables.css** | Needs selectors or depends on other vars | `--color-primary` base, `[data-pillar]` overrides, `--color-btn-txt: var(--color-white)` |
 
 ### This Project's Architecture
 
 ```
 @theme (theme.css)          ← Single source of truth for ALL design token VALUES
   │                            Typography, spacing, colors, radius, shadows, animations
-  │                            Generates utilities (text-step-0, p-space-s, bg-gray, rounded, shadow)
-  │                            AND CSS variables (--text-step-0, --spacing-space-s, --color-gray, --radius, --shadow)
+  │                            Generates utilities (text-h4, p-lg, bg-neutral-75, rounded-lg)
+  │                            AND CSS variables (--text-h4, --spacing-lg, --color-neutral-75, --radius-lg)
   │
   ▼
 :root (variables.css)       ← Runtime overrides only
@@ -204,21 +207,21 @@ Generates:
 
 This means:
 
-- Tailwind utilities: `class="text-step-0 p-space-s bg-gray rounded shadow"` (reads from @theme)
-- Component CSS: `font-size: var(--text-step-0)` (reads @theme variable directly)
-- Component CSS: `border-radius: var(--radius)` (reads @theme variable directly)
+- Tailwind utilities: `class="text-h4 p-lg bg-neutral-75 rounded-lg"` (reads from @theme)
+- Component CSS: `font-size: var(--text-h4)` (reads @theme variable directly)
+- Component CSS: `border-radius: var(--radius-lg)` (reads @theme variable directly)
 - Update token values in ONE place: `theme.css`
 
 ### @theme Namespace Reference
 
-| Namespace     | Utility                      | Example                                                  |
-| ------------- | ---------------------------- | -------------------------------------------------------- |
-| `--text-*`    | `text-*` (font size)         | `--text-step-0` → `text-step-0`                          |
-| `--spacing-*` | `p-*`, `m-*`, `gap-*`        | `--spacing-space-s` → `p-space-s`                        |
-| `--color-*`   | `bg-*`, `text-*`, `border-*` | `--color-gray` → `bg-gray`                               |
-| `--radius-*`  | `rounded-*`                  | `--radius` → `rounded`, `--radius-card` → `rounded-card` |
-| `--shadow-*`  | `shadow-*`                   | `--shadow` → `shadow`, `--shadow-card` → `shadow-card`   |
-| `--animate-*` | `animate-*`                  | `--animate-fade-in` → `animate-fade-in`                  |
+| Namespace     | Utility                      | Example                                                                                                         |
+| ------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--text-*`    | `text-*` (font size)         | `--text-h4` → `text-h4`                                                                                         |
+| `--spacing-*` | `p-*`, `m-*`, `gap-*`        | `--spacing-lg` → `p-lg`                                                                                         |
+| `--color-*`   | `bg-*`, `text-*`, `border-*` | `--color-neutral-75` → `bg-neutral-75`                                                                          |
+| `--radius-*`  | `rounded-*`                  | `--radius-lg` → `rounded-lg`, `--radius-full` → `rounded-full`                                                  |
+| `--shadow-*`  | `shadow-*`                   | No project-specific `--shadow-*` token is currently defined — `shadow` resolves to Tailwind's built-in default. |
+| `--animate-*` | `animate-*`                  | `--animate-fade-in` → `animate-fade-in`                                                                         |
 
 See tailwind docs for more.
 
@@ -415,7 +418,7 @@ The class still compiles, no warning, the output just collapses to the spacing v
 
 **What to use instead:**
 
-- For a content-width cap: `max-w-(--max-content-width)` (defined in `base/variables.css` as `1160px`).
+- For a content-width cap: `max-w-content` (`1440px`, defined in `tailwind.config.mjs`'s `maxWidth`). Also available: `max-w-narrow` (720px), `max-w-wide` (1600px), `max-w-prose` (960px).
 - To explicitly hit Tailwind's container scale: `max-w-(--container-md)` etc. — these tokens still ship as Tailwind v4 defaults.
 - For an arbitrary value: `max-w-[28rem]`.
 
@@ -508,7 +511,7 @@ The site has **two separate CSS systems** that never coexist in the same browser
 
 - **Pages:** foundation, blog, summit, homepage — anything using `BaseLayout.astro`.
 - **CSS:** `tailwind.css`, which pulls in `theme.css`, `base/*`, `components/*`.
-- **Variables:** `--text-step-*`, `--spacing-space-*`, `--color-primary`, etc. from `theme.css` + `base/variables.css`.
+- **Variables:** `--text-h*`/`--text-body-*`/`--text-caption`, `--spacing-{xs..7xl}`, `--radius-{lg..3xl,full}`, `--color-primary`, etc. from `theme.css` + `base/variables.css`.
 - **Prose:** `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`.
 
 ### Docs lane
