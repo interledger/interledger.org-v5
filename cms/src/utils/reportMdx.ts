@@ -45,7 +45,8 @@ export function generateReportMdx(
   report: ReportMdxInput,
   englishSlug?: string
 ): string {
-  const isLocalized = report.locale !== defaultLang
+  const resolvedLocale = report.locale ?? defaultLang
+  const isLocalized = resolvedLocale !== defaultLang
   const date = dateFrontmatter(report.date)
 
   const frontmatter: Record<string, unknown> = {
@@ -56,7 +57,7 @@ export function generateReportMdx(
     description: report.description,
     ...(report.introParagraph ? { introParagraph: report.introParagraph } : {}),
     ...(date ? { date } : {}),
-    locale: report.locale ?? defaultLang,
+    locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }
 
