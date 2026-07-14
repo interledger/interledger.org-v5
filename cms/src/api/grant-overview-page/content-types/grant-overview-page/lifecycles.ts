@@ -133,15 +133,20 @@ const lifecycle = createPageLifecycle({
   populate: GRANT_OVERVIEW_PAGE_CONTENT_POPULATE as unknown as Parameters<
     typeof createPageLifecycle
   >[0]['populate'],
-  generateMDX: generateGrantOverviewPageMDX,
-  validate: (page) =>
-    validateHeroFields(page) ??
-    validateContentBlocks((page as GrantOverviewPageData).content ?? undefined)
+  generateMDX: generateGrantOverviewPageMDX
 })
+
+function validateGrantOverviewPage(data: Record<string, unknown>): void {
+  const page = data as GrantOverviewPageData
+  const validationError =
+    validateHeroFields(page) ?? validateContentBlocks(page.content ?? undefined)
+  if (validationError) throw validationError
+}
 
 export default {
   ...lifecycle,
   async beforeCreate(event: { params: { data: Record<string, unknown> } }) {
+    validateGrantOverviewPage(event.params.data)
     if (shouldSkipMdxExport()) return
     const pathSlug = event.params.data.pathSlug as string | undefined
     const documentId =
@@ -149,6 +154,7 @@ export default {
     if (pathSlug) await assertUniqueGrantPathSlug(pathSlug, documentId)
   },
   async beforeUpdate(event: Parameters<typeof lifecycle.beforeUpdate>[0]) {
+    if (event.params?.data) validateGrantOverviewPage(event.params.data)
     if (!shouldSkipMdxExport()) {
       const pathSlug = event.params?.data?.pathSlug as string | undefined
       if (pathSlug) {

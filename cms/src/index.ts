@@ -1163,6 +1163,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'hero_call_to_action', size: 12 }]
     ],
+    'shared.cta-link': [
+      [
+        { name: 'link', size: 4 },
+        { name: 'text', size: 4 },
+        { name: 'style', size: 4 }
+      ],
+      [{ name: 'external', size: 4 }]
+    ],
     'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
