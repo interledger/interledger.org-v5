@@ -95,6 +95,23 @@ describe('split-layout serializer', () => {
     expect(result).toContain('ctaLink="https://example.com"')
   })
 
+  it('throws when an image layout has no image at all', () => {
+    expect(() =>
+      serialize({ layoutType: 'image-text', content: 'Text body.' })
+    ).toThrow('Split layout image variants require an image')
+  })
+
+  it('accepts a raw upload ID for image (unpopulated document-service payload)', () => {
+    const result = serialize({
+      layoutType: 'image-quote',
+      image: 42,
+      quote: 'Quoted body.'
+    })
+
+    expect(result).toContain('quote="Quoted body."')
+    expect(result).not.toContain('imageSrc=')
+  })
+
   it('rejects unsupported layoutType values', () => {
     expect(() =>
       serialize({

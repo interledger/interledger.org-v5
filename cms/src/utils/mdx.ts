@@ -107,6 +107,23 @@ export function yamlLiteralBlockScalar(
 }
 
 /**
+ * True when a media relation field carries some value, whether or not it has
+ * been populated yet. Strapi's document-service create/update payload (what
+ * `registerDocumentValidation` middleware sees) only ever has the raw
+ * uploaded file ID for a media relation — `getImageUrl`'s `.url` check would
+ * always read as "missing" there, since population only happens on read.
+ * Use this for required-field validation; use `getImageUrl` once the
+ * relation has actually been populated (e.g. MDX export via `findOne`).
+ */
+export function hasMediaValue(
+  media: MediaLike | number | string | undefined | null
+): boolean {
+  if (media == null) return false
+  if (typeof media === 'number' || typeof media === 'string') return true
+  return Boolean(media.url)
+}
+
+/**
  * Gets the resolved URL for a Strapi media field.
  * Pass `preferredFormat` to try a specific image format first (e.g. 'thumbnail'),
  * falling back to the original URL if that format is unavailable.
