@@ -22,7 +22,8 @@ describe('generateGrantOverviewPageMDX', () => {
       },
       {
         heroTitle: 'Stale Hero',
-        heroDescription: 'Left over from before the hero was removed in Strapi.',
+        heroDescription:
+          'Left over from before the hero was removed in Strapi.',
         heroImage: '/img/hero.jpg'
       }
     )

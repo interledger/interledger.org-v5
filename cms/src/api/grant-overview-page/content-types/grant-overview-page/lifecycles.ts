@@ -8,8 +8,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  validateContentBlocks
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -89,8 +88,17 @@ export function generateGrantOverviewPageMDX(
   const parts: string[] = []
   if (overviewPage.followUpContent?.trim())
     parts.push(overviewPage.followUpContent.trim())
-  const blocks = serializeContent(overviewPage.content ?? undefined)
-  if (blocks) parts.push(blocks)
+  // A malformed stored block (e.g. one missing a required field) must not
+  // block MDX generation for the rest of the entry — log and skip content
+  // rather than failing the whole save.
+  try {
+    const blocks = serializeContent(overviewPage.content ?? undefined)
+    if (blocks) parts.push(blocks)
+  } catch (error) {
+    console.error(
+      `⚠️  Failed to serialize content blocks for grant-overview-page "${page.pathSlug}": ${error instanceof Error ? error.message : String(error)}`
+    )
+  }
   const body = parts.join('\n\n')
 
   return matter.stringify(
@@ -135,18 +143,9 @@ const lifecycle = createPageLifecycle({
   generateMDX: generateGrantOverviewPageMDX
 })
 
-// Hero title/CTA requirements are already enforced by Strapi's own component
-// schemas (shared.hero, shared.cta-link) — no need to duplicate that here.
-function validateGrantOverviewPage(data: Record<string, unknown>): void {
-  const page = data as GrantOverviewPageData
-  const validationError = validateContentBlocks(page.content ?? undefined)
-  if (validationError) throw validationError
-}
-
 export default {
   ...lifecycle,
   async beforeCreate(event: { params: { data: Record<string, unknown> } }) {
-    validateGrantOverviewPage(event.params.data)
     if (shouldSkipMdxExport()) return
     const pathSlug = event.params.data.pathSlug as string | undefined
     const documentId =
@@ -154,7 +153,6 @@ export default {
     if (pathSlug) await assertUniqueGrantPathSlug(pathSlug, documentId)
   },
   async beforeUpdate(event: Parameters<typeof lifecycle.beforeUpdate>[0]) {
-    if (event.params?.data) validateGrantOverviewPage(event.params.data)
     if (!shouldSkipMdxExport()) {
       const pathSlug = event.params?.data?.pathSlug as string | undefined
       if (pathSlug) {
