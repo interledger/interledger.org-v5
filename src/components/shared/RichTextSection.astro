@@ -93,14 +93,14 @@ const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
 
 <section>
   <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-    <h2 class="mb-space-xs">{title}</h2>
+    <h2 class="mb-lg">{title}</h2>
     {
       content.map((block) => {
         switch (block.type) {
           case 'paragraph':
             return (
               <p
-                class="mb-space-2xs"
+                class="mb-s"
                 set:html={renderChildren(block.children, linkUmamiCtx)}
               />
             )
@@ -108,10 +108,10 @@ const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
             const isOrdered = block.format === 'ordered'
             const ListTag = isOrdered ? 'ol' : 'ul'
             return (
-              <ListTag class="mb-space-2xs">
+              <ListTag class="mb-s">
                 {block.children.map((item) => (
                   <li
-                    class="mb-space-3xs"
+                    class="mb-xs"
                     set:html={renderChildren(item.children, linkUmamiCtx)}
                   />
                 ))}

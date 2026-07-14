@@ -31,7 +31,9 @@ const attrs = buildUmamiAttrs({
       height="240"
       loading="lazy"
     />
-    <h2 class="text-step-0! font-bold">{speaker.name}</h2>
-    <p class="text-step--1">{speaker.tagLine}</p>
+    <h2 class="text-h4 tablet:text-h4-md desktop:text-h4-lg! font-bold">
+      {speaker.name}
+    </h2>
+    <p class="text-body-sm-standard">{speaker.tagLine}</p>
   </a>
 </li>

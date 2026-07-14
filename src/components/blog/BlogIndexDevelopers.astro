@@ -58,15 +58,15 @@ const postAttrs = (href: string, linkText: string) =>
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
       const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
       return (
-        <li class="mb-space-2xs">
+        <li class="mb-s">
           <div class="flex flex-col flex-1">
             <time
-              class="block text-step--1"
+              class="block text-body-sm-standard"
               datetime={blogPostEntry.data.date.toISOString()}
             >
               {blogPostEntry.data.date.toDateString()}
             </time>
-            <h2 class="text-step-1">
+            <h2 class="text-h3">
               <a
                 href={postPath}
                 class="text-black font-semibold underline decoration-transparent transition-all duration-300 hover:text-primary hover:decoration-inherit"
@@ -76,7 +76,7 @@ const postAttrs = (href: string, linkText: string) =>
               </a>
             </h2>
 
-            <p class="mb-space-2xs grow">
+            <p class="mb-s grow">
               {blogPostEntry.data.description
                 ? blogPostEntry.data.description
                 : excerpt}

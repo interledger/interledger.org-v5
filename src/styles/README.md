@@ -328,7 +328,7 @@ The Figma design file is the source of truth — variable collections plus Mobil
 
 ### Font
 
-The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600), self-hosted under `public/fonts/`. Apply via the `font-poppins` Tailwind utility. The default `body { font-family }` still resolves to Titillium so the existing pages render unchanged — opt into Poppins per-component when adopting the new typography utilities.
+The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600), self-hosted under `public/fonts/`. It's the default `body { font-family }`, so it applies everywhere unless overridden. Use the `font-poppins` Tailwind utility only when overriding a different font context (e.g. inside a component that sets its own font-family).
 
 ### Typography (responsive, breakpoint variants)
 

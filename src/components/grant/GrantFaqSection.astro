@@ -40,11 +40,11 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
           {subtitle}
         </h3>
         <p
-          class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+          class="mt-lg font-poppins text-base leading-relaxed text-neutral-75 mb-0"
         >
           {description}
         </p>
-        <div class="mt-space-m">
+        <div class="mt-2xl">
           <LinkButton
             href={ctaLink}
             variant="secondary"
@@ -62,9 +62,9 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
         items.map((item, index) => (
           <details
             open={index === 0}
-            class="group border-b border-neutral-200 py-space-m first:pt-0 "
+            class="group border-b border-neutral-200 py-2xl first:pt-0 "
           >
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-space-s [&::-webkit-details-marker]:hidden">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden">
               <span class="font-poppins text-base text-neutral-700 font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
                 {item.question}
               </span>
@@ -73,7 +73,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
                 class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
               />
             </summary>
-            <p class="mt-space-xs font-poppins text-base  text-neutral-75 mb-0 tablet:text-xl desktop:text-xl">
+            <p class="mt-lg font-poppins text-base  text-neutral-75 mb-0 tablet:text-xl desktop:text-xl">
               {item.answer}
             </p>
           </details>
@@ -87,11 +87,11 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
         {subtitle}
       </h3>
       <p
-        class="mt-space-xs font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+        class="mt-lg font-poppins text-base leading-relaxed text-neutral-75 mb-0"
       >
         {description}
       </p>
-      <div class="mt-space-m">
+      <div class="mt-2xl">
         <LinkButton
           href={ctaLink}
           variant="secondary"

@@ -20,9 +20,9 @@
   [data-prose] blockquote {
     border-left: 2px solid var(--color-primary);
     border-right: 2px solid var(--color-primary);
-    padding-inline: var(--spacing-space-s);
-    padding-block: var(--spacing-space-2xs);
-    margin-block: var(--spacing-space-s);
+    padding-inline: var(--spacing-xl);
+    padding-block: var(--spacing-s);
+    margin-block: var(--spacing-xl);
   }
   [data-prose] blockquote p {
     margin-bottom: 0;

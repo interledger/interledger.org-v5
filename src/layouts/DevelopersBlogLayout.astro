@@ -51,29 +51,29 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
   canonicalURL={canonicalURL}
   datePublished={dateObj.toISOString()}
 >
-  <main class="flex flex-col bg-white/70 pt-space-m pb-space-xl">
+  <main class="flex flex-col bg-white/70 pt-2xl pb-4xl">
     <slot name="disclaimer" />
     <article
       itemscope
       itemtype="http://schema.org/Article"
       class="mx-auto flex-1 max-w-[960px] min-w-[360px] px-[5%]
-      [&_p]:mb-space-s
-      [&_ol]:list-decimal [&_ol]:ps-10 [&_ol]:mb-space-s
-      [&_ul]:list-disc [&_li>ul]:list-[circle] [&_ul]:mb-space-s [&_ul]:ps-10 [&_ul_li]:mb-space-2xs
-      [&_figure]:mb-space-s
-      [&_hr]:mb-space-s
-      [&_h2]:text-step-2 [&_h2]:font-bold [&_h2]:mb-space-xs
-      [&_h3]:text-step-1 [&_h3]:font-bold [&_h3]:mb-space-xs
-      [&_h4]:font-bold [&_h4]:mb-space-xs
+      [&_p]:mb-xl
+      [&_ol]:list-decimal [&_ol]:ps-10 [&_ol]:mb-xl
+      [&_ul]:list-disc [&_li>ul]:list-[circle] [&_ul]:mb-xl [&_ul]:ps-10 [&_ul_li]:mb-s
+      [&_figure]:mb-xl
+      [&_hr]:mb-xl
+      [&_h2]:text-text-h3-md [&_h2]:font-bold [&_h2]:mb-lg
+      [&_h3]:text-h3 [&_h3]:font-bold [&_h3]:mb-lg
+      [&_h4]:font-bold [&_h4]:mb-lg
       [&_h5]:font-bold [&_h5]:text-[0.83em]
       [&_a]:text-primary [&_a]:underline [&_a]:transition-[text-decoration-color] [&_a]:duration-200 [&_a]:ease-in-out [&_a:hover]:decoration-transparent
-      [&_figcaption]:text-step--1 [&_figcaption]:italic
-      [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-space-m [&_th]:text-left [&_th]:py-space-3xs [&_th]:px-space-2xs [&_td]:py-space-3xs [&_td]:px-space-2xs [&_thead_tr]:bg-[var(--color-table-stripe)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-table-stripe)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee
-      [&_.expressive-code]:mb-space-s [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-step--1 [&_:not(pre)>code]:bg-[var(--color-bg-inline-code)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere]
+      [&_figcaption]:text-body-sm-standard [&_figcaption]:italic
+      [&_table]:table [&_table]:w-full [&_table]:border-collapse [&_table]:rounded [&_table]:shadow [&_table]:mb-2xl [&_th]:text-left [&_th]:py-xs [&_th]:px-s [&_td]:py-xs [&_td]:px-s [&_thead_tr]:bg-[var(--color-ice-indigo-50)] [&_thead_tr:first-of-type_th:first-of-type]:rounded-ss [&_thead_tr:first-of-type_th:last-of-type]:rounded-se [&_thead+tbody_tr:nth-child(2n)]:bg-[var(--color-ice-indigo-50)] [&_tbody_tr:first-of-type_th:first-child]:rounded-ss [&_tbody_tr:first-of-type_td:first-child]:rounded-ss [&_tbody_tr:first-of-type_th:last-child]:rounded-se [&_tbody_tr:first-of-type_td:last-child]:rounded-se [&_tbody_tr:last-of-type_th:first-child]:rounded-es [&_tbody_tr:last-of-type_td:first-child]:rounded-es [&_tbody_tr:last-of-type_th:last-child]:rounded-ee [&_tbody_tr:last-of-type_td:last-child]:rounded-ee
+      [&_.expressive-code]:mb-xl [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-body-sm-standard [&_:not(pre)>code]:bg-[var(--color-ice-indigo-50)] [&_:not(pre)>code]:px-[0.375rem] [&_:not(pre)>code]:py-[0.125rem] [&_:not(pre)>code]:[overflow-wrap:anywhere]
       [&_img]:block [&_img]:mx-auto 2xl:px-0"
     >
       <ol
-        class="flex list-none! ps-0! text-step--1 font-bold pt-space-l"
+        class="flex list-none! ps-0! text-body-sm-standard font-bold pt-3xl"
         itemscope
         itemtype="https://schema.org/BreadcrumbList"
       >
@@ -95,7 +95,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           itemprop="itemListElement"
           itemscope
           itemtype="https://schema.org/ListItem"
-          class="before:content-['>'] before:inline-flex before:ms-space-3xs"
+          class="before:content-['>'] before:inline-flex before:ms-xs"
         >
           <a
             itemprop="item"
@@ -107,19 +107,19 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
           <meta itemprop="position" content="2" />
         </li>
       </ol>
-      <h1 class="text-primary text-step-4 font-bold leading-tight mb-space-2xs">
+      <h1 class="text-primary text-h2-lg mb-s">
         {frontmatter.title}
       </h1>
       <time
         datetime={isoDate}
         itemprop="datePublished"
-        class="block mb-space-3xs text-step--1"
+        class="block mb-xs text-body-sm-standard"
       >
         {longDate}
       </time>
       {
         frontmatter.authors && (
-          <address class="text-step--1 mb-space-s">
+          <address class="text-body-sm-standard mb-xl">
             Written by{' '}
             {frontmatter.authors.map((author: string, i: number) => {
               const authorElement = frontmatter.author_urls?.[i] ? (
@@ -142,7 +142,7 @@ const rawHTMLString = `This article was originally published at <a href=${frontm
       {
         frontmatter.external_url ? (
           <div
-            class="relative mb-space-s max-w-max rounded px-space-xs py-space-xs text-step--1 italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
+            class="relative mb-xl max-w-max rounded px-lg py-lg text-body-sm-standard italic shadow before:absolute before:inset-0 before:-z-10 before:rounded before:bg-primary before:opacity-25 before:content-['']"
             set:html={rawHTMLString}
           />
         ) : (

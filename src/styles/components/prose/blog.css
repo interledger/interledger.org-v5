@@ -10,11 +10,11 @@
   [data-prose-blog] {
     /* === Extended element spacing === */
     & figure {
-      margin-block-end: var(--spacing-space-s);
+      margin-block-end: var(--spacing-xl);
     }
 
     & figcaption {
-      font-size: var(--text-step--1);
+      font-size: var(--text-body-sm-standard);
       font-style: italic;
     }
 
@@ -43,7 +43,7 @@
       width: 100%;
       max-width: 100%;
       min-width: 0;
-      margin-block-end: var(--spacing-space-m);
+      margin-block-end: var(--spacing-2xl);
       overflow-x: auto;
       overflow-y: hidden;
       overscroll-behavior-x: contain;
@@ -133,9 +133,9 @@
 
     /* === Inline code === */
     & :not(pre) > code {
-      border-radius: var(--radius);
-      font-size: var(--text-step--1);
-      background-color: var(--color-bg-inline-code);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-body-sm-standard);
+      background-color: var(--color-ice-indigo-50);
       padding-inline: 0.375rem;
       padding-block: 0.125rem;
       overflow-wrap: anywhere;
@@ -143,7 +143,7 @@
 
     /* === Code blocks (expressive-code) === */
     & .expressive-code {
-      margin-block-end: var(--spacing-space-s);
+      margin-block-end: var(--spacing-xl);
     }
 
     .video-embed {

@@ -40,27 +40,27 @@ const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
-  <main class="pb-space-l">
+  <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
     <section
-      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
+      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-4xl text-white flex items-center"
     >
-      <div class="mx-auto w-full max-w-wide px-space-m">
+      <div class="mx-auto w-full max-w-wide px-2xl">
         <div class="max-w-narrow">
           <h1
-            class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]"
+            class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]"
           >
             {title}
           </h1>
-          <p class="mb-space-m text-[1.125rem] max-w-[600px]">{description}</p>
+          <p class="mb-2xl text-[1.125rem] max-w-[600px]">{description}</p>
         </div>
       </div>
     </section>
 
     {
       hasBody && (
-        <section class="py-space-xl">
+        <section class="py-4xl">
           <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
             <div data-prose>
               <MdxContent
@@ -82,7 +82,7 @@ const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
       )
     }
 
-    <section class="py-space-xl">
+    <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <CtaStrip
           heading={ctaStrip.heading}

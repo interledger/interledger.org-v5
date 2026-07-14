@@ -25,10 +25,10 @@ const t = useTranslations(routeLocale)
 const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
 ---
 
-<div class="max-w-[900px] mx-auto p-space-l">
+<div class="max-w-[900px] mx-auto p-3xl">
   {
     heading && (
-      <h2 class="text-[2rem] font-semibold text-primary-fallback text-center mb-space-l">
+      <h2 class="text-[2rem] font-semibold text-primary text-center mb-3xl">
         {heading}
       </h2>
     )
@@ -50,11 +50,11 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
             data-active={index === 0 ? 'true' : 'false'}
           >
             <blockquote class="text-center m-0">
-              <p class="text-2xl italic leading-relaxed mb-space-m">
+              <p class="text-2xl italic leading-relaxed mb-2xl">
                 "{item.quote}"
               </p>
               {(item.author || item.organization) && (
-                <footer class="flex items-center justify-center gap-space-s">
+                <footer class="flex items-center justify-center gap-xl">
                   {item.image && (
                     <img
                       src={item.image.url}
@@ -64,15 +64,17 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
                   )}
                   <div class="flex flex-col text-left">
                     {item.author && (
-                      <cite class="not-italic font-semibold text-primary-fallback">
+                      <cite class="not-italic font-semibold text-primary">
                         {item.author}
                       </cite>
                     )}
                     {item.role && (
-                      <span class="text-sm text-gray">{item.role}</span>
+                      <span class="text-sm text-neutral-75">{item.role}</span>
                     )}
                     {item.organization && (
-                      <span class="text-sm text-gray">{item.organization}</span>
+                      <span class="text-sm text-neutral-75">
+                        {item.organization}
+                      </span>
                     )}
                   </div>
                 </footer>
@@ -84,19 +86,19 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
     </div>
     {
       items.length > 1 && (
-        <div class="flex items-center justify-center gap-space-m mt-space-l">
+        <div class="flex items-center justify-center gap-2xl mt-3xl">
           <button
             class="h-10 w-10 rounded-full border text-xl transition-all duration-200 hover:border-primary hover:bg-primary hover:text-white"
             aria-label={t('carousel.previous')}
             data-carousel-btn
-            style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-gray-5, #ddd);"
+            style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-neutral-75-5, #ddd);"
           >
             &larr;
           </button>
-          <div class="flex gap-space-xs">
+          <div class="flex gap-lg">
             {items.map((_, index) => (
               <button
-                class="h-[10px] w-[10px] rounded-full border-0 transition-colors duration-200 bg-[var(--sl-color-gray-5)] data-[active=true]:bg-primary hover:bg-primary"
+                class="h-[10px] w-[10px] rounded-full border-0 transition-colors duration-200 bg-[var(--sl-color-neutral-75-5)] data-[active=true]:bg-primary hover:bg-primary"
                 aria-label={t('carousel.go_to', { number: index + 1 })}
                 data-index={index}
                 data-carousel-dot
@@ -108,7 +110,7 @@ const carouselId = `carousel-${Math.random().toString(36).slice(2, 11)}`
             class="h-10 w-10 rounded-full border text-xl transition-all duration-200 hover:border-primary hover:bg-primary hover:text-white"
             aria-label={t('carousel.next')}
             data-carousel-btn
-            style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-gray-5, #ddd);"
+            style="background: var(--sl-color-bg-nav, #f5f5f5); border-color: var(--sl-color-neutral-75-5, #ddd);"
           >
             &rarr;
           </button>

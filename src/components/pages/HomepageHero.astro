@@ -115,7 +115,7 @@ const heroUmami = (href: string, linkText: string) =>
   </div>
 
   <div
-    class="relative z-[1] mx-auto flex w-full max-w-full items-center px-lg tablet:px-3xl-tight desktop:px-5xl py-space-2xl tablet:max-w-wide tablet:min-h-[90dvh] md:py-space-3xl"
+    class="relative z-[1] mx-auto flex w-full max-w-full items-center px-lg tablet:px-3xl-tight desktop:px-5xl py-5xl tablet:max-w-wide tablet:min-h-[90dvh] md:py-6xl"
   >
     <div
       class="w-full max-w-full motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100 tablet:max-w-[50%] desktop:max-w-[var(--layout-homepage-hero-copy-max-lg)]"
@@ -129,13 +129,13 @@ const heroUmami = (href: string, linkText: string) =>
         </span>
       </h1>
 
-      <p class="mt-space-m text-h4-md desktop:text-h4-lg text-white/85">
+      <p class="mt-2xl text-h4-md desktop:text-h4-lg text-white/85">
         {t('homepageHero.description')}
       </p>
 
       <nav
         aria-label={t('homepageHero.cta_navigation')}
-        class="mt-space-s flex w-full flex-col gap-space-s tablet:flex-row tablet:flex-wrap"
+        class="mt-xl flex w-full flex-col gap-xl tablet:flex-row tablet:flex-wrap"
       >
         <LinkButton
           href={exploreTechHref}

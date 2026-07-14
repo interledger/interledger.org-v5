@@ -8,7 +8,7 @@ const { src, alt, hasBorder = true } = Astro.props
       <img
         src={src}
         alt={alt}
-        class="rounded shadow border-2 border-primary-bg"
+        class="rounded shadow border-2 border-neutral-50"
       />
     ) : (
       <img src={src} alt={alt} />
@@ -18,7 +18,7 @@ const { src, alt, hasBorder = true } = Astro.props
     href={src}
     target="_blank"
     rel="noopener noreferrer"
-    class="mb-space-s mt-space-3xs inline-flex items-center gap-space-3xs whitespace-nowrap text-step--1"
+    class="mb-xl mt-xs inline-flex items-center gap-xs whitespace-nowrap text-body-sm-standard"
   >
     View full image
     <svg
