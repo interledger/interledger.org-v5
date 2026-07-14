@@ -1,5 +1,25 @@
 import { describe, it, expect } from 'vitest'
-import { formatMdx, pathSlugToMdxFilename } from './mdx'
+import { formatMdx, pathSlugToMdxFilename, resolveFilenameSlug } from './mdx'
+
+describe('resolveFilenameSlug', () => {
+  it('uses the English slug for a non-English locale when provided', () => {
+    expect(
+      resolveFilenameSlug('es', 'subvenciones/beca', 'grant/fellowship')
+    ).toBe('grant/fellowship')
+  })
+
+  it('falls back to its own slug for a non-English locale with no English sibling', () => {
+    expect(resolveFilenameSlug('es', 'subvenciones/beca', undefined)).toBe(
+      'subvenciones/beca'
+    )
+  })
+
+  it('always uses its own slug for the English locale, ignoring englishSlug', () => {
+    expect(
+      resolveFilenameSlug('en', 'grant/fellowship', 'grant/fellowship')
+    ).toBe('grant/fellowship')
+  })
+})
 
 describe('pathSlugToMdxFilename', () => {
   it('flattens nested path slugs to hyphenated filename stems', () => {
