@@ -6,6 +6,7 @@ import {
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
   validateGrantInfoCards,
+  validateReportDate,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -668,5 +669,45 @@ describe('mergeValidationErrors', () => {
       ['primaryCta', 'text'],
       ['faqSection', 'title']
     ])
+  })
+})
+
+describe('validateReportDate', () => {
+  it('returns undefined when date is absent', () => {
+    expect(validateReportDate({})).toBeUndefined()
+  })
+
+  it('returns undefined when date is explicitly null', () => {
+    expect(validateReportDate({ date: null })).toBeUndefined()
+  })
+
+  it('returns undefined when publishDate is present', () => {
+    expect(
+      validateReportDate({ date: { publishDate: '2026-06-15' } })
+    ).toBeUndefined()
+  })
+
+  it('returns undefined when both publishDate and lastUpdated are present', () => {
+    expect(
+      validateReportDate({
+        date: { publishDate: '2026-06-15', lastUpdated: '2026-07-01' }
+      })
+    ).toBeUndefined()
+  })
+
+  it('returns a ValidationError when date is present but publishDate is missing', () => {
+    const err = validateReportDate({ date: {} })
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toBe('Date: Publish Date is required')
+  })
+
+  it('returns a ValidationError when publishDate is empty', () => {
+    const err = validateReportDate({ date: { publishDate: '' } })
+    expect(err?.message).toBe('Date: Publish Date is required')
+  })
+
+  it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
+    const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
+    expect(err?.message).toBe('Date: Publish Date is required')
   })
 })

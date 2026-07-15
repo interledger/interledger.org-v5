@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_shared_report_dates",
+  "info": {
+    "displayName": "Report Date",
+    "description": "Publish and last-updated dates for a report. Only add this component when you want to show dates on the page."
+  },
+  "options": {},
+  "attributes": {
+    "publishDate": {
+      "type": "date",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Required once this component is added."
+    },
+    "lastUpdated": {
+      "type": "date",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts)."
+    }
+  }
+}

@@ -15,7 +15,7 @@ import {
   type Locale,
   useTranslations,
   getProfileColorIndex,
-  localizeRoute,
+  buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
   getOptimizedImage
 } from '@/utils'
@@ -27,7 +27,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const t = useTranslations(contentLocale)
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const allProfiles = await getCollection('profiles')
 const entry = allProfiles.find(
@@ -63,27 +64,13 @@ const avatarPreloadType = avatarSrc?.endsWith('.avif')
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'
 
-// Build breadcrumbs: Home > [section base?] > [pathSlug parents] > name
-const sectionPrefix =
-  entry.data.section && entry.data.section !== 'foundation'
-    ? entry.data.section
-    : ''
-const fullPath = [sectionPrefix, entry.data.pathSlug].filter(Boolean).join('/')
-const allParts = fullPath.split('/')
-const parentParts = allParts.slice(0, -1)
-const toLabel = (seg: string) =>
-  seg
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
-  ...parentParts.map((_, i) => ({
-    name: toLabel(parentParts[i]),
-    href: localizeRoute(parentParts.slice(0, i + 1).join('/'), contentLocale)
-  })),
-  { name, href: localizeRoute(fullPath, contentLocale) }
-]
+const breadcrumbs = buildSectionEntryBreadcrumbs(
+  entry.data.pathSlug,
+  entry.data.section,
+  name,
+  routeLocale,
+  t('nav.home')
+)
 ---
 
 <FoundationPageLayout
@@ -134,13 +121,13 @@ const breadcrumbs = [
         }
       </div>
       <div
-        class="mt-xl flex flex-col gap-0 [&_h2]:mb-md [&_h2]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
+        class="mt-xl flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
       >
-        <h2
+        <h1
           class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
         >
           {name}
-        </h2>
+        </h1>
         {
           displayRole && (
             <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-4 border-orchid-100 font-normal">
