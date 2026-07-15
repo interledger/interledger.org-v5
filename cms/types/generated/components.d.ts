@@ -600,6 +600,54 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksNumberTile extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_number_tiles_items'
+  info: {
+    description: 'Single stat tile: a number, optional superscript, and a description'
+    displayName: 'Number Tile'
+    icon: 'chart-pie'
+  }
+  attributes: {
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    number: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    superscript: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksNumberTiles extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_number_tiles'
+  info: {
+    description: 'Row of stat tiles (number + optional superscript + description). Minimum 2 tiles.'
+    displayName: 'Number Tiles'
+    icon: 'chart-pie'
+  }
+  attributes: {
+    tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksParagraph extends Struct.ComponentSchema {
   collectionName: 'components_blocks_paragraphs'
   info: {
@@ -1110,6 +1158,8 @@ declare module '@strapi/strapi' {
       'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard
       'blocks.info-cards': BlocksInfoCards
+      'blocks.number-tile': BlocksNumberTile
+      'blocks.number-tiles': BlocksNumberTiles
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile

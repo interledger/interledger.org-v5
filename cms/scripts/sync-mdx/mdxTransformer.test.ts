@@ -1841,5 +1841,41 @@ describe('buildGrantOverviewPagePayload', () => {
 
       expect((payload as Record<string, unknown>).content).toBeUndefined()
     })
+
+    it('parses a <NumberTiles> component into a blocks.number-tiles block', async () => {
+      await import('./numberTilesHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content:
+          "<NumberTiles tiles={[{ number: '21', superscript: 'M+', description: 'In Grants' }, { number: '300', superscript: '+', description: 'Projects supported worldwide' }]} />"
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        {
+          strapi: stubStrapi(),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.number-tiles',
+          tiles: [
+            { number: '21', superscript: 'M+', description: 'In Grants' },
+            {
+              number: '300',
+              superscript: '+',
+              description: 'Projects supported worldwide'
+            }
+          ]
+        }
+      ])
+    })
   })
 })

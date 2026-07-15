@@ -766,6 +766,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessible label (screen readers only)'
     },
+    'blocks.number-tiles': {
+      tiles: 'Tiles'
+    },
+    'blocks.number-tile': {
+      number: 'Number',
+      superscript: 'Superscript',
+      description: 'Description'
+    },
     'blocks.cta-banner': {
       heading: 'Heading',
       text: 'Body Text',
@@ -878,6 +886,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Describes this group of logos for screen reader users. Not visible on the page.',
       logos:
         'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+    },
+    'blocks.number-tile': {
+      number:
+        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the superscript here.',
+      superscript: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
 
@@ -1102,6 +1115,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
+    ],
+    'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
+    'blocks.number-tile': [
+      [
+        { name: 'number', size: 6 },
+        { name: 'superscript', size: 6 }
+      ],
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],

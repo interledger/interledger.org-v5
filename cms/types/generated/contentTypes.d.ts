@@ -732,7 +732,8 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.image-block',
         'blocks.cta-strip',
         'blocks.cta-banner',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.number-tiles'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

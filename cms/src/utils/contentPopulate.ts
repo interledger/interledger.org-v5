@@ -94,6 +94,9 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
       ...GRANT_BLOCKS,
       'blocks.carousel': {
         populate: { logos: true }
+      },
+      'blocks.number-tiles': {
+        populate: { tiles: true }
       }
     }
   },

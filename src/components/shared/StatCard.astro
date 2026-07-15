@@ -8,9 +8,12 @@
 // announcement still comes from the parent `<ul role="list">`.
 
 import AnimatedNumber from './AnimatedNumber.astro'
+import { twMerge } from '@/utils'
 
 export interface StatItem {
   value: number
+  /** Overrides the displayed/resting number text — see `AnimatedNumber`'s `display` prop. */
+  display?: string
   suffix?: string
   label: string
   /**
@@ -20,21 +23,26 @@ export interface StatItem {
    * SR engines pronounce inconsistently ("M plus" vs "million plus").
    */
   ariaLabel?: string
+  /** Merged onto the default width classes — lets callers override the fixed per-breakpoint widths (e.g. for a percentage-based flex-basis layout). */
+  class?: string
 }
 
 type Props = StatItem
 
-const { value, suffix, label, ariaLabel } = Astro.props
+const { value, display, suffix, label, ariaLabel, class: className } =
+  Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
+const liClasses = twMerge(
+  'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
+  className
+)
 ---
 
-<li
-  aria-label={ariaLabel}
-  class="flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl"
->
+<li aria-label={ariaLabel} class={liClasses}>
   <div class="flex items-start gap-sm" aria-hidden={hideContents}>
     <AnimatedNumber
       value={value}
+      display={display}
       class="font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg"
     />
     {

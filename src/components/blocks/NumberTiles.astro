@@ -1,0 +1,46 @@
+---
+// Row of stat tiles for the grant-overview-page dynamic zone (INTORG-854).
+// Reuses the homepage's StatCard/AnimatedNumber trio rather than duplicating
+// the count-up + accessibility pattern — see `display` prop on both for why
+// (the `number` field here is free text, e.g. "1,000", not a clean number).
+//
+// Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
+// of each item's width — up to 4 tiles per row on desktop, 2 on tablet, 1 on
+// mobile; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
+// default behavior, no extra CSS needed).
+import StatCard from '@/components/shared/StatCard.astro'
+import { parseStatNumber } from '@/utils'
+
+interface Tile {
+  number: string
+  superscript?: string
+  description: string
+}
+
+interface Props {
+  tiles: Tile[]
+}
+
+const { tiles } = Astro.props
+---
+
+<ul
+  role="list"
+  class="m-0 grid list-none grid-cols-1 gap-x-xl gap-y-2xl p-0 tablet:grid-cols-2 desktop:grid-cols-4"
+  data-animated-number-trigger
+>
+  {
+    tiles.map((tile) => {
+      const parsed = parseStatNumber(tile.number)
+      return (
+        <StatCard
+          value={parsed ?? 0}
+          display={tile.number}
+          suffix={tile.superscript}
+          label={tile.description}
+          class="w-full"
+        />
+      )
+    })
+  }
+</ul>
