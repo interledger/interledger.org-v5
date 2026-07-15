@@ -10,9 +10,9 @@ import './numberTilesHandler'
 // ---------------------------------------------------------------------------
 
 describe('NumberTiles handler', () => {
-  it('parses 2 tiles with number, superscript, and description', async () => {
+  it('parses 2 tiles with number, suffix, and description', async () => {
     const blocks = await parseMdxToBlocks(
-      `<NumberTiles tiles={[{ number: '21', superscript: 'M+', description: 'In Grants' }, { number: '300', superscript: '+', description: 'Projects supported worldwide' }]} />`,
+      `<NumberTiles tiles={[{ number: '21', suffix: 'M+', description: 'In Grants' }, { number: '300', suffix: '+', description: 'Projects supported worldwide' }]} />`,
       { locale: 'en' }
     )
 
@@ -20,10 +20,10 @@ describe('NumberTiles handler', () => {
       {
         __component: 'blocks.number-tiles',
         tiles: [
-          { number: '21', superscript: 'M+', description: 'In Grants' },
+          { number: '21', suffix: 'M+', description: 'In Grants' },
           {
             number: '300',
-            superscript: '+',
+            suffix: '+',
             description: 'Projects supported worldwide'
           }
         ]
@@ -61,7 +61,7 @@ describe('NumberTiles handler', () => {
     expect(blocks[0]).toMatchObject({ tiles: expect.arrayContaining(tiles) })
   })
 
-  it('omits superscript when absent', async () => {
+  it('omits suffix when absent', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
       { locale: 'en' }

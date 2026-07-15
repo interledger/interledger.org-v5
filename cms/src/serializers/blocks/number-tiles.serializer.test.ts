@@ -2,25 +2,25 @@ import { describe, it, expect } from 'vitest'
 import { serialize } from './number-tiles.serializer'
 
 describe('number-tiles serializer', () => {
-  it('serializes tiles with number, superscript, and description', () => {
+  it('serializes tiles with number, suffix, and description', () => {
     const result = serialize({
       tiles: [
-        { number: '21', superscript: 'M+', description: 'In Grants' },
+        { number: '21', suffix: 'M+', description: 'In Grants' },
         {
           number: '300',
-          superscript: '+',
+          suffix: '+',
           description: 'Projects supported worldwide'
         }
       ]
     })
 
     expect(result).toContain(
-      'tiles={[{"number":"21","superscript":"M+","description":"In Grants"},' +
-        '{"number":"300","superscript":"+","description":"Projects supported worldwide"}]}'
+      'tiles={[{"number":"21","suffix":"M+","description":"In Grants"},' +
+        '{"number":"300","suffix":"+","description":"Projects supported worldwide"}]}'
     )
   })
 
-  it('omits superscript when absent', () => {
+  it('omits suffix when absent', () => {
     const result = serialize({
       tiles: [
         { number: '21', description: 'In Grants' },

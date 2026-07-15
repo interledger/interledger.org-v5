@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Number Tile",
     "icon": "chart-pie",
-    "description": "Single stat tile: a number, optional superscript, and a description"
+    "description": "Single stat tile: a number, optional suffix, and a description"
   },
   "options": {},
   "attributes": {
@@ -16,7 +16,7 @@
         }
       }
     },
-    "superscript": {
+    "suffix": {
       "type": "string",
       "pluginOptions": {
         "i18n": {

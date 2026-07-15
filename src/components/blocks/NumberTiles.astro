@@ -13,7 +13,7 @@ import { parseStatNumber } from '@/utils'
 
 interface Tile {
   number: string
-  superscript?: string
+  suffix?: string
   description: string
 }
 
@@ -22,6 +22,12 @@ interface Props {
 }
 
 const { tiles } = Astro.props
+
+// Ticket asks for the suffix at the same size/weight as the number itself,
+// not StatCard's default smaller "superscript" scale — matches AnimatedNumber's
+// own class exactly so "21" and "M+" read as one continuous size.
+const SUFFIX_CLASS =
+  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg'
 ---
 
 <ul
@@ -36,7 +42,8 @@ const { tiles } = Astro.props
         <StatCard
           value={parsed ?? 0}
           display={tile.number}
-          suffix={tile.superscript}
+          suffix={tile.suffix}
+          suffixClass={SUFFIX_CLASS}
           label={tile.description}
           class="w-full"
         />

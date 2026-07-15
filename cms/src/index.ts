@@ -772,7 +772,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number: 'Number',
-      superscript: 'Superscript',
+      suffix: 'Suffix',
       description: 'Description'
     },
     'blocks.cta-banner': {
@@ -890,8 +890,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number:
-        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the superscript here.',
-      superscript: 'Optional suffix shown after the number, e.g. "M+" or "+".'
+        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the suffix here.',
+      suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
 
@@ -1122,7 +1122,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.number-tile': [
       [
         { name: 'number', size: 6 },
-        { name: 'superscript', size: 6 }
+        { name: 'suffix', size: 6 }
       ],
       [{ name: 'description', size: 12 }]
     ],

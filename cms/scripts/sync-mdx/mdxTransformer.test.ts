@@ -1849,7 +1849,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
         content:
-          "<NumberTiles tiles={[{ number: '21', superscript: 'M+', description: 'In Grants' }, { number: '300', superscript: '+', description: 'Projects supported worldwide' }]} />"
+          "<NumberTiles tiles={[{ number: '21', suffix: 'M+', description: 'In Grants' }, { number: '300', suffix: '+', description: 'Projects supported worldwide' }]} />"
       })
 
       const payload = await buildGrantOverviewPagePayload(
@@ -1867,10 +1867,10 @@ describe('buildGrantOverviewPagePayload', () => {
         {
           __component: 'blocks.number-tiles',
           tiles: [
-            { number: '21', superscript: 'M+', description: 'In Grants' },
+            { number: '21', suffix: 'M+', description: 'In Grants' },
             {
               number: '300',
-              superscript: '+',
+              suffix: '+',
               description: 'Projects supported worldwide'
             }
           ]

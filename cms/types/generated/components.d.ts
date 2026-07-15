@@ -603,7 +603,7 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
 export interface BlocksNumberTile extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles_items'
   info: {
-    description: 'Single stat tile: a number, optional superscript, and a description'
+    description: 'Single stat tile: a number, optional suffix, and a description'
     displayName: 'Number Tile'
     icon: 'chart-pie'
   }
@@ -622,7 +622,7 @@ export interface BlocksNumberTile extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    superscript: Schema.Attribute.String &
+    suffix: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -634,7 +634,7 @@ export interface BlocksNumberTile extends Struct.ComponentSchema {
 export interface BlocksNumberTiles extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles'
   info: {
-    description: 'Row of stat tiles (number + optional superscript + description). Minimum 2 tiles.'
+    description: 'Row of stat tiles (number + optional suffix + description). Minimum 2 tiles.'
     displayName: 'Number Tiles'
     icon: 'chart-pie'
   }

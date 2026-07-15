@@ -42,8 +42,8 @@ describe('validateContentBlocks', () => {
       {
         __component: 'blocks.number-tiles',
         tiles: [
-          { number: '21', superscript: 'M+', description: 'In Grants' },
-          { number: '300', superscript: '+', description: 'Projects' }
+          { number: '21', suffix: 'M+', description: 'In Grants' },
+          { number: '300', suffix: '+', description: 'Projects' }
         ]
       }
     ])

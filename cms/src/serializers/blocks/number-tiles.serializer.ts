@@ -1,7 +1,7 @@
 export function serialize(block: {
   tiles?: {
     number?: string
-    superscript?: string
+    suffix?: string
     description?: string
   }[]
 }): string {
@@ -21,7 +21,7 @@ export function serialize(block: {
     }
     return {
       number: tile.number,
-      ...(tile.superscript ? { superscript: tile.superscript } : {}),
+      ...(tile.suffix ? { suffix: tile.suffix } : {}),
       description: tile.description
     }
   })

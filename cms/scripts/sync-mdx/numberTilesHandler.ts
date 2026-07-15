@@ -1,6 +1,6 @@
 /**
  * NumberTiles component handler for the MDX block parser. Handles:
- * <NumberTiles tiles={[{ number, superscript, description }, ...]} />
+ * <NumberTiles tiles={[{ number, suffix, description }, ...]} />
  *
  * `tiles` isn't JSON — Prettier reformats it to JS object-literal syntax on
  * write — so it's extracted via getStaticLiteralAttr's ESTree evaluator, not
@@ -21,21 +21,21 @@ const MIN_TILES = 2
 
 interface TileEntry {
   number: string
-  superscript?: string
+  suffix?: string
   description: string
 }
 
 function isTileEntry(value: unknown): value is TileEntry {
   if (typeof value !== 'object' || value === null) return false
   const record = value as Record<string, unknown>
-  const hasValidSuperscript =
-    record.superscript === undefined || typeof record.superscript === 'string'
+  const hasValidSuffix =
+    record.suffix === undefined || typeof record.suffix === 'string'
   return (
     typeof record.number === 'string' &&
     record.number.length > 0 &&
     typeof record.description === 'string' &&
     record.description.length > 0 &&
-    hasValidSuperscript
+    hasValidSuffix
   )
 }
 
@@ -50,7 +50,7 @@ async function handleNumberTiles(
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
         message:
-          'Prop "tiles" must be an array of { number, description, superscript? } objects.',
+          'Prop "tiles" must be an array of { number, description, suffix? } objects.',
         component: 'NumberTiles',
         prop: 'tiles',
         line: node.position?.start.line,
@@ -73,7 +73,7 @@ async function handleNumberTiles(
       __component: 'blocks.number-tiles',
       tiles: rawTiles.map((tile) => ({
         number: tile.number,
-        ...(tile.superscript ? { superscript: tile.superscript } : {}),
+        ...(tile.suffix ? { suffix: tile.suffix } : {}),
         description: tile.description
       }))
     }
