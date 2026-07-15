@@ -607,6 +607,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'Path Slug',
       description: 'Short Description',
       hero: 'Hero',
+      content: 'Content',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content'
     }
@@ -1058,6 +1059,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
