@@ -6,7 +6,7 @@ const base = {
   description: 'A short description',
   date: '2025-01-01',
   pathSlug: 'a-post',
-  categories: ['Announcements']
+  categories: ['News']
 }
 
 describe('foundationBlogFrontmatterSchema', () => {

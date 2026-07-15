@@ -22,11 +22,11 @@ const pathSlugSchema = (required = true) => {
 // src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
 // lands, add the new values here and retire the legacy ones.
 const blogCategories = [
-  'Announcements',
-  'Community & Events',
   'Engineering',
-  'Grants & Grantee Insights',
+  'Grantmaking',
   'Interledger Technology',
+  'News',
+  'Policy and Advocacy',
   'Thought Leadership'
 ] as const
 

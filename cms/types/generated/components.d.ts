@@ -887,11 +887,11 @@ export interface SharedCategory extends Struct.ComponentSchema {
   attributes: {
     categoryValue: Schema.Attribute.Enumeration<
       [
-        'Announcements',
-        'Community & Events',
         'Engineering',
-        'Grants & Grantee Insights',
+        'Grantmaking',
         'Interledger Technology',
+        'News',
+        'Policy and Advocacy',
         'Thought Leadership'
       ]
     >
