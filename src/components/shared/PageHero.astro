@@ -43,19 +43,22 @@ const {
 
 <!-- White content section -->
 <div
-  class="bg-white px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
+  class="bg-white px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:px-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
 >
-  <div class="mx-auto max-w-wide">
+  <div class="mx-auto max-w-content">
     {
       breadcrumbs && breadcrumbs.length > 0 && (
-        <div class="mb-2xl tablet:mb-3xl">
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        <div class="mb-xl tablet:mb-2xl">
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            class="[&_a]:text-body-sm-standard"
+          />
         </div>
       )
     }
 
     <h1
-      class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900 mb-2xl max-w-[14em] tablet:mb-3xl"
+      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl max-w-[14em] tablet:mb-3xl"
     >
       {title}
     </h1>
@@ -124,15 +127,16 @@ const {
 }
 
 <script>
-  // Custom scroll-linked parallax: the frame scrolls at normal (page) speed,
-  // the image trails behind at PARALLAX_SPEED of that — e.g. 0.75 means the
-  // image moves 75% as far as the page scrolls, so it visually lags behind
-  // the frame. The image is rendered 130% of the frame's height (see markup
-  // above) so the 30%-of-frame-height slack (15% top, 15% bottom) never runs
-  // out mid-scroll. Tune PARALLAX_SPEED against the live site (target 0.7–0.8).
-  const PARALLAX_SPEED = 0.7
-
-  // Only ever one hero per page.
+  // Custom scroll-linked parallax: the image is rendered 130% of the frame's
+  // height (see markup above), giving it a 30%-of-frame-height slack (15%
+  // top, 15% bottom) to trail behind the frame within. That slack is spread
+  // across the frame's entire transit through the viewport (progress 0 when
+  // its top reaches the viewport's bottom edge, progress 1 when its bottom
+  // reaches the viewport's top edge) rather than tied to a literal px-per-px
+  // scroll speed — a fixed speed ratio hits the slack limit long before the
+  // frame finishes scrolling through, then visibly freezes for the rest.
+  // Normalizing to transit progress keeps it moving the whole time the hero
+  // is anywhere near the viewport.
   const wrapper = document.querySelector<HTMLElement>('.parallax-wrapper')
   const prefersReducedMotion = window.matchMedia(
     '(prefers-reduced-motion: reduce)'
@@ -144,18 +148,15 @@ const {
 
     const updateParallax = () => {
       const rect = wrapper.getBoundingClientRect()
-      const frameCenter = rect.top + rect.height / 2
-      const viewportCenter = window.innerHeight / 2
+      const totalTransit = window.innerHeight + rect.height
+      const progress = Math.max(
+        0,
+        Math.min(1, (window.innerHeight - rect.top) / totalTransit)
+      )
       // Frame's slack is 30% of its own height (image is 130% tall),
       // split evenly above/below — this is the max the image can trail.
       const maxOffset = (rect.height * 0.3) / 2
-      const offset = Math.max(
-        -maxOffset,
-        Math.min(
-          maxOffset,
-          (viewportCenter - frameCenter) * (1 - PARALLAX_SPEED)
-        )
-      )
+      const offset = maxOffset * (1 - 2 * progress)
 
       images.forEach((img) => {
         img.style.transform = `translateY(${offset}px)`
