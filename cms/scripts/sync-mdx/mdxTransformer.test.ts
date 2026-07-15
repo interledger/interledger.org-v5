@@ -765,14 +765,20 @@ const baseGrantFrontmatter = {
 // Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
 // and optional primaryCta / seo being omitted when absent.
 describe('buildGrantPagePayload', () => {
-  // Shared stub: content parsing (JSX -> dynamic-zone blocks) only runs when
-  // a strapi client is supplied — mirrors buildPagePayload's parserCtx-gated
-  // behavior for foundation/summit pages.
-  function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+  // Shared stub: content parsing (JSX -> dynamic-zone blocks) and hero image
+  // resolution only run when a strapi upload context is supplied — mirrors
+  // buildPagePayload's parserCtx-gated behavior for foundation/summit pages.
+  function stubStrapi(uploads: Record<string, number> = {}): StrapiUploadContext {
     return {
-      findUploadByUrl: async (url: string) => uploads[url] ?? null,
-      updateUploadAlt: async () => undefined
-    } as unknown as StrapiClient
+      strapi: {
+        findUploadByUrl: async (url: string) => uploads[url] ?? null,
+        findUploadByName: async () => null,
+        updateUploadAlt: async () => undefined
+      } as unknown as StrapiClient,
+      STRAPI_URL: 'http://localhost:1337',
+      STRAPI_TOKEN: 'token',
+      dryRun: false
+    }
   }
 
   describe('error handling', () => {
@@ -1406,6 +1412,85 @@ describe('buildGrantPagePayload', () => {
       )
 
       expect(payload).not.toHaveProperty('content')
+    })
+  })
+
+  describe('hero', () => {
+    it('uses frontmatter heroTitle and heroDescription when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroDescription: 'Learn about our grants'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: 'Learn about our grants'
+      })
+    })
+
+    it('includes hero CTA when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroCtas: [{ text: 'Apply now', link: '/apply', external: true }]
+        }
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        hero_call_to_action: {
+          text: 'Apply now',
+          link: '/apply',
+          style: 'primary',
+          external: true
+        }
+      })
+    })
+
+    it('clears hero when no hero fields are present in frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+
+      expect((payload as Record<string, unknown>).hero).toBeNull()
+    })
+
+    it('resolves heroImage to a Strapi upload ID', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroImage: '/uploads/img/hero-desktop.png',
+          heroImageAlt: 'Grant hero'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/uploads/img/hero-desktop.png': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        backgroundImage: 42
+      })
     })
   })
 })

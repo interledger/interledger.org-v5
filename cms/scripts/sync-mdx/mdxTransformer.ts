@@ -454,13 +454,14 @@ export async function buildProfilePayload(
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
   mdx: MDXFile,
-  strapi?: StrapiClient,
+  strapiUploadContext?: StrapiUploadContext,
   existingEntry: StrapiEntry | null = null,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+    const strapi = strapiUploadContext?.strapi
 
     const primaryCta = parsed.primaryCta
       ? {
@@ -513,6 +514,14 @@ export async function buildGrantPagePayload(
         }
       : null
 
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
+
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
@@ -546,6 +555,7 @@ export async function buildGrantPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
+      hero,
       programOverview: null,
       primaryCta,
       faqSection,
