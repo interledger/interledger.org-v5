@@ -48,8 +48,10 @@ const liClasses = twMerge(
   'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
   className
 )
+// Desktop uses a one-off 76px rather than the h1-lg token (100px) — no
+// existing type-scale token matches, per design.
 const numberClasses = twMerge(
-  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg',
+  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-[4.75rem]',
   numberClass
 )
 const labelClasses = twMerge(
