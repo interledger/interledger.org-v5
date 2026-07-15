@@ -140,15 +140,23 @@ export const redirects = {
   // redirected: Astro's spread→Netlify mapping emits a literal `*` rather than
   // a splat, so those would 301 to a 404. A tag needed >10 posts to ever have
   // a page 2, so these barely existed; a clean 404 is preferable to a bad 301.
-  '/blog/tag/announcements': '/blog/category/announcements',
-  '/blog/tag/community-&-events': '/blog/category/community-&-events',
-  '/blog/tag/grants-&-grantee-insights':
-    '/blog/category/grants-&-grantee-insights',
+  '/blog/tag/announcements': '/blog/category/news',
+  '/blog/tag/community-&-events': '/blog',
+  '/blog/tag/grants-&-grantee-insights': '/blog/category/grantmaking',
   '/blog/tag/interledger-technology': '/blog/category/interledger-technology',
   '/blog/tag/thought-leadership': '/blog/category/thought-leadership',
-  '/es/blog/tag/announcements': '/es/blog/category/announcements',
-  '/es/blog/tag/grants-&-grantee-insights':
-    '/es/blog/category/grants-&-grantee-insights',
+  '/es/blog/tag/announcements': '/es/blog/category/news',
+  '/es/blog/tag/grants-&-grantee-insights': '/es/blog/category/grantmaking',
+
+  // Finalised blog categories (INTORG-829): renamed and removed category term
+  // pages 301 to their new home. Announcements → News, Grants & Grantee
+  // Insights → Grantmaking, Community & Events removed (→ blog index).
+  '/blog/category/announcements': '/blog/category/news',
+  '/blog/category/grants-&-grantee-insights': '/blog/category/grantmaking',
+  '/blog/category/community-&-events': '/blog',
+  '/es/blog/category/announcements': '/es/blog/category/news',
+  '/es/blog/category/grants-&-grantee-insights':
+    '/es/blog/category/grantmaking',
 
   // Developers/tech blog merged into the foundation blog (INTORG-691).
   // Every old /developers/blog/* URL 301s to its new /blog/* home.
