@@ -365,17 +365,18 @@ export function validateHeroFields(
       path: ['hero', 'title']
     })
   }
-  for (const [i, cta] of (hero.hero_call_to_action ?? []).entries()) {
+  const cta = hero.hero_call_to_action
+  if (cta) {
     if (!cta.text) {
       fieldErrors.push({
         message: 'Hero CTA is missing required text',
-        path: ['hero', 'hero_call_to_action', i, 'text']
+        path: ['hero', 'hero_call_to_action', 'text']
       })
     }
     if (!cta.link) {
       fieldErrors.push({
         message: 'Hero CTA is missing required link',
-        path: ['hero', 'hero_call_to_action', i, 'link']
+        path: ['hero', 'hero_call_to_action', 'link']
       })
     }
   }

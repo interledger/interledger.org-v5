@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { generateGrantOverviewPageMDX } from './lifecycles'
 
 describe('generateGrantOverviewPageMDX', () => {
-  it('preserves non-Strapi hero frontmatter because grant overviews have no hero schema field', () => {
+  it('clears stale hero frontmatter when Strapi has no hero for the entry', () => {
     const mdx = generateGrantOverviewPageMDX(
       {
         id: 1,
@@ -21,18 +21,17 @@ describe('generateGrantOverviewPageMDX', () => {
         }
       },
       {
-        heroTitle: 'Preserved Hero',
-        heroDescription: 'This is not managed by Strapi for grant overviews.',
+        heroTitle: 'Stale Hero',
+        heroDescription:
+          'Left over from before the hero was removed in Strapi.',
         heroImage: '/img/hero.jpg'
       }
     )
 
     const parsed = matter(mdx)
 
-    expect(parsed.data.heroTitle).toBe('Preserved Hero')
-    expect(parsed.data.heroDescription).toBe(
-      'This is not managed by Strapi for grant overviews.'
-    )
-    expect(parsed.data.heroImage).toBe('/img/hero.jpg')
+    expect(parsed.data.heroTitle).toBeUndefined()
+    expect(parsed.data.heroDescription).toBeUndefined()
+    expect(parsed.data.heroImage).toBeUndefined()
   })
 })

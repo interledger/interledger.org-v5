@@ -3,7 +3,6 @@ import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 import {
-  developersBlogFrontmatterSchema,
   faqFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
@@ -54,14 +53,6 @@ const summitPagesCollection = defineCollection({
   schema: summitPageFrontmatterSchema
 })
 
-const developersBlogCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: `./${CONTENT_ROOT}/${CONTENT.developersBlog}`
-  }),
-  schema: developersBlogFrontmatterSchema
-})
-
 const profilesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
@@ -81,7 +72,6 @@ const faqsCollection = defineCollection({
 export const collections = {
   docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
-  'developers-blog': developersBlogCollection,
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
   'grant-pages': grantPagesCollection,
@@ -95,5 +85,5 @@ export type CollectionType = keyof typeof collections
 
 export type BlogCollectionType = Extract<
   keyof typeof collections,
-  'developers-blog' | 'foundation-blog'
+  'foundation-blog'
 >

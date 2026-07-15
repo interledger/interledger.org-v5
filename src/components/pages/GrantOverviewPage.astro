@@ -1,8 +1,9 @@
 ---
-import { type Locale } from '@/utils'
+import { type Locale, useTranslations, localizeRoute } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import PageHero from '@/components/shared/PageHero.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -31,7 +32,31 @@ if (!mdxPage) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPage)
 const hasBody = Boolean(mdxPage.body?.trim())
 
-const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCtas,
+  metaImage,
+  canonicalUrl,
+  ctaStrip
+} = mdxPage.data
+
+const t = useTranslations(contentLocale)
+
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
+  {
+    name: heroTitle ?? title,
+    href: localizeRoute(`grant/${slug}`, contentLocale)
+  }
+]
 ---
 
 <FoundationPageLayout
@@ -39,24 +64,21 @@ const { title, description, metaImage, canonicalUrl, ctaStrip } = mdxPage.data
   description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
+  headerTheme="light"
 >
   <main class="pb-space-l">
     <TranslationDisclaimer isVisible={isFallback} />
 
-    <section
-      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center"
-    >
-      <div class="mx-auto w-full max-w-wide px-space-m">
-        <div class="max-w-narrow">
-          <h1
-            class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]"
-          >
-            {title}
-          </h1>
-          <p class="mb-space-m text-[1.125rem] max-w-[600px]">{description}</p>
-        </div>
-      </div>
-    </section>
+    <PageHero
+      title={heroTitle ?? title}
+      description={heroDescription ?? description}
+      image={heroImage}
+      imageAlt={heroImageAlt}
+      imageMobile={heroImageMobile}
+      imageMobileAlt={heroImageMobileAlt}
+      cta={heroCtas?.[0]}
+      breadcrumbs={breadcrumbs}
+    />
 
     {
       hasBody && (

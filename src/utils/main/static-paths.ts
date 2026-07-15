@@ -11,7 +11,6 @@ export type CollectionType =
   | 'grant-overview-pages'
   | 'summit-pages'
   | 'foundation-blog'
-  | 'developers-blog'
   | 'profiles'
 
 type Entry = Awaited<ReturnType<typeof getCollection>>[number]

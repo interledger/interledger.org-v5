@@ -5,7 +5,6 @@ export const HOME_CONTENT_SLUG = 'home'
 export const ROUTE_BASES = {
   'foundation-pages': '',
   'foundation-blog': '/blog',
-  'developers-blog': '/developers/blog',
   'summit-pages': '/summit',
   'grant-pages': '/grant',
   'grant-overview-pages': '/grant',

@@ -32,6 +32,24 @@ const videoAttrs = buildUmamiAttrs({
     <div class="video-embed w-full">
       <Vimeo id={url} playlabel={title} />
     </div>
+  ) : provider === 'file' ? (
+    <div class="video-embed w-full">
+      <video
+        src={url}
+        poster={poster}
+        controls
+        loop
+        muted
+        autoplay
+        playsinline
+        aria-label={title}
+        class="w-full"
+      >
+        <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
+          {title}
+        </a>
+      </video>
+    </div>
   ) : (
     <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
       {title}
