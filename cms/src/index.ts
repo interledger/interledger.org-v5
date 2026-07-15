@@ -672,7 +672,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::report.report': {
       pathSlug:
-        'Full path from the site root, no leading slash. Example: policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions.',
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
       description:

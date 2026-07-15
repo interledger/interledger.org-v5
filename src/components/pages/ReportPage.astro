@@ -18,7 +18,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const t = useTranslations(contentLocale)
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const allReports = await getCollection('reports')
 const entry = allReports.find(
@@ -35,7 +36,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
   entry.data.section,
   heading,
-  contentLocale,
+  routeLocale,
   t('nav.home')
 )
 ---
@@ -51,11 +52,11 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <h2
+      <h1
         class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
       >
         {heading}
-      </h2>
+      </h1>
       {
         date && (
           <div class="mt-md flex items-center gap-2">

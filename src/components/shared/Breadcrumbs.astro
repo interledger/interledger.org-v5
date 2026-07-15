@@ -3,14 +3,11 @@ import {
   buildUmamiAttrs,
   useTranslations,
   stripTrailingSlash,
-  twMerge
+  twMerge,
+  type BreadcrumbItem
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 
-interface BreadcrumbItem {
-  name: string
-  href: string
-}
 interface Props {
   breadcrumbs: BreadcrumbItem[]
   class?: string

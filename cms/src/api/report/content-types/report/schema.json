@@ -36,7 +36,7 @@
           "localized": true
         }
       },
-      "description": "Full path from the site root, no leading slash. Determines the public URL only. Example: policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions."
+      "description": "Path relative to the chosen Section. For section: foundation, this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix — it's added automatically based on Section."
     },
     "section": {
       "type": "enumeration",

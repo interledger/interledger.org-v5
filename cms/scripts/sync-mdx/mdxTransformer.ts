@@ -671,10 +671,11 @@ function reportDatePayload(
 /**
  * Builds a Strapi payload for a report MDX file.
  *
- * Maps frontmatter fields and MDX body to the report Strapi schema. No image
- * resolution needed — reports have no managed media fields. `date` is sent
- * as `null` when absent so a date removed in Astro clears in Strapi too,
- * rather than surviving as a stale field.
+ * Maps frontmatter fields and MDX body to the report Strapi schema. No
+ * media or relation resolution needed — reports have no managed media
+ * fields, and the content zone only allows blocks.paragraph, which never
+ * references either. `date` is sent as `null` when absent so a date removed
+ * in Astro clears in Strapi too, rather than surviving as a stale field.
  *
  * Returns `Record<string, unknown> | Error`.
  */
