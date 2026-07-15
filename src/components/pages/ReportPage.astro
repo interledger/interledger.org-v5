@@ -8,7 +8,8 @@ import {
   type Locale,
   useTranslations,
   buildSectionEntryBreadcrumbs,
-  formatDate
+  formatDate,
+  parseMarkdown
 } from '@/utils'
 
 interface Props {
@@ -31,6 +32,12 @@ if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 const { Content: MdxContent } = await render(entry)
 const { title, heading, description, introParagraph, date } = entry.data
 const hasBody = Boolean(entry.body?.trim())
+const introParagraphHtml = introParagraph
+  ? await parseMarkdown(introParagraph, {
+      pathname: Astro.url.pathname,
+      lang: contentLocale
+    })
+  : null
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -85,11 +92,12 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
         )
       }
       {
-        introParagraph && (
+        introParagraphHtml && (
           <section aria-label={t('report.introduction')} class="mt-xl">
-            <p class="text-body-xl-standard tablet:text-body-xl-standard-md text-neutral-900">
-              {introParagraph}
-            </p>
+            <div
+              class="text-body-xl-standard tablet:text-body-xl-standard-md text-neutral-900 [&_p]:text-body-xl-standard [&_p]:tablet:text-body-xl-standard-md"
+              set:html={introParagraphHtml}
+            />
           </section>
         )
       }

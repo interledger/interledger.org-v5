@@ -6,7 +6,8 @@
  */
 
 import matter from 'gray-matter'
-import { defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
+import isHtml from 'is-html'
+import { defaultLang, MATTER_STRINGIFY_OPTIONS, htmlToMarkdown } from './mdx'
 import { serializeContent } from '../serializers/blocks'
 
 export interface ReportMdxDate {
@@ -48,6 +49,12 @@ export function generateReportMdx(
   const resolvedLocale = report.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang
   const date = dateFrontmatter(report.date)
+  const introParagraph = report.introParagraph
+    ? (isHtml(report.introParagraph)
+        ? htmlToMarkdown(report.introParagraph)
+        : report.introParagraph
+      ).trim()
+    : null
 
   const frontmatter: Record<string, unknown> = {
     title: report.title,
@@ -55,7 +62,7 @@ export function generateReportMdx(
     ...(report.section ? { section: report.section } : {}),
     heading: report.heading,
     description: report.description,
-    ...(report.introParagraph ? { introParagraph: report.introParagraph } : {}),
+    ...(introParagraph ? { introParagraph } : {}),
     ...(date ? { date } : {}),
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})

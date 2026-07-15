@@ -70,7 +70,11 @@
       "description": "Short description used for SEO and card text. Aim for 120–160 characters."
     },
     "introParagraph": {
-      "type": "text",
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
       "required": false,
       "pluginOptions": {
         "i18n": {
