@@ -25,6 +25,10 @@ export interface StatItem {
   ariaLabel?: string
   /** Merged onto the default width classes — lets callers override the fixed per-breakpoint widths (e.g. for a percentage-based flex-basis layout). */
   class?: string
+  /** Merged onto the number's default size classes — the suffix always matches this size too (no separate smaller "superscript" scale). */
+  numberClass?: string
+  /** Merged onto the description label's default classes — e.g. to set a different text color. */
+  labelClass?: string
 }
 
 type Props = StatItem
@@ -35,34 +39,37 @@ const {
   suffix,
   label,
   ariaLabel,
-  class: className
+  class: className,
+  numberClass,
+  labelClass
 } = Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
 const liClasses = twMerge(
   'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
   className
 )
+const numberClasses = twMerge(
+  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg',
+  numberClass
+)
+const labelClasses = twMerge(
+  'w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg',
+  labelClass
+)
 ---
 
 <li aria-label={ariaLabel} class={liClasses}>
   <div class="flex items-start gap-sm" aria-hidden={hideContents}>
-    <AnimatedNumber
-      value={value}
-      display={display}
-      class="font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg"
-    />
+    <AnimatedNumber value={value} display={display} class={numberClasses} />
     {
       suffix && (
-        <span class="whitespace-nowrap font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg">
+        <span class={twMerge('whitespace-nowrap', numberClasses)}>
           {suffix}
         </span>
       )
     }
   </div>
-  <p
-    class="w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg"
-    aria-hidden={hideContents}
-  >
+  <p class={labelClasses} aria-hidden={hideContents}>
     {label}
   </p>
 </li>

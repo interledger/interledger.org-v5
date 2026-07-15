@@ -23,11 +23,12 @@ interface Props {
 
 const { tiles } = Astro.props
 
-// Ticket asks for the suffix at the same size/weight as the number itself,
-// not StatCard's default smaller "superscript" scale — matches AnimatedNumber's
-// own class exactly so "21" and "M+" read as one continuous size.
-const SUFFIX_CLASS =
-  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg'
+// Number tiles use the h2 heading scale (56px at desktop), smaller than
+// StatsSection's homepage h1. StatCard always sizes the suffix to match
+// numberClass, so "21" and "M+" read as one continuous size automatically.
+const NUMBER_CLASS =
+  'font-poppins font-semibold text-h2 tablet:text-h2-md desktop:text-h2-lg'
+const LABEL_CLASS = 'text-neutral-75'
 ---
 
 <ul
@@ -43,8 +44,9 @@ const SUFFIX_CLASS =
           value={parsed ?? 0}
           display={tile.number}
           suffix={tile.suffix}
-          suffixClass={SUFFIX_CLASS}
+          numberClass={NUMBER_CLASS}
           label={tile.description}
+          labelClass={LABEL_CLASS}
           class="w-full"
         />
       )
