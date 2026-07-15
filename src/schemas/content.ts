@@ -197,9 +197,9 @@ export const grantPageFrontmatterSchema = z.object({
       external: z.boolean().optional()
     })
     .optional(),
+  infoCards: grantInfoCardsSchema.optional(),
   faqSection: grantFaqSectionSchema.optional(),
   ctaStrip: grantCtaStripSchema,
-  infoCards: grantInfoCardsSchema.optional(),
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
   localizes: z.string().optional(),

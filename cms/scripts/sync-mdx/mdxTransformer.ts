@@ -447,9 +447,10 @@ export async function buildProfilePayload(
  * parsed into `content` dynamic-zone blocks (blocks.paragraph,
  * blocks.split-layout, etc.) via the same JSX block parser used for
  * foundation/summit pages — this is what lets `<SplitLayout>` and friends
- * show up in Strapi's dynamic zone. `programOverview` is a legacy plain-text
- * mirror of the body kept only for entries that predate the block parser;
- * once a page is parsed into blocks it stays cleared.
+ * show up in Strapi's dynamic zone. `programOverview` is its own dedicated
+ * frontmatter field (rendered as the page's "Program Overview" section,
+ * separate from the body dynamic zone), so it's synced straight from
+ * frontmatter rather than derived from parsed body content.
  */
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
@@ -556,11 +557,11 @@ export async function buildGrantPagePayload(
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       hero,
-      programOverview: null,
+      programOverview: parsed.programOverview || null,
       primaryCta,
+      infoCards,
       faqSection,
       ctaStrip,
-      infoCards,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }

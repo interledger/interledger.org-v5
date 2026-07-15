@@ -598,9 +598,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       hero: 'Hero',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      infoCards: 'Information Cards',
       content: 'Content',
       ctaStrip: 'CTA Strip',
-      infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {

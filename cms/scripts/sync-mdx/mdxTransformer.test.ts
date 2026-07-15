@@ -70,9 +70,9 @@ vi.mock('./siteSchemas', async () => {
         external: z.boolean().optional()
       })
       .optional(),
+    infoCards: grantInfoCardsSchema.optional(),
     ctaStrip: grantCtaStripSchema,
     faqSection: grantFaqSectionSchema.optional(),
-    infoCards: grantInfoCardsSchema.optional(),
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
     localizes: z.string().optional(),
@@ -768,7 +768,9 @@ describe('buildGrantPagePayload', () => {
   // Shared stub: content parsing (JSX -> dynamic-zone blocks) and hero image
   // resolution only run when a strapi upload context is supplied — mirrors
   // buildPagePayload's parserCtx-gated behavior for foundation/summit pages.
-  function stubStrapi(uploads: Record<string, number> = {}): StrapiUploadContext {
+  function stubStrapi(
+    uploads: Record<string, number> = {}
+  ): StrapiUploadContext {
     return {
       strapi: {
         findUploadByUrl: async (url: string) => uploads[url] ?? null,
@@ -1086,7 +1088,7 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('programOverview', () => {
-    it('is always null — the body is carried by the content dynamic zone instead', async () => {
+    it('syncs the frontmatter value through to Strapi', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -1099,7 +1101,9 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect((payload as Record<string, unknown>).programOverview).toBeNull()
+      expect((payload as Record<string, unknown>).programOverview).toBe(
+        '## Eligibility\n\n- Accredited institutions'
+      )
     })
 
     it('is null when absent from frontmatter', async () => {
@@ -1426,7 +1430,10 @@ describe('buildGrantPagePayload', () => {
         }
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
@@ -1444,7 +1451,10 @@ describe('buildGrantPagePayload', () => {
         }
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
@@ -1464,7 +1474,10 @@ describe('buildGrantPagePayload', () => {
         frontmatter: baseGrantFrontmatter
       })
 
-      const payload = await buildGrantPagePayload(grantPageFrontmatterSchema, mdx)
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
 
       expect((payload as Record<string, unknown>).hero).toBeNull()
     })

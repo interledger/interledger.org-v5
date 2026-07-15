@@ -56,12 +56,12 @@ interface GrantPageData extends PageData {
   programOverview?: string
   content?: Array<{ __component: string; [key: string]: unknown }> | null
   primaryCta?: CtaLink | null
+  infoCards?: InfoCards | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
-  infoCards?: InfoCards | null
 }
 
-function generateGrantPageMDX(
+export function generateGrantPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
@@ -70,13 +70,7 @@ function generateGrantPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // Fields owned by Strapi components must be explicitly deleted from
-  // restPreserved so that removing them in Strapi clears them from the MDX
-  // rather than leaving the old value behind.
-  delete (restPreserved as Record<string, unknown>).primaryCta
-  delete (restPreserved as Record<string, unknown>).infoCards
-  delete (restPreserved as Record<string, unknown>).faqSection
-  delete (restPreserved as Record<string, unknown>).programOverview
+
   for (const key of [
     'heroTitle',
     'heroDescription',
@@ -102,6 +96,9 @@ function generateGrantPageMDX(
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
     ...heroFrontmatter(hero),
+    ...(grantPage.programOverview
+      ? { programOverview: grantPage.programOverview }
+      : { programOverview: null }),
     ...(primaryCta
       ? {
           primaryCta: {
@@ -112,42 +109,7 @@ function generateGrantPageMDX(
               : {})
           }
         }
-      : {}),
-    ...(grantPage.programOverview
-      ? { programOverview: grantPage.programOverview }
-      : {}),
-    ...(faqSection
-      ? {
-          faqSection: {
-            title: faqSection.title ?? '',
-            subtitle: faqSection.subtitle ?? '',
-            description: faqSection.description ?? '',
-            ctaText: faqSection.ctaText ?? '',
-            ctaLink: faqSection.ctaLink ?? '',
-            items: (faqSection.items ?? []).map((i) => ({
-              question: i.question ?? '',
-              answer: i.answer ?? ''
-            }))
-          }
-        }
-      : {}),
-    ...(ctaStrip
-      ? {
-          ctaStrip: {
-            heading: ctaStrip.heading,
-            description: ctaStrip.description ?? '',
-            buttonText: ctaStrip.primaryButtonText ?? '',
-            buttonLink: ctaStrip.primaryButtonLink ?? '',
-            color: ctaStrip.color ?? 'purple',
-            ...(ctaStrip.secondaryButtonText
-              ? { secondaryButtonText: ctaStrip.secondaryButtonText }
-              : {}),
-            ...(ctaStrip.secondaryButtonLink
-              ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
-              : {})
-          }
-        }
-      : {}),
+      : { primaryCta: null }),
     ...(infoCards
       ? {
           infoCards: {
@@ -168,17 +130,44 @@ function generateGrantPageMDX(
             ]
           }
         }
-      : {}),
+      : { infoCards: null }),
+    ...(faqSection
+      ? {
+          faqSection: {
+            title: faqSection.title ?? '',
+            subtitle: faqSection.subtitle ?? '',
+            description: faqSection.description ?? '',
+            ctaText: faqSection.ctaText ?? '',
+            ctaLink: faqSection.ctaLink ?? '',
+            items: (faqSection.items ?? []).map((i) => ({
+              question: i.question ?? '',
+              answer: i.answer ?? ''
+            }))
+          }
+        }
+      : { faqSection: null }),
+    ...(ctaStrip
+      ? {
+          ctaStrip: {
+            heading: ctaStrip.heading,
+            description: ctaStrip.description ?? '',
+            buttonText: ctaStrip.primaryButtonText ?? '',
+            buttonLink: ctaStrip.primaryButtonLink ?? '',
+            color: ctaStrip.color ?? 'purple',
+            ...(ctaStrip.secondaryButtonText
+              ? { secondaryButtonText: ctaStrip.secondaryButtonText }
+              : {}),
+            ...(ctaStrip.secondaryButtonLink
+              ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
+              : {})
+          }
+        }
+      : { ctaStrip: null }),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
-  const parts: string[] = []
-  if (grantPage.programOverview?.trim())
-    parts.push(grantPage.programOverview.trim())
-  const blocks = serializeContent(grantPage.content ?? undefined)
-  if (blocks) parts.push(blocks)
-  const body = parts.join('\n\n')
+  const body = serializeContent(grantPage.content ?? undefined)
 
   return matter.stringify(
     body ? `\n${body}\n` : '',
