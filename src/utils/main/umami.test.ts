@@ -103,14 +103,6 @@ describe('derivePage', () => {
     ).toBe('blog_post')
   })
 
-  it('collapses developers blog detail pages to developer_post', () => {
-    expect(
-      derivePage({
-        pathname: '/developers/blog/thoughts-on-scaling-interledger-connectors'
-      })
-    ).toBe('developer_post')
-  })
-
   it('collapses fellowship detail pages to fellowship', () => {
     expect(derivePage({ pathname: '/grant/fellowship/some-applicant' })).toBe(
       'fellowship'

@@ -557,7 +557,7 @@ describe('validateHeroFields', () => {
       validateHeroFields({
         hero: {
           title: 'Hello',
-          hero_call_to_action: [{ text: 'Go', link: '/go' }]
+          hero_call_to_action: { text: 'Go', link: '/go' }
         }
       })
     ).toBeUndefined()
@@ -569,21 +569,17 @@ describe('validateHeroFields', () => {
     expect(err?.details.errors[0].path).toEqual(['hero', 'title'])
   })
 
-  it('flags a CTA missing link with an index-aware path', () => {
+  it('flags a CTA missing link', () => {
     const err = validateHeroFields({
       hero: {
         title: 'Hello',
-        hero_call_to_action: [
-          { text: 'Go', link: '/go' },
-          { text: 'Also go', link: '' }
-        ]
+        hero_call_to_action: { text: 'Also go', link: '' }
       }
     })
     expect(err?.message).toBe('Hero CTA is missing required link')
     expect(err?.details.errors[0].path).toEqual([
       'hero',
       'hero_call_to_action',
-      '1',
       'link'
     ])
   })

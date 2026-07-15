@@ -82,6 +82,23 @@ vi.mock('./siteSchemas', async () => {
     title: z.string().min(1, 'title is required'),
     pathSlug: z.string().min(1, 'pathSlug is required'),
     description: z.string().min(1, 'description is required'),
+    heroTitle: z.string().optional(),
+    heroDescription: z.string().optional(),
+    heroImage: z.string().optional(),
+    heroImageAlt: z.string().nullable().optional(),
+    heroImageMobile: z.string().optional(),
+    heroImageMobileAlt: z.string().nullable().optional(),
+    heroCtas: z
+      .array(
+        z.object({
+          text: z.string(),
+          link: z.string(),
+          style: z.enum(['primary', 'secondary']).optional(),
+          external: z.boolean().optional()
+        })
+      )
+      .max(1)
+      .optional(),
     ctaStrip: grantCtaStripSchema,
     metaImage: z.string().optional(),
     canonicalUrl: z.string().optional(),
@@ -126,8 +143,34 @@ import {
   grantOverviewPageFrontmatterSchema,
   reportFrontmatterSchema
 } from './siteSchemas'
-import type { StrapiClient, StrapiEntry } from './strapiClient'
+import type { StrapiEntry } from './strapiClient'
+import type { StrapiUploadContext } from './mdxTransformer'
+import type { StrapiClient } from './strapiClient'
 import { createMdxFile } from './test-utils'
+
+function createMockStrapiUploadContext(uploads: Record<string, number> = {}): {
+  strapiUploadContext: StrapiUploadContext
+  updatedAltIds: Map<number, string | null>
+} {
+  const updatedAltIds = new Map<number, string | null>()
+  const strapi = {
+    findUploadByUrl: vi.fn((url: string) =>
+      Promise.resolve(uploads[url] ?? null)
+    ),
+    findUploadByName: vi.fn().mockResolvedValue(null),
+    updateUploadAlt: vi.fn().mockResolvedValue(undefined)
+  }
+
+  return {
+    strapiUploadContext: {
+      strapi,
+      STRAPI_URL: 'http://localhost:1337',
+      STRAPI_TOKEN: 'token',
+      dryRun: false
+    },
+    updatedAltIds
+  }
+}
 
 beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -1587,6 +1630,160 @@ describe('buildGrantOverviewPagePayload', () => {
     })
   })
 
+  describe('hero', () => {
+    it('uses frontmatter heroTitle and heroDescription when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroTitle: 'Welcome',
+          heroDescription: 'Learn about our grants'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: 'Learn about our grants'
+      })
+    })
+
+    it('includes hero CTA when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroTitle: 'Welcome',
+          heroCtas: [{ text: 'Apply now', link: '/apply', external: true }]
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        hero_call_to_action: {
+          text: 'Apply now',
+          link: '/apply',
+          style: 'primary',
+          external: true
+        }
+      })
+    })
+
+    it('clears hero when no hero fields are present in frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toBeNull()
+    })
+
+    it('resolves heroImage to a Strapi upload ID', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-desktop.png': 42
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroTitle: 'Welcome',
+          heroImage: '/uploads/img/hero-desktop.png',
+          heroImageAlt: 'Grant hero'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        backgroundImage: 42
+      })
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        42,
+        'Grant hero'
+      )
+    })
+
+    it('resolves heroImageMobile to a Strapi upload ID', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-mobile.png': 84
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImageMobile: '/uploads/img/hero-mobile.png',
+          heroImageMobileAlt: 'Mobile grant hero'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: '',
+        description: '',
+        backgroundImageMobile: 84
+      })
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        84,
+        'Mobile grant hero'
+      )
+    })
+
+    it('clears heroImage when heroImage is explicitly empty in frontmatter', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext()
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImage: ''
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: '',
+        description: '',
+        backgroundImage: null
+      })
+    })
+  })
+
   describe('content dynamic zone', () => {
     it('parses plain markdown body into a blocks.paragraph block', async () => {
       const mdx = createMdxFile({
@@ -1598,7 +1795,12 @@ describe('buildGrantOverviewPagePayload', () => {
       const payload = await buildGrantOverviewPagePayload(
         grantOverviewPageFrontmatterSchema,
         mdx,
-        stubStrapi()
+        {
+          strapi: stubStrapi(),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
       )
 
       expect((payload as Record<string, unknown>).content).toEqual([
@@ -1622,7 +1824,12 @@ describe('buildGrantOverviewPagePayload', () => {
       const payload = await buildGrantOverviewPagePayload(
         grantOverviewPageFrontmatterSchema,
         mdx,
-        stubStrapi({ '/img/foo.jpg': 42 })
+        {
+          strapi: stubStrapi({ '/img/foo.jpg': 42 }),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
       )
 
       expect((payload as Record<string, unknown>).content).toEqual([

@@ -607,6 +607,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content'
     },
@@ -704,8 +705,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      backgroundImage: 'Background Image',
-      hero_call_to_action: 'Call-to-action Buttons'
+      backgroundImage: 'Background Image (Desktop)',
+      backgroundImageMobile: 'Background Image (Mobile)',
+      hero_call_to_action: 'Call-to-action Button'
     },
     'shared.seo': {
       metaDescription: 'Meta Description'
@@ -1082,6 +1084,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
+    'api::grant-overview-page.grant-overview-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }],
+      [{ name: 'followUpContent', size: 12 }]
+    ],
     'api::grant-page.grant-page': [
       [
         { name: 'title', size: 6 },
@@ -1094,15 +1104,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }],
       [{ name: 'faqSection', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }]
-    ],
-    'api::grant-overview-page.grant-overview-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pathSlug', size: 6 }
-      ],
-      [{ name: 'description', size: 6 }],
-      [{ name: 'ctaStrip', size: 12 }],
-      [{ name: 'followUpContent', size: 12 }]
     ]
   }
 
@@ -1199,11 +1200,20 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [
-        { name: 'description', size: 6 },
-        { name: 'backgroundImage', size: 6 }
+        { name: 'backgroundImage', size: 6 },
+        { name: 'backgroundImageMobile', size: 6 }
       ],
       [{ name: 'hero_call_to_action', size: 12 }]
+    ],
+    'shared.cta-link': [
+      [
+        { name: 'link', size: 4 },
+        { name: 'text', size: 4 },
+        { name: 'style', size: 4 }
+      ],
+      [{ name: 'external', size: 4 }]
     ],
     'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],

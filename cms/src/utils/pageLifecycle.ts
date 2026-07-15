@@ -41,12 +41,12 @@ export interface PageData {
     title?: string
     description?: string
     backgroundImage?: { url?: string }
-    hero_call_to_action?: Array<{
+    hero_call_to_action?: {
       text?: string
       link?: string
       style?: 'primary' | 'secondary'
       external?: boolean
-    }>
+    } | null
   }
   seo?: {
     metaDescription?: string
@@ -534,18 +534,44 @@ export function createPageLifecycle<T extends UID.ContentType>(
         return
       }
 
-      console.log(`🗑️  Deleting ${label} MDX for all locales: ${slug}`)
-
+      const locale = result.locale || defaultLang
       const outputDir = getOutputDir(config)
-      removeLocalizesFromLocaleFiles(
-        slug,
-        (locale) => path.join(outputDir, locale),
-        label
-      )
-      deleteLocaleMdxFiles(
-        (locale) => resolvePageFilepath(outputDir, result, locale),
-        label
-      )
+
+      if (locale === defaultLang) {
+        // Non-English files are named after the English slug, so this cascades to them too.
+        console.log(`🗑️  Deleting ${label} MDX for all locales: ${slug}`)
+        removeLocalizesFromLocaleFiles(
+          slug,
+          (loc) => path.join(outputDir, loc),
+          label
+        )
+        deleteLocaleMdxFiles(
+          (loc) => resolvePageFilepath(outputDir, result, loc),
+          label
+        )
+      } else {
+        // Non-English files are named after the English slug, not their own.
+        const englishResult = await fetchPublished(
+          config,
+          result.documentId,
+          defaultLang
+        )
+        if (englishResult instanceof Error) {
+          console.error(`⚠️  ${englishResult.message}`)
+        }
+        const englishSlug =
+          englishResult instanceof Error
+            ? undefined
+            : (englishResult?.pathSlug ?? undefined)
+
+        const filenameSlug = resolveFilenameSlug(locale, slug, englishSlug)
+        console.log(`🗑️  Deleting ${label} MDX (${locale}): ${filenameSlug}`)
+        deleteMdxIfExists(
+          resolvePageFilepath(outputDir, { pathSlug: filenameSlug }, locale),
+          locale,
+          label
+        )
+      }
 
       scheduleGitSync(label, { slug, action: 'delete', author })
     }
