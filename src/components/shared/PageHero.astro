@@ -85,7 +85,7 @@ const {
 <!-- Full-width parallax image strip -->
 {
   (image || imageMobile) && (
-    <div class="parallax-wrapper relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
+    <div class="parallax-wrapper relative overflow-hidden h-[70vh]">
       {imageMobile ? (
         <>
           <OptimizedImage
@@ -95,7 +95,7 @@ const {
             height={480}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img block tablet:hidden w-full h-full object-cover"
+            class="parallax-img block tablet:hidden absolute inset-x-0 top-[-15%] h-[130%] w-full object-cover"
           />
           <OptimizedImage
             src={image ?? imageMobile!}
@@ -104,7 +104,7 @@ const {
             height={640}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img hidden tablet:block w-full h-full object-cover"
+            class="parallax-img hidden tablet:block absolute inset-x-0 top-[-15%] h-[130%] w-full object-cover"
           />
         </>
       ) : (
@@ -115,7 +115,7 @@ const {
           height={640}
           loading="eager"
           fetchpriority="high"
-          class="parallax-img w-full h-full object-cover"
+          class="parallax-img absolute inset-x-0 top-[-15%] h-[130%] w-full object-cover"
         />
       )}
     </div>
@@ -123,19 +123,53 @@ const {
 }
 
 <script>
-  import SimpleParallax from 'simple-parallax-js/vanilla'
+  // Custom scroll-linked parallax: the frame scrolls at normal (page) speed,
+  // the image trails behind at PARALLAX_SPEED of that — e.g. 0.75 means the
+  // image moves 75% as far as the page scrolls, so it visually lags behind
+  // the frame. The image is rendered 130% of the frame's height (see markup
+  // above) so the 30%-of-frame-height slack (15% top, 15% bottom) never runs
+  // out mid-scroll. Tune PARALLAX_SPEED against the live site (target 0.7–0.8).
+  const PARALLAX_SPEED = 0.75
 
-  const images = document.querySelectorAll<HTMLElement>('.parallax-img')
-  if (images.length > 0) {
-    // Library handles prefers-reduced-motion and <picture> nesting itself;
-    // customWrapper reuses our existing overflow-hidden strip instead of
-    // inserting a new wrapper element.
-    new SimpleParallax(images, {
-      scale: 1.4,
-      orientation: 'up',
-      delay: 0.6,
-      transition: 'cubic-bezier(0,0,0,1)',
-      customWrapper: '.parallax-wrapper'
-    })
+  // Only ever one hero per page.
+  const wrapper = document.querySelector<HTMLElement>('.parallax-wrapper')
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches
+
+  if (wrapper && !prefersReducedMotion) {
+    const images = wrapper.querySelectorAll<HTMLElement>('.parallax-img')
+    let ticking = false
+
+    const updateParallax = () => {
+      const rect = wrapper.getBoundingClientRect()
+      const frameCenter = rect.top + rect.height / 2
+      const viewportCenter = window.innerHeight / 2
+      // Frame's slack is 30% of its own height (image is 130% tall),
+      // split evenly above/below — this is the max the image can trail.
+      const maxOffset = (rect.height * 0.3) / 2
+      const offset = Math.max(
+        -maxOffset,
+        Math.min(
+          maxOffset,
+          (viewportCenter - frameCenter) * (1 - PARALLAX_SPEED)
+        )
+      )
+
+      images.forEach((img) => {
+        img.style.transform = `translateY(${offset}px)`
+      })
+      ticking = false
+    }
+
+    const onScrollOrResize = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(updateParallax)
+    }
+
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+    updateParallax()
   }
 </script>
