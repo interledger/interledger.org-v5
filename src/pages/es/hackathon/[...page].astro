@@ -12,7 +12,11 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 
 {
   kind === 'faq' ? (
-    <FaqPage slug={slug} contentLocale={contentLocale} isFallback={isFallback} />
+    <FaqPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
   ) : (
     <ProfileDetailPage
       slug={slug}
