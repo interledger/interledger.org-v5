@@ -60,10 +60,7 @@ describe('number-tiles serializer', () => {
   it('throws when a tile is missing a description', () => {
     expect(() =>
       serialize({
-        tiles: [
-          { number: '21', description: 'In Grants' },
-          { number: '300' }
-        ]
+        tiles: [{ number: '21', description: 'In Grants' }, { number: '300' }]
       })
     ).toThrow('Number Tiles block: tile 2 is missing a description')
   })

@@ -29,8 +29,14 @@ export interface StatItem {
 
 type Props = StatItem
 
-const { value, display, suffix, label, ariaLabel, class: className } =
-  Astro.props
+const {
+  value,
+  display,
+  suffix,
+  label,
+  ariaLabel,
+  class: className
+} = Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
 const liClasses = twMerge(
   'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
