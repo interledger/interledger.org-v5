@@ -54,8 +54,11 @@ const numberClasses = twMerge(
   'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-[4.75rem]',
   numberClass
 )
+// `mb-0` beats the global `main p { margin-block-end }` prose rule
+// (src/styles/components/prose/default.css) — that rule targets body
+// copy, not this label, but it applies to every `<p>` inside `<main>`.
 const labelClasses = twMerge(
-  'w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg',
+  'w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg mb-0',
   labelClass
 )
 ---

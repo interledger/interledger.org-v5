@@ -5,8 +5,8 @@
 // (the `number` field here is free text, e.g. "1,000", not a clean number).
 //
 // Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
-// of each item's width — up to 4 tiles per row on desktop, 2 on tablet, 1 on
-// mobile; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
+// of each item's width — 2 tiles per row on mobile/tablet, up to 4 per row on
+// desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
 // default behavior, no extra CSS needed).
 import StatCard from '@/components/shared/StatCard.astro'
 import { parseStatNumber } from '@/utils'
@@ -28,12 +28,12 @@ const { tiles } = Astro.props
 // numberClass, so "21" and "M+" read as one continuous size automatically.
 const NUMBER_CLASS =
   'font-poppins font-semibold text-h2 tablet:text-h2-md desktop:text-h2-lg'
-const LABEL_CLASS = 'text-neutral-75'
+const LABEL_CLASS = 'text-left text-neutral-75'
 ---
 
 <ul
   role="list"
-  class="m-0 grid list-none grid-cols-1 gap-x-xl gap-y-2xl p-0 tablet:grid-cols-2 desktop:grid-cols-4"
+  class="m-0 grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 pt-2xl desktop:grid-cols-4"
   data-animated-number-trigger
 >
   {
@@ -47,7 +47,7 @@ const LABEL_CLASS = 'text-neutral-75'
           numberClass={NUMBER_CLASS}
           label={tile.description}
           labelClass={LABEL_CLASS}
-          class="w-full"
+          class="w-full items-start pt-0 pb-0 pl-0 desktop:pt-0 desktop:pb-0"
         />
       )
     })
