@@ -51,7 +51,7 @@ const gridClass =
   <div class={`grid gap-3xl mx-auto ${gridClass}`}>
     {
       cards.map((card) => (
-        <article class="rounded-lg border border-neutral-75-200 bg-white p-3xl text-black shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+        <article class="rounded-lg border border-gray-200 bg-white p-3xl text-black shadow-[0_2px_10px_rgba(0,0,0,0.08)] transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
           {card.icon && <div class="w-12 h-12 mb-xl" set:html={card.icon} />}
           <h3 class="text-[1.5rem] font-normal leading-snug mb-lg text-black">
             {card.title}
