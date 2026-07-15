@@ -88,6 +88,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
+  hero: { populate: '*' },
   content: {
     on: {
       ...GRANT_BLOCKS,

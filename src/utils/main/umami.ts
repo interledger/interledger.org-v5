@@ -60,11 +60,6 @@ interface DetailPageRule {
 const DETAIL_PAGE_RULES: DetailPageRule[] = [
   // /blog/<slug> → blog_post
   { match: (s) => s.length === 2 && s[0] === 'blog', page: 'blog_post' },
-  // /developers/blog/<slug> → developer_post
-  {
-    match: (s) => s.length === 3 && s[0] === 'developers' && s[1] === 'blog',
-    page: 'developer_post'
-  },
   // /grant/fellowship/<slug> → fellowship
   {
     match: (s) => s.length === 3 && s[0] === 'grant' && s[1] === 'fellowship',

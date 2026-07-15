@@ -19,6 +19,7 @@ interface Props {
   sizes?: string
   fetchpriority?: 'high' | 'low' | 'auto'
   media?: string
+  draggable?: boolean
   /** Optional art-directed sources (most specific `media` first). */
   alternateSources?: OptimizedImageAlternateSource[]
 }
@@ -34,6 +35,7 @@ const {
   sizes = '100vw',
   fetchpriority,
   media,
+  draggable,
   alternateSources = []
 } = Astro.props
 
@@ -118,6 +120,7 @@ const imgSrc = media ? undefined : src
         loading={loading}
         decoding={decoding}
         fetchpriority={fetchpriority}
+        draggable={draggable}
       />
     </picture>
   ) : fullSrc ? (
@@ -135,6 +138,7 @@ const imgSrc = media ? undefined : src
         loading={loading}
         decoding={decoding}
         fetchpriority={fetchpriority}
+        draggable={draggable}
       />
     </picture>
   ) : (
@@ -147,6 +151,7 @@ const imgSrc = media ? undefined : src
       loading={loading}
       decoding={decoding}
       fetchpriority={fetchpriority}
+      draggable={draggable}
     />
   )
 }

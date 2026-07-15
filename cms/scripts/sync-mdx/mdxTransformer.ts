@@ -110,12 +110,13 @@ interface StrapiHeroPayload {
   title: string
   description: string
   backgroundImage?: number | null
-  hero_call_to_action?: Array<{
+  backgroundImageMobile?: number | null
+  hero_call_to_action?: {
     text: string
     link: string
     style: string
     external: boolean
-  }>
+  } | null
 }
 
 function buildHeroPayload(
@@ -128,14 +129,14 @@ function buildHeroPayload(
     description: heroDescription ?? ''
   }
 
-  // Send CTAs as-is; Strapi's validateHeroFields now rejects incomplete ones.
-  if (ctas && ctas.length > 0) {
-    hero.hero_call_to_action = ctas.map((c) => ({
-      text: c.text ?? '',
-      link: c.link ?? '',
-      style: c.style ?? 'primary',
-      external: c.external ?? false
-    }))
+  const cta = ctas?.[0]
+  if (cta) {
+    hero.hero_call_to_action = {
+      text: cta.text ?? '',
+      link: cta.link ?? '',
+      style: cta.style ?? 'primary',
+      external: cta.external ?? false
+    }
   }
 
   return hero
@@ -156,11 +157,13 @@ async function buildHeroWithImage(
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
   const hasHeroImageField = hasField('heroImage')
+  const hasHeroImageMobileField = hasField('heroImageMobile')
   const heroFieldsPresent =
     hasField('heroTitle') ||
     hasField('heroDescription') ||
     hasField('heroCtas') ||
-    hasHeroImageField
+    hasHeroImageField ||
+    hasHeroImageMobileField
 
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
@@ -170,25 +173,38 @@ async function buildHeroWithImage(
       ) as unknown as Record<string, unknown>)
     : null
 
-  if (hasHeroImageField && strapiUploadContext) {
-    const heroImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.heroImage as string | undefined
+  async function resolveHeroImage(
+    imageKey: 'heroImage' | 'heroImageMobile',
+    altKey: 'heroImageAlt' | 'heroImageMobileAlt',
+    targetKey: 'backgroundImage' | 'backgroundImageMobile'
+  ): Promise<void> {
+    if (!hasField(imageKey) || !strapiUploadContext) return
+
+    const uploadId = await getImageFromStrapi(strapiUploadContext, {
+      image: parsed[imageKey] as string | undefined
     })
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
-    hero.backgroundImage = heroImage ?? null
+    hero[targetKey] = uploadId ?? null
 
-    if (heroImage && parsed.heroImageAlt !== undefined) {
+    if (uploadId && parsed[altKey] !== undefined) {
       await updateUploadAltOnce(
         strapiUploadContext.strapi,
-        heroImage,
-        nullOrValue(parsed.heroImageAlt),
+        uploadId,
+        nullOrValue(parsed[altKey]),
         updatedAltIds,
         pathSlug,
         dryRun
       )
     }
   }
+
+  await resolveHeroImage('heroImage', 'heroImageAlt', 'backgroundImage')
+  await resolveHeroImage(
+    'heroImageMobile',
+    'heroImageMobileAlt',
+    'backgroundImageMobile'
+  )
 
   return heroPayload
 }
@@ -544,18 +560,19 @@ export async function buildGrantPagePayload(
 /**
  * Builds a Strapi payload for a grant-overview-page MDX file.
  *
- * Maps frontmatter fields to the grant-overview-page Strapi schema. The MDX
- * body is parsed into `content` dynamic-zone blocks (blocks.paragraph,
- * blocks.split-layout, blocks.carousel, etc.) via the same JSX block parser
- * used for grant-page — this is what lets `<SplitLayout>` and friends show
- * up in Strapi's dynamic zone. `followUpContent` is a legacy plain-text
- * mirror of the body kept only for entries that predate the block parser;
- * once a page is parsed into blocks it stays cleared.
+ * Maps frontmatter fields to the grant-overview-page Strapi schema. Resolves
+ * hero image URLs to Strapi upload IDs when present. The MDX body is parsed
+ * into `content` dynamic-zone blocks (blocks.paragraph, blocks.split-layout,
+ * blocks.carousel, etc.) via the same JSX block parser used for grant-page —
+ * this is what lets `<SplitLayout>` and friends show up in Strapi's dynamic
+ * zone. `followUpContent` is a legacy plain-text mirror of the body kept only
+ * for entries that predate the block parser; once a page is parsed into
+ * blocks it stays cleared.
  */
 export async function buildGrantOverviewPagePayload(
   schema: typeof grantOverviewPageFrontmatterSchema,
   mdx: MDXFile,
-  strapi?: StrapiClient,
+  strapiUploadContext?: StrapiUploadContext,
   existingEntry: StrapiEntry | null = null,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
@@ -578,6 +595,15 @@ export async function buildGrantOverviewPagePayload(
         : {})
     }
 
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
+
+    const strapi = strapiUploadContext?.strapi
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
@@ -611,6 +637,7 @@ export async function buildGrantOverviewPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
+      hero,
       ctaStrip,
       followUpContent: null,
       ...(content !== undefined ? { content } : {}),

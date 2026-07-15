@@ -24,46 +24,13 @@ const pathSlugSchema = (required = true) => {
 const blogCategories = [
   'Announcements',
   'Community & Events',
+  'Engineering',
   'Grants & Grantee Insights',
   'Interledger Technology',
   'Thought Leadership'
 ] as const
 
-const developersTags = [
-  'Interledger Protocol',
-  'Open Payments',
-  'Rafiki',
-  'Releases',
-  'Updates',
-  'Web Monetization',
-  'Card Payments',
-  'Integration',
-  'Work Week',
-  'Subscriptions',
-  'Pay in installments',
-  'HSM',
-  'Interledger Wallet'
-  // Please add a matching translation in src/data/ui.ts for any new tag
-] as const
 export type BlogCategory = (typeof blogCategories)[number]
-
-export const developersBlogFrontmatterSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  date: z.date(),
-  pathSlug: pathSlugSchema(),
-  locale: z.string().optional(),
-  localizes: z.string().optional(),
-  authors: z.array(z.string()).optional(),
-  author_urls: z.array(z.string()).optional(),
-  tags: z.array(z.enum(developersTags)),
-  ogImageUrl: z.string().optional(),
-  external_url: z.string().optional()
-})
-
-export type DevelopersBlogFrontmatterType = z.infer<
-  typeof developersBlogFrontmatterSchema
->
 
 const ArticleBioSchema = z.object({
   author: z.string(),
@@ -240,6 +207,13 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
   description: z.string().min(1, 'description is required'),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
+  heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),

@@ -1,0 +1,139 @@
+---
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+
+interface HeroCta {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
+interface BreadcrumbItem {
+  name: string
+  href: string
+}
+
+interface Props {
+  title: string
+  description?: string | null
+  /** Desktop hero image URL. Recommended: 1440×600px. */
+  image?: string | null
+  imageAlt?: string | null
+  /** Optional mobile hero image. Recommended: 768×480px. Falls back to desktop image. */
+  imageMobile?: string | null
+  imageMobileAlt?: string | null
+  cta?: HeroCta | null
+  breadcrumbs?: BreadcrumbItem[]
+}
+
+const {
+  title,
+  description,
+  image,
+  imageAlt,
+  imageMobile,
+  imageMobileAlt,
+  cta,
+  breadcrumbs
+} = Astro.props
+---
+
+<!-- White content section -->
+<div class="bg-white px-space-m py-space-xl">
+  <div class="mx-auto max-w-wide">
+    {
+      breadcrumbs && breadcrumbs.length > 0 && (
+        <div class="mb-space-m">
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </div>
+      )
+    }
+
+    <h1
+      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold leading-[1.2] mb-space-m max-w-[14em]"
+    >
+      {title}
+    </h1>
+
+    {
+      description && (
+        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-space-s">
+          {description}
+        </p>
+      )
+    }
+    {
+      cta && (
+        <LinkButton
+          href={cta.link}
+          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+          external={cta.external}
+        >
+          {cta.text}
+          <Icon name="arrow-right" slot="icon-right" />
+        </LinkButton>
+      )
+    }
+  </div>
+</div>
+
+<!-- Full-width parallax image strip -->
+{
+  (image || imageMobile) && (
+    <div class="parallax-wrapper relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
+      {imageMobile ? (
+        <>
+          <OptimizedImage
+            src={imageMobile}
+            alt={imageMobileAlt ?? ''}
+            width={768}
+            height={480}
+            loading="eager"
+            fetchpriority="high"
+            class="parallax-img block tablet:hidden w-full h-full object-cover"
+          />
+          <OptimizedImage
+            src={image ?? imageMobile!}
+            alt={imageAlt ?? imageMobileAlt ?? ''}
+            width={1440}
+            height={640}
+            loading="eager"
+            fetchpriority="high"
+            class="parallax-img hidden tablet:block w-full h-full object-cover"
+          />
+        </>
+      ) : (
+        <OptimizedImage
+          src={image}
+          alt={imageAlt ?? ''}
+          width={1440}
+          height={640}
+          loading="eager"
+          fetchpriority="high"
+          class="parallax-img w-full h-full object-cover"
+        />
+      )}
+    </div>
+  )
+}
+
+<script>
+  import SimpleParallax from 'simple-parallax-js/vanilla'
+
+  const images = document.querySelectorAll<HTMLElement>('.parallax-img')
+  if (images.length > 0) {
+    // Library handles prefers-reduced-motion and <picture> nesting itself;
+    // customWrapper reuses our existing overflow-hidden strip instead of
+    // inserting a new wrapper element.
+    new SimpleParallax(images, {
+      scale: 1.4,
+      orientation: 'up',
+      delay: 0.6,
+      transition: 'cubic-bezier(0,0,0,1)',
+      customWrapper: '.parallax-wrapper'
+    })
+  }
+</script>

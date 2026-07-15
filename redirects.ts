@@ -42,9 +42,9 @@ export const redirects = {
     '/news/reflections-2025-payments-canada-summit',
 
   // Spanish developer blog content
-  '/developers/blog/es': '/es/developers/blog',
+  '/developers/blog/es': '/es/blog',
   '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
-    '/es/developers/blog/el-universo-interledger',
+    '/es/blog/el-universo-interledger',
 
   // Summit pages
   '/summit/key-information': '/summit/media-kit',
@@ -148,5 +148,71 @@ export const redirects = {
   '/blog/tag/thought-leadership': '/blog/category/thought-leadership',
   '/es/blog/tag/announcements': '/es/blog/category/announcements',
   '/es/blog/tag/grants-&-grantee-insights':
-    '/es/blog/category/grants-&-grantee-insights'
+    '/es/blog/category/grants-&-grantee-insights',
+
+  // Developers/tech blog merged into the foundation blog (INTORG-691).
+  // Every old /developers/blog/* URL 301s to its new /blog/* home.
+  '/developers/blog': '/blog',
+  '/es/developers/blog': '/es/blog',
+
+  // Individual tech posts (from cms/scripts/migrate-dev-blog-to-foundation.ts).
+  '/developers/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features':
+    '/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features',
+  '/developers/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks':
+    '/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks',
+  '/developers/blog/thoughts-on-scaling-interledger-connectors':
+    '/blog/thoughts-on-scaling-interledger-connectors',
+  '/developers/blog/the-telemetry-tale': '/blog/the-telemetry-tale',
+  '/developers/blog/simple-open-payments-guide':
+    '/blog/simple-open-payments-guide',
+  '/developers/blog/open-payments-cinderella-story':
+    '/blog/open-payments-cinderella-story',
+  '/developers/blog/interledger-universe': '/blog/interledger-universe',
+  '/developers/blog/integration-tests': '/blog/integration-tests',
+  '/developers/blog/rafiki-low-level-intro': '/blog/rafiki-low-level-intro',
+  '/developers/blog/where-did-rafiki-money-go':
+    '/blog/where-did-rafiki-money-go',
+  '/developers/blog/rafikis-first-security-audit':
+    '/blog/rafikis-first-security-audit',
+  '/developers/blog/e2e-testing-wm-browser-extension':
+    '/blog/e2e-testing-wm-browser-extension',
+  '/developers/blog/rafiki-beta-release': '/blog/rafiki-beta-release',
+  '/developers/blog/rafiki-tigerbeetle-integration':
+    '/blog/rafiki-tigerbeetle-integration',
+  '/developers/blog/ilp-packet-lifecycle': '/blog/ilp-packet-lifecycle',
+  '/developers/blog/breakpoint-it-work-week': '/blog/breakpoint-it-work-week',
+  '/developers/blog/introducing-open-payments-php':
+    '/blog/introducing-open-payments-php',
+  '/developers/blog/introducing-publisher-tools':
+    '/blog/introducing-publisher-tools',
+  '/developers/blog/memorable-wallet-addresses-custom-domain':
+    '/blog/memorable-wallet-addresses-custom-domain',
+  '/developers/blog/wallet-address-smart-redirect':
+    '/blog/wallet-address-smart-redirect',
+  '/developers/blog/web-monetization-open-payments-part-1-connecting-wallet':
+    '/blog/web-monetization-open-payments-part-1-connecting-wallet',
+  '/developers/blog/redesigned-publisher-tools-guide':
+    '/blog/redesigned-publisher-tools-guide',
+  '/developers/blog/web-monetization-open-payments-part-2-payment-sessions':
+    '/blog/web-monetization-open-payments-part-2-payment-sessions',
+  '/developers/blog/web-monetization-wrapped-2025':
+    '/blog/web-monetization-wrapped-2025',
+  '/developers/blog/go-further-with-open-payments':
+    '/blog/go-further-with-open-payments',
+  '/developers/blog/rafiki-card-integration': '/blog/rafiki-card-integration',
+  '/developers/blog/frontend-work-week': '/blog/frontend-work-week',
+  '/developers/blog/open-payments-java': '/blog/open-payments-java',
+  '/developers/blog/simple-rafiki-integration-guide':
+    '/blog/simple-rafiki-integration-guide',
+  '/developers/blog/integrations-work-week': '/blog/integrations-work-week',
+  '/developers/blog/web-monetization-open-payments-part-3-sending-money':
+    '/blog/web-monetization-open-payments-part-3-sending-money',
+  '/developers/blog/subscriptions-with-open-payments-poc':
+    '/blog/subscriptions-with-open-payments-poc',
+  '/developers/blog/web-monetization-work-week':
+    '/blog/web-monetization-work-week',
+  '/developers/blog/ilf-and-hsms': '/blog/ilf-and-hsms',
+  '/developers/blog/wallet-work-week': '/blog/wallet-work-week',
+  '/es/developers/blog/el-universo-interledger':
+    '/es/blog/el-universo-interledger'
 }
