@@ -29,7 +29,7 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
     >
       <div class="mx-auto max-w-content min-w-[360px] px-[5%]">
         <h1
-          class="text-h2 tablet:text-h2-md desktop:text-h3-lg font-semibold text-white"
+          class="text-h2 tablet:text-h2-md desktop:text-h2-lg font-semibold text-white"
         >
           Developers Roadmap
         </h1>
@@ -45,7 +45,7 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
         hasData ? (
           <RoadmapBoard projects={projects} teams={teams} />
         ) : (
-          <div class="mx-auto max-w-content py-xl text-neutral-75-600">
+          <div class="mx-auto max-w-content py-xl text-gray-600">
             <p>
               The roadmap could not be loaded right now. Please check back
               shortly or visit our{' '}
@@ -66,7 +66,7 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
 
     {
       generatedAt && (
-        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-caption text-neutral-75-700">
+        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
           Roadmap data refreshed at:{' '}
           <time class="roadmap-refreshed" datetime={generatedAt}>
             {new Date(generatedAt).toUTCString()}
