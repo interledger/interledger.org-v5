@@ -182,6 +182,13 @@ export const grantPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
   description: z.string().min(1, 'description is required'),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
+  heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
   programOverview: z.string().optional(),
   primaryCta: z
     .object({

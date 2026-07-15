@@ -860,6 +860,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     infoCards: Schema.Attribute.Component<'blocks.info-cards', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

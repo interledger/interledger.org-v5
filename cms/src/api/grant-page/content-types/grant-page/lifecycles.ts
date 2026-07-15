@@ -4,6 +4,7 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
+  heroFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
@@ -76,6 +77,16 @@ function generateGrantPageMDX(
   delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
   delete (restPreserved as Record<string, unknown>).programOverview
+  for (const key of [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroImageAlt',
+    'heroImageMobile',
+    'heroImageMobileAlt',
+    'heroCtas'
+  ])
+    delete (restPreserved as Record<string, unknown>)[key]
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -83,12 +94,14 @@ function generateGrantPageMDX(
   const primaryCta = grantPage.primaryCta
   const infoCards = grantPage.infoCards
   const faqSection = grantPage.faqSection
+  const hero = grantPage.hero as Parameters<typeof heroFrontmatter>[0]
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
+    ...heroFrontmatter(hero),
     ...(primaryCta
       ? {
           primaryCta: {
