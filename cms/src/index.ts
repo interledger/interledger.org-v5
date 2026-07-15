@@ -670,7 +670,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::faq.faq': {
       pathSlug:
-        'Full path from the site root, no leading slash. Example: grant/education/on-campus/faq.',
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
       description:

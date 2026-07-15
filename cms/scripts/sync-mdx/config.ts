@@ -160,23 +160,11 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'faqs'),
       apiId: 'faqs',
       schema: faqFrontmatterSchema,
-      buildPayload: (mdx, strapi, existing, _dryRun) => {
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
         const locale = mdx.locale || 'en'
-        return buildFaqPayload(faqFrontmatterSchema, mdx, existing, {
-          locale,
-          resolveRelation: createRelationResolver(strapi, locale),
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          }
-        })
+        // No resolveRelation/resolveMediaUpload: the FAQ content zone only
+        // allows blocks.paragraph, which never resolves relations or media.
+        return buildFaqPayload(faqFrontmatterSchema, mdx, existing, { locale })
       }
     },
     'grant-pages': {

@@ -17,7 +17,8 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const t = useTranslations(contentLocale)
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const allFaqs = await getCollection('faqs')
 const entry = allFaqs.find(
@@ -29,8 +30,6 @@ if (!entry) throw new Error(`Faq not found: ${slug} (${contentLocale})`)
 const { Content: MdxContent } = await render(entry)
 const { title, heading, description, introParagraph } = entry.data
 const hasBody = Boolean(entry.body?.trim())
-
-const { routeLocale } = Astro.locals
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -52,11 +51,11 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <h2
+      <h1
         class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
       >
         {heading}
-      </h2>
+      </h1>
       {
         introParagraph && (
           <section aria-label={t('faq.introduction')} class="mt-xl">

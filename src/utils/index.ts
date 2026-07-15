@@ -62,7 +62,10 @@ export {
   getLocalizedPaths,
   getCrossSectionPaths
 } from './main/static-paths'
-export { buildSectionEntryBreadcrumbs } from './main/breadcrumbs'
+export {
+  type BreadcrumbItem,
+  buildSectionEntryBreadcrumbs
+} from './main/breadcrumbs'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,
