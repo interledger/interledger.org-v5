@@ -98,8 +98,8 @@ const breadcrumbs = [
     />
     {
       programOverviewHtml && (
-        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
-          <div class="mx-auto max-w-content min-w-[360px]">
+        <section class="pt-4xl">
+          <div class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:max-w-content">
             <div data-prose set:html={programOverviewHtml} />
           </div>
         </section>
@@ -108,8 +108,8 @@ const breadcrumbs = [
 
     {
       primaryCta && (
-        <section class="py-space-l px-lg tablet:px-xl desktop:px-5xl">
-          <div class="mx-auto max-w-content min-w-[360px]">
+        <section class="">
+          <div class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:max-w-content">
             <LinkButton
               href={primaryCta.link}
               variant="primary"
@@ -133,7 +133,7 @@ const breadcrumbs = [
 
     <section class="py-4xl">
       <div
-        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:max-w-content"
       >
         <div data-prose>
           <MdxContent
@@ -156,13 +156,13 @@ const breadcrumbs = [
 
     {
       faqSection && (
-        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
+        <section class="py-4xl px-lg tablet:px-xl ">
           <GrantFaqSection {...faqSection} />
         </section>
       )
     }
 
-    <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
+    <section class="py-4xl px-lg tablet:px-xl">
       <div class="mx-auto max-w-content min-w-[360px]">
         <CtaStrip
           heading={ctaStrip.heading}

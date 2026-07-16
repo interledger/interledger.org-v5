@@ -43,9 +43,9 @@ const {
 
 <!-- White content section -->
 <div
-  class="bg-white px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
+  class="mx-auto bg-white px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:max-w-content"
 >
-  <div class="mx-auto max-w-wide">
+  <div class="mx-auto max-w-wide desktop:max-w-content">
     {
       breadcrumbs && breadcrumbs.length > 0 && (
         <div class="mb-2xl tablet:mb-3xl">
@@ -55,7 +55,7 @@ const {
     }
 
     <h1
-      class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900 mb-2xl max-w-[14em] tablet:mb-3xl"
+      class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900 mb-2xl tablet:mb-3xl desktop:max-w-content"
     >
       {title}
     </h1>
