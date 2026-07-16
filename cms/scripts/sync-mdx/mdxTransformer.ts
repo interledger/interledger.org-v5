@@ -169,7 +169,8 @@ async function buildHeroWithImage(
 
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
-        parsed.heroTitle as string | undefined,
+        (parsed.heroTitle as string | undefined) ??
+          (parsed.title as string | undefined),
         parsed.heroDescription as string | undefined,
         parsed.heroCtas as HeroCta[] | undefined
       ) as unknown as Record<string, unknown>)

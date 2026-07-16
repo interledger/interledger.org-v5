@@ -1536,6 +1536,28 @@ describe('buildGrantPagePayload', () => {
         backgroundImage: 42
       })
     })
+
+    it('defaults hero title to the page title when heroTitle is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroImage: '/uploads/img/hero-desktop.png'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/uploads/img/hero-desktop.png': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: baseGrantFrontmatter.title,
+        description: '',
+        backgroundImage: 42
+      })
+    })
   })
 })
 
@@ -1859,7 +1881,7 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
-        title: '',
+        title: baseGrantOverviewFrontmatter.title,
         description: '',
         backgroundImageMobile: 84
       })
@@ -1888,9 +1910,36 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
-        title: '',
+        title: baseGrantOverviewFrontmatter.title,
         description: '',
         backgroundImage: null
+      })
+    })
+
+    it('defaults hero title to the page title when heroTitle is absent', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-desktop.png': 42
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImage: '/uploads/img/hero-desktop.png'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: baseGrantOverviewFrontmatter.title,
+        description: '',
+        backgroundImage: 42
       })
     })
   })
