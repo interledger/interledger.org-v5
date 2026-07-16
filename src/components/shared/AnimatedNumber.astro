@@ -103,7 +103,7 @@ const formatted = display ?? String(value)
         }
         if (progress < 1) {
           requestAnimationFrame(step)
-        } else if (lastValue !== target) {
+        } else {
           display.textContent = finalText
         }
       }
