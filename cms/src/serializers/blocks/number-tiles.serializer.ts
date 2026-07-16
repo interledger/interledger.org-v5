@@ -11,18 +11,21 @@ export function serialize(block: {
   }
 
   const tileItems = block.tiles.map((tile, i) => {
-    if (!tile.number) {
+    const number = tile.number?.trim()
+    if (!number) {
       throw new Error(`Number Tiles block: tile ${i + 1} is missing a number`)
     }
-    if (!tile.description) {
+    const description = tile.description?.trim()
+    if (!description) {
       throw new Error(
         `Number Tiles block: tile ${i + 1} is missing a description`
       )
     }
+    const suffix = tile.suffix?.trim()
     return {
-      number: tile.number,
-      ...(tile.suffix ? { suffix: tile.suffix } : {}),
-      description: tile.description
+      number,
+      ...(suffix ? { suffix } : {}),
+      description
     }
   })
 
