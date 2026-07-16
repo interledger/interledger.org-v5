@@ -71,11 +71,16 @@ async function handleNumberTiles(
 
     const block: NumberTilesBlock = {
       __component: 'blocks.number-tiles',
-      tiles: rawTiles.map((tile) => ({
-        number: tile.number,
-        ...(tile.suffix ? { suffix: tile.suffix } : {}),
-        description: tile.description
-      }))
+      tiles: rawTiles.map((tile) => {
+        const number = tile.number.trim()
+        const description = tile.description.trim()
+        const suffix = tile.suffix?.trim()
+        return {
+          number,
+          ...(suffix ? { suffix } : {}),
+          description
+        }
+      })
     }
 
     return [block]
