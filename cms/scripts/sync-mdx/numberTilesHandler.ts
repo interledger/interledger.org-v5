@@ -29,12 +29,13 @@ function isTileEntry(value: unknown): value is TileEntry {
   if (typeof value !== 'object' || value === null) return false
   const record = value as Record<string, unknown>
   const hasValidSuffix =
-    record.suffix === undefined || typeof record.suffix === 'string'
+    record.suffix === undefined ||
+    (typeof record.suffix === 'string' && record.suffix.trim().length > 0)
   return (
     typeof record.number === 'string' &&
-    record.number.length > 0 &&
+    record.number.trim().length > 0 &&
     typeof record.description === 'string' &&
-    record.description.length > 0 &&
+    record.description.trim().length > 0 &&
     hasValidSuffix
   )
 }
