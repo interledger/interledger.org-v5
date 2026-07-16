@@ -887,11 +887,11 @@ export interface SharedCategory extends Struct.ComponentSchema {
   attributes: {
     categoryValue: Schema.Attribute.Enumeration<
       [
-        'Announcements',
-        'Community & Events',
         'Engineering',
-        'Grants & Grantee Insights',
+        'Grantmaking',
         'Interledger Technology',
+        'News',
+        'Policy and Advocacy',
         'Thought Leadership'
       ]
     >
@@ -1044,6 +1044,29 @@ export interface SharedRelatedArticle extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedReportDate extends Struct.ComponentSchema {
+  collectionName: 'components_shared_report_dates'
+  info: {
+    description: 'Publish and last-updated dates for a report. Only add this component when you want to show dates on the page.'
+    displayName: 'Report Date'
+  }
+  attributes: {
+    lastUpdated: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishDate: Schema.Attribute.Date &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface SharedSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_sections'
   info: {
@@ -1126,6 +1149,7 @@ declare module '@strapi/strapi' {
       'shared.hero-section': SharedHeroSection
       'shared.primary-cta-link': SharedPrimaryCtaLink
       'shared.related-article': SharedRelatedArticle
+      'shared.report-date': SharedReportDate
       'shared.section': SharedSection
       'shared.seo': SharedSeo
     }

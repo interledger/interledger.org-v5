@@ -379,13 +379,12 @@ Examples:
 
 - `src/content/foundation-pages` maps to site routes at `/...`
 - `src/content/foundation-blog-posts` maps to `/blog/...`
-- `src/content/developers-blog-posts` maps to `/developers/blog/...`
 - `src/content/summit-pages` maps to `/summit/...`
 
 The main source files for this setup are:
 
 - `src/content.config.ts`
-  Defines Astro collection ids such as `'foundation-pages'`, `'foundation-blog'`, `'developers-blog'`, and `'summit-pages'`.
+  Defines Astro collection ids such as `'foundation-pages'`, `'foundation-blog'`, and `'summit-pages'`.
 - `src/utils/main/paths.ts`
   Defines filesystem paths and folder names used to load content from disk.
 - `src/utils/main/routes.ts`
@@ -412,15 +411,7 @@ When adding a new localized collection or changing route structure, review all o
 - Localizations: `src/content/foundation-blog-posts/{locale}`
 - Filename format: `YYYY-MM-DD-slug.mdx`
 
-Used for: Foundation news, updates, announcements, thought leadership.
-
-**Tech Blog posts**
-
-- Location: `src/content/developers-blog-posts`
-- Localizations: `src/content/developers-blog-posts/{locale}`
-- Filename format: `YYYY-MM-DD-slug.mdx`
-
-Used for: Technical deep dives, implementation updates, engineering insights.
+Used for: all blog content — foundation news and updates, thought leadership, grantmaking, and technical/engineering deep dives. The former developers/tech blog was merged into this collection (INTORG-691); tech posts carry the `Engineering` category.
 
 **Foundation Pages**
 
@@ -482,23 +473,22 @@ pathSlug: 'grant/grant-for-web'
   - `src/content.config.ts` <br/>
     to understand the required schema and validation rules for each content collection.
 
-#### Blog metadata and tags
+#### Blog metadata and categories
 
-Each blog post includes frontmatter at the top of the file (title, description, date, authors, etc.), including a `tags` field used for filtering on the blog index.
+Each blog post includes frontmatter at the top of the file (title, description, date, authors, etc.), including a `categories` field used for filtering on the blog index.
 
-Please **only use the existing, approved tags** unless you have aligned with the tech + comms team on adding a new one. This helps keep the tag filter focused and avoids fragmentation.
+Please **only use the existing, approved categories** unless you have aligned with the tech + comms team on adding a new one. This helps keep the category filter focused and avoids fragmentation.
 
-**Current tags:**
+**Current categories:**
 
-- Interledger Protocol
-- Open Payments
-- Web Monetization
-- Rafiki
-- Updates
-- Releases
-- Card Payments
+- Engineering
+- Grantmaking
+- Interledger Technology
+- News
+- Policy and Advocacy
+- Thought Leadership
 
-If you believe your post needs a new tag, propose it in your PR description or in the `#tech-team` Slack channel so we can decide whether to add it and update this list.
+If you believe your post needs a new category, propose it in your PR description or in the `#tech-team` Slack channel so we can decide whether to add it and update this list.
 
 ### 3. Developer flow - Documentation (Starlight)
 

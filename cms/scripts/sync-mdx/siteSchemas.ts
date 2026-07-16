@@ -5,5 +5,6 @@ export {
   summitPageFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   profileFrontmatterSchema,
-  faqFrontmatterSchema
+  faqFrontmatterSchema,
+  reportFrontmatterSchema
 } from '@site/schemas/content'

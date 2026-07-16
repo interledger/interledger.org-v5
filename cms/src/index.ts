@@ -5,6 +5,7 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
+  validateReportDate,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -618,6 +619,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
       content: 'Content'
+    },
+    'api::report.report': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      heading: 'Heading',
+      description: 'Short Description',
+      introParagraph: 'Intro Paragraph',
+      date: 'Date',
+      content: 'Content'
     }
   }
 
@@ -678,6 +689,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
       introParagraph: 'Optional intro paragraph shown below the heading.'
+    },
+    'api::report.report': {
+      pathSlug:
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      heading:
+        'The heading shown at the top of the report page. Can differ from the Page Title.',
+      introParagraph:
+        'Optional intro paragraph shown below the heading and dates.',
+      date: 'Optional. Add this component to show a Publish Date (required once added) and an optional Last Updated date.'
     }
   }
 
@@ -728,6 +752,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       style: 'Style',
       external: 'External Link'
+    },
+    'shared.report-date': {
+      publishDate: 'Publish Date',
+      lastUpdated: 'Last Updated'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -847,6 +875,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.category': {
       categoryValue:
         'You can select multiple categories — click "+ Add an entry" for each category'
+    },
+    'shared.report-date': {
+      lastUpdated:
+        'Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts).'
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
@@ -1042,6 +1074,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'cta', size: 12 }]
+    ],
+    'api::report.report': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'date', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }],
+      [{ name: 'content', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
       [
@@ -1381,19 +1425,25 @@ export default {
       'api::foundation-navigation.foundation-navigation',
       'api::summit-navigation.summit-navigation'
     ])
+    const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {
-      if (
-        NAV_UIDS.has(ctx.uid) &&
-        (ctx.action === 'create' || ctx.action === 'update') &&
-        ctx.params.data
-      ) {
-        normalizeNavigationInput(
-          ctx.params.data as Parameters<typeof normalizeNavigationInput>[0]
-        )
-        const validationErr = validateNavigationLabels(
-          ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
-        )
-        if (validationErr) throw validationErr
+      if (ctx.action === 'create' || ctx.action === 'update') {
+        if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
+          normalizeNavigationInput(
+            ctx.params.data as Parameters<typeof normalizeNavigationInput>[0]
+          )
+          const validationErr = validateNavigationLabels(
+            ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
+          )
+          if (validationErr) throw validationErr
+        }
+
+        if (ctx.uid === REPORT_UID && ctx.params.data) {
+          const validationErr = validateReportDate(
+            ctx.params.data as Parameters<typeof validateReportDate>[0]
+          )
+          if (validationErr) throw validationErr
+        }
       }
       return next()
     })

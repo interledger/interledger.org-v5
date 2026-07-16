@@ -22,11 +22,11 @@ const pathSlugSchema = (required = true) => {
 // src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
 // lands, add the new values here and retire the legacy ones.
 const blogCategories = [
-  'Announcements',
-  'Community & Events',
   'Engineering',
-  'Grants & Grantee Insights',
+  'Grantmaking',
   'Interledger Technology',
+  'News',
+  'Policy and Advocacy',
   'Thought Leadership'
 ] as const
 
@@ -225,6 +225,10 @@ export type GrantOverviewPageFrontmatterType = z.infer<
   typeof grantOverviewPageFrontmatterSchema
 >
 
+// Site section for cross-section templates (profiles, reports, etc.). Controls
+// routing and breadcrumbs only — never where the MDX file is stored on disk.
+const sectionSchema = z.enum(['summit', 'hackathon', 'foundation'])
+
 // Profile pages (ambassadors, judges, leadership, etc., grouped by the free-text
 // `category` field). For `section: foundation`, pathSlug is the full site path
 // (e.g. grant/fellowship/jane-doe, team/jane-doe). For summit or hackathon,
@@ -232,7 +236,7 @@ export type GrantOverviewPageFrontmatterType = z.infer<
 export const profileFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   name: z.string().min(1, 'name is required'),
-  section: z.enum(['summit', 'hackathon', 'foundation']),
+  section: sectionSchema,
   /** URL path to the Strapi upload; nullable because the lifecycle writes null when no photo. */
   photo: z.string().nullable(),
   photoAlt: z.string().nullable().optional(),
@@ -260,6 +264,29 @@ export const faqFrontmatterSchema = z.object({
   localizes: z.string().optional()
 })
 export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
+
+// Optional publish/last-updated dates for a report. When present, publishDate
+// is required; lastUpdated is only ever meaningful alongside a publishDate.
+const reportDateSchema = z.object({
+  publishDate: z.coerce.date(),
+  lastUpdated: z.coerce.date().optional()
+})
+
+// Report/research pages. Cross-section template (see ADR-003): pathSlug is
+// relative to whichever `section` the editor picks, e.g. for `foundation`,
+// policy-and-advocacy/role-stablecoins-...
+export const reportFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  section: sectionSchema,
+  heading: z.string().min(1, 'heading is required'),
+  description: z.string().min(1, 'description is required'),
+  introParagraph: z.string().nullable().optional(),
+  date: reportDateSchema.optional(),
+  locale: z.string(),
+  localizes: z.string().optional()
+})
+export type ReportFrontmatterType = z.infer<typeof reportFrontmatterSchema>
 
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema
