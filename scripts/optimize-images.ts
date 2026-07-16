@@ -5,8 +5,10 @@ import sharp from 'sharp'
 import {
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
-  pathToSegments
-} from '@/utils/main/images'
+  pathToSegments,
+  isImageOverSizeLimit,
+  imageSizeLimitError
+} from '@/utils'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
@@ -153,6 +155,15 @@ async function main(): Promise<void> {
   const startTime = Date.now()
   console.log('Optimizing images...\n')
 
+  function assertSourceImageWithinLimit(filePath: string): void {
+    const { size } = fs.statSync(filePath)
+    if (isImageOverSizeLimit(size)) {
+      throw new Error(
+        imageSizeLimitError(path.relative(PROJECT_ROOT, filePath), size)
+      )
+    }
+  }
+
   const manifest = loadManifest()
   // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
   const updatedManifest: Record<string, string> = {}
@@ -175,6 +186,7 @@ async function main(): Promise<void> {
       files,
       CONCURRENCY,
       async (file): Promise<{ created: number; skipped: boolean }> => {
+        assertSourceImageWithinLimit(file)
         const manifestKey = path.relative(PROJECT_ROOT, file)
         const hash = await hashFile(file)
 

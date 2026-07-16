@@ -22,6 +22,12 @@ import {
 } from './utils'
 import { validateContentBlocks } from './serializers/blocks'
 import { errors } from '@strapi/utils'
+import {
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit,
+  MAX_IMAGE_SIZE_LABEL
+} from './utils/uploadLimits'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -358,6 +364,37 @@ async function ensureLocales(strapi: StrapiInstance) {
 const UPLOAD_SUBDIR = 'img/original'
 const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
 
+function getUploadFileSizeBytes(file: UploadFile): number {
+  if (typeof file.size === 'number') return file.size
+  if (file.buffer) return file.buffer.length
+  return 0
+}
+
+function isImageUpload(file: UploadFile): boolean {
+  const mime = typeof file.mime === 'string' ? file.mime : ''
+  if (mime.startsWith('image/')) return true
+
+  const ext = typeof file.ext === 'string' ? file.ext.toLowerCase() : ''
+  return SEEDABLE_EXTENSIONS.has(ext)
+}
+
+function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
+  if (!isImageUpload(file)) return
+
+  const sizeBytes = getUploadFileSizeBytes(file)
+  if (sizeBytes > 0 && isImageOverSizeLimit(sizeBytes)) {
+    throw new errors.ApplicationError(imageSizeLimitError(label, sizeBytes))
+  }
+}
+
+function assertWrittenImageWithinLimit(dest: string): void {
+  const { size } = fs.statSync(dest)
+  if (isImageOverSizeLimit(size)) {
+    fs.unlinkSync(dest)
+    throw new errors.ApplicationError(imageSizeLimitError(dest, size))
+  }
+}
+
 /**
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
@@ -376,19 +413,41 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   const provider = uploadPlugin.provider
+  const originalCheckFileSize = provider.checkFileSize?.bind(provider)
+
+  provider.checkFileSize = (file: UploadFile, options?: unknown) => {
+    originalCheckFileSize?.(file, options)
+    const label =
+      typeof file.name === 'string'
+        ? file.name
+        : `${file.hash ?? 'upload'}${file.ext ?? ''}`
+    assertImageWithinUploadLimit(file, label)
+  }
 
   provider.uploadStream = async (file: UploadFile) => {
     const stream = file.stream ?? file.getStream?.()
     if (!stream) throw new Error('Missing file stream')
+    const label =
+      typeof file.name === 'string'
+        ? file.name
+        : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     await pipeline(stream, fs.createWriteStream(dest))
+    assertWrittenImageWithinLimit(dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
   provider.upload = async (file: UploadFile) => {
     if (!file.buffer) throw new Error('Missing file buffer')
+    const label =
+      typeof file.name === 'string'
+        ? file.name
+        : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)
+    assertWrittenImageWithinLimit(dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -405,7 +464,9 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     }
   }
 
-  strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
+  strapi.log.info(
+    `✅ Upload provider redirected to ${uploadPath} (${MAX_IMAGE_SIZE_LABEL} limit enforced)`
+  )
 }
 
 /**
@@ -509,6 +570,12 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
       if (existing) continue
 
       const stat = fs.statSync(filePath)
+      if (isImageOverSizeLimit(stat.size)) {
+        strapi.log.warn(
+          `⚠️  Skipping seed for oversized image (${formatImageSize(stat.size)}): ${url}`
+        )
+        continue
+      }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
       const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
 

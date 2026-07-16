@@ -30,7 +30,7 @@ import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { tryCatchAsync, getProjectRoot } from '@/utils'
+import { tryCatchAsync, getProjectRoot, validateLocalImageUrl } from '@/utils'
 import path from 'path'
 import fs from 'fs'
 
@@ -84,6 +84,9 @@ async function getImageFromStrapi(
   const photoUrl = nullOrValue(image)
   if (!photoUrl) return null
 
+  const sizeError = validateLocalImageUrl(getProjectRoot(), photoUrl)
+  if (sizeError) throw sizeError
+
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   const byUrl = await strapi.findUploadByUrl(photoUrl)
@@ -127,6 +130,9 @@ export function createMediaUploadResolver(
   dryRun: boolean
 ): (url: string) => Promise<number | null> {
   return async (url: string): Promise<number | null> => {
+    const sizeError = validateLocalImageUrl(getProjectRoot(), url)
+    if (sizeError) throw sizeError
+
     const id = await strapi.findUploadByUrl(url)
     if (id instanceof Error) throw id
     if (id) return id
