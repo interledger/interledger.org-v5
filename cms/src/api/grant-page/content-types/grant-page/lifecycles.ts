@@ -71,6 +71,10 @@ export function generateGrantPageMDX(
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
 
+  delete (restPreserved as Record<string, unknown>).primaryCta
+  delete (restPreserved as Record<string, unknown>).infoCards
+  delete (restPreserved as Record<string, unknown>).faqSection
+  delete (restPreserved as Record<string, unknown>).programOverview
   for (const key of [
     'heroTitle',
     'heroDescription',
@@ -98,7 +102,7 @@ export function generateGrantPageMDX(
     ...heroFrontmatter(hero),
     ...(grantPage.programOverview
       ? { programOverview: grantPage.programOverview }
-      : { programOverview: null }),
+      : {}),
     ...(primaryCta
       ? {
           primaryCta: {
@@ -109,7 +113,7 @@ export function generateGrantPageMDX(
               : {})
           }
         }
-      : { primaryCta: null }),
+      : {}),
     ...(infoCards
       ? {
           infoCards: {
@@ -130,7 +134,7 @@ export function generateGrantPageMDX(
             ]
           }
         }
-      : { infoCards: null }),
+      : {}),
     ...(faqSection
       ? {
           faqSection: {
@@ -145,7 +149,7 @@ export function generateGrantPageMDX(
             }))
           }
         }
-      : { faqSection: null }),
+      : {}),
     ...(ctaStrip
       ? {
           ctaStrip: {
@@ -162,7 +166,7 @@ export function generateGrantPageMDX(
               : {})
           }
         }
-      : { ctaStrip: null }),
+      : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
