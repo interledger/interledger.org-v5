@@ -31,7 +31,7 @@ const t = useTranslations(lang)
     talk.translations.length > 0 && (
       <ul
         aria-label={t('summit.available_translations')}
-        class="flex flex-row gap-2 mb-3 [&_li]:bg-white/20 [&_li]:py-0.5 [&_li]:px-1 [&_li]:rounded-sm [&_li]:text-step--2 [&_li]:font-bold"
+        class="flex flex-row gap-2 mb-3 [&_li]:bg-white/20 [&_li]:py-0.5 [&_li]:px-1 [&_li]:rounded-sm [&_li]:text-caption [&_li]:font-bold"
       >
         {talk.translations.map((language) => (
           <li>{language}</li>

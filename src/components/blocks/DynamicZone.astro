@@ -66,7 +66,7 @@ const resolvedBlocks = blocks
   .filter((item): item is NonNullable<typeof item> => item !== null)
 ---
 
-<div class="flex flex-col gap-space-xl">
+<div class="flex flex-col gap-4xl">
   {
     resolvedBlocks.map(({ Component, props }) => (
       <div class="w-full">

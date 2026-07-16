@@ -82,7 +82,7 @@ const breadcrumbs = [
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
-  <main class="pb-space-l">
+  <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
     <PageHero
@@ -97,7 +97,7 @@ const breadcrumbs = [
     />
     {
       programOverviewHtml && (
-        <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
+        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
           <div class="mx-auto max-w-content min-w-[360px]">
             <div data-prose set:html={programOverviewHtml} />
           </div>
@@ -124,13 +124,13 @@ const breadcrumbs = [
 
     {
       infoCards && (
-        <section class="py-space-xl">
+        <section class="py-4xl">
           <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
         </section>
       )
     }
 
-    <section class="py-space-xl">
+    <section class="py-4xl">
       <div
         class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
       >
@@ -154,13 +154,13 @@ const breadcrumbs = [
 
     {
       faqSection && (
-        <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
+        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
           <GrantFaqSection {...faqSection} />
         </section>
       )
     }
 
-    <section class="py-space-xl px-lg tablet:px-xl desktop:px-5xl">
+    <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
       <div class="mx-auto max-w-content min-w-[360px]">
         <CtaStrip
           heading={ctaStrip.heading}

@@ -76,7 +76,7 @@ const content = page.content || []
 
 <BaseLayout title={`[PREVIEW] ${title}`} description={description}>
   <TableScrollSupport />
-  <main class="pb-space-l">
+  <main class="pb-3xl">
     <!-- Preview Banner -->
     <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
       PREVIEW MODE - This content is not published
@@ -84,19 +84,19 @@ const content = page.content || []
 
     {
       heroTitle && (
-        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-space-xl text-white flex items-center">
-          <div class="mx-auto w-full max-w-wide px-space-m">
+        <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-4xl text-white flex items-center">
+          <div class="mx-auto w-full max-w-wide px-2xl">
             <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
                 {heroTitle}
               </h1>
               {heroDescription && (
-                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                <p class="mb-2xl text-[1.125rem] max-w-[600px]">
                   {heroDescription}
                 </p>
               )}
               {heroCtas.length > 0 && (
-                <div class="flex flex-wrap gap-space-s mt-space-s">
+                <div class="flex flex-wrap gap-xl mt-xl">
                   {heroCtas.map((cta) => (
                     <Link
                       href={cta.link}
@@ -116,7 +116,7 @@ const content = page.content || []
 
     {
       content.length > 0 && (
-        <section class="py-space-xl">
+        <section class="py-4xl">
           <div
             class="mx-auto w-full min-w-0 max-w-content max-[1324px]:px-[5%]"
             data-prose-blog

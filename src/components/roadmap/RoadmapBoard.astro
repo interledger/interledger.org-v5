@@ -81,7 +81,7 @@ let projectRowIndex = -1
   <div class="mobile-toggle-wrap hidden justify-end pb-sm max-tablet:flex">
     <button
       type="button"
-      class="mobile-toggle-btn cursor-pointer rounded border border-gray-200 bg-gray-50 px-md py-xs text-step--2 text-gray-600 hover:bg-gray-200"
+      class="mobile-toggle-btn cursor-pointer rounded border border-gray-200 bg-gray-50 px-md py-xs text-caption text-gray-600 hover:bg-gray-200"
       aria-pressed="false"
     >
       Full timeline
@@ -112,7 +112,7 @@ let projectRowIndex = -1
     >
       <div class="board-header-inner overflow-x-auto">
         <table
-          class="board-header-table font-titillium text-step--1 text-gray-900"
+          class="board-header-table font-poppins text-body-lg-standard text-gray-900"
         >
           <colgroup>
             <col class="col-label" />
@@ -121,7 +121,7 @@ let projectRowIndex = -1
           <thead>
             <tr>
               <th
-                class="hd-label sticky left-0 z-5 border-r border-gray-200 bg-gray-50 px-md align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600"
+                class="hd-label sticky left-0 z-5 border-r border-gray-200 bg-gray-50 px-md align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600"
                 rowspan="2"
               >
                 Team / Project
@@ -137,7 +137,7 @@ let projectRowIndex = -1
                 quarterHeaders.map((qh, qi) => (
                   <th
                     class:list={[
-                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600',
+                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600',
                       { 'border-l-2 border-l-gray-300': qi > 0 },
                       {
                         'hd-quarter--current bg-primary/10! text-primary!':
@@ -156,7 +156,7 @@ let projectRowIndex = -1
                 quarterHeaders.map((qh) => (
                   <th
                     class:list={[
-                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-step--2 font-bold uppercase tracking-wide text-gray-600',
+                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption font-bold uppercase tracking-wide text-gray-600',
                       {
                         'hd-quarter--current bg-primary/10! text-primary!':
                           qh.q === nowQuarter && qh.year === nowYear
@@ -175,7 +175,7 @@ let projectRowIndex = -1
                 months.map((m, mi) => (
                   <th
                     class:list={[
-                      'hd-month whitespace-nowrap border-r border-gray-200 bg-gray-50 px-sm py-xs text-center align-middle text-step--2 font-medium text-gray-700',
+                      'hd-month whitespace-nowrap border-r border-gray-200 bg-gray-50 px-sm py-xs text-center align-middle text-caption text-gray-700',
                       {
                         // Skip on the first month: the label column's right
                         // border already divides it, so a 2px left border here
@@ -184,7 +184,7 @@ let projectRowIndex = -1
                           m.isQuarterStart && mi > 0
                       },
                       {
-                        'hd-month--current bg-primary/10! font-bold text-primary!':
+                        'hd-month--current bg-primary/10! text-primary!':
                           m.year === nowYear && m.month === nowMonth
                       }
                     ]}
@@ -207,7 +207,7 @@ let projectRowIndex = -1
     {/* Scrollable body — project rows only */}
     <div class="board-scroll overflow-x-auto">
       <table
-        class="board font-titillium text-step--1 text-gray-900"
+        class="board font-poppins text-body-lg-standard text-gray-900"
         style={`--now-pct: ${nowLeft}%`}
         aria-label="Projects"
       >
@@ -246,7 +246,7 @@ let projectRowIndex = -1
                 return (
                   <tr aria-label={`Team: ${team.name}`}>
                     <th
-                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-step--2 font-bold uppercase tracking-wider text-gray-700"
+                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-caption desktop:text-body-lg-standard font-bold uppercase tracking-wider text-gray-700"
                       scope="rowgroup"
                     >
                       <div class="inline-flex items-center gap-sm px-md py-xs">
@@ -289,7 +289,7 @@ let projectRowIndex = -1
                     scope="row"
                     title={proj.name}
                   >
-                    <span class="inline-flex items-center gap-1.5 text-step--1 font-medium leading-snug text-gray-900">
+                    <span class="inline-flex items-center gap-1.5 text-caption tablet:text-body-lg-standard desktop:text-body-lg-standard-md leading-snug text-gray-900">
                       {iconEmoji && (
                         <span class="shrink-0" aria-hidden="true">
                           {iconEmoji}

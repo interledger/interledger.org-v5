@@ -30,16 +30,7 @@ const FONT_SIZE_TOKENS = [
   'body-lg-standard',
   'body-lg-standard-md',
   'body-sm-emphasis',
-  'body-sm-standard',
-  'step--2',
-  'step--1',
-  'step-0',
-  'step-1',
-  'step-2',
-  'step-3',
-  'step-4',
-  'step-5',
-  'step-6'
+  'body-sm-standard'
 ]
 
 // Custom spacing tokens. The new design system adds an `xs..7xl` t-shirt
@@ -58,16 +49,7 @@ const SPACING_TOKENS = [
   '4xl',
   '5xl',
   '6xl',
-  '7xl',
-  'space-3xs',
-  'space-2xs',
-  'space-xs',
-  'space-s',
-  'space-m',
-  'space-l',
-  'space-xl',
-  'space-2xl',
-  'space-3xl'
+  '7xl'
 ]
 
 export const twMerge = extendTailwindMerge({

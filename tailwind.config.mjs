@@ -5,7 +5,6 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        titillium: ['Titillium', 'Arial', 'sans-serif'],
         poppins: ['Poppins', 'Arial', 'sans-serif'],
         system: [
           'system-ui',
@@ -17,8 +16,8 @@ export default {
         ]
       },
 
-      // NOTE: fontSize, spacing, animations, colors, borderRadius, and boxShadow
-      // are now defined via @theme in src/styles/theme.css (single source of truth).
+      // NOTE: fontSize, spacing, animations, colors and borderRadius are now
+      // defined via @theme in src/styles/theme.css (single source of truth).
 
       // Layout constraints (no @theme namespace available)
       maxWidth: {
@@ -26,11 +25,6 @@ export default {
         narrow: '720px',
         wide: '1600px',
         prose: '960px'
-      },
-
-      // Header height
-      height: {
-        header: '4.375rem'
       },
 
       // Transitions

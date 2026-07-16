@@ -95,7 +95,7 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 - **astro.config.mjs**: Defines Starlight integration, custom components (Header, PageSidebar), redirects, server port (1103)
 - **eslint.config.js**: Uses ESLint 9 flat config. Ignores: dist, .astro, node_modules, *.min.js, and specific CMS files
 - **tsconfig.json**: Extends Astro strict config with React JSX support
-- **tailwind.config.mjs**: Custom font families (Titillium, system), fluid typography from pages.css
+- **tailwind.config.mjs**: Custom font families (Poppins, system), fluid typography from pages.css
 - **.prettierrc**: No semicolons, single quotes, no trailing commas
 
 ## Content and Routing

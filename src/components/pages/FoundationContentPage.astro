@@ -58,31 +58,31 @@ if (isNotFound) return Astro.redirect('/404')
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
 >
-  <main class="pb-space-l" data-pillar={pillar}>
+  <main class="pb-3xl" data-pillar={pillar}>
     <TranslationDisclaimer isVisible={isFallback} />
     {
       mdxHeroTitle && (
         <section
           class:list={[
-            'min-h-[40vh] py-space-xl text-white flex items-center',
+            'min-h-[40vh] py-4xl text-white flex items-center',
             heroSectionStyle
               ? 'bg-no-repeat bg-cover bg-center'
               : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
           ]}
           style={heroSectionStyle}
         >
-          <div class="mx-auto w-full max-w-wide px-space-m">
+          <div class="mx-auto w-full max-w-wide px-2xl">
             <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-space-xs text-[clamp(2rem,5vw,3rem)]">
+              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
                 {mdxHeroTitle}
               </h1>
               {mdxHeroDescription && (
-                <p class="mb-space-m text-[1.125rem] max-w-[600px]">
+                <p class="mb-2xl text-[1.125rem] max-w-[600px]">
                   {mdxHeroDescription}
                 </p>
               )}
               {heroCtas.length > 0 && (
-                <div class="flex flex-wrap gap-space-s mt-space-s">
+                <div class="flex flex-wrap gap-xl mt-xl">
                   {heroCtas.map((cta) => (
                     <Link
                       href={cta.link}
@@ -99,7 +99,7 @@ if (isNotFound) return Astro.redirect('/404')
         </section>
       )
     }
-    <section class="py-space-xl">
+    <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <div data-prose class="mx-auto max-w-content">
           <MdxContent

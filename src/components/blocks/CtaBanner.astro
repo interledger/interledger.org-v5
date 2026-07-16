@@ -33,20 +33,20 @@ const umamiBase = {
 
 const bgClasses = {
   primary: 'bg-gradient-primary text-white',
-  secondary: 'bg-gray-100',
-  light: 'bg-gray-50',
+  secondary: 'bg-neutral-100',
+  light: 'bg-neutral-50',
   dark: 'bg-black text-white'
 }
 
 const headingClasses = {
   primary: 'text-white',
-  secondary: 'text-primary-fallback',
-  light: 'text-primary-fallback',
+  secondary: 'text-primary',
+  light: 'text-primary',
   dark: 'text-white'
 }
 
 const baseButtonClasses =
-  'inline-block rounded-pill py-space-xs px-space-m font-medium no-underline transition-all duration-200'
+  'inline-block rounded-full py-lg px-2xl font-medium no-underline transition-all duration-200'
 
 const primaryButtonClasses = {
   primary: `${baseButtonClasses} bg-white text-primary hover:opacity-90`,
@@ -63,19 +63,17 @@ const secondaryButtonClasses = {
 }
 ---
 
-<section
-  class={`py-space-xl px-space-m text-center ${bgClasses[backgroundColor]}`}
->
+<section class={`py-4xl px-2xl text-center ${bgClasses[backgroundColor]}`}>
   <div class="max-w-narrow mx-auto">
     <h2
-      class={`text-[2rem] font-semibold mb-space-s ${headingClasses[backgroundColor]}`}
+      class={`text-[2rem] font-semibold mb-xl ${headingClasses[backgroundColor]}`}
     >
       {heading}
     </h2>
-    {text && <p class="text-[1.125rem] mb-space-m opacity-90">{text}</p>}
+    {text && <p class="text-[1.125rem] mb-2xl opacity-90">{text}</p>}
     {
       (primaryButtonText || secondaryButtonText) && (
-        <div class="flex flex-wrap justify-center gap-space-s">
+        <div class="flex flex-wrap justify-center gap-xl">
           {primaryButtonText && primaryButtonLink && (
             <a
               href={primaryButtonLink}

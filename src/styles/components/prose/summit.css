@@ -18,21 +18,5 @@
     & a:hover {
       text-decoration-color: transparent;
     }
-
-    & h1 { font-size: var(--text-step-4); }
-
-    & h2,
-    & h3 {
-      margin-block: 0;
-      font-weight: inherit;
-    }
-
-    & h2 {
-      font-size: var(--text-step-2);
-      color: inherit;
-    }
-
-    & h3 { font-size: var(--text-step-1); }
-    & h4 { font-size: var(--text-step-0); }
   }
 }

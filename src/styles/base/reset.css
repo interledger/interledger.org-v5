@@ -48,6 +48,7 @@
       transform: rotate(-360deg);
     }
   }
+
   @keyframes rise {
     0% {
       transform: translateY(100px);
@@ -74,7 +75,7 @@
   }
 
   main {
-    @apply flex-1 text-step-0;
+    @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
   }
 
   a {
