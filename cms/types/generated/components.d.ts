@@ -762,7 +762,14 @@ export interface BlocksTitleCard extends Struct.ComponentSchema {
     displayName: 'Title Card'
   }
   attributes: {
-    description: Schema.Attribute.Blocks & Schema.Attribute.Required
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
     heading: Schema.Attribute.String & Schema.Attribute.Required
     secondaryCta: Schema.Attribute.Component<
       'shared.secondary-cta-link',

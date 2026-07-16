@@ -13,14 +13,18 @@
       "type": "string",
       "required": false
     },
-    "description": {
-      "type": "blocks",
-      "required": true
-    },
     "secondaryCta": {
       "type": "component",
       "component": "shared.secondary-cta-link",
       "repeatable": false,
+      "required": true
+    },
+    "description": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
       "required": true
     }
   },
