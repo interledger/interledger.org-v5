@@ -143,13 +143,35 @@ vi.mock('./siteSchemas', async () => {
     locale: z.string(),
     localizes: z.string().optional()
   })
+  const profileSchema = z.object({
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    name: z.string().min(1, 'name is required'),
+    section: z.enum(['summit', 'hackathon', 'foundation']),
+    photo: z.string().nullable(),
+    photoAlt: z.string().nullable().optional(),
+    category: z.string().nullable().optional(),
+    tagline: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    role: z.string().nullable().optional(),
+    cta: z
+      .object({
+        text: z.string().optional(),
+        link: z.string().optional(),
+        style: z.enum(['primary', 'secondary']).optional(),
+        external: z.boolean().optional()
+      })
+      .optional(),
+    locale: z.string(),
+    localizes: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
     summitPageFrontmatterSchema: pageSchema,
     grantPageFrontmatterSchema: grantPageSchema,
     grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
     faqFrontmatterSchema: faqSchema,
-    reportFrontmatterSchema: reportSchema
+    reportFrontmatterSchema: reportSchema,
+    profileFrontmatterSchema: profileSchema
   }
 })
 
@@ -160,7 +182,8 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
-  createMediaUploadResolver
+  createMediaUploadResolver,
+  buildProfilePayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -168,7 +191,8 @@ import {
   grantPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  profileFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -2423,5 +2447,102 @@ describe('createMediaUploadResolver', () => {
     ).rejects.toThrow(
       'Upload "https://example.com/not-a-local-asset.png" could not be resolved to a Strapi file ID.'
     )
+  })
+})
+
+// Maps profile MDX frontmatter to the Strapi profile-page payload shape.
+// Key risk: a half-filled `cta` (text without link, or vice versa) must
+// surface as an Error rather than silently dropping the CTA (see #359).
+describe('buildProfilePayload', () => {
+  function stubStrapi(): StrapiClient {
+    return {
+      findUploadByUrl: async () => null,
+      updateUploadAlt: async () => undefined
+    } as unknown as StrapiClient
+  }
+
+  const baseProfileFrontmatter = {
+    name: 'Jane Doe',
+    section: 'foundation',
+    photo: null,
+    locale: 'en'
+  }
+
+  describe('cta', () => {
+    it('is null in payload when absent from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: baseProfileFrontmatter
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toBeNull()
+    })
+
+    it('is included in payload when both text and link are present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more', link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toEqual({
+        text: 'Read more',
+        link: 'https://example.com',
+        style: 'primary',
+        external: false
+      })
+    })
+
+    it('returns Error when text is present but link is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toContain('team/jane-doe')
+      expect((payload as Error).message).toContain('cta')
+    })
+
+    it('returns Error when link is present but text is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+    })
   })
 })
