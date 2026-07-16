@@ -42,25 +42,27 @@ const {
 ---
 
 <!-- White content section -->
-<div class="bg-white px-space-m py-space-xl">
+<div
+  class="bg-white px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
+>
   <div class="mx-auto max-w-wide">
     {
       breadcrumbs && breadcrumbs.length > 0 && (
-        <div class="mb-space-m">
+        <div class="mb-2xl tablet:mb-3xl">
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </div>
       )
     }
 
     <h1
-      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold leading-[1.2] mb-space-m max-w-[14em]"
+      class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900 mb-2xl max-w-[14em] tablet:mb-3xl"
     >
       {title}
     </h1>
 
     {
       description && (
-        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-space-s">
+        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-xl tablet:mb-lg">
           {description}
         </p>
       )

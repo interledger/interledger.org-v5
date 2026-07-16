@@ -13,7 +13,7 @@ interface Props {
 const { speakers, basePath, year, extraClass } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const listClass = `flex flex-wrap gap-space-s ${extraClass ?? ''}`.trim()
+const listClass = `flex flex-wrap gap-xl ${extraClass ?? ''}`.trim()
 ---
 
 {

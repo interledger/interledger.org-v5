@@ -73,7 +73,7 @@ const highlighted = await codeToHtml(code, {
 ---
 
 <figure
-  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 text-step--1"
+  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg"
   data-component="code-block"
 >
   <div class="code-block-header flex items-center rounded-t-xl">
@@ -136,16 +136,16 @@ const highlighted = await codeToHtml(code, {
   }
 
   [data-component='code-block'] .code-block-header {
-    gap: var(--spacing-space-xs);
-    padding-block: var(--spacing-space-2xs);
-    padding-inline: var(--spacing-space-s);
-    background-color: var(--color-table-stripe);
+    gap: var(--spacing-lg);
+    padding-block: var(--spacing-s);
+    padding-inline: var(--spacing-xl);
+    background-color: var(--color-ice-indigo-50);
     border-bottom: 1px solid var(--color-neutral-25);
   }
 
   [data-component='code-block'] .code-block-title,
   [data-component='code-block'] .code-block-copy-btn {
-    font-size: var(--text-step--2);
+    font-size: var(--text-caption);
   }
 
   [data-component='code-block'] .code-block-title {
@@ -178,7 +178,7 @@ const highlighted = await codeToHtml(code, {
     width: max-content;
     min-width: 100%;
     margin: 0;
-    padding: var(--spacing-space-s);
+    padding: var(--spacing-xl);
     white-space: normal;
   }
 
@@ -204,7 +204,7 @@ const highlighted = await codeToHtml(code, {
     content: counter(code-line);
     display: inline-block;
     width: 1.75em;
-    margin-right: var(--spacing-space-xs);
+    margin-right: var(--spacing-lg);
     text-align: right;
     color: var(--color-neutral-50);
     user-select: none;

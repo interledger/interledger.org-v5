@@ -35,20 +35,18 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
 ---
 
 <footer
-  class="mx-space-m border-t border-white/20 py-space-m text-center text-[var(--color-text)]"
+  class="mx-2xl border-t border-white/20 py-2xl text-center text-[var(--color-text)]"
   role="contentinfo"
 >
-  <div
-    class="min-[780px]:flex min-[780px]:justify-center min-[780px]:gap-space-xl"
-  >
+  <div class="min-[780px]:flex min-[780px]:justify-center min-[780px]:gap-4xl">
     <div>
       <h3
-        class="mb-space-2xs font-semibold text-[var(--color-text)] min-[780px]:text-left"
+        class="mb-s font-semibold text-[var(--color-text)] min-[780px]:text-left"
       >
         {t('footer.join_mailing_list')}
       </h3>
       <a
-        class="mx-auto mb-space-s flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-space-xs py-space-3xs text-step--1 text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
+        class="mx-auto mb-xl flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-lg py-xs text-body-sm-standard text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
         href={subscribeHref}
         {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
       >
@@ -57,13 +55,11 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     </div>
     <div>
       <h3
-        class="mb-space-2xs font-semibold text-[var(--color-text)] min-[780px]:text-left"
+        class="mb-s font-semibold text-[var(--color-text)] min-[780px]:text-left"
       >
         {t('footer.connect')}
       </h3>
-      <ul
-        class="flex flex-wrap justify-center gap-space-s mb-space-s list-none p-0"
-      >
+      <ul class="flex flex-wrap justify-center gap-xl mb-xl list-none p-0">
         <li>
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
@@ -201,32 +197,32 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
       </ul>
     </div>
   </div>
-  <p class="my-space-m text-[var(--color-text)]">
+  <p class="my-2xl text-[var(--color-text)]">
     © 2020–{currentYear}, Interledger Foundation. {t('footer.rights')}
   </p>
-  <ul class="flex list-none justify-center p-0 mt-space-s max-[479px]:block">
+  <ul class="flex list-none justify-center p-0 mt-xl max-[479px]:block">
     <li
-      class="max-[479px]:mb-space-2xs min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-space-s min-[480px]:before:text-[var(--color-text)] first:before:content-none"
+      class="max-[479px]:mb-s min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-xl min-[480px]:before:text-[var(--color-text)] first:before:content-none"
     >
       <a
-        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
+        class="px-xl whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
         href={tocHref}
         {...footerLink(tocHref, undefined, t('footer.terms_service'))}
         >{t('footer.terms_service')}</a
       >
     </li>
     <li
-      class="max-[479px]:mb-space-2xs min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-space-s min-[480px]:before:text-[var(--color-text)]"
+      class="max-[479px]:mb-s min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-xl min-[480px]:before:text-[var(--color-text)]"
     >
       <a
-        class="px-space-s whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
+        class="px-xl whitespace-nowrap underline decoration-dotted underline-offset-2 text-[var(--color-text)] hover:decoration-solid hover:text-[hsla(26,100%,76%,1)]"
         href={privacyHref}
         {...footerLink(privacyHref, undefined, t('footer.privacy_policy'))}
         >{t('footer.privacy_policy')}</a
       >
     </li>
     <li
-      class="max-[479px]:mb-space-2xs min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-space-s min-[480px]:before:text-[var(--color-text)]"
+      class="max-[479px]:mb-s min-[480px]:before:content-['|'] min-[480px]:before:inline min-[480px]:before:pr-xl min-[480px]:before:text-[var(--color-text)]"
     >
       <LinkButton
         href={contactHref}
