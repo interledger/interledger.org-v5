@@ -19,7 +19,7 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   description?: string | null
-  /** Desktop hero image. Recommended: 1440×600px. */
+  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. */
   image?: string | null
   imageAlt?: string | null
   /** Optional mobile image. Recommended: 768×480px. */
