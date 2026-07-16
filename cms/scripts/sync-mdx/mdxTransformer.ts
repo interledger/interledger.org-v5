@@ -168,10 +168,11 @@ async function buildHeroWithImage(
     hasHeroImageField ||
     hasHeroImageMobileField
 
+  const trimmedHeroTitle = (parsed.heroTitle as string | undefined)?.trim()
+
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
-        (parsed.heroTitle as string | undefined) ??
-          (parsed.title as string | undefined),
+        trimmedHeroTitle || (parsed.title as string | undefined),
         parsed.heroDescription as string | undefined,
         parsed.heroCtas as HeroCta[] | undefined
       ) as unknown as Record<string, unknown>)

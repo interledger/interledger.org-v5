@@ -67,11 +67,13 @@ const programOverviewHtml = programOverview
   : null
 const t = useTranslations(contentLocale)
 
+const resolvedHeroTitle = heroTitle?.trim() || title
+
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', contentLocale) },
   { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
   {
-    name: heroTitle ?? title,
+    name: resolvedHeroTitle,
     href: localizeRoute(`grant/${slug}`, contentLocale)
   }
 ]
@@ -87,7 +89,7 @@ const breadcrumbs = [
     <TranslationDisclaimer isVisible={isFallback} />
 
     <PageHero
-      title={heroTitle ?? title}
+      title={resolvedHeroTitle}
       description={heroDescription ?? description}
       image={heroImage}
       imageAlt={heroImageAlt}
