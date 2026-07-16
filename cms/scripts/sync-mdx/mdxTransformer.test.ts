@@ -105,11 +105,27 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const reportDateSchema = z.object({
+    publishDate: z.coerce.date(),
+    lastUpdated: z.coerce.date().optional()
+  })
+  const reportSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    section: z.enum(['summit', 'hackathon', 'foundation']),
+    heading: z.string().min(1, 'heading is required'),
+    description: z.string().min(1, 'description is required'),
+    introParagraph: z.string().nullable().optional(),
+    date: reportDateSchema.optional(),
+    locale: z.string(),
+    localizes: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
     summitPageFrontmatterSchema: pageSchema,
     grantPageFrontmatterSchema: grantPageSchema,
-    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema
+    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
+    reportFrontmatterSchema: reportSchema
   }
 })
 
@@ -117,13 +133,15 @@ import {
   getEntryField,
   buildPagePayload,
   buildGrantPagePayload,
-  buildGrantOverviewPagePayload
+  buildGrantOverviewPagePayload,
+  buildReportPayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   grantPageFrontmatterSchema,
-  grantOverviewPageFrontmatterSchema
+  grantOverviewPageFrontmatterSchema,
+  reportFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -1938,6 +1956,171 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).content).toBeUndefined()
+    })
+  })
+})
+
+const baseReportFrontmatter = {
+  title: 'The Role of Stablecoins',
+  section: 'foundation',
+  heading: 'The Role of Stablecoins',
+  description: 'A short description of the report, 120 to 160 characters.',
+  locale: 'en'
+}
+
+// Maps report MDX frontmatter to the Strapi report payload shape.
+// Key risk: the optional `date` component — publishDate must round-trip when
+// present and the whole component must be cleared (sent as null) when absent.
+describe('buildReportPayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          section: 'foundation',
+          heading: 'The Role of Stablecoins',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when heading is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          title: 'The Role of Stablecoins',
+          section: 'foundation',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, section, heading, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('The Role of Stablecoins')
+      expect(p.pathSlug).toBe('policy-and-advocacy/role-stablecoins')
+      expect(p.section).toBe('foundation')
+      expect(p.heading).toBe('The Role of Stablecoins')
+      expect(p.description).toBe(
+        'A short description of the report, 120 to 160 characters.'
+      )
+    })
+
+    it('includes introParagraph when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          introParagraph: 'A short intro.'
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBe(
+        'A short intro.'
+      )
+    })
+
+    it('sets introParagraph to null when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
+    })
+  })
+
+  describe('date component round-trip', () => {
+    it('sets date to null when the date component is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).date).toBeNull()
+    })
+
+    it('round-trips publishDate when the date component is present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          date: { publishDate: '2026-06-15' }
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const date = (payload as Record<string, unknown>).date as Record<
+        string,
+        unknown
+      >
+      expect(date.publishDate).toBe('2026-06-15')
+      expect(date).not.toHaveProperty('lastUpdated')
+    })
+
+    it('round-trips lastUpdated alongside publishDate when both are present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          date: { publishDate: '2026-06-15', lastUpdated: '2026-07-01' }
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const date = (payload as Record<string, unknown>).date as Record<
+        string,
+        unknown
+      >
+      expect(date.publishDate).toBe('2026-06-15')
+      expect(date.lastUpdated).toBe('2026-07-01')
+    })
+  })
+
+  describe('content parsing', () => {
+    it('includes MDX body as paragraph content', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: 'The full report body.'
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
+      expect(content[0]?.__component).toBe('blocks.paragraph')
+      expect(content[0]?.content).toBe('The full report body.')
+    })
+
+    it('omits content when the MDX body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(payload).not.toHaveProperty('content')
     })
   })
 })

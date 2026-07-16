@@ -1019,6 +1019,100 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiReportReport extends Struct.CollectionTypeSchema {
+  collectionName: 'reports'
+  info: {
+    description: 'Research and policy reports, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/reports/ (or reports/es/).'
+    displayName: 'Report'
+    pluralName: 'reports'
+    singularName: 'report'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    date: Schema.Attribute.Component<'shared.report-date', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    introParagraph: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::report.report'>
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    section: Schema.Attribute.Enumeration<
+      ['foundation', 'summit', 'hackathon']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiSummitNavigationSummitNavigation
   extends Struct.SingleTypeSchema {
   collectionName: 'summit_navigations'
@@ -1546,6 +1640,7 @@ declare module '@strapi/strapi' {
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage
+      'api::report.report': ApiReportReport
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage
       'plugin::content-releases.release': PluginContentReleasesRelease

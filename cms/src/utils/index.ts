@@ -14,7 +14,8 @@ export {
   BLOG_CONTENT_POPULATE,
   PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  REPORT_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -41,6 +42,7 @@ export {
   validateGrantPageFaqSection,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
+  validateReportDate,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -84,6 +86,11 @@ export {
   type ProfileMdxInput,
   generateProfileMdx
 } from './profileMdx'
+export {
+  type ReportMdxDate,
+  type ReportMdxInput,
+  generateReportMdx
+} from './reportMdx'
 export {
   type FlatContentLifecycleConfig,
   type FlatLocaleMdxLifecycleConfig,

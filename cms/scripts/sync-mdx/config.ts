@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildReportPayload,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
@@ -15,7 +16,8 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  reportFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -70,6 +72,7 @@ export interface ContentTypes {
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
+  reports: ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -151,6 +154,19 @@ export function buildContentTypes(
           profileAltIds,
           dryRun
         )
+      }
+    },
+    reports: {
+      dir: getContentPath(projectRoot, 'reports'),
+      apiId: 'reports',
+      schema: reportFrontmatterSchema,
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        // No resolveRelation/resolveMediaUpload: the report content zone only
+        // allows blocks.paragraph, which never resolves relations or media.
+        return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
+          locale
+        })
       }
     },
     'grant-pages': {

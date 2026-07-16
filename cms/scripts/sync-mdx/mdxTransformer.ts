@@ -21,7 +21,8 @@ import type { FrontmatterSchema } from './config'
 import type {
   foundationBlogFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
-  grantPageFrontmatterSchema
+  grantPageFrontmatterSchema,
+  reportFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -651,6 +652,63 @@ export async function buildGrantOverviewPagePayload(
       hero,
       ctaStrip,
       followUpContent: null,
+      ...(content !== undefined ? { content } : {}),
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/** Normalize the frontmatter `date` object into a Strapi component payload, or null. */
+function reportDatePayload(
+  value: unknown
+): { publishDate: string; lastUpdated?: string } | null {
+  if (!value || typeof value !== 'object') return null
+  const date = value as { publishDate?: unknown; lastUpdated?: unknown }
+  if (!date.publishDate) return null
+  return {
+    publishDate: new Date(date.publishDate as string)
+      .toISOString()
+      .split('T')[0]!,
+    ...(date.lastUpdated
+      ? {
+          lastUpdated: new Date(date.lastUpdated as string)
+            .toISOString()
+            .split('T')[0]
+        }
+      : {})
+  }
+}
+
+/**
+ * Builds a Strapi payload for a report MDX file.
+ *
+ * Maps frontmatter fields and MDX body to the report Strapi schema. No
+ * media or relation resolution needed — reports have no managed media
+ * fields, and the content zone only allows blocks.paragraph, which never
+ * references either. `date` is sent as `null` when absent so a date removed
+ * in Astro clears in Strapi too, rather than surviving as a stale field.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildReportPayload(
+  schema: typeof reportFrontmatterSchema,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      section: parsed.section,
+      heading: parsed.heading,
+      description: parsed.description,
+      introParagraph: nullOrValue(parsed.introParagraph),
+      date: reportDatePayload(parsed.date),
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
