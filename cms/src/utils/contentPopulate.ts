@@ -93,6 +93,9 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
       ...GRANT_BLOCKS,
       'blocks.carousel': {
         populate: { logos: true }
+      },
+      'blocks.profile-grid': {
+        populate: { profiles: true }
       }
     }
   },
