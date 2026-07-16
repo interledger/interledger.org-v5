@@ -3,6 +3,7 @@ import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { glob } from 'astro/loaders'
 import {
+  faqFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   foundationPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
@@ -61,6 +62,14 @@ const profilesCollection = defineCollection({
   schema: profileFrontmatterSchema
 })
 
+const faqsCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.faqs}`
+  }),
+  schema: faqFrontmatterSchema
+})
+
 const reportsCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
@@ -78,6 +87,7 @@ export const collections = {
   'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,
   profiles: profilesCollection,
+  faqs: faqsCollection,
   reports: reportsCollection
 }
 

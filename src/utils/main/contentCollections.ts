@@ -7,5 +7,6 @@ export const CONTENT = {
   grantOverviewPages: 'grant-overview-pages',
   summitPages: 'summit-pages',
   profiles: 'profiles',
+  faqs: 'faqs',
   reports: 'reports'
 } as const

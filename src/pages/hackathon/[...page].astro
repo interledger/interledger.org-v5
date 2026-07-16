@@ -1,5 +1,6 @@
 ---
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
+import FaqPage from '@/components/pages/FaqPage.astro'
 import ReportPage from '@/components/pages/ReportPage.astro'
 import { getCrossSectionPaths } from '@/utils'
 
@@ -11,7 +12,13 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 ---
 
 {
-  kind === 'report' ? (
+  kind === 'faq' ? (
+    <FaqPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'report' ? (
     <ReportPage
       slug={slug}
       contentLocale={contentLocale}

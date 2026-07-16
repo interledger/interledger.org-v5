@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildFaqPayload,
   buildReportPayload,
   type StrapiUploadContext
 } from './mdxTransformer'
@@ -17,6 +18,7 @@ import {
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   profileFrontmatterSchema,
+  faqFrontmatterSchema,
   reportFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
@@ -72,6 +74,7 @@ export interface ContentTypes {
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
+  faqs: ContentTypeConfig
   reports: ContentTypeConfig
 }
 
@@ -154,6 +157,17 @@ export function buildContentTypes(
           profileAltIds,
           dryRun
         )
+      }
+    },
+    faqs: {
+      dir: getContentPath(projectRoot, 'faqs'),
+      apiId: 'faqs',
+      schema: faqFrontmatterSchema,
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        // No resolveRelation/resolveMediaUpload: the FAQ content zone only
+        // allows blocks.paragraph, which never resolves relations or media.
+        return buildFaqPayload(faqFrontmatterSchema, mdx, existing, { locale })
       }
     },
     reports: {
