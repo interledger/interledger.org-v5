@@ -1,5 +1,6 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
+import FaqPage from '@/components/pages/FaqPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
 import ReportPage from '@/components/pages/ReportPage.astro'
 import {
@@ -24,6 +25,12 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 {
   kind === 'profile' ? (
     <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'faq' ? (
+    <FaqPage
       slug={slug}
       contentLocale={contentLocale}
       isFallback={isFallback}

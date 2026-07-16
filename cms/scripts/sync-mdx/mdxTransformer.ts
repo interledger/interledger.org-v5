@@ -22,6 +22,7 @@ import type {
   foundationBlogFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
+  faqFrontmatterSchema,
   reportFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
@@ -641,6 +642,39 @@ export async function buildGrantOverviewPagePayload(
       hero,
       ctaStrip,
       followUpContent: null,
+      ...(content !== undefined ? { content } : {}),
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for a faq-type MDX file.
+ *
+ * FAQ pages are flat frontmatter (title, pathSlug, section, heading,
+ * description, introParagraph) plus a `content` dynamic zone parsed from the
+ * MDX body — no media or relation resolution needed.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildFaqPayload(
+  schema: typeof faqFrontmatterSchema,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      section: parsed.section,
+      heading: parsed.heading,
+      description: parsed.description,
+      introParagraph: nullOrValue(parsed.introParagraph),
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }

@@ -10,6 +10,7 @@ import type { CollectionKey } from 'astro:content'
  */
 export const crossSectionCollections = [
   'profiles',
+  'faqs',
   'reports'
 ] as const satisfies readonly CollectionKey[]
 

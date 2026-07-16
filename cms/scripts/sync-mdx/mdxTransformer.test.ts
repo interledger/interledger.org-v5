@@ -105,6 +105,16 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const faqSchema = z.object({
+    title: z.string().min(1, 'title is required'),
+    pathSlug: z.string().min(1, 'pathSlug is required'),
+    section: z.enum(['summit', 'hackathon', 'foundation']),
+    heading: z.string().min(1, 'heading is required'),
+    description: z.string().min(1, 'description is required'),
+    introParagraph: z.string().nullable().optional(),
+    locale: z.string().optional(),
+    localizes: z.string().optional()
+  })
   const reportDateSchema = z.object({
     publishDate: z.coerce.date(),
     lastUpdated: z.coerce.date().optional()
@@ -125,6 +135,7 @@ vi.mock('./siteSchemas', async () => {
     summitPageFrontmatterSchema: pageSchema,
     grantPageFrontmatterSchema: grantPageSchema,
     grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
+    faqFrontmatterSchema: faqSchema,
     reportFrontmatterSchema: reportSchema
   }
 })
@@ -134,6 +145,7 @@ import {
   buildPagePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildFaqPayload,
   buildReportPayload
 } from './mdxTransformer'
 import {
@@ -141,6 +153,7 @@ import {
   summitPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
+  faqFrontmatterSchema,
   reportFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
@@ -1858,6 +1871,106 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).content).toBeUndefined()
+    })
+  })
+})
+
+const baseFaqFrontmatter = {
+  title: 'Frequently Asked Questions',
+  section: 'foundation' as const,
+  heading: 'Frequently Asked Questions',
+  description: 'Answers to common questions, 120 to 160 characters.'
+}
+
+// Maps faq MDX frontmatter to the Strapi faq payload shape.
+describe('buildFaqPayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          section: 'foundation',
+          heading: 'Frequently Asked Questions',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when heading is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          title: 'Frequently Asked Questions',
+          section: 'foundation',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, section, heading, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('Frequently Asked Questions')
+      expect(p.pathSlug).toBe('faq')
+      expect(p.section).toBe('foundation')
+      expect(p.heading).toBe('Frequently Asked Questions')
+      expect(p.description).toBe(
+        'Answers to common questions, 120 to 160 characters.'
+      )
+    })
+
+    it('includes introParagraph when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          ...baseFaqFrontmatter,
+          introParagraph: 'A short intro.'
+        }
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBe(
+        'A short intro.'
+      )
+    })
+
+    it('sets introParagraph to null when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
+    })
+  })
+
+  describe('content dynamic zone', () => {
+    it('does not parse content when no parser context is provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+
+      expect(payload).not.toHaveProperty('content')
     })
   })
 })

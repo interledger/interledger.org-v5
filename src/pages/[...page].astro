@@ -1,4 +1,5 @@
 ---
+import FaqPage from '@/components/pages/FaqPage.astro'
 import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import GrantPage from '@/components/pages/GrantPage.astro'
@@ -38,6 +39,12 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 {
   kind === 'profile' ? (
     <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'faq' ? (
+    <FaqPage
       slug={slug}
       contentLocale={contentLocale}
       isFallback={isFallback}

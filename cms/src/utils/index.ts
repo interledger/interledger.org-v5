@@ -15,6 +15,7 @@ export {
   PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  FAQ_CONTENT_POPULATE,
   REPORT_CONTENT_POPULATE
 } from './contentPopulate'
 
@@ -86,6 +87,7 @@ export {
   type ProfileMdxInput,
   generateProfileMdx
 } from './profileMdx'
+export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
 export {
   type ReportMdxDate,
   type ReportMdxInput,

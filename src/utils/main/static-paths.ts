@@ -106,7 +106,7 @@ export type SiteSection = 'foundation' | 'summit' | 'hackathon'
 export type ProfileSection = SiteSection
 
 /** Render-dispatch discriminant for cross-section template collections. */
-type CrossSectionKind = 'profile' | 'report'
+type CrossSectionKind = 'profile' | 'report' | 'faq'
 
 type CrossSectionPath = {
   params: Record<string, string>
@@ -203,6 +203,8 @@ async function getPathsForCrossSectionCollection(
         lang,
         paramName
       )
+    case 'faqs':
+      return getSectionFilteredPaths('faqs', 'faq', section, lang, paramName)
     case 'reports':
       return getSectionFilteredPaths(
         'reports',

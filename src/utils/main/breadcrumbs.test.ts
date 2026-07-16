@@ -19,6 +19,24 @@ const { buildSectionEntryBreadcrumbs } = await import('./breadcrumbs')
 describe('buildSectionEntryBreadcrumbs', () => {
   it('builds Home > parents > label for a foundation entry with a nested pathSlug', () => {
     const breadcrumbs = buildSectionEntryBreadcrumbs(
+      'grant/education/on-campus/faq',
+      'foundation',
+      'FAQ',
+      'en',
+      'Home'
+    )
+
+    expect(breadcrumbs).toEqual([
+      { name: 'Home', href: '/' },
+      { name: 'Grant', href: '/grant' },
+      { name: 'Education', href: '/grant/education' },
+      { name: 'On Campus', href: '/grant/education/on-campus' },
+      { name: 'FAQ', href: '/grant/education/on-campus/faq' }
+    ])
+  })
+
+  it('builds Home > parent > label for a single-level nested pathSlug', () => {
+    const breadcrumbs = buildSectionEntryBreadcrumbs(
       'policy-and-advocacy/role-stablecoins',
       'foundation',
       'The Role of Stablecoins',
@@ -51,7 +69,24 @@ describe('buildSectionEntryBreadcrumbs', () => {
     ])
   })
 
-  it('prefixes the section for summit and hackathon entries', () => {
+  it('prefixes the section for summit entries', () => {
+    const breadcrumbs = buildSectionEntryBreadcrumbs(
+      '2025/faq',
+      'summit',
+      'FAQ',
+      'en',
+      'Home'
+    )
+
+    expect(breadcrumbs).toEqual([
+      { name: 'Home', href: '/' },
+      { name: 'Summit', href: '/summit' },
+      { name: '2025', href: '/summit/2025' },
+      { name: 'FAQ', href: '/summit/2025/faq' }
+    ])
+  })
+
+  it('prefixes the section for hackathon entries', () => {
     const breadcrumbs = buildSectionEntryBreadcrumbs(
       '2025/judges/jane-doe',
       'hackathon',
