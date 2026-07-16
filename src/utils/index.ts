@@ -28,10 +28,6 @@ export {
 } from './main/routes'
 export { routeContextFromPathname } from './main/routeContext'
 export { default as stripPagination } from './main/stripPagination'
-export {
-  type BreadcrumbItem,
-  buildSectionEntryBreadcrumbs
-} from './main/breadcrumbs'
 
 // Main site: Internationalisation
 export {
