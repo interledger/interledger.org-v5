@@ -26,6 +26,7 @@ import type {
   reportFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
@@ -529,6 +530,7 @@ export async function buildGrantPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
+          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
           resolveMediaUpload: async (url: string) => {
             const id = await strapi.findUploadByUrl(url)
             if (id instanceof Error) throw id
@@ -621,6 +623,7 @@ export async function buildGrantOverviewPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
+          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
           resolveMediaUpload: async (url: string) => {
             const id = await strapi.findUploadByUrl(url)
             if (id instanceof Error) throw id
