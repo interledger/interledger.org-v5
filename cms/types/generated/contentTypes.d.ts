@@ -434,7 +434,7 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
   collectionName: 'faqs'
   info: {
     description: 'FAQ pages, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/faqs/ (or faqs/es/).'
-    displayName: 'Faq'
+    displayName: 'Faq Page'
     pluralName: 'faqs'
     singularName: 'faq'
   }
@@ -1105,7 +1105,7 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
   collectionName: 'reports'
   info: {
     description: 'Research and policy reports, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/reports/ (or reports/es/).'
-    displayName: 'Report'
+    displayName: 'Report Page'
     pluralName: 'reports'
     singularName: 'report'
   }
