@@ -18,7 +18,9 @@ const GRANT_BLOCKS = {
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
-  'blocks.video-embed': {},
+  'blocks.video-embed': {
+    populate: { file: true }
+  },
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
@@ -41,12 +43,16 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.pdf-embed': {
     populate: { file: true }
   },
-  'blocks.video-embed': {}
+  'blocks.video-embed': {
+    populate: { file: true }
+  }
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
-  'blocks.video-embed': {},
+  'blocks.video-embed': {
+    populate: { file: true }
+  },
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },

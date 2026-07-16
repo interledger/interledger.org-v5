@@ -2,11 +2,14 @@
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 
 interface Props {
-  url: string
+  file?: { url: string }
+  externalUrl?: string
   title: string
 }
 
-const { url, title } = Astro.props
+const { file, externalUrl, title } = Astro.props
+
+const url = file?.url ?? externalUrl
 ---
 
 {url && title && <VideoEmbed url={url} title={title} />}

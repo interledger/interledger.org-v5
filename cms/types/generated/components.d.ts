@@ -759,13 +759,17 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
-    description: 'Embedded YouTube or Vimeo video, or a direct video file (mp4/webm/ogg/ogv/mov)'
+    description: 'A YouTube/Vimeo URL, a direct video file URL, or an uploaded video file'
     displayName: 'Video Embed'
     icon: 'play'
   }
   attributes: {
+    externalUrl: Schema.Attribute.String
+    file: Schema.Attribute.Media<'videos'>
+    source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'external_url'>
     title: Schema.Attribute.String & Schema.Attribute.Required
-    url: Schema.Attribute.String & Schema.Attribute.Required
   }
 }
 

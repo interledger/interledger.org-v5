@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { serialize } from './video-embed.serializer'
 
 describe('video-embed serializer', () => {
-  it('serializes a YouTube URL with title', () => {
+  it('serializes an external YouTube URL with title', () => {
     const result = serialize({
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       title: 'Never Gonna Give You Up'
     })
 
@@ -14,46 +14,57 @@ describe('video-embed serializer', () => {
     expect(result).toContain('title="Never Gonna Give You Up"')
   })
 
-  it('serializes a Vimeo URL with title', () => {
+  it('serializes an uploaded file (media) using the file url', () => {
     const result = serialize({
-      url: 'https://vimeo.com/123456789',
-      title: 'Sample Vimeo Video'
+      file: { url: '/uploads/testnet_demo.mp4' },
+      title: 'Testnet demo'
     })
 
-    expect(result).toContain('url="https://vimeo.com/123456789"')
-    expect(result).toContain('title="Sample Vimeo Video"')
+    expect(result).toContain('url="/uploads/testnet_demo.mp4"')
+    expect(result).toContain('title="Testnet demo"')
+  })
+
+  it('prefers the uploaded file url over externalUrl when both are present', () => {
+    const result = serialize({
+      file: { url: '/uploads/clip.mp4' },
+      externalUrl: 'https://www.youtube.com/watch?v=abc',
+      title: 'Test'
+    })
+
+    expect(result).toContain('url="/uploads/clip.mp4"')
   })
 
   it('escapes special characters in title', () => {
     const result = serialize({
-      url: 'https://www.youtube.com/watch?v=abc123',
+      externalUrl: 'https://www.youtube.com/watch?v=abc123',
       title: 'Q&A: "Live" Session'
     })
 
-    // HTML-entity encoded for the JSX attribute; backslash escapes (\") would
-    // break MDX parsing.
     expect(result).toContain('Q&amp;A: &quot;Live&quot; Session')
     expect(result).not.toContain('\\"')
   })
 
   it('produces a self-closing VideoEmbed tag', () => {
     const result = serialize({
-      url: 'https://www.youtube.com/watch?v=abc123',
+      externalUrl: 'https://www.youtube.com/watch?v=abc123',
       title: 'Test'
     })
 
     expect(result).toMatch(/^<VideoEmbed .* \/>$/)
   })
 
-  it('throws when url is missing', () => {
-    expect(() => serialize({ url: '', title: 'Test' })).toThrow(
-      'VideoEmbed block is missing url'
+  it('throws when neither file nor externalUrl is present', () => {
+    expect(() => serialize({ title: 'Test' })).toThrow(
+      'VideoEmbed block has neither file nor externalUrl'
     )
   })
 
   it('throws when title is missing', () => {
     expect(() =>
-      serialize({ url: 'https://www.youtube.com/watch?v=abc123', title: '' })
+      serialize({
+        externalUrl: 'https://www.youtube.com/watch?v=abc123',
+        title: ''
+      })
     ).toThrow('VideoEmbed block is missing title')
   })
 })

@@ -251,32 +251,42 @@ interface StrapiInstance {
   plugin: (name: string) => StrapiPlugin | undefined
 }
 
+/**
+ * Media types whose uploads are git-committed and served from the repo. Images
+ * have always been; video and PDF were added for INTORG-876, gated by the 5 MB
+ * upload size cap in `config/plugins.ts`. Larger media is out of scope here —
+ * tracked for alternative (CDN/cloud) storage in INTORG-902. Non-string mime
+ * falls through to a sync (matches the prior default).
+ */
+function shouldGitSyncUpload(mime: unknown): boolean {
+  if (typeof mime !== 'string') return true
+  return (
+    mime.startsWith('image/') ||
+    mime.startsWith('video/') ||
+    mime === 'application/pdf'
+  )
+}
+
 function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
   strapi.db?.lifecycles?.subscribe({
     models: ['plugin::upload.file'],
     afterCreate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload created, scheduling git sync')
+      console.log('📦 Upload created, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterUpdate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload updated, scheduling git sync')
+      console.log('📦 Upload updated, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterDelete(event) {
       if (shouldSkipMdxExport()) return
-
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
       console.log('🗑️  Upload deleted, scheduling git sync')
       scheduleGitSync('upload')
