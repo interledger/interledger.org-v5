@@ -28,7 +28,6 @@
       "type": "media",
       "multiple": false,
       "allowedTypes": ["images"],
-      "description": "Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -39,7 +38,6 @@
       "type": "media",
       "multiple": false,
       "allowedTypes": ["images"],
-      "description": "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.",
       "pluginOptions": {
         "i18n": {
           "localized": true
