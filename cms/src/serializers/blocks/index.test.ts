@@ -36,4 +36,29 @@ describe('validateContentBlocks', () => {
 
     expect(err).toBeUndefined()
   })
+
+  it('accepts a number-tiles block with at least 2 valid tiles', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.number-tiles',
+        tiles: [
+          { number: '21', suffix: 'M+', description: 'In Grants' },
+          { number: '300', suffix: '+', description: 'Projects' }
+        ]
+      }
+    ])
+
+    expect(err).toBeUndefined()
+  })
+
+  it('rejects a number-tiles block with fewer than 2 tiles', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.number-tiles',
+        tiles: [{ number: '21', description: 'In Grants' }]
+      }
+    ])
+
+    expect(err).toBeDefined()
+  })
 })
