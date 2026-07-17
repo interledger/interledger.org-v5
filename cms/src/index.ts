@@ -428,9 +428,7 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     const stream = file.stream ?? file.getStream?.()
     if (!stream) throw new Error('Missing file stream')
     const label =
-      typeof file.name === 'string'
-        ? file.name
-        : `${file.hash}${file.ext}`
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
     assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     await pipeline(stream, fs.createWriteStream(dest))
@@ -441,9 +439,7 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   provider.upload = async (file: UploadFile) => {
     if (!file.buffer) throw new Error('Missing file buffer')
     const label =
-      typeof file.name === 'string'
-        ? file.name
-        : `${file.hash}${file.ext}`
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
     assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)

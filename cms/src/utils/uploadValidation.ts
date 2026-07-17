@@ -1,9 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import {
-  imageSizeLimitError,
-  isImageOverSizeLimit
-} from './uploadLimits'
+import { imageSizeLimitError, isImageOverSizeLimit } from './uploadLimits'
 
 const LOCAL_IMAGE_PREFIXES = ['/img/', '/uploads/'] as const
 
