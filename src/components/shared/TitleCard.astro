@@ -1,0 +1,52 @@
+---
+import LinkButton from './LinkButton.astro'
+
+interface Props {
+  heading: string
+  subheading?: string
+  buttonUrl: string
+  buttonText: string
+  buttonExternal?: boolean
+}
+
+const {
+  heading,
+  subheading,
+  buttonUrl,
+  buttonText,
+  buttonExternal = false
+} = Astro.props
+---
+
+<article
+  class="flex flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-white transition-bg duration-200 hover:bg-red-200"
+>
+  <div class="flex flex-col gap-lg">
+    <h3
+      class="m-0 text-neutral-900 text-h3 tablet:text-h3-md desktop:text-h3-lg"
+    >
+      {heading}
+    </h3>
+    {
+      subheading && (
+        <p class="m-0 text-neutral-100 text-h4 tablet:text-h4-md desktop:text-h4-lg">
+          {subheading}
+        </p>
+      )
+    }
+    <div
+      class="text-body-lg-standard text-neutral-100 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md"
+    >
+      <slot />
+    </div>
+  </div>
+  <LinkButton
+    href={buttonUrl}
+    variant="secondary"
+    size="lg"
+    external={buttonExternal}
+    class="tablet:self-start"
+  >
+    {buttonText}
+  </LinkButton>
+</article>

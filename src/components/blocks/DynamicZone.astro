@@ -22,6 +22,7 @@ import VideoEmbedBlock from './VideoEmbedBlock.astro'
 import ImageBlock from './ImageBlock.astro'
 import CodeBlock from './CodeBlock.astro'
 import SplitLayout from './SplitLayout.astro'
+import TitleCardGrid from './TitleCardGrid.astro'
 
 interface Block {
   __component: string
@@ -50,7 +51,8 @@ const componentMap: Record<string, any> = {
   'blocks.video-embed': VideoEmbedBlock,
   'blocks.image-block': ImageBlock,
   'blocks.code-block': CodeBlock,
-  'blocks.split-layout': SplitLayout
+  'blocks.split-layout': SplitLayout,
+  'blocks.title-card-grid': TitleCardGrid
 }
 
 const resolvedBlocks = blocks
