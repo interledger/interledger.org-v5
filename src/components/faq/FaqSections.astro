@@ -26,7 +26,9 @@ function withIds(rawSections: FaqSectionType[]) {
 const sectionsWithIds = withIds(sections)
 ---
 
-<div class="flex flex-col gap-xl tablet:flex-row tablet:gap-2xl desktop:gap-5xl">
+<div
+  class="flex flex-col gap-xl tablet:flex-row tablet:gap-2xl desktop:gap-5xl"
+>
   <div class="hidden tablet:block tablet:w-2/5 tablet:shrink-0">
     <FaqSectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
