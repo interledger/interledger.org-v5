@@ -6,7 +6,8 @@ export function serialize(block: {
   profiles?: ProfilePageBase[]
   category?: string
 }): string {
-  const pathSlugs = (block.profiles || [])
+  const profiles = Array.isArray(block.profiles) ? block.profiles : []
+  const pathSlugs = profiles
     .filter((profile) => profile?.pathSlug)
     .map((profile) => `'${escSingle(profile.pathSlug)}'`)
 

@@ -596,11 +596,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      infoCards: 'Information Cards',
       content: 'Content',
       ctaStrip: 'CTA Strip',
-      infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -1139,8 +1140,9 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pathSlug', size: 6 }
       ],
       [{ name: 'description', size: 6 }],
-      [{ name: 'primaryCta', size: 12 }],
+      [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
+      [{ name: 'primaryCta', size: 12 }],
       [{ name: 'infoCards', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'faqSection', size: 12 }],
