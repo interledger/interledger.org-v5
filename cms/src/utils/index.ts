@@ -50,7 +50,9 @@ export {
   validateBlogFields,
   validateNavigationLabels,
   toValidationError,
-  mergeValidationErrors
+  mergeValidationErrors,
+  SerializerFieldError,
+  type FieldError
 } from './contentValidation'
 export {
   deleteLocaleMdxFiles,

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { serialize } from './title-card-grid.serializer'
+import { SerializerFieldError } from '@/utils'
 
 const validCard = {
   heading: 'Grant heading',
@@ -318,5 +319,71 @@ describe('title-card-grid serializer', () => {
         titleCards: [validCard, { ...validCard, heading: undefined }]
       })
     ).toThrow('Title card 2 is missing heading')
+  })
+
+  it('includes the field path on a top-level validation error', () => {
+    expect.assertions(2)
+    try {
+      serialize({ ariaLabel: 'Grant options', titleCards: [validCard] })
+    } catch (error) {
+      expect(error).toBeInstanceOf(SerializerFieldError)
+      expect(
+        (error as SerializerFieldError).fieldErrors.map((fe) => fe.path)
+      ).toEqual([['columns']])
+    }
+  })
+
+  it('includes the 0-based array index in the field path for a card error', () => {
+    expect.assertions(2)
+    try {
+      serialize({
+        columns: 'Three',
+        ariaLabel: 'Grant options',
+        titleCards: [validCard, { ...validCard, heading: undefined }]
+      })
+    } catch (error) {
+      expect(error).toBeInstanceOf(SerializerFieldError)
+      expect(
+        (error as SerializerFieldError).fieldErrors.map((fe) => fe.path)
+      ).toEqual([['titleCards', 1, 'heading']])
+    }
+  })
+
+  it('includes the nested secondaryCta field in the path', () => {
+    expect.assertions(2)
+    try {
+      serialize({
+        columns: 'Three',
+        ariaLabel: 'Grant options',
+        titleCards: [{ ...validCard, secondaryCta: { text: 'Learn more' } }]
+      })
+    } catch (error) {
+      expect(error).toBeInstanceOf(SerializerFieldError)
+      expect(
+        (error as SerializerFieldError).fieldErrors.map((fe) => fe.path)
+      ).toEqual([['titleCards', 0, 'secondaryCta', 'link']])
+    }
+  })
+
+  it('collects every failing field across the grid and all cards in one error, not just the first', () => {
+    expect.assertions(2)
+    try {
+      serialize({
+        titleCards: [
+          { ...validCard, heading: undefined },
+          { ...validCard, description: undefined }
+        ]
+      })
+    } catch (error) {
+      expect(error).toBeInstanceOf(SerializerFieldError)
+      expect(
+        (error as SerializerFieldError).fieldErrors.map((fe) => fe.path)
+      ).toEqual([
+        ['columns'],
+        ['ariaLabel'],
+        ['titleCards', 0, 'heading'],
+        ['titleCards', 1, 'description']
+      ])
+    }
   })
 })
