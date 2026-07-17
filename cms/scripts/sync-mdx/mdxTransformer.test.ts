@@ -1,4 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+
+const mockProjectRootHolder = vi.hoisted(() => ({ current: '' }))
+
+vi.mock('@/utils', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
+  return {
+    ...actual,
+    getProjectRoot: () => mockProjectRootHolder.current
+  }
+})
 
 vi.mock('./siteSchemas', async () => {
   const { z } = await import('zod')
@@ -146,7 +159,8 @@ import {
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
   buildFaqPayload,
-  buildReportPayload
+  buildReportPayload,
+  createMediaUploadResolver
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -2320,5 +2334,92 @@ describe('buildReportPayload', () => {
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
       expect(payload).not.toHaveProperty('content')
     })
+  })
+})
+
+describe('createMediaUploadResolver', () => {
+  let tempProjectRoot: string
+
+  beforeEach(() => {
+    tempProjectRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'media-upload-resolver-test-')
+    )
+    mockProjectRootHolder.current = tempProjectRoot
+  })
+
+  afterEach(() => {
+    fs.rmSync(tempProjectRoot, { recursive: true, force: true })
+  })
+
+  function writeLocalAsset(url: string): void {
+    const absPath = path.join(tempProjectRoot, 'public', url)
+    fs.mkdirSync(path.dirname(absPath), { recursive: true })
+    fs.writeFileSync(absPath, '')
+  }
+
+  it('returns the upload ID when found', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(42)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, false)
+    await expect(resolve('/img/foo.png')).resolves.toBe(42)
+  })
+
+  it('throws when findUploadByUrl itself errors', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(new Error('network down'))
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(resolve('/img/foo.png')).rejects.toThrow('network down')
+  })
+
+  it('not found + dry-run + file exists on disk: warns and returns null', async () => {
+    writeLocalAsset('/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png')
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(
+      resolve('/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png')
+    ).resolves.toBeNull()
+  })
+
+  it('not found + not dry-run: throws even if the file exists on disk', async () => {
+    writeLocalAsset('/img/foo.png')
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, false)
+    await expect(resolve('/img/foo.png')).rejects.toThrow(
+      'Upload "/img/foo.png" could not be resolved to a Strapi file ID.'
+    )
+  })
+
+  it('not found + dry-run + file does NOT exist on disk: still throws (genuinely broken reference)', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(resolve('/img/missing.png')).rejects.toThrow(
+      'Upload "/img/missing.png" could not be resolved to a Strapi file ID.'
+    )
+  })
+
+  it('not found + dry-run + non-local-asset URL: still throws even if by coincidence a matching path exists on disk', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(
+      resolve('https://example.com/not-a-local-asset.png')
+    ).rejects.toThrow(
+      'Upload "https://example.com/not-a-local-asset.png" could not be resolved to a Strapi file ID.'
+    )
   })
 })

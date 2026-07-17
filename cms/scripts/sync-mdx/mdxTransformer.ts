@@ -109,6 +109,41 @@ async function getImageFromStrapi(
   )
 }
 
+/**
+ * Builds a `resolveMediaUpload` resolver for the MDX block parser (ImageBlock,
+ * PdfEmbed, carousels, etc). In dry-run mode, a media path that doesn't
+ * resolve yet but already exists on disk under `public/` is tolerated —
+ * bootstrap seeding (`seedUploadsFromDisk`) will register it the next time
+ * Strapi starts from this branch's code — rather than treated as a broken
+ * reference.
+ */
+export function createMediaUploadResolver(
+  strapi: StrapiClient,
+  dryRun: boolean
+): (url: string) => Promise<number | null> {
+  return async (url: string): Promise<number | null> => {
+    const id = await strapi.findUploadByUrl(url)
+    if (id instanceof Error) throw id
+    if (id) return id
+
+    if (
+      dryRun &&
+      isLocalAssetPath(url) &&
+      fs.existsSync(path.join(getProjectRoot(), 'public', url))
+    ) {
+      console.log(
+        `   ⚠️  [DRY-RUN] Upload not yet in Strapi: "${url}" (will be seeded on next Strapi start)`
+      )
+      return null
+    }
+
+    throw new MdxParserError({
+      code: ParserErrorCode.UNRESOLVED_RELATION,
+      message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+    })
+  }
+}
+
 interface StrapiHeroPayload {
   title: string
   description: string
@@ -532,17 +567,7 @@ export async function buildGrantPagePayload(
       ? {
           locale: mdx.locale || 'en',
           resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          },
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
               strapi,
@@ -625,17 +650,7 @@ export async function buildGrantOverviewPagePayload(
       ? {
           locale: mdx.locale || 'en',
           resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          },
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
               strapi,

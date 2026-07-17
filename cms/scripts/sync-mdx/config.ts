@@ -9,6 +9,7 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
+  createMediaUploadResolver,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
@@ -36,7 +37,6 @@ import './imageBlockHandler'
 import './numberTilesHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -97,17 +97,7 @@ function buildParsedPagePayload(
     {
       locale,
       resolveRelation: createRelationResolver(strapi, locale),
-      resolveMediaUpload: async (url: string) => {
-        const id = await strapi.findUploadByUrl(url)
-        if (id instanceof Error) throw id
-        if (!id) {
-          throw new MdxParserError({
-            code: ParserErrorCode.UNRESOLVED_RELATION,
-            message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-          })
-        }
-        return id
-      }
+      resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
     },
     strapiUploadContext,
     updatedAltIds,
@@ -143,17 +133,7 @@ export function buildContentTypes(
           {
             locale,
             resolveRelation: createRelationResolver(strapi, locale),
-            resolveMediaUpload: async (url: string) => {
-              const id = await strapi.findUploadByUrl(url)
-              if (id instanceof Error) throw id
-              if (!id) {
-                throw new MdxParserError({
-                  code: ParserErrorCode.UNRESOLVED_RELATION,
-                  message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-                })
-              }
-              return id
-            }
+            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
           },
           profileAltIds,
           dryRun
@@ -267,17 +247,7 @@ export function buildContentTypes(
         const parserCtx: ParserContext = {
           locale,
           resolveRelation: createRelationResolver(strapi, locale),
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          }
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
         }
         return buildBlogPayload(
           foundationBlogFrontmatterSchema,
