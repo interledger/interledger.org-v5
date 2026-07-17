@@ -162,6 +162,29 @@ export interface CarouselBlock extends StrapiBlockBase {
   logos: number[]
 }
 
+/** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface TitleCard {
+  heading: string
+  subHeading?: string
+  description: string
+  secondaryCta: {
+    link: string
+    text: string
+    external?: boolean
+  }
+}
+
+/** Valid values for blocks.title-card-grid's `columns` field. */
+export const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
+
+/** blocks.title-card-grid — grid of title cards, each with a heading, description, and CTA. */
+export interface TitleCardGridBlock extends StrapiBlockBase {
+  __component: 'blocks.title-card-grid'
+  ariaLabel: string
+  columns: (typeof TITLE_CARD_GRID_COLUMNS)[number]
+  titleCards: TitleCard[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -180,3 +203,4 @@ export type ParsedBlock =
   | SplitLayoutBlock
   | CarouselBlock
   | ImageBlockBlock
+  | TitleCardGridBlock
