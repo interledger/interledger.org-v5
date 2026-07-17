@@ -434,7 +434,7 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
   collectionName: 'faqs'
   info: {
     description: 'FAQ pages, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/faqs/ (or faqs/es/).'
-    displayName: 'Faq'
+    displayName: 'Faq Page'
     pluralName: 'faqs'
     singularName: 'faq'
   }
@@ -821,7 +821,8 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.image-block',
         'blocks.cta-strip',
         'blocks.cta-banner',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.number-tiles'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -918,7 +919,8 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.image-block',
         'blocks.cta-strip',
         'blocks.cta-banner',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.profile-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -944,6 +946,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         }
       }>
     faqSection: Schema.Attribute.Component<'blocks.grant-faq-section', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1106,7 +1114,7 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
   collectionName: 'reports'
   info: {
     description: 'Research and policy reports, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/reports/ (or reports/es/).'
-    displayName: 'Report'
+    displayName: 'Report Page'
     pluralName: 'reports'
     singularName: 'report'
   }

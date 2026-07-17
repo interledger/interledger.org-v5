@@ -33,6 +33,7 @@ import './codeBlockHandler'
 import './splitLayoutHandler'
 import './carouselHandler'
 import './imageBlockHandler'
+import './numberTilesHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -188,7 +189,7 @@ export function buildContentTypes(
         buildGrantPagePayload(
           grantPageFrontmatterSchema,
           mdx,
-          strapi,
+          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
           existing,
           grantPageAltIds,
           dryRun

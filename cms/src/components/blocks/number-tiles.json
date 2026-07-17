@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_blocks_number_tiles",
+  "info": {
+    "displayName": "Number Tiles",
+    "icon": "chart-pie",
+    "description": "Row of stat tiles (number + optional suffix + description). Minimum 2 tiles."
+  },
+  "options": {},
+  "attributes": {
+    "tiles": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.number-tile",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,16 @@
 ---
-import { type Locale, parseMarkdown } from '@/utils'
+import {
+  type Locale,
+  parseMarkdown,
+  useTranslations,
+  localizeRoute
+} from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import PageHero from '@/components/shared/PageHero.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import InfoCards from '@/components/blocks/InfoCards.astro'
+import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -36,6 +43,13 @@ const { Content: MdxContent } = await render(mdxPage)
 const {
   title,
   description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCtas,
   metaImage,
   canonicalUrl,
   primaryCta,
@@ -51,6 +65,18 @@ const programOverviewHtml = programOverview
       lang: contentLocale
     })
   : null
+const t = useTranslations(contentLocale)
+
+const resolvedHeroTitle = heroTitle?.trim() || title
+
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
+  {
+    name: resolvedHeroTitle,
+    href: localizeRoute(`grant/${slug}`, contentLocale)
+  }
+]
 ---
 
 <FoundationPageLayout
@@ -62,42 +88,38 @@ const programOverviewHtml = programOverview
   <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
-    <section
-      class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-4xl text-white flex items-center"
-    >
-      <div
-        class="mx-auto w-full max-w-wide px-lg min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
-      >
-        <div class="">
-          <h1
-            class="text-white mb-lg text-h2 tablet:text-h2-md desktop:text-h2-lg"
-          >
-            {title}
-          </h1>
-          <p class="mb-2xl text-h4 tablet:text-h4-md desktop:text-h4-lg">
-            {description}
-          </p>
-          {
-            primaryCta && (
-              <LinkButton
-                href={primaryCta.link}
-                variant="primary"
-                external={primaryCta.external}
-              >
-                {primaryCta.text}
-                <Icon name="arrow-right" slot="icon-right" />
-              </LinkButton>
-            )
-          }
-        </div>
-      </div>
-    </section>
-
+    <PageHero
+      title={resolvedHeroTitle}
+      description={heroDescription ?? description}
+      image={heroImage}
+      imageAlt={heroImageAlt}
+      imageMobile={heroImageMobile}
+      imageMobileAlt={heroImageMobileAlt}
+      cta={heroCtas?.[0]}
+      breadcrumbs={breadcrumbs}
+    />
     {
       programOverviewHtml && (
-        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
-          <div class="mx-auto max-w-content min-w-[360px]">
+        <section class="pt-4xl">
+          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
             <div data-prose set:html={programOverviewHtml} />
+          </div>
+        </section>
+      )
+    }
+
+    {
+      primaryCta && (
+        <section class="">
+          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
+            <LinkButton
+              href={primaryCta.link}
+              variant="primary"
+              external={primaryCta.external}
+            >
+              {primaryCta.text}
+              <Icon name="arrow-right" slot="icon-right" />
+            </LinkButton>
           </div>
         </section>
       )
@@ -111,9 +133,9 @@ const programOverviewHtml = programOverview
       )
     }
 
-    <section class="py-4xl">
+    <section class="tablet:py-4xl">
       <div
-        class="mx-auto max-w-content px-4 min-w-[360px] tablet:px-xl desktop:px-5xl desktop:max-w-content"
+        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
       >
         <div data-prose>
           <MdxContent
@@ -126,6 +148,7 @@ const programOverviewHtml = programOverview
               ImageBlock,
               CtaStrip,
               CtaBanner,
+              ProfileGrid,
               LogoCarousel
             }}
           />
@@ -135,14 +158,16 @@ const programOverviewHtml = programOverview
 
     {
       faqSection && (
-        <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
+        <section class="pt-0 pb-4xl px-lg tablet:py-4xl tablet:px-xl">
           <GrantFaqSection {...faqSection} />
         </section>
       )
     }
 
-    <section class="py-4xl px-lg tablet:px-xl desktop:px-5xl">
-      <div class="mx-auto max-w-content min-w-[360px]">
+    <section class="tablet:py-4xl">
+      <div
+        class="mx-auto px-lg max-w-content min-w-90 tablet:px-xl desktop:px-0 desktop:max-w-content"
+      >
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

@@ -8,9 +8,12 @@
 // announcement still comes from the parent `<ul role="list">`.
 
 import AnimatedNumber from './AnimatedNumber.astro'
+import { twMerge } from '@/utils'
 
 export interface StatItem {
   value: number
+  /** Overrides the displayed/resting number text — see `AnimatedNumber`'s `display` prop. */
+  display?: string
   suffix?: string
   label: string
   /**
@@ -20,35 +23,58 @@ export interface StatItem {
    * SR engines pronounce inconsistently ("M plus" vs "million plus").
    */
   ariaLabel?: string
+  /** Merged onto the default width classes — lets callers override the fixed per-breakpoint widths (e.g. for a percentage-based flex-basis layout). */
+  class?: string
+  /** Merged onto the number's default size classes — the suffix always matches this size too (no separate smaller "superscript" scale). */
+  numberClass?: string
+  /** Merged onto the description label's default classes — e.g. to set a different text color. */
+  labelClass?: string
 }
 
 type Props = StatItem
 
-const { value, suffix, label, ariaLabel } = Astro.props
+const {
+  value,
+  display,
+  suffix,
+  label,
+  ariaLabel,
+  class: className,
+  numberClass,
+  labelClass
+} = Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
+const liClasses = twMerge(
+  'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
+  className
+)
+// Desktop uses a one-off 76px rather than the h1-lg token (100px) — no
+// existing type-scale token matches, per design.
+const numberClasses = twMerge(
+  'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-[4.75rem]',
+  numberClass
+)
+// `mb-0` beats the global `main p { margin-block-end }` prose rule
+// (src/styles/components/prose/default.css) — that rule targets body
+// copy, not this label, but it applies to every `<p>` inside `<main>`.
+const labelClasses = twMerge(
+  'w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg mb-0',
+  labelClass
+)
 ---
 
-<li
-  aria-label={ariaLabel}
-  class="flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl"
->
+<li aria-label={ariaLabel} class={liClasses}>
   <div class="flex items-start gap-sm" aria-hidden={hideContents}>
-    <AnimatedNumber
-      value={value}
-      class="font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-h1-lg"
-    />
+    <AnimatedNumber value={value} display={display} class={numberClasses} />
     {
       suffix && (
-        <span class="whitespace-nowrap font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg">
+        <span class={twMerge('whitespace-nowrap', numberClasses)}>
           {suffix}
         </span>
       )
     }
   </div>
-  <p
-    class="w-full text-center font-poppins text-h5 tablet:text-h5-md desktop:text-left desktop:text-h5-lg"
-    aria-hidden={hideContents}
-  >
+  <p class={labelClasses} aria-hidden={hideContents}>
     {label}
   </p>
 </li>

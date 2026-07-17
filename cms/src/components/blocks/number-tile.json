@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_blocks_number_tiles_items",
+  "info": {
+    "displayName": "Number Tile",
+    "icon": "chart-pie",
+    "description": "Single stat tile: a number, optional suffix, and a description"
+  },
+  "options": {},
+  "attributes": {
+    "number": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "suffix": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

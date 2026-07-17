@@ -13,6 +13,7 @@ import CalloutTextBlock from '@/components/blocks/CalloutTextBlock.astro'
 import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CtaBanner from '@/components/blocks/CtaBanner.astro'
+import NumberTiles from '@/components/blocks/NumberTiles.astro'
 
 interface Props {
   slug: string
@@ -95,7 +96,8 @@ const breadcrumbs = [
                   ImageBlock,
                   CtaStrip,
                   CtaBanner,
-                  LogoCarousel
+                  LogoCarousel,
+                  NumberTiles
                 }}
               />
             </div>
@@ -104,7 +106,7 @@ const breadcrumbs = [
       )
     }
 
-    <section class="py-4xl">
+    <section class="tablet:py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <CtaStrip
           heading={ctaStrip.heading}

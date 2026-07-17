@@ -79,12 +79,16 @@ export const BLOG_CONTENT_POPULATE = {
 
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
+  hero: { populate: '*' },
   primaryCta: true,
   content: {
     on: {
       ...GRANT_BLOCKS,
       'blocks.carousel': {
         populate: { logos: true }
+      },
+      'blocks.profile-grid': {
+        populate: { profiles: true }
       }
     }
   },
@@ -101,6 +105,9 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
       ...GRANT_BLOCKS,
       'blocks.carousel': {
         populate: { logos: true }
+      },
+      'blocks.number-tiles': {
+        populate: { tiles: true }
       }
     }
   },
