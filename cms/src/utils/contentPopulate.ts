@@ -23,7 +23,6 @@ const GRANT_BLOCKS = {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.cta-strip': {},
-  'blocks.cta-banner': {},
   'blocks.carousel': {
     populate: { logos: true }
   },

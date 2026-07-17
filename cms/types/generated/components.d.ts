@@ -266,63 +266,6 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
   }
 }
 
-export interface BlocksCtaBanner extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_cta_banners'
-  info: {
-    description: 'Call-to-action banner with heading, text and buttons'
-    displayName: 'CTA Banner'
-    icon: 'bullhorn'
-  }
-  attributes: {
-    backgroundColor: Schema.Attribute.Enumeration<
-      ['primary', 'secondary', 'light', 'dark']
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'primary'>
-    heading: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    primaryButtonLink: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    primaryButtonText: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryButtonLink: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryButtonText: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    text: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
@@ -1224,7 +1167,6 @@ declare module '@strapi/strapi' {
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
       'blocks.code-block': BlocksCodeBlock
-      'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
       'blocks.grant-faq-item': BlocksGrantFaqItem
       'blocks.grant-faq-section': BlocksGrantFaqSection

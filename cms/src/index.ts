@@ -882,15 +882,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       suffix: 'Suffix',
       description: 'Description'
     },
-    'blocks.cta-banner': {
-      heading: 'Heading',
-      text: 'Body Text',
-      primaryButtonText: 'Primary Button Text',
-      primaryButtonLink: 'Primary Button URL',
-      secondaryButtonText: 'Secondary Button Text',
-      secondaryButtonLink: 'Secondary Button URL',
-      backgroundColor: 'Background Color'
-    },
+
     'blocks.cta-strip': {
       heading: 'Heading',
       description: 'Description',
@@ -1309,19 +1301,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.blockquote': [
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
-    ],
-    'blocks.cta-banner': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'text', size: 12 }],
-      [
-        { name: 'primaryButtonText', size: 6 },
-        { name: 'primaryButtonLink', size: 6 }
-      ],
-      [
-        { name: 'secondaryButtonText', size: 6 },
-        { name: 'secondaryButtonLink', size: 6 }
-      ],
-      [{ name: 'backgroundColor', size: 4 }]
     ],
     'blocks.cta-strip': [
       [{ name: 'heading', size: 12 }],
