@@ -868,7 +868,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.video-embed': {
       source:
-        'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected — use YouTube for larger videos.',
+        'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected; use YouTube for larger videos.',
       externalUrl:
         'A YouTube or Vimeo link, or a direct link to a video file (.mp4, .webm, .ogg, .mov).',
       file: 'Upload a video file (max 5 MB). For larger videos, use YouTube or Vimeo and paste the link in the URL field instead.',
