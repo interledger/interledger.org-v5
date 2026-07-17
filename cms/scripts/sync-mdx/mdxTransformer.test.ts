@@ -2376,7 +2376,9 @@ describe('createMediaUploadResolver', () => {
   })
 
   it('not found + dry-run + file exists on disk: warns and returns null', async () => {
-    writeLocalAsset('/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png')
+    writeLocalAsset(
+      '/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png'
+    )
     const strapi = {
       findUploadByUrl: vi.fn().mockResolvedValue(null)
     } as unknown as StrapiClient
