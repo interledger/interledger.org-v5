@@ -552,13 +552,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
+      tagline:
+        'Used on profile grids below the avatar and name. Not shown on the profile page.',
+      category:
+        'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Fellows 2026", "2025 Hackathon Judges").',
       photo:
-        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
-      role: "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
+        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
+      pathSlug:
+        'This should include the category and the person’s name, e.g. 2025/judges/jane-doe. No leading slash. Determines the public URL.',
+      role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
-        'Short intro blurb shown on the profile detail page, above the CTA and biography sections.'
+        'Short intro blurb shown on the profile page, above the CTA and biography sections.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
