@@ -60,13 +60,6 @@ export const PROFILE_PAGE_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for faq content field (paragraph blocks only). */
-export const FAQ_CONTENT_POPULATE = {
-  on: {
-    'blocks.paragraph': {}
-  }
-} as const
-
 /** Populate config for report content field (paragraph blocks only). */
 export const REPORT_CONTENT_POPULATE = {
   on: {

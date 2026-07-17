@@ -7,7 +7,16 @@
 
 import matter from 'gray-matter'
 import { defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
-import { serializeContent } from '../serializers/blocks'
+
+export interface FaqMdxItem {
+  question: string
+  answer: string
+}
+
+export interface FaqMdxSection {
+  heading: string
+  items: FaqMdxItem[]
+}
 
 export interface FaqMdxInput {
   title: string
@@ -16,12 +25,12 @@ export interface FaqMdxInput {
   heading: string
   description: string
   introParagraph?: string | null
-  content?: Array<{ __component: string; [key: string]: unknown }> | null
+  faqSections: FaqMdxSection[]
   locale?: string
 }
 
 /**
- * Serialize a FAQ page into MDX (frontmatter + markdown body).
+ * Serialize a FAQ page into MDX (frontmatter only — no body).
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
 export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
@@ -35,14 +44,10 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     heading: faq.heading,
     description: faq.description,
     ...(faq.introParagraph ? { introParagraph: faq.introParagraph } : {}),
+    faqSections: faq.faqSections,
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }
 
-  const blocksBody = faq.content?.length ? serializeContent(faq.content) : ''
-  return matter.stringify(
-    blocksBody ? `\n${blocksBody}\n` : '',
-    frontmatter,
-    MATTER_STRINGIFY_OPTIONS
-  )
+  return matter.stringify('', frontmatter, MATTER_STRINGIFY_OPTIONS)
 }

@@ -105,6 +105,14 @@ vi.mock('./siteSchemas', async () => {
     localizes: z.string().optional(),
     locale: z.string().optional()
   })
+  const faqItemSchema = z.object({
+    question: z.string().min(1, 'question is required'),
+    answer: z.string().min(1, 'answer is required')
+  })
+  const faqSectionSchema = z.object({
+    heading: z.string().min(1, 'heading is required'),
+    items: z.array(faqItemSchema).min(1)
+  })
   const faqSchema = z.object({
     title: z.string().min(1, 'title is required'),
     pathSlug: z.string().min(1, 'pathSlug is required'),
@@ -112,6 +120,7 @@ vi.mock('./siteSchemas', async () => {
     heading: z.string().min(1, 'heading is required'),
     description: z.string().min(1, 'description is required'),
     introParagraph: z.string().nullable().optional(),
+    faqSections: z.array(faqSectionSchema).min(1),
     locale: z.string().optional(),
     localizes: z.string().optional()
   })
@@ -1875,11 +1884,24 @@ describe('buildGrantOverviewPagePayload', () => {
   })
 })
 
+const baseFaqSections = [
+  {
+    heading: 'About the Interledger Foundation',
+    items: [
+      {
+        question: 'What is the Interledger Foundation?',
+        answer: 'A foundation.'
+      }
+    ]
+  }
+]
+
 const baseFaqFrontmatter = {
   title: 'Frequently Asked Questions',
   section: 'foundation' as const,
   heading: 'Frequently Asked Questions',
-  description: 'Answers to common questions, 120 to 160 characters.'
+  description: 'Answers to common questions, 120 to 160 characters.',
+  faqSections: baseFaqSections
 }
 
 // Maps faq MDX frontmatter to the Strapi faq payload shape.
@@ -1892,6 +1914,7 @@ describe('buildFaqPayload', () => {
           section: 'foundation',
           heading: 'Frequently Asked Questions',
           description: 'A short description.',
+          faqSections: baseFaqSections,
           locale: 'en'
         }
       })
@@ -1907,7 +1930,47 @@ describe('buildFaqPayload', () => {
           title: 'Frequently Asked Questions',
           section: 'foundation',
           description: 'A short description.',
+          faqSections: baseFaqSections,
           locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when faqSections is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          title: 'Frequently Asked Questions',
+          section: 'foundation',
+          heading: 'Frequently Asked Questions',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when faqSections is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: { ...baseFaqFrontmatter, faqSections: [] }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when a section has no items', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          ...baseFaqFrontmatter,
+          faqSections: [{ heading: 'Empty section', items: [] }]
         }
       })
 
@@ -1958,19 +2021,17 @@ describe('buildFaqPayload', () => {
       const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
       expect((payload as Record<string, unknown>).introParagraph).toBeNull()
     })
-  })
 
-  describe('content dynamic zone', () => {
-    it('does not parse content when no parser context is provided', async () => {
+    it('includes faqSections unchanged', async () => {
       const mdx = createMdxFile({
         pathSlug: 'faq',
-        frontmatter: baseFaqFrontmatter,
-        content: ''
+        frontmatter: baseFaqFrontmatter
       })
 
       const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
-
-      expect(payload).not.toHaveProperty('content')
+      expect((payload as Record<string, unknown>).faqSections).toEqual(
+        baseFaqSections
+      )
     })
   })
 })

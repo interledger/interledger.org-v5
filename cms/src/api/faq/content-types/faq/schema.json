@@ -79,14 +79,18 @@
       },
       "description": "Optional intro paragraph shown below the heading."
     },
-    "content": {
-      "type": "dynamiczone",
-      "components": ["blocks.paragraph"],
+    "faqSections": {
+      "type": "component",
+      "repeatable": true,
+      "required": true,
+      "min": 1,
+      "component": "blocks.faq-section",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "description": "At least one section required. Each section needs a heading and at least one question/answer pair."
     }
   }
 }

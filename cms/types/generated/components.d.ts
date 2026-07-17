@@ -382,6 +382,60 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksFaqItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faq_items'
+  info: {
+    displayName: 'FAQ Item'
+    icon: 'question-circle'
+  }
+  attributes: {
+    answer: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    question: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksFaqSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faq_sections'
+  info: {
+    displayName: 'FAQ Section'
+    icon: 'question'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.faq-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
 export interface BlocksGrantFaqItem extends Struct.ComponentSchema {
   collectionName: 'components_blocks_grant_faq_items'
   info: {
@@ -1127,6 +1181,8 @@ declare module '@strapi/strapi' {
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.faq-item': BlocksFaqItem
+      'blocks.faq-section': BlocksFaqSection
       'blocks.grant-faq-item': BlocksGrantFaqItem
       'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.image-block': BlocksImageBlock

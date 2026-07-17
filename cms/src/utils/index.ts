@@ -15,7 +15,6 @@ export {
   PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  FAQ_CONTENT_POPULATE,
   REPORT_CONTENT_POPULATE
 } from './contentPopulate'
 
@@ -41,6 +40,7 @@ export {
 export {
   validateNoNestedJsx,
   validateGrantPageFaqSection,
+  validateFaqSections,
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateReportDate,

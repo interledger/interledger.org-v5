@@ -10,6 +10,7 @@ import {
   validateHeroFields,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateFaqSections,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -618,7 +619,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
-      content: 'Content'
+      faqSections: 'FAQ Sections'
     },
     'api::report.report': {
       title: 'Page Title',
@@ -688,7 +689,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
         'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
-      introParagraph: 'Optional intro paragraph shown below the heading.'
+      introParagraph: 'Optional intro paragraph shown below the heading.',
+      faqSections:
+        'At least 1 section is required. Each section needs a heading and at least 1 question/answer pair. The left-hand navigation on the page is generated automatically from these headings.'
     },
     'api::report.report': {
       pathSlug:
@@ -770,6 +773,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       items: 'FAQ Items'
     },
     'blocks.grant-faq-item': {
+      question: 'Question',
+      answer: 'Answer'
+    },
+    'blocks.faq-section': {
+      heading: 'Section Heading',
+      items: 'Questions'
+    },
+    'blocks.faq-item': {
       question: 'Question',
       answer: 'Answer'
     },
@@ -1134,7 +1145,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'introParagraph', size: 12 }],
-      [{ name: 'content', size: 12 }]
+      [{ name: 'faqSections', size: 12 }]
     ]
   }
 
@@ -1384,9 +1395,7 @@ export default {
         )
     )
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
-      validateContentBlocks(
-        Array.isArray(body.content) ? body.content : undefined
-      )
+      validateFaqSections(body)
     )
     registerDocumentValidation(
       strapi,

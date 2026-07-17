@@ -14,8 +14,7 @@ import {
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
   generateFaqMdx,
-  pathSlugToMdxFilename,
-  FAQ_CONTENT_POPULATE
+  pathSlugToMdxFilename
 } from '../../../../utils'
 import type { FaqBase } from '../../types'
 
@@ -31,5 +30,5 @@ export default createFlatLocaleMdxLifecycle<Faq, 'api::faq.faq'>({
   getBaseDir: (locale) => getContentPath(getTargetRepoRoot(), 'faqs', locale),
   toMdxFilename: pathSlugToMdxFilename,
   generateContent: generateFaqMdx,
-  populate: { content: FAQ_CONTENT_POPULATE }
+  populate: { faqSections: { populate: { items: true } } }
 })

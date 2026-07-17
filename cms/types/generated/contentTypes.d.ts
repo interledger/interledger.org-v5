@@ -447,12 +447,6 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -463,6 +457,19 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    faqSections: Schema.Attribute.Component<'blocks.faq-section', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     heading: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

@@ -1,0 +1,105 @@
+---
+import { useTranslations, type Locale } from '@/utils'
+
+interface FaqNavSection {
+  id: string
+  heading: string
+}
+
+interface Props {
+  sections: FaqNavSection[]
+  uiLocale: Locale
+}
+
+const { sections, uiLocale } = Astro.props
+const t = useTranslations(uiLocale)
+---
+
+<nav
+  data-faq-nav
+  aria-label={t('faq.sections_nav')}
+  class="desktop:sticky desktop:top-(--site-header-height-desktop) desktop:pt-2xl"
+>
+  <ul class="flex list-none flex-col gap-lg desktop:gap-xl">
+    {
+      sections.map((section, index) => (
+        <li>
+          <a
+            href={`#${section.id}`}
+            data-faq-nav-link
+            data-target={section.id}
+            data-active={index === 0 ? 'true' : 'false'}
+            aria-current={index === 0 ? 'true' : undefined}
+            class="group flex flex-col gap-xs rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orchid-100"
+          >
+            <span class="flex items-center gap-sm">
+              <span
+                aria-hidden="true"
+                class="size-1.5 shrink-0 rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-orchid-100"
+              />
+              <span class="text-body-lg-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-orchid-100">
+                {section.heading}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              class="h-0.5 w-0 bg-orchid-100 transition-all duration-200 group-data-[active=true]:w-full"
+            />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  // Scrollspy: highlight whichever FAQ section is currently in the "reading
+  // band" near the top of the viewport. Modeled on the intersecting-Set
+  // pattern in src/components/layout/foundation-header.ts. Scoped per
+  // instance via [data-faq-nav] so multiple FAQ pages' scripts don't collide
+  // (matches src/components/blocks/Carousel.astro's multi-instance idiom).
+  document.querySelectorAll<HTMLElement>('[data-faq-nav]').forEach((nav) => {
+    const links = Array.from(
+      nav.querySelectorAll<HTMLAnchorElement>('[data-faq-nav-link]')
+    )
+    const sections = links
+      .map((link) => document.getElementById(link.dataset.target ?? ''))
+      .filter((el): el is HTMLElement => el !== null)
+
+    if (sections.length === 0) return
+
+    const intersecting = new Set<Element>()
+
+    const setActive = () => {
+      const activeId =
+        sections.find((section) => intersecting.has(section))?.id ??
+        links[0]?.dataset.target
+
+      for (const link of links) {
+        const isActive = link.dataset.target === activeId
+        link.dataset.active = String(isActive)
+        if (isActive) {
+          link.setAttribute('aria-current', 'true')
+        } else {
+          link.removeAttribute('aria-current')
+        }
+      }
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            intersecting.add(entry.target)
+          } else {
+            intersecting.delete(entry.target)
+          }
+        }
+        setActive()
+      },
+      { rootMargin: '-10% 0px -70% 0px', threshold: 0 }
+    )
+
+    sections.forEach((section) => observer.observe(section))
+  })
+</script>
