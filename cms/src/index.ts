@@ -814,6 +814,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language',
       title: 'Title (optional)'
     },
+    'blocks.video-embed': {
+      source: 'Source',
+      externalUrl: 'Video URL',
+      file: 'Video file',
+      title: 'Title'
+    },
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
@@ -859,6 +865,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'blocks.video-embed': {
+      source:
+        'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected — use YouTube for larger videos.',
+      externalUrl:
+        'A YouTube or Vimeo link, or a direct link to a video file (.mp4, .webm, .ogg, .mov).',
+      file: 'Upload a video file (max 5 MB). For larger videos, use YouTube or Vimeo and paste the link in the URL field instead.',
+      title:
+        'A short, descriptive title used as the accessible label for the video.'
     },
     'blocks.info-cards': {
       heading:

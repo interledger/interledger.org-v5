@@ -1,15 +1,19 @@
 ---
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 
+// Used two ways: as an MDX components-map entry (GrantPage / GrantOverviewPage),
+// where the serialized `<VideoEmbed url="..." />` passes `url` directly; and via
+// DynamicZone, which passes the raw Strapi block (`file` / `externalUrl`).
 interface Props {
+  url?: string
   file?: { url: string }
   externalUrl?: string
   title: string
 }
 
-const { file, externalUrl, title } = Astro.props
+const { url, file, externalUrl, title } = Astro.props
 
-const url = file?.url ?? externalUrl
+const resolvedUrl = url ?? file?.url ?? externalUrl
 ---
 
-{url && title && <VideoEmbed url={url} title={title} />}
+{resolvedUrl && title && <VideoEmbed url={resolvedUrl} title={title} />}

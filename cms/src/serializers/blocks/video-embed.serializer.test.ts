@@ -34,6 +34,15 @@ describe('video-embed serializer', () => {
     expect(result).toContain('url="/uploads/clip.mp4"')
   })
 
+  it('does not throw when file is a bare upload id (validation reuse on write)', () => {
+    // validateContentBlocks reuses this serializer on the raw write body, where
+    // a media_library block's `file` is an unpopulated id, not { url }.
+    expect(() => serialize({ file: 55, title: 'Uploaded clip' })).not.toThrow()
+    expect(serialize({ file: 55, title: 'Uploaded clip' })).toContain(
+      'title="Uploaded clip"'
+    )
+  })
+
   it('escapes special characters in title', () => {
     const result = serialize({
       externalUrl: 'https://www.youtube.com/watch?v=abc123',
