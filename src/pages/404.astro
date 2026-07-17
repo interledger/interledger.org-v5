@@ -3,27 +3,99 @@
  * Custom 404 page for static hosting (Netlify serves 404.html).
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 import { HOME_CONTENT_SLUG, translatePath } from '@/utils'
 
 const { routeLocale } = Astro.locals
+
+const homeHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
+
+const CARDS = [
+  {
+    title: 'Explore our Grants',
+    description:
+      'Explore grant opportunities, from tech innovation and education, to research, policy and local impact.',
+    cta: 'Our Grant-making',
+    href: translatePath('foundation-pages', routeLocale, 'grants')
+  },
+  {
+    title: 'Build on open tech',
+    description:
+      'Explore our standards, protocol, and developer tools, and join our community of testers and builders.',
+    cta: 'Interledger Tech',
+    href: translatePath('foundation-pages', routeLocale, 'interledger')
+  },
+  {
+    title: 'Join the movement',
+    description:
+      'Discover events, join the community, and find ways to participate in the future of Open Payments.',
+    cta: 'Community',
+    href: translatePath('foundation-pages', routeLocale, 'community')
+  }
+]
 ---
 
 <FoundationPageLayout
   title="Page not found"
   description="The page you requested could not be found."
+  headerTheme="light"
 >
-  <main class="flex-1 flex items-center justify-center py-4xl">
-    <section class="text-center px-2xl">
-      <h1 class="text-6xl font-semibold text-primary mb-xl">404</h1>
-      <p class="text-lg text-neutral-75 mb-2xl max-w-narrow mx-auto">
-        The page you requested could not be found.
-      </p>
-      <a
-        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
-        class="inline-block text-primary font-medium underline hover:no-underline"
-      >
-        ← Back to home
-      </a>
-    </section>
+  <main
+    class="flex mx-auto min-h-96 max-w-content px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <div class="max-w-content flex flex-col gap-3xl">
+      <div>
+        <h1
+          class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-150"
+        >
+          Page not found&hellip;
+        </h1>
+
+        <div class="flex flex-col py-xl">
+          <p class="mb-lg">
+            While we&rsquo;re working on connecting financial systems, it
+            appears we&rsquo;ve disconnected a page.
+          </p>
+          <p class="mb-0">Sorry about that</p>
+        </div>
+        <LinkButton
+          href={homeHref}
+          variant="primary"
+          class="w-full tablet:max-w-fit"
+        >
+          Return to Homepage
+          <Icon name="return-home" slot="icon-right" />
+        </LinkButton>
+      </div>
+
+      <hr class="border-t border-neutral-50" />
+
+      <div class="grid grid-cols-1 gap-4xl desktop:grid-cols-3">
+        {
+          CARDS.map((card) => (
+            <div class="flex flex-col gap-lg">
+              <h2 class="text-h4 tablet:text-h4-md mb-0 desktop:text-h4-lg text-neutral-150">
+                {card.title}
+              </h2>
+              <p class="mb-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75">
+                {card.description}
+              </p>
+              <LinkButton
+                href={card.href}
+                variant="secondary"
+                class="w-full tablet:max-w-fit"
+              >
+                {card.cta}
+              </LinkButton>
+            </div>
+          ))
+        }
+      </div>
+    </div>
   </main>
 </FoundationPageLayout>
