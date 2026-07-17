@@ -26,8 +26,8 @@ function withIds(rawSections: FaqSectionType[]) {
 const sectionsWithIds = withIds(sections)
 ---
 
-<div class="flex flex-col gap-xl desktop:flex-row desktop:gap-5xl">
-  <div class="hidden desktop:block desktop:w-2/5 desktop:shrink-0">
+<div class="flex flex-col gap-xl tablet:flex-row tablet:gap-2xl desktop:gap-5xl">
+  <div class="hidden tablet:block tablet:w-2/5 tablet:shrink-0">
     <FaqSectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
       uiLocale={uiLocale}
@@ -36,12 +36,12 @@ const sectionsWithIds = withIds(sections)
 
   <div
     data-faq-mobile-sections
-    class="flex flex-col gap-3xl desktop:w-3/5 desktop:gap-3xl"
+    class="flex flex-col gap-3xl tablet:w-3/5 desktop:w-3/5 desktop:gap-3xl"
   >
     {
-      sectionsWithIds.map((section) => (
+      sectionsWithIds.map((section, index) => (
         <details
-          open
+          open={index === 0}
           data-faq-mobile-section
           data-faq-section
           id={section.id}
@@ -57,9 +57,10 @@ const sectionsWithIds = withIds(sections)
             />
           </summary>
           <div class="flex flex-col gap-lg rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-xl pb-lg desktop:gap-xl desktop:rounded-none desktop:border-none desktop:px-0 desktop:pt-xl desktop:pb-0">
-            {section.items.map((item, index) => (
+            {section.items.map((item, itemIndex) => (
               <details
-                open={index === 0}
+                open={itemIndex === 0}
+                data-faq-mobile-item
                 class="group/item border-b border-neutral-25 pb-lg first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl"
               >
                 <summary class="flex cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden">
@@ -87,10 +88,15 @@ const sectionsWithIds = withIds(sections)
   // Mobile: FAQ sections themselves become an exclusive accordion (only one
   // open at a time, via the native <details name> group so the browser
   // handles closing the others for free) — first section open by default.
-  // Desktop: every section stays open; the `toggle` guard below reasserts
+  // Within an open section, its questions are ALSO an exclusive accordion
+  // (only one open at a time), scoped per-section via a unique group name so
+  // opening a question in one section never affects another section's group.
+  // Tablet: every section stays open; the `toggle` guard below reasserts
   // `open` if a keyboard user still manages to collapse one (pointer-events
   // is disabled on the summary, but that doesn't block keyboard activation).
-  // 1200px matches the `desktop:` breakpoint in tailwind.config.mjs (see the
+  // Questions keep their independent (non-exclusive) toggling at tablet+, as
+  // before — only the section-level force-open applies there.
+  // 810px matches the `tablet:` breakpoint in tailwind.config.mjs (see the
   // same hardcoded value in src/scripts/header-nav.ts — no shared JS/CSS
   // breakpoint token exists in this codebase yet).
   document
@@ -103,11 +109,11 @@ const sectionsWithIds = withIds(sections)
       )
       if (detailsEls.length === 0) return
 
-      const desktopQuery = window.matchMedia('(min-width: 810px)')
+      const tabletQuery = window.matchMedia('(min-width: 810px)')
 
-      const applyMode = (isDesktop: boolean) => {
+      const applyMode = (isTablet: boolean) => {
         detailsEls.forEach((details, index) => {
-          if (isDesktop) {
+          if (isTablet) {
             details.removeAttribute('name')
             details.open = true
           } else {
@@ -119,15 +125,43 @@ const sectionsWithIds = withIds(sections)
 
       detailsEls.forEach((details) => {
         details.addEventListener('toggle', () => {
-          if (desktopQuery.matches && !details.open) {
-            //details.open = true
+          if (tabletQuery.matches && !details.open) {
+            details.open = true
           }
         })
       })
 
-      applyMode(desktopQuery.matches)
-      desktopQuery.addEventListener('change', (event) =>
+      applyMode(tabletQuery.matches)
+      tabletQuery.addEventListener('change', (event) =>
         applyMode(event.matches)
       )
+
+      detailsEls.forEach((sectionDetails, sectionIndex) => {
+        const itemDetailsEls = Array.from(
+          sectionDetails.querySelectorAll<HTMLDetailsElement>(
+            '[data-faq-mobile-item]'
+          )
+        )
+        if (itemDetailsEls.length === 0) return
+
+        const applyItemMode = (isTablet: boolean) => {
+          itemDetailsEls.forEach((itemDetails, itemIndex) => {
+            if (isTablet) {
+              itemDetails.removeAttribute('name')
+            } else {
+              itemDetails.setAttribute(
+                'name',
+                `faq-mobile-item-${sectionIndex}`
+              )
+              itemDetails.open = itemIndex === 0
+            }
+          })
+        }
+
+        applyItemMode(tabletQuery.matches)
+        tabletQuery.addEventListener('change', (event) =>
+          applyItemMode(event.matches)
+        )
+      })
     })
 </script>
