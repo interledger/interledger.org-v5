@@ -31,7 +31,16 @@ export default defineConfig({
   prerender: {
     default: true
   },
-  adapter: netlify(),
+  adapter: netlify({
+    // public/img and public/uploads are CMS-driven and can grow into the
+    // hundreds of MB. getOptimizedImage() (src/utils/main/images.ts) does a
+    // runtime fs.existsSync check against public/, which makes the function
+    // bundler's dependency tracer pull the whole directory into the SSR
+    // function — pushing it past AWS Lambda's size limit. These assets are
+    // served by the CDN / read at build time only, never needed at Lambda
+    // runtime, so they're excluded from the function bundle here.
+    excludeFiles: ['./public/img/**/*', './public/uploads/**/*']
+  }),
   markdown: {
     rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
   },
