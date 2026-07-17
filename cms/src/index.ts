@@ -951,6 +951,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.'
     },
+    'shared.secondary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+    },
     'blocks.carousel': {
       accessibilityLabel:
         'Describes this group of logos for screen reader users. Not visible on the page.',
