@@ -250,6 +250,7 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  service: (uid: string) => unknown
 }
 
 function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
@@ -508,6 +509,53 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   if (seeded > 0) {
     strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
   }
+}
+
+interface AdminApiTokenService {
+  getByName: (name: string) => Promise<{ id: string | number } | null>
+  create: (attributes: {
+    name: string
+    description: string
+    type: 'full-access'
+    lifespan: null
+  }) => Promise<{ accessKey: string }>
+}
+
+const CI_API_TOKEN_NAME = 'ci-dry-run'
+
+/**
+ * CI-only: creates a full-access API token so an ephemeral, freshly-booted
+ * Strapi instance (built-and-dryrun PR check) can be used as a sync target
+ * without any manual admin-panel setup. No-op unless CI_API_TOKEN_OUTPUT_PATH
+ * is set. Strapi only returns a token's raw value once, at creation time, so
+ * it's written straight to disk for the calling CI step to read.
+ */
+async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
+  const outputPath = process.env.CI_API_TOKEN_OUTPUT_PATH
+  if (!outputPath) return
+
+  const tokenService = strapi.service(
+    'admin::api-token'
+  ) as AdminApiTokenService
+
+  const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
+  if (existing) {
+    strapi.log.warn(
+      `[CI] API token "${CI_API_TOKEN_NAME}" already exists from a previous boot; its raw value can't be re-read, skipping token-file write.`
+    )
+    return
+  }
+
+  const token = await tokenService.create({
+    name: CI_API_TOKEN_NAME,
+    description:
+      'Ephemeral token for the build-and-dryrun PR check. Safe to revoke or ignore.',
+    type: 'full-access',
+    lifespan: null
+  })
+
+  fs.writeFileSync(outputPath, token.accessKey, { mode: 0o600 })
+  strapi.log.info(`[CI] Wrote API token to ${outputPath}`)
 }
 
 function collectImagePaths(dir: string): string[] {
@@ -1512,6 +1560,10 @@ export default {
 
     // Register any on-disk images that are missing from the DB (fresh DB scenario)
     await seedUploadsFromDisk(strapi)
+
+    // CI-only, no-op otherwise: provisions an API token for the ephemeral
+    // Strapi instance the build-and-dryrun PR check boots from this branch's code.
+    await ensureCiApiToken(strapi)
 
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)

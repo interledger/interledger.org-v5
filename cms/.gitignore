@@ -112,4 +112,5 @@ exports
 dist
 build
 .strapi-updater.json
+.ci-api-token
 .strapi-cloud.json

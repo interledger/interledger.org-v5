@@ -46,7 +46,6 @@ jobs:
 
   build-and-dryrun:
     runs-on: ubuntu-latest
-    environment: ${{ github.base_ref == 'playground' && 'strapi-playground' || 'strapi-staging' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -66,30 +65,66 @@ jobs:
           restore-keys: |
             optimized-images-
 
-      - name: Build and Dry Run
-        env:
-          STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_TOKEN_DRY_RUN }}
-          STRAPI_URL: ${{ vars.ENV_STRAPI_URL }}
+      - name: Build
         run: |
-          # Fail fast if STRAPI_API_TOKEN or STRAPI_URL are not set
-          if [ -z "$STRAPI_API_TOKEN" ]; then
-            echo "Error: STRAPI_API_TOKEN is not set."
-            exit 1
-          fi
-
-          if [ -z "$STRAPI_URL" ]; then
-            echo "Error: STRAPI_URL is not set."
-            exit 1
-          fi
-
-          pnpm install --frozen-lockfile      
+          pnpm install --frozen-lockfile
           pnpm run build
           cd cms
           pnpm install --frozen-lockfile
           pnpm run build
-          echo "Running MDX sync in dry-run mode against ${STRAPI_URL}"
-          # To help with debugging, we will hash the contents of the STRAPI_API_TOKEN
-          # and output it here so that we can verify that the correct token is used without exposing
-          # the actual value in the logs.
-          echo "STRAPI_API_TOKEN hash: $(echo -n $STRAPI_API_TOKEN | sha256sum)"
+
+      - name: Start ephemeral Strapi from this branch
+        working-directory: cms
+        env:
+          # Throwaway secrets for a disposable, single-run instance — never
+          # shared with any real Strapi deployment, so fixed values are fine.
+          APP_KEYS: ci-key-1,ci-key-2,ci-key-3,ci-key-4
+          API_TOKEN_SALT: ci-api-token-salt
+          ADMIN_JWT_SECRET: ci-admin-jwt-secret
+          TRANSFER_TOKEN_SALT: ci-transfer-token-salt
+          JWT_SECRET: ci-jwt-secret
+          DATABASE_FILENAME: .tmp/ci-dry-run.db
+          HOST: 0.0.0.0
+          PORT: 1337
+          CI_API_TOKEN_OUTPUT_PATH: ${{ github.workspace }}/cms/.ci-api-token
+        run: |
+          rm -f "$DATABASE_FILENAME" "$CI_API_TOKEN_OUTPUT_PATH"
+          nohup pnpm run start > strapi-ci.log 2>&1 &
+          echo $! > strapi.pid
+
+      - name: Wait for Strapi to become healthy
+        working-directory: cms
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:1337/_health >/dev/null; then
+              echo "Strapi is up."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Strapi did not become healthy in time. Logs:"
+          cat strapi-ci.log
+          exit 1
+
+      - name: Run MDX sync in dry-run mode
+        working-directory: cms
+        env:
+          STRAPI_URL: http://localhost:1337
+        run: |
+          if [ ! -s .ci-api-token ]; then
+            echo "Error: .ci-api-token was not written by the Strapi bootstrap step."
+            exit 1
+          fi
+          export STRAPI_API_TOKEN=$(cat .ci-api-token)
+          echo "Running MDX sync in dry-run mode against an ephemeral Strapi built from this branch."
+          echo "Note: since this Strapi instance starts empty (aside from bootstrap-seeded media),"
+          echo "every content entry below will report as 'would create', not 'would update' — that's expected."
           pnpm run sync:mdx:dry-run
+
+      - name: Stop ephemeral Strapi
+        if: always()
+        working-directory: cms
+        run: |
+          if [ -f strapi.pid ]; then
+            kill "$(cat strapi.pid)" 2>/dev/null || true
+          fi
