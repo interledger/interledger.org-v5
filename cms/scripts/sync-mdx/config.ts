@@ -1,6 +1,7 @@
 import { getContentPath } from '@/utils'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
+import { scanMDXFiles } from './scan'
 import {
   buildPagePayload,
   buildBlogPayload,
@@ -96,7 +97,12 @@ function buildParsedPagePayload(
     existing,
     {
       locale,
-      resolveRelation: createRelationResolver(strapi, locale),
+      resolveRelation: createRelationResolver(
+        strapi,
+        locale,
+        dryRun,
+        strapiUploadContext.profilePathSlugs
+      ),
       resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
     },
     strapiUploadContext,
@@ -118,7 +124,7 @@ export function buildContentTypes(
   const grantPageAltIds = new Map<number, string | null>()
   const grantOverviewPageAltIds = new Map<number, string | null>()
 
-  return {
+  const contentTypes: ContentTypes = {
     profiles: {
       dir: getContentPath(projectRoot, 'profiles'),
       apiId: 'profile-pages',
@@ -132,7 +138,12 @@ export function buildContentTypes(
           existing,
           {
             locale,
-            resolveRelation: createRelationResolver(strapi, locale),
+            resolveRelation: createRelationResolver(
+              strapi,
+              locale,
+              dryRun,
+              profilePathSlugs
+            ),
             resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
           },
           profileAltIds,
@@ -172,7 +183,13 @@ export function buildContentTypes(
         buildGrantPagePayload(
           grantPageFrontmatterSchema,
           mdx,
-          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
           existing,
           grantPageAltIds,
           dryRun
@@ -186,7 +203,13 @@ export function buildContentTypes(
         buildGrantOverviewPagePayload(
           grantOverviewPageFrontmatterSchema,
           mdx,
-          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
           existing,
           grantOverviewPageAltIds,
           dryRun
@@ -206,7 +229,8 @@ export function buildContentTypes(
             strapi,
             STRAPI_URL: strapiUrl,
             STRAPI_TOKEN: strapiToken,
-            dryRun
+            dryRun,
+            profilePathSlugs
           },
           pageAltIds,
           dryRun
@@ -226,7 +250,8 @@ export function buildContentTypes(
             strapi,
             STRAPI_URL: strapiUrl,
             STRAPI_TOKEN: strapiToken,
-            dryRun
+            dryRun,
+            profilePathSlugs
           },
           pageAltIds,
           dryRun
@@ -241,12 +266,18 @@ export function buildContentTypes(
           strapi,
           STRAPI_URL: strapiUrl,
           STRAPI_TOKEN: strapiToken,
-          dryRun
+          dryRun,
+          profilePathSlugs
         }
         const locale = mdx.locale || 'en'
         const parserCtx: ParserContext = {
           locale,
-          resolveRelation: createRelationResolver(strapi, locale),
+          resolveRelation: createRelationResolver(
+            strapi,
+            locale,
+            dryRun,
+            profilePathSlugs
+          ),
           resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
         }
         return buildBlogPayload(
@@ -260,4 +291,15 @@ export function buildContentTypes(
       }
     }
   }
+
+  // profile-pages is the only relation target other content types reference
+  // (ProfileCard/ProfileGrid — see profileHandler.ts). Snapshotting its
+  // pathSlugs from source lets createRelationResolver's dry-run fallback
+  // tell "would be created by this same run" apart from a genuinely broken
+  // reference, since dry-run never persists anything for a live lookup to find.
+  const profilePathSlugs = new Set(
+    scanMDXFiles('profiles', contentTypes).map((f) => f.pathSlug)
+  )
+
+  return contentTypes
 }

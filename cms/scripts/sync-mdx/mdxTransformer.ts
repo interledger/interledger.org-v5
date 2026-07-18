@@ -39,6 +39,11 @@ export interface StrapiUploadContext {
   STRAPI_URL: string
   STRAPI_TOKEN: string
   dryRun: boolean
+  /**
+   * pathSlugs of profile-pages found in this run's MDX source, for
+   * createRelationResolver's dry-run fallback (see profileHandler.ts).
+   */
+  profilePathSlugs?: Set<string>
 }
 
 /**
@@ -566,7 +571,12 @@ export async function buildGrantPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
-          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
+          resolveRelation: createRelationResolver(
+            strapi,
+            mdx.locale || 'en',
+            dryRun,
+            strapiUploadContext?.profilePathSlugs
+          ),
           resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
@@ -649,7 +659,12 @@ export async function buildGrantOverviewPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
-          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
+          resolveRelation: createRelationResolver(
+            strapi,
+            mdx.locale || 'en',
+            dryRun,
+            strapiUploadContext?.profilePathSlugs
+          ),
           resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
