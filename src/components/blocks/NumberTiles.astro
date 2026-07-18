@@ -42,8 +42,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
       const parsed = parseStatNumber(tile.number)
       // Strapi stores plain digits (e.g. "1000"); format for display with
       // commas. Non-numeric free text falls back to the raw field value.
-      const display =
-        parsed !== null ? formatStatNumber(parsed) : tile.number
+      const display = parsed !== null ? formatStatNumber(parsed) : tile.number
       return (
         <StatCard
           value={parsed ?? 0}
