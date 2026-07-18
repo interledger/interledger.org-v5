@@ -4,14 +4,16 @@ description: 'Explores the "how" of Web Monetization: the who, when, and how muc
 date: 2026-04-16
 pathSlug: web-monetization-open-payments-part-3-sending-money
 featured: false
-locale: en
 articleBios:
-  - author: Sid Vishnoi
-    link: https://sidvishnoi.com?ref=ilf_engg_blog
+  - author: 'Sid Vishnoi'
+    link: 'https://sidvishnoi.com?ref=ilf_engg_blog'
 categories:
-  - Engineering
+  - 'Engineering'
 legacy: true
+locale: 'en'
 ---
+
+<Paragraph>
 
 In [Part 1](https://interledger.org/blog/web-monetization-open-payments-part-1-connecting-wallet/) of the series, we covered how to link your wallet to the extension and secure the access tokens required for future transactions. In [Part 2](https://interledger.org/blog/web-monetization-open-payments-part-2-payment-sessions), we explored the receiving side: identifying a website's receiving wallet addresses via `<link rel="monetization">` and calculating the amounts our wallet can pay into them. Now, we'll combine these elements to actually move money.
 
@@ -215,3 +217,24 @@ The native browser implementations currently on the horizon will mostly follow a
 [^1]: It is important to note that your actual spending can fluctuate. Because the extension triggers an initial payment the moment a page loads, visiting many different sites in a short burst might cause you to spend more than your average hourly rate within that specific window. If this activity exhausts your pre-allocated budget, the extension will stop all payments until you either top up your balance or the budget period resets.
 
 [^2]: It is worth noting that "focus" simply means the tab is the one currently in view. As long as the tab is active, the timer keeps running even if you aren't actively scrolling or clicking - after all, you might just be deeply absorbed in a long paragraph. We don't consider a user inactive based on movement yet; if the page is open and visible, the monetization continues.
+
+</Paragraph>
+
+<CodeBlock language="javascript" code={`const MS_IN_HOUR = 60 * 60 * 1000
+const MIN_PAYMENT_WAIT = 2000 // 2 seconds
+const hourlyRate = BigInt(userConfig.hourlyRate) // "$1.50" per hour -> 150n
+
+// Every \`period\` milliseconds, we can send \`units\` amount
+const period = MS_IN_HOUR / Number(hourlyRate)
+const units = Math.ceil(MIN_PAYMENT_WAIT / period)
+this.interval = {
+  units: BigInt(units),
+  period: Math.ceil(units * period)
+}
+
+// The math above is roughly equivalent to the following, if that helps:
+this.interval = { units: 1n, period }
+while (interval.period < MIN_PAYMENT_WAIT) {
+  this.interval.units += 1n
+  this.interval.period += period
+}`} />
