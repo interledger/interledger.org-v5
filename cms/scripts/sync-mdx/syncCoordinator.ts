@@ -129,6 +129,37 @@ export async function syncContentType(
   return results
 }
 
+async function syncContentTypeSafely(
+  contentType: keyof ContentTypes,
+  ctx: SyncContext,
+  dryRun: boolean
+): Promise<SyncResults> {
+  return syncContentType(contentType, ctx, dryRun).catch((error) => {
+    // syncContentType doesn't return Error directly (it accumulates errors
+    // into the per-content-type SyncResults), but we keep this guard for
+    // truly unexpected exceptions (programmer bugs, OOM, etc).
+    console.error(
+      `\n❌ Error syncing ${contentType}: ${(error as Error).message}`
+    )
+    return { created: 0, updated: 0, deleted: 0, errors: 1 }
+  })
+}
+
+function addResults(target: SyncResults, results: SyncResults): void {
+  target.created += results.created
+  target.updated += results.updated
+  target.deleted += results.deleted
+  target.errors += results.errors
+}
+
+// profile-pages is the only relation target other content types reference
+// (ProfileCard/ProfileGrid resolve a profile pathSlug via a live Strapi
+// lookup — see profileHandler.ts). It must finish syncing first: on a
+// brand-new Strapi instance, a content type and the profile it references
+// can both be new in the same run, so syncing everything concurrently
+// races the referencing entry against the profile it depends on.
+const RELATION_TARGET_TYPE = 'profiles' as const
+
 export async function syncAll(
   ctx: SyncContext,
   dryRun: boolean
@@ -140,26 +171,26 @@ export async function syncAll(
     errors: 0
   }
 
+  const contentTypes = Object.keys(ctx.contentTypes) as Array<
+    keyof ContentTypes
+  >
+  const dependents = contentTypes.filter((t) => t !== RELATION_TARGET_TYPE)
+
+  if (contentTypes.includes(RELATION_TARGET_TYPE)) {
+    addResults(
+      allResults,
+      await syncContentTypeSafely(RELATION_TARGET_TYPE, ctx, dryRun)
+    )
+  }
+
   const perTypeResults = await Promise.all(
-    (Object.keys(ctx.contentTypes) as Array<keyof ContentTypes>).map(
-      (contentType) =>
-        syncContentType(contentType, ctx, dryRun).catch((error) => {
-          // syncContentType doesn't return Error directly (it accumulates errors
-          // into the per-content-type SyncResults), but we keep this guard for
-          // truly unexpected exceptions (programmer bugs, OOM, etc).
-          console.error(
-            `\n❌ Error syncing ${contentType}: ${(error as Error).message}`
-          )
-          return { created: 0, updated: 0, deleted: 0, errors: 1 }
-        })
+    dependents.map((contentType) =>
+      syncContentTypeSafely(contentType, ctx, dryRun)
     )
   )
 
   for (const results of perTypeResults) {
-    allResults.created += results.created
-    allResults.updated += results.updated
-    allResults.deleted += results.deleted
-    allResults.errors += results.errors
+    addResults(allResults, results)
   }
 
   return allResults
