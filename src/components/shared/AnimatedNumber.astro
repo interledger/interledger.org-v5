@@ -93,12 +93,13 @@ const formatted = display ?? String(value)
       // the DOM quiet either way.
       let lastValue = -Infinity
       let startTs: number | null = null
+      const format = (n: number) => n.toLocaleString('en-US')
       const step = (ts: number) => {
         if (startTs === null) startTs = ts
         const progress = Math.min((ts - startTs) / duration, 1)
         const current = Math.floor(progress * target)
         if (current !== lastValue) {
-          display.textContent = String(current)
+          display.textContent = format(current)
           lastValue = current
         }
         if (progress < 1) {

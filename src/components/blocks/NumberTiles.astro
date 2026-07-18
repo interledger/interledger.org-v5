@@ -1,15 +1,16 @@
 ---
 // Row of stat tiles for the grant-overview-page dynamic zone (INTORG-854).
 // Reuses the homepage's StatCard/AnimatedNumber trio rather than duplicating
-// the count-up + accessibility pattern — see `display` prop on both for why
-// (the `number` field here is free text, e.g. "1,000", not a clean number).
+// the count-up + accessibility pattern. Strapi stores plain digits (e.g.
+// "1000"); we format with commas for display while the animation still
+// counts up to the parsed numeric value.
 //
 // Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
 // of each item's width — 2 tiles per row on mobile/tablet, up to 4 per row on
 // desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
 // default behavior, no extra CSS needed).
 import StatCard from '@/components/shared/StatCard.astro'
-import { parseStatNumber } from '@/utils'
+import { formatStatNumber, parseStatNumber } from '@/utils'
 
 interface Tile {
   number: string
@@ -39,10 +40,14 @@ const LABEL_CLASS = 'text-left text-neutral-75'
   {
     tiles.map((tile) => {
       const parsed = parseStatNumber(tile.number)
+      // Strapi stores plain digits (e.g. "1000"); format for display with
+      // commas. Non-numeric free text falls back to the raw field value.
+      const display =
+        parsed !== null ? formatStatNumber(parsed) : tile.number
       return (
         <StatCard
           value={parsed ?? 0}
-          display={tile.number}
+          display={display}
           suffix={tile.suffix}
           numberClass={NUMBER_CLASS}
           label={tile.description}

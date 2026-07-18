@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseStatNumber } from './parseStatNumber'
+import { formatStatNumber, parseStatNumber } from './parseStatNumber'
 
 describe('parseStatNumber', () => {
   it('parses plain digits', () => {
@@ -21,5 +21,17 @@ describe('parseStatNumber', () => {
 
   it('returns null for a whitespace-only string', () => {
     expect(parseStatNumber('   ')).toBeNull()
+  })
+})
+
+describe('formatStatNumber', () => {
+  it('adds grouping commas', () => {
+    expect(formatStatNumber(1000)).toBe('1,000')
+    expect(formatStatNumber(21000000)).toBe('21,000,000')
+  })
+
+  it('leaves small numbers ungrouped', () => {
+    expect(formatStatNumber(21)).toBe('21')
+    expect(formatStatNumber(0)).toBe('0')
   })
 })
