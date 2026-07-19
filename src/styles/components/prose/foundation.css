@@ -9,10 +9,14 @@
     color: var(--color-primary);
     text-decoration-line: underline;
     text-decoration-color: currentColor;
-    transition: text-decoration-color 200ms ease-in-out;
+    transition:
+      color 200ms ease-in-out,
+      text-decoration-color 200ms ease-in-out;
   }
   [data-prose] a:hover {
-    text-decoration-color: transparent;
+    color: var(--color-orchid-150);
+    text-decoration-line: underline;
+    text-decoration-color: currentColor;
   }
   [data-prose] hr {
     border-color: var(--color-neutral-50);

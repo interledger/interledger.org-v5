@@ -83,7 +83,7 @@
   }
 
   a:hover {
-    color: var(--color-primary);
+    color: var(--color-orchid-150);
   }
 
   /* Lenis smooth scroll — see src/scripts/smooth-scroll.ts.
