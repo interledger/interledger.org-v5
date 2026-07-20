@@ -142,6 +142,15 @@ describe('VideoEmbed handler — errors', () => {
     expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
+  it('returns DYNAMIC_EXPRESSION when title is a dynamic expression', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url="https://www.youtube.com/watch?v=abc" title={someVar} />',
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  })
+
   it('returns UNRESOLVED_RELATION when an internal file is not in Strapi media', async () => {
     const result = await parseMdxToBlocks(
       '<VideoEmbed url="/uploads/missing.mp4" title="Test" />',

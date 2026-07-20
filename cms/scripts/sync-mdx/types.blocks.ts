@@ -105,9 +105,10 @@ export interface PdfEmbedBlock extends StrapiBlockBase {
 
 /**
  * blocks.video-embed — a YouTube/Vimeo URL, a direct video file URL, or an
- * uploaded video file. Mirrors PdfEmbedBlock: internal (`/`-prefixed) URLs
- * resolve to a Strapi upload integer ID (`file`); everything else is stored in
- * `externalUrl`. `source` discriminates the two.
+ * uploaded video file. `/uploads/`-prefixed URLs are Strapi media uploads and
+ * resolve to a Strapi upload integer ID (`file`); everything else (including
+ * other `/`-prefixed paths such as `/img/...`) is stored in `externalUrl`.
+ * `source` discriminates the two.
  */
 export interface VideoEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.video-embed'
