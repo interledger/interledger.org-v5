@@ -1,7 +1,9 @@
 ---
 import { bundledThemes, codeToHtml } from 'shiki'
 import type { ThemeRegistration } from 'shiki'
-import { useTranslations } from '@/utils'
+import { tryCatchAsync, useTranslations } from '@/utils'
+
+const FALLBACK_LANGUAGE = 'text'
 
 interface Props {
   code: string
@@ -66,10 +68,15 @@ const { code, language, title } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const highlighted = await codeToHtml(code, {
-  lang: language,
-  theme: codeTheme
-})
+// Raw markdown fences can carry a language Shiki doesn't bundle; fall back to
+// plain text so an unknown language degrades gracefully instead of failing the build.
+const highlighted = await tryCatchAsync(() =>
+  codeToHtml(code, { lang: language, theme: codeTheme })
+).then((result) =>
+  result instanceof Error
+    ? codeToHtml(code, { lang: FALLBACK_LANGUAGE, theme: codeTheme })
+    : result
+)
 ---
 
 <figure
