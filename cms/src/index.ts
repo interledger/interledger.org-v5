@@ -438,7 +438,13 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
+// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
+// anything git-committed and served from the repo (images, video, PDF) must
+// also be seedable, or an MDX reference to it resolves to no media record and
+// the sync hard-fails (INTORG-876). Larger media storage is tracked in
+// INTORG-902.
 const MIME_BY_EXT: Record<string, string> = {
+  // Images
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
@@ -446,13 +452,21 @@ const MIME_BY_EXT: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
   '.avif': 'image/avif',
-  '.tiff': 'image/tiff'
+  '.tiff': 'image/tiff',
+  // Video (matches the VideoEmbed externalUrl regex extensions)
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogg': 'video/ogg',
+  '.ogv': 'video/ogg',
+  '.mov': 'video/quicktime',
+  // Documents
+  '.pdf': 'application/pdf'
 }
 
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
 
 /**
- * Directories under `public/` to scan for seedable images.
+ * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
  * served at. Files found on disk but missing from Strapi's `upload_file`
  * table are inserted so MDX references remain valid after a fresh database.
@@ -477,7 +491,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
     const absDir = path.join(publicDir, dir)
     if (!fs.existsSync(absDir)) continue
 
-    const files = collectImagePaths(absDir)
+    const files = collectMediaPaths(absDir)
 
     for (const filePath of files) {
       const ext = path.extname(filePath).toLowerCase()
@@ -519,7 +533,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   }
 }
 
-function collectImagePaths(dir: string): string[] {
+function collectMediaPaths(dir: string): string[] {
   const results: string[] = []
 
   function walk(current: string) {
