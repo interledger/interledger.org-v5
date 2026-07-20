@@ -6,6 +6,11 @@ export function addTrailingSlash(path: string): string {
   return path.endsWith('/') ? path : `${path}/`
 }
 
+/** Prepends `/` to an internal path if it doesn't already have one. */
+export function ensureLeadingSlash(path: string): string {
+  return path.startsWith('/') ? path : `/${path}`
+}
+
 // Matches a URI scheme (`https:`, `mailto:`, `tel:`, …)
 const HAS_SCHEME = /^(?:[a-z][a-z\d+\-.]*:|\/\/)/i
 

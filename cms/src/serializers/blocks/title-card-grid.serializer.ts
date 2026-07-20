@@ -55,14 +55,6 @@ function validateTitleCard(card: TitleCard, index: number): FieldError[] {
       message: `Title card ${position} secondary call to action button is missing link`,
       path: ['titleCards', index, 'secondaryCta', 'link']
     })
-  } else if (
-    !card.secondaryCta.external &&
-    !card.secondaryCta.link.startsWith('/')
-  ) {
-    fieldErrors.push({
-      message: `Title card ${position} secondary call to action button link must start with "/" for internal links`,
-      path: ['titleCards', index, 'secondaryCta', 'link']
-    })
   }
   if (!card.secondaryCta.text || !card.secondaryCta.text.trim())
     fieldErrors.push({

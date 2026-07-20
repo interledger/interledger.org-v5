@@ -1,6 +1,6 @@
 ---
 import LinkButton from './LinkButton.astro'
-import { buildUmamiAttrs } from '@/utils'
+import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
 
 interface Props {
   heading: string
@@ -20,6 +20,8 @@ const {
 
 const { routeLocale } = Astro.locals
 
+const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
+
 // Mouse-only "whole card is clickable"
 const overlayTargetAttrs = buttonExternal
   ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
@@ -28,17 +30,17 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
   section: 'card',
-  href: buttonUrl,
+  href,
   linkText: buttonText
 })
 
 const bgClasses = `
-nth-[5n+1]:[--card-bg:var(--color-deep-teal-50)] 
-nth-[5n+2]:[--card-bg:var(--color-coral-red-50)] 
-nth-[5n+3]:[--card-bg:var(--color-tangerine-50)] 
-nth-[5n+4]:[--card-bg:var(--color-periwinkle-50)] 
-nth-[5n+5]:[--card-bg:var(--color-lagoon-50)] 
-nth-[5n+6]:[--card-bg:var(--color-pistachio-50)]
+nth-[6n+1]:[--card-bg:var(--color-deep-teal-50)] 
+nth-[6n+2]:[--card-bg:var(--color-coral-red-50)] 
+nth-[6n+3]:[--card-bg:var(--color-tangerine-50)] 
+nth-[6n+4]:[--card-bg:var(--color-periwinkle-50)] 
+nth-[6n+5]:[--card-bg:var(--color-lagoon-50)] 
+nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
 `
 ---
 
@@ -65,7 +67,7 @@ nth-[5n+6]:[--card-bg:var(--color-pistachio-50)]
     </div>
   </div>
   <LinkButton
-    href={buttonUrl}
+    href={href}
     variant="secondary"
     size="lg"
     external={buttonExternal}
@@ -74,7 +76,7 @@ nth-[5n+6]:[--card-bg:var(--color-pistachio-50)]
     {buttonText}
   </LinkButton>
   <a
-    href={buttonUrl}
+    href={href}
     aria-hidden="true"
     tabindex="-1"
     class="absolute inset-0 z-0"

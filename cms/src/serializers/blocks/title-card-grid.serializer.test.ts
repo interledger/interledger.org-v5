@@ -258,40 +258,6 @@ describe('title-card-grid serializer', () => {
     ).toThrow('Title card 1 secondary call to action button is missing text')
   })
 
-  it('throws when a non-external secondaryCta link does not start with "/"', () => {
-    expect(() =>
-      serialize({
-        columns: 'Three',
-        ariaLabel: 'Grant options',
-        titleCards: [
-          {
-            ...validCard,
-            secondaryCta: { link: 'grants/apply', text: 'Learn more' }
-          }
-        ]
-      })
-    ).toThrow(
-      'Title card 1 secondary call to action button link must start with "/" for internal links'
-    )
-  })
-
-  it('throws when a non-external secondaryCta link is a full URL', () => {
-    expect(() =>
-      serialize({
-        columns: 'Three',
-        ariaLabel: 'Grant options',
-        titleCards: [
-          {
-            ...validCard,
-            secondaryCta: { link: 'https://example.com', text: 'Learn more' }
-          }
-        ]
-      })
-    ).toThrow(
-      'Title card 1 secondary call to action button link must start with "/" for internal links'
-    )
-  })
-
   it('allows a full URL when the secondaryCta is marked external', () => {
     const result = serialize({
       columns: 'Three',
