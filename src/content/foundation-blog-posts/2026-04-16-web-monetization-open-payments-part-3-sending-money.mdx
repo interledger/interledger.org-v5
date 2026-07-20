@@ -65,10 +65,11 @@ Even if you were to set your hourly rate at $3600 per hour, because you're too g
 
 </Paragraph>
 
-<CodeBlock language="typescript" code={`const MS_IN_HOUR = 60 * 60 * 1000
+<CodeBlock
+  language="typescript"
+  code={`const MS_IN_HOUR = 60 * 60 * 1000
 const MIN_PAYMENT_WAIT = 2000 // 2 seconds
 const hourlyRate = BigInt(userConfig.hourlyRate) // "$1.50" per hour -> 150n
-
 // Every \`period\` milliseconds, we can send \`units\` amount
 const period = MS_IN_HOUR / Number(hourlyRate)
 const units = Math.ceil(MIN_PAYMENT_WAIT / period)
@@ -76,13 +77,13 @@ this.interval = {
   units: BigInt(units),
   period: Math.ceil(units * period)
 }
-
 // The math above is roughly equivalent to the following, if that helps:
 this.interval = { units: 1n, period }
 while (interval.period < MIN_PAYMENT_WAIT) {
   this.interval.units += 1n
   this.interval.period += period
-}`} />
+}`}
+/>
 
 <Paragraph>
 
@@ -104,26 +105,26 @@ We can summarize all we discussed so far, with the help of a little code:
 
 </Paragraph>
 
-<CodeBlock language="typescript" code={`// Note: this is a simplified version
-
+<CodeBlock
+  language="typescript"
+  code={`// Note: this is a simplified version
 let pendingAmount = 0n // the payment bucket
 setInterval(() => {
   pendingAmount += this.interval.units
-
   const session = peekNextPaymentSessionInQueue()
   if (pendingAmount >= session.minSendAmount) {
     // How much of pendingAmount can we pay this session?
     // e.g. if pendingAmount = 37n (say, due to user's high rate of pay) & minSendAmount = 17n,
     // we can pay 34n from pendingAmount in single timer loop.
     const amount = getPayableAmount(session.minSendAmount, pendingAmount)
-
     void session.pay(amount).then((paid) => {
       if (!paid) pendingAmount += amount
     })
     pendingAmount -= amount
     moveCursorToNextPaymentSessionInQueue()
   }
-}, this.interval.period)`} />
+}, this.interval.period)`}
+/>
 
 <Paragraph>
 
@@ -157,7 +158,9 @@ With the recipient identified (who to pay), the timing set (when to pay), and th
 
 </Paragraph>
 
-<CodeBlock language="javascript" code={`const outgoingPayment = await openPaymentsClient.outgoingPayment.create(
+<CodeBlock
+  language="javascript"
+  code={`const outgoingPayment = await openPaymentsClient.outgoingPayment.create(
   {
     accessToken: access_token.value, // found in Part 1 of article series
     url: sender.resourceServer
@@ -172,9 +175,9 @@ With the recipient identified (who to pay), the timing set (when to pay), and th
     }
   }
 )
-
 // inform the website about the payment via \`monetization\` event
-session.sendMonetizationEvent(outgoingPayment)`} />
+session.sendMonetizationEvent(outgoingPayment)`}
+/>
 
 <Paragraph>
 
@@ -188,9 +191,12 @@ To make this work in browsers, the extension injects a content script. This scri
 
 </Paragraph>
 
-<CodeBlock language="typescript" code={`if (document.createElement('link').relList.supports('monetization')) {
+<CodeBlock
+  language="typescript"
+  code={`if (document.createElement('link').relList.supports('monetization')) {
   console.log('Web Monetization is supported!')
-}`} />
+}`}
+/>
 
 <Paragraph>
 
@@ -204,17 +210,17 @@ Websites can listen for these events globally on the window or on specific link 
 
 </Paragraph>
 
-<CodeBlock language="javascript" code={`window.addEventListener('monetization', (event) => {
+<CodeBlock
+  language="javascript"
+  code={`window.addEventListener('monetization', (event) => {
   console.assert(event instanceof MonetizationEvent)
-
   console.assert(event.target instanceof HTMLLinkElement) // the \`<link>\` element that got paid
-
   const { currency, value } = event.amountSent
   console.log(\`Received \${currency} \${value}\`) // -> Received USD 0.01
-
   // Unlock premium content/features
   showPremiumContent()
-})`} />
+})`}
+/>
 
 <Paragraph>
 

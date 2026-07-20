@@ -166,11 +166,17 @@ function collectReplacements(body: string): FenceReplacement[] {
       )
     }
 
+    // Collapse blank lines inside the code. Prettier's MDX parser treats a
+    // blank line in a multi-line `code={`…`}` template literal as a block break
+    // and corrupts the tail (escapes `*`, drops indentation). Removing blank
+    // lines keeps the block prettier-safe. See CODE_BLOCK note in cms/README.md.
+    const code = node.value.replace(/\n(?:[ \t]*\n)+/g, '\n')
+
     const title = node.meta?.match(TITLE_META_RE)?.[1]
     const isNested = (node.position?.start.column ?? 1) > 1
     const codeBlock = isNested
-      ? buildSingleLineCodeBlock(node.value, language, title)
-      : serializeCodeBlock({ code: node.value, language, title })
+      ? buildSingleLineCodeBlock(code, language, title)
+      : serializeCodeBlock({ code, language, title })
 
     // A fence inside a <Paragraph> wrapper must become a sibling block:
     // close the paragraph before it and reopen after. Empty halves are

@@ -19,7 +19,10 @@ In the previous article, we discussed how the [Web Monetization extension connec
 
 As part of the Web Monetization API, websites declare the wallet address where they'd like to receive the money by using the HTML `<link>` tag:
 
-<CodeBlock language="html" code={`<link rel="monetization" href="https://example-wallet.com/my-wallet" />`} />
+<CodeBlock
+  language="html"
+  code={`<link rel="monetization" href="https://example-wallet.com/my-wallet" />`}
+/>
 
 Websites can add multiple link elements to a page to specify multiple wallet addresses - the extension will send payments to each of them sequentially, while respecting user's choice of payment rate. If user's wallet cannot send payments to a wallet address, the extension will skip that address and move on to the next one.
 
@@ -29,9 +32,12 @@ The content script is the primary interface between the extension and the web pa
 
 Once the page loads, the injected content script immediately begins actively monitoring the DOM for all monetization link elements (`<link rel="monetization">` tags).
 
-<CodeBlock language="javascript" code={`function getLinkElements() {
+<CodeBlock
+  language="javascript"
+  code={`function getLinkElements() {
   return document.querySelector('link[rel="monetization"]')
-}`} />
+}`}
+/>
 
 When a new link element is discovered, the content script's first critical action is to assign the element a unique ID. This ID creates a map between the live DOM element and its representation in the background script.
 
@@ -39,22 +45,23 @@ The script proceeds by validating the link element, ensuring its `href` attribut
 
 The script uses the `MutationObserver` API to maintain a persistent, real-time awareness of the state of all the link elements in a document. For instance, if a developer adds the `disabled` attribute to a monetized link element, the content script instantly signals the background to pause payments for that element. Similarly, when a monetized link element gets removed from the DOM, the content script signals the background script to terminate the associated monetization stream.
 
-<CodeBlock language="typescript" code={`function documentMutationCallback() {
+<CodeBlock
+  language="typescript"
+  code={`function documentMutationCallback() {
   const linkElements = getLinkElements()
   const addedLinkElements = diff(linkElements, existingLinkElements)
   const removedLinkElements = diff(existingLinkElements, linkElements)
-
   addedLinkElements.forEach((elem) => {
     const id = assignId(elem)
     const walletAddressInfo = await validateAndFetch(elem.href)
     dispatch('setup_monetization', { walletAddressInfo, id })
   })
-
   removedLinkElements.forEach((elem) => {
     const id = getAssignedId(elem)
     dispatch('stop_monetization', { id })
   })
-}`} />
+}`}
+/>
 
 All of these state changes — discovery, modification, and removal — are communicated by passing messages to the background script. This ensures the background script, which manages the actual payment logic, is always perfectly synchronized with the live state of the web page. This synchronization ultimately feeds the pop-up to display accurate, real-time monetization status to the user.
 
