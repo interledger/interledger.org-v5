@@ -63,7 +63,7 @@ This is a supported option on the adapter specifically for this situation — fi
 
 Verified locally: the `ssr` function bundle dropped from ~300MB down to **57MB**. The excluded folders still show up as empty-ish placeholders in the bundle (a small manifest file, a `.gitkeep`), but the actual image files are gone from it.
 
-Commit: `db024003` — *"exclude public/ files from netlify lambda bundle"*.
+Commit: `db024003` — _"exclude public/ files from netlify lambda bundle"_.
 
 ### A side effect this creates (tracked separately, not fixed here)
 
@@ -96,7 +96,7 @@ The real fix is to stop `getOptimizedImage()` from checking the filesystem at re
 
 - **CMS preview pages now silently show unoptimized images in production.** No error, no log — the only way to notice is that a previewed image looks like the original upload rather than the responsive, compressed version a real visitor would see. Tracked as a follow-up: replace the runtime filesystem check in `getOptimizedImage()` with a build-time manifest, so these pages don't depend on `public/` being present in the deployed function at all.
 - **This fixes the symptom, not the underlying habit that caused it.** If any other piece of code ever adds a similar "check the filesystem at request time" pattern against another large, growing folder, the same kind of failure can happen again under a different folder name, and would need its own exclusion added. The manifest-based fix removes the underlying cause; this change is a stopgap that's good enough for now.
-- `public/img`'s size is driven entirely by how much content is in the CMS, not by anything in this codebase — there's no natural ceiling on how large it can get. Treat this fix as "buys headroom for now," not "solved permanently." If the *build itself* (not just the deployed function) ever starts running into resource limits because of this folder's size, that's a sign this needs revisiting.
+- `public/img`'s size is driven entirely by how much content is in the CMS, not by anything in this codebase — there's no natural ceiling on how large it can get. Treat this fix as "buys headroom for now," not "solved permanently." If the _build itself_ (not just the deployed function) ever starts running into resource limits because of this folder's size, that's a sign this needs revisiting.
 
 ---
 

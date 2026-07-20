@@ -18,11 +18,11 @@ A separate fix (PR #399) changed this: instead of comparing against that long-li
 
 The sync script (`syncAll` in `cms/scripts/sync-mdx/syncCoordinator.ts`) processes every content type — `profiles`, `faqs`, `reports`, `grant-pages`, `grant-overview-pages`, `foundation-pages`, `summit-pages`, `foundation-blog-posts` — **at the same time**, via `Promise.all`. This was itself a deliberate, separate fix (PR #337) that replaced a slower, fully sequential loop, purely for speed.
 
-Running everything at once is fine as long as content types don't reference each other. But they can: MDX authors can embed a `<ProfileCard pathSlug="..." />` or `<ProfileGrid pathSlugs={[...]} />` inside a grant page, blog post, or other page type, to pull in a person's profile. When the sync script hits one of these, it looks up that profile by its pathSlug directly against Strapi (`resolveRelation` in `cms/scripts/sync-mdx/profileHandler.ts`, which calls `strapi.findByPathSlug`) to get its ID. That lookup only succeeds if the profile has *already* been written to Strapi by the time the lookup happens.
+Running everything at once is fine as long as content types don't reference each other. But they can: MDX authors can embed a `<ProfileCard pathSlug="..." />` or `<ProfileGrid pathSlugs={[...]} />` inside a grant page, blog post, or other page type, to pull in a person's profile. When the sync script hits one of these, it looks up that profile by its pathSlug directly against Strapi (`resolveRelation` in `cms/scripts/sync-mdx/profileHandler.ts`, which calls `strapi.findByPathSlug`) to get its ID. That lookup only succeeds if the profile has _already_ been written to Strapi by the time the lookup happens.
 
 `profiles` is the only content type ever looked up this way — nothing in the codebase does the reverse (a profile referencing a grant page, for example). So there's exactly one thing to get right: **profiles need to exist before anything that might reference them gets checked.**
 
-On the old, always-already-populated staging instance, this was never a problem — the profile in question was virtually always already there from a previous merge, so it didn't matter whether `profiles` had "finished" in this particular run or not. On a brand-new empty instance, though, a PR that adds both a new profile *and* a new page referencing that profile in the same PR creates a genuine race: if the page's content gets checked before the new profile has been written, the lookup fails — even though the profile is right there in the same PR and would resolve fine on a second pass.
+On the old, always-already-populated staging instance, this was never a problem — the profile in question was virtually always already there from a previous merge, so it didn't matter whether `profiles` had "finished" in this particular run or not. On a brand-new empty instance, though, a PR that adds both a new profile _and_ a new page referencing that profile in the same PR creates a genuine race: if the page's content gets checked before the new profile has been written, the lookup fails — even though the profile is right there in the same PR and would resolve fine on a second pass.
 
 ### The failure, concretely
 
@@ -52,15 +52,22 @@ Make `syncAll` finish syncing `profiles` completely **before** starting any of t
 const RELATION_TARGET_TYPE = 'profiles' as const
 
 export async function syncAll(ctx: SyncContext, dryRun: boolean) {
-  const contentTypes = Object.keys(ctx.contentTypes) as Array<keyof ContentTypes>
+  const contentTypes = Object.keys(ctx.contentTypes) as Array<
+    keyof ContentTypes
+  >
   const dependents = contentTypes.filter((t) => t !== RELATION_TARGET_TYPE)
 
   if (contentTypes.includes(RELATION_TARGET_TYPE)) {
-    addResults(allResults, await syncContentTypeSafely(RELATION_TARGET_TYPE, ctx, dryRun))
+    addResults(
+      allResults,
+      await syncContentTypeSafely(RELATION_TARGET_TYPE, ctx, dryRun)
+    )
   }
 
   const perTypeResults = await Promise.all(
-    dependents.map((contentType) => syncContentTypeSafely(contentType, ctx, dryRun))
+    dependents.map((contentType) =>
+      syncContentTypeSafely(contentType, ctx, dryRun)
+    )
   )
   // ...
 }
@@ -70,18 +77,18 @@ This is a one-off fix for a single known dependency, not a general dependency-re
 
 This isn't a CI-only fix — `syncAll` is the same function the real, production-facing sync uses (`merge.yml`'s `sync-to-strapi` job, which syncs every push to `staging`/`playground` into the real Strapi instance there). The same race was always theoretically possible during a real merge too; it just never showed up in practice, because a real merge is almost always syncing into an instance that already has the referenced profile from an earlier merge. This fix removes that theoretical risk everywhere `syncAll` runs, not just in CI.
 
-Commit: `ac4cf213` — *"syncAll awaits for relations to be synced first — concurrency fix"*.
+Commit: `ac4cf213` — _"syncAll awaits for relations to be synced first — concurrency fix"_.
 
 ### A second bug, found immediately after, from the same underlying cause
 
-Fixing the ordering surfaced a *different* failure for the exact same content:
+Fixing the ordering surfaced a _different_ failure for the exact same content:
 
 ```
 ⚠️  [DRY-RUN] Relation "grant/fellowship/lawil-karama" (profile-pages)
     not yet in Strapi — would be created by this same sync run.
 ```
 
-Here's why: even with `profiles` now guaranteed to go first, **a dry run never actually writes anything to Strapi, by design** — that's the whole point of "dry run." So even after the `profiles` step logs `✅ [DRY-RUN] Would create: grant/fellowship/lawil-karama`, no such profile actually exists in the database — there's nothing for the grant page's lookup to find. Fixing the *order* things happen in doesn't change the fact that dry-run mode never persists anything for a later step to find, regardless of order.
+Here's why: even with `profiles` now guaranteed to go first, **a dry run never actually writes anything to Strapi, by design** — that's the whole point of "dry run." So even after the `profiles` step logs `✅ [DRY-RUN] Would create: grant/fellowship/lawil-karama`, no such profile actually exists in the database — there's nothing for the grant page's lookup to find. Fixing the _order_ things happen in doesn't change the fact that dry-run mode never persists anything for a later step to find, regardless of order.
 
 The fix mirrors one already in place for images: when a relation lookup comes up empty, and we're in dry-run mode, check whether that pathSlug exists among the profile MDX files being synced in this same run. If it does, treat it as "would resolve, once this run actually applies" instead of a hard failure:
 
@@ -96,7 +103,7 @@ if (dryRun && dryRunPathSlugs?.has(pathSlug)) {
 
 (`createRelationResolver` in `cms/scripts/sync-mdx/profileHandler.ts`; the pathSlug set is computed once via `scanMDXFiles('profiles', contentTypes)` in `cms/scripts/sync-mdx/config.ts`.) This exactly parallels `createMediaUploadResolver`'s existing behavior for images: an image that doesn't exist in Strapi yet, but does exist on disk, is treated as "would resolve" rather than broken. The placeholder `documentId` returned here is never actually sent anywhere, since dry-run mode never sends any payload to Strapi in the first place.
 
-Commit: `f5d557ab` — *"syncAll - resolveRelation needed the same dry-run tolerance as resolveMediaUpload"*.
+Commit: `f5d557ab` — _"syncAll - resolveRelation needed the same dry-run tolerance as resolveMediaUpload"_.
 
 ---
 
@@ -121,7 +128,7 @@ Commit: `f5d557ab` — *"syncAll - resolveRelation needed the same dry-run toler
 **Negative / watch for**
 
 - **This only covers the one dependency that exists today.** The fix hardcodes `profiles` as the thing that must go first. If a second cross-content-type reference is ever added — say, a grant page referencing a grant-overview page by pathSlug — this fix does **not** automatically protect it. Whoever adds that needs to either extend this into a proper multi-stage ordering, or explicitly check whether the new reference is safe under the current "one type goes first" approach.
-- **Within a single content type, files are still processed in plain file order, not dependency order.** If a profile page ever needed to reference *another* profile page (e.g., a "related team members" grid on a profile itself), and both were new in the same PR, this same race could reappear — just one level down, within `profiles` instead of between content types. This doesn't happen anywhere in the current content (checked: no file under `src/content/profiles/` uses `ProfileCard`/`ProfileGrid`), but it's worth remembering if that ever changes.
+- **Within a single content type, files are still processed in plain file order, not dependency order.** If a profile page ever needed to reference _another_ profile page (e.g., a "related team members" grid on a profile itself), and both were new in the same PR, this same race could reappear — just one level down, within `profiles` instead of between content types. This doesn't happen anywhere in the current content (checked: no file under `src/content/profiles/` uses `ProfileCard`/`ProfileGrid`), but it's worth remembering if that ever changes.
 - The placeholder value returned for an unresolved dry-run relation (`"dry-run:<apiId>:<pathSlug>"`) is not a real Strapi ID — it must never end up in a payload that's actually sent to Strapi. This is safe today because dry-run mode blocks every write, but any future change to how dry-run enforces that boundary needs to preserve this.
 
 ---
