@@ -1,0 +1,56 @@
+---
+import TitleCard from '@/components/shared/TitleCard.astro'
+
+const GRID_COLUMNS_CLASS = {
+  Two: 'desktop:grid-cols-2',
+  Three: 'desktop:grid-cols-3'
+} as const satisfies Record<string, string>
+
+interface StrapiTitleCard {
+  heading: string
+  subHeading?: string
+  description: string
+  secondaryCta: {
+    link: string
+    text: string
+    external?: boolean
+  }
+}
+
+interface Props {
+  ariaLabel: string
+  columns: keyof typeof GRID_COLUMNS_CLASS
+  titleCards?: StrapiTitleCard[]
+}
+
+const { ariaLabel, columns, titleCards }: Props = Astro.props
+const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
+---
+
+<section aria-label={ariaLabel}>
+  <div
+    class={`grid grid-cols-1 gap-lg tablet:grid-cols-2 tablet:gap-xl ${gridColumnsClass}`}
+  >
+    {
+      // Strapi preview (DynamicZone.astro) passes `titleCards`;
+      // MDX authoring passes <TitleCard> children instead, so we fall through to the slot.
+      titleCards ? (
+        titleCards.map((card) => {
+          return (
+            <TitleCard
+              heading={card.heading}
+              subheading={card.subHeading}
+              buttonUrl={card.secondaryCta.link}
+              buttonText={card.secondaryCta.text}
+              buttonExternal={card.secondaryCta.external}
+            >
+              <Fragment set:html={card.description} />
+            </TitleCard>
+          )
+        })
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</section>

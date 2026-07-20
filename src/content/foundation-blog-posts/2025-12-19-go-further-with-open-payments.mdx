@@ -47,12 +47,11 @@ import (
     openpayments "github.com/interledger/open-payments-go"
     as "github.com/interledger/open-payments-go/generated/authserver"
     rs "github.com/interledger/open-payments-go/generated/resourceserver"
-
 )
 
 func main() {
-privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
-keyId := os.Getenv("KEY_ID")
+    privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
+    keyId := os.Getenv("KEY_ID")
 
     // Initialize the authenticated client
     client, err := openpayments.NewAuthenticatedClient(
@@ -120,7 +119,6 @@ keyId := os.Getenv("KEY_ID")
     }
 
     log.Printf("Created incoming payment: %s", *payment.Id)
-
 }`} />
 
 With Go's strong typing and the SDK's clean API design, developers get compile-time safety and IDE autocompletion for the entire Open Payments workflow.
@@ -195,10 +193,7 @@ Go powers a significant portion of cloud infrastructure, payment systems, and fi
 
 Install the SDK:
 
-<CodeBlock
-  language="bash"
-  code={`go get github.com/interledger/open-payments-go`}
-/>
+<CodeBlock language="bash" code={`go get github.com/interledger/open-payments-go`} />
 
 The SDK requires Go 1.21 or later. For development, you'll also need to initialize the OpenAPI spec submodule:
 

@@ -37,7 +37,7 @@ export const buttonVariants = cva(
           // once design specifies per-pillar focus colours.
           'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
-          'disabled:bg-button-primary-disabled disabled:text-neutral-0 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-0'
+          'disabled:bg-button-primary-disabled disabled:text-neutral-25 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-25'
         ],
         secondary: ['bg-transparent border'],
         // Footer ghost button. Inline text-with-padding link, no fill, no

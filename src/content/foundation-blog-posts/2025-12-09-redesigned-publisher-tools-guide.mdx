@@ -22,16 +22,13 @@ The new system cleanly separates responsibilities. Publishers create a tools pro
 
 ### The Publisher Embeds the Script
 
-<CodeBlock
-  language="html"
-  code={`<script
+<CodeBlock language="html" code={`<script
   id="wmt-widget-init-script"
   type="module"
   data-wallet-address="https://ilp.wallet.money/alice"
   data-tag="version1"
   src="https://cdn.webmonetization.org/widget.js"
-></script>`}
-/>
+></script>`} />
 
 **Why we need a `cdn` module**
 
@@ -73,27 +70,24 @@ With the configuration fetched, the script creates and renders the web component
 customElements.define('wm-payment-widget', PaymentWidget)
 
 fetchConfig(API_URL, 'widget', params).then((config) => {
-const element = document.createElement('wm-payment-widget')
-element.config = {
-receiverAddress: walletAddress,
-...config
-}
-document.body.appendChild(element)
+  const element = document.createElement('wm-payment-widget')
+  element.config = {
+    receiverAddress: walletAddress,
+    ...config
+  }
+  document.body.appendChild(element)
 })`} />
 
 The `<wm-payment-widget>` element is one of our interactive tools defined in the `components` module. The script creates an instance, passes the configuration as properties, and appends it to the DOM, using Shadow DOM for style encapsulation.
 
 Lastly, it also adds a monetization `<link>` tag to the `<head>`, using the wallet address used through the `frontend` interface. That means your site becomes Web Monetized automatically. You are welcome!
 
-<CodeBlock
-  language="typescript"
-  code={`function appendMonetizationLink(walletAddressUrl: string) {
+<CodeBlock language="typescript" code={`function appendMonetizationLink(walletAddressUrl: string) {
   const monetizationElement = document.createElement('link')
   monetizationElement.rel = 'monetization'
   monetizationElement.href = walletAddressUrl
   document.head.appendChild(monetizationElement)
-}`}
-/>
+}`} />
 
 That's it!
 

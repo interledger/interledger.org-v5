@@ -35,9 +35,7 @@ Since the WM browser extension works its magic on web pages, we can test its cor
 
 We can launch the browser with our extension loaded using the `--load-extension=${pathToExtension}` CLI argument. We need to launch it in a persistent context with Playwright.
 
-<CodeBlock
-  language="typescript"
-  code={`function loadExtension(pathToExtension: string): Promise<BrowserContext> {
+<CodeBlock language="typescript" code={`function loadExtension(pathToExtension: string): Promise<BrowserContext> {
   const context = await chromium.launchPersistentContext('', {
     headless: true,
     args: [
@@ -47,50 +45,37 @@ We can launch the browser with our extension loaded using the `--load-extension=
     ]
   })
   return context
-}`}
-/>
+}`} />
 
 ## Accessing the background service worker
 
 We require access to the extension's background service worker to interact with the browser extension APIs, including its local storage.
 
-<CodeBlock
-  language="typescript"
-  code={`let background = context.serviceWorkers()[0]
+<CodeBlock language="typescript" code={`let background = context.serviceWorkers()[0]
 if (!background) {
   background = await context.waitForEvent('serviceworker')
-}`}
-/>
+}`} />
 
 To access and modify the extension's local storage, we need to evaluate the Storage API calls within the context of the extension's service worker:
 
-<CodeBlock
-  language="typescript"
-  code={`const storageData = await background.evaluate(() => {
+<CodeBlock language="typescript" code={`const storageData = await background.evaluate(() => {
   return chrome.storage.local.get([key1, key2])
 })
-// note the use of \`chrome.\` namespace - this works in Chromium as well as Firefox!`}
-/>
+// note the use of \`chrome.\` namespace - this works in Chromium as well as Firefox!`} />
 
 For instance, to verify if a user has connected their wallet to the WM extension, we can check the extension's local storage:
 
-<CodeBlock
-  language="typescript"
-  code={`const data = await background.evaluate(() => {
+<CodeBlock language="typescript" code={`const data = await background.evaluate(() => {
   return chrome.storage.local.get(['connected'])
 })
-expect(data.connected).toBe(true)`}
-/>
+expect(data.connected).toBe(true)`} />
 
 A nice thing with Playwright is we get TypeScript support out of the box, even in `evaluate` contexts:
 
-<CodeBlock
-  language="typescript"
-  code={`const { connected } = await background.evaluate(() => {
+<CodeBlock language="typescript" code={`const { connected } = await background.evaluate(() => {
   return chrome.storage.local.get < { connected: boolean } > ['connected']
 })
-expect(connected).toBe(true)`}
-/>
+expect(connected).toBe(true)`} />
 
 We can use this trick to mess with all sorts of extension APIs - opening and closing tabs, listening in on events, and more. This gives us the power to test our extension's behavior from top to bottom.
 
@@ -106,12 +91,9 @@ Playwright doesn't have a magic button to open and poke around in the popup just
 
 The good news: the extension's UI is just a fancy HTML page. There's no bad news in this part. This means we can open it like any other webpage in a new tab! But what's the URL for this popup page? That varies from browser to browser, it's something like: `chrome-extension://{extensionId}/{path/to/popup.html}`. And how do we get the extension ID? Luckily, the background service worker has a URL too! We can extract the ID from its URL using a bit of JavaScript magic: `background.url().split('/')[2]`. Or, if you prefer a more semantic approach, you can use `new URL(background.url()).hostname`. Alternatively, we can get the full popup URL by evaluating `browser.action.getPopup({})` in the background worker context. Sometimes the simplest solutions come to mind only after you've gone knee-deep into a hacking challenge! So always take a break!
 
-<CodeBlock
-  language="typescript"
-  code={`const popup = await context.newPage()
+<CodeBlock language="typescript" code={`const popup = await context.newPage()
 await popup.goto(popupUrl)
-// Now we can access the popup as a regular Playwright page`}
-/>
+// Now we can access the popup as a regular Playwright page`} />
 
 To make this more compatible with the way the extension opens its popup, we can open it in a literal popup window. This way we can keep the popup visible separately when we run Playwright tests in UI mode (or view captured screenshots or traces), and it looks like a popup this way - not a tab.
 
@@ -125,7 +107,7 @@ To make this more compatible with the way the extension opens its popup, we can 
   await page.close() // we don't need it anymore
   await popup.goto(popupUrl) // window.open doesn't allow internal browser pages
 
-return popup // now we can access the popup as a regular Playwright page
+  return popup // now we can access the popup as a regular Playwright page
 }`} />
 
 Note that opening the popup by clicking the extension icon is equivalent to loading that popup page. So, we can reload the popup page before each test to simulate that.
@@ -137,14 +119,16 @@ We can test the above helper functions to work well enough:
 <CodeBlock language="typescript" code={`import { test, expect } from '@playwright/test'
 
 test('popup has connect form', async ({ browserName }) => {
-const context = await loadExtension(browserName)
-const background = await getBackground(context)
-const popup = await getPopup(context, background)
+  const context = await loadExtension(browserName)
+  const background = await getBackground(context)
+  const popup = await getPopup(context, background)
 
-const { connected } = await background.evaluate(() => {/* chrome.storage... */})
-expect(connected).toBe(false)
+  const { connected } = await background.evaluate(() => {
+    /* chrome.storage... */
+  })
+  expect(connected).toBe(false)
 
-await expect(popup.locator('form')).toBeAttached()
+  await expect(popup.locator('form')).toBeAttached()
 })`} />
 
 But why bother setting up the stage for each test, or even once per file with `beforeAll` (and a responsible cleanup in `afterAll`)? Enter fixtures!
@@ -191,25 +175,29 @@ We then use this fixture as:
 import { test, expect } from './fixtures/base'
 
 test('popup has connect form', async ({ background, popup }) => {
-const { connected } = await background.evaluate(() => {/* ... */})
-expect(connected).toBe(false)
+  const { connected } = await background.evaluate(() => {
+    /* ... */
+  })
+  expect(connected).toBe(false)
 
-await expect(popup.locator('form')).toBeAttached()
+  await expect(popup.locator('form')).toBeAttached()
 })
 
 test('can connect to wallet', async ({ background, popup }) => {
-await popup.getByRole('button').submit()
+  await popup.getByRole('button').submit()
 
-const { connected } = await background.evaluate(() => {/* ... */})
-expect(connected).toBe(true)
+  const { connected } = await background.evaluate(() => {
+    /* ... */
+  })
+  expect(connected).toBe(true)
 })
 
 test('monetizes page', async ({ background, popup, page }) => {
-await connectWallet(popup)
-await page.goto('https://example.com')
+  await connectWallet(popup)
+  await page.goto('https://example.com')
 
-await expect(popup.getByLabel('status')).toHaveText('monetizing...')
-await expect(popup.locator('url')).toHaveText('example.com')
+  await expect(popup.getByLabel('status')).toHaveText('monetizing...')
+  await expect(popup.locator('url')).toHaveText('example.com')
 })`} />
 
 Much better! We can make our fixtures even more powerful by customizing them for specific tests. For instance, when we're testing payments, we can set up the wallet connection within the fixture itself. This way, we can focus on the specific payment tests without repeating the connection process each time.
@@ -229,9 +217,9 @@ import { test as base } from '@playwright/test'
 type TestScope = { page: Page }
 // created once per worker
 type WorkerScope = {
-persistentContext: BrowserContext
-background: Worker
-popup: Page
+  persistentContext: BrowserContext
+  background: Worker
+  popup: Page
 }
 
 export const test = base.extend<TestScope, WorkerScope>({
@@ -261,11 +249,11 @@ export const test = base.extend<TestScope, WorkerScope>({
     { scope: 'worker' }
   ],
 
-page: async ({ persistentContext: context }, use) => {
-const page = await context.newPage()
-await use(page)
-await page.close()
-}
+  page: async ({ persistentContext: context }, use) => {
+    const page = await context.newPage()
+    await use(page)
+    await page.close()
+  }
 })
 export const expect = test.expect`} />
 
@@ -297,13 +285,12 @@ For the Web Monetization extension, it's more useful for us to intercept request
 <CodeBlock language="typescript" code={`context.on('requestfinished', async function intercept(req) {
   if (!req.serviceWorker()) return // we only care about service worker requests here
 
-if (isTheRequestWeAreAfter(req)) {
-const json = await req.response().then((res) => res.json())
-// ... use response body
+  if (isTheRequestWeAreAfter(req)) {
+    const json = await req.response().then((res) => res.json())
+    // ... use response body
 
     context.off('requestfinished', intercept) // we're responsible citizens
-
-}
+  }
 })`} />
 
 ## More optimization tricks up our sleeve
@@ -316,21 +303,21 @@ Most of our payment tests require logging in to the [Interledger Test Wallet](ht
 setup('authenticate', async ({ page }) => {
   setup.skip(existsSync(AUTH_FILE), 'Already authenticated')
 
-await page.goto(\`\${TEST_WALLET_ORIGIN}/auth/login\`)
-await page.getByLabel('E-mail').fill(TEST_WALLET_USERNAME)
-await page.getByLabel('Password').fill(TEST_WALLET_PASSWORD)
-await page.getByRole('button', { name: 'login' }).click()
+  await page.goto(\`\${TEST_WALLET_ORIGIN}/auth/login\`)
+  await page.getByLabel('E-mail').fill(TEST_WALLET_USERNAME)
+  await page.getByLabel('Password').fill(TEST_WALLET_PASSWORD)
+  await page.getByRole('button', { name: 'login' }).click()
 
-await page.context().storageState({ path: AUTH_FILE })
+  await page.context().storageState({ path: AUTH_FILE })
 })
 
 //Later, load the cookies into the browser context
 
 // tests/e2e/fixtures/base.ts
 export const test = base.extend<TestScope, WorkerScope>({
-persistentContext: [
-async ({ browserName }, use, workerInfo) => {
-const context = await loadExtension(browserName)
+  persistentContext: [
+    async ({ browserName }, use, workerInfo) => {
+      const context = await loadExtension(browserName)
 
       if (workerInfo.project.name !== 'setup') {
         const { cookies } = await readFile(AUTH_FILE).then(JSON.parse)
@@ -341,9 +328,8 @@ const context = await loadExtension(browserName)
       await context.close()
     },
     { scope: 'worker' }
-
-]
-// ...
+  ]
+  // ...
 })`} />
 
 ### Saving the wallet's connected state

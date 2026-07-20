@@ -58,19 +58,13 @@ Let’s collect this all into a nice sequence diagram.
 
 While extremely useful, OAuth 2.0 is best suited for delegating access to _information_. Sadly, when one is interested in delegating _control_, rather than access, the tradition of OAuth 2.0 begins to fall short. A typical OAuth 2.0 authorization is initialized when a third party client generates a link for a resource owner that contains, among other things, a “scope” value that contains a list of the items the authorization should grant access to. For example:
 
-<CodeBlock
-  language="javascript"
-  code={`scope = 'email,username,channels:read'`}
-/>
+<CodeBlock language="javascript" code={`scope = 'email,username,channels:read'`} />
 
 In this example lifted from Slack’s OAuth API, this scope will grant access to a resource owner’s email address and username. In addition, it will allow the channels of a Slack instance to be read by the third party client.
 
 Now, the issue with expressing access only as a string, is that it’s cumbersome to express any specifics on the access that’s being granted. Slack attempts to solve this by concatenating parts together, but for a payment, there are enough parts where it becomes really clumsy. Imagine what the scope for a payment might look like with this model, accounting for things like the transaction amount and a billing frequency of once a month:
 
-<CodeBlock
-  language="javascript"
-  code={`scope = 'outgoing-payment:100:USD:P1M'`}
-/>
+<CodeBlock language="javascript" code={`scope = 'outgoing-payment:100:USD:P1M'`} />
 
 This approach is starting to push the boundaries of convenience and ability to parse the scope. Do we need to enforce an order in which information is added to a scope, so that it can be parsed properly? How would we handle optional parts? Should we just stringify a JSON object and call that a scope? From a development standpoint, things are starting to get out of hand.
 
@@ -83,17 +77,17 @@ An early attempt to add this context to an authorized payment was through someth
   &authorization_details=%7B%0A%20%20%22open_payments%22%3A%7B%0A%20%20%20%20%20%22mandate%22%3A%7B%0A%20%20%20%20%20%20%20%20%22name%22%3A%20%22%2F%2Fissuer.wallet%2Fmandates%2F2fad69d0-7997-4543-8346-69b418c479a6%22%0A%20%20%20%20%20%7D%0A%20%20%7D%0A%7D HTTP/1.1
 Host: wallet.example
 
-// URL contains stringified copy of the following object:
-// {
-// "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
-// "account": "https://wallet.example/bob",
-// "amount": 200,
-// "assetCode" : "USD",
-// "assetScale": 2,
-// "interval": "P1M",
-// "startAt": "2020-01-22T00:00:00Z",
-// "balance": 200
-// }`} />
+//  URL contains stringified copy of the following object:
+//  {
+//    "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
+//    "account": "https://wallet.example/bob",
+//    "amount": 200,
+//    "assetCode" : "USD",
+//    "assetScale": 2,
+//    "interval": "P1M",
+//    "startAt": "2020-01-22T00:00:00Z",
+//    "balance": 200
+//  }`} />
 
 Now we’re getting messy again. It’s immediately clear how much noise is in the “authorization_details” query parameter, and in a more practical sense, there’s the added step of creating the mandate before a client can request authorization from a resource owner. We haven’t even gotten into the fact that a whole other object, a “charge”, needs to be created on the resource server in order to make use of the mandate. **It’s additional overhead for the resource server to maintain all of those mandates for a process that ideally should be handled entirely by the authorization server delegating access.**
 
@@ -111,9 +105,7 @@ Enter the Grant Negotiation and Authorization Protocol (GNAP), the heir apparent
 
 Like mandates, a client will make a request to the Open Payments Auth Server specifying what permissions it would like to have on a resource. The difference here is that this request is part of the spec, so it doesn’t have to live on and be maintained by the server. Additionally, it’s capable of expressing the limitations and caveats on the permissions it’s requesting that we need to properly describe a payment. GNAP achieves this through the grant request. This example describes how a client making this request can create or read outgoing payments for a particular incoming payment for 5 dollars:
 
-<CodeBlock
-  language="json"
-  code={`{
+<CodeBlock language="json" code={`{
   "access_token": {
     "access": [
       {
@@ -141,14 +133,11 @@ Like mandates, a client will make a request to the Open Payments Auth Server spe
       "nonce": "4edb2194-dbdf-46bb-9397-d5fd57b7c8a7"
     }
   }
-}`}
-/>
+}`} />
 
 After the grant request is made, the Open Payments authorization server responds with a URL that kicks off an authorization flow, similar to when a client makes a request to an OAuth 2.0 authorization server. There are many components to the grant request, but the most important to describing a payment is the “access” field:
 
-<CodeBlock
-  language="json"
-  code={`"access": [
+<CodeBlock language="json" code={`"access": [
   {
     "type": "outgoing-payment",
     "actions": [
@@ -166,8 +155,7 @@ After the grant request is made, the Open Payments authorization server responds
       }
     }
   }
-]`}
-/>
+]`} />
 
 Note how much more specific and readable a grant request can be with its intentions for a payment. The “actions” field can hold what actions can be performed on the resource. Importantly, the “limits” field is open-ended enough that it can specify the amount of the payment, the currency it is in, and its frequency (if applicable) in an understandable way. Essentially, it is able to use two important features of OAuth 2.0 and the “mandates” system without creating significant overhead:
 

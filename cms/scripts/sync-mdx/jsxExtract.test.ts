@@ -5,7 +5,12 @@ import remarkMdx from 'remark-mdx'
 import type { MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import type { Root } from 'mdast'
 
-import { getStringAttr, getBooleanAttr, getStringArrayAttr } from './jsxExtract'
+import {
+  getStringAttr,
+  getBooleanAttr,
+  getStringArrayAttr,
+  getChildElements
+} from './jsxExtract'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // ---------------------------------------------------------------------------
@@ -144,5 +149,50 @@ describe('getStringArrayAttr', () => {
         code: ParserErrorCode.DYNAMIC_EXPRESSION
       })
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getChildElements
+// ---------------------------------------------------------------------------
+
+describe('getChildElements', () => {
+  it('collects same-name children written on their own line', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => getStringAttr(c, 'id'))).toEqual(['1', '2'])
+  })
+
+  it('collects a child written inline on the same line as its siblings', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1">text</Card>', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(1)
+    expect(getStringAttr(cards[0], 'id')).toBe('1')
+  })
+
+  it('ignores children with a different name', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Other id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(1)
+    expect(getStringAttr(cards[0], 'id')).toBe('1')
+  })
+
+  it('returns an empty array when there are no matching children', () => {
+    const node = parseJsx(['<Grid>', 'Just text.', '</Grid>'].join('\n'))
+
+    expect(getChildElements(node, 'Card')).toEqual([])
   })
 })

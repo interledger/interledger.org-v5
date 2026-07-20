@@ -135,15 +135,12 @@ The application layer is the final layer of the Interledger stack, defining deve
 
 [SPSP](https://interledger.org/developers/rfcs/simple-payment-setup-protocol/) simplifies the process of setting up payments. When a GET request is made to a URL associated with a payment pointer using the SPSP request headers, SPSP defines what needs to be returned.
 
-<CodeBlock
-  language="http"
-  code={`HTP/1.1 200 OK
+<CodeBlock language="http" code={`HTP/1.1 200 OK
 Content-Type: application/spsp4+json
 {
   "destination_account": "example.ilpdemo.red.bob",
   "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
-}`}
-/>
+}`} />
 
 These include the `destination_account`, which is the ILP address of the recipient, and a `shared_secret` for encrypting STREAM packets. SPSP ensures a secure and straightforward payment setup for entities or individuals with direct ILP access, meaning entities or individuals that are able to create, send, and receive ILP packets directly without the help of another entity.
 

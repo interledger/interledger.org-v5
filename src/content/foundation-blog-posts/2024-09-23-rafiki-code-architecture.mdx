@@ -86,12 +86,12 @@ const container: IocContract<AppServices> = new Ioc()
 ...
 
 container.singleton('incomingPaymentRoutes', async (deps) => {
-return createIncomingPaymentRoutes({
-config: await deps.use('config'),
-logger: await deps.use('logger'),
-incomingPaymentService: await deps.use('incomingPaymentService'),
-streamCredentialsService: await deps.use('streamCredentialsService')
-})
+  return createIncomingPaymentRoutes({
+    config: await deps.use('config'),
+    logger: await deps.use('logger'),
+    incomingPaymentService: await deps.use('incomingPaymentService'),
+    streamCredentialsService: await deps.use('streamCredentialsService')
+  })
 })`} />
 
 In this call, a name for the service is passed to the IoC container, and a factory for that service. In turn, that factory takes the other services that it depends on. In this case, the `incomingPaymentRoutes` service depends on services that parse configuration and output logs for the `backend`. The `index.ts` file thus good for seeing all of the services the backend uses, and how each of the services depend on one another.
@@ -107,28 +107,25 @@ These services are then attached to routes in the [`/src/app.ts`](https://github
 // POST /incoming-payments
 // Create incoming payment
 router.post<DefaultState, SignedCollectionContext<IncomingCreateBody>>(
-'/incoming-payments',
-createValidatorMiddleware<
-ContextType<SignedCollectionContext<IncomingCreateBody>>
-
-> (
-
+  '/incoming-payments',
+  createValidatorMiddleware<
+    ContextType<SignedCollectionContext<IncomingCreateBody>>
+  >(
     resourceServerSpec,
     {
       path: '/incoming-payments',
       method: HttpMethod.POST
     },
     validatorMiddlewareOptions
-
-),
-getWalletAddressUrlFromRequestBody,
-createTokenIntrospectionMiddleware({
-requestType: AccessType.IncomingPayment,
-requestAction: RequestAction.Create
-}),
-httpsigMiddleware,
-getWalletAddressForSubresource,
-incomingPaymentRoutes.create
+  ),
+  getWalletAddressUrlFromRequestBody,
+  createTokenIntrospectionMiddleware({
+    requestType: AccessType.IncomingPayment,
+    requestAction: RequestAction.Create
+  }),
+  httpsigMiddleware,
+  getWalletAddressForSubresource,
+  incomingPaymentRoutes.create
 )`} />
 
 In this mounting of the `POST /incoming-payments` route, all of the middleware as well as the main handler (`incomingPaymentRoutes.create`) can be seen being attached to that mounting. Note how the `incomingPaymentRoutes` services is acquired from the container using the name that was passed into the function that attached that service to the IoC container. This pattern can be followed for other routes to see which services handle fulfilling requests made to the routes on the Rafiki `backend`.
@@ -153,15 +150,15 @@ const container: IocContract<AppServices> = new Ioc()
 ...
 
 container.singleton('grantRoutes', async (deps: IocContract<AppServices>) => {
-return createGrantRoutes({
-grantService: await deps.use('grantService'),
-clientService: await deps.use('clientService'),
-accessTokenService: await deps.use('accessTokenService'),
-accessService: await deps.use('accessService'),
-interactionService: await deps.use('interactionService'),
-logger: await deps.use('logger'),
-config: await deps.use('config')
-})
+  return createGrantRoutes({
+    grantService: await deps.use('grantService'),
+    clientService: await deps.use('clientService'),
+    accessTokenService: await deps.use('accessTokenService'),
+    accessService: await deps.use('accessService'),
+    interactionService: await deps.use('interactionService'),
+    logger: await deps.use('logger'),
+    config: await deps.use('config')
+  })
 })`} />
 
 Again, note the route service for grants is mounted to the container, and then subsequently referenced when attaching service functions to the relevant routes.
@@ -172,16 +169,16 @@ Again, note the route service for grants is mounted to the container, and then s
 
 ...
 
-/_ Back-channel GNAP Routes _/
+/* Back-channel GNAP Routes */
 // Grant Initiation
 router.post<DefaultState, CreateContext>(
-'/',
-createValidatorMiddleware<CreateContext>(openApi.authServerSpec, {
-path: '/',
-method: HttpMethod.POST
-}),
-grantInitiationHttpsigMiddleware,
-grantRoutes.create
+  '/',
+  createValidatorMiddleware<CreateContext>(openApi.authServerSpec, {
+    path: '/',
+    method: HttpMethod.POST
+  }),
+  grantInitiationHttpsigMiddleware,
+  grantRoutes.create
 )`} />
 
 Like the `backend`, the `auth` server also extends a GraphQL API to perform admin functions. The API is modeled by this [GraphQL schema](https://github.com/interledger/rafiki/blob/main/packages/auth/src/graphql/schema.graphql).

@@ -42,9 +42,7 @@ The assessment outlined a few recommendations against common GraphQL attacks, on
 
 Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circular relationships between the models. As a result, bad actors can create requests containing circular queries, causing nested fields to be resolved recursively:
 
-<CodeBlock
-  language="graphql"
-  code={`query {
+<CodeBlock language="graphql" code={`query {
   __schema {
     types {
       name
@@ -63,16 +61,13 @@ Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circ
       }
     }
   }
-}`}
-/>
+}`} />
 
 Without proper handling, this can cause the server to grind to a halt trying to process these kinds of requests. The recommendation from the audit was to limit the depth of valid queries, such that no requests past a certain level of nesting can be resolved.
 
 In addition, there is a threat of field duplication attacks in GraphQL APIs: an attacker tries to overload the API by excessively requesting fields many times over in a single query. Even though standard GraphQL implementations end up correctly calling the underlying resolver (handler) only once per field, the GraphQL parser needs to do a lot of work to actually process the request, potentially leading to a denial of service (DoS).
 
-<CodeBlock
-  language="graphql"
-  code={`query GetAsset($id: String!) {
+<CodeBlock language="graphql" code={`query GetAsset($id: String!) {
   asset(id: $id) {
     id
     code
@@ -82,8 +77,7 @@ In addition, there is a threat of field duplication attacks in GraphQL APIs: an 
     liquidity
     ...
   }
-}`}
-/>
+}`} />
 
 This can be prevented by limiting queries that go above a certain complexity threshold, or by limiting the number of "tokens" (such as fields) allowed in a request.
 We ended up [using](https://github.com/interledger/rafiki/pull/2537) a library called [`@escape.tech/graphql-armor`](https://escape.tech/graphql-armor/docs/getting-started/) to set different kinds of constraints to protect us from these kinds of attacks.

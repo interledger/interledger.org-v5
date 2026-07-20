@@ -61,4 +61,33 @@ describe('validateContentBlocks', () => {
 
     expect(err).toBeDefined()
   })
+
+  it('prefixes a SerializerFieldError path with the content dynamic zone field and the block index, so the admin UI can highlight it', () => {
+    const err = validateContentBlocks([
+      { __component: 'blocks.paragraph', content: 'First block, valid.' },
+      {
+        __component: 'blocks.title-card-grid',
+        columns: 'Two',
+        titleCards: [{}]
+      }
+    ])
+
+    expect(err?.details.errors[0].path).toEqual(['content', '1', 'ariaLabel'])
+  })
+
+  it('collects failing fields from every invalid block in the zone, not just the first', () => {
+    const err = validateContentBlocks([
+      { __component: 'blocks.paragraph', content: '' },
+      {
+        __component: 'blocks.title-card-grid',
+        columns: 'Two',
+        titleCards: [{}]
+      }
+    ])
+
+    const paths = err?.details.errors.map((e) => e.path)
+    expect(paths).toContainEqual(['content', '0'])
+    expect(paths).toContainEqual(['content', '1', 'ariaLabel'])
+    expect(paths).toContainEqual(['content', '1', 'titleCards', '0', 'heading'])
+  })
 })

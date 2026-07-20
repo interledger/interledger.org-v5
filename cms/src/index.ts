@@ -755,6 +755,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       style: 'Style',
       external: 'External Link'
     },
+    'shared.primary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
+    'shared.secondary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
     'shared.report-date': {
       publishDate: 'Publish Date',
       lastUpdated: 'Last Updated'
@@ -873,6 +883,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
+    'blocks.title-card-grid': {
+      titleCards: 'Title cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessibility label'
+    },
+    'blocks.title-card': {
+      heading: 'Heading',
+      subHeading: 'Sub heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -940,6 +961,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
       content:
         'Rich text for the content column. Leave empty when using a Quote.'
+    },
+    'blocks.title-card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+    },
+    'shared.secondary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1300,6 +1328,19 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quoteSource', size: 4 }
       ],
       [{ name: 'cta', size: 12 }]
+    ],
+    'blocks.title-card-grid': [
+      [
+        { name: 'columns', size: 4 },
+        { name: 'ariaLabel', size: 8 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
+    ],
+    'blocks.title-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subHeading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
     ]
   }
 

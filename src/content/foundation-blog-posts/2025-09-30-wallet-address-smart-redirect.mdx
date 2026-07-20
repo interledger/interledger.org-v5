@@ -19,17 +19,14 @@ When you think of a **wallet address**, you probably think of a string of charac
 
 Traditionally, when an Open Payments client queries that address, it receives a structured JSON:
 
-<CodeBlock
-  language="json"
-  code={`{
+<CodeBlock language="json" code={`{
   "id": "https://ilp.interledger.cards/007",
   "publicName": "John Doe",
   "assetCode": "EUR",
   "assetScale": 2,
   "authServer": "https://auth.interledger.cards",
   "resourceServer": "https://ilp.interledger.cards"
-}`}
-/>
+}`} />
 
 This is perfect for developers and systems that need machine-readable data. But what about people?
 
@@ -78,10 +75,7 @@ Meanwhile, behind the scenes:
 
 Enable **Wallet Address Smart Redirect** by setting a single environment variable:
 
-<CodeBlock
-  language="bash"
-  code={`WALLET_ADDRESS_REDIRECT_HTML_PAGE="https://interledgerpay.com/payment-choice?receiver=%ewa"`}
-/>
+<CodeBlock language="bash" code={`WALLET_ADDRESS_REDIRECT_HTML_PAGE="https://interledgerpay.com/payment-choice?receiver=%ewa"`} />
 
 ### Header behavior
 
