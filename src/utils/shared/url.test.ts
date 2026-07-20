@@ -1,5 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { ensureAbsoluteUrl, getSocialIconName } from './url'
+import { ensureAbsoluteUrl, ensureLeadingSlash, getSocialIconName } from './url'
+
+describe('ensureLeadingSlash', () => {
+  it('prepends a slash when missing', () => {
+    expect(ensureLeadingSlash('grants/apply')).toBe('/grants/apply')
+  })
+
+  it('leaves a path that already has a leading slash untouched', () => {
+    expect(ensureLeadingSlash('/grants/apply')).toBe('/grants/apply')
+  })
+
+  it('treats a bare "/" as already having a leading slash', () => {
+    expect(ensureLeadingSlash('/')).toBe('/')
+  })
+})
 
 describe('ensureAbsoluteUrl', () => {
   it('prepends https:// to a bare host', () => {

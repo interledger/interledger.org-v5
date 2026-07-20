@@ -15,3 +15,6 @@ export const escDouble = (v: string): string =>
 /** Escapes a string for use in a JSX single-quoted attribute value. */
 export const escSingle = (v: string): string =>
   v ? escapeForAttr(v).replace(/'/g, '&#39;') : ''
+
+export const escMdxBraces = (v: string): string =>
+  v ? v.trim().replace(/\{/g, '\\{').replace(/\}/g, '\\}') : ''

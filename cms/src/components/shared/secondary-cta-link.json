@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_shared_secondary_cta_links",
+  "info": {
+    "displayName": "Secondary CTA Link"
+  },
+  "options": {},
+  "attributes": {
+    "link": {
+      "type": "string",
+      "required": true
+    },
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "external": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "config": {}
+}
