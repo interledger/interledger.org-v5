@@ -19,10 +19,10 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   description?: string | null
-  /** Desktop hero image URL. Recommended: 1440×600px. */
+  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. */
   image?: string | null
   imageAlt?: string | null
-  /** Optional mobile hero image. Recommended: 768×480px. Falls back to desktop image. */
+  /** Optional mobile image. Recommended: 768×480px. */
   imageMobile?: string | null
   imageMobileAlt?: string | null
   cta?: HeroCta | null
@@ -42,25 +42,30 @@ const {
 ---
 
 <!-- White content section -->
-<div class="bg-white px-space-m py-space-xl">
-  <div class="mx-auto max-w-wide">
+<div
+  class="mx-auto bg-white px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:max-w-content"
+>
+  <div class="mx-auto max-w-content">
     {
       breadcrumbs && breadcrumbs.length > 0 && (
-        <div class="mb-space-m">
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        <div class="mb-xl tablet:mb-2xl">
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            class="[&_a]:text-body-sm-standard"
+          />
         </div>
       )
     }
 
     <h1
-      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 font-semibold leading-[1.2] mb-space-m max-w-[14em]"
+      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl desktop:max-w-content"
     >
       {title}
     </h1>
 
     {
       description && (
-        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-space-s">
+        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-700 font-normal max-w-[42em] mb-xl tablet:mb-lg">
           {description}
         </p>
       )
@@ -71,6 +76,7 @@ const {
           href={cta.link}
           variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
           external={cta.external}
+          class="w-full tablet:w-auto"
         >
           {cta.text}
           <Icon name="arrow-right" slot="icon-right" />
@@ -80,10 +86,10 @@ const {
   </div>
 </div>
 
-<!-- Full-width parallax image strip -->
+<!-- Parallax image: image is taller than the frame so we can pan as you scroll -->
 {
   (image || imageMobile) && (
-    <div class="parallax-wrapper relative overflow-hidden h-[480px] tablet:h-[560px] desktop:h-[640px]">
+    <div class="parallax-wrapper relative overflow-hidden h-[30vh] tablet:h-[70vh]">
       {imageMobile ? (
         <>
           <OptimizedImage
@@ -93,7 +99,7 @@ const {
             height={480}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img block tablet:hidden w-full h-full object-cover"
+            class="parallax-img block tablet:hidden absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
           />
           <OptimizedImage
             src={image ?? imageMobile!}
@@ -102,7 +108,7 @@ const {
             height={640}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img hidden tablet:block w-full h-full object-cover"
+            class="parallax-img hidden tablet:block absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
           />
         </>
       ) : (
@@ -113,7 +119,7 @@ const {
           height={640}
           loading="eager"
           fetchpriority="high"
-          class="parallax-img w-full h-full object-cover"
+          class="parallax-img absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
         />
       )}
     </div>
@@ -121,19 +127,42 @@ const {
 }
 
 <script>
-  import SimpleParallax from 'simple-parallax-js/vanilla'
+  // Image is 180% of the frame height — extra height gives room to pan on scroll.
+  // Progress tracks how far the hero has moved through the viewport (0 → 1).
+  const wrapper = document.querySelector<HTMLElement>('.parallax-wrapper')
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches
 
-  const images = document.querySelectorAll<HTMLElement>('.parallax-img')
-  if (images.length > 0) {
-    // Library handles prefers-reduced-motion and <picture> nesting itself;
-    // customWrapper reuses our existing overflow-hidden strip instead of
-    // inserting a new wrapper element.
-    new SimpleParallax(images, {
-      scale: 1.4,
-      orientation: 'up',
-      delay: 0.6,
-      transition: 'cubic-bezier(0,0,0,1)',
-      customWrapper: '.parallax-wrapper'
-    })
+  if (wrapper && !prefersReducedMotion) {
+    const images = wrapper.querySelectorAll<HTMLElement>('.parallax-img')
+    let ticking = false
+
+    const updateParallax = () => {
+      const rect = wrapper.getBoundingClientRect()
+      const totalTransit = window.innerHeight + rect.height
+      const progress = Math.max(
+        0,
+        Math.min(1, (window.innerHeight - rect.top) / totalTransit)
+      )
+      // Pan from neutral crop toward the top as the hero scrolls up the page.
+      const maxOffset = (rect.height * 0.8) / 2
+      const offset = maxOffset * progress
+
+      images.forEach((img) => {
+        img.style.transform = `translateY(${offset}px)`
+      })
+      ticking = false
+    }
+
+    const onScrollOrResize = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(updateParallax)
+    }
+
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+    updateParallax()
   }
 </script>

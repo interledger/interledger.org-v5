@@ -596,11 +596,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      infoCards: 'Information Cards',
       content: 'Content',
       ctaStrip: 'CTA Strip',
-      infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -608,6 +609,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'Path Slug',
       description: 'Short Description',
       hero: 'Hero',
+      content: 'Content',
       ctaStrip: 'CTA Strip',
       content: 'Content',
       followUpContent: 'Follow-up Content'
@@ -825,6 +827,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessible label (screen readers only)'
     },
+    'blocks.number-tiles': {
+      tiles: 'Tiles'
+    },
+    'blocks.number-tile': {
+      number: 'Number',
+      suffix: 'Suffix',
+      description: 'Description'
+    },
     'blocks.cta-banner': {
       heading: 'Heading',
       text: 'Body Text',
@@ -898,6 +908,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       categoryValue:
         'You can select multiple categories — click "+ Add an entry" for each category'
     },
+    'shared.hero': {
+      backgroundImage:
+        'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
+      backgroundImageMobile:
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.'
+    },
     'shared.report-date': {
       lastUpdated:
         'Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts).'
@@ -959,6 +975,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Describes this group of logos for screen reader users. Not visible on the page.',
       logos:
         'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+    },
+    'blocks.number-tile': {
+      number:
+        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the suffix here.',
+      suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
 
@@ -1138,6 +1159,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
@@ -1148,8 +1170,9 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pathSlug', size: 6 }
       ],
       [{ name: 'description', size: 6 }],
-      [{ name: 'primaryCta', size: 12 }],
+      [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
+      [{ name: 'primaryCta', size: 12 }],
       [{ name: 'infoCards', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'faqSection', size: 12 }],
@@ -1207,6 +1230,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
+    ],
+    'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
+    'blocks.number-tile': [
+      [
+        { name: 'number', size: 6 },
+        { name: 'suffix', size: 6 }
+      ],
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],

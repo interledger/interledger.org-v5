@@ -19,6 +19,8 @@
 
 interface Props {
   value: number
+  /** Overrides the displayed/resting text (e.g. "1,000" when `value` is 1000, so a comma-formatted source stays intact instead of being reformatted by `String(value)`). The count-up animation still targets `value`. */
+  display?: string
   durationMs?: number
   ariaLabel?: string
   class?: string
@@ -33,18 +35,20 @@ const DEFAULT_DURATION_MS = 1200
 
 const {
   value,
+  display,
   durationMs = DEFAULT_DURATION_MS,
   ariaLabel,
   class: className
 } = Astro.props
 
-const formatted = String(value)
+const formatted = display ?? String(value)
 ---
 
 <span
   class:list={['inline-block tabular-nums', className]}
   data-animated-number
   data-target={value}
+  data-display={formatted}
   data-duration={durationMs}
 >
   <span aria-hidden="true" data-animated-number-display>{formatted}</span>
@@ -75,9 +79,10 @@ const formatted = String(value)
 
       const target = Number(el.dataset.target ?? '0')
       const duration = Number(el.dataset.duration ?? '1500')
+      const finalText = el.dataset.display ?? String(target)
 
       if (reduceMotion || duration <= 0 || !Number.isFinite(target)) {
-        display.textContent = String(target)
+        display.textContent = finalText
         return
       }
 
@@ -98,8 +103,8 @@ const formatted = String(value)
         }
         if (progress < 1) {
           requestAnimationFrame(step)
-        } else if (lastValue !== target) {
-          display.textContent = String(target)
+        } else {
+          display.textContent = finalText
         }
       }
       requestAnimationFrame(step)

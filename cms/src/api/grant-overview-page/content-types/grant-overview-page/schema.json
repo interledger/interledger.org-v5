@@ -82,6 +82,7 @@
         "blocks.cta-strip",
         "blocks.cta-banner",
         "blocks.carousel",
+        "blocks.number-tiles",
         "blocks.title-card-grid"
       ]
     },

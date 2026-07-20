@@ -28,7 +28,9 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
       class="bg-gradient-primary-fallback bg-gradient-primary py-2xl text-white"
     >
       <div class="mx-auto max-w-content min-w-[360px] px-[5%]">
-        <h1 class="text-step-3 font-semibold leading-tight text-white">
+        <h1
+          class="text-h2 tablet:text-h2-md desktop:text-h2-lg font-semibold text-white"
+        >
           Developers Roadmap
         </h1>
         <p class="mt-xs max-w-[56ch] opacity-90">
@@ -64,7 +66,7 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
 
     {
       generatedAt && (
-        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-step--2 text-gray-700">
+        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
           Roadmap data refreshed at:{' '}
           <time class="roadmap-refreshed" datetime={generatedAt}>
             {new Date(generatedAt).toUTCString()}

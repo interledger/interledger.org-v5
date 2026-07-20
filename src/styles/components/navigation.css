@@ -162,7 +162,7 @@
   }
 
   .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
-    background-color: var(--color-gray-header);
+    background-color: var(--color-neutral-25);
   }
 }
 
@@ -175,7 +175,7 @@
 
   .foundation-header[data-theme='light'] .submenu-panel {
     background-color: white;
-    border-color: var(--color-gray-header);
+    border-color: var(--color-neutral-25);
   }
 }
 
@@ -270,6 +270,6 @@
   .foundation-header[data-theme='light'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
   .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
     outline: none;
-    background-color: var(--color-gray-header);
+    background-color: var(--color-neutral-25);
   }
 }

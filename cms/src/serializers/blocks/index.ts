@@ -24,12 +24,14 @@ import { serialize as videoEmbed } from './video-embed.serializer'
 import { serialize as imageBlock } from './image-block.serializer'
 import { serialize as codeBlock } from './code-block.serializer'
 import { serialize as splitLayout } from './split-layout.serializer'
+import { serialize as numberTiles } from './number-tiles.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cards-grid': cardsGrid,
   'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
+  'blocks.number-tiles': numberTiles,
   'blocks.cta-banner': ctaBanner,
   'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,

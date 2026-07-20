@@ -215,7 +215,26 @@ export const ui = {
     'home.stats.students_label': 'Students skilled',
     'home.stats.students_aria': '1,000 plus students skilled',
     'codeBlock.copy': 'Copy',
-    'codeBlock.copied': 'Copied!'
+    'codeBlock.copied': 'Copied!',
+    'not_found.meta_title': 'Page not found',
+    'not_found.meta_description': 'The page you requested could not be found.',
+    'not_found.title': 'Page not found…',
+    'not_found.body_1':
+      "While we're working on connecting financial systems, it appears we've disconnected a page.",
+    'not_found.body_2': 'Sorry about that',
+    'not_found.cta_home': 'Return to Homepage',
+    'not_found.card1_title': 'Explore our Grants',
+    'not_found.card1_description':
+      'Explore grant opportunities, from tech innovation and education, to research, policy and local impact.',
+    'not_found.card1_cta': 'Our Grant-making',
+    'not_found.card2_title': 'Build on open tech',
+    'not_found.card2_description':
+      'Explore our standards, protocol, and developer tools, and join our community of testers and builders.',
+    'not_found.card2_cta': 'Interledger Tech',
+    'not_found.card3_title': 'Join the movement',
+    'not_found.card3_description':
+      'Discover events, join the community, and find ways to participate in the future of Open Payments.',
+    'not_found.card3_cta': 'Community'
   },
   es: {
     'site.title': '',
@@ -426,6 +445,21 @@ export const ui = {
     'home.stats.students_label': 'Estudiantes capacitados',
     'home.stats.students_aria': 'Más de 1,000 estudiantes capacitados',
     'codeBlock.copy': '',
-    'codeBlock.copied': ''
+    'codeBlock.copied': '',
+    'not_found.meta_title': '',
+    'not_found.meta_description': '',
+    'not_found.title': '',
+    'not_found.body_1': '',
+    'not_found.body_2': '',
+    'not_found.cta_home': '',
+    'not_found.card1_title': '',
+    'not_found.card1_description': '',
+    'not_found.card1_cta': '',
+    'not_found.card2_title': '',
+    'not_found.card2_description': '',
+    'not_found.card2_cta': '',
+    'not_found.card3_title': '',
+    'not_found.card3_description': '',
+    'not_found.card3_cta': ''
   }
 } as const

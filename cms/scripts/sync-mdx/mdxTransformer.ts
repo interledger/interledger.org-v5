@@ -26,6 +26,7 @@ import type {
   reportFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
@@ -167,9 +168,11 @@ async function buildHeroWithImage(
     hasHeroImageField ||
     hasHeroImageMobileField
 
+  const trimmedHeroTitle = (parsed.heroTitle as string | undefined)?.trim()
+
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
-        parsed.heroTitle as string | undefined,
+        trimmedHeroTitle || (parsed.title as string | undefined),
         parsed.heroDescription as string | undefined,
         parsed.heroCtas as HeroCta[] | undefined
       ) as unknown as Record<string, unknown>)
@@ -449,20 +452,22 @@ export async function buildProfilePayload(
  * parsed into `content` dynamic-zone blocks (blocks.paragraph,
  * blocks.split-layout, etc.) via the same JSX block parser used for
  * foundation/summit pages — this is what lets `<SplitLayout>` and friends
- * show up in Strapi's dynamic zone. `programOverview` is a legacy plain-text
- * mirror of the body kept only for entries that predate the block parser;
- * once a page is parsed into blocks it stays cleared.
+ * show up in Strapi's dynamic zone. `programOverview` is its own dedicated
+ * frontmatter field (rendered as the page's "Program Overview" section,
+ * separate from the body dynamic zone), so it's synced straight from
+ * frontmatter rather than derived from parsed body content.
  */
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
   mdx: MDXFile,
-  strapi?: StrapiClient,
+  strapiUploadContext?: StrapiUploadContext,
   existingEntry: StrapiEntry | null = null,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+    const strapi = strapiUploadContext?.strapi
 
     const primaryCta = parsed.primaryCta
       ? {
@@ -515,9 +520,18 @@ export async function buildGrantPagePayload(
         }
       : null
 
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
+
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
+          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
           resolveMediaUpload: async (url: string) => {
             const id = await strapi.findUploadByUrl(url)
             if (id instanceof Error) throw id
@@ -548,11 +562,12 @@ export async function buildGrantPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
-      programOverview: null,
+      hero,
+      programOverview: parsed.programOverview || null,
       primaryCta,
+      infoCards,
       faqSection,
       ctaStrip,
-      infoCards,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
@@ -609,6 +624,7 @@ export async function buildGrantOverviewPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
+          resolveRelation: createRelationResolver(strapi, mdx.locale || 'en'),
           resolveMediaUpload: async (url: string) => {
             const id = await strapi.findUploadByUrl(url)
             if (id instanceof Error) throw id

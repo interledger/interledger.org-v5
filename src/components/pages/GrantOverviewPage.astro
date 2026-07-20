@@ -13,6 +13,7 @@ import CalloutTextBlock from '@/components/blocks/CalloutTextBlock.astro'
 import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CtaBanner from '@/components/blocks/CtaBanner.astro'
+import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 
@@ -68,7 +69,7 @@ const breadcrumbs = [
   canonicalURL={canonicalUrl}
   headerTheme="light"
 >
-  <main class="pb-space-l">
+  <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
     <PageHero
@@ -84,7 +85,7 @@ const breadcrumbs = [
 
     {
       hasBody && (
-        <section class="py-space-xl">
+        <section class="py-4xl">
           <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
             <div data-prose>
               <MdxContent
@@ -98,6 +99,7 @@ const breadcrumbs = [
                   CtaStrip,
                   CtaBanner,
                   LogoCarousel,
+                  NumberTiles,
                   TitleCardGrid,
                   TitleCard
                 }}
@@ -108,7 +110,7 @@ const breadcrumbs = [
       )
     }
 
-    <section class="py-space-xl">
+    <section class="tablet:py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <CtaStrip
           heading={ctaStrip.heading}

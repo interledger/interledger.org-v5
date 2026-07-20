@@ -28,7 +28,6 @@
       "type": "media",
       "multiple": false,
       "allowedTypes": ["images"],
-      "description": "Desktop hero image. Recommended size: 1440×600px.",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -39,7 +38,6 @@
       "type": "media",
       "multiple": false,
       "allowedTypes": ["images"],
-      "description": "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.",
       "pluginOptions": {
         "i18n": {
           "localized": true

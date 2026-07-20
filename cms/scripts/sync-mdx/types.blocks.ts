@@ -162,6 +162,16 @@ export interface CarouselBlock extends StrapiBlockBase {
   logos: number[]
 }
 
+/**
+ * blocks.number-tiles — row of stat tiles (number + optional suffix +
+ * description). `number` is plain text (not numeric) so editors can type
+ * commas manually, e.g. "1,000". At least 2 tiles are required.
+ */
+export interface NumberTilesBlock extends StrapiBlockBase {
+  __component: 'blocks.number-tiles'
+  tiles: { number: string; suffix?: string; description: string }[]
+}
+
 /** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
 export interface TitleCard {
   heading: string
@@ -203,4 +213,5 @@ export type ParsedBlock =
   | SplitLayoutBlock
   | CarouselBlock
   | ImageBlockBlock
+  | NumberTilesBlock
   | TitleCardGridBlock
