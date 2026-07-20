@@ -611,7 +611,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       hero: 'Hero',
       content: 'Content',
       ctaStrip: 'CTA Strip',
-      content: 'Content',
       followUpContent: 'Follow-up Content'
     },
     'api::faq.faq': {
@@ -1161,7 +1160,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }],
-      [{ name: 'content', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
     'api::grant-page.grant-page': [

@@ -45,7 +45,7 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
 ---
 
 <article
-  class=`relative flex flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-[var(--card-bg)] tablet:bg-white tablet:hover:bg-[var(--card-bg)] transition-bg duration-200 ${bgClasses}`
+  class=`relative flex flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-[var(--card-bg)] tablet:bg-white tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`
 >
   <div class="flex flex-col gap-lg">
     <h3
@@ -71,7 +71,7 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
     variant="secondary"
     size="lg"
     external={buttonExternal}
-    class="tablet:self-start z-1"
+    class="tablet:self-start z-[1]"
   >
     {buttonText}
   </LinkButton>
