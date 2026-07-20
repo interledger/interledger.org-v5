@@ -219,22 +219,3 @@ The native browser implementations currently on the horizon will mostly follow a
 [^2]: It is worth noting that "focus" simply means the tab is the one currently in view. As long as the tab is active, the timer keeps running even if you aren't actively scrolling or clicking - after all, you might just be deeply absorbed in a long paragraph. We don't consider a user inactive based on movement yet; if the page is open and visible, the monetization continues.
 
 </Paragraph>
-
-<CodeBlock language="javascript" code={`const MS_IN_HOUR = 60 * 60 * 1000
-const MIN_PAYMENT_WAIT = 2000 // 2 seconds
-const hourlyRate = BigInt(userConfig.hourlyRate) // "$1.50" per hour -> 150n
-
-// Every \`period\` milliseconds, we can send \`units\` amount
-const period = MS_IN_HOUR / Number(hourlyRate)
-const units = Math.ceil(MIN_PAYMENT_WAIT / period)
-this.interval = {
-units: BigInt(units),
-period: Math.ceil(units \* period)
-}
-
-// The math above is roughly equivalent to the following, if that helps:
-this.interval = { units: 1n, period }
-while (interval.period < MIN_PAYMENT_WAIT) {
-this.interval.units += 1n
-this.interval.period += period
-}`} />
