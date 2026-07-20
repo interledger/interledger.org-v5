@@ -84,11 +84,14 @@ In the admin interface, creators can:
 
 On the embed side, the script remains simple. By passing a `tag` value along with the wallet address in the script tag, the correct version is automatically selected and rendered.
 
-<CodeBlock language="html" code={`<script
+<CodeBlock
+  language="html"
+  code={`<script
   id="wmt-init-script"
   type="module"
   src="https://cdn.webmonetization.org/init.js?wa=[user-wallet-address]&tag=blog&types=banner"
-></script>`} />
+></script>`}
+/>
 
 If no tag is provided, the default version is used - ensuring backward compatibility and quick setup for users who don't need multiple styles.
 
