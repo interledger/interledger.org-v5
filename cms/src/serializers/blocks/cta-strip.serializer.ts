@@ -1,6 +1,6 @@
 import isHtml from 'is-html'
 import { htmlToMarkdown } from '../../utils'
-import { escDouble as esc } from '../shared'
+import { escDouble as esc, escMdxBraces } from '../shared'
 
 export function serialize(block: {
   heading: string
@@ -43,14 +43,11 @@ export function serialize(block: {
 
   // description is a Strapi text (markdown) field — render it as the children
   // and brace-escape so MDX doesn't parse { } as JS expressions.
-  const description = (
+  const description = escMdxBraces(
     isHtml(block.description)
       ? htmlToMarkdown(block.description)
       : block.description
   )
-    .trim()
-    .replace(/\{/g, '\\{')
-    .replace(/\}/g, '\\}')
 
   return `<CtaStrip ${attrs}>\n${description}\n</CtaStrip>`
 }

@@ -23,7 +23,16 @@ const GRANT_BLOCKS = {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.cta-strip': {},
-  'blocks.cta-banner': {}
+  'blocks.cta-banner': {},
+  'blocks.carousel': {
+    populate: { logos: true }
+  },
+  'blocks.number-tiles': {
+    populate: { tiles: true }
+  },
+  'blocks.title-card-grid': {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
+  }
 } as const
 
 /** Blocks shared by all content types. */
@@ -108,15 +117,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   hero: { populate: '*' },
   content: {
-    on: {
-      ...GRANT_BLOCKS,
-      'blocks.carousel': {
-        populate: { logos: true }
-      },
-      'blocks.number-tiles': {
-        populate: { tiles: true }
-      }
-    }
+    on: { ...GRANT_BLOCKS }
   },
   ctaStrip: true
 } as const

@@ -9,19 +9,45 @@ import { errors } from '@strapi/utils'
 import type { NavigationData } from './navigationLifecycle'
 import type { PageData } from './pageLifecycle'
 
+export interface FieldError {
+  path: Array<string | number>
+  message: string
+}
+
 /**
- * Wrap a caught error as a Strapi `ValidationError`, preserving its message.
+ * Thrown by block serializers when one or more fields fail validation.
+ * Lets `toValidationError` surface every failure in one `details.errors`
+ * array instead of one error per save attempt.
+ */
+export class SerializerFieldError extends Error {
+  fieldErrors: FieldError[]
+
+  constructor(fieldErrors: FieldError[]) {
+    super(fieldErrors[0]?.message ?? 'Serializer validation failed')
+    this.name = 'SerializerFieldError'
+    this.fieldErrors = fieldErrors
+  }
+}
+
+/**
+ * Wrap a caught error as a Strapi `ValidationError`, preserving its message
+ * and, for a `SerializerFieldError`, every failing field's path — so the
+ * admin UI can highlight all of them.
  */
 export function toValidationError(error: unknown): errors.ValidationError {
   if (error instanceof errors.ValidationError) return error
+  if (error instanceof SerializerFieldError) {
+    return new errors.ValidationError(error.message, {
+      errors: error.fieldErrors.map(({ path, message }) => ({
+        path: path.map(String),
+        message,
+        name: 'ValidationError'
+      }))
+    })
+  }
   return new errors.ValidationError(
     error instanceof Error ? error.message : String(error)
   )
-}
-
-interface FieldError {
-  path: Array<string | number>
-  message: string
 }
 
 /**

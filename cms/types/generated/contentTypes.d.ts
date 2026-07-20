@@ -815,7 +815,8 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.cta-strip',
         'blocks.cta-banner',
         'blocks.carousel',
-        'blocks.number-tiles'
+        'blocks.number-tiles',
+        'blocks.title-card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

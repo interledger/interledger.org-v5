@@ -228,13 +228,13 @@ const hourlyRate = BigInt(userConfig.hourlyRate) // "$1.50" per hour -> 150n
 const period = MS_IN_HOUR / Number(hourlyRate)
 const units = Math.ceil(MIN_PAYMENT_WAIT / period)
 this.interval = {
-  units: BigInt(units),
-  period: Math.ceil(units * period)
+units: BigInt(units),
+period: Math.ceil(units \* period)
 }
 
 // The math above is roughly equivalent to the following, if that helps:
 this.interval = { units: 1n, period }
 while (interval.period < MIN_PAYMENT_WAIT) {
-  this.interval.units += 1n
-  this.interval.period += period
+this.interval.units += 1n
+this.interval.period += period
 }`} />
