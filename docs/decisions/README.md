@@ -13,6 +13,9 @@ An ADR captures a single technical decision: the context that forced it, what wa
 | 003 | Reusable page templates and cross-section routing | Proposed | 2026-04-17 |
 | 004 | Locale-prefix routing for translations            | Accepted | 2026-04-17 |
 | 005 | Analytics event tracking schema                   | Accepted | 2026-04-21 |
+| 006 | Label-first event names with grouped path properties | Accepted | 2026-07-06 |
+| 007 | Dependency-aware ordering in the MDX → Strapi sync | Accepted | 2026-07-18 |
+| 008 | Exclude `public/img`/`public/uploads` from the Netlify SSR function bundle | Accepted | 2026-07-18 |
 
 ## Writing a new ADR
 
