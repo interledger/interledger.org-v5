@@ -207,13 +207,14 @@ When a card is presented, everything up to this point has been preparation.
 
 Now the familiar EMV flow kicks in:
 
-```
-SELECT AID
+<CodeBlock
+  language="text"
+  code={`SELECT AID
 GET PROCESSING OPTIONS
 READ RECORD
 GENERATE AC
-Optional PIN verification (Online)
-```
+Optional PIN verification (Online)`}
+/>
 
 All sensitive operations happen:
 

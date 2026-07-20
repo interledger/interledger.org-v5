@@ -22,15 +22,16 @@ The new system cleanly separates responsibilities. Publishers create a tools pro
 
 ### The Publisher Embeds the Script
 
-```html
-<script
+<CodeBlock
+  language="html"
+  code={`<script
   id="wmt-widget-init-script"
   type="module"
   data-wallet-address="https://ilp.wallet.money/alice"
   data-tag="version1"
   src="https://cdn.webmonetization.org/widget.js"
-></script>
-```
+></script>`}
+/>
 
 **Why we need a `cdn` module**
 
@@ -68,32 +69,31 @@ Based on what we’ve established so far, we can draw the following:
 All our Interactive Tools are built as custom Web component elements within Shadow DOM to prevent host page CSS from affecting the Tool and vice versa.\
 With the configuration fetched, the script creates and renders the web component:
 
-```typescript
-import { PaymentWidget } from '@tools/components'
+<CodeBlock language="typescript" code={`import { PaymentWidget } from '@tools/components'
 customElements.define('wm-payment-widget', PaymentWidget)
 
 fetchConfig(API_URL, 'widget', params).then((config) => {
-  const element = document.createElement('wm-payment-widget')
-  element.config = {
-    receiverAddress: walletAddress,
-    ...config
-  }
-  document.body.appendChild(element)
-})
-```
+const element = document.createElement('wm-payment-widget')
+element.config = {
+receiverAddress: walletAddress,
+...config
+}
+document.body.appendChild(element)
+})`} />
 
 The `<wm-payment-widget>` element is one of our interactive tools defined in the `components` module. The script creates an instance, passes the configuration as properties, and appends it to the DOM, using Shadow DOM for style encapsulation.
 
 Lastly, it also adds a monetization `<link>` tag to the `<head>`, using the wallet address used through the `frontend` interface. That means your site becomes Web Monetized automatically. You are welcome!
 
-```typescript
-function appendMonetizationLink(walletAddressUrl: string) {
+<CodeBlock
+  language="typescript"
+  code={`function appendMonetizationLink(walletAddressUrl: string) {
   const monetizationElement = document.createElement('link')
   monetizationElement.rel = 'monetization'
   monetizationElement.href = walletAddressUrl
   document.head.appendChild(monetizationElement)
-}
-```
+}`}
+/>
 
 That's it!
 
@@ -113,9 +113,8 @@ By keeping components as standalone source code, they can be consumed in multipl
 
 Beyond the new architecture, the Publisher Tools also handle payments using [Open Payments](https://openpayments.dev/overview/getting-started/). Every step of the payment flow is proxied through our `api` module. For example, when a visitor interacts with the widget wanting to make a one time donation (entering an amount, clicking "Pay"), the component makes API requests:
 
-```typescript
-// Generate a quote
-await fetch(`${apiUrl}/payment/quote`, {
+<CodeBlock language="typescript" code={`// Generate a quote
+await fetch(\`\${apiUrl}/payment/quote\`, {
   method: 'POST',
   body: JSON.stringify({
     senderWalletAddress,
@@ -125,11 +124,10 @@ await fetch(`${apiUrl}/payment/quote`, {
 })
 
 // Initialize grant authorization
-await fetch(`${apiUrl}/payment/grant`, { method: 'POST', body: '...' })
+await fetch(\`\${apiUrl}/payment/grant\`, { method: 'POST', body: '...' })
 
 // Finalize payment after authorization
-await fetch(`${apiUrl}/payment/finalize`, { method: 'POST', body: '...' })
-```
+await fetch(\`\${apiUrl}/payment/finalize\`, { method: 'POST', body: '...' })`} />
 
 The API manages all interactions with the Open Payments SDK handling grant authorization, creating outgoing payments, and coordinating with the component to complete the full flow for the payment.
 

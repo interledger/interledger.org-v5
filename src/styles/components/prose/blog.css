@@ -22,7 +22,7 @@
       border-inline: 2px solid var(--color-raspberry-100);
       padding-inline: var(--spacing-md);
       margin-block: var(--spacing-2xl);
-      
+
       @variant tablet {
         padding-inline: var(--spacing-lg);
       }
@@ -141,15 +141,10 @@
       overflow-wrap: anywhere;
     }
 
-    /* === Code blocks (expressive-code) === */
-    & .expressive-code {
-      margin-block-end: var(--spacing-xl);
-    }
-
     .video-embed {
       border-radius: var(--radius-3xl);
       overflow: hidden;
-      margin-block-end: var(--spacing-2xl)
+      margin-block-end: var(--spacing-2xl);
     }
   }
 }

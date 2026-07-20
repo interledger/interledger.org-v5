@@ -168,15 +168,16 @@ La Capa de Aplicación es la capa final de la Arquitectura Interledger, haciendo
 
 [SPSP](https://interledger.org/developers/es/rfcs/simple-payment-setup-protocol/) simplifica el proceso de configuración de pagos. Cuando llega una petición **_GET_** relacionada a una URL asociada a un apuntador de pago que usa la petición de encabezamiento SPSP, SPSP define que necesita ser retornado
 
-```http wrap
-HTP/1.1 200 OK
+<CodeBlock
+  language="http"
+  code={`HTP/1.1 200 OK
 Content-Type: application/spsp4+json
 {
   "destination_account": "example.ilpdemo.red.bob",
   "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=",
   "Receipts_enabled": true
-}
-```
+}`}
+/>
 
 Esto incluye la `destination_account` (Cuenta de destino) que es la dirección ILP del que recibe, y comparte un `shared_secret` (Secreto) para encriptar los paquetes de STREAM, que incluye un identificador `receipts_enabled`, (recibos habilitados) indicando cuando un [recibo de STREAM](https://interledger.org/developers/es/rfcs/stream-receipts/) fue requerido. SPSP asegura una configuración de pago segura y directa para entidades o individuos con un acceso ILP, esto significa que entidades o individuos pueden crear, enviar, y recibir paquetes ILP directamente sin ayuda de otra entidad.
 

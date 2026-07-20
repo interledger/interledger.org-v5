@@ -40,9 +40,8 @@ It includes:
 
 Here's what it looks like to request a grant:
 
-```php
-use OpenPayments\AuthClient;
-use OpenPayments\Config\Config;
+<CodeBlock language="php" code={`use OpenPayments\\AuthClient;
+use OpenPayments\\Config\\Config;
 
 $config = new Config(
     $WALLET_ADDRESS, $PRIVATE_KEY, $KEY_ID
@@ -50,26 +49,25 @@ $config = new Config(
 $opClient = new AuthClient($config);
 
 $wallet = $opClient->walletAddress()->get([
-    'url' => $config->getWalletAddressUrl()
+'url' => $config->getWalletAddressUrl()
 ]);
 
 $grant = $opClient->grant()->request(
-    [
-        'url' => $wallet->authServer
-    ],
-    [
-        'access_token' => [
-            'access' => [
-                [
-                    'type' => 'incoming-payment',
-                    'actions' => ['read', 'complete', 'create', 'list' ]
-                ]
-              ]
-        ],
-        'client' => $config->getWalletAddressUrl()
-    ]
-);
-```
+[
+'url' => $wallet->authServer
+],
+[
+'access_token' => [
+'access' => [
+[
+'type' => 'incoming-payment',
+'actions' => ['read', 'complete', 'create', 'list' ]
+]
+]
+],
+'client' => $config->getWalletAddressUrl()
+]
+);`} />
 
 With just a few lines of code, PHP developers can now create grants, request quotes, initiate outgoing payments, or complete incoming payments — all fully compliant with Open Payments specifications (including generating HTTP signature headers).
 

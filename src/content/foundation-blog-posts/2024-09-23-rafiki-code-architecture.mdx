@@ -76,8 +76,7 @@ Familiarity with these frameworks will be valuable in understanding how Rafiki w
 
 As mentioned before, the Rafiki `backend` manages Open Payments resources. These resources are managed by services attached to an inversion-of-control (IoC) container via dependency injection with AdonisJS, as also mentioned previously. To see this in action, the [`/src/index.ts`](https://github.com/interledger/rafiki/blob/main/packages/backend/src/index.ts) is the best place to look. Take this example of how the service for handling incoming payment routes gets injected into the IoC container:
 
-```ts wrap
-import { Ioc, IocContract } from '@adonisjs/fold'
+<CodeBlock language="typescript" code={`import { Ioc, IocContract } from '@adonisjs/fold'
 import { createIncomingPaymentRoutes } from './open_payments/payment/incoming/routes'
 
 ...
@@ -87,21 +86,19 @@ const container: IocContract<AppServices> = new Ioc()
 ...
 
 container.singleton('incomingPaymentRoutes', async (deps) => {
-  return createIncomingPaymentRoutes({
-    config: await deps.use('config'),
-    logger: await deps.use('logger'),
-    incomingPaymentService: await deps.use('incomingPaymentService'),
-    streamCredentialsService: await deps.use('streamCredentialsService')
-  })
+return createIncomingPaymentRoutes({
+config: await deps.use('config'),
+logger: await deps.use('logger'),
+incomingPaymentService: await deps.use('incomingPaymentService'),
+streamCredentialsService: await deps.use('streamCredentialsService')
 })
-```
+})`} />
 
 In this call, a name for the service is passed to the IoC container, and a factory for that service. In turn, that factory takes the other services that it depends on. In this case, the `incomingPaymentRoutes` service depends on services that parse configuration and output logs for the `backend`. The `index.ts` file thus good for seeing all of the services the backend uses, and how each of the services depend on one another.
 
 These services are then attached to routes in the [`/src/app.ts`](https://github.com/interledger/rafiki/blob/main/packages/backend/src/app.ts) file. The `app.ts` file is a great place to work backwards from and see which routes exist on the backend server and what services are used to complete the operations presented by the routes. Take [this route](https://github.com/interledger/rafiki/blob/main/packages/backend/src/app.ts#L432-L454) for example:
 
-```ts wrap
-const incomingPaymentRoutes = await this.container.use(
+<CodeBlock language="typescript" code={`const incomingPaymentRoutes = await this.container.use(
   'incomingPaymentRoutes'
 )
 
@@ -110,27 +107,29 @@ const incomingPaymentRoutes = await this.container.use(
 // POST /incoming-payments
 // Create incoming payment
 router.post<DefaultState, SignedCollectionContext<IncomingCreateBody>>(
-  '/incoming-payments',
-  createValidatorMiddleware<
-    ContextType<SignedCollectionContext<IncomingCreateBody>>
-  >(
+'/incoming-payments',
+createValidatorMiddleware<
+ContextType<SignedCollectionContext<IncomingCreateBody>>
+
+> (
+
     resourceServerSpec,
     {
       path: '/incoming-payments',
       method: HttpMethod.POST
     },
     validatorMiddlewareOptions
-  ),
-  getWalletAddressUrlFromRequestBody,
-  createTokenIntrospectionMiddleware({
-    requestType: AccessType.IncomingPayment,
-    requestAction: RequestAction.Create
-  }),
-  httpsigMiddleware,
-  getWalletAddressForSubresource,
-  incomingPaymentRoutes.create
-)
-```
+
+),
+getWalletAddressUrlFromRequestBody,
+createTokenIntrospectionMiddleware({
+requestType: AccessType.IncomingPayment,
+requestAction: RequestAction.Create
+}),
+httpsigMiddleware,
+getWalletAddressForSubresource,
+incomingPaymentRoutes.create
+)`} />
 
 In this mounting of the `POST /incoming-payments` route, all of the middleware as well as the main handler (`incomingPaymentRoutes.create`) can be seen being attached to that mounting. Note how the `incomingPaymentRoutes` services is acquired from the container using the name that was passed into the function that attached that service to the IoC container. This pattern can be followed for other routes to see which services handle fulfilling requests made to the routes on the Rafiki `backend`.
 
@@ -144,8 +143,7 @@ The Authorization Server on Rafiki is structured similarly to the backend, in th
 
 [index.ts](https://github.com/interledger/rafiki/blob/main/packages/auth/src/index.ts)
 
-```ts wrap
-import { Ioc, IocContract } from '@adonisjs/fold'
+<CodeBlock language="typescript" code={`import { Ioc, IocContract } from '@adonisjs/fold'
 import { createGrantRoutes } from './grant/routes'
 
 ...
@@ -155,39 +153,36 @@ const container: IocContract<AppServices> = new Ioc()
 ...
 
 container.singleton('grantRoutes', async (deps: IocContract<AppServices>) => {
-  return createGrantRoutes({
-    grantService: await deps.use('grantService'),
-    clientService: await deps.use('clientService'),
-    accessTokenService: await deps.use('accessTokenService'),
-    accessService: await deps.use('accessService'),
-    interactionService: await deps.use('interactionService'),
-    logger: await deps.use('logger'),
-    config: await deps.use('config')
-  })
+return createGrantRoutes({
+grantService: await deps.use('grantService'),
+clientService: await deps.use('clientService'),
+accessTokenService: await deps.use('accessTokenService'),
+accessService: await deps.use('accessService'),
+interactionService: await deps.use('interactionService'),
+logger: await deps.use('logger'),
+config: await deps.use('config')
 })
-```
+})`} />
 
 Again, note the route service for grants is mounted to the container, and then subsequently referenced when attaching service functions to the relevant routes.
 
 [app.ts](https://github.com/interledger/rafiki/blob/main/packages/auth/src/app.ts)
 
-```ts wrap
-const grantRoutes = await this.container.use('grantRoutes')
+<CodeBlock language="typescript" code={`const grantRoutes = await this.container.use('grantRoutes')
 
 ...
 
-/* Back-channel GNAP Routes */
+/_ Back-channel GNAP Routes _/
 // Grant Initiation
 router.post<DefaultState, CreateContext>(
-  '/',
-  createValidatorMiddleware<CreateContext>(openApi.authServerSpec, {
-    path: '/',
-    method: HttpMethod.POST
-  }),
-  grantInitiationHttpsigMiddleware,
-  grantRoutes.create
-)
-```
+'/',
+createValidatorMiddleware<CreateContext>(openApi.authServerSpec, {
+path: '/',
+method: HttpMethod.POST
+}),
+grantInitiationHttpsigMiddleware,
+grantRoutes.create
+)`} />
 
 Like the `backend`, the `auth` server also extends a GraphQL API to perform admin functions. The API is modeled by this [GraphQL schema](https://github.com/interledger/rafiki/blob/main/packages/auth/src/graphql/schema.graphql).
 
@@ -204,9 +199,7 @@ Pages on the frontend acquire data to populate the view and send data in request
 
 If Docker is installed, the whole environment can be started locally with a single command:
 
-```ts wrap
-pnpm localenv:compose up
-```
+<CodeBlock language="typescript" code={`pnpm localenv:compose up`} />
 
 With this environment live, the Admin GraphQL Endpoints can be demoed using [Bruno](https://www.usebruno.com/). [The Rafiki repository contains a collection](https://github.com/interledger/rafiki/tree/main/bruno/collections/Rafiki) which contains example calls for all of the GraphQL endpoints on both the `backend` and `auth` servers. It also contains calls for every Open Payments action and examples for certain flows in Open Payments.
 

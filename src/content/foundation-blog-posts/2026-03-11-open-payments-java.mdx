@@ -63,25 +63,25 @@ The SDK supports core Open Payments functionality:
 
 The library is available on Maven Central and adding it to your project is straightforward:
 
-```xml
-<dependency>
+<CodeBlock
+  language="xml"
+  code={`<dependency>
     <groupId>org.interledger</groupId>
     <artifactId>open-payments</artifactId>
     <version>1.2.0</version>
-</dependency>
-```
+</dependency>`}
+/>
 
 And now let’s see an example of how to create an incoming payment:
 
-```java
-import org.interledger.openpayments.*;
+<CodeBlock language="java" code={`import org.interledger.openpayments.*;
 
 // Create HTTP client
 IOpenPaymentsClient client = OpenPaymentsHttpClient.defaultClient(
-     "WalletAddress",
-     "PrivateKeyPEM",
-     "KeyId"
- );
+"WalletAddress",
+"PrivateKeyPEM",
+"KeyId"
+);
 
 // Retrieve the wallet:
 var receiverWallet = client.walletAddress().get("https://cloudninebank.example.com/merchant");
@@ -89,8 +89,7 @@ var receiverWallet = client.walletAddress().get("https://cloudninebank.example.c
 // Create incoming payment:
 var grantRequest = client.auth().grant().incomingPayment(receiverWallet);
 var incomingPayment = client.payment().incomingPayment(receiverWallet, grantRequest, BigDecimal.valueOf(11.25));
-
-```
+`} />
 
 ## Packages Overview
 
