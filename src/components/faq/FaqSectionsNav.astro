@@ -18,26 +18,26 @@ const t = useTranslations(uiLocale)
 <nav
   data-faq-nav
   aria-label={t('faq.sections_nav')}
-  class="desktop:sticky desktop:top-(--site-header-height-desktop) desktop:pt-2xl"
+  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))]"
 >
-  <ul class="flex list-none flex-col gap-lg desktop:gap-xl">
+  <ul class="flex list-none flex-col gap-2xl desktop:gap-xl">
     {
       sections.map((section, index) => (
-        <li>
+        <li class="m-0">
           <a
             href={`#${section.id}`}
             data-faq-nav-link
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
-            class="group flex flex-col gap-xs rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orchid-100"
+            class="group flex flex-col gap-sm rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orchid-100"
           >
-            <span class="flex items-center gap-sm">
+            <span class="flex items-start gap-md">
               <span
                 aria-hidden="true"
-                class="size-1.5 shrink-0 rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-orchid-100"
+                class="size-1.5 shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-orchid-100"
               />
-              <span class="text-body-lg-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-orchid-100">
+              <span class="text-body-sm-standard-md text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-orchid-100">
                 {section.heading}
               </span>
             </span>

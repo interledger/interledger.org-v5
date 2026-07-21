@@ -50,7 +50,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 
   <div
     data-faq-mobile-sections
-    class="flex flex-col gap-3xl tablet:border-l tablet:border-neutral-25 tablet:pl-3xl tablet:w-7/10 tablet:gap-3xl desktop:gap-6xl"
+    class="flex flex-col gap-3xl tablet:border-l tablet:border-neutral-25 tablet:pl-3xl tablet:w-7/10 tablet:gap-6xl"
   >
     {
       sectionsWithIds.map((section, index) => (
@@ -62,7 +62,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
           class="group/section scroll-mt-(--site-header-height-desktop)"
         >
           <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-orchid-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
-            <h2 class="text-h4 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 tablet:text-h3-lg tablet:text-neutral-900">
+            <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg">
               {section.heading}
             </h2>
             <Icon
@@ -70,15 +70,15 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
               class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-orchid-100 tablet:hidden"
             />
           </summary>
-          <div class="flex flex-col gap-lg rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-xl pb-lg desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0">
+          <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0">
             {section.items.map((item, itemIndex) => (
               <details
                 open={itemIndex === 0}
                 data-faq-mobile-item
-                class="group/item border-b border-neutral-25 pb-lg first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl"
+                class="group/item border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl"
               >
                 <summary class="flex cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden">
-                  <span class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 group-open/item:text-neutral-900">
+                  <span class="text-h4-md tablet:text-h4-md desktop:text-h4-lg text-neutral-100 group-open/item:text-neutral-900">
                     {item.question}
                   </span>
                   <Icon
@@ -87,7 +87,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                   />
                 </summary>
                 <div
-                  class="text-neutral-75 mt-md [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md [&_p]:mb-0"
+                  class="text-neutral-75 mt-md [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:mb-0 [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg"
                   set:html={item.answerHtml}
                 />
               </details>
