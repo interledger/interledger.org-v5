@@ -739,9 +739,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
         'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
-      introParagraph: 'Optional intro paragraph shown below the heading.',
-      faqSections:
-        'At least 1 section is required. Each section needs a heading and at least 1 question/answer pair. The left-hand navigation on the page is generated automatically from these headings.'
+      introParagraph: 'Optional intro paragraph shown below the heading.'
+      // NOTE: Strapi's admin does not render a description/hint for
+      // repeatable-component fields like faqSections (confirmed against
+      // @strapi/content-manager's ComponentInput — it renders Field.Label
+      // and Field.Error but never Field.Hint). The equivalent guidance lives
+      // on blocks.faq-section/blocks.faq-item's own scalar fields below,
+      // where hints do render.
     },
     'api::report.report': {
       pathSlug:
@@ -1001,6 +1005,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.info-cards': {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
+    },
+    'blocks.faq-section': {
+      heading:
+        'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
+    },
+    'blocks.faq-item': {
+      question: 'Required.',
+      answer: 'Required.'
     },
     'blocks.code-block': {
       title:
