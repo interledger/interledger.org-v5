@@ -27,7 +27,7 @@ const sectionsWithIds = withIds(sections)
 ---
 
 <div class="flex flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
-  <div class="hidden tablet:block tablet:w-2/5 tablet:shrink-0">
+  <div class="hidden tablet:block tablet:w-3/10 tablet:shrink-0">
     <FaqSectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
       uiLocale={uiLocale}
@@ -36,7 +36,7 @@ const sectionsWithIds = withIds(sections)
 
   <div
     data-faq-mobile-sections
-    class="flex flex-col gap-3xl tablet:w-3/5 tablet:gap-6xl"
+    class="flex flex-col gap-3xl tablet:border-l tablet:border-neutral-25 tablet:pl-3xl tablet:w-7/10 tablet:gap-3xl desktop:gap-6xl"
   >
     {
       sectionsWithIds.map((section, index) => (
@@ -47,16 +47,16 @@ const sectionsWithIds = withIds(sections)
           id={section.id}
           class="group/section scroll-mt-(--site-header-height-desktop)"
         >
-          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-orchid-100 desktop:cursor-default desktop:rounded-none desktop:border-none desktop:bg-transparent desktop:px-0 desktop:py-0 desktop:pointer-events-none">
-            <h2 class="text-h4 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 desktop:text-h3-lg desktop:text-neutral-900">
+          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-orchid-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
+            <h2 class="text-h4 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 tablet:text-h3-lg tablet:text-neutral-900">
               {section.heading}
             </h2>
             <Icon
               name="arrow-down"
-              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-orchid-100 desktop:hidden"
+              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-orchid-100 tablet:hidden"
             />
           </summary>
-          <div class="flex flex-col gap-lg rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-xl pb-lg desktop:gap-xl desktop:rounded-none desktop:border-none desktop:px-0 desktop:pt-xl desktop:pb-0">
+          <div class="flex flex-col gap-lg rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-xl pb-lg desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0">
             {section.items.map((item, itemIndex) => (
               <details
                 open={itemIndex === 0}
