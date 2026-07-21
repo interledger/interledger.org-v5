@@ -600,6 +600,54 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksNumberTile extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_number_tiles_items'
+  info: {
+    description: 'Single stat tile: a number, optional suffix, and a description'
+    displayName: 'Number Tile'
+    icon: 'chart-pie'
+  }
+  attributes: {
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    number: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    suffix: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksNumberTiles extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_number_tiles'
+  info: {
+    description: 'Row of stat tiles (number + optional suffix + description). Minimum 2 tiles.'
+    displayName: 'Number Tiles'
+    icon: 'chart-pie'
+  }
+  attributes: {
+    tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksParagraph extends Struct.ComponentSchema {
   collectionName: 'components_blocks_paragraphs'
   info: {
@@ -756,6 +804,45 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksTitleCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_title_cards'
+  info: {
+    displayName: 'Title Card'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    heading: Schema.Attribute.String & Schema.Attribute.Required
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
+    subHeading: Schema.Attribute.String
+  }
+}
+
+export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_title_card_grids'
+  info: {
+    displayName: 'Title Card Grid'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
+    columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'Three'>
+    titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
+      Schema.Attribute.Required
+  }
+}
+
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
@@ -891,11 +978,11 @@ export interface SharedCategory extends Struct.ComponentSchema {
   attributes: {
     categoryValue: Schema.Attribute.Enumeration<
       [
-        'Announcements',
-        'Community & Events',
         'Engineering',
-        'Grants & Grantee Insights',
+        'Grantmaking',
         'Interledger Technology',
+        'News',
+        'Policy and Advocacy',
         'Thought Leadership'
       ]
     >
@@ -1048,6 +1135,41 @@ export interface SharedRelatedArticle extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedReportDate extends Struct.ComponentSchema {
+  collectionName: 'components_shared_report_dates'
+  info: {
+    description: 'Publish and last-updated dates for a report. Only add this component when you want to show dates on the page.'
+    displayName: 'Report Date'
+  }
+  attributes: {
+    lastUpdated: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishDate: Schema.Attribute.Date &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface SharedSecondaryCtaLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_secondary_cta_links'
+  info: {
+    displayName: 'Secondary CTA Link'
+  }
+  attributes: {
+    external: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    link: Schema.Attribute.String & Schema.Attribute.Required
+    text: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface SharedSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_sections'
   info: {
@@ -1114,11 +1236,15 @@ declare module '@strapi/strapi' {
       'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard
       'blocks.info-cards': BlocksInfoCards
+      'blocks.number-tile': BlocksNumberTile
+      'blocks.number-tiles': BlocksNumberTiles
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
       'blocks.split-layout': BlocksSplitLayout
+      'blocks.title-card': BlocksTitleCard
+      'blocks.title-card-grid': BlocksTitleCardGrid
       'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
@@ -1130,6 +1256,8 @@ declare module '@strapi/strapi' {
       'shared.hero-section': SharedHeroSection
       'shared.primary-cta-link': SharedPrimaryCtaLink
       'shared.related-article': SharedRelatedArticle
+      'shared.report-date': SharedReportDate
+      'shared.secondary-cta-link': SharedSecondaryCtaLink
       'shared.section': SharedSection
       'shared.seo': SharedSeo
     }

@@ -1,115 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 
-vi.mock('./siteSchemas', async () => {
-  const { z } = await import('zod')
-  const sectionSchema = z.object({
-    title: z.string(),
-    content: z.string(),
-    ctas: z
-      .array(
-        z.object({
-          label: z.string(),
-          href: z.string()
-        })
-      )
-      .optional()
-  })
-  const pageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'slug is required'),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z.array(sectionSchema).optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
-  const grantCtaStripSchema = z.object({
-    heading: z.string(),
-    description: z.string(),
-    buttonText: z.string(),
-    buttonLink: z.string(),
-    color: z.enum(['purple', 'green']).default('purple'),
-    secondaryButtonText: z.string().optional(),
-    secondaryButtonLink: z.string().optional()
-  })
-  const grantFaqItemSchema = z.object({
-    question: z.string(),
-    answer: z.string()
-  })
-  const grantFaqSectionSchema = z.object({
-    title: z.string(),
-    subtitle: z.string(),
-    description: z.string(),
-    ctaText: z.string(),
-    ctaLink: z.string(),
-    items: z.array(grantFaqItemSchema).min(2)
-  })
-  const grantInfoCardSchema = z.object({
-    heading: z.string().min(1, 'card heading is required'),
-    body: z.string().min(1, 'card body is required')
-  })
-  const grantInfoCardsSchema = z.object({
-    heading: z.string().optional(),
-    cards: z.tuple([
-      grantInfoCardSchema,
-      grantInfoCardSchema,
-      grantInfoCardSchema
-    ])
-  })
-  const grantPageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    description: z.string().min(1, 'description is required'),
-    programOverview: z.string().optional(),
-    primaryCta: z
-      .object({
-        text: z.string(),
-        link: z.string(),
-        external: z.boolean().optional()
-      })
-      .optional(),
-    ctaStrip: grantCtaStripSchema,
-    faqSection: grantFaqSectionSchema.optional(),
-    infoCards: grantInfoCardsSchema.optional(),
-    metaImage: z.string().optional(),
-    canonicalUrl: z.string().optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
-  const grantOverviewPageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    description: z.string().min(1, 'description is required'),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    heroImageAlt: z.string().nullable().optional(),
-    heroImageMobile: z.string().optional(),
-    heroImageMobileAlt: z.string().nullable().optional(),
-    heroCtas: z
-      .array(
-        z.object({
-          text: z.string(),
-          link: z.string(),
-          style: z.enum(['primary', 'secondary']).optional(),
-          external: z.boolean().optional()
-        })
-      )
-      .max(1)
-      .optional(),
-    ctaStrip: grantCtaStripSchema,
-    metaImage: z.string().optional(),
-    canonicalUrl: z.string().optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
+const mockProjectRootHolder = vi.hoisted(() => ({ current: '' }))
+
+vi.mock('@/utils', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
   return {
-    foundationPageFrontmatterSchema: pageSchema,
-    summitPageFrontmatterSchema: pageSchema,
-    grantPageFrontmatterSchema: grantPageSchema,
-    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema
+    ...actual,
+    getProjectRoot: () => mockProjectRootHolder.current
   }
 })
 
@@ -117,13 +17,20 @@ import {
   getEntryField,
   buildPagePayload,
   buildGrantPagePayload,
-  buildGrantOverviewPagePayload
+  buildGrantOverviewPagePayload,
+  buildFaqPayload,
+  buildReportPayload,
+  createMediaUploadResolver,
+  buildProfilePayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   grantPageFrontmatterSchema,
-  grantOverviewPageFrontmatterSchema
+  grantOverviewPageFrontmatterSchema,
+  faqFrontmatterSchema,
+  reportFrontmatterSchema,
+  profileFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -765,14 +672,22 @@ const baseGrantFrontmatter = {
 // Key risks: CTA field name translation (buttonText→primaryButtonText, etc.)
 // and optional primaryCta / seo being omitted when absent.
 describe('buildGrantPagePayload', () => {
-  // Shared stub: content parsing (JSX -> dynamic-zone blocks) only runs when
-  // a strapi client is supplied — mirrors buildPagePayload's parserCtx-gated
-  // behavior for foundation/summit pages.
-  function stubStrapi(uploads: Record<string, number> = {}): StrapiClient {
+  // Shared stub: content parsing (JSX -> dynamic-zone blocks) and hero image
+  // resolution only run when a strapi upload context is supplied — mirrors
+  // buildPagePayload's parserCtx-gated behavior for foundation/summit pages.
+  function stubStrapi(
+    uploads: Record<string, number> = {}
+  ): StrapiUploadContext {
     return {
-      findUploadByUrl: async (url: string) => uploads[url] ?? null,
-      updateUploadAlt: async () => undefined
-    } as unknown as StrapiClient
+      strapi: {
+        findUploadByUrl: async (url: string) => uploads[url] ?? null,
+        findUploadByName: async () => null,
+        updateUploadAlt: async () => undefined
+      } as unknown as StrapiClient,
+      STRAPI_URL: 'http://localhost:1337',
+      STRAPI_TOKEN: 'token',
+      dryRun: false
+    }
   }
 
   describe('error handling', () => {
@@ -1080,7 +995,7 @@ describe('buildGrantPagePayload', () => {
   })
 
   describe('programOverview', () => {
-    it('is always null — the body is carried by the content dynamic zone instead', async () => {
+    it('syncs the frontmatter value through to Strapi', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -1093,7 +1008,9 @@ describe('buildGrantPagePayload', () => {
         grantPageFrontmatterSchema,
         mdx
       )
-      expect((payload as Record<string, unknown>).programOverview).toBeNull()
+      expect((payload as Record<string, unknown>).programOverview).toBe(
+        '## Eligibility\n\n- Accredited institutions'
+      )
     })
 
     it('is null when absent from frontmatter', async () => {
@@ -1406,6 +1323,116 @@ describe('buildGrantPagePayload', () => {
       )
 
       expect(payload).not.toHaveProperty('content')
+    })
+  })
+
+  describe('hero', () => {
+    it('uses frontmatter heroTitle and heroDescription when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroDescription: 'Learn about our grants'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: 'Learn about our grants'
+      })
+    })
+
+    it('includes hero CTA when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroCtas: [{ text: 'Apply now', link: '/apply', external: true }]
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        hero_call_to_action: {
+          text: 'Apply now',
+          link: '/apply',
+          style: 'primary',
+          external: true
+        }
+      })
+    })
+
+    it('clears hero when no hero fields are present in frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: baseGrantFrontmatter
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toBeNull()
+    })
+
+    it('resolves heroImage to a Strapi upload ID', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroImage: '/uploads/img/hero-desktop.png',
+          heroImageAlt: 'Grant hero'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/uploads/img/hero-desktop.png': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        backgroundImage: 42
+      })
+    })
+
+    it('defaults hero title to the page title when heroTitle is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroImage: '/uploads/img/hero-desktop.png'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/uploads/img/hero-desktop.png': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: baseGrantFrontmatter.title,
+        description: '',
+        backgroundImage: 42
+      })
     })
   })
 })
@@ -1730,7 +1757,7 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
-        title: '',
+        title: baseGrantOverviewFrontmatter.title,
         description: '',
         backgroundImageMobile: 84
       })
@@ -1759,9 +1786,36 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).hero).toEqual({
-        title: '',
+        title: baseGrantOverviewFrontmatter.title,
         description: '',
         backgroundImage: null
+      })
+    })
+
+    it('defaults hero title to the page title when heroTitle is absent', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-desktop.png': 42
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImage: '/uploads/img/hero-desktop.png'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: baseGrantOverviewFrontmatter.title,
+        description: '',
+        backgroundImage: 42
       })
     })
   })
@@ -1840,6 +1894,494 @@ describe('buildGrantOverviewPagePayload', () => {
       )
 
       expect((payload as Record<string, unknown>).content).toBeUndefined()
+    })
+
+    it('parses a <NumberTiles> component into a blocks.number-tiles block', async () => {
+      await import('./numberTilesHandler')
+
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: baseGrantOverviewFrontmatter,
+        content:
+          "<NumberTiles tiles={[{ number: '21', suffix: 'M+', description: 'In Grants' }, { number: '300', suffix: '+', description: 'Projects supported worldwide' }]} />"
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        {
+          strapi: stubStrapi(),
+          STRAPI_URL: '',
+          STRAPI_TOKEN: '',
+          dryRun: false
+        }
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.number-tiles',
+          tiles: [
+            { number: '21', suffix: 'M+', description: 'In Grants' },
+            {
+              number: '300',
+              suffix: '+',
+              description: 'Projects supported worldwide'
+            }
+          ]
+        }
+      ])
+    })
+  })
+})
+
+const baseFaqFrontmatter = {
+  title: 'Frequently Asked Questions',
+  section: 'foundation' as const,
+  heading: 'Frequently Asked Questions',
+  description: 'Answers to common questions, 120 to 160 characters.',
+  locale: 'en'
+}
+
+// Maps faq MDX frontmatter to the Strapi faq payload shape.
+describe('buildFaqPayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          section: 'foundation',
+          heading: 'Frequently Asked Questions',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when heading is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          title: 'Frequently Asked Questions',
+          section: 'foundation',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, section, heading, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('Frequently Asked Questions')
+      expect(p.pathSlug).toBe('faq')
+      expect(p.section).toBe('foundation')
+      expect(p.heading).toBe('Frequently Asked Questions')
+      expect(p.description).toBe(
+        'Answers to common questions, 120 to 160 characters.'
+      )
+    })
+
+    it('includes introParagraph when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          ...baseFaqFrontmatter,
+          introParagraph: 'A short intro.'
+        }
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBe(
+        'A short intro.'
+      )
+    })
+
+    it('sets introParagraph to null when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
+    })
+  })
+
+  describe('content dynamic zone', () => {
+    it('does not parse content when no parser context is provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: baseFaqFrontmatter,
+        content: ''
+      })
+
+      const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
+
+      expect(payload).not.toHaveProperty('content')
+    })
+  })
+})
+
+const baseReportFrontmatter = {
+  title: 'The Role of Stablecoins',
+  section: 'foundation',
+  heading: 'The Role of Stablecoins',
+  description: 'A short description of the report, 120 to 160 characters.',
+  locale: 'en'
+}
+
+// Maps report MDX frontmatter to the Strapi report payload shape.
+// Key risk: the optional `date` component — publishDate must round-trip when
+// present and the whole component must be cleared (sent as null) when absent.
+describe('buildReportPayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          section: 'foundation',
+          heading: 'The Role of Stablecoins',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when heading is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          title: 'The Role of Stablecoins',
+          section: 'foundation',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, section, heading, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('The Role of Stablecoins')
+      expect(p.pathSlug).toBe('policy-and-advocacy/role-stablecoins')
+      expect(p.section).toBe('foundation')
+      expect(p.heading).toBe('The Role of Stablecoins')
+      expect(p.description).toBe(
+        'A short description of the report, 120 to 160 characters.'
+      )
+    })
+
+    it('includes introParagraph when present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          introParagraph: 'A short intro.'
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBe(
+        'A short intro.'
+      )
+    })
+
+    it('sets introParagraph to null when absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).introParagraph).toBeNull()
+    })
+  })
+
+  describe('date component round-trip', () => {
+    it('sets date to null when the date component is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).date).toBeNull()
+    })
+
+    it('round-trips publishDate when the date component is present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          date: { publishDate: '2026-06-15' }
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const date = (payload as Record<string, unknown>).date as Record<
+        string,
+        unknown
+      >
+      expect(date.publishDate).toBe('2026-06-15')
+      expect(date).not.toHaveProperty('lastUpdated')
+    })
+
+    it('round-trips lastUpdated alongside publishDate when both are present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          date: { publishDate: '2026-06-15', lastUpdated: '2026-07-01' }
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const date = (payload as Record<string, unknown>).date as Record<
+        string,
+        unknown
+      >
+      expect(date.publishDate).toBe('2026-06-15')
+      expect(date.lastUpdated).toBe('2026-07-01')
+    })
+  })
+
+  describe('content parsing', () => {
+    it('includes MDX body as paragraph content', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: 'The full report body.'
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
+      expect(content[0]?.__component).toBe('blocks.paragraph')
+      expect(content[0]?.content).toBe('The full report body.')
+    })
+
+    it('omits content when the MDX body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect(payload).not.toHaveProperty('content')
+    })
+  })
+})
+
+describe('createMediaUploadResolver', () => {
+  let tempProjectRoot: string
+
+  beforeEach(() => {
+    tempProjectRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'media-upload-resolver-test-')
+    )
+    mockProjectRootHolder.current = tempProjectRoot
+  })
+
+  afterEach(() => {
+    fs.rmSync(tempProjectRoot, { recursive: true, force: true })
+  })
+
+  function writeLocalAsset(url: string): void {
+    const absPath = path.join(tempProjectRoot, 'public', url)
+    fs.mkdirSync(path.dirname(absPath), { recursive: true })
+    fs.writeFileSync(absPath, '')
+  }
+
+  it('returns the upload ID when found', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(42)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, false)
+    await expect(resolve('/img/foo.png')).resolves.toBe(42)
+  })
+
+  it('throws when findUploadByUrl itself errors', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(new Error('network down'))
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(resolve('/img/foo.png')).rejects.toThrow('network down')
+  })
+
+  it('not found + dry-run + file exists on disk: warns and returns null', async () => {
+    writeLocalAsset(
+      '/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png'
+    )
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(
+      resolve('/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png')
+    ).resolves.toBeNull()
+  })
+
+  it('not found + not dry-run: throws even if the file exists on disk', async () => {
+    writeLocalAsset('/img/foo.png')
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, false)
+    await expect(resolve('/img/foo.png')).rejects.toThrow(
+      'Upload "/img/foo.png" could not be resolved to a Strapi file ID.'
+    )
+  })
+
+  it('not found + dry-run + file does NOT exist on disk: still throws (genuinely broken reference)', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(resolve('/img/missing.png')).rejects.toThrow(
+      'Upload "/img/missing.png" could not be resolved to a Strapi file ID.'
+    )
+  })
+
+  it('not found + dry-run + non-local-asset URL: still throws even if by coincidence a matching path exists on disk', async () => {
+    const strapi = {
+      findUploadByUrl: vi.fn().mockResolvedValue(null)
+    } as unknown as StrapiClient
+
+    const resolve = createMediaUploadResolver(strapi, true)
+    await expect(
+      resolve('https://example.com/not-a-local-asset.png')
+    ).rejects.toThrow(
+      'Upload "https://example.com/not-a-local-asset.png" could not be resolved to a Strapi file ID.'
+    )
+  })
+})
+
+// Incomplete CTA (text without link, or vice versa) must throw, not be dropped.
+describe('buildProfilePayload', () => {
+  function stubStrapi(): StrapiClient {
+    return {
+      findUploadByUrl: async () => null,
+      updateUploadAlt: async () => undefined
+    } as unknown as StrapiClient
+  }
+
+  const baseProfileFrontmatter = {
+    name: 'Jane Doe',
+    section: 'foundation',
+    photo: null,
+    locale: 'en'
+  }
+
+  describe('cta', () => {
+    it('is null in payload when absent from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: baseProfileFrontmatter
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toBeNull()
+    })
+
+    it('is included in payload when both text and link are present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more', link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toEqual({
+        text: 'Read more',
+        link: 'https://example.com',
+        style: 'primary',
+        external: false
+      })
+    })
+
+    it('returns Error when text is present but link is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toContain('cta')
+      expect((payload as Error).message).toContain('link')
+    })
+
+    it('returns Error when link is present but text is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toContain('cta')
+      expect((payload as Error).message).toContain('text')
     })
   })
 })

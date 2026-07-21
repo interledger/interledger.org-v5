@@ -35,7 +35,13 @@ import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
  * Resolution order:
  * 1. Target locale (e.g. `fr`)
  * 2. Fallback to `en` (when target !== 'en')
- * 3. Throw UNRESOLVED_RELATION if neither found
+ * 3. In dry-run mode, tolerate a relation that doesn't exist in Strapi yet
+ *    if its pathSlug is present in `dryRunPathSlugs` — i.e. it would be
+ *    created by this same sync run (dry-run never persists anything, so a
+ *    brand-new profile referenced by a brand-new page can never resolve via
+ *    a live lookup, even though a real sync would create both and connect
+ *    them fine).
+ * 4. Throw UNRESOLVED_RELATION if none of the above found it.
  *
  * The returned function matches the `resolveRelation` signature on
  * ParserContext so it can be plugged in directly. Throws are caught at
@@ -43,7 +49,9 @@ import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
  */
 export function createRelationResolver(
   strapi: StrapiClient,
-  locale: string
+  locale: string,
+  dryRun = false,
+  dryRunPathSlugs?: Set<string>
 ): (apiId: string, pathSlug: string) => Promise<{ documentId: string }> {
   return async (apiId: string, pathSlug: string) => {
     const entry = await strapi.findByPathSlug(apiId, pathSlug, locale)
@@ -54,6 +62,13 @@ export function createRelationResolver(
       const fallback = await strapi.findByPathSlug(apiId, pathSlug, 'en')
       if (fallback instanceof Error) throw fallback
       if (fallback) return { documentId: fallback.documentId }
+    }
+
+    if (dryRun && dryRunPathSlugs?.has(pathSlug)) {
+      console.log(
+        `   ⚠️  [DRY-RUN] Relation "${pathSlug}" (${apiId}) not yet in Strapi — would be created by this same sync run.`
+      )
+      return { documentId: `dry-run:${apiId}:${pathSlug}` }
     }
 
     throw new MdxParserError({

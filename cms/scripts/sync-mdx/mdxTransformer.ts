@@ -21,9 +21,12 @@ import type { FrontmatterSchema } from './config'
 import type {
   foundationBlogFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
-  grantPageFrontmatterSchema
+  grantPageFrontmatterSchema,
+  faqFrontmatterSchema,
+  reportFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
@@ -36,6 +39,11 @@ export interface StrapiUploadContext {
   STRAPI_URL: string
   STRAPI_TOKEN: string
   dryRun: boolean
+  /**
+   * pathSlugs of profile-pages found in this run's MDX source, for
+   * createRelationResolver's dry-run fallback (see profileHandler.ts).
+   */
+  profilePathSlugs?: Set<string>
 }
 
 /**
@@ -106,6 +114,41 @@ async function getImageFromStrapi(
   )
 }
 
+/**
+ * Builds a `resolveMediaUpload` resolver for the MDX block parser (ImageBlock,
+ * PdfEmbed, carousels, etc). In dry-run mode, a media path that doesn't
+ * resolve yet but already exists on disk under `public/` is tolerated —
+ * bootstrap seeding (`seedUploadsFromDisk`) will register it the next time
+ * Strapi starts from this branch's code — rather than treated as a broken
+ * reference.
+ */
+export function createMediaUploadResolver(
+  strapi: StrapiClient,
+  dryRun: boolean
+): (url: string) => Promise<number | null> {
+  return async (url: string): Promise<number | null> => {
+    const id = await strapi.findUploadByUrl(url)
+    if (id instanceof Error) throw id
+    if (id) return id
+
+    if (
+      dryRun &&
+      isLocalAssetPath(url) &&
+      fs.existsSync(path.join(getProjectRoot(), 'public', url))
+    ) {
+      console.log(
+        `   ⚠️  [DRY-RUN] Upload not yet in Strapi: "${url}" (will be seeded on next Strapi start)`
+      )
+      return null
+    }
+
+    throw new MdxParserError({
+      code: ParserErrorCode.UNRESOLVED_RELATION,
+      message: `Upload "${url}" could not be resolved to a Strapi file ID.`
+    })
+  }
+}
+
 interface StrapiHeroPayload {
   title: string
   description: string
@@ -165,9 +208,11 @@ async function buildHeroWithImage(
     hasHeroImageField ||
     hasHeroImageMobileField
 
+  const trimmedHeroTitle = (parsed.heroTitle as string | undefined)?.trim()
+
   let heroPayload: Record<string, unknown> | null = heroFieldsPresent
     ? (buildHeroPayload(
-        parsed.heroTitle as string | undefined,
+        trimmedHeroTitle || (parsed.title as string | undefined),
         parsed.heroDescription as string | undefined,
         parsed.heroCtas as HeroCta[] | undefined
       ) as unknown as Record<string, unknown>)
@@ -357,11 +402,21 @@ interface ProfileCtaFrontmatter {
   external?: boolean
 }
 
-/** Normalize the frontmatter CTA into a Strapi component payload, or null. */
-function ctaPayload(value: unknown): ProfileCtaFrontmatter | null {
+/**
+ * Normalize the frontmatter CTA into a Strapi component payload, or null.
+ * Throws if `cta` is present but missing `text`/`link`. Absent `cta` is fine.
+ */
+function ctaPayload(
+  value: unknown,
+  pathSlug: string
+): ProfileCtaFrontmatter | null {
   if (!value || typeof value !== 'object') return null
   const cta = value as ProfileCtaFrontmatter
-  if (!cta.text || !cta.link) return null
+  if (!cta.text || !cta.link) {
+    throw new Error(
+      `[${pathSlug}] Profile "cta" is missing required "text" and/or "link" — both are required when a cta is provided.`
+    )
+  }
   return {
     text: cta.text,
     link: cta.link,
@@ -421,7 +476,7 @@ export async function buildProfilePayload(
       }
     }
 
-    const cta = ctaPayload(mdx.frontmatter.cta)
+    const cta = ctaPayload(mdx.frontmatter.cta, mdx.pathSlug)
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
 
     return {
@@ -447,20 +502,22 @@ export async function buildProfilePayload(
  * parsed into `content` dynamic-zone blocks (blocks.paragraph,
  * blocks.split-layout, etc.) via the same JSX block parser used for
  * foundation/summit pages — this is what lets `<SplitLayout>` and friends
- * show up in Strapi's dynamic zone. `programOverview` is a legacy plain-text
- * mirror of the body kept only for entries that predate the block parser;
- * once a page is parsed into blocks it stays cleared.
+ * show up in Strapi's dynamic zone. `programOverview` is its own dedicated
+ * frontmatter field (rendered as the page's "Program Overview" section,
+ * separate from the body dynamic zone), so it's synced straight from
+ * frontmatter rather than derived from parsed body content.
  */
 export async function buildGrantPagePayload(
   schema: typeof grantPageFrontmatterSchema,
   mdx: MDXFile,
-  strapi?: StrapiClient,
+  strapiUploadContext?: StrapiUploadContext,
   existingEntry: StrapiEntry | null = null,
   updatedAltIds: Map<number, string | null> = new Map(),
   dryRun = false
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+    const strapi = strapiUploadContext?.strapi
 
     const primaryCta = parsed.primaryCta
       ? {
@@ -513,20 +570,24 @@ export async function buildGrantPagePayload(
         }
       : null
 
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      dryRun
+    )
+
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          },
+          resolveRelation: createRelationResolver(
+            strapi,
+            mdx.locale || 'en',
+            dryRun,
+            strapiUploadContext?.profilePathSlugs
+          ),
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
               strapi,
@@ -546,11 +607,12 @@ export async function buildGrantPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
-      programOverview: null,
+      hero,
+      programOverview: parsed.programOverview || null,
       primaryCta,
+      infoCards,
       faqSection,
       ctaStrip,
-      infoCards,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
@@ -607,17 +669,13 @@ export async function buildGrantOverviewPagePayload(
     const parserCtx: ParserContext | undefined = strapi
       ? {
           locale: mdx.locale || 'en',
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          },
+          resolveRelation: createRelationResolver(
+            strapi,
+            mdx.locale || 'en',
+            dryRun,
+            strapiUploadContext?.profilePathSlugs
+          ),
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
           updateMediaAlt: async (id: number, alt: string | null) => {
             await updateUploadAltOnce(
               strapi,
@@ -640,6 +698,96 @@ export async function buildGrantOverviewPagePayload(
       hero,
       ctaStrip,
       followUpContent: null,
+      ...(content !== undefined ? { content } : {}),
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for a faq-type MDX file.
+ *
+ * FAQ pages are flat frontmatter (title, pathSlug, section, heading,
+ * description, introParagraph) plus a `content` dynamic zone parsed from the
+ * MDX body — no media or relation resolution needed.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildFaqPayload(
+  schema: typeof faqFrontmatterSchema,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      section: parsed.section,
+      heading: parsed.heading,
+      description: parsed.description,
+      introParagraph: nullOrValue(parsed.introParagraph),
+      ...(content !== undefined ? { content } : {}),
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/** Normalize the frontmatter `date` object into a Strapi component payload, or null. */
+function reportDatePayload(
+  value: unknown
+): { publishDate: string; lastUpdated?: string } | null {
+  if (!value || typeof value !== 'object') return null
+  const date = value as { publishDate?: unknown; lastUpdated?: unknown }
+  if (!date.publishDate) return null
+  return {
+    publishDate: new Date(date.publishDate as string)
+      .toISOString()
+      .split('T')[0]!,
+    ...(date.lastUpdated
+      ? {
+          lastUpdated: new Date(date.lastUpdated as string)
+            .toISOString()
+            .split('T')[0]
+        }
+      : {})
+  }
+}
+
+/**
+ * Builds a Strapi payload for a report MDX file.
+ *
+ * Maps frontmatter fields and MDX body to the report Strapi schema. No
+ * media or relation resolution needed — reports have no managed media
+ * fields, and the content zone only allows blocks.paragraph, which never
+ * references either. `date` is sent as `null` when absent so a date removed
+ * in Astro clears in Strapi too, rather than surviving as a stale field.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildReportPayload(
+  schema: typeof reportFrontmatterSchema,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      section: parsed.section,
+      heading: parsed.heading,
+      description: parsed.description,
+      introParagraph: nullOrValue(parsed.introParagraph),
+      date: reportDatePayload(parsed.date),
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }

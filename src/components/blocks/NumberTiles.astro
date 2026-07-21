@@ -1,0 +1,55 @@
+---
+// Row of stat tiles for the grant-overview-page dynamic zone (INTORG-854).
+// Reuses the homepage's StatCard/AnimatedNumber trio rather than duplicating
+// the count-up + accessibility pattern — see `display` prop on both for why
+// (the `number` field here is free text, e.g. "1,000", not a clean number).
+//
+// Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
+// of each item's width — 2 tiles per row on mobile/tablet, up to 4 per row on
+// desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
+// default behavior, no extra CSS needed).
+import StatCard from '@/components/shared/StatCard.astro'
+import { parseStatNumber } from '@/utils'
+
+interface Tile {
+  number: string
+  suffix?: string
+  description: string
+}
+
+interface Props {
+  tiles: Tile[]
+}
+
+const { tiles } = Astro.props
+
+// Number tiles use the h2 heading scale (56px at desktop), smaller than
+// StatsSection's homepage h1. StatCard always sizes the suffix to match
+// numberClass, so "21" and "M+" read as one continuous size automatically.
+const NUMBER_CLASS =
+  'font-poppins font-semibold text-h2 tablet:text-h2-md desktop:text-h2-lg'
+const LABEL_CLASS = 'text-left text-neutral-75'
+---
+
+<ul
+  role="list"
+  class="m-0 grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 pt-2xl desktop:grid-cols-4"
+  data-animated-number-trigger
+>
+  {
+    tiles.map((tile) => {
+      const parsed = parseStatNumber(tile.number)
+      return (
+        <StatCard
+          value={parsed ?? 0}
+          display={tile.number}
+          suffix={tile.suffix}
+          numberClass={NUMBER_CLASS}
+          label={tile.description}
+          labelClass={LABEL_CLASS}
+          class="w-full items-start pt-0 pb-0 pl-0 desktop:pt-0 desktop:pb-0"
+        />
+      )
+    })
+  }
+</ul>

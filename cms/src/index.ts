@@ -5,6 +5,7 @@ import {
   scheduleGitSync,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
+  validateReportDate,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -249,6 +250,7 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  service: (uid: string) => unknown
 }
 
 /**
@@ -533,6 +535,53 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   }
 }
 
+interface AdminApiTokenService {
+  getByName: (name: string) => Promise<{ id: string | number } | null>
+  create: (attributes: {
+    name: string
+    description: string
+    type: 'full-access'
+    lifespan: null
+  }) => Promise<{ accessKey: string }>
+}
+
+const CI_API_TOKEN_NAME = 'ci-dry-run'
+
+/**
+ * CI-only: creates a full-access API token so an ephemeral, freshly-booted
+ * Strapi instance (built-and-dryrun PR check) can be used as a sync target
+ * without any manual admin-panel setup. No-op unless CI_API_TOKEN_OUTPUT_PATH
+ * is set. Strapi only returns a token's raw value once, at creation time, so
+ * it's written straight to disk for the calling CI step to read.
+ */
+async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
+  const outputPath = process.env.CI_API_TOKEN_OUTPUT_PATH
+  if (!outputPath) return
+
+  const tokenService = strapi.service(
+    'admin::api-token'
+  ) as AdminApiTokenService
+
+  const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
+  if (existing) {
+    strapi.log.warn(
+      `[CI] API token "${CI_API_TOKEN_NAME}" already exists from a previous boot; its raw value can't be re-read, skipping token-file write.`
+    )
+    return
+  }
+
+  const token = await tokenService.create({
+    name: CI_API_TOKEN_NAME,
+    description:
+      'Ephemeral token for the build-and-dryrun PR check. Safe to revoke or ignore.',
+    type: 'full-access',
+    lifespan: null
+  })
+
+  fs.writeFileSync(outputPath, token.accessKey, { mode: 0o600 })
+  strapi.log.info(`[CI] Wrote API token to ${outputPath}`)
+}
+
 function collectMediaPaths(dir: string): string[] {
   const results: string[] = []
 
@@ -619,11 +668,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       programOverview: 'Program Overview',
       primaryCta: 'Primary Call to Action',
+      infoCards: 'Information Cards',
       content: 'Content',
       ctaStrip: 'CTA Strip',
-      infoCards: 'Information Cards',
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
@@ -631,20 +681,46 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'Path Slug',
       description: 'Short Description',
       hero: 'Hero',
+      content: 'Content',
       ctaStrip: 'CTA Strip',
       followUpContent: 'Follow-up Content'
+    },
+    'api::faq.faq': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      heading: 'Heading',
+      description: 'Short Description',
+      introParagraph: 'Intro Paragraph',
+      content: 'Content'
+    },
+    'api::report.report': {
+      title: 'Page Title',
+      pathSlug: 'URL Slug',
+      section: 'Section',
+      heading: 'Heading',
+      description: 'Short Description',
+      introParagraph: 'Intro Paragraph',
+      date: 'Date',
+      content: 'Content'
     }
   }
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
+      tagline:
+        'Used on profile grids below the avatar and name. Not shown on the profile page.',
+      category:
+        'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Fellows 2026", "2025 Hackathon Judges").',
       photo:
-        'Click the edit (pencil) icon on the selected image to set Alternative text. Leave it empty for decorative images (renders alt="").',
-      role: "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
+        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
+      pathSlug:
+        'This should include the category and the person’s name, e.g. 2025/judges/jane-doe. No leading slash. Determines the public URL.',
+      role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
-        'Short intro blurb shown on the profile detail page, above the CTA and biography sections.'
+        'Short intro blurb shown on the profile page, above the CTA and biography sections.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
@@ -682,6 +758,30 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+    },
+    'api::faq.faq': {
+      pathSlug:
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      heading:
+        'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
+      introParagraph: 'Optional intro paragraph shown below the heading.'
+    },
+    'api::report.report': {
+      pathSlug:
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
+      section:
+        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
+      heading:
+        'The heading shown at the top of the report page. Can differ from the Page Title.',
+      introParagraph:
+        'Optional intro paragraph shown below the heading and dates.',
+      date: 'Optional. Add this component to show a Publish Date (required once added) and an optional Last Updated date.'
     }
   }
 
@@ -732,6 +832,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       style: 'Style',
       external: 'External Link'
+    },
+    'shared.primary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
+    'shared.secondary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
+    'shared.report-date': {
+      publishDate: 'Publish Date',
+      lastUpdated: 'Last Updated'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -790,6 +904,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessible label (screen readers only)'
     },
+    'blocks.number-tiles': {
+      tiles: 'Tiles'
+    },
+    'blocks.number-tile': {
+      number: 'Number',
+      suffix: 'Suffix',
+      description: 'Description'
+    },
     'blocks.cta-banner': {
       heading: 'Heading',
       text: 'Body Text',
@@ -845,6 +967,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
+    'blocks.title-card-grid': {
+      titleCards: 'Title cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessibility label'
+    },
+    'blocks.title-card': {
+      heading: 'Heading',
+      subHeading: 'Sub heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -857,6 +990,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.category': {
       categoryValue:
         'You can select multiple categories — click "+ Add an entry" for each category'
+    },
+    'shared.hero': {
+      backgroundImage:
+        'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
+      backgroundImageMobile:
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.'
+    },
+    'shared.report-date': {
+      lastUpdated:
+        'Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts).'
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
@@ -912,11 +1055,23 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content:
         'Rich text for the content column. Leave empty when using a Quote.'
     },
+    'blocks.title-card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+    },
+    'shared.secondary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+    },
     'blocks.carousel': {
       accessibilityLabel:
         'Describes this group of logos for screen reader users. Not visible on the page.',
       logos:
         'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+    },
+    'blocks.number-tile': {
+      number:
+        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the suffix here.',
+      suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
 
@@ -1062,6 +1217,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
+    'api::report.report': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'date', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
     'api::foundation-page.foundation-page': [
       [
         { name: 'title', size: 6 },
@@ -1084,6 +1251,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
@@ -1093,12 +1261,24 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'pathSlug', size: 6 }
       ],
       [{ name: 'description', size: 6 }],
-      [{ name: 'primaryCta', size: 12 }],
+      [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
+      [{ name: 'primaryCta', size: 12 }],
       [{ name: 'infoCards', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'faqSection', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }]
+    ],
+    'api::faq.faq': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'section', size: 6 }
+      ],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'introParagraph', size: 12 }],
+      [{ name: 'content', size: 12 }]
     ]
   }
 
@@ -1141,6 +1321,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
+    ],
+    'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
+    'blocks.number-tile': [
+      [
+        { name: 'number', size: 6 },
+        { name: 'suffix', size: 6 }
+      ],
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
@@ -1233,6 +1421,19 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quoteSource', size: 4 }
       ],
       [{ name: 'cta', size: 12 }]
+    ],
+    'blocks.title-card-grid': [
+      [
+        { name: 'columns', size: 4 },
+        { name: 'ariaLabel', size: 8 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
+    ],
+    'blocks.title-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subHeading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
     ]
   }
 
@@ -1347,6 +1548,11 @@ export default {
           )
         )
     )
+    registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
+      validateContentBlocks(
+        Array.isArray(body.content) ? body.content : undefined
+      )
+    )
     registerDocumentValidation(
       strapi,
       'api::foundation-page.foundation-page',
@@ -1384,19 +1590,25 @@ export default {
       'api::foundation-navigation.foundation-navigation',
       'api::summit-navigation.summit-navigation'
     ])
+    const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {
-      if (
-        NAV_UIDS.has(ctx.uid) &&
-        (ctx.action === 'create' || ctx.action === 'update') &&
-        ctx.params.data
-      ) {
-        normalizeNavigationInput(
-          ctx.params.data as Parameters<typeof normalizeNavigationInput>[0]
-        )
-        const validationErr = validateNavigationLabels(
-          ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
-        )
-        if (validationErr) throw validationErr
+      if (ctx.action === 'create' || ctx.action === 'update') {
+        if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
+          normalizeNavigationInput(
+            ctx.params.data as Parameters<typeof normalizeNavigationInput>[0]
+          )
+          const validationErr = validateNavigationLabels(
+            ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
+          )
+          if (validationErr) throw validationErr
+        }
+
+        if (ctx.uid === REPORT_UID && ctx.params.data) {
+          const validationErr = validateReportDate(
+            ctx.params.data as Parameters<typeof validateReportDate>[0]
+          )
+          if (validationErr) throw validationErr
+        }
       }
       return next()
     })
@@ -1434,6 +1646,10 @@ export default {
 
     // Register any on-disk images that are missing from the DB (fresh DB scenario)
     await seedUploadsFromDisk(strapi)
+
+    // CI-only, no-op otherwise: provisions an API token for the ephemeral
+    // Strapi instance the build-and-dryrun PR check boots from this branch's code.
+    await ensureCiApiToken(strapi)
 
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)

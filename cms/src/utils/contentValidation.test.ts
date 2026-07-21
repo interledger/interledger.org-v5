@@ -6,12 +6,14 @@ import {
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
   validateGrantInfoCards,
+  validateReportDate,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
   validateBlogFields,
   mergeValidationErrors,
-  toValidationError
+  toValidationError,
+  SerializerFieldError
 } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
@@ -621,6 +623,72 @@ describe('validateBlogFields', () => {
   })
 })
 
+describe('toValidationError', () => {
+  it('passes an existing ValidationError through unchanged', () => {
+    const err = new errors.ValidationError('already wrapped')
+    expect(toValidationError(err)).toBe(err)
+  })
+
+  it('wraps a plain Error with just its message, no details.errors', () => {
+    const err = toValidationError(new Error('caught failure'))
+    expect(err.message).toBe('caught failure')
+    expect(err.details).toEqual({})
+  })
+
+  it('wraps a SerializerFieldError with its path in details.errors, so the admin UI can highlight the field', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card grid block is missing title cards',
+          path: ['titleCards']
+        }
+      ])
+    )
+
+    expect(err.message).toBe('Title card grid block is missing title cards')
+    expect(err.details.errors).toEqual([
+      {
+        path: ['titleCards'],
+        message: 'Title card grid block is missing title cards',
+        name: 'ValidationError'
+      }
+    ])
+  })
+
+  it('reports every field error at once, not just the first', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card grid block is missing title cards',
+          path: ['titleCards']
+        },
+        {
+          message: 'Title card grid block is missing accessibility label',
+          path: ['ariaLabel']
+        }
+      ])
+    )
+
+    expect(err.details.errors.map((e) => e.path)).toEqual([
+      ['titleCards'],
+      ['ariaLabel']
+    ])
+  })
+
+  it('stringifies a nested array-index path in details.errors', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card 2 is missing heading',
+          path: ['titleCards', 1, 'heading']
+        }
+      ])
+    )
+
+    expect(err.details.errors[0].path).toEqual(['titleCards', '1', 'heading'])
+  })
+})
+
 describe('mergeValidationErrors', () => {
   it('returns undefined when no validators found anything', () => {
     expect(mergeValidationErrors(undefined, undefined)).toBeUndefined()
@@ -668,5 +736,45 @@ describe('mergeValidationErrors', () => {
       ['primaryCta', 'text'],
       ['faqSection', 'title']
     ])
+  })
+})
+
+describe('validateReportDate', () => {
+  it('returns undefined when date is absent', () => {
+    expect(validateReportDate({})).toBeUndefined()
+  })
+
+  it('returns undefined when date is explicitly null', () => {
+    expect(validateReportDate({ date: null })).toBeUndefined()
+  })
+
+  it('returns undefined when publishDate is present', () => {
+    expect(
+      validateReportDate({ date: { publishDate: '2026-06-15' } })
+    ).toBeUndefined()
+  })
+
+  it('returns undefined when both publishDate and lastUpdated are present', () => {
+    expect(
+      validateReportDate({
+        date: { publishDate: '2026-06-15', lastUpdated: '2026-07-01' }
+      })
+    ).toBeUndefined()
+  })
+
+  it('returns a ValidationError when date is present but publishDate is missing', () => {
+    const err = validateReportDate({ date: {} })
+    expect(err).toBeInstanceOf(Error)
+    expect(err?.message).toBe('Date: Publish Date is required')
+  })
+
+  it('returns a ValidationError when publishDate is empty', () => {
+    const err = validateReportDate({ date: { publishDate: '' } })
+    expect(err?.message).toBe('Date: Publish Date is required')
+  })
+
+  it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
+    const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
+    expect(err?.message).toBe('Date: Publish Date is required')
   })
 })

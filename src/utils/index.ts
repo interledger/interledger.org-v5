@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  ensureLeadingSlash,
   ensureAbsoluteUrl,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,
@@ -17,6 +18,7 @@ export {
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
+export { parseStatNumber } from './shared/parseStatNumber'
 
 // Main site: URL & routing
 export {
@@ -58,11 +60,16 @@ export { applyPreviewNoStore } from './main/cache'
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
 export {
   type CollectionType,
+  type SiteSection,
+  /** @deprecated Use {@link SiteSection} instead — kept for existing imports. */
   type ProfileSection,
   getLocalizedPaths,
-  getCrossSectionPaths,
-  getProfilePaths
+  getCrossSectionPaths
 } from './main/static-paths'
+export {
+  type BreadcrumbItem,
+  buildSectionEntryBreadcrumbs
+} from './main/breadcrumbs'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,

@@ -3,14 +3,11 @@ import {
   buildUmamiAttrs,
   useTranslations,
   stripTrailingSlash,
-  twMerge
+  twMerge,
+  type BreadcrumbItem
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 
-interface BreadcrumbItem {
-  name: string
-  href: string
-}
 interface Props {
   breadcrumbs: BreadcrumbItem[]
   class?: string
@@ -27,7 +24,7 @@ const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
 const breadcrumbClasses = twMerge(
-  'flex flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
+  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
   breakBeforeLastItem ? 'gap-x-xs tablet:gap-xs' : 'gap-xs',
   className
 )
@@ -44,22 +41,22 @@ function getItemClasses(isLast: boolean): string {
 }
 
 function getLinkClasses(isLast: boolean): string {
-  const base = `inline-block ${linkPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900`
+  const base = `${linkPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900`
   if (isLast) {
-    return `${base} min-w-0 max-w-full overflow-hidden`
+    return `${base} block min-w-0 flex-1 truncate`
   }
-  return base
+  return `inline-block ${base}`
 }
 
 function getNameClasses(isLast: boolean): string {
   if (isLast) {
-    return 'block min-w-0 truncate'
+    return 'block truncate'
   }
   return 'whitespace-nowrap'
 }
 ---
 
-<nav aria-label={t('nav.breadcrumb')}>
+<nav aria-label={t('nav.breadcrumb')} class="min-w-0 max-w-full">
   <ol
     class={breadcrumbClasses}
     itemscope

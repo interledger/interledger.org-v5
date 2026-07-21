@@ -1,6 +1,6 @@
 # ADR-006: Label-first event names with grouped path properties
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-07-06
 **Supersedes:** ADR-005
 **Issue:** N/A

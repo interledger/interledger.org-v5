@@ -4,5 +4,7 @@ export {
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
   foundationBlogFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  faqFrontmatterSchema,
+  reportFrontmatterSchema
 } from '@site/schemas/content'

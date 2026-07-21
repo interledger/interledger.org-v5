@@ -1,12 +1,13 @@
 /**
- * JSX attribute extraction utilities for MDX AST nodes.
+ * JSX attribute and child-element extraction utilities for MDX AST nodes.
  *
- * Provides safe, typed accessors for reading props from
- * `mdast-util-mdx-jsx` JSX element nodes. All accessors
- * throw `MdxParserError` on unexpected shapes so callers
- * get strict, actionable failures.
+ * Provides safe, typed accessors for reading props and named child
+ * elements from `mdast-util-mdx-jsx` JSX element nodes. All accessors
+ * throw `MdxParserError` on unexpected shapes so callers get strict,
+ * actionable failures.
  */
 
+import type { RootContent } from 'mdast'
 import type { MdxJsxAttribute } from 'mdast-util-mdx-jsx'
 import type { JsxBlockNode } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -645,4 +646,61 @@ export function getStaticLiteralAttr(
   }
 
   return evaluateStaticLiteral(expression, meta)
+}
+
+// ---------------------------------------------------------------------------
+// Child elements
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve a child node to the JSX element it represents.
+ *
+ * A tag whose open and close are on the same line (e.g. `<Card>text</Card>`)
+ * is inline content, so remark wraps it in a `paragraph` node — even when
+ * it's that paragraph's only content. A tag spanning multiple lines (open
+ * tag, then content, then close tag, each on their own line) is block-level
+ * and needs no unwrapping. This resolves both forms to the same element.
+ */
+function toJsxElement(child: RootContent): JsxBlockNode | undefined {
+  if (
+    child.type === 'mdxJsxFlowElement' ||
+    child.type === 'mdxJsxTextElement'
+  ) {
+    return child
+  }
+  if (
+    child.type === 'paragraph' &&
+    child.children.length === 1 &&
+    child.children[0].type === 'mdxJsxTextElement'
+  ) {
+    return child.children[0]
+  }
+  return undefined
+}
+
+/**
+ * Collect all `<Name>` JSX element children of a node, regardless of
+ * whether each one was written on its own line or inline with siblings.
+ *
+ * @example
+ * ```ts
+ * // <Grid>
+ * //   <Card />
+ * //   <Card />
+ * // </Grid>
+ * getChildElements(node, 'Card')  // → [cardNode, cardNode]
+ * ```
+ */
+export function getChildElements(
+  node: JsxBlockNode,
+  name: string
+): JsxBlockNode[] {
+  const elements: JsxBlockNode[] = []
+  for (const child of node.children) {
+    const element = toJsxElement(child)
+    if (element && element.name === name) {
+      elements.push(element)
+    }
+  }
+  return elements
 }

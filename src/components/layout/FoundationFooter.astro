@@ -109,7 +109,7 @@ const socialLinks: Array<{
   <div class="mx-auto max-w-wide min-w-[360px]">
     <!-- Top: Subscribe | Contact | Social -->
     <div
-      class="grid grid-cols-1 gap-3xl pt-4xl pb-3xl tablet:pt-3xl-tight tablet:gap-2xl desktop:pt-4xl desktop:grid-cols-6 desktop:gap-space-xl"
+      class="grid grid-cols-1 gap-3xl pt-4xl pb-3xl tablet:pt-3xl-tight tablet:gap-2xl desktop:pt-4xl desktop:grid-cols-6 desktop:gap-4xl"
     >
       <!-- Subscribe -->
       <section
@@ -173,7 +173,7 @@ const socialLinks: Array<{
           {t('footer.social_links')}
         </h5>
         <ul
-          class="mb-0 mt-space-xs mx-0 flex list-none flex-wrap gap-md p-0 tablet:gap-xl
+          class="mb-0 mt-md mx-0 flex list-none flex-wrap gap-md p-0 tablet:gap-xl
           desktop:gap-lg"
           role="list"
         >
@@ -204,7 +204,7 @@ const socialLinks: Array<{
       class="border-t border-neutral-50 py-3xl"
     >
       <ul
-        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6 desktop:gap-space-xl"
+        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6"
         role="list"
       >
         {
@@ -230,7 +230,7 @@ const socialLinks: Array<{
                         <LinkButton
                           variant="ghost"
                           href={item.href ?? '#'}
-                          class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
+                          class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
                           aria-current={
                             isActive(item.href) ? 'page' : undefined
                           }
@@ -256,7 +256,7 @@ const socialLinks: Array<{
                 )}
 
                 {group.subGroups && group.subGroups.length > 0 && (
-                  <div class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col desktop:gap-space-m">
+                  <div class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col">
                     {group.subGroups.map((sub, subIndex) => {
                       const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
                       return (
@@ -265,7 +265,7 @@ const socialLinks: Array<{
                             id={subHeadingId}
                             class="mb-2 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
                           >
-                            <span class="border-b border-neutral-100 pb-space-3xs tablet:border-neutral-900">
+                            <span class="border-b border-neutral-100 pb-sm tablet:border-neutral-900">
                               {sub.label}
                             </span>
                           </p>
@@ -279,7 +279,7 @@ const socialLinks: Array<{
                                 <LinkButton
                                   variant="ghost"
                                   href={item.href ?? '#'}
-                                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-space-3xs' : ''}`}
+                                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
                                   aria-current={
                                     isActive(item.href) ? 'page' : undefined
                                   }

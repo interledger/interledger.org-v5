@@ -22,6 +22,8 @@ import VideoEmbedBlock from './VideoEmbedBlock.astro'
 import ImageBlock from './ImageBlock.astro'
 import CodeBlock from './CodeBlock.astro'
 import SplitLayout from './SplitLayout.astro'
+import NumberTiles from './NumberTiles.astro'
+import TitleCardGrid from './TitleCardGrid.astro'
 
 interface Block {
   __component: string
@@ -50,7 +52,9 @@ const componentMap: Record<string, any> = {
   'blocks.video-embed': VideoEmbedBlock,
   'blocks.image-block': ImageBlock,
   'blocks.code-block': CodeBlock,
-  'blocks.split-layout': SplitLayout
+  'blocks.split-layout': SplitLayout,
+  'blocks.number-tiles': NumberTiles,
+  'blocks.title-card-grid': TitleCardGrid
 }
 
 const resolvedBlocks = blocks
@@ -66,7 +70,7 @@ const resolvedBlocks = blocks
   .filter((item): item is NonNullable<typeof item> => item !== null)
 ---
 
-<div class="flex flex-col gap-space-xl">
+<div class="flex flex-col gap-4xl">
   {
     resolvedBlocks.map(({ Component, props }) => (
       <div class="w-full">

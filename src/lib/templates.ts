@@ -9,7 +9,9 @@ import type { CollectionKey } from 'astro:content'
  * No changes needed to getStaticPaths or existing collections.
  */
 export const crossSectionCollections = [
-  'profiles'
+  'profiles',
+  'faqs',
+  'reports'
 ] as const satisfies readonly CollectionKey[]
 
 export type CrossSectionCollection = (typeof crossSectionCollections)[number]

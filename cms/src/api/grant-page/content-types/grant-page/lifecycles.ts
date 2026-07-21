@@ -4,6 +4,7 @@ import {
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
+  heroFrontmatter,
   GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
@@ -55,12 +56,12 @@ interface GrantPageData extends PageData {
   programOverview?: string
   content?: Array<{ __component: string; [key: string]: unknown }> | null
   primaryCta?: CtaLink | null
+  infoCards?: InfoCards | null
   faqSection?: FaqSection | null
   ctaStrip?: CtaStrip | null
-  infoCards?: InfoCards | null
 }
 
-function generateGrantPageMDX(
+export function generateGrantPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
@@ -69,13 +70,21 @@ function generateGrantPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // Fields owned by Strapi components must be explicitly deleted from
-  // restPreserved so that removing them in Strapi clears them from the MDX
-  // rather than leaving the old value behind.
+
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
   delete (restPreserved as Record<string, unknown>).programOverview
+  for (const key of [
+    'heroTitle',
+    'heroDescription',
+    'heroImage',
+    'heroImageAlt',
+    'heroImageMobile',
+    'heroImageMobileAlt',
+    'heroCtas'
+  ])
+    delete (restPreserved as Record<string, unknown>)[key]
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
@@ -83,12 +92,17 @@ function generateGrantPageMDX(
   const primaryCta = grantPage.primaryCta
   const infoCards = grantPage.infoCards
   const faqSection = grantPage.faqSection
+  const hero = grantPage.hero as Parameters<typeof heroFrontmatter>[0]
 
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
+    ...heroFrontmatter(hero),
+    ...(grantPage.programOverview
+      ? { programOverview: grantPage.programOverview }
+      : {}),
     ...(primaryCta
       ? {
           primaryCta: {
@@ -100,8 +114,26 @@ function generateGrantPageMDX(
           }
         }
       : {}),
-    ...(grantPage.programOverview
-      ? { programOverview: grantPage.programOverview }
+    ...(infoCards
+      ? {
+          infoCards: {
+            ...(infoCards.heading ? { heading: infoCards.heading } : {}),
+            cards: [
+              {
+                heading: infoCards.card1?.heading ?? '',
+                body: infoCards.card1?.body ?? ''
+              },
+              {
+                heading: infoCards.card2?.heading ?? '',
+                body: infoCards.card2?.body ?? ''
+              },
+              {
+                heading: infoCards.card3?.heading ?? '',
+                body: infoCards.card3?.body ?? ''
+              }
+            ]
+          }
+        }
       : {}),
     ...(faqSection
       ? {
@@ -135,37 +167,11 @@ function generateGrantPageMDX(
           }
         }
       : {}),
-    ...(infoCards
-      ? {
-          infoCards: {
-            ...(infoCards.heading ? { heading: infoCards.heading } : {}),
-            cards: [
-              {
-                heading: infoCards.card1?.heading ?? '',
-                body: infoCards.card1?.body ?? ''
-              },
-              {
-                heading: infoCards.card2?.heading ?? '',
-                body: infoCards.card2?.body ?? ''
-              },
-              {
-                heading: infoCards.card3?.heading ?? '',
-                body: infoCards.card3?.body ?? ''
-              }
-            ]
-          }
-        }
-      : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
-  const parts: string[] = []
-  if (grantPage.programOverview?.trim())
-    parts.push(grantPage.programOverview.trim())
-  const blocks = serializeContent(grantPage.content ?? undefined)
-  if (blocks) parts.push(blocks)
-  const body = parts.join('\n\n')
+  const body = serializeContent(grantPage.content ?? undefined)
 
   return matter.stringify(
     body ? `\n${body}\n` : '',

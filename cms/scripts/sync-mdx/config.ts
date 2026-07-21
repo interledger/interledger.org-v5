@@ -1,12 +1,16 @@
 import { getContentPath } from '@/utils'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiClient, StrapiEntry } from './strapiClient'
+import { scanMDXFiles } from './scan'
 import {
   buildPagePayload,
   buildBlogPayload,
   buildProfilePayload,
   buildGrantPagePayload,
   buildGrantOverviewPagePayload,
+  buildFaqPayload,
+  buildReportPayload,
+  createMediaUploadResolver,
   type StrapiUploadContext
 } from './mdxTransformer'
 import {
@@ -15,7 +19,9 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  faqFrontmatterSchema,
+  reportFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -29,9 +35,10 @@ import './codeBlockHandler'
 import './splitLayoutHandler'
 import './carouselHandler'
 import './imageBlockHandler'
+import './numberTilesHandler'
+import './titleCardGridHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
-import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 /**
  * Minimal schema interface for frontmatter validation.
@@ -70,6 +77,8 @@ export interface ContentTypes {
   'summit-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
+  faqs: ContentTypeConfig
+  reports: ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -89,18 +98,13 @@ function buildParsedPagePayload(
     existing,
     {
       locale,
-      resolveRelation: createRelationResolver(strapi, locale),
-      resolveMediaUpload: async (url: string) => {
-        const id = await strapi.findUploadByUrl(url)
-        if (id instanceof Error) throw id
-        if (!id) {
-          throw new MdxParserError({
-            code: ParserErrorCode.UNRESOLVED_RELATION,
-            message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-          })
-        }
-        return id
-      }
+      resolveRelation: createRelationResolver(
+        strapi,
+        locale,
+        dryRun,
+        strapiUploadContext.profilePathSlugs
+      ),
+      resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
     },
     strapiUploadContext,
     updatedAltIds,
@@ -121,7 +125,7 @@ export function buildContentTypes(
   const grantPageAltIds = new Map<number, string | null>()
   const grantOverviewPageAltIds = new Map<number, string | null>()
 
-  return {
+  const contentTypes: ContentTypes = {
     profiles: {
       dir: getContentPath(projectRoot, 'profiles'),
       apiId: 'profile-pages',
@@ -135,22 +139,41 @@ export function buildContentTypes(
           existing,
           {
             locale,
-            resolveRelation: createRelationResolver(strapi, locale),
-            resolveMediaUpload: async (url: string) => {
-              const id = await strapi.findUploadByUrl(url)
-              if (id instanceof Error) throw id
-              if (!id) {
-                throw new MdxParserError({
-                  code: ParserErrorCode.UNRESOLVED_RELATION,
-                  message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-                })
-              }
-              return id
-            }
+            resolveRelation: createRelationResolver(
+              strapi,
+              locale,
+              dryRun,
+              profilePathSlugs
+            ),
+            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
           },
           profileAltIds,
           dryRun
         )
+      }
+    },
+    faqs: {
+      dir: getContentPath(projectRoot, 'faqs'),
+      apiId: 'faqs',
+      schema: faqFrontmatterSchema,
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        // No resolveRelation/resolveMediaUpload: the FAQ content zone only
+        // allows blocks.paragraph, which never resolves relations or media.
+        return buildFaqPayload(faqFrontmatterSchema, mdx, existing, { locale })
+      }
+    },
+    reports: {
+      dir: getContentPath(projectRoot, 'reports'),
+      apiId: 'reports',
+      schema: reportFrontmatterSchema,
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        // No resolveRelation/resolveMediaUpload: the report content zone only
+        // allows blocks.paragraph, which never resolves relations or media.
+        return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
+          locale
+        })
       }
     },
     'grant-pages': {
@@ -161,7 +184,13 @@ export function buildContentTypes(
         buildGrantPagePayload(
           grantPageFrontmatterSchema,
           mdx,
-          strapi,
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
           existing,
           grantPageAltIds,
           dryRun
@@ -175,7 +204,13 @@ export function buildContentTypes(
         buildGrantOverviewPagePayload(
           grantOverviewPageFrontmatterSchema,
           mdx,
-          { strapi, STRAPI_URL: strapiUrl, STRAPI_TOKEN: strapiToken, dryRun },
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
           existing,
           grantOverviewPageAltIds,
           dryRun
@@ -195,7 +230,8 @@ export function buildContentTypes(
             strapi,
             STRAPI_URL: strapiUrl,
             STRAPI_TOKEN: strapiToken,
-            dryRun
+            dryRun,
+            profilePathSlugs
           },
           pageAltIds,
           dryRun
@@ -215,7 +251,8 @@ export function buildContentTypes(
             strapi,
             STRAPI_URL: strapiUrl,
             STRAPI_TOKEN: strapiToken,
-            dryRun
+            dryRun,
+            profilePathSlugs
           },
           pageAltIds,
           dryRun
@@ -230,23 +267,19 @@ export function buildContentTypes(
           strapi,
           STRAPI_URL: strapiUrl,
           STRAPI_TOKEN: strapiToken,
-          dryRun
+          dryRun,
+          profilePathSlugs
         }
         const locale = mdx.locale || 'en'
         const parserCtx: ParserContext = {
           locale,
-          resolveRelation: createRelationResolver(strapi, locale),
-          resolveMediaUpload: async (url: string) => {
-            const id = await strapi.findUploadByUrl(url)
-            if (id instanceof Error) throw id
-            if (!id) {
-              throw new MdxParserError({
-                code: ParserErrorCode.UNRESOLVED_RELATION,
-                message: `Upload "${url}" could not be resolved to a Strapi file ID.`
-              })
-            }
-            return id
-          }
+          resolveRelation: createRelationResolver(
+            strapi,
+            locale,
+            dryRun,
+            profilePathSlugs
+          ),
+          resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
         }
         return buildBlogPayload(
           foundationBlogFrontmatterSchema,
@@ -259,4 +292,15 @@ export function buildContentTypes(
       }
     }
   }
+
+  // profile-pages is the only relation target other content types reference
+  // (ProfileCard/ProfileGrid — see profileHandler.ts). Snapshotting its
+  // pathSlugs from source lets createRelationResolver's dry-run fallback
+  // tell "would be created by this same run" apart from a genuinely broken
+  // reference, since dry-run never persists anything for a live lookup to find.
+  const profilePathSlugs = new Set(
+    scanMDXFiles('profiles', contentTypes).map((f) => f.pathSlug)
+  )
+
+  return contentTypes
 }

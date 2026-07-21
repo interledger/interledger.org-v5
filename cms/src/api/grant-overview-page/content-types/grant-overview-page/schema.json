@@ -33,8 +33,7 @@
         }
       },
       "required": true,
-      "unique": true,
-      "description": "Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug."
+      "unique": true
     },
     "description": {
       "type": "text",
@@ -43,18 +42,17 @@
           "localized": true
         }
       },
-      "required": true,
-      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+      "required": true
     },
     "hero": {
       "type": "component",
-      "repeatable": false,
-      "component": "shared.hero",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "shared.hero",
+      "repeatable": false
     },
     "ctaStrip": {
       "type": "component",
@@ -69,6 +67,11 @@
     },
     "content": {
       "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "components": [
         "blocks.paragraph",
         "blocks.split-layout",
@@ -78,13 +81,10 @@
         "blocks.image-block",
         "blocks.cta-strip",
         "blocks.cta-banner",
-        "blocks.carousel"
-      ],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+        "blocks.carousel",
+        "blocks.number-tiles",
+        "blocks.title-card-grid"
+      ]
     },
     "followUpContent": {
       "type": "customField",

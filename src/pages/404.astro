@@ -3,29 +3,94 @@
  * Custom 404 page for static hosting (Netlify serves 404.html).
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
-import { HOME_CONTENT_SLUG, translatePath } from '@/utils'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils'
 
 const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const homeHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
+
+const CARDS = [
+  {
+    title: t('not_found.card1_title'),
+    description: t('not_found.card1_description'),
+    cta: t('not_found.card1_cta'),
+    href: translatePath('foundation-pages', routeLocale, 'grants')
+  },
+  {
+    title: t('not_found.card2_title'),
+    description: t('not_found.card2_description'),
+    cta: t('not_found.card2_cta'),
+    href: translatePath('foundation-pages', routeLocale, 'interledger')
+  },
+  {
+    title: t('not_found.card3_title'),
+    description: t('not_found.card3_description'),
+    cta: t('not_found.card3_cta'),
+    href: translatePath('foundation-pages', routeLocale, 'community')
+  }
+]
 ---
 
 <FoundationPageLayout
-  title="Page not found"
-  description="The page you requested could not be found."
+  title={t('not_found.meta_title')}
+  description={t('not_found.meta_description')}
+  headerTheme="light"
 >
-  <main class="flex-1 flex items-center justify-center py-space-xl">
-    <section class="text-center px-space-m">
-      <h1 class="text-6xl font-semibold text-primary mb-space-s">404</h1>
-      <p
-        class="text-lg text-[var(--sl-color-gray-2)] mb-space-m max-w-(--container-md) mx-auto"
-      >
-        The page you requested could not be found.
-      </p>
-      <a
-        href={translatePath('foundation-pages', routeLocale, HOME_CONTENT_SLUG)}
-        class="inline-block text-primary font-medium underline hover:no-underline"
-      >
-        ← Back to home
-      </a>
-    </section>
+  <main
+    class="flex mx-auto min-h-96 max-w-content px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(14rem-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <div class="max-w-content flex flex-col gap-3xl">
+      <div>
+        <h1
+          class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-150"
+        >
+          {t('not_found.title')}
+        </h1>
+
+        <div class="flex flex-col py-xl">
+          <p class="mb-lg">{t('not_found.body_1')}</p>
+          <p class="mb-0">{t('not_found.body_2')}</p>
+        </div>
+        <LinkButton
+          href={homeHref}
+          variant="primary"
+          class="w-full tablet:max-w-fit"
+        >
+          {t('not_found.cta_home')}
+          <Icon name="return-home" slot="icon-right" />
+        </LinkButton>
+      </div>
+
+      <hr class="border-t border-neutral-50" />
+
+      <div class="grid grid-cols-1 gap-4xl desktop:grid-cols-3">
+        {
+          CARDS.map((card) => (
+            <div class="flex flex-col gap-lg">
+              <h2 class="text-h4 tablet:text-h4-md mb-0 desktop:text-h4-lg text-neutral-150">
+                {card.title}
+              </h2>
+              <p class="mb-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75">
+                {card.description}
+              </p>
+              <LinkButton
+                href={card.href}
+                variant="secondary"
+                class="w-full tablet:max-w-fit"
+              >
+                {card.cta}
+              </LinkButton>
+            </div>
+          ))
+        }
+      </div>
+    </div>
   </main>
 </FoundationPageLayout>

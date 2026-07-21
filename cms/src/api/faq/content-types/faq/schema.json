@@ -1,0 +1,92 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faqs",
+  "info": {
+    "singularName": "faq",
+    "pluralName": "faqs",
+    "displayName": "Faq Page",
+    "description": "FAQ pages, grouped anywhere on the site via the `section` field. pathSlug sets the public URL; MDX is always stored flat under src/content/faqs/ (or faqs/es/)."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Used for the browser tab title and breadcrumb label."
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Path relative to the chosen Section. For section: foundation, this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix — it's added automatically based on Section."
+    },
+    "section": {
+      "type": "enumeration",
+      "enum": ["foundation", "summit", "hackathon"],
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      },
+      "description": "Site section for routing and breadcrumbs. Does not affect MDX file location."
+    },
+    "heading": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "The heading shown at the top of the FAQ page. Can differ from the page title."
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+    },
+    "introParagraph": {
+      "type": "text",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "description": "Optional intro paragraph shown below the heading."
+    },
+    "content": {
+      "type": "dynamiczone",
+      "components": ["blocks.paragraph"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

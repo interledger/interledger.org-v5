@@ -18,21 +18,21 @@ const { title, content, ctas } = Astro.props
 ---
 
 <section
-  class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[30vh] md:min-h-[50vh] py-space-m text-white flex items-center"
+  class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[30vh] md:min-h-[50vh] py-2xl text-white flex items-center"
 >
   <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
     <div>
       <h1
-        class="text-white max-w-[15em] leading-tight font-semibold mb-space-xs text-step-2"
+        class="text-white max-w-[15em] leading-tight font-semibold mb-lg text-h3-md tablet:text-h3-lg"
       >
         {title ?? ''}
       </h1>
-      <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-space-xs">
+      <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-lg">
         {content ?? ''}
       </p>
       {
         ctas && ctas.length > 0 && (
-          <div class="flex flex-wrap gap-space-s mt-space-s">
+          <div class="flex flex-wrap gap-xl mt-xl">
             {ctas.map((link) => (
               <Link
                 href={link.link}

@@ -34,8 +34,7 @@
         "i18n": {
           "localized": true
         }
-      },
-      "description": "Full path from the site root, no leading slash. Determines the public URL only. Examples: hackathon/2025/judges/jane-doe; summit/2025/speakers/jane-doe; grant/fellowship/jane-doe."
+      }
     },
     "section": {
       "type": "enumeration",
@@ -45,8 +44,7 @@
         "i18n": {
           "localized": false
         }
-      },
-      "description": "Site section for routing and breadcrumbs. Does not affect MDX file location."
+      }
     },
     "tagline": {
       "type": "string",
@@ -62,8 +60,7 @@
         "i18n": {
           "localized": true
         }
-      },
-      "description": "Short optional description or bio blurb shown on profile cards and detail pages."
+      }
     },
     "cta": {
       "type": "component",
@@ -78,7 +75,6 @@
     },
     "role": {
       "type": "string",
-      "description": "Job title or role shown under the profile name on the detail page (e.g. 'Open Web Advocate & Open Source Contributor').",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -87,7 +83,6 @@
     },
     "photo": {
       "type": "media",
-      "description": "Image alt text comes from the media Alternative text field when set; otherwise MDX export uses the profile name as photoAlt.",
       "multiple": false,
       "required": false,
       "allowedTypes": ["images"],
@@ -100,7 +95,6 @@
     "category": {
       "type": "string",
       "required": true,
-      "description": "Groups profiles for summary views (e.g. '2025 Hackathon Judges', 'Leadership Team', 'Fellows 2026').",
       "pluginOptions": {
         "i18n": {
           "localized": true

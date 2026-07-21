@@ -33,13 +33,9 @@
     /* Layout tokens — no @theme namespace available */
     --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
     --site-header-height-desktop: 4.75rem; /* 76px — foundation desktop nav row */
-    --max-content-width: 1160px;
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
        Cap block size on large viewports for LCP hero band). */
-    --layout-homepage-hero-min-block-size-lg: min(80dvh, 56rem);
-    --layout-homepage-hero-copy-max-base: 34rem;
-    --layout-homepage-hero-copy-max-md: 36rem;
     --layout-homepage-hero-copy-max-lg: 42rem;
     --option1: linear-gradient(
       to bottom,
@@ -60,19 +56,21 @@
     --color-btn-txt: var(--color-white);
   }
 
-  /* Pillar overrides - set on page wrapper via data-pillar attribute
-     These override --color-primary for the entire page tree, affecting
-     all components, prose styles, and dynamic utilities that read from it. */
+  /* Pillar overrides — set on a page wrapper via data-pillar.
+     Must point at a real token (not var(--color-primary)): a self-reference
+     is invalid at computed-value time and breaks prose links / text-primary
+     for the whole subtree (e.g. profile pages with data-pillar="mission").
+     Placeholders use orchid until each pillar gets a distinct hue. */
   [data-pillar='tech'] {
-    --color-primary: var(--color-tech-main);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='mission'] {
-    --color-primary: var(--color-mission-main);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='vision'] {
-    --color-primary: var(--color-vision-main);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='values'] {
-    --color-primary: var(--color-values-main);
+    --color-primary: var(--color-orchid-100);
   }
 }
