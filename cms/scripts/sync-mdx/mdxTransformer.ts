@@ -404,11 +404,7 @@ interface ProfileCtaFrontmatter {
 
 /**
  * Normalize the frontmatter CTA into a Strapi component payload, or null.
- *
- * Throws if a `cta` object is present but missing required `text`/`link` —
- * silently dropping it would let an editor's half-filled CTA vanish without
- * any signal (see #359). Absent `cta` is valid (no CTA renders) and returns
- * null.
+ * Throws if `cta` is present but missing `text`/`link`. Absent `cta` is fine.
  */
 function ctaPayload(
   value: unknown,

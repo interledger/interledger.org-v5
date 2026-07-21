@@ -2289,9 +2289,7 @@ describe('createMediaUploadResolver', () => {
   })
 })
 
-// Maps profile MDX frontmatter to the Strapi profile-page payload shape.
-// Key risk: a half-filled `cta` (text without link, or vice versa) must
-// surface as an Error rather than silently dropping the CTA (see #359).
+// Incomplete CTA (text without link, or vice versa) must throw, not be dropped.
 describe('buildProfilePayload', () => {
   function stubStrapi(): StrapiClient {
     return {
