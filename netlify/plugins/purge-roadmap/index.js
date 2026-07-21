@@ -12,7 +12,7 @@ export const onSuccess = async () => {
 
   if (!token) {
     console.warn(
-      '[purge-roadmap] NETLIFY_API_TOKEN not set — skipping roadmap CDN cache purge',
+      '[purge-roadmap] NETLIFY_API_TOKEN not set — skipping roadmap CDN cache purge'
     )
     return
   }
