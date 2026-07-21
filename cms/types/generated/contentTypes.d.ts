@@ -813,7 +813,6 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
-        'blocks.cta-banner',
         'blocks.carousel',
         'blocks.number-tiles',
         'blocks.title-card-grid'
@@ -912,7 +911,6 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
-        'blocks.cta-banner',
         'blocks.carousel',
         'blocks.profile-grid'
       ]
