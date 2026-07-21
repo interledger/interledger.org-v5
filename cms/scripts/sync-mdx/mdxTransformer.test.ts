@@ -152,13 +152,34 @@ vi.mock('./siteSchemas', async () => {
     locale: z.string(),
     localizes: z.string().optional()
   })
+  const profileCtaSchema = z.object({
+    text: z.string(),
+    link: z.string(),
+    style: z.enum(['primary', 'secondary']).optional(),
+    external: z.boolean().optional()
+  })
+  const profileSchema = z.object({
+    pathSlug: z.string().min(1, 'slug is required'),
+    name: z.string().min(1, 'name is required'),
+    section: z.enum(['summit', 'hackathon', 'foundation']),
+    photo: z.string().nullable(),
+    photoAlt: z.string().nullable().optional(),
+    category: z.string().nullable().optional(),
+    tagline: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    role: z.string().nullable().optional(),
+    cta: profileCtaSchema.optional(),
+    locale: z.string(),
+    localizes: z.string().optional()
+  })
   return {
     foundationPageFrontmatterSchema: pageSchema,
     summitPageFrontmatterSchema: pageSchema,
     grantPageFrontmatterSchema: grantPageSchema,
     grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
     faqFrontmatterSchema: faqSchema,
-    reportFrontmatterSchema: reportSchema
+    reportFrontmatterSchema: reportSchema,
+    profileFrontmatterSchema: profileSchema
   }
 })
 
