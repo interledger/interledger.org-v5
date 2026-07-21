@@ -41,7 +41,8 @@ export {
   useTranslations,
   translatePath,
   COLLECTION_INDEX_SLUG,
-  buildRoutePath
+  buildRoutePath,
+  getBlogPostPath
 } from './main/i18'
 export {
   getAlternateLocale,
