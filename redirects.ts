@@ -41,6 +41,207 @@ export const redirects = {
   '/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
     '/news/reflections-2025-payments-canada-summit',
 
+  // Foundation blog: /news merged into /blog.
+  '/news/2025-digital-financial-services-grant':
+    '/blog/2025-digital-financial-services-grant',
+  '/news/2025-digital-financial-services-grant-recipient-miplata':
+    '/blog/2025-digital-financial-services-grant-recipient-miplata',
+  '/news/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations':
+    '/blog/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations',
+  '/news/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro':
+    '/blog/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro',
+  '/news/ad-filtering-dev-summit-23-web-monetization-100-ad-filter':
+    '/blog/ad-filtering-dev-summit-23-web-monetization-100-ad-filter',
+  '/news/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem':
+    '/blog/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem',
+  '/news/announcing-awardees-interledger-nextgen-higher-education-grant-program':
+    '/blog/announcing-awardees-interledger-nextgen-higher-education-grant-program',
+  '/news/announcing-formal-launch-interledger-foundation':
+    '/blog/announcing-formal-launch-interledger-foundation',
+  '/news/announcing-interledger-foundations-web-monetization-extension-beta-release':
+    '/blog/announcing-interledger-foundations-web-monetization-extension-beta-release',
+  '/news/announcing-new-ilp-testnet-wallet':
+    '/blog/announcing-new-ilp-testnet-wallet',
+  '/news/announcing-twelve-recipients-our-financial-services-awards':
+    '/blog/announcing-twelve-recipients-our-financial-services-awards',
+  '/news/are-financial-rights-human-rights':
+    '/blog/are-financial-rights-human-rights',
+  '/news/banking-without-banks-what-africa-can-teach-us-about-financial-access':
+    '/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access',
+  '/news/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives':
+    '/blog/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives',
+  '/news/bridging-technology-and-policy':
+    '/blog/bridging-technology-and-policy',
+  '/news/building-future-cross-border-remittances-chimoney-and-interledger':
+    '/blog/building-future-cross-border-remittances-chimoney-and-interledger',
+  '/news/building-real-solutions-interledger-hackathon-winners-2025':
+    '/blog/building-real-solutions-interledger-hackathon-winners-2025',
+  '/news/call-papers-program': '/blog/call-papers-program',
+  '/news/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle':
+    '/blog/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle',
+  '/news/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems':
+    '/blog/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems',
+  '/news/collaborative-work-week-peoples-clearinghouse':
+    '/blog/collaborative-work-week-peoples-clearinghouse',
+  '/news/designing-digital-money-2026-blog-series':
+    '/blog/designing-digital-money-2026-blog-series',
+  '/news/digital-financial-inclusion-igniting-sustainable-development-goals':
+    '/blog/digital-financial-inclusion-igniting-sustainable-development-goals',
+  '/news/exploring-community-based-identification-systems':
+    '/blog/exploring-community-based-identification-systems',
+  '/news/financial-inclusion-20-financial-cooperatives-enabling-inclusivity':
+    '/blog/financial-inclusion-20-financial-cooperatives-enabling-inclusivity',
+  '/news/fliqa-integrates-interledger-power-open-interoperable-payments':
+    '/blog/fliqa-integrates-interledger-power-open-interoperable-payments',
+  '/news/future-banking-and-payments-digital':
+    '/blog/future-banking-and-payments-digital',
+  '/news/future-financial-inclusion-starts-trust':
+    '/blog/future-financial-inclusion-starts-trust',
+  '/news/get-hacking': '/blog/get-hacking',
+  '/news/grantee-report-quarterly-roundup':
+    '/blog/grantee-report-quarterly-roundup',
+  '/news/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions':
+    '/blog/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions',
+  '/news/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda':
+    '/blog/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda',
+  '/news/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions':
+    '/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions',
+  '/news/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon':
+    '/blog/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon',
+  '/news/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger':
+    '/blog/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger',
+  '/news/hacktoberfest-interledger-2025-open-source-celebration':
+    '/blog/hacktoberfest-interledger-2025-open-source-celebration',
+  '/news/hacktoberfest-interledger-join-open-payments-movement':
+    '/blog/hacktoberfest-interledger-join-open-payments-movement',
+  '/news/hacktoberfest-interledger-pay-web-forward':
+    '/blog/hacktoberfest-interledger-pay-web-forward',
+  '/news/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion':
+    '/blog/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion',
+  '/news/highlights-afrilabs-2024': '/blog/highlights-afrilabs-2024',
+  '/news/history-and-promise-interledger-qa-co-founder-stefan-thomas':
+    '/blog/history-and-promise-interledger-qa-co-founder-stefan-thomas',
+  '/news/how-interledger-protocol-ilp-powers-web-monetization':
+    '/blog/how-interledger-protocol-ilp-powers-web-monetization',
+  '/news/insights-futuremoney-podcast-interledger-campus':
+    '/blog/insights-futuremoney-podcast-interledger-campus',
+  '/news/interledger-campus': '/blog/interledger-campus',
+  '/news/interledger-comes-colombia-help-build-internet-opportunity':
+    '/blog/interledger-comes-colombia-help-build-internet-opportunity',
+  '/news/interledger-foundation-and-bowie-state-create-new-partnership':
+    '/blog/interledger-foundation-and-bowie-state-create-new-partnership',
+  '/news/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital':
+    '/blog/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital',
+  '/news/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company':
+    '/blog/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company',
+  '/news/interledger-foundation-announces-newest-grantee-mifos-initiative':
+    '/blog/interledger-foundation-announces-newest-grantee-mifos-initiative',
+  '/news/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media':
+    '/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media',
+  '/news/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web':
+    '/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web',
+  '/news/interledger-foundation-launches-interledger-campus-grant-program-support-student-led':
+    '/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led',
+  '/news/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial':
+    '/blog/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial',
+  '/news/interledger-foundation-partners-bowie-state-university':
+    '/blog/interledger-foundation-partners-bowie-state-university',
+  '/news/interledger-foundation-partners-chimoney':
+    '/blog/interledger-foundation-partners-chimoney',
+  '/news/interledger-foundation-partners-waag-and-here-support':
+    '/blog/interledger-foundation-partners-waag-and-here-support',
+  '/news/interledger-foundation-partners-wallet-guru':
+    '/blog/interledger-foundation-partners-wallet-guru',
+  '/news/interledger-hackathon-intro-open-payments-live-qa-ilf-experts':
+    '/blog/interledger-hackathon-intro-open-payments-live-qa-ilf-experts',
+  '/news/interledger-internet-governance-forum-2025':
+    '/blog/interledger-internet-governance-forum-2025',
+  '/news/interledger-summit-workshop-week':
+    '/blog/interledger-summit-workshop-week',
+  '/news/introducing-2024-digital-money-blog-series':
+    '/blog/introducing-2024-digital-money-blog-series',
+  '/news/introducing-2025-interledger-foundation-ambassadors-cohort':
+    '/blog/introducing-2025-interledger-foundation-ambassadors-cohort',
+  '/news/introducing-besspay-plugin-project':
+    '/blog/introducing-besspay-plugin-project',
+  '/news/introducing-parliamentarian-track-interledger-summit-2024':
+    '/blog/introducing-parliamentarian-track-interledger-summit-2024',
+  '/news/july-2025-quarterly-roundup': '/blog/july-2025-quarterly-roundup',
+  '/news/kanzu-microloans-real-time-credit-access-underserved':
+    '/blog/kanzu-microloans-real-time-credit-access-underserved',
+  '/news/making-money-move-julaire-halls-mission-financial-inclusion':
+    '/blog/making-money-move-julaire-halls-mission-financial-inclusion',
+  '/news/mexico-joins-interledger-network':
+    '/blog/mexico-joins-interledger-network',
+  '/news/mobile-money-ecosystem-africa': '/blog/mobile-money-ecosystem-africa',
+  '/news/mobile-money-ecosystem-asia-pacific':
+    '/blog/mobile-money-ecosystem-asia-pacific',
+  '/news/mobile-money-ecosystem-europe': '/blog/mobile-money-ecosystem-europe',
+  '/news/mobile-money-ecosystem-latin-america-and-caribbean':
+    '/blog/mobile-money-ecosystem-latin-america-and-caribbean',
+  '/news/mobile-money-ecosystem-north-america':
+    '/blog/mobile-money-ecosystem-north-america',
+  '/news/multiple-sides-friction-good-bad-and-how-use-it':
+    '/blog/multiple-sides-friction-good-bad-and-how-use-it',
+  '/news/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico':
+    '/blog/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico',
+  '/news/open-design-confronting-harmful-patterns-digital-finance':
+    '/blog/open-design-confronting-harmful-patterns-digital-finance',
+  '/news/open-payments-help-roscas-modernise-global-impact':
+    '/blog/open-payments-help-roscas-modernise-global-impact',
+  '/news/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time':
+    '/blog/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time',
+  '/news/rafiki-remit-advancing-seamless-remittances-pakistan':
+    '/blog/rafiki-remit-advancing-seamless-remittances-pakistan',
+  '/news/redefining-financial-inclusion-chimoney':
+    '/blog/redefining-financial-inclusion-chimoney',
+  '/news/reflections-2025-payments-canada-summit':
+    '/blog/reflections-2025-payments-canada-summit',
+  '/news/reflections-un-open-source-week-2025':
+    '/blog/reflections-un-open-source-week-2025',
+  '/news/reimagining-e-commerce-and-social-media':
+    '/blog/reimagining-e-commerce-and-social-media',
+  '/news/revolutionizing-global-payouts-and-boosting-financial-inclusion':
+    '/blog/revolutionizing-global-payouts-and-boosting-financial-inclusion',
+  '/news/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota':
+    '/blog/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota',
+  '/news/shanghai-flip-phones-and-robots-interledger-engineering-adventure':
+    '/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure',
+  '/news/shaping-future-digital-finance':
+    '/blog/shaping-future-digital-finance',
+  '/news/transforming-financial-access': '/blog/transforming-financial-access',
+  '/news/turning-headlines-backyard-conversations-lessons-2025-ofn-conference':
+    '/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference',
+  '/news/uct-financial-innovation-hub-and-interledger-foundation-hackathon':
+    '/blog/uct-financial-innovation-hub-and-interledger-foundation-hackathon',
+  '/news/unleashing-real-time-potential-streaming-payments':
+    '/blog/unleashing-real-time-potential-streaming-payments',
+  '/news/web-isnt-free': '/blog/web-isnt-free',
+  '/news/web-monetization-meets-googles-offerwall':
+    '/blog/web-monetization-meets-googles-offerwall',
+  '/news/welcome-our-new-ambassadors': '/blog/welcome-our-new-ambassadors',
+  '/news/whats-happened-april': '/blog/whats-happened-april',
+  '/news/whats-happened-august': '/blog/whats-happened-august',
+  '/news/whats-happened-december': '/blog/whats-happened-december',
+  '/news/whats-happened-july': '/blog/whats-happened-july',
+  '/news/whats-happened-june': '/blog/whats-happened-june',
+  '/news/whats-happened-march-news-updates-global-trends':
+    '/blog/whats-happened-march-news-updates-global-trends',
+  '/news/whats-happened-may': '/blog/whats-happened-may',
+  '/news/whats-happened-september': '/blog/whats-happened-september',
+  '/news/why-campuses-are-becoming-testbeds-digital-finance':
+    '/blog/why-campuses-are-becoming-testbeds-digital-finance',
+  '/news/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic':
+    '/blog/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic',
+  '/news/why-we-funded-research-who-gets-left-out-instant-payments':
+    '/blog/why-we-funded-research-who-gets-left-out-instant-payments',
+  '/news/why-we-weighed-federal-reserves-payment-account-proposal':
+    '/blog/why-we-weighed-federal-reserves-payment-account-proposal',
+  '/news/work-weeks-2025-building-future-financial-interoperability-heart-transylvania':
+    '/blog/work-weeks-2025-building-future-financial-interoperability-heart-transylvania',
+  '/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken':
+    '/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken',
+
   // Spanish developer blog content
   '/developers/blog/es': '/es/blog',
   '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
