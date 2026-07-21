@@ -1070,7 +1070,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number:
-        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the suffix here.',
+        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the suffix here.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
