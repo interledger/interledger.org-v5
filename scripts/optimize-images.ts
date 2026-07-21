@@ -5,10 +5,12 @@ import sharp from 'sharp'
 import {
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
-  pathToSegments,
+  pathToSegments
+} from '@/utils/main/images'
+import {
   isImageOverSizeLimit,
   imageSizeLimitError
-} from '@/utils'
+} from '@/utils/shared/uploadLimits'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
