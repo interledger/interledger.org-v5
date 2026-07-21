@@ -37,6 +37,22 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const resolvedLocale = faq.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang
 
+  // Strapi's populated component rows carry their own internal `id` (and, for
+  // items, __component/__pivot metadata) alongside heading/question/answer.
+  // Map explicitly rather than passing the row through as-is so none of that
+  // Strapi-internal bookkeeping leaks into the MDX frontmatter — matching the
+  // explicit-field-mapping convention used elsewhere (e.g. grant page's
+  // ctaStrip). These ids serve no round-trip purpose: the frontmatter schema
+  // doesn't declare an `id` field, so Zod already strips it back out on
+  // MDX -> Strapi import.
+  const faqSections = faq.faqSections.map((section) => ({
+    heading: section.heading,
+    items: section.items.map((item) => ({
+      question: item.question,
+      answer: item.answer
+    }))
+  }))
+
   const frontmatter: Record<string, unknown> = {
     title: faq.title,
     pathSlug: faq.pathSlug,
@@ -44,7 +60,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     heading: faq.heading,
     description: faq.description,
     ...(faq.introParagraph ? { introParagraph: faq.introParagraph } : {}),
-    faqSections: faq.faqSections,
+    faqSections,
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }
