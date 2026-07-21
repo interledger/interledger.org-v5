@@ -28,7 +28,7 @@
     .footnotes,
     [data-footnotes] {
       margin-block-start: var(--spacing-3xl);
-      padding-block-start: var(--spacing-2xl);
+      padding-block-start: var(--spacing-3xl);
       border-block-start: 2px solid var(--color-neutral-50);
       color: var(--color-neutral-100);
       font-size: var(--text-body-sm-standard);
