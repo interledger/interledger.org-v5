@@ -1,18 +1,36 @@
 import { describe, it, expect } from 'vitest'
-import { parseMdxToBlocks } from './mdxBlockParser'
+import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // Side-effect import: registers VideoEmbed handler
 import './videoEmbedHandler'
 
-const ctx = { locale: 'en' }
+const ctx: ParserContext = { locale: 'en' }
+
+/** Build a ParserContext with a controllable resolveMediaUpload. */
+function ctxWith(uploads: Record<string, number> = {}): ParserContext {
+  return {
+    locale: 'en',
+    resolveMediaUpload: async (url: string) => {
+      const id = uploads[url]
+      if (!id) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message: `Upload "${url}" not found.`,
+          component: 'VideoEmbed'
+        })
+      }
+      return id
+    }
+  }
+}
 
 // ---------------------------------------------------------------------------
-// Happy paths
+// External URLs (youtube / vimeo / direct file URL) → source: external_url
 // ---------------------------------------------------------------------------
 
-describe('VideoEmbed handler', () => {
-  it('parses YouTube URL with title', async () => {
+describe('VideoEmbed handler — external URLs', () => {
+  it('stores a YouTube URL in externalUrl', async () => {
     const blocks = await parseMdxToBlocks(
       '<VideoEmbed url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" title="Never Gonna Give You Up" />',
       ctx
@@ -21,37 +39,73 @@ describe('VideoEmbed handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.video-embed',
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        source: 'external_url',
+        externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         title: 'Never Gonna Give You Up'
       }
     ])
   })
 
-  it('parses Vimeo URL with title', async () => {
+  it('stores a Vimeo URL in externalUrl', async () => {
     const blocks = await parseMdxToBlocks(
       '<VideoEmbed url="https://vimeo.com/123456789" title="Sample Video" />',
       ctx
     )
 
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.video-embed',
-        url: 'https://vimeo.com/123456789',
-        title: 'Sample Video'
-      }
-    ])
+    expect(blocks[0]).toMatchObject({
+      source: 'external_url',
+      externalUrl: 'https://vimeo.com/123456789'
+    })
   })
 
-  it('parses youtu.be short URL', async () => {
+  it('stores an external direct file URL in externalUrl', async () => {
     const blocks = await parseMdxToBlocks(
-      '<VideoEmbed url="https://youtu.be/N5BTy2xxRqQ" title="Short URL" />',
+      '<VideoEmbed url="https://cdn.example.com/clip.mp4" title="Clip" />',
       ctx
     )
 
     expect(blocks[0]).toMatchObject({
-      url: 'https://youtu.be/N5BTy2xxRqQ',
-      title: 'Short URL'
+      source: 'external_url',
+      externalUrl: 'https://cdn.example.com/clip.mp4'
     })
+    expect(blocks[0]).not.toHaveProperty('file')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Internal paths (uploaded / seeded) → source: media_library
+// ---------------------------------------------------------------------------
+
+describe('VideoEmbed handler — uploaded / internal files', () => {
+  it('resolves a /uploads path to a Strapi file ID', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<VideoEmbed url="/uploads/clip.mp4" title="Uploaded clip" />',
+      ctxWith({ '/uploads/clip.mp4': 42 })
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.video-embed',
+        source: 'media_library',
+        file: 42,
+        title: 'Uploaded clip'
+      }
+    ])
+  })
+
+  it('treats a repo /img video path as an external URL (not a Strapi upload)', async () => {
+    // Bootstrap seeds only image extensions into media, so a repo /img/*.mp4
+    // is a plain URL string, not a media entity.
+    const blocks = await parseMdxToBlocks(
+      '<VideoEmbed url="/img/foundation-blog/2024-10-11/hover-effect.mp4" title="Hover effect demo" />',
+      ctx
+    )
+
+    expect(blocks[0]).toMatchObject({
+      source: 'external_url',
+      externalUrl: '/img/foundation-blog/2024-10-11/hover-effect.mp4'
+    })
+    expect(blocks[0]).not.toHaveProperty('file')
   })
 })
 
@@ -90,11 +144,29 @@ describe('VideoEmbed handler — errors', () => {
 
   it('returns DYNAMIC_EXPRESSION when title is a dynamic expression', async () => {
     const result = await parseMdxToBlocks(
-      '<VideoEmbed url="https://youtube.com/watch?v=abc" title={someVar} />',
+      '<VideoEmbed url="https://www.youtube.com/watch?v=abc" title={someVar} />',
       ctx
     )
     expect(result).toBeInstanceOf(MdxParserError)
     expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  })
+
+  it('returns UNRESOLVED_RELATION when an internal file is not in Strapi media', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url="/uploads/missing.mp4" title="Test" />',
+      ctxWith({})
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+  })
+
+  it('returns UNRESOLVED_RELATION when resolveMediaUpload is absent for an internal file', async () => {
+    const result = await parseMdxToBlocks(
+      '<VideoEmbed url="/uploads/clip.mp4" title="Test" />',
+      { locale: 'en' }
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
   })
 })
 
@@ -118,7 +190,8 @@ describe('VideoEmbed handler — mixed content', () => {
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
     expect(blocks[1]).toEqual({
       __component: 'blocks.video-embed',
-      url: 'https://www.youtube.com/watch?v=ATO1d9PfD0g',
+      source: 'external_url',
+      externalUrl: 'https://www.youtube.com/watch?v=ATO1d9PfD0g',
       title: 'Hackathon Recording'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })

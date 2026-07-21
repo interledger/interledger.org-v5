@@ -253,32 +253,42 @@ interface StrapiInstance {
   service: (uid: string) => unknown
 }
 
+/**
+ * Media types whose uploads are git-committed and served from the repo. Images
+ * have always been; video and PDF were added for INTORG-876, gated by the 5 MB
+ * upload size cap in `config/plugins.ts`. Larger media is out of scope here —
+ * tracked for alternative (CDN/cloud) storage in INTORG-902. Non-string mime
+ * falls through to a sync (matches the prior default).
+ */
+function shouldGitSyncUpload(mime: unknown): boolean {
+  if (typeof mime !== 'string') return true
+  return (
+    mime.startsWith('image/') ||
+    mime.startsWith('video/') ||
+    mime === 'application/pdf'
+  )
+}
+
 function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
   strapi.db?.lifecycles?.subscribe({
     models: ['plugin::upload.file'],
     afterCreate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload created, scheduling git sync')
+      console.log('📦 Upload created, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterUpdate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload updated, scheduling git sync')
+      console.log('📦 Upload updated, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterDelete(event) {
       if (shouldSkipMdxExport()) return
-
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
       console.log('🗑️  Upload deleted, scheduling git sync')
       scheduleGitSync('upload')
@@ -430,7 +440,13 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
+// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
+// anything git-committed and served from the repo (images, video, PDF) must
+// also be seedable, or an MDX reference to it resolves to no media record and
+// the sync hard-fails (INTORG-876). Larger media storage is tracked in
+// INTORG-902.
 const MIME_BY_EXT: Record<string, string> = {
+  // Images
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
@@ -438,13 +454,21 @@ const MIME_BY_EXT: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
   '.avif': 'image/avif',
-  '.tiff': 'image/tiff'
+  '.tiff': 'image/tiff',
+  // Video (matches the VideoEmbed externalUrl regex extensions)
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogg': 'video/ogg',
+  '.ogv': 'video/ogg',
+  '.mov': 'video/quicktime',
+  // Documents
+  '.pdf': 'application/pdf'
 }
 
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
 
 /**
- * Directories under `public/` to scan for seedable images.
+ * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
  * served at. Files found on disk but missing from Strapi's `upload_file`
  * table are inserted so MDX references remain valid after a fresh database.
@@ -469,7 +493,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
     const absDir = path.join(publicDir, dir)
     if (!fs.existsSync(absDir)) continue
 
-    const files = collectImagePaths(absDir)
+    const files = collectMediaPaths(absDir)
 
     for (const filePath of files) {
       const ext = path.extname(filePath).toLowerCase()
@@ -558,7 +582,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   strapi.log.info(`[CI] Wrote API token to ${outputPath}`)
 }
 
-function collectImagePaths(dir: string): string[] {
+function collectMediaPaths(dir: string): string[] {
   const results: string[] = []
 
   function walk(current: string) {
@@ -926,6 +950,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language',
       title: 'Title (optional)'
     },
+    'blocks.video-embed': {
+      source: 'Source',
+      externalUrl: 'Video URL',
+      file: 'Video file',
+      title: 'Title'
+    },
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
@@ -992,6 +1022,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'blocks.video-embed': {
+      source:
+        'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected; use YouTube for larger videos.',
+      externalUrl:
+        'A YouTube or Vimeo link, or a direct link to a video file (.mp4, .webm, .ogg, .mov).',
+      file: 'Upload a video file (max 5 MB). For larger videos, use YouTube or Vimeo and paste the link in the URL field instead.',
+      title:
+        'A short, descriptive title used as the accessible label for the video.'
     },
     'blocks.info-cards': {
       heading:
