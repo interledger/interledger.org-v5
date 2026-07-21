@@ -402,11 +402,21 @@ interface ProfileCtaFrontmatter {
   external?: boolean
 }
 
-/** Normalize the frontmatter CTA into a Strapi component payload, or null. */
-function ctaPayload(value: unknown): ProfileCtaFrontmatter | null {
+/**
+ * Normalize the frontmatter CTA into a Strapi component payload, or null.
+ * Throws if `cta` is present but missing `text`/`link`. Absent `cta` is fine.
+ */
+function ctaPayload(
+  value: unknown,
+  pathSlug: string
+): ProfileCtaFrontmatter | null {
   if (!value || typeof value !== 'object') return null
   const cta = value as ProfileCtaFrontmatter
-  if (!cta.text || !cta.link) return null
+  if (!cta.text || !cta.link) {
+    throw new Error(
+      `[${pathSlug}] Profile "cta" is missing required "text" and/or "link" — both are required when a cta is provided.`
+    )
+  }
   return {
     text: cta.text,
     link: cta.link,
@@ -466,7 +476,7 @@ export async function buildProfilePayload(
       }
     }
 
-    const cta = ctaPayload(mdx.frontmatter.cta)
+    const cta = ctaPayload(mdx.frontmatter.cta, mdx.pathSlug)
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
 
     return {

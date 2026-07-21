@@ -48,9 +48,15 @@
 
     img {
       display: block;
+      max-width: 100%;
+      height: auto;
       margin-inline: auto;
       border-radius: var(--radius-3xl);
     }
+
+    /* Long URLs / unbroken strings should wrap instead of forcing page overflow */
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     /* === Table styles === */
     & .table-scroll {
