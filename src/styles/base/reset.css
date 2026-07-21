@@ -86,17 +86,17 @@
     color: var(--color-orchid-150);
   }
 
-   hr {
+  hr {
     color: var(--color-neutral-50);
     border-top-width:2px;
-    --spacing-hr: var(--spacing-md); 
+    --spacing-hr: var(--spacing-xl); 
     margin-top: var(--spacing-hr);
     padding-bottom: var(--spacing-hr);
     @variant tablet {
-      --spacing-hr: var(--spacing-lg);
+      --spacing-hr: var(--spacing-2xl);
     }
     @variant desktop {
-      --spacing-hr: var(--spacing-xl);
+      --spacing-hr: var(--spacing-3xl);
     }
     @variant dark {
       color: var(--color-neutral-75)
