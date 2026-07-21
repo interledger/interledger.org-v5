@@ -19,7 +19,6 @@ import fs from 'fs'
 import path from 'path'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
-import { escDouble } from '../src/serializers/shared'
 import { serialize as serializeCodeBlock } from '../src/serializers/blocks/code-block.serializer'
 
 /** Minimal shape of an mdast fenced/indented code node (cms lacks @types/mdast). */
@@ -95,25 +94,6 @@ interface FenceReplacement {
 }
 
 /**
- * A fenced code block indented inside a container (list item / blockquote) can't
- * become a multi-line JSX expression: its continuation lines fall outside the
- * container and break MDX parsing, and indenting them would corrupt the code.
- * For those, emit a single physical line with a `\n`-escaped string literal
- * (which the sync parser also accepts). Top-level fences keep the readable
- * multi-line template-literal form produced by the shared serializer.
- */
-function buildSingleLineCodeBlock(
-  code: string,
-  language: string,
-  title?: string
-): string {
-  const attrs = [`language="${escDouble(language)}"`]
-  if (title) attrs.push(`title="${escDouble(title)}"`)
-  attrs.push(`code={${JSON.stringify(code)}}`)
-  return `<CodeBlock ${attrs.join(' ')} />`
-}
-
-/**
  * Byte ranges of `<Paragraph>…</Paragraph>` wrappers (tags on their own line,
  * as the serializer emits them). A `<CodeBlock>` can't be nested inside a
  * Paragraph block, so fences landing inside one are split out (see below).
@@ -173,18 +153,25 @@ function collectReplacements(body: string): FenceReplacement[] {
     const code = node.value.replace(/\n(?:[ \t]*\n)+/g, '\n')
 
     const title = node.meta?.match(TITLE_META_RE)?.[1]
+    const codeBlock = serializeCodeBlock({ code, language, title })
+
+    // A fence indented inside a list item can't stay there: nested in a list it
+    // becomes part of the list's paragraph block, which Strapi rejects
+    // (validateNoNestedJsx). Lift it to a top-level sibling by consuming the
+    // leading indentation so the list splits around it. Prettier normalizes the
+    // surrounding blank lines afterward.
     const isNested = (node.position?.start.column ?? 1) > 1
-    const codeBlock = isNested
-      ? buildSingleLineCodeBlock(code, language, title)
-      : serializeCodeBlock({ code, language, title })
+    const replaceStart = isNested
+      ? body.lastIndexOf('\n', start - 1) + 1
+      : start
 
     // A fence inside a <Paragraph> wrapper must become a sibling block:
     // close the paragraph before it and reopen after. Empty halves are
     // pruned later by stripEmptyParagraphs.
     const replacement = isInsideParagraph(paragraphRegions, start)
       ? `</Paragraph>\n\n${codeBlock}\n\n<Paragraph>`
-      : codeBlock
-    replacements.push({ start, end, replacement })
+      : `\n${codeBlock}\n`
+    replacements.push({ start: replaceStart, end, replacement })
   })
 
   return replacements

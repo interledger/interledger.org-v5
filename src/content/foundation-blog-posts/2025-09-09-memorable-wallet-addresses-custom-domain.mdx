@@ -162,12 +162,13 @@ In case you're wondering, no, the [`http-equiv` HTML meta tag](https://stackover
    Opening the wallet address URL directly in your browser may not show you the JSON response, as some wallets use it as a landing page for others to send you money.
 2. Create a `pay.json` file (or use any other name, it just needs to have the `.json` extension), and paste in the above JSON. For example:
 
-   <CodeBlock
-     language="bash"
-     code={
-       '# for example, with curl\n$ curl -sSL -H \'Accept: application/json\' \'https://ilp.gatehub.net/981946513/eur\' > pay.json\n$ cat pay.json\n# {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}'
-     }
-   />
+<CodeBlock
+  language="bash"
+  code={`# for example, with curl
+$ curl -sSL -H 'Accept: application/json' 'https://ilp.gatehub.net/981946513/eur' > pay.json
+$ cat pay.json
+# {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}`}
+/>
 
 3. Deploy your static site.
 
