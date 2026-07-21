@@ -44,26 +44,29 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   headerTheme="light"
 >
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="mx-auto max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
-        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
+        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-xl tablet:mt-3xl"
       >
         {heading}
       </h1>
       {
         introParagraph && (
-          <section aria-label={t('faq.introduction')} class="mt-xl">
-            <p class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-900">
+          <section
+            aria-label={t('faq.introduction')}
+            class="mt-xl tablet:mt-3xl"
+          >
+            <p class="text-neutral-100 text-h4 tablet:text-h4-md desktop:text-h5-lg">
               {introParagraph}
             </p>
           </section>
         )
       }
-      <section class="mt-3xl">
+      <section class="mt-4xl desktop:mt-6xl">
         <FaqSections sections={faqSections} uiLocale={routeLocale} />
       </section>
     </div>
