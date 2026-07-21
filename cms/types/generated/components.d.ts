@@ -858,6 +858,45 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksTitleCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_title_cards'
+  info: {
+    displayName: 'Title Card'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    heading: Schema.Attribute.String & Schema.Attribute.Required
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
+    subHeading: Schema.Attribute.String
+  }
+}
+
+export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_title_card_grids'
+  info: {
+    displayName: 'Title Card Grid'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
+    columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'Three'>
+    titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
+      Schema.Attribute.Required
+  }
+}
+
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
@@ -1169,6 +1208,18 @@ export interface SharedReportDate extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedSecondaryCtaLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_secondary_cta_links'
+  info: {
+    displayName: 'Secondary CTA Link'
+  }
+  attributes: {
+    external: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    link: Schema.Attribute.String & Schema.Attribute.Required
+    text: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface SharedSection extends Struct.ComponentSchema {
   collectionName: 'components_shared_sections'
   info: {
@@ -1244,6 +1295,8 @@ declare module '@strapi/strapi' {
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
       'blocks.split-layout': BlocksSplitLayout
+      'blocks.title-card': BlocksTitleCard
+      'blocks.title-card-grid': BlocksTitleCardGrid
       'blocks.video-embed': BlocksVideoEmbed
       'navigation.menu-group': NavigationMenuGroup
       'navigation.menu-item': NavigationMenuItem
@@ -1256,6 +1309,7 @@ declare module '@strapi/strapi' {
       'shared.primary-cta-link': SharedPrimaryCtaLink
       'shared.related-article': SharedRelatedArticle
       'shared.report-date': SharedReportDate
+      'shared.secondary-cta-link': SharedSecondaryCtaLink
       'shared.section': SharedSection
       'shared.seo': SharedSeo
     }

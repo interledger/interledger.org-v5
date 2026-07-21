@@ -88,9 +88,13 @@ export interface ParserContext {
    * Resolve an internal upload path to a Strapi upload file integer ID.
    * Same pattern as resolveRelation — wraps strapi.findUploadByUrl.
    *
+   * Returns `null` only in dry-run mode, when the upload doesn't exist yet
+   * but will be seeded from disk (`public/img`, `public/uploads`) the next
+   * time Strapi starts — see `createMediaUploadResolver` in mdxTransformer.ts.
+   *
    * @param url - Internal path (e.g. '/uploads/file.pdf')
    */
-  resolveMediaUpload?: (url: string) => Promise<number>
+  resolveMediaUpload?: (url: string) => Promise<number | null>
   /**
    * Update the alternativeText (alt text) on a Strapi upload file record.
    */

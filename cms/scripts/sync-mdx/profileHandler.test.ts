@@ -107,6 +107,53 @@ describe('createRelationResolver', () => {
     // Should only call once (no fallback to same locale)
     expect(strapi.findByPathSlug).toHaveBeenCalledTimes(1)
   })
+
+  it('dry-run: resolves with a placeholder when the pathSlug would be created by this same run', async () => {
+    const strapi = createMockStrapi({})
+    const resolve = createRelationResolver(
+      strapi,
+      'en',
+      true,
+      new Set(['grant/fellowship/lawil-karama'])
+    )
+
+    const result = await resolve(
+      'profile-pages',
+      'grant/fellowship/lawil-karama'
+    )
+
+    expect(result.documentId).toBeTruthy()
+  })
+
+  it('dry-run: still throws UNRESOLVED_RELATION when the pathSlug is not in dryRunPathSlugs either', async () => {
+    const strapi = createMockStrapi({})
+    const resolve = createRelationResolver(
+      strapi,
+      'en',
+      true,
+      new Set(['some/other-profile'])
+    )
+
+    await expect(resolve('profile-pages', 'ghost')).rejects.toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION
+    })
+  })
+
+  it('non-dry-run: ignores dryRunPathSlugs and throws for an unresolved relation', async () => {
+    const strapi = createMockStrapi({})
+    const resolve = createRelationResolver(
+      strapi,
+      'en',
+      false,
+      new Set(['grant/fellowship/lawil-karama'])
+    )
+
+    await expect(
+      resolve('profile-pages', 'grant/fellowship/lawil-karama')
+    ).rejects.toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION
+    })
+  })
 })
 
 // ---------------------------------------------------------------------------

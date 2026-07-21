@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blocks_title_card_grids",
+  "info": {
+    "displayName": "Title Card Grid"
+  },
+  "options": {},
+  "attributes": {
+    "titleCards": {
+      "type": "component",
+      "component": "blocks.title-card",
+      "repeatable": true,
+      "required": true
+    },
+    "columns": {
+      "type": "enumeration",
+      "required": true,
+      "default": "Three",
+      "enum": ["Three", "Two"]
+    },
+    "ariaLabel": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "config": {}
+}

@@ -13,7 +13,8 @@ import {
   validateHeroFields,
   validateBlogFields,
   mergeValidationErrors,
-  toValidationError
+  toValidationError,
+  SerializerFieldError
 } from '@/utils'
 
 describe('validateNoNestedJsx', () => {
@@ -699,6 +700,72 @@ describe('validateBlogFields', () => {
       ['articleBio', '0', 'author'],
       ['relatedArticles', '0', 'slug']
     ])
+  })
+})
+
+describe('toValidationError', () => {
+  it('passes an existing ValidationError through unchanged', () => {
+    const err = new errors.ValidationError('already wrapped')
+    expect(toValidationError(err)).toBe(err)
+  })
+
+  it('wraps a plain Error with just its message, no details.errors', () => {
+    const err = toValidationError(new Error('caught failure'))
+    expect(err.message).toBe('caught failure')
+    expect(err.details).toEqual({})
+  })
+
+  it('wraps a SerializerFieldError with its path in details.errors, so the admin UI can highlight the field', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card grid block is missing title cards',
+          path: ['titleCards']
+        }
+      ])
+    )
+
+    expect(err.message).toBe('Title card grid block is missing title cards')
+    expect(err.details.errors).toEqual([
+      {
+        path: ['titleCards'],
+        message: 'Title card grid block is missing title cards',
+        name: 'ValidationError'
+      }
+    ])
+  })
+
+  it('reports every field error at once, not just the first', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card grid block is missing title cards',
+          path: ['titleCards']
+        },
+        {
+          message: 'Title card grid block is missing accessibility label',
+          path: ['ariaLabel']
+        }
+      ])
+    )
+
+    expect(err.details.errors.map((e) => e.path)).toEqual([
+      ['titleCards'],
+      ['ariaLabel']
+    ])
+  })
+
+  it('stringifies a nested array-index path in details.errors', () => {
+    const err = toValidationError(
+      new SerializerFieldError([
+        {
+          message: 'Title card 2 is missing heading',
+          path: ['titleCards', 1, 'heading']
+        }
+      ])
+    )
+
+    expect(err.details.errors[0].path).toEqual(['titleCards', '1', 'heading'])
   })
 })
 

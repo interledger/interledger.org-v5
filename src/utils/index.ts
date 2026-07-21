@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  ensureLeadingSlash,
   ensureAbsoluteUrl,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,

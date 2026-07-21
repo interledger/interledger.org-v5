@@ -251,6 +251,7 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  service: (uid: string) => unknown
 }
 
 function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
@@ -511,6 +512,53 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   }
 }
 
+interface AdminApiTokenService {
+  getByName: (name: string) => Promise<{ id: string | number } | null>
+  create: (attributes: {
+    name: string
+    description: string
+    type: 'full-access'
+    lifespan: null
+  }) => Promise<{ accessKey: string }>
+}
+
+const CI_API_TOKEN_NAME = 'ci-dry-run'
+
+/**
+ * CI-only: creates a full-access API token so an ephemeral, freshly-booted
+ * Strapi instance (built-and-dryrun PR check) can be used as a sync target
+ * without any manual admin-panel setup. No-op unless CI_API_TOKEN_OUTPUT_PATH
+ * is set. Strapi only returns a token's raw value once, at creation time, so
+ * it's written straight to disk for the calling CI step to read.
+ */
+async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
+  const outputPath = process.env.CI_API_TOKEN_OUTPUT_PATH
+  if (!outputPath) return
+
+  const tokenService = strapi.service(
+    'admin::api-token'
+  ) as AdminApiTokenService
+
+  const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
+  if (existing) {
+    strapi.log.warn(
+      `[CI] API token "${CI_API_TOKEN_NAME}" already exists from a previous boot; its raw value can't be re-read, skipping token-file write.`
+    )
+    return
+  }
+
+  const token = await tokenService.create({
+    name: CI_API_TOKEN_NAME,
+    description:
+      'Ephemeral token for the build-and-dryrun PR check. Safe to revoke or ignore.',
+    type: 'full-access',
+    lifespan: null
+  })
+
+  fs.writeFileSync(outputPath, token.accessKey, { mode: 0o600 })
+  strapi.log.info(`[CI] Wrote API token to ${outputPath}`)
+}
+
 function collectImagePaths(dir: string): string[] {
   const results: string[] = []
 
@@ -758,6 +806,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       style: 'Style',
       external: 'External Link'
     },
+    'shared.primary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
+    'shared.secondary-cta-link': {
+      link: 'Link',
+      text: 'Button Text',
+      external: 'External Link'
+    },
     'shared.report-date': {
       publishDate: 'Publish Date',
       lastUpdated: 'Last Updated'
@@ -884,6 +942,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
+    'blocks.title-card-grid': {
+      titleCards: 'Title cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessibility label'
+    },
+    'blocks.title-card': {
+      heading: 'Heading',
+      subHeading: 'Sub heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
     'shared.category': {
       categoryValue: 'Category'
     },
@@ -951,6 +1020,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
       content:
         'Rich text for the content column. Leave empty when using a Quote.'
+    },
+    'blocks.title-card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+    },
+    'shared.secondary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1311,6 +1387,19 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quoteSource', size: 4 }
       ],
       [{ name: 'cta', size: 12 }]
+    ],
+    'blocks.title-card-grid': [
+      [
+        { name: 'columns', size: 4 },
+        { name: 'ariaLabel', size: 8 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
+    ],
+    'blocks.title-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'subHeading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
     ]
   }
 
@@ -1521,6 +1610,10 @@ export default {
 
     // Register any on-disk images that are missing from the DB (fresh DB scenario)
     await seedUploadsFromDisk(strapi)
+
+    // CI-only, no-op otherwise: provisions an API token for the ephemeral
+    // Strapi instance the build-and-dryrun PR check boots from this branch's code.
+    await ensureCiApiToken(strapi)
 
     // Ensure required locales (en, es) are installed
     await ensureLocales(strapi)
