@@ -1,13 +1,14 @@
 ---
-import { getCollection, render } from 'astro:content'
+import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import Paragraph from '@/components/blocks/Paragraph.astro'
+import FaqSections from '@/components/faq/FaqSections.astro'
 import {
   type Locale,
   useTranslations,
-  buildSectionEntryBreadcrumbs
+  buildSectionEntryBreadcrumbs,
+  parseMarkdown
 } from '@/utils'
 
 interface Props {
@@ -27,9 +28,13 @@ const entry = allFaqs.find(
 
 if (!entry) throw new Error(`Faq not found: ${slug} (${contentLocale})`)
 
-const { Content: MdxContent } = await render(entry)
-const { title, heading, description, introParagraph } = entry.data
-const hasBody = Boolean(entry.body?.trim())
+const { title, heading, description, introParagraph, faqSections } = entry.data
+const introParagraphHtml = introParagraph
+  ? await parseMarkdown(introParagraph, {
+      pathname: Astro.url.pathname,
+      lang: contentLocale
+    })
+  : null
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -46,32 +51,32 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   headerTheme="light"
 >
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
-    <div class="max-w-content">
+    <div class="mx-auto max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
-        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
+        class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg"
       >
         {heading}
       </h1>
       {
-        introParagraph && (
-          <section aria-label={t('faq.introduction')} class="mt-xl">
-            <p class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-900">
-              {introParagraph}
-            </p>
+        introParagraphHtml && (
+          <section
+            aria-label={t('faq.introduction')}
+            class="mt-xl tablet:mt-3xl"
+          >
+            <div
+              class="text-neutral-100 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+              set:html={introParagraphHtml}
+            />
           </section>
         )
       }
-      {
-        hasBody && (
-          <section data-prose aria-label={t('faq.body')} class="mt-2xl">
-            <MdxContent components={{ Paragraph }} />
-          </section>
-        )
-      }
+      <section class="mt-4xl desktop:mt-6xl">
+        <FaqSections sections={faqSections} uiLocale={routeLocale} />
+      </section>
     </div>
   </main>
 </FoundationPageLayout>

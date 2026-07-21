@@ -1,8 +1,36 @@
 diff --git a/dist/admin/services/documents.js b/dist/admin/services/documents.js
-index 91c63173e66aab5c8abfaad1c779776b510c0d82..06bce103448627ad601d16dd7ec34b93669b1334 100644
+index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b77267653db8ae5 100644
 --- a/dist/admin/services/documents.js
 +++ b/dist/admin/services/documents.js
-@@ -269,7 +269,14 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -65,7 +65,16 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (result, _error, { model })=>[
++                invalidatesTags: (result, error, { model })=>{
++                        // INTORG-796: a failed create never wrote anything — invalidating
++                        // here can trigger a refetch that wipes the user's in-progress
++                        // edits before they've fixed the validation error. Only invalidate
++                        // on success. (Mirrors the same guard already applied to
++                        // updateDocument/publishDocument in this patch.)
++                        if (error) {
++                            return [];
++                        }
++                        return [
+                         {
+                             type: 'Document',
+                             id: `${model}_LIST`
+@@ -78,7 +87,8 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+                         'RecentDocumentList',
+                         'CountDocuments',
+                         'UpcomingReleasesList'
+-                    ],
++                    ];
++                    },
+                 transformResponse: (response, meta, arg)=>{
+                     /**
+          * TODO v6
+@@ -269,7 +279,14 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -18,7 +46,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..06bce103448627ad601d16dd7ec34b93
                      return [
                          {
                              type: 'Document',
-@@ -320,7 +327,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -320,7 +337,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -33,7 +61,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..06bce103448627ad601d16dd7ec34b93
                      return [
                          {
                              type: 'Document',
-@@ -348,8 +361,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -348,8 +371,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                      try {
                          await queryFulfilled;
                      } catch  {
@@ -50,10 +78,38 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..06bce103448627ad601d16dd7ec34b93
                  },
                  transformResponse: (response, meta, arg)=>{
 diff --git a/dist/admin/services/documents.mjs b/dist/admin/services/documents.mjs
-index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..83c0941b8efd2c58711ffa771e23b62cc6b43383 100644
+index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..f822c6c05010e4288596e6862304fcf2068c4ea4 100644
 --- a/dist/admin/services/documents.mjs
 +++ b/dist/admin/services/documents.mjs
-@@ -267,7 +267,14 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -63,7 +63,16 @@ const documentApi = contentManagerApi.injectEndpoints({
+                             params
+                         }
+                     }),
+-                invalidatesTags: (result, _error, { model })=>[
++                invalidatesTags: (result, error, { model })=>{
++                        // INTORG-796: a failed create never wrote anything — invalidating
++                        // here can trigger a refetch that wipes the user's in-progress
++                        // edits before they've fixed the validation error. Only invalidate
++                        // on success. (Mirrors the same guard already applied to
++                        // updateDocument/publishDocument in this patch.)
++                        if (error) {
++                            return [];
++                        }
++                        return [
+                         {
+                             type: 'Document',
+                             id: `${model}_LIST`
+@@ -76,7 +85,8 @@ const documentApi = contentManagerApi.injectEndpoints({
+                         'RecentDocumentList',
+                         'CountDocuments',
+                         'UpcomingReleasesList'
+-                    ],
++                    ];
++                    },
+                 transformResponse: (response, meta, arg)=>{
+                     /**
+          * TODO v6
+@@ -267,7 +277,14 @@ const documentApi = contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -69,7 +125,7 @@ index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..83c0941b8efd2c58711ffa771e23b62c
                      return [
                          {
                              type: 'Document',
-@@ -318,7 +325,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -318,7 +335,13 @@ const documentApi = contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -84,7 +140,7 @@ index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..83c0941b8efd2c58711ffa771e23b62c
                      return [
                          {
                              type: 'Document',
-@@ -346,8 +359,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -346,8 +369,13 @@ const documentApi = contentManagerApi.injectEndpoints({
                      try {
                          await queryFulfilled;
                      } catch  {

@@ -3,6 +3,16 @@
  * Used by the faq lifecycle and any lifecycle that references FAQs.
  */
 
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+export interface FaqSection {
+  heading: string
+  items: FaqItem[]
+}
+
 export interface FaqBase {
   id?: number
   documentId?: string
@@ -12,7 +22,7 @@ export interface FaqBase {
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description: string
   introParagraph?: string | null
-  content?: Array<{ __component: string; [key: string]: unknown }> | null
+  faqSections: FaqSection[]
   locale?: string
   publishedAt?: string
 }

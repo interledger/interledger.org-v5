@@ -10,6 +10,7 @@ import {
   validateHeroFields,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateFaqSections,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -692,7 +693,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
-      content: 'Content'
+      faqSections: 'FAQ Sections'
     },
     'api::report.report': {
       title: 'Page Title',
@@ -769,6 +770,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
       introParagraph: 'Optional intro paragraph shown below the heading.'
+      // NOTE: Strapi's admin does not render a description/hint for
+      // repeatable-component fields like faqSections (confirmed against
+      // @strapi/content-manager's ComponentInput — it renders Field.Label
+      // and Field.Error but never Field.Hint). The equivalent guidance lives
+      // on blocks.faq-section/blocks.faq-item's own scalar fields below,
+      // where hints do render.
     },
     'api::report.report': {
       pathSlug:
@@ -860,6 +867,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       items: 'FAQ Items'
     },
     'blocks.grant-faq-item': {
+      question: 'Question',
+      answer: 'Answer'
+    },
+    'blocks.faq-section': {
+      heading: 'Section Heading',
+      items: 'Questions'
+    },
+    'blocks.faq-item': {
       question: 'Question',
       answer: 'Answer'
     },
@@ -1027,6 +1042,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.info-cards': {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
+    },
+    'blocks.faq-section': {
+      heading:
+        'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
+    },
+    'blocks.faq-item': {
+      question: 'Required.',
+      answer: 'Required.'
     },
     'blocks.code-block': {
       title:
@@ -1270,7 +1293,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'introParagraph', size: 12 }],
-      [{ name: 'content', size: 12 }]
+      [{ name: 'faqSections', size: 12 }]
     ]
   }
 
@@ -1528,9 +1551,7 @@ export default {
         )
     )
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
-      validateContentBlocks(
-        Array.isArray(body.content) ? body.content : undefined
-      )
+      validateFaqSections(body)
     )
     registerDocumentValidation(
       strapi,
