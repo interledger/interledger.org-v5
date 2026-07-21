@@ -31,13 +31,13 @@ export const redirects = {
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
-    '/news/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web',
+    '/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web',
   '/news/interledger-foundation-partners-here-support-waag':
-    '/news/interledger-foundation-partners-waag-and-here-support',
+    '/blog/interledger-foundation-partners-waag-and-here-support',
   '/news/interledger-foundation-accepting-letters-intent-loi-institutions-seeking-shape-future-digital':
-    '/news/shaping-future-digital-finance',
+    '/blog/shaping-future-digital-finance',
   '/news/village-banking-stokvels-and-saccos-are-transforming-financial-access':
-    '/news/transforming-financial-access',
+    '/blog/transforming-financial-access',
   '/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
     '/news/reflections-2025-payments-canada-summit',
 
