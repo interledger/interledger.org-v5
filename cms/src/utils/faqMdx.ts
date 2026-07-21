@@ -6,7 +6,8 @@
  */
 
 import matter from 'gray-matter'
-import { defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
+import isHtml from 'is-html'
+import { defaultLang, MATTER_STRINGIFY_OPTIONS, htmlToMarkdown } from './mdx'
 
 export interface FaqMdxItem {
   question: string
@@ -37,6 +38,16 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const resolvedLocale = faq.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang
 
+  // introParagraph is a CKEditor (basicMarkdownPreset) field — it's usually
+  // already markdown, but defensively convert if Strapi ever hands back HTML
+  // (matches generateReportMdx's identical introParagraph handling).
+  const introParagraph = faq.introParagraph
+    ? (isHtml(faq.introParagraph)
+        ? htmlToMarkdown(faq.introParagraph)
+        : faq.introParagraph
+      ).trim()
+    : null
+
   // Strapi's populated component rows carry their own internal `id` (and, for
   // items, __component/__pivot metadata) alongside heading/question/answer.
   // Map explicitly rather than passing the row through as-is so none of that
@@ -59,7 +70,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     ...(faq.section ? { section: faq.section } : {}),
     heading: faq.heading,
     description: faq.description,
-    ...(faq.introParagraph ? { introParagraph: faq.introParagraph } : {}),
+    ...(introParagraph ? { introParagraph } : {}),
     faqSections,
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})

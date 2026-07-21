@@ -7,7 +7,8 @@ import FaqSections from '@/components/faq/FaqSections.astro'
 import {
   type Locale,
   useTranslations,
-  buildSectionEntryBreadcrumbs
+  buildSectionEntryBreadcrumbs,
+  parseMarkdown
 } from '@/utils'
 
 interface Props {
@@ -28,6 +29,12 @@ const entry = allFaqs.find(
 if (!entry) throw new Error(`Faq not found: ${slug} (${contentLocale})`)
 
 const { title, heading, description, introParagraph, faqSections } = entry.data
+const introParagraphHtml = introParagraph
+  ? await parseMarkdown(introParagraph, {
+      pathname: Astro.url.pathname,
+      lang: contentLocale
+    })
+  : null
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -55,14 +62,15 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
         {heading}
       </h1>
       {
-        introParagraph && (
+        introParagraphHtml && (
           <section
             aria-label={t('faq.introduction')}
             class="mt-xl tablet:mt-3xl"
           >
-            <p class="text-neutral-100 text-h4 tablet:text-h4-md desktop:text-h5-lg">
-              {introParagraph}
-            </p>
+            <div
+              class="text-neutral-100 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+              set:html={introParagraphHtml}
+            />
           </section>
         )
       }

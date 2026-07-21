@@ -477,7 +477,13 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
-    introParagraph: Schema.Attribute.Text &
+    introParagraph: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
