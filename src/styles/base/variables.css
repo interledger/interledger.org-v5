@@ -56,19 +56,21 @@
     --color-btn-txt: var(--color-white);
   }
 
-  /* Pillar overrides - set on page wrapper via data-pillar attribute
-     These override --color-primary for the entire page tree, affecting
-     all components, prose styles, and dynamic utilities that read from it. */
+  /* Pillar overrides — set on a page wrapper via data-pillar.
+     Must point at a real token (not var(--color-primary)): a self-reference
+     is invalid at computed-value time and breaks prose links / text-primary
+     for the whole subtree (e.g. profile pages with data-pillar="mission").
+     Placeholders use orchid until each pillar gets a distinct hue. */
   [data-pillar='tech'] {
-    --color-primary: var(--color-primary);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='mission'] {
-    --color-primary: var(--color-primary);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='vision'] {
-    --color-primary: var(--color-primary);
+    --color-primary: var(--color-orchid-100);
   }
   [data-pillar='values'] {
-    --color-primary: var(--color-primary);
+    --color-primary: var(--color-orchid-100);
   }
 }

@@ -8,6 +8,21 @@
 
 @layer components {
   [data-prose-blog] {
+    & a {
+      color: var(--color-primary);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+      transition:
+        color 200ms ease-in-out,
+        text-decoration-color 200ms ease-in-out;
+    }
+
+    & a:hover {
+      color: var(--color-orchid-150);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+    }
+
     /* === Extended element spacing === */
     & figure {
       margin-block-end: var(--spacing-xl);
@@ -33,9 +48,15 @@
 
     img {
       display: block;
+      max-width: 100%;
+      height: auto;
       margin-inline: auto;
       border-radius: var(--radius-3xl);
     }
+
+    /* Long URLs / unbroken strings should wrap instead of forcing page overflow */
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     /* === Table styles === */
     & .table-scroll {

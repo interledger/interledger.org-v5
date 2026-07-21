@@ -54,7 +54,7 @@ src/styles/
 
 ## Pillar Theming System
 
-> **Currently a no-op, by design.** The legacy pillar accent colors (`--color-tech-main`, `--color-mission-main`, `--color-vision-main`, `--color-values-main`) were removed from `theme.css` as part of the new-design-system token cleanup, and the `[data-pillar='X']` override blocks in `base/variables.css` were simplified to `--color-primary: var(--color-primary)` — a self-reference that CSS treats as invalid, so the property just inherits the `:root` default (`--color-orchid-100`). The scaffolding is kept in place rather than removed: this is the mechanism that will give `foundation`, `summit`, and `hackathon` each their own theme once those mini-sites need distinct pillar colors again. Until that work happens, every pillar silently renders the same default — see "Adding a New Pillar" below for how to wire in a real color when the time comes.
+> **Currently orchid for every pillar, by design.** The legacy pillar accents (`--color-tech-main`, etc.) were removed in the design-token cleanup. Each `[data-pillar='X']` block in `base/variables.css` still sets `--color-primary`, but points at `--color-orchid-100` until distinct hues are chosen. Do **not** use `--color-primary: var(--color-primary)` — that self-reference is invalid at computed-value time and strips the primary color from the whole subtree (prose links, `text-primary`, etc.). See "Adding a New Pillar" below to wire a real hue.
 
 ### How It Works
 

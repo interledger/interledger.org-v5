@@ -96,8 +96,11 @@ export interface CtaStripBlock extends StrapiBlockBase {
 export interface PdfEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.pdf-embed'
   source: 'media_library' | 'external_url'
-  /** Strapi upload file integer ID — set when source is 'media_library'. */
-  file?: number
+  /**
+   * Strapi upload file integer ID — set when source is 'media_library'.
+   * `null` only in dry-run mode, when the upload isn't seeded yet.
+   */
+  file?: number | null
   /** Set when source is 'external_url'. */
   externalUrl?: string
   label?: string
@@ -116,12 +119,14 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
  * `image`, `tabletImage`, and `mobileImage` are Strapi upload integer IDs
  * (single media), resolved from repo asset paths via ctx.resolveMediaUpload.
  * `needsFullView` and `needsOutline` are required on the schema (default false).
+ * `image`/`tabletImage`/`mobileImage` are `null` only in dry-run mode, when
+ * the upload isn't seeded yet.
  */
 export interface ImageBlockBlock extends StrapiBlockBase {
   __component: 'blocks.image-block'
-  image: number
-  tabletImage?: number
-  mobileImage?: number
+  image: number | null
+  tabletImage?: number | null
+  mobileImage?: number | null
   altText?: string
   needsFullView: boolean
   needsOutline: boolean
