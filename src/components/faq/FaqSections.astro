@@ -1,5 +1,5 @@
 ---
-import { generateSlug, type Locale } from '@/utils'
+import { generateSlug, parseMarkdown, type Locale } from '@/utils'
 import type { FaqSectionType } from '@/schemas/content'
 import Icon from '@/components/shared/Icon.astro'
 import FaqSectionsNav from '@/components/faq/FaqSectionsNav.astro'
@@ -11,19 +11,33 @@ interface Props {
 
 const { sections, uiLocale } = Astro.props
 
-/** Derives a unique anchor id per section from its heading (never authored). */
-function withIds(rawSections: FaqSectionType[]) {
+/**
+ * Derives a unique anchor id per section from its heading (never authored)
+ * and pre-renders each item's answer (a CKEditor/markdown field) to HTML.
+ */
+async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
   const seen = new Map<string, number>()
-  return rawSections.map((section) => {
-    const base = generateSlug(section.heading) || 'section'
-    const count = seen.get(base) ?? 0
-    seen.set(base, count + 1)
-    const id = count === 0 ? base : `${base}-${count + 1}`
-    return { ...section, id }
-  })
+  return Promise.all(
+    rawSections.map(async (section) => {
+      const base = generateSlug(section.heading) || 'section'
+      const count = seen.get(base) ?? 0
+      seen.set(base, count + 1)
+      const id = count === 0 ? base : `${base}-${count + 1}`
+      const items = await Promise.all(
+        section.items.map(async (item) => ({
+          question: item.question,
+          answerHtml: await parseMarkdown(item.answer, {
+            pathname: Astro.url.pathname,
+            lang: uiLocale
+          })
+        }))
+      )
+      return { ...section, id, items }
+    })
+  )
 }
 
-const sectionsWithIds = withIds(sections)
+const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 ---
 
 <div class="flex flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
@@ -72,9 +86,10 @@ const sectionsWithIds = withIds(sections)
                     class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180"
                   />
                 </summary>
-                <p class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75 mt-md mb-0">
-                  {item.answer}
-                </p>
+                <div
+                  class="text-neutral-75 mt-md [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md [&_p]:mb-0"
+                  set:html={item.answerHtml}
+                />
               </details>
             ))}
           </div>

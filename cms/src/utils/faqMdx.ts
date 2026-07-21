@@ -34,18 +34,21 @@ export interface FaqMdxInput {
  * Serialize a FAQ page into MDX (frontmatter only — no body).
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
+/**
+ * CKEditor (basicMarkdownPreset) fields are usually already markdown, but
+ * defensively convert if Strapi ever hands back HTML (matches
+ * generateReportMdx's identical introParagraph handling).
+ */
+function ckeditorFieldToMarkdown(value: string): string {
+  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
+}
+
 export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const resolvedLocale = faq.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang
 
-  // introParagraph is a CKEditor (basicMarkdownPreset) field — it's usually
-  // already markdown, but defensively convert if Strapi ever hands back HTML
-  // (matches generateReportMdx's identical introParagraph handling).
   const introParagraph = faq.introParagraph
-    ? (isHtml(faq.introParagraph)
-        ? htmlToMarkdown(faq.introParagraph)
-        : faq.introParagraph
-      ).trim()
+    ? ckeditorFieldToMarkdown(faq.introParagraph)
     : null
 
   // Strapi's populated component rows carry their own internal `id` (and, for
@@ -60,7 +63,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     heading: section.heading,
     items: section.items.map((item) => ({
       question: item.question,
-      answer: item.answer
+      answer: ckeditorFieldToMarkdown(item.answer)
     }))
   }))
 
