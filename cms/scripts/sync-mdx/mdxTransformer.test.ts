@@ -13,146 +13,6 @@ vi.mock('@/utils', async (importOriginal) => {
   }
 })
 
-vi.mock('./siteSchemas', async () => {
-  const { z } = await import('zod')
-  const sectionSchema = z.object({
-    title: z.string(),
-    content: z.string(),
-    ctas: z
-      .array(
-        z.object({
-          label: z.string(),
-          href: z.string()
-        })
-      )
-      .optional()
-  })
-  const pageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'slug is required'),
-    description: z.string().optional(),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    sections: z.array(sectionSchema).optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
-  const grantCtaStripSchema = z.object({
-    heading: z.string(),
-    description: z.string(),
-    buttonText: z.string(),
-    buttonLink: z.string(),
-    color: z.enum(['purple', 'green']).default('purple'),
-    secondaryButtonText: z.string().optional(),
-    secondaryButtonLink: z.string().optional()
-  })
-  const grantFaqItemSchema = z.object({
-    question: z.string(),
-    answer: z.string()
-  })
-  const grantFaqSectionSchema = z.object({
-    title: z.string(),
-    subtitle: z.string(),
-    description: z.string(),
-    ctaText: z.string(),
-    ctaLink: z.string(),
-    items: z.array(grantFaqItemSchema).min(2)
-  })
-  const grantInfoCardSchema = z.object({
-    heading: z.string().min(1, 'card heading is required'),
-    body: z.string().min(1, 'card body is required')
-  })
-  const grantInfoCardsSchema = z.object({
-    heading: z.string().optional(),
-    cards: z.tuple([
-      grantInfoCardSchema,
-      grantInfoCardSchema,
-      grantInfoCardSchema
-    ])
-  })
-  const grantPageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    description: z.string().min(1, 'description is required'),
-    programOverview: z.string().optional(),
-    primaryCta: z
-      .object({
-        text: z.string(),
-        link: z.string(),
-        external: z.boolean().optional()
-      })
-      .optional(),
-    infoCards: grantInfoCardsSchema.optional(),
-    ctaStrip: grantCtaStripSchema,
-    faqSection: grantFaqSectionSchema.optional(),
-    metaImage: z.string().optional(),
-    canonicalUrl: z.string().optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
-  const grantOverviewPageSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    description: z.string().min(1, 'description is required'),
-    heroTitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroImage: z.string().optional(),
-    heroImageAlt: z.string().nullable().optional(),
-    heroImageMobile: z.string().optional(),
-    heroImageMobileAlt: z.string().nullable().optional(),
-    heroCtas: z
-      .array(
-        z.object({
-          text: z.string(),
-          link: z.string(),
-          style: z.enum(['primary', 'secondary']).optional(),
-          external: z.boolean().optional()
-        })
-      )
-      .max(1)
-      .optional(),
-    ctaStrip: grantCtaStripSchema,
-    metaImage: z.string().optional(),
-    canonicalUrl: z.string().optional(),
-    localizes: z.string().optional(),
-    locale: z.string().optional()
-  })
-  const faqSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    section: z.enum(['summit', 'hackathon', 'foundation']),
-    heading: z.string().min(1, 'heading is required'),
-    description: z.string().min(1, 'description is required'),
-    introParagraph: z.string().nullable().optional(),
-    locale: z.string().optional(),
-    localizes: z.string().optional()
-  })
-  const reportDateSchema = z.object({
-    publishDate: z.coerce.date(),
-    lastUpdated: z.coerce.date().optional()
-  })
-  const reportSchema = z.object({
-    title: z.string().min(1, 'title is required'),
-    pathSlug: z.string().min(1, 'pathSlug is required'),
-    section: z.enum(['summit', 'hackathon', 'foundation']),
-    heading: z.string().min(1, 'heading is required'),
-    description: z.string().min(1, 'description is required'),
-    introParagraph: z.string().nullable().optional(),
-    date: reportDateSchema.optional(),
-    locale: z.string(),
-    localizes: z.string().optional()
-  })
-  return {
-    foundationPageFrontmatterSchema: pageSchema,
-    summitPageFrontmatterSchema: pageSchema,
-    grantPageFrontmatterSchema: grantPageSchema,
-    grantOverviewPageFrontmatterSchema: grantOverviewPageSchema,
-    faqFrontmatterSchema: faqSchema,
-    reportFrontmatterSchema: reportSchema
-  }
-})
-
 import {
   getEntryField,
   buildPagePayload,
@@ -160,7 +20,8 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
-  createMediaUploadResolver
+  createMediaUploadResolver,
+  buildProfilePayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -168,7 +29,8 @@ import {
   grantPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  profileFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -2076,7 +1938,8 @@ const baseFaqFrontmatter = {
   title: 'Frequently Asked Questions',
   section: 'foundation' as const,
   heading: 'Frequently Asked Questions',
-  description: 'Answers to common questions, 120 to 160 characters.'
+  description: 'Answers to common questions, 120 to 160 characters.',
+  locale: 'en'
 }
 
 // Maps faq MDX frontmatter to the Strapi faq payload shape.
@@ -2423,5 +2286,102 @@ describe('createMediaUploadResolver', () => {
     ).rejects.toThrow(
       'Upload "https://example.com/not-a-local-asset.png" could not be resolved to a Strapi file ID.'
     )
+  })
+})
+
+// Incomplete CTA (text without link, or vice versa) must throw, not be dropped.
+describe('buildProfilePayload', () => {
+  function stubStrapi(): StrapiClient {
+    return {
+      findUploadByUrl: async () => null,
+      updateUploadAlt: async () => undefined
+    } as unknown as StrapiClient
+  }
+
+  const baseProfileFrontmatter = {
+    name: 'Jane Doe',
+    section: 'foundation',
+    photo: null,
+    locale: 'en'
+  }
+
+  describe('cta', () => {
+    it('is null in payload when absent from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: baseProfileFrontmatter
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toBeNull()
+    })
+
+    it('is included in payload when both text and link are present', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more', link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect((payload as Record<string, unknown>).cta).toEqual({
+        text: 'Read more',
+        link: 'https://example.com',
+        style: 'primary',
+        external: false
+      })
+    })
+
+    it('returns Error when text is present but link is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { text: 'Read more' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toContain('cta')
+      expect((payload as Error).message).toContain('link')
+    })
+
+    it('returns Error when link is present but text is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          cta: { link: 'https://example.com' }
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toContain('cta')
+      expect((payload as Error).message).toContain('text')
+    })
   })
 })

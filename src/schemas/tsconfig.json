@@ -1,0 +1,15 @@
+{
+  // Standalone config so CMS vitest (CI installs only cms/) can transform these
+  // Zod schemas via @site without resolving the repo-root Astro tsconfig.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true
+  },
+  "include": ["./**/*.ts"]
+}
