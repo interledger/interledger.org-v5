@@ -1085,7 +1085,7 @@ describe('buildGrantPagePayload', () => {
           __component: 'blocks.split-layout',
           layoutType: 'image-text',
           imagePosition: 'left',
-          image: 42,
+          media: { image: 42, alternativeText: '' },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -1863,7 +1863,7 @@ describe('buildGrantOverviewPagePayload', () => {
           __component: 'blocks.split-layout',
           layoutType: 'image-text',
           imagePosition: 'left',
-          image: 42,
+          media: { image: 42, alternativeText: '' },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }

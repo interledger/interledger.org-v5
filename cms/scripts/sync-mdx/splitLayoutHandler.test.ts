@@ -60,7 +60,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'left',
-        image: STRAPI_UPLOAD_ID.primaryImage,
+        media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: '' },
         content: 'Some **body** copy.',
         cta: {
           text: 'Apply',
@@ -82,7 +82,10 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        image: STRAPI_UPLOAD_ID.defaultLayoutImage,
+        media: {
+          image: STRAPI_UPLOAD_ID.defaultLayoutImage,
+          alternativeText: ''
+        },
         content: 'Body.'
       }
     ])
@@ -136,7 +139,10 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
+        media: {
+          image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
+          alternativeText: ''
+        },
         content: 'Body.'
       }
     ])
@@ -246,7 +252,7 @@ describe('SplitLayout handler — mixed content', () => {
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
     expect(blocks[1]).toMatchObject({
       __component: 'blocks.split-layout',
-      image: STRAPI_UPLOAD_ID.mixedContentImage,
+      media: { image: STRAPI_UPLOAD_ID.mixedContentImage },
       content: 'Split body.'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })

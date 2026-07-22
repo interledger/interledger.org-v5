@@ -772,12 +772,6 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    image: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -795,6 +789,12 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'image-text'>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     quote: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

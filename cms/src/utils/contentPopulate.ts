@@ -14,7 +14,7 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { image: true, cta: true }
+    populate: { media: { populate: { image: true } }, cta: true }
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},

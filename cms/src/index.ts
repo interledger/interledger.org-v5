@@ -980,7 +980,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
-      image: 'Image',
+      media: 'Image',
       videoUrl: 'Video URL',
       content: 'Content',
       quote: 'Quote',
@@ -1431,9 +1431,9 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'layoutType', size: 12 }],
       [
         { name: 'imagePosition', size: 4 },
-        { name: 'image', size: 8 },
         { name: 'videoUrl', size: 8 }
       ],
+      [{ name: 'media', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },

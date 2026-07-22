@@ -9,9 +9,9 @@
  *   </SplitLayout>
  *
  * Maps to Strapi blocks.split-layout.
- * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload.
- * Alt text is not stored on this component — it comes from the Strapi
- * media asset's own Alternative Text field.
+ * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload and
+ * nested (with imageAlt) under the `media` shared.localized-media component,
+ * so alt text can be set per locale.
  */
 
 import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
@@ -58,6 +58,7 @@ async function handleSplitLayout(
     }
 
     const imageSrc = getStringAttr(node, 'imageSrc')
+    const imageAlt = getStringAttr(node, 'imageAlt')
     const videoUrl = getStringAttr(node, 'videoUrl')
     const quote = getStringAttr(node, 'quote')
     const quoteSource = getStringAttr(node, 'quoteSource')
@@ -114,7 +115,9 @@ async function handleSplitLayout(
       imagePosition: imagePosition as 'left' | 'right'
     }
 
-    if (isImageLayout && imageId) block.image = imageId
+    if (isImageLayout && imageId) {
+      block.media = { image: imageId, alternativeText: imageAlt ?? '' }
+    }
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
     if (isTextLayout && content) block.content = content
     if (isQuoteLayout && quote) block.quote = quote

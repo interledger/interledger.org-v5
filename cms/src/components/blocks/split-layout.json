@@ -31,10 +31,10 @@
         }
       }
     },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": ["images"],
+    "media": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
       "description": "Image for the media column. Leave empty when using a video instead.",
       "pluginOptions": {
         "i18n": {

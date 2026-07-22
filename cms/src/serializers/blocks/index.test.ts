@@ -9,7 +9,7 @@ describe('validateContentBlocks', () => {
       {
         __component: 'blocks.split-layout',
         layoutType: 'image-quote',
-        image: 42,
+        media: { image: 42 },
         quote: 'Quoted body.'
       }
     ])
