@@ -2,7 +2,6 @@ import path from 'node:path'
 import stubManifest from '../../generated/optimized-image-manifest.stub.json'
 import {
   IMAGE_URL_PATHS,
-  TARGET_WIDTHS,
   type OptimizedImageManifest
 } from './imagePaths'
 
@@ -117,6 +116,30 @@ function getOptimizedBase(src: string): string | null {
 }
 
 /**
+ * Lists numbered width variants (`{base}-{width}.{ext}`) from the build-time
+ * catalog. Includes both fixed `TARGET_WIDTHS` and exact original widths
+ * emitted by the optimize script (INTORG-934).
+ */
+function listSizedVariants(
+  base: string,
+  ext: 'webp' | 'avif'
+): ImageVariant[] {
+  const catalog = catalogOverride ?? bundledCatalogPaths
+  const prefix = `${base}-`
+  const suffix = `.${ext}`
+  const variants: ImageVariant[] = []
+
+  for (const urlPath of catalog) {
+    if (!urlPath.startsWith(prefix) || !urlPath.endsWith(suffix)) continue
+    const mid = urlPath.slice(prefix.length, -suffix.length)
+    if (!/^\d+$/.test(mid)) continue
+    variants.push({ src: urlPath, width: Number(mid) })
+  }
+
+  return variants.sort((a, b) => a.width - b.width)
+}
+
+/**
  * Returns available optimized WebP/AVIF data for an image from the build-time
  * variants catalog (see `scripts/optimize-images.ts`).
  *
@@ -124,9 +147,9 @@ function getOptimizedBase(src: string): string | null {
  * `public/img` and `public/uploads` are excluded from the function bundle
  * (INTORG-946 / ADR-008).
  *
- * Returns responsive `variants` (sized at target widths) plus a `fullSrc`
- * WebP at the original dimensions. For images smaller than the smallest
- * target width, only `fullSrc` will be populated.
+ * Returns responsive `variants` (target widths plus any exact intrinsic-width
+ * file) plus a `fullSrc` WebP at the original dimensions. For images with no
+ * numbered variants, only `fullSrc` will be populated.
  */
 export function getOptimizedImage(src: string): OptimizedImage {
   const base = getOptimizedBase(src)
@@ -134,13 +157,8 @@ export function getOptimizedImage(src: string): OptimizedImage {
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
   }
 
-  const variants = TARGET_WIDTHS.filter((w) =>
-    optimizedVariantExists(`${base}-${w}.webp`)
-  ).map((w) => ({ src: `${base}-${w}.webp`, width: w }))
-
-  const avifVariants = TARGET_WIDTHS.filter((w) =>
-    optimizedVariantExists(`${base}-${w}.avif`)
-  ).map((w) => ({ src: `${base}-${w}.avif`, width: w }))
+  const variants = listSizedVariants(base, 'webp')
+  const avifVariants = listSizedVariants(base, 'avif')
 
   const fullWebP = `${base}-full.webp`
   const fullAvif = `${base}-full.avif`
