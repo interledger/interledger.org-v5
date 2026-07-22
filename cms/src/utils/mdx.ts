@@ -219,12 +219,10 @@ export function heroFrontmatter(
   const heroImage = getImageUrl(hero.backgroundImage)
   if (heroImage) {
     data.heroImage = heroImage
-    data.heroImageAlt = hero.backgroundImage?.alternativeText ?? ''
   }
   const heroImageMobile = getImageUrl(hero.backgroundImageMobile)
   if (heroImageMobile) {
     data.heroImageMobile = heroImageMobile
-    data.heroImageMobileAlt = hero.backgroundImageMobile?.alternativeText ?? ''
   }
   const cta = hero.hero_call_to_action
   if (cta) {

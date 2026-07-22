@@ -192,10 +192,7 @@ function buildHeroPayload(
  */
 async function buildHeroWithImage(
   parsed: Record<string, unknown>,
-  strapiUploadContext: StrapiUploadContext | undefined,
-  updatedAltIds: Map<number, string | null>,
-  pathSlug: string,
-  dryRun: boolean
+  strapiUploadContext: StrapiUploadContext | undefined
 ): Promise<Record<string, unknown> | null> {
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
@@ -220,7 +217,6 @@ async function buildHeroWithImage(
 
   async function resolveHeroImage(
     imageKey: 'heroImage' | 'heroImageMobile',
-    altKey: 'heroImageAlt' | 'heroImageMobileAlt',
     targetKey: 'backgroundImage' | 'backgroundImageMobile'
   ): Promise<void> {
     if (!hasField(imageKey) || !strapiUploadContext) return
@@ -231,25 +227,10 @@ async function buildHeroWithImage(
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
     hero[targetKey] = uploadId ?? null
-
-    if (uploadId && parsed[altKey] !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        uploadId,
-        nullOrValue(parsed[altKey]),
-        updatedAltIds,
-        pathSlug,
-        dryRun
-      )
-    }
   }
 
-  await resolveHeroImage('heroImage', 'heroImageAlt', 'backgroundImage')
-  await resolveHeroImage(
-    'heroImageMobile',
-    'heroImageMobileAlt',
-    'backgroundImageMobile'
-  )
+  await resolveHeroImage('heroImage', 'backgroundImage')
+  await resolveHeroImage('heroImageMobile', 'backgroundImageMobile')
 
   return heroPayload
 }
@@ -272,9 +253,7 @@ export async function buildPagePayload(
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null,
   parserCtx?: ParserContext,
-  strapiUploadContext?: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  dryRun = false
+  strapiUploadContext?: StrapiUploadContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     // Validate frontmatter against schema (throws if invalid)
@@ -291,13 +270,7 @@ export async function buildPagePayload(
       ...(parsed.pillar ? { pillar: parsed.pillar } : {})
     }
 
-    data.hero = await buildHeroWithImage(
-      parsed,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
-    )
+    data.hero = await buildHeroWithImage(parsed, strapiUploadContext)
 
     // Handle content import
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -572,10 +545,7 @@ export async function buildGrantPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
+      strapiUploadContext
     )
 
     const parserCtx: ParserContext | undefined = strapi
@@ -659,10 +629,7 @@ export async function buildGrantOverviewPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
+      strapiUploadContext
     )
 
     const strapi = strapiUploadContext?.strapi

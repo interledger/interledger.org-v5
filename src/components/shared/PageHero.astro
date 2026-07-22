@@ -19,26 +19,15 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   description?: string | null
-  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. */
+  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. Purely decorative background, so rendered with an empty alt. */
   image?: string | null
-  imageAlt?: string | null
   /** Optional mobile image. Recommended: 768×480px. */
   imageMobile?: string | null
-  imageMobileAlt?: string | null
   cta?: HeroCta | null
   breadcrumbs?: BreadcrumbItem[]
 }
 
-const {
-  title,
-  description,
-  image,
-  imageAlt,
-  imageMobile,
-  imageMobileAlt,
-  cta,
-  breadcrumbs
-} = Astro.props
+const { title, description, image, imageMobile, cta, breadcrumbs } = Astro.props
 ---
 
 <!-- White content section -->
@@ -94,7 +83,7 @@ const {
         <>
           <OptimizedImage
             src={imageMobile}
-            alt={imageMobileAlt ?? ''}
+            alt=""
             width={768}
             height={480}
             loading="eager"
@@ -103,7 +92,7 @@ const {
           />
           <OptimizedImage
             src={image ?? imageMobile!}
-            alt={imageAlt ?? imageMobileAlt ?? ''}
+            alt=""
             width={1440}
             height={640}
             loading="eager"
@@ -114,7 +103,7 @@ const {
       ) : (
         <OptimizedImage
           src={image}
-          alt={imageAlt ?? ''}
+          alt=""
           width={1440}
           height={640}
           loading="eager"

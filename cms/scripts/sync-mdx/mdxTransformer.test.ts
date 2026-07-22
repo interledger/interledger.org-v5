@@ -1394,8 +1394,7 @@ describe('buildGrantPagePayload', () => {
         frontmatter: {
           ...baseGrantFrontmatter,
           heroTitle: 'Welcome',
-          heroImage: '/uploads/img/hero-desktop.png',
-          heroImageAlt: 'Grant hero'
+          heroImage: '/uploads/img/hero-desktop.png'
         }
       })
 
@@ -1711,8 +1710,7 @@ describe('buildGrantOverviewPagePayload', () => {
         frontmatter: {
           ...baseGrantOverviewFrontmatter,
           heroTitle: 'Welcome',
-          heroImage: '/uploads/img/hero-desktop.png',
-          heroImageAlt: 'Grant hero'
+          heroImage: '/uploads/img/hero-desktop.png'
         }
       })
 
@@ -1728,10 +1726,6 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImage: 42
       })
-      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
-        42,
-        'Grant hero'
-      )
     })
 
     it('resolves heroImageMobile to a Strapi upload ID', async () => {
@@ -1743,8 +1737,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: {
           ...baseGrantOverviewFrontmatter,
-          heroImageMobile: '/uploads/img/hero-mobile.png',
-          heroImageMobileAlt: 'Mobile grant hero'
+          heroImageMobile: '/uploads/img/hero-mobile.png'
         }
       })
 
@@ -1760,10 +1753,6 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImageMobile: 84
       })
-      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
-        84,
-        'Mobile grant hero'
-      )
     })
 
     it('clears heroImage when heroImage is explicitly empty in frontmatter', async () => {
