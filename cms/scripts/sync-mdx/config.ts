@@ -10,6 +10,7 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
+  buildHackathonPagePayload,
   createMediaUploadResolver,
   type StrapiUploadContext
 } from './mdxTransformer'
@@ -19,6 +20,7 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   profileFrontmatterSchema,
   faqFrontmatterSchema,
   reportFrontmatterSchema
@@ -75,6 +77,7 @@ export interface ContentTypes {
   'grant-pages': ContentTypeConfig
   'grant-overview-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
+  'hackathon-pages': ContentTypeConfig
   'foundation-blog-posts': ContentTypeConfig
   profiles: ContentTypeConfig
   faqs: ContentTypeConfig
@@ -171,6 +174,23 @@ export function buildContentTypes(
         return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
           locale
         })
+      }
+    },
+    'hackathon-pages': {
+      dir: getContentPath(projectRoot, 'hackathonPages'),
+      apiId: 'hackathon-pages',
+      schema: hackathonPageFrontmatterSchema,
+      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+        const locale = mdx.locale || 'en'
+        // No resolveRelation/resolveMediaUpload: the hackathon-pages content
+        // zone only allows blocks.paragraph, which never resolves relations
+        // or media.
+        return buildHackathonPagePayload(
+          hackathonPageFrontmatterSchema,
+          mdx,
+          existing,
+          { locale }
+        )
       }
     },
     'grant-pages': {

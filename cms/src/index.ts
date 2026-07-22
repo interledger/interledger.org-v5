@@ -657,6 +657,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       hero: 'Hero',
       content: 'Content'
     },
+    'api::hackathon-page.hackathon-page': {
+      title: 'Page Title',
+      pathSlug: 'Full Path Slug',
+      description: 'Short Description',
+      content: 'Page Content'
+    },
     'api::foundation-navigation.foundation-navigation': {
       mainMenu: 'Main Menu',
       ctaButton: 'CTA Button'
@@ -730,6 +736,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       pathSlug:
         'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+    },
+    'api::hackathon-page.hackathon-page': {
+      pathSlug:
+        'Path relative to /hackathon/. Examples: overview → /hackathon/overview; rules → /hackathon/rules. Do not include /hackathon/ or a leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       pathSlug:
@@ -1258,6 +1269,12 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
+    'api::hackathon-page.hackathon-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
     'api::grant-overview-page.grant-overview-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
@@ -1567,6 +1584,14 @@ export default {
           Array.isArray(body.content) ? body.content : undefined
         )
       )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::hackathon-page.hackathon-page',
+      (body) =>
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
     )
     registerDocumentValidation(
       strapi,
