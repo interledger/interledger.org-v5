@@ -69,9 +69,7 @@ describe('getOptimizedImage', () => {
   })
 
   it('returns empty data for SVGs and unrecognized paths', () => {
-    setOptimizedImageVariantCatalogForTests([
-      '/img/optimized/logo-full.webp'
-    ])
+    setOptimizedImageVariantCatalogForTests(['/img/optimized/logo-full.webp'])
 
     expect(getOptimizedImage('/img/logo.svg')).toEqual({
       variants: [],
@@ -88,9 +86,7 @@ describe('getOptimizedImage', () => {
   })
 
   it('only populates fullSrc when no sized responsive variants exist', () => {
-    setOptimizedImageVariantCatalogForTests([
-      '/img/optimized/hero-full.webp'
-    ])
+    setOptimizedImageVariantCatalogForTests(['/img/optimized/hero-full.webp'])
 
     expect(getOptimizedImage('/img/hero.png')).toEqual({
       variants: [],
