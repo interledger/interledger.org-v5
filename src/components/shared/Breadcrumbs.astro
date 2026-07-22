@@ -24,11 +24,11 @@ const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
 const breadcrumbClasses = twMerge(
-  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_a[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
+  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 [&_a]:text-neutral-75 [&_[aria-current="page"]]:text-orchid-100 [&_svg]:text-current',
   breakBeforeLastItem ? 'gap-x-xs tablet:gap-xs' : 'gap-xs',
   className
 )
-const linkPaddingClass = breakBeforeLastItem ? 'px-xs py-0 tablet:p-xs' : 'p-xs'
+const crumbPaddingClass = breakBeforeLastItem ? 'px-xs py-0 tablet:p-xs' : 'p-xs'
 const chevronMarginClass = breakBeforeLastItem
   ? 'shrink-0 tablet:my-xs'
   : 'my-xs shrink-0'
@@ -40,8 +40,12 @@ function getItemClasses(isLast: boolean): string {
   return 'flex shrink-0 m-0'
 }
 
-function getLinkClasses(isLast: boolean): string {
-  const base = `${linkPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900`
+function getLinkClasses(): string {
+  return `inline-block ${crumbPaddingClass} text-body-lg-standard rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-orchid-100 hover:text-neutral-900`
+}
+
+function getCurrentClasses(isLast: boolean): string {
+  const base = `${crumbPaddingClass} text-body-lg-standard`
   if (isLast) {
     return `${base} block min-w-0 flex-1 truncate`
   }
@@ -66,6 +70,8 @@ function getNameClasses(isLast: boolean): string {
       breadcrumbs.map((crumb, index) => {
         const isCurrent = crumb.href === currentPath
         const isLast = index === breadcrumbs.length - 1
+        // Active page is plain text — not a link, so no hover/focus chrome (INTORG-949).
+        const isActivePage = isLast || isCurrent
         return (
           <li
             itemprop="itemListElement"
@@ -79,27 +85,41 @@ function getNameClasses(isLast: boolean): string {
                 class:list={['size-6', chevronMarginClass]}
               />
             )}
-            <a
-              itemprop="item"
-              href={crumb.href}
-              class={getLinkClasses(isLast)}
-              aria-current={isCurrent ? 'page' : undefined}
-              {...buildUmamiAttrs({
-                pathname: Astro.url.pathname,
-                lang: routeLocale,
-                section: 'nav',
-                href: crumb.href,
-                linkText: crumb.name
-              })}
-            >
-              <span
-                itemprop="name"
-                class={getNameClasses(isLast)}
-                title={crumb.name}
+            {isActivePage ? (
+              <>
+                <span class={getCurrentClasses(isLast)} aria-current="page">
+                  <span
+                    itemprop="name"
+                    class={getNameClasses(isLast)}
+                    title={crumb.name}
+                  >
+                    {crumb.name}
+                  </span>
+                </span>
+                <meta itemprop="item" content={crumb.href} />
+              </>
+            ) : (
+              <a
+                itemprop="item"
+                href={crumb.href}
+                class={getLinkClasses()}
+                {...buildUmamiAttrs({
+                  pathname: Astro.url.pathname,
+                  lang: routeLocale,
+                  section: 'nav',
+                  href: crumb.href,
+                  linkText: crumb.name
+                })}
               >
-                {crumb.name}
-              </span>
-            </a>
+                <span
+                  itemprop="name"
+                  class={getNameClasses(isLast)}
+                  title={crumb.name}
+                >
+                  {crumb.name}
+                </span>
+              </a>
+            )}
             <meta itemprop="position" content={String(index + 1)} />
           </li>
         )
