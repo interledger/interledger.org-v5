@@ -619,7 +619,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       name: 'Name',
       pathSlug: 'URL Slug',
       section: 'Section',
-      photo: 'Photo',
+      media: 'Photo',
       tagline: 'Tag line',
       description: 'Description',
       role: 'Role',
@@ -719,8 +719,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used on profile grids below the avatar and name. Not shown on the profile page.',
       category:
         'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Fellows 2026", "2025 Hackathon Judges").',
-      photo:
-        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
+      media:
+        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
       pathSlug:
         'This should include the category and the person’s name, e.g. 2025/judges/jane-doe. No leading slash. Determines the public URL.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
@@ -1021,6 +1021,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
+      media:
+        'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
     },
     'blocks.profile-grid': {
@@ -1231,10 +1233,8 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [
-        { name: 'category', size: 6 },
-        { name: 'photo', size: 6 }
-      ],
+      [{ name: 'category', size: 6 }],
+      [{ name: 'media', size: 12 }],
       [{ name: 'role', size: 12 }],
       [{ name: 'tagline', size: 12 }],
       [{ name: 'description', size: 12 }],

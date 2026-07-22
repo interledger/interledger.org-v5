@@ -44,7 +44,9 @@ const GRANT_BLOCKS = {
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.profile': {
-    populate: { profile: { populate: { photo: true } } }
+    populate: {
+      profile: { populate: { media: { populate: { image: true } } } }
+    }
   },
   'blocks.profile-grid': {
     populate: { profiles: true }

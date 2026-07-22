@@ -19,7 +19,7 @@ export interface ProfilePageBase {
   name: string
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null
-  photo?: MediaFile | null
+  media?: { image?: MediaFile | null; alternativeText?: string } | null
   category?: string | null
   tagline?: string | null
   role?: string | null

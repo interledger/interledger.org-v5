@@ -430,9 +430,9 @@ function ctaPayload(
 /**
  * Builds a Strapi payload for a profile-page MDX file.
  *
- * Also patches the photo upload file's alternativeText when photoAlt is
- * present in frontmatter, so alt text survives re-exports, and maps the
- * optional `cta` frontmatter object to the `shared.cta-link` component.
+ * Maps the `photo`/`photoAlt` frontmatter pair to the `media` shared.localized-media
+ * component, and the optional `cta` frontmatter object to the `shared.cta-link`
+ * component.
  *
  * Returns `Record<string, unknown> | Error`.
  */
@@ -441,9 +441,7 @@ export async function buildProfilePayload(
   mdx: MDXFile,
   strapi: StrapiClient,
   existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  dryRun = false
+  parserCtx?: ParserContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -461,22 +459,16 @@ export async function buildProfilePayload(
       )
     }
 
-    if (photoId) {
-      const photoAltFrontmatter = mdx.frontmatter.photoAlt as
-        | string
-        | null
-        | undefined
-      if (photoAltFrontmatter !== undefined) {
-        await updateUploadAltOnce(
-          strapi,
-          photoId,
-          nullOrValue(photoAltFrontmatter),
-          updatedAltIds,
-          mdx.pathSlug,
-          dryRun
-        )
-      }
-    }
+    const photoAltFrontmatter = mdx.frontmatter.photoAlt as
+      | string
+      | null
+      | undefined
+    const media = photoId
+      ? {
+          image: photoId,
+          alternativeText: nullOrValue(photoAltFrontmatter) ?? ''
+        }
+      : null
 
     const cta = ctaPayload(mdx.frontmatter.cta, mdx.pathSlug)
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -486,7 +478,7 @@ export async function buildProfilePayload(
       pathSlug: mdx.pathSlug,
       ...(mdx.frontmatter.section ? { section: mdx.frontmatter.section } : {}),
       ...(content !== undefined ? { content } : {}),
-      ...(photoId ? { photo: photoId } : {}),
+      ...(media ? { media } : {}),
       category: nullOrValue(mdx.frontmatter.category),
       tagline: nullOrValue(mdx.frontmatter.tagline),
       description: nullOrValue(mdx.frontmatter.description as string),

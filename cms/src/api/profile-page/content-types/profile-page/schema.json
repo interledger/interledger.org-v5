@@ -81,11 +81,11 @@
         }
       }
     },
-    "photo": {
-      "type": "media",
-      "multiple": false,
+    "media": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
       "required": false,
-      "allowedTypes": ["images"],
       "pluginOptions": {
         "i18n": {
           "localized": true

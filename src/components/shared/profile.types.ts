@@ -47,7 +47,10 @@ export interface StrapiProfile {
   name: string
   pathSlug: string
   description?: string
-  photo?: { url: string; alternativeText?: string } | null
+  media?: {
+    image?: { url: string } | null
+    alternativeText?: string
+  } | null
   category?: string | null
   tagline?: string | null
 }
