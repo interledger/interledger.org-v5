@@ -861,6 +861,15 @@ export async function buildBlogPayload(
     const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.thumbnailImage
     })
+    const featureMedia = featureImage
+      ? { image: featureImage, alternativeText: parsed.featureImageAlt ?? '' }
+      : null
+    const thumbnailMedia = thumbnailImage
+      ? {
+          image: thumbnailImage,
+          alternativeText: parsed.thumbnailImageAlt ?? ''
+        }
+      : null
 
     const categories = (parsed.categories ?? []).map((category) => ({
       categoryValue: category
@@ -890,31 +899,13 @@ export async function buildBlogPayload(
 
     // getImageFromStrapi only sets alt text on newly uploaded files.
     // For existing files (found by name), patch alt text explicitly.
-    if (featureImage && parsed.featureImageAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        featureImage,
-        nullOrValue(parsed.featureImageAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
+    // featureImage/thumbnailImage alt text now lives on featureMedia/thumbnailMedia
+    // (shared.localized-media), so only the plain-media mobile variant needs this.
     if (featureImageMobile && parsed.featureImageMobileAlt !== undefined) {
       await updateUploadAltOnce(
         strapiUploadContext.strapi,
         featureImageMobile,
         nullOrValue(parsed.featureImageMobileAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
-    if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        thumbnailImage,
-        nullOrValue(parsed.thumbnailImageAlt),
         updatedAltIds,
         mdx.pathSlug,
         dryRun
@@ -960,9 +951,9 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
-      featureImage,
+      featureMedia,
       featureImageMobile,
-      thumbnailImage,
+      thumbnailMedia,
       articleBio,
       categories,
       relatedArticles,

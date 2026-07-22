@@ -633,9 +633,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       date: 'Publish Date',
       lastUpdated: 'Last Updated',
       featured: 'Featured',
-      featureImage: 'Feature Image (Desktop)',
+      featureMedia: 'Feature Image (Desktop)',
       featureImageMobile: 'Feature Image (Mobile)',
-      thumbnailImage: 'Article Thumbnail',
+      thumbnailMedia: 'Article Thumbnail',
       content: 'Content',
       articleBio: 'Author',
       categories: 'Categories',
@@ -762,12 +762,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts).',
       featured:
         'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
-      featureImage:
-        'Desktop feature image (required). Dimensions: 720 x 428. Click the edit (pencil) icon on the selected image to set Alternative text.',
+      featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
-      thumbnailImage:
-        'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
+      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 260 x 160.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
@@ -1218,10 +1216,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'categories', size: 6 }
       ],
       [
-        { name: 'featureImage', size: 6 },
+        { name: 'featureMedia', size: 6 },
         { name: 'featureImageMobile', size: 6 }
       ],
-      [{ name: 'thumbnailImage', size: 6 }],
+      [{ name: 'thumbnailMedia', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'articleBio', size: 12 }],
