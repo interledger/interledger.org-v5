@@ -971,6 +971,12 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
   attributes: {
     author: Schema.Attribute.String & Schema.Attribute.Required
     link: Schema.Attribute.String
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -978,7 +984,6 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
           preset: 'basicMarkdownPreset'
         }
       >
-    profileImage: Schema.Attribute.Media<'images'>
   }
 }
 

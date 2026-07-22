@@ -20,10 +20,15 @@
         "preset": "basicMarkdownPreset"
       }
     },
-    "profileImage": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": ["images"]
+    "media": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   },
   "config": {}

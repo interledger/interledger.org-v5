@@ -59,7 +59,10 @@ interface BlogResult {
     author: string | null
     link?: string
     profileBio?: string
-    profileImage?: { url: string; name: string; alternativeText?: string }
+    media?: {
+      image?: { url: string; name: string }
+      alternativeText?: string
+    }
   }[]
   categories?: { categoryValue: string }[]
   relatedArticles?: { slug: string }[]
@@ -90,7 +93,7 @@ async function fetchBlogPost(
         featureImage: true,
         featureImageMobile: true,
         thumbnailImage: true,
-        articleBio: { populate: { profileImage: true } },
+        articleBio: { populate: { media: { populate: { image: true } } } },
         categories: true,
         relatedArticles: true,
         localizations: true,
@@ -129,11 +132,11 @@ export function generateBlogMDX(post: BlogResult) {
               bio.profileBio
                 ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
                 : null,
-              bio.profileImage
-                ? `\n    image: ${yqs(bio.profileImage.url)}`
+              bio.media?.image
+                ? `\n    image: ${yqs(bio.media.image.url)}`
                 : null,
-              bio.profileImage
-                ? `\n    imageAlt: ${yqs(bio.profileImage.alternativeText ?? '')}`
+              bio.media?.image
+                ? `\n    imageAlt: ${yqs(bio.media.alternativeText ?? '')}`
                 : null
             ]
               .filter(Boolean)

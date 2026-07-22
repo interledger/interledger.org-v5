@@ -877,22 +877,13 @@ export async function buildBlogPayload(
             image: bio.image
           })) || null
 
-        if (profileImageId && bio.imageAlt !== undefined) {
-          await updateUploadAltOnce(
-            strapiUploadContext.strapi,
-            profileImageId,
-            nullOrValue(bio.imageAlt),
-            updatedAltIds,
-            mdx.pathSlug,
-            dryRun
-          )
-        }
-
         return {
           author: bio.author,
           link: bio.link || null,
           profileBio: bio.text || null,
-          profileImage: profileImageId
+          media: profileImageId
+            ? { image: profileImageId, alternativeText: bio.imageAlt ?? '' }
+            : null
         }
       })
     )

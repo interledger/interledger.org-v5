@@ -818,7 +818,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       author: 'Name',
       link: 'Link',
       profileBio: 'Short Author Bio',
-      profileImage: 'Photo'
+      media: 'Photo'
     },
     'shared.hero': {
       title: 'Hero Title',
@@ -1023,8 +1023,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
-      profileImage:
-        'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
     },
     'blocks.profile-grid': {
@@ -1329,10 +1327,8 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'author', size: 6 },
         { name: 'link', size: 6 }
       ],
-      [
-        { name: 'profileImage', size: 6 },
-        { name: 'profileBio', size: 6 }
-      ]
+      [{ name: 'media', size: 6 }],
+      [{ name: 'profileBio', size: 12 }]
     ],
     'blocks.profile-grid': [
       [{ name: 'heading', size: 12 }],
