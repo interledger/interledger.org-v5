@@ -22,7 +22,11 @@ const GRANT_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: { image: true, tabletImage: true, mobileImage: true }
+    populate: {
+      media: { populate: { image: true } },
+      tabletImage: true,
+      mobileImage: true
+    }
   },
   'blocks.cta-strip': {},
   'blocks.carousel': {
@@ -62,7 +66,11 @@ const FOUNDATION_BLOG_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: { image: true, tabletImage: true, mobileImage: true }
+    populate: {
+      media: { populate: { image: true } },
+      tabletImage: true,
+      mobileImage: true
+    }
   },
   'blocks.code-block': {}
 } as const

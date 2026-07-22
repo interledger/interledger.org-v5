@@ -956,12 +956,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       attribution: 'Image Attribution'
     },
     'blocks.image-block': {
-      image: 'Image',
+      media: 'Image',
       tabletImage: 'Tablet image variant (optional)',
       mobileImage: 'Mobile image variant (optional)',
-      altText: 'Image alt text',
       needsFullView: 'Needs full view',
       needsOutline: 'Needs outline'
+    },
+    'shared.localized-media': {
+      image: 'Image',
+      alternativeText: 'Alternative Text'
     },
     'blocks.code-block': {
       code: 'Code',
@@ -1033,12 +1036,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Use if your image needs different proportions or cropping on medium-sized screens.',
       mobileImage:
         'Use if your image needs different proportions or cropping on small screens.',
-      altText:
-        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       needsFullView:
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
+    },
+    'shared.localized-media': {
+      alternativeText:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
     },
     'blocks.video-embed': {
       source:
@@ -1369,15 +1374,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'blocks.image-block': [
+      [{ name: 'media', size: 12 }],
       [
-        { name: 'image', size: 4 },
-        { name: 'tabletImage', size: 4 },
-        { name: 'mobileImage', size: 4 }
+        { name: 'tabletImage', size: 6 },
+        { name: 'mobileImage', size: 6 }
       ],
       [
-        { name: 'altText', size: 4 },
-        { name: 'needsFullView', size: 4 },
-        { name: 'needsOutline', size: 4 }
+        { name: 'needsFullView', size: 6 },
+        { name: 'needsOutline', size: 6 }
       ]
     ],
     'blocks.blockquote': [

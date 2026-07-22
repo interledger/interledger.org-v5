@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_shared_localized_media",
+  "info": {
+    "displayName": "Localized Media",
+    "icon": "picture",
+    "description": "Image with per-locale alternative text and optional per-locale image override (for graphics with text baked in)"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "alternativeText": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

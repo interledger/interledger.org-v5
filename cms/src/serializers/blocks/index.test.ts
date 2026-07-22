@@ -31,7 +31,7 @@ describe('validateContentBlocks', () => {
 
   it('accepts an image-block carrying only the raw upload ID', () => {
     const err = validateContentBlocks([
-      { __component: 'blocks.image-block', image: 7 }
+      { __component: 'blocks.image-block', media: { image: 7 } }
     ])
 
     expect(err).toBeUndefined()
