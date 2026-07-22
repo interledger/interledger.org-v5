@@ -324,7 +324,8 @@ export const ui = {
     'blog.community.slack': '',
     'blog.community.call': '',
     'blog.categories.engineering': '',
-    'blog.categories.grantmaking': 'Subvenciones y perspectivas de los beneficiarios',
+    'blog.categories.grantmaking':
+      'Subvenciones y perspectivas de los beneficiarios',
     'blog.categories.interledger-technology': '',
     'blog.categories.news': 'Anuncios',
     'blog.categories.policy-and-advocacy': '',
