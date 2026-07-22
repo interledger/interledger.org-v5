@@ -2,10 +2,19 @@
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
 import FaqPage from '@/components/pages/FaqPage.astro'
 import ReportPage from '@/components/pages/ReportPage.astro'
-import { getCrossSectionPaths } from '@/utils'
+import HackathonContentPage from '@/components/pages/HackathonContentPage.astro'
+import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
 
 export async function getStaticPaths() {
-  return getCrossSectionPaths('hackathon', 'en', 'page')
+  const pages = (await getLocalizedPaths('hackathon-pages', 'en', 'page')).map(
+    (p) => ({ ...p, props: { ...p.props, kind: 'page' as const } })
+  )
+  const crossSectionPaths = await getCrossSectionPaths(
+    'hackathon',
+    'en',
+    'page'
+  )
+  return [...crossSectionPaths, ...pages]
 }
 
 const { slug, locale: contentLocale, kind, isFallback } = Astro.props
@@ -24,8 +33,14 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
       contentLocale={contentLocale}
       isFallback={isFallback}
     />
-  ) : (
+  ) : kind === 'profile' ? (
     <ProfileDetailPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : (
+    <HackathonContentPage
       slug={slug}
       contentLocale={contentLocale}
       isFallback={isFallback}

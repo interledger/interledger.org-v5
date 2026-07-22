@@ -8,6 +8,7 @@ import {
   foundationPageFrontmatterSchema,
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   profileFrontmatterSchema,
   reportFrontmatterSchema,
   summitPageFrontmatterSchema
@@ -54,6 +55,14 @@ const summitPagesCollection = defineCollection({
   schema: summitPageFrontmatterSchema
 })
 
+const hackathonPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.hackathonPages}`
+  }),
+  schema: hackathonPageFrontmatterSchema
+})
+
 const profilesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
@@ -86,6 +95,7 @@ export const collections = {
   'grant-pages': grantPagesCollection,
   'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,
+  'hackathon-pages': hackathonPagesCollection,
   profiles: profilesCollection,
   faqs: faqsCollection,
   reports: reportsCollection

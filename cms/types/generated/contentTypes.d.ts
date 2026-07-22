@@ -1013,6 +1013,67 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiHackathonPageHackathonPage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'hackathon_pages'
+  info: {
+    description: 'Hackathon microsite pages with dynamic content blocks. Full path slug sets the URL and file location.'
+    displayName: 'Hackathon Page'
+    pluralName: 'hackathon-pages'
+    singularName: 'hackathon-page'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hackathon-page.hackathon-page'
+    >
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
   collectionName: 'profile_pages'
   info: {
@@ -1736,6 +1797,7 @@ declare module '@strapi/strapi' {
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
+      'api::hackathon-page.hackathon-page': ApiHackathonPageHackathonPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage
       'api::report.report': ApiReportReport
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation

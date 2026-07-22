@@ -20,6 +20,7 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
+  buildHackathonPagePayload,
   createMediaUploadResolver,
   buildProfilePayload
 } from './mdxTransformer'
@@ -30,6 +31,7 @@ import {
   grantOverviewPageFrontmatterSchema,
   faqFrontmatterSchema,
   reportFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   profileFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
@@ -2248,6 +2250,149 @@ describe('buildReportPayload', () => {
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
       expect(payload).not.toHaveProperty('content')
+    })
+  })
+})
+
+const baseHackathonPageFrontmatter = {
+  title: 'Hackathon Overview',
+  description:
+    'A short description of the hackathon page, 120 to 160 characters.',
+  locale: 'en'
+}
+
+describe('buildHackathonPagePayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when description is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          title: 'Hackathon Overview',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('Hackathon Overview')
+      expect(p.pathSlug).toBe('overview')
+      expect(p.description).toBe(
+        'A short description of the hackathon page, 120 to 160 characters.'
+      )
+    })
+  })
+
+  describe('content parsing without parserCtx', () => {
+    it('includes MDX body as paragraph content', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: 'The full hackathon overview body.'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
+      expect(content[0]?.__component).toBe('blocks.paragraph')
+      expect(content[0]?.content).toBe('The full hackathon overview body.')
+    })
+
+    it('omits content when the MDX body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(payload).not.toHaveProperty('content')
+    })
+  })
+
+  // The allow-list is only enforced on the parserCtx-gated path (real syncs
+  // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
+  describe('allowed component enforcement', () => {
+    it('accepts <Paragraph>, the only allowed component', async () => {
+      await import('./paragraphHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '<Paragraph>Hello hackathon.</Paragraph>'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('rejects a component with a globally registered handler that is not on the hackathon-pages allow-list', async () => {
+      await import('./blockquoteHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '<Blockquote source="Jane Doe">A quote.</Blockquote>'
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toMatch(/blocks\.blockquote/)
+      expect((result as Error).message).toMatch(/not allowed/)
     })
   })
 })
