@@ -5,7 +5,13 @@
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { HOME_CONTENT_SLUG, translatePath, useTranslations } from '@/utils'
+import {
+  HOME_CONTENT_SLUG,
+  grantOverviewHubPath,
+  localizeRoute,
+  translatePath,
+  useTranslations
+} from '@/utils'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -21,7 +27,7 @@ const CARDS = [
     title: t('not_found.card1_title'),
     description: t('not_found.card1_description'),
     cta: t('not_found.card1_cta'),
-    href: translatePath('foundation-pages', routeLocale, 'grants')
+    href: localizeRoute(grantOverviewHubPath(), routeLocale)
   },
   {
     title: t('not_found.card2_title'),

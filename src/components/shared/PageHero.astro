@@ -27,6 +27,11 @@ interface Props {
   imageMobileAlt?: string | null
   cta?: HeroCta | null
   breadcrumbs?: BreadcrumbItem[]
+  /**
+   * `wide` uses a shorter ~21:9 band on tablet+ so landscape heroes show more
+   * horizontal content with object-cover. Default keeps the tall 70vh parallax band.
+   */
+  imageBand?: 'default' | 'wide'
 }
 
 const {
@@ -37,8 +42,19 @@ const {
   imageMobile,
   imageMobileAlt,
   cta,
-  breadcrumbs
+  breadcrumbs,
+  imageBand = 'default'
 } = Astro.props
+
+const isWideBand = imageBand === 'wide'
+const bandClass = isWideBand
+  ? 'w-full h-[28vh] tablet:h-[min(55vh,calc(100vw*9/21))]'
+  : 'w-full h-[30vh] tablet:h-[70vh]'
+const parallaxPictureClass =
+  'absolute inset-0 block h-full w-full overflow-hidden'
+const parallaxImgClass = isWideBand
+  ? 'parallax-img absolute inset-x-0 top-[-25%] h-[150%] w-full min-w-full object-cover object-center'
+  : 'parallax-img absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover'
 ---
 
 <!-- White content section -->
@@ -89,7 +105,13 @@ const {
 <!-- Parallax image: image is taller than the frame so we can pan as you scroll -->
 {
   (image || imageMobile) && (
-    <div class="parallax-wrapper relative overflow-hidden h-[30vh] tablet:h-[70vh]">
+    <div
+      class:list={[
+        'parallax-wrapper relative w-full overflow-hidden bg-neutral-900',
+        bandClass
+      ]}
+      data-image-band={imageBand}
+    >
       {imageMobile ? (
         <>
           <OptimizedImage
@@ -99,27 +121,30 @@ const {
             height={480}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img block tablet:hidden absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
+            pictureClass={parallaxPictureClass}
+            class:list={[parallaxImgClass, 'block tablet:hidden']}
           />
           <OptimizedImage
             src={image ?? imageMobile!}
             alt={imageAlt ?? imageMobileAlt ?? ''}
-            width={1440}
-            height={640}
+            width={1920}
+            height={940}
             loading="eager"
             fetchpriority="high"
-            class="parallax-img hidden tablet:block absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
+            pictureClass={parallaxPictureClass}
+            class:list={[parallaxImgClass, 'hidden tablet:block']}
           />
         </>
       ) : (
         <OptimizedImage
           src={image}
           alt={imageAlt ?? ''}
-          width={1440}
-          height={640}
+          width={1920}
+          height={940}
           loading="eager"
           fetchpriority="high"
-          class="parallax-img absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover"
+          pictureClass={parallaxPictureClass}
+          class={parallaxImgClass}
         />
       )}
     </div>
@@ -135,6 +160,7 @@ const {
   ).matches
 
   if (wrapper && !prefersReducedMotion) {
+    const isWideBand = wrapper.dataset.imageBand === 'wide'
     const images = wrapper.querySelectorAll<HTMLElement>('.parallax-img')
     let ticking = false
 
@@ -146,7 +172,9 @@ const {
         Math.min(1, (window.innerHeight - rect.top) / totalTransit)
       )
       // Pan from neutral crop toward the top as the hero scrolls up the page.
-      const maxOffset = (rect.height * 0.8) / 2
+      const maxOffset = isWideBand
+        ? rect.height * 0.25
+        : (rect.height * 0.8) / 2
       const offset = maxOffset * progress
 
       images.forEach((img) => {

@@ -1,5 +1,12 @@
 ---
-import { type Locale, useTranslations, localizeRoute } from '@/utils'
+import {
+  type Locale,
+  parseMarkdown,
+  useTranslations,
+  localizeRoute,
+  grantOverviewHubPath,
+  grantOverviewRouteParam
+} from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -46,18 +53,25 @@ const {
   heroCtas,
   metaImage,
   canonicalUrl,
-  ctaStrip
+  ctaStrip,
+  followUpContent
 } = mdxPage.data
+
+const followUpHtml = followUpContent
+  ? await parseMarkdown(followUpContent, {
+      pathname: Astro.url.pathname,
+      lang: contentLocale
+    })
+  : null
 
 const t = useTranslations(contentLocale)
 
+const grantsHref = localizeRoute(grantOverviewHubPath(), contentLocale)
+const pageHref = localizeRoute(grantOverviewRouteParam(slug), contentLocale)
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', contentLocale) },
-  { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
-  {
-    name: heroTitle ?? title,
-    href: localizeRoute(`grant/${slug}`, contentLocale)
-  }
+  { name: t('nav.grants'), href: grantsHref },
+  { name: heroTitle ?? title, href: pageHref }
 ]
 ---
 
@@ -80,6 +94,7 @@ const breadcrumbs = [
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
+      imageBand="wide"
     />
 
     {
@@ -121,5 +136,15 @@ const breadcrumbs = [
         />
       </div>
     </section>
+
+    {
+      followUpHtml && (
+        <section class="pt-4xl pb-4xl">
+          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+            <div data-prose set:html={followUpHtml} />
+          </div>
+        </section>
+      )
+    }
   </main>
 </FoundationPageLayout>
