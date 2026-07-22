@@ -4,6 +4,7 @@ import {
   useTranslations,
   buildUmamiAttrs,
   getBlogThumbnail,
+  getBlogPostPath,
   createExcerpt,
   getReadingTime
 } from '@/utils'
@@ -11,10 +12,9 @@ import BlogCard from './BlogCard.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
-  blogIndexHref: string
 }
 
-const { posts, blogIndexHref } = Astro.props
+const { posts } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -42,7 +42,7 @@ const postAttrs = (href: string, linkText: string) =>
     {
       posts.map((post) => {
         const excerpt = `${createExcerpt(post.body).substring(0, 300)}...`
-        const postPath = `${blogIndexHref}/${post.data.pathSlug}`
+        const postPath = getBlogPostPath(post)
         const thumbnail = getBlogThumbnail(post)
         return (
           <BlogCard
