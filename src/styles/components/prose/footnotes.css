@@ -36,18 +36,8 @@
       font-weight: var(--text-body-sm-standard--font-weight);
     }
 
-    .footnotes > :is(h2, h3)#footnote-label,
-    [data-footnotes] > :is(h2, h3)#footnote-label {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
+    /* GFM emits `<h2 id="footnote-label" class="sr-only">`; Tailwind's
+       sr-only utility hides it for sighted users — no duplicate rules here. */
 
     .footnotes ol,
     [data-footnotes] ol {
