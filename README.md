@@ -765,17 +765,23 @@ The page also tags its response with `Netlify-Cache-ID: roadmap`. After each wri
 
 This is Netlify _Durable Cache_ (confirmed by the `cache-status: "Netlify Durable"` response header), which persists across deploys by design. The data sync above purges on **data** changes, but a pure **code** change — e.g. editing the inline styles in `RoadmapBoard.astro` — would otherwise deploy successfully and keep serving the old cached HTML for up to 12h, because nothing tied to the deploy calls `purgeCache`. (Symptom: the fix works in `pnpm start` but the deploy preview looks stale.)
 
-The `netlify/plugins/purge-roadmap` build plugin closes that gap. Its `onSuccess` hook calls `purgeCache({ tags: ['roadmap'] })` on every successful deploy, so code/CSS changes show up immediately. It runs in the build context (auto-authenticated, no token) and is scoped to the deploy (preview purges preview, prod purges prod). It is registered as a second `[[plugins]]` entry in `netlify.toml`, separate from `cache-images` (which is a build-time _image_ cache, unrelated to this CDN cache).
+The `netlify/plugins/purge-roadmap` build plugin closes that gap. Its `onSuccess` hook calls `purgeCache({ tags: ['roadmap'], token })` on every successful deploy, so code/CSS changes show up immediately, and is scoped to the deploy (preview purges preview, prod purges prod). It is registered as a second `[[plugins]]` entry in `netlify.toml`, separate from `cache-images` (which is a build-time _image_ cache, unrelated to this CDN cache).
+
+Unlike the sync functions' token-free `purgeCache()` call, the build plugin runs in the build context, which does not always have a purge-capable token auto-injected. It reads `NETLIFY_API_TOKEN` from the environment and passes it explicitly; if the variable isn't set, the plugin logs a warning and skips the purge rather than failing the build. In practice this means:
+
+- **Production**: set `NETLIFY_API_TOKEN` (a personal access token, see "Environment variables" below) so post-deploy purges actually run.
+- **Deploy previews**: if the token isn't scoped/available for preview contexts, the plugin no-ops — code changes on a preview may keep serving stale cached HTML until the 12h cache expires. Check the deploy log for `[purge-roadmap]` to confirm whether the purge ran or was skipped.
 
 ### Environment variables
 
-| Variable                | Required   | Notes                                                                                 |
-| ----------------------- | ---------- | ------------------------------------------------------------------------------------- |
-| `LINEAR_API_KEY`        | Production | Read-only Linear API key used by the sync functions.                                  |
-| `API_SECRET`            | Production | Bearer token gating `POST /api/roadmap-sync`.                                         |
-| `LINEAR_CUSTOM_VIEW_ID` | No         | Defaults to the public roadmap view, baked into `src/linear/env.ts`. Set to override. |
+| Variable                | Required   | Notes                                                                                                                                                                                                                                       |
+| ----------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LINEAR_API_KEY`        | Production | Read-only Linear API key used by the sync functions.                                                                                                                                                                                        |
+| `API_SECRET`            | Production | Bearer token gating `POST /api/roadmap-sync`.                                                                                                                                                                                               |
+| `LINEAR_CUSTOM_VIEW_ID` | No         | Defaults to the public roadmap view, baked into `src/linear/env.ts`. Set to override.                                                                                                                                                       |
+| `NETLIFY_API_TOKEN`     | No         | Personal access token used by the `purge-roadmap` build plugin to purge the CDN cache post-deploy. Missing it just skips the post-deploy purge (see "CDN caching" above) — it does not affect the sync functions' own `purgeCache()` calls. |
 
-Only the sync functions read these; the page does not. A missing `LINEAR_API_KEY` fails the sync (logged in Netlify's function logs) without breaking the page.
+Only the sync functions read `LINEAR_API_KEY` / `API_SECRET` / `LINEAR_CUSTOM_VIEW_ID`; the page does not. A missing `LINEAR_API_KEY` fails the sync (logged in Netlify's function logs) without breaking the page.
 
 ### Local development
 
