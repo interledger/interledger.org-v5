@@ -627,9 +627,8 @@ export async function buildGrantPagePayload(
  * into `content` dynamic-zone blocks (blocks.paragraph, blocks.split-layout,
  * blocks.carousel, etc.) via the same JSX block parser used for grant-page —
  * this is what lets `<SplitLayout>` and friends show up in Strapi's dynamic
- * zone. `followUpContent` is a legacy plain-text mirror of the body kept only
- * for entries that predate the block parser; once a page is parsed into
- * blocks it stays cleared.
+ * zone. `followUpContent` is markdown stored in frontmatter and rendered
+ * below the CTA strip on the site.
  */
 export async function buildGrantOverviewPagePayload(
   schema: typeof grantOverviewPageFrontmatterSchema,
@@ -697,7 +696,7 @@ export async function buildGrantOverviewPagePayload(
       description: parsed.description,
       hero,
       ctaStrip,
-      followUpContent: null,
+      followUpContent: parsed.followUpContent?.trim() || null,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }

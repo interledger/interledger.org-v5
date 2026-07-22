@@ -49,7 +49,8 @@ export function generateGrantOverviewPageMDX(
     'heroImageAlt',
     'heroImageMobile',
     'heroImageMobileAlt',
-    'heroCtas'
+    'heroCtas',
+    'followUpContent'
   ])
     delete (restPreserved as Record<string, unknown>)[key]
   const localizesValue =
@@ -81,13 +82,14 @@ export function generateGrantOverviewPageMDX(
           }
         }
       : {}),
+    ...(overviewPage.followUpContent?.trim()
+      ? { followUpContent: overviewPage.followUpContent.trim() }
+      : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
 
   const parts: string[] = []
-  if (overviewPage.followUpContent?.trim())
-    parts.push(overviewPage.followUpContent.trim())
   // A malformed stored block (e.g. one missing a required field) must not
   // block MDX generation for the rest of the entry — log and skip content
   // rather than failing the whole save.
