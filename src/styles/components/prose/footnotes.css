@@ -1,0 +1,116 @@
+/**
+ * GFM footnote styles (micromark `class="footnotes"` / `data-footnotes`).
+ * Shared by foundation prose (reports) and blog articles.
+ *
+ * Design: primary-colored superscript markers at caption size (13px / 0.8125rem);
+ * body copy stays neutral; links use primary with underline.
+ */
+
+@layer components {
+  :is([data-prose], [data-prose-blog]) {
+    /* Inline citation markers — 13px primary */
+    a[data-footnote-ref] {
+      color: var(--color-primary);
+      font-size: var(--text-caption);
+      font-weight: var(--text-caption--font-weight);
+      line-height: 1;
+      text-decoration-line: none;
+      vertical-align: super;
+    }
+
+    a[data-footnote-ref]:hover {
+      color: var(--color-orchid-150);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+    }
+
+    /* Footnote list at end of article */
+    .footnotes,
+    [data-footnotes] {
+      margin-block-start: var(--spacing-3xl);
+      padding-block-start: var(--spacing-3xl);
+      border-block-start: 2px solid var(--color-neutral-50);
+      color: var(--color-neutral-100);
+      font-size: var(--text-body-sm-standard);
+      line-height: var(--text-body-sm-standard--line-height);
+      font-weight: var(--text-body-sm-standard--font-weight);
+    }
+
+    /* GFM emits `<h2 id="footnote-label" class="sr-only">`; Tailwind's
+       sr-only utility hides it for sighted users — no duplicate rules here. */
+
+    .footnotes ol,
+    [data-footnotes] ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      counter-reset: footnote;
+    }
+
+    .footnotes li,
+    [data-footnotes] li {
+      position: relative;
+      counter-increment: footnote;
+      padding-inline-start: var(--spacing-lg);
+      margin-block-end: var(--spacing-md);
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    .footnotes li:last-child,
+    [data-footnotes] li:last-child {
+      margin-block-end: 0;
+    }
+
+    /* List markers — 13px primary superscripts */
+    .footnotes li::before,
+    [data-footnotes] li::before {
+      content: counter(footnote);
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      color: var(--color-primary);
+      font-size: var(--text-caption);
+      font-weight: var(--text-caption--font-weight);
+      line-height: 1.2;
+      vertical-align: super;
+    }
+
+    .footnotes li p,
+    [data-footnotes] li p {
+      margin-block: 0;
+      font-size: inherit;
+      line-height: inherit;
+      color: var(--color-neutral-100);
+    }
+
+    .footnotes a,
+    [data-footnotes] a {
+      color: var(--color-primary);
+      font-weight: var(--text-body-sm-standard--font-weight);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+      overflow-wrap: anywhere;
+    }
+
+    .footnotes a:hover,
+    [data-footnotes] a:hover {
+      color: var(--color-orchid-150);
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+    }
+
+    .footnotes a.data-footnote-backref,
+    [data-footnotes] a.data-footnote-backref {
+      font-size: var(--text-caption);
+      margin-inline-start: var(--spacing-xs);
+      text-decoration-line: none;
+    }
+
+    .footnotes a.data-footnote-backref:hover,
+    [data-footnotes] a.data-footnote-backref:hover {
+      text-decoration-line: underline;
+      text-decoration-color: currentColor;
+    }
+  }
+}

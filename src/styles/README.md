@@ -25,7 +25,8 @@ src/styles/
 │       ├── base-typography.css  # Common h2, h3, p, lists
 │       ├── foundation.css   # [data-prose] specific
 │       ├── blog.css        # [data-prose-blog] specific
-│       └── summit.css      # [data-prose-summit] specific
+│       ├── summit.css      # [data-prose-summit] specific
+│       └── footnotes.css   # GFM footnotes under [data-prose] / [data-prose-blog]
 └── utilities/              # Utilities layer - custom @utility definitions
     └── animations.css       # Scroll-driven animation utilities (animate-rise-in-view, etc.)
 ```
