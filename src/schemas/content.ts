@@ -257,6 +257,16 @@ export const profileFrontmatterSchema = z.object({
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
+const faqItemSchema = z.object({
+  question: z.string().min(1, 'question is required'),
+  answer: z.string().min(1, 'answer is required')
+})
+
+const faqSectionSchema = z.object({
+  heading: z.string().min(1, 'heading is required'),
+  items: z.array(faqItemSchema).min(1)
+})
+
 // FAQ pages. Cross-section template (see ADR-003): pathSlug is relative to
 // whichever `section` the editor picks, e.g. for `foundation`, faq or
 // grant/education/on-campus/faq.
@@ -267,10 +277,13 @@ export const faqFrontmatterSchema = z.object({
   heading: z.string().min(1, 'heading is required'),
   description: z.string().min(1, 'description is required'),
   introParagraph: z.string().nullable().optional(),
+  faqSections: z.array(faqSectionSchema).min(1),
   locale: z.string(),
   localizes: z.string().optional()
 })
 export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
+export type FaqSectionType = z.infer<typeof faqSectionSchema>
+export type FaqItemType = z.infer<typeof faqItemSchema>
 
 // Optional publish/last-updated dates for a report. When present, publishDate
 // is required; lastUpdated is only ever meaningful alongside a publishDate.

@@ -275,63 +275,6 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
   }
 }
 
-export interface BlocksCtaBanner extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_cta_banners'
-  info: {
-    description: 'Call-to-action banner with heading, text and buttons'
-    displayName: 'CTA Banner'
-    icon: 'bullhorn'
-  }
-  attributes: {
-    backgroundColor: Schema.Attribute.Enumeration<
-      ['primary', 'secondary', 'light', 'dark']
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'primary'>
-    heading: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    primaryButtonLink: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    primaryButtonText: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryButtonLink: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    secondaryButtonText: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    text: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
@@ -388,6 +331,66 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
           localized: true
         }
       }>
+  }
+}
+
+export interface BlocksFaqItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faq_items'
+  info: {
+    displayName: 'FAQ Item'
+    icon: 'question-circle'
+  }
+  attributes: {
+    answer: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    question: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksFaqSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faq_sections'
+  info: {
+    displayName: 'FAQ Section'
+    icon: 'question'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.faq-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
   }
 }
 
@@ -855,13 +858,17 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
 export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   collectionName: 'components_blocks_video_embeds'
   info: {
-    description: 'Embedded YouTube or Vimeo video, or a direct video file (mp4/webm/ogg/ogv/mov)'
+    description: 'A YouTube/Vimeo URL, a direct video file URL, or an uploaded video file'
     displayName: 'Video Embed'
     icon: 'play'
   }
   attributes: {
+    externalUrl: Schema.Attribute.String
+    file: Schema.Attribute.Media<'videos'>
+    source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'external_url'>
     title: Schema.Attribute.String & Schema.Attribute.Required
-    url: Schema.Attribute.String & Schema.Attribute.Required
   }
 }
 
@@ -1233,8 +1240,9 @@ declare module '@strapi/strapi' {
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
       'blocks.code-block': BlocksCodeBlock
-      'blocks.cta-banner': BlocksCtaBanner
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.faq-item': BlocksFaqItem
+      'blocks.faq-section': BlocksFaqSection
       'blocks.grant-faq-item': BlocksGrantFaqItem
       'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.image-block': BlocksImageBlock

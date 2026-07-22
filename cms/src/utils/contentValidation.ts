@@ -205,6 +205,69 @@ export function validateGrantPageFaqSection(
 }
 
 /**
+ * Validate the required `faqSections` repeatable component on the faq
+ * content type.
+ *
+ * Unlike `validateGrantPageFaqSection` above, `faqSections` is always
+ * required — an absent or empty list is itself an error, not a valid
+ * "not rendered" state. Every section requires a non-empty `heading` and at
+ * least one item; every item requires a non-empty `question` and `answer`.
+ *
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
+ */
+export function validateFaqSections(
+  body: unknown
+): errors.ValidationError | undefined {
+  const sections = (body as Record<string, unknown>)?.faqSections
+  const fieldErrors: FieldError[] = []
+
+  if (!Array.isArray(sections) || sections.length === 0) {
+    fieldErrors.push({
+      message: 'FAQ Sections: At least 1 section is required',
+      path: ['faqSections']
+    })
+    return combineFieldErrors(fieldErrors)
+  }
+
+  for (const [sectionIndex, section] of sections.entries()) {
+    const { heading, items } = (section ?? {}) as Record<string, unknown>
+
+    if (!heading || typeof heading !== 'string' || heading.trim() === '') {
+      fieldErrors.push({
+        message: `FAQ Sections: Section ${sectionIndex + 1} is missing a heading`,
+        path: ['faqSections', sectionIndex, 'heading']
+      })
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      fieldErrors.push({
+        message: `FAQ Sections: Section ${sectionIndex + 1} requires at least 1 question`,
+        path: ['faqSections', sectionIndex, 'items']
+      })
+      continue
+    }
+
+    for (const [itemIndex, item] of items.entries()) {
+      const { question, answer } = (item ?? {}) as Record<string, unknown>
+      if (!question || typeof question !== 'string' || question.trim() === '') {
+        fieldErrors.push({
+          message: `FAQ Sections: Section ${sectionIndex + 1}, item ${itemIndex + 1} is missing a question`,
+          path: ['faqSections', sectionIndex, 'items', itemIndex, 'question']
+        })
+      }
+      if (!answer || typeof answer !== 'string' || answer.trim() === '') {
+        fieldErrors.push({
+          message: `FAQ Sections: Section ${sectionIndex + 1}, item ${itemIndex + 1} is missing an answer`,
+          path: ['faqSections', sectionIndex, 'items', itemIndex, 'answer']
+        })
+      }
+    }
+  }
+
+  return combineFieldErrors(fieldErrors)
+}
+
+/**
  * Validate an optional `shared.cta-link`-shaped component (or the
  * `shared.primary-cta-link` variant, which is the same shape minus `style`):
  * when absent it simply isn't rendered — that is valid. When present, both

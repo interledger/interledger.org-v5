@@ -56,6 +56,7 @@
 @import './components/prose/foundation.css';
 @import './components/prose/blog.css';
 @import './components/prose/summit.css';
+@import './components/prose/footnotes.css';
 @import './components/navigation.css';
 
 /* Utilities layer - custom @utility definitions */

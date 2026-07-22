@@ -18,7 +18,7 @@ export {
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
-export { parseStatNumber } from './shared/parseStatNumber'
+export { parseStatNumber, formatStatNumber } from './shared/parseStatNumber'
 
 // Main site: URL & routing
 export {
@@ -41,7 +41,8 @@ export {
   useTranslations,
   translatePath,
   COLLECTION_INDEX_SLUG,
-  buildRoutePath
+  buildRoutePath,
+  getBlogPostPath
 } from './main/i18'
 export {
   getAlternateLocale,

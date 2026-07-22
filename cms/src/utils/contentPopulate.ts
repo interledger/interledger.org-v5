@@ -18,12 +18,13 @@ const GRANT_BLOCKS = {
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
-  'blocks.video-embed': {},
+  'blocks.video-embed': {
+    populate: { file: true }
+  },
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.cta-strip': {},
-  'blocks.cta-banner': {},
   'blocks.carousel': {
     populate: { logos: true }
   },
@@ -50,12 +51,16 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.pdf-embed': {
     populate: { file: true }
   },
-  'blocks.video-embed': {}
+  'blocks.video-embed': {
+    populate: { file: true }
+  }
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
-  'blocks.video-embed': {},
+  'blocks.video-embed': {
+    populate: { file: true }
+  },
   'blocks.image-block': {
     populate: { image: true, tabletImage: true, mobileImage: true }
   },
@@ -64,13 +69,6 @@ const FOUNDATION_BLOG_BLOCKS = {
 
 /** Populate config for profile-page content field (paragraph blocks only). */
 export const PROFILE_PAGE_CONTENT_POPULATE = {
-  on: {
-    'blocks.paragraph': {}
-  }
-} as const
-
-/** Populate config for faq content field (paragraph blocks only). */
-export const FAQ_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {}
   }

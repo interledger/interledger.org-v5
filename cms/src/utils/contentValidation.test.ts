@@ -5,6 +5,7 @@ import {
   validateNavigationLabels,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateFaqSections,
   validateGrantInfoCards,
   validateReportDate,
   validateProfileCta,
@@ -544,6 +545,85 @@ describe('validateGrantPageFaqSection', () => {
     expect(err?.details.errors.map((e) => e.path)).toEqual([
       ['faqSection', 'title'],
       ['faqSection', 'subtitle']
+    ])
+  })
+})
+
+describe('validateFaqSections', () => {
+  it('flags a missing/empty faqSections array (unlike faqSection, this is always required)', () => {
+    const err = validateFaqSections({})
+    expect(err?.message).toBe('FAQ Sections: At least 1 section is required')
+    expect(err?.details.errors[0].path).toEqual(['faqSections'])
+  })
+
+  it('returns undefined for a valid faqSections list', () => {
+    expect(
+      validateFaqSections({
+        faqSections: [
+          {
+            heading: 'About',
+            items: [{ question: 'q1', answer: 'a1' }]
+          }
+        ]
+      })
+    ).toBeUndefined()
+  })
+
+  it('flags a missing section heading with an index-aware path', () => {
+    const err = validateFaqSections({
+      faqSections: [
+        {
+          heading: '',
+          items: [{ question: 'q1', answer: 'a1' }]
+        }
+      ]
+    })
+    expect(err?.message).toBe('FAQ Sections: Section 1 is missing a heading')
+    expect(err?.details.errors[0].path).toEqual(['faqSections', '0', 'heading'])
+  })
+
+  it('flags a section with no items', () => {
+    const err = validateFaqSections({
+      faqSections: [{ heading: 'About', items: [] }]
+    })
+    expect(err?.message).toBe(
+      'FAQ Sections: Section 1 requires at least 1 question'
+    )
+    expect(err?.details.errors[0].path).toEqual(['faqSections', '0', 'items'])
+  })
+
+  it('flags a missing item answer with a section- and item-index-aware path', () => {
+    const err = validateFaqSections({
+      faqSections: [
+        {
+          heading: 'About',
+          items: [{ question: 'q1', answer: '' }]
+        }
+      ]
+    })
+    expect(err?.message).toBe(
+      'FAQ Sections: Section 1, item 1 is missing an answer'
+    )
+    expect(err?.details.errors[0].path).toEqual([
+      'faqSections',
+      '0',
+      'items',
+      '0',
+      'answer'
+    ])
+  })
+
+  it('reports every missing field across every section at once, not just the first', () => {
+    const err = validateFaqSections({
+      faqSections: [
+        { heading: '', items: [{ question: '', answer: 'a1' }] },
+        { heading: 'Second', items: [] }
+      ]
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['faqSections', '0', 'heading'],
+      ['faqSections', '0', 'items', '0', 'question'],
+      ['faqSections', '1', 'items']
     ])
   })
 })

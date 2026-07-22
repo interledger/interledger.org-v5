@@ -3,14 +3,32 @@
   "info": {
     "displayName": "Video Embed",
     "icon": "play",
-    "description": "Embedded YouTube or Vimeo video, or a direct video file (mp4/webm/ogg/ogv/mov)"
+    "description": "A YouTube/Vimeo URL, a direct video file URL, or an uploaded video file"
   },
   "options": {},
   "attributes": {
-    "url": {
-      "type": "string",
+    "source": {
+      "type": "enumeration",
+      "enum": ["media_library", "external_url"],
       "required": true,
-      "regex": "^(https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/|.*\\.(mp4|webm|ogg|ogv|mov)(\\?.*)?(#.*)?$)"
+      "default": "external_url"
+    },
+    "externalUrl": {
+      "type": "string",
+      "required": false,
+      "regex": "^(https?://(www\\.)?(youtube\\.com|youtu\\.be|vimeo\\.com)/|.*\\.(mp4|webm|ogg|ogv|mov)(\\?.*)?(#.*)?$)",
+      "conditions": {
+        "visible": { "==": [{ "var": "source" }, "external_url"] }
+      }
+    },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["videos"],
+      "conditions": {
+        "visible": { "==": [{ "var": "source" }, "media_library"] }
+      }
     },
     "title": {
       "type": "string",

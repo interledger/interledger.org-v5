@@ -715,14 +715,10 @@ export async function buildGrantOverviewPagePayload(
  */
 export async function buildFaqPayload(
   schema: typeof faqFrontmatterSchema,
-  mdx: MDXFile,
-  existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext
+  mdx: MDXFile
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
-
-    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
 
     return {
       title: parsed.title,
@@ -731,7 +727,7 @@ export async function buildFaqPayload(
       heading: parsed.heading,
       description: parsed.description,
       introParagraph: nullOrValue(parsed.introParagraph),
-      ...(content !== undefined ? { content } : {}),
+      faqSections: parsed.faqSections,
       publishedAt: new Date().toISOString()
     }
   })

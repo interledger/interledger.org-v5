@@ -447,12 +447,6 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -463,6 +457,19 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    faqSections: Schema.Attribute.Component<'blocks.faq-section', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     heading: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -470,7 +477,13 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
-    introParagraph: Schema.Attribute.Text &
+    introParagraph: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -813,7 +826,6 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
-        'blocks.cta-banner',
         'blocks.carousel',
         'blocks.number-tiles',
         'blocks.title-card-grid'
@@ -912,7 +924,6 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
-        'blocks.cta-banner',
         'blocks.carousel',
         'blocks.profile-grid'
       ]

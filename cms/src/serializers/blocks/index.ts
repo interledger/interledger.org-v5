@@ -11,7 +11,6 @@ import {
 import { serialize as cardsGrid } from './cards-grid.serializer'
 import { serialize as cardLinksGrid } from './card-links-grid.serializer'
 import { serialize as carousel } from './carousel.serializer'
-import { serialize as ctaBanner } from './cta-banner.serializer'
 import { serialize as imageRow } from './image-row.serializer'
 import { serialize as paragraph } from './paragraph.serializer'
 import { serialize as profile } from './profile.serializer'
@@ -32,7 +31,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
   'blocks.number-tiles': numberTiles,
-  'blocks.cta-banner': ctaBanner,
+
   'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,
   'blocks.profile': profile,

@@ -51,6 +51,12 @@ describe('pdf-embed serializer', () => {
     )
   })
 
+  it('does not throw when file is a bare upload id (validation reuse on write)', () => {
+    // validateContentBlocks reuses this serializer on the raw write body, where
+    // a media_library block's `file` is an unpopulated id, not { url }.
+    expect(() => serialize({ file: 42 })).not.toThrow()
+  })
+
   it('produces a self-closing PdfEmbed tag', () => {
     const result = serialize({
       externalUrl: 'https://example.com/doc.pdf'

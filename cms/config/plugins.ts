@@ -16,7 +16,12 @@ export default () => ({
   upload: {
     config: {
       provider: 'local',
-      breakpoints: {}
+      breakpoints: {},
+      // 5 MB cap (INTORG-876): uploaded media is git-committed into the repo, so
+      // large files are rejected in the admin with a "file too large" error.
+      // Editors use YouTube for big videos. Alternative storage for large media
+      // is tracked post-launch in INTORG-902.
+      sizeLimit: 5 * 1024 * 1024
     }
   }
 })

@@ -1,5 +1,6 @@
+import type { CollectionEntry } from 'astro:content'
 import { translationMap } from './translationMapData'
-import { type Locale } from './locales'
+import { defaultLocale, type Locale } from './locales'
 import {
   HOME_CONTENT_SLUG,
   ROUTE_BASES,
@@ -26,4 +27,15 @@ export function translatePath(
   const basePath = ROUTE_BASES[routeBase]
 
   return localizeRoute(buildRoutePath(basePath, localizedSlug), locale)
+}
+
+/**
+ * Builds a blog post's href using its own content locale rather than the
+ * current page's routeLocale since we can display blogs of one language on a page of another language.
+ */
+export function getBlogPostPath(
+  post: CollectionEntry<'foundation-blog'>
+): string {
+  const locale = (post.data.locale as Locale | undefined) ?? defaultLocale
+  return translatePath('foundation-blog', locale, post.data.pathSlug)
 }

@@ -1,0 +1,182 @@
+---
+import { generateSlug, parseMarkdown, type Locale } from '@/utils'
+import type { FaqSectionType } from '@/schemas/content'
+import Icon from '@/components/shared/Icon.astro'
+import FaqSectionsNav from '@/components/faq/FaqSectionsNav.astro'
+
+interface Props {
+  sections: FaqSectionType[]
+  uiLocale: Locale
+}
+
+const { sections, uiLocale } = Astro.props
+
+/**
+ * Derives a unique anchor id per section from its heading (never authored)
+ * and pre-renders each item's answer (a CKEditor/markdown field) to HTML.
+ */
+async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
+  const seen = new Map<string, number>()
+  return Promise.all(
+    rawSections.map(async (section) => {
+      const base = generateSlug(section.heading) || 'section'
+      const count = seen.get(base) ?? 0
+      seen.set(base, count + 1)
+      const id = count === 0 ? base : `${base}-${count + 1}`
+      const items = await Promise.all(
+        section.items.map(async (item) => ({
+          question: item.question,
+          answerHtml: await parseMarkdown(item.answer, {
+            pathname: Astro.url.pathname,
+            lang: uiLocale
+          })
+        }))
+      )
+      return { ...section, id, items }
+    })
+  )
+}
+
+const sectionsWithIds = await withIdsAndParsedAnswers(sections)
+---
+
+<div class="flex flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
+  <div class="hidden tablet:block tablet:w-3/10 tablet:shrink-0">
+    <FaqSectionsNav
+      sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
+      uiLocale={uiLocale}
+    />
+  </div>
+
+  <div
+    data-faq-mobile-sections
+    class="flex flex-col gap-3xl tablet:border-l tablet:border-neutral-25 tablet:pl-3xl tablet:w-7/10 tablet:gap-6xl"
+  >
+    {
+      sectionsWithIds.map((section, index) => (
+        <details
+          open={index === 0}
+          data-faq-mobile-section
+          data-faq-section
+          id={section.id}
+          class="group/section scroll-mt-(--site-header-height-desktop)"
+        >
+          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-orchid-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
+            <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg">
+              {section.heading}
+            </h2>
+            <Icon
+              name="arrow-down"
+              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-orchid-100 tablet:hidden"
+            />
+          </summary>
+          <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0">
+            {section.items.map((item, itemIndex) => (
+              <details
+                open={itemIndex === 0}
+                data-faq-mobile-item
+                class="group/item border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl"
+              >
+                <summary class="flex cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden">
+                  <span class="text-h4-md tablet:text-h4-md desktop:text-h4-lg text-neutral-100 group-open/item:text-neutral-900">
+                    {item.question}
+                  </span>
+                  <Icon
+                    name="arrow-down"
+                    class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180"
+                  />
+                </summary>
+                <div
+                  class="text-neutral-75 mt-md [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:mb-0 [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg"
+                  set:html={item.answerHtml}
+                />
+              </details>
+            ))}
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // Mobile: FAQ sections themselves become an exclusive accordion (only one
+  // open at a time, via the native <details name> group so the browser
+  // handles closing the others for free) — first section open by default.
+  // Within an open section, its questions are ALSO an exclusive accordion
+  // (only one open at a time), scoped per-section via a unique group name so
+  // opening a question in one section never affects another section's group.
+  // Tablet: every section stays open; the `toggle` guard below reasserts
+  // `open` if a keyboard user still manages to collapse one (pointer-events
+  // is disabled on the summary, but that doesn't block keyboard activation).
+  // Questions keep their independent (non-exclusive) toggling at tablet+, as
+  // before — only the section-level force-open applies there.
+  // 810px matches the `tablet:` breakpoint in tailwind.config.mjs (see the
+  // same hardcoded value in src/scripts/header-nav.ts — no shared JS/CSS
+  // breakpoint token exists in this codebase yet).
+  document
+    .querySelectorAll<HTMLElement>('[data-faq-mobile-sections]')
+    .forEach((container) => {
+      const detailsEls = Array.from(
+        container.querySelectorAll<HTMLDetailsElement>(
+          '[data-faq-mobile-section]'
+        )
+      )
+      if (detailsEls.length === 0) return
+
+      const tabletQuery = window.matchMedia('(min-width: 810px)')
+
+      const applyMode = (isTablet: boolean) => {
+        detailsEls.forEach((details, index) => {
+          if (isTablet) {
+            details.removeAttribute('name')
+            details.open = true
+          } else {
+            details.setAttribute('name', 'faq-mobile-section')
+            details.open = index === 0
+          }
+        })
+      }
+
+      detailsEls.forEach((details) => {
+        details.addEventListener('toggle', () => {
+          if (tabletQuery.matches && !details.open) {
+            details.open = true
+          }
+        })
+      })
+
+      applyMode(tabletQuery.matches)
+      tabletQuery.addEventListener('change', (event) =>
+        applyMode(event.matches)
+      )
+
+      detailsEls.forEach((sectionDetails, sectionIndex) => {
+        const itemDetailsEls = Array.from(
+          sectionDetails.querySelectorAll<HTMLDetailsElement>(
+            '[data-faq-mobile-item]'
+          )
+        )
+        if (itemDetailsEls.length === 0) return
+
+        const applyItemMode = (isTablet: boolean) => {
+          itemDetailsEls.forEach((itemDetails, itemIndex) => {
+            if (isTablet) {
+              itemDetails.removeAttribute('name')
+            } else {
+              itemDetails.setAttribute(
+                'name',
+                `faq-mobile-item-${sectionIndex}`
+              )
+              itemDetails.open = itemIndex === 0
+            }
+          })
+        }
+
+        applyItemMode(tabletQuery.matches)
+        tabletQuery.addEventListener('change', (event) =>
+          applyItemMode(event.matches)
+        )
+      })
+    })
+</script>

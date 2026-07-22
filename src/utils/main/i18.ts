@@ -31,7 +31,8 @@ export function useTranslations(lang: Locale) {
 export {
   buildRoutePath,
   COLLECTION_INDEX_SLUG,
-  translatePath
+  translatePath,
+  getBlogPostPath
 } from './translatePath'
 
 export { HOME_CONTENT_SLUG } from './routes'

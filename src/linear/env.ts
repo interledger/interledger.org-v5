@@ -30,6 +30,10 @@ export const LINEAR_CUSTOM_VIEW_ID =
 // from here via build-snapshot) does not fail at cold start when API_SECRET is
 // unset, since it never uses it.
 
-// Note: CDN cache purging uses Netlify's token-free purgeCache() from the
-// function runtime (see netlify/functions/utils/purge-roadmap-cache.mts), so no
-// NETLIFY_API_TOKEN / NETLIFY_SITE_ID is needed.
+// Note: the sync functions' CDN cache purging uses Netlify's token-free
+// purgeCache() from the function runtime (see
+// netlify/functions/utils/purge-roadmap-cache.mts), so no NETLIFY_API_TOKEN /
+// NETLIFY_SITE_ID is needed there. The separate netlify/plugins/purge-roadmap
+// build plugin runs in the build context instead, where a purge-capable token
+// isn't always auto-injected — it requires NETLIFY_API_TOKEN to be set
+// (see README "CDN caching") and skips its post-deploy purge without it.

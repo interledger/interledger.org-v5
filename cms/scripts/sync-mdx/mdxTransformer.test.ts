@@ -1934,11 +1934,24 @@ describe('buildGrantOverviewPagePayload', () => {
   })
 })
 
+const baseFaqSections = [
+  {
+    heading: 'About the Interledger Foundation',
+    items: [
+      {
+        question: 'What is the Interledger Foundation?',
+        answer: 'A foundation.'
+      }
+    ]
+  }
+]
+
 const baseFaqFrontmatter = {
   title: 'Frequently Asked Questions',
   section: 'foundation' as const,
   heading: 'Frequently Asked Questions',
   description: 'Answers to common questions, 120 to 160 characters.',
+  faqSections: baseFaqSections,
   locale: 'en'
 }
 
@@ -1952,6 +1965,7 @@ describe('buildFaqPayload', () => {
           section: 'foundation',
           heading: 'Frequently Asked Questions',
           description: 'A short description.',
+          faqSections: baseFaqSections,
           locale: 'en'
         }
       })
@@ -1967,7 +1981,47 @@ describe('buildFaqPayload', () => {
           title: 'Frequently Asked Questions',
           section: 'foundation',
           description: 'A short description.',
+          faqSections: baseFaqSections,
           locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when faqSections is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          title: 'Frequently Asked Questions',
+          section: 'foundation',
+          heading: 'Frequently Asked Questions',
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when faqSections is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: { ...baseFaqFrontmatter, faqSections: [] }
+      })
+
+      const result = await buildFaqPayload(faqFrontmatterSchema, mdx)
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when a section has no items', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'faq',
+        frontmatter: {
+          ...baseFaqFrontmatter,
+          faqSections: [{ heading: 'Empty section', items: [] }]
         }
       })
 
@@ -2018,19 +2072,17 @@ describe('buildFaqPayload', () => {
       const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
       expect((payload as Record<string, unknown>).introParagraph).toBeNull()
     })
-  })
 
-  describe('content dynamic zone', () => {
-    it('does not parse content when no parser context is provided', async () => {
+    it('includes faqSections unchanged', async () => {
       const mdx = createMdxFile({
         pathSlug: 'faq',
-        frontmatter: baseFaqFrontmatter,
-        content: ''
+        frontmatter: baseFaqFrontmatter
       })
 
       const payload = await buildFaqPayload(faqFrontmatterSchema, mdx)
-
-      expect(payload).not.toHaveProperty('content')
+      expect((payload as Record<string, unknown>).faqSections).toEqual(
+        baseFaqSections
+      )
     })
   })
 })

@@ -10,6 +10,7 @@ import {
   validateHeroFields,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
+  validateFaqSections,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -253,32 +254,42 @@ interface StrapiInstance {
   service: (uid: string) => unknown
 }
 
+/**
+ * Media types whose uploads are git-committed and served from the repo. Images
+ * have always been; video and PDF were added for INTORG-876, gated by the 5 MB
+ * upload size cap in `config/plugins.ts`. Larger media is out of scope here —
+ * tracked for alternative (CDN/cloud) storage in INTORG-902. Non-string mime
+ * falls through to a sync (matches the prior default).
+ */
+function shouldGitSyncUpload(mime: unknown): boolean {
+  if (typeof mime !== 'string') return true
+  return (
+    mime.startsWith('image/') ||
+    mime.startsWith('video/') ||
+    mime === 'application/pdf'
+  )
+}
+
 function registerUploadGitSyncLifecycle(strapi: StrapiInstance): void {
   strapi.db?.lifecycles?.subscribe({
     models: ['plugin::upload.file'],
     afterCreate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload created, scheduling git sync')
+      console.log('📦 Upload created, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterUpdate(event) {
       if (shouldSkipMdxExport()) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
-
-      console.log('🖼️  Upload updated, scheduling git sync')
+      console.log('📦 Upload updated, scheduling git sync')
       scheduleGitSync('upload')
     },
     afterDelete(event) {
       if (shouldSkipMdxExport()) return
-
-      const mime = event.result?.mime
-      if (typeof mime === 'string' && !mime.startsWith('image/')) return
+      if (!shouldGitSyncUpload(event.result?.mime)) return
 
       console.log('🗑️  Upload deleted, scheduling git sync')
       scheduleGitSync('upload')
@@ -430,7 +441,13 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
+// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
+// anything git-committed and served from the repo (images, video, PDF) must
+// also be seedable, or an MDX reference to it resolves to no media record and
+// the sync hard-fails (INTORG-876). Larger media storage is tracked in
+// INTORG-902.
 const MIME_BY_EXT: Record<string, string> = {
+  // Images
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
@@ -438,13 +455,21 @@ const MIME_BY_EXT: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
   '.avif': 'image/avif',
-  '.tiff': 'image/tiff'
+  '.tiff': 'image/tiff',
+  // Video (matches the VideoEmbed externalUrl regex extensions)
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogg': 'video/ogg',
+  '.ogv': 'video/ogg',
+  '.mov': 'video/quicktime',
+  // Documents
+  '.pdf': 'application/pdf'
 }
 
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
 
 /**
- * Directories under `public/` to scan for seedable images.
+ * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
  * served at. Files found on disk but missing from Strapi's `upload_file`
  * table are inserted so MDX references remain valid after a fresh database.
@@ -469,7 +494,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
     const absDir = path.join(publicDir, dir)
     if (!fs.existsSync(absDir)) continue
 
-    const files = collectImagePaths(absDir)
+    const files = collectMediaPaths(absDir)
 
     for (const filePath of files) {
       const ext = path.extname(filePath).toLowerCase()
@@ -558,7 +583,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   strapi.log.info(`[CI] Wrote API token to ${outputPath}`)
 }
 
-function collectImagePaths(dir: string): string[] {
+function collectMediaPaths(dir: string): string[] {
   const results: string[] = []
 
   function walk(current: string) {
@@ -668,7 +693,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
-      content: 'Content'
+      faqSections: 'FAQ Sections'
     },
     'api::report.report': {
       title: 'Page Title',
@@ -745,6 +770,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'The heading shown at the top of the FAQ page. Can differ from the Page Title.',
       introParagraph: 'Optional intro paragraph shown below the heading.'
+      // NOTE: Strapi's admin does not render a description/hint for
+      // repeatable-component fields like faqSections (confirmed against
+      // @strapi/content-manager's ComponentInput — it renders Field.Label
+      // and Field.Error but never Field.Hint). The equivalent guidance lives
+      // on blocks.faq-section/blocks.faq-item's own scalar fields below,
+      // where hints do render.
     },
     'api::report.report': {
       pathSlug:
@@ -839,6 +870,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       question: 'Question',
       answer: 'Answer'
     },
+    'blocks.faq-section': {
+      heading: 'Section Heading',
+      items: 'Questions'
+    },
+    'blocks.faq-item': {
+      question: 'Question',
+      answer: 'Answer'
+    },
     'blocks.cards-grid': {
       heading: 'Section Heading',
       subheading: 'Section Description',
@@ -888,15 +927,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       suffix: 'Suffix',
       description: 'Description'
     },
-    'blocks.cta-banner': {
-      heading: 'Heading',
-      text: 'Body Text',
-      primaryButtonText: 'Primary Button Text',
-      primaryButtonLink: 'Primary Button URL',
-      secondaryButtonText: 'Secondary Button Text',
-      secondaryButtonLink: 'Secondary Button URL',
-      backgroundColor: 'Background Color'
-    },
+
     'blocks.cta-strip': {
       heading: 'Heading',
       description: 'Description',
@@ -925,6 +956,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       code: 'Code',
       language: 'Language',
       title: 'Title (optional)'
+    },
+    'blocks.video-embed': {
+      source: 'Source',
+      externalUrl: 'Video URL',
+      file: 'Video file',
+      title: 'Title'
     },
     'blocks.split-layout': {
       layoutType: 'Layout',
@@ -993,9 +1030,26 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
     },
+    'blocks.video-embed': {
+      source:
+        'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected; use YouTube for larger videos.',
+      externalUrl:
+        'A YouTube or Vimeo link, or a direct link to a video file (.mp4, .webm, .ogg, .mov).',
+      file: 'Upload a video file (max 5 MB). For larger videos, use YouTube or Vimeo and paste the link in the URL field instead.',
+      title:
+        'A short, descriptive title used as the accessible label for the video.'
+    },
     'blocks.info-cards': {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
+    },
+    'blocks.faq-section': {
+      heading:
+        'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
+    },
+    'blocks.faq-item': {
+      question: 'Required.',
+      answer: 'Required.'
     },
     'blocks.code-block': {
       title:
@@ -1031,7 +1085,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number:
-        'Plain text — commas can be typed manually, e.g. "1,000". Do not include the suffix here.',
+        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the suffix here.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
@@ -1239,7 +1293,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'introParagraph', size: 12 }],
-      [{ name: 'content', size: 12 }]
+      [{ name: 'faqSections', size: 12 }]
     ]
   }
 
@@ -1315,19 +1369,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.blockquote': [
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
-    ],
-    'blocks.cta-banner': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'text', size: 12 }],
-      [
-        { name: 'primaryButtonText', size: 6 },
-        { name: 'primaryButtonLink', size: 6 }
-      ],
-      [
-        { name: 'secondaryButtonText', size: 6 },
-        { name: 'secondaryButtonLink', size: 6 }
-      ],
-      [{ name: 'backgroundColor', size: 4 }]
     ],
     'blocks.cta-strip': [
       [{ name: 'heading', size: 12 }],
@@ -1510,9 +1551,7 @@ export default {
         )
     )
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
-      validateContentBlocks(
-        Array.isArray(body.content) ? body.content : undefined
-      )
+      validateFaqSections(body)
     )
     registerDocumentValidation(
       strapi,

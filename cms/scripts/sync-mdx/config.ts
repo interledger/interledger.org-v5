@@ -156,12 +156,9 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'faqs'),
       apiId: 'faqs',
       schema: faqFrontmatterSchema,
-      buildPayload: (mdx, _strapi, existing, _dryRun) => {
-        const locale = mdx.locale || 'en'
-        // No resolveRelation/resolveMediaUpload: the FAQ content zone only
-        // allows blocks.paragraph, which never resolves relations or media.
-        return buildFaqPayload(faqFrontmatterSchema, mdx, existing, { locale })
-      }
+      // faqSections is fully specified frontmatter — no MDX body, relation,
+      // or media resolution needed.
+      buildPayload: (mdx) => buildFaqPayload(faqFrontmatterSchema, mdx)
     },
     reports: {
       dir: getContentPath(projectRoot, 'reports'),
