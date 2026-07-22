@@ -951,7 +951,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.image-row': {
       heading: 'Heading',
       content: 'Content',
-      image: 'Image',
+      media: 'Image',
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
     },
@@ -1366,7 +1366,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'image', size: 12 }],
+      [{ name: 'media', size: 12 }],
       [
         { name: 'attribution', size: 6 },
         { name: 'imagePosition', size: 6 }

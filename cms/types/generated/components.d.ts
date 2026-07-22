@@ -537,13 +537,6 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    image: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -551,6 +544,13 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'right'>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
