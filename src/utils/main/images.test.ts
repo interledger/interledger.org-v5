@@ -40,6 +40,48 @@ describe('getOptimizedImage', () => {
     expect(existsSpy).not.toHaveBeenCalled()
   })
 
+  it('includes exact intrinsic-width variants from the catalog (INTORG-934)', () => {
+    setOptimizedImageVariantCatalogForTests([
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-640.webp',
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-1200.webp',
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-full.webp',
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-640.avif',
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-1200.avif',
+      '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-full.avif'
+    ])
+
+    expect(
+      getOptimizedImage(
+        '/img/foundation-blog/2026-06-02/www-presentation-1.webp'
+      )
+    ).toEqual({
+      variants: [
+        {
+          src: '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-640.webp',
+          width: 640
+        },
+        {
+          src: '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-1200.webp',
+          width: 1200
+        }
+      ],
+      fullSrc:
+        '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-full.webp',
+      avifVariants: [
+        {
+          src: '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-640.avif',
+          width: 640
+        },
+        {
+          src: '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-1200.avif',
+          width: 1200
+        }
+      ],
+      avifFullSrc:
+        '/img/optimized/foundation-blog/2026-06-02/www-presentation-1-full.avif'
+    })
+  })
+
   it('maps upload originals to /img/optimized/uploads variants', () => {
     setOptimizedImageVariantCatalogForTests([
       '/img/optimized/uploads/hero-640.webp',
