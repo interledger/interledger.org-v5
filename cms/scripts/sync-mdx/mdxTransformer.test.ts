@@ -1069,7 +1069,7 @@ describe('buildGrantPagePayload', () => {
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantPagePayload(
@@ -1084,7 +1084,6 @@ describe('buildGrantPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           image: 42,
-          imageAlt: 'Foo',
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -1854,7 +1853,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantOverviewPagePayload(
@@ -1874,7 +1873,6 @@ describe('buildGrantOverviewPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           image: 42,
-          imageAlt: 'Foo',
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }

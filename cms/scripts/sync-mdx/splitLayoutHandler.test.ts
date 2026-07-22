@@ -41,7 +41,7 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
       '',
       'Some **body** copy.',
       '',
@@ -61,7 +61,6 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'left',
         image: STRAPI_UPLOAD_ID.primaryImage,
-        imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
         cta: {
           text: 'Apply',
@@ -128,7 +127,7 @@ describe('SplitLayout handler', () => {
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
     const blocks = await parseMdxToBlocks(
-      `<SplitLayout layoutType="image-text" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Scoped alt" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>`,
+      `<SplitLayout layoutType="image-text" imageSrc="${TEST_IMAGE_SRC}" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>`,
       ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.layoutTypeScopedImage })
     )
 
@@ -138,7 +137,6 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'right',
         image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
-        imageAlt: 'Scoped alt',
         content: 'Body.'
       }
     ])

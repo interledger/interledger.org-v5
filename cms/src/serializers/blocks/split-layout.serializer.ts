@@ -26,7 +26,6 @@ export function serialize(block: {
   layoutType?: string | null
   imagePosition?: 'left' | 'right'
   image?: { url?: string; alternativeText?: string } | number | null
-  imageAlt?: string | null
   videoUrl?: string | null
   content?: string | null
   quote?: string | null
@@ -65,7 +64,7 @@ export function serialize(block: {
 
   if (isImageLayout && imageUrl) {
     attrs.push(`imageSrc="${esc(imageUrl)}"`)
-    const alt = block.imageAlt ?? imageObj?.alternativeText ?? ''
+    const alt = imageObj?.alternativeText ?? ''
     if (alt) attrs.push(`imageAlt="${esc(alt)}"`)
   }
 

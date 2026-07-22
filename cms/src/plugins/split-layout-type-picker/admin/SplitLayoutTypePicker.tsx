@@ -16,7 +16,6 @@ interface InputProps {
 type FieldKey =
   | 'imagePosition'
   | 'image'
-  | 'imageAlt'
   | 'videoUrl'
   | 'quote'
   | 'quoteSource'
@@ -25,7 +24,6 @@ type FieldKey =
 const FIELD_KEYS: FieldKey[] = [
   'imagePosition',
   'image',
-  'imageAlt',
   'videoUrl',
   'quote',
   'quoteSource',
@@ -39,7 +37,7 @@ function normalizeFieldText(value: string): string {
 /**
  * The "Image" field has no [name] attribute (it's a media-library picker),
  * so it's identified by its exact label text instead. Exact match matters:
- * "Image position" and "Image alt text" both start with "Image".
+ * "Image position" also starts with "Image".
  */
 function isImageLabel(el: HTMLElement): boolean {
   return normalizeFieldText(el.textContent ?? '') === 'Image'
@@ -197,7 +195,6 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
   updatePositionHint(imagePositionItem, layoutType)
 
   setFieldVisibility(prefix, 'image', showImage)
-  setFieldVisibility(prefix, 'imageAlt', showImage)
   setFieldVisibility(prefix, 'videoUrl', showVideo)
   setFieldVisibility(prefix, 'quote', showQuote)
   setFieldVisibility(prefix, 'quoteSource', showQuote)
@@ -229,7 +226,6 @@ function clearIrrelevantFields(
 
   if (!showImage) {
     setFieldValue(`${prefix}.image`, null)
-    setFieldValue(`${prefix}.imageAlt`, null)
   }
   if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
   if (!showText) {

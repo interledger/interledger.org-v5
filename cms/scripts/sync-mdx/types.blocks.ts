@@ -156,7 +156,6 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   imagePosition: 'left' | 'right'
   image?: number | null
-  imageAlt?: string
   videoUrl?: string
   content?: string
   quote?: string

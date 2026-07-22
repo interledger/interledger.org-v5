@@ -2,7 +2,7 @@
  * SplitLayout component handler for the MDX block parser.
  *
  * Handles:
- * - <SplitLayout imagePosition="left|right" imageSrc="..." imageAlt="..."
+ * - <SplitLayout imagePosition="left|right" imageSrc="..."
  *     videoUrl="..." quote="..." quoteSource="..."
  *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}>
  *   children (markdown body for the content column)
@@ -10,8 +10,8 @@
  *
  * Maps to Strapi blocks.split-layout.
  * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload.
- * imageAlt maps to blocks.split-layout.imageAlt so alt text remains scoped to
- * this component instead of mutating the shared Strapi upload record.
+ * Alt text is not stored on this component — it comes from the Strapi
+ * media asset's own Alternative Text field.
  */
 
 import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
@@ -58,7 +58,6 @@ async function handleSplitLayout(
     }
 
     const imageSrc = getStringAttr(node, 'imageSrc')
-    const imageAlt = getStringAttr(node, 'imageAlt')
     const videoUrl = getStringAttr(node, 'videoUrl')
     const quote = getStringAttr(node, 'quote')
     const quoteSource = getStringAttr(node, 'quoteSource')
@@ -116,7 +115,6 @@ async function handleSplitLayout(
     }
 
     if (isImageLayout && imageId) block.image = imageId
-    if (isImageLayout && imageAlt !== undefined) block.imageAlt = imageAlt
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
     if (isTextLayout && content) block.content = content
     if (isQuoteLayout && quote) block.quote = quote
