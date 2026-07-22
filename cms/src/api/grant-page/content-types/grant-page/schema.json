@@ -33,8 +33,7 @@
         }
       },
       "required": true,
-      "unique": true,
-      "description": "Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash."
+      "unique": true
     },
     "description": {
       "type": "text",
@@ -43,18 +42,17 @@
           "localized": true
         }
       },
-      "required": true,
-      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+      "required": true
     },
     "hero": {
       "type": "component",
-      "repeatable": false,
-      "component": "shared.hero",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "shared.hero",
+      "repeatable": false
     },
     "programOverview": {
       "type": "customField",
@@ -101,13 +99,13 @@
     },
     "infoCards": {
       "type": "component",
-      "repeatable": false,
-      "component": "blocks.info-cards",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "blocks.info-cards",
+      "repeatable": false
     },
     "content": {
       "type": "dynamiczone",
@@ -120,7 +118,6 @@
         "blocks.paragraph",
         "blocks.split-layout",
         "blocks.blockquote",
-        "blocks.callout-text",
         "blocks.video-embed",
         "blocks.image-block",
         "blocks.cta-strip",
