@@ -106,7 +106,7 @@ const featuredPosts = showFeatured
         {
           featuredPosts.length > 0 && (
             <div class="flex flex-col gap-4xl desktop:gap-5xl" slot="featured">
-              <FeaturedPosts posts={featuredPosts} blogIndexHref={blogPath} />
+              <FeaturedPosts posts={featuredPosts} />
               <CtaStrip
                 heading={t('blog.cta.heading')}
                 description={t('blog.cta.description')}

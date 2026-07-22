@@ -17,6 +17,8 @@
 // value as a single, stable string. When this component sits inside a parent
 // with its own aria-label, that label takes precedence.
 
+import { formatStatNumber } from '@/utils'
+
 interface Props {
   value: number
   /** Overrides the displayed/resting text (e.g. "1,000" when `value` is 1000, so a comma-formatted source stays intact instead of being reformatted by `String(value)`). The count-up animation still targets `value`. */
@@ -41,7 +43,7 @@ const {
   class: className
 } = Astro.props
 
-const formatted = display ?? String(value)
+const formatted = display ?? formatStatNumber(value)
 ---
 
 <span

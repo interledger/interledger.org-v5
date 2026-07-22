@@ -1,10 +1,5 @@
 ---
-import {
-  COLLECTION_INDEX_SLUG,
-  translatePath,
-  useTranslations,
-  type Locale
-} from '@/utils'
+import { useTranslations, type Locale } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
@@ -38,11 +33,6 @@ if (!mdxPost) return Astro.redirect('/404')
 
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
-const blogPath = translatePath(
-  'foundation-blog',
-  routeLocale,
-  COLLECTION_INDEX_SLUG
-)
 
 // Resolve related-article slugs to posts in the same locale; skip any that
 // don't exist so a stale slug never breaks the build.
@@ -86,7 +76,6 @@ const relatedPosts = (mdxData.relatedArticles ?? [])
       relatedPosts.length > 0 && (
         <RelatedArticles
           posts={relatedPosts}
-          blogIndexHref={blogPath}
           heading={t('blog.related.title')}
         />
       )

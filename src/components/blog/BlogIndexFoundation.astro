@@ -4,6 +4,7 @@ import {
   useTranslations,
   buildUmamiAttrs,
   getBlogThumbnail,
+  getBlogPostPath,
   getReadingTime
 } from '@/utils'
 import type { Locale } from '@/utils'
@@ -93,7 +94,7 @@ const postAttrs = (href: string, linkText: string) =>
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = `${blogIndexHref}/${blogPostEntry.data.pathSlug}`
+      const postPath = getBlogPostPath(blogPostEntry)
       const thumbnail = getBlogThumbnail(blogPostEntry)
       return (
         <BlogCard
