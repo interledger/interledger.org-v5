@@ -71,7 +71,9 @@ function imageId(image: ContentBlock['image']): number | null {
 }
 
 function imageAlt(image: ContentBlock['image']): string | null {
-  return typeof image === 'object' && image ? (image.alternativeText ?? null) : null
+  return typeof image === 'object' && image
+    ? (image.alternativeText ?? null)
+    : null
 }
 
 async function dump(

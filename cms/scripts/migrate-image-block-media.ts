@@ -208,7 +208,9 @@ async function restore(
 async function main() {
   const mode = process.argv[2]
   if (mode !== 'dump' && mode !== 'restore') {
-    console.error('Usage: tsx scripts/migrate-image-block-media.ts <dump|restore> [--apply]')
+    console.error(
+      'Usage: tsx scripts/migrate-image-block-media.ts <dump|restore> [--apply]'
+    )
     process.exit(1)
   }
   const apply = process.argv.includes('--apply')

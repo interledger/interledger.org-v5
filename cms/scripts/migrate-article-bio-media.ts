@@ -74,7 +74,9 @@ function imageId(image: ArticleBioBlock['profileImage']): number | null {
 }
 
 function imageAlt(image: ArticleBioBlock['profileImage']): string | null {
-  return typeof image === 'object' && image ? (image.alternativeText ?? null) : null
+  return typeof image === 'object' && image
+    ? (image.alternativeText ?? null)
+    : null
 }
 
 async function dump(

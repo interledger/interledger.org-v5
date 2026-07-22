@@ -107,7 +107,10 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.image-block',
-        media: { image: 422, alternativeText: 'The OAuth 2.0 Sequence Diagram' },
+        media: {
+          image: 422,
+          alternativeText: 'The OAuth 2.0 Sequence Diagram'
+        },
         needsFullView: true,
         needsOutline: false
       }

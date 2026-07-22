@@ -15,14 +15,18 @@ describe('image-block serializer', () => {
 
   it('falls back to the image alternativeText when media.alternativeText is unset', () => {
     const result = serialize({
-      media: { image: { url: '/uploads/photo.jpg', alternativeText: 'Fallback alt' } }
+      media: {
+        image: { url: '/uploads/photo.jpg', alternativeText: 'Fallback alt' }
+      }
     })
 
     expect(result).toContain('alt="Fallback alt"')
   })
 
   it('defaults alt to empty string when neither is set', () => {
-    const result = serialize({ media: { image: { url: '/uploads/photo.jpg' } } })
+    const result = serialize({
+      media: { image: { url: '/uploads/photo.jpg' } }
+    })
 
     expect(result).toContain('alt=""')
   })
@@ -39,7 +43,9 @@ describe('image-block serializer', () => {
   })
 
   it('omits tabletSrc and mobileSrc when not provided', () => {
-    const result = serialize({ media: { image: { url: '/uploads/desktop.jpg' } } })
+    const result = serialize({
+      media: { image: { url: '/uploads/desktop.jpg' } }
+    })
 
     expect(result).not.toContain('tabletSrc')
     expect(result).not.toContain('mobileSrc')
@@ -87,7 +93,9 @@ describe('image-block serializer', () => {
   })
 
   it('produces a self-closing ImageBlock tag', () => {
-    const result = serialize({ media: { image: { url: '/uploads/photo.jpg' } } })
+    const result = serialize({
+      media: { image: { url: '/uploads/photo.jpg' } }
+    })
 
     expect(result).toMatch(/^<ImageBlock .* \/>$/)
   })
@@ -97,9 +105,9 @@ describe('image-block serializer', () => {
   })
 
   it('throws when media.image is missing', () => {
-    expect(() =>
-      serialize({ media: { alternativeText: 'No image' } })
-    ).toThrow('ImageBlock block is missing image')
+    expect(() => serialize({ media: { alternativeText: 'No image' } })).toThrow(
+      'ImageBlock block is missing image'
+    )
   })
 
   it('throws when media.image has no url', () => {
