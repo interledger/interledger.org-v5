@@ -140,6 +140,21 @@ export const summitPageFrontmatterSchema = z.object({
   locale: z.string().optional()
 })
 
+// Hackathon custom pages. Fixed-section collection (see ADR-003): unlike the
+// cross-section faqs/reports/profiles collections, there is no `section`
+// field — every entry belongs to the hackathon microsite by virtue of living
+// in this collection. Body content is a Strapi dynamic zone rendered as MDX.
+export const hackathonPageFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  description: z.string().min(1, 'description is required'),
+  localizes: z.string().optional(),
+  locale: z.string().optional()
+})
+export type HackathonPageFrontmatterType = z.infer<
+  typeof hackathonPageFrontmatterSchema
+>
+
 const grantCtaStripSchema = z.object({
   heading: z.string(),
   description: z.string(),

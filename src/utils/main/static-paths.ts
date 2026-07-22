@@ -10,6 +10,7 @@ export type CollectionType =
   | 'grant-pages'
   | 'grant-overview-pages'
   | 'summit-pages'
+  | 'hackathon-pages'
   | 'foundation-blog'
   | 'profiles'
 
