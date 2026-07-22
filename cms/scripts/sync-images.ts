@@ -119,7 +119,9 @@ async function main() {
           console.log(`  ✅ ${expectedUrl} (id: ${existing.id})`)
           totalRegistered++
         } else {
-          console.log(`  ❌ ${expectedUrl}`)
+          console.log(
+            `  ❌ ${expectedUrl} (on disk, not in Strapi — restart Strapi to seed)`
+          )
           totalMissing++
         }
       } catch (err) {
