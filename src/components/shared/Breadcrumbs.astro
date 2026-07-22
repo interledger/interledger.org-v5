@@ -28,7 +28,9 @@ const breadcrumbClasses = twMerge(
   breakBeforeLastItem ? 'gap-x-xs tablet:gap-xs' : 'gap-xs',
   className
 )
-const crumbPaddingClass = breakBeforeLastItem ? 'px-xs py-0 tablet:p-xs' : 'p-xs'
+const crumbPaddingClass = breakBeforeLastItem
+  ? 'px-xs py-0 tablet:p-xs'
+  : 'p-xs'
 const chevronMarginClass = breakBeforeLastItem
   ? 'shrink-0 tablet:my-xs'
   : 'my-xs shrink-0'
