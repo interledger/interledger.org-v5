@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 ## Introduction
 
 It has been said that the Interledger Foundation upholds open technology as one of its core values. It has also been said that [Rafiki](https://github.com/interledger/rafiki), a white-label application that enables Interledger usage, upholds this value by being open-source and allowing anyone to contribute.
@@ -32,11 +34,15 @@ This article also assumes that its readers already have high-level knowledge of 
 
 ## Components
 
+</Paragraph>
+
 <ImageBlock
   src="/img/foundation-blog/2024-09-23/rafiki-architecture-diagram.png"
   alt="A diagram of Rafiki's Architecture"
   needsFullView={true}
 />
+
+<Paragraph>
 
 Rafiki is comprised primarily of three packages:
 
@@ -76,6 +82,8 @@ Familiarity with these frameworks will be valuable in understanding how Rafiki w
 
 As mentioned before, the Rafiki `backend` manages Open Payments resources. These resources are managed by services attached to an inversion-of-control (IoC) container via dependency injection with AdonisJS, as also mentioned previously. To see this in action, the [`/src/index.ts`](https://github.com/interledger/rafiki/blob/main/packages/backend/src/index.ts) is the best place to look. Take this example of how the service for handling incoming payment routes gets injected into the IoC container:
 
+</Paragraph>
+
 <CodeBlock
   language="typescript"
   code={`import { Ioc, IocContract } from '@adonisjs/fold'
@@ -93,9 +101,13 @@ container.singleton('incomingPaymentRoutes', async (deps) => {
 })`}
 />
 
+<Paragraph>
+
 In this call, a name for the service is passed to the IoC container, and a factory for that service. In turn, that factory takes the other services that it depends on. In this case, the `incomingPaymentRoutes` service depends on services that parse configuration and output logs for the `backend`. The `index.ts` file thus good for seeing all of the services the backend uses, and how each of the services depend on one another.
 
 These services are then attached to routes in the [`/src/app.ts`](https://github.com/interledger/rafiki/blob/main/packages/backend/src/app.ts) file. The `app.ts` file is a great place to work backwards from and see which routes exist on the backend server and what services are used to complete the operations presented by the routes. Take [this route](https://github.com/interledger/rafiki/blob/main/packages/backend/src/app.ts#L432-L454) for example:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -128,6 +140,8 @@ router.post<DefaultState, SignedCollectionContext<IncomingCreateBody>>(
 )`}
 />
 
+<Paragraph>
+
 In this mounting of the `POST /incoming-payments` route, all of the middleware as well as the main handler (`incomingPaymentRoutes.create`) can be seen being attached to that mounting. Note how the `incomingPaymentRoutes` services is acquired from the container using the name that was passed into the function that attached that service to the IoC container. This pattern can be followed for other routes to see which services handle fulfilling requests made to the routes on the Rafiki `backend`.
 
 Finally, the `backend` also launches a GraphQL server that extends an API defined by [this schema](https://github.com/interledger/rafiki/blob/main/packages/backend/src/graphql/schema.graphql).
@@ -139,6 +153,8 @@ In order fulfill the payments described in Open Payments resources and maintain 
 The Authorization Server on Rafiki is structured similarly to the backend, in that it injects services into an IoC container which are retrieved by routes on Koa server to perform the business logic.
 
 [index.ts](https://github.com/interledger/rafiki/blob/main/packages/auth/src/index.ts)
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -160,9 +176,13 @@ container.singleton('grantRoutes', async (deps: IocContract<AppServices>) => {
 })`}
 />
 
+<Paragraph>
+
 Again, note the route service for grants is mounted to the container, and then subsequently referenced when attaching service functions to the relevant routes.
 
 [app.ts](https://github.com/interledger/rafiki/blob/main/packages/auth/src/app.ts)
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -181,6 +201,8 @@ router.post<DefaultState, CreateContext>(
 )`}
 />
 
+<Paragraph>
+
 Like the `backend`, the `auth` server also extends a GraphQL API to perform admin functions. The API is modeled by this [GraphQL schema](https://github.com/interledger/rafiki/blob/main/packages/auth/src/graphql/schema.graphql).
 
 ### The Rafiki Admin Frontend
@@ -196,15 +218,23 @@ Pages on the frontend acquire data to populate the view and send data in request
 
 If Docker is installed, the whole environment can be started locally with a single command:
 
+</Paragraph>
+
 <CodeBlock language="typescript" code={`pnpm localenv:compose up`} />
 
+<Paragraph>
+
 With this environment live, the Admin GraphQL Endpoints can be demoed using [Bruno](https://www.usebruno.com/). [The Rafiki repository contains a collection](https://github.com/interledger/rafiki/tree/main/bruno/collections/Rafiki) which contains example calls for all of the GraphQL endpoints on both the `backend` and `auth` servers. It also contains calls for every Open Payments action and examples for certain flows in Open Payments.
+
+</Paragraph>
 
 <ImageBlock
   src="/img/foundation-blog/2024-09-23/bruno-screen.png"
   alt="A screenshot of the Bruno UI"
   needsFullView={true}
 />
+
+<Paragraph>
 
 To help provide an idea of what integrating with Rafiki would be like, the local Docker environment also starts up two [Mock Accout Servicing Entities (Mock ASEs)](https://github.com/interledger/rafiki/tree/main/localenv/mock-account-servicing-entity) to represent integrators of Rafiki.
 These Mock ASEs have [pages that display information for individual accounts](https://github.com/interledger/rafiki/blob/main/localenv/mock-account-servicing-entity/app/routes/accounts.%24accountId.tsx) on their respective Rafiki instances. Crucially, they each also host [pages that collect authorization from account owners](https://github.com/interledger/rafiki/blob/main/localenv/mock-account-servicing-entity/app/routes/consent-screen.tsx) for payments made using grants from the `auth` server.
@@ -220,3 +250,5 @@ With any luck, this article should bridge the gap between loftier concepts like 
 With even more luck, this article will be relevant for quite some time after publication, but if it isn't, it can serve as a recent entry in the [Interledger graveyard](https://interledger.org/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features).
 
 For even more information, please peruse the [Rafiki documentation](https://rafiki.dev/overview/overview/).
+
+</Paragraph>

@@ -15,6 +15,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 Si en algún momento se ha encontrado con términos como _Protocolo Interledger, pila de Interledger, Interledger Foundation, Open Payments, Rafiki, Rafiki.money, Dassie, Web Monetization (extensión), STREAM, SPSP, paquetes_… y ha pensado: “¿Qué significa todo esto?”, no se preocupe. Estamos aquí para ordenar este conjunto de conceptos y arrojar claridad sobre los aspectos más complejos del universo Interledger. Comencemos por el término más evidente:
 
 ## Interledger
@@ -135,14 +137,19 @@ La capa de aplicación constituye el nivel final de la pila Interledger y define
 
 El protocolo [SPSP](https://interledger.org/developers/rfcs/simple-payment-setup-protocol/) simplifica el proceso de configuración de pagos. Cuando se realiza una solicitud GET a una URL asociada a un Payment Pointer mediante los encabezados correspondientes de SPSP, el protocolo establece la información que debe devolverse.
 
-```http wrap
-HTP/1.1 200 OK
+</Paragraph>
+
+<CodeBlock
+  language="http"
+  code={`HTP/1.1 200 OK
 Content-Type: application/spsp4+json
 {
   "destination_account": "example.ilpdemo.red.bob",
   "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 Entre ellos se encuentran la `destination_account`, que es la dirección de ILP del destinatario, y un `shared_secret` para cifrar los paquetes STREAM. El protocolo SPSP garantiza una configuración de pagos segura y sencilla para entidades o personas con acceso directo a ILP, es decir, aquellas que pueden crear, enviar y recibir paquetes ILP sin intervención de terceros.
 
@@ -193,3 +200,5 @@ Ya sea al habilitar pagos mediante Web Monetization, simplificar la gestión de 
 Lo invitamos a seguir atento conforme seguimos perfeccionando y ampliando estas herramientas, con el objetivo de hacer realidad la visión de Interledger. La misión de la Interledger Foundation consiste en lograr que enviar un pago sea tan sencillo como enviar un correo electrónico, mediante la construcción de un ecosistema inclusivo e innovador que conecte los sistemas financieros existentes. El futuro de los sistemas financieros interconectados e inclusivos ya está en marcha, y resulta estimulante imaginar hacia dónde nos conducirá este proceso.
 
 _Agradecemos a Sarah, Radu, Melissa, Tseli, Mohammed, Max y Chris por la revisión de esta publicación y por su valiosa contribución para alcanzar su mejor versión posible._
+
+</Paragraph>

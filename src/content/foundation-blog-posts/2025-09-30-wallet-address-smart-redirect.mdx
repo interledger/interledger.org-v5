@@ -13,11 +13,15 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 When you think of a **wallet address**, you probably think of a string of characters (or in Open Payments's case, a neat URL) that acts as a source or destination for payments. For example:
 
 `https://ilp.interledger.cards/007`
 
 Traditionally, when an Open Payments client queries that address, it receives a structured JSON:
+
+</Paragraph>
 
 <CodeBlock
   language="json"
@@ -30,6 +34,8 @@ Traditionally, when an Open Payments client queries that address, it receives a 
   "resourceServer": "https://ilp.interledger.cards"
 }`}
 />
+
+<Paragraph>
 
 This is perfect for developers and systems that need machine-readable data. But what about people?
 
@@ -78,10 +84,14 @@ Meanwhile, behind the scenes:
 
 Enable **Wallet Address Smart Redirect** by setting a single environment variable:
 
+</Paragraph>
+
 <CodeBlock
   language="bash"
   code={`WALLET_ADDRESS_REDIRECT_HTML_PAGE="https://interledgerpay.com/payment-choice?receiver=%ewa"`}
 />
+
+<Paragraph>
 
 ### Header behavior
 
@@ -112,3 +122,5 @@ You can compose the redirect URL using these tokens:
 ## Looking ahead
 
 **Wallet Address Smart Redirect** is another step toward making Rafiki wallets more accessible, discoverable, and user-friendly. Whether you're a developer integrating APIs or a user just trying to send money, one address now does it all.
+
+</Paragraph>

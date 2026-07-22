@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 A sharp test suite anticipates problems, catching them before they surprise users. As developers, we often get a bit too familiar with our own code. With our inevitably biased views, we often end up overlooking issues from outlier scenarios, or usability considerations, all the way to the "oops" bugs. End-to-end tests help us view the product more objectively, from a user's perspective. Automating these tests saves time and ensures consistent quality throughout the development process.
 
 However, automated end-to-end testing of a browser extension is a bit… complicated. But don't worry, we're up for this challenge! I'll share with you how we do end-to-end testing of the [Web Monetization browser extension](https://github.com/interledger/web-monetization-extension).
@@ -35,6 +37,8 @@ Since the WM browser extension works its magic on web pages, we can test its cor
 
 We can launch the browser with our extension loaded using the `--load-extension=${pathToExtension}` CLI argument. We need to launch it in a persistent context with Playwright.
 
+</Paragraph>
+
 <CodeBlock
   language="typescript"
   code={`function loadExtension(pathToExtension: string): Promise<BrowserContext> {
@@ -50,9 +54,13 @@ We can launch the browser with our extension loaded using the `--load-extension=
 }`}
 />
 
+<Paragraph>
+
 ## Accessing the background service worker
 
 We require access to the extension's background service worker to interact with the browser extension APIs, including its local storage.
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -62,7 +70,11 @@ if (!background) {
 }`}
 />
 
+<Paragraph>
+
 To access and modify the extension's local storage, we need to evaluate the Storage API calls within the context of the extension's service worker:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -72,7 +84,11 @@ To access and modify the extension's local storage, we need to evaluate the Stor
 // note the use of \`chrome.\` namespace - this works in Chromium as well as Firefox!`}
 />
 
+<Paragraph>
+
 For instance, to verify if a user has connected their wallet to the WM extension, we can check the extension's local storage:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -82,7 +98,11 @@ For instance, to verify if a user has connected their wallet to the WM extension
 expect(data.connected).toBe(true)`}
 />
 
+<Paragraph>
+
 A nice thing with Playwright is we get TypeScript support out of the box, even in `evaluate` contexts:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -91,6 +111,8 @@ A nice thing with Playwright is we get TypeScript support out of the box, even i
 })
 expect(connected).toBe(true)`}
 />
+
+<Paragraph>
 
 We can use this trick to mess with all sorts of extension APIs - opening and closing tabs, listening in on events, and more. This gives us the power to test our extension's behavior from top to bottom.
 
@@ -106,6 +128,8 @@ Playwright doesn't have a magic button to open and poke around in the popup just
 
 The good news: the extension's UI is just a fancy HTML page. There's no bad news in this part. This means we can open it like any other webpage in a new tab! But what's the URL for this popup page? That varies from browser to browser, it's something like: `chrome-extension://{extensionId}/{path/to/popup.html}`. And how do we get the extension ID? Luckily, the background service worker has a URL too! We can extract the ID from its URL using a bit of JavaScript magic: `background.url().split('/')[2]`. Or, if you prefer a more semantic approach, you can use `new URL(background.url()).hostname`. Alternatively, we can get the full popup URL by evaluating `browser.action.getPopup({})` in the background worker context. Sometimes the simplest solutions come to mind only after you've gone knee-deep into a hacking challenge! So always take a break!
 
+</Paragraph>
+
 <CodeBlock
   language="typescript"
   code={`const popup = await context.newPage()
@@ -113,7 +137,11 @@ await popup.goto(popupUrl)
 // Now we can access the popup as a regular Playwright page`}
 />
 
+<Paragraph>
+
 To make this more compatible with the way the extension opens its popup, we can open it in a literal popup window. This way we can keep the popup visible separately when we run Playwright tests in UI mode (or view captured screenshots or traces), and it looks like a popup this way - not a tab.
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -130,11 +158,15 @@ To make this more compatible with the way the extension opens its popup, we can 
 }`}
 />
 
+<Paragraph>
+
 Note that opening the popup by clicking the extension icon is equivalent to loading that popup page. So, we can reload the popup page before each test to simulate that.
 
 ## Writing tests
 
 We can test the above helper functions to work well enough:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -151,11 +183,15 @@ test('popup has connect form', async ({ browserName }) => {
 })`}
 />
 
+<Paragraph>
+
 But why bother setting up the stage for each test, or even once per file with `beforeAll` (and a responsible cleanup in `afterAll`)? Enter fixtures!
 
 ## Less repetition with fixtures
 
 We've been doing a lot of manual work, and repeating the same steps for each test can get tedious. Let's automate some of this with Playwright's fixtures. We can create a "base" fixture to handle the heavy lifting, like loading the extension and giving us access to its background and popup. This way, we can focus on writing the actual tests.
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -190,7 +226,11 @@ export const test =
 export const expect = test.expect;`}
 />
 
+<Paragraph>
+
 We then use this fixture as:
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -218,6 +258,8 @@ test('monetizes page', async ({ background, popup, page }) => {
 })`}
 />
 
+<Paragraph>
+
 Much better! We can make our fixtures even more powerful by customizing them for specific tests. For instance, when we're testing payments, we can set up the wallet connection within the fixture itself. This way, we can focus on the specific payment tests without repeating the connection process each time.
 
 ## Organizing and optimizing tests
@@ -227,6 +269,8 @@ Let's be honest, opening and closing a whole browser window for each test is a b
 We can optimize by using a single browser instance and popup for all tests in a file. This way, we can improve performance and resource usage. While we lose some parallelism, it's a fair trade-off for better efficiency.
 
 Playwright has a neat trick to scope resources per test worker, aptly named: `{ scope: 'worker' }`. Let's refactor our fixture to use worker scope.
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -275,6 +319,8 @@ export const test = base.extend<TestScope, WorkerScope>({
 export const expect = test.expect`}
 />
 
+<Paragraph>
+
 Now, we'll have a single browser and popup instance per test file, not per test. This also means we need to be cautious to avoid interfering with each other's state. We don't want one test to mess up the setup for another.
 
 To ensure this, we'll split our tests into smaller, more focused files. This might mean more files, but it has a big advantage: each file can run independently in its worker. With enough CPU and memory (like in most dev machines), we can run all these files in parallel, making our tests fly!
@@ -300,6 +346,8 @@ We can snoop on network requests on a page (like the popup or a regular webpage)
 
 For the Web Monetization extension, it's more useful for us to intercept requests in the background service worker. To catch these requests, we can use `context.on('request', handler)`. If we only care about the response, we can listen to `'requestfinished'` instead. Just a heads up that this service worker request interception is still experimental in Playwright, so we need to set the `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` environment variable to enable it.
 
+</Paragraph>
+
 <CodeBlock
   language="typescript"
   code={`context.on('requestfinished', async function intercept(req) {
@@ -312,11 +360,15 @@ For the Web Monetization extension, it's more useful for us to intercept request
 })`}
 />
 
+<Paragraph>
+
 ## More optimization tricks up our sleeve
 
 ### Saving login cookies
 
 Most of our payment tests require logging in to the [Interledger Test Wallet](https://wallet.interledger-test.dev). It's a drag to log in every single time. That's why we handle login during an initial setup phase and then store these cookies securely in the filesystem. It's like having a "Remember me" feature (for websites that get it right!) for our tests. It saves us a bunch of clicks and makes our tests more efficient.
+
+</Paragraph>
 
 <CodeBlock
   language="typescript"
@@ -348,6 +400,8 @@ export const test = base.extend<TestScope, WorkerScope>({
 })`}
 />
 
+<Paragraph>
+
 ### Saving the wallet's connected state
 
 When a user connects their wallet with the extension, we receive their permission to send their funds in the form of tokens. With Open Payments, we use [GNAP grants & tokens](https://interledger.org/blog/open-payments-cinderella-story/) to facilitate that. GNAP is a next-generation protocol for delegating access to APIs securely & flexibly; you can consider it a successor of OAuth.
@@ -369,3 +423,5 @@ Let's keep an eye on Playwright's development and hope for future updates that m
 We'll level up our testing game by diving deeper into browser-specific features like Edge's split view and adding more tests to cover every corner case. We'll push the extension to its limits, simulating different user interactions and trying to break it, to build a rock-solid extension that provides a great user experience.
 
 Want to dive deeper into our testing strategy? Check out our [GitHub repo for the Web Monetization extension](https://github.com/interledger/web-monetization-extension). We're always open to feedback and contributions, so feel free to submit a pull request!
+
+</Paragraph>

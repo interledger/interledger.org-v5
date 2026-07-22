@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 ## Why Open Payments in Go?
 
 The [**Open Payments**](https://openpayments.dev/) standard is reshaping how applications initiate, manage, and complete digital transactions — enabling truly interoperable financial systems across different wallets, services, and financial institutions.
@@ -36,6 +38,8 @@ It includes:
 - Comprehensive integration tests against both local Rafiki environments and the test wallet.
 
 Here's what it looks like to request a grant and create an incoming payment:
+
+</Paragraph>
 
 <CodeBlock
   language="go"
@@ -115,6 +119,8 @@ func main() {
 }`}
 />
 
+<Paragraph>
+
 With Go's strong typing and the SDK's clean API design, developers get compile-time safety and IDE autocompletion for the entire Open Payments workflow.
 
 ## Under the Hood
@@ -126,6 +132,8 @@ Here are two things we did to help ensure a good developer experience.
 One challenge we faced was that the upstream OpenAPI specifications didn't always produce ideal Go types when run through code generators. For example, request bodies for grants and outgoing payments used `oneOf` unions that resulted in awkward generated type names like `PostRequestJSONBody`.
 
 To solve this, we leveraged [OpenAPI Overlays](https://learn.openapis.org/overlay/) — a powerful technique for modifying OpenAPI specs without forking them. Our overlay files (`authserver.overlay.yaml`, `resourceserver.overlay.yaml`) add explicit type names and restructure unions for better Go ergonomics:
+
+</Paragraph>
 
 <CodeBlock
   language="yaml"
@@ -150,7 +158,11 @@ actions:
         # ...`}
 />
 
+<Paragraph>
+
 Instead of wrestling with anonymous types, you get clear, self-documenting structs:
+
+</Paragraph>
 
 <CodeBlock
   language="go"
@@ -161,6 +173,8 @@ var payload rs.CreateOutgoingPaymentWithQuote
 payload.WalletAddressSchema = walletAddress
 payload.QuoteId = quoteId`}
 />
+
+<Paragraph>
 
 This approach keeps us in sync with upstream specs while producing clean, well-named Go types.
 
@@ -191,18 +205,30 @@ Go powers a significant portion of cloud infrastructure, payment systems, and fi
 
 Install the SDK:
 
+</Paragraph>
+
 <CodeBlock
   language="bash"
   code={`go get github.com/interledger/open-payments-go`}
 />
 
+<Paragraph>
+
 The SDK requires Go 1.21 or later. For development, you'll also need to initialize the OpenAPI spec submodule:
+
+</Paragraph>
 
 <CodeBlock language="bash" code={`git submodule update --init`} />
 
+<Paragraph>
+
 To regenerate types from the specs (if you're contributing or customizing):
 
+</Paragraph>
+
 <CodeBlock language="bash" code={`go generate ./generated`} />
+
+<Paragraph>
 
 ## Get Involved
 
@@ -223,3 +249,5 @@ Open Payments Go is under active development and ready to use today.
 We're excited to bring Open Payments to the Go ecosystem and can't wait to see what the community builds.
 
 Give it a try, and let us know what you think! 🚀
+
+</Paragraph>
