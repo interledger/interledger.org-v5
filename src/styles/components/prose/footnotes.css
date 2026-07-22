@@ -12,7 +12,7 @@
     a[data-footnote-ref] {
       color: var(--color-primary);
       font-size: var(--text-caption);
-      font-weight: 400;
+      font-weight: var(--text-caption--font-weight);
       line-height: 1;
       text-decoration-line: none;
       vertical-align: super;
@@ -51,7 +51,7 @@
     [data-footnotes] li {
       position: relative;
       counter-increment: footnote;
-      padding-inline-start: 1.25rem;
+      padding-inline-start: var(--spacing-lg);
       margin-block-end: var(--spacing-md);
       font-size: inherit;
       line-height: inherit;
@@ -71,7 +71,7 @@
       top: 0;
       color: var(--color-primary);
       font-size: var(--text-caption);
-      font-weight: 400;
+      font-weight: var(--text-caption--font-weight);
       line-height: 1.2;
       vertical-align: super;
     }
@@ -87,7 +87,7 @@
     .footnotes a,
     [data-footnotes] a {
       color: var(--color-primary);
-      font-weight: 400;
+      font-weight: var(--text-body-sm-standard--font-weight);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
       overflow-wrap: anywhere;
