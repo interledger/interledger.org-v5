@@ -1,8 +1,5 @@
 ---
 import { getCollection, render } from 'astro:content'
-import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
-import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
-import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
@@ -19,7 +16,8 @@ import {
   getProfileColorIndex,
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
-  getOptimizedImage
+  getOptimizedImage,
+  getSectionPageLayout
 } from '@/utils'
 
 interface Props {
@@ -74,12 +72,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   t('nav.home')
 )
 
-const Layout =
-  entry.data.section === 'summit'
-    ? SummitPageLayout
-    : entry.data.section === 'hackathon'
-      ? HackathonPageLayout
-      : FoundationPageLayout
+const Layout = getSectionPageLayout(entry.data.section)
 ---
 
 <Layout title={title} description={description ?? displayRole ?? name}>

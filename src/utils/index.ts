@@ -71,6 +71,7 @@ export {
   type BreadcrumbItem,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
+export { getSectionPageLayout } from './main/sectionLayout'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,
