@@ -977,6 +977,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
+      displayRatio: 'Display ratio',
       image: 'Image',
       imageAlt: 'Image alt text',
       videoUrl: 'Video URL',
@@ -1071,6 +1072,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType:
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
+      displayRatio:
+        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
       imageAlt:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       videoUrl:
@@ -1428,12 +1431,13 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.split-layout': [
       [{ name: 'layoutType', size: 12 }],
+      [{ name: 'image', size: 12 }],
       [
-        { name: 'imagePosition', size: 4 },
-        { name: 'image', size: 8 },
-        { name: 'videoUrl', size: 8 }
+        { name: 'imagePosition', size: 3 },
+        { name: 'displayRatio', size: 3 },
+        { name: 'imageAlt', size: 6 },
+        { name: 'videoUrl', size: 6 }
       ],
-      [{ name: 'imageAlt', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },
