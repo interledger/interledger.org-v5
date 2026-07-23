@@ -1051,12 +1051,6 @@ export interface SharedHero extends Struct.ComponentSchema {
     icon: 'star'
   }
   attributes: {
-    backgroundImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     backgroundImageMobile: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1070,6 +1064,12 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

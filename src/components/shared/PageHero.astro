@@ -19,15 +19,18 @@ interface BreadcrumbItem {
 interface Props {
   title: string
   description?: string | null
-  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. Purely decorative background, so rendered with an empty alt. */
+  /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. */
   image?: string | null
-  /** Optional mobile image. Recommended: 768×480px. */
+  /** Optional mobile image. Recommended: 768×480px. Shares `imageAlt` with the desktop image. */
   imageMobile?: string | null
+  /** Alt text for the hero image, used for both the desktop and mobile variants. Leave empty/omit for a purely decorative background. */
+  imageAlt?: string | null
   cta?: HeroCta | null
   breadcrumbs?: BreadcrumbItem[]
 }
 
-const { title, description, image, imageMobile, cta, breadcrumbs } = Astro.props
+const { title, description, image, imageMobile, imageAlt, cta, breadcrumbs } =
+  Astro.props
 ---
 
 <!-- White content section -->
@@ -83,7 +86,7 @@ const { title, description, image, imageMobile, cta, breadcrumbs } = Astro.props
         <>
           <OptimizedImage
             src={imageMobile}
-            alt=""
+            alt={imageAlt ?? ''}
             width={768}
             height={480}
             loading="eager"
@@ -92,7 +95,7 @@ const { title, description, image, imageMobile, cta, breadcrumbs } = Astro.props
           />
           <OptimizedImage
             src={image ?? imageMobile!}
-            alt=""
+            alt={imageAlt ?? ''}
             width={1440}
             height={640}
             loading="eager"
@@ -103,7 +106,7 @@ const { title, description, image, imageMobile, cta, breadcrumbs } = Astro.props
       ) : (
         <OptimizedImage
           src={image}
-          alt=""
+          alt={imageAlt ?? ''}
           width={1440}
           height={640}
           loading="eager"

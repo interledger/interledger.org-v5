@@ -5,7 +5,13 @@ export default createPageLifecycle({
   contentTypeUid: 'api::foundation-page.foundation-page',
   outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.foundationPages}`,
   populate: {
-    hero: { populate: '*' },
+    hero: {
+      populate: {
+        media: { populate: { image: true } },
+        backgroundImageMobile: true,
+        hero_call_to_action: true
+      }
+    },
     seo: { populate: '*' },
     content: FOUNDATION_PAGE_CONTENT_POPULATE
   }

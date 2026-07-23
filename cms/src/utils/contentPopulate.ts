@@ -110,7 +110,13 @@ export const BLOG_CONTENT_POPULATE = {
 
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
-  hero: { populate: '*' },
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
   primaryCta: true,
   content: {
     on: {
@@ -130,7 +136,13 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
-  hero: { populate: '*' },
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
   content: {
     on: { ...GRANT_BLOCKS }
   },

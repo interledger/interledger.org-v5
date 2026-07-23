@@ -154,7 +154,7 @@ export function createMediaUploadResolver(
 interface StrapiHeroPayload {
   title: string
   description: string
-  backgroundImage?: number | null
+  media?: { image: number | null; alternativeText: string } | null
   backgroundImageMobile?: number | null
   hero_call_to_action?: {
     text: string
@@ -219,7 +219,7 @@ async function buildHeroWithImage(
 
   async function resolveHeroImage(
     imageKey: 'heroImage' | 'heroImageMobile',
-    targetKey: 'backgroundImage' | 'backgroundImageMobile'
+    targetKey: 'media' | 'backgroundImageMobile'
   ): Promise<void> {
     if (!hasField(imageKey) || !strapiUploadContext) return
 
@@ -228,10 +228,19 @@ async function buildHeroWithImage(
     })
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
-    hero[targetKey] = uploadId ?? null
+    if (targetKey === 'media') {
+      hero.media = uploadId
+        ? {
+            image: uploadId,
+            alternativeText: (parsed.heroImageAlt as string | undefined) ?? ''
+          }
+        : null
+    } else {
+      hero[targetKey] = uploadId ?? null
+    }
   }
 
-  await resolveHeroImage('heroImage', 'backgroundImage')
+  await resolveHeroImage('heroImage', 'media')
   await resolveHeroImage('heroImageMobile', 'backgroundImageMobile')
 
   return heroPayload

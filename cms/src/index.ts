@@ -821,7 +821,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      backgroundImage: 'Background Image (Desktop)',
+      media: 'Background Image (Desktop)',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
     },
@@ -1010,10 +1010,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'You can select multiple categories — click "+ Add an entry" for each category'
     },
     'shared.hero': {
-      backgroundImage:
+      media:
         'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
       backgroundImageMobile:
-        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.'
+        "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Shares the desktop image's alternative text."
     },
     'shared.report-date': {
       lastUpdated:
@@ -1398,10 +1398,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     'shared.hero': [
       [{ name: 'title', size: 12 }],
       [{ name: 'description', size: 12 }],
-      [
-        { name: 'backgroundImage', size: 6 },
-        { name: 'backgroundImageMobile', size: 6 }
-      ],
+      [{ name: 'media', size: 12 }],
+      [{ name: 'backgroundImageMobile', size: 12 }],
       [{ name: 'hero_call_to_action', size: 12 }]
     ],
     'shared.cta-link': [

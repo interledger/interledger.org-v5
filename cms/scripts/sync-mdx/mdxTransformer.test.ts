@@ -1409,7 +1409,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
 
@@ -1431,7 +1431,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantFrontmatter.title,
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
   })
@@ -1726,7 +1726,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
 
@@ -1778,7 +1778,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantOverviewFrontmatter.title,
         description: '',
-        backgroundImage: null
+        media: null
       })
     })
 
@@ -1805,7 +1805,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantOverviewFrontmatter.title,
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
   })
