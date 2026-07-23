@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
   scheduleGitSync,
@@ -385,6 +386,7 @@ function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
   if (!isImageUpload(file)) return
 
   const sizeBytes = getUploadFileSizeBytes(file)
+  // size/buffer unknown (0) — stream uploads are enforced mid-pipe instead.
   if (sizeBytes > 0 && isImageOverSizeLimit(sizeBytes)) {
     throw new errors.ApplicationError(imageSizeLimitError(label, sizeBytes))
   }
@@ -398,6 +400,27 @@ function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
     fs.unlinkSync(dest)
     throw new errors.ApplicationError(imageSizeLimitError(dest, size))
   }
+}
+
+/**
+ * Counts bytes while piping an image upload so we can abort as soon as the
+ * stream exceeds the 2 MB image limit, instead of writing a huge file and
+ * unlinking it in the post-write check (when `file.size` / `buffer` were absent).
+ */
+function createImageSizeLimitTransform(label: string): Transform {
+  let bytesSeen = 0
+  return new Transform({
+    transform(chunk, _encoding, callback) {
+      bytesSeen += chunk.length
+      if (isImageOverSizeLimit(bytesSeen)) {
+        callback(
+          new errors.ApplicationError(imageSizeLimitError(label, bytesSeen))
+        )
+        return
+      }
+      callback(null, chunk)
+    }
+  })
 }
 
 /**
@@ -436,7 +459,20 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
       typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
     assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
-    await pipeline(stream, fs.createWriteStream(dest))
+    try {
+      if (isImageUpload(file)) {
+        await pipeline(
+          stream,
+          createImageSizeLimitTransform(label),
+          fs.createWriteStream(dest)
+        )
+      } else {
+        await pipeline(stream, fs.createWriteStream(dest))
+      }
+    } catch (err) {
+      if (fs.existsSync(dest)) fs.unlinkSync(dest)
+      throw err
+    }
     assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
