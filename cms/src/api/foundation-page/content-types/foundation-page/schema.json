@@ -18,47 +18,72 @@
   "attributes": {
     "title": {
       "type": "string",
-      "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
     },
     "pathSlug": {
       "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "required": true,
-      "unique": true,
-      "pluginOptions": { "i18n": { "localized": true } },
-      "description": "Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash."
+      "unique": true
     },
     "pillar": {
       "type": "enumeration",
-      "enum": ["vision", "mission", "tech", "values"],
-      "pluginOptions": { "i18n": { "localized": false } },
-      "description": "Content pillar — controls page-level colour theming via data-pillar attribute"
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      },
+      "enum": [
+        "vision",
+        "mission",
+        "tech",
+        "values"
+      ]
     },
     "seo": {
       "type": "component",
-      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.seo",
-      "pluginOptions": { "i18n": { "localized": true } }
+      "repeatable": false
     },
     "hero": {
       "type": "component",
-      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.hero",
-      "pluginOptions": { "i18n": { "localized": true } }
+      "repeatable": false
     },
     "content": {
       "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "components": [
         "blocks.paragraph",
-        "blocks.profile",
         "blocks.profile-grid",
         "blocks.blockquote",
-        "blocks.callout-text",
         "blocks.cta-strip",
         "blocks.pdf-embed",
         "blocks.video-embed"
-      ],
-      "pluginOptions": { "i18n": { "localized": true } }
+      ]
     }
   }
 }
