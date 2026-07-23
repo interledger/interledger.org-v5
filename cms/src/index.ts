@@ -578,7 +578,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
       if (existing) continue
 
       const stat = fs.statSync(filePath)
-      if (isImageOverSizeLimit(stat.size)) {
+      if (IMAGE_EXTENSIONS.has(ext) && isImageOverSizeLimit(stat.size)) {
         strapi.log.warn(
           `⚠️  Skipping seed for oversized image (${formatImageSize(stat.size)}): ${url}`
         )
