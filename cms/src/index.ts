@@ -978,7 +978,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
-      media: 'Image',
+      // Deliberately not "Image" — SplitLayoutTypePicker.tsx's field show/hide
+      // logic identifies the nested media picker by its exact label text
+      // ("Image", from shared.localized-media's own field label) and would
+      // become ambiguous if this wrapper field used the same text.
+      media: 'Media',
       videoUrl: 'Video URL',
       content: 'Content',
       quote: 'Quote',

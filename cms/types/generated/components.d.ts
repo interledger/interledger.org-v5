@@ -1121,7 +1121,6 @@ export interface SharedLocalizedMedia extends Struct.ComponentSchema {
   }
   attributes: {
     alternativeText: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
