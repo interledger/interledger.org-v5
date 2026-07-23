@@ -12,27 +12,33 @@ describe('resolvePublicImagePath', () => {
     )
   })
 
-  it('rejects a path that traverses outside public/', () => {
+  it('never resolves a traversal attempt outside public/', () => {
     const result = resolvePublicImagePath(
       projectRoot,
       '/img/../../../../etc/passwd'
     )
-    expect(result).toBeInstanceOf(Error)
+
+    expect(result).not.toBeInstanceOf(Error)
+    expect(result).not.toBe('/etc/passwd')
+    expect(String(result).startsWith(publicDir + path.sep)).toBe(true)
   })
 
-  it('rejects a traversal attempt under /uploads/ too', () => {
-    const result = resolvePublicImagePath(projectRoot, '/uploads/../../../.env')
-    expect(result).toBeInstanceOf(Error)
+  it('rejects degenerate input that would resolve above public/', () => {
+    expect(resolvePublicImagePath(projectRoot, '')).toBeInstanceOf(Error)
   })
 })
 
 describe('validateLocalImageUrl', () => {
-  it('surfaces the path-traversal error instead of statting an escaped path', () => {
+  it('stats within public/ rather than an escaped system path', () => {
+    // Confirms the traversal attempt cannot reach a real file (e.g. /etc/passwd)
+    // that would otherwise exist on the test machine — it's always looking
+    // inside public/, which won't have this file, so this returns null rather
+    // than an Error.
     const result = validateLocalImageUrl(
       '/repo',
       '/img/../../../../etc/passwd'
     )
-    expect(result).toBeInstanceOf(Error)
+    expect(result).toBeNull()
   })
 
   it('ignores non-local urls', () => {

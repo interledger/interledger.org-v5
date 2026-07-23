@@ -371,15 +371,23 @@ function getUploadFileSizeBytes(file: UploadFile): number {
   return 0
 }
 
+function normalizeUploadExt(ext: string): string {
+  const lower = ext.toLowerCase()
+  // Strapi's `file.ext` normally includes the leading dot (".png"); IMAGE_EXTENSIONS
+  // / MIME_BY_EXT keys use that same format. Normalize so a bare "png" still matches.
+  return lower.startsWith('.') ? lower : `.${lower}`
+}
+
 function isImageUpload(file: UploadFile): boolean {
   const mime = typeof file.mime === 'string' ? file.mime : ''
   if (mime.startsWith('image/')) return true
   // Explicit non-image MIME (e.g. application/pdf, video/*) must not fall
-  // through to the extension check — SEEDABLE_EXTENSIONS includes those too.
+  // through to the extension check — seedable media includes those too.
   if (mime) return false
 
-  const ext = typeof file.ext === 'string' ? file.ext.toLowerCase() : ''
-  return IMAGE_EXTENSIONS.has(ext)
+  const rawExt = typeof file.ext === 'string' ? file.ext : ''
+  if (!rawExt) return false
+  return IMAGE_EXTENSIONS.has(normalizeUploadExt(rawExt))
 }
 
 function assertImageWithinUploadLimit(file: UploadFile, label: string): void {

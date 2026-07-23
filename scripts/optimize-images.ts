@@ -157,15 +157,6 @@ async function main(): Promise<void> {
   const startTime = Date.now()
   console.log('Optimizing images...\n')
 
-  function assertSourceImageWithinLimit(filePath: string): void {
-    const { size } = fs.statSync(filePath)
-    if (isImageOverSizeLimit(size)) {
-      throw new Error(
-        imageSizeLimitError(path.relative(PROJECT_ROOT, filePath), size)
-      )
-    }
-  }
-
   const manifest = loadManifest()
   // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
   const updatedManifest: Record<string, string> = {}
@@ -173,6 +164,13 @@ async function main(): Promise<void> {
   let totalCreated = 0
   let totalSkipped = 0
   let totalFiles = 0
+
+  const sourceBatches: Array<{
+    dir: string
+    outputPrefix: string
+    files: string[]
+  }> = []
+  const oversizedErrors: string[] = []
 
   for (const { dir, outputPrefix } of SOURCES) {
     if (!fs.existsSync(dir)) {
@@ -184,11 +182,31 @@ async function main(): Promise<void> {
     const label = path.relative(PROJECT_ROOT, dir)
     console.log(`  ${label}: ${files.length} raster image(s)`)
 
+    for (const file of files) {
+      const { size } = fs.statSync(file)
+      if (isImageOverSizeLimit(size)) {
+        oversizedErrors.push(
+          imageSizeLimitError(path.relative(PROJECT_ROOT, file), size)
+        )
+      }
+    }
+
+    sourceBatches.push({ dir, outputPrefix, files })
+  }
+
+  if (oversizedErrors.length > 0) {
+    throw new Error(
+      `Found ${oversizedErrors.length} image(s) over the size limit:\n${oversizedErrors
+        .map((message) => `  - ${message}`)
+        .join('\n')}`
+    )
+  }
+
+  for (const { dir, outputPrefix, files } of sourceBatches) {
     const results = await withConcurrency(
       files,
       CONCURRENCY,
       async (file): Promise<{ created: number; skipped: boolean }> => {
-        assertSourceImageWithinLimit(file)
         const manifestKey = path.relative(PROJECT_ROOT, file)
         const hash = await hashFile(file)
 
