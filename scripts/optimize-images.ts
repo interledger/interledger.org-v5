@@ -4,9 +4,11 @@ import path from 'node:path'
 import sharp from 'sharp'
 import {
   IMAGE_URL_PATHS,
+  OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
-  pathToSegments
-} from '@/utils/main/images'
+  pathToSegments,
+  type OptimizedImageManifest
+} from '@/utils/main/imagePaths'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
@@ -15,6 +17,10 @@ const getPublicAssetPath = (urlPath: string): string =>
 
 const OUTPUT_BASE = getPublicAssetPath(IMAGE_URL_PATHS.publicOptimized)
 const MANIFEST_PATH = path.join(OUTPUT_BASE, '.manifest.json')
+const RUNTIME_MANIFEST_PATH = path.join(
+  PROJECT_ROOT,
+  OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH
+)
 
 const CONCURRENCY = 4
 
@@ -83,6 +89,45 @@ function loadManifest(): Record<string, string> {
 function saveManifest(manifest: Record<string, string>): void {
   fs.mkdirSync(OUTPUT_BASE, { recursive: true })
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2))
+}
+
+const VARIANT_EXTENSIONS = new Set(['.webp', '.avif'])
+
+// Walks the generated output tree rather than tracking created files inline,
+// so variants that were skipped this run (already cached, see loadManifest)
+// still end up in the runtime catalog.
+function collectVariantPaths(dir: string): string[] {
+  if (!fs.existsSync(dir)) return []
+  const results: string[] = []
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    // Hash-cache manifest only — not a public image URL.
+    if (entry.name === '.manifest.json') continue
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      results.push(...collectVariantPaths(full))
+    } else if (VARIANT_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      const relative = path.relative(PUBLIC_DIR, full).split(path.sep).join('/')
+      results.push(`/${relative}`)
+    }
+  }
+  return results
+}
+
+/**
+ * Bundled into the SSR function via import.meta.glob in images.ts so
+ * getOptimizedImage() never needs runtime fs against public/ (INTORG-946).
+ * Written next to the committed stub; this path is gitignored.
+ */
+function saveRuntimeManifest(): void {
+  const manifest: OptimizedImageManifest = {
+    version: 1,
+    variants: collectVariantPaths(OUTPUT_BASE).sort()
+  }
+  fs.mkdirSync(path.dirname(RUNTIME_MANIFEST_PATH), { recursive: true })
+  fs.writeFileSync(
+    RUNTIME_MANIFEST_PATH,
+    `${JSON.stringify(manifest, null, 2)}\n`
+  )
 }
 
 async function hashFile(filePath: string): Promise<string> {
@@ -202,10 +247,14 @@ async function main(): Promise<void> {
   }
 
   saveManifest(updatedManifest)
+  saveRuntimeManifest()
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
   console.log(
     `\nDone in ${elapsed}s — ${totalFiles} images, ${totalCreated} created, ${totalSkipped} cached`
+  )
+  console.log(
+    `Runtime catalog → ${path.relative(PROJECT_ROOT, RUNTIME_MANIFEST_PATH)}`
   )
 }
 
