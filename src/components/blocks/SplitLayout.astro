@@ -66,6 +66,7 @@ const {
   ctaExternal
 } = Astro.props
 
+// Unknown ratios fall back to 1:1 here; sync handler/serializer hard-fail instead.
 const displayRatio: SplitLayoutDisplayRatio =
   displayRatioProp &&
   (DISPLAY_RATIOS as readonly string[]).includes(displayRatioProp)
