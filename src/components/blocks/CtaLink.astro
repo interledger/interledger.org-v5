@@ -1,0 +1,18 @@
+---
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+
+interface Props {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
+const { text, link, style = 'primary', external = false } = Astro.props
+---
+
+<LinkButton href={link} variant={style} external={external}>
+  {text}
+  {external && <Icon name="arrow-right" slot="icon-right" />}
+</LinkButton>

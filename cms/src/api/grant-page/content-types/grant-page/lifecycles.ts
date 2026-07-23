@@ -74,6 +74,7 @@ export function generateGrantPageMDX(
   delete (restPreserved as Record<string, unknown>).primaryCta
   delete (restPreserved as Record<string, unknown>).infoCards
   delete (restPreserved as Record<string, unknown>).faqSection
+  delete (restPreserved as Record<string, unknown>).ctaStrip
   delete (restPreserved as Record<string, unknown>).programOverview
   for (const key of [
     'heroTitle',

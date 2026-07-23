@@ -33,7 +33,8 @@ const GRANT_BLOCKS = {
   },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
-  }
+  },
+  'shared.cta-link': {}
 } as const
 
 /** Blocks shared by all content types. */
