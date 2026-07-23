@@ -27,6 +27,7 @@ import {
   formatImageSize,
   imageSizeLimitError,
   isImageOverSizeLimit,
+  IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
 
@@ -573,13 +574,6 @@ const MIME_BY_EXT: Record<string, string> = {
 }
 
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
-
-/** Image-only subset of SEEDABLE_EXTENSIONS — used for the 2 MB upload limit. */
-const IMAGE_EXTENSIONS = new Set(
-  Object.entries(MIME_BY_EXT)
-    .filter(([, mime]) => mime.startsWith('image/'))
-    .map(([ext]) => ext)
-)
 
 /**
  * Directories under `public/` to scan for seedable media.

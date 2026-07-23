@@ -5,9 +5,11 @@ export { tryCatchAsync } from './tryCatch'
 export {
   MAX_IMAGE_BYTES,
   MAX_IMAGE_SIZE_LABEL,
+  IMAGE_EXTENSIONS,
   formatImageSize,
   imageSizeLimitError,
-  isImageOverSizeLimit
+  isImageOverSizeLimit,
+  isImagePath
 } from './uploadLimits'
 
 // Upload validation

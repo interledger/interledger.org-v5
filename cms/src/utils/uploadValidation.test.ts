@@ -18,9 +18,7 @@ describe('resolvePublicImagePath', () => {
   it('resolves against cwd when projectRoot is empty', () => {
     const result = resolvePublicImagePath('', '/img/x.png')
     expect(result).not.toBeInstanceOf(Error)
-    expect(String(result)).toBe(
-      path.join(path.resolve('public'), 'img/x.png')
-    )
+    expect(String(result)).toBe(path.join(path.resolve('public'), 'img/x.png'))
   })
 
   it('never resolves a traversal attempt outside public/', () => {

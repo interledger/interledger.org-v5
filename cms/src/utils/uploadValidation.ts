@@ -1,33 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import { imageSizeLimitError, isImageOverSizeLimit } from './uploadLimits'
+import { imageSizeLimitError, isImageOverSizeLimit, isImagePath } from './uploadLimits'
 
 const LOCAL_IMAGE_PREFIXES = ['/img/', '/uploads/'] as const
 
-/** Image extensions eligible for the 2 MB size check (leading-dot form). */
-const IMAGE_EXTENSIONS = new Set([
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.gif',
-  '.svg',
-  '.webp',
-  '.avif',
-  '.tiff'
-])
-
 export function isLocalImagePath(url: string): boolean {
   return LOCAL_IMAGE_PREFIXES.some((prefix) => url.startsWith(prefix))
-}
-
-function normalizeExt(ext: string): string {
-  const lower = ext.toLowerCase()
-  if (!lower) return ''
-  return lower.startsWith('.') ? lower : `.${lower}`
-}
-
-function isImageUrlPath(urlPath: string): boolean {
-  return IMAGE_EXTENSIONS.has(normalizeExt(path.posix.extname(urlPath)))
 }
 
 export function resolvePublicImagePath(
@@ -61,7 +39,7 @@ export function validateLocalImageUrl(
 ): Error | null {
   if (!isLocalImagePath(urlPath)) return null
   // Size limit is image-only — local PDF/video uploads under /uploads/ must pass.
-  if (!isImageUrlPath(urlPath)) return null
+  if (!isImagePath(urlPath)) return null
 
   const resolved = resolvePublicImagePath(projectRoot, urlPath)
   if (resolved instanceof Error) return resolved
