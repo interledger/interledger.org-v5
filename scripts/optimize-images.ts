@@ -177,9 +177,7 @@ async function processImage(
   // Always emit a variant at the intrinsic width when it isn't already a target.
   // Otherwise a 1200px original only gets 640 (+ full), and responsive srcsets
   // that omit `-full` force the browser to upscale 640 on desktop (INTORG-934).
-  const widthSet = new Set(
-    TARGET_WIDTHS.filter((w) => w <= originalWidth)
-  )
+  const widthSet = new Set(TARGET_WIDTHS.filter((w) => w <= originalWidth))
   widthSet.add(originalWidth)
   const widths = [...widthSet].sort((a, b) => a - b)
 
