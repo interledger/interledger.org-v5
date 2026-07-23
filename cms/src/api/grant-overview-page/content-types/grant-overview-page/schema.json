@@ -5,7 +5,7 @@
     "singularName": "grant-overview-page",
     "pluralName": "grant-overview-pages",
     "displayName": "Grant Overview Page",
-    "description": "Overview pages for grant categories. Path slug is relative to /grant/ — e.g. education → /grant/education. Slugs must not clash with Grant Page slugs."
+    "description": "Overview pages for grant categories. Path slug is relative to /grants/ — e.g. our-grantmaking → /grants/our-grantmaking, education → /grants/education. Slugs must not clash with Grant Page slugs."
   },
   "options": {
     "draftAndPublish": false

@@ -1612,11 +1612,31 @@ describe('buildGrantOverviewPagePayload', () => {
   })
 
   describe('followUpContent', () => {
-    it('is always null once content is parsed into dynamic-zone blocks', async () => {
+    it('syncs markdown from frontmatter to Strapi', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          followUpContent:
+            '## Contact us\n\nEmail [team@example.com](mailto:team@example.com)'
+        },
+        content: '<Paragraph>Body.</Paragraph>'
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx
+      )
+      expect((payload as Record<string, unknown>).followUpContent).toBe(
+        '## Contact us\n\nEmail [team@example.com](mailto:team@example.com)'
+      )
+    })
+
+    it('is null when frontmatter omits followUpContent', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
-        content: 'Some follow-up text.'
+        content: '<Paragraph>Body.</Paragraph>'
       })
 
       const payload = await buildGrantOverviewPagePayload(
@@ -1626,10 +1646,13 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).followUpContent).toBeNull()
     })
 
-    it('is null when body is empty', async () => {
+    it('is null when followUpContent is whitespace only', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
-        frontmatter: baseGrantOverviewFrontmatter,
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          followUpContent: '   \n\n   '
+        },
         content: '   \n\n   '
       })
 

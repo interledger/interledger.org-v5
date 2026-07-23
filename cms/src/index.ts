@@ -750,7 +750,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::grant-overview-page.grant-overview-page': {
       pathSlug:
-        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug.',
+        'Path relative to /grants/. Example: our-grantmaking → /grants/our-grantmaking. No leading slash. Must not clash with any Grant Page slug.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
