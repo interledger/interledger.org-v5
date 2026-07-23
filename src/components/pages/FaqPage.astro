@@ -52,11 +52,9 @@ const Layout =
     : entry.data.section === 'hackathon'
       ? HackathonPageLayout
       : FoundationPageLayout
-const layoutProps =
-  Layout === FoundationPageLayout ? { headerTheme: 'light' as const } : {}
 ---
 
-<Layout title={title} description={description} {...layoutProps}>
+<Layout title={title} description={description}>
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
