@@ -1073,7 +1073,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
       displayRatio:
-        'Content-to-media width. 1:1 equal columns; 2:1 wider content; 1:2 wider media.',
+        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
       imageAlt:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       videoUrl:

@@ -40,9 +40,9 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('imagePosition=')
   })
 
-  it('omits displayRatio when it is the default 1:1 value', () => {
+  it('omits displayRatio when it is the default 2:1 value', () => {
     const result = serialize({
-      displayRatio: '1:1',
+      displayRatio: '2:1',
       image: { url: '/uploads/education_grant.jpg' },
       content: 'Some body copy.'
     })
@@ -52,12 +52,12 @@ describe('split-layout serializer', () => {
 
   it('serializes non-default displayRatio so Strapi publishes update MDX', () => {
     const result = serialize({
-      displayRatio: '1:2',
+      displayRatio: '1:1',
       image: { url: '/uploads/education_grant.jpg' },
       content: 'Some body copy.'
     })
 
-    expect(result).toContain('displayRatio="1:2"')
+    expect(result).toContain('displayRatio="1:1"')
   })
 
   it('rejects unsupported displayRatio values', () => {

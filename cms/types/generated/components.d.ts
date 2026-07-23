@@ -764,7 +764,7 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: false
         }
       }> &
-      Schema.Attribute.DefaultTo<'1:1'>
+      Schema.Attribute.DefaultTo<'2:1'>
     image: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

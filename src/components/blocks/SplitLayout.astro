@@ -13,7 +13,8 @@ interface Props {
   /** Which side the image or video column appears on. Default: right. */
   imagePosition?: 'left' | 'right'
   /**
-   * Content : media width ratio. Default: 1:1.
+   * Content : media width ratio. Default: 2:1 (matches the pre-ratio layout:
+   * media roughly capped near 22rem with content taking the rest).
    * Uses CSS grid `fr` units with the design-system 120px (`gap-6xl`) gutter.
    */
   displayRatio?: SplitLayoutDisplayRatio
@@ -66,12 +67,12 @@ const {
   ctaExternal
 } = Astro.props
 
-// Unknown ratios fall back to 1:1 here; sync handler/serializer hard-fail instead.
+// Unknown ratios fall back to 2:1 here; sync handler/serializer hard-fail instead.
 const displayRatio: SplitLayoutDisplayRatio =
   displayRatioProp &&
   (DISPLAY_RATIOS as readonly string[]).includes(displayRatioProp)
     ? displayRatioProp
-    : '1:1'
+    : '2:1'
 
 const isVideoLayout = layoutType
   ? layoutType.startsWith('video')

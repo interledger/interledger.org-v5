@@ -68,7 +68,7 @@ export function serialize(block: {
     attrs.push(`imagePosition="${esc(block.imagePosition)}"`)
   }
 
-  if (block.displayRatio && block.displayRatio !== '1:1') {
+  if (block.displayRatio && block.displayRatio !== '2:1') {
     if (!isDisplayRatio(block.displayRatio)) {
       throw new Error(
         `Split layout displayRatio must be one of ${DISPLAY_RATIOS.join(', ')}. Received "${block.displayRatio}".`

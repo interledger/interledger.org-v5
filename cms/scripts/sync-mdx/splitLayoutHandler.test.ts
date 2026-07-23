@@ -60,7 +60,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'left',
-        displayRatio: '1:1',
+        displayRatio: '2:1',
         image: STRAPI_UPLOAD_ID.primaryImage,
         imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
@@ -84,7 +84,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        displayRatio: '1:1',
+        displayRatio: '2:1',
         image: STRAPI_UPLOAD_ID.defaultLayoutImage,
         content: 'Body.'
       }
@@ -106,7 +106,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'video-quote',
         imagePosition: 'right',
-        displayRatio: '1:1',
+        displayRatio: '2:1',
         videoUrl: 'https://vimeo.com/123',
         quote: 'Open payments matter.',
         quoteSource: 'Interledger'
@@ -140,7 +140,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
-        displayRatio: '1:1',
+        displayRatio: '2:1',
         image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
         imageAlt: 'Scoped alt',
         content: 'Body.'
@@ -149,23 +149,23 @@ describe('SplitLayout handler', () => {
   })
   it('parses displayRatio when provided', async () => {
     const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" displayRatio="2:1">Body.</SplitLayout>`,
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" displayRatio="1:1">Body.</SplitLayout>`,
       ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
     )
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.split-layout',
-      displayRatio: '2:1'
+      displayRatio: '1:1'
     })
   })
 
-  it('defaults displayRatio to 1:1 when omitted', async () => {
+  it('defaults displayRatio to 2:1 when omitted', async () => {
     const blocks = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
       ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.defaultLayoutImage })
     )
 
-    expect(blocks[0]).toMatchObject({ displayRatio: '1:1' })
+    expect(blocks[0]).toMatchObject({ displayRatio: '2:1' })
   })
 })
 

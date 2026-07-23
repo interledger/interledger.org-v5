@@ -59,7 +59,7 @@ async function handleSplitLayout(
     }
 
     const displayRatioAttr = getStringAttr(node, 'displayRatio')
-    const displayRatio = displayRatioAttr ?? '1:1'
+    const displayRatio = displayRatioAttr ?? '2:1'
     if (!isDisplayRatio(displayRatio)) {
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
