@@ -32,6 +32,11 @@ presentations/
 # Generated optimized images
 public/img/optimized/
 
+# Build-time optimized-image catalog (INTORG-946). The committed
+# optimized-image-manifest.stub.json keeps imports resolvable in CI/tests
+# without prebuild; optimize:images writes the real catalog here for bundling.
+src/generated/optimized-image-manifest.json
+
 .codex
 
 # Figma token exports. Kept locally, not committed. theme.css is the in-repo
