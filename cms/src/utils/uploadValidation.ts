@@ -11,8 +11,15 @@ export function isLocalImagePath(url: string): boolean {
 export function resolvePublicImagePath(
   projectRoot: string,
   urlPath: string
-): string {
-  return path.join(projectRoot, 'public', urlPath)
+): string | Error {
+  const publicDir = path.join(projectRoot, 'public')
+  const resolved = path.resolve(publicDir, '.' + path.posix.normalize(urlPath))
+
+  if (resolved !== publicDir && !resolved.startsWith(publicDir + path.sep)) {
+    return new Error(`Image path escapes public dir: ${urlPath}`)
+  }
+
+  return resolved
 }
 
 export function validateImageFileSize(filePath: string): Error | null {
@@ -29,5 +36,9 @@ export function validateLocalImageUrl(
   urlPath: string
 ): Error | null {
   if (!isLocalImagePath(urlPath)) return null
-  return validateImageFileSize(resolvePublicImagePath(projectRoot, urlPath))
+
+  const resolved = resolvePublicImagePath(projectRoot, urlPath)
+  if (resolved instanceof Error) return resolved
+
+  return validateImageFileSize(resolved)
 }
