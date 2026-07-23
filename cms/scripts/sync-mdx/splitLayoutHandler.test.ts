@@ -71,6 +71,20 @@ describe('SplitLayout handler', () => {
     ])
   })
 
+  it('parses imageAlt into media.alternativeText', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      media: {
+        image: STRAPI_UPLOAD_ID.primaryImage,
+        alternativeText: 'Foo alt'
+      }
+    })
+  })
+
   it('defaults imagePosition to right and omits optional fields when absent', async () => {
     const blocks = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
