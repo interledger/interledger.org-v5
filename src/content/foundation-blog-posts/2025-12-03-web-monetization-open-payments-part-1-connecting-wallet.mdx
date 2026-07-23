@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 Welcome to the first of a three-part series on how Open Payments powers Web Monetization. We’ll also explore the mechanics of the Web Monetization browser extension, which serves as a temporary agent until web browsers natively support this technology.
 
 I assume a conceptual understanding of the underlying technologies — the [Web Monetization](https://webmonetization.org) standard and the supporting [Open Payments API](https://openpayments.dev) — since I'll be speaking about the relationship between the two throughout the series.
@@ -37,36 +39,44 @@ The first hurdle is that the SDK relies on cryptography modules specific to Node
 
 Our [esbuild](https://esbuild.github.io/) build process simplifies this polyfilling: a [plugin](https://github.com/interledger/web-monetization-extension/blob/49f525f9ff3a82c935ad5dfb5320c4e9be7491e5/esbuild/plugins.ts#L32-L44) automatically resolves all imports of the Node.js crypto module to a browser-compatible implementation:
 
-```js
-const esbuildNodeCryptoPlugin = {
+</Paragraph>
+
+<CodeBlock
+  language="javascript"
+  code={`const esbuildNodeCryptoPlugin = {
   name: 'crypto-for-extension',
   setup(build) {
     build.onResolve({ filter: /^crypto$/ }, () => ({
       path: require.resolve('crypto-browserify')
     }))
   }
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 The Open Payments API requires each request to be [signed](https://openpayments.dev/identity/http-signatures/) using Ed25519 cryptographic curves. Unfortunately, web browsers don't adequately support this algorithm for signing operations. The SDK conveniently provides an `authenticatedRequestInterceptor` hook, which we'll use to insert signature headers using a different, browser-compatible implementation.
 
-```ts
-const client = await createAuthenticatedClient({
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`const client = await createAuthenticatedClient({
   // ... regular options for creating authenticated client
   async authenticatedRequestInterceptor(request) {
     const headers = await createHeaders({ request, privateKey, keyId })
-
     if (request.body) {
       request.headers.set('Content-Type', headers['Content-Type'])
       request.headers.set('Content-Digest', headers['Content-Digest'])
     }
     request.headers.set('Signature', headers['Signature'])
     request.headers.set('Signature-Input', headers['Signature-Input'])
-
     return request
   }
-})
-```
+})`}
+/>
+
+<Paragraph>
 
 For a complete understanding of these nuances and all the necessary configurations, you can explore them directly in the [extension source code](https://github.com/interledger/web-monetization-extension/blob/49f525f9ff3a82c935ad5dfb5320c4e9be7491e5/src/background/services/openPayments.ts#L164-L219).
 
@@ -110,18 +120,18 @@ If you choose to opt out of this monthly renewal option, the grant will eventual
 
 The grant request effectively includes following parameters:
 
-```ts
-declare const BUDGET = 7.5 // $7.5 when using USD
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`declare const BUDGET = 7.5 // $7.5 when using USD
 declare const RECURRING = true
-
 const walletAddress = await fetchJSON(YOUR_WALLET_ADDRESS)
-
 // Convert a human-friendly amount to format Open Payments expects
 // $7.5 budget at asset scale 2 means value: "750"
 const amount = BUDGET * Math.pow(10, walletAddress.assetScale)
 // ISO8601 repeating interval, when RECURRING is true
-const interval = `R/${new Date().toISOString()}/P1M`
-
+const interval = \`R/\${new Date().toISOString()}/P1M\`
 // partial grant request
 const outgoingPaymentAccess = {
   type: 'outgoing-payment',
@@ -135,8 +145,10 @@ const outgoingPaymentAccess = {
     },
     interval: interval
   }
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 ### Wait for Grant Approval
 
@@ -144,8 +156,11 @@ Once the extension creates the outgoing payment grant, you get redirected to you
 
 In the grant request, we provide an interaction finish URL (`interact.finish.uri`). Once you approve or decline the grant, your wallet provider redirects your browser to this specified page. Crucially, the extension's background script is constantly monitoring for a tab to land on this exact URL. This detection immediately triggers the extension to issue the final grant-continuation request and obtain the access tokens for all your future micro-payments.
 
-```ts
-const pendingGrant = await client.grant.request(
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`const pendingGrant = await client.grant.request(
   { url: walletAddress.authServer },
   {
     access_token: { access: [outgoingPaymentAccess] },
@@ -156,8 +171,10 @@ const pendingGrant = await client.grant.request(
       finish: { method: 'redirect', uri: REDIRECT_URL }
     }
   }
-)
-```
+)`}
+/>
+
+<Paragraph>
 
 As modern browser security policies prohibit external sites (like your wallet provider) from redirecting directly back into the extension's internal pages, the URL must be for an external `https://` page (the extension uses `https://webmonetization.org/welcome`). Upon arrival, this page also displays a clear success or failure message regarding your wallet connection.
 
@@ -176,3 +193,5 @@ If you believe your tokens are compromised, you can revoke the extension's grant
 ## Next up: Sending money
 
 Have your wallet connected and access tokens handy? The [next article](https://interledger.org/blog/web-monetization-open-payments-part-2-payment-sessions) will focus on the payment session setup, followed by a detailed look at the core function: precisely how, when, and where the extension triggers the payments through your wallet.
+
+</Paragraph>

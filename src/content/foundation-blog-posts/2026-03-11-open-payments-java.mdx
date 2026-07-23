@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 As adoption of Open Payments grows within the Interledger ecosystem, developers are building innovative solutions, enabling truly global, frictionless value transfer.
 
 A significant portion of enterprise-grade backend services, financial platforms, and scalable applications are powered by Java. Now, we are bringing Open Payments support to these developers through a native, idiomatic library that eliminates the need for manual HTTP management.
@@ -63,34 +65,41 @@ The SDK supports core Open Payments functionality:
 
 The library is available on Maven Central and adding it to your project is straightforward:
 
-```xml
-<dependency>
+</Paragraph>
+
+<CodeBlock
+  language="xml"
+  code={`<dependency>
     <groupId>org.interledger</groupId>
     <artifactId>open-payments</artifactId>
     <version>1.2.0</version>
-</dependency>
-```
+</dependency>`}
+/>
+
+<Paragraph>
 
 And now let’s see an example of how to create an incoming payment:
 
-```java
-import org.interledger.openpayments.*;
+</Paragraph>
 
+<CodeBlock
+  language="java"
+  code={`import org.interledger.openpayments.*;
 // Create HTTP client
 IOpenPaymentsClient client = OpenPaymentsHttpClient.defaultClient(
      "WalletAddress",
      "PrivateKeyPEM",
      "KeyId"
  );
-
 // Retrieve the wallet:
 var receiverWallet = client.walletAddress().get("https://cloudninebank.example.com/merchant");
-
 // Create incoming payment:
 var grantRequest = client.auth().grant().incomingPayment(receiverWallet);
 var incomingPayment = client.payment().incomingPayment(receiverWallet, grantRequest, BigDecimal.valueOf(11.25));
+`}
+/>
 
-```
+<Paragraph>
 
 ## Packages Overview
 
@@ -108,3 +117,5 @@ The SDK is thoughtfully organized into packages for better modularity and mainta
 ## Get Coding\!
 
 Give the Java SDK a spin in your project. Try it out and let us know what you think via GitHub or the Interledger Slack community channels. Your feedback will shape where this goes next!
+
+</Paragraph>

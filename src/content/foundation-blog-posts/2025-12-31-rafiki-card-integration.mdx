@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 Card payments are the backbone of global commerce-trusted, regulated, and deeply entrenched. Our latest exploration asks a pivotal question: how can we bring the ubiquity of card payments into the Interledger ecosystem without compromising the security and standards of the EMV model (standard EMV flow/state machine for an ICC/contactless transaction)?
 
 ![ILF + Cards](/img/foundation-blog/2025-12-31/card.png)
@@ -207,13 +209,18 @@ When a card is presented, everything up to this point has been preparation.
 
 Now the familiar EMV flow kicks in:
 
-```
-SELECT AID
+</Paragraph>
+
+<CodeBlock
+  language="text"
+  code={`SELECT AID
 GET PROCESSING OPTIONS
 READ RECORD
 GENERATE AC
-Optional PIN verification (Online)
-```
+Optional PIN verification (Online)`}
+/>
+
+<Paragraph>
 
 All sensitive operations happen:
 
@@ -327,3 +334,5 @@ Interledger simply becomes the connective tissue that lets value move beyond tra
 | `TMK`         | Terminal Master Key                                                                                                                                                                                           |
 | `TR-34`       | ANSI TR-34 key exchange / key block standard used for secure key distribution (often referenced in payments key injection)                                                                                    |
 | `URL`         | Uniform Resource Locator                                                                                                                                                                                      |
+
+</Paragraph>

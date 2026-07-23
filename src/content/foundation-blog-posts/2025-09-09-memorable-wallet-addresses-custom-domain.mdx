@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 Wallet addresses are meant to be easy to remember or identify, unless your wallet provider chooses them for you. The address might include a long subdomain or even a random series of numbers and characters. But did you know that if you own a domain, you can set your wallet address to be the same as your domain?
 
 So, instead of `https://ilp.wallet.example/12345432/usd`, you can have `$mywebsite.com` as your wallet address! Technically, wallet addresses with the `$` are referred to as [payment pointers](https://paymentpointers.org/) and those starting with `https://` are the actual Open Payment wallet addresses. However, we'll use both terms interchangeably in this article.
@@ -69,13 +71,18 @@ There's a small catch, though. If there are tools that retrieve your payment poi
 
 With a server using NGINX, the configuration is straightforward:
 
-```nginx
-# nginx.conf
+</Paragraph>
+
+<CodeBlock
+  language="nginx"
+  code={`# nginx.conf
 location ~ /.well-known/pay(.*) {
   add_header Access-Control-Allow-Origin *; # enable cors
   return 302 https://ilp.wallet.com/abc/xyz$1;  # do a 302 redirect to original wallet address
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 You get the idea.
 
@@ -85,17 +92,23 @@ Some providers, especially those that host static websites, support a [`_redirec
 
 Static sites hosted on platforms like Netlify and Cloudflare can utilize this approach. It's important to ensure that the `_redirects` and `_headers` files are located in the top-level of your build directory. Depending on your static site generator, you may need to place these files in the "public" folder of your site's source code.
 
-```ini
-# _redirects
-/.well-known/pay https://ilp.wallet.com/abc/xyz 302
-/.well-known/pay/jwks.json https://ilp.wallet.com/abc/xyz/jwks.json 302
-```
+</Paragraph>
 
-```ini
-# _headers
+<CodeBlock
+  language="ini"
+  code={`# _redirects
+/.well-known/pay https://ilp.wallet.com/abc/xyz 302
+/.well-known/pay/jwks.json https://ilp.wallet.com/abc/xyz/jwks.json 302`}
+/>
+
+<CodeBlock
+  language="ini"
+  code={`# _headers
 /.well-known/pay*
-  Access-Control-Allow-Origin: *
-```
+  Access-Control-Allow-Origin: *`}
+/>
+
+<Paragraph>
 
 Other providers like [Surge](https://surge.sh/help/adding-redirects) and [Vercel](https://vercel.com/docs/redirects) may have their own syntax for the redirects file.
 
@@ -105,10 +118,12 @@ If you have complete control over your website's routes, you'll get the best res
 
 #### Node.js / Express
 
-```javascript
-// app.js
-const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz';
+</Paragraph>
 
+<CodeBlock
+  language="javascript"
+  code={`// app.js
+const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz';
 app.get('/.well-known/pay', (req, res) => {
   const json = await fetch(WALLET_ADDRESS).then(r => r.json())
   res.json(json)
@@ -116,20 +131,23 @@ app.get('/.well-known/pay', (req, res) => {
 app.options('/.well-known/pay', (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
 })
-
 app.get('/.well-known/pay/jwks.json', (req, res) => {
-  res.redirect(302, `${WALLET_ADDRESS}/jwks.json`)
-});
-```
+  res.redirect(302, \`\${WALLET_ADDRESS}/jwks.json\`)
+});`}
+/>
+
+<Paragraph>
 
 #### Cloudflare Workers
 
 Even if you don't host your entire website on Cloudflare, you can create a worker there (using your domain or subdomain), just for the custom wallet address.
 
-```javascript
-// index.js
-const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz'
+</Paragraph>
 
+<CodeBlock
+  language="javascript"
+  code={`// index.js
+const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz'
 export default {
   async fetch(request) {
     const url = new URL(req.url)
@@ -140,8 +158,10 @@ export default {
     // ... handle other requests, or by default, return error
     // return new Response('not found', { status: 404 })
   }
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 #### Wordpress
 
@@ -160,13 +180,17 @@ In case you're wondering, no, the [`http-equiv` HTML meta tag](https://stackover
    Opening the wallet address URL directly in your browser may not show you the JSON response, as some wallets use it as a landing page for others to send you money.
 2. Create a `pay.json` file (or use any other name, it just needs to have the `.json` extension), and paste in the above JSON. For example:
 
-   ```shell
-   # for example, with curl
-   $ curl -sSL -H 'Accept: application/json' 'https://ilp.gatehub.net/981946513/eur' > pay.json
+</Paragraph>
 
-   $ cat pay.json
-   # {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}
-   ```
+<CodeBlock
+  language="bash"
+  code={`# for example, with curl
+$ curl -sSL -H 'Accept: application/json' 'https://ilp.gatehub.net/981946513/eur' > pay.json
+$ cat pay.json
+# {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}`}
+/>
+
+<Paragraph>
 
 3. Deploy your static site.
 
@@ -184,9 +208,14 @@ You can use the [link tag generator](https://webmonetization.org/tools/link-tag/
 
 If you're using the same domain as your website, you can use the link element's URL resolution by writing the `<link>` tag like following:
 
-```html
-<link rel="monetization" href="/.well-known/pay" />
-```
+</Paragraph>
+
+<CodeBlock
+  language="html"
+  code={`<link rel="monetization" href="/.well-known/pay" />`}
+/>
+
+<Paragraph>
 
 Aside: During local development (i.e. with localhost or custom dev domain), if you have the Web Monetization browser extension installed and are using a CDN or host-level configuration, the extension won't resolve to your actual wallet address. No real money will be sent during regular website development, which can be very handy. And when you want to actually test Web Monetization integrations, you can resolve the URL to a different [test wallet](https://wallet.interledger-test.dev/) address.
 
@@ -206,14 +235,19 @@ When a `monetization` event is emitted, how do we know what wallet address was a
 
 Thankfully, the [`MonetizationEvent`](https://webmonetization.org/specification/#dom-monetizationevent) includes both these details:
 
-```webidl
-interface MonetizationEvent : Event {
+</Paragraph>
+
+<CodeBlock
+  language="webidl"
+  code={`interface MonetizationEvent : Event {
   readonly attribute MonetizationCurrencyAmount amountSent;
   readonly attribute USVString paymentPointer;
   readonly attribute USVString? incomingPayment;
   // other details not relevant in this context
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 Here, `paymentPointer` is the resolved wallet address that was paid. For example, with a custom domain payment pointer - like I've mapped `$sidvishnoi.com` to resolve to my GateHub wallet address (`https://ilp.gatehub.net/981946513/eur`) above - the `paymentPointer` will resolve to my GateHub address. When using a wallet address from the probabilistic revenue sharing tool, it'll correspond to the wallet address that was chosen randomly.
 
@@ -221,27 +255,34 @@ And how do we get the original wallet address?
 
 If you look closely, the `MonetizationEvent` inherits the `Event` interface. So, everything that belongs to `Event` is also part of `MonetizationEvent`. The part we're looking for here is the event's `target` attribute. This target corresponds to the `<link rel="monetization">` element where you added your wallet address. The link element has the `href` attribute, which corresponds to the original wallet address we provided on our page. We can get the original wallet address as follows:
 
-```html
-<html>
+</Paragraph>
+
+<CodeBlock
+  language="html"
+  code={`<html>
   <head>
     <link rel="monetization" href="https://sidvishnoi.com/.well-known/pay" />
   </head>
-</html>
-```
+</html>`}
+/>
 
-```ts
-window.addEventListener('monetization', (event) => {
+<CodeBlock
+  language="typescript"
+  code={`window.addEventListener('monetization', (event) => {
   const linkElement: HTMLLinkElement = event.target
   const originalWalletAddress = linkElement.href
   // -> https://sidvishnoi.com/.well-known/pay
-
   const walletAddressThatGotPaid = event.paymentPointer
   // -> https://ilp.gatehub.net/981946513/eur
-})
-```
+})`}
+/>
+
+<Paragraph>
 
 Depending on the use case, you may care about either or both of the wallet addresses. I hope it was helpful for you to know how to get each.
 
 ## Closing words
 
 I'm excited to see your wallet addresses on your own domains! It would be wonderful if you could share your solutions for different hosting providers and servers with our [community](https://community.interledger.org/), or even better, on your own blog. Looking forward to your contributions!
+
+</Paragraph>

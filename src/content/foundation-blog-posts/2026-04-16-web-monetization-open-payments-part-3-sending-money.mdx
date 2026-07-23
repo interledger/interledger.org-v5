@@ -63,26 +63,29 @@ If there's a wallet that supports `assetScale = 3`, we can then send $0.001 as w
 
 Even if you were to set your hourly rate at $3600 per hour, because you're too generous, the extension won't be sending $1.00 every second (or $0.10 every tenth of a second). To protect both the servers from excessive load and yourself from higher data usage, the extension enforces a minimum gap of two seconds between payments, as a practical speed limit. So, even if you choose a very high rate of pay, the website will never receive monetization events faster than this two-second interval.
 
-```ts
-const MS_IN_HOUR = 60 * 60 * 1000
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`const MS_IN_HOUR = 60 * 60 * 1000
 const MIN_PAYMENT_WAIT = 2000 // 2 seconds
 const hourlyRate = BigInt(userConfig.hourlyRate) // "$1.50" per hour -> 150n
-
-// Every `period` milliseconds, we can send `units` amount
+// Every \`period\` milliseconds, we can send \`units\` amount
 const period = MS_IN_HOUR / Number(hourlyRate)
 const units = Math.ceil(MIN_PAYMENT_WAIT / period)
 this.interval = {
   units: BigInt(units),
   period: Math.ceil(units * period)
 }
-
 // The math above is roughly equivalent to the following, if that helps:
 this.interval = { units: 1n, period }
 while (interval.period < MIN_PAYMENT_WAIT) {
   this.interval.units += 1n
   this.interval.period += period
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 ### Payment buckets and the time-loop
 
@@ -100,28 +103,30 @@ This separation between the "timer loop" and the "payment trigger" ensures a smo
 
 We can summarize all we discussed so far, with the help of a little code:
 
-```ts
-// Note: this is a simplified version
+</Paragraph>
 
+<CodeBlock
+  language="typescript"
+  code={`// Note: this is a simplified version
 let pendingAmount = 0n // the payment bucket
 setInterval(() => {
   pendingAmount += this.interval.units
-
   const session = peekNextPaymentSessionInQueue()
   if (pendingAmount >= session.minSendAmount) {
     // How much of pendingAmount can we pay this session?
     // e.g. if pendingAmount = 37n (say, due to user's high rate of pay) & minSendAmount = 17n,
     // we can pay 34n from pendingAmount in single timer loop.
     const amount = getPayableAmount(session.minSendAmount, pendingAmount)
-
     void session.pay(amount).then((paid) => {
       if (!paid) pendingAmount += amount
     })
     pendingAmount -= amount
     moveCursorToNextPaymentSessionInQueue()
   }
-}, this.interval.period)
-```
+}, this.interval.period)`}
+/>
+
+<Paragraph>
 
 [Interactive demo: how the payment bucket fills](https://labs.sidvishnoi.com/web-monetization/open-payments-part-3-sending-money/payment-bucket/)
 
@@ -151,8 +156,11 @@ This loop continues indefinitely as long as the tab remains in view, ensuring th
 
 With the recipient identified (who to pay), the timing set (when to pay), and the payment bucket filled (how much to pay), the Open Payments API finally enters the picture to move the money. Up until this point, all the logic has lived locally within the extension; now, we communicate with the outside world to execute the actual transaction.
 
-```js
-const outgoingPayment = await openPaymentsClient.outgoingPayment.create(
+</Paragraph>
+
+<CodeBlock
+  language="javascript"
+  code={`const outgoingPayment = await openPaymentsClient.outgoingPayment.create(
   {
     accessToken: access_token.value, // found in Part 1 of article series
     url: sender.resourceServer
@@ -167,10 +175,11 @@ const outgoingPayment = await openPaymentsClient.outgoingPayment.create(
     }
   }
 )
+// inform the website about the payment via \`monetization\` event
+session.sendMonetizationEvent(outgoingPayment)`}
+/>
 
-// inform the website about the payment via `monetization` event
-session.sendMonetizationEvent(outgoingPayment)
-```
+<Paragraph>
 
 ## `MonetizationEvent`
 
@@ -180,11 +189,16 @@ Once a payment is successfully processed, the website wants to know about it - w
 
 To make this work in browsers, the extension injects a content script. This script runs directly within the context of the web page, allowing the site to access the global `MonetizationEvent` interface. It also modifies `HTMLLinkElement.relList.supports` so developers can programmatically check if the browser supports Web Monetization:
 
-```ts
-if (document.createElement('link').relList.supports('monetization')) {
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`if (document.createElement('link').relList.supports('monetization')) {
   console.log('Web Monetization is supported!')
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 ### Informing website of payment
 
@@ -194,19 +208,21 @@ When the extension's background script completes a payment, it sends a message t
 
 Websites can listen for these events globally on the window or on specific link elements, as these events bubble up the DOM tree:
 
-```js
-window.addEventListener('monetization', (event) => {
+</Paragraph>
+
+<CodeBlock
+  language="javascript"
+  code={`window.addEventListener('monetization', (event) => {
   console.assert(event instanceof MonetizationEvent)
-
-  console.assert(event.target instanceof HTMLLinkElement) // the `<link>` element that got paid
-
+  console.assert(event.target instanceof HTMLLinkElement) // the \`<link>\` element that got paid
   const { currency, value } = event.amountSent
-  console.log(`Received ${currency} ${value}`) // -> Received USD 0.01
-
+  console.log(\`Received \${currency} \${value}\`) // -> Received USD 0.01
   // Unlock premium content/features
   showPremiumContent()
-})
-```
+})`}
+/>
+
+<Paragraph>
 
 ## Epilogue
 

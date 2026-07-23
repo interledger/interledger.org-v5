@@ -93,6 +93,20 @@ pnpm run start
 - Lifecycle hooks for each type handle MDX generation (**Strapi -> Astro sync**).
 - Scripts inside `/cms/scripts` (e.g., `sync:mdx`, `sync:navigation`) synchronize Astro MDX files back into the Strapi database for all content types. (**Astro → Strapi sync**).
 
+### Code blocks: no blank lines
+
+> [!WARNING]
+> Code Block content must not contain blank lines.
+>
+> In MDX, a Code Block is `<CodeBlock language="…" code={` … `} />`. Prettier's
+> MDX parser treats a blank line inside that `code={` … `}` template literal as a
+> block break: it loses the JSX boundary and reformats the rest of the code as
+> markdown, escaping `*` to `\*` and stripping indentation. No Prettier option
+> (`.prettierignore`, `embeddedLanguageFormatting`, `{/* prettier-ignore */}`)
+> avoids this. When authoring or editing code blocks (in Strapi or directly in
+> MDX), keep the snippet free of blank lines. The `migrate-fenced-code-to-codeblock`
+> script strips blank lines automatically for this reason.
+
 ## How It Works
 
 The CMS supports two synchronization flows: Strapi → Astro (MDX generation) and Astro → Strapi (MDX import).

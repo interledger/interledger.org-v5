@@ -122,6 +122,19 @@ describe('CodeBlock handler — errors', () => {
     })
   })
 
+  it.each(['php', 'java', 'graphql', 'http', 'nginx', 'xml', 'ini', 'text'])(
+    'accepts the extended language %s',
+    async (language) => {
+      const blocks = await parseMdxToBlocks(
+        `<CodeBlock language="${language}" code={\`x\`} />`,
+        ctx
+      )
+      expect(blocks).toEqual([
+        { __component: 'blocks.code-block', code: 'x', language }
+      ])
+    }
+  )
+
   it('returns DYNAMIC_EXPRESSION for template interpolation', async () => {
     const result = await parseMdxToBlocks(
       '<CodeBlock language="javascript" code={`hello ${name}`} />',

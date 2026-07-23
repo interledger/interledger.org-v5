@@ -34,7 +34,16 @@
         "rust",
         "go",
         "sql",
-        "markdown"
+        "markdown",
+        "php",
+        "java",
+        "ini",
+        "graphql",
+        "http",
+        "nginx",
+        "xml",
+        "webidl",
+        "text"
       ]
     },
     "title": {

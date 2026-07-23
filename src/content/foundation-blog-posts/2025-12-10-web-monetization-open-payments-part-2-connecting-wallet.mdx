@@ -13,15 +13,22 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 In the previous article, we discussed how the [Web Monetization extension connects to your wallet](https://interledger.org/blog/web-monetization-open-payments-part-1-connecting-wallet/) using the Open Payments API. This article will explore the next steps for sending money: discovering the receiving wallet addresses on websites and setting up the necessary payment sessions. Like the previous article, we'll assume a conceptual understanding of [Web Monetization](https://webmonetization.org/) and [Open Payments API](https://openpayments.dev/).
 
 ## Finding receiving wallet addresses
 
 As part of the Web Monetization API, websites declare the wallet address where they'd like to receive the money by using the HTML `<link>` tag:
 
-```html
-<link rel="monetization" href="https://example-wallet.com/my-wallet" />
-```
+</Paragraph>
+
+<CodeBlock
+  language="html"
+  code={`<link rel="monetization" href="https://example-wallet.com/my-wallet" />`}
+/>
+
+<Paragraph>
 
 Websites can add multiple link elements to a page to specify multiple wallet addresses - the extension will send payments to each of them sequentially, while respecting user's choice of payment rate. If user's wallet cannot send payments to a wallet address, the extension will skip that address and move on to the next one.
 
@@ -31,11 +38,16 @@ The content script is the primary interface between the extension and the web pa
 
 Once the page loads, the injected content script immediately begins actively monitoring the DOM for all monetization link elements (`<link rel="monetization">` tags).
 
-```js
-function getLinkElements() {
+</Paragraph>
+
+<CodeBlock
+  language="javascript"
+  code={`function getLinkElements() {
   return document.querySelector('link[rel="monetization"]')
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 When a new link element is discovered, the content script's first critical action is to assign the element a unique ID. This ID creates a map between the live DOM element and its representation in the background script.
 
@@ -43,24 +55,27 @@ The script proceeds by validating the link element, ensuring its `href` attribut
 
 The script uses the `MutationObserver` API to maintain a persistent, real-time awareness of the state of all the link elements in a document. For instance, if a developer adds the `disabled` attribute to a monetized link element, the content script instantly signals the background to pause payments for that element. Similarly, when a monetized link element gets removed from the DOM, the content script signals the background script to terminate the associated monetization stream.
 
-```ts
-function documentMutationCallback() {
+</Paragraph>
+
+<CodeBlock
+  language="typescript"
+  code={`function documentMutationCallback() {
   const linkElements = getLinkElements()
   const addedLinkElements = diff(linkElements, existingLinkElements)
   const removedLinkElements = diff(existingLinkElements, linkElements)
-
   addedLinkElements.forEach((elem) => {
     const id = assignId(elem)
     const walletAddressInfo = await validateAndFetch(elem.href)
     dispatch('setup_monetization', { walletAddressInfo, id })
   })
-
   removedLinkElements.forEach((elem) => {
     const id = getAssignedId(elem)
     dispatch('stop_monetization', { id })
   })
-}
-```
+}`}
+/>
+
+<Paragraph>
 
 All of these state changes — discovery, modification, and removal — are communicated by passing messages to the background script. This ensures the background script, which manages the actual payment logic, is always perfectly synchronized with the live state of the web page. This synchronization ultimately feeds the pop-up to display accurate, real-time monetization status to the user.
 
@@ -125,3 +140,5 @@ The incoming payment serves as a dedicated "bucket" into which we can stream mic
 ## Sending money
 
 This article is already long enough, so let's dive into the fun part — actually executing a payment — in the next article!
+
+</Paragraph>

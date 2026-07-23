@@ -25,7 +25,16 @@ const CODE_BLOCK_LANGUAGES = [
   'rust',
   'go',
   'sql',
-  'markdown'
+  'markdown',
+  'php',
+  'java',
+  'ini',
+  'graphql',
+  'http',
+  'nginx',
+  'xml',
+  'webidl',
+  'text'
 ] as const
 
 type CodeBlockLanguage = (typeof CODE_BLOCK_LANGUAGES)[number]
