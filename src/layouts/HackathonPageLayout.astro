@@ -1,0 +1,45 @@
+---
+/**
+ * Hackathon site layout.
+ * Extends BaseLayout with Summit header/footer and dark theme — Hackathon
+ * has no chrome of its own yet, so it borrows Summit's for now.
+ */
+import BaseLayout from './BaseLayout.astro'
+import SummitFooter from '@/components/layout/SummitFooter.astro'
+import SummitHeader from '@/components/layout/SummitHeader.astro'
+
+interface Props {
+  title: string
+  description?: string
+  gradient?: string
+  ogImageUrl?: string
+  canonicalURL?: string
+}
+
+const {
+  title,
+  description,
+  gradient = 'option1',
+  ogImageUrl,
+  canonicalURL
+} = Astro.props
+---
+
+<BaseLayout
+  title={title}
+  titleSuffix="Interledger Hackathon"
+  description={description}
+  ogImageUrl={ogImageUrl}
+  canonicalURL={canonicalURL}
+  theme="dark"
+  bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"
+  bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+>
+  <SummitHeader slot="header" />
+  <div
+    class="flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_h1]:text-h2-lg [&_h2]:text-h3-md [&_h3]:text-h3 [&_h4]:text-h4 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]"
+  >
+    <slot />
+  </div>
+  <SummitFooter slot="footer" />
+</BaseLayout>

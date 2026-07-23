@@ -1,6 +1,8 @@
 ---
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
@@ -71,11 +73,21 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   routeLocale,
   t('nav.home')
 )
+
+const Layout =
+  entry.data.section === 'summit'
+    ? SummitPageLayout
+    : entry.data.section === 'hackathon'
+      ? HackathonPageLayout
+      : FoundationPageLayout
+const layoutProps =
+  Layout === FoundationPageLayout ? { headerTheme: 'light' as const } : {}
 ---
 
-<FoundationPageLayout
+<Layout
   title={title}
   description={description ?? displayRole ?? name}
+  {...layoutProps}
 >
   {
     avatarSrc && (
@@ -183,4 +195,4 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
       }
     </div>
   </main>
-</FoundationPageLayout>
+</Layout>
