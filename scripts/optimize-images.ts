@@ -7,6 +7,10 @@ import {
   TARGET_WIDTHS,
   pathToSegments
 } from '@/utils/main/images'
+import {
+  isImageOverSizeLimit,
+  imageSizeLimitError
+} from '@/utils/shared/uploadLimits'
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
@@ -161,6 +165,13 @@ async function main(): Promise<void> {
   let totalSkipped = 0
   let totalFiles = 0
 
+  const sourceBatches: Array<{
+    dir: string
+    outputPrefix: string
+    files: string[]
+  }> = []
+  const oversizedErrors: string[] = []
+
   for (const { dir, outputPrefix } of SOURCES) {
     if (!fs.existsSync(dir)) {
       console.log(`  skip ${path.relative(PROJECT_ROOT, dir)} (not found)`)
@@ -171,6 +182,27 @@ async function main(): Promise<void> {
     const label = path.relative(PROJECT_ROOT, dir)
     console.log(`  ${label}: ${files.length} raster image(s)`)
 
+    for (const file of files) {
+      const { size } = fs.statSync(file)
+      if (isImageOverSizeLimit(size)) {
+        oversizedErrors.push(
+          imageSizeLimitError(path.relative(PROJECT_ROOT, file), size)
+        )
+      }
+    }
+
+    sourceBatches.push({ dir, outputPrefix, files })
+  }
+
+  if (oversizedErrors.length > 0) {
+    throw new Error(
+      `Found ${oversizedErrors.length} image(s) over the size limit:\n${oversizedErrors
+        .map((message) => `  - ${message}`)
+        .join('\n')}`
+    )
+  }
+
+  for (const { dir, outputPrefix, files } of sourceBatches) {
     const results = await withConcurrency(
       files,
       CONCURRENCY,
