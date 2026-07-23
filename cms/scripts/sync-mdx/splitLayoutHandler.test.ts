@@ -60,6 +60,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'left',
+        displayRatio: '1:1',
         image: STRAPI_UPLOAD_ID.primaryImage,
         imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
@@ -83,6 +84,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
+        displayRatio: '1:1',
         image: STRAPI_UPLOAD_ID.defaultLayoutImage,
         content: 'Body.'
       }
@@ -104,6 +106,7 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'video-quote',
         imagePosition: 'right',
+        displayRatio: '1:1',
         videoUrl: 'https://vimeo.com/123',
         quote: 'Open payments matter.',
         quoteSource: 'Interledger'
@@ -137,11 +140,32 @@ describe('SplitLayout handler', () => {
         __component: 'blocks.split-layout',
         layoutType: 'image-text',
         imagePosition: 'right',
+        displayRatio: '1:1',
         image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
         imageAlt: 'Scoped alt',
         content: 'Body.'
       }
     ])
+  })
+  it('parses displayRatio when provided', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" displayRatio="2:1">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.split-layout',
+      displayRatio: '2:1'
+    })
+  })
+
+  it('defaults displayRatio to 1:1 when omitted', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.defaultLayoutImage })
+    )
+
+    expect(blocks[0]).toMatchObject({ displayRatio: '1:1' })
   })
 })
 
@@ -161,6 +185,20 @@ describe('SplitLayout handler — errors', () => {
       code: ParserErrorCode.INVALID_PROP_VALUE,
       component: 'SplitLayout',
       prop: 'imagePosition'
+    })
+  })
+
+  it('returns INVALID_PROP_VALUE for unsupported displayRatio', async () => {
+    const result = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" displayRatio="3:1">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'SplitLayout',
+      prop: 'displayRatio'
     })
   })
 

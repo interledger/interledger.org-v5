@@ -40,6 +40,38 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('imagePosition=')
   })
 
+  it('omits displayRatio when it is the default 1:1 value', () => {
+    const result = serialize({
+      displayRatio: '1:1',
+      image: { url: '/uploads/education_grant.jpg' },
+      content: 'Some body copy.'
+    })
+
+    expect(result).not.toContain('displayRatio=')
+  })
+
+  it('serializes non-default displayRatio so Strapi publishes update MDX', () => {
+    const result = serialize({
+      displayRatio: '1:2',
+      image: { url: '/uploads/education_grant.jpg' },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('displayRatio="1:2"')
+  })
+
+  it('rejects unsupported displayRatio values', () => {
+    expect(() =>
+      serialize({
+        displayRatio: '3:1',
+        image: { url: '/uploads/education_grant.jpg' },
+        content: 'Text body.'
+      })
+    ).toThrow(
+      'Split layout displayRatio must be one of 1:1, 1:2, 2:1. Received "3:1".'
+    )
+  })
+
   it('uses layoutType to ignore stale quote fields for image-text layouts', () => {
     const result = serialize({
       layoutType: 'image-text',

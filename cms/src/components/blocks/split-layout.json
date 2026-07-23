@@ -31,6 +31,18 @@
         }
       }
     },
+    "displayRatio": {
+      "type": "enumeration",
+      "enum": ["1:1", "1:2", "2:1"],
+      "required": true,
+      "default": "1:1",
+      "description": "Content-to-media column ratio. 1:1 equal columns; 2:1 wider content; 1:2 wider media.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "image": {
       "type": "media",
       "multiple": false,

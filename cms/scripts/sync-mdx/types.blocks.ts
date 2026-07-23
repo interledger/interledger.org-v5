@@ -155,6 +155,8 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   __component: 'blocks.split-layout'
   layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   imagePosition: 'left' | 'right'
+  /** Content : media column ratio. Defaults to 1:1 when omitted in MDX. */
+  displayRatio?: '1:1' | '1:2' | '2:1'
   image?: number | null
   imageAlt?: string
   videoUrl?: string
