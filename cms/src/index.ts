@@ -373,9 +373,12 @@ function getUploadFileSizeBytes(file: UploadFile): number {
 function isImageUpload(file: UploadFile): boolean {
   const mime = typeof file.mime === 'string' ? file.mime : ''
   if (mime.startsWith('image/')) return true
+  // Explicit non-image MIME (e.g. application/pdf, video/*) must not fall
+  // through to the extension check — SEEDABLE_EXTENSIONS includes those too.
+  if (mime) return false
 
   const ext = typeof file.ext === 'string' ? file.ext.toLowerCase() : ''
-  return SEEDABLE_EXTENSIONS.has(ext)
+  return IMAGE_EXTENSIONS.has(ext)
 }
 
 function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
@@ -387,7 +390,9 @@ function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
   }
 }
 
-function assertWrittenImageWithinLimit(dest: string): void {
+function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
+  if (!isImageUpload(file)) return
+
   const { size } = fs.statSync(dest)
   if (isImageOverSizeLimit(size)) {
     fs.unlinkSync(dest)
@@ -432,7 +437,7 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     await pipeline(stream, fs.createWriteStream(dest))
-    assertWrittenImageWithinLimit(dest)
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -443,7 +448,7 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)
-    assertWrittenImageWithinLimit(dest)
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -524,6 +529,13 @@ const MIME_BY_EXT: Record<string, string> = {
 }
 
 const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
+
+/** Image-only subset of SEEDABLE_EXTENSIONS — used for the 2 MB upload limit. */
+const IMAGE_EXTENSIONS = new Set(
+  Object.entries(MIME_BY_EXT)
+    .filter(([, mime]) => mime.startsWith('image/'))
+    .map(([ext]) => ext)
+)
 
 /**
  * Directories under `public/` to scan for seedable media.
