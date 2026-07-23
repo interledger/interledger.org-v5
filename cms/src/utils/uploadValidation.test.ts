@@ -7,11 +7,19 @@ import {
 
 describe('resolvePublicImagePath', () => {
   const projectRoot = '/repo'
-  const publicDir = path.join(projectRoot, 'public')
+  const publicDir = path.resolve(projectRoot, 'public')
 
   it('resolves a normal path inside public/', () => {
     expect(resolvePublicImagePath(projectRoot, '/img/x.png')).toBe(
       path.join(publicDir, 'img/x.png')
+    )
+  })
+
+  it('resolves against cwd when projectRoot is empty', () => {
+    const result = resolvePublicImagePath('', '/img/x.png')
+    expect(result).not.toBeInstanceOf(Error)
+    expect(String(result)).toBe(
+      path.join(path.resolve('public'), 'img/x.png')
     )
   })
 
@@ -44,6 +52,15 @@ describe('validateLocalImageUrl', () => {
   it('ignores non-local urls', () => {
     expect(
       validateLocalImageUrl('/repo', 'https://example.com/x.png')
+    ).toBeNull()
+  })
+
+  it('skips the size check for local non-image uploads (PDF/video)', () => {
+    expect(
+      validateLocalImageUrl('/repo', '/uploads/img/original/report.pdf')
+    ).toBeNull()
+    expect(
+      validateLocalImageUrl('/repo', '/uploads/img/original/clip.mp4')
     ).toBeNull()
   })
 })
