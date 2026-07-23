@@ -1,6 +1,9 @@
 import path from 'path'
 import { describe, it, expect } from 'vitest'
-import { resolvePublicImagePath, validateLocalImageUrl } from './uploadValidation'
+import {
+  resolvePublicImagePath,
+  validateLocalImageUrl
+} from './uploadValidation'
 
 describe('resolvePublicImagePath', () => {
   const projectRoot = '/repo'
@@ -34,14 +37,13 @@ describe('validateLocalImageUrl', () => {
     // that would otherwise exist on the test machine — it's always looking
     // inside public/, which won't have this file, so this returns null rather
     // than an Error.
-    const result = validateLocalImageUrl(
-      '/repo',
-      '/img/../../../../etc/passwd'
-    )
+    const result = validateLocalImageUrl('/repo', '/img/../../../../etc/passwd')
     expect(result).toBeNull()
   })
 
   it('ignores non-local urls', () => {
-    expect(validateLocalImageUrl('/repo', 'https://example.com/x.png')).toBeNull()
+    expect(
+      validateLocalImageUrl('/repo', 'https://example.com/x.png')
+    ).toBeNull()
   })
 })
