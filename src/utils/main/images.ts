@@ -1,9 +1,6 @@
 import path from 'node:path'
 import stubManifest from '../../generated/optimized-image-manifest.stub.json'
-import {
-  IMAGE_URL_PATHS,
-  type OptimizedImageManifest
-} from './imagePaths'
+import { IMAGE_URL_PATHS, type OptimizedImageManifest } from './imagePaths'
 
 export {
   IMAGE_URL_PATHS,
@@ -120,10 +117,7 @@ function getOptimizedBase(src: string): string | null {
  * catalog. Includes both fixed `TARGET_WIDTHS` and exact original widths
  * emitted by the optimize script (INTORG-934).
  */
-function listSizedVariants(
-  base: string,
-  ext: 'webp' | 'avif'
-): ImageVariant[] {
+function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
   const catalog = catalogOverride ?? bundledCatalogPaths
   const prefix = `${base}-`
   const suffix = `.${ext}`
