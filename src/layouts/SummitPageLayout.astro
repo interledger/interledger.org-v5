@@ -3,6 +3,7 @@
  * Summit site layout.
  * Extends BaseLayout with Summit header/footer and dark theme.
  */
+import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
 import SummitFooter from '@/components/layout/SummitFooter.astro'
 import SummitHeader from '@/components/layout/SummitHeader.astro'
@@ -15,20 +16,24 @@ interface Props {
   canonicalURL?: string
 }
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const site = Astro.site!
 const {
   title,
   description,
   gradient = 'option1',
-  ogImageUrl,
+  ogImageUrl = new URL('/img/og-summit.png', site).href,
   canonicalURL
 } = Astro.props
 ---
 
 <BaseLayout
   title={title}
-  titleSuffix="Interledger Summit"
+  titleSuffix={t('site.title.summit')}
   description={description}
-  ogImageUrl={ogImageUrl ?? '/img/og-summit.png'}
+  ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   theme="dark"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"

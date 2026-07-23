@@ -4,6 +4,7 @@
  * Extends BaseLayout with Summit header/footer and dark theme — Hackathon
  * has no chrome of its own yet, so it borrows Summit's for now.
  */
+import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
 import SummitFooter from '@/components/layout/SummitFooter.astro'
 import SummitHeader from '@/components/layout/SummitHeader.astro'
@@ -16,18 +17,22 @@ interface Props {
   canonicalURL?: string
 }
 
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const site = Astro.site!
 const {
   title,
   description,
   gradient = 'option1',
-  ogImageUrl,
+  ogImageUrl = new URL('/img/og-hackathon.png', site).href,
   canonicalURL
 } = Astro.props
 ---
 
 <BaseLayout
   title={title}
-  titleSuffix="Interledger Hackathon"
+  titleSuffix={t('site.title.hackathon')}
   description={description}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}

@@ -28,7 +28,7 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const site = Astro.site!
-const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
+const ogImageUrl = new URL('/img/og-blog.png', site).href
 
 const publishedDate = new Date(frontmatter.date)
 
