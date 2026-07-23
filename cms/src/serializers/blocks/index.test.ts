@@ -9,7 +9,7 @@ describe('validateContentBlocks', () => {
       {
         __component: 'blocks.split-layout',
         layoutType: 'image-quote',
-        image: 42,
+        media: { image: 42 },
         quote: 'Quoted body.'
       }
     ])
@@ -31,7 +31,7 @@ describe('validateContentBlocks', () => {
 
   it('accepts an image-block carrying only the raw upload ID', () => {
     const err = validateContentBlocks([
-      { __component: 'blocks.image-block', image: 7 }
+      { __component: 'blocks.image-block', media: { image: 7 } }
     ])
 
     expect(err).toBeUndefined()

@@ -24,7 +24,7 @@ interface ProfilePreview {
   role?: string
   locale?: string
   description?: string
-  photo?: { url?: string; alternativeText?: string }
+  media?: { image?: { url?: string }; alternativeText?: string }
   content?: Array<{ __component: string; [key: string]: unknown }>
   cta?: ProfileCtaPreview | null
 }
@@ -39,7 +39,7 @@ if (!documentId) {
 
 const populateParams = new URLSearchParams({
   status: 'draft',
-  'populate[photo]': 'true',
+  'populate[media][populate]': '*',
   'populate[cta]': 'true',
   'populate[content][on][blocks.paragraph][populate]': '*'
 })
@@ -56,7 +56,9 @@ if (!profile) {
 }
 
 const name = profile.name || 'Preview'
-const { tagline, role, photo, description, content = [] } = profile
+const { tagline, role, media, description, content = [] } = profile
+const photo = media?.image
+const photoAlt = media?.alternativeText ?? name
 const displayRole = role ?? tagline
 const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
 ---
@@ -88,7 +90,7 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
           photo?.url && (
             <img
               src={photo.url}
-              alt={photo.alternativeText ?? name}
+              alt={photoAlt}
               width={400}
               height={400}
               loading="lazy"

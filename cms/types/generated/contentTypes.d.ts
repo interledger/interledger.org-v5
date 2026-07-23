@@ -593,14 +593,14 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }> &
       Schema.Attribute.DefaultTo<false>
-    featureImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required &
+    featureImageMobile: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    featureImageMobile: Schema.Attribute.Media<'images'> &
+    featureMedia: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -647,7 +647,10 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         },
         number
       >
-    thumbnailImage: Schema.Attribute.Media<'images'> &
+    thumbnailMedia: Schema.Attribute.Component<
+      'shared.localized-media',
+      false
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1120,6 +1123,12 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::profile-page.profile-page'
     >
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1133,12 +1142,6 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    photo: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

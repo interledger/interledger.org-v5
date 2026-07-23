@@ -22,7 +22,8 @@ import {
   buildReportPayload,
   buildHackathonPagePayload,
   createMediaUploadResolver,
-  buildProfilePayload
+  buildProfilePayload,
+  buildBlogPayload
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -32,7 +33,8 @@ import {
   faqFrontmatterSchema,
   reportFrontmatterSchema,
   hackathonPageFrontmatterSchema,
-  profileFrontmatterSchema
+  profileFrontmatterSchema,
+  foundationBlogFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -1071,7 +1073,7 @@ describe('buildGrantPagePayload', () => {
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantPagePayload(
@@ -1086,8 +1088,7 @@ describe('buildGrantPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           displayRatio: '2:1',
-          image: 42,
-          imageAlt: 'Foo',
+          media: { image: 42, alternativeText: '' },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -1398,8 +1399,7 @@ describe('buildGrantPagePayload', () => {
         frontmatter: {
           ...baseGrantFrontmatter,
           heroTitle: 'Welcome',
-          heroImage: '/uploads/img/hero-desktop.png',
-          heroImageAlt: 'Grant hero'
+          heroImage: '/uploads/img/hero-desktop.png'
         }
       })
 
@@ -1412,7 +1412,34 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
+      })
+    })
+
+    it('resolves heroImageAlt into hero.media.alternativeText', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          heroTitle: 'Welcome',
+          heroImage: '/uploads/img/hero-desktop.png',
+          heroImageAlt: 'Students collaborating on campus'
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx,
+        stubStrapi({ '/uploads/img/hero-desktop.png': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        media: {
+          image: 42,
+          alternativeText: 'Students collaborating on campus'
+        }
       })
     })
 
@@ -1434,7 +1461,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantFrontmatter.title,
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
   })
@@ -1715,8 +1742,7 @@ describe('buildGrantOverviewPagePayload', () => {
         frontmatter: {
           ...baseGrantOverviewFrontmatter,
           heroTitle: 'Welcome',
-          heroImage: '/uploads/img/hero-desktop.png',
-          heroImageAlt: 'Grant hero'
+          heroImage: '/uploads/img/hero-desktop.png'
         }
       })
 
@@ -1730,12 +1756,37 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
-      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
-        42,
-        'Grant hero'
+    })
+
+    it('resolves heroImageAlt into hero.media.alternativeText', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-desktop.png': 42
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroTitle: 'Welcome',
+          heroImage: '/uploads/img/hero-desktop.png',
+          heroImageAlt: 'Grant recipients at a workshop'
+        }
+      })
+
+      const payload = await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
       )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        media: { image: 42, alternativeText: 'Grant recipients at a workshop' }
+      })
     })
 
     it('resolves heroImageMobile to a Strapi upload ID', async () => {
@@ -1747,8 +1798,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: {
           ...baseGrantOverviewFrontmatter,
-          heroImageMobile: '/uploads/img/hero-mobile.png',
-          heroImageMobileAlt: 'Mobile grant hero'
+          heroImageMobile: '/uploads/img/hero-mobile.png'
         }
       })
 
@@ -1764,10 +1814,6 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImageMobile: 84
       })
-      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
-        84,
-        'Mobile grant hero'
-      )
     })
 
     it('clears heroImage when heroImage is explicitly empty in frontmatter', async () => {
@@ -1791,7 +1837,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantOverviewFrontmatter.title,
         description: '',
-        backgroundImage: null
+        media: null
       })
     })
 
@@ -1818,7 +1864,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantOverviewFrontmatter.title,
         description: '',
-        backgroundImage: 42
+        media: { image: 42, alternativeText: '' }
       })
     })
   })
@@ -1857,7 +1903,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imageAlt="Foo" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantOverviewPagePayload(
@@ -1877,8 +1923,7 @@ describe('buildGrantOverviewPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           displayRatio: '2:1',
-          image: 42,
-          imageAlt: 'Foo',
+          media: { image: 42, alternativeText: '' },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -2581,6 +2626,227 @@ describe('buildProfilePayload', () => {
       expect(payload).toBeInstanceOf(Error)
       expect((payload as Error).message).toContain('cta')
       expect((payload as Error).message).toContain('text')
+    })
+  })
+
+  describe('media', () => {
+    function stubStrapiWithUpload(
+      uploads: Record<string, number>
+    ): StrapiClient {
+      return {
+        findUploadByUrl: async (url: string) => uploads[url] ?? null,
+        findUploadByName: async () => null,
+        updateUploadAlt: async () => undefined
+      } as unknown as StrapiClient
+    }
+
+    it('resolves photo and photoAlt into the media component', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          photo: '/uploads/img/jane-doe.jpg',
+          photoAlt: 'Jane Doe smiling'
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapiWithUpload({ '/uploads/img/jane-doe.jpg': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).media).toEqual({
+        image: 42,
+        alternativeText: 'Jane Doe smiling'
+      })
+    })
+
+    it('defaults alternativeText to empty string when photoAlt is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          photo: '/uploads/img/jane-doe.jpg'
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapiWithUpload({ '/uploads/img/jane-doe.jpg': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).media).toEqual({
+        image: 42,
+        alternativeText: ''
+      })
+    })
+
+    it('omits media from the payload when photo is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: baseProfileFrontmatter
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapi()
+      )
+
+      expect(payload as Record<string, unknown>).not.toHaveProperty('media')
+    })
+  })
+})
+
+describe('buildBlogPayload', () => {
+  const baseBlogFrontmatter = {
+    title: 'Test post',
+    description: 'A test description',
+    date: '2026-06-10',
+    locale: 'en'
+  }
+
+  describe('featureMedia / thumbnailMedia', () => {
+    it('resolves featureImage and featureImageAlt into featureMedia', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/feature.jpg': 42
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          featureImage: '/uploads/img/feature.jpg',
+          featureImageAlt: 'A feature image'
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).featureMedia).toEqual({
+        image: 42,
+        alternativeText: 'A feature image'
+      })
+    })
+
+    it('omits featureMedia from the payload when featureImage is absent', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext()
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: baseBlogFrontmatter
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect(payload as Record<string, unknown>).not.toHaveProperty(
+        'featureMedia'
+      )
+    })
+
+    it('resolves thumbnailImage and thumbnailImageAlt into thumbnailMedia', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/thumb.jpg': 84
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          thumbnailImage: '/uploads/img/thumb.jpg',
+          thumbnailImageAlt: 'A thumbnail image'
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).thumbnailMedia).toEqual({
+        image: 84,
+        alternativeText: 'A thumbnail image'
+      })
+    })
+  })
+
+  describe('articleBio media', () => {
+    it('resolves bio.image and bio.imageAlt into media', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/jane.jpg': 7
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          articleBios: [
+            {
+              author: 'Jane Doe',
+              image: '/uploads/img/jane.jpg',
+              imageAlt: 'Jane Doe headshot'
+            }
+          ]
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).articleBio).toEqual([
+        {
+          author: 'Jane Doe',
+          link: null,
+          profileBio: null,
+          media: { image: 7, alternativeText: 'Jane Doe headshot' }
+        }
+      ])
+    })
+
+    it('sets media to null when the bio has no image', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext()
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          articleBios: [{ author: 'Jane Doe' }]
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).articleBio).toEqual([
+        {
+          author: 'Jane Doe',
+          link: null,
+          profileBio: null,
+          media: null
+        }
+      ])
     })
   })
 })

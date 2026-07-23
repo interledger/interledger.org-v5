@@ -475,16 +475,31 @@ export interface BlocksImageBlock extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
-    altText: Schema.Attribute.String
-    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
-    mobileImage: Schema.Attribute.Media<'images'>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    mobileImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     needsFullView: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<false>
     needsOutline: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<false>
-    tabletImage: Schema.Attribute.Media<'images'>
+    tabletImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -522,13 +537,6 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    image: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -536,6 +544,13 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'right'>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -765,18 +780,6 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'2:1'>
-    image: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    imageAlt: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -794,6 +797,12 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'image-text'>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     quote: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -970,6 +979,12 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
   attributes: {
     author: Schema.Attribute.String & Schema.Attribute.Required
     link: Schema.Attribute.String
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     profileBio: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -977,7 +992,6 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
           preset: 'basicMarkdownPreset'
         }
       >
-    profileImage: Schema.Attribute.Media<'images'>
   }
 }
 
@@ -1045,12 +1059,6 @@ export interface SharedHero extends Struct.ComponentSchema {
     icon: 'star'
   }
   attributes: {
-    backgroundImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     backgroundImageMobile: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1064,6 +1072,12 @@ export interface SharedHero extends Struct.ComponentSchema {
         }
       }>
     hero_call_to_action: Schema.Attribute.Component<'shared.cta-link', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1098,6 +1112,30 @@ export interface SharedHeroSection extends Struct.ComponentSchema {
         }
       }>
     hero_title: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface SharedLocalizedMedia extends Struct.ComponentSchema {
+  collectionName: 'components_shared_localized_media'
+  info: {
+    description: 'Image with per-locale alternative text and optional per-locale image override (for graphics with text baked in)'
+    displayName: 'Localized Media'
+    icon: 'picture'
+  }
+  attributes: {
+    alternativeText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1266,6 +1304,7 @@ declare module '@strapi/strapi' {
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection
+      'shared.localized-media': SharedLocalizedMedia
       'shared.primary-cta-link': SharedPrimaryCtaLink
       'shared.related-article': SharedRelatedArticle
       'shared.report-date': SharedReportDate

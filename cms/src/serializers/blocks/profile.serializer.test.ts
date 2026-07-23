@@ -5,9 +5,11 @@ const baseProfile = {
   name: 'Alice Example',
   pathSlug: 'alice-example',
   description: 'A great profile.',
-  photo: {
-    id: 1,
-    url: '/uploads/alice.jpg',
+  media: {
+    image: {
+      id: 1,
+      url: '/uploads/alice.jpg'
+    },
     alternativeText: 'Alice smiling'
   },
   category: 'Fellows 2026',
@@ -33,13 +35,12 @@ describe('profile serializer', () => {
     expect(serialize({})).toBe('')
   })
 
-  it('emits correct photoAlt from photo.alternativeText', () => {
+  it('emits correct photoAlt from media.alternativeText', () => {
     const result = serialize({
       profile: {
         ...baseProfile,
-        photo: {
-          id: 1,
-          url: '/uploads/alice.jpg',
+        media: {
+          image: { id: 1, url: '/uploads/alice.jpg' },
           alternativeText: 'Portrait of Alice'
         }
       }
@@ -48,11 +49,11 @@ describe('profile serializer', () => {
     expect(result).toContain('photoAlt="Portrait of Alice"')
   })
 
-  it('omits photoAlt when photo has no alternativeText', () => {
+  it('omits photoAlt when media has no alternativeText', () => {
     const result = serialize({
       profile: {
         ...baseProfile,
-        photo: { id: 1, url: '/uploads/alice.jpg' }
+        media: { image: { id: 1, url: '/uploads/alice.jpg' } }
       }
     })
 
@@ -63,7 +64,10 @@ describe('profile serializer', () => {
     const result = serialize({
       profile: {
         ...baseProfile,
-        photo: { id: 1, url: '/uploads/alice.jpg', alternativeText: '' }
+        media: {
+          image: { id: 1, url: '/uploads/alice.jpg' },
+          alternativeText: ''
+        }
       }
     })
 
@@ -75,7 +79,7 @@ describe('profile serializer', () => {
       profile: {
         name: 'Bob',
         pathSlug: 'bob',
-        photo: null,
+        media: null,
         category: null,
         tagline: null,
         description: null

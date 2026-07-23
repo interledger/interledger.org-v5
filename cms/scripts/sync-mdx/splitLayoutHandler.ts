@@ -3,16 +3,16 @@
  *
  * Handles:
  * - <SplitLayout imagePosition="left|right" displayRatio="1:1|1:2|2:1"
- *     imageSrc="..." imageAlt="..."
+ *     imageSrc="..."
  *     videoUrl="..." quote="..." quoteSource="..."
  *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}>
  *   children (markdown body for the content column)
  *   </SplitLayout>
  *
  * Maps to Strapi blocks.split-layout.
- * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload.
- * imageAlt maps to blocks.split-layout.imageAlt so alt text remains scoped to
- * this component instead of mutating the shared Strapi upload record.
+ * imageSrc is resolved to a Strapi upload ID via resolveMediaUpload and
+ * nested (with imageAlt) under the `media` shared.localized-media component,
+ * so alt text can be set per locale.
  */
 
 import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
@@ -130,8 +130,9 @@ async function handleSplitLayout(
       displayRatio
     }
 
-    if (isImageLayout && imageId) block.image = imageId
-    if (isImageLayout && imageAlt !== undefined) block.imageAlt = imageAlt
+    if (isImageLayout && imageId) {
+      block.media = { image: imageId, alternativeText: imageAlt ?? '' }
+    }
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
     if (isTextLayout && content) block.content = content
     if (isQuoteLayout && quote) block.quote = quote

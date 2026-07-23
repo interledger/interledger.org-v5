@@ -24,7 +24,10 @@ function ctxWith(uploads: Record<string, number>): ParserContext {
 describe('ImageBlock round-trip (serialize → parse)', () => {
   it('round-trips a plain image with alt text', async () => {
     const original = {
-      image: { url: '/img/diagram.png', alternativeText: 'A diagram' }
+      media: {
+        image: { url: '/img/diagram.png' },
+        alternativeText: 'A diagram'
+      }
     }
     const blocks = await parseMdxToBlocks(
       serialize(original),
@@ -34,8 +37,7 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.image-block',
-        image: 10,
-        altText: 'A diagram',
+        media: { image: 10, alternativeText: 'A diagram' },
         needsFullView: false,
         needsOutline: false
       }
@@ -44,7 +46,10 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
 
   it('round-trips needsFullView and needsOutline flags', async () => {
     const original = {
-      image: { url: '/img/diagram.png', alternativeText: 'A diagram' },
+      media: {
+        image: { url: '/img/diagram.png' },
+        alternativeText: 'A diagram'
+      },
       needsFullView: true,
       needsOutline: true
     }
@@ -54,7 +59,7 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      image: 10,
+      media: { image: 10 },
       needsFullView: true,
       needsOutline: true
     })
@@ -62,7 +67,7 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
 
   it('round-trips responsive tablet and mobile variants', async () => {
     const original = {
-      image: { url: '/img/desktop.png' },
+      media: { image: { url: '/img/desktop.png' } },
       tabletImage: { url: '/img/tablet.png' },
       mobileImage: { url: '/img/mobile.png' }
     }
@@ -76,7 +81,7 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      image: 1,
+      media: { image: 1 },
       tabletImage: 2,
       mobileImage: 3
     })
@@ -84,8 +89,10 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
 
   it('matches the shape the migrated posts use (needsFullView diagram)', async () => {
     const original = {
-      image: {
-        url: '/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png',
+      media: {
+        image: {
+          url: '/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png'
+        },
         alternativeText: 'The OAuth 2.0 Sequence Diagram'
       },
       needsFullView: true
@@ -100,8 +107,10 @@ describe('ImageBlock round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.image-block',
-        image: 422,
-        altText: 'The OAuth 2.0 Sequence Diagram',
+        media: {
+          image: 422,
+          alternativeText: 'The OAuth 2.0 Sequence Diagram'
+        },
         needsFullView: true,
         needsOutline: false
       }

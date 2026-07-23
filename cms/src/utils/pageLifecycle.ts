@@ -40,7 +40,7 @@ export interface PageData {
   hero?: {
     title?: string
     description?: string
-    backgroundImage?: { url?: string }
+    media?: { image?: { url?: string } | null; alternativeText?: string } | null
     hero_call_to_action?: {
       text?: string
       link?: string
@@ -200,6 +200,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     'heroTitle',
     'heroDescription',
     'heroImage',
+    'heroImageAlt',
     'heroCtas'
   ] as const
   for (const key of heroManagedKeys) {

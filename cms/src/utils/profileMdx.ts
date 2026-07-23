@@ -22,7 +22,7 @@ export interface ProfileMdxInput {
   pathSlug: string
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null
-  photo?: MediaFile | null
+  media?: { image?: MediaFile | null; alternativeText?: string } | null
   category?: string | null
   tagline?: string | null
   role?: string | null
@@ -50,8 +50,8 @@ export function generateProfileMdx(
   profile: ProfileMdxInput,
   englishSlug?: string
 ): string {
-  const photoUrl = getImageUrl(profile.photo) || null
-  const photoAlt = profile.photo?.alternativeText ?? profile.name
+  const photoUrl = getImageUrl(profile.media?.image) || null
+  const photoAlt = profile.media?.alternativeText ?? profile.name
   const isLocalized = profile.locale !== defaultLang
   const cta = ctaFrontmatter(profile.cta)
 

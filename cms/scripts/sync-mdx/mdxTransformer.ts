@@ -160,7 +160,7 @@ export function createMediaUploadResolver(
 interface StrapiHeroPayload {
   title: string
   description: string
-  backgroundImage?: number | null
+  media?: { image: number | null; alternativeText: string } | null
   backgroundImageMobile?: number | null
   hero_call_to_action?: {
     text: string
@@ -200,10 +200,7 @@ function buildHeroPayload(
  */
 async function buildHeroWithImage(
   parsed: Record<string, unknown>,
-  strapiUploadContext: StrapiUploadContext | undefined,
-  updatedAltIds: Map<number, string | null>,
-  pathSlug: string,
-  dryRun: boolean
+  strapiUploadContext: StrapiUploadContext | undefined
 ): Promise<Record<string, unknown> | null> {
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
@@ -228,8 +225,7 @@ async function buildHeroWithImage(
 
   async function resolveHeroImage(
     imageKey: 'heroImage' | 'heroImageMobile',
-    altKey: 'heroImageAlt' | 'heroImageMobileAlt',
-    targetKey: 'backgroundImage' | 'backgroundImageMobile'
+    targetKey: 'media' | 'backgroundImageMobile'
   ): Promise<void> {
     if (!hasField(imageKey) || !strapiUploadContext) return
 
@@ -238,26 +234,20 @@ async function buildHeroWithImage(
     })
     if (!heroPayload) heroPayload = {}
     const hero = heroPayload as unknown as StrapiHeroPayload
-    hero[targetKey] = uploadId ?? null
-
-    if (uploadId && parsed[altKey] !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        uploadId,
-        nullOrValue(parsed[altKey]),
-        updatedAltIds,
-        pathSlug,
-        dryRun
-      )
+    if (targetKey === 'media') {
+      hero.media = uploadId
+        ? {
+            image: uploadId,
+            alternativeText: (parsed.heroImageAlt as string | undefined) ?? ''
+          }
+        : null
+    } else {
+      hero[targetKey] = uploadId ?? null
     }
   }
 
-  await resolveHeroImage('heroImage', 'heroImageAlt', 'backgroundImage')
-  await resolveHeroImage(
-    'heroImageMobile',
-    'heroImageMobileAlt',
-    'backgroundImageMobile'
-  )
+  await resolveHeroImage('heroImage', 'media')
+  await resolveHeroImage('heroImageMobile', 'backgroundImageMobile')
 
   return heroPayload
 }
@@ -280,9 +270,7 @@ export async function buildPagePayload(
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null,
   parserCtx?: ParserContext,
-  strapiUploadContext?: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  dryRun = false
+  strapiUploadContext?: StrapiUploadContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     // Validate frontmatter against schema (throws if invalid)
@@ -299,13 +287,7 @@ export async function buildPagePayload(
       ...(parsed.pillar ? { pillar: parsed.pillar } : {})
     }
 
-    data.hero = await buildHeroWithImage(
-      parsed,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
-    )
+    data.hero = await buildHeroWithImage(parsed, strapiUploadContext)
 
     // Handle content import
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -463,9 +445,9 @@ function ctaPayload(
 /**
  * Builds a Strapi payload for a profile-page MDX file.
  *
- * Also patches the photo upload file's alternativeText when photoAlt is
- * present in frontmatter, so alt text survives re-exports, and maps the
- * optional `cta` frontmatter object to the `shared.cta-link` component.
+ * Maps the `photo`/`photoAlt` frontmatter pair to the `media` shared.localized-media
+ * component, and the optional `cta` frontmatter object to the `shared.cta-link`
+ * component.
  *
  * Returns `Record<string, unknown> | Error`.
  */
@@ -474,9 +456,7 @@ export async function buildProfilePayload(
   mdx: MDXFile,
   strapi: StrapiClient,
   existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  dryRun = false
+  parserCtx?: ParserContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -494,22 +474,16 @@ export async function buildProfilePayload(
       )
     }
 
-    if (photoId) {
-      const photoAltFrontmatter = mdx.frontmatter.photoAlt as
-        | string
-        | null
-        | undefined
-      if (photoAltFrontmatter !== undefined) {
-        await updateUploadAltOnce(
-          strapi,
-          photoId,
-          nullOrValue(photoAltFrontmatter),
-          updatedAltIds,
-          mdx.pathSlug,
-          dryRun
-        )
-      }
-    }
+    const photoAltFrontmatter = mdx.frontmatter.photoAlt as
+      | string
+      | null
+      | undefined
+    const media = photoId
+      ? {
+          image: photoId,
+          alternativeText: nullOrValue(photoAltFrontmatter) ?? ''
+        }
+      : null
 
     const cta = ctaPayload(mdx.frontmatter.cta, mdx.pathSlug)
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -519,7 +493,7 @@ export async function buildProfilePayload(
       pathSlug: mdx.pathSlug,
       ...(mdx.frontmatter.section ? { section: mdx.frontmatter.section } : {}),
       ...(content !== undefined ? { content } : {}),
-      ...(photoId ? { photo: photoId } : {}),
+      ...(media ? { media } : {}),
       category: nullOrValue(mdx.frontmatter.category),
       tagline: nullOrValue(mdx.frontmatter.tagline),
       description: nullOrValue(mdx.frontmatter.description as string),
@@ -607,10 +581,7 @@ export async function buildGrantPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
+      strapiUploadContext
     )
 
     const parserCtx: ParserContext | undefined = strapi
@@ -694,10 +665,7 @@ export async function buildGrantOverviewPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      dryRun
+      strapiUploadContext
     )
 
     const strapi = strapiUploadContext?.strapi
@@ -900,6 +868,15 @@ export async function buildBlogPayload(
     const thumbnailImage = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.thumbnailImage
     })
+    const featureMedia = featureImage
+      ? { image: featureImage, alternativeText: parsed.featureImageAlt ?? '' }
+      : null
+    const thumbnailMedia = thumbnailImage
+      ? {
+          image: thumbnailImage,
+          alternativeText: parsed.thumbnailImageAlt ?? ''
+        }
+      : null
 
     const categories = (parsed.categories ?? []).map((category) => ({
       categoryValue: category
@@ -916,53 +893,26 @@ export async function buildBlogPayload(
             image: bio.image
           })) || null
 
-        if (profileImageId && bio.imageAlt !== undefined) {
-          await updateUploadAltOnce(
-            strapiUploadContext.strapi,
-            profileImageId,
-            nullOrValue(bio.imageAlt),
-            updatedAltIds,
-            mdx.pathSlug,
-            dryRun
-          )
-        }
-
         return {
           author: bio.author,
           link: bio.link || null,
           profileBio: bio.text || null,
-          profileImage: profileImageId
+          media: profileImageId
+            ? { image: profileImageId, alternativeText: bio.imageAlt ?? '' }
+            : null
         }
       })
     )
 
     // getImageFromStrapi only sets alt text on newly uploaded files.
     // For existing files (found by name), patch alt text explicitly.
-    if (featureImage && parsed.featureImageAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        featureImage,
-        nullOrValue(parsed.featureImageAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
+    // featureImage/thumbnailImage alt text now lives on featureMedia/thumbnailMedia
+    // (shared.localized-media), so only the plain-media mobile variant needs this.
     if (featureImageMobile && parsed.featureImageMobileAlt !== undefined) {
       await updateUploadAltOnce(
         strapiUploadContext.strapi,
         featureImageMobile,
         nullOrValue(parsed.featureImageMobileAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
-    if (thumbnailImage && parsed.thumbnailImageAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        thumbnailImage,
-        nullOrValue(parsed.thumbnailImageAlt),
         updatedAltIds,
         mdx.pathSlug,
         dryRun
@@ -1008,9 +958,9 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
-      featureImage,
+      ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
-      thumbnailImage,
+      ...(thumbnailMedia ? { thumbnailMedia } : {}),
       articleBio,
       categories,
       relatedArticles,
