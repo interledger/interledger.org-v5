@@ -15,7 +15,7 @@
 import fs from 'fs'
 import path from 'path'
 import { config } from 'dotenv'
-import { getProjectRoot, PATHS } from '@/utils'
+import { getProjectRoot, PATHS, validateImageFileSize } from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
 
 config({ path: path.resolve(process.cwd(), '../.env'), quiet: true })
@@ -96,6 +96,7 @@ async function main() {
   let totalRegistered = 0
   let totalMissing = 0
   let totalFailed = 0
+  let totalOversized = 0
 
   for (const { dir, urlPrefix } of SCAN_DIRS) {
     const absDir = path.join(projectRoot, dir)
@@ -112,6 +113,14 @@ async function main() {
     for (const filePath of files) {
       const relativePath = path.relative(absDir, filePath)
       const expectedUrl = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
+
+      const sizeError = validateImageFileSize(filePath)
+      if (sizeError) {
+        console.log(`  ⚠️  Oversized: ${expectedUrl}`)
+        console.log(`      ${sizeError.message}`)
+        totalOversized++
+        continue
+      }
 
       try {
         const existing = await findByUrl(expectedUrl)
@@ -133,7 +142,7 @@ async function main() {
   }
 
   console.log(
-    `\nSummary: ${totalRegistered} registered, ${totalMissing} missing, ${totalFailed} errors`
+    `\nSummary: ${totalRegistered} registered, ${totalMissing} missing, ${totalOversized} oversized, ${totalFailed} errors`
   )
 
   if (totalMissing > 0) {

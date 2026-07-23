@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
   scheduleGitSync,
@@ -22,6 +23,13 @@ import {
 } from './utils'
 import { validateContentBlocks } from './serializers/blocks'
 import { errors } from '@strapi/utils'
+import {
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit,
+  IMAGE_EXTENSIONS,
+  MAX_IMAGE_SIZE_LABEL
+} from './utils/uploadLimits'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -358,6 +366,72 @@ async function ensureLocales(strapi: StrapiInstance) {
 const UPLOAD_SUBDIR = 'img/original'
 const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
 
+function getUploadFileSizeBytes(file: UploadFile): number {
+  if (typeof file.size === 'number') return file.size
+  if (file.buffer) return file.buffer.length
+  return 0
+}
+
+function normalizeUploadExt(ext: string): string {
+  const lower = ext.toLowerCase()
+  // Strapi's `file.ext` normally includes the leading dot (".png"); IMAGE_EXTENSIONS
+  // / MIME_BY_EXT keys use that same format. Normalize so a bare "png" still matches.
+  return lower.startsWith('.') ? lower : `.${lower}`
+}
+
+function isImageUpload(file: UploadFile): boolean {
+  const mime = typeof file.mime === 'string' ? file.mime : ''
+  if (mime.startsWith('image/')) return true
+  // Explicit non-image MIME (e.g. application/pdf, video/*) must not fall
+  // through to the extension check — seedable media includes those too.
+  if (mime) return false
+
+  const rawExt = typeof file.ext === 'string' ? file.ext : ''
+  if (!rawExt) return false
+  return IMAGE_EXTENSIONS.has(normalizeUploadExt(rawExt))
+}
+
+function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
+  if (!isImageUpload(file)) return
+
+  const sizeBytes = getUploadFileSizeBytes(file)
+  // size/buffer unknown (0) — stream uploads are enforced mid-pipe instead.
+  if (sizeBytes > 0 && isImageOverSizeLimit(sizeBytes)) {
+    throw new errors.ApplicationError(imageSizeLimitError(label, sizeBytes))
+  }
+}
+
+function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
+  if (!isImageUpload(file)) return
+
+  const { size } = fs.statSync(dest)
+  if (isImageOverSizeLimit(size)) {
+    fs.unlinkSync(dest)
+    throw new errors.ApplicationError(imageSizeLimitError(dest, size))
+  }
+}
+
+/**
+ * Counts bytes while piping an image upload so we can abort as soon as the
+ * stream exceeds the 2 MB image limit, instead of writing a huge file and
+ * unlinking it in the post-write check (when `file.size` / `buffer` were absent).
+ */
+function createImageSizeLimitTransform(label: string): Transform {
+  let bytesSeen = 0
+  return new Transform({
+    transform(chunk, _encoding, callback) {
+      bytesSeen += chunk.length
+      if (isImageOverSizeLimit(bytesSeen)) {
+        callback(
+          new errors.ApplicationError(imageSizeLimitError(label, bytesSeen))
+        )
+        return
+      }
+      callback(null, chunk)
+    }
+  })
+}
+
 /**
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
@@ -376,19 +450,50 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   const provider = uploadPlugin.provider
+  const originalCheckFileSize = provider.checkFileSize?.bind(provider)
+
+  provider.checkFileSize = (file: UploadFile, options?: unknown) => {
+    originalCheckFileSize?.(file, options)
+    const label =
+      typeof file.name === 'string'
+        ? file.name
+        : `${file.hash ?? 'upload'}${file.ext ?? ''}`
+    assertImageWithinUploadLimit(file, label)
+  }
 
   provider.uploadStream = async (file: UploadFile) => {
     const stream = file.stream ?? file.getStream?.()
     if (!stream) throw new Error('Missing file stream')
+    const label =
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
-    await pipeline(stream, fs.createWriteStream(dest))
+    try {
+      if (isImageUpload(file)) {
+        await pipeline(
+          stream,
+          createImageSizeLimitTransform(label),
+          fs.createWriteStream(dest)
+        )
+      } else {
+        await pipeline(stream, fs.createWriteStream(dest))
+      }
+    } catch (err) {
+      if (fs.existsSync(dest)) fs.unlinkSync(dest)
+      throw err
+    }
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
   provider.upload = async (file: UploadFile) => {
     if (!file.buffer) throw new Error('Missing file buffer')
+    const label =
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -405,7 +510,9 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     }
   }
 
-  strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
+  strapi.log.info(
+    `✅ Upload provider redirected to ${uploadPath} (${MAX_IMAGE_SIZE_LABEL} limit enforced)`
+  )
 }
 
 /**
@@ -509,6 +616,12 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
       if (existing) continue
 
       const stat = fs.statSync(filePath)
+      if (IMAGE_EXTENSIONS.has(ext) && isImageOverSizeLimit(stat.size)) {
+        strapi.log.warn(
+          `⚠️  Skipping seed for oversized image (${formatImageSize(stat.size)}): ${url}`
+        )
+        continue
+      }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
       const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
 
@@ -978,6 +1091,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
+      displayRatio: 'Display ratio',
       // Deliberately not "Image" — SplitLayoutTypePicker.tsx's field show/hide
       // logic identifies the nested media picker by its exact label text
       // ("Image", from shared.localized-media's own field label) and would
@@ -1077,6 +1191,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType:
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
+      displayRatio:
+        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
       quote:
@@ -1425,9 +1541,12 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.split-layout': [
       [{ name: 'layoutType', size: 12 }],
+      [{ name: 'image', size: 12 }],
       [
-        { name: 'imagePosition', size: 4 },
-        { name: 'videoUrl', size: 8 }
+        { name: 'imagePosition', size: 3 },
+        { name: 'displayRatio', size: 3 },
+        { name: 'imageAlt', size: 6 },
+        { name: 'videoUrl', size: 6 }
       ],
       [{ name: 'media', size: 12 }],
       [{ name: 'content', size: 12 }],

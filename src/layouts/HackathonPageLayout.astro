@@ -1,7 +1,8 @@
 ---
 /**
- * Summit site layout.
- * Extends BaseLayout with Summit header/footer and dark theme.
+ * Hackathon site layout.
+ * Extends BaseLayout with Summit header/footer and dark theme — Hackathon
+ * has no chrome of its own yet, so it borrows Summit's for now.
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
@@ -24,14 +25,14 @@ const {
   title,
   description,
   gradient = 'option1',
-  ogImageUrl = new URL('/img/og-summit.png', site).href,
+  ogImageUrl = new URL('/img/og-hackathon.png', site).href,
   canonicalURL
 } = Astro.props
 ---
 
 <BaseLayout
   title={title}
-  titleSuffix={t('site.title.summit')}
+  titleSuffix={t('site.title.hackathon')}
   description={description}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}

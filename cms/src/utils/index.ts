@@ -1,6 +1,25 @@
 // Error handling
 export { tryCatchAsync } from './tryCatch'
 
+// Upload limits (mirrored in src/utils/shared/uploadLimits.ts)
+export {
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_SIZE_LABEL,
+  IMAGE_EXTENSIONS,
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit,
+  isImagePath
+} from './uploadLimits'
+
+// Upload validation
+export {
+  isLocalImagePath,
+  resolvePublicImagePath,
+  validateImageFileSize,
+  validateLocalImageUrl
+} from './uploadValidation'
+
 // Paths & configuration
 export {
   getProjectRoot,

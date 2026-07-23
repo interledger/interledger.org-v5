@@ -1,6 +1,5 @@
 ---
 import { getCollection, render } from 'astro:content'
-import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
@@ -17,7 +16,8 @@ import {
   getProfileColorIndex,
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
-  getOptimizedImage
+  getOptimizedImage,
+  getSectionPageLayout
 } from '@/utils'
 
 interface Props {
@@ -71,12 +71,11 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   routeLocale,
   t('nav.home')
 )
+
+const Layout = getSectionPageLayout(entry.data.section)
 ---
 
-<FoundationPageLayout
-  title={title}
-  description={description ?? displayRole ?? name}
->
+<Layout title={title} description={description ?? displayRole ?? name}>
   {
     avatarSrc && (
       <link
@@ -183,4 +182,4 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
       }
     </div>
   </main>
-</FoundationPageLayout>
+</Layout>

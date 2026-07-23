@@ -31,11 +31,11 @@ const canonicalMeta = buildCanonicalMeta(
 )
 const {
   title,
-  titleSuffix = t('site.title'),
+  titleSuffix = t('site.title.foundation'),
   description = t('site.description'),
   theme = 'light',
   ogType = 'website',
-  ogImageUrl = new URL('/img/blog/og-ilf.png', Astro.site).href,
+  ogImageUrl = new URL('/img/og-foundation.png', Astro.site).href,
   canonicalURL = canonicalMeta.canonical,
   bodyClass = '',
   bodyStyle = '',

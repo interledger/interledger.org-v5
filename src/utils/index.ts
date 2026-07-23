@@ -19,6 +19,13 @@ export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
 export { parseStatNumber, formatStatNumber } from './shared/parseStatNumber'
+export {
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_SIZE_LABEL,
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit
+} from './shared/uploadLimits'
 
 // Main site: URL & routing
 export {
@@ -71,6 +78,7 @@ export {
   type BreadcrumbItem,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
+export { getSectionPageLayout } from './main/sectionLayout'
 export {
   type BlogTaxonomy,
   getBlogTaxonomy,

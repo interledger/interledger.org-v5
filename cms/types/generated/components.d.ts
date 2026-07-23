@@ -772,6 +772,14 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    displayRatio: Schema.Attribute.Enumeration<['1:1', '1:2', '2:1']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'2:1'>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

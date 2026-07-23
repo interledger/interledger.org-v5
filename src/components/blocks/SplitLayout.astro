@@ -5,10 +5,19 @@ import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 
+/** Content-to-media column ratio (admin labels). Astro maps these to grid `fr` tracks. */
+export type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
+
 interface Props {
   layoutType?: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   /** Which side the image or video column appears on. Default: right. */
   imagePosition?: 'left' | 'right'
+  /**
+   * Content : media width ratio. Default: 2:1 (matches the pre-ratio layout:
+   * media roughly capped near 22rem with content taking the rest).
+   * Uses CSS grid `fr` units with the design-system 120px (`gap-6xl`) gutter.
+   */
+  displayRatio?: SplitLayoutDisplayRatio
   imageSrc?: string
   /** Sourced from the SplitLayout block’s per-locale media component (`shared.localized-media.alternativeText`) */
   imageAlt?: string
@@ -21,9 +30,33 @@ interface Props {
   ctaExternal?: boolean
 }
 
+const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
+
+/** Full class strings so Tailwind can detect them at build time. */
+const GRID_COLS_BY_ORDER_AND_RATIO = {
+  // media column first in the DOM (imagePosition=left)
+  left: {
+    '1:1': 'tablet:grid-cols-2',
+    // content:media 2:1 → media 1fr, content 2fr
+    '2:1': 'tablet:grid-cols-[1fr_2fr]',
+    // content:media 1:2 → media 2fr, content 1fr
+    '1:2': 'tablet:grid-cols-[2fr_1fr]'
+  },
+  // content column first in the DOM (imagePosition=right)
+  right: {
+    '1:1': 'tablet:grid-cols-2',
+    '2:1': 'tablet:grid-cols-[2fr_1fr]',
+    '1:2': 'tablet:grid-cols-[1fr_2fr]'
+  }
+} as const satisfies Record<
+  'left' | 'right',
+  Record<SplitLayoutDisplayRatio, string>
+>
+
 const {
   layoutType,
   imagePosition = 'right',
+  displayRatio: displayRatioProp,
   imageSrc,
   imageAlt,
   videoUrl,
@@ -35,6 +68,13 @@ const {
   ctaExternal
 } = Astro.props
 
+// Unknown ratios fall back to 2:1 here; sync handler/serializer hard-fail instead.
+const displayRatio: SplitLayoutDisplayRatio =
+  displayRatioProp &&
+  (DISPLAY_RATIOS as readonly string[]).includes(displayRatioProp)
+    ? displayRatioProp
+    : '2:1'
+
 const isVideoLayout = layoutType
   ? layoutType.startsWith('video')
   : Boolean(videoUrl)
@@ -43,18 +83,24 @@ const isQuoteLayout = layoutType
   : Boolean(quote)
 const hasMedia = isVideoLayout ? Boolean(videoUrl) : Boolean(imageSrc)
 const mediaFirst = imagePosition === 'left'
-const mediaColumnClass =
-  'w-full tablet:w-[45%] tablet:max-w-[22rem] tablet:shrink-0'
-const contentColumnClass =
-  'w-full flex flex-col gap-2xl tablet:min-w-0 tablet:flex-1'
+
+const gridColsClass = hasMedia
+  ? GRID_COLS_BY_ORDER_AND_RATIO[mediaFirst ? 'left' : 'right'][displayRatio]
+  : 'tablet:grid-cols-1'
+
+const columnClass = 'w-full min-w-0'
+const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
 ---
 
 <div
-  class="mt-0 mb-5xl flex flex-col gap-3xl tablet:my-5xl tablet:flex-row tablet:items-center tablet:gap-6xl"
+  class:list={[
+    'mt-0 mb-5xl flex flex-col gap-3xl tablet:my-5xl tablet:grid tablet:items-center tablet:gap-6xl',
+    gridColsClass
+  ]}
 >
   {
     mediaFirst && hasMedia && (
-      <div class={mediaColumnClass}>
+      <div class={columnClass}>
         {isVideoLayout && videoUrl ? (
           <VideoEmbed url={videoUrl} title="Video" />
         ) : imageSrc ? (
@@ -99,7 +145,7 @@ const contentColumnClass =
 
   {
     !mediaFirst && hasMedia && (
-      <div class={mediaColumnClass}>
+      <div class={columnClass}>
         {isVideoLayout && videoUrl ? (
           <VideoEmbed url={videoUrl} title="Video" />
         ) : imageSrc ? (

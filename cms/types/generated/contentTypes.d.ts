@@ -738,10 +738,8 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.profile',
         'blocks.profile-grid',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
@@ -825,7 +823,6 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.paragraph',
         'blocks.split-layout',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
@@ -923,7 +920,6 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.paragraph',
         'blocks.split-layout',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
@@ -1338,10 +1334,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.profile',
         'blocks.profile-grid',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'

@@ -1,6 +1,6 @@
 # Interledger.org Website
 
-![Interledger Foundation](https://github.com/interledger/interledger.org-v5/blob/main/public/img/blog/og-ilf.png)
+![Interledger Foundation](https://github.com/interledger/interledger.org-v5/blob/main/public/img/og-foundation.png)
 
 This repository contains the source code for the [Interledger Foundation website](https://interledger.org), built with [Astro](https://astro.build/), [Starlight](https://starlight.astro.build/) for documentation, and [Strapi](https://strapi.io/) as a headless CMS.
 
