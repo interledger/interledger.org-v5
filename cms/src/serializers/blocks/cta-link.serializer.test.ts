@@ -61,4 +61,14 @@ describe('cta-link serializer', () => {
       'CtaLink block is missing link'
     )
   })
+
+  it('throws when style is not "primary" or "secondary"', () => {
+    expect(() =>
+      serialize({
+        text: 'Apply now',
+        link: 'https://example.com',
+        style: 'tertiary'
+      })
+    ).toThrow('CtaLink "style" must be one of primary, secondary')
+  })
 })
