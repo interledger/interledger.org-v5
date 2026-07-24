@@ -1,6 +1,8 @@
 export const ui = {
   en: {
-    'site.title': 'Interledger Foundation',
+    'site.title.foundation': 'Interledger Foundation',
+    'site.title.summit': 'Interledger Summit',
+    'site.title.hackathon': 'Interledger Hackathon',
     'site.description': 'Making payments as easy as sending an email',
     'nav.home': 'Home',
     'nav.breadcrumb': 'Breadcrumb',
@@ -237,7 +239,9 @@ export const ui = {
     'not_found.card3_cta': 'Community'
   },
   es: {
-    'site.title': '',
+    'site.title.foundation': '',
+    'site.title.summit': '',
+    'site.title.hackathon': '',
     'site.description': '',
     'nav.home': '',
     'nav.breadcrumb': '',

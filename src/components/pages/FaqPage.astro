@@ -1,6 +1,5 @@
 ---
 import { getCollection } from 'astro:content'
-import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
@@ -8,7 +7,8 @@ import {
   type Locale,
   useTranslations,
   buildSectionEntryBreadcrumbs,
-  parseMarkdown
+  parseMarkdown,
+  getSectionPageLayout
 } from '@/utils'
 
 interface Props {
@@ -43,13 +43,11 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   routeLocale,
   t('nav.home')
 )
+
+const Layout = getSectionPageLayout(entry.data.section)
 ---
 
-<FoundationPageLayout
-  title={title}
-  description={description}
-  headerTheme="light"
->
+<Layout title={title} description={description}>
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
@@ -79,4 +77,4 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
       </section>
     </div>
   </main>
-</FoundationPageLayout>
+</Layout>

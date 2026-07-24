@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
-import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -42,11 +42,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 )
 ---
 
-<FoundationPageLayout
-  title={title}
-  description={description}
-  headerTheme="light"
->
+<HackathonPageLayout title={title} description={description}>
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
@@ -66,4 +62,4 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
       </section>
     </div>
   </main>
-</FoundationPageLayout>
+</HackathonPageLayout>

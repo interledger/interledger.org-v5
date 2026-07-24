@@ -2,7 +2,8 @@
  * SplitLayout component handler for the MDX block parser.
  *
  * Handles:
- * - <SplitLayout imagePosition="left|right" imageSrc="..." imageAlt="..."
+ * - <SplitLayout imagePosition="left|right" displayRatio="1:1|1:2|2:1"
+ *     imageSrc="..." imageAlt="..."
  *     videoUrl="..." quote="..." quoteSource="..."
  *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}>
  *   children (markdown body for the content column)
@@ -52,6 +53,19 @@ async function handleSplitLayout(
         message: `SplitLayout "imagePosition" must be "left" or "right". Received "${imagePosition}".`,
         component: 'SplitLayout',
         prop: 'imagePosition',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
+
+    const displayRatioAttr = getStringAttr(node, 'displayRatio')
+    const displayRatio = displayRatioAttr ?? '2:1'
+    if (!isDisplayRatio(displayRatio)) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `SplitLayout "displayRatio" must be "1:1", "1:2", or "2:1". Received "${displayRatioAttr}".`,
+        component: 'SplitLayout',
+        prop: 'displayRatio',
         line: node.position?.start.line,
         column: node.position?.start.column
       })
@@ -112,7 +126,8 @@ async function handleSplitLayout(
     const block: SplitLayoutBlock = {
       __component: 'blocks.split-layout',
       layoutType,
-      imagePosition: imagePosition as 'left' | 'right'
+      imagePosition: imagePosition as 'left' | 'right',
+      displayRatio
     }
 
     if (isImageLayout && imageId) block.image = imageId
@@ -146,4 +161,10 @@ function isSplitLayoutType(
     value === 'video-text' ||
     value === 'video-quote'
   )
+}
+
+function isDisplayRatio(
+  value: string
+): value is NonNullable<SplitLayoutBlock['displayRatio']> {
+  return value === '1:1' || value === '1:2' || value === '2:1'
 }
