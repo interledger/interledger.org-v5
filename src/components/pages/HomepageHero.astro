@@ -109,7 +109,7 @@ const heroUmami = (href: string, linkText: string) =>
       fetchpriority="high"
       media={heroMedia}
       sizes={heroSizes}
-      pictureClass="hero-stefan-picture absolute inset-0 hidden tablet:block"
+      pictureClass="absolute inset-0 hidden tablet:block"
       class="hero-stefan-photo h-full w-full object-cover"
     />
   </div>
@@ -240,21 +240,10 @@ const heroUmami = (href: string, linkText: string) =>
     }
   }
 
-  @keyframes hero-photo-appear {
-    /* from sets visibility: visible immediately when the active phase starts
-       (after the 100ms delay). During the delay the element's own CSS keeps
-       visibility: hidden — so no painting happens until the fade begins. */
-    from {
-      visibility: visible;
-      opacity: 0;
-    }
-    to {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-
   @media (min-width: 810px) and (max-width: 1879px) {
+    [data-component='HomepageHero'] {
+      --hero-stefan-offset-x: -2vw;
+    }
     [data-component='HomepageHero'] .hero-stefan-photo {
       transform-origin: right top;
     }
