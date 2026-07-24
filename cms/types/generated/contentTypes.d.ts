@@ -921,7 +921,8 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.image-block',
         'blocks.cta-strip',
         'blocks.carousel',
-        'blocks.profile-grid'
+        'blocks.profile-grid',
+        'shared.cta-link'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

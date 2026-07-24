@@ -39,6 +39,7 @@ import './carouselHandler'
 import './imageBlockHandler'
 import './numberTilesHandler'
 import './titleCardGridHandler'
+import './ctaLinkHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 

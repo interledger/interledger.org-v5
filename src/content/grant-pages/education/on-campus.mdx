@@ -3,11 +3,19 @@ title: 'On-Campus Financial Education Grant - DEMO page'
 pathSlug: 'education/on-campus'
 description: 'Funding for universities and colleges developing financial literacy curricula for students from underserved communities.'
 locale: 'en'
+heroTitle: 'On-Campus Financial Education Grant'
+heroDescription: 'Applications for the inaugural cycle of the On-Campus Financial Education Grant are now being accepted. This grant supports projects that advance the Interledger Protocol.'
+heroImage: '/uploads/img/original/demo_image1_45cfe556e1.jpg'
+heroImageAlt: 'University of Hong Kong text for alt image'
+heroCtas:
+  - text: 'Apply Now'
+    link: 'https://interledger.submittable.com/submit'
+    external: true
+programOverview: "## Program Overview\n\nThe On-Campus Financial Education Grant supports universities and colleges in developing financial literacy programs for students from underserved communities. Grants of up to $50,000 are available for projects that integrate open payments standards into coursework, workshops, or student-led initiatives."
 primaryCta:
   text: 'Apply Now'
   link: 'https://interledger.submittable.com/submit'
   external: true
-programOverview: "## Program Overview\n\nThe On-Campus Financial Education Grant supports universities and colleges in developing financial literacy programs for students from underserved communities. Grants of up to $50,000 are available for projects that integrate open payments standards into coursework, workshops, or student-led initiatives."
 infoCards:
   cards:
     - heading: 'Why Apply'
@@ -37,15 +45,19 @@ ctaStrip:
   buttonText: 'Start your application'
   buttonLink: 'https://interledger.submittable.com/submit'
   color: 'purple'
-heroTitle: 'On-Campus Financial Education Grant'
-heroDescription: 'Applications for the inaugural cycle of the On-Campus Financial Education Grant are now being accepted. This grant supports projects that advance the Interledger Protocol.'
-heroImage: '/uploads/img/original/demo_image1_45cfe556e1.jpg'
-heroImageAlt: ''
-heroCtas:
-  - text: 'Apply Now'
-    link: 'https://interledger.submittable.com/submit'
-    external: true
 ---
+
+<Paragraph>
+
+On-Campus Financial Education Grant Program is dedicated to empowering innovators who are building the future of the Interledger Protocol (ILP). We offer various grants to support projects that enhance the interoperability, scalability, and real-world applicability of ILP. Our funding supports a diverse range of initiatives, from cutting-edge research to community-driven development. We are committed to fostering a collaborative ecosystem where developers, researchers, and organizations can come together to advance the Interledger Protocol and create a more connected and inclusive global financial system.
+
+</Paragraph>
+
+<CtaLink
+  text="Secondary Button"
+  link="/grant/digital-finance"
+  style="secondary"
+/>
 
 <SplitLayout
   layoutType="image-quote"
@@ -54,6 +66,22 @@ heroCtas:
   quote="Students who complete Interledger-funded coursework leave with practical experience building on open payment standards — skills that translate directly into fintech, open banking, and digital inclusion careers."
   quoteSource="Students"
 />
+
+<SplitLayout
+  layoutType="image-quote"
+  imagePosition="left"
+  imageSrc="/uploads/img/original/erica.png"
+  imageAlt="Erica"
+  quote='"At Interledger, we envision a world where sending value across the internet is as seamless as sending an email. Our work is dedicated to making this vision a reality, fostering a more connected and inclusive global economy."'
+/>
+
+<SplitLayout
+  layoutType="video-text"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+>
+  Interledger is designed to help systems operate as a network, and fund those
+  working to make financial access open and fair at a global scale.
+</SplitLayout>
 
 <Paragraph>
 
@@ -71,24 +99,5 @@ heroCtas:
     'grant/fellowship/victoria-coker',
     'grant/fellowship/stephanie-perrin',
     'grant/fellowship/andria-barrett'
-  ]}
-/>
-
-<LogoCarousel
-  heading="In partnership with: "
-  accessibilityLabel="Our Partners"
-  logos={[
-    {
-      name: 'Plata',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderon.avif'
-    },
-    {
-      name: 'Western Sydney University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0001_WSU_Logo_LeftAligned_Centred_RGB.avif'
-    },
-    {
-      name: '',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0003_UCT-Logo.avif'
-    }
   ]}
 />
