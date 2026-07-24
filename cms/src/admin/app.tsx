@@ -192,6 +192,10 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
+      /* TEMP UI Fix: hide Media Library Alternative text — set alt on localized-media per locale instead */
+      div:has(> div > input[name="alternativeText"]) {
+        display: none !important;
+      }
     `
     document.head.appendChild(style)
 
