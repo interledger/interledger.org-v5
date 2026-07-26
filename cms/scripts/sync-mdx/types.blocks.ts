@@ -189,6 +189,15 @@ export interface NumberTilesBlock extends StrapiBlockBase {
   tiles: { number: string; suffix?: string; description: string }[]
 }
 
+/** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
+export interface CtaLinkBlock extends StrapiBlockBase {
+  __component: 'shared.cta-link'
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
 /** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
 export interface TitleCard {
   heading: string
@@ -232,3 +241,4 @@ export type ParsedBlock =
   | ImageBlockBlock
   | NumberTilesBlock
   | TitleCardGridBlock
+  | CtaLinkBlock

@@ -23,6 +23,7 @@ import CodeBlock from './CodeBlock.astro'
 import SplitLayout from './SplitLayout.astro'
 import NumberTiles from './NumberTiles.astro'
 import TitleCardGrid from './TitleCardGrid.astro'
+import CtaLink from './CtaLink.astro'
 
 interface Block {
   __component: string
@@ -52,7 +53,8 @@ const componentMap: Record<string, any> = {
   'blocks.code-block': CodeBlock,
   'blocks.split-layout': SplitLayout,
   'blocks.number-tiles': NumberTiles,
-  'blocks.title-card-grid': TitleCardGrid
+  'blocks.title-card-grid': TitleCardGrid,
+  'shared.cta-link': CtaLink
 }
 
 const resolvedBlocks = blocks
