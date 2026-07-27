@@ -730,7 +730,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
       name: 'Name',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       photo: 'Photo',
       tagline: 'Tag line',
@@ -742,7 +742,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Short Description',
-      pathSlug: 'Full Path Slug',
+      pathSlug: 'Path Slug',
       date: 'Publish Date',
       lastUpdated: 'Last Updated',
       featured: 'Featured',
@@ -757,22 +757,21 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
-      pathSlug: 'Full Path Slug',
-      pillar: 'Brand Pillar',
-      seo: 'SEO',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
       hero: 'Hero',
       content: 'Page Content'
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      pathSlug: 'Full Path Slug',
-      seo: 'SEO',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
       hero: 'Hero',
       content: 'Content'
     },
     'api::hackathon-page.hackathon-page': {
       title: 'Page Title',
-      pathSlug: 'Full Path Slug',
+      pathSlug: 'Path Slug',
       description: 'Short Description',
       content: 'Page Content'
     },
@@ -807,7 +806,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::faq.faq': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       heading: 'Heading',
       description: 'Short Description',
@@ -816,7 +815,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::report.report': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       heading: 'Heading',
       description: 'Short Description',
@@ -835,20 +834,22 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       photo:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
       pathSlug:
-        'This should include the category and the person’s name, e.g. 2025/judges/jane-doe. No leading slash. Determines the public URL.',
+        'Path relative to the chosen Section, no leading slash. This should include the category and the person’s name, e.g. 2025/judges/jane-doe.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
-        'Short intro blurb shown on the profile page, above the CTA and biography sections.'
+        'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
-        'Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash.'
+        'Path relative to the site root (/). Examples: about-us → /about-us; no leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::summit-page.summit-page': {
       pathSlug:
-        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       pathSlug:
@@ -870,7 +871,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.',
-      description: 'Aim for 120–160 characters.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
         'Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts).',
       featured:
@@ -880,7 +882,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
       thumbnailImage:
-        'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
+        'Optional listing thumbnail. Dimensions: 240 x 140. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
@@ -939,9 +941,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       backgroundImage: 'Background Image (Desktop)',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
-    },
-    'shared.seo': {
-      metaDescription: 'Meta Description'
     },
     'blocks.profile': {
       profile: 'Profile'
@@ -1372,19 +1371,16 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pillar', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'seo', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
     'api::summit-page.summit-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'seo', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
@@ -1404,11 +1400,9 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'followUpContent', size: 12 }]
     ],
     'api::grant-page.grant-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pathSlug', size: 6 }
-      ],
-      [{ name: 'description', size: 6 }],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
       [{ name: 'primaryCta', size: 12 }],
@@ -1533,7 +1527,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'external', size: 4 }]
     ],
-    'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
