@@ -34,7 +34,7 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph"],
+      "components": ["blocks.paragraph", "blocks.info-card-grid"],
       "pluginOptions": { "i18n": { "localized": true } }
     }
   }

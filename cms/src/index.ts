@@ -1037,6 +1037,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Card Heading',
       body: 'Card Body'
     },
+    'blocks.info-card-grid': {
+      columns: 'Columns',
+      cards: 'Cards'
+    },
     'blocks.carousel': {
       heading: 'Section Heading',
       logos: 'Logos',
@@ -1166,6 +1170,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.info-cards': {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
+    },
+    'blocks.info-card-grid': {
+      columns: 'Desktop layout: 2 across or 3 across. Stacks to one column on small screens.',
+      cards:
+        'Add at least one card. Each card needs a heading and a description (markdown; bullet lists are supported).'
+    },
+    'blocks.info-card': {
+      heading: 'Required card title.',
+      body: 'Required. Supports markdown including bullet lists.'
     },
     'blocks.faq-section': {
       heading:
@@ -1563,6 +1576,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'subHeading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.info-card-grid': [
+      [{ name: 'columns', size: 4 }],
+      [{ name: 'cards', size: 12 }]
+    ],
+    'blocks.info-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'body', size: 12 }]
     ]
   }
 

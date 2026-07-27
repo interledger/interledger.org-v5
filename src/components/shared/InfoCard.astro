@@ -1,0 +1,29 @@
+---
+/**
+ * Single card inside an InfoCards grid (MDX authoring slot child).
+ * Strapi preview passes card data via InfoCards props instead.
+ */
+interface Props {
+  heading: string
+  /** h2 when the grid has no section heading; h3 when it does. */
+  headingLevel?: 'h2' | 'h3'
+}
+
+const { heading, headingLevel = 'h2' } = Astro.props
+const HeadingTag = headingLevel
+---
+
+<article
+  class="flex flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 tablet:gap-xl tablet:p-xl"
+>
+  <HeadingTag
+    class="text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900"
+  >
+    {heading}
+  </HeadingTag>
+  <div
+    class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_ul]:mb-0 [&_ul]:list-disc [&_ul]:ps-2xl [&_li]:mb-md [&_li:last-child]:mb-0"
+  >
+    <slot />
+  </div>
+</article>
