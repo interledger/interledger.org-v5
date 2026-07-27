@@ -184,21 +184,12 @@ describe('buildPagePayload', () => {
       )
     })
 
-    it('accepts optional schema fields (description, heroImage, sections)', async () => {
+    it('includes description from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
-          description: 'Page description',
-          heroImage: '/images/hero.jpg',
-          sections: [
-            { title: 'Section 1', content: 'Content 1' },
-            {
-              title: 'Section 2',
-              content: 'Content 2',
-              ctas: [{ label: 'Learn', href: '/learn' }]
-            }
-          ]
+          description: 'Page description'
         }
       })
 
@@ -208,8 +199,9 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect((payload as Record<string, unknown>).title).toBe('About')
-      expect((payload as Record<string, unknown>).pathSlug).toBe('about')
+      expect((payload as Record<string, unknown>).description).toBe(
+        'Page description'
+      )
     })
   })
 
