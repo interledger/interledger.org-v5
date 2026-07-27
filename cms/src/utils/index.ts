@@ -42,7 +42,6 @@ export {
 export {
   type HeroCta,
   heroFrontmatter,
-  seoFrontmatter,
   getPreservedFields,
   defaultLang,
   LOCALES,

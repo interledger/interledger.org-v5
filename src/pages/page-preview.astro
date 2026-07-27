@@ -19,7 +19,7 @@ interface HeroCta {
 
 interface FoundationPagePreview {
   title?: string
-  seo?: { metaDescription?: string }
+  description?: string
   hero?: {
     title?: string
     description?: string
@@ -42,13 +42,12 @@ if (!documentId) {
 const populateParams = new URLSearchParams({
   status: 'draft',
   'populate[hero][populate]': '*',
-  'populate[seo][populate]': '*',
   'populate[content][on][blocks.paragraph][populate]': '*',
   'populate[content][on][blocks.blockquote][populate]': '*',
   'populate[content][on][blocks.cta-strip][populate]': '*',
   'populate[content][on][blocks.cards-grid][populate][cards]': '*',
   'populate[content][on][blocks.card-links-grid][populate][cards]': '*',
-  'populate[content][on][blocks.carousel][populate][items][populate]': '*',
+  'populate[content][on][blocks.carousel][populate][logos][populate]': '*',
   'populate[content][on][blocks.profile][populate][profile][populate]': '*',
   'populate[content][on][blocks.profile-grid][populate][profiles][populate]':
     '*'
@@ -66,14 +65,14 @@ if (!page) {
 }
 
 const title = page.title || 'Preview'
-const description = page.seo?.metaDescription || undefined
+const metaDescription = page.description || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description
 const heroCtas = page.hero?.hero_call_to_action ?? []
 const content = page.content || []
 ---
 
-<BaseLayout title={`[PREVIEW] ${title}`} description={description}>
+<BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
   <TableScrollSupport />
   <main class="pb-3xl">
     <!-- Preview Banner -->

@@ -139,7 +139,7 @@ describe('buildPagePayload', () => {
     it('includes title from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About Us' }
+        frontmatter: { title: 'About Us', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -154,7 +154,7 @@ describe('buildPagePayload', () => {
     it('includes slug from mdx file', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about-page',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -169,7 +169,7 @@ describe('buildPagePayload', () => {
     it('includes publishedAt timestamp', async () => {
       const mdx = createMdxFile({
         pathSlug: 'test',
-        frontmatter: { title: 'Test' }
+        frontmatter: { title: 'Test', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -184,21 +184,12 @@ describe('buildPagePayload', () => {
       )
     })
 
-    it('accepts optional schema fields (description, heroImage, sections)', async () => {
+    it('includes description from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
-          description: 'Page description',
-          heroImage: '/images/hero.jpg',
-          sections: [
-            { title: 'Section 1', content: 'Content 1' },
-            {
-              title: 'Section 2',
-              content: 'Content 2',
-              ctas: [{ label: 'Learn', href: '/learn' }]
-            }
-          ]
+          description: 'Page description'
         }
       })
 
@@ -208,8 +199,9 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect((payload as Record<string, unknown>).title).toBe('About')
-      expect((payload as Record<string, unknown>).pathSlug).toBe('about')
+      expect((payload as Record<string, unknown>).description).toBe(
+        'Page description'
+      )
     })
   })
 
@@ -221,6 +213,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'Welcome',
           heroDescription: 'Learn about us'
         }
@@ -243,6 +236,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'Hero Only'
         }
       })
@@ -269,7 +263,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -285,7 +279,7 @@ describe('buildPagePayload', () => {
     it('sends null hero when no frontmatter hero and no existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -308,6 +302,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'New Hero',
           heroDescription: 'New desc'
         }
@@ -331,7 +326,7 @@ describe('buildPagePayload', () => {
     it('creates content block with markdown when mdx has body', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: '## Heading\n\nParagraph text'
       })
 
@@ -358,7 +353,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -381,7 +376,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: '   \n\n   '
       })
 
@@ -399,7 +394,7 @@ describe('buildPagePayload', () => {
     it('does not include content when no mdx body and no existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -419,7 +414,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: 'New content'
       })
 
@@ -437,7 +432,7 @@ describe('buildPagePayload', () => {
     it('handles content with null existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: undefined
       })
 
@@ -455,7 +450,7 @@ describe('buildPagePayload', () => {
     it('processes summit-pages same as foundation-pages', async () => {
       const mdx = createMdxFile({
         pathSlug: 'schedule',
-        frontmatter: { title: 'Schedule' },
+        frontmatter: { title: 'Schedule', description: 'Test description' },
         content: 'Summit content'
       })
 
@@ -489,7 +484,7 @@ describe('buildPagePayload', () => {
 
       const mdx = createMdxFile({
         pathSlug: 'profiles-page',
-        frontmatter: { title: 'Profiles' },
+        frontmatter: { title: 'Profiles', description: 'Test description' },
         content: '<ProfileCard pathSlug="alice" />'
       })
 
@@ -518,7 +513,7 @@ describe('buildPagePayload', () => {
 
       const mdx = createMdxFile({
         pathSlug: 'bad-page',
-        frontmatter: { title: 'Bad' },
+        frontmatter: { title: 'Bad', description: 'Test description' },
         content: '<UnknownWidget />'
       })
 
@@ -546,6 +541,7 @@ describe('buildPagePayload', () => {
         localizes: 'about-us',
         frontmatter: {
           title: 'Sobre Nosotros',
+          description: 'Test description',
           localizes: 'about-us',
           locale: 'es'
         },
@@ -586,6 +582,7 @@ describe('buildPagePayload', () => {
         localizes: 'profiles-page',
         frontmatter: {
           title: 'Perfiles',
+          description: 'Test description',
           localizes: 'profiles-page',
           locale: 'es'
         },
@@ -621,6 +618,7 @@ describe('buildPagePayload', () => {
         localizes: 'about-us',
         frontmatter: {
           title: 'Sobre Nosotros',
+          description: 'Test description',
           localizes: 'about-us',
           locale: 'es'
         },

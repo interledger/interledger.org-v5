@@ -9,11 +9,9 @@ import {
 import { HACKATHON_PAGE_CONTENT_POPULATE } from '../../../../utils/contentPopulate'
 
 /**
- * Hackathon pages have no hero/seo components (unlike foundation-page and
- * summit-page) — `description` is a plain top-level field. The generic
- * `generateMDX` in pageLifecycle.ts assumes hero/seo/pillar fields and has
- * no concept of a bare `description`, so this content type needs its own
- * generateMDX rather than the default.
+ * Duplicates the default `generateMDX` in pageLifecycle.ts, which now
+ * handles a missing hero and a bare `description` field too. Kept only
+ * because it predates that support; safe to remove in favor of the default.
  */
 function generateHackathonPageMDX(
   page: PageData,
