@@ -1410,7 +1410,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        media: { image: 42, alternativeText: '' }
+        media: { image: 42, alternativeText: null }
       })
     })
 
@@ -1459,7 +1459,7 @@ describe('buildGrantPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantFrontmatter.title,
         description: '',
-        media: { image: 42, alternativeText: '' }
+        media: { image: 42, alternativeText: null }
       })
     })
   })
@@ -1754,7 +1754,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Welcome',
         description: '',
-        media: { image: 42, alternativeText: '' }
+        media: { image: 42, alternativeText: null }
       })
     })
 
@@ -1862,7 +1862,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: baseGrantOverviewFrontmatter.title,
         description: '',
-        media: { image: 42, alternativeText: '' }
+        media: { image: 42, alternativeText: null }
       })
     })
   })
@@ -2853,6 +2853,41 @@ describe('buildBlogPayload', () => {
           link: null,
           profileBio: null,
           media: { image: 7, alternativeText: 'Jane Doe headshot' }
+        }
+      ])
+    })
+
+    it('stores null alternativeText when bio imageAlt is absent so author fallback works', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/jane.jpg': 7
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          articleBios: [
+            {
+              author: 'Jane Doe',
+              image: '/uploads/img/jane.jpg'
+            }
+          ]
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        updatedAltIds
+      )
+
+      expect((payload as Record<string, unknown>).articleBio).toEqual([
+        {
+          author: 'Jane Doe',
+          link: null,
+          profileBio: null,
+          media: { image: 7, alternativeText: null }
         }
       ])
     })

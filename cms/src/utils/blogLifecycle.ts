@@ -41,16 +41,16 @@ interface BlogResult {
   locale: string
   featureMedia?: {
     image?: { name: string; url: string }
-    alternativeText?: string
+    alternativeText?: string | null
   }
   featureImageMobile?: {
     name: string
-    alternativeText?: string
+    alternativeText?: string | null
     url: string
   }
   thumbnailMedia?: {
     image?: { name: string; url: string }
-    alternativeText?: string
+    alternativeText?: string | null
   }
   articleBio?: {
     // Nullable: Strapi populates an empty bio component's unset author as null.
@@ -59,7 +59,7 @@ interface BlogResult {
     profileBio?: string
     media?: {
       image?: { url: string; name: string }
-      alternativeText?: string
+      alternativeText?: string | null
     }
   }[]
   categories?: { categoryValue: string }[]
@@ -134,7 +134,7 @@ export function generateBlogMDX(post: BlogResult) {
                 ? `\n    image: ${yqs(bio.media.image.url)}`
                 : null,
               bio.media?.image
-                ? `\n    imageAlt: ${yqs(bio.media.alternativeText ?? '')}`
+                ? `\n    imageAlt: ${yqs(bio.media.alternativeText ?? bio.author)}`
                 : null
             ]
               .filter(Boolean)
@@ -154,20 +154,22 @@ export function generateBlogMDX(post: BlogResult) {
     post.featureMedia?.image?.url
       ? `featureImage: ${yqs(post.featureMedia.image.url)}`
       : null,
-    post.featureMedia?.image?.url
-      ? `featureImageAlt: ${yqs(post.featureMedia.alternativeText ?? '')}`
+    post.featureMedia?.image?.url && post.featureMedia.alternativeText != null
+      ? `featureImageAlt: ${yqs(post.featureMedia.alternativeText)}`
       : null,
     post.featureImageMobile?.url
       ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
       : null,
-    post.featureImageMobile?.url
-      ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText ?? '')}`
+    post.featureImageMobile?.url &&
+    post.featureImageMobile.alternativeText != null
+      ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText)}`
       : null,
     post.thumbnailMedia?.image?.url
       ? `thumbnailImage: ${yqs(post.thumbnailMedia.image.url)}`
       : null,
-    post.thumbnailMedia?.image?.url
-      ? `thumbnailImageAlt: ${yqs(post.thumbnailMedia.alternativeText ?? '')}`
+    post.thumbnailMedia?.image?.url &&
+    post.thumbnailMedia.alternativeText != null
+      ? `thumbnailImageAlt: ${yqs(post.thumbnailMedia.alternativeText)}`
       : null,
     articleBios,
     post.categories

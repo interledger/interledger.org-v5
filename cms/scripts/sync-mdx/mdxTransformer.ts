@@ -160,7 +160,7 @@ export function createMediaUploadResolver(
 interface StrapiHeroPayload {
   title: string
   description: string
-  media?: { image: number | null; alternativeText: string } | null
+  media?: { image: number | null; alternativeText: string | null } | null
   backgroundImageMobile?: number | null
   hero_call_to_action?: {
     text: string
@@ -238,7 +238,7 @@ async function buildHeroWithImage(
       hero.media = uploadId
         ? {
             image: uploadId,
-            alternativeText: (parsed.heroImageAlt as string | undefined) ?? ''
+            alternativeText: optionalAltText(parsed.heroImageAlt)
           }
         : null
     } else {
@@ -879,12 +879,15 @@ export async function buildBlogPayload(
       image: parsed.thumbnailImage
     })
     const featureMedia = featureImage
-      ? { image: featureImage, alternativeText: parsed.featureImageAlt ?? '' }
+      ? {
+          image: featureImage,
+          alternativeText: optionalAltText(parsed.featureImageAlt)
+        }
       : null
     const thumbnailMedia = thumbnailImage
       ? {
           image: thumbnailImage,
-          alternativeText: parsed.thumbnailImageAlt ?? ''
+          alternativeText: optionalAltText(parsed.thumbnailImageAlt)
         }
       : null
 
@@ -908,7 +911,10 @@ export async function buildBlogPayload(
           link: bio.link || null,
           profileBio: bio.text || null,
           media: profileImageId
-            ? { image: profileImageId, alternativeText: bio.imageAlt ?? '' }
+            ? {
+                image: profileImageId,
+                alternativeText: optionalAltText(bio.imageAlt)
+              }
             : null
         }
       })
