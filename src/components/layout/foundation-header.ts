@@ -12,6 +12,12 @@ if (headerRoot) {
 const header = document.querySelector<HTMLElement>('.foundation-header')
 const darkSections = [
   document.querySelector('[data-component="HomepageHero"]'),
+  // Spans the entire hero-to-problem-section scroll range (art + copy), so
+  // watching it closes the gap between the hero and the next data-nav-dark
+  // section — at wide viewports the network art's width-driven height can
+  // outgrow the vh-based overlap connecting them, leaving a moment where
+  // neither neighbor intersects the viewport.
+  document.querySelector('[data-component="AnimatedNetwork"]'),
   ...Array.from(document.querySelectorAll('[data-nav-dark]'))
 ].filter(Boolean) as Element[]
 

@@ -78,31 +78,11 @@ export type FoundationBlogFrontmatterType = z.infer<
 export const foundationPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
-  description: z.string().optional(),
-  pillar: z.enum(['vision', 'mission', 'tech', 'values']).optional(),
+  description: z.string().min(1, 'description is required'),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
-  metaDescription: z.string().optional(),
-  metaImage: z.string().optional(),
-  canonicalUrl: z.string().optional(),
-  sections: z
-    .array(
-      z.object({
-        title: z.string(),
-        content: z.string(),
-        ctas: z
-          .array(
-            z.object({
-              label: z.string(),
-              href: z.string()
-            })
-          )
-          .optional()
-      })
-    )
-    .optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
@@ -110,30 +90,11 @@ export const foundationPageFrontmatterSchema = z.object({
 export const summitPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
-  description: z.string().optional(),
+  description: z.string().min(1, 'description is required'),
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
-  metaDescription: z.string().optional(),
-  metaImage: z.string().optional(),
-  canonicalUrl: z.string().optional(),
-  sections: z
-    .array(
-      z.object({
-        title: z.string(),
-        content: z.string(),
-        ctas: z
-          .array(
-            z.object({
-              label: z.string(),
-              href: z.string()
-            })
-          )
-          .optional()
-      })
-    )
-    .optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
@@ -284,7 +245,7 @@ const faqSectionSchema = z.object({
 export const faqFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
-  section: z.enum(['summit', 'hackathon', 'foundation']),
+  section: sectionSchema,
   heading: z.string().min(1, 'heading is required'),
   description: z.string().min(1, 'description is required'),
   introParagraph: z.string().nullable().optional(),

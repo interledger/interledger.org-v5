@@ -1,6 +1,6 @@
 /**
  * Factory for page-like Strapi lifecycle hooks.
- * Handles i18n, dynamic zone content, hero/seo, MDX generation, and git sync.
+ * Handles i18n, dynamic zone content, hero/description, MDX generation, and git sync.
  * Used by page and summit-page content types.
  */
 
@@ -16,7 +16,6 @@ import {
   LOCALES,
   defaultLang,
   heroFrontmatter,
-  seoFrontmatter,
   getPreservedFields,
   uidToLogLabel,
   formatMdx,
@@ -48,9 +47,7 @@ export interface PageData {
       external?: boolean
     } | null
   }
-  seo?: {
-    metaDescription?: string
-  }
+  description?: string
   content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
   [key: string]: unknown
@@ -107,11 +104,11 @@ export interface PageLifecycleConfig<
   populate: Modules.Documents.Params.Populate.Any<T>
   /**
    * Optional MDX generation override. When provided, replaces the default
-   * `generateMDX` which assumes hero/seo/content dynamic zone fields.
+   * `generateMDX` which assumes hero/description/content dynamic zone fields.
    * Receives the raw Strapi page data, preserved frontmatter fields from the
    * existing file, and the English slug for localized entries.
    *
-   * We can remove this later if we standardize the hero/seo/content fields across all page content types.
+   * We can remove this later if we standardize the hero/description/content fields across all page content types.
    */
   generateMDX?: (
     page: PageData,
@@ -175,22 +172,24 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
+  if (!page.description?.trim()) {
+    throw toValidationError(new Error('Page is missing a required description'))
+  }
+
   let heroData: Record<string, unknown>
   try {
     heroData = heroFrontmatter(page.hero)
   } catch (error) {
     throw toValidationError(error)
   }
-  const seoData = seoFrontmatter(page.seo)
 
   // Spread preserved fields first, then Strapi-managed fields overwrite
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
     pathSlug: page.pathSlug,
     title: page.title,
-    ...(page.pillar ? { pillar: page.pillar } : {}),
+    description: page.description,
     ...heroData,
-    ...seoData,
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
   }
@@ -206,7 +205,6 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   for (const key of heroManagedKeys) {
     if (!(key in heroData)) delete frontmatterData[key]
   }
-  if (!('metaDescription' in seoData)) delete frontmatterData.metaDescription
 
   const content = serializeContent(page.content)
 

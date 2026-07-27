@@ -35,15 +35,14 @@
       "required": true,
       "unique": true
     },
-    "seo": {
-      "type": "component",
+    "description": {
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "component": "shared.seo",
-      "repeatable": false
+      "required": true
     },
     "hero": {
       "type": "component",

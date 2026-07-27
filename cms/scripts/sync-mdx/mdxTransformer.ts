@@ -257,7 +257,7 @@ async function buildHeroWithImage(
  *
  * This function:
  * 1. Validates frontmatter against the provided Zod schema
- * 2. Builds the base payload with required fields (title, pathSlug, publishedAt)
+ * 2. Builds the base payload with required fields (title, pathSlug, description, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  *
@@ -283,8 +283,8 @@ export async function buildPagePayload(
     const data: Record<string, unknown> = {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
-      publishedAt: new Date().toISOString(),
-      ...(parsed.pillar ? { pillar: parsed.pillar } : {})
+      description: parsed.description,
+      publishedAt: new Date().toISOString()
     }
 
     data.hero = await buildHeroWithImage(parsed, strapiUploadContext)

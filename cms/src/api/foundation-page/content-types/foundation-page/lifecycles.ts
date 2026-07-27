@@ -12,7 +12,6 @@ export default createPageLifecycle({
         hero_call_to_action: true
       }
     },
-    seo: { populate: '*' },
     content: FOUNDATION_PAGE_CONTENT_POPULATE
   }
 })

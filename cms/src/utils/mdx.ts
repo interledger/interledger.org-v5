@@ -292,16 +292,3 @@ export async function formatMdx(content: string): Promise<string> {
     return content
   }
 }
-
-export function seoFrontmatter(
-  seo:
-    | {
-        metaDescription?: string
-      }
-    | undefined
-): Record<string, string> {
-  const data: Record<string, string> = {}
-  if (!seo || !seo.metaDescription) return data
-  data.metaDescription = seo.metaDescription
-  return data
-}
