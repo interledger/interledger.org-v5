@@ -60,11 +60,11 @@ export function getBlogThumbnail(post: FoundationBlogEntry): string | null {
 /**
  * Resolves related-article slugs to posts for display.
  *
- * Prefers the post in `contentLocale`, then falls back to the canonical
- * `defaultLocale` (EN) post when no translation exists — matching the site's
- * EN-fallback rule so an untranslated related post still shows (in EN) instead
- * of the whole section silently vanishing. Slugs that resolve to nothing (e.g.
- * a stale slug) are skipped so the build never breaks.
+ * Prefers the post in `contentLocale`, then falls back to `fallbackLocale`
+ * when no translation exists. Callers pass the site's default locale (EN),
+ * matching the site's EN-fallback rule so an untranslated related post still
+ * shows (in EN) instead of the whole section silently vanishing. Slugs that
+ * resolve to nothing (e.g. a stale slug) are skipped so the build never breaks.
  *
  * `posts` should be the full collection across locales, since a related post
  * may only exist in the default locale.
