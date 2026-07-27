@@ -32,7 +32,7 @@ export function serialize(block: {
   displayRatio?: SplitLayoutDisplayRatio | string | null
   media?: {
     image?: { url?: string; alternativeText?: string } | number | null
-    alternativeText?: string
+    alternativeText?: string | null
   } | null
   videoUrl?: string | null
   content?: string | null

@@ -138,7 +138,8 @@ export interface ImageBlockBlock extends StrapiBlockBase {
   __component: 'blocks.image-block'
   media: {
     image: number | null
-    alternativeText: string
+    /** null when omitted in MDX; '' when explicitly empty (decorative). */
+    alternativeText: string | null
   }
   tabletImage?: number | null
   mobileImage?: number | null
@@ -163,7 +164,8 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   displayRatio?: '1:1' | '1:2' | '2:1'
   media?: {
     image: number | null
-    alternativeText: string
+    /** null when omitted in MDX; '' when explicitly empty (decorative). */
+    alternativeText: string | null
   }
   videoUrl?: string
   content?: string

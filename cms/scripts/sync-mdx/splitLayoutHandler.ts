@@ -131,7 +131,9 @@ async function handleSplitLayout(
     }
 
     if (isImageLayout && imageId) {
-      block.media = { image: imageId, alternativeText: imageAlt ?? '' }
+      // null when imageAlt is omitted so serializers can fall back to the
+      // upload's alternativeText; explicit imageAlt="" stays '' (decorative).
+      block.media = { image: imageId, alternativeText: imageAlt ?? null }
     }
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
     if (isTextLayout && content) block.content = content

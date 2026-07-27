@@ -23,6 +23,28 @@ describe('image-block serializer', () => {
     expect(result).toContain('alt="Fallback alt"')
   })
 
+  it('falls back to the image alternativeText when media.alternativeText is null', () => {
+    const result = serialize({
+      media: {
+        image: { url: '/uploads/photo.jpg', alternativeText: 'Fallback alt' },
+        alternativeText: null
+      }
+    })
+
+    expect(result).toContain('alt="Fallback alt"')
+  })
+
+  it('keeps explicit empty media.alternativeText (decorative) over upload alt', () => {
+    const result = serialize({
+      media: {
+        image: { url: '/uploads/photo.jpg', alternativeText: 'Upload alt' },
+        alternativeText: ''
+      }
+    })
+
+    expect(result).toContain('alt=""')
+  })
+
   it('defaults alt to empty string when neither is set', () => {
     const result = serialize({
       media: { image: { url: '/uploads/photo.jpg' } }

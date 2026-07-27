@@ -1086,7 +1086,7 @@ describe('buildGrantPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           displayRatio: '2:1',
-          media: { image: 42, alternativeText: '' },
+          media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -1921,7 +1921,7 @@ describe('buildGrantOverviewPagePayload', () => {
           layoutType: 'image-text',
           imagePosition: 'left',
           displayRatio: '2:1',
-          media: { image: 42, alternativeText: '' },
+          media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
           cta: { text: 'Apply', link: 'https://example.com' }
         }
@@ -2660,12 +2660,34 @@ describe('buildProfilePayload', () => {
       })
     })
 
-    it('defaults alternativeText to empty string when photoAlt is absent', async () => {
+    it('stores null alternativeText when photoAlt is absent so name fallback works', async () => {
       const mdx = createMdxFile({
         pathSlug: 'team/jane-doe',
         frontmatter: {
           ...baseProfileFrontmatter,
           photo: '/uploads/img/jane-doe.jpg'
+        }
+      })
+
+      const payload = await buildProfilePayload(
+        profileFrontmatterSchema,
+        mdx,
+        stubStrapiWithUpload({ '/uploads/img/jane-doe.jpg': 42 })
+      )
+
+      expect((payload as Record<string, unknown>).media).toEqual({
+        image: 42,
+        alternativeText: null
+      })
+    })
+
+    it('keeps explicit empty photoAlt as empty string for decorative images', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'team/jane-doe',
+        frontmatter: {
+          ...baseProfileFrontmatter,
+          photo: '/uploads/img/jane-doe.jpg',
+          photoAlt: ''
         }
       })
 

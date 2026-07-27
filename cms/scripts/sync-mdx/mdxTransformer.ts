@@ -374,6 +374,16 @@ function nullOrValue(v: unknown): string | null {
 }
 
 /**
+ * Alt text for localized-media: absent/null/"null" → null so consumers can
+ * fall back (e.g. profile.name, upload alternativeText). Explicit `''` is kept
+ * for decorative images.
+ */
+function optionalAltText(v: unknown): string | null {
+  if (v === undefined || v === null || v === 'null') return null
+  return String(v)
+}
+
+/**
  * Calls updateUploadAlt only if this upload ID hasn't been patched yet in
  * the current sync run. Prevents last-write-wins corruption when the same
  * image file is referenced by multiple entries with different alt values.
@@ -481,7 +491,7 @@ export async function buildProfilePayload(
     const media = photoId
       ? {
           image: photoId,
-          alternativeText: nullOrValue(photoAltFrontmatter) ?? ''
+          alternativeText: optionalAltText(photoAltFrontmatter)
         }
       : null
 

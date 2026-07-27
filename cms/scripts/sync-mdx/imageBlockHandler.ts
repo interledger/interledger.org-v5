@@ -46,7 +46,9 @@ async function handleImageBlock(
       __component: 'blocks.image-block',
       media: {
         image: await resolveMedia(src),
-        alternativeText: alt ?? ''
+        // null when alt is omitted so serializers can fall back to the upload's
+        // alternativeText; explicit alt="" stays '' for decorative images.
+        alternativeText: alt ?? null
       },
       needsFullView: getBooleanAttr(node, 'needsFullView') ?? false,
       needsOutline: getBooleanAttr(node, 'needsOutline') ?? false

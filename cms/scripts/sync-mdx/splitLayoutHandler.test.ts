@@ -61,7 +61,7 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'left',
         displayRatio: '2:1',
-        media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: '' },
+        media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: null },
         content: 'Some **body** copy.',
         cta: {
           text: 'Apply',
@@ -86,6 +86,20 @@ describe('SplitLayout handler', () => {
     })
   })
 
+  it('keeps explicit empty imageAlt as empty string for decorative images', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      media: {
+        image: STRAPI_UPLOAD_ID.primaryImage,
+        alternativeText: ''
+      }
+    })
+  })
+
   it('defaults imagePosition to right and omits optional fields when absent', async () => {
     const blocks = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
@@ -100,7 +114,7 @@ describe('SplitLayout handler', () => {
         displayRatio: '2:1',
         media: {
           image: STRAPI_UPLOAD_ID.defaultLayoutImage,
-          alternativeText: ''
+          alternativeText: null
         },
         content: 'Body.'
       }
@@ -159,7 +173,7 @@ describe('SplitLayout handler', () => {
         displayRatio: '2:1',
         media: {
           image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
-          alternativeText: ''
+          alternativeText: null
         },
         content: 'Body.'
       }

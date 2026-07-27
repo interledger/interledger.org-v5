@@ -30,6 +30,37 @@ describe('split-layout serializer', () => {
     expect(result).toContain('imageAlt="Media library alt"')
   })
 
+  it('falls back to the image alternativeText when media.alternativeText is null', () => {
+    const result = serialize({
+      media: {
+        image: {
+          url: '/uploads/education_grant.jpg',
+          alternativeText: 'Media library alt'
+        },
+        alternativeText: null
+      },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('imageAlt="Media library alt"')
+  })
+
+  it('omits imageAlt when media.alternativeText is explicitly empty', () => {
+    const result = serialize({
+      media: {
+        image: {
+          url: '/uploads/education_grant.jpg',
+          alternativeText: 'Media library alt'
+        },
+        alternativeText: ''
+      },
+      content: 'Some body copy.'
+    })
+
+    // SplitLayout only emits imageAlt when truthy; empty stays decorative.
+    expect(result).not.toContain('imageAlt=')
+  })
+
   it('omits image position when it is the default right value', () => {
     const result = serialize({
       imagePosition: 'right',

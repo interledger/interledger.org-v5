@@ -33,7 +33,7 @@ describe('ImageBlock handler — happy paths', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.image-block',
-        media: { image: 12, alternativeText: '' },
+        media: { image: 12, alternativeText: null },
         needsFullView: false,
         needsOutline: false
       }
@@ -51,7 +51,16 @@ describe('ImageBlock handler — happy paths', () => {
     })
   })
 
-  it('defaults media.alternativeText to empty string when alt is empty or absent', async () => {
+  it('stores null alternativeText when alt is absent so upload fallback works', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<ImageBlock src="/img/diagram.png" />',
+      ctxWith({ '/img/diagram.png': 12 })
+    )
+
+    expect(blocks[0]).toMatchObject({ media: { alternativeText: null } })
+  })
+
+  it('keeps explicit empty alt as empty string for decorative images', async () => {
     const blocks = await parseMdxToBlocks(
       '<ImageBlock src="/img/diagram.png" alt="" />',
       ctxWith({ '/img/diagram.png': 12 })

@@ -5,7 +5,7 @@ type ImageField = { url?: string; alternativeText?: string } | number
 
 interface LocalizedMediaField {
   image?: ImageField
-  alternativeText?: string
+  alternativeText?: string | null
 }
 
 interface ImageBlockBlock {
