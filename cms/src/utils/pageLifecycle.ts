@@ -172,6 +172,10 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
+  if (!page.description?.trim()) {
+    throw toValidationError(new Error('Page is missing a required description'))
+  }
+
   let heroData: Record<string, unknown>
   try {
     heroData = heroFrontmatter(page.hero)
@@ -200,10 +204,6 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   for (const key of heroManagedKeys) {
     if (!(key in heroData)) delete frontmatterData[key]
   }
-
-  // Retired field: strip any leftover value from files generated before
-  // the shared.seo component was replaced by the plain `description` field.
-  delete frontmatterData.metaDescription
 
   const content = serializeContent(page.content)
 

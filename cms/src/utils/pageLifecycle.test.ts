@@ -24,6 +24,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       title: 'Test Page',
       pathSlug: 'test',
       locale: 'en',
+      description: 'Test description',
       hero: {
         title: 'Hero Title',
         description: undefined,
@@ -40,21 +41,6 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('strips a stale metaDescription left over from the retired shared.seo component', () => {
-    const page = {
-      id: 1,
-      documentId: 'doc1',
-      title: 'Test Page',
-      pathSlug: 'test',
-      locale: 'en'
-    }
-    const preservedFields = { metaDescription: 'Old description' }
-
-    const result = generateMDX(testConfig, page, preservedFields)
-
-    expect(result).not.toContain('metaDescription')
-  })
-
   it('keeps heroImage in frontmatter when backgroundImage is present', () => {
     const page = {
       id: 1,
@@ -62,6 +48,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       title: 'Test Page',
       pathSlug: 'test',
       locale: 'en',
+      description: 'Test description',
       hero: {
         title: 'Hero Title',
         backgroundImage: { url: 'https://example.com/image.jpg' }
@@ -81,8 +68,21 @@ describe('generateMDX — required field validation', () => {
     documentId: 'doc1',
     title: 'Test Page',
     pathSlug: 'test',
-    locale: 'en'
+    locale: 'en',
+    description: 'Test description'
   }
+
+  it('throws when description is missing', () => {
+    expect(() =>
+      generateMDX(testConfig, { ...base, description: undefined })
+    ).toThrow('Page is missing a required description')
+  })
+
+  it('throws when description is blank', () => {
+    expect(() =>
+      generateMDX(testConfig, { ...base, description: '   ' })
+    ).toThrow('Page is missing a required description')
+  })
 
   it('throws when hero is present but title is empty', () => {
     expect(() =>
