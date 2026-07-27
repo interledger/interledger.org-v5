@@ -12,7 +12,6 @@ const testConfig = {
   outputDir: 'src/content/foundation-pages',
   populate: {
     hero: { populate: '*' as const },
-    seo: { populate: '*' as const },
     content: { populate: '*' as const }
   }
 }
@@ -41,14 +40,13 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('removes metaDescription from frontmatter when seo.metaDescription is deleted in Strapi', () => {
+  it('strips a stale metaDescription left over from the retired shared.seo component', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
       title: 'Test Page',
       pathSlug: 'test',
-      locale: 'en',
-      seo: { metaDescription: undefined }
+      locale: 'en'
     }
     const preservedFields = { metaDescription: 'Old description' }
 

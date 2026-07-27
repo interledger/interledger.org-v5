@@ -35,29 +35,14 @@
       "required": true,
       "unique": true
     },
-    "pillar": {
-      "type": "enumeration",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      },
-      "enum": [
-        "vision",
-        "mission",
-        "tech",
-        "values"
-      ]
-    },
-    "seo": {
-      "type": "component",
+    "description": {
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "component": "shared.seo",
-      "repeatable": false
+      "required": true
     },
     "hero": {
       "type": "component",

@@ -1,7 +1,7 @@
 /**
  * Factory for flat (non-page) Strapi lifecycle hooks.
  * Handles MDX file writes, deletes, and git commits for content types
- * content types with flat frontmatter (hero/SEO are separate; profile biography
+ * content types with flat frontmatter (hero/description are separate; profile biography
  * uses a paragraph-only dynamic zone exported as MDX body).
  * Used by profile-page and similar non-page content types.
  */
