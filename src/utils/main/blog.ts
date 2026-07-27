@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content'
+import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
 
@@ -54,6 +55,37 @@ export function getBlogThumbnail(post: FoundationBlogEntry): string | null {
   if (featureImage) return featureImage
   if (legacy) return TECH_BLOG_FALLBACK_THUMBNAIL
   return null
+}
+
+/**
+ * Resolves related-article slugs to posts for display.
+ *
+ * Prefers the post in `contentLocale`, then falls back to `fallbackLocale`
+ * when no translation exists. Callers pass the site's default locale (EN),
+ * matching the site's EN-fallback rule so an untranslated related post still
+ * shows (in EN) instead of the whole section silently vanishing. Slugs that
+ * resolve to nothing (e.g. a stale slug) are skipped so the build never breaks.
+ *
+ * `posts` should be the full collection across locales, since a related post
+ * may only exist in the default locale.
+ */
+export function resolveRelatedPosts(
+  posts: FoundationBlogEntry[],
+  slugs: readonly string[] | undefined,
+  contentLocale: Locale,
+  fallbackLocale: Locale
+): FoundationBlogEntry[] {
+  const findBySlug = (slug: string, locale: Locale) =>
+    posts.find(
+      (post) => post.data.pathSlug === slug && post.data.locale === locale
+    )
+
+  return (slugs ?? [])
+    .map(
+      (slug) =>
+        findBySlug(slug, contentLocale) ?? findBySlug(slug, fallbackLocale)
+    )
+    .filter((post): post is FoundationBlogEntry => Boolean(post))
 }
 
 export function getReadingTime(text: string | undefined): number {

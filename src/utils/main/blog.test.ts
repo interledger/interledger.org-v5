@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content'
 import {
   getFeaturedPosts,
   getBlogThumbnail,
+  resolveRelatedPosts,
   TECH_BLOG_FALLBACK_THUMBNAIL
 } from './blog'
 
@@ -15,6 +16,7 @@ interface FakePost {
   thumbnailImage?: string
   featureImage?: string
   legacy?: boolean
+  locale?: string
 }
 
 // Minimal stand-in for a content collection entry; only the fields the helpers
@@ -28,7 +30,8 @@ function makePost(post: FakePost): Entry {
       featured: post.featured ?? false,
       thumbnailImage: post.thumbnailImage,
       featureImage: post.featureImage,
-      legacy: post.legacy ?? false
+      legacy: post.legacy ?? false,
+      locale: post.locale ?? 'en'
     }
   } as unknown as Entry
 }
@@ -100,5 +103,59 @@ describe('getBlogThumbnail', () => {
     const post = makePost({ slug: 'a', date: '2025-01-01' })
 
     expect(getBlogThumbnail(post)).toBeNull()
+  })
+})
+
+describe('resolveRelatedPosts', () => {
+  it('returns an empty array when there are no slugs', () => {
+    const posts = [makePost({ slug: 'a', date: '2025-01-01' })]
+
+    expect(resolveRelatedPosts(posts, undefined, 'en', 'en')).toEqual([])
+    expect(resolveRelatedPosts(posts, [], 'en', 'en')).toEqual([])
+  })
+
+  it('resolves slugs to posts in the requested locale', () => {
+    const posts = [
+      makePost({ slug: 'x', date: '2025-01-01', locale: 'es' }),
+      makePost({ slug: 'x', date: '2025-01-01', locale: 'en' })
+    ]
+
+    const result = resolveRelatedPosts(posts, ['x'], 'es', 'en')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].data.locale).toBe('es')
+  })
+
+  it('falls back to the EN post when no translation exists in the locale', () => {
+    // Regression for INTORG-964: an ES page whose related post is EN-only used
+    // to drop the post, hiding the whole section. It should show the EN post.
+    const posts = [
+      makePost({ slug: 'en-only', date: '2025-01-01', locale: 'en' })
+    ]
+
+    const result = resolveRelatedPosts(posts, ['en-only'], 'es', 'en')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].data.locale).toBe('en')
+  })
+
+  it('skips slugs that resolve to no post in any locale', () => {
+    const posts = [makePost({ slug: 'real', date: '2025-01-01', locale: 'en' })]
+
+    const result = resolveRelatedPosts(posts, ['real', 'ghost'], 'es', 'en')
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['real'])
+  })
+
+  it('preserves the order of the requested slugs', () => {
+    const posts = [
+      makePost({ slug: 'a', date: '2025-01-01', locale: 'en' }),
+      makePost({ slug: 'b', date: '2025-01-01', locale: 'en' }),
+      makePost({ slug: 'c', date: '2025-01-01', locale: 'en' })
+    ]
+
+    const result = resolveRelatedPosts(posts, ['c', 'a', 'b'], 'en', 'en')
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['c', 'a', 'b'])
   })
 })
