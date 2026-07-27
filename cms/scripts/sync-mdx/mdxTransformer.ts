@@ -968,9 +968,9 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
-      ...(featureMedia ? { featureMedia } : {}),
+      featureMedia,
       featureImageMobile,
-      ...(thumbnailMedia ? { thumbnailMedia } : {}),
+      thumbnailMedia,
       articleBio,
       categories,
       relatedArticles,
