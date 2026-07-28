@@ -20,3 +20,9 @@ export interface NavigationData {
   mainMenu: MenuGroup[]
   ctaButton?: MenuItem
 }
+
+/** Sites with their own navigation config, one JSON file per site per locale. */
+export type NavigationSite = 'foundation' | 'summit' | 'hackathon'
+
+/** Sites that share the microsite chrome (dark header/footer over BaseLayout). */
+export type MicrositeSite = Extract<NavigationSite, 'summit' | 'hackathon'>

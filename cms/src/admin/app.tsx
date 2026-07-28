@@ -340,7 +340,8 @@ export default {
       // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
-        'summit-navigation': 'Summit Navigation'
+        'summit-navigation': 'Summit Navigation',
+        'hackathon-navigation': 'Hackathon Navigation'
       }
       const url = window.location.pathname
       for (const [slug, title] of Object.entries(singleTypeTitles)) {

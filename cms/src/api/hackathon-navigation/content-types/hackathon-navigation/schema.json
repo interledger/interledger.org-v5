@@ -1,0 +1,32 @@
+{
+  "kind": "singleType",
+  "collectionName": "hackathon_navigations",
+  "info": {
+    "singularName": "hackathon-navigation",
+    "pluralName": "hackathon-navigations",
+    "displayName": "Hackathon Navigation",
+    "description": "Hackathon pages navigation menu"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "mainMenu": {
+      "type": "component",
+      "repeatable": true,
+      "component": "navigation.menu-group",
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "ctaButton": {
+      "type": "component",
+      "repeatable": false,
+      "component": "navigation.menu-item",
+      "pluginOptions": { "i18n": { "localized": true } }
+    }
+  }
+}
