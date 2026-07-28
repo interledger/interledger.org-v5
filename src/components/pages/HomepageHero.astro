@@ -28,7 +28,7 @@ const { pageLang, pathname } = Astro.props
 const t = useTranslations(pageLang)
 
 const useHighRes = hasOptimizedVariants(getOptimizedImage(HERO_HIGHRES_SRC))
-const heroSizes = '(min-width: 1880px) 100vw, 58vw'
+const heroSizes = '100vw'
 const heroMedia = useHighRes
   ? `(min-width: 810px) and (max-width: ${HERO_TV_MIN_WIDTH - 1}px)`
   : '(min-width: 810px)'
@@ -37,7 +37,7 @@ const heroAlternateSources = useHighRes
       {
         src: HERO_HIGHRES_SRC,
         media: `(min-width: ${HERO_TV_MIN_WIDTH}px)`,
-        sizes: '100vw'
+        sizes: heroSizes
       }
     ]
   : undefined
@@ -109,7 +109,7 @@ const heroUmami = (href: string, linkText: string) =>
       fetchpriority="high"
       media={heroMedia}
       sizes={heroSizes}
-      pictureClass="hero-stefan-picture absolute inset-0 hidden tablet:block"
+      pictureClass="absolute inset-0 hidden tablet:block"
       class="hero-stefan-photo h-full w-full object-cover"
     />
   </div>
@@ -226,18 +226,6 @@ const heroUmami = (href: string, linkText: string) =>
       contain: paint;
     }
 
-    [data-component='HomepageHero'] .hero-stefan-picture {
-      /* Start invisible. visibility: hidden is used (not opacity/display) so it
-         cascades correctly to children while still allowing the image to load
-         eagerly as an LCP candidate. */
-      visibility: hidden;
-      opacity: 0;
-      width: 100%;
-      height: auto;
-      min-height: 100%;
-      animation: hero-photo-appear 0.3s ease-in 0.1s forwards;
-    }
-
     [data-component='HomepageHero'] .hero-stefan-photo {
       display: block;
       width: 100%;
@@ -252,42 +240,10 @@ const heroUmami = (href: string, linkText: string) =>
     }
   }
 
-  @media (min-width: 810px) and (prefers-reduced-motion: reduce) {
-    [data-component='HomepageHero'] .hero-stefan-picture {
-      animation-duration: 0s;
-    }
-  }
-
-  @keyframes hero-photo-appear {
-    /* from sets visibility: visible immediately when the active phase starts
-       (after the 100ms delay). During the delay the element's own CSS keeps
-       visibility: hidden — so no painting happens until the fade begins. */
-    from {
-      visibility: visible;
-      opacity: 0;
-    }
-    to {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-
   @media (min-width: 810px) and (max-width: 1879px) {
     [data-component='HomepageHero'] {
-      --hero-stefan-width: 58vw;
       --hero-stefan-offset-x: -2vw;
     }
-
-    [data-component='HomepageHero'] .hero-stefan-picture {
-      inset: auto;
-      top: 0;
-      right: 5vw;
-      bottom: 0;
-      left: auto;
-      width: var(--hero-stefan-width);
-      height: auto;
-    }
-
     [data-component='HomepageHero'] .hero-stefan-photo {
       transform-origin: right top;
     }
