@@ -1,6 +1,6 @@
 ---
-// Row of stat tiles for the grant-overview-page dynamic zone (INTORG-854).
-// Reuses the homepage's StatCard/AnimatedNumber trio rather than duplicating
+// Row of stat tiles for foundation, summit, hackathon, and grant-overview
+// dynamic zones. Reuses the homepage's StatCard/AnimatedNumber trio rather
 // the count-up + accessibility pattern. Strapi stores plain digits (e.g.
 // "1000"); we format with commas for display while the animation still
 // counts up to the parsed numeric value.
@@ -36,6 +36,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
   role="list"
   class="m-0 grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 pt-2xl desktop:grid-cols-4"
   data-animated-number-trigger
+  data-umami-component="number-tiles"
 >
   {
     tiles.map((tile) => {

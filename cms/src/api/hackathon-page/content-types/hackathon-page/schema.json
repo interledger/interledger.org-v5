@@ -34,7 +34,7 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph"],
+      "components": ["blocks.paragraph", "blocks.number-tiles"],
       "pluginOptions": { "i18n": { "localized": true } }
     }
   }

@@ -184,8 +184,8 @@ export function buildContentTypes(
       buildPayload: (mdx, _strapi, existing, _dryRun) => {
         const locale = mdx.locale || 'en'
         // No resolveRelation/resolveMediaUpload: the hackathon-pages content
-        // zone only allows blocks.paragraph, which never resolves relations
-        // or media.
+        // zone only allows blocks.paragraph and blocks.number-tiles, which
+        // never resolve relations or media.
         return buildHackathonPagePayload(
           hackathonPageFrontmatterSchema,
           mdx,
