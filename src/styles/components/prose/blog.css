@@ -78,11 +78,8 @@
       outline-offset: 2px;
     }
 
-    /* Mobile keeps the natural (max-content) width so genuinely wide tables can
-       scroll inside .table-scroll — cramming every column into ~340px is worse
-       than a horizontal scroll. From tablet up there's room to fit the table to
-       the blog column, which makes long cells wrap instead of the table
-       scrolling (auto layout then distributes the columns to fit). */
+    /* Mobile: max-content so wide tables scroll rather than cram columns into
+       ~340px. Tablet+ has room to fit the column, so cells wrap instead. */
     & table {
       width: max-content;
       min-width: 100%;
