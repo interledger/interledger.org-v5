@@ -882,9 +882,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
       thumbnailImage:
-        'Optional listing thumbnail. Dimensions: 240 x 140. Click the edit (pencil) icon on the selected image to set Alternative text.',
-      relatedArticles:
-        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+        'Optional listing thumbnail. Dimensions: 240 x 140. Click the edit (pencil) icon on the selected image to set Alternative text.'
     },
     'api::faq.faq': {
       pathSlug:
@@ -1137,6 +1135,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileImage:
         'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
+    },
+    'shared.related-article': {
+      slug: 'Add exactly 3. Enter the slug of the related post - the segment after /blog/, not the full URL (e.g. my-related-post). No leading slash'
     },
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
@@ -1442,6 +1443,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'profileBio', size: 6 }
       ]
     ],
+    'shared.related-article': [[{ name: 'slug', size: 8 }]],
     'blocks.profile-grid': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
