@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { foundationBlogFrontmatterSchema } from './content'
+import { foundationBlogFrontmatterSchema, podcastPageFrontmatterSchema } from './content'
 
 const base = {
   title: 'A post',
@@ -79,5 +79,75 @@ describe('foundationBlogFrontmatterSchema', () => {
     })
 
     expect(result.success).toBe(false)
+  })
+})
+
+const podcastPageBase = {
+  title: 'Podcasts',
+  pathSlug: 'podcast',
+  description: 'A short description of the podcast landing page.',
+  titleCards: {
+    columns: 'Three' as const,
+    ariaLabel: 'Featured podcast series',
+    cards: [
+      {
+        heading: 'Future Money',
+        description: 'A podcast about the future of money.',
+        secondaryCta: { text: 'Listen now', link: '/podcast' }
+      }
+    ]
+  },
+  podcasts: [
+    {
+      title: 'Episode one',
+      description: 'The first episode.',
+      url: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/one/embed/light',
+      series: 'Future Money' as const
+    }
+  ],
+  ctaStrip: {
+    heading: 'Listen now',
+    description: 'Catch every episode.',
+    buttonText: 'Listen',
+    buttonLink: '/podcast'
+  }
+}
+
+describe('podcastPageFrontmatterSchema', () => {
+  it('accepts a minimal valid page', () => {
+    const result = podcastPageFrontmatterSchema.safeParse(podcastPageBase)
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a page with no title cards', () => {
+    const result = podcastPageFrontmatterSchema.safeParse({
+      ...podcastPageBase,
+      titleCards: { ...podcastPageBase.titleCards, cards: [] }
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a page with no podcasts', () => {
+    const result = podcastPageFrontmatterSchema.safeParse({
+      ...podcastPageBase,
+      podcasts: []
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects an unknown series value', () => {
+    const result = podcastPageFrontmatterSchema.safeParse({
+      ...podcastPageBase,
+      podcasts: [{ ...podcastPageBase.podcasts[0], series: 'Not A Series' }]
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts an optional episode field on a podcast item', () => {
+    const parsed = podcastPageFrontmatterSchema.parse({
+      ...podcastPageBase,
+      podcasts: [{ ...podcastPageBase.podcasts[0], episode: 'S02:E04' }]
+    })
+    expect(parsed.podcasts[0]?.episode).toBe('S02:E04')
   })
 })
