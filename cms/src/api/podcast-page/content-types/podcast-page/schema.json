@@ -1,0 +1,93 @@
+{
+  "kind": "collectionType",
+  "collectionName": "podcast-pages",
+  "info": {
+    "singularName": "podcast-page",
+    "pluralName": "podcast-pages",
+    "displayName": "Podcast Page",
+    "description": "The /podcast landing page: hero, featured series title cards, the podcast episode list, and a closing CTA strip. Only one entry is expected to exist."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "hero": {
+      "type": "component",
+      "component": "shared.hero",
+      "repeatable": false,
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "titleCards": {
+      "type": "component",
+      "component": "blocks.title-card-grid",
+      "repeatable": false,
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "podcasts": {
+      "type": "component",
+      "component": "blocks.podcast-item",
+      "repeatable": true,
+      "required": true,
+      "min": 1,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "ctaStrip": {
+      "type": "component",
+      "component": "blocks.cta-strip",
+      "repeatable": false,
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
