@@ -201,10 +201,7 @@ export interface HeroCta {
 interface HeroData {
   title?: string
   description?: string
-  media?: {
-    image?: { url?: string }
-    alternativeText?: string
-  } | null
+  backgroundImage?: { url?: string; alternativeText?: string }
   backgroundImageMobile?: { url?: string; alternativeText?: string }
   hero_call_to_action?: HeroCta | null
 }
@@ -219,16 +216,15 @@ export function heroFrontmatter(
   if (hero.description) {
     data.heroDescription = hero.description
   }
-  const heroImage = getImageUrl(hero.media?.image)
+  const heroImage = getImageUrl(hero.backgroundImage)
   if (heroImage) {
     data.heroImage = heroImage
-    if (hero.media?.alternativeText) {
-      data.heroImageAlt = hero.media.alternativeText
-    }
+    data.heroImageAlt = hero.backgroundImage?.alternativeText ?? ''
   }
   const heroImageMobile = getImageUrl(hero.backgroundImageMobile)
   if (heroImageMobile) {
     data.heroImageMobile = heroImageMobile
+    data.heroImageMobileAlt = hero.backgroundImageMobile?.alternativeText ?? ''
   }
   const cta = hero.hero_call_to_action
   if (cta) {

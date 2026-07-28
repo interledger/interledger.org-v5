@@ -43,11 +43,20 @@
         }
       }
     },
-    "media": {
-      "type": "component",
-      "component": "shared.localized-media",
-      "repeatable": false,
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"],
       "description": "Image for the media column. Leave empty when using a video instead.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "imageAlt": {
+      "type": "string",
+      "description": "Alt text for the image. Leave blank if the image is decorative.",
       "pluginOptions": {
         "i18n": {
           "localized": true

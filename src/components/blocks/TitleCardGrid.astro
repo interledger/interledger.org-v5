@@ -1,5 +1,6 @@
 ---
 import TitleCard from '@/components/shared/TitleCard.astro'
+import { parseMarkdown } from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   Two: 'desktop:grid-cols-2',
@@ -21,33 +22,51 @@ interface Props {
   ariaLabel: string
   columns: keyof typeof GRID_COLUMNS_CLASS
   titleCards?: StrapiTitleCard[]
+  umamiContext?: string
 }
 
-const { ariaLabel, columns, titleCards }: Props = Astro.props
+const { ariaLabel, columns, titleCards, umamiContext }: Props = Astro.props
+const { routeLocale } = Astro.locals
 const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
+
+const htmlCards = titleCards
+  ? await Promise.all(
+      titleCards.map(async (card) => ({
+        ...card,
+        descriptionHtml: await parseMarkdown(card.description, {
+          page: umamiContext,
+          pathname: Astro.url.pathname,
+          lang: routeLocale
+        })
+      }))
+    )
+  : null
 ---
 
-<section aria-label={ariaLabel}>
+<section
+  data-component="TitleCardGrid"
+  aria-label={ariaLabel}
+  class="mx-auto w-full max-w-content"
+>
   <div
-    class={`grid grid-cols-1 gap-lg tablet:grid-cols-2 tablet:gap-xl ${gridColumnsClass}`}
+    class:list={[
+      'grid grid-cols-1 gap-lg tablet:grid-cols-2 tablet:gap-xl',
+      gridColumnsClass
+    ]}
   >
     {
-      // Strapi preview (DynamicZone.astro) passes `titleCards`;
-      // MDX authoring passes <TitleCard> children instead, so we fall through to the slot.
-      titleCards ? (
-        titleCards.map((card) => {
-          return (
-            <TitleCard
-              heading={card.heading}
-              subheading={card.subHeading}
-              buttonUrl={card.secondaryCta.link}
-              buttonText={card.secondaryCta.text}
-              buttonExternal={card.secondaryCta.external}
-            >
-              <Fragment set:html={card.description} />
-            </TitleCard>
-          )
-        })
+      htmlCards ? (
+        htmlCards.map((card) => (
+          <TitleCard
+            heading={card.heading}
+            subheading={card.subHeading}
+            buttonUrl={card.secondaryCta.link}
+            buttonText={card.secondaryCta.text}
+            buttonExternal={card.secondaryCta.external}
+          >
+            <Fragment set:html={card.descriptionHtml} />
+          </TitleCard>
+        ))
       ) : (
         <slot />
       )

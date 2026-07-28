@@ -24,10 +24,10 @@
         }
       }
     },
-    "media": {
-      "type": "component",
-      "component": "shared.localized-media",
-      "repeatable": false,
+    "backgroundImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"],
       "pluginOptions": {
         "i18n": {
           "localized": true

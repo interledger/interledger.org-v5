@@ -4,6 +4,7 @@ import {
   defaultLang,
   generateMDX,
   readLocaleFromUpdateEvent,
+  resolvePageDescription,
   resolvePageFilepath
 } from '@/utils'
 
@@ -17,7 +18,7 @@ const testConfig = {
 }
 
 describe('generateMDX — clears deleted Strapi-managed fields', () => {
-  it('removes heroImage from frontmatter when media is deleted in Strapi', () => {
+  it('removes heroImage from frontmatter when backgroundImage is deleted in Strapi', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -28,7 +29,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       hero: {
         title: 'Hero Title',
         description: undefined,
-        media: undefined
+        backgroundImage: undefined
       }
     }
     const preservedFields = {
@@ -41,7 +42,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('keeps heroImage in frontmatter when media is present', () => {
+  it('keeps heroImage in frontmatter when backgroundImage is present', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -51,7 +52,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       description: 'Test description',
       hero: {
         title: 'Hero Title',
-        media: { image: { url: 'https://example.com/image.jpg' } }
+        backgroundImage: { url: 'https://example.com/image.jpg' }
       }
     }
 
@@ -59,6 +60,27 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
 
     expect(result).toContain('heroImage')
     expect(result).toContain('https://example.com/image.jpg')
+  })
+})
+
+describe('resolvePageDescription', () => {
+  it('returns trimmed Strapi description when present', () => {
+    expect(
+      resolvePageDescription({ description: '  SEO blurb  ' }, {})
+    ).toBe('SEO blurb')
+  })
+
+  it('falls back to preserved MDX description', () => {
+    expect(
+      resolvePageDescription(
+        { description: undefined },
+        { description: 'Preserved blurb' }
+      )
+    ).toBe('Preserved blurb')
+  })
+
+  it('returns undefined when neither source has a description', () => {
+    expect(resolvePageDescription({ description: '   ' }, {})).toBeUndefined()
   })
 })
 
@@ -82,6 +104,27 @@ describe('generateMDX — required field validation', () => {
     expect(() =>
       generateMDX(testConfig, { ...base, description: '   ' })
     ).toThrow('Page is missing a required description')
+  })
+
+  it('uses preserved MDX description when Strapi description is empty', () => {
+    const result = generateMDX(
+      testConfig,
+      { ...base, description: undefined },
+      { description: 'From existing MDX file' }
+    )
+
+    expect(result).toContain("description: 'From existing MDX file'")
+  })
+
+  it('prefers Strapi description over preserved MDX description', () => {
+    const result = generateMDX(
+      testConfig,
+      { ...base, description: 'From Strapi' },
+      { description: 'From existing MDX file' }
+    )
+
+    expect(result).toContain("description: 'From Strapi'")
+    expect(result).not.toContain('From existing MDX file')
   })
 
   it('throws when hero is present but title is empty', () => {

@@ -41,7 +41,7 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
       '',
       'Some **body** copy.',
       '',
@@ -61,7 +61,8 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'left',
         displayRatio: '2:1',
-        media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: '' },
+        image: STRAPI_UPLOAD_ID.primaryImage,
+        imageAlt: 'Foo alt',
         content: 'Some **body** copy.',
         cta: {
           text: 'Apply',
@@ -70,20 +71,6 @@ describe('SplitLayout handler', () => {
         }
       }
     ])
-  })
-
-  it('parses imageAlt into media.alternativeText', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt">Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      media: {
-        image: STRAPI_UPLOAD_ID.primaryImage,
-        alternativeText: 'Foo alt'
-      }
-    })
   })
 
   it('defaults imagePosition to right and omits optional fields when absent', async () => {
@@ -98,10 +85,7 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'right',
         displayRatio: '2:1',
-        media: {
-          image: STRAPI_UPLOAD_ID.defaultLayoutImage,
-          alternativeText: ''
-        },
+        image: STRAPI_UPLOAD_ID.defaultLayoutImage,
         content: 'Body.'
       }
     ])
@@ -147,7 +131,7 @@ describe('SplitLayout handler', () => {
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
     const blocks = await parseMdxToBlocks(
-      `<SplitLayout layoutType="image-text" imageSrc="${TEST_IMAGE_SRC}" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>`,
+      `<SplitLayout layoutType="image-text" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Scoped alt" quote="Stale quote" quoteSource="Stale source">Body.</SplitLayout>`,
       ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.layoutTypeScopedImage })
     )
 
@@ -157,10 +141,8 @@ describe('SplitLayout handler', () => {
         layoutType: 'image-text',
         imagePosition: 'right',
         displayRatio: '2:1',
-        media: {
-          image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
-          alternativeText: ''
-        },
+        image: STRAPI_UPLOAD_ID.layoutTypeScopedImage,
+        imageAlt: 'Scoped alt',
         content: 'Body.'
       }
     ])
@@ -304,7 +286,7 @@ describe('SplitLayout handler — mixed content', () => {
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
     expect(blocks[1]).toMatchObject({
       __component: 'blocks.split-layout',
-      media: { image: STRAPI_UPLOAD_ID.mixedContentImage },
+      image: STRAPI_UPLOAD_ID.mixedContentImage,
       content: 'Split body.'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })

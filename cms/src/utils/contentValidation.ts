@@ -460,6 +460,28 @@ export function validateReportDate(
 }
 
 /**
+ * Validate the page-level Short Description field on page-like content types.
+ *
+ * Strapi marks `description` as required on create, but partial updates from
+ * the admin can omit unchanged fields — we only reject when `description` is
+ * present in the payload and blank.
+ */
+export function validatePageDescription(
+  body: Pick<PageData, 'description'>
+): errors.ValidationError | undefined {
+  if (!('description' in body)) return undefined
+  if (!body.description?.trim()) {
+    return combineFieldErrors([
+      {
+        message: 'Short Description is required',
+        path: ['description']
+      }
+    ])
+  }
+  return undefined
+}
+
+/**
  * Validate the Hero component on page-like content types (foundation-page,
  * summit-page): title is required, and each CTA needs both text and link.
  *

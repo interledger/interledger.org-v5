@@ -11,10 +11,7 @@ interface BlogPostPreview {
   publishedAt: string
   lastUpdated?: string
   featured?: boolean
-  featureMedia?: {
-    image?: { url?: string }
-    alternativeText?: string
-  }
+  featureImage?: { url?: string; alternativeText?: string }
   featureImageMobile?: { url?: string; alternativeText?: string }
   content?: string
 }
@@ -27,13 +24,8 @@ if (!documentId) {
 }
 
 // Always fetch draft content for preview
-const populateParams = new URLSearchParams({
-  status: 'draft',
-  'populate[featureMedia][populate]': '*',
-  'populate[featureImageMobile]': 'true'
-})
 const response = await fetchStrapi<BlogPostPreview>(
-  `api/foundation-blog-posts/${documentId}?${populateParams.toString()}`
+  `api/foundation-blog-posts/${documentId}?status=draft`
 )
 if (response instanceof Error) throw response
 const article = response.data
@@ -50,8 +42,8 @@ const frontmatter = {
   date: new Date(article.publishedAt),
   lastUpdated: article.lastUpdated ? new Date(article.lastUpdated) : undefined,
   featured: article.featured ?? false,
-  featureImage: article.featureMedia?.image?.url,
-  featureImageAlt: article.featureMedia?.alternativeText ?? '',
+  featureImage: article.featureImage?.url,
+  featureImageAlt: article.featureImage?.alternativeText ?? '',
   featureImageMobile: article.featureImageMobile?.url,
   featureImageMobileAlt: article.featureImageMobile?.alternativeText ?? '',
   articleBios: [],

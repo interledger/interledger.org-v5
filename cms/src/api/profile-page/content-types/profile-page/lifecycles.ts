@@ -36,7 +36,7 @@ export default createFlatLocaleMdxLifecycle<
   toMdxFilename: pathSlugToMdxFilename,
   generateContent: generateProfileMdx,
   populate: {
-    media: { populate: { image: true } },
+    photo: true,
     cta: true,
     content: PROFILE_PAGE_CONTENT_POPULATE
   }

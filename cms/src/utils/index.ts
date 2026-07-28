@@ -66,6 +66,7 @@ export {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePageDescription,
   validateBlogFields,
   validateNavigationLabels,
   toValidationError,
@@ -98,6 +99,7 @@ export {
   shouldSkipMdxExport,
   getAdminAuthor,
   resolvePageFilepath,
+  resolvePageDescription,
   generateMDX,
   createPageLifecycle,
   readLocaleFromUpdateEvent

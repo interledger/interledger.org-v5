@@ -9,6 +9,7 @@ import {
   validateReportDate,
   normalizeNavigationInput,
   validateHeroFields,
+  validatePageDescription,
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
   validateFaqSections,
@@ -732,7 +733,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       name: 'Name',
       pathSlug: 'Path Slug',
       section: 'Section',
-      media: 'Photo',
+      photo: 'Photo',
       tagline: 'Tag line',
       description: 'Description',
       role: 'Role',
@@ -746,9 +747,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       date: 'Publish Date',
       lastUpdated: 'Last Updated',
       featured: 'Featured',
-      featureMedia: 'Feature Image (Desktop)',
+      featureImage: 'Feature Image (Desktop)',
       featureImageMobile: 'Feature Image (Mobile)',
-      thumbnailMedia: 'Article Thumbnail',
+      thumbnailImage: 'Article Thumbnail',
       content: 'Content',
       articleBio: 'Author',
       categories: 'Categories',
@@ -831,8 +832,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used on profile grids below the avatar and name. Not shown on the profile page.',
       category:
         'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Fellows 2026", "2025 Hackathon Judges").',
-      media:
-        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
+      photo:
+        'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
       pathSlug:
         'Path relative to the chosen Section, no leading slash. This should include the category and the person’s name, e.g. 2025/judges/jane-doe.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
@@ -877,10 +878,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts).',
       featured:
         'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
-      featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
+      featureImage:
+        'Desktop feature image (required). Dimensions: 720 x 428. Click the edit (pencil) icon on the selected image to set Alternative text.',
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
-      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
+      thumbnailImage:
+        'Optional listing thumbnail. Dimensions: 240 x 140. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
@@ -931,12 +934,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       author: 'Name',
       link: 'Link',
       profileBio: 'Short Author Bio',
-      media: 'Photo'
+      profileImage: 'Photo'
     },
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      media: 'Background Image (Desktop)',
+      backgroundImage: 'Background Image (Desktop)',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
     },
@@ -1061,20 +1064,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.image-row': {
       heading: 'Heading',
       content: 'Content',
-      media: 'Image',
+      image: 'Image',
       imagePosition: 'Image Position',
       attribution: 'Image Attribution'
     },
     'blocks.image-block': {
-      media: 'Image',
+      image: 'Image',
       tabletImage: 'Tablet image variant (optional)',
       mobileImage: 'Mobile image variant (optional)',
+      altText: 'Image alt text',
       needsFullView: 'Needs full view',
       needsOutline: 'Needs outline'
-    },
-    'shared.localized-media': {
-      image: 'Image',
-      alternativeText: 'Alternative Text'
     },
     'blocks.code-block': {
       code: 'Code',
@@ -1091,11 +1091,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType: 'Layout',
       imagePosition: 'Image position',
       displayRatio: 'Display ratio',
-      // Deliberately not "Image" — SplitLayoutTypePicker.tsx's field show/hide
-      // logic identifies the nested media picker by its exact label text
-      // ("Image", from shared.localized-media's own field label) and would
-      // become ambiguous if this wrapper field used the same text.
-      media: 'Media',
+      image: 'Image',
+      imageAlt: 'Image alt text',
       videoUrl: 'Video URL',
       content: 'Content',
       quote: 'Quote',
@@ -1127,10 +1124,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'You can select multiple categories — click "+ Add an entry" for each category'
     },
     'shared.hero': {
-      media:
+      backgroundImage:
         'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
       backgroundImageMobile:
-        "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Shares the desktop image's alternative text."
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent.'
     },
     'shared.report-date': {
       lastUpdated:
@@ -1138,7 +1135,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.article-bio': {
       link: 'A URL to a personal website, LinkedIn profile, or similar.',
-      media:
+      profileImage:
         'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
     },
@@ -1151,14 +1148,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Use if your image needs different proportions or cropping on medium-sized screens.',
       mobileImage:
         'Use if your image needs different proportions or cropping on small screens.',
+      altText:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       needsFullView:
         'Enable for complex images, diagrams, or anything where fine detail matters.',
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
-    },
-    'shared.localized-media': {
-      alternativeText:
-        'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
     },
     'blocks.video-embed': {
       source:
@@ -1192,6 +1187,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       imagePosition: 'Controls which side the image appears on.',
       displayRatio:
         'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
+      imageAlt:
+        'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
       quote:
@@ -1202,7 +1199,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.title-card-grid': {
       ariaLabel:
-        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.',
+      columns: 'Desktop layout: 2 across or 3 across. Stacks on smaller screens.',
+      titleCards:
+        'Add at least one card. Each card needs a heading, description, and secondary CTA. Sub heading is optional.'
+    },
+    'blocks.title-card': {
+      heading: 'Required card title.',
+      subHeading: 'Optional supporting line under the heading.',
+      description: 'Required body copy for the card.',
+      secondaryCta: 'Required button. Set link text, URL, and whether it opens externally.'
     },
     'shared.secondary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
@@ -1337,10 +1343,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'categories', size: 6 }
       ],
       [
-        { name: 'featureMedia', size: 6 },
+        { name: 'featureImage', size: 6 },
         { name: 'featureImageMobile', size: 6 }
       ],
-      [{ name: 'thumbnailMedia', size: 6 }],
+      [{ name: 'thumbnailImage', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
       [{ name: 'articleBio', size: 12 }],
@@ -1352,8 +1358,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'category', size: 6 }],
-      [{ name: 'media', size: 12 }],
+      [
+        { name: 'category', size: 6 },
+        { name: 'photo', size: 6 }
+      ],
       [{ name: 'role', size: 12 }],
       [{ name: 'tagline', size: 12 }],
       [{ name: 'description', size: 12 }],
@@ -1439,8 +1447,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'author', size: 6 },
         { name: 'link', size: 6 }
       ],
-      [{ name: 'media', size: 6 }],
-      [{ name: 'profileBio', size: 12 }]
+      [
+        { name: 'profileImage', size: 6 },
+        { name: 'profileBio', size: 6 }
+      ]
     ],
     'blocks.profile-grid': [
       [{ name: 'heading', size: 12 }],
@@ -1474,7 +1484,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'media', size: 12 }],
+      [{ name: 'image', size: 12 }],
       [
         { name: 'attribution', size: 6 },
         { name: 'imagePosition', size: 6 }
@@ -1482,14 +1492,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'blocks.image-block': [
-      [{ name: 'media', size: 12 }],
       [
-        { name: 'tabletImage', size: 6 },
-        { name: 'mobileImage', size: 6 }
+        { name: 'image', size: 4 },
+        { name: 'tabletImage', size: 4 },
+        { name: 'mobileImage', size: 4 }
       ],
       [
-        { name: 'needsFullView', size: 6 },
-        { name: 'needsOutline', size: 6 }
+        { name: 'altText', size: 4 },
+        { name: 'needsFullView', size: 4 },
+        { name: 'needsOutline', size: 4 }
       ]
     ],
     'blocks.blockquote': [
@@ -1512,8 +1523,10 @@ async function configureLayouts(strapi: StrapiInstance) {
     'shared.hero': [
       [{ name: 'title', size: 12 }],
       [{ name: 'description', size: 12 }],
-      [{ name: 'media', size: 12 }],
-      [{ name: 'backgroundImageMobile', size: 12 }],
+      [
+        { name: 'backgroundImage', size: 6 },
+        { name: 'backgroundImageMobile', size: 6 }
+      ],
       [{ name: 'hero_call_to_action', size: 12 }]
     ],
     'shared.cta-link': [
@@ -1541,7 +1554,6 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'imageAlt', size: 6 },
         { name: 'videoUrl', size: 6 }
       ],
-      [{ name: 'media', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },
@@ -1683,6 +1695,9 @@ export default {
       'api::foundation-page.foundation-page',
       (body) =>
         mergeValidationErrors(
+          validatePageDescription(
+            body as Parameters<typeof validatePageDescription>[0]
+          ),
           validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
           validateContentBlocks(
             Array.isArray(body.content) ? body.content : undefined
@@ -1691,6 +1706,9 @@ export default {
     )
     registerDocumentValidation(strapi, 'api::summit-page.summit-page', (body) =>
       mergeValidationErrors(
+        validatePageDescription(
+          body as Parameters<typeof validatePageDescription>[0]
+        ),
         validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined
@@ -1701,8 +1719,13 @@ export default {
       strapi,
       'api::hackathon-page.hackathon-page',
       (body) =>
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validatePageDescription(
+            body as Parameters<typeof validatePageDescription>[0]
+          ),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerDocumentValidation(

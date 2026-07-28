@@ -16,6 +16,7 @@ interface InputProps {
 type FieldKey =
   | 'imagePosition'
   | 'image'
+  | 'imageAlt'
   | 'videoUrl'
   | 'quote'
   | 'quoteSource'
@@ -24,6 +25,7 @@ type FieldKey =
 const FIELD_KEYS: FieldKey[] = [
   'imagePosition',
   'image',
+  'imageAlt',
   'videoUrl',
   'quote',
   'quoteSource',
@@ -37,16 +39,7 @@ function normalizeFieldText(value: string): string {
 /**
  * The "Image" field has no [name] attribute (it's a media-library picker),
  * so it's identified by its exact label text instead. Exact match matters:
- * "Image position" also starts with "Image".
- *
- * The image field is now `shared.localized-media` (an `image` + `alternativeText`
- * component), so this label lives one level deeper than it used to, nested
- * inside that component's own box. This still works only because the
- * component's own field label ("Image", set on shared.localized-media in
- * cms/src/index.ts) is the *only* "Image" text on the page — the wrapper
- * field on blocks.split-layout itself is deliberately labeled "Media", not
- * "Image", to avoid a duplicate match. If either label ever changes, re-check
- * that exactly one "Image" label remains.
+ * "Image position" and "Image alt text" both start with "Image".
  */
 function isImageLabel(el: HTMLElement): boolean {
   return normalizeFieldText(el.textContent ?? '') === 'Image'
@@ -204,6 +197,7 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
   updatePositionHint(imagePositionItem, layoutType)
 
   setFieldVisibility(prefix, 'image', showImage)
+  setFieldVisibility(prefix, 'imageAlt', showImage)
   setFieldVisibility(prefix, 'videoUrl', showVideo)
   setFieldVisibility(prefix, 'quote', showQuote)
   setFieldVisibility(prefix, 'quoteSource', showQuote)
@@ -234,10 +228,8 @@ function clearIrrelevantFields(
     layoutVisibility(layoutType)
 
   if (!showImage) {
-    // `image` was a flat media field; it's now the `media` shared.localized-media
-    // component (image + alternativeText) — clear the whole component so no
-    // stale alt text survives a layout switch either.
-    setFieldValue(`${prefix}.media`, null)
+    setFieldValue(`${prefix}.image`, null)
+    setFieldValue(`${prefix}.imageAlt`, null)
   }
   if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
   if (!showText) {

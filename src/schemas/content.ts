@@ -82,6 +82,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
@@ -94,6 +95,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
@@ -161,6 +163,7 @@ export const grantPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   programOverview: z.string().optional(),
   primaryCta: z
@@ -192,6 +195,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),

@@ -33,31 +33,29 @@ describe('ImageBlock handler — happy paths', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.image-block',
-        media: { image: 12, alternativeText: '' },
+        image: 12,
         needsFullView: false,
         needsOutline: false
       }
     ])
   })
 
-  it('maps alt to media.alternativeText', async () => {
+  it('maps alt to altText', async () => {
     const blocks = await parseMdxToBlocks(
       '<ImageBlock src="/img/diagram.png" alt="Sequence diagram" />',
       ctxWith({ '/img/diagram.png': 12 })
     )
 
-    expect(blocks[0]).toMatchObject({
-      media: { alternativeText: 'Sequence diagram' }
-    })
+    expect(blocks[0]).toMatchObject({ altText: 'Sequence diagram' })
   })
 
-  it('defaults media.alternativeText to empty string when alt is empty or absent', async () => {
+  it('omits altText when alt is empty or absent', async () => {
     const blocks = await parseMdxToBlocks(
       '<ImageBlock src="/img/diagram.png" alt="" />',
       ctxWith({ '/img/diagram.png': 12 })
     )
 
-    expect(blocks[0]).toMatchObject({ media: { alternativeText: '' } })
+    expect(blocks[0]).not.toHaveProperty('altText')
   })
 
   it('resolves tablet and mobile variants to their own media IDs', async () => {
@@ -67,7 +65,7 @@ describe('ImageBlock handler — happy paths', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      media: { image: 1 },
+      image: 1,
       tabletImage: 2,
       mobileImage: 3
     })
@@ -138,7 +136,7 @@ describe('ImageBlock handler — ordering', () => {
     expect(blocks[0]).toMatchObject({ __component: 'blocks.paragraph' })
     expect(blocks[1]).toMatchObject({
       __component: 'blocks.image-block',
-      media: { image: 5 },
+      image: 5,
       needsFullView: true
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })

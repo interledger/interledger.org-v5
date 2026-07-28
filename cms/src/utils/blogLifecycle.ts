@@ -39,28 +39,27 @@ interface BlogResult {
   updatedAt: Date
   publishedAt?: Date
   locale: string
-  featureMedia?: {
-    image?: { name: string; url: string }
+  featureImage?: {
+    name: string
     alternativeText?: string
+    url: string
   }
   featureImageMobile?: {
     name: string
     alternativeText?: string
     url: string
   }
-  thumbnailMedia?: {
-    image?: { name: string; url: string }
+  thumbnailImage?: {
+    name: string
     alternativeText?: string
+    url: string
   }
   articleBio?: {
     // Nullable: Strapi populates an empty bio component's unset author as null.
     author: string | null
     link?: string
     profileBio?: string
-    media?: {
-      image?: { url: string; name: string }
-      alternativeText?: string
-    }
+    profileImage?: { url: string; name: string; alternativeText?: string }
   }[]
   categories?: { categoryValue: string }[]
   relatedArticles?: { slug: string }[]
@@ -88,10 +87,10 @@ async function fetchBlogPost(
       locale,
       status: 'published',
       populate: {
-        featureMedia: { populate: { image: true } },
+        featureImage: true,
         featureImageMobile: true,
-        thumbnailMedia: { populate: { image: true } },
-        articleBio: { populate: { media: { populate: { image: true } } } },
+        thumbnailImage: true,
+        articleBio: { populate: { profileImage: true } },
         categories: true,
         relatedArticles: true,
         localizations: true,
@@ -130,11 +129,11 @@ export function generateBlogMDX(post: BlogResult) {
               bio.profileBio
                 ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
                 : null,
-              bio.media?.image
-                ? `\n    image: ${yqs(bio.media.image.url)}`
+              bio.profileImage
+                ? `\n    image: ${yqs(bio.profileImage.url)}`
                 : null,
-              bio.media?.image
-                ? `\n    imageAlt: ${yqs(bio.media.alternativeText ?? '')}`
+              bio.profileImage
+                ? `\n    imageAlt: ${yqs(bio.profileImage.alternativeText ?? '')}`
                 : null
             ]
               .filter(Boolean)
@@ -151,11 +150,11 @@ export function generateBlogMDX(post: BlogResult) {
     post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
     `featured: ${post.featured ?? false}`,
-    post.featureMedia?.image?.url
-      ? `featureImage: ${yqs(post.featureMedia.image.url)}`
+    post.featureImage?.url
+      ? `featureImage: ${yqs(post.featureImage.url)}`
       : null,
-    post.featureMedia?.image?.url
-      ? `featureImageAlt: ${yqs(post.featureMedia.alternativeText ?? '')}`
+    post.featureImage?.url
+      ? `featureImageAlt: ${yqs(post.featureImage.alternativeText ?? '')}`
       : null,
     post.featureImageMobile?.url
       ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
@@ -163,11 +162,11 @@ export function generateBlogMDX(post: BlogResult) {
     post.featureImageMobile?.url
       ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText ?? '')}`
       : null,
-    post.thumbnailMedia?.image?.url
-      ? `thumbnailImage: ${yqs(post.thumbnailMedia.image.url)}`
+    post.thumbnailImage?.url
+      ? `thumbnailImage: ${yqs(post.thumbnailImage.url)}`
       : null,
-    post.thumbnailMedia?.image?.url
-      ? `thumbnailImageAlt: ${yqs(post.thumbnailMedia.alternativeText ?? '')}`
+    post.thumbnailImage?.url
+      ? `thumbnailImageAlt: ${yqs(post.thumbnailImage.alternativeText ?? '')}`
       : null,
     articleBios,
     post.categories

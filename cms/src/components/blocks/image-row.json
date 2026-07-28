@@ -29,11 +29,11 @@
         }
       }
     },
-    "media": {
-      "type": "component",
-      "component": "shared.localized-media",
-      "repeatable": false,
+    "image": {
+      "type": "media",
+      "multiple": false,
       "required": true,
+      "allowedTypes": ["images"],
       "pluginOptions": {
         "i18n": {
           "localized": true

@@ -3,15 +3,11 @@ import { escDouble as esc } from '../shared'
 
 type ImageField = { url?: string; alternativeText?: string } | number
 
-interface LocalizedMediaField {
-  image?: ImageField
-  alternativeText?: string
-}
-
 interface ImageBlockBlock {
-  media?: LocalizedMediaField
+  image?: ImageField
   tabletImage?: ImageField
   mobileImage?: ImageField
+  altText?: string
   needsFullView?: boolean
   needsOutline?: boolean
 }
@@ -21,12 +17,12 @@ function asMediaObject(field: ImageField | undefined) {
 }
 
 export function serialize(block: ImageBlockBlock): string {
-  if (!block.media || !hasMediaValue(block.media.image))
+  if (!hasMediaValue(block.image))
     throw new Error('ImageBlock block is missing image')
 
-  const image = asMediaObject(block.media.image)
+  const image = asMediaObject(block.image)
   const src = getImageUrl(image)
-  const alt = block.media.alternativeText ?? image?.alternativeText ?? ''
+  const alt = block.altText ?? image?.alternativeText ?? ''
   const tabletSrc = getImageUrl(asMediaObject(block.tabletImage))
   const mobileSrc = getImageUrl(asMediaObject(block.mobileImage))
 

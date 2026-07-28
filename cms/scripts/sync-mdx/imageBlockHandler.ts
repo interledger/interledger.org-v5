@@ -44,14 +44,12 @@ async function handleImageBlock(
 
     const block: ImageBlockBlock = {
       __component: 'blocks.image-block',
-      media: {
-        image: await resolveMedia(src),
-        alternativeText: alt ?? ''
-      },
+      image: await resolveMedia(src),
       needsFullView: getBooleanAttr(node, 'needsFullView') ?? false,
       needsOutline: getBooleanAttr(node, 'needsOutline') ?? false
     }
 
+    if (alt) block.altText = alt
     if (tabletSrc) block.tabletImage = await resolveMedia(tabletSrc)
     if (mobileSrc) block.mobileImage = await resolveMedia(mobileSrc)
 

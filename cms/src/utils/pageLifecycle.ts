@@ -39,7 +39,7 @@ export interface PageData {
   hero?: {
     title?: string
     description?: string
-    media?: { image?: { url?: string } | null; alternativeText?: string } | null
+    backgroundImage?: { url?: string }
     hero_call_to_action?: {
       text?: string
       link?: string
@@ -159,6 +159,20 @@ function getOutputDir<T extends UID.ContentType>(
   return path.join(projectRoot, config.outputDir)
 }
 
+/** Prefer Strapi description; fall back to existing MDX frontmatter when unset. */
+export function resolvePageDescription(
+  page: Pick<PageData, 'description'>,
+  preservedFields: Record<string, unknown>
+): string | undefined {
+  const fromPage = page.description?.trim()
+  if (fromPage) return fromPage
+
+  const preserved = preservedFields.description
+  return typeof preserved === 'string' && preserved.trim()
+    ? preserved.trim()
+    : undefined
+}
+
 export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   _config: PageLifecycleConfig<T>,
   page: PageData,
@@ -172,7 +186,8 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
 
-  if (!page.description?.trim()) {
+  const description = resolvePageDescription(page, preservedFields)
+  if (!description) {
     throw toValidationError(new Error('Page is missing a required description'))
   }
 
@@ -188,7 +203,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     ...restPreserved,
     pathSlug: page.pathSlug,
     title: page.title,
-    description: page.description,
+    description,
     ...heroData,
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale
@@ -199,7 +214,6 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     'heroTitle',
     'heroDescription',
     'heroImage',
-    'heroImageAlt',
     'heroCtas'
   ] as const
   for (const key of heroManagedKeys) {
@@ -215,10 +229,16 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
   )
 }
 
+interface WriteMdxFileOptions {
+  /** When true, MDX validation errors block the Strapi save. */
+  strict?: boolean
+}
+
 async function writeMDXFile<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>,
   page: PageData,
-  englishSlug?: string
+  englishSlug?: string,
+  options: WriteMdxFileOptions = {}
 ): Promise<string | Error> {
   const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
@@ -246,7 +266,10 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     return filepath
   } catch (error) {
-    if (error instanceof errors.ValidationError) throw error
+    if (error instanceof errors.ValidationError) {
+      if (options.strict) throw error
+      return error
+    }
     return error instanceof Error
       ? new Error(
           `Failed to write ${uidToLogLabel(config.contentTypeUid)} MDX file ${filepath}: ${error.message}`,
@@ -294,9 +317,17 @@ async function fetchPublished<T extends UID.ContentType>(
   }
 }
 
+interface ExportAllLocalesOptions {
+  /** Locale that triggered the save — validation errors block the request. */
+  strictLocale?: string
+  /** Fresh page data from the lifecycle result for `strictLocale`. */
+  savedPage?: PageData
+}
+
 async function exportAllLocales<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>,
-  documentId: string
+  documentId: string,
+  options: ExportAllLocalesOptions = {}
 ): Promise<string[]> {
   const filepaths: string[] = []
   // Fetch English first so we can pass its slug to localized exports for the
@@ -310,25 +341,34 @@ async function exportAllLocales<T extends UID.ContentType>(
   const englishSlug = englishPage?.pathSlug ?? undefined
 
   for (const locale of LOCALES) {
-    const result =
+    const fetched =
       locale === defaultLang
         ? englishPage
         : await fetchPublished(config, documentId, locale)
 
-    if (result instanceof Error) {
-      console.error(`⚠️  ${result.message}`)
+    if (fetched instanceof Error) {
+      console.error(`⚠️  ${fetched.message}`)
       continue
     }
-    if (!result) {
+    if (!fetched) {
       console.log(
         `⏭️  No published ${locale} ${uidToLogLabel(config.contentTypeUid)} for ${documentId}`
       )
       continue
     }
 
-    const filepath = await writeMDXFile(config, result, englishSlug)
+    const result =
+      options.strictLocale === locale && options.savedPage
+        ? { ...fetched, ...options.savedPage, locale }
+        : fetched
+
+    const filepath = await writeMDXFile(config, result, englishSlug, {
+      strict: locale === options.strictLocale
+    })
     if (filepath instanceof Error) {
-      console.error(`⚠️  ${filepath.message}`)
+      console.warn(
+        `⚠️  Skipped ${locale} ${uidToLogLabel(config.contentTypeUid)} MDX export: ${filepath.message}`
+      )
       continue
     }
     filepaths.push(filepath)
@@ -442,7 +482,10 @@ export function createPageLifecycle<T extends UID.ContentType>(
       console.log(
         `📝 Creating ${label} MDX for all locales: ${result.pathSlug}`
       )
-      await exportAllLocales(config, result.documentId)
+      await exportAllLocales(config, result.documentId, {
+        strictLocale: result.locale ?? defaultLang,
+        savedPage: result
+      })
       const ctx: SyncContext = {
         slug: result.pathSlug ?? undefined,
         action: 'create',
@@ -507,7 +550,10 @@ export function createPageLifecycle<T extends UID.ContentType>(
       console.log(
         `📝 Updating ${label} MDX for all locales: ${result.pathSlug}`
       )
-      await exportAllLocales(config, result.documentId)
+      await exportAllLocales(config, result.documentId, {
+        strictLocale: result.locale ?? defaultLang,
+        savedPage: result
+      })
       const ctx: SyncContext = {
         slug: result.pathSlug ?? undefined,
         action: 'update',

@@ -48,6 +48,7 @@ export function generateGrantOverviewPageMDX(
     'heroImage',
     'heroImageAlt',
     'heroImageMobile',
+    'heroImageMobileAlt',
     'heroCtas'
   ])
     delete (restPreserved as Record<string, unknown>)[key]

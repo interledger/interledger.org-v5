@@ -14,7 +14,7 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: { image: true, cta: true }
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
@@ -22,11 +22,7 @@ const GRANT_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: {
-      media: { populate: { image: true } },
-      tabletImage: true,
-      mobileImage: true
-    }
+    populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.cta-strip': {},
   'blocks.carousel': {
@@ -45,9 +41,7 @@ const GRANT_BLOCKS = {
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.profile': {
-    populate: {
-      profile: { populate: { media: { populate: { image: true } } } }
-    }
+    populate: { profile: { populate: { photo: true } } }
   },
   'blocks.profile-grid': {
     populate: { profiles: true }
@@ -60,6 +54,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.video-embed': {
     populate: { file: true }
+  },
+  'blocks.title-card-grid': {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
   }
 } as const
 
@@ -69,11 +66,7 @@ const FOUNDATION_BLOG_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: {
-      media: { populate: { image: true } },
-      tabletImage: true,
-      mobileImage: true
-    }
+    populate: { image: true, tabletImage: true, mobileImage: true }
   },
   'blocks.code-block': {}
 } as const
@@ -92,10 +85,13 @@ export const REPORT_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for hackathon-page content field (paragraph blocks only). */
+/** Populate config for hackathon-page content field. */
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
-    'blocks.paragraph': {}
+    'blocks.paragraph': {},
+    'blocks.title-card-grid': {
+      populate: { titleCards: { populate: { secondaryCta: true } } }
+    }
   }
 } as const
 
@@ -111,13 +107,7 @@ export const BLOG_CONTENT_POPULATE = {
 
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
-  hero: {
-    populate: {
-      media: { populate: { image: true } },
-      backgroundImageMobile: true,
-      hero_call_to_action: true
-    }
-  },
+  hero: { populate: '*' },
   primaryCta: true,
   content: {
     on: {
@@ -137,13 +127,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
-  hero: {
-    populate: {
-      media: { populate: { image: true } },
-      backgroundImageMobile: true,
-      hero_call_to_action: true
-    }
-  },
+  hero: { populate: '*' },
   content: {
     on: { ...GRANT_BLOCKS }
   },

@@ -593,14 +593,14 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }> &
       Schema.Attribute.DefaultTo<false>
-    featureImageMobile: Schema.Attribute.Media<'images'> &
+    featureImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    featureMedia: Schema.Attribute.Component<'shared.localized-media', false> &
-      Schema.Attribute.Required &
+    featureImageMobile: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -647,10 +647,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         },
         number
       >
-    thumbnailMedia: Schema.Attribute.Component<
-      'shared.localized-media',
-      false
-    > &
+    thumbnailImage: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -742,7 +739,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
-        'blocks.video-embed'
+        'blocks.video-embed',
+        'blocks.title-card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1024,7 +1022,9 @@ export interface ApiHackathonPageHackathonPage
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+    content: Schema.Attribute.DynamicZone<
+      ['blocks.paragraph', 'blocks.title-card-grid']
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1117,12 +1117,6 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::profile-page.profile-page'
     >
-    media: Schema.Attribute.Component<'shared.localized-media', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1136,6 +1130,12 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    photo: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1332,7 +1332,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
-        'blocks.video-embed'
+        'blocks.video-embed',
+        'blocks.title-card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

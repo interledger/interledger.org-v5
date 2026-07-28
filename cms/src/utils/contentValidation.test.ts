@@ -11,6 +11,7 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePageDescription,
   validateBlogFields,
   mergeValidationErrors,
   toValidationError,
@@ -625,6 +626,27 @@ describe('validateFaqSections', () => {
       ['faqSections', '0', 'items', '0', 'question'],
       ['faqSections', '1', 'items']
     ])
+  })
+})
+
+describe('validatePageDescription', () => {
+  it('returns undefined when description is omitted from the payload', () => {
+    expect(validatePageDescription({})).toBeUndefined()
+  })
+
+  it('returns undefined when description is non-empty', () => {
+    expect(
+      validatePageDescription({ description: 'Short SEO description' })
+    ).toBeUndefined()
+  })
+
+  it('returns ValidationError when description is blank', () => {
+    const err = validatePageDescription({ description: '   ' })
+    expect(err?.message).toBe('Short Description is required')
+    expect(
+      (err?.details as { errors?: Array<{ path?: string[] }> })?.errors?.[0]
+        ?.path
+    ).toEqual(['description'])
   })
 })
 
