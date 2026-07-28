@@ -1,0 +1,108 @@
+---
+/**
+ * Podcast Item — description + player card for a single episode.
+ *
+ * The card shell (thumbnail, episode, series, title) matches the design, but
+ * playback itself is delegated to the real embed rather than custom player
+ * chrome: a Castopod URL renders its own iframe player (matching the
+ * existing site pattern), and a YouTube URL renders via VideoEmbed. Neither
+ * can be driven by an external scrubber, so no fake play/seek UI is built.
+ */
+import { detectVideoProvider, twMerge } from '@/utils'
+import VideoEmbed from './VideoEmbed.astro'
+import type { Podcast } from '@/types/podcast'
+
+interface Props {
+  podcast: Podcast
+  theme?: 'light' | 'dark'
+}
+
+const { podcast, theme = 'light' } = Astro.props
+const { title, description, url, series, episode, coverImage } = podcast
+const isDark = theme === 'dark'
+const provider = detectVideoProvider(url)
+---
+
+<article
+  class={twMerge(
+    'flex w-full flex-col gap-xl lg:flex-row lg:items-center lg:gap-2xl'
+  )}
+>
+  <p
+    class={twMerge(
+      'text-base leading-[1.5] md:text-lg lg:w-1/2 lg:text-xl lg:leading-[30px]',
+      isDark ? 'text-neutral-0' : 'text-neutral-900'
+    )}
+  >
+    {description}
+  </p>
+
+  <div
+    class={twMerge(
+      'rounded-3xl border p-lg lg:w-1/2',
+      isDark ? 'border-neutral-75' : 'border-neutral-50'
+    )}
+  >
+    <div class="flex items-center gap-lg">
+      {
+        coverImage && (
+          <img
+            src={coverImage}
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+            class="h-[140px] w-[140px] shrink-0 rounded-lg object-cover"
+          />
+        )
+      }
+
+      <div class="flex min-w-0 flex-1 flex-col gap-md">
+        <div class="flex items-center gap-md">
+          {
+            episode && (
+              <span
+                class={twMerge(
+                  'text-xl leading-[30px]',
+                  isDark ? 'text-neutral-50' : 'text-neutral-900'
+                )}
+              >
+                {episode}
+              </span>
+            )
+          }
+          <span
+            class={twMerge(
+              'text-sm leading-6',
+              isDark ? 'text-neutral-50' : 'text-neutral-900'
+            )}
+          >
+            {series}
+          </span>
+        </div>
+
+        <p
+          class={twMerge(
+            'm-0 line-clamp-2 text-sm leading-6',
+            isDark ? 'text-neutral-0' : 'text-neutral-900'
+          )}
+        >
+          {title}
+        </p>
+
+        {
+          provider === 'youtube' ? (
+            <VideoEmbed url={url} title={title} poster={coverImage ?? undefined} />
+          ) : (
+            <iframe
+              title={`${title} — podcast player`}
+              class="h-28 w-full"
+              loading="lazy"
+              src={url}
+            />
+          )
+        }
+      </div>
+    </div>
+  </div>
+</article>

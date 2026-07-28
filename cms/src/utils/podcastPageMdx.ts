@@ -134,11 +134,13 @@ export function generatePodcastPageMdx(
   const locale = page.locale ?? defaultLang
   const isLocalized = locale !== defaultLang
 
+  const hero = page.hero as Parameters<typeof heroFrontmatter>[0]
+
   const frontmatter: Record<string, unknown> = {
     title: page.title,
     pathSlug: page.pathSlug,
     description: page.description,
-    ...heroFrontmatter(page.hero ?? undefined),
+    ...heroFrontmatter(hero),
     titleCards: titleCardsFrontmatter(page.titleCards),
     podcasts: podcastsFrontmatter(page.podcasts),
     ctaStrip: ctaStripFrontmatter(page.ctaStrip),

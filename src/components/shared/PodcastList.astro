@@ -1,0 +1,26 @@
+---
+/**
+ * Podcast List — renders the /podcast page's fixed episode list.
+ * podcasts is a plain frontmatter array (page-owned, not a relation), so
+ * there's no category/relation lookup here — just a direct map.
+ */
+import PodcastItem from './PodcastItem.astro'
+import type { Podcast } from '@/types/podcast'
+
+interface Props {
+  podcasts: Podcast[]
+  theme?: 'light' | 'dark'
+}
+
+const { podcasts, theme = 'light' } = Astro.props
+---
+
+<ul class="m-0 flex list-none flex-col gap-2xl p-0" role="list">
+  {
+    podcasts.map((podcast) => (
+      <li>
+        <PodcastItem podcast={podcast} theme={theme} />
+      </li>
+    ))
+  }
+</ul>

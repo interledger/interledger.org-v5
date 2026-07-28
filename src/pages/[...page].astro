@@ -3,18 +3,25 @@ import FaqPage from '@/components/pages/FaqPage.astro'
 import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
 import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import GrantPage from '@/components/pages/GrantPage.astro'
+import PodcastPage from '@/components/pages/PodcastPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
 import ReportPage from '@/components/pages/ReportPage.astro'
 import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
 
 export async function getStaticPaths() {
-  const [foundationPages, grantPages, grantOverviews, crossSectionPaths] =
-    await Promise.all([
-      getLocalizedPaths('foundation-pages', 'en', 'page'),
-      getLocalizedPaths('grant-pages', 'en', 'page'),
-      getLocalizedPaths('grant-overview-pages', 'en', 'page'),
-      getCrossSectionPaths('foundation', 'en', 'page')
-    ])
+  const [
+    foundationPages,
+    grantPages,
+    grantOverviews,
+    podcastPages,
+    crossSectionPaths
+  ] = await Promise.all([
+    getLocalizedPaths('foundation-pages', 'en', 'page'),
+    getLocalizedPaths('grant-pages', 'en', 'page'),
+    getLocalizedPaths('grant-overview-pages', 'en', 'page'),
+    getLocalizedPaths('podcast-pages', 'en', 'page'),
+    getCrossSectionPaths('foundation', 'en', 'page')
+  ])
 
   return [
     ...crossSectionPaths,
@@ -29,6 +36,10 @@ export async function getStaticPaths() {
     ...grantOverviews.map((p) => ({
       params: { page: `grant/${p.params.page}` },
       props: { ...p.props, kind: 'grant-overview-page' as const }
+    })),
+    ...podcastPages.map((p) => ({
+      ...p,
+      props: { ...p.props, kind: 'podcast-page' as const }
     }))
   ]
 }
@@ -63,6 +74,12 @@ const { slug, locale: contentLocale, kind, isFallback } = Astro.props
     />
   ) : kind === 'grant-overview-page' ? (
     <GrantOverviewPage
+      slug={slug}
+      contentLocale={contentLocale}
+      isFallback={isFallback}
+    />
+  ) : kind === 'podcast-page' ? (
+    <PodcastPage
       slug={slug}
       contentLocale={contentLocale}
       isFallback={isFallback}
