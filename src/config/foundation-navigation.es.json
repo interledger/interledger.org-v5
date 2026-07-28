@@ -92,7 +92,7 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/grants/our-grantmaking"
+              "href": "/grant/our-grantmaking"
             },
             {
               "label": "Directorio de beneficiarios",
@@ -105,15 +105,15 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/grants/education"
+              "href": "/grant/education"
             },
             {
               "label": "NextGen",
-              "href": "/grants/education/on-campus"
+              "href": "/grant/education/on-campus"
             },
             {
               "label": "Interledger en el campus",
-              "href": "/grants/education/next-gen"
+              "href": "/grant/education/next-gen"
             }
           ]
         },
@@ -122,23 +122,23 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/grants/innovation"
+              "href": "/grant/innovation"
             },
             {
               "label": "Servicios financieros digitales",
-              "href": "/grants/innovation/financial-services"
+              "href": "/grant/innovation/financial-services"
             },
             {
               "label": "Open Payments Accelerator",
-              "href": "/grants/innovation/accelerator"
+              "href": "/grant/innovation/accelerator"
             },
             {
               "label": "Open Payments SDK",
-              "href": "/grants/innovation/sdk"
+              "href": "/grant/innovation/sdk"
             },
             {
               "label": "Grant for the Web",
-              "href": "/grants/innovation/grant-web"
+              "href": "/grant/innovation/grant-web"
             }
           ]
         },
@@ -147,15 +147,15 @@
           "items": [
             {
               "label": "Subvenciones de investigación",
-              "href": "/grants/call-for-papers"
+              "href": "/grant/call-for-papers"
             },
             {
               "label": "Subvenciones de política",
-              "href": "/grants/public-policy-activation"
+              "href": "/grant/public-policy-activation"
             },
             {
               "label": "Becas",
-              "href": "/grants/fellowship"
+              "href": "/grant/fellowship"
             }
           ]
         }
