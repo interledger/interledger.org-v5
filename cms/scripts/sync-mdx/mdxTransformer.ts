@@ -24,7 +24,8 @@ import type {
   grantPageFrontmatterSchema,
   faqFrontmatterSchema,
   reportFrontmatterSchema,
-  hackathonPageFrontmatterSchema
+  hackathonPageFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import type { ParsedBlock } from './types.blocks'
@@ -763,6 +764,103 @@ export async function buildFaqPayload(
       description: parsed.description,
       introParagraph: nullOrValue(parsed.introParagraph),
       faqSections: parsed.faqSections,
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/** Resolves a podcast item's optional coverImage URL to an existing Strapi upload ID. */
+async function resolvePodcastCoverImage(
+  strapi: StrapiClient,
+  coverImage: string | null | undefined
+): Promise<number | null> {
+  const url = nullOrValue(coverImage)
+  if (!url) return null
+
+  const uploadId = await strapi.findUploadByUrl(url)
+  if (uploadId instanceof Error) throw uploadId
+  if (!uploadId) {
+    console.warn(`   ⚠️  Cover image not found in Strapi uploads: ${url}`)
+  }
+  return uploadId
+}
+
+/**
+ * Builds a Strapi payload for the podcast-page MDX file.
+ *
+ * podcast-page has no `content` dynamic zone — hero, titleCards, podcasts,
+ * and ctaStrip are all page-owned components flattened straight into
+ * frontmatter, so this only needs frontmatter validation, hero image
+ * resolution (shared with grant-overview-page via `buildHeroWithImage`),
+ * and per-podcast-item coverImage resolution. No relation resolution.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildPodcastPagePayload(
+  schema: typeof podcastPageFrontmatterSchema,
+  mdx: MDXFile,
+  strapiUploadContext?: StrapiUploadContext,
+  updatedAltIds: Map<number, string | null> = new Map()
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      updatedAltIds,
+      mdx.pathSlug,
+      strapiUploadContext?.dryRun ?? false
+    )
+
+    const titleCards = {
+      columns: parsed.titleCards.columns,
+      ariaLabel: parsed.titleCards.ariaLabel,
+      titleCards: parsed.titleCards.cards
+    }
+
+    const strapi = strapiUploadContext?.strapi
+    const podcasts = await Promise.all(
+      parsed.podcasts.map(async (podcast) => ({
+        title: podcast.title,
+        description: podcast.description,
+        url: podcast.url,
+        series: podcast.series,
+        ...(podcast.episode ? { episode: podcast.episode } : {}),
+        ...(strapi
+          ? {
+              coverImage: await resolvePodcastCoverImage(
+                strapi,
+                podcast.coverImage
+              )
+            }
+          : {})
+      }))
+    )
+
+    const ctaStripFm = parsed.ctaStrip
+    const ctaStrip = {
+      heading: ctaStripFm.heading,
+      description: ctaStripFm.description,
+      primaryButtonText: ctaStripFm.buttonText,
+      primaryButtonLink: ctaStripFm.buttonLink,
+      color: ctaStripFm.color,
+      ...(ctaStripFm.secondaryButtonText
+        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
+        : {}),
+      ...(ctaStripFm.secondaryButtonLink
+        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+        : {})
+    }
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      description: parsed.description,
+      hero,
+      titleCards,
+      podcasts,
+      ctaStrip,
       publishedAt: new Date().toISOString()
     }
   })

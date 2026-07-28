@@ -11,6 +11,7 @@ import {
   buildFaqPayload,
   buildReportPayload,
   buildHackathonPagePayload,
+  buildPodcastPagePayload,
   createMediaUploadResolver,
   type StrapiUploadContext
 } from './mdxTransformer'
@@ -23,7 +24,8 @@ import {
   hackathonPageFrontmatterSchema,
   profileFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -83,6 +85,7 @@ export interface ContentTypes {
   profiles: ContentTypeConfig
   faqs: ContentTypeConfig
   reports: ContentTypeConfig
+  'podcast-pages': ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -274,6 +277,23 @@ export function buildContentTypes(
           },
           pageAltIds,
           dryRun
+        )
+    },
+    'podcast-pages': {
+      dir: getContentPath(projectRoot, 'podcastPages'),
+      apiId: 'podcast-pages',
+      schema: podcastPageFrontmatterSchema,
+      buildPayload: (mdx, strapi, _existing, dryRun) =>
+        buildPodcastPagePayload(
+          podcastPageFrontmatterSchema,
+          mdx,
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun
+          },
+          pageAltIds
         )
     },
     'foundation-blog-posts': {

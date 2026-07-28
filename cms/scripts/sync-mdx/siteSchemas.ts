@@ -7,5 +7,6 @@ export {
   foundationBlogFrontmatterSchema,
   profileFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from '@site/schemas/content'
