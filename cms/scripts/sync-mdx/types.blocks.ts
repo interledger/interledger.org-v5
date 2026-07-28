@@ -155,6 +155,8 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   __component: 'blocks.split-layout'
   layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   imagePosition: 'left' | 'right'
+  /** Content : media column ratio. Defaults to 2:1 when omitted in MDX. */
+  displayRatio?: '1:1' | '1:2' | '2:1'
   image?: number | null
   imageAlt?: string
   videoUrl?: string
@@ -185,6 +187,15 @@ export interface CarouselBlock extends StrapiBlockBase {
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
   tiles: { number: string; suffix?: string; description: string }[]
+}
+
+/** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
+export interface CtaLinkBlock extends StrapiBlockBase {
+  __component: 'shared.cta-link'
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
 }
 
 /** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
@@ -230,3 +241,4 @@ export type ParsedBlock =
   | ImageBlockBlock
   | NumberTilesBlock
   | TitleCardGridBlock
+  | CtaLinkBlock

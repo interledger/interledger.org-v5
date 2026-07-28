@@ -33,7 +33,8 @@ const GRANT_BLOCKS = {
   },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
-  }
+  },
+  'shared.cta-link': {}
 } as const
 
 /** Blocks shared by all content types. */
@@ -76,6 +77,13 @@ export const PROFILE_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for report content field (paragraph blocks only). */
 export const REPORT_CONTENT_POPULATE = {
+  on: {
+    'blocks.paragraph': {}
+  }
+} as const
+
+/** Populate config for hackathon-page content field (paragraph blocks only). */
+export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {}
   }

@@ -766,6 +766,14 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    displayRatio: Schema.Attribute.Enumeration<['1:1', '1:2', '2:1']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'2:1'>
     image: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1209,26 +1217,6 @@ export interface SharedSection extends Struct.ComponentSchema {
   }
 }
 
-export interface SharedSeo extends Struct.ComponentSchema {
-  collectionName: 'components_shared_seos'
-  info: {
-    description: 'SEO metadata for pages'
-    displayName: 'SEO'
-    icon: 'search'
-  }
-  attributes: {
-    metaDescription: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 300
-      }>
-  }
-}
-
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -1272,7 +1260,6 @@ declare module '@strapi/strapi' {
       'shared.report-date': SharedReportDate
       'shared.secondary-cta-link': SharedSecondaryCtaLink
       'shared.section': SharedSection
-      'shared.seo': SharedSeo
     }
   }
 }

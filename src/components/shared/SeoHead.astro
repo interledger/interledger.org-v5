@@ -41,7 +41,20 @@ const canonicalURL = canonicalOverride
   : new URL(Astro.url.pathname, site).href
 const ogImage = ogImageUrl
   ? new URL(ogImageUrl, site).href
-  : new URL('/img/blog/og-ilf.png', site).href
+  : new URL('/img/og-foundation.png', site).href
+
+const OG_IMAGE_WIDTH = 1200
+const OG_IMAGE_HEIGHT = 630
+const OG_IMAGE_MIME_TYPES: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif'
+}
+const ogImageExtension = ogImage.split('.').pop()?.toLowerCase() ?? ''
+const ogImageType = OG_IMAGE_MIME_TYPES[ogImageExtension] ?? 'image/png'
+
 const resolvedOgSiteName = ogSiteName ?? siteName
 const resolvedOgLocale = ogLocale ?? 'en_US'
 
@@ -109,6 +122,9 @@ const jsonLd = JSON.stringify({
 <meta property="og:title" content={resolvedTitle} />
 <meta property="og:type" content={ogType} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:type" content={ogImageType} />
+<meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+<meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
 <meta property="og:image:alt" content={resolvedOgImageAlt} />
 <meta property="og:site_name" content={resolvedOgSiteName} />
 <meta property="og:locale" content={resolvedOgLocale} />
@@ -118,6 +134,7 @@ const jsonLd = JSON.stringify({
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={resolvedTitle} />
 <meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={resolvedOgImageAlt} />
 <meta name="twitter:description" content={resolvedDescription} />
 {twitterSite && <meta name="twitter:site" content={twitterSite} />}
 

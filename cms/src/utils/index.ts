@@ -1,6 +1,25 @@
 // Error handling
 export { tryCatchAsync } from './tryCatch'
 
+// Upload limits (mirrored in src/utils/shared/uploadLimits.ts)
+export {
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_SIZE_LABEL,
+  IMAGE_EXTENSIONS,
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit,
+  isImagePath
+} from './uploadLimits'
+
+// Upload validation
+export {
+  isLocalImagePath,
+  resolvePublicImagePath,
+  validateImageFileSize,
+  validateLocalImageUrl
+} from './uploadValidation'
+
 // Paths & configuration
 export {
   getProjectRoot,
@@ -15,14 +34,14 @@ export {
   PROFILE_PAGE_CONTENT_POPULATE,
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  REPORT_CONTENT_POPULATE
+  REPORT_CONTENT_POPULATE,
+  HACKATHON_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
 export {
   type HeroCta,
   heroFrontmatter,
-  seoFrontmatter,
   getPreservedFields,
   defaultLang,
   LOCALES,

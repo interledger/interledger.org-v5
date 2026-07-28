@@ -36,6 +36,7 @@ export const PATHS = {
     grantPages: 'grant-pages',
     grantOverviewPages: 'grant-overview-pages',
     summitPages: 'summit-pages',
+    hackathonPages: 'hackathon-pages',
     profiles: 'profiles',
     faqs: 'faqs',
     reports: 'reports'

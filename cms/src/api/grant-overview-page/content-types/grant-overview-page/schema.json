@@ -76,7 +76,6 @@
         "blocks.paragraph",
         "blocks.split-layout",
         "blocks.blockquote",
-        "blocks.callout-text",
         "blocks.video-embed",
         "blocks.image-block",
         "blocks.cta-strip",

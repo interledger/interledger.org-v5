@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
   scheduleGitSync,
@@ -22,6 +23,13 @@ import {
 } from './utils'
 import { validateContentBlocks } from './serializers/blocks'
 import { errors } from '@strapi/utils'
+import {
+  formatImageSize,
+  imageSizeLimitError,
+  isImageOverSizeLimit,
+  IMAGE_EXTENSIONS,
+  MAX_IMAGE_SIZE_LABEL
+} from './utils/uploadLimits'
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -358,6 +366,72 @@ async function ensureLocales(strapi: StrapiInstance) {
 const UPLOAD_SUBDIR = 'img/original'
 const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
 
+function getUploadFileSizeBytes(file: UploadFile): number {
+  if (typeof file.size === 'number') return file.size
+  if (file.buffer) return file.buffer.length
+  return 0
+}
+
+function normalizeUploadExt(ext: string): string {
+  const lower = ext.toLowerCase()
+  // Strapi's `file.ext` normally includes the leading dot (".png"); IMAGE_EXTENSIONS
+  // / MIME_BY_EXT keys use that same format. Normalize so a bare "png" still matches.
+  return lower.startsWith('.') ? lower : `.${lower}`
+}
+
+function isImageUpload(file: UploadFile): boolean {
+  const mime = typeof file.mime === 'string' ? file.mime : ''
+  if (mime.startsWith('image/')) return true
+  // Explicit non-image MIME (e.g. application/pdf, video/*) must not fall
+  // through to the extension check — seedable media includes those too.
+  if (mime) return false
+
+  const rawExt = typeof file.ext === 'string' ? file.ext : ''
+  if (!rawExt) return false
+  return IMAGE_EXTENSIONS.has(normalizeUploadExt(rawExt))
+}
+
+function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
+  if (!isImageUpload(file)) return
+
+  const sizeBytes = getUploadFileSizeBytes(file)
+  // size/buffer unknown (0) — stream uploads are enforced mid-pipe instead.
+  if (sizeBytes > 0 && isImageOverSizeLimit(sizeBytes)) {
+    throw new errors.ApplicationError(imageSizeLimitError(label, sizeBytes))
+  }
+}
+
+function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
+  if (!isImageUpload(file)) return
+
+  const { size } = fs.statSync(dest)
+  if (isImageOverSizeLimit(size)) {
+    fs.unlinkSync(dest)
+    throw new errors.ApplicationError(imageSizeLimitError(dest, size))
+  }
+}
+
+/**
+ * Counts bytes while piping an image upload so we can abort as soon as the
+ * stream exceeds the 2 MB image limit, instead of writing a huge file and
+ * unlinking it in the post-write check (when `file.size` / `buffer` were absent).
+ */
+function createImageSizeLimitTransform(label: string): Transform {
+  let bytesSeen = 0
+  return new Transform({
+    transform(chunk, _encoding, callback) {
+      bytesSeen += chunk.length
+      if (isImageOverSizeLimit(bytesSeen)) {
+        callback(
+          new errors.ApplicationError(imageSizeLimitError(label, bytesSeen))
+        )
+        return
+      }
+      callback(null, chunk)
+    }
+  })
+}
+
 /**
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
@@ -376,19 +450,50 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   const provider = uploadPlugin.provider
+  const originalCheckFileSize = provider.checkFileSize?.bind(provider)
+
+  provider.checkFileSize = (file: UploadFile, options?: unknown) => {
+    originalCheckFileSize?.(file, options)
+    const label =
+      typeof file.name === 'string'
+        ? file.name
+        : `${file.hash ?? 'upload'}${file.ext ?? ''}`
+    assertImageWithinUploadLimit(file, label)
+  }
 
   provider.uploadStream = async (file: UploadFile) => {
     const stream = file.stream ?? file.getStream?.()
     if (!stream) throw new Error('Missing file stream')
+    const label =
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
-    await pipeline(stream, fs.createWriteStream(dest))
+    try {
+      if (isImageUpload(file)) {
+        await pipeline(
+          stream,
+          createImageSizeLimitTransform(label),
+          fs.createWriteStream(dest)
+        )
+      } else {
+        await pipeline(stream, fs.createWriteStream(dest))
+      }
+    } catch (err) {
+      if (fs.existsSync(dest)) fs.unlinkSync(dest)
+      throw err
+    }
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
   provider.upload = async (file: UploadFile) => {
     if (!file.buffer) throw new Error('Missing file buffer')
+    const label =
+      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
+    assertImageWithinUploadLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)
+    assertWrittenImageWithinLimit(file, dest)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -405,7 +510,9 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     }
   }
 
-  strapi.log.info(`✅ Upload provider redirected to ${uploadPath}`)
+  strapi.log.info(
+    `✅ Upload provider redirected to ${uploadPath} (${MAX_IMAGE_SIZE_LABEL} limit enforced)`
+  )
 }
 
 /**
@@ -509,6 +616,12 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
       if (existing) continue
 
       const stat = fs.statSync(filePath)
+      if (IMAGE_EXTENSIONS.has(ext) && isImageOverSizeLimit(stat.size)) {
+        strapi.log.warn(
+          `⚠️  Skipping seed for oversized image (${formatImageSize(stat.size)}): ${url}`
+        )
+        continue
+      }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
       const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
 
@@ -617,7 +730,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
       name: 'Name',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       photo: 'Photo',
       tagline: 'Tag line',
@@ -629,7 +742,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title: 'Title',
       description: 'Short Description',
-      pathSlug: 'Full Path Slug',
+      pathSlug: 'Path Slug',
       date: 'Publish Date',
       lastUpdated: 'Last Updated',
       featured: 'Featured',
@@ -644,18 +757,23 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       title: 'Page Title',
-      pathSlug: 'Full Path Slug',
-      pillar: 'Brand Pillar',
-      seo: 'SEO',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
       hero: 'Hero',
       content: 'Page Content'
     },
     'api::summit-page.summit-page': {
       title: 'Title',
-      pathSlug: 'Full Path Slug',
-      seo: 'SEO',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
       hero: 'Hero',
       content: 'Content'
+    },
+    'api::hackathon-page.hackathon-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      content: 'Page Content'
     },
     'api::foundation-navigation.foundation-navigation': {
       mainMenu: 'Main Menu',
@@ -688,7 +806,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::faq.faq': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       heading: 'Heading',
       description: 'Short Description',
@@ -697,7 +815,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::report.report': {
       title: 'Page Title',
-      pathSlug: 'URL Slug',
+      pathSlug: 'Path Slug',
       section: 'Section',
       heading: 'Heading',
       description: 'Short Description',
@@ -716,20 +834,27 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       photo:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges. Click the edit (pencil) icon to set Alternative text; leave it empty for decorative images.',
       pathSlug:
-        'This should include the category and the person’s name, e.g. 2025/judges/jane-doe. No leading slash. Determines the public URL.',
+        'Path relative to the chosen Section, no leading slash. This should include the category and the person’s name, e.g. 2025/judges/jane-doe.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
       description:
-        'Short intro blurb shown on the profile page, above the CTA and biography sections.'
+        'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
-        'Path relative to the site root (/). Examples: about-us → /about-us; grant/grant-for-web → /grant/grant-for-web. No leading slash.'
+        'Path relative to the site root (/). Examples: about-us → /about-us; no leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::summit-page.summit-page': {
       pathSlug:
-        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.'
+        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
+    },
+    'api::hackathon-page.hackathon-page': {
+      pathSlug:
+        'Path relative to /hackathon/. Examples: overview → /hackathon/overview; rules → /hackathon/rules. Do not include /hackathon/ or a leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       pathSlug:
@@ -746,7 +871,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.',
-      description: 'Aim for 120–160 characters.',
+      description:
+        'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
         'Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts).',
       featured:
@@ -756,7 +882,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
       thumbnailImage:
-        'Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text.',
+        'Optional listing thumbnail. Dimensions: 240 x 140. Click the edit (pencil) icon on the selected image to set Alternative text.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
@@ -815,9 +941,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       backgroundImage: 'Background Image (Desktop)',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
-    },
-    'shared.seo': {
-      metaDescription: 'Meta Description'
     },
     'blocks.profile': {
       profile: 'Profile'
@@ -966,6 +1089,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.split-layout': {
       layoutType: 'Layout',
       imagePosition: 'Image position',
+      displayRatio: 'Display ratio',
       image: 'Image',
       imageAlt: 'Image alt text',
       videoUrl: 'Video URL',
@@ -1060,6 +1184,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       layoutType:
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
+      displayRatio:
+        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
       imageAlt:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative.',
       videoUrl:
@@ -1245,20 +1371,23 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pillar', size: 6 }
-      ],
+      [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'seo', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
     'api::summit-page.summit-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'seo', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
+    'api::hackathon-page.hackathon-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
     'api::grant-overview-page.grant-overview-page': [
@@ -1271,11 +1400,9 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'followUpContent', size: 12 }]
     ],
     'api::grant-page.grant-page': [
-      [
-        { name: 'title', size: 6 },
-        { name: 'pathSlug', size: 6 }
-      ],
-      [{ name: 'description', size: 6 }],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
       [{ name: 'primaryCta', size: 12 }],
@@ -1400,7 +1527,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'external', size: 4 }]
     ],
-    'shared.seo': [[{ name: 'metaDescription', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
@@ -1411,12 +1537,13 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.split-layout': [
       [{ name: 'layoutType', size: 12 }],
+      [{ name: 'image', size: 12 }],
       [
-        { name: 'imagePosition', size: 4 },
-        { name: 'image', size: 8 },
-        { name: 'videoUrl', size: 8 }
+        { name: 'imagePosition', size: 3 },
+        { name: 'displayRatio', size: 3 },
+        { name: 'imageAlt', size: 6 },
+        { name: 'videoUrl', size: 6 }
       ],
-      [{ name: 'imageAlt', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },
@@ -1571,6 +1698,14 @@ export default {
           Array.isArray(body.content) ? body.content : undefined
         )
       )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::hackathon-page.hackathon-page',
+      (body) =>
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
     )
     registerDocumentValidation(
       strapi,

@@ -3,6 +3,7 @@ export {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   summitPageFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   foundationBlogFrontmatterSchema,
   profileFrontmatterSchema,
   faqFrontmatterSchema,

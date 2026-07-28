@@ -6,7 +6,6 @@ export default createPageLifecycle({
   outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.summitPages}`,
   populate: {
     hero: { populate: '*' },
-    seo: { populate: '*' },
     content: FOUNDATION_PAGE_CONTENT_POPULATE
   }
 })

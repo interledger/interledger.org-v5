@@ -23,14 +23,16 @@ import type {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  hackathonPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import type { ParsedBlock } from './types.blocks'
 import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { tryCatchAsync, getProjectRoot } from '@/utils'
+import { tryCatchAsync, getProjectRoot, validateLocalImageUrl } from '@/utils'
 import path from 'path'
 import fs from 'fs'
 
@@ -84,6 +86,9 @@ async function getImageFromStrapi(
   const photoUrl = nullOrValue(image)
   if (!photoUrl) return null
 
+  const sizeError = validateLocalImageUrl(getProjectRoot(), photoUrl)
+  if (sizeError) throw sizeError
+
   const name = normalizeStrapiFilename(path.basename(photoUrl))
 
   const byUrl = await strapi.findUploadByUrl(photoUrl)
@@ -127,6 +132,9 @@ export function createMediaUploadResolver(
   dryRun: boolean
 ): (url: string) => Promise<number | null> {
   return async (url: string): Promise<number | null> => {
+    const sizeError = validateLocalImageUrl(getProjectRoot(), url)
+    if (sizeError) throw sizeError
+
     const id = await strapi.findUploadByUrl(url)
     if (id instanceof Error) throw id
     if (id) return id
@@ -259,7 +267,7 @@ async function buildHeroWithImage(
  *
  * This function:
  * 1. Validates frontmatter against the provided Zod schema
- * 2. Builds the base payload with required fields (title, pathSlug, publishedAt)
+ * 2. Builds the base payload with required fields (title, pathSlug, description, publishedAt)
  * 3. Handles hero section (from frontmatter or preserves existing)
  * 4. Imports MDX content as markdown (preserves original format, no HTML conversion)
  *
@@ -287,8 +295,8 @@ export async function buildPagePayload(
     const data: Record<string, unknown> = {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
-      publishedAt: new Date().toISOString(),
-      ...(parsed.pillar ? { pillar: parsed.pillar } : {})
+      description: parsed.description,
+      publishedAt: new Date().toISOString()
     }
 
     data.hero = await buildHeroWithImage(
@@ -309,10 +317,34 @@ export async function buildPagePayload(
   })
 }
 
+/**
+ * Ensures every parsed block's `__component` is in `allowedComponents`. Used
+ * by content types with a restricted dynamic zone (e.g. hackathon-pages)
+ * so an MDX author using an out-of-scope component (one that has a globally
+ * registered parser handler, but isn't allowed for this content type) fails
+ * the sync loudly instead of either silently succeeding or relying on
+ * Strapi's own dynamic-zone rejection at write time.
+ */
+function assertAllowedComponents(
+  blocks: ParsedBlock[],
+  allowedComponents: readonly string[],
+  pathSlug: string
+): void {
+  const disallowed = blocks.find(
+    (block) => !allowedComponents.includes(block.__component)
+  )
+  if (disallowed) {
+    throw new Error(
+      `[${pathSlug}] Component "${disallowed.__component}" is not allowed here. Allowed components: ${allowedComponents.join(', ')}.`
+    )
+  }
+}
+
 async function buildContentFromMdxBody(
   mdx: MDXFile,
   existingEntry: StrapiEntry | null,
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  allowedComponents?: readonly string[]
 ): Promise<unknown> {
   const mdxBody = (mdx.content || '').trim()
   if (mdxBody.length > 0) {
@@ -330,6 +362,9 @@ async function buildContentFromMdxBody(
           line: parsedBlocks.line,
           column: parsedBlocks.column
         })
+      }
+      if (allowedComponents) {
+        assertAllowedComponents(parsedBlocks, allowedComponents, mdx.pathSlug)
       }
       return parsedBlocks
     }
@@ -784,6 +819,47 @@ export async function buildReportPayload(
       description: parsed.description,
       introParagraph: nullOrValue(parsed.introParagraph),
       date: reportDatePayload(parsed.date),
+      ...(content !== undefined ? { content } : {}),
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/** Dynamic-zone components allowed in hackathon-pages MDX/Strapi content. */
+export const HACKATHON_PAGE_ALLOWED_COMPONENTS = ['blocks.paragraph'] as const
+
+/**
+ * Builds a Strapi payload for a hackathon-page MDX file.
+ *
+ * Like reports, hackathon-pages have no hero/seo components — `description`
+ * is a plain top-level field. Unlike every other page type's `content` zone,
+ * the allowed component list is enforced here (not just at Strapi's own
+ * dynamic-zone level): an MDX author using a component with a globally
+ * registered handler but not in `HACKATHON_PAGE_ALLOWED_COMPONENTS` fails the
+ * sync instead of relying solely on Strapi's write-time rejection.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildHackathonPagePayload(
+  schema: typeof hackathonPageFrontmatterSchema,
+  mdx: MDXFile,
+  existingEntry: StrapiEntry | null = null,
+  parserCtx?: ParserContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const content = await buildContentFromMdxBody(
+      mdx,
+      existingEntry,
+      parserCtx,
+      HACKATHON_PAGE_ALLOWED_COMPONENTS
+    )
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      description: parsed.description,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }

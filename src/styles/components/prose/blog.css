@@ -78,6 +78,8 @@
       outline-offset: 2px;
     }
 
+    /* Mobile: max-content so wide tables scroll rather than cram columns into
+       ~340px. Tablet+ has room to fit the column, so cells wrap instead. */
     & table {
       width: max-content;
       min-width: 100%;
@@ -86,6 +88,10 @@
       border-radius: var(--radius-2xl);
       overflow: hidden;
       background-color: var(--color-neutral-0);
+
+      @variant tablet {
+        width: 100%;
+      }
     }
 
     & th,

@@ -38,10 +38,7 @@ const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
 
 const title = mdxData?.title
-const description =
-  mdxData?.metaDescription || mdxData?.description || undefined
-const ogImageUrl = mdxData?.metaImage || undefined
-const canonicalURL = mdxData?.canonicalUrl || undefined
+const description = mdxData?.description || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
 const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
@@ -50,13 +47,7 @@ const gradient =
   (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'
 ---
 
-<SummitPageLayout
-  title={title}
-  description={description}
-  gradient={gradient}
-  ogImageUrl={ogImageUrl}
-  canonicalURL={canonicalURL}
->
+<SummitPageLayout title={title} description={description} gradient={gradient}>
   <main
     class="relative z-0 pb-3xl before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >

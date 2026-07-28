@@ -28,7 +28,7 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const site = Astro.site!
-const ogImageUrl = new URL('/img/blog/og-ilf.png', site).href
+const ogImageUrl = new URL('/img/og-blog.png', site).href
 
 const publishedDate = new Date(frontmatter.date)
 
@@ -57,7 +57,6 @@ const breadcrumbs = [
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={publishedDate.toISOString()}
-  headerTheme="light"
 >
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"

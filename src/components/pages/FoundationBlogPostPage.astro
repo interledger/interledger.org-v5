@@ -1,7 +1,11 @@
 ---
-import { useTranslations, type Locale } from '@/utils'
+import {
+  useTranslations,
+  resolveRelatedPosts,
+  defaultLocale,
+  type Locale
+} from '@/utils'
 import { getCollection, render } from 'astro:content'
-import type { CollectionEntry } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import ArticleBio from '@/components/blog/ArticleBio.astro'
 import RelatedArticles from '@/components/blog/RelatedArticles.astro'
@@ -34,16 +38,14 @@ if (!mdxPost) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
 
-// Resolve related-article slugs to posts in the same locale; skip any that
-// don't exist so a stale slug never breaks the build.
-const relatedPosts = (mdxData.relatedArticles ?? [])
-  .map((relatedSlug) =>
-    posts.find(
-      (post) =>
-        post.data.pathSlug === relatedSlug && post.data.locale === contentLocale
-    )
-  )
-  .filter((post): post is CollectionEntry<'foundation-blog'> => Boolean(post))
+// Resolve related-article slugs to posts, falling back to the EN post when no
+// translation exists in the current locale (see resolveRelatedPosts).
+const relatedPosts = resolveRelatedPosts(
+  posts,
+  mdxData.relatedArticles,
+  contentLocale,
+  defaultLocale
+)
 ---
 
 <BlogPostLayout frontmatter={mdxData}>

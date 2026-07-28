@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hackathon_pages",
+  "info": {
+    "singularName": "hackathon-page",
+    "pluralName": "hackathon-pages",
+    "displayName": "Hackathon Page",
+    "description": "Hackathon microsite pages with dynamic content blocks. Full path slug sets the URL and file location."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "pathSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "content": {
+      "type": "dynamiczone",
+      "components": ["blocks.paragraph"],
+      "pluginOptions": { "i18n": { "localized": true } }
+    }
+  }
+}

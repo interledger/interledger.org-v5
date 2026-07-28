@@ -735,10 +735,8 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.profile',
         'blocks.profile-grid',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
@@ -752,6 +750,13 @@ export interface ApiFoundationPageFoundationPage
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -771,21 +776,7 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
-    pillar: Schema.Attribute.Enumeration<
-      ['vision', 'mission', 'tech', 'values']
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
     publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -822,7 +813,6 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.paragraph',
         'blocks.split-layout',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
@@ -920,12 +910,12 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.paragraph',
         'blocks.split-layout',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.cta-strip',
         'blocks.carousel',
-        'blocks.profile-grid'
+        'blocks.profile-grid',
+        'shared.cta-link'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -994,6 +984,67 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
           preset: 'defaultMarkdown'
         }
       > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiHackathonPageHackathonPage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'hackathon_pages'
+  info: {
+    description: 'Hackathon microsite pages with dynamic content blocks. Full path slug sets the URL and file location.'
+    displayName: 'Hackathon Page'
+    pluralName: 'hackathon-pages'
+    singularName: 'hackathon-page'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hackathon-page.hackathon-page'
+    >
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1274,10 +1325,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.profile',
         'blocks.profile-grid',
         'blocks.blockquote',
-        'blocks.callout-text',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed'
@@ -1291,6 +1340,13 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1311,12 +1367,6 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         }
       }>
     publishedAt: Schema.Attribute.DateTime
-    seo: Schema.Attribute.Component<'shared.seo', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1736,6 +1786,7 @@ declare module '@strapi/strapi' {
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
+      'api::hackathon-page.hackathon-page': ApiHackathonPageHackathonPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage
       'api::report.report': ApiReportReport
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation

@@ -20,6 +20,7 @@ import {
   buildGrantOverviewPagePayload,
   buildFaqPayload,
   buildReportPayload,
+  buildHackathonPagePayload,
   createMediaUploadResolver,
   buildProfilePayload
 } from './mdxTransformer'
@@ -30,6 +31,7 @@ import {
   grantOverviewPageFrontmatterSchema,
   faqFrontmatterSchema,
   reportFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   profileFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
@@ -137,7 +139,7 @@ describe('buildPagePayload', () => {
     it('includes title from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About Us' }
+        frontmatter: { title: 'About Us', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -152,7 +154,7 @@ describe('buildPagePayload', () => {
     it('includes slug from mdx file', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about-page',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -167,7 +169,7 @@ describe('buildPagePayload', () => {
     it('includes publishedAt timestamp', async () => {
       const mdx = createMdxFile({
         pathSlug: 'test',
-        frontmatter: { title: 'Test' }
+        frontmatter: { title: 'Test', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -182,21 +184,12 @@ describe('buildPagePayload', () => {
       )
     })
 
-    it('accepts optional schema fields (description, heroImage, sections)', async () => {
+    it('includes description from frontmatter', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
-          description: 'Page description',
-          heroImage: '/images/hero.jpg',
-          sections: [
-            { title: 'Section 1', content: 'Content 1' },
-            {
-              title: 'Section 2',
-              content: 'Content 2',
-              ctas: [{ label: 'Learn', href: '/learn' }]
-            }
-          ]
+          description: 'Page description'
         }
       })
 
@@ -206,8 +199,9 @@ describe('buildPagePayload', () => {
         null
       )
 
-      expect((payload as Record<string, unknown>).title).toBe('About')
-      expect((payload as Record<string, unknown>).pathSlug).toBe('about')
+      expect((payload as Record<string, unknown>).description).toBe(
+        'Page description'
+      )
     })
   })
 
@@ -219,6 +213,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'Welcome',
           heroDescription: 'Learn about us'
         }
@@ -241,6 +236,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'Hero Only'
         }
       })
@@ -267,7 +263,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -283,7 +279,7 @@ describe('buildPagePayload', () => {
     it('sends null hero when no frontmatter hero and no existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -306,6 +302,7 @@ describe('buildPagePayload', () => {
         pathSlug: 'about',
         frontmatter: {
           title: 'About',
+          description: 'Test description',
           heroTitle: 'New Hero',
           heroDescription: 'New desc'
         }
@@ -329,7 +326,7 @@ describe('buildPagePayload', () => {
     it('creates content block with markdown when mdx has body', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: '## Heading\n\nParagraph text'
       })
 
@@ -356,7 +353,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -379,7 +376,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: '   \n\n   '
       })
 
@@ -397,7 +394,7 @@ describe('buildPagePayload', () => {
     it('does not include content when no mdx body and no existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' }
+        frontmatter: { title: 'About', description: 'Test description' }
       })
 
       const payload = await buildPagePayload(
@@ -417,7 +414,7 @@ describe('buildPagePayload', () => {
       }
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: 'New content'
       })
 
@@ -435,7 +432,7 @@ describe('buildPagePayload', () => {
     it('handles content with null existing entry', async () => {
       const mdx = createMdxFile({
         pathSlug: 'about',
-        frontmatter: { title: 'About' },
+        frontmatter: { title: 'About', description: 'Test description' },
         content: undefined
       })
 
@@ -453,7 +450,7 @@ describe('buildPagePayload', () => {
     it('processes summit-pages same as foundation-pages', async () => {
       const mdx = createMdxFile({
         pathSlug: 'schedule',
-        frontmatter: { title: 'Schedule' },
+        frontmatter: { title: 'Schedule', description: 'Test description' },
         content: 'Summit content'
       })
 
@@ -487,7 +484,7 @@ describe('buildPagePayload', () => {
 
       const mdx = createMdxFile({
         pathSlug: 'profiles-page',
-        frontmatter: { title: 'Profiles' },
+        frontmatter: { title: 'Profiles', description: 'Test description' },
         content: '<ProfileCard pathSlug="alice" />'
       })
 
@@ -516,7 +513,7 @@ describe('buildPagePayload', () => {
 
       const mdx = createMdxFile({
         pathSlug: 'bad-page',
-        frontmatter: { title: 'Bad' },
+        frontmatter: { title: 'Bad', description: 'Test description' },
         content: '<UnknownWidget />'
       })
 
@@ -544,6 +541,7 @@ describe('buildPagePayload', () => {
         localizes: 'about-us',
         frontmatter: {
           title: 'Sobre Nosotros',
+          description: 'Test description',
           localizes: 'about-us',
           locale: 'es'
         },
@@ -584,6 +582,7 @@ describe('buildPagePayload', () => {
         localizes: 'profiles-page',
         frontmatter: {
           title: 'Perfiles',
+          description: 'Test description',
           localizes: 'profiles-page',
           locale: 'es'
         },
@@ -619,6 +618,7 @@ describe('buildPagePayload', () => {
         localizes: 'about-us',
         frontmatter: {
           title: 'Sobre Nosotros',
+          description: 'Test description',
           localizes: 'about-us',
           locale: 'es'
         },
@@ -1083,6 +1083,7 @@ describe('buildGrantPagePayload', () => {
           __component: 'blocks.split-layout',
           layoutType: 'image-text',
           imagePosition: 'left',
+          displayRatio: '2:1',
           image: 42,
           imageAlt: 'Foo',
           content: 'Some body copy.',
@@ -1873,6 +1874,7 @@ describe('buildGrantOverviewPagePayload', () => {
           __component: 'blocks.split-layout',
           layoutType: 'image-text',
           imagePosition: 'left',
+          displayRatio: '2:1',
           image: 42,
           imageAlt: 'Foo',
           content: 'Some body copy.',
@@ -2248,6 +2250,149 @@ describe('buildReportPayload', () => {
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
       expect(payload).not.toHaveProperty('content')
+    })
+  })
+})
+
+const baseHackathonPageFrontmatter = {
+  title: 'Hackathon Overview',
+  description:
+    'A short description of the hackathon page, 120 to 160 characters.',
+  locale: 'en'
+}
+
+describe('buildHackathonPagePayload', () => {
+  describe('error handling', () => {
+    it('returns Error when title is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          description: 'A short description.',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+
+    it('returns Error when description is missing', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          title: 'Hackathon Overview',
+          locale: 'en'
+        }
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(result).toBeInstanceOf(Error)
+    })
+  })
+
+  describe('base payload fields', () => {
+    it('includes title, pathSlug, and description', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      const p = payload as Record<string, unknown>
+      expect(p.title).toBe('Hackathon Overview')
+      expect(p.pathSlug).toBe('overview')
+      expect(p.description).toBe(
+        'A short description of the hackathon page, 120 to 160 characters.'
+      )
+    })
+  })
+
+  describe('content parsing without parserCtx', () => {
+    it('includes MDX body as paragraph content', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: 'The full hackathon overview body.'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      const content = (payload as Record<string, unknown>).content as Array<
+        Record<string, unknown>
+      >
+      expect(content[0]?.__component).toBe('blocks.paragraph')
+      expect(content[0]?.content).toBe('The full hackathon overview body.')
+    })
+
+    it('omits content when the MDX body is empty', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '   \n\n   '
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+      expect(payload).not.toHaveProperty('content')
+    })
+  })
+
+  // The allow-list is only enforced on the parserCtx-gated path (real syncs
+  // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
+  describe('allowed component enforcement', () => {
+    it('accepts <Paragraph>, the only allowed component', async () => {
+      await import('./paragraphHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '<Paragraph>Hello hackathon.</Paragraph>'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('rejects a component with a globally registered handler that is not on the hackathon-pages allow-list', async () => {
+      await import('./blockquoteHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '<Blockquote source="Jane Doe">A quote.</Blockquote>'
+      })
+
+      const result = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toMatch(/blocks\.blockquote/)
+      expect((result as Error).message).toMatch(/not allowed/)
     })
   })
 })

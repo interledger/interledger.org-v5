@@ -15,6 +15,8 @@ type SplitLayoutType =
   | 'video-text'
   | 'video-quote'
 
+type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
+
 const SPLIT_LAYOUT_TYPES = [
   'image-text',
   'image-quote',
@@ -22,9 +24,12 @@ const SPLIT_LAYOUT_TYPES = [
   'video-quote'
 ] as const
 
+const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
+
 export function serialize(block: {
   layoutType?: string | null
   imagePosition?: 'left' | 'right'
+  displayRatio?: SplitLayoutDisplayRatio | string | null
   image?: { url?: string; alternativeText?: string } | number | null
   imageAlt?: string | null
   videoUrl?: string | null
@@ -61,6 +66,15 @@ export function serialize(block: {
 
   if (block.imagePosition && block.imagePosition !== 'right') {
     attrs.push(`imagePosition="${esc(block.imagePosition)}"`)
+  }
+
+  if (block.displayRatio && block.displayRatio !== '2:1') {
+    if (!isDisplayRatio(block.displayRatio)) {
+      throw new Error(
+        `Split layout displayRatio must be one of ${DISPLAY_RATIOS.join(', ')}. Received "${block.displayRatio}".`
+      )
+    }
+    attrs.push(`displayRatio="${esc(block.displayRatio)}"`)
   }
 
   if (isImageLayout && imageUrl) {
@@ -115,4 +129,8 @@ function inferLayoutType(block: {
 
 function isSplitLayoutType(value: string): value is SplitLayoutType {
   return SPLIT_LAYOUT_TYPES.includes(value as SplitLayoutType)
+}
+
+function isDisplayRatio(value: string): value is SplitLayoutDisplayRatio {
+  return DISPLAY_RATIOS.includes(value as SplitLayoutDisplayRatio)
 }

@@ -32,13 +32,12 @@ export default defineConfig({
     default: true
   },
   adapter: netlify({
-    // public/img and public/uploads are CMS-driven and can grow into the
-    // hundreds of MB. getOptimizedImage() (src/utils/main/images.ts) does a
-    // runtime fs.existsSync check against public/, which makes the function
-    // bundler's dependency tracer pull the whole directory into the SSR
-    // function — pushing it past AWS Lambda's size limit. These assets are
-    // served by the CDN / read at build time only, never needed at Lambda
-    // runtime, so they're excluded from the function bundle here.
+    // Defense in depth: public/img and public/uploads are CMS-driven and can
+    // grow into the hundreds of MB. getOptimizedImage() now reads a bundled
+    // variants catalog under src/generated/ (no runtime fs against public/),
+    // but keep these exclusions so a future filesystem probe cannot pull image
+    // binaries into the SSR function and breach AWS Lambda's unzipped size
+    // limit (INTORG-946 / ADR-008).
     excludeFiles: ['./public/img/**/*', './public/uploads/**/*']
   }),
   markdown: {

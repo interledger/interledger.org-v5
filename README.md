@@ -1,6 +1,6 @@
 # Interledger.org Website
 
-![Interledger Foundation](https://github.com/interledger/interledger.org-v5/blob/main/public/img/blog/og-ilf.png)
+![Interledger Foundation](https://github.com/interledger/interledger.org-v5/blob/main/public/img/og-foundation.png)
 
 This repository contains the source code for the [Interledger Foundation website](https://interledger.org), built with [Astro](https://astro.build/), [Starlight](https://starlight.astro.build/) for documentation, and [Strapi](https://strapi.io/) as a headless CMS.
 
@@ -204,7 +204,7 @@ flowchart
 ### Prerequisites
 
 - [Git](https://git-scm.com/downloads) for version control
-- [Node.js](https://nodejs.org/en/download) >= 18.0.0 <= 22.x.x
+- [Node.js](https://nodejs.org/en/download) >= 24.0.0 <= 24.x.x
 - [pnpm](https://pnpm.io/installation) >= 9.0.0
 
 ### Environment Setup
