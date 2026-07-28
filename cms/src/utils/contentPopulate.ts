@@ -127,3 +127,13 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   },
   ctaStrip: true
 } as const
+
+/** Populate config for podcast-page top-level component fields. No dynamic zone — everything is a page-owned repeatable component. */
+export const PODCAST_PAGE_CONTENT_POPULATE = {
+  hero: { populate: '*' },
+  titleCards: {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  podcasts: { populate: { coverImage: true } },
+  ctaStrip: true
+} as const

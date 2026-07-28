@@ -35,7 +35,8 @@ export {
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
   REPORT_CONTENT_POPULATE,
-  HACKATHON_PAGE_CONTENT_POPULATE
+  HACKATHON_PAGE_CONTENT_POPULATE,
+  PODCAST_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
@@ -109,6 +110,15 @@ export {
   generateProfileMdx
 } from './profileMdx'
 export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
+export {
+  type PodcastPageInput,
+  type PodcastPageHero,
+  type PodcastPageCtaStrip,
+  type PodcastPageTitleCard,
+  type PodcastPageTitleCardGrid,
+  type PodcastPageItem,
+  generatePodcastPageMdx
+} from './podcastPageMdx'
 export {
   type ReportMdxDate,
   type ReportMdxInput,

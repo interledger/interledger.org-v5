@@ -822,6 +822,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       introParagraph: 'Intro Paragraph',
       date: 'Date',
       content: 'Content'
+    },
+    'api::podcast-page.podcast-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      hero: 'Hero',
+      titleCards: 'Title Cards',
+      podcasts: 'Podcasts',
+      ctaStrip: 'CTA Strip'
     }
   }
 
@@ -867,6 +876,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
+    },
+    'api::podcast-page.podcast-page': {
+      pathSlug:
+        'Path relative to the site root. Set to "podcast" for the live /podcast page — no leading slash.',
+      description: 'Short description used for SEO. Aim for 120–160 characters.',
+      titleCards: 'List every featured podcast series shown at the top of the page.',
+      podcasts: 'The full list of podcast episodes shown on the page, in order.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
@@ -953,6 +969,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.blockquote': {
       quote: 'Quote',
       source: 'Source'
+    },
+    'blocks.podcast-item': {
+      title: 'Title',
+      description: 'Description',
+      url: 'URL',
+      series: 'Series',
+      episode: 'Episode',
+      coverImage: 'Cover Image'
     },
     'blocks.callout-text': {
       content: 'Content'
@@ -1141,6 +1165,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
+    },
+    'blocks.podcast-item': {
+      description: 'Ideally within 225 characters.',
+      url: 'A Castopod or YouTube embed link, e.g. https://podcast.interledger.org/@futuremoneypodcast/episodes/example-embed'
     },
     'blocks.image-block': {
       tabletImage:
@@ -1399,6 +1427,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
+    'api::podcast-page.podcast-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'titleCards', size: 12 }],
+      [{ name: 'podcasts', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }]
+    ],
     'api::grant-page.grant-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
@@ -1446,6 +1483,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
+    ],
+    'blocks.podcast-item': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'series', size: 6 }
+      ],
+      [{ name: 'url', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [
+        { name: 'episode', size: 6 },
+        { name: 'coverImage', size: 6 }
+      ]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
