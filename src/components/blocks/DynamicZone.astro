@@ -24,6 +24,7 @@ import SplitLayout from './SplitLayout.astro'
 import NumberTiles from './NumberTiles.astro'
 import TitleCardGrid from './TitleCardGrid.astro'
 import CtaLink from './CtaLink.astro'
+import FooterNotes from './FooterNotes.astro'
 
 interface Block {
   __component: string
@@ -54,7 +55,8 @@ const componentMap: Record<string, any> = {
   'blocks.split-layout': SplitLayout,
   'blocks.number-tiles': NumberTiles,
   'blocks.title-card-grid': TitleCardGrid,
-  'shared.cta-link': CtaLink
+  'shared.cta-link': CtaLink,
+  'blocks.footer-notes': FooterNotes
 }
 
 const resolvedBlocks = blocks

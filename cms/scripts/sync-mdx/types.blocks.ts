@@ -206,6 +206,16 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   external?: boolean
 }
 
+/**
+ * blocks.footer-notes — numbered list of source notes/citations shown at the
+ * bottom of a page. `text` is a short caption (may contain inline markdown);
+ * `linkText`/`linkUrl` are all-or-nothing. At least 1 note is required.
+ */
+export interface FooterNotesBlock extends StrapiBlockBase {
+  __component: 'blocks.footer-notes'
+  notes: { text: string; linkText?: string; linkUrl?: string }[]
+}
+
 /** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
 export interface TitleCard {
   heading: string
@@ -250,3 +260,4 @@ export type ParsedBlock =
   | NumberTilesBlock
   | TitleCardGridBlock
   | CtaLinkBlock
+  | FooterNotesBlock
