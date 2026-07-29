@@ -204,7 +204,7 @@ flowchart
 ### Prerequisites
 
 - [Git](https://git-scm.com/downloads) for version control
-- [Node.js](https://nodejs.org/en/download) >= 18.0.0 <= 22.x.x
+- [Node.js](https://nodejs.org/en/download) >= 24.0.0 <= 24.x.x
 - [pnpm](https://pnpm.io/installation) >= 9.0.0
 
 ### Environment Setup

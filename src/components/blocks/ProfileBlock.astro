@@ -19,8 +19,8 @@ if (!profile) {
   return null
 }
 
-const photoUrl = profile.photo?.url
-const photoAlt = profile.photo?.alternativeText ?? profile.name
+const photoUrl = profile.media?.image?.url
+const photoAlt = profile.media?.alternativeText ?? profile.name
 ---
 
 <ProfileCard

@@ -32,7 +32,7 @@ const htmlBios = await Promise.all(
         {bio.image ? (
           <OptimizedImage
             src={bio.image}
-            alt={bio.author}
+            alt={bio.imageAlt ?? bio.author}
             width={160}
             height={160}
             class="shrink-0 rounded-full w-[120px] h-[120px] max-w-none m-0 tablet:w-[160px] tablet:h-[160px]"
