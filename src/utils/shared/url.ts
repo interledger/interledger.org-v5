@@ -63,6 +63,14 @@ const SAFE_MARKDOWN_HREF_SCHEMES = new Set([
 ])
 const HREF_SCHEME = /^([a-z][a-z\d+\-.]*):/i
 
+// Per the WHATWG URL spec, tab/newline/carriage-return are stripped from a
+// URL wherever they appear before the scheme is parsed — so a browser reads
+// `java\tscript:alert(1)` as `javascript:alert(1)`. Strip the same
+// characters (plus other C0 controls, to be safe) before scheme detection,
+// so an obfuscated scheme can't slip past `HREF_SCHEME` as "no scheme".
+// eslint-disable-next-line no-control-regex -- intentionally matching C0 controls to strip them, not a typo
+const SCHEME_OBFUSCATION_CHARS = /[\x00-\x1f\x7f]+/g
+
 /**
  * Whether an href is safe to render as a markdown/rich-text link's `href`.
  * Used to neutralize editor-supplied markdown links (e.g. `[x](javascript:...)`)
@@ -72,7 +80,8 @@ const HREF_SCHEME = /^([a-z][a-z\d+\-.]*):/i
  */
 export function isSafeMarkdownHref(href: string): boolean {
   const trimmed = href.trim()
-  const match = HREF_SCHEME.exec(trimmed)
+  const schemeProbe = trimmed.replace(SCHEME_OBFUSCATION_CHARS, '')
+  const match = HREF_SCHEME.exec(schemeProbe)
   if (!match) return true
   return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
 }
