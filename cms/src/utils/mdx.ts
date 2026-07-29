@@ -202,8 +202,8 @@ interface HeroData {
   title?: string
   description?: string
   media?: {
-    image?: { url?: string }
-    alternativeText?: string
+    image?: { url?: string } | null
+    alternativeText?: string | null
   } | null
   backgroundImageMobile?: { url?: string; alternativeText?: string }
   hero_call_to_action?: HeroCta | null

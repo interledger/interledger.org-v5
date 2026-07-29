@@ -49,7 +49,7 @@ export interface StrapiProfile {
   description?: string
   media?: {
     image?: { url: string } | null
-    alternativeText?: string
+    alternativeText?: string | null
   } | null
   category?: string | null
   tagline?: string | null

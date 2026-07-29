@@ -22,7 +22,7 @@ export interface ProfileMdxInput {
   pathSlug: string
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null
-  media?: { image?: MediaFile | null; alternativeText?: string } | null
+  media?: { image?: MediaFile | null; alternativeText?: string | null } | null
   category?: string | null
   tagline?: string | null
   role?: string | null

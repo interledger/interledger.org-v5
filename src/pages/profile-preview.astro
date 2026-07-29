@@ -24,7 +24,7 @@ interface ProfilePreview {
   role?: string
   locale?: string
   description?: string
-  media?: { image?: { url?: string }; alternativeText?: string }
+  media?: { image?: { url?: string } | null; alternativeText?: string | null }
   content?: Array<{ __component: string; [key: string]: unknown }>
   cta?: ProfileCtaPreview | null
 }

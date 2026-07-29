@@ -12,8 +12,8 @@ interface BlogPostPreview {
   lastUpdated?: string
   featured?: boolean
   featureMedia?: {
-    image?: { url?: string }
-    alternativeText?: string
+    image?: { url?: string } | null
+    alternativeText?: string | null
   }
   featureImageMobile?: { url?: string; alternativeText?: string }
   content?: string
@@ -54,7 +54,6 @@ const frontmatter = {
   featureImage: article.featureMedia?.image?.url,
   featureImageAlt: article.featureMedia?.alternativeText ?? '',
   featureImageMobile: article.featureImageMobile?.url,
-  featureImageMobileAlt: article.featureImageMobile?.alternativeText ?? '',
   articleBios: [],
   categories: [],
   relatedArticles: [],
