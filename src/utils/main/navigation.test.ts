@@ -1,10 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import type { Locale } from './locales'
 
-// `./navigation` -> `./i18` -> `./locales` reaches into Astro's virtual
-// modules for i18n config. Mock them with a minimal en/es setup so this
-// suite can run under plain vitest (see breadcrumbs.test.ts for the same
-// convention).
+// `./navigation` -> `./locales` reaches into Astro's virtual modules for
+// i18n config. Mock them with a minimal en/es setup so this suite can run
+// under plain vitest (see breadcrumbs.test.ts for the same convention).
 vi.mock('astro:config/client', () => ({
   i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
 }))
