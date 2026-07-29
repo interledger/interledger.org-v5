@@ -394,6 +394,54 @@ export interface BlocksFaqSection extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksFooterNote extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_footer_notes_items'
+  info: {
+    description: 'Single footnote/citation entry: caption text and an optional inline source link'
+    displayName: 'Footer Note'
+    icon: 'quote'
+  }
+  attributes: {
+    linkText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    linkUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksFooterNotes extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_footer_notes'
+  info: {
+    description: 'Numbered list of source notes/citations, shown at the bottom of a page. At least 1 note required.'
+    displayName: 'Footer Notes'
+    icon: 'quote'
+  }
+  attributes: {
+    notes: Schema.Attribute.Component<'blocks.footer-note', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksGrantFaqItem extends Struct.ComponentSchema {
   collectionName: 'components_blocks_grant_faq_items'
   info: {
@@ -1269,6 +1317,8 @@ declare module '@strapi/strapi' {
       'blocks.cta-strip': BlocksCtaStrip
       'blocks.faq-item': BlocksFaqItem
       'blocks.faq-section': BlocksFaqSection
+      'blocks.footer-note': BlocksFooterNote
+      'blocks.footer-notes': BlocksFooterNotes
       'blocks.grant-faq-item': BlocksGrantFaqItem
       'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.image-block': BlocksImageBlock

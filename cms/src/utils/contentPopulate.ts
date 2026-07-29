@@ -60,6 +60,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.video-embed': {
     populate: { file: true }
+  },
+  'blocks.footer-notes': {
+    populate: { notes: true }
   }
 } as const
 
@@ -92,10 +95,13 @@ export const REPORT_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for hackathon-page content field (paragraph blocks only). */
+/** Populate config for hackathon-page content field. */
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
-    'blocks.paragraph': {}
+    'blocks.paragraph': {},
+    'blocks.footer-notes': {
+      populate: { notes: true }
+    }
   }
 } as const
 

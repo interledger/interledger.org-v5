@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_blocks_footer_notes",
+  "info": {
+    "displayName": "Footer Notes",
+    "icon": "quote",
+    "description": "Numbered list of source notes/citations, shown at the bottom of a page. At least 1 note required."
+  },
+  "options": {},
+  "attributes": {
+    "notes": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.footer-note",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

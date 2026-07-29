@@ -1,0 +1,36 @@
+{
+  "collectionName": "components_blocks_footer_notes_items",
+  "info": {
+    "displayName": "Footer Note",
+    "icon": "quote",
+    "description": "Single footnote/citation entry: caption text and an optional inline source link"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "text",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "linkText": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "linkUrl": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

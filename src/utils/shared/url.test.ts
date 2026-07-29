@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ensureAbsoluteUrl, ensureLeadingSlash, getSocialIconName } from './url'
+import {
+  ensureAbsoluteUrl,
+  ensureLeadingSlash,
+  getSafeExternalUrl,
+  isSafeMarkdownHref,
+  getSocialIconName
+} from './url'
 
 describe('ensureLeadingSlash', () => {
   it('prepends a slash when missing', () => {
@@ -60,6 +66,91 @@ describe('ensureAbsoluteUrl', () => {
 
   it('is case-insensitive about the scheme', () => {
     expect(ensureAbsoluteUrl('HTTPS://example.com')).toBe('HTTPS://example.com')
+  })
+})
+
+describe('getSafeExternalUrl', () => {
+  it('normalizes a bare host to an absolute https URL', () => {
+    expect(getSafeExternalUrl('gasfeesnow.com')).toBe('https://gasfeesnow.com')
+  })
+
+  it('leaves an absolute http/https URL untouched', () => {
+    expect(getSafeExternalUrl('https://example.com/report')).toBe(
+      'https://example.com/report'
+    )
+    expect(getSafeExternalUrl('http://example.com')).toBe('http://example.com')
+  })
+
+  it('normalizes a protocol-relative URL to https', () => {
+    expect(getSafeExternalUrl('//cdn.example.com/a.js')).toBe(
+      'https://cdn.example.com/a.js'
+    )
+  })
+
+  it('rejects a javascript: URL', () => {
+    expect(getSafeExternalUrl('javascript:alert(1)')).toBeNull()
+  })
+
+  it('rejects a data: URL', () => {
+    expect(
+      getSafeExternalUrl('data:text/html,<script>alert(1)</script>')
+    ).toBeNull()
+  })
+
+  it('rejects other non-http(s) schemes', () => {
+    expect(getSafeExternalUrl('mailto:jane@example.com')).toBeNull()
+    expect(getSafeExternalUrl('tel:+15551234567')).toBeNull()
+  })
+
+  it('returns null for empty/whitespace-only input', () => {
+    expect(getSafeExternalUrl('')).toBeNull()
+    expect(getSafeExternalUrl('   ')).toBeNull()
+  })
+})
+
+describe('isSafeMarkdownHref', () => {
+  it('allows relative paths', () => {
+    expect(isSafeMarkdownHref('/policy-and-advocacy')).toBe(true)
+    expect(isSafeMarkdownHref('grants/apply')).toBe(true)
+  })
+
+  it('allows fragment-only anchors', () => {
+    expect(isSafeMarkdownHref('#section')).toBe(true)
+  })
+
+  it('allows protocol-relative hrefs', () => {
+    expect(isSafeMarkdownHref('//cdn.example.com/a.js')).toBe(true)
+  })
+
+  it('allows http/https/mailto/tel', () => {
+    expect(isSafeMarkdownHref('https://example.com')).toBe(true)
+    expect(isSafeMarkdownHref('http://example.com')).toBe(true)
+    expect(isSafeMarkdownHref('mailto:jane@example.com')).toBe(true)
+    expect(isSafeMarkdownHref('tel:+15551234567')).toBe(true)
+  })
+
+  it('rejects javascript: hrefs', () => {
+    expect(isSafeMarkdownHref('javascript:alert(1)')).toBe(false)
+  })
+
+  it('rejects data: hrefs', () => {
+    expect(isSafeMarkdownHref('data:text/html,<script>alert(1)</script>')).toBe(
+      false
+    )
+  })
+
+  it('rejects other unrecognized schemes', () => {
+    expect(isSafeMarkdownHref('vbscript:msgbox(1)')).toBe(false)
+    expect(isSafeMarkdownHref('file:///etc/passwd')).toBe(false)
+  })
+
+  it('is case-insensitive about the scheme', () => {
+    expect(isSafeMarkdownHref('JavaScript:alert(1)')).toBe(false)
+    expect(isSafeMarkdownHref('HTTPS://example.com')).toBe(true)
+  })
+
+  it('treats empty input as safe (no scheme to reject)', () => {
+    expect(isSafeMarkdownHref('')).toBe(true)
   })
 })
 
