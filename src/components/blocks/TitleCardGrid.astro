@@ -27,7 +27,7 @@ const { ariaLabel, columns, titleCards }: Props = Astro.props
 const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
 ---
 
-<section aria-label={ariaLabel}>
+<section aria-label={ariaLabel} class="mb-6xl">
   <div
     class={`grid grid-cols-1 gap-lg tablet:grid-cols-2 tablet:gap-xl ${gridColumnsClass}`}
   >

@@ -31,7 +31,10 @@ export {
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
+  GRANT_OVERVIEW_PRIMARY_SLUG,
   ROUTE_BASES,
+  grantOverviewRouteParam,
+  grantOverviewHubPath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'

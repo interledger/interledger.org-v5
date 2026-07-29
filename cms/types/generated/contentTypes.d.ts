@@ -798,7 +798,7 @@ export interface ApiGrantOverviewPageGrantOverviewPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'grant-overview-pages'
   info: {
-    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
+    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. our-grantmaking \u2192 /grant/our-grantmaking, education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
     displayName: 'Grant Overview Page'
     pluralName: 'grant-overview-pages'
     singularName: 'grant-overview-page'
