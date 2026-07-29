@@ -40,7 +40,6 @@ const {
   image,
   imageAlt,
   imageMobile,
-  imageMobileAlt,
   cta,
   breadcrumbs,
   imageBand = 'default'
@@ -126,7 +125,7 @@ const parallaxImgClass = isWideBand
           />
           <OptimizedImage
             src={image ?? imageMobile!}
-            alt={imageAlt ?? imageMobileAlt ?? ''}
+            alt={imageAlt ?? ''}
             width={1920}
             height={940}
             loading="eager"
