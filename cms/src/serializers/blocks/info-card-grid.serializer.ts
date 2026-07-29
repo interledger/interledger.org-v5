@@ -37,11 +37,18 @@ function validateInfoCard(card: InfoCard, index: number): FieldError[] {
 }
 
 function validateInfoCardGrid(block: {
+  ariaLabel?: string
   columns?: string
   cards?: InfoCard[]
 }): FieldError[] {
   const fieldErrors: FieldError[] = []
 
+  if (!block.ariaLabel?.trim()) {
+    fieldErrors.push({
+      message: 'Info card grid block is missing accessibility label',
+      path: ['ariaLabel']
+    })
+  }
   if (!isInfoCardGridColumns(block.columns)) {
     fieldErrors.push({
       message: `Info card grid columns must be one of ${INFO_CARD_GRID_COLUMNS.join(', ')}. Received "${block.columns}".`,
@@ -64,13 +71,15 @@ function validateInfoCardGrid(block: {
 }
 
 export function serialize(block: {
+  ariaLabel?: string
   columns?: string
   cards?: InfoCard[]
 }): string {
   const fieldErrors = validateInfoCardGrid(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  const gridAttrs = ` columns="${esc(block.columns)}"`
+  // Validation above guarantees these fields are present from here on.
+  const gridAttrs = ` ariaLabel="${esc(block.ariaLabel)}" columns="${esc(block.columns)}"`
 
   const cards = block.cards.map((card) => {
     // Blank lines around the body so MDX treats list markers as markdown

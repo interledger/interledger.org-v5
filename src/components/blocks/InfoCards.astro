@@ -18,6 +18,11 @@ interface Props {
   /** Optional section heading above the grid (grant infoCards). */
   heading?: string
   /**
+   * Accessible name for the section when there's no visible `heading`
+   * (Strapi dynamic-zone / MDX authoring, which has no section heading field).
+   */
+  ariaLabel?: string
+  /**
    * Strapi preview / grant pages pass cards as props.
    * MDX authoring passes <InfoCard> children via the slot instead.
    */
@@ -25,32 +30,47 @@ interface Props {
   umamiContext?: string
 }
 
-const { heading, cards, columns = 'Three', umamiContext } = Astro.props
+const {
+  heading,
+  ariaLabel,
+  cards,
+  columns = 'Three',
+  umamiContext
+} = Astro.props
 const { routeLocale } = Astro.locals
 const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
 const cardHeadingLevel = heading ? 'h3' : 'h2'
+const headingId = heading
+  ? `info-cards-heading-${crypto.randomUUID()}`
+  : undefined
 
-const htmlCards = cards
-  ? await Promise.all(
-      cards.map(async (card) => ({
-        heading: card.heading,
-        html: await parseMarkdown(card.body, {
-          page: umamiContext,
-          pathname: Astro.url.pathname,
-          lang: routeLocale
-        })
-      }))
-    )
-  : null
+const htmlCards =
+  cards && cards.length > 0
+    ? await Promise.all(
+        cards.map(async (card) => ({
+          heading: card.heading,
+          html: await parseMarkdown(card.body, {
+            page: umamiContext,
+            pathname: Astro.url.pathname,
+            lang: routeLocale
+          })
+        }))
+      )
+    : null
 ---
 
 <section
   data-component="InfoCards"
   class="mx-auto flex w-full min-w-90 max-w-content flex-col gap-xl px-lg tablet:px-xl"
+  aria-label={ariaLabel}
+  aria-labelledby={headingId}
 >
   {
     heading && (
-      <h2 class="text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
+      <h2
+        id={headingId}
+        class="text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900"
+      >
         {heading}
       </h2>
     )

@@ -573,6 +573,7 @@ export interface BlocksInfoCardGrid extends Struct.ComponentSchema {
     icon: 'grid'
   }
   attributes: {
+    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
     cards: Schema.Attribute.Component<'blocks.info-card', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

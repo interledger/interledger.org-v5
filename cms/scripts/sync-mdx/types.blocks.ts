@@ -233,6 +233,7 @@ export interface InfoCard {
 /** blocks.info-card-grid — 2- or 3-column grid of heading + markdown cards. */
 export interface InfoCardGridBlock extends StrapiBlockBase {
   __component: 'blocks.info-card-grid'
+  ariaLabel: string
   columns: (typeof INFO_CARD_GRID_COLUMNS)[number]
   cards: InfoCard[]
 }

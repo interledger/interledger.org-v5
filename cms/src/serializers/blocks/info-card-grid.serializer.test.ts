@@ -5,6 +5,7 @@ import { SerializerFieldError } from '../../utils'
 describe('info-card-grid serializer', () => {
   it('serializes a two-column grid with markdown bodies', () => {
     const result = serialize({
+      ariaLabel: 'Program info',
       columns: 'Two',
       cards: [
         {
@@ -20,7 +21,7 @@ describe('info-card-grid serializer', () => {
 
     expect(result).toBe(
       [
-        '<InfoCards columns="Two">',
+        '<InfoCards ariaLabel="Program info" columns="Two">',
         '<InfoCard heading="Why apply">',
         '',
         '- Point 1',
@@ -39,6 +40,7 @@ describe('info-card-grid serializer', () => {
 
   it('escapes quotes in headings', () => {
     const result = serialize({
+      ariaLabel: 'Program info',
       columns: 'Three',
       cards: [{ heading: 'Say "hello"', body: 'Body' }]
     })
@@ -46,9 +48,19 @@ describe('info-card-grid serializer', () => {
     expect(result).toContain('heading="Say &quot;hello&quot;"')
   })
 
+  it('throws when ariaLabel is missing', () => {
+    expect(() =>
+      serialize({
+        columns: 'Two',
+        cards: [{ heading: 'A', body: 'B' }]
+      })
+    ).toThrow(SerializerFieldError)
+  })
+
   it('throws when columns is invalid', () => {
     expect(() =>
       serialize({
+        ariaLabel: 'Program info',
         columns: 'Four',
         cards: [{ heading: 'A', body: 'B' }]
       })
@@ -56,14 +68,15 @@ describe('info-card-grid serializer', () => {
   })
 
   it('throws when cards are missing', () => {
-    expect(() => serialize({ columns: 'Two', cards: [] })).toThrow(
-      SerializerFieldError
-    )
+    expect(() =>
+      serialize({ ariaLabel: 'Program info', columns: 'Two', cards: [] })
+    ).toThrow(SerializerFieldError)
   })
 
   it('throws when a card is missing heading or body', () => {
     expect(() =>
       serialize({
+        ariaLabel: 'Program info',
         columns: 'Two',
         cards: [{ heading: '', body: '' }]
       })
