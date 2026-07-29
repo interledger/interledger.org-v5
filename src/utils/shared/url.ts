@@ -49,6 +49,26 @@ const ICON_BY_HOST: Record<string, SocialIconName> = {
   'instagram.com': 'instagram'
 }
 
+const SAFE_URL_SCHEMES = new Set(['http:', 'https:'])
+
+/**
+ * Normalizes an editor-supplied external URL to absolute and returns it only
+ * if it parses to a safe `http:`/`https:` scheme. Returns `null` for
+ * unparseable input and for other schemes (`javascript:`, `data:`, etc.), so
+ * callers can skip rendering the link rather than passing it through to an
+ * `href`.
+ */
+export function getSafeExternalUrl(url: string): string | null {
+  const absolute = ensureAbsoluteUrl(url)
+  if (!absolute) return null
+  try {
+    const parsed = new URL(absolute)
+    return SAFE_URL_SCHEMES.has(parsed.protocol) ? absolute : null
+  } catch {
+    return null
+  }
+}
+
 /** The host of `url`, lowercased, or null if it can't be parsed. */
 function getHostname(url: string): string | null {
   try {
