@@ -87,9 +87,13 @@ export function isSafeMarkdownHref(href: string): boolean {
 export function getSafeExternalUrl(url: string): string | null {
   const absolute = ensureAbsoluteUrl(url)
   if (!absolute) return null
+  // `new URL` can't parse a protocol-relative `//host` without a base to
+  // resolve against — normalize it to https: first, matching
+  // ensureAbsoluteUrl's choice to treat `//` as already-absolute.
+  const withScheme = absolute.startsWith('//') ? `https:${absolute}` : absolute
   try {
-    const parsed = new URL(absolute)
-    return SAFE_URL_SCHEMES.has(parsed.protocol) ? absolute : null
+    const parsed = new URL(withScheme)
+    return SAFE_URL_SCHEMES.has(parsed.protocol) ? withScheme : null
   } catch {
     return null
   }

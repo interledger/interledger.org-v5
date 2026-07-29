@@ -81,6 +81,12 @@ describe('getSafeExternalUrl', () => {
     expect(getSafeExternalUrl('http://example.com')).toBe('http://example.com')
   })
 
+  it('normalizes a protocol-relative URL to https', () => {
+    expect(getSafeExternalUrl('//cdn.example.com/a.js')).toBe(
+      'https://cdn.example.com/a.js'
+    )
+  })
+
   it('rejects a javascript: URL', () => {
     expect(getSafeExternalUrl('javascript:alert(1)')).toBeNull()
   })
