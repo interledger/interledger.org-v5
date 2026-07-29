@@ -3,6 +3,9 @@
   base = "/"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "24"
+
 [[plugins]]
   package = "./netlify/plugins/cache-images"
 

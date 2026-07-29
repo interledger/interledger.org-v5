@@ -94,7 +94,8 @@ export {
   TECH_BLOG_FALLBACK_THUMBNAIL,
   getFeaturedPosts,
   getBlogThumbnail,
-  getReadingTime
+  getReadingTime,
+  resolveRelatedPosts
 } from './main/blog'
 
 // Main site: Text
