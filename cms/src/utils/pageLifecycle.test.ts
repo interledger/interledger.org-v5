@@ -17,7 +17,7 @@ const testConfig = {
 }
 
 describe('generateMDX — clears deleted Strapi-managed fields', () => {
-  it('removes heroImage from frontmatter when backgroundImage is deleted in Strapi', () => {
+  it('removes heroImage from frontmatter when media is deleted in Strapi', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -28,7 +28,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       hero: {
         title: 'Hero Title',
         description: undefined,
-        backgroundImage: undefined
+        media: undefined
       }
     }
     const preservedFields = {
@@ -41,7 +41,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('keeps heroImage in frontmatter when backgroundImage is present', () => {
+  it('keeps heroImage in frontmatter when media is present', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -51,7 +51,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       description: 'Test description',
       hero: {
         title: 'Hero Title',
-        backgroundImage: { url: 'https://example.com/image.jpg' }
+        media: { image: { url: 'https://example.com/image.jpg' } }
       }
     }
 

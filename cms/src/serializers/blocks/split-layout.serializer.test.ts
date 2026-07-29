@@ -5,24 +5,24 @@ describe('split-layout serializer', () => {
   it('serializes left image position so Strapi publishes update MDX', () => {
     const result = serialize({
       imagePosition: 'left',
-      imageAlt: 'Component scoped alt',
-      image: {
-        url: '/uploads/education_grant.jpg',
+      media: {
+        image: { url: '/uploads/education_grant.jpg' },
         alternativeText: 'Students collaborating'
       },
       content: 'Some body copy.'
     })
 
     expect(result).toContain('imagePosition="left"')
-    expect(result).toContain('imageAlt="Component scoped alt"')
-    expect(result).not.toContain('Students collaborating')
+    expect(result).toContain('imageAlt="Students collaborating"')
   })
 
-  it('falls back to media alternativeText when component imageAlt is absent', () => {
+  it('falls back to the image alternativeText when media.alternativeText is unset', () => {
     const result = serialize({
-      image: {
-        url: '/uploads/education_grant.jpg',
-        alternativeText: 'Media library alt'
+      media: {
+        image: {
+          url: '/uploads/education_grant.jpg',
+          alternativeText: 'Media library alt'
+        }
       },
       content: 'Some body copy.'
     })
@@ -30,10 +30,41 @@ describe('split-layout serializer', () => {
     expect(result).toContain('imageAlt="Media library alt"')
   })
 
+  it('falls back to the image alternativeText when media.alternativeText is null', () => {
+    const result = serialize({
+      media: {
+        image: {
+          url: '/uploads/education_grant.jpg',
+          alternativeText: 'Media library alt'
+        },
+        alternativeText: null
+      },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('imageAlt="Media library alt"')
+  })
+
+  it('omits imageAlt when media.alternativeText is explicitly empty', () => {
+    const result = serialize({
+      media: {
+        image: {
+          url: '/uploads/education_grant.jpg',
+          alternativeText: 'Media library alt'
+        },
+        alternativeText: ''
+      },
+      content: 'Some body copy.'
+    })
+
+    // SplitLayout only emits imageAlt when truthy; empty stays decorative.
+    expect(result).not.toContain('imageAlt=')
+  })
+
   it('omits image position when it is the default right value', () => {
     const result = serialize({
       imagePosition: 'right',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Some body copy.'
     })
 
@@ -43,7 +74,7 @@ describe('split-layout serializer', () => {
   it('omits displayRatio when it is the default 2:1 value', () => {
     const result = serialize({
       displayRatio: '2:1',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Some body copy.'
     })
 
@@ -53,7 +84,7 @@ describe('split-layout serializer', () => {
   it('serializes non-default displayRatio so Strapi publishes update MDX', () => {
     const result = serialize({
       displayRatio: '1:1',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Some body copy.'
     })
 
@@ -64,7 +95,7 @@ describe('split-layout serializer', () => {
     expect(() =>
       serialize({
         displayRatio: '3:1',
-        image: { url: '/uploads/education_grant.jpg' },
+        media: { image: { url: '/uploads/education_grant.jpg' } },
         content: 'Text body.'
       })
     ).toThrow(
@@ -75,7 +106,7 @@ describe('split-layout serializer', () => {
   it('uses layoutType to ignore stale quote fields for image-text layouts', () => {
     const result = serialize({
       layoutType: 'image-text',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Text body.',
       quote: 'Stale quote from a previous layout.',
       quoteSource: 'Stale source'
@@ -90,7 +121,7 @@ describe('split-layout serializer', () => {
   it('uses layoutType to serialize quote fields for image-quote layouts', () => {
     const result = serialize({
       layoutType: 'image-quote',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Stale text body.',
       quote: 'Quoted body.',
       quoteSource: 'Interledger'
@@ -105,7 +136,7 @@ describe('split-layout serializer', () => {
   it('ignores a stale CTA left over from a text layout when switched to quote', () => {
     const result = serialize({
       layoutType: 'image-quote',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       quote: 'Quoted body.',
       cta: { text: 'Stale CTA', link: 'https://example.com' }
     })
@@ -118,7 +149,7 @@ describe('split-layout serializer', () => {
   it('serializes CTA for text layouts', () => {
     const result = serialize({
       layoutType: 'image-text',
-      image: { url: '/uploads/education_grant.jpg' },
+      media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Text body.',
       cta: { text: 'Apply now', link: 'https://example.com' }
     })
@@ -133,10 +164,10 @@ describe('split-layout serializer', () => {
     ).toThrow('Split layout image variants require an image')
   })
 
-  it('accepts a raw upload ID for image (unpopulated document-service payload)', () => {
+  it('accepts a raw upload ID for media.image (unpopulated document-service payload)', () => {
     const result = serialize({
       layoutType: 'image-quote',
-      image: 42,
+      media: { image: 42 },
       quote: 'Quoted body.'
     })
 
@@ -148,7 +179,7 @@ describe('split-layout serializer', () => {
     expect(() =>
       serialize({
         layoutType: 'image-grid',
-        image: { url: '/uploads/education_grant.jpg' },
+        media: { image: { url: '/uploads/education_grant.jpg' } },
         content: 'Text body.'
       })
     ).toThrow(

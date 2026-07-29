@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { CODE_BLOCK_LANGUAGES } from '@/utils'
 import { parseMdxToBlocks } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -121,6 +122,19 @@ describe('CodeBlock handler — errors', () => {
       code: ParserErrorCode.INVALID_PROP_VALUE
     })
   })
+
+  it.each(CODE_BLOCK_LANGUAGES)(
+    'accepts the supported language %s',
+    async (language) => {
+      const blocks = await parseMdxToBlocks(
+        `<CodeBlock language="${language}" code={\`x\`} />`,
+        ctx
+      )
+      expect(blocks).toEqual([
+        { __component: 'blocks.code-block', code: 'x', language }
+      ])
+    }
+  )
 
   it('returns DYNAMIC_EXPRESSION for template interpolation', async () => {
     const result = await parseMdxToBlocks(
