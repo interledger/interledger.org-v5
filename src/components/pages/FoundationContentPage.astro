@@ -11,6 +11,7 @@ import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import FooterNotes from '@/components/blocks/FooterNotes.astro'
+import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -109,6 +110,7 @@ if (isNotFound) return Astro.redirect('/404')
               VideoEmbed,
               TitleCardGrid,
               TitleCard,
+              LogoCarousel,
               FooterNotes
             }}
           />

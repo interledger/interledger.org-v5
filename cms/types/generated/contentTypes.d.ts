@@ -744,7 +744,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
-        'blocks.footer-notes'
+        'blocks.footer-notes',
+        'blocks.carousel'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1027,7 +1028,12 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.title-card-grid', 'blocks.footer-notes']
+      [
+        'blocks.paragraph',
+        'blocks.title-card-grid',
+        'blocks.carousel',
+        'blocks.footer-notes'
+      ]
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1338,6 +1344,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
+        'blocks.carousel',
         'blocks.footer-notes'
       ]
     > &
