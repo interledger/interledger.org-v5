@@ -6,6 +6,7 @@ import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.ast
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import FooterNotes from '@/components/blocks/FooterNotes.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import {
@@ -30,6 +31,11 @@ const entry = pages.find(
 )
 
 if (!entry) return Astro.redirect('/404')
+
+Astro.locals.profileEntries = await getCollection(
+  'profiles',
+  (profile) => profile.data.section === 'hackathon'
+)
 
 const { Content: MdxContent } = await render(entry)
 const { title, description } = entry.data
@@ -67,6 +73,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
             Paragraph,
             TitleCardGrid,
             TitleCard,
+            ProfileGrid,
             LogoCarousel,
             FooterNotes
           }}

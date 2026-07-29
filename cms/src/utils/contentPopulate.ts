@@ -103,6 +103,9 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.profile-grid': {
+      populate: { profiles: true }
+    },
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
     },
