@@ -152,6 +152,21 @@ describe('isSafeMarkdownHref', () => {
   it('treats empty input as safe (no scheme to reject)', () => {
     expect(isSafeMarkdownHref('')).toBe(true)
   })
+
+  it('rejects a javascript: scheme obfuscated with an embedded tab/newline/CR', () => {
+    // Browsers strip TAB/LF/CR from a URL before parsing its scheme (WHATWG
+    // URL spec), so `java<TAB>script:` is read as `javascript:` on click.
+    expect(isSafeMarkdownHref('java\tscript:alert(1)')).toBe(false)
+    expect(isSafeMarkdownHref('java\nscript:alert(1)')).toBe(false)
+    expect(isSafeMarkdownHref('java\rscript:alert(1)')).toBe(false)
+  })
+
+  it('rejects a javascript: scheme obfuscated with an escape control character', () => {
+    // Real browsers fail to parse these as a URL at all rather than
+    // normalizing them (only TAB/LF/CR are actually stripped per spec), but
+    // treating them as suspicious rather than "no scheme" is the safer call.
+    expect(isSafeMarkdownHref('java\x1bscript:alert(1)')).toBe(false)
+  })
 })
 
 describe('getSocialIconName', () => {
