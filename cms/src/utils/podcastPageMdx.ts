@@ -30,7 +30,10 @@ function ckeditorFieldToMarkdown(value: string): string {
 export interface PodcastPageHero {
   title?: string
   description?: string
-  backgroundImage?: MediaFile | null
+  media?: {
+    image?: MediaFile | null
+    alternativeText?: string | null
+  } | null
   backgroundImageMobile?: MediaFile | null
   hero_call_to_action?: HeroCta | null
 }
