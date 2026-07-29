@@ -1,3 +1,4 @@
+import { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from '@/utils'
 import type { CodeBlockBlock, ParsedBlock } from './types.blocks'
 import { getStaticExpressionAttr, getStringAttr } from './jsxExtract'
 import {
@@ -10,34 +11,6 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-
-const CODE_BLOCK_LANGUAGES = [
-  'javascript',
-  'typescript',
-  'jsx',
-  'tsx',
-  'html',
-  'css',
-  'bash',
-  'json',
-  'yaml',
-  'python',
-  'rust',
-  'go',
-  'sql',
-  'markdown',
-  'php',
-  'java',
-  'ini',
-  'graphql',
-  'http',
-  'nginx',
-  'xml',
-  'webidl',
-  'text'
-] as const
-
-type CodeBlockLanguage = (typeof CODE_BLOCK_LANGUAGES)[number]
 
 async function handleCodeBlock(
   node: JsxBlockNode,

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { CODE_BLOCK_LANGUAGES } from '@/utils'
 import { parseMdxToBlocks } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -122,8 +123,8 @@ describe('CodeBlock handler — errors', () => {
     })
   })
 
-  it.each(['php', 'java', 'graphql', 'http', 'nginx', 'xml', 'ini', 'text'])(
-    'accepts the extended language %s',
+  it.each(CODE_BLOCK_LANGUAGES)(
+    'accepts the supported language %s',
     async (language) => {
       const blocks = await parseMdxToBlocks(
         `<CodeBlock language="${language}" code={\`x\`} />`,
