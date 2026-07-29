@@ -51,6 +51,32 @@ const ICON_BY_HOST: Record<string, SocialIconName> = {
 
 const SAFE_URL_SCHEMES = new Set(['http:', 'https:'])
 
+// Schemes allowed in markdown/rich-text-rendered hrefs. A scheme-less href
+// (relative path, `#anchor`, protocol-relative `//host`) is always safe —
+// only an explicit, non-allowlisted scheme (`javascript:`, `data:`,
+// `vbscript:`, `file:`, ...) is rejected.
+const SAFE_MARKDOWN_HREF_SCHEMES = new Set([
+  'http:',
+  'https:',
+  'mailto:',
+  'tel:'
+])
+const HREF_SCHEME = /^([a-z][a-z\d+\-.]*):/i
+
+/**
+ * Whether an href is safe to render as a markdown/rich-text link's `href`.
+ * Used to neutralize editor-supplied markdown links (e.g. `[x](javascript:...)`)
+ * that would otherwise pass through a markdown renderer's link output
+ * untouched — renderers typically HTML-escape the href but don't restrict
+ * its scheme.
+ */
+export function isSafeMarkdownHref(href: string): boolean {
+  const trimmed = href.trim()
+  const match = HREF_SCHEME.exec(trimmed)
+  if (!match) return true
+  return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
+}
+
 /**
  * Normalizes an editor-supplied external URL to absolute and returns it only
  * if it parses to a safe `http:`/`https:` scheme. Returns `null` for

@@ -1,6 +1,63 @@
-import { createMarked, type UmamiContext } from './umami'
+import { Marked, type RendererObject, type Tokens } from 'marked'
+import { isSafeMarkdownHref } from '../shared/url'
+import {
+  type UmamiContext,
+  buildUmamiAttrs,
+  derivePage,
+  escapeHtml,
+  extractTitleLabel,
+  umamiAttrsToHtml
+} from './umami'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { wrapScrollableTables } from './wrapScrollableTables'
+
+const HTML_TAG = /<[^>]*>/g
+
+function stripTags(html: string): string {
+  return html.replace(HTML_TAG, '')
+}
+
+const markedCache = new Map<string, Marked>()
+
+/**
+ * Returns a Marked instance whose link renderer injects umami attributes
+ * and drops any link whose href isn't a safe scheme (see
+ * `isSafeMarkdownHref`) rather than rendering it.
+ */
+export function createMarked(context: UmamiContext = {}): Marked {
+  const page = derivePage(context)
+  const lang = context.lang?.trim() || ''
+  const cacheKey = `${page}|${lang}`
+  const cached = markedCache.get(cacheKey)
+  if (cached) return cached
+
+  const renderer: RendererObject = {
+    link({ href, title, tokens }: Tokens.Link) {
+      const innerHtml = this.parser.parseInline(tokens)
+      // Marked only HTML-escapes href, it doesn't restrict schemes — drop
+      // the link (keep the text) rather than emitting a javascript:/data:
+      // href from editor-supplied markdown.
+      if (!isSafeMarkdownHref(href ?? '')) return innerHtml
+      const { label, title: cleanedTitle } = extractTitleLabel(title)
+      const attrs = buildUmamiAttrs({
+        page,
+        lang,
+        section: 'link',
+        linkText: stripTags(innerHtml),
+        href,
+        label
+      })
+      const titleAttr = cleanedTitle
+        ? ` title="${escapeHtml(cleanedTitle)}"`
+        : ''
+      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
+    }
+  }
+  const instance = new Marked()
+  instance.use({ renderer })
+  markedCache.set(cacheKey, instance)
+  return instance
+}
 
 export async function parseMarkdown(
   text: string | null | undefined,

@@ -3,6 +3,7 @@ import {
   ensureAbsoluteUrl,
   ensureLeadingSlash,
   getSafeExternalUrl,
+  isSafeMarkdownHref,
   getSocialIconName
 } from './url'
 
@@ -98,6 +99,52 @@ describe('getSafeExternalUrl', () => {
   it('returns null for empty/whitespace-only input', () => {
     expect(getSafeExternalUrl('')).toBeNull()
     expect(getSafeExternalUrl('   ')).toBeNull()
+  })
+})
+
+describe('isSafeMarkdownHref', () => {
+  it('allows relative paths', () => {
+    expect(isSafeMarkdownHref('/policy-and-advocacy')).toBe(true)
+    expect(isSafeMarkdownHref('grants/apply')).toBe(true)
+  })
+
+  it('allows fragment-only anchors', () => {
+    expect(isSafeMarkdownHref('#section')).toBe(true)
+  })
+
+  it('allows protocol-relative hrefs', () => {
+    expect(isSafeMarkdownHref('//cdn.example.com/a.js')).toBe(true)
+  })
+
+  it('allows http/https/mailto/tel', () => {
+    expect(isSafeMarkdownHref('https://example.com')).toBe(true)
+    expect(isSafeMarkdownHref('http://example.com')).toBe(true)
+    expect(isSafeMarkdownHref('mailto:jane@example.com')).toBe(true)
+    expect(isSafeMarkdownHref('tel:+15551234567')).toBe(true)
+  })
+
+  it('rejects javascript: hrefs', () => {
+    expect(isSafeMarkdownHref('javascript:alert(1)')).toBe(false)
+  })
+
+  it('rejects data: hrefs', () => {
+    expect(isSafeMarkdownHref('data:text/html,<script>alert(1)</script>')).toBe(
+      false
+    )
+  })
+
+  it('rejects other unrecognized schemes', () => {
+    expect(isSafeMarkdownHref('vbscript:msgbox(1)')).toBe(false)
+    expect(isSafeMarkdownHref('file:///etc/passwd')).toBe(false)
+  })
+
+  it('is case-insensitive about the scheme', () => {
+    expect(isSafeMarkdownHref('JavaScript:alert(1)')).toBe(false)
+    expect(isSafeMarkdownHref('HTTPS://example.com')).toBe(true)
+  })
+
+  it('treats empty input as safe (no scheme to reject)', () => {
+    expect(isSafeMarkdownHref('')).toBe(true)
   })
 })
 
