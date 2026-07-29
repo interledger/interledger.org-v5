@@ -32,6 +32,13 @@ export function createMarked(context: UmamiContext = {}): Marked {
   if (cached) return cached
 
   const renderer: RendererObject = {
+    // Marked passes raw HTML found in the markdown source straight through
+    // unescaped by default (e.g. `<script>`, `<img onerror=...>`), independent
+    // of the href-scheme check below. Escape it instead — this is untrusted
+    // editor-supplied content rendered via `set:html`.
+    html({ text }: Tokens.HTML | Tokens.Tag) {
+      return escapeHtml(text)
+    },
     link({ href, title, tokens }: Tokens.Link) {
       const innerHtml = this.parser.parseInline(tokens)
       // Marked only HTML-escapes href, it doesn't restrict schemes — drop

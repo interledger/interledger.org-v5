@@ -117,4 +117,28 @@ describe('createMarked', () => {
     )
     expect(html).toContain('<a href="/policy-and-advocacy"')
   })
+
+  it('escapes a raw <script> tag in the markdown source', () => {
+    const html = createMarked({ pathname: '/' }).parseInline(
+      'Hello <script>alert(1)</script> world'
+    ) as string
+    expect(html).not.toContain('<script>')
+    expect(html).toContain('&lt;script&gt;')
+  })
+
+  it('escapes a raw HTML tag with an inline event handler', () => {
+    const html = createMarked({ pathname: '/' }).parseInline(
+      '<img src=x onerror=alert(1)>'
+    ) as string
+    expect(html).not.toContain('<img')
+    expect(html).toContain('&lt;img')
+  })
+
+  it('escapes a raw <a> tag with a javascript: href, bypassing the link renderer', () => {
+    const html = createMarked({ pathname: '/' }).parseInline(
+      '<a href="javascript:alert(1)">click</a>'
+    ) as string
+    expect(html).not.toContain('<a href')
+    expect(html).toContain('&lt;a href')
+  })
 })
