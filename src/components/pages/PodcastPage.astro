@@ -1,5 +1,10 @@
 ---
-import { type Locale, useTranslations, localizeRoute, parseMarkdown } from '@/utils'
+import {
+  type Locale,
+  useTranslations,
+  localizeRoute,
+  parseMarkdown
+} from '@/utils'
 import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -67,7 +72,9 @@ const titleCardHtml = await Promise.all(
     />
 
     <section class="py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <div
+        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
+      >
         <TitleCardGrid
           ariaLabel={titleCards.ariaLabel}
           columns={titleCards.columns}
@@ -90,13 +97,17 @@ const titleCardHtml = await Promise.all(
     </section>
 
     <section class="py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <div
+        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
+      >
         <PodcastList podcasts={podcasts} />
       </div>
     </section>
 
     <section class="tablet:py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <div
+        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
+      >
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

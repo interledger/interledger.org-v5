@@ -1,4 +1,7 @@
-export type PodcastSeries = 'Interledger Salon' | 'Future Money' | 'Off the Ledger'
+export type PodcastSeries =
+  | 'Interledger Salon'
+  | 'Future Money'
+  | 'Off the Ledger'
 
 export interface Podcast {
   title: string

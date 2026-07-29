@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { foundationBlogFrontmatterSchema, podcastPageFrontmatterSchema } from './content'
+import {
+  foundationBlogFrontmatterSchema,
+  podcastPageFrontmatterSchema
+} from './content'
 
 const base = {
   title: 'A post',

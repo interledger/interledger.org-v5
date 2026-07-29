@@ -880,8 +880,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::podcast-page.podcast-page': {
       pathSlug:
         'Path relative to the site root. Set to "podcast" for the live /podcast page — no leading slash.',
-      description: 'Short description used for SEO. Aim for 120–160 characters.',
-      titleCards: 'List every featured podcast series shown at the top of the page.',
+      description:
+        'Short description used for SEO. Aim for 120–160 characters.',
+      titleCards:
+        'List every featured podcast series shown at the top of the page.',
       podcasts: 'The full list of podcast episodes shown on the page, in order.'
     },
     'api::foundation-blog-post.foundation-blog-post': {

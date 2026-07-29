@@ -25,12 +25,12 @@ const provider = detectVideoProvider(url)
 
 <article
   class={twMerge(
-    'flex w-full flex-col gap-xl lg:flex-row lg:items-center lg:gap-2xl'
+    'flex w-full flex-col gap-xl desktop:flex-row desktop:items-center desktop:gap-2xl'
   )}
 >
   <p
     class={twMerge(
-      'text-base leading-normal md:text-lg lg:w-1/2 lg:text-xl lg:leading-[30px]',
+      'text-base leading-normal mb-0 tablet:text-lg desktop:w-1/2 desktop:text-xl desktop:leading-[30px]',
       isDark ? 'text-neutral-0' : 'text-neutral-900'
     )}
   >
@@ -39,7 +39,7 @@ const provider = detectVideoProvider(url)
 
   <div
     class={twMerge(
-      'rounded-3xl border p-lg lg:w-1/2',
+      'rounded-3xl border p-lg desktop:w-1/2',
       isDark ? 'border-neutral-75' : 'border-neutral-50'
     )}
   >
@@ -60,7 +60,11 @@ const provider = detectVideoProvider(url)
       <div class="flex min-w-0 flex-1 flex-col gap-md">
         {
           provider === 'youtube' ? (
-            <VideoEmbed url={url} title={title} poster={coverImage ?? undefined} />
+            <VideoEmbed
+              url={url}
+              title={title}
+              poster={coverImage ?? undefined}
+            />
           ) : (
             <iframe
               title={`${title} — podcast player`}
