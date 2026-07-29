@@ -13,6 +13,8 @@ categories:
 legacy: true
 ---
 
+<Paragraph>
+
 ## Why Open Payments in Go?
 
 The [**Open Payments**](https://openpayments.dev/) standard is reshaping how applications initiate, manage, and complete digital transactions — enabling truly interoperable financial systems across different wallets, services, and financial institutions.
@@ -37,8 +39,9 @@ It includes:
 
 Here's what it looks like to request a grant and create an incoming payment:
 
-```go
-package main
+</Paragraph>
+
+<CodeBlock language="go" code={`package main
 
 import (
     "context"
@@ -90,7 +93,7 @@ func main() {
         URL: *wallet.AuthServer,
         RequestBody: as.GrantRequestWithAccessToken{
             AccessToken: struct {
-                Access as.Access `json:"access"`
+                Access as.Access \`json:"access"\`
             }{
                 Access: []as.AccessItem{accessItem},
             },
@@ -120,8 +123,9 @@ func main() {
     }
 
     log.Printf("Created incoming payment: %s", *payment.Id)
-}
-```
+}`} />
+
+<Paragraph>
 
 With Go's strong typing and the SDK's clean API design, developers get compile-time safety and IDE autocompletion for the entire Open Payments workflow.
 
@@ -135,8 +139,9 @@ One challenge we faced was that the upstream OpenAPI specifications didn't alway
 
 To solve this, we leveraged [OpenAPI Overlays](https://learn.openapis.org/overlay/) — a powerful technique for modifying OpenAPI specs without forking them. Our overlay files (`authserver.overlay.yaml`, `resourceserver.overlay.yaml`) add explicit type names and restructure unions for better Go ergonomics:
 
-```yaml
-# resourceserver.overlay.yaml
+</Paragraph>
+
+<CodeBlock language="yaml" code={`# resourceserver.overlay.yaml
 actions:
   - target: $.components.schemas
     update:
@@ -155,20 +160,23 @@ actions:
       CreateOutgoingPaymentWithAmount:
         type: object
         required: [walletAddress, incomingPayment, debitAmount]
-        # ...
-```
+        # ...`} />
+
+<Paragraph>
 
 Instead of wrestling with anonymous types, you get clear, self-documenting structs:
 
-```go
-// Without overlays: confusing generated names
+</Paragraph>
+
+<CodeBlock language="go" code={`// Without overlays: confusing generated names
 var payload PostRequestJSONBody  // What is this?
 
 // With overlays: intent is obvious
 var payload rs.CreateOutgoingPaymentWithQuote
 payload.WalletAddressSchema = walletAddress
-payload.QuoteId = quoteId
-```
+payload.QuoteId = quoteId`} />
+
+<Paragraph>
 
 This approach keeps us in sync with upstream specs while producing clean, well-named Go types.
 
@@ -199,21 +207,27 @@ Go powers a significant portion of cloud infrastructure, payment systems, and fi
 
 Install the SDK:
 
-```bash
-go get github.com/interledger/open-payments-go
-```
+</Paragraph>
+
+<CodeBlock language="bash" code={`go get github.com/interledger/open-payments-go`} />
+
+<Paragraph>
 
 The SDK requires Go 1.21 or later. For development, you'll also need to initialize the OpenAPI spec submodule:
 
-```bash
-git submodule update --init
-```
+</Paragraph>
+
+<CodeBlock language="bash" code={`git submodule update --init`} />
+
+<Paragraph>
 
 To regenerate types from the specs (if you're contributing or customizing):
 
-```bash
-go generate ./generated
-```
+</Paragraph>
+
+<CodeBlock language="bash" code={`go generate ./generated`} />
+
+<Paragraph>
 
 ## Get Involved
 
@@ -234,3 +248,5 @@ Open Payments Go is under active development and ready to use today.
 We're excited to bring Open Payments to the Go ecosystem and can't wait to see what the community builds.
 
 Give it a try, and let us know what you think! 🚀
+
+</Paragraph>

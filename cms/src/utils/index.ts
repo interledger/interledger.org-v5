@@ -1,6 +1,9 @@
 // Error handling
 export { tryCatchAsync } from './tryCatch'
 
+// Code block
+export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
+
 // Upload limits (mirrored in src/utils/shared/uploadLimits.ts)
 export {
   MAX_IMAGE_BYTES,
