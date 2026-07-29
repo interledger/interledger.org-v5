@@ -4,9 +4,10 @@
  *
  * The card shell (thumbnail, episode, series, title) matches the design, but
  * playback itself is delegated to the real embed rather than custom player
- * chrome: a Castopod URL renders its own iframe player (matching the
- * existing site pattern), and a YouTube URL renders via VideoEmbed. Neither
- * can be driven by an external scrubber, so no fake play/seek UI is built.
+ * chrome: any URL VideoEmbed recognizes (YouTube, Vimeo, direct file) renders
+ * through it; anything else (Castopod, unrecognized) falls back to the raw
+ * iframe pattern used by the site's other podcast embeds. Neither can be
+ * driven by an external scrubber, so no fake play/seek UI is built.
  */
 import { detectVideoProvider, twMerge } from '@/utils'
 import VideoEmbed from './VideoEmbed.astro'
@@ -46,7 +47,7 @@ const provider = detectVideoProvider(url)
     <div class="flex items-center gap-lg">
       <div class="flex min-w-0 flex-1 flex-col gap-md">
         {
-          provider === 'youtube' ? (
+          provider ? (
             <VideoEmbed url={url} title={title} />
           ) : (
             <iframe
