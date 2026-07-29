@@ -16,7 +16,6 @@ import {
   defaultLang,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
-  getImageUrl,
   htmlToMarkdown,
   type HeroCta
 } from './mdx'
@@ -64,8 +63,6 @@ export interface PodcastPageItem {
   description: string
   url: string
   series: 'Interledger Salon' | 'Future Money' | 'Off the Ledger'
-  episode?: string | null
-  coverImage?: MediaFile | null
 }
 
 export interface PodcastPageInput {
@@ -117,9 +114,7 @@ function podcastsFrontmatter(podcasts: PodcastPageItem[]) {
     title: podcast.title,
     description: podcast.description,
     url: podcast.url,
-    series: podcast.series,
-    ...(podcast.episode ? { episode: podcast.episode } : {}),
-    coverImage: getImageUrl(podcast.coverImage) ?? null
+    series: podcast.series
   }))
 }
 

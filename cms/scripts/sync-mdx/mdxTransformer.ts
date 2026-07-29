@@ -747,30 +747,14 @@ export async function buildFaqPayload(
   })
 }
 
-/** Resolves a podcast item's optional coverImage URL to an existing Strapi upload ID. */
-async function resolvePodcastCoverImage(
-  strapi: StrapiClient,
-  coverImage: string | null | undefined
-): Promise<number | null> {
-  const url = nullOrValue(coverImage)
-  if (!url) return null
-
-  const uploadId = await strapi.findUploadByUrl(url)
-  if (uploadId instanceof Error) throw uploadId
-  if (!uploadId) {
-    console.warn(`   ⚠️  Cover image not found in Strapi uploads: ${url}`)
-  }
-  return uploadId
-}
-
 /**
  * Builds a Strapi payload for the podcast-page MDX file.
  *
  * podcast-page has no `content` dynamic zone — hero, titleCards, podcasts,
  * and ctaStrip are all page-owned components flattened straight into
- * frontmatter, so this only needs frontmatter validation, hero image
- * resolution (shared with grant-overview-page via `buildHeroWithImage`),
- * and per-podcast-item coverImage resolution. No relation resolution.
+ * frontmatter, so this only needs frontmatter validation and hero image
+ * resolution (shared with grant-overview-page via `buildHeroWithImage`).
+ * No relation resolution.
  *
  * Returns `Record<string, unknown> | Error`.
  */
@@ -797,24 +781,12 @@ export async function buildPodcastPagePayload(
       titleCards: parsed.titleCards.cards
     }
 
-    const strapi = strapiUploadContext?.strapi
-    const podcasts = await Promise.all(
-      parsed.podcasts.map(async (podcast) => ({
-        title: podcast.title,
-        description: podcast.description,
-        url: podcast.url,
-        series: podcast.series,
-        ...(podcast.episode ? { episode: podcast.episode } : {}),
-        ...(strapi
-          ? {
-              coverImage: await resolvePodcastCoverImage(
-                strapi,
-                podcast.coverImage
-              )
-            }
-          : {})
-      }))
-    )
+    const podcasts = parsed.podcasts.map((podcast) => ({
+      title: podcast.title,
+      description: podcast.description,
+      url: podcast.url,
+      series: podcast.series
+    }))
 
     const ctaStripFm = parsed.ctaStrip
     const ctaStrip = {

@@ -43,25 +43,6 @@
           "localized": false
         }
       }
-    },
-    "episode": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
-    "coverImage": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": ["images"],
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
     }
   }
 }

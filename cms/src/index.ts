@@ -974,9 +974,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Title',
       description: 'Description',
       url: 'URL',
-      series: 'Series',
-      episode: 'Episode',
-      coverImage: 'Cover Image'
+      series: 'Series'
     },
     'blocks.callout-text': {
       content: 'Content'
@@ -1492,11 +1490,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'series', size: 6 }
       ],
       [{ name: 'url', size: 12 }],
-      [{ name: 'description', size: 12 }],
-      [
-        { name: 'episode', size: 6 },
-        { name: 'coverImage', size: 6 }
-      ]
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],

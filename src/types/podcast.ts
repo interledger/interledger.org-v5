@@ -8,6 +8,4 @@ export interface Podcast {
   description: string
   url: string
   series: PodcastSeries
-  episode?: string | null
-  coverImage?: string | null
 }

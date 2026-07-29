@@ -145,12 +145,4 @@ describe('podcastPageFrontmatterSchema', () => {
     })
     expect(result.success).toBe(false)
   })
-
-  it('accepts an optional episode field on a podcast item', () => {
-    const parsed = podcastPageFrontmatterSchema.parse({
-      ...podcastPageBase,
-      podcasts: [{ ...podcastPageBase.podcasts[0], episode: 'S02:E04' }]
-    })
-    expect(parsed.podcasts[0]?.episode).toBe('S02:E04')
-  })
 })

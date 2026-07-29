@@ -64,40 +64,16 @@ describe('generatePodcastPageMdx', () => {
     expect(titleCards.cards[0]?.heading).toBe('Future Money')
   })
 
-  it('flattens podcasts, dropping the optional episode when absent', () => {
+  it('flattens podcasts', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     const podcasts = data.podcasts as Array<{
       title: string
       series: string
-      episode?: string
-      coverImage: string | null
     }>
 
     expect(podcasts).toHaveLength(1)
     expect(podcasts[0]?.title).toBe('Episode one')
     expect(podcasts[0]?.series).toBe('Future Money')
-    expect(podcasts[0]?.episode).toBeUndefined()
-    expect(podcasts[0]?.coverImage).toBeNull()
-  })
-
-  it('keeps the optional episode when provided', () => {
-    const { data } = matter(
-      generatePodcastPageMdx(
-        makePage({
-          podcasts: [
-            {
-              title: 'Episode two',
-              description: 'The second episode.',
-              url: 'https://youtube.com/watch?v=example',
-              series: 'Off the Ledger',
-              episode: 'S02:E04'
-            }
-          ]
-        })
-      )
-    )
-    const podcasts = data.podcasts as Array<{ episode?: string }>
-    expect(podcasts[0]?.episode).toBe('S02:E04')
   })
 
   it('flattens ctaStrip with a default purple color', () => {

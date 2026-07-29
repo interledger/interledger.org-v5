@@ -313,9 +313,7 @@ const podcastItemSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().min(1, 'description is required'),
   url: z.string().min(1, 'url is required'),
-  series: z.enum(['Interledger Salon', 'Future Money', 'Off the Ledger']),
-  episode: z.string().optional(),
-  coverImage: z.string().nullable().optional()
+  series: z.enum(['Interledger Salon', 'Future Money', 'Off the Ledger'])
 })
 
 // The /podcast landing page. Only one entry is expected to exist; pathSlug is

@@ -722,23 +722,11 @@ export interface BlocksPodcastItem extends Struct.ComponentSchema {
     icon: 'microphone'
   }
   attributes: {
-    coverImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
     description: Schema.Attribute.Text &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
-        }
-      }>
-    episode: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
         }
       }>
     series: Schema.Attribute.Enumeration<

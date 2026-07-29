@@ -15,7 +15,6 @@ import {
   type PageData
 } from '../../../../utils'
 import type {
-  PodcastPageHero,
   PodcastPageTitleCardGrid,
   PodcastPageItem,
   PodcastPageCtaStrip

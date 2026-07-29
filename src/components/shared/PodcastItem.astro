@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { podcast, theme = 'light' } = Astro.props
-const { title, description, url, series, episode, coverImage } = podcast
+const { title, description, url } = podcast
 const isDark = theme === 'dark'
 const provider = detectVideoProvider(url)
 ---
@@ -44,27 +44,10 @@ const provider = detectVideoProvider(url)
     )}
   >
     <div class="flex items-center gap-lg">
-      {
-        coverImage && (
-          <img
-            src={coverImage}
-            alt=""
-            width="140"
-            height="140"
-            loading="lazy"
-            class="h-35 w-35 shrink-0 rounded-lg object-cover"
-          />
-        )
-      }
-
       <div class="flex min-w-0 flex-1 flex-col gap-md">
         {
           provider === 'youtube' ? (
-            <VideoEmbed
-              url={url}
-              title={title}
-              poster={coverImage ?? undefined}
-            />
+            <VideoEmbed url={url} title={title} />
           ) : (
             <iframe
               title={`${title} — podcast player`}
