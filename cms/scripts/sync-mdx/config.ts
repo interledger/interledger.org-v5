@@ -123,7 +123,6 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const profileAltIds = new Map<number, string | null>()
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
@@ -150,9 +149,7 @@ export function buildContentTypes(
               profilePathSlugs
             ),
             resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
-          },
-          profileAltIds,
-          dryRun
+          }
         )
       }
     },
