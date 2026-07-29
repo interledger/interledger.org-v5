@@ -30,7 +30,7 @@ const provider = detectVideoProvider(url)
 >
   <p
     class={twMerge(
-      'text-base leading-[1.5] md:text-lg lg:w-1/2 lg:text-xl lg:leading-[30px]',
+      'text-base leading-normal md:text-lg lg:w-1/2 lg:text-xl lg:leading-[30px]',
       isDark ? 'text-neutral-0' : 'text-neutral-900'
     )}
   >
@@ -52,44 +52,12 @@ const provider = detectVideoProvider(url)
             width="140"
             height="140"
             loading="lazy"
-            class="h-[140px] w-[140px] shrink-0 rounded-lg object-cover"
+            class="h-35 w-35 shrink-0 rounded-lg object-cover"
           />
         )
       }
 
       <div class="flex min-w-0 flex-1 flex-col gap-md">
-        <div class="flex items-center gap-md">
-          {
-            episode && (
-              <span
-                class={twMerge(
-                  'text-xl leading-[30px]',
-                  isDark ? 'text-neutral-50' : 'text-neutral-900'
-                )}
-              >
-                {episode}
-              </span>
-            )
-          }
-          <span
-            class={twMerge(
-              'text-sm leading-6',
-              isDark ? 'text-neutral-50' : 'text-neutral-900'
-            )}
-          >
-            {series}
-          </span>
-        </div>
-
-        <p
-          class={twMerge(
-            'm-0 line-clamp-2 text-sm leading-6',
-            isDark ? 'text-neutral-0' : 'text-neutral-900'
-          )}
-        >
-          {title}
-        </p>
-
         {
           provider === 'youtube' ? (
             <VideoEmbed url={url} title={title} poster={coverImage ?? undefined} />

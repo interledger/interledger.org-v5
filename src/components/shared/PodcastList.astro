@@ -13,11 +13,14 @@ interface Props {
 }
 
 const { podcasts, theme = 'light' } = Astro.props
+
+// Authored in chronological order; the newest episode (last in the list) shows first.
+const orderedPodcasts = [...podcasts].reverse()
 ---
 
 <ul class="m-0 flex list-none flex-col gap-2xl p-0" role="list">
   {
-    podcasts.map((podcast) => (
+    orderedPodcasts.map((podcast) => (
       <li>
         <PodcastItem podcast={podcast} theme={theme} />
       </li>
