@@ -188,13 +188,18 @@ export interface CarouselBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.number-tiles — row of stat tiles (number + optional suffix +
- * description). `number` is plain text (not numeric) so editors can type
- * commas manually, e.g. "1,000". At least 2 tiles are required.
+ * blocks.number-tiles — row of stat tiles (number + optional currency prefix
+ * and suffix + description). `number` is plain text (not numeric) so editors
+ * can type commas manually, e.g. "1,000". At least 2 tiles are required.
  */
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
-  tiles: { number: string; suffix?: string; description: string }[]
+  tiles: {
+    number: string
+    prefix?: string
+    suffix?: string
+    description: string
+  }[]
 }
 
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */

@@ -1045,6 +1045,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number: 'Number',
+      prefix: 'Prefix (currency)',
       suffix: 'Suffix',
       description: 'Description'
     },
@@ -1215,7 +1216,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number:
-        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the suffix here.',
+        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the prefix or suffix here.',
+      prefix:
+        'Optional symbol shown tight against the front of the number, e.g. "$" for a monetary amount.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
@@ -1467,8 +1470,9 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
       [
-        { name: 'number', size: 6 },
-        { name: 'suffix', size: 6 }
+        { name: 'prefix', size: 4 },
+        { name: 'number', size: 4 },
+        { name: 'suffix', size: 4 }
       ],
       [{ name: 'description', size: 12 }]
     ],
