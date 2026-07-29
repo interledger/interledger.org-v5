@@ -743,6 +743,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.title-card-grid',
         'blocks.footer-notes'
       ]
     > &
@@ -798,7 +799,7 @@ export interface ApiGrantOverviewPageGrantOverviewPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'grant-overview-pages'
   info: {
-    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
+    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. our-grantmaking \u2192 /grant/our-grantmaking, education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
     displayName: 'Grant Overview Page'
     pluralName: 'grant-overview-pages'
     singularName: 'grant-overview-page'
@@ -1026,7 +1027,7 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.footer-notes']
+      ['blocks.paragraph', 'blocks.title-card-grid', 'blocks.footer-notes']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1336,6 +1337,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.title-card-grid',
         'blocks.footer-notes'
       ]
     > &
