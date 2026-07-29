@@ -84,13 +84,15 @@ As mentioned before, the Rafiki `backend` manages Open Payments resources. These
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`import { Ioc, IocContract } from '@adonisjs/fold'
+<CodeBlock language="typescript" code={`import { Ioc, IocContract } from '@adonisjs/fold'
 import { createIncomingPaymentRoutes } from './open_payments/payment/incoming/routes'
+
 ...
+
 const container: IocContract<AppServices> = new Ioc()
+
 ...
+
 container.singleton('incomingPaymentRoutes', async (deps) => {
   return createIncomingPaymentRoutes({
     config: await deps.use('config'),
@@ -98,8 +100,7 @@ container.singleton('incomingPaymentRoutes', async (deps) => {
     incomingPaymentService: await deps.use('incomingPaymentService'),
     streamCredentialsService: await deps.use('streamCredentialsService')
   })
-})`}
-/>
+})`} />
 
 <Paragraph>
 
@@ -109,12 +110,12 @@ These services are then attached to routes in the [`/src/app.ts`](https://github
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`const incomingPaymentRoutes = await this.container.use(
+<CodeBlock language="typescript" code={`const incomingPaymentRoutes = await this.container.use(
   'incomingPaymentRoutes'
 )
+
 ...
+
 // POST /incoming-payments
 // Create incoming payment
 router.post<DefaultState, SignedCollectionContext<IncomingCreateBody>>(
@@ -137,8 +138,7 @@ router.post<DefaultState, SignedCollectionContext<IncomingCreateBody>>(
   httpsigMiddleware,
   getWalletAddressForSubresource,
   incomingPaymentRoutes.create
-)`}
-/>
+)`} />
 
 <Paragraph>
 
@@ -156,13 +156,15 @@ The Authorization Server on Rafiki is structured similarly to the backend, in th
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`import { Ioc, IocContract } from '@adonisjs/fold'
+<CodeBlock language="typescript" code={`import { Ioc, IocContract } from '@adonisjs/fold'
 import { createGrantRoutes } from './grant/routes'
+
 ...
+
 const container: IocContract<AppServices> = new Ioc()
+
 ...
+
 container.singleton('grantRoutes', async (deps: IocContract<AppServices>) => {
   return createGrantRoutes({
     grantService: await deps.use('grantService'),
@@ -173,8 +175,7 @@ container.singleton('grantRoutes', async (deps: IocContract<AppServices>) => {
     logger: await deps.use('logger'),
     config: await deps.use('config')
   })
-})`}
-/>
+})`} />
 
 <Paragraph>
 
@@ -184,10 +185,10 @@ Again, note the route service for grants is mounted to the container, and then s
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`const grantRoutes = await this.container.use('grantRoutes')
+<CodeBlock language="typescript" code={`const grantRoutes = await this.container.use('grantRoutes')
+
 ...
+
 /* Back-channel GNAP Routes */
 // Grant Initiation
 router.post<DefaultState, CreateContext>(
@@ -198,8 +199,7 @@ router.post<DefaultState, CreateContext>(
   }),
   grantInitiationHttpsigMiddleware,
   grantRoutes.create
-)`}
-/>
+)`} />
 
 <Paragraph>
 

@@ -41,20 +41,22 @@ Here's what it looks like to request a grant and create an incoming payment:
 
 </Paragraph>
 
-<CodeBlock
-  language="go"
-  code={`package main
+<CodeBlock language="go" code={`package main
+
 import (
     "context"
     "log"
     "time"
+
     openpayments "github.com/interledger/open-payments-go"
     as "github.com/interledger/open-payments-go/generated/authserver"
     rs "github.com/interledger/open-payments-go/generated/resourceserver"
 )
+
 func main() {
     privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
     keyId := os.Getenv("KEY_ID")
+
     // Initialize the authenticated client
     client, err := openpayments.NewAuthenticatedClient(
         "https://wallet.example.com/alice",
@@ -64,6 +66,7 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+
     // Get wallet address info
     wallet, err := client.WalletAddress.Get(context.Background(), openpayments.WalletAddressGetParams{
         URL: "https://wallet.example.com/alice",
@@ -71,6 +74,7 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+
     // Build the access request
     incomingAccess := as.AccessIncoming{
         Type: as.IncomingPayment,
@@ -83,6 +87,7 @@ func main() {
     }
     accessItem := as.AccessItem{}
     accessItem.FromAccessIncoming(incomingAccess)
+
     // Request a grant
     grant, err := client.Grant.Request(context.Background(), openpayments.GrantRequestParams{
         URL: *wallet.AuthServer,
@@ -97,6 +102,7 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+
     // Create an incoming payment
     expiresAt := time.Now().Add(24 * time.Hour)
     payment, err := client.IncomingPayment.Create(context.Background(), openpayments.IncomingPaymentCreateParams{
@@ -115,9 +121,9 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
+
     log.Printf("Created incoming payment: %s", *payment.Id)
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -135,9 +141,7 @@ To solve this, we leveraged [OpenAPI Overlays](https://learn.openapis.org/overla
 
 </Paragraph>
 
-<CodeBlock
-  language="yaml"
-  code={`# resourceserver.overlay.yaml
+<CodeBlock language="yaml" code={`# resourceserver.overlay.yaml
 actions:
   - target: $.components.schemas
     update:
@@ -152,11 +156,11 @@ actions:
           metadata:
             type: object
             additionalProperties: true
+
       CreateOutgoingPaymentWithAmount:
         type: object
         required: [walletAddress, incomingPayment, debitAmount]
-        # ...`}
-/>
+        # ...`} />
 
 <Paragraph>
 
@@ -164,15 +168,13 @@ Instead of wrestling with anonymous types, you get clear, self-documenting struc
 
 </Paragraph>
 
-<CodeBlock
-  language="go"
-  code={`// Without overlays: confusing generated names
+<CodeBlock language="go" code={`// Without overlays: confusing generated names
 var payload PostRequestJSONBody  // What is this?
+
 // With overlays: intent is obvious
 var payload rs.CreateOutgoingPaymentWithQuote
 payload.WalletAddressSchema = walletAddress
-payload.QuoteId = quoteId`}
-/>
+payload.QuoteId = quoteId`} />
 
 <Paragraph>
 
@@ -207,10 +209,7 @@ Install the SDK:
 
 </Paragraph>
 
-<CodeBlock
-  language="bash"
-  code={`go get github.com/interledger/open-payments-go`}
-/>
+<CodeBlock language="bash" code={`go get github.com/interledger/open-payments-go`} />
 
 <Paragraph>
 

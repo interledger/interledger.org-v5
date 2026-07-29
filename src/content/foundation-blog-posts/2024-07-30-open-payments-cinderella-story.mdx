@@ -66,10 +66,7 @@ While extremely useful, OAuth 2.0 is best suited for delegating access to _infor
 
 </Paragraph>
 
-<CodeBlock
-  language="javascript"
-  code={`scope = 'email,username,channels:read'`}
-/>
+<CodeBlock language="javascript" code={`scope = 'email,username,channels:read'`} />
 
 <Paragraph>
 
@@ -79,10 +76,7 @@ Now, the issue with expressing access only as a string, is that it’s cumbersom
 
 </Paragraph>
 
-<CodeBlock
-  language="javascript"
-  code={`scope = 'outgoing-payment:100:USD:P1M'`}
-/>
+<CodeBlock language="javascript" code={`scope = 'outgoing-payment:100:USD:P1M'`} />
 
 <Paragraph>
 
@@ -94,12 +88,11 @@ An early attempt to add this context to an authorized payment was through someth
 
 </Paragraph>
 
-<CodeBlock
-  language="bash"
-  code={`GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=af0ifjsldkj
+<CodeBlock language="bash" code={`GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=af0ifjsldkj
   &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
   &authorization_details=%7B%0A%20%20%22open_payments%22%3A%7B%0A%20%20%20%20%20%22mandate%22%3A%7B%0A%20%20%20%20%20%20%20%20%22name%22%3A%20%22%2F%2Fissuer.wallet%2Fmandates%2F2fad69d0-7997-4543-8346-69b418c479a6%22%0A%20%20%20%20%20%7D%0A%20%20%7D%0A%7D HTTP/1.1
 Host: wallet.example
+
 //  URL contains stringified copy of the following object:
 //  {
 //    "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
@@ -110,8 +103,7 @@ Host: wallet.example
 //    "interval": "P1M",
 //    "startAt": "2020-01-22T00:00:00Z",
 //    "balance": 200
-//  }`}
-/>
+//  }`} />
 
 <Paragraph>
 
@@ -137,9 +129,7 @@ Like mandates, a client will make a request to the Open Payments Auth Server spe
 
 </Paragraph>
 
-<CodeBlock
-  language="json"
-  code={`{
+<CodeBlock language="json" code={`{
   "access_token": {
     "access": [
       {
@@ -167,8 +157,7 @@ Like mandates, a client will make a request to the Open Payments Auth Server spe
       "nonce": "4edb2194-dbdf-46bb-9397-d5fd57b7c8a7"
     }
   }
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -176,9 +165,7 @@ After the grant request is made, the Open Payments authorization server responds
 
 </Paragraph>
 
-<CodeBlock
-  language="json"
-  code={`"access": [
+<CodeBlock language="json" code={`"access": [
   {
     "type": "outgoing-payment",
     "actions": [
@@ -196,8 +183,7 @@ After the grant request is made, the Open Payments authorization server responds
       }
     }
   }
-]`}
-/>
+]`} />
 
 <Paragraph>
 

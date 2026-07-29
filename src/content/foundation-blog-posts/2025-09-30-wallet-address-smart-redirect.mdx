@@ -23,17 +23,14 @@ Traditionally, when an Open Payments client queries that address, it receives a 
 
 </Paragraph>
 
-<CodeBlock
-  language="json"
-  code={`{
+<CodeBlock language="json" code={`{
   "id": "https://ilp.interledger.cards/007",
   "publicName": "John Doe",
   "assetCode": "EUR",
   "assetScale": 2,
   "authServer": "https://auth.interledger.cards",
   "resourceServer": "https://ilp.interledger.cards"
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -86,10 +83,7 @@ Enable **Wallet Address Smart Redirect** by setting a single environment variabl
 
 </Paragraph>
 
-<CodeBlock
-  language="bash"
-  code={`WALLET_ADDRESS_REDIRECT_HTML_PAGE="https://interledgerpay.com/payment-choice?receiver=%ewa"`}
-/>
+<CodeBlock language="bash" code={`WALLET_ADDRESS_REDIRECT_HTML_PAGE="https://interledgerpay.com/payment-choice?receiver=%ewa"`} />
 
 <Paragraph>
 

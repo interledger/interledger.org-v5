@@ -26,16 +26,13 @@ The new system cleanly separates responsibilities. Publishers create a tools pro
 
 </Paragraph>
 
-<CodeBlock
-  language="html"
-  code={`<script
+<CodeBlock language="html" code={`<script
   id="wmt-widget-init-script"
   type="module"
   data-wallet-address="https://ilp.wallet.money/alice"
   data-tag="version1"
   src="https://cdn.webmonetization.org/widget.js"
-></script>`}
-/>
+></script>`} />
 
 <Paragraph>
 
@@ -77,10 +74,9 @@ With the configuration fetched, the script creates and renders the web component
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`import { PaymentWidget } from '@tools/components'
+<CodeBlock language="typescript" code={`import { PaymentWidget } from '@tools/components'
 customElements.define('wm-payment-widget', PaymentWidget)
+
 fetchConfig(API_URL, 'widget', params).then((config) => {
   const element = document.createElement('wm-payment-widget')
   element.config = {
@@ -88,8 +84,7 @@ fetchConfig(API_URL, 'widget', params).then((config) => {
     ...config
   }
   document.body.appendChild(element)
-})`}
-/>
+})`} />
 
 <Paragraph>
 
@@ -99,15 +94,12 @@ Lastly, it also adds a monetization `<link>` tag to the `<head>`, using the wall
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`function appendMonetizationLink(walletAddressUrl: string) {
+<CodeBlock language="typescript" code={`function appendMonetizationLink(walletAddressUrl: string) {
   const monetizationElement = document.createElement('link')
   monetizationElement.rel = 'monetization'
   monetizationElement.href = walletAddressUrl
   document.head.appendChild(monetizationElement)
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -131,9 +123,7 @@ Beyond the new architecture, the Publisher Tools also handle payments using [Ope
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`// Generate a quote
+<CodeBlock language="typescript" code={`// Generate a quote
 await fetch(\`\${apiUrl}/payment/quote\`, {
   method: 'POST',
   body: JSON.stringify({
@@ -142,11 +132,12 @@ await fetch(\`\${apiUrl}/payment/quote\`, {
     amount
   })
 })
+
 // Initialize grant authorization
 await fetch(\`\${apiUrl}/payment/grant\`, { method: 'POST', body: '...' })
+
 // Finalize payment after authorization
-await fetch(\`\${apiUrl}/payment/finalize\`, { method: 'POST', body: '...' })`}
-/>
+await fetch(\`\${apiUrl}/payment/finalize\`, { method: 'POST', body: '...' })`} />
 
 <Paragraph>
 

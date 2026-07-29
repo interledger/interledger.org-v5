@@ -41,17 +41,14 @@ Our [esbuild](https://esbuild.github.io/) build process simplifies this polyfill
 
 </Paragraph>
 
-<CodeBlock
-  language="javascript"
-  code={`const esbuildNodeCryptoPlugin = {
+<CodeBlock language="javascript" code={`const esbuildNodeCryptoPlugin = {
   name: 'crypto-for-extension',
   setup(build) {
     build.onResolve({ filter: /^crypto$/ }, () => ({
       path: require.resolve('crypto-browserify')
     }))
   }
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -59,22 +56,21 @@ The Open Payments API requires each request to be [signed](https://openpayments.
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`const client = await createAuthenticatedClient({
+<CodeBlock language="typescript" code={`const client = await createAuthenticatedClient({
   // ... regular options for creating authenticated client
   async authenticatedRequestInterceptor(request) {
     const headers = await createHeaders({ request, privateKey, keyId })
+
     if (request.body) {
       request.headers.set('Content-Type', headers['Content-Type'])
       request.headers.set('Content-Digest', headers['Content-Digest'])
     }
     request.headers.set('Signature', headers['Signature'])
     request.headers.set('Signature-Input', headers['Signature-Input'])
+
     return request
   }
-})`}
-/>
+})`} />
 
 <Paragraph>
 
@@ -122,16 +118,17 @@ The grant request effectively includes following parameters:
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`declare const BUDGET = 7.5 // $7.5 when using USD
+<CodeBlock language="typescript" code={`declare const BUDGET = 7.5 // $7.5 when using USD
 declare const RECURRING = true
+
 const walletAddress = await fetchJSON(YOUR_WALLET_ADDRESS)
+
 // Convert a human-friendly amount to format Open Payments expects
 // $7.5 budget at asset scale 2 means value: "750"
 const amount = BUDGET * Math.pow(10, walletAddress.assetScale)
 // ISO8601 repeating interval, when RECURRING is true
 const interval = \`R/\${new Date().toISOString()}/P1M\`
+
 // partial grant request
 const outgoingPaymentAccess = {
   type: 'outgoing-payment',
@@ -145,8 +142,7 @@ const outgoingPaymentAccess = {
     },
     interval: interval
   }
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -158,9 +154,7 @@ In the grant request, we provide an interaction finish URL (`interact.finish.uri
 
 </Paragraph>
 
-<CodeBlock
-  language="typescript"
-  code={`const pendingGrant = await client.grant.request(
+<CodeBlock language="typescript" code={`const pendingGrant = await client.grant.request(
   { url: walletAddress.authServer },
   {
     access_token: { access: [outgoingPaymentAccess] },
@@ -171,8 +165,7 @@ In the grant request, we provide an interaction finish URL (`interact.finish.uri
       finish: { method: 'redirect', uri: REDIRECT_URL }
     }
   }
-)`}
-/>
+)`} />
 
 <Paragraph>
 

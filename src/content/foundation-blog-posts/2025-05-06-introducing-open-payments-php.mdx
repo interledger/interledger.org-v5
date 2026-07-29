@@ -44,17 +44,18 @@ Here's what it looks like to request a grant:
 
 </Paragraph>
 
-<CodeBlock
-  language="php"
-  code={`use OpenPayments\\AuthClient;
+<CodeBlock language="php" code={`use OpenPayments\\AuthClient;
 use OpenPayments\\Config\\Config;
+
 $config = new Config(
     $WALLET_ADDRESS, $PRIVATE_KEY, $KEY_ID
 );
 $opClient = new AuthClient($config);
+
 $wallet = $opClient->walletAddress()->get([
     'url' => $config->getWalletAddressUrl()
 ]);
+
 $grant = $opClient->grant()->request(
     [
         'url' => $wallet->authServer
@@ -70,8 +71,7 @@ $grant = $opClient->grant()->request(
         ],
         'client' => $config->getWalletAddressUrl()
     ]
-);`}
-/>
+);`} />
 
 <Paragraph>
 

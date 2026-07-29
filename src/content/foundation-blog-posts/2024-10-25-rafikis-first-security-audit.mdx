@@ -46,9 +46,7 @@ Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circ
 
 </Paragraph>
 
-<CodeBlock
-  language="graphql"
-  code={`query {
+<CodeBlock language="graphql" code={`query {
   __schema {
     types {
       name
@@ -67,8 +65,7 @@ Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circ
       }
     }
   }
-}`}
-/>
+}`} />
 
 <Paragraph>
 
@@ -78,9 +75,7 @@ In addition, there is a threat of field duplication attacks in GraphQL APIs: an 
 
 </Paragraph>
 
-<CodeBlock
-  language="graphql"
-  code={`query GetAsset($id: String!) {
+<CodeBlock language="graphql" code={`query GetAsset($id: String!) {
   asset(id: $id) {
     id
     code
@@ -90,8 +85,7 @@ In addition, there is a threat of field duplication attacks in GraphQL APIs: an 
     liquidity
     ...
   }
-}`}
-/>
+}`} />
 
 <Paragraph>
 
