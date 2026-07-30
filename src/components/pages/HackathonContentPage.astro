@@ -32,10 +32,7 @@ const entry = pages.find(
 
 if (!entry) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection(
-  'profiles',
-  (profile) => profile.data.section === 'hackathon'
-)
+Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(entry)
 const { title, description } = entry.data
