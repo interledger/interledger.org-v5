@@ -1024,9 +1024,7 @@ export interface ApiHackathonPageHackathonPage
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph']
-    > &
+    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
