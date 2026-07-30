@@ -6,6 +6,7 @@
 import BaseLayout from './BaseLayout.astro'
 import FoundationFooter from '@/components/layout/FoundationFooter.astro'
 import FoundationHeader from '@/components/layout/FoundationHeader.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
 interface Props {
   title: string
@@ -49,6 +50,7 @@ const {
     <slot name="head" />
   </Fragment>
   <FoundationHeader slot="header" theme={headerTheme} />
+  <TableScrollSupport />
   <slot />
   <FoundationFooter slot="footer" />
 </BaseLayout>
