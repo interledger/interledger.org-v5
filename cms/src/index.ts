@@ -1146,6 +1146,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
     },
+    'blocks.paragraph': {
+      content:
+        'Footnotes: write [^1] inline, then [^1]: Your note at the end of this block.'
+    },
     'blocks.image-block': {
       tabletImage:
         'Use if your image needs different proportions or cropping on medium-sized screens.',
