@@ -6,6 +6,7 @@ import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.ast
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import {
   type Locale,
   useTranslations,
@@ -60,7 +61,14 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
         data-prose
         class="mt-2xl [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
       >
-        <MdxContent components={{ Paragraph, TitleCardGrid, TitleCard }} />
+        <MdxContent
+          components={{
+            Paragraph,
+            TitleCardGrid,
+            TitleCard,
+            LogoCarousel
+          }}
+        />
       </section>
     </div>
   </main>
