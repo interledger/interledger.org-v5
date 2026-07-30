@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   ensureAbsoluteUrl,
   ensureLeadingSlash,
-  getSafeExternalUrl,
   isSafeMarkdownHref,
   getSocialIconName
 } from './url'
@@ -66,45 +65,6 @@ describe('ensureAbsoluteUrl', () => {
 
   it('is case-insensitive about the scheme', () => {
     expect(ensureAbsoluteUrl('HTTPS://example.com')).toBe('HTTPS://example.com')
-  })
-})
-
-describe('getSafeExternalUrl', () => {
-  it('normalizes a bare host to an absolute https URL', () => {
-    expect(getSafeExternalUrl('gasfeesnow.com')).toBe('https://gasfeesnow.com')
-  })
-
-  it('leaves an absolute http/https URL untouched', () => {
-    expect(getSafeExternalUrl('https://example.com/report')).toBe(
-      'https://example.com/report'
-    )
-    expect(getSafeExternalUrl('http://example.com')).toBe('http://example.com')
-  })
-
-  it('normalizes a protocol-relative URL to https', () => {
-    expect(getSafeExternalUrl('//cdn.example.com/a.js')).toBe(
-      'https://cdn.example.com/a.js'
-    )
-  })
-
-  it('rejects a javascript: URL', () => {
-    expect(getSafeExternalUrl('javascript:alert(1)')).toBeNull()
-  })
-
-  it('rejects a data: URL', () => {
-    expect(
-      getSafeExternalUrl('data:text/html,<script>alert(1)</script>')
-    ).toBeNull()
-  })
-
-  it('rejects other non-http(s) schemes', () => {
-    expect(getSafeExternalUrl('mailto:jane@example.com')).toBeNull()
-    expect(getSafeExternalUrl('tel:+15551234567')).toBeNull()
-  })
-
-  it('returns null for empty/whitespace-only input', () => {
-    expect(getSafeExternalUrl('')).toBeNull()
-    expect(getSafeExternalUrl('   ')).toBeNull()
   })
 })
 

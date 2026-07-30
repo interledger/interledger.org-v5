@@ -40,7 +40,6 @@ import './imageBlockHandler'
 import './numberTilesHandler'
 import './titleCardGridHandler'
 import './ctaLinkHandler'
-import './footerNotesHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 
