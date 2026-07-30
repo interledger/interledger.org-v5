@@ -15,7 +15,7 @@ interface BlogPostPreview {
     image?: { url?: string } | null
     alternativeText?: string | null
   }
-  featureImageMobile?: { url?: string; alternativeText?: string }
+  featureImageMobile?: { url?: string }
   content?: string
 }
 
@@ -53,7 +53,6 @@ const frontmatter = {
   featureImage: article.featureMedia?.image?.url,
   featureImageAlt: article.featureMedia?.alternativeText ?? '',
   featureImageMobile: article.featureImageMobile?.url,
-  featureImageMobileAlt: article.featureImageMobile?.alternativeText ?? '',
   articleBios: [],
   categories: [],
   relatedArticles: [],

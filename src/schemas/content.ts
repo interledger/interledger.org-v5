@@ -56,8 +56,8 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
   // Optional mobile feature image; falls back to the desktop image when absent.
+  // Shares featureImageAlt with the desktop image (image component field, not its own media field).
   featureImageMobile: z.string().optional(),
-  featureImageMobileAlt: z.string().nullable().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(ArticleBioSchema).optional().default([]),
