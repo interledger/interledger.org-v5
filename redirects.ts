@@ -16,6 +16,9 @@ export const redirects = {
   '/hacktoberfest-2023': '/hacktoberfest',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
+  '/grant': '/grant/our-grantmaking',
+  '/grants': '/grant/our-grantmaking',
+  '/grants/our-grantmaking': '/grant/our-grantmaking',
 
   // Foundation + site pages (Spanish)
   '/es/open-payments-es': '/es/open-payments',
@@ -27,6 +30,9 @@ export const redirects = {
   '/es/grant/embajadores': '/es/grant/ambassadors',
   '/es/grant/ambassadors': '/es/grant/fellowship',
   '/es/grant/ambassadors/faq': '/es/grant/fellowship/faq',
+  '/es/grant': '/es/grant/our-grantmaking',
+  '/es/grants': '/es/grant/our-grantmaking',
+  '/es/grants/our-grantmaking': '/es/grant/our-grantmaking',
   '/es/contacto': '/es/contact',
 
   // News + blog content

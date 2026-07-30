@@ -8,6 +8,8 @@ import {
   buildUmamiAttrs,
   getOptimizedImage,
   hasOptimizedVariants,
+  grantOverviewHubPath,
+  localizeRoute,
   type Locale
 } from '@/utils'
 
@@ -47,7 +49,7 @@ const exploreTechHref = translatePath(
   pageLang,
   'developers'
 )
-const exploreGrantsHref = translatePath('foundation-pages', pageLang, 'grants')
+const exploreGrantsHref = localizeRoute(grantOverviewHubPath(), pageLang)
 
 const heroUmami = (href: string, linkText: string) =>
   buildUmamiAttrs({

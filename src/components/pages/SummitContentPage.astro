@@ -13,6 +13,8 @@ import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
+import TitleCard from '@/components/shared/TitleCard.astro'
 
 interface Props {
   slug: string
@@ -106,7 +108,9 @@ const gradient =
               Paragraph,
               CtaStrip,
               PdfEmbed,
-              VideoEmbed
+              VideoEmbed,
+              TitleCardGrid,
+              TitleCard
             }}
           />
         </div>
