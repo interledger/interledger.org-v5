@@ -11,6 +11,7 @@ export {
   addTrailingSlash,
   ensureLeadingSlash,
   ensureAbsoluteUrl,
+  isSafeMarkdownHref,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName

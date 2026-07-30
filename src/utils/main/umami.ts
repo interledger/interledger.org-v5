@@ -1,5 +1,3 @@
-import { Marked, type RendererObject, type Tokens } from 'marked'
-
 // Mirrors astro.config.mjs `i18n.locales`. Kept inline to avoid pulling the
 // astro virtual modules into the unit-test runtime.
 const LOCALE_CODES = ['en', 'es'] as const
@@ -37,7 +35,6 @@ const HTML_ESCAPE: Record<string, string> = {
   '"': '&quot;',
   "'": '&#39;'
 }
-const HTML_TAG = /<[^>]*>/g
 const MICROSITES = ['summit', 'hackathon'] as const
 const HOME_SUFFIX = '_home'
 const TITLE_LABEL_PREFIX = 'label:'
@@ -84,10 +81,6 @@ function sanitizeText(value: string): string {
 
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => HTML_ESCAPE[char])
-}
-
-function stripTags(html: string): string {
-  return html.replace(HTML_TAG, '')
 }
 
 function normaliseSegment(value: string): string {
@@ -279,38 +272,4 @@ export function extractTitleLabel(title: string | null | undefined): {
   const label = sanitizeText(trimmed.slice(TITLE_LABEL_PREFIX.length))
   if (!label) return { title }
   return { label }
-}
-
-const markedCache = new Map<string, Marked>()
-
-/** Returns a Marked instance whose link renderer injects umami attributes. */
-export function createMarked(context: UmamiContext = {}): Marked {
-  const page = derivePage(context)
-  const lang = context.lang?.trim() || ''
-  const cacheKey = `${page}|${lang}`
-  const cached = markedCache.get(cacheKey)
-  if (cached) return cached
-
-  const renderer: RendererObject = {
-    link({ href, title, tokens }: Tokens.Link) {
-      const innerHtml = this.parser.parseInline(tokens)
-      const { label, title: cleanedTitle } = extractTitleLabel(title)
-      const attrs = buildUmamiAttrs({
-        page,
-        lang,
-        section: 'link',
-        linkText: stripTags(innerHtml),
-        href,
-        label
-      })
-      const titleAttr = cleanedTitle
-        ? ` title="${escapeHtml(cleanedTitle)}"`
-        : ''
-      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
-    }
-  }
-  const instance = new Marked()
-  instance.use({ renderer })
-  markedCache.set(cacheKey, instance)
-  return instance
 }
