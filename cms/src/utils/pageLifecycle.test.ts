@@ -113,6 +113,28 @@ describe('generateMDX — required field validation', () => {
       })
     ).toThrow('Hero CTA is missing required link')
   })
+
+  it('writes title/description/locale without hero fields when hero is absent', () => {
+    const result = generateMDX(testConfig, base)
+
+    expect(result).toContain("title: 'Test Page'")
+    expect(result).toContain("description: 'Test description'")
+    expect(result).toContain("locale: 'en'")
+    expect(result).not.toContain('heroTitle')
+    expect(result).not.toContain('heroImage')
+  })
+
+  it('clears stale hero fields preserved from MDX when the page has no hero', () => {
+    const result = generateMDX(testConfig, base, {
+      heroTitle: 'Stale',
+      heroImage: '/old.jpg',
+      heroCtas: [{ text: 'Go', link: '/' }]
+    })
+
+    expect(result).not.toContain('heroTitle')
+    expect(result).not.toContain('heroImage')
+    expect(result).not.toContain('heroCtas')
+  })
 })
 
 describe('resolvePageFilepath', () => {
