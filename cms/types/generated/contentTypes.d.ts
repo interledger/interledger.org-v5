@@ -744,7 +744,6 @@ export interface ApiFoundationPageFoundationPage
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
-        'blocks.footer-notes',
         'blocks.carousel'
       ]
     > &
@@ -1345,8 +1344,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
-        'blocks.carousel',
-        'blocks.footer-notes'
+        'blocks.carousel'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

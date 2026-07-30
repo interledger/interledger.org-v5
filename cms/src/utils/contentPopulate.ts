@@ -64,9 +64,6 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
-  },
-  'blocks.footer-notes': {
-    populate: { notes: true }
   }
 } as const
 
@@ -108,9 +105,6 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
-    },
-    'blocks.footer-notes': {
-      populate: { notes: true }
     }
   }
 } as const

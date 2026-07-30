@@ -38,8 +38,7 @@
         "blocks.paragraph",
         "blocks.profile-grid",
         "blocks.title-card-grid",
-        "blocks.carousel",
-        "blocks.footer-notes"
+        "blocks.carousel"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }
