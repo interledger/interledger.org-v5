@@ -33,10 +33,7 @@ const mdxPage = pages.find(
 
 if (!mdxPage) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection(
-  'profiles',
-  (entry) => entry.data.section === 'foundation'
-)
+Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
