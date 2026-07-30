@@ -1027,7 +1027,13 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.title-card-grid', 'blocks.carousel']
+      [
+        'blocks.paragraph',
+        'blocks.profile-grid',
+        'blocks.title-card-grid',
+        'blocks.carousel',
+        'blocks.footer-notes'
+      ]
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
