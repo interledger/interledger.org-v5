@@ -10,9 +10,12 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
+import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
+import TitleCard from '@/components/shared/TitleCard.astro'
 
 interface Props {
   slug: string
@@ -29,10 +32,7 @@ const mdxPage = pages.find(
 
 if (!mdxPage) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection(
-  'profiles',
-  (entry) => entry.data.section === 'summit'
-)
+Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
@@ -94,6 +94,7 @@ const gradient =
     <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <div
+          data-prose-summit
           class="mx-auto max-w-narrow [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
         >
           <MdxContent
@@ -106,7 +107,10 @@ const gradient =
               Paragraph,
               CtaStrip,
               PdfEmbed,
-              VideoEmbed
+              VideoEmbed,
+              TitleCardGrid,
+              TitleCard,
+              LogoCarousel
             }}
           />
         </div>

@@ -168,11 +168,6 @@
       overflow-wrap: anywhere;
     }
 
-    /* === Code blocks (expressive-code) === */
-    & .expressive-code {
-      margin-block-end: var(--spacing-xl);
-    }
-
     .video-embed {
       border-radius: var(--radius-3xl);
       overflow: hidden;

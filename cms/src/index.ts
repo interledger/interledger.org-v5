@@ -873,7 +873,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::grant-overview-page.grant-overview-page': {
       pathSlug:
-        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug.',
+        'Path relative to /grant/. Example: our-grantmaking → /grant/our-grantmaking. No leading slash. Must not clash with any Grant Page slug.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
@@ -1169,6 +1169,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
+    },
+    'blocks.paragraph': {
+      content:
+        'Footnotes: write [^1] inline, then [^1]: Your note at the end of this block.'
     },
     'blocks.podcast-item': {
       description: 'Ideally within 225 characters.',

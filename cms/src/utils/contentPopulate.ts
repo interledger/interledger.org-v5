@@ -7,6 +7,7 @@
  * Keep these in sync with the component lists in the content-type schemas:
  * - foundation-page/schema.json
  * - summit-page/schema.json
+ * - hackathon-page/schema.json
  * - foundation-blog-post/schema.json
  */
 
@@ -60,6 +61,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.video-embed': {
     populate: { file: true }
+  },
+  'blocks.title-card-grid': {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
   }
 } as const
 
@@ -92,10 +96,16 @@ export const REPORT_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for hackathon-page content field (paragraph blocks only). */
+/** Populate config for hackathon-page content field. */
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
-    'blocks.paragraph': {}
+    'blocks.paragraph': {},
+    'blocks.profile-grid': {
+      populate: { profiles: true }
+    },
+    'blocks.title-card-grid': {
+      populate: { titleCards: { populate: { secondaryCta: true } } }
+    }
   }
 } as const
 

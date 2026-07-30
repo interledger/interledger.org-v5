@@ -252,7 +252,16 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
         'rust',
         'go',
         'sql',
-        'markdown'
+        'markdown',
+        'php',
+        'java',
+        'ini',
+        'graphql',
+        'http',
+        'nginx',
+        'xml',
+        'webidl',
+        'text'
       ]
     > &
       Schema.Attribute.Required &
