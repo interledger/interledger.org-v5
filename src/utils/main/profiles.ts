@@ -19,10 +19,12 @@ function isProfileFrontmatterType(
 export const toProfileData = (
   entry: ProfileFrontmatterType | StrapiProfile
 ): ProfileData => {
-  const photo = isProfileFrontmatterType(entry) ? entry.photo : entry.photo?.url
+  const photo = isProfileFrontmatterType(entry)
+    ? entry.photo
+    : entry.media?.image?.url
   const photoAlt = isProfileFrontmatterType(entry)
     ? entry.photoAlt
-    : entry.photo?.alternativeText
+    : entry.media?.alternativeText
 
   return {
     name: entry.name,

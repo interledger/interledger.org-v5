@@ -68,7 +68,8 @@
         "blocks.cta-strip",
         "blocks.pdf-embed",
         "blocks.video-embed",
-        "blocks.number-tiles"
+        "blocks.number-tiles",
+        "blocks.title-card-grid"
       ]
     }
   }

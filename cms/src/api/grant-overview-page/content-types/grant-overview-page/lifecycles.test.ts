@@ -34,4 +34,32 @@ describe('generateGrantOverviewPageMDX', () => {
     expect(parsed.data.heroDescription).toBeUndefined()
     expect(parsed.data.heroImage).toBeUndefined()
   })
+
+  it('writes followUpContent to frontmatter instead of the MDX body', () => {
+    const mdx = generateGrantOverviewPageMDX(
+      {
+        id: 1,
+        documentId: 'overview-1',
+        title: 'Our grantmaking',
+        pathSlug: 'our-grantmaking',
+        description: 'Funding overview.',
+        locale: 'en',
+        followUpContent:
+          '## Contact our Programs Team\n\nEmail [programteam@interledger.org](mailto:programteam@interledger.org)',
+        ctaStrip: {
+          heading: 'Get involved',
+          description: 'Stay in touch.',
+          primaryButtonText: 'Subscribe',
+          primaryButtonLink: '/subscribe',
+          color: 'green'
+        }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.followUpContent).toContain('Contact our Programs Team')
+    expect(parsed.content.trim()).toBe('')
+  })
 })

@@ -34,7 +34,11 @@
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph", "blocks.number-tiles"],
+      "components": [
+        "blocks.paragraph",
+        "blocks.number-tiles",
+        "blocks.title-card-grid"
+      ],
       "pluginOptions": { "i18n": { "localized": true } }
     }
   }

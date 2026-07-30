@@ -67,19 +67,17 @@
       "default": false,
       "description": "Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page."
     },
-    "featureImage": {
-      "type": "media",
+    "featureMedia": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
+      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "multiple": false,
-      "required": true,
-      "allowedTypes": [
-        "images"
-      ],
-      "description": "Desktop feature image (required). Dimensions: 720 x 428. Click the edit (pencil) icon on the selected image to set Alternative text."
+      "description": "Desktop feature image (required). Dimensions: 720 x 428."
     },
     "featureImageMobile": {
       "type": "media",
@@ -95,18 +93,16 @@
       ],
       "description": "Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty."
     },
-    "thumbnailImage": {
-      "type": "media",
+    "thumbnailMedia": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ],
-      "description": "Optional listing thumbnail. Dimensions: 260 x 160. Click the edit (pencil) icon on the selected image to set Alternative text."
+      "description": "Optional listing thumbnail. Dimensions: 260 x 160."
     },
     "description": {
       "type": "text",

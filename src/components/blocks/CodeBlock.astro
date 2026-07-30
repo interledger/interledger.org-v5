@@ -1,12 +1,28 @@
 ---
 import { bundledThemes, codeToHtml } from 'shiki'
 import type { ThemeRegistration } from 'shiki'
-import { useTranslations } from '@/utils'
+import { tryCatchAsync, useTranslations } from '@/utils'
+
+const FALLBACK_LANGUAGE = 'text'
 
 interface Props {
   code: string
   language: string
   title?: string
+}
+
+// Last-resort render when Shiki fails entirely: escape the source and keep the
+// same `.line` structure so line numbers and blank-line handling still apply.
+function renderPlainCode(source: string): string {
+  const escaped = source
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  const lines = escaped
+    .split('\n')
+    .map((line) => `<span class="line">${line}</span>`)
+    .join('\n')
+  return `<pre class="shiki"><code>${lines}</code></pre>`
 }
 
 const RESERVED_WORD_COLOR = '#994DE4'
@@ -66,10 +82,19 @@ const { code, language, title } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const highlighted = await codeToHtml(code, {
-  lang: language,
-  theme: codeTheme
-})
+// Raw markdown fences can carry a language Shiki doesn't bundle. Fall back to
+// plain text, and if even that fails, render the escaped source, so an unknown
+// (or broken) language degrades gracefully instead of failing the build.
+const primary = await tryCatchAsync(() =>
+  codeToHtml(code, { lang: language, theme: codeTheme })
+)
+const fallback =
+  primary instanceof Error
+    ? await tryCatchAsync(() =>
+        codeToHtml(code, { lang: FALLBACK_LANGUAGE, theme: codeTheme })
+      )
+    : primary
+const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
 ---
 
 <figure

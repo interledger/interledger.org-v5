@@ -593,14 +593,14 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         }
       }> &
       Schema.Attribute.DefaultTo<false>
-    featureImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required &
+    featureImageMobile: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    featureImageMobile: Schema.Attribute.Media<'images'> &
+    featureMedia: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -647,7 +647,10 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         },
         number
       >
-    thumbnailImage: Schema.Attribute.Media<'images'> &
+    thumbnailMedia: Schema.Attribute.Component<
+      'shared.localized-media',
+      false
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -740,7 +743,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
-        'blocks.number-tiles'
+        'blocks.number-tiles',
+        'blocks.title-card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -795,7 +799,7 @@ export interface ApiGrantOverviewPageGrantOverviewPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'grant-overview-pages'
   info: {
-    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
+    description: 'Overview pages for grant categories. Path slug is relative to /grant/ \u2014 e.g. our-grantmaking \u2192 /grant/our-grantmaking, education \u2192 /grant/education. Slugs must not clash with Grant Page slugs.'
     displayName: 'Grant Overview Page'
     pluralName: 'grant-overview-pages'
     singularName: 'grant-overview-page'
@@ -1023,7 +1027,7 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.number-tiles']
+      ['blocks.paragraph', 'blocks.number-tiles', 'blocks.title-card-grid']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1117,6 +1121,12 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::profile-page.profile-page'
     >
+    media: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1130,12 +1140,6 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    photo: Schema.Attribute.Media<'images'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1333,7 +1337,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
-        'blocks.number-tiles'
+        'blocks.number-tiles',
+        'blocks.title-card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
