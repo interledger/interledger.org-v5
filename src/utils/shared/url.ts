@@ -49,8 +49,6 @@ const ICON_BY_HOST: Record<string, SocialIconName> = {
   'instagram.com': 'instagram'
 }
 
-const SAFE_URL_SCHEMES = new Set(['http:', 'https:'])
-
 // Schemes allowed in markdown/rich-text-rendered hrefs. A scheme-less href
 // (relative path, `#anchor`, protocol-relative `//host`) is always safe —
 // only an explicit, non-allowlisted scheme (`javascript:`, `data:`,
@@ -75,28 +73,6 @@ export function isSafeMarkdownHref(href: string): boolean {
   const match = HREF_SCHEME.exec(trimmed)
   if (!match) return true
   return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
-}
-
-/**
- * Normalizes an editor-supplied external URL to absolute and returns it only
- * if it parses to a safe `http:`/`https:` scheme. Returns `null` for
- * unparseable input and for other schemes (`javascript:`, `data:`, etc.), so
- * callers can skip rendering the link rather than passing it through to an
- * `href`.
- */
-export function getSafeExternalUrl(url: string): string | null {
-  const absolute = ensureAbsoluteUrl(url)
-  if (!absolute) return null
-  // `new URL` can't parse a protocol-relative `//host` without a base to
-  // resolve against — normalize it to https: first, matching
-  // ensureAbsoluteUrl's choice to treat `//` as already-absolute.
-  const withScheme = absolute.startsWith('//') ? `https:${absolute}` : absolute
-  try {
-    const parsed = new URL(withScheme)
-    return SAFE_URL_SCHEMES.has(parsed.protocol) ? withScheme : null
-  } catch {
-    return null
-  }
 }
 
 /** The host of `url`, lowercased, or null if it can't be parsed. */

@@ -742,8 +742,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
-        'blocks.video-embed',
-        'blocks.footer-notes'
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1026,7 +1025,7 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.footer-notes']
+      ['blocks.paragraph']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1335,8 +1334,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
-        'blocks.video-embed',
-        'blocks.footer-notes'
+        'blocks.video-embed'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

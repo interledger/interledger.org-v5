@@ -67,8 +67,7 @@
         "blocks.blockquote",
         "blocks.cta-strip",
         "blocks.pdf-embed",
-        "blocks.video-embed",
-        "blocks.footer-notes"
+        "blocks.video-embed"
       ]
     }
   }
