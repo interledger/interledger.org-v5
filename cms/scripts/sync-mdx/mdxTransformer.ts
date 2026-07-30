@@ -760,18 +760,14 @@ export async function buildFaqPayload(
 export async function buildPodcastPagePayload(
   schema: typeof podcastPageFrontmatterSchema,
   mdx: MDXFile,
-  strapiUploadContext?: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null> = new Map()
+  strapiUploadContext?: StrapiUploadContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext,
-      updatedAltIds,
-      mdx.pathSlug,
-      strapiUploadContext?.dryRun ?? false
+      strapiUploadContext
     )
 
     const titleCards = {
@@ -932,9 +928,7 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  parserCtx?: ParserContext,
-  dryRun = false
+  parserCtx?: ParserContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({
@@ -994,20 +988,9 @@ export async function buildBlogPayload(
       })
     )
 
-    // getImageFromStrapi only sets alt text on newly uploaded files.
-    // For existing files (found by name), patch alt text explicitly.
-    // featureImage/thumbnailImage alt text now lives on featureMedia/thumbnailMedia
-    // (shared.localized-media), so only the plain-media mobile variant needs this.
-    if (featureImageMobile && parsed.featureImageMobileAlt !== undefined) {
-      await updateUploadAltOnce(
-        strapiUploadContext.strapi,
-        featureImageMobile,
-        nullOrValue(parsed.featureImageMobileAlt),
-        updatedAltIds,
-        mdx.pathSlug,
-        dryRun
-      )
-    }
+    // featureImage/thumbnailImage alt text lives on featureMedia/thumbnailMedia
+    // (shared.localized-media); featureImageMobile is a plain media field that
+    // shares the desktop image's alt text, so it has no alt of its own to patch.
 
     // content is a Strapi dynamiczone (always an array), so an empty body
     // must become `[]`, not `''` — otherwise Strapi rejects the type.

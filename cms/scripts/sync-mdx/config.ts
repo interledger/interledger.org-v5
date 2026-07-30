@@ -92,12 +92,11 @@ export interface ContentTypes {
 function buildParsedPagePayload(
   schema: FrontmatterSchema,
   mdx: MDXFile,
-  strapi: StrapiClient,
-  existing: StrapiEntry | null,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null>,
+  existing: StrapiEntry | null,
   dryRun: boolean
 ) {
+  const { strapi, profilePathSlugs } = strapiUploadContext
   const locale = mdx.locale || 'en'
   return buildPagePayload(
     schema,
@@ -109,13 +108,11 @@ function buildParsedPagePayload(
         strapi,
         locale,
         dryRun,
-        strapiUploadContext.profilePathSlugs
+        profilePathSlugs
       ),
       resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
     },
-    strapiUploadContext,
-    updatedAltIds,
-    dryRun
+    strapiUploadContext
   )
 }
 
@@ -126,8 +123,6 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const blogAltIds = new Map<number, string | null>()
-  const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
   const grantOverviewPageAltIds = new Map<number, string | null>()
 
@@ -248,8 +243,6 @@ export function buildContentTypes(
         buildParsedPagePayload(
           foundationPageFrontmatterSchema,
           mdx,
-          strapi,
-          existing,
           {
             strapi,
             STRAPI_URL: strapiUrl,
@@ -257,7 +250,7 @@ export function buildContentTypes(
             dryRun,
             profilePathSlugs
           },
-          pageAltIds,
+          existing,
           dryRun
         )
     },
@@ -269,8 +262,6 @@ export function buildContentTypes(
         buildParsedPagePayload(
           summitPageFrontmatterSchema,
           mdx,
-          strapi,
-          existing,
           {
             strapi,
             STRAPI_URL: strapiUrl,
@@ -278,7 +269,7 @@ export function buildContentTypes(
             dryRun,
             profilePathSlugs
           },
-          pageAltIds,
+          existing,
           dryRun
         )
     },
@@ -287,17 +278,12 @@ export function buildContentTypes(
       apiId: 'podcast-pages',
       schema: podcastPageFrontmatterSchema,
       buildPayload: (mdx, strapi, _existing, dryRun) =>
-        buildPodcastPagePayload(
-          podcastPageFrontmatterSchema,
-          mdx,
-          {
-            strapi,
-            STRAPI_URL: strapiUrl,
-            STRAPI_TOKEN: strapiToken,
-            dryRun
-          },
-          pageAltIds
-        )
+        buildPodcastPagePayload(podcastPageFrontmatterSchema, mdx, {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken,
+          dryRun
+        })
     },
     'foundation-blog-posts': {
       dir: getContentPath(projectRoot, 'blog'),
@@ -326,9 +312,7 @@ export function buildContentTypes(
           foundationBlogFrontmatterSchema,
           mdx,
           uploadContext,
-          blogAltIds,
-          parserCtx,
-          dryRun
+          parserCtx
         )
       }
     }
