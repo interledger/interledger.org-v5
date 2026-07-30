@@ -18,7 +18,7 @@ const alignmentClass =
       : ''
 
 const hasContent = content != null && content !== ''
-const className = alignmentClass || undefined
+const className = [alignmentClass, 'mb-6xl'].filter(Boolean).join(' ')
 const htmlContent = hasContent
   ? await parseMarkdown(content, {
       page: umamiContext,
