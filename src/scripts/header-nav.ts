@@ -15,6 +15,12 @@ declare global {
 const TRACK_EVENT_ATTR = 'data-track-event'
 const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
 
+// initHeaderNav runs once per header on the page (Foundation + microsite
+// headers both call it), but the click-tracking listener is page-global —
+// this guard keeps a second header init from registering it twice and
+// double-firing window.umami.track() on every click.
+let navClickTrackingInitialized = false
+
 /**
  * Fires the same Umami event nav links would otherwise get from their
  * `data-umami-event*` attributes, but via `window.umami.track()` instead of
@@ -22,6 +28,9 @@ const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
  * (`src/utils/main/umami.ts`) for why. Native navigation is never blocked.
  */
 function initNavClickTracking() {
+  if (navClickTrackingInitialized) return
+  navClickTrackingInitialized = true
+
   document.addEventListener('click', (event) => {
     const target = event.target as Element | null
     const trackedEl = target?.closest(`[${TRACK_EVENT_ATTR}]`)
