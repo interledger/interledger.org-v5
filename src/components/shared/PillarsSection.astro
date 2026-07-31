@@ -32,8 +32,8 @@ const sectionContainerClasses = `
   `
 const headingClasses = `
   pillars-heading
-  text-h3
-  tablet:text-h3-md tablet:pt-[20vh] tablet:animate-rise-in-view
+  text-h2
+  tablet:text-h2-md tablet:pt-[20vh] tablet:animate-rise-in-view
   desktop:text-h2-lg
   desktop:z-0 desktop:sticky desktop:top-0 
   `
@@ -105,11 +105,12 @@ const threePillars = [
 
 <style>
   .pillar-card {
-    /* Equal-height floor for the cards: the staggered top margins below would
-       otherwise make flex-stretch give them uneven heights. Anchors are the
-       tallest natural content measured per viewport width — 434.4px at
-       1200px, 420px at 2000px. Re-measure if card copy or layout changes. */
-    --card-min-h: clamp(420px, calc(528px - 7.8vw), 434.4px);
+    /* Equal-height floor for the cards: staggered top margins break normal
+       flex-stretch. Real content height steps down as text re-wraps —
+       492px at 1200-1279px, 462px at 1280-1480px, 432px at 1481px+ — so this
+       line is anchored to each step's last width (1280px→492px, 1481px→462px)
+       to never undershoot. Re-measure if card copy or layout changes. */
+    --card-min-h: clamp(432px, calc(683px - 14.9vw), 492px);
   }
 
   @media (min-width: 1200px) {
