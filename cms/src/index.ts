@@ -783,6 +783,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       mainMenu: 'Main Menu',
       ctaButton: 'CTA Button'
     },
+    'api::hackathon-navigation.hackathon-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
+    },
     'api::grant-page.grant-page': {
       title: 'Page Title',
       pathSlug: 'Path Slug',
@@ -834,7 +838,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
       pathSlug:
-        'Path relative to the chosen Section, no leading slash. This should include the category and the person’s name, e.g. 2025/judges/jane-doe.',
+        'Path relative to the chosen Section, no leading slash, e.g. 2025/judges/jane-doe. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
@@ -843,34 +847,34 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       pathSlug:
-        'Path relative to the site root (/). Examples: about-us → /about-us; no leading slash.',
+        'Path relative to the site root (/). Example: about-us → /about-us; no leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::summit-page.summit-page': {
       pathSlug:
-        'Path relative to /summit/. Examples: faq → /summit/faq; schedule → /summit/schedule. Do not include /summit/ or a leading slash.',
+        'Path relative to /summit/. Example: faq → /summit/faq. Do not include /summit/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       pathSlug:
-        'Path relative to /hackathon/. Examples: overview → /hackathon/overview; rules → /hackathon/rules. Do not include /hackathon/ or a leading slash.',
+        'Path relative to /hackathon/. Example: overview → /hackathon/overview. Do not include /hackathon/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       pathSlug:
-        'Path relative to /grant/. Examples: education/on-campus → /grant/education/on-campus; overview → /grant/overview. No leading slash.',
+        'Path relative to /grant/. Example: education/on-campus → /grant/education/on-campus. No leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
       pathSlug:
-        'Path relative to /grant/. Example: our-grantmaking → /grant/our-grantmaking. No leading slash. Must not clash with any Grant Page slug.',
+        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
-        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash.',
+        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -880,13 +884,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
       featureImageMobile:
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
-      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
-      relatedArticles:
-        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.'
     },
     'api::faq.faq': {
       pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
       description:
@@ -903,7 +905,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::report.report': {
       pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix.',
+        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
       description:
@@ -1045,6 +1047,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number: 'Number',
+      prefix: 'Prefix (currency)',
       suffix: 'Suffix',
       description: 'Description'
     },
@@ -1142,6 +1145,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Upload a square image with the subject’s face centred. The image will be cropped to a circle on the page, so keep the face clear of the edges.',
       profileBio: 'We recommend a max of 255 characters'
     },
+    'shared.related-article': {
+      slug: 'Add exactly 3. Enter the slug of the related post - the segment after /blog/, not the full URL (e.g. my-related-post). No leading slash'
+    },
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
@@ -1219,7 +1225,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tile': {
       number:
-        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the suffix here.',
+        'Enter digits only (e.g. "1000") — the site formats thousands with commas. Do not include the prefix or suffix here.',
+      prefix:
+        'Optional symbol shown tight against the front of the number, e.g. "$" for a monetary amount.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     }
   }
@@ -1446,6 +1454,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'media', size: 6 }],
       [{ name: 'profileBio', size: 12 }]
     ],
+    'shared.related-article': [[{ name: 'slug', size: 8 }]],
     'blocks.profile-grid': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
@@ -1471,8 +1480,9 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
       [
-        { name: 'number', size: 6 },
-        { name: 'suffix', size: 6 }
+        { name: 'prefix', size: 4 },
+        { name: 'number', size: 4 },
+        { name: 'suffix', size: 4 }
       ],
       [{ name: 'description', size: 12 }]
     ],
@@ -1725,7 +1735,8 @@ export default {
     // menu/CTA labels, before saving to DB
     const NAV_UIDS = new Set([
       'api::foundation-navigation.foundation-navigation',
-      'api::summit-navigation.summit-navigation'
+      'api::summit-navigation.summit-navigation',
+      'api::hackathon-navigation.hackathon-navigation'
     ])
     const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {

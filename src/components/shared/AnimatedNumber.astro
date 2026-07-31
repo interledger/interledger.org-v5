@@ -23,6 +23,13 @@ interface Props {
   value: number
   /** Overrides the displayed/resting text (e.g. "1,000" when `value` is 1000, so a comma-formatted source stays intact instead of being reformatted by `String(value)`). The count-up animation still targets `value`. */
   display?: string
+  /**
+   * Text glued to the front of the number, with no gap (e.g. "$" for monetary
+   * stats). It rides along inside the animating span rather than sitting in a
+   * sibling element, so the currency symbol stays attached to every frame of
+   * the count-up instead of appearing only once it settles.
+   */
+  prefix?: string
   durationMs?: number
   ariaLabel?: string
   class?: string
@@ -38,12 +45,13 @@ const DEFAULT_DURATION_MS = 1200
 const {
   value,
   display,
+  prefix,
   durationMs = DEFAULT_DURATION_MS,
   ariaLabel,
   class: className
 } = Astro.props
 
-const formatted = display ?? formatStatNumber(value)
+const formatted = `${prefix ?? ''}${display ?? formatStatNumber(value)}`
 ---
 
 <span
@@ -51,6 +59,7 @@ const formatted = display ?? formatStatNumber(value)
   data-animated-number
   data-target={value}
   data-display={formatted}
+  data-prefix={prefix}
   data-duration={durationMs}
 >
   <span aria-hidden="true" data-animated-number-display>{formatted}</span>
@@ -82,6 +91,7 @@ const formatted = display ?? formatStatNumber(value)
       const target = Number(el.dataset.target ?? '0')
       const duration = Number(el.dataset.duration ?? '1500')
       const finalText = el.dataset.display ?? String(target)
+      const prefix = el.dataset.prefix ?? ''
 
       if (reduceMotion || duration <= 0 || !Number.isFinite(target)) {
         display.textContent = finalText
@@ -95,7 +105,7 @@ const formatted = display ?? formatStatNumber(value)
       // the DOM quiet either way.
       let lastValue = -Infinity
       let startTs: number | null = null
-      const format = (n: number) => n.toLocaleString('en-US')
+      const format = (n: number) => `${prefix}${n.toLocaleString('en-US')}`
       const step = (ts: number) => {
         if (startTs === null) startTs = ts
         const progress = Math.min((ts - startTs) / duration, 1)
@@ -115,13 +125,14 @@ const formatted = display ?? formatStatNumber(value)
 
     // Swap visible content to "0" before the observer can fire. Without this,
     // the first paint shows the build-time final value and the animation
-    // would start mid-flight. Done only when we plan to animate.
+    // would start mid-flight. Done only when we plan to animate. Keeps any
+    // prefix so a monetary stat never flashes a bare "0".
     if (!reduceMotion) {
       elements.forEach((el) => {
         const display = el.querySelector<HTMLElement>(
           '[data-animated-number-display]'
         )
-        if (display) display.textContent = '0'
+        if (display) display.textContent = `${el.dataset.prefix ?? ''}0`
       })
     }
 

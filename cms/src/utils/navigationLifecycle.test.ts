@@ -288,4 +288,26 @@ describe('getLocaleOutputPath', () => {
       '/repo/src/config/summit-navigation.es.json'
     )
   })
+
+  it('works with hackathon navigation config', () => {
+    const hackathonConfig = {
+      contentTypeUid: 'api::hackathon-navigation.hackathon-navigation' as const,
+      outputPath: 'src/config/hackathon-navigation.json',
+      populate: {
+        mainMenu: {
+          populate: {
+            items: true as const,
+            subGroups: { populate: { items: true as const } }
+          }
+        },
+        ctaButton: true as const
+      }
+    }
+    expect(getLocaleOutputPath(hackathonConfig, 'en')).toBe(
+      '/repo/src/config/hackathon-navigation.json'
+    )
+    expect(getLocaleOutputPath(hackathonConfig, 'es')).toBe(
+      '/repo/src/config/hackathon-navigation.es.json'
+    )
+  })
 })

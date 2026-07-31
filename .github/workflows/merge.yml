@@ -53,7 +53,8 @@ jobs:
             // Any Markdown/MDX under Astro content collections (sync script only uploads configured roots).
             const contentPattern = /^src\/content\/.+\.(md|mdx)$/
             const mediaPattern = /^public\/(?:img|uploads|documents)\//
-            const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
+            // Trailing locale segment is optional so the .es.json counterparts sync too.
+            const navigationPattern = /^src\/config\/(?:foundation|summit|hackathon)-navigation(?:\.[a-z]{2})?\.json$/
             const zeroSha = '0000000000000000000000000000000000000000'
 
             if (context.eventName === 'workflow_dispatch') {
