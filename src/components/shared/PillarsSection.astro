@@ -130,7 +130,8 @@ const threePillars = [
     }
     .pillars-heading {
       animation: shrink linear forwards;
-      animation-timeline: scroll();
+      animation-timeline: view();
+      animation-range-start: 30%;
     }
   }
 
@@ -156,7 +157,7 @@ const threePillars = [
 
   @keyframes shrink {
     from {
-      scale: 1.1;
+      scale: 1;
     }
     to {
       scale: 0.6;
