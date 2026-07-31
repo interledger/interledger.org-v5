@@ -83,6 +83,17 @@ describe('getFeaturedPosts', () => {
 })
 
 describe('getBlogThumbnail', () => {
+  it('prefers an explicit thumbnail over the feature image', () => {
+    const post = makePost({
+      slug: 'a',
+      date: '2025-01-01',
+      thumbnailImage: '/thumb.jpg',
+      featureImage: '/feature.jpg'
+    })
+
+    expect(getBlogThumbnail(post)).toBe('/thumb.jpg')
+  })
+
   it('falls back to the feature image when no thumbnail', () => {
     const post = makePost({
       slug: 'a',
