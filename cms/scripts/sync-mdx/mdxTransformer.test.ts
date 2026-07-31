@@ -2421,7 +2421,7 @@ describe('buildHackathonPagePayload', () => {
   // The allow-list is only enforced on the parserCtx-gated path (real syncs
   // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
   describe('allowed component enforcement', () => {
-    it('accepts <Paragraph>, the only allowed component', async () => {
+    it('accepts a Paragraph block', async () => {
       await import('./paragraphHandler')
       const parserCtx = { locale: 'en' }
 
@@ -2439,6 +2439,39 @@ describe('buildHackathonPagePayload', () => {
       )
       expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('accepts an Agenda block', async () => {
+      await import('./agendaHandler')
+      const parserCtx = { locale: 'en' }
+      const items = [
+        {
+          time: '8:30 am',
+          activity: 'Registration',
+          additionalInfo: 'Breakfast is available.'
+        },
+        {
+          time: '9:30 am',
+          activity: 'Welcome',
+          additionalInfo: 'An overview of the day.'
+        }
+      ]
+      const mdx = createMdxFile({
+        pathSlug: 'schedule',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: `<Agenda items={${JSON.stringify(items)}} />`
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.agenda', items }
       ])
     })
 

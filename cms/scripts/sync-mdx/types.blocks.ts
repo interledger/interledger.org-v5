@@ -197,6 +197,17 @@ export interface NumberTilesBlock extends StrapiBlockBase {
   tiles: { number: string; suffix?: string; description: string }[]
 }
 
+/** blocks.agenda — an optional heading followed by at least two scheduled items. */
+export interface AgendaBlock extends StrapiBlockBase {
+  __component: 'blocks.agenda'
+  heading?: string
+  items: {
+    time: string
+    activity: string
+    additionalInfo: string
+  }[]
+}
+
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
 export interface CtaLinkBlock extends StrapiBlockBase {
   __component: 'shared.cta-link'
@@ -248,5 +259,6 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
+  | AgendaBlock
   | TitleCardGridBlock
   | CtaLinkBlock
