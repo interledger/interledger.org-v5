@@ -6,10 +6,48 @@
  * so multiple headers on the same page won't interfere with each other.
  */
 
+declare global {
+  interface Window {
+    umami?: { track: (event: string, data?: Record<string, string>) => void }
+  }
+}
+
+const TRACK_EVENT_ATTR = 'data-track-event'
+const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
+
+/**
+ * Fires the same Umami event nav links would otherwise get from their
+ * `data-umami-event*` attributes, but via `window.umami.track()` instead of
+ * Umami's own click-intercepting listener — see `buildDeferredUmamiAttrs`
+ * (`src/utils/main/umami.ts`) for why. Native navigation is never blocked.
+ */
+function initNavClickTracking() {
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null
+    const trackedEl = target?.closest(`[${TRACK_EVENT_ATTR}]`)
+    if (!trackedEl) return
+
+    const eventName = trackedEl.getAttribute(TRACK_EVENT_ATTR)
+    if (!eventName) return
+
+    const data: Record<string, string> = {}
+    for (const attrName of trackedEl.getAttributeNames()) {
+      const match = attrName.match(TRACK_PROP_ATTR_RE)
+      if (!match) continue
+      const value = trackedEl.getAttribute(attrName)
+      if (value) data[match[1]] = value
+    }
+
+    window.umami?.track(eventName, data)
+  })
+}
+
 /** Sets up mobile nav toggle, responsive breakpoint handling, and submenu behavior. */
 export function initHeaderNav(navId: string, iconId: string) {
   const root = document.getElementById(navId)
   if (!root) return
+
+  initNavClickTracking()
 
   const linksWrapper = root.querySelector<HTMLElement>('[data-nav-wrapper]')
   const menuIcon = document.getElementById(iconId)
