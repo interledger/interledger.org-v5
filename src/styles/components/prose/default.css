@@ -8,7 +8,7 @@
   main {
     color: var(--color-neutral-100);
     p {
-      color:var(--color-neutral-100);
+      color: var(--color-neutral-100);
     }
     p, a, ul, ol, blockquote {
       font-size: var(--text-h5);
