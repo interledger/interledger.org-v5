@@ -1,7 +1,8 @@
 import Lenis from 'lenis'
 
-// duration in seconds. Mirrors the Framer prototype's Smooth Scroll
-// component (intensity: 9 → duration: 9/10).
+// Seconds for the easing animation to catch up after a scroll impulse.
+// Mirrors the Framer prototype's Smooth Scroll component (intensity: 9 →
+// duration: 9/10). Doesn't affect scroll resistance — that's wheelMultiplier.
 const DURATION_SECONDS = 0.9
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -63,6 +64,7 @@ function start(): void {
   refreshHeaderOffset()
   lenis = new Lenis({
     duration: DURATION_SECONDS,
+    wheelMultiplier: 0.8, // lower = more resistance per wheel tick; native = 1
     autoRaf: true
     // autoResize (default true) recomputes Lenis's scroll limit on reflow
     // (zoom, late-loading media). Without it the limit goes stale and
