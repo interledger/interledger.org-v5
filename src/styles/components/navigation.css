@@ -199,11 +199,6 @@
   border-color: var(--color-neutral-50);
 }
 
-/* Mobile drawer divider */
-.foundation-header[data-theme='light'] .header-nav-wrapper hr {
-  background-color: var(--color-neutral-50);
-}
-
 /* Mobile drawer language label */
 .foundation-header[data-theme='dark'] .foundation-drawer-language-label {
   color: var(--color-neutral-50);
