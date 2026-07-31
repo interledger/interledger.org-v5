@@ -1,6 +1,6 @@
 /**
  * NumberTiles component handler for the MDX block parser. Handles:
- * <NumberTiles tiles={[{ number, suffix, description }, ...]} />
+ * <NumberTiles tiles={[{ number, prefix, suffix, description }, ...]} />
  *
  * `tiles` isn't JSON — Prettier reformats it to JS object-literal syntax on
  * write — so it's extracted via getStaticLiteralAttr's ESTree evaluator, not
@@ -21,22 +21,30 @@ const MIN_TILES = 2
 
 interface TileEntry {
   number: string
+  prefix?: string
   suffix?: string
   description: string
+}
+
+/** An optional affix is valid when omitted entirely or non-blank — an empty
+ * string would round-trip to Strapi as a field that renders nothing. */
+function isValidAffix(value: unknown): boolean {
+  return (
+    value === undefined ||
+    (typeof value === 'string' && value.trim().length > 0)
+  )
 }
 
 function isTileEntry(value: unknown): value is TileEntry {
   if (typeof value !== 'object' || value === null) return false
   const record = value as Record<string, unknown>
-  const hasValidSuffix =
-    record.suffix === undefined ||
-    (typeof record.suffix === 'string' && record.suffix.trim().length > 0)
   return (
     typeof record.number === 'string' &&
     record.number.trim().length > 0 &&
     typeof record.description === 'string' &&
     record.description.trim().length > 0 &&
-    hasValidSuffix
+    isValidAffix(record.prefix) &&
+    isValidAffix(record.suffix)
   )
 }
 
@@ -51,7 +59,7 @@ async function handleNumberTiles(
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
         message:
-          'Prop "tiles" must be an array of { number, description, suffix? } objects.',
+          'Prop "tiles" must be an array of { number, description, prefix?, suffix? } objects.',
         component: 'NumberTiles',
         prop: 'tiles',
         line: node.position?.start.line,
@@ -75,9 +83,11 @@ async function handleNumberTiles(
       tiles: rawTiles.map((tile) => {
         const number = tile.number.trim()
         const description = tile.description.trim()
+        const prefix = tile.prefix?.trim()
         const suffix = tile.suffix?.trim()
         return {
           number,
+          ...(prefix ? { prefix } : {}),
           ...(suffix ? { suffix } : {}),
           description
         }
