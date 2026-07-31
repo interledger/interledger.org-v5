@@ -12,7 +12,7 @@ export const FEATURED_POST_LIMIT = 3
  * the tech and foundation blogs merge (INTORG-691). Swap this path if comms
  * provides a dedicated asset.
  */
-export const TECH_BLOG_FALLBACK_THUMBNAIL = '/img/og-developers.png'
+export const TECH_BLOG_FALLBACK_THUMBNAIL = '/img/tech-thumbnail.svg'
 
 /**
  * Selects the featured posts for the listing header.
