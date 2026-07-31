@@ -1,0 +1,124 @@
+---
+import { parseMarkdown, parseMarkdownInline, useTranslations } from '@/utils'
+
+interface AgendaItem {
+  time: string
+  activity: string
+  additionalInfo: string
+}
+
+interface Props {
+  heading?: string
+  items: AgendaItem[]
+  umamiContext?: string
+}
+
+const { heading, items, umamiContext }: Props = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const markdownContext = {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale
+}
+const renderedHeading = parseMarkdownInline(heading, markdownContext)
+const renderedItems = await Promise.all(
+  items.map(async (item) => ({
+    time: parseMarkdownInline(item.time, markdownContext),
+    activity: parseMarkdownInline(item.activity, markdownContext),
+    additionalInfo: await parseMarkdown(item.additionalInfo, markdownContext)
+  }))
+)
+---
+
+<section
+  data-component="Agenda"
+  data-umami-component="agenda"
+  aria-label={renderedHeading ? undefined : t('agenda.label')}
+>
+  {
+    renderedHeading && (
+      <h2
+        class="mb-xl text-body-lg-standard tablet:mb-2xl tablet:text-body-lg-standard-md"
+        set:html={renderedHeading}
+      />
+    )
+  }
+
+  <ol
+    role="list"
+    class="m-0 mx-lg flex list-none flex-col gap-lg p-0 tablet:mx-0"
+  >
+    {
+      renderedItems.map((item, index) => (
+        <li class="relative">
+          <div
+            aria-hidden="true"
+            class="absolute top-lg bottom-0 left-lg z-10 flex w-lg justify-center tablet:left-sm"
+          >
+            <svg
+              class="relative z-10 size-lg shrink-0 rounded-full bg-neutral-0 text-neutral-75"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle cx="12" cy="12" r="9" stroke="currentColor" />
+              <path
+                d="M12 7v5l3 2"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            {index < renderedItems.length - 1 && (
+              <span class="absolute top-lg -bottom-3xl-tight left-1/2 w-px -translate-x-1/2 bg-neutral-50" />
+            )}
+          </div>
+
+          <dl
+            class:list={[
+              'm-0 min-w-0 rounded-2xl py-sm pr-lg pl-3xl text-neutral-100 tablet:grid tablet:grid-cols-[minmax(var(--spacing-5xl),1fr)_minmax(0,7fr)] tablet:items-stretch tablet:rounded-lg tablet:py-md tablet:pr-xl tablet:pl-2xl',
+              index % 2 === 0 ? 'bg-ice-indigo-50' : 'bg-rose-mint-50'
+            ]}
+          >
+            <div class="min-w-0 tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
+              <dt class="sr-only">{t('agenda.timeLabel')}</dt>
+              <dd
+                class="m-0 text-body-sm-emphasis [&_p]:m-0"
+                set:html={item.time}
+              />
+              <dt class="sr-only">{t('agenda.activityLabel')}</dt>
+              <dd
+                class="mt-lg mb-0 text-body-lg-standard text-primary tablet:mt-0 tablet:text-body-lg-standard-md [&_p]:m-0"
+                set:html={item.activity}
+              />
+            </div>
+
+            <div class="-ml-lg mt-xl min-w-0 tablet:mt-0 tablet:ml-0 tablet:pl-xl">
+              <dt class="sr-only">{t('agenda.additionalInfoLabel')}</dt>
+              <dd
+                data-agenda-info
+                class="m-0 text-body-lg-standard tablet:text-body-lg-standard-md"
+                set:html={item.additionalInfo}
+              />
+            </div>
+          </dl>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  [data-agenda-info] :global(p) {
+    display: list-item;
+    margin: 0 0 0 var(--spacing-lg);
+    padding-inline-start: var(--spacing-xs);
+    list-style-type: disc;
+  }
+
+  [data-agenda-info] :global(ul),
+  [data-agenda-info] :global(ol) {
+    margin: 0;
+    padding-inline-start: var(--spacing-lg);
+  }
+</style>
