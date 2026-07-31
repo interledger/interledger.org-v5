@@ -979,7 +979,7 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
-      featureMedia,
+      ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
       thumbnailMedia,
       articleBio,
