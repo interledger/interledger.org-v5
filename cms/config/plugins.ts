@@ -1,3 +1,5 @@
+import { MAX_MEDIA_BYTES } from '../src/utils/uploadLimits'
+
 export default () => ({
   ckeditor: {
     enabled: true
@@ -18,10 +20,11 @@ export default () => ({
       provider: 'local',
       breakpoints: {},
       // 5 MB cap (INTORG-876): uploaded media is git-committed into the repo, so
-      // large files are rejected in the admin with a "file too large" error.
-      // Editors use YouTube for big videos. Alternative storage for large media
-      // is tracked post-launch in INTORG-902.
-      sizeLimit: 5 * 1024 * 1024
+      // large files are rejected in the admin. Editors use YouTube for big
+      // videos. Alternative storage for large media is tracked post-launch in
+      // INTORG-902. The bootstrap upload override enforces the same ceiling with
+      // a friendlier message, plus a tighter 2 MB one for images.
+      sizeLimit: MAX_MEDIA_BYTES
     }
   }
 })
