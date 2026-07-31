@@ -1,7 +1,9 @@
 ---
 /**
- * Summit site header.
- * Composes navigation menu, action links, and mobile toggle.
+ * Shared microsite header (Summit and Hackathon).
+ * Composes navigation menu, action links, and mobile toggle. The chrome is
+ * identical across microsites; only the navigation config, home link, and
+ * accessible names vary by `site`.
  */
 import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import {
@@ -11,18 +13,30 @@ import {
   HOME_CONTENT_SLUG,
   buildUmamiAttrs
 } from '@/utils'
-import SummitNavMenu from '@/components/layout/SummitNavMenu.astro'
-import SummitNavActions from '@/components/layout/SummitNavActions.astro'
+import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
+import MicrositeNavActions from '@/components/layout/MicrositeNavActions.astro'
 import HamburgerButton from '@/components/shared/HamburgerButton.astro'
+import type { MicrositeSite } from '@/types/navigation'
 
+interface Props {
+  site: MicrositeSite
+}
+
+const { site } = Astro.props
 const { routeLocale } = Astro.locals
-const { mainMenu, ctaButton } = getNavigation('summit', routeLocale)
+const { mainMenu, ctaButton } = getNavigation(site, routeLocale)
 const t = useTranslations(routeLocale)
-const summitHomePath = translatePath(
-  'summit-pages',
-  routeLocale,
-  HOME_CONTENT_SLUG
-)
+
+// Summit has a landing page at its route base; hackathon does not yet, so its
+// logo points at the overview page instead.
+const homePath =
+  site === 'summit'
+    ? translatePath('summit-pages', routeLocale, HOME_CONTENT_SLUG)
+    : translatePath('hackathon-pages', routeLocale, 'overview')
+
+const navLabel = site === 'summit' ? t('nav.summit') : t('nav.hackathon')
+const logoLabel =
+  site === 'summit' ? t('aria.logo.summit') : t('aria.logo.hackathon')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   buildUmamiAttrs({
@@ -42,27 +56,27 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   <nav
     class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
     role="navigation"
-    aria-labelledby="block-summit-navigation-menu"
-    id="block-summit-navigation"
+    aria-labelledby="block-microsite-navigation-menu"
+    id="block-microsite-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-summit-navigation-menu">{t('nav.summit')}</h2>
+    <h2 class="sr-only" id="block-microsite-navigation-menu">{navLabel}</h2>
     <a
-      href={summitHomePath}
+      href={homePath}
       class="w-[11em] flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
-      aria-label={t('aria.logo.summit')}
-      {...navLink(summitHomePath, undefined, t('aria.logo.summit'))}
+      aria-label={logoLabel}
+      {...navLink(homePath, undefined, logoLabel)}
     >
       <FoundationLogo />
     </a>
     <div
-      class="header-nav-wrapper header-nav-wrapper--summit"
+      class="header-nav-wrapper header-nav-wrapper--microsite"
       data-nav-wrapper
       data-lenis-prevent
       data-offscreen="true"
-      id="summitNavLinks"
+      id="micrositeNavLinks"
     >
-      <SummitNavMenu menuGroups={mainMenu} />
+      <MicrositeNavMenu menuGroups={mainMenu} />
       {
         ctaButton && (
           <a
@@ -78,11 +92,14 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
         )
       }
     </div>
-    <SummitNavActions ctaButton={ctaButton} />
-    <HamburgerButton controlsId="summitNavLinks" iconId="summitMenuIcon" />
+    <MicrositeNavActions ctaButton={ctaButton} />
+    <HamburgerButton
+      controlsId="micrositeNavLinks"
+      iconId="micrositeMenuIcon"
+    />
   </nav>
 </header>
 
 <script>
-  import './summit-header.ts'
+  import './microsite-header.ts'
 </script>

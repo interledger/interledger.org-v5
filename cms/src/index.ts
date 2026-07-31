@@ -783,6 +783,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       mainMenu: 'Main Menu',
       ctaButton: 'CTA Button'
     },
+    'api::hackathon-navigation.hackathon-navigation': {
+      mainMenu: 'Main Menu',
+      ctaButton: 'CTA Button'
+    },
     'api::grant-page.grant-page': {
       title: 'Page Title',
       pathSlug: 'Path Slug',
@@ -1729,7 +1733,8 @@ export default {
     // menu/CTA labels, before saving to DB
     const NAV_UIDS = new Set([
       'api::foundation-navigation.foundation-navigation',
-      'api::summit-navigation.summit-navigation'
+      'api::summit-navigation.summit-navigation',
+      'api::hackathon-navigation.hackathon-navigation'
     ])
     const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {

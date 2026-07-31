@@ -9,6 +9,7 @@ export const ROUTE_BASES = {
   'foundation-pages': '',
   'foundation-blog': '/blog',
   'summit-pages': '/summit',
+  'hackathon-pages': '/hackathon',
   'grant-pages': '/grant',
   'grant-overview-pages': '/grant',
   // Profiles, faqs and reports use section-relative pathSlugs (e.g. 'fellowship/andria-barrett').
