@@ -63,8 +63,10 @@
     height: 100%;
     overflow-x: clip;
     color-scheme: light;
-    scroll-behavior: smooth;
     overscroll-behavior: none;
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
   }
 
   html[data-theme='dark'] {
