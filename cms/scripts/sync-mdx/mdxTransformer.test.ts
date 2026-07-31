@@ -2779,7 +2779,7 @@ describe('buildBlogPayload', () => {
       })
     })
 
-    it('omits featureMedia when featureImage is absent, leaving existing Strapi value untouched', async () => {
+    it('sets featureMedia to null when featureImage is absent, clearing any existing Strapi value', async () => {
       const { strapiUploadContext, updatedAltIds } =
         createMockStrapiUploadContext()
       const mdx = createMdxFile({
@@ -2794,7 +2794,7 @@ describe('buildBlogPayload', () => {
         updatedAltIds
       )
 
-      expect(payload).not.toHaveProperty('featureMedia')
+      expect((payload as Record<string, unknown>).featureMedia).toBeNull()
     })
 
     it('resolves thumbnailImage and thumbnailImageAlt into thumbnailMedia', async () => {
@@ -2824,7 +2824,7 @@ describe('buildBlogPayload', () => {
       })
     })
 
-    it('omits thumbnailMedia when thumbnailImage is absent, leaving existing Strapi value untouched', async () => {
+    it('sets thumbnailMedia to null when thumbnailImage is absent, clearing any existing Strapi value', async () => {
       const { strapiUploadContext, updatedAltIds } =
         createMockStrapiUploadContext()
       const mdx = createMdxFile({
@@ -2839,7 +2839,7 @@ describe('buildBlogPayload', () => {
         updatedAltIds
       )
 
-      expect(payload).not.toHaveProperty('thumbnailMedia')
+      expect((payload as Record<string, unknown>).thumbnailMedia).toBeNull()
     })
   })
 
