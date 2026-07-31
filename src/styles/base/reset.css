@@ -125,10 +125,14 @@
     height: auto;
   }
 
-  /* Deliberately no scroll-behavior override: anchor jumps keep using
-     native scroll-behavior: smooth (above) even while Lenis is active. */
   .lenis.lenis-smooth [data-lenis-prevent] {
     overscroll-behavior: contain;
+  }
+
+  /* table-scroll: horizontal-only prevent, kept separate from the
+     blanket rule above so vertical scroll still goes through Lenis. */
+  .lenis.lenis-smooth [data-lenis-prevent-horizontal] {
+    overscroll-behavior: auto;
   }
 
   .lenis.lenis-stopped {
