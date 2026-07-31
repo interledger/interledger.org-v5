@@ -1,6 +1,45 @@
 import { describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
-import { registerDocumentValidation } from './index'
+import { buildLayoutConfiguration, registerDocumentValidation } from './index'
+
+describe('buildLayoutConfiguration', () => {
+  const edit = [[{ name: 'heading', size: 12 }]]
+
+  it('creates a complete configuration for a new model', () => {
+    expect(buildLayoutConfiguration(undefined, edit)).toEqual({
+      settings: {},
+      metadatas: {},
+      layouts: { edit }
+    })
+  })
+
+  it('preserves existing settings, metadata, list layout, and options', () => {
+    const current = {
+      settings: { bulkable: true },
+      metadatas: { heading: { edit: { label: 'Heading' } } },
+      layouts: { list: ['heading'], edit: [] },
+      options: { draftAndPublish: false }
+    }
+
+    expect(buildLayoutConfiguration(current, edit)).toEqual({
+      ...current,
+      layouts: { list: ['heading'], edit }
+    })
+  })
+
+  it('overrides selected settings while preserving the rest', () => {
+    const current = {
+      settings: { bulkable: true, mainField: 'documentId' }
+    }
+
+    expect(
+      buildLayoutConfiguration(current, edit, { mainField: 'time' }).settings
+    ).toEqual({
+      bulkable: true,
+      mainField: 'time'
+    })
+  })
+})
 
 function getRegisteredMiddleware(
   uid: string,

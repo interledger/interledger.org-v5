@@ -738,6 +738,7 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
@@ -1026,7 +1027,7 @@ export interface ApiHackathonPageHackathonPage
   }
   attributes: {
     content: Schema.Attribute.DynamicZone<
-      ['blocks.paragraph', 'blocks.title-card-grid']
+      ['blocks.paragraph', 'blocks.agenda', 'blocks.title-card-grid']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1331,6 +1332,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',

@@ -45,6 +45,9 @@ const GRANT_BLOCKS = {
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
+  'blocks.agenda': {
+    populate: { items: true }
+  },
   'blocks.profile': {
     populate: {
       profile: { populate: { media: { populate: { image: true } } } }
@@ -100,6 +103,9 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.agenda': {
+      populate: { items: true }
+    },
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
     }
