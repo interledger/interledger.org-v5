@@ -32,6 +32,7 @@ interface StrapiCard {
 }
 
 type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
+type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
   ariaLabel: string
@@ -80,6 +81,10 @@ const htmlCards =
         })
       )
     : null
+
+function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
+  return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
+}
 ---
 
 <section
@@ -98,40 +103,52 @@ const htmlCards =
       htmlCards ? (
         htmlCards.map((card) => {
           if (variant === 'Title') {
+            if (!hasSecondaryCta(card)) {
+              console.warn('Skipping Title card without secondary CTA.')
+              return null
+            }
             return (
               <TitleCard
                 heading={card.heading}
                 subheading={card.subHeading}
-                buttonUrl={card.secondaryCta!.link}
-                buttonText={card.secondaryCta!.text}
-                buttonExternal={card.secondaryCta?.external}
-                buttonDocument={card.secondaryCta?.document}
+                buttonUrl={card.secondaryCta.link}
+                buttonText={card.secondaryCta.text}
+                buttonExternal={card.secondaryCta.external}
+                buttonDocument={card.secondaryCta.document}
               >
                 <Fragment set:html={card.html} />
               </TitleCard>
             )
           }
           if (variant === 'Resource') {
+            if (!hasSecondaryCta(card)) {
+              console.warn('Skipping Resource card without secondary CTA.')
+              return null
+            }
             return (
               <ResourceCard
                 heading={card.heading}
-                buttonUrl={card.secondaryCta!.link}
-                buttonText={card.secondaryCta!.text}
-                buttonExternal={card.secondaryCta?.external}
-                buttonDocument={card.secondaryCta?.document}
+                buttonUrl={card.secondaryCta.link}
+                buttonText={card.secondaryCta.text}
+                buttonExternal={card.secondaryCta.external}
+                buttonDocument={card.secondaryCta.document}
               >
                 <Fragment set:html={card.html} />
               </ResourceCard>
             )
           }
           if (variant === 'Navigation') {
+            if (!hasSecondaryCta(card)) {
+              console.warn('Skipping Navigation card without secondary CTA.')
+              return null
+            }
             return (
               <NavigationCard
                 heading={card.heading}
-                buttonUrl={card.secondaryCta!.link}
-                buttonText={card.secondaryCta!.text}
-                buttonExternal={card.secondaryCta?.external}
-                buttonDocument={card.secondaryCta?.document}
+                buttonUrl={card.secondaryCta.link}
+                buttonText={card.secondaryCta.text}
+                buttonExternal={card.secondaryCta.external}
+                buttonDocument={card.secondaryCta.document}
               />
             )
           }
