@@ -200,6 +200,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     'heroDescription',
     'heroImage',
     'heroImageAlt',
+    'heroImageMobile',
     'heroCtas'
   ] as const
   for (const key of heroManagedKeys) {

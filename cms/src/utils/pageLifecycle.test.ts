@@ -128,11 +128,13 @@ describe('generateMDX — required field validation', () => {
     const result = generateMDX(testConfig, base, {
       heroTitle: 'Stale',
       heroImage: '/old.jpg',
+      heroImageMobile: '/old-mobile.jpg',
       heroCtas: [{ text: 'Go', link: '/' }]
     })
 
     expect(result).not.toContain('heroTitle')
     expect(result).not.toContain('heroImage')
+    expect(result).not.toContain('heroImageMobile')
     expect(result).not.toContain('heroCtas')
   })
 })
