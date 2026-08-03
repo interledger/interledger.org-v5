@@ -24,7 +24,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
       ]
     }
 
-    const mdx = serialize(original)
+    const mdx = serialize({ ...original })
     const blocks = await parseMdxToBlocks(mdx, { locale: 'en' })
     expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
   })
@@ -58,7 +58,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
       ]
     }
     expect(
-      await parseMdxToBlocks(serialize(resource), { locale: 'en' })
+      await parseMdxToBlocks(serialize({ ...resource }), { locale: 'en' })
     ).toEqual([{ __component: 'blocks.card-grid', ...resource }])
 
     const info = {
@@ -72,9 +72,9 @@ describe('CardGrid round-trip (serialize → parse)', () => {
         }
       ]
     }
-    expect(await parseMdxToBlocks(serialize(info), { locale: 'en' })).toEqual([
-      { __component: 'blocks.card-grid', ...info }
-    ])
+    expect(
+      await parseMdxToBlocks(serialize({ ...info }), { locale: 'en' })
+    ).toEqual([{ __component: 'blocks.card-grid', ...info }])
 
     const nav = {
       ariaLabel: 'Nav',
@@ -92,8 +92,8 @@ describe('CardGrid round-trip (serialize → parse)', () => {
         }
       ]
     }
-    expect(await parseMdxToBlocks(serialize(nav), { locale: 'en' })).toEqual([
-      { __component: 'blocks.card-grid', ...nav }
-    ])
+    expect(
+      await parseMdxToBlocks(serialize({ ...nav }), { locale: 'en' })
+    ).toEqual([{ __component: 'blocks.card-grid', ...nav }])
   })
 })
