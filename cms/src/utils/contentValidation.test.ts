@@ -436,8 +436,6 @@ describe('validateProfileCta', () => {
 
 describe('validateCtaStrip', () => {
   const validCtaStrip = {
-    heading: 'Ready?',
-    description: 'Join us',
     primaryButtonText: 'Start',
     primaryButtonLink: 'https://example.com'
   }
@@ -452,32 +450,22 @@ describe('validateCtaStrip', () => {
     expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
   })
 
-  it('does not require color — it defaults to purple at the MDX layer (see cta-strip-roundtrip.test.ts)', () => {
+  it('allows heading, description, and legacy color to be absent', () => {
     expect(
       validateCtaStrip({ ctaStrip: { ...validCtaStrip, color: undefined } })
     ).toBeUndefined()
   })
 
-  it('flags a missing heading with a path pointing at ctaStrip.heading', () => {
-    const err = validateCtaStrip({
-      ctaStrip: { ...validCtaStrip, heading: '' }
-    })
-    expect(err?.message).toBe('CTA Strip: Heading is required')
-    expect(err?.details.errors[0].path).toEqual(['ctaStrip', 'heading'])
-  })
-
-  it('reports every missing field at once, not just the first', () => {
+  it('reports every missing primary CTA field at once, not just the first', () => {
     const err = validateCtaStrip({
       ctaStrip: {
-        heading: '',
-        description: '',
-        primaryButtonText: 'Start',
-        primaryButtonLink: 'https://example.com'
+        primaryButtonText: '',
+        primaryButtonLink: ''
       }
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
-      ['ctaStrip', 'heading'],
-      ['ctaStrip', 'description']
+      ['ctaStrip', 'primaryButtonText'],
+      ['ctaStrip', 'primaryButtonLink']
     ])
   })
 })

@@ -4,13 +4,10 @@ import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
-  heading: string
+  heading?: string
   description?: string
   primaryButtonText?: string
   primaryButtonLink?: string
-  secondaryButtonText?: string
-  secondaryButtonLink?: string
-  color?: 'purple' | 'green'
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -20,9 +17,6 @@ const {
   description,
   primaryButtonText,
   primaryButtonLink,
-  secondaryButtonText,
-  secondaryButtonLink,
-  color = 'purple',
   umamiContext
 } = Astro.props
 
@@ -38,17 +32,11 @@ const umamiBase = {
   section: 'cta' as const
 }
 
-const bgClasses: Record<NonNullable<Props['color']>, string> = {
-  purple: 'bg-soft-indigo-50',
-  green: 'bg-pistachio-100'
-}
-
 // `description` arrives as a prop from the Strapi dynamic-zone renderer, but as
 // slot children when the component is used in exported MDX. Support both.
 const hasDescription = Boolean(description) || Astro.slots.has('default')
 
 const hasPrimary = Boolean(primaryButtonText && primaryButtonLink)
-const hasSecondary = Boolean(secondaryButtonText && secondaryButtonLink)
 
 const isExternal = (href: string) => /^https?:\/\//i.test(href)
 ---
@@ -57,7 +45,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
   class:list={[
     'relative isolate overflow-clip rounded-3xl',
     'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-    bgClasses[color] ?? bgClasses.purple
+    'bg-soft-indigo-50'
   ]}
 >
   {
@@ -76,11 +64,13 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
   />
 
   <div class="flex flex-col items-center gap-lg text-center">
-    <h2
-      class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900"
-    >
-      {heading}
-    </h2>
+    {
+      heading && (
+        <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900">
+          {heading}
+        </h2>
+      )
+    }
 
     {
       hasDescription && (
@@ -91,40 +81,22 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
     }
 
     {
-      (hasPrimary || hasSecondary) && (
+      hasPrimary && (
         <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
-          {hasPrimary && (
-            <LinkButton
-              href={primaryButtonLink!}
-              variant="primary"
-              external={isExternal(primaryButtonLink!)}
-              class="w-full"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: primaryButtonLink,
-                linkText: primaryButtonText
-              })}
-            >
-              {primaryButtonText}
-              <Icon name="arrow-right" slot="icon-right" />
-            </LinkButton>
-          )}
-
-          {hasSecondary && (
-            <LinkButton
-              href={secondaryButtonLink!}
-              variant="secondary"
-              external={isExternal(secondaryButtonLink!)}
-              class="w-full"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: secondaryButtonLink,
-                linkText: secondaryButtonText
-              })}
-            >
-              {secondaryButtonText}
-            </LinkButton>
-          )}
+          <LinkButton
+            href={primaryButtonLink!}
+            variant="primary"
+            external={isExternal(primaryButtonLink!)}
+            class="w-full"
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: primaryButtonLink,
+              linkText: primaryButtonText
+            })}
+          >
+            {primaryButtonText}
+            <Icon name="arrow-right" slot="icon-right" />
+          </LinkButton>
         </div>
       )
     }

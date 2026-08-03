@@ -339,26 +339,12 @@ export function validateCtaStrip(
     ])
   }
 
-  const { heading, description, primaryButtonText, primaryButtonLink } =
-    ctaStrip as Record<string, unknown>
+  const { primaryButtonText, primaryButtonLink } = ctaStrip as Record<
+    string,
+    unknown
+  >
   const fieldErrors: FieldError[] = []
 
-  if (!heading || typeof heading !== 'string' || heading.trim() === '') {
-    fieldErrors.push({
-      message: 'CTA Strip: Heading is required',
-      path: ['ctaStrip', 'heading']
-    })
-  }
-  if (
-    !description ||
-    typeof description !== 'string' ||
-    description.trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'CTA Strip: Description is required',
-      path: ['ctaStrip', 'description']
-    })
-  }
   if (
     !primaryButtonText ||
     typeof primaryButtonText !== 'string' ||

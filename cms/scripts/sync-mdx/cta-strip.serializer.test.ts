@@ -15,7 +15,7 @@ describe('cta-strip serializer', () => {
     )
   })
 
-  it('includes secondary CTA and colour when present', () => {
+  it('omits legacy secondary CTA and colour when present', () => {
     const result = serialize({
       heading: 'Apply now',
       description: 'This is a reminder text.',
@@ -26,19 +26,21 @@ describe('cta-strip serializer', () => {
       color: 'green'
     })
 
-    expect(result).toContain('secondaryButtonText="Get involved"')
-    expect(result).toContain('secondaryButtonLink="/get-involved"')
-    expect(result).toContain('color="green"')
+    expect(result).not.toContain('secondaryButtonText')
+    expect(result).not.toContain('secondaryButtonLink')
+    expect(result).not.toContain('color=')
   })
 
-  it('omits secondary fields and colour when absent', () => {
+  it('omits optional heading, description, secondary fields and colour when absent', () => {
     const result = serialize({
-      heading: 'H',
-      description: 'Body.',
       primaryButtonText: 'P',
       primaryButtonLink: '/p'
     })
 
+    expect(result).toBe(
+      '<CtaStrip primaryButtonText="P" primaryButtonLink="/p" />'
+    )
+    expect(result).not.toContain('heading=')
     expect(result).not.toContain('secondaryButtonText')
     expect(result).not.toContain('secondaryButtonLink')
     expect(result).not.toContain('color=')
@@ -55,7 +57,7 @@ describe('cta-strip serializer', () => {
     expect(result).toContain('\\{tokens\\}')
   })
 
-  it('drops an incomplete secondary CTA (only one field set)', () => {
+  it('drops an incomplete legacy secondary CTA (only one field set)', () => {
     const result = serialize({
       heading: 'H',
       description: 'Body.',

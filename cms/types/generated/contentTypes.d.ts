@@ -1077,9 +1077,9 @@ export interface ApiHackathonPageHackathonPage
         'blocks.paragraph',
         'blocks.split-layout',
         'blocks.profile-grid',
+        'blocks.cta-strip',
         'blocks.title-card-grid',
-        'blocks.carousel',
-        'blocks.footer-notes'
+        'blocks.carousel'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

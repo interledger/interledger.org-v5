@@ -115,13 +115,10 @@ export type HackathonPageFrontmatterType = z.infer<
 >
 
 const grantCtaStripSchema = z.object({
-  heading: z.string(),
-  description: z.string(),
+  heading: z.string().optional(),
+  description: z.string().optional(),
   buttonText: z.string(),
-  buttonLink: z.string(),
-  color: z.enum(['purple', 'green']).default('purple'),
-  secondaryButtonText: z.string().optional(),
-  secondaryButtonLink: z.string().optional()
+  buttonLink: z.string()
 })
 
 const grantInfoCardSchema = z.object({

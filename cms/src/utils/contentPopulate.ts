@@ -103,6 +103,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.profile-grid': {
       populate: { profiles: true }
     },
+    'blocks.cta-strip': {},
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
     }

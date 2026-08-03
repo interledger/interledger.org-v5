@@ -60,6 +60,7 @@ describe('generateGrantOverviewPageMDX', () => {
     const parsed = matter(mdx)
 
     expect(parsed.data.followUpContent).toContain('Contact our Programs Team')
+    expect(parsed.data.ctaStrip.color).toBeUndefined()
     expect(parsed.content.trim()).toBe('')
   })
 })

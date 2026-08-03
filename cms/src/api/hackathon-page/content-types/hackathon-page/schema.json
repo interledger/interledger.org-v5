@@ -38,6 +38,7 @@
         "blocks.paragraph",
         "blocks.split-layout",
         "blocks.profile-grid",
+        "blocks.cta-strip",
         "blocks.title-card-grid",
         "blocks.carousel"
       ],

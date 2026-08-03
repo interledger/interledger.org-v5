@@ -74,22 +74,17 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.cta-strip – call-to-action strip with a primary CTA, an optional
- * secondary CTA, and a background colour.
+ * blocks.cta-strip – purple call-to-action strip with one primary CTA.
  *
- * `description` comes from the JSX children (markdown); the buttons and
- * `color` come from attributes. The secondary CTA is all-or-nothing: either
- * both `secondaryButtonText` and `secondaryButtonLink` are present, or neither.
+ * `description` comes from the JSX children (markdown). Heading and description
+ * are optional; primary CTA text and link are required.
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
-  heading: string
-  description: string
+  heading?: string
+  description?: string
   primaryButtonText: string
   primaryButtonLink: string
-  secondaryButtonText?: string
-  secondaryButtonLink?: string
-  color: 'purple' | 'green'
 }
 
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */

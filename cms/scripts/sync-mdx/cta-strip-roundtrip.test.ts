@@ -9,7 +9,7 @@ const enCtx: ParserContext = { locale: 'en' }
 const esCtx: ParserContext = { locale: 'es' }
 
 describe('CtaStrip round-trip (serialize → parse)', () => {
-  it('round-trips a full strip (en)', async () => {
+  it('round-trips a full strip (en) and drops legacy secondary/color fields', async () => {
     const original = {
       heading: 'Apply now',
       description: 'This is a reminder text.',
@@ -22,7 +22,15 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
-    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.cta-strip',
+        heading: original.heading,
+        description: original.description,
+        primaryButtonText: original.primaryButtonText,
+        primaryButtonLink: original.primaryButtonLink
+      }
+    ])
   })
 
   it('round-trips a full strip (es)', async () => {
@@ -30,10 +38,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
       heading: 'Aplica ya',
       description: 'Mantente al día con nuestras novedades.',
       primaryButtonText: 'Suscríbete',
-      primaryButtonLink: '/es/boletin',
-      secondaryButtonText: 'Participa',
-      secondaryButtonLink: '/es/participa',
-      color: 'purple' as const
+      primaryButtonLink: '/es/boletin'
     }
 
     const blocks = await parseMdxToBlocks(serialize(original), esCtx)
@@ -41,7 +46,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
   })
 
-  it('round-trips a minimal strip and defaults colour to purple', async () => {
+  it('round-trips a minimal strip without adding colour', async () => {
     const original = {
       heading: 'Stay up to date',
       description: 'Sign up for our newsletter.',
@@ -51,9 +56,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
-    expect(blocks).toEqual([
-      { __component: 'blocks.cta-strip', ...original, color: 'purple' }
-    ])
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
     expect(blocks[0]).not.toHaveProperty('secondaryButtonText')
   })
 
@@ -80,9 +83,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
-    expect(blocks).toEqual([
-      { __component: 'blocks.cta-strip', ...original, color: 'purple' }
-    ])
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
   })
 
   it('drops a half-filled secondary CTA across the round-trip', async () => {

@@ -548,17 +548,10 @@ export async function buildGrantPagePayload(
 
     const ctaStripFm = parsed.ctaStrip
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      ...(ctaStripFm.heading ? { heading: ctaStripFm.heading } : {}),
+      ...(ctaStripFm.description ? { description: ctaStripFm.description } : {})
     }
 
     const infoCards = parsed.infoCards
@@ -659,17 +652,10 @@ export async function buildGrantOverviewPagePayload(
 
     const ctaStripFm = parsed.ctaStrip
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      ...(ctaStripFm.heading ? { heading: ctaStripFm.heading } : {}),
+      ...(ctaStripFm.description ? { description: ctaStripFm.description } : {})
     }
 
     const hero = await buildHeroWithImage(
