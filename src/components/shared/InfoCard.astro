@@ -1,26 +1,20 @@
 ---
 /**
- * Single card inside a CardGrid Info variant (MDX authoring slot child).
- * Strapi preview passes card data through CardGrid props.
+ * Single info card — used by grant `InfoCards` and CardGrid `variant="Info"`.
  */
 interface Props {
   heading: string
-  /** CardGrid always renders cards under an h3; override only for a non-CardGrid context that needs h2. */
-  headingLevel?: 'h2' | 'h3'
 }
 
-const { heading, headingLevel = 'h3' } = Astro.props
-const HeadingTag = headingLevel
+const { heading } = Astro.props
 ---
 
 <article
-  class="flex flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 tablet:gap-xl tablet:p-xl"
+  class="flex flex-1 flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 tablet:gap-xl tablet:p-xl"
 >
-  <HeadingTag
-    class="m-0 text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg"
-  >
+  <h3 class="m-0 text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg">
     {heading}
-  </HeadingTag>
+  </h3>
   <div
     class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_ul]:mb-0 [&_ul]:list-disc [&_ul]:ps-2xl [&_li]:mb-md [&_li:last-child]:mb-0"
   >
