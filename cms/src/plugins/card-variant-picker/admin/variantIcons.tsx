@@ -1,8 +1,6 @@
 import React from 'react'
 import { CARD_VARIANT_LABELS, type CardVariant } from './variantLabels'
 
-const VARIANT_ORDER: CardVariant[] = ['Info', 'Title', 'Resource', 'Navigation']
-
 function Frame({ children }: { children: React.ReactNode }) {
   return (
     <svg
@@ -33,6 +31,114 @@ export const VARIANTS: {
   label: string
   icon: React.ReactNode
 }[] = [
+  {
+    value: 'Info',
+    label: CARD_VARIANT_LABELS.Info,
+    icon: (
+      <Frame>
+        {/* Soft filled card: title + body lines, no button */}
+        <rect
+          x="4"
+          y="5"
+          width="48"
+          height="26"
+          rx="2.5"
+          fill="currentColor"
+          fillOpacity="0.08"
+        />
+        <line
+          x1="8"
+          y1="11"
+          x2="28"
+          y2="11"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="8"
+          y1="18"
+          x2="48"
+          y2="18"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="8"
+          y1="23"
+          x2="45"
+          y2="23"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="8"
+          y1="28"
+          x2="40"
+          y2="28"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </Frame>
+    )
+  },
+  {
+    value: 'Title',
+    label: CARD_VARIANT_LABELS.Title,
+    icon: (
+      <Frame>
+        {/* Stacked title + subhead + body + button */}
+        <line
+          x1="6"
+          y1="8"
+          x2="30"
+          y2="8"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="6"
+          y1="14"
+          x2="42"
+          y2="14"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="6"
+          y1="19"
+          x2="48"
+          y2="19"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="6"
+          y1="23"
+          x2="44"
+          y2="23"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <rect
+          x="6"
+          y="27"
+          width="16"
+          height="5"
+          rx="1.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+      </Frame>
+    )
+  },
   {
     value: 'Resource',
     label: CARD_VARIANT_LABELS.Resource,
@@ -115,60 +221,6 @@ export const VARIANTS: {
     )
   },
   {
-    value: 'Info',
-    label: CARD_VARIANT_LABELS.Info,
-    icon: (
-      <Frame>
-        {/* Soft filled card: title + body lines, no button */}
-        <rect
-          x="4"
-          y="5"
-          width="48"
-          height="26"
-          rx="2.5"
-          fill="currentColor"
-          fillOpacity="0.08"
-        />
-        <line
-          x1="8"
-          y1="11"
-          x2="28"
-          y2="11"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="8"
-          y1="18"
-          x2="48"
-          y2="18"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="8"
-          y1="23"
-          x2="45"
-          y2="23"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="8"
-          y1="28"
-          x2="40"
-          y2="28"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </Frame>
-    )
-  },
-  {
     value: 'Navigation',
     label: CARD_VARIANT_LABELS.Navigation,
     icon: (
@@ -204,61 +256,5 @@ export const VARIANTS: {
         />
       </Frame>
     )
-  },
-  {
-    value: 'Title',
-    label: CARD_VARIANT_LABELS.Title,
-    icon: (
-      <Frame>
-        {/* Stacked title + subhead + body + button */}
-        <line
-          x1="6"
-          y1="8"
-          x2="30"
-          y2="8"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="6"
-          y1="14"
-          x2="42"
-          y2="14"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <line
-          x1="6"
-          y1="19"
-          x2="48"
-          y2="19"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="6"
-          y1="23"
-          x2="44"
-          y2="23"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <rect
-          x="6"
-          y="27"
-          width="16"
-          height="5"
-          rx="1.5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
-      </Frame>
-    )
   }
-].sort(
-  (a, b) => VARIANT_ORDER.indexOf(a.value) - VARIANT_ORDER.indexOf(b.value)
-)
+]
