@@ -5,11 +5,11 @@
  */
 interface Props {
   heading: string
-  /** h2 when the grid has no section heading; h3 when it does. */
+  /** CardGrid always renders cards under an h3; override only for a non-CardGrid context that needs h2. */
   headingLevel?: 'h2' | 'h3'
 }
 
-const { heading, headingLevel = 'h2' } = Astro.props
+const { heading, headingLevel = 'h3' } = Astro.props
 const HeadingTag = headingLevel
 ---
 
