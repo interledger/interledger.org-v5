@@ -13,7 +13,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
       titleCards: [
         {
           heading: 'Grant heading',
-          description: 'Grant description.',
+          description: '- Review eligibility\n- Prepare your proposal',
           secondaryCta: {
             link: '/grants/apply',
             text: 'Learn more',
