@@ -23,6 +23,8 @@ const CARD_FIELDS: CardGridCardsField[] = CARD_GRID_VARIANTS.map(
   (variant) => CARD_GRID_VARIANT_FIELDS[variant]
 )
 
+const VARIANT_SUFFIX = '.variant'
+
 function normalizeFieldText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
 }
@@ -156,9 +158,9 @@ export default function CardVariantPicker({
   error,
   hint
 }: InputProps) {
-  const prefix = name.endsWith('.variant')
-    ? name.slice(0, -'.variant'.length)
-    : name.replace(/\.variant$/, '')
+  const prefix = name.endsWith(VARIANT_SUFFIX)
+    ? name.slice(0, -VARIANT_SUFFIX.length)
+    : name
   const setFieldValue = useForm('CardVariantPicker', (form) => form.onChange)
 
   const handleSelect = (newValue: CardVariant) => {
