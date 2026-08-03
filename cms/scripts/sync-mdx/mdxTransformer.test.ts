@@ -2839,6 +2839,7 @@ describe('buildBlogPayload', () => {
         updatedAltIds
       )
 
+      expect(payload).not.toBeInstanceOf(Error)
       expect((payload as Record<string, unknown>).thumbnailMedia).toBeNull()
     })
   })

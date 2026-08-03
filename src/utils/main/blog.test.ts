@@ -14,7 +14,9 @@ interface FakePost {
   date: string
   featured?: boolean
   thumbnailImage?: string
+  thumbnailImageAlt?: string
   featureImage?: string
+  featureImageAlt?: string
   legacy?: boolean
   locale?: string
 }
@@ -29,7 +31,9 @@ function makePost(post: FakePost): Entry {
       date: new Date(post.date),
       featured: post.featured ?? false,
       thumbnailImage: post.thumbnailImage,
+      thumbnailImageAlt: post.thumbnailImageAlt,
       featureImage: post.featureImage,
+      featureImageAlt: post.featureImageAlt,
       legacy: post.legacy ?? false,
       locale: post.locale ?? 'en'
     }
@@ -88,26 +92,48 @@ describe('getBlogThumbnail', () => {
       slug: 'a',
       date: '2025-01-01',
       thumbnailImage: '/thumb.jpg',
-      featureImage: '/feature.jpg'
+      thumbnailImageAlt: 'Thumb alt',
+      featureImage: '/feature.jpg',
+      featureImageAlt: 'Feature alt'
     })
 
-    expect(getBlogThumbnail(post)).toBe('/thumb.jpg')
+    expect(getBlogThumbnail(post)).toEqual({
+      src: '/thumb.jpg',
+      alt: 'Thumb alt'
+    })
   })
 
-  it('falls back to the feature image when no thumbnail', () => {
+  it('falls back to the feature image (and its own alt) when no thumbnail', () => {
     const post = makePost({
       slug: 'a',
       date: '2025-01-01',
-      featureImage: '/feature.jpg'
+      featureImage: '/feature.jpg',
+      featureImageAlt: 'Feature alt'
     })
 
-    expect(getBlogThumbnail(post)).toBe('/feature.jpg')
+    expect(getBlogThumbnail(post)).toEqual({
+      src: '/feature.jpg',
+      alt: 'Feature alt'
+    })
   })
 
-  it('uses the tech fallback for legacy posts with no images', () => {
+  it('defaults alt to an empty string when the resolved image has none', () => {
+    const post = makePost({
+      slug: 'a',
+      date: '2025-01-01',
+      thumbnailImage: '/thumb.jpg'
+    })
+
+    expect(getBlogThumbnail(post)).toEqual({ src: '/thumb.jpg', alt: '' })
+  })
+
+  it('uses the tech fallback (with empty alt) for legacy posts with no images', () => {
     const post = makePost({ slug: 'a', date: '2025-01-01', legacy: true })
 
-    expect(getBlogThumbnail(post)).toBe(TECH_BLOG_FALLBACK_THUMBNAIL)
+    expect(getBlogThumbnail(post)).toEqual({
+      src: TECH_BLOG_FALLBACK_THUMBNAIL,
+      alt: ''
+    })
   })
 
   it('returns null when nothing is available and the post is not legacy', () => {

@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content'
+import type { BlogThumbnail } from '@/types/blog'
 import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
@@ -6,12 +7,7 @@ type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
 /** Max number of posts shown in the featured section atop the blog listing. */
 export const FEATURED_POST_LIMIT = 3
 
-/**
- * Fallback thumbnail for migrated tech/developer blog posts that have no
- * feature image or thumbnail (the current Engineering blog image). Used once
- * the tech and foundation blogs merge (INTORG-691). Swap this path if comms
- * provides a dedicated asset.
- */
+/** Comms-provided thumbnail for migrated tech/developer blog posts with no feature image or thumbnail. */
 export const TECH_BLOG_FALLBACK_THUMBNAIL = '/img/tech-thumbnail.svg'
 
 /**
@@ -42,13 +38,23 @@ export function getFeaturedPosts(
  *
  * Order: explicit thumbnail → desktop feature image → tech fallback (legacy
  * posts only). Returns null when nothing is available so callers can skip the
- * image rather than render a broken one.
+ * image rather than render a broken one. Alt text always matches whichever
+ * image was chosen, not just the thumbnail's own alt field.
  */
-export function getBlogThumbnail(post: FoundationBlogEntry): string | null {
-  const { thumbnailImage, featureImage, legacy } = post.data
-  if (thumbnailImage) return thumbnailImage
-  if (featureImage) return featureImage
-  if (legacy) return TECH_BLOG_FALLBACK_THUMBNAIL
+export function getBlogThumbnail(
+  post: FoundationBlogEntry
+): BlogThumbnail | null {
+  const {
+    thumbnailImage,
+    thumbnailImageAlt,
+    featureImage,
+    featureImageAlt,
+    legacy
+  } = post.data
+  if (thumbnailImage)
+    return { src: thumbnailImage, alt: thumbnailImageAlt ?? '' }
+  if (featureImage) return { src: featureImage, alt: featureImageAlt ?? '' }
+  if (legacy) return { src: TECH_BLOG_FALLBACK_THUMBNAIL, alt: '' }
   return null
 }
 
