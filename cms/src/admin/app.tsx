@@ -192,6 +192,10 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
+      /* TEMP UI Fix: hide Media Library Alternative text — set alt on localized-media per locale instead */
+      div:has(> div > input[name="alternativeText"]) {
+        display: none !important;
+      }
     `
     document.head.appendChild(style)
 
@@ -340,7 +344,8 @@ export default {
       // TEMP UI Fix: single-type page titles show raw document ID; replace h1 and document.title
       const singleTypeTitles: Record<string, string> = {
         'foundation-navigation': 'Foundation Navigation',
-        'summit-navigation': 'Summit Navigation'
+        'summit-navigation': 'Summit Navigation',
+        'hackathon-navigation': 'Hackathon Navigation'
       }
       const url = window.location.pathname
       for (const [slug, title] of Object.entries(singleTypeTitles)) {

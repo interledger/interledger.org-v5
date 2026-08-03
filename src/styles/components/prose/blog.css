@@ -37,7 +37,7 @@
       border-inline: 2px solid var(--color-raspberry-100);
       padding-inline: var(--spacing-md);
       margin-block: var(--spacing-2xl);
-      
+
       @variant tablet {
         padding-inline: var(--spacing-lg);
       }
@@ -78,6 +78,8 @@
       outline-offset: 2px;
     }
 
+    /* Mobile: max-content so wide tables scroll rather than cram columns into
+       ~340px. Tablet+ has room to fit the column, so cells wrap instead. */
     & table {
       width: max-content;
       min-width: 100%;
@@ -86,6 +88,10 @@
       border-radius: var(--radius-2xl);
       overflow: hidden;
       background-color: var(--color-neutral-0);
+
+      @variant tablet {
+        width: 100%;
+      }
     }
 
     & th,
@@ -162,15 +168,10 @@
       overflow-wrap: anywhere;
     }
 
-    /* === Code blocks (expressive-code) === */
-    & .expressive-code {
-      margin-block-end: var(--spacing-xl);
-    }
-
     .video-embed {
       border-radius: var(--radius-3xl);
       overflow: hidden;
-      margin-block-end: var(--spacing-2xl)
+      margin-block-end: var(--spacing-2xl);
     }
   }
 }

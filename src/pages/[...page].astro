@@ -5,7 +5,11 @@ import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
 import GrantPage from '@/components/pages/GrantPage.astro'
 import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
 import ReportPage from '@/components/pages/ReportPage.astro'
-import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
+import {
+  getLocalizedPaths,
+  getCrossSectionPaths,
+  grantOverviewRouteParam
+} from '@/utils'
 
 export async function getStaticPaths() {
   const [foundationPages, grantPages, grantOverviews, crossSectionPaths] =
@@ -27,7 +31,7 @@ export async function getStaticPaths() {
       props: { ...p.props, kind: 'grant-page' as const }
     })),
     ...grantOverviews.map((p) => ({
-      params: { page: `grant/${p.params.page}` },
+      params: { page: grantOverviewRouteParam(p.props.slug) },
       props: { ...p.props, kind: 'grant-overview-page' as const }
     }))
   ]

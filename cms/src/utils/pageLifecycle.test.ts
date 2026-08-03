@@ -17,7 +17,7 @@ const testConfig = {
 }
 
 describe('generateMDX — clears deleted Strapi-managed fields', () => {
-  it('removes heroImage from frontmatter when backgroundImage is deleted in Strapi', () => {
+  it('removes heroImage from frontmatter when media is deleted in Strapi', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -28,7 +28,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       hero: {
         title: 'Hero Title',
         description: undefined,
-        backgroundImage: undefined
+        media: undefined
       }
     }
     const preservedFields = {
@@ -41,7 +41,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('keeps heroImage in frontmatter when backgroundImage is present', () => {
+  it('keeps heroImage in frontmatter when media is present', () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -51,7 +51,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       description: 'Test description',
       hero: {
         title: 'Hero Title',
-        backgroundImage: { url: 'https://example.com/image.jpg' }
+        media: { image: { url: 'https://example.com/image.jpg' } }
       }
     }
 
@@ -112,6 +112,30 @@ describe('generateMDX — required field validation', () => {
         }
       })
     ).toThrow('Hero CTA is missing required link')
+  })
+
+  it('writes title/description/locale without hero fields when hero is absent', () => {
+    const result = generateMDX(testConfig, base)
+
+    expect(result).toContain("title: 'Test Page'")
+    expect(result).toContain("description: 'Test description'")
+    expect(result).toContain("locale: 'en'")
+    expect(result).not.toContain('heroTitle')
+    expect(result).not.toContain('heroImage')
+  })
+
+  it('clears stale hero fields preserved from MDX when the page has no hero', () => {
+    const result = generateMDX(testConfig, base, {
+      heroTitle: 'Stale',
+      heroImage: '/old.jpg',
+      heroImageMobile: '/old-mobile.jpg',
+      heroCtas: [{ text: 'Go', link: '/' }]
+    })
+
+    expect(result).not.toContain('heroTitle')
+    expect(result).not.toContain('heroImage')
+    expect(result).not.toContain('heroImageMobile')
+    expect(result).not.toContain('heroCtas')
   })
 })
 

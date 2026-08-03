@@ -7,6 +7,7 @@
  * Keep these in sync with the component lists in the content-type schemas:
  * - foundation-page/schema.json
  * - summit-page/schema.json
+ * - hackathon-page/schema.json
  * - foundation-blog-post/schema.json
  */
 
@@ -14,7 +15,7 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { image: true, cta: true }
+    populate: { media: { populate: { image: true } }, cta: true }
   },
   'blocks.blockquote': {},
   'blocks.callout-text': {},
@@ -22,7 +23,11 @@ const GRANT_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: { image: true, tabletImage: true, mobileImage: true }
+    populate: {
+      media: { populate: { image: true } },
+      tabletImage: true,
+      mobileImage: true
+    }
   },
   'blocks.cta-strip': {},
   'blocks.carousel': {
@@ -40,8 +45,13 @@ const GRANT_BLOCKS = {
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
+  'blocks.split-layout': {
+    populate: { media: { populate: { image: true } }, cta: true }
+  },
   'blocks.profile': {
-    populate: { profile: { populate: { photo: true } } }
+    populate: {
+      profile: { populate: { media: { populate: { image: true } } } }
+    }
   },
   'blocks.profile-grid': {
     populate: { profiles: true }
@@ -57,6 +67,12 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.info-card-grid': {
     populate: { cards: true }
+  },
+  'blocks.title-card-grid': {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  'blocks.carousel': {
+    populate: { logos: true }
   }
 } as const
 
@@ -66,7 +82,11 @@ const FOUNDATION_BLOG_BLOCKS = {
     populate: { file: true }
   },
   'blocks.image-block': {
-    populate: { image: true, tabletImage: true, mobileImage: true }
+    populate: {
+      media: { populate: { image: true } },
+      tabletImage: true,
+      mobileImage: true
+    }
   },
   'blocks.code-block': {}
 } as const
@@ -91,6 +111,18 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.paragraph': {},
     'blocks.info-card-grid': {
       populate: { cards: true }
+    },
+    'blocks.split-layout': {
+      populate: { media: { populate: { image: true } }, cta: true }
+    },
+    'blocks.profile-grid': {
+      populate: { profiles: true }
+    },
+    'blocks.title-card-grid': {
+      populate: { titleCards: { populate: { secondaryCta: true } } }
+    },
+    'blocks.carousel': {
+      populate: { logos: true }
     }
   }
 } as const
@@ -107,7 +139,13 @@ export const BLOG_CONTENT_POPULATE = {
 
 /** Populate config for grant-page top-level component fields. */
 export const GRANT_PAGE_CONTENT_POPULATE = {
-  hero: { populate: '*' },
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
   primaryCta: true,
   content: {
     on: {
@@ -127,7 +165,13 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
 
 /** Populate config for grant-overview-page top-level component fields. */
 export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
-  hero: { populate: '*' },
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
   content: {
     on: { ...GRANT_BLOCKS }
   },

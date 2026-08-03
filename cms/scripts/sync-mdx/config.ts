@@ -124,7 +124,6 @@ export function buildContentTypes(
 ): ContentTypes {
   // One Map per content type per sync run — guards against updating the same
   // upload file's alt text multiple times with potentially different values.
-  const profileAltIds = new Map<number, string | null>()
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
@@ -151,9 +150,7 @@ export function buildContentTypes(
               profilePathSlugs
             ),
             resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
-          },
-          profileAltIds,
-          dryRun
+          }
         )
       }
     },
@@ -182,16 +179,22 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'hackathonPages'),
       apiId: 'hackathon-pages',
       schema: hackathonPageFrontmatterSchema,
-      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+      buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
-        // No resolveRelation/resolveMediaUpload: the hackathon-pages content
-        // zone only allows blocks.paragraph, which never resolves relations
-        // or media.
         return buildHackathonPagePayload(
           hackathonPageFrontmatterSchema,
           mdx,
           existing,
-          { locale }
+          {
+            locale,
+            resolveRelation: createRelationResolver(
+              strapi,
+              locale,
+              dryRun,
+              profilePathSlugs
+            ),
+            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
+          }
         )
       }
     },

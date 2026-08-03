@@ -1,15 +1,23 @@
 // Error handling
 export { tryCatchAsync } from './tryCatch'
 
-// Upload limits (mirrored in src/utils/shared/uploadLimits.ts)
+// Code block
+export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
+
+// Upload limits (image half mirrored in src/utils/shared/uploadLimits.ts)
 export {
   MAX_IMAGE_BYTES,
   MAX_IMAGE_SIZE_LABEL,
+  MAX_MEDIA_BYTES,
+  MAX_MEDIA_SIZE_LABEL,
   IMAGE_EXTENSIONS,
-  formatImageSize,
+  formatFileSize,
+  imageOverSizeLimitError,
   imageSizeLimitError,
   isImageOverSizeLimit,
-  isImagePath
+  isImagePath,
+  isMediaOverSizeLimit,
+  mediaSizeLimitError
 } from './uploadLimits'
 
 // Upload validation
