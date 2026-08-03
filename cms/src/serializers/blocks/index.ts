@@ -25,6 +25,7 @@ import { serialize as codeBlock } from './code-block.serializer'
 import { serialize as splitLayout } from './split-layout.serializer'
 import { serialize as numberTiles } from './number-tiles.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
+import { serialize as faq } from './faq.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
@@ -46,6 +47,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.code-block': codeBlock,
   'blocks.split-layout': splitLayout,
   'blocks.title-card-grid': titleCardGrid,
+  'blocks.faq': faq,
   'shared.cta-link': ctaLink
 }
 

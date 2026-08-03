@@ -334,6 +334,35 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksFaq extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faqs'
+  info: {
+    displayName: 'FAQ'
+    icon: 'question'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.faq-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
 export interface BlocksFaqItem extends Struct.ComponentSchema {
   collectionName: 'components_blocks_faq_items'
   info: {
@@ -1273,6 +1302,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.faq': BlocksFaq
       'blocks.faq-item': BlocksFaqItem
       'blocks.faq-section': BlocksFaqSection
       'blocks.grant-faq-item': BlocksGrantFaqItem

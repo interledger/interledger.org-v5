@@ -70,7 +70,8 @@
         "blocks.pdf-embed",
         "blocks.video-embed",
         "blocks.title-card-grid",
-        "blocks.carousel"
+        "blocks.carousel",
+        "blocks.faq"
       ]
     }
   }

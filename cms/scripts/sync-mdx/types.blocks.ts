@@ -234,6 +234,20 @@ export interface TitleCardGridBlock extends StrapiBlockBase {
   titleCards: TitleCard[]
 }
 
+/** blocks.faq-item — entry in faq's repeatable `items` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface FaqItem {
+  question: string
+  /** Rich text (CKEditor `basicMarkdownPreset`), stored as markdown. */
+  answer: string
+}
+
+/** blocks.faq — accordion of question/answer pairs under an optional heading. */
+export interface FaqBlock extends StrapiBlockBase {
+  __component: 'blocks.faq'
+  heading?: string
+  items: FaqItem[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -254,4 +268,5 @@ export type ParsedBlock =
   | ImageBlockBlock
   | NumberTilesBlock
   | TitleCardGridBlock
+  | FaqBlock
   | CtaLinkBlock

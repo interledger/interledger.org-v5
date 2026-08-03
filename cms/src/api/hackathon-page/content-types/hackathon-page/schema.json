@@ -39,7 +39,8 @@
         "blocks.split-layout",
         "blocks.profile-grid",
         "blocks.title-card-grid",
-        "blocks.carousel"
+        "blocks.carousel",
+        "blocks.faq"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }
