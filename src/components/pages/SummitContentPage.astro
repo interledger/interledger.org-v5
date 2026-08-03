@@ -19,6 +19,9 @@ import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 
 interface Props {
   slug: string
@@ -52,7 +55,7 @@ const gradient =
 
 <SummitPageLayout title={title} description={description} gradient={gradient}>
   <main
-    class="relative z-0 pb-3xl before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
+    class="summit-content relative z-0 pb-3xl text-neutral-0 before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
     <TranslationDisclaimer isVisible={isFallback} style="summit" />
     {
@@ -94,33 +97,49 @@ const gradient =
         </section>
       )
     }
-    <section class="py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-        <div
-          data-prose-summit
-          class="mx-auto max-w-narrow [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
-        >
-          <MdxContent
-            components={{
-              img: OptimizedImage,
-              ProfileCard,
-              ProfileGrid,
-              Blockquote,
-              CalloutText,
-              Paragraph,
-              SplitLayout,
-              CtaStrip,
-              PdfEmbed,
-              VideoEmbed,
-              InfoCards,
-              InfoCard,
-              TitleCardGrid,
-              TitleCard,
-              LogoCarousel
-            }}
-          />
-        </div>
+    <section class="px-lg py-4xl tablet:px-xl desktop:px-5xl">
+      <div
+        data-prose-summit
+        class="mx-auto max-w-narrow [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
+      >
+        <MdxContent
+          components={{
+            img: OptimizedImage,
+            ProfileCard,
+            ProfileGrid,
+            Blockquote,
+            CalloutText,
+            Paragraph,
+            SplitLayout,
+            CtaStrip,
+            PdfEmbed,
+            VideoEmbed,
+            InfoCards,
+            InfoCard,
+            TitleCardGrid,
+            TitleCard,
+            CardGrid,
+            ResourceCard,
+            NavigationCard,
+            LogoCarousel
+          }}
+        />
       </div>
     </section>
   </main>
 </SummitPageLayout>
+
+<style>
+  .summit-content {
+    color: var(--color-neutral-0);
+  }
+
+  .summit-content
+    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
+      [data-component='CardGrid'] *
+    ):not([data-component='CtaStrip'] *):not(
+      section[aria-labelledby='logo-carousel-heading'] *
+    ) {
+    color: var(--color-neutral-0);
+  }
+</style>
