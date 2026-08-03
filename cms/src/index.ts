@@ -21,7 +21,10 @@ import {
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
-import { validateContentBlocks } from './serializers/blocks'
+import {
+  validateContentBlocks,
+  sanitizeCardGridsInDocumentData
+} from './serializers/blocks'
 import { errors } from '@strapi/utils'
 import {
   formatFileSize,
@@ -1015,7 +1018,26 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.card-grid': {
+      ariaLabel: 'Accessibility label',
+      variant: 'Card variant',
+      columns: 'Columns',
+      titleCards: 'Title cards',
+      resourceCards: 'Resource cards',
+      infoCards: 'Info cards',
+      navigationCards: 'Navigation cards'
+    },
+    'blocks.resource-card': {
+      heading: 'Heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
+    'blocks.navigation-card': {
+      heading: 'Heading',
+      secondaryCta: 'Secondary call-to-action button'
     },
     'shared.report-date': {
       publishDate: 'Publish Date',
@@ -1276,7 +1298,32 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page.'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external:
+        'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.',
+      variant:
+        'All cards in the grid share one type: Title, Resource, Info, or Navigation.',
+      columns:
+        'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.',
+      titleCards: 'Add Title cards for this grid.',
+      resourceCards: 'Add Resource cards for this grid. At least two required.',
+      infoCards: 'Add Info cards for this grid.',
+      navigationCards: 'Add Navigation cards for this grid.'
+    },
+    'blocks.resource-card': {
+      heading: 'Required card title.',
+      description: 'Required. Supports markdown.',
+      secondaryCta: 'Required link button (internal, external, or document).'
+    },
+    'blocks.navigation-card': {
+      heading: 'Required card title.',
+      secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1647,6 +1694,36 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.info-card': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'body', size: 12 }]
+    ],
+    'blocks.card-grid': [
+      [{ name: 'variant', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      [{ name: 'titleCards', size: 12 }],
+      [{ name: 'resourceCards', size: 12 }],
+      [{ name: 'infoCards', size: 12 }],
+      [{ name: 'navigationCards', size: 12 }]
+    ],
+    'blocks.resource-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.navigation-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'shared.secondary-cta-link': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'external', size: 6 },
+        { name: 'document', size: 6 }
+      ]
     ]
   }
 
@@ -1717,6 +1794,10 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
+        // Drop inactive card-grid variant arrays before schema/business
+        // validation so empty Title/Resource/Info/Navigation fields that
+        // aren't the selected variant never fail the save.
+        sanitizeCardGridsInDocumentData(ctx.params.data)
         const validationErr = validateNoNestedJsx(ctx.params.data?.content)
         if (validationErr) throw validationErr
       }

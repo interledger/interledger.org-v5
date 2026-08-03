@@ -87,6 +87,39 @@ export interface BlocksCard extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCardGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_card_grids'
+  info: {
+    description: 'Unified grid for Title, Resource, Info, or Navigation cards. Equal-height CSS grid with 1/2/3 columns.'
+    displayName: 'Card Grid'
+    icon: 'grid'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
+    columns: Schema.Attribute.Enumeration<['One', 'Two', 'Three']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'Three'>
+    infoCards: Schema.Attribute.Component<'blocks.info-card', true>
+    navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
+    resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
+    titleCards: Schema.Attribute.Component<'blocks.title-card', true>
+    variant: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::card-variant-picker.card-variant'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'Info'>
+  }
+}
+
 export interface BlocksCardLink extends Struct.ComponentSchema {
   collectionName: 'components_blocks_card_links'
   info: {
@@ -654,6 +687,29 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksNavigationCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_navigation_cards'
+  info: {
+    description: 'Navigation card with heading and link CTA (internal/external/document).'
+    displayName: 'Navigation Card'
+    icon: 'cursor'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
+  }
+}
+
 export interface BlocksNumberTile extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles_items'
   info: {
@@ -785,6 +841,37 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
       'oneToMany',
       'api::profile-page.profile-page'
     >
+  }
+}
+
+export interface BlocksResourceCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_resource_cards'
+  info: {
+    description: 'Resource card with heading, description, and secondary CTA (external/download).'
+    displayName: 'Resource Card'
+    icon: 'file'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
   }
 }
 
@@ -1255,6 +1342,7 @@ export interface SharedSecondaryCtaLink extends Struct.ComponentSchema {
     displayName: 'Secondary CTA Link'
   }
   attributes: {
+    document: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     external: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     link: Schema.Attribute.String & Schema.Attribute.Required
     text: Schema.Attribute.String & Schema.Attribute.Required
@@ -1294,6 +1382,7 @@ declare module '@strapi/strapi' {
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
+      'blocks.card-grid': BlocksCardGrid
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid
       'blocks.cards-grid': BlocksCardsGrid
@@ -1309,12 +1398,14 @@ declare module '@strapi/strapi' {
       'blocks.info-card': BlocksInfoCard
       'blocks.info-card-grid': BlocksInfoCardGrid
       'blocks.info-cards': BlocksInfoCards
+      'blocks.navigation-card': BlocksNavigationCard
       'blocks.number-tile': BlocksNumberTile
       'blocks.number-tiles': BlocksNumberTiles
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
+      'blocks.resource-card': BlocksResourceCard
       'blocks.split-layout': BlocksSplitLayout
       'blocks.title-card': BlocksTitleCard
       'blocks.title-card-grid': BlocksTitleCardGrid

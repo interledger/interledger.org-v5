@@ -8,6 +8,10 @@ export default () => ({
     enabled: true,
     resolve: './src/plugins/split-layout-type-picker'
   },
+  'card-variant-picker': {
+    enabled: true,
+    resolve: './src/plugins/card-variant-picker'
+  },
   'record-locking': {
     enabled: true,
     config: {

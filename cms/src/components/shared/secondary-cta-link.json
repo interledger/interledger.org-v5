@@ -16,6 +16,11 @@
     "external": {
       "type": "boolean",
       "default": false
+    },
+    "document": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat the link as a downloadable document (shows download icon)."
     }
   },
   "config": {}

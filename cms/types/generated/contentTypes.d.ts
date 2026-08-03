@@ -744,8 +744,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
-        'blocks.info-card-grid',
-        'blocks.title-card-grid',
+        'blocks.card-grid',
         'blocks.carousel'
       ]
     > &
@@ -825,7 +824,7 @@ export interface ApiGrantOverviewPageGrantOverviewPage
         'blocks.cta-strip',
         'blocks.carousel',
         'blocks.number-tiles',
-        'blocks.title-card-grid'
+        'blocks.card-grid'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1076,10 +1075,9 @@ export interface ApiHackathonPageHackathonPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
-        'blocks.info-card-grid',
+        'blocks.card-grid',
         'blocks.split-layout',
         'blocks.profile-grid',
-        'blocks.title-card-grid',
         'blocks.carousel'
       ]
     > &
@@ -1392,8 +1390,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
-        'blocks.info-card-grid',
-        'blocks.title-card-grid',
+        'blocks.card-grid',
         'blocks.carousel'
       ]
     > &
