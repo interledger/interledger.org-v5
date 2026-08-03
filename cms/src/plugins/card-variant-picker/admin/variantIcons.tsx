@@ -1,6 +1,8 @@
 import React from 'react'
 import { CARD_VARIANT_LABELS, type CardVariant } from './variantLabels'
 
+const VARIANT_ORDER: CardVariant[] = ['Info', 'Title', 'Resource', 'Navigation']
+
 function Frame({ children }: { children: React.ReactNode }) {
   return (
     <svg
@@ -257,4 +259,6 @@ export const VARIANTS: {
       </Frame>
     )
   }
-]
+].sort(
+  (a, b) => VARIANT_ORDER.indexOf(a.value) - VARIANT_ORDER.indexOf(b.value)
+)

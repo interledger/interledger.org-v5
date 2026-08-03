@@ -1,10 +1,10 @@
-export type CardVariant = 'Resource' | 'Info' | 'Navigation' | 'Title'
+export type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
 
 export const CARD_VARIANT_LABELS: Record<CardVariant, string> = {
-  Resource: 'Resource',
   Info: 'Info',
-  Navigation: 'Navigation',
-  Title: 'Title'
+  Title: 'Title',
+  Resource: 'Resource',
+  Navigation: 'Navigation'
 }
 
 const CARD_VARIANT_SLUGS = new Set<string>(Object.keys(CARD_VARIANT_LABELS))

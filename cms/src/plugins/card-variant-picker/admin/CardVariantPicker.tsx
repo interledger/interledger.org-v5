@@ -14,18 +14,18 @@ interface InputProps {
 }
 
 const VARIANT_FIELD: Record<CardVariant, string> = {
+  Info: 'infoCards',
   Title: 'titleCards',
   Resource: 'resourceCards',
-  Info: 'infoCards',
   Navigation: 'navigationCards'
 }
 
 const CARD_FIELDS = Object.values(VARIANT_FIELD)
 
 const FIELD_LABEL: Record<string, string> = {
+  infoCards: 'Info cards',
   titleCards: 'Title cards',
   resourceCards: 'Resource cards',
-  infoCards: 'Info cards',
   navigationCards: 'Navigation cards'
 }
 

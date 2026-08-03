@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Card Grid",
     "icon": "grid",
-    "description": "Unified grid for Title, Resource, Info, or Navigation cards. Equal-height CSS grid with 1/2/3 columns."
+    "description": "Unified grid for Info, Title, Resource, or Navigation cards. Equal-height CSS grid with 1/2/3 columns."
   },
   "options": {},
   "attributes": {
@@ -33,6 +33,11 @@
         }
       }
     },
+    "infoCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.info-card"
+    },
     "titleCards": {
       "type": "component",
       "repeatable": true,
@@ -42,11 +47,6 @@
       "type": "component",
       "repeatable": true,
       "component": "blocks.resource-card"
-    },
-    "infoCards": {
-      "type": "component",
-      "repeatable": true,
-      "component": "blocks.info-card"
     },
     "navigationCards": {
       "type": "component",

@@ -90,7 +90,7 @@ export interface BlocksCard extends Struct.ComponentSchema {
 export interface BlocksCardGrid extends Struct.ComponentSchema {
   collectionName: 'components_blocks_card_grids'
   info: {
-    description: 'Unified grid for Title, Resource, Info, or Navigation cards. Equal-height CSS grid with 1/2/3 columns.'
+    description: 'Unified grid for Info, Title, Resource, or Navigation cards. Equal-height CSS grid with 1/2/3 columns.'
     displayName: 'Card Grid'
     icon: 'grid'
   }

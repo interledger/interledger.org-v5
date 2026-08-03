@@ -242,9 +242,9 @@ export interface InfoCardGridBlock extends StrapiBlockBase {
 }
 
 export const CARD_GRID_VARIANTS = [
+  'Info',
   'Title',
   'Resource',
-  'Info',
   'Navigation'
 ] as const
 export type CardGridVariant = (typeof CARD_GRID_VARIANTS)[number]
@@ -264,15 +264,15 @@ export interface CardGridCard {
   }
 }
 
-/** blocks.card-grid — unified Title / Resource / Info / Navigation card grid. */
+/** blocks.card-grid — unified Info / Title / Resource / Navigation card grid. */
 export interface CardGridBlock extends StrapiBlockBase {
   __component: 'blocks.card-grid'
   ariaLabel: string
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
+  infoCards?: CardGridCard[]
   titleCards?: CardGridCard[]
   resourceCards?: CardGridCard[]
-  infoCards?: CardGridCard[]
   navigationCards?: CardGridCard[]
 }
 

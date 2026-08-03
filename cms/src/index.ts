@@ -1025,9 +1025,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
+      infoCards: 'Info cards',
       titleCards: 'Title cards',
       resourceCards: 'Resource cards',
-      infoCards: 'Info cards',
       navigationCards: 'Navigation cards'
     },
     'blocks.resource-card': {
@@ -1298,12 +1298,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       variant:
-        'All cards in the grid share one type: Title, Resource, Info, or Navigation.',
+        'All cards in the grid share one type: Info, Title, Resource, or Navigation.',
       columns:
         'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.',
+      infoCards: 'Add Info cards for this grid.',
       titleCards: 'Add Title cards for this grid.',
       resourceCards: 'Add Resource cards for this grid. At least two required.',
-      infoCards: 'Add Info cards for this grid.',
       navigationCards: 'Add Navigation cards for this grid.'
     },
     'blocks.resource-card': {
@@ -1684,9 +1684,9 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }
       ],
+      [{ name: 'infoCards', size: 12 }],
       [{ name: 'titleCards', size: 12 }],
       [{ name: 'resourceCards', size: 12 }],
-      [{ name: 'infoCards', size: 12 }],
       [{ name: 'navigationCards', size: 12 }]
     ],
     'blocks.resource-card': [

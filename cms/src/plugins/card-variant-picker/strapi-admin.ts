@@ -13,7 +13,7 @@ export default {
       intlDescription: {
         id: 'card-variant-picker.card-variant.description',
         defaultMessage:
-          'All cards in the grid share one type: Title, Resource, Info, or Navigation.'
+          'All cards in the grid share one type: Info, Title, Resource, or Navigation.'
       },
       components: {
         Input: async () => import('./admin/CardVariantPicker')

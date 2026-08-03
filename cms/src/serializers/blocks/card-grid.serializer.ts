@@ -2,9 +2,9 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 import { SerializerFieldError, type FieldError } from '../../utils'
 
 export const CARD_GRID_VARIANTS = [
+  'Info',
   'Title',
   'Resource',
-  'Info',
   'Navigation'
 ] as const
 export type CardGridVariant = (typeof CARD_GRID_VARIANTS)[number]
@@ -16,16 +16,16 @@ export const VARIANT_CARDS_FIELD: Record<
   CardGridVariant,
   'titleCards' | 'resourceCards' | 'infoCards' | 'navigationCards'
 > = {
+  Info: 'infoCards',
   Title: 'titleCards',
   Resource: 'resourceCards',
-  Info: 'infoCards',
   Navigation: 'navigationCards'
 }
 
 const VARIANT_COMPONENT: Record<CardGridVariant, string> = {
+  Info: 'blocks.info-card',
   Title: 'blocks.title-card',
   Resource: 'blocks.resource-card',
-  Info: 'blocks.info-card',
   Navigation: 'blocks.navigation-card'
 }
 
@@ -51,9 +51,9 @@ export interface CardGridSerializeInput {
   columns?: string
   /** @deprecated Prefer variant-specific fields; kept for tests and legacy. */
   cards?: CardGridCard[]
+  infoCards?: CardGridCard[]
   titleCards?: CardGridCard[]
   resourceCards?: CardGridCard[]
-  infoCards?: CardGridCard[]
   navigationCards?: CardGridCard[]
 }
 

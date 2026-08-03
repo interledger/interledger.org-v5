@@ -1,7 +1,7 @@
 /**
  * CardGrid + nested card handlers for the MDX block parser.
  *
- * <CardGrid ariaLabel="..." variant="Title|Resource|Info|Navigation" columns="One|Two|Three">
+ * <CardGrid ariaLabel="..." variant="Info|Title|Resource|Navigation" columns="One|Two|Three">
  *   <TitleCard ...>...</TitleCard>
  *   <ResourceCard ...>...</ResourceCard>
  *   <InfoCard ...>...</InfoCard>
@@ -9,7 +9,7 @@
  * </CardGrid>
  *
  * Maps to Strapi blocks.card-grid with a variant-specific repeatable field
- * (titleCards / resourceCards / infoCards / navigationCards).
+ * (infoCards / titleCards / resourceCards / navigationCards).
  */
 
 import {
@@ -34,9 +34,9 @@ import {
 } from './parserErrors'
 
 const VARIANT_CHILD: Record<CardGridVariant, string> = {
+  Info: 'InfoCard',
   Title: 'TitleCard',
   Resource: 'ResourceCard',
-  Info: 'InfoCard',
   Navigation: 'NavigationCard'
 }
 
@@ -44,9 +44,9 @@ const VARIANT_CARDS_FIELD: Record<
   CardGridVariant,
   'titleCards' | 'resourceCards' | 'infoCards' | 'navigationCards'
 > = {
+  Info: 'infoCards',
   Title: 'titleCards',
   Resource: 'resourceCards',
-  Info: 'infoCards',
   Navigation: 'navigationCards'
 }
 

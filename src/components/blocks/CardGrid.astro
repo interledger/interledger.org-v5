@@ -1,9 +1,9 @@
 ---
 /**
- * Unified card grid shell for Title / Resource / Info / Navigation variants.
+ * Unified card grid shell for Info / Title / Resource / Navigation variants.
  * Equal-height CSS grid; MDX authoring uses slot children, Strapi preview
- * passes the variant-specific repeatable field (titleCards / resourceCards /
- * infoCards / navigationCards).
+ * passes the variant-specific repeatable field (infoCards / titleCards /
+ * resourceCards / navigationCards).
  */
 import TitleCard from '@/components/shared/TitleCard.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
@@ -32,15 +32,15 @@ interface StrapiCard {
   secondaryCta?: SecondaryCta
 }
 
-type CardVariant = 'Title' | 'Resource' | 'Info' | 'Navigation'
+type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
 
 interface Props {
   ariaLabel: string
   variant: CardVariant
   columns: keyof typeof GRID_COLUMNS_CLASS
+  infoCards?: StrapiCard[]
   titleCards?: StrapiCard[]
   resourceCards?: StrapiCard[]
-  infoCards?: StrapiCard[]
   navigationCards?: StrapiCard[]
 }
 
@@ -48,18 +48,18 @@ const {
   ariaLabel,
   variant,
   columns,
+  infoCards,
   titleCards,
   resourceCards,
-  infoCards,
   navigationCards
 }: Props = Astro.props
 const { routeLocale } = Astro.locals
 const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
 
 const cardsByVariant: Record<CardVariant, StrapiCard[] | undefined> = {
+  Info: infoCards,
   Title: titleCards,
   Resource: resourceCards,
-  Info: infoCards,
   Navigation: navigationCards
 }
 const cards = cardsByVariant[variant]
