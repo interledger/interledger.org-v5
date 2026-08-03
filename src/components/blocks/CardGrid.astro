@@ -82,6 +82,9 @@ const htmlCards =
       )
     : null
 
+// Defense-in-depth only: validateCardGrid (card-grid.serializer.ts) already
+// requires secondaryCta for Title/Resource/Navigation cards at save time, so
+// this should be unreachable for content saved after that check existed.
 function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
   return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
 }
@@ -104,6 +107,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
         htmlCards.map((card) => {
           if (variant === 'Title') {
             if (!hasSecondaryCta(card)) {
+              // eslint-disable-next-line no-console
               console.warn('Skipping Title card without secondary CTA.')
               return null
             }
@@ -122,6 +126,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
           }
           if (variant === 'Resource') {
             if (!hasSecondaryCta(card)) {
+              // eslint-disable-next-line no-console
               console.warn('Skipping Resource card without secondary CTA.')
               return null
             }
@@ -139,6 +144,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
           }
           if (variant === 'Navigation') {
             if (!hasSecondaryCta(card)) {
+              // eslint-disable-next-line no-console
               console.warn('Skipping Navigation card without secondary CTA.')
               return null
             }
