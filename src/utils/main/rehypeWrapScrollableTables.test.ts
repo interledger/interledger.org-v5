@@ -43,7 +43,7 @@ describe('rehypeWrapScrollableTables', () => {
     expect(out).toContain('class="table-scroll"')
     expect(out).toContain('role="region"')
     expect(out).toContain('tabindex="0"')
-    expect(out).toContain('data-lenis-prevent')
+    expect(out).toContain('data-lenis-prevent-horizontal')
     expect(out).toContain('<table>')
   })
 

@@ -25,7 +25,8 @@ function createTableScrollWrapper(table: Element, ariaLabel: string): Element {
       role: 'region',
       ariaLabel,
       tabIndex: 0,
-      dataLenisPrevent: ''
+      // See wrapScrollableTables.ts for why this is the horizontal-only variant.
+      dataLenisPreventHorizontal: ''
     },
     children: [table]
   }

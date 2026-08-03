@@ -6,6 +6,7 @@
  */
 import '../styles/tailwind.css'
 import SeoHead from '@/components/shared/SeoHead.astro'
+import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, buildCanonicalMeta } from '@/utils'
 
 interface Props {
@@ -86,6 +87,7 @@ const {
   </head>
 
   <body class={bodyClass} style={bodyStyle}>
+    <SmoothScroll />
     <slot name="header" />
     <slot />
     <slot name="footer" />
