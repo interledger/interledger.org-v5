@@ -1,0 +1,83 @@
+---
+/**
+ * Resource card — white bordered horizontal layout: heading | description + CTA.
+ */
+import LinkButton from './LinkButton.astro'
+import Icon from './Icon.astro'
+import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
+
+interface Props {
+  heading: string
+  buttonUrl: string
+  buttonText: string
+  buttonExternal?: boolean
+  buttonDocument?: boolean
+}
+
+const {
+  heading,
+  buttonUrl,
+  buttonText,
+  buttonExternal = false,
+  buttonDocument = false
+} = Astro.props
+
+const { routeLocale } = Astro.locals
+const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
+
+const overlayTargetAttrs = buttonExternal
+  ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
+  : {}
+const overlayUmamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card',
+  href,
+  linkText: buttonText
+})
+
+const trailingIcon = buttonDocument
+  ? 'download'
+  : buttonExternal
+    ? 'external-link'
+    : null
+---
+
+<article
+  class="relative flex h-full flex-col gap-xl rounded-3xl border border-neutral-50 bg-white p-xl tablet:flex-row tablet:items-start tablet:gap-2xl"
+>
+  <h3
+    class="m-0 shrink-0 text-h4 text-neutral-900 tablet:w-1/2 tablet:text-h4-md desktop:text-h4-lg"
+  >
+    {heading}
+  </h3>
+  <div class="flex min-w-0 flex-1 flex-col gap-xl">
+    <div
+      class="text-body-lg-standard text-neutral-100 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md"
+    >
+      <slot />
+    </div>
+    <LinkButton
+      href={href}
+      variant="secondary"
+      size="lg"
+      external={buttonExternal}
+      document={buttonDocument}
+      class="self-start z-[1]"
+    >
+      {buttonText}
+      {
+        trailingIcon && (
+          <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+        )
+      }
+    </LinkButton>
+  </div>
+  <a
+    href={href}
+    aria-hidden="true"
+    tabindex="-1"
+    class="absolute inset-0 z-0"
+    {...overlayTargetAttrs}
+    {...overlayUmamiAttrs}></a>
+</article>

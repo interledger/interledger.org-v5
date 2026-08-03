@@ -1,0 +1,150 @@
+---
+/**
+ * Unified card grid shell for Title / Resource / Info / Navigation variants.
+ * Equal-height CSS grid; MDX authoring uses slot children, Strapi preview
+ * passes the variant-specific repeatable field (titleCards / resourceCards /
+ * infoCards / navigationCards).
+ */
+import TitleCard from '@/components/shared/TitleCard.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
+import { parseMarkdown } from '@/utils'
+
+const GRID_COLUMNS_CLASS = {
+  One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
+  Two: 'desktop:grid-cols-2',
+  Three: 'desktop:grid-cols-3'
+} as const satisfies Record<string, string>
+
+interface SecondaryCta {
+  link: string
+  text: string
+  external?: boolean
+  document?: boolean
+}
+
+interface StrapiCard {
+  heading: string
+  subHeading?: string
+  description?: string
+  body?: string
+  secondaryCta?: SecondaryCta
+}
+
+type CardVariant = 'Title' | 'Resource' | 'Info' | 'Navigation'
+
+interface Props {
+  ariaLabel: string
+  variant: CardVariant
+  columns: keyof typeof GRID_COLUMNS_CLASS
+  titleCards?: StrapiCard[]
+  resourceCards?: StrapiCard[]
+  infoCards?: StrapiCard[]
+  navigationCards?: StrapiCard[]
+}
+
+const {
+  ariaLabel,
+  variant,
+  columns,
+  titleCards,
+  resourceCards,
+  infoCards,
+  navigationCards
+}: Props = Astro.props
+const { routeLocale } = Astro.locals
+const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
+
+const cardsByVariant: Record<CardVariant, StrapiCard[] | undefined> = {
+  Title: titleCards,
+  Resource: resourceCards,
+  Info: infoCards,
+  Navigation: navigationCards
+}
+const cards = cardsByVariant[variant]
+
+const htmlCards =
+  cards && cards.length > 0
+    ? await Promise.all(
+        cards.map(async (card) => {
+          const markdownSource =
+            variant === 'Info' ? card.body : card.description
+          const html = markdownSource
+            ? await parseMarkdown(markdownSource, {
+                page: 'card',
+                pathname: Astro.url.pathname,
+                lang: routeLocale
+              })
+            : undefined
+          return { ...card, html }
+        })
+      )
+    : null
+---
+
+<section
+  data-component="CardGrid"
+  aria-label={ariaLabel}
+  class="mt-6xl mb-6xl [&_h3]:!mb-0"
+>
+  <div
+    class:list={[
+      'grid grid-cols-1 gap-lg tablet:gap-xl',
+      columns === 'One' ? 'tablet:grid-cols-1' : 'tablet:grid-cols-2',
+      gridColumnsClass
+    ]}
+  >
+    {
+      htmlCards ? (
+        htmlCards.map((card) => {
+          if (variant === 'Title') {
+            return (
+              <TitleCard
+                heading={card.heading}
+                subheading={card.subHeading}
+                buttonUrl={card.secondaryCta!.link}
+                buttonText={card.secondaryCta!.text}
+                buttonExternal={card.secondaryCta?.external}
+                buttonDocument={card.secondaryCta?.document}
+              >
+                <Fragment set:html={card.html} />
+              </TitleCard>
+            )
+          }
+          if (variant === 'Resource') {
+            return (
+              <ResourceCard
+                heading={card.heading}
+                buttonUrl={card.secondaryCta!.link}
+                buttonText={card.secondaryCta!.text}
+                buttonExternal={card.secondaryCta?.external}
+                buttonDocument={card.secondaryCta?.document}
+              >
+                <Fragment set:html={card.html} />
+              </ResourceCard>
+            )
+          }
+          if (variant === 'Navigation') {
+            return (
+              <NavigationCard
+                heading={card.heading}
+                buttonUrl={card.secondaryCta!.link}
+                buttonText={card.secondaryCta!.text}
+                buttonExternal={card.secondaryCta?.external}
+                buttonDocument={card.secondaryCta?.document}
+              />
+            )
+          }
+          return (
+            <InfoCard heading={card.heading} headingLevel="h3">
+              <Fragment set:html={card.html} />
+            </InfoCard>
+          )
+        })
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</section>

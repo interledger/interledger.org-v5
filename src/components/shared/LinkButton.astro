@@ -18,6 +18,8 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   iconOnly?: ButtonIconOnly
   iconSide?: ButtonIconSide
   external?: boolean
+  /** Treat the link as a downloadable document (download aria hint). */
+  document?: boolean
   ariaDisabled?: boolean
   class?: string
 }
@@ -25,6 +27,7 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
 const {
   href,
   external = false,
+  document: isDocument = false,
   ariaDisabled = false,
   variant,
   mode,
@@ -96,4 +99,5 @@ const umamiAttrs = buildUmamiAttrs({
   <slot />
   <slot name="icon-right" />
   {external && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
+  {isDocument && <span class="sr-only">{t('aria.downloads_file')}</span>}
 </a>

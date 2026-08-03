@@ -1,5 +1,6 @@
 ---
 import LinkButton from './LinkButton.astro'
+import Icon from './Icon.astro'
 import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
   buttonUrl: string
   buttonText: string
   buttonExternal?: boolean
+  buttonDocument?: boolean
 }
 
 const {
@@ -15,7 +17,8 @@ const {
   subheading,
   buttonUrl,
   buttonText,
-  buttonExternal = false
+  buttonExternal = false,
+  buttonDocument = false
 } = Astro.props
 
 const { routeLocale } = Astro.locals
@@ -34,6 +37,12 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   linkText: buttonText
 })
 
+const trailingIcon = buttonDocument
+  ? 'download'
+  : buttonExternal
+    ? 'external-link'
+    : null
+
 const bgClasses = `
 nth-[6n+1]:[--card-bg:var(--color-deep-teal-50)] 
 nth-[6n+2]:[--card-bg:var(--color-coral-red-50)] 
@@ -45,7 +54,7 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
 ---
 
 <article
-  class=`relative flex flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-[var(--card-bg)] tablet:bg-white tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`
+  class={`relative flex h-full flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-[var(--card-bg)] tablet:bg-white tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`}
 >
   <div class="flex flex-col gap-lg">
     <h3
@@ -71,9 +80,15 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
     variant="secondary"
     size="lg"
     external={buttonExternal}
+    document={buttonDocument}
     class="tablet:self-start z-[1]"
   >
     {buttonText}
+    {
+      trailingIcon && (
+        <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+      )
+    }
   </LinkButton>
   <a
     href={href}

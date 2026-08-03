@@ -22,6 +22,9 @@ import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 
 interface Props {
   slug: string
@@ -111,7 +114,10 @@ const breadcrumbs = [
                   LogoCarousel,
                   NumberTiles,
                   TitleCardGrid,
-                  TitleCard
+                  TitleCard,
+                  CardGrid,
+                  ResourceCard,
+                  NavigationCard
                 }}
               />
             </div>
