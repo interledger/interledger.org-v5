@@ -224,23 +224,6 @@ export interface TitleCard {
   }
 }
 
-/** Valid values for blocks.info-card-grid's `columns` field. */
-export const INFO_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
-
-/** Nested card in blocks.info-card-grid (not a dynamic-zone entry itself). */
-export interface InfoCard {
-  heading: string
-  body: string
-}
-
-/** blocks.info-card-grid — legacy 2- or 3-column grid (migrating to card-grid). */
-export interface InfoCardGridBlock extends StrapiBlockBase {
-  __component: 'blocks.info-card-grid'
-  ariaLabel: string
-  columns: (typeof INFO_CARD_GRID_COLUMNS)[number]
-  cards: InfoCard[]
-}
-
 export const CARD_GRID_VARIANTS = [
   'Info',
   'Title',
@@ -295,6 +278,5 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
-  | InfoCardGridBlock
   | CardGridBlock
   | CtaLinkBlock

@@ -622,33 +622,6 @@ export interface BlocksInfoCard extends Struct.ComponentSchema {
   }
 }
 
-export interface BlocksInfoCardGrid extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_info_card_grids'
-  info: {
-    description: 'Grid of info cards (heading + markdown body with bullets). 2 or 3 columns on desktop.'
-    displayName: 'Info Card Grid'
-    icon: 'grid'
-  }
-  attributes: {
-    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
-    cards: Schema.Attribute.Component<'blocks.info-card', true> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    columns: Schema.Attribute.Enumeration<['Two', 'Three']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'Three'>
-  }
-}
-
 export interface BlocksInfoCards extends Struct.ComponentSchema {
   collectionName: 'components_blocks_info_cards'
   info: {
@@ -1381,7 +1354,6 @@ declare module '@strapi/strapi' {
       'blocks.image-block': BlocksImageBlock
       'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard
-      'blocks.info-card-grid': BlocksInfoCardGrid
       'blocks.info-cards': BlocksInfoCards
       'blocks.navigation-card': BlocksNavigationCard
       'blocks.number-tile': BlocksNumberTile
