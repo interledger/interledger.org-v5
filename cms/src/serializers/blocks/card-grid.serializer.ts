@@ -6,26 +6,12 @@ import {
   CARD_GRID_VARIANT_COMPONENTS,
   CARD_GRID_VARIANT_FIELDS,
   CARD_GRID_VARIANT_LIST_LABEL,
+  type CardGridCard,
   type CardGridCardsField,
   type CardGridColumns,
+  type CardGridSecondaryCta,
   type CardGridVariant
 } from '../../utils/cardGrid'
-
-interface SecondaryCta {
-  link?: string
-  text?: string
-  external?: boolean
-  document?: boolean
-}
-
-export interface CardGridCard {
-  __component?: string
-  heading?: string
-  subHeading?: string
-  description?: string
-  body?: string
-  secondaryCta?: SecondaryCta
-}
 
 export interface CardGridSerializeInput extends Partial<
   Record<CardGridCardsField, CardGridCard[]>
@@ -54,12 +40,11 @@ export function resolveCardGridCards(
   const fromField = block[field]
   if (Array.isArray(fromField) && fromField.length > 0) return fromField
   if (Array.isArray(block.cards) && block.cards.length > 0) return block.cards
-  if (Array.isArray(fromField)) return fromField
-  return block.cards ?? []
+  return fromField ?? block.cards ?? []
 }
 
 function validateSecondaryCta(
-  cta: SecondaryCta | undefined,
+  cta: CardGridSecondaryCta | undefined,
   label: string,
   pathPrefix: (string | number)[]
 ): FieldError[] {
@@ -300,16 +285,28 @@ export function validateCardGrid(block: CardGridSerializeInput): FieldError[] {
   return fieldErrors
 }
 
-function serializeCtaAttrs(cta: SecondaryCta): string {
+function serializeCtaAttrs(cta: CardGridSecondaryCta): string {
   const external = cta.external ?? false
   const document = cta.document ?? false
-  let attrs = ` buttonUrl="${esc(cta.link)}" buttonText="${esc(cta.text)}" buttonExternal={${external}}`
+  let attrs = ` buttonUrl="${esc(cta.link ?? '')}" buttonText="${esc(cta.text ?? '')}" buttonExternal={${external}}`
   if (document) attrs += ` buttonDocument={true}`
   return attrs
 }
 
+function getSecondaryCta(
+  card: CardGridCard,
+  variant: CardGridVariant
+): CardGridSecondaryCta {
+  if (!card.secondaryCta) {
+    throw new Error(
+      `${variant} card "${card.heading ?? 'Untitled'}" is missing secondaryCta after validation.`
+    )
+  }
+  return card.secondaryCta
+}
+
 function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
-  const headingAttr = ` heading="${esc(card.heading)}"`
+  const headingAttr = ` heading="${esc(card.heading ?? '')}"`
 
   if (variant === 'Info') {
     const body = escMdxBraces(card.body ?? '')
@@ -317,19 +314,19 @@ function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
   }
 
   if (variant === 'Navigation') {
-    return `<NavigationCard${headingAttr}${serializeCtaAttrs(card.secondaryCta!)} />`
+    return `<NavigationCard${headingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))} />`
   }
 
   if (variant === 'Resource') {
     const description = escMdxBraces(card.description ?? '')
-    return `<ResourceCard${headingAttr}${serializeCtaAttrs(card.secondaryCta!)}>\n\n${description}\n\n</ResourceCard>`
+    return `<ResourceCard${headingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))}>\n\n${description}\n\n</ResourceCard>`
   }
 
   const subheadingAttr = card.subHeading
     ? ` subheading="${esc(card.subHeading)}"`
     : ''
   const description = escMdxBraces(card.description ?? '')
-  return `<TitleCard${headingAttr}${subheadingAttr}${serializeCtaAttrs(card.secondaryCta!)}>\n${description}\n</TitleCard>`
+  return `<TitleCard${headingAttr}${subheadingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))}>\n\n${description}\n\n</TitleCard>`
 }
 
 export function serialize(block: CardGridSerializeInput): string {

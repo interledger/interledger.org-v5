@@ -49,6 +49,7 @@ describe('card-grid serializer', () => {
       '<CardGrid ariaLabel="Grant options" variant="Title" columns="Two">'
     )
     expect(result).toContain('<TitleCard heading="Grant heading"')
+    expect(result).toContain('>\n\nGrant description.\n\n</TitleCard>')
     expect(result).toContain('</CardGrid>')
   })
 

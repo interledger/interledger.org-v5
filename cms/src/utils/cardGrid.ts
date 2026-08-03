@@ -45,6 +45,22 @@ export type CardGridVariant =
 export type CardGridCardsField =
   (typeof CARD_GRID_VARIANT_DEFINITIONS)[number]['cardsField']
 
+export interface CardGridSecondaryCta {
+  link?: string
+  text?: string
+  external?: boolean
+  document?: boolean
+}
+
+export interface CardGridCard {
+  __component?: string
+  heading?: string
+  subHeading?: string
+  description?: string
+  body?: string
+  secondaryCta?: CardGridSecondaryCta
+}
+
 export const CARD_GRID_VARIANTS = CARD_GRID_VARIANT_DEFINITIONS.map(
   (variant) => variant.value
 )

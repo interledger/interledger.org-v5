@@ -13,6 +13,7 @@
 
 import {
   CARD_GRID_COLUMNS,
+  type CardGridCard,
   type CardGridCardsField,
   type CardGridVariant
 } from '../../src/utils/cardGrid'
@@ -20,6 +21,7 @@ import {
 export {
   CARD_GRID_COLUMNS,
   CARD_GRID_VARIANTS,
+  type CardGridCard,
   type CardGridCardsField,
   type CardGridVariant
 } from '../../src/utils/cardGrid'
@@ -222,32 +224,6 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   link: string
   style?: 'primary' | 'secondary'
   external?: boolean
-}
-
-/** blocks.title-card — nested or DZ card with heading, description, CTA. */
-export interface TitleCard {
-  heading: string
-  subHeading?: string
-  description: string
-  secondaryCta: {
-    link: string
-    text: string
-    external?: boolean
-    document?: boolean
-  }
-}
-
-export interface CardGridCard {
-  heading: string
-  subHeading?: string
-  description?: string
-  body?: string
-  secondaryCta?: {
-    link: string
-    text: string
-    external?: boolean
-    document?: boolean
-  }
 }
 
 /** blocks.card-grid — unified card grid with variant-specific card fields. */

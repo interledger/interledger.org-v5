@@ -36,7 +36,7 @@ type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
   ariaLabel: string
-  variant: CardVariant
+  variant: string
   columns: keyof typeof GRID_COLUMNS_CLASS
   infoCards?: StrapiCard[]
   titleCards?: StrapiCard[]
@@ -54,6 +54,7 @@ const {
   navigationCards
 }: Props = Astro.props
 const { routeLocale } = Astro.locals
+const cardGridPath = Astro.url.pathname
 const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
 
 const cardsByVariant: Record<CardVariant, StrapiCard[] | undefined> = {
@@ -62,7 +63,18 @@ const cardsByVariant: Record<CardVariant, StrapiCard[] | undefined> = {
   Resource: resourceCards,
   Navigation: navigationCards
 }
-const cards = cardsByVariant[variant]
+const isKnownVariant = variant in cardsByVariant
+
+if (!isKnownVariant) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `Skipping CardGrid on ${cardGridPath}: unknown variant "${variant}".`
+  )
+}
+
+const cards = isKnownVariant
+  ? cardsByVariant[variant as CardVariant]
+  : undefined
 
 const htmlCards =
   cards && cards.length > 0
@@ -88,6 +100,16 @@ const htmlCards =
 function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
   return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
 }
+
+function warnMissingSecondaryCta(
+  card: StrapiCard,
+  variant: Exclude<CardVariant, 'Info'>
+): void {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `Skipping ${variant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA.`
+  )
+}
 ---
 
 <section
@@ -107,8 +129,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
         htmlCards.map((card) => {
           if (variant === 'Title') {
             if (!hasSecondaryCta(card)) {
-              // eslint-disable-next-line no-console
-              console.warn('Skipping Title card without secondary CTA.')
+              warnMissingSecondaryCta(card, variant)
               return null
             }
             return (
@@ -126,8 +147,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
           }
           if (variant === 'Resource') {
             if (!hasSecondaryCta(card)) {
-              // eslint-disable-next-line no-console
-              console.warn('Skipping Resource card without secondary CTA.')
+              warnMissingSecondaryCta(card, variant)
               return null
             }
             return (
@@ -144,8 +164,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
           }
           if (variant === 'Navigation') {
             if (!hasSecondaryCta(card)) {
-              // eslint-disable-next-line no-console
-              console.warn('Skipping Navigation card without secondary CTA.')
+              warnMissingSecondaryCta(card, variant)
               return null
             }
             return (
@@ -159,7 +178,7 @@ function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
             )
           }
           return (
-            <InfoCard heading={card.heading} headingLevel="h3">
+            <InfoCard heading={card.heading}>
               <Fragment set:html={card.html} />
             </InfoCard>
           )
