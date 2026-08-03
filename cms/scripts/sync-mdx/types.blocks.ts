@@ -224,17 +224,6 @@ export interface TitleCard {
   }
 }
 
-/** Valid values for blocks.title-card-grid's `columns` field. */
-export const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
-
-/** blocks.title-card-grid — legacy grid of title cards (migrating to card-grid). */
-export interface TitleCardGridBlock extends StrapiBlockBase {
-  __component: 'blocks.title-card-grid'
-  ariaLabel: string
-  columns: (typeof TITLE_CARD_GRID_COLUMNS)[number]
-  titleCards: TitleCard[]
-}
-
 /** Valid values for blocks.info-card-grid's `columns` field. */
 export const INFO_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
 
@@ -306,7 +295,6 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
-  | TitleCardGridBlock
   | InfoCardGridBlock
   | CardGridBlock
   | CtaLinkBlock

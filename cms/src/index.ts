@@ -1176,11 +1176,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
-    'blocks.title-card-grid': {
-      titleCards: 'Title cards',
-      columns: 'Columns',
-      ariaLabel: 'Accessibility label'
-    },
     'blocks.title-card': {
       heading: 'Heading',
       subHeading: 'Sub heading',
@@ -1292,10 +1287,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
       content:
         'Rich text for the content column. Leave empty when using a Quote.'
-    },
-    'blocks.title-card-grid': {
-      ariaLabel:
-        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
     },
     'shared.secondary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
@@ -1669,13 +1660,6 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quoteSource', size: 4 }
       ],
       [{ name: 'cta', size: 12 }]
-    ],
-    'blocks.title-card-grid': [
-      [
-        { name: 'columns', size: 4 },
-        { name: 'ariaLabel', size: 8 }
-      ],
-      [{ name: 'titleCards', size: 12 }]
     ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],
