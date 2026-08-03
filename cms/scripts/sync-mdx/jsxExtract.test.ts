@@ -9,7 +9,8 @@ import {
   getStringAttr,
   getBooleanAttr,
   getStringArrayAttr,
-  getChildElements
+  getChildElements,
+  getMismatchedChildElements
 } from './jsxExtract'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -194,5 +195,38 @@ describe('getChildElements', () => {
     const node = parseJsx(['<Grid>', 'Just text.', '</Grid>'].join('\n'))
 
     expect(getChildElements(node, 'Card')).toEqual([])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getMismatchedChildElements
+// ---------------------------------------------------------------------------
+
+describe('getMismatchedChildElements', () => {
+  it('collects element children whose name does not match', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Other id="2" />', '</Grid>'].join('\n')
+    )
+
+    const mismatched = getMismatchedChildElements(node, 'Card')
+
+    expect(mismatched).toHaveLength(1)
+    expect(mismatched[0].name).toBe('Other')
+  })
+
+  it('returns an empty array when every element child matches', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getMismatchedChildElements(node, 'Card')).toEqual([])
+  })
+
+  it('ignores non-element children such as plain text', () => {
+    const node = parseJsx(
+      ['<Grid>', 'Just text.', '<Card id="1" />', '</Grid>'].join('\n')
+    )
+
+    expect(getMismatchedChildElements(node, 'Card')).toEqual([])
   })
 })

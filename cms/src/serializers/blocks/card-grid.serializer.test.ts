@@ -173,6 +173,20 @@ describe('card-grid serializer', () => {
     expect(block.infoCards).toEqual([])
   })
 
+  it('sanitizeCardGridBlock throws instead of silently discarding cards when two variant fields are populated and neither matches the variant', () => {
+    const block = {
+      variant: 'Resource',
+      titleCards: [titleCard],
+      resourceCards: [],
+      infoCards: [infoCard],
+      navigationCards: []
+    }
+    expect(() => sanitizeCardGridBlock(block)).toThrow(SerializerFieldError)
+    // Neither populated field was wiped before the error was raised.
+    expect(block.titleCards).toEqual([titleCard])
+    expect(block.infoCards).toEqual([infoCard])
+  })
+
   it('serializes when cards are on a mismatched variant field', () => {
     const result = serialize({
       ariaLabel: 'Recovered',

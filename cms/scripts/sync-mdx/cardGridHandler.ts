@@ -21,7 +21,12 @@ import {
   type ParsedBlock
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
+import {
+  getStringAttr,
+  getBooleanAttr,
+  getChildElements,
+  getMismatchedChildElements
+} from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -146,6 +151,17 @@ function parseInfoCard(node: JsxBlockNode): CardGridCard {
 function parseNavigationCard(node: JsxBlockNode): CardGridCard {
   const heading = getStringAttr(node, 'heading', { required: true })
   const secondaryCta = parseSecondaryCta(node, 'NavigationCard')
+  if (node.children.length > 0) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'NavigationCard is self-closing and does not accept children. Remove the content between the tags.',
+      component: 'NavigationCard',
+      prop: 'children',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
   return {
     heading,
     secondaryCta
@@ -210,6 +226,18 @@ async function handleCardGrid(
         component: 'CardGrid',
         line: node.position?.start.line,
         column: node.position?.start.column
+      })
+    }
+
+    const mismatchedNodes = getMismatchedChildElements(node, childName)
+    if (mismatchedNodes.length > 0) {
+      const stray = mismatchedNodes[0]!
+      throw new MdxParserError({
+        code: ParserErrorCode.UNSUPPORTED_COMPONENT,
+        message: `CardGrid variant="${variantAttr}" only accepts <${childName}> children. Found <${stray.name ?? 'Fragment'}>.`,
+        component: 'CardGrid',
+        line: stray.position?.start.line ?? node.position?.start.line,
+        column: stray.position?.start.column ?? node.position?.start.column
       })
     }
 

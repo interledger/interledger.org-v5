@@ -704,3 +704,31 @@ export function getChildElements(
   }
   return elements
 }
+
+/**
+ * Collect JSX element children of `node` whose tag name is not `name` —
+ * used to catch a stray or mistyped card component that `getChildElements`
+ * would otherwise silently filter out.
+ *
+ * @example
+ * ```ts
+ * // <Grid variant="Info">
+ * //   <InfoCard />
+ * //   <TitleCard />
+ * // </Grid>
+ * getMismatchedChildElements(node, 'InfoCard')  // → [titleCardNode]
+ * ```
+ */
+export function getMismatchedChildElements(
+  node: JsxBlockNode,
+  name: string
+): JsxBlockNode[] {
+  const elements: JsxBlockNode[] = []
+  for (const child of node.children) {
+    const element = toJsxElement(child)
+    if (element && element.name !== name) {
+      elements.push(element)
+    }
+  }
+  return elements
+}

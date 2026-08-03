@@ -115,4 +115,39 @@ describe('CardGrid handler', () => {
     )
     expect(result).toBeInstanceOf(MdxParserError)
   })
+
+  it('rejects a card of the wrong type inside a variant grid', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="A">Body</InfoCard>',
+        '<TitleCard heading="B" buttonUrl="/b" buttonText="Open" buttonExternal={false}>',
+        'Desc',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.UNSUPPORTED_COMPONENT
+    })
+  })
+
+  it('rejects a NavigationCard with children', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Nav" variant="Navigation" columns="One">',
+        '<NavigationCard heading="Go" buttonUrl="/go" buttonText="Next">',
+        'Unexpected content',
+        '</NavigationCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE
+    })
+  })
 })

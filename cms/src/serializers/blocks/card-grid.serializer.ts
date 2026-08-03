@@ -207,16 +207,29 @@ export function sanitizeCardGridBlock(
     return block
   }
 
-  // Active field empty (or variant missing) but cards exist elsewhere —
-  // keep the first populated field and set variant to match. Never wipe the
-  // only cards an editor added into a mismatched section.
-  if (populated.length > 0) {
+  // Active field empty (or variant missing) but cards exist in exactly one
+  // other field — adopt that field's variant instead of wiping the only
+  // cards an editor added into a mismatched section.
+  if (populated.length === 1) {
     const field = populated[0]!
     block.variant = FIELD_TO_VARIANT[field]
     for (const other of ALL_CARD_FIELDS) {
       if (other !== field) block[other] = []
     }
     return block
+  }
+
+  // Cards exist in more than one field and none matches the selected
+  // variant — there's no safe field to pick without silently discarding
+  // an editor's work, so surface it instead of guessing.
+  if (populated.length > 1) {
+    const variantLabels = populated.map((field) => FIELD_TO_VARIANT[field])
+    throw new SerializerFieldError([
+      {
+        message: `Card grid has cards in multiple sections (${variantLabels.join(', ')}) but no matching variant is selected. Set "variant" to the section you want to keep, or remove the cards from the others.`,
+        path: ['variant']
+      }
+    ])
   }
 
   return block
