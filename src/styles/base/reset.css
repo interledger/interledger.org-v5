@@ -63,7 +63,6 @@
     height: 100%;
     overflow-x: clip;
     color-scheme: light;
-    overscroll-behavior: none;
     @media (prefers-reduced-motion: no-preference) {
       scroll-behavior: smooth;
     }
@@ -73,14 +72,12 @@
     color-scheme: dark;
   }
 
-  /* Offsets anchor-jump targets clear of the fixed header, read by native
-     fragment scrolling (scroll-behavior: smooth, above). */
-  :target {
+  /* Clears the fixed header on fragment jumps, tab-focus, and focused
+     scrollIntoView() targets (e.g. ContactPage's form errors). */
+  :where(:target, :is(h1, h2, h3, h4, h5, h6)[id], [id]:focus-visible)
+  {
     scroll-margin-top: var(--site-header-height);
-  }
-
-  @media (min-width: 1200px) {
-    :target {
+    @variant desktop {
       scroll-margin-top: var(--site-header-height-desktop);
     }
   }
@@ -115,24 +112,23 @@
       --spacing-hr: var(--spacing-3xl);
     }
     @variant dark {
-      --color-hr: var(--color-neutral-75)
+      --color-hr: var(--color-neutral-75);
     }
   }
   /* Lenis smooth scroll — see src/scripts/smooth-scroll.ts.
      Classes are added/removed by Lenis at runtime. Rules are inert when
-     the script is not loaded on a page. */
+     the script is not loaded on a page.
+
+     [data-lenis-prevent-horizontal] (set on .table-scroll by
+     wrapScrollableTables.ts) has no rule here on purpose — an `auto`
+     override would reopen the vertical axis too, clobbering
+     overscroll-behavior-x: contain from prose/blog.css. */
   html.lenis {
     height: auto;
   }
 
   .lenis.lenis-smooth [data-lenis-prevent] {
     overscroll-behavior: contain;
-  }
-
-  /* table-scroll: horizontal-only prevent, kept separate from the
-     blanket rule above so vertical scroll still goes through Lenis. */
-  .lenis.lenis-smooth [data-lenis-prevent-horizontal] {
-    overscroll-behavior: auto;
   }
 
   .lenis.lenis-stopped {

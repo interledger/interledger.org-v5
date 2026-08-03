@@ -5,6 +5,9 @@ import Lenis from 'lenis'
 // duration: 9/10). Doesn't affect scroll resistance — that's wheelMultiplier.
 const DURATION_SECONDS = 0.9
 
+// Lower = more resistance per wheel tick; native = 1.
+const WHEEL_MULTIPLIER = 0.8
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
 let lenis: Lenis | null = null
@@ -13,7 +16,7 @@ function start(): void {
   if (lenis) return
   lenis = new Lenis({
     duration: DURATION_SECONDS,
-    wheelMultiplier: 0.8, // lower = more resistance per wheel tick; native = 1
+    wheelMultiplier: WHEEL_MULTIPLIER,
     autoRaf: true
     // autoResize (default true) recomputes Lenis's scroll limit on reflow
     // (zoom, late-loading media). Without it the limit goes stale and
