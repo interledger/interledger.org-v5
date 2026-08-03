@@ -1,5 +1,6 @@
 import React from 'react'
 import { CARD_VARIANT_LABELS, type CardVariant } from './variantLabels'
+import { CARD_GRID_VARIANTS } from '../../../utils/cardGrid'
 
 function Frame({ children }: { children: React.ReactNode }) {
   return (
@@ -26,15 +27,8 @@ function Frame({ children }: { children: React.ReactNode }) {
   )
 }
 
-export const VARIANTS: {
-  value: CardVariant
-  label: string
-  icon: React.ReactNode
-}[] = [
-  {
-    value: 'Info',
-    label: CARD_VARIANT_LABELS.Info,
-    icon: (
+const VARIANT_ICONS: Record<CardVariant, React.ReactNode> = {
+  Info: (
       <Frame>
         {/* Soft filled card: title + body lines, no button */}
         <rect
@@ -83,12 +77,8 @@ export const VARIANTS: {
           strokeLinecap="round"
         />
       </Frame>
-    )
-  },
-  {
-    value: 'Title',
-    label: CARD_VARIANT_LABELS.Title,
-    icon: (
+  ),
+  Title: (
       <Frame>
         {/* Stacked title + subhead + body + button */}
         <line
@@ -137,12 +127,8 @@ export const VARIANTS: {
           strokeWidth="1.5"
         />
       </Frame>
-    )
-  },
-  {
-    value: 'Resource',
-    label: CARD_VARIANT_LABELS.Resource,
-    icon: (
+  ),
+  Resource: (
       <Frame>
         {/* Wide two-column: title left, body + button right */}
         <line
@@ -218,12 +204,8 @@ export const VARIANTS: {
           strokeWidth="1.5"
         />
       </Frame>
-    )
-  },
-  {
-    value: 'Navigation',
-    label: CARD_VARIANT_LABELS.Navigation,
-    icon: (
+  ),
+  Navigation: (
       <Frame>
         {/* Left accent bar + title + button */}
         <rect x="5" y="7" width="3" height="22" rx="1.5" fill="currentColor" />
@@ -255,6 +237,15 @@ export const VARIANTS: {
           strokeWidth="1.5"
         />
       </Frame>
-    )
-  }
-]
+  )
+}
+
+export const VARIANTS: {
+  value: CardVariant
+  label: string
+  icon: React.ReactNode
+}[] = CARD_GRID_VARIANTS.map((value) => ({
+  value,
+  label: CARD_VARIANT_LABELS[value],
+  icon: VARIANT_ICONS[value]
+}))

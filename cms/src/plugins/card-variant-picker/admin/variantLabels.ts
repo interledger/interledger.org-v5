@@ -1,11 +1,11 @@
-export type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
+import {
+  CARD_GRID_VARIANT_LABELS,
+  type CardGridVariant
+} from '../../../utils/cardGrid'
 
-export const CARD_VARIANT_LABELS: Record<CardVariant, string> = {
-  Info: 'Info',
-  Title: 'Title',
-  Resource: 'Resource',
-  Navigation: 'Navigation'
-}
+export type CardVariant = CardGridVariant
+
+export const CARD_VARIANT_LABELS = CARD_GRID_VARIANT_LABELS
 
 const CARD_VARIANT_SLUGS = new Set<string>(Object.keys(CARD_VARIANT_LABELS))
 

@@ -2,6 +2,11 @@ import { useEffect } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
 import { isCardVariant, type CardVariant } from './variantLabels'
 import { VARIANTS } from './variantIcons'
+import {
+  CARD_GRID_FIELD_LABELS,
+  CARD_GRID_VARIANT_FIELDS,
+  CARD_GRID_VARIANTS
+} from '../../../utils/cardGrid'
 
 interface InputProps {
   name: string
@@ -13,21 +18,9 @@ interface InputProps {
   hint?: string
 }
 
-const VARIANT_FIELD: Record<CardVariant, string> = {
-  Info: 'infoCards',
-  Title: 'titleCards',
-  Resource: 'resourceCards',
-  Navigation: 'navigationCards'
-}
-
-const CARD_FIELDS = Object.values(VARIANT_FIELD)
-
-const FIELD_LABEL: Record<string, string> = {
-  infoCards: 'Info cards',
-  titleCards: 'Title cards',
-  resourceCards: 'Resource cards',
-  navigationCards: 'Navigation cards'
-}
+const CARD_FIELDS = CARD_GRID_VARIANTS.map(
+  (variant) => CARD_GRID_VARIANT_FIELDS[variant]
+)
 
 function normalizeFieldText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
@@ -36,7 +29,7 @@ function normalizeFieldText(value: string): string {
 /** Strapi appends " (n)" to repeatable component legends — match the base label. */
 function labelMatchesField(el: HTMLElement, fieldKey: string): boolean {
   const text = normalizeFieldText(el.textContent ?? '')
-  const expected = FIELD_LABEL[fieldKey]
+  const expected = CARD_GRID_FIELD_LABELS[fieldKey]
   return text === expected || text.startsWith(`${expected} (`)
 }
 
@@ -125,7 +118,7 @@ function findFieldContainer(
 }
 
 function applyCardFieldVisibility(prefix: string, variant: string) {
-  const active = VARIANT_FIELD[variant as CardVariant]
+  const active = CARD_GRID_VARIANT_FIELDS[variant as CardVariant]
   if (!active) return
 
   const root = findCardGridRoot(prefix) ?? document.body
@@ -144,7 +137,7 @@ function clearInactiveCardFields(
   variant: CardVariant,
   setFieldValue: (path: string, value: unknown) => void
 ) {
-  const active = VARIANT_FIELD[variant]
+  const active = CARD_GRID_VARIANT_FIELDS[variant]
   for (const fieldKey of CARD_FIELDS) {
     if (fieldKey !== active) {
       setFieldValue(`${prefix}.${fieldKey}`, [])
