@@ -211,7 +211,7 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   external?: boolean
 }
 
-/** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+/** blocks.title-card — nested or DZ card with heading, description, CTA. */
 export interface TitleCard {
   heading: string
   subHeading?: string
@@ -220,13 +220,14 @@ export interface TitleCard {
     link: string
     text: string
     external?: boolean
+    document?: boolean
   }
 }
 
 /** Valid values for blocks.title-card-grid's `columns` field. */
 export const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
 
-/** blocks.title-card-grid — grid of title cards, each with a heading, description, and CTA. */
+/** blocks.title-card-grid — legacy grid of title cards (migrating to card-grid). */
 export interface TitleCardGridBlock extends StrapiBlockBase {
   __component: 'blocks.title-card-grid'
   ariaLabel: string
@@ -243,12 +244,47 @@ export interface InfoCard {
   body: string
 }
 
-/** blocks.info-card-grid — 2- or 3-column grid of heading + markdown cards. */
+/** blocks.info-card-grid — legacy 2- or 3-column grid (migrating to card-grid). */
 export interface InfoCardGridBlock extends StrapiBlockBase {
   __component: 'blocks.info-card-grid'
   ariaLabel: string
   columns: (typeof INFO_CARD_GRID_COLUMNS)[number]
   cards: InfoCard[]
+}
+
+export const CARD_GRID_VARIANTS = [
+  'Title',
+  'Resource',
+  'Info',
+  'Navigation'
+] as const
+export type CardGridVariant = (typeof CARD_GRID_VARIANTS)[number]
+
+export const CARD_GRID_COLUMNS = ['One', 'Two', 'Three'] as const
+
+export interface CardGridCard {
+  heading: string
+  subHeading?: string
+  description?: string
+  body?: string
+  secondaryCta?: {
+    link: string
+    text: string
+    external?: boolean
+    document?: boolean
+  }
+}
+
+/** blocks.card-grid — unified Title / Resource / Info / Navigation card grid. */
+export interface CardGridBlock extends StrapiBlockBase {
+  __component: 'blocks.card-grid'
+  ariaLabel: string
+  variant: CardGridVariant
+  columns: (typeof CARD_GRID_COLUMNS)[number]
+  titleCards?: CardGridCard[]
+  resourceCards?: CardGridCard[]
+  infoCards?: CardGridCard[]
+  navigationCards?: CardGridCard[]
 }
 
 // ---------------------------------------------------------------------------
@@ -272,4 +308,5 @@ export type ParsedBlock =
   | NumberTilesBlock
   | TitleCardGridBlock
   | InfoCardGridBlock
+  | CardGridBlock
   | CtaLinkBlock

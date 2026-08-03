@@ -1,5 +1,5 @@
-import { escDouble as esc, escMdxBraces } from '../shared'
 import { SerializerFieldError, type FieldError } from '../../utils'
+import { serialize as serializeCardGrid } from './card-grid.serializer'
 
 const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
 type TitleCardGridColumns = (typeof TITLE_CARD_GRID_COLUMNS)[number]
@@ -19,6 +19,7 @@ interface TitleCard {
     link?: string
     text?: string
     external?: boolean
+    document?: boolean
   }
 }
 
@@ -103,6 +104,7 @@ function validateTitleCardGrid(block: {
   return fieldErrors
 }
 
+/** Legacy title-card-grid → emit unified CardGrid MDX (variant Title). */
 export function serialize(block: {
   columns?: string
   ariaLabel?: string
@@ -111,20 +113,15 @@ export function serialize(block: {
   const fieldErrors = validateTitleCardGrid(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  // Validation above guarantees these fields are present from here on.
-  const gridAttrs = ` ariaLabel="${esc(block.ariaLabel)}" columns="${esc(block.columns)}"`
-
-  const cards = block.titleCards.map((card) => {
-    const headingAttr = ` heading="${esc(card.heading)}"`
-    const subheadingAttr = card.subHeading
-      ? ` subheading="${esc(card.subHeading)}"`
-      : ''
-    const ctaAttrs = ` buttonUrl="${esc(card.secondaryCta.link)}" buttonText="${esc(card.secondaryCta.text)}" buttonExternal={${card.secondaryCta.external ?? false}}`
-
-    const description = escMdxBraces(card.description)
-
-    return `<TitleCard${headingAttr}${subheadingAttr}${ctaAttrs}>\n${description}\n  </TitleCard>`
+  return serializeCardGrid({
+    ariaLabel: block.ariaLabel,
+    variant: 'Title',
+    columns: block.columns,
+    titleCards: block.titleCards!.map((card) => ({
+      heading: card.heading,
+      subHeading: card.subHeading,
+      description: card.description,
+      secondaryCta: card.secondaryCta
+    }))
   })
-
-  return `<TitleCardGrid${gridAttrs}>\n  ${cards.join('\n  ')}\n</TitleCardGrid>`
 }

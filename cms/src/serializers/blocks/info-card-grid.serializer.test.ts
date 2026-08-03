@@ -3,7 +3,7 @@ import { serialize } from './info-card-grid.serializer'
 import { SerializerFieldError } from '../../utils'
 
 describe('info-card-grid serializer', () => {
-  it('serializes a two-column grid with markdown bodies', () => {
+  it('serializes a two-column grid as CardGrid variant Info', () => {
     const result = serialize({
       ariaLabel: 'Program info',
       columns: 'Two',
@@ -21,7 +21,7 @@ describe('info-card-grid serializer', () => {
 
     expect(result).toBe(
       [
-        '<InfoCards ariaLabel="Program info" columns="Two">',
+        '<CardGrid ariaLabel="Program info" variant="Info" columns="Two">',
         '<InfoCard heading="Why apply">',
         '',
         '- Point 1',
@@ -33,7 +33,7 @@ describe('info-card-grid serializer', () => {
         'Open to everyone.',
         '',
         '</InfoCard>',
-        '</InfoCards>'
+        '</CardGrid>'
       ].join('\n')
     )
   })

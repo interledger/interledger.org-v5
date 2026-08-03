@@ -23,10 +23,11 @@ describe('InfoCards handler', () => {
 
     expect(blocks).toEqual([
       {
-        __component: 'blocks.info-card-grid',
+        __component: 'blocks.card-grid',
         ariaLabel: 'Program info',
+        variant: 'Info',
         columns: 'Two',
-        cards: [
+        infoCards: [
           {
             heading: 'Why apply',
             body: '- Point 1\n- Point 2'
@@ -47,7 +48,8 @@ describe('InfoCards handler', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      __component: 'blocks.info-card-grid',
+      __component: 'blocks.card-grid',
+      variant: 'Info',
       columns: 'Three'
     })
   })

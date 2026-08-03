@@ -1,22 +1,18 @@
 /**
  * TitleCardGrid + TitleCard component handler for the MDX block parser.
  *
- * Handles:
+ * Handles legacy:
  * - <TitleCardGrid ariaLabel="..." columns="Two|Three">
- *     <TitleCard heading="..." subheading="..." buttonUrl="..." buttonText="..." buttonExternal={true|false}>
- *       description markdown
- *     </TitleCard>
- *     ...
+ *     <TitleCard ...>...</TitleCard>
  *   </TitleCardGrid>
  *
- * Maps to Strapi blocks.title-card-grid.
- * Each <TitleCard> becomes one `titleCards` entry.
+ * Emits Strapi blocks.card-grid with variant Title (unified card grid).
  */
 
 import {
   TITLE_CARD_GRID_COLUMNS,
+  type CardGridBlock,
   type ParsedBlock,
-  type TitleCard,
   type TitleCardGridBlock
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
@@ -38,12 +34,13 @@ function isTitleCardGridColumns(
   return (TITLE_CARD_GRID_COLUMNS as readonly string[]).includes(value)
 }
 
-function parseTitleCard(node: JsxBlockNode): TitleCard {
+function parseTitleCard(node: JsxBlockNode) {
   const heading = getStringAttr(node, 'heading', { required: true })
   const subHeading = getStringAttr(node, 'subheading')
   const buttonUrl = getStringAttr(node, 'buttonUrl', { required: true })
   const buttonText = getStringAttr(node, 'buttonText', { required: true })
   const buttonExternal = getBooleanAttr(node, 'buttonExternal')
+  const buttonDocument = getBooleanAttr(node, 'buttonDocument')
 
   const description =
     node.children.length > 0 ? childrenToMarkdown(node.children) : ''
@@ -59,21 +56,17 @@ function parseTitleCard(node: JsxBlockNode): TitleCard {
     })
   }
 
-  const titleCard: TitleCard = {
+  return {
     heading,
+    ...(subHeading !== undefined ? { subHeading } : {}),
     description,
     secondaryCta: {
       link: buttonUrl,
       text: buttonText,
-      external: buttonExternal ?? false
+      external: buttonExternal ?? false,
+      document: buttonDocument ?? false
     }
   }
-
-  if (subHeading !== undefined) {
-    titleCard.subHeading = subHeading
-  }
-
-  return titleCard
 }
 
 async function handleTitleCardGrid(
@@ -106,9 +99,10 @@ async function handleTitleCardGrid(
       })
     }
 
-    const block: TitleCardGridBlock = {
-      __component: 'blocks.title-card-grid',
+    const block: CardGridBlock = {
+      __component: 'blocks.card-grid',
       ariaLabel,
+      variant: 'Title',
       columns,
       titleCards: cardNodes.map(parseTitleCard)
     }

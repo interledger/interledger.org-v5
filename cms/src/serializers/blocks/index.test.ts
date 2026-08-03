@@ -66,7 +66,8 @@ describe('validateContentBlocks', () => {
     const err = validateContentBlocks([
       { __component: 'blocks.paragraph', content: 'First block, valid.' },
       {
-        __component: 'blocks.title-card-grid',
+        __component: 'blocks.card-grid',
+        variant: 'Title',
         columns: 'Two',
         titleCards: [{}]
       }
@@ -79,7 +80,8 @@ describe('validateContentBlocks', () => {
     const err = validateContentBlocks([
       { __component: 'blocks.paragraph', content: '' },
       {
-        __component: 'blocks.title-card-grid',
+        __component: 'blocks.card-grid',
+        variant: 'Title',
         columns: 'Two',
         titleCards: [{}]
       }

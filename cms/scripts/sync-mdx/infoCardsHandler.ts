@@ -1,20 +1,17 @@
 /**
  * InfoCards + InfoCard component handler for the MDX block parser.
  *
- * Handles:
+ * Handles legacy:
  * - <InfoCards ariaLabel="..." columns="Two|Three">
- *     <InfoCard heading="...">
- *       markdown body (supports bullets)
- *     </InfoCard>
- *     ...
+ *     <InfoCard heading="...">markdown</InfoCard>
  *   </InfoCards>
  *
- * Maps to Strapi blocks.info-card-grid.
+ * Emits Strapi blocks.card-grid with variant Info (unified card grid).
  */
 
 import {
   INFO_CARD_GRID_COLUMNS,
-  type InfoCard,
+  type CardGridBlock,
   type InfoCardGridBlock,
   type ParsedBlock
 } from './types.blocks'
@@ -37,7 +34,7 @@ function isInfoCardGridColumns(
   return (INFO_CARD_GRID_COLUMNS as readonly string[]).includes(value)
 }
 
-function parseInfoCard(node: JsxBlockNode): InfoCard {
+function parseInfoCard(node: JsxBlockNode) {
   const heading = getStringAttr(node, 'heading', { required: true })
   const body = node.children.length > 0 ? childrenToMarkdown(node.children) : ''
   if (!body.trim()) {
@@ -52,7 +49,10 @@ function parseInfoCard(node: JsxBlockNode): InfoCard {
     })
   }
 
-  return { heading, body }
+  return {
+    heading,
+    body
+  }
 }
 
 async function handleInfoCards(
@@ -62,7 +62,7 @@ async function handleInfoCards(
   return tryCatchParserError(async () => {
     const ariaLabel = getStringAttr(node, 'ariaLabel', { required: true })
 
-    // blocks.info-card-grid has no section-heading field — a `heading` prop
+    // blocks.card-grid (Info) has no section-heading field — a `heading` prop
     // would render but be silently dropped on the next Strapi round-trip, so
     // reject it loudly instead (this component only supports per-card headings
     // via <InfoCard heading="...">).
@@ -102,13 +102,12 @@ async function handleInfoCards(
       })
     }
 
-    const cards = cardNodes.map(parseInfoCard)
-
-    const block: InfoCardGridBlock = {
-      __component: 'blocks.info-card-grid',
+    const block: CardGridBlock = {
+      __component: 'blocks.card-grid',
       ariaLabel,
+      variant: 'Info',
       columns: columnsAttr,
-      cards
+      infoCards: cardNodes.map(parseInfoCard)
     }
 
     return [block]

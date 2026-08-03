@@ -26,7 +26,14 @@ import { serialize as splitLayout } from './split-layout.serializer'
 import { serialize as numberTiles } from './number-tiles.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
 import { serialize as infoCardGrid } from './info-card-grid.serializer'
+import {
+  serialize as cardGrid,
+  sanitizeCardGridsInContent,
+  sanitizeCardGridsInDocumentData
+} from './card-grid.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
+
+export { sanitizeCardGridsInDocumentData }
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cards-grid': cardsGrid,
@@ -48,6 +55,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.split-layout': splitLayout,
   'blocks.title-card-grid': titleCardGrid,
   'blocks.info-card-grid': infoCardGrid,
+  'blocks.card-grid': cardGrid,
   'shared.cta-link': ctaLink
 }
 
@@ -60,6 +68,8 @@ export function serializeContent(
   content: Array<{ __component: string; [key: string]: unknown }> | undefined
 ): string {
   if (!content || content.length === 0) return ''
+
+  sanitizeCardGridsInContent(content)
 
   const blocks: string[] = []
   const fieldErrors: FieldError[] = []

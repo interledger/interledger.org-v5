@@ -17,14 +17,14 @@ describe('title-card-grid serializer', () => {
     })
 
     expect(result).toContain(
-      '<TitleCardGrid ariaLabel="Grant options" columns="Two">'
+      '<CardGrid ariaLabel="Grant options" variant="Title" columns="Two">'
     )
     expect(result).toContain('<TitleCard heading="Grant heading"')
     expect(result).toContain(
       'buttonUrl="/grants/apply" buttonText="Learn more" buttonExternal={false}'
     )
     expect(result).toContain('Grant description.')
-    expect(result).toContain('</TitleCardGrid>')
+    expect(result).toContain('</CardGrid>')
   })
 
   it('includes subheading when provided', () => {

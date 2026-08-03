@@ -1,5 +1,5 @@
-import { escDouble as esc, escMdxBraces } from '../shared'
 import { SerializerFieldError, type FieldError } from '../../utils'
+import { serialize as serializeCardGrid } from './card-grid.serializer'
 
 const INFO_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
 type InfoCardGridColumns = (typeof INFO_CARD_GRID_COLUMNS)[number]
@@ -70,6 +70,7 @@ function validateInfoCardGrid(block: {
   return fieldErrors
 }
 
+/** Legacy info-card-grid → emit unified CardGrid MDX (variant Info). */
 export function serialize(block: {
   ariaLabel?: string
   columns?: string
@@ -78,15 +79,13 @@ export function serialize(block: {
   const fieldErrors = validateInfoCardGrid(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  // Validation above guarantees these fields are present from here on.
-  const gridAttrs = ` ariaLabel="${esc(block.ariaLabel)}" columns="${esc(block.columns)}"`
-
-  const cards = block.cards.map((card) => {
-    // Blank lines around the body so MDX treats list markers as markdown
-    // inside the JSX child, not as broken tag structure.
-    const body = escMdxBraces(card.body!)
-    return `<InfoCard heading="${esc(card.heading)}">\n\n${body}\n\n</InfoCard>`
+  return serializeCardGrid({
+    ariaLabel: block.ariaLabel,
+    variant: 'Info',
+    columns: block.columns,
+    infoCards: block.cards!.map((card) => ({
+      heading: card.heading,
+      body: card.body
+    }))
   })
-
-  return `<InfoCards${gridAttrs}>\n${cards.join('\n')}\n</InfoCards>`
 }
