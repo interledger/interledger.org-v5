@@ -110,6 +110,17 @@ export function serializeContent(
  * rather than re-checking each block's required fields separately.
  * Returns a `ValidationError` combining every failing field across every
  * block, `undefined` on success.
+ *
+ * Write-path coverage for Card Grid rules (Resource ≥ 2 cards, One column
+ * only for Navigation, etc. via `validateCardGrid`):
+ * - Admin UI / Content API / MDX sync → `strapi.documents` create/update →
+ *   `registerDocumentValidation` in `cms/src/index.ts` for every content
+ *   type that allows `blocks.card-grid` (foundation, summit, hackathon,
+ *   grant-overview) plus other DZ hosts that share this helper.
+ * - MDX → Strapi sync also rejects invalid grids in `cardGridHandler` before
+ *   the REST write, so bad MDX never reaches Strapi.
+ * Schema JSON cannot express these cross-field rules; this path is the
+ * edit-time gate so the next MDX export cannot fail on already-saved data.
  */
 export function validateContentBlocks(
   content: Array<{ __component: string; [key: string]: unknown }> | undefined

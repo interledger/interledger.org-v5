@@ -18,6 +18,7 @@ import {
   validateBlogFields,
   validateNavigationLabels,
   mergeValidationErrors,
+  toValidationError,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
@@ -1771,8 +1772,15 @@ export default {
       if (ctx.action === 'create' || ctx.action === 'update') {
         // Drop inactive card-grid variant arrays before schema/business
         // validation so empty Title/Resource/Info/Navigation fields that
-        // aren't the selected variant never fail the save.
-        sanitizeCardGridsInDocumentData(ctx.params.data)
+        // aren't the selected variant never fail the save. Sanitize can
+        // throw SerializerFieldError when multiple sections have cards —
+        // map that to a ValidationError so the admin highlights the field
+        // instead of returning a 500.
+        try {
+          sanitizeCardGridsInDocumentData(ctx.params.data)
+        } catch (err) {
+          throw toValidationError(err)
+        }
         const validationErr = validateNoNestedJsx(ctx.params.data?.content)
         if (validationErr) throw validationErr
       }
