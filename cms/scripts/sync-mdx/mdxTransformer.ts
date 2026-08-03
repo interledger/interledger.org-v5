@@ -981,7 +981,9 @@ export async function buildBlogPayload(
       featured: parsed.featured ?? false,
       ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
-      ...(thumbnailMedia ? { thumbnailMedia } : {}),
+      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it —
+      // unlike featureMedia above, which is required and would be rejected as null.
+      thumbnailMedia,
       articleBio,
       categories,
       relatedArticles,
