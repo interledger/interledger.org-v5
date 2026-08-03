@@ -7,71 +7,189 @@ locale: 'en'
 
 <Paragraph>
 
-Hackathon teams building on Interledger often compare their prototype's transfer costs against traditional rails.[^1] The reference figures teams cite most often are collected below.[^2] Local payment corridors add their own cost pressures on top of that.[^3]
+This hackathon demo page covers the smaller dynamic-zone set available to hackathon content: paragraph, card grid, split layout, profile grid, and logo carousel. The sample copy is written like event content so spacing, hierarchy, and component previews feel close to the real site.
 
-[^1]: Average cost to send 1 USDT (Tether, the largest stablecoin pegged to the US dollar) on August 5, 2025 per [GasFeesNow](https://gasfeesnow.com).
+Teams can use the page to validate:
 
-[^2]: Average price for a $200 bank initiated cross-border transfer, according to the [World Bank](https://remittanceprices.worldbank.org) (Q3, 2024).
-
-[^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
+- Challenge descriptions and judging criteria.
+- Resource links for builders.
+- Mentor and participant profile grids.
+- Partner logos and sponsor rows.
 
 </Paragraph>
 
-<SplitLayout layoutType="video-text" videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM">
+<SplitLayout
+  layoutType="image-text"
+  imagePosition="right"
+  displayRatio="2:1"
+  imageSrc="/uploads/img/original/financial_services_7cc26eb342.jpg"
+  imageAlt="Workshop participants discussing a financial services prototype"
+  ctaText="Review the challenge"
+  ctaLink="/hackathon/overview"
+  ctaStyle="primary"
+>
 
-Interledger is designed to help systems operate as a network, and fund those working to make financial access open and fair at a global scale.
+Hackathon participants move quickly from concept to prototype. This placeholder block tests a practical event prompt with supporting imagery and a call to action.
 
 </SplitLayout>
 
+<SplitLayout
+  layoutType="image-quote"
+  imagePosition="left"
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/jeremiah.png"
+  imageAlt="Portrait of a hackathon mentor"
+  quote="A strong prototype explains the user problem, shows the payment flow, and makes the next test obvious."
+  quoteSource="Demo mentor"
+/>
+
+<SplitLayout
+  layoutType="video-text"
+  imagePosition="right"
+  displayRatio="1:2"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  ctaText="Open starter docs"
+  ctaLink="/developers/get-started"
+  ctaStyle="secondary"
+>
+
+Use a video split layout for kickoff recordings, technical briefings, and finalist demos. This sample checks how embedded media behaves inside the hackathon page shell.
+
+</SplitLayout>
+
+<SplitLayout
+  layoutType="video-quote"
+  imagePosition="left"
+  displayRatio="1:1"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  quote="The demo does not need to be perfect; it needs to make the payment journey clear."
+  quoteSource="Hackathon preview note"
+/>
+
+<CardGrid ariaLabel="Hackathon challenge cards" variant="Title" columns="Two">
+  <TitleCard
+    heading="Build a wallet flow"
+    subheading="Challenge track"
+    buttonText="View track"
+    buttonUrl="/hackathon/overview"
+  >
+    Design a user journey that helps someone receive, hold, and send value
+    through an interoperable payment experience.
+  </TitleCard>
+  <TitleCard
+    heading="Improve onboarding"
+    subheading="Challenge track"
+    buttonText="View track"
+    buttonUrl="/hackathon/overview"
+  >
+    Prototype a smoother path from account creation to first successful payment,
+    with clear recovery and support states.
+  </TitleCard>
+</CardGrid>
+
+<CardGrid ariaLabel="Hackathon resources" variant="Resource" columns="Three">
+  <ResourceCard
+    heading="Starter Pack"
+    buttonText="Open guide"
+    buttonUrl="/developers/get-started"
+  >
+    A resource card for documentation, sample repositories, API references, and
+    challenge setup notes.
+  </ResourceCard>
+  <ResourceCard
+    heading="Judging Rubric"
+    buttonText="Download"
+    buttonUrl="/documents/2025-application-guide.pdf"
+    buttonDocument={true}
+  >
+    A downloadable resource placeholder for scoring criteria, submission
+    checklists, and finalist instructions.
+  </ResourceCard>
+  <ResourceCard
+    heading="Community Channel"
+    buttonText="Join"
+    buttonUrl="https://interledger.org"
+    buttonExternal={true}
+  >
+    An external resource placeholder for chat, office hours, livestreams, or
+    public project showcases.
+  </ResourceCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Hackathon information cards"
+  variant="Info"
+  columns="Three"
+>
+  <InfoCard heading="Who can join">
+    Builders, designers, students, researchers, and product thinkers can all
+    contribute to a useful prototype.
+  </InfoCard>
+  <InfoCard heading="What to submit">
+    Share a short demo, the repository link, a concise problem statement, and
+    notes about what should be tested next.
+  </InfoCard>
+  <InfoCard heading="How teams win">
+    Strong submissions explain the user need, show a working payment moment, and
+    document tradeoffs clearly.
+  </InfoCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Hackathon navigation card"
+  variant="Navigation"
+  columns="One"
+>
+  <NavigationCard
+    heading="Return to the hackathon overview"
+    buttonText="Open overview"
+    buttonUrl="/hackathon/overview"
+  />
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Hackathon navigation cards"
+  variant="Navigation"
+  columns="Three"
+>
+  <NavigationCard
+    heading="Read the event overview"
+    buttonText="Open overview"
+    buttonUrl="/hackathon/overview"
+  />
+  <NavigationCard
+    heading="Start building with docs"
+    buttonText="Get started"
+    buttonUrl="/developers/get-started"
+  />
+  <NavigationCard
+    heading="Find ways to contribute"
+    buttonText="Get involved"
+    buttonUrl="/developers/get-involved"
+  />
+</CardGrid>
+
 <ProfileGrid
-  heading="Featured Profiles"
+  heading="Sample Mentors"
   pathSlugs={[
     'grant/fellowship/jeremiah-lee',
     'grant/fellowship/stephanie-perrin',
     'grant/fellowship/kokayi-walker',
-    'grant/fellowship/sheena-allen',
-    'grant/fellowship/xiaoji-song',
-    'grant/fellowship/victoria-coker',
-    'grant/fellowship/andria-barrett',
     'grant/fellowship/lawil-karama'
   ]}
 />
 
 <LogoCarousel
-  heading="In partnership with"
-  accessibilityLabel="Partner logos"
+  heading="Sample Hackathon Partners"
+  accessibilityLabel="Sample hackathon partner logos"
   logos={[
-    {
-      name: 'Covenant',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0000_Covenant_logo-328x350.avif'
-    },
-    {
-      name: 'Western Sydney University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0001_WSU_Logo_LeftAligned_Centred_RGB.avif'
-    },
-    {
-      name: 'USIU',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0002_USIU-Logo-with-Tagline.avif'
-    },
     {
       name: 'University of Cape Town',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0003_UCT-Logo.avif'
     },
     {
-      name: 'HHS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0004_HHS_EN_grijs_HEX.avif'
-    },
-    {
-      name: 'Boise State University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0005_bsu-logo_yllw-flame-blk-text_highres-(1).avif'
-    },
-    {
-      name: 'Atlanta University Center Consortium',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0006_Atlanta-UCConsortium.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0007_AAMU-logo.avif'
+      name: 'USIU',
+      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0002_USIU-Logo-with-Tagline.avif'
     },
     {
       name: 'KANZU',
@@ -80,86 +198,6 @@ Interledger is designed to help systems operate as a network, and fund those wor
     {
       name: 'Wallet Guru',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0009_Wallet-Guru.avif'
-    },
-    {
-      name: 'W3C',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0010_W3C-Symbol.avif'
-    },
-    {
-      name: 'Social Web Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0011_swf-logo-black-on-white---Evan-Prodromou.avif'
-    },
-    {
-      name: 'Super Bloom',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0012_Super-Bloom-.avif'
-    },
-    {
-      name: 'Small Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0013_small-foundation-logo-vector.avif'
-    },
-    {
-      name: 'Ripple',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0014_Ripple_(payment_protocol)-Logo.wine.avif'
-    },
-    {
-      name: 'PCH',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0015_PCH-Banner-Azul_-sinFondo.avif'
-    },
-    {
-      name: 'Open Wallet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0016_OpenWallet_Foundation_Logo_Color.avif'
-    },
-    {
-      name: 'Nepal Internet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0017_NIF-Logo---Nepal-Internet-Foundation.avif'
-    },
-    {
-      name: 'Mojaloop',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0018_Mojaloop.avif'
-    },
-    {
-      name: 'MiPlata',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderon.avif'
-    },
-    {
-      name: 'CTS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0020_Marca_CTS---Hannah-JD.avif'
-    },
-    {
-      name: 'JoPACC',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0021_jopacc_new_logo_transparent_0.avif'
-    },
-    {
-      name: 'Gatehub',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0022_Gatehub_Logo.avif'
-    },
-    {
-      name: 'Fliqa',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0023_Fliqa_logo.avif'
-    },
-    {
-      name: 'CG',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0024_CG-Banner-Azul_sinFondo.avif'
-    },
-    {
-      name: 'Breakpoint',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0025_Breakpoint_logo_square.avif'
-    },
-    {
-      name: 'Blaze Group',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0026_Blaze-group.avif'
-    },
-    {
-      name: 'Article 19',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0027_Article_19_logo.svg.avif'
-    },
-    {
-      name: 'Alliance',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0028_Alliance_MainLogo_New---Sarah-Corley.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0029_AAMU-logo.avif'
     }
   ]}
 />

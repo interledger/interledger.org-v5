@@ -2,89 +2,205 @@
 pathSlug: 'demo-summit-page'
 title: 'Summit Page Demo'
 heroTitle: 'Summit Page Demo'
+heroDescription: 'A dark-theme preview page containing sample content for every block available to summit pages.'
 locale: 'en'
 description: 'Demo page for populating the summit-page dynamic zone with sample block data.'
+gradient: 'option1'
 ---
 
-<Paragraph>
+<Paragraph alignment="center">
 
-Sessions at the Summit referenced a number of data points on the cost of cross-border payments today.[^1] The sources for those figures are collected below.[^2] Local payment corridors add their own cost pressures on top of that.[^3]
+The Summit demo page mirrors the foundation block set while running inside the microsite theme. Use it to review contrast, spacing, and dark-background treatments for long body text, short summaries, links, and footnotes.[^summit-demo]
 
-[^1]: Average cost to send 1 USDT (Tether, the largest stablecoin pegged to the US dollar) on August 5, 2025 per [GasFeesNow](https://gasfeesnow.com).
-
-[^2]: Average price for a $200 bank initiated cross-border transfer, according to the [World Bank](https://remittanceprices.worldbank.org) (Q3, 2024).
-
-[^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
+[^summit-demo]: Demo footnote for validating summit page references and small text contrast.
 
 </Paragraph>
 
 <SplitLayout
-  layoutType="image-quote"
+  layoutType="image-text"
   imagePosition="left"
-  imageSrc="/uploads/img/original/erica.png"
-  imageAlt="Erica"
-  quote="At Interledger, we envision a world where sending value across the internet is as seamless as sending an email. Our work is dedicated to making this vision a reality, fostering a more connected and inclusive global economy."
-  quoteSource="Erica"
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/54936965338_c3bc6c6c3e_k_1_a39509600e.jpg"
+  imageAlt="Audience members seated at an Interledger event"
+  ctaText="View agenda"
+  ctaLink="/summit/2025"
+  ctaStyle="primary"
+>
+
+Use this section for a featured event story, schedule highlight, or venue preview. The placeholder copy is long enough to show how text wraps beside an image without overwhelming the layout.
+
+</SplitLayout>
+
+<SplitLayout
+  layoutType="image-quote"
+  imagePosition="right"
+  displayRatio="2:1"
+  imageSrc="/uploads/img/original/sheena-allen.png"
+  imageAlt="Portrait of a summit participant"
+  quote="The best sessions connect technical depth with the lived realities of people using payment systems every day."
+  quoteSource="Demo panelist"
+/>
+
+<SplitLayout
+  layoutType="video-text"
+  imagePosition="right"
+  displayRatio="1:2"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  ctaText="Visit Interledger"
+  ctaLink="https://interledger.org"
+  ctaStyle="secondary"
+  ctaExternal={true}
+>
+
+This video-text layout can introduce a keynote recording, interview, or workshop overview. It also verifies the Summit theme treatment for embedded media.
+
+</SplitLayout>
+
+<SplitLayout
+  layoutType="video-quote"
+  imagePosition="left"
+  displayRatio="1:1"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  quote="A summit recap should make it easy to remember what happened and simple to find the next session."
+  quoteSource="Demo recap note"
 />
 
 <ProfileGrid
-  heading="Featured Profiles"
+  heading="Featured Speakers"
   pathSlugs={[
     'grant/fellowship/ayden-ferdeline',
     'grant/fellowship/santosh-viswanatham',
     'grant/fellowship/kokayi-walker',
-    'grant/fellowship/stephanie-perrin',
-    'grant/fellowship/sheena-allen',
-    'grant/fellowship/caroline-sinders',
-    'grant/fellowship/smriti-parsheera',
     'grant/fellowship/andria-barrett'
   ]}
 />
 
+<Blockquote source="Summit preview">
+  Open payment conversations work best when protocol builders, public-interest
+  researchers, and community practitioners can compare notes in the same room.
+</Blockquote>
+
+<CtaStrip
+  heading="Plan the next Summit story"
+  primaryButtonText="See sessions"
+  primaryButtonLink="/summit/2025"
+  secondaryButtonText="Explore speakers"
+  secondaryButtonLink="/summit/2025/speakers"
+  color="purple"
+>
+  This CTA strip tests the microsite theme with a short description, two
+  buttons, and realistic event-oriented copy.
+</CtaStrip>
+
+<PdfEmbed
+  url="/documents/beyond-the-build.pdf"
+  label="Download the Summit sample PDF"
+/>
+
+<VideoEmbed
+  url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  title="Summit demo recording"
+/>
+
+<CardGrid ariaLabel="Summit title cards" variant="Title" columns="Two">
+  <TitleCard
+    heading="Keynotes"
+    subheading="Main stage"
+    buttonText="Browse sessions"
+    buttonUrl="/summit/2025/sessions"
+  >
+    Highlight anchor talks, plenary sessions, and conversations that frame the
+    larger event theme.
+  </TitleCard>
+  <TitleCard
+    heading="Workshops"
+    subheading="Hands-on"
+    buttonText="Find workshops"
+    buttonUrl="/summit/2025/sessions"
+  >
+    Point attendees toward practical sessions where they can test ideas, ask
+    questions, and compare implementation notes.
+  </TitleCard>
+</CardGrid>
+
+<CardGrid ariaLabel="Summit resource cards" variant="Resource" columns="Three">
+  <ResourceCard
+    heading="Program PDF"
+    buttonText="Download"
+    buttonUrl="/documents/interledger.pdf"
+    buttonDocument={true}
+  >
+    A resource card for schedules, speaker packs, sponsorship notes, and other
+    downloadable event materials.
+  </ResourceCard>
+  <ResourceCard
+    heading="Travel Notes"
+    buttonText="Read details"
+    buttonUrl="/summit/2025"
+  >
+    A resource card for venue guidance, accessibility notes, or helpful attendee
+    logistics.
+  </ResourceCard>
+  <ResourceCard
+    heading="External Community Link"
+    buttonText="Open link"
+    buttonUrl="https://interledger.org"
+    buttonExternal={true}
+  >
+    A resource card that checks external link presentation in the Summit visual
+    system.
+  </ResourceCard>
+</CardGrid>
+
+<CardGrid ariaLabel="Summit information cards" variant="Info" columns="Three">
+  <InfoCard heading="Theme">
+    Build a shared understanding of open, interoperable, and inclusive payment
+    systems.
+  </InfoCard>
+  <InfoCard heading="Format">
+    Mix talks, panels, workshops, and informal conversation spaces throughout
+    the program.
+  </InfoCard>
+  <InfoCard heading="Audience">
+    Welcome builders, researchers, advocates, funders, and community
+    organizations.
+  </InfoCard>
+</CardGrid>
+
+<CardGrid ariaLabel="Summit navigation card" variant="Navigation" columns="One">
+  <NavigationCard
+    heading="Jump to the current Summit homepage"
+    buttonText="Open Summit"
+    buttonUrl="/summit"
+  />
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Summit navigation cards"
+  variant="Navigation"
+  columns="Three"
+>
+  <NavigationCard
+    heading="Browse the 2025 agenda"
+    buttonText="View sessions"
+    buttonUrl="/summit/2025/sessions"
+  />
+  <NavigationCard
+    heading="Meet featured speakers"
+    buttonText="View speakers"
+    buttonUrl="/summit/2025/speakers"
+  />
+  <NavigationCard
+    heading="Review past Summit pages"
+    buttonText="See archive"
+    buttonUrl="/summit/2024"
+  />
+</CardGrid>
+
 <LogoCarousel
-  heading="In partnership with"
-  accessibilityLabel="Partner logos"
+  heading="Sample Summit Partners"
+  accessibilityLabel="Sample summit partner logos"
   logos={[
-    {
-      name: 'Covenant',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0000_Covenant_logo-328x350.avif'
-    },
-    {
-      name: 'Western Sydney University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0001_WSU_Logo_LeftAligned_Centred_RGB.avif'
-    },
-    {
-      name: 'USIU',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0002_USIU-Logo-with-Tagline.avif'
-    },
-    {
-      name: 'University of Cape Town',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0003_UCT-Logo.avif'
-    },
-    {
-      name: 'HHS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0004_HHS_EN_grijs_HEX.avif'
-    },
-    {
-      name: 'Boise State University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0005_bsu-logo_yllw-flame-blk-text_highres-(1).avif'
-    },
-    {
-      name: 'Atlanta University Center Consortium',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0006_Atlanta-UCConsortium.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0007_AAMU-logo.avif'
-    },
-    {
-      name: 'KANZU',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0008_KANZU.avif'
-    },
-    {
-      name: 'Wallet Guru',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0009_Wallet-Guru.avif'
-    },
     {
       name: 'W3C',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0010_W3C-Symbol.avif'
@@ -94,76 +210,12 @@ Sessions at the Summit referenced a number of data points on the cost of cross-b
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0011_swf-logo-black-on-white---Evan-Prodromou.avif'
     },
     {
-      name: 'Super Bloom',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0012_Super-Bloom-.avif'
-    },
-    {
       name: 'Small Foundation',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0013_small-foundation-logo-vector.avif'
     },
     {
-      name: 'Ripple',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0014_Ripple_(payment_protocol)-Logo.wine.avif'
-    },
-    {
       name: 'PCH',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0015_PCH-Banner-Azul_-sinFondo.avif'
-    },
-    {
-      name: 'Open Wallet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0016_OpenWallet_Foundation_Logo_Color.avif'
-    },
-    {
-      name: 'Nepal Internet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0017_NIF-Logo---Nepal-Internet-Foundation.avif'
-    },
-    {
-      name: 'Mojaloop',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0018_Mojaloop.avif'
-    },
-    {
-      name: 'MiPlata',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderon.avif'
-    },
-    {
-      name: 'CTS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0020_Marca_CTS---Hannah-JD.avif'
-    },
-    {
-      name: 'JoPACC',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0021_jopacc_new_logo_transparent_0.avif'
-    },
-    {
-      name: 'Gatehub',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0022_Gatehub_Logo.avif'
-    },
-    {
-      name: 'Fliqa',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0023_Fliqa_logo.avif'
-    },
-    {
-      name: 'CG',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0024_CG-Banner-Azul_sinFondo.avif'
-    },
-    {
-      name: 'Breakpoint',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0025_Breakpoint_logo_square.avif'
-    },
-    {
-      name: 'Blaze Group',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0026_Blaze-group.avif'
-    },
-    {
-      name: 'Article 19',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0027_Article_19_logo.svg.avif'
-    },
-    {
-      name: 'Alliance',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0028_Alliance_MainLogo_New---Sarah-Corley.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0029_AAMU-logo.avif'
     }
   ]}
 />
