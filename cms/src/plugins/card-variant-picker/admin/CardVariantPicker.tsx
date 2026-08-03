@@ -96,8 +96,8 @@ function findFieldAnchor(
   if (hint) return hint
 
   return (
-    Array.from(root.querySelectorAll<HTMLElement>('label, legend')).find(
-      (el) => labelMatchesField(el, fieldKey)
+    Array.from(root.querySelectorAll<HTMLElement>('label, legend')).find((el) =>
+      labelMatchesField(el, fieldKey)
     ) ?? null
   )
 }
@@ -162,10 +162,7 @@ export default function CardVariantPicker({
   const prefix = name.endsWith('.variant')
     ? name.slice(0, -'.variant'.length)
     : name.replace(/\.variant$/, '')
-  const setFieldValue = useForm(
-    'CardVariantPicker',
-    (form) => form.onChange
-  )
+  const setFieldValue = useForm('CardVariantPicker', (form) => form.onChange)
 
   const handleSelect = (newValue: CardVariant) => {
     onChange({ target: { name, value: newValue, type: 'string' } })

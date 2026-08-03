@@ -172,14 +172,7 @@ export const VARIANTS: {
     icon: (
       <Frame>
         {/* Left accent bar + title + button */}
-        <rect
-          x="5"
-          y="7"
-          width="3"
-          height="22"
-          rx="1.5"
-          fill="currentColor"
-        />
+        <rect x="5" y="7" width="3" height="22" rx="1.5" fill="currentColor" />
         <line
           x1="13"
           y1="10"

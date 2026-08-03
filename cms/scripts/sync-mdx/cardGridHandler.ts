@@ -21,11 +21,7 @@ import {
   type ParsedBlock
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import {
-  getStringAttr,
-  getBooleanAttr,
-  getChildElements
-} from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -58,9 +54,7 @@ function isVariant(value: string): value is CardGridVariant {
   return (CARD_GRID_VARIANTS as readonly string[]).includes(value)
 }
 
-function isColumns(
-  value: string
-): value is (typeof CARD_GRID_COLUMNS)[number] {
+function isColumns(value: string): value is (typeof CARD_GRID_COLUMNS)[number] {
   return (CARD_GRID_COLUMNS as readonly string[]).includes(value)
 }
 
@@ -132,8 +126,7 @@ function parseResourceCard(node: JsxBlockNode): CardGridCard {
 
 function parseInfoCard(node: JsxBlockNode): CardGridCard {
   const heading = getStringAttr(node, 'heading', { required: true })
-  const body =
-    node.children.length > 0 ? childrenToMarkdown(node.children) : ''
+  const body = node.children.length > 0 ? childrenToMarkdown(node.children) : ''
   if (!body) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
@@ -159,10 +152,7 @@ function parseNavigationCard(node: JsxBlockNode): CardGridCard {
   }
 }
 
-const PARSERS: Record<
-  CardGridVariant,
-  (node: JsxBlockNode) => CardGridCard
-> = {
+const PARSERS: Record<CardGridVariant, (node: JsxBlockNode) => CardGridCard> = {
   Title: parseTitleCard,
   Resource: parseResourceCard,
   Info: parseInfoCard,

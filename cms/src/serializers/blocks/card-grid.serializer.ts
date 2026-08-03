@@ -58,9 +58,7 @@ export interface CardGridSerializeInput {
 }
 
 function isVariant(value: string | undefined): value is CardGridVariant {
-  return (
-    !!value && CARD_GRID_VARIANTS.includes(value as CardGridVariant)
-  )
+  return !!value && CARD_GRID_VARIANTS.includes(value as CardGridVariant)
 }
 
 function isColumns(value: string | undefined): value is CardGridColumns {
@@ -158,7 +156,11 @@ function validateCard(
     }
   }
 
-  if (variant === 'Title' || variant === 'Resource' || variant === 'Navigation') {
+  if (
+    variant === 'Title' ||
+    variant === 'Resource' ||
+    variant === 'Navigation'
+  ) {
     fieldErrors.push(
       ...validateSecondaryCta(card.secondaryCta, label, pathPrefix)
     )

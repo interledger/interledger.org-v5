@@ -1301,8 +1301,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
-      external:
-        'Opens in a new tab. Cannot be combined with Document Download.'
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'blocks.card-grid': {
       ariaLabel:
