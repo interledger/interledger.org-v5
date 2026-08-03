@@ -11,6 +11,19 @@
  *
  */
 
+import {
+  CARD_GRID_COLUMNS,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
+export {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANTS,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
@@ -224,16 +237,6 @@ export interface TitleCard {
   }
 }
 
-export const CARD_GRID_VARIANTS = [
-  'Info',
-  'Title',
-  'Resource',
-  'Navigation'
-] as const
-export type CardGridVariant = (typeof CARD_GRID_VARIANTS)[number]
-
-export const CARD_GRID_COLUMNS = ['One', 'Two', 'Three'] as const
-
 export interface CardGridCard {
   heading: string
   subHeading?: string
@@ -247,17 +250,13 @@ export interface CardGridCard {
   }
 }
 
-/** blocks.card-grid — unified Info / Title / Resource / Navigation card grid. */
-export interface CardGridBlock extends StrapiBlockBase {
+/** blocks.card-grid — unified card grid with variant-specific card fields. */
+export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
   ariaLabel: string
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
-  infoCards?: CardGridCard[]
-  titleCards?: CardGridCard[]
-  resourceCards?: CardGridCard[]
-  navigationCards?: CardGridCard[]
-}
+} & Partial<Record<CardGridCardsField, CardGridCard[]>>
 
 // ---------------------------------------------------------------------------
 // Union

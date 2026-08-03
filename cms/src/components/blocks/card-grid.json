@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Card Grid",
     "icon": "grid",
-    "description": "Unified grid for Info, Title, Resource, or Navigation cards. Equal-height CSS grid with 1/2/3 columns."
+    "description": "Unified grid for card variants. Equal-height CSS grid with 1/2/3 columns."
   },
   "options": {},
   "attributes": {

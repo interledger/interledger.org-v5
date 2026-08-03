@@ -1,33 +1,15 @@
 import { escDouble as esc, escMdxBraces } from '../shared'
 import { SerializerFieldError, type FieldError } from '../../utils'
-
-export const CARD_GRID_VARIANTS = [
-  'Info',
-  'Title',
-  'Resource',
-  'Navigation'
-] as const
-export type CardGridVariant = (typeof CARD_GRID_VARIANTS)[number]
-
-export const CARD_GRID_COLUMNS = ['One', 'Two', 'Three'] as const
-export type CardGridColumns = (typeof CARD_GRID_COLUMNS)[number]
-
-export const VARIANT_CARDS_FIELD: Record<
-  CardGridVariant,
-  'titleCards' | 'resourceCards' | 'infoCards' | 'navigationCards'
-> = {
-  Info: 'infoCards',
-  Title: 'titleCards',
-  Resource: 'resourceCards',
-  Navigation: 'navigationCards'
-}
-
-const VARIANT_COMPONENT: Record<CardGridVariant, string> = {
-  Info: 'blocks.info-card',
-  Title: 'blocks.title-card',
-  Resource: 'blocks.resource-card',
-  Navigation: 'blocks.navigation-card'
-}
+import {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANTS,
+  CARD_GRID_VARIANT_COMPONENTS,
+  CARD_GRID_VARIANT_FIELDS,
+  CARD_GRID_VARIANT_LIST_LABEL,
+  type CardGridCardsField,
+  type CardGridColumns,
+  type CardGridVariant
+} from '../../utils/cardGrid'
 
 interface SecondaryCta {
   link?: string
@@ -45,16 +27,14 @@ export interface CardGridCard {
   secondaryCta?: SecondaryCta
 }
 
-export interface CardGridSerializeInput {
+export interface CardGridSerializeInput extends Partial<
+  Record<CardGridCardsField, CardGridCard[]>
+> {
   ariaLabel?: string
   variant?: string
   columns?: string
   /** @deprecated Prefer variant-specific fields; kept for tests and legacy. */
   cards?: CardGridCard[]
-  infoCards?: CardGridCard[]
-  titleCards?: CardGridCard[]
-  resourceCards?: CardGridCard[]
-  navigationCards?: CardGridCard[]
 }
 
 function isVariant(value: string | undefined): value is CardGridVariant {
@@ -70,7 +50,7 @@ export function resolveCardGridCards(
   block: CardGridSerializeInput,
   variant: CardGridVariant
 ): CardGridCard[] {
-  const field = VARIANT_CARDS_FIELD[variant]
+  const field = CARD_GRID_VARIANT_FIELDS[variant]
   const fromField = block[field]
   if (Array.isArray(fromField) && fromField.length > 0) return fromField
   if (Array.isArray(block.cards) && block.cards.length > 0) return block.cards
@@ -122,7 +102,7 @@ function validateCard(
   const label = `${variant} card ${position}`
   const pathPrefix: (string | number)[] = [fieldName, index]
   const fieldErrors: FieldError[] = []
-  const expected = VARIANT_COMPONENT[variant]
+  const expected = CARD_GRID_VARIANT_COMPONENTS[variant]
 
   if (card.__component && card.__component !== expected) {
     fieldErrors.push({
@@ -169,14 +149,16 @@ function validateCard(
   return fieldErrors
 }
 
-const ALL_CARD_FIELDS = Object.values(VARIANT_CARDS_FIELD)
+const ALL_CARD_FIELDS = Object.values(
+  CARD_GRID_VARIANT_FIELDS
+) as CardGridCardsField[]
 
 const FIELD_TO_VARIANT = Object.fromEntries(
-  Object.entries(VARIANT_CARDS_FIELD).map(([variant, field]) => [
+  Object.entries(CARD_GRID_VARIANT_FIELDS).map(([variant, field]) => [
     field,
     variant
   ])
-) as Record<(typeof ALL_CARD_FIELDS)[number], CardGridVariant>
+) as Record<CardGridCardsField, CardGridVariant>
 
 function cardArrayLength(value: unknown): number {
   return Array.isArray(value) ? value.length : 0
@@ -199,8 +181,11 @@ export function sanitizeCardGridBlock(
     typeof block.variant === 'string' ? block.variant : undefined
   const variant = isVariant(rawVariant) ? rawVariant : undefined
 
-  if (variant && cardArrayLength(block[VARIANT_CARDS_FIELD[variant]]) > 0) {
-    const active = VARIANT_CARDS_FIELD[variant]
+  if (
+    variant &&
+    cardArrayLength(block[CARD_GRID_VARIANT_FIELDS[variant]]) > 0
+  ) {
+    const active = CARD_GRID_VARIANT_FIELDS[variant]
     for (const field of ALL_CARD_FIELDS) {
       if (field !== active) block[field] = []
     }
@@ -269,7 +254,7 @@ export function validateCardGrid(block: CardGridSerializeInput): FieldError[] {
 
   if (!isVariant(block.variant)) {
     fieldErrors.push({
-      message: `Card grid variant must be one of ${CARD_GRID_VARIANTS.join(', ')}. Received "${block.variant}".`,
+      message: `Card grid variant must be one of ${CARD_GRID_VARIANT_LIST_LABEL}. Received "${block.variant}".`,
       path: ['variant']
     })
     return fieldErrors
@@ -277,7 +262,7 @@ export function validateCardGrid(block: CardGridSerializeInput): FieldError[] {
 
   const variant = block.variant
   // Only the active variant's cards are validated — inactive fields may be empty.
-  const fieldName = VARIANT_CARDS_FIELD[variant]
+  const fieldName = CARD_GRID_VARIANT_FIELDS[variant]
 
   if (!isColumns(block.columns)) {
     fieldErrors.push({

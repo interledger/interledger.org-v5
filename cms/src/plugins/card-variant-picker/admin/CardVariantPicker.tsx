@@ -5,7 +5,8 @@ import { VARIANTS } from './variantIcons'
 import {
   CARD_GRID_FIELD_LABELS,
   CARD_GRID_VARIANT_FIELDS,
-  CARD_GRID_VARIANTS
+  CARD_GRID_VARIANTS,
+  type CardGridCardsField
 } from '../../../utils/cardGrid'
 
 interface InputProps {
@@ -18,7 +19,7 @@ interface InputProps {
   hint?: string
 }
 
-const CARD_FIELDS = CARD_GRID_VARIANTS.map(
+const CARD_FIELDS: CardGridCardsField[] = CARD_GRID_VARIANTS.map(
   (variant) => CARD_GRID_VARIANT_FIELDS[variant]
 )
 
@@ -27,7 +28,10 @@ function normalizeFieldText(value: string): string {
 }
 
 /** Strapi appends " (n)" to repeatable component legends — match the base label. */
-function labelMatchesField(el: HTMLElement, fieldKey: string): boolean {
+function labelMatchesField(
+  el: HTMLElement,
+  fieldKey: CardGridCardsField
+): boolean {
   const text = normalizeFieldText(el.textContent ?? '')
   const expected = CARD_GRID_FIELD_LABELS[fieldKey]
   return text === expected || text.startsWith(`${expected} (`)
@@ -35,7 +39,7 @@ function labelMatchesField(el: HTMLElement, fieldKey: string): boolean {
 
 function fieldPresentIn(
   prefix: string,
-  fieldKey: string,
+  fieldKey: CardGridCardsField,
   root: ParentNode
 ): boolean {
   if (root.querySelector(`[name^="${prefix}.${fieldKey}"]`)) return true

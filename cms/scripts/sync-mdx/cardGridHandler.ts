@@ -1,25 +1,29 @@
 /**
  * CardGrid + nested card handlers for the MDX block parser.
  *
- * <CardGrid ariaLabel="..." variant="Info|Title|Resource|Navigation" columns="One|Two|Three">
+ * <CardGrid ariaLabel="..." variant="..." columns="One|Two|Three">
  *   <TitleCard ...>...</TitleCard>
  *   <ResourceCard ...>...</ResourceCard>
  *   <InfoCard ...>...</InfoCard>
  *   <NavigationCard ... />
  * </CardGrid>
  *
- * Maps to Strapi blocks.card-grid with a variant-specific repeatable field
- * (infoCards / titleCards / resourceCards / navigationCards).
+ * Maps to Strapi blocks.card-grid with a variant-specific repeatable field.
  */
 
 import {
-  CARD_GRID_COLUMNS,
-  CARD_GRID_VARIANTS,
   type CardGridBlock,
   type CardGridCard,
-  type CardGridVariant,
   type ParsedBlock
 } from './types.blocks'
+import {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANTS,
+  CARD_GRID_VARIANT_CHILDREN,
+  CARD_GRID_VARIANT_FIELDS,
+  CARD_GRID_VARIANT_LIST_LABEL,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
 import { childrenToMarkdown } from './mdastSerialize'
 import {
   getStringAttr,
@@ -37,23 +41,6 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-
-const VARIANT_CHILD: Record<CardGridVariant, string> = {
-  Info: 'InfoCard',
-  Title: 'TitleCard',
-  Resource: 'ResourceCard',
-  Navigation: 'NavigationCard'
-}
-
-const VARIANT_CARDS_FIELD: Record<
-  CardGridVariant,
-  'titleCards' | 'resourceCards' | 'infoCards' | 'navigationCards'
-> = {
-  Info: 'infoCards',
-  Title: 'titleCards',
-  Resource: 'resourceCards',
-  Navigation: 'navigationCards'
-}
 
 function isVariant(value: string): value is CardGridVariant {
   return (CARD_GRID_VARIANTS as readonly string[]).includes(value)
@@ -187,7 +174,7 @@ async function handleCardGrid(
     if (!isVariant(variantAttr)) {
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
-        message: `CardGrid "variant" must be one of ${CARD_GRID_VARIANTS.join(', ')}. Received "${variantAttr}".`,
+        message: `CardGrid "variant" must be one of ${CARD_GRID_VARIANT_LIST_LABEL}. Received "${variantAttr}".`,
         component: 'CardGrid',
         prop: 'variant',
         line: node.position?.start.line,
@@ -217,7 +204,7 @@ async function handleCardGrid(
       })
     }
 
-    const childName = VARIANT_CHILD[variantAttr]
+    const childName = CARD_GRID_VARIANT_CHILDREN[variantAttr]
     const cardNodes = getChildElements(node, childName)
     if (cardNodes.length === 0) {
       throw new MdxParserError({
@@ -252,7 +239,7 @@ async function handleCardGrid(
     }
 
     const parse = PARSERS[variantAttr]
-    const cardsField = VARIANT_CARDS_FIELD[variantAttr]
+    const cardsField = CARD_GRID_VARIANT_FIELDS[variantAttr]
     const block: CardGridBlock = {
       __component: 'blocks.card-grid',
       ariaLabel,

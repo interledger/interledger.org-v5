@@ -36,6 +36,28 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import {
+  CARD_GRID_VARIANT_DEFINITIONS,
+  CARD_GRID_VARIANT_LIST_LABEL
+} from './utils/cardGrid'
+
+const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
+  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
+    variant.cardsField,
+    variant.fieldLabel
+  ])
+)
+
+const CARD_GRID_ADMIN_FIELD_HINTS = Object.fromEntries(
+  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
+    variant.cardsField,
+    variant.helpText
+  ])
+)
+
+const CARD_GRID_CARD_FIELD_LAYOUT = CARD_GRID_VARIANT_DEFINITIONS.map(
+  (variant) => [{ name: variant.cardsField, size: 12 }]
+)
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -1025,10 +1047,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
-      infoCards: 'Info cards',
-      titleCards: 'Title cards',
-      resourceCards: 'Resource cards',
-      navigationCards: 'Navigation cards'
+      ...CARD_GRID_ADMIN_FIELD_LABELS
     },
     'blocks.resource-card': {
       heading: 'Heading',
@@ -1284,14 +1303,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.card-grid': {
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
-      variant:
-        'All cards in the grid share one type: Info, Title, Resource, or Navigation.',
+      variant: `All cards in the grid share one type: ${CARD_GRID_VARIANT_LIST_LABEL}.`,
       columns:
         'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.',
-      infoCards: 'Add Info cards for this grid.',
-      titleCards: 'Add Title cards for this grid.',
-      resourceCards: 'Add Resource cards for this grid. At least two required.',
-      navigationCards: 'Add Navigation cards for this grid.'
+      ...CARD_GRID_ADMIN_FIELD_HINTS
     },
     'blocks.resource-card': {
       heading: 'Required card title.',
@@ -1664,10 +1679,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }
       ],
-      [{ name: 'infoCards', size: 12 }],
-      [{ name: 'titleCards', size: 12 }],
-      [{ name: 'resourceCards', size: 12 }],
-      [{ name: 'navigationCards', size: 12 }]
+      ...CARD_GRID_CARD_FIELD_LAYOUT
     ],
     'blocks.resource-card': [
       [{ name: 'heading', size: 12 }],

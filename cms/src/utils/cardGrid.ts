@@ -50,10 +50,7 @@ export const CARD_GRID_VARIANTS = CARD_GRID_VARIANT_DEFINITIONS.map(
 )
 
 export const CARD_GRID_VARIANT_LABELS = Object.fromEntries(
-  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
-    variant.value,
-    variant.label
-  ])
+  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [variant.value, variant.label])
 ) as Record<CardGridVariant, string>
 
 export const CARD_GRID_VARIANT_FIELDS = Object.fromEntries(
