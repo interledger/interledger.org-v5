@@ -44,7 +44,7 @@ const renderedItems = await Promise.all(
 
   <ol
     role="list"
-    class="m-0 flex list-none flex-col gap-lg p-0 tablet:grid tablet:grid-cols-[max-content_minmax(0,1fr)] tablet:gap-x-0"
+    class="m-0 flex list-none flex-col gap-lg p-0 tablet:grid tablet:grid-cols-[minmax(0,300px)_minmax(0,1fr)] tablet:gap-x-0"
   >
     {
       renderedItems.map((item, index) => (
@@ -64,7 +64,7 @@ const renderedItems = await Promise.all(
               />
             </svg>
             {index < renderedItems.length - 1 && (
-              <span class="absolute top-xl left-1/2 w-px -translate-x-1/2 bg-neutral-75 bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-md)+0.5rem-1px))]" />
+              <span class="absolute top-xl left-1/2 w-px -translate-x-1/2 bg-neutral-75 bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-md)+0.5rem+3px))]" />
             )}
           </div>
 
@@ -74,7 +74,7 @@ const renderedItems = await Promise.all(
               index % 2 === 0 ? 'bg-ice-indigo-50' : 'bg-rose-mint-50'
             ]}
           >
-            <div class="tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
+            <div class="min-w-0 max-w-[300px] tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
               <dt class="sr-only">{t('agenda.timeLabel')}</dt>
               <dd
                 class="m-0 text-body-sm-emphasis [&_p]:m-0"
@@ -103,6 +103,19 @@ const renderedItems = await Promise.all(
 </section>
 
 <style>
+  /*
+   * End spacing is 6xl after a day (or the last day in a run).
+   * Consecutive days: previous mb-6xl + this negative pull = 3xl gap.
+   * Uses adjacent sibling only (no :has) so MDX sibling days always match.
+   */
+  :global([data-component='Agenda']) {
+    margin-block-end: var(--spacing-6xl);
+  }
+
+  :global([data-component='Agenda'] + [data-component='Agenda']) {
+    margin-block-start: calc(var(--spacing-3xl) - var(--spacing-6xl));
+  }
+
   [data-agenda-info] :global(p) {
     display: list-item;
     margin: 0 0 var(--spacing-sm) var(--spacing-lg);
