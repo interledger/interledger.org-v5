@@ -48,6 +48,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.agenda': {
     populate: { items: true }
   },
+  'blocks.split-layout': {
+    populate: { media: { populate: { image: true } }, cta: true }
+  },
   'blocks.profile': {
     populate: {
       profile: { populate: { media: { populate: { image: true } } } }
@@ -67,6 +70,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  'blocks.carousel': {
+    populate: { logos: true }
   }
 } as const
 
@@ -106,8 +112,17 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.agenda': {
       populate: { items: true }
     },
+    'blocks.split-layout': {
+      populate: { media: { populate: { image: true } }, cta: true }
+    },
+    'blocks.profile-grid': {
+      populate: { profiles: true }
+    },
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
+    },
+    'blocks.carousel': {
+      populate: { logos: true }
     }
   }
 } as const

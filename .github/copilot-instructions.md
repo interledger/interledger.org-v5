@@ -101,7 +101,8 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 ## Content and Routing
 
 - **Foundation navigation**: Configured in `src/config/foundation-navigation.json`
-- **Summit navigation**: Configured in `src/config/summit-navigation.json`  
+- **Summit navigation**: Configured in `src/config/summit-navigation.json`
+- **Hackathon navigation**: Configured in `src/config/hackathon-navigation.json`
 - **Dynamic routing**: `src/pages/[...page].astro` handles catch-all routes
 - **Blog routing**: `src/pages/blog/[...page].astro` and `src/pages/developers/blog/[...page].astro` for dated blog content
 - **Content collections**: Defined in `src/content.config.ts` using Astro's content loader API
@@ -167,7 +168,7 @@ When making changes to Astro components, pages, or styles:
 5. If format fails due to ESLint warnings, address warnings manually (check files listed in format output)
 6. Verify `pnpm run build` succeeds (no output errors)
 
-For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit `src/config/foundation-navigation.json` or `src/config/summit-navigation.json` and verify the sidebar updates correctly.
+For content changes (MDX files), they are hot-reloaded during dev. For navigation changes, edit the relevant `src/config/*-navigation.json` (foundation, summit, or hackathon) and verify the sidebar updates correctly.
 
 ## Files to Avoid Modifying
 

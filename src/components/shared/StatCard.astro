@@ -14,6 +14,8 @@ export interface StatItem {
   value: number
   /** Overrides the displayed/resting number text — see `AnimatedNumber`'s `display` prop. */
   display?: string
+  /** Glued to the front of the number with no gap, for currency symbols (e.g. "$21M+"). Unlike `suffix`, it isn't a separate flex child. */
+  prefix?: string
   suffix?: string
   label: string
   /**
@@ -36,6 +38,7 @@ type Props = StatItem
 const {
   value,
   display,
+  prefix,
   suffix,
   label,
   ariaLabel,
@@ -65,7 +68,12 @@ const labelClasses = twMerge(
 
 <li aria-label={ariaLabel} class={liClasses}>
   <div class="flex items-start gap-sm" aria-hidden={hideContents}>
-    <AnimatedNumber value={value} display={display} class={numberClasses} />
+    <AnimatedNumber
+      value={value}
+      display={display}
+      prefix={prefix}
+      class={numberClasses}
+    />
     {
       suffix && (
         <span class={twMerge('whitespace-nowrap', numberClasses)}>

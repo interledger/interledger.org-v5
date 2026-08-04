@@ -37,7 +37,10 @@
       "components": [
         "blocks.paragraph",
         "blocks.agenda",
-        "blocks.title-card-grid"
+        "blocks.split-layout",
+        "blocks.profile-grid",
+        "blocks.title-card-grid",
+        "blocks.carousel"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }

@@ -704,7 +704,7 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
 export interface BlocksNumberTile extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles_items'
   info: {
-    description: 'Single stat tile: a number, optional suffix, and a description'
+    description: 'Single stat tile: a number, optional currency prefix and suffix, and a description'
     displayName: 'Number Tile'
     icon: 'chart-pie'
   }
@@ -718,6 +718,12 @@ export interface BlocksNumberTile extends Struct.ComponentSchema {
       }>
     number: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    prefix: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

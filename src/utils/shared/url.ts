@@ -49,6 +49,41 @@ const ICON_BY_HOST: Record<string, SocialIconName> = {
   'instagram.com': 'instagram'
 }
 
+// Schemes allowed in markdown/rich-text-rendered hrefs. A scheme-less href
+// (relative path, `#anchor`, protocol-relative `//host`) is always safe —
+// only an explicit, non-allowlisted scheme (`javascript:`, `data:`,
+// `vbscript:`, `file:`, ...) is rejected.
+const SAFE_MARKDOWN_HREF_SCHEMES = new Set([
+  'http:',
+  'https:',
+  'mailto:',
+  'tel:'
+])
+const HREF_SCHEME = /^([a-z][a-z\d+\-.]*):/i
+
+// Per the WHATWG URL spec, tab/newline/carriage-return are stripped from a
+// URL wherever they appear before the scheme is parsed — so a browser reads
+// `java\tscript:alert(1)` as `javascript:alert(1)`. Strip the same
+// characters (plus other C0 controls, to be safe) before scheme detection,
+// so an obfuscated scheme can't slip past `HREF_SCHEME` as "no scheme".
+// eslint-disable-next-line no-control-regex -- intentionally matching C0 controls to strip them, not a typo
+const SCHEME_OBFUSCATION_CHARS = /[\x00-\x1f\x7f]+/g
+
+/**
+ * Whether an href is safe to render as a markdown/rich-text link's `href`.
+ * Used to neutralize editor-supplied markdown links (e.g. `[x](javascript:...)`)
+ * that would otherwise pass through a markdown renderer's link output
+ * untouched — renderers typically HTML-escape the href but don't restrict
+ * its scheme.
+ */
+export function isSafeMarkdownHref(href: string): boolean {
+  const trimmed = href.trim()
+  const schemeProbe = trimmed.replace(SCHEME_OBFUSCATION_CHARS, '')
+  const match = HREF_SCHEME.exec(schemeProbe)
+  if (!match) return true
+  return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
+}
+
 /** The host of `url`, lowercased, or null if it can't be parsed. */
 function getHostname(url: string): string | null {
   try {

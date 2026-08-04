@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Foundation/Summit navigation JSON to Strapi Sync Script
+ * Foundation/Summit/Hackathon navigation JSON to Strapi Sync Script
  *
  * Usage:
  *   pnpm run sync:navigation:dry-run
@@ -173,6 +173,11 @@ async function syncAllNavigations(
       apiId: 'summit-navigation',
       configKey: 'summitNavigation' as const,
       label: 'summit navigation'
+    },
+    {
+      apiId: 'hackathon-navigation',
+      configKey: 'hackathonNavigation' as const,
+      label: 'hackathon navigation'
     }
   ]
 

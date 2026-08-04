@@ -1,0 +1,17 @@
+{
+  "mainMenu": [
+    {
+      "label": "Hackathon",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/hackathon/overview"
+        }
+      ]
+    }
+  ],
+  "ctaButton": {
+    "label": "Interledger Foundation",
+    "href": "/"
+  }
+}

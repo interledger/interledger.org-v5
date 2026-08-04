@@ -104,14 +104,8 @@ const featuredPosts = showFeatured
       >
         {
           featuredPosts.length > 0 && (
-            <div class="flex flex-col gap-4xl desktop:gap-5xl" slot="featured">
+            <div slot="featured">
               <FeaturedPosts posts={featuredPosts} />
-              <CtaStrip
-                heading={t('blog.cta.heading')}
-                description={t('blog.cta.description')}
-                primaryButtonText={t('blog.cta.link_text')}
-                primaryButtonLink={subscribePath}
-              />
             </div>
           )
         }
@@ -125,6 +119,14 @@ const featuredPosts = showFeatured
         label={title}
         class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
       />
+      <div class="mt-4xl desktop:mt-5xl">
+        <CtaStrip
+          heading={t('blog.cta.heading')}
+          description={t('blog.cta.description')}
+          primaryButtonText={t('blog.cta.link_text')}
+          primaryButtonLink={subscribePath}
+        />
+      </div>
     </div>
   </main>
 </FoundationPageLayout>

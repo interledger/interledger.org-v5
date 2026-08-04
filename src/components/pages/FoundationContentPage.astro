@@ -7,9 +7,11 @@ import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -32,10 +34,7 @@ const mdxPage = pages.find(
 
 if (!mdxPage) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection(
-  'profiles',
-  (entry) => entry.data.section === 'foundation'
-)
+Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data
@@ -104,12 +103,14 @@ if (isNotFound) return Astro.redirect('/404')
               Blockquote,
               CalloutText,
               Paragraph,
+              SplitLayout,
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
               Agenda,
               TitleCardGrid,
-              TitleCard
+              TitleCard,
+              LogoCarousel
             }}
           />
         </div>

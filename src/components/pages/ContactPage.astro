@@ -118,6 +118,7 @@ const t = useTranslations(routeLocale)
               id="recaptcha-error"
               class="hidden text-red-600 text-sm"
               role="alert"
+              tabindex="-1"
             >
               {t('contact.error.captcha')}
             </p>
@@ -128,6 +129,7 @@ const t = useTranslations(routeLocale)
               id="submit-error"
               class="hidden text-red-600 text-sm"
               role="alert"
+              tabindex="-1"
             >
               {t('contact.error.submit')}
             </p>
@@ -176,6 +178,7 @@ const t = useTranslations(routeLocale)
       )?.value?.trim()
       if (!recaptchaDone) {
         recaptchaError?.classList.remove('hidden')
+        recaptchaError?.focus()
         recaptchaError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         return
       }
@@ -194,6 +197,7 @@ const t = useTranslations(routeLocale)
       } catch (err) {
         console.error(err)
         submitError?.classList.remove('hidden')
+        submitError?.focus()
         submitError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     })

@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
-import { buildLayoutConfiguration, registerDocumentValidation } from './index'
+import {
+  assertUploadWithinLimit,
+  buildLayoutConfiguration,
+  createCheckFileSize,
+  registerDocumentValidation
+} from './index'
 
 describe('buildLayoutConfiguration', () => {
   const edit = [[{ name: 'heading', size: 12 }]]
@@ -193,5 +198,110 @@ describe('registerDocumentValidation', () => {
     }
     await middleware(fromPublicApi, next)
     expect(next).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('assertUploadWithinLimit', () => {
+  // Strapi hands the provider a size in kilobytes, not bytes.
+  const kb = (bytes: number) => bytes / 1000
+
+  it('rejects an image over 2 MB, naming its real size', () => {
+    const file = {
+      hash: 'h',
+      ext: '.jpg',
+      mime: 'image/jpeg',
+      name: 'hero.jpg'
+    }
+
+    expect(() =>
+      assertUploadWithinLimit(
+        { ...file, size: kb(3 * 1024 * 1024) },
+        'hero.jpg'
+      )
+    ).toThrow(/hero\.jpg.*3\.00 MB.*2 MB/s)
+  })
+
+  it('accepts an image under 2 MB', () => {
+    const file = {
+      hash: 'h',
+      ext: '.jpg',
+      mime: 'image/jpeg',
+      size: kb(1.5 * 1024 * 1024)
+    }
+
+    expect(() => assertUploadWithinLimit(file, 'hero.jpg')).not.toThrow()
+  })
+
+  it('holds non-image media to the 5 MB limit instead of the image one', () => {
+    const clip = { hash: 'h', ext: '.mp4', mime: 'video/mp4' }
+
+    expect(() =>
+      assertUploadWithinLimit(
+        { ...clip, size: kb(4 * 1024 * 1024) },
+        'clip.mp4'
+      )
+    ).not.toThrow()
+    expect(() =>
+      assertUploadWithinLimit(
+        { ...clip, size: kb(6 * 1024 * 1024) },
+        'clip.mp4'
+      )
+    ).toThrow(/clip\.mp4.*6\.00 MB.*5 MB/s)
+  })
+
+  it('falls back to the buffer length, which is already in bytes', () => {
+    const file = {
+      hash: 'h',
+      ext: '.png',
+      mime: 'image/png',
+      buffer: Buffer.alloc(3 * 1024 * 1024)
+    }
+
+    expect(() => assertUploadWithinLimit(file, 'hero.png')).toThrow(/3\.00 MB/)
+  })
+
+  it('defers to the mid-stream check when the size is unknown', () => {
+    const file = { hash: 'h', ext: '.png', mime: 'image/png' }
+
+    expect(() => assertUploadWithinLimit(file, 'hero.png')).not.toThrow()
+  })
+})
+
+describe('createCheckFileSize', () => {
+  const oversized = {
+    hash: 'h',
+    ext: '.jpg',
+    mime: 'image/jpeg',
+    name: 'hero.jpg',
+    size: 3 * 1024
+  }
+
+  it('awaits the wrapped check so its rejection propagates', async () => {
+    // Regression guard: dropping this promise surfaced as an unhandled
+    // rejection that killed the Strapi process (INTORG-1000).
+    const original = vi.fn(() =>
+      Promise.reject(new errors.PayloadTooLargeError('too big'))
+    )
+    const checkFileSize = createCheckFileSize(original)
+    const withinOurLimits = {
+      hash: 'h',
+      ext: '.mp4',
+      mime: 'video/mp4',
+      size: 1
+    }
+
+    await expect(checkFileSize(withinOurLimits)).rejects.toThrow('too big')
+  })
+
+  it('reports our limit before deferring to the wrapped check', async () => {
+    const original = vi.fn(() => Promise.resolve())
+    const checkFileSize = createCheckFileSize(original)
+
+    await expect(checkFileSize(oversized)).rejects.toThrow(/2 MB limit/)
+    expect(original).not.toHaveBeenCalled()
+  })
+
+  it('works when the provider has no size check of its own', async () => {
+    await expect(createCheckFileSize()(oversized)).rejects.toThrow(/2 MB limit/)
   })
 })
