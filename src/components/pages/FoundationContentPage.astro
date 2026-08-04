@@ -17,6 +17,7 @@ import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import Agenda from '@/components/blocks/Agenda.astro'
 
 interface Props {
   slug: string
@@ -106,6 +107,7 @@ if (isNotFound) return Astro.redirect('/404')
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
+              Agenda,
               TitleCardGrid,
               TitleCard,
               LogoCarousel

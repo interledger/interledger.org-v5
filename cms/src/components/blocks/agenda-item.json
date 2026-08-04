@@ -1,0 +1,42 @@
+{
+  "collectionName": "components_blocks_agenda_items",
+  "info": {
+    "displayName": "Agenda Item",
+    "icon": "clock",
+    "description": "A scheduled activity with its time and supporting information"
+  },
+  "options": {},
+  "attributes": {
+    "time": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "activity": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "additionalInfo": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
