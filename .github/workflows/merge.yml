@@ -252,15 +252,7 @@ jobs:
 
           git fetch origin "$DEPLOY_BRANCH"
 
-          # If we are currently on the playground branch, we need to do a hard reset to ensure
-          # that we are on the correct commit before pulling the latest changes.
-          if [ "$(git rev-parse --abbrev-ref HEAD)" = "$DEPLOY_BRANCH" ]; then
-            echo "On $DEPLOY_BRANCH branch, performing hard reset to origin/$DEPLOY_BRANCH"
-            git reset --hard "origin/$DEPLOY_BRANCH"
-          else
-            echo "Not on $DEPLOY_BRANCH branch, checking out $DEPLOY_BRANCH"
-            git checkout "$DEPLOY_BRANCH"
-          fi
+          git checkout "$DEPLOY_BRANCH"
           
           git pull --ff-only
 
