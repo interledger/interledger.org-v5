@@ -24,8 +24,8 @@ concurrency:
 
 jobs:
 
-  # Will inspect the current push event and the changes that was made inside of it, then use this information
-  # to decide which outputs must be set. Depending on the changes the following flags will either be set or not:
+  # Inspects the current push event and the changes that were made in it, then decides which outputs to set.
+  # Depending on the changes, the following flags may be set:
   # - cms_changed: true if any file under cms/ changed
   # - content_changed: true if any file under src/content/ or public/img/, public/uploads/, public/documents/ changed
   # - navigation_changed: true if any file under src/config/foundation-navigation.json or src/config/summit-navigation.json changed
