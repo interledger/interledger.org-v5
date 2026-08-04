@@ -105,10 +105,14 @@ const renderedItems = await Promise.all(
 <style>
   [data-agenda-info] :global(p) {
     display: list-item;
-    margin: 0 0 0 var(--spacing-lg);
+    margin: 0 0 var(--spacing-sm) var(--spacing-lg);
     padding-inline-start: var(--spacing-xs);
     list-style-type: disc;
     font-size: inherit;
+  }
+
+  [data-agenda-info] :global(p:last-child) {
+    margin-block-end: 0;
   }
 
   [data-agenda-info] :global(ul),
@@ -116,5 +120,14 @@ const renderedItems = await Promise.all(
     margin: 0;
     padding-inline-start: 0;
     font-size: inherit;
+  }
+
+  /* Tighter list spacing than default prose — keep scoped to Agenda. */
+  [data-agenda-info] :global(li) {
+    margin-block-end: var(--spacing-sm);
+  }
+
+  [data-agenda-info] :global(li:last-of-type) {
+    margin-block-end: 0;
   }
 </style>
