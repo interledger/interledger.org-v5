@@ -23,6 +23,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  # Will inspect the current push event and the changes that was made inside of it, then use this information
+  # to decide which outputs must be set. Depending on the changes the following flags will either be set or not:
+  # - cms_changed: true if any file under cms/ changed
+  # - content_changed: true if any file under src/content/ or public/img/, public/uploads/, public/documents/ changed
+  # - navigation_changed: true if any file under src/config/foundation-navigation.json or src/config/summit-navigation.json changed
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -192,6 +198,8 @@ jobs:
             core.setOutput('content_changed', String(contentChanged))
             core.setOutput('navigation_changed', String(navigationChanged))
 
+  # This step will run on the self-hosted Strapi instance and will execute if the cms directory has been
+  # changed. It will only run on the staging or playground branches and will rebuild the Strapi CMS and restart the Strapi service.
   rebuild-strapi:
     needs: detect-changes
     if: |
@@ -201,6 +209,8 @@ jobs:
     env:
       DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
       STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
+      # The merge branch this environment deploys: playground -> strapi-playground, staging -> strapi-staging.
+      DEPLOY_BRANCH: ${{ github.ref_name }}
 
     steps:
       - name: Rebuild Strapi CMS
@@ -240,8 +250,18 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
-          # Ensure pull fails instead of creating merge commits
-          git fetch
+          git fetch origin "$DEPLOY_BRANCH"
+
+          # If we are currently on the playground branch, we need to do a hard reset to ensure
+          # that we are on the correct commit before pulling the latest changes.
+          if [ "$(git rev-parse --abbrev-ref HEAD)" = "$DEPLOY_BRANCH" ]; then
+            echo "On $DEPLOY_BRANCH branch, performing hard reset to origin/$DEPLOY_BRANCH"
+            git reset --hard "origin/$DEPLOY_BRANCH"
+          else
+            echo "Not on $DEPLOY_BRANCH branch, checking out $DEPLOY_BRANCH"
+            git checkout "$DEPLOY_BRANCH"
+          fi
+          
           git pull --ff-only
 
           # Defensive check: fail if git index contains unresolved conflicts
