@@ -2452,6 +2452,39 @@ describe('buildHackathonPagePayload', () => {
       ])
     })
 
+    it('accepts an Agenda block', async () => {
+      await import('./agendaHandler')
+      const parserCtx = { locale: 'en' }
+      const items = [
+        {
+          time: '8:30 am',
+          activity: 'Registration',
+          additionalInfo: 'Breakfast is available.'
+        },
+        {
+          time: '9:30 am',
+          activity: 'Welcome',
+          additionalInfo: 'An overview of the day.'
+        }
+      ]
+      const mdx = createMdxFile({
+        pathSlug: 'schedule',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: `<Agenda items={${JSON.stringify(items)}} />`
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.agenda', items }
+      ])
+    })
+
     it('rejects a component with a globally registered handler that is not on the hackathon-pages allow-list', async () => {
       await import('./blockquoteHandler')
       const parserCtx = { locale: 'en' }

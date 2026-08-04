@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_blocks_agendas",
+  "info": {
+    "displayName": "Agenda",
+    "icon": "calendar",
+    "description": "A schedule with an optional heading and at least two agenda items"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.agenda-item",
+      "required": true,
+      "min": 2,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -63,6 +63,7 @@
       },
       "components": [
         "blocks.paragraph",
+        "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",
         "blocks.blockquote",

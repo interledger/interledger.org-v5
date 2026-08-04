@@ -806,6 +806,7 @@ export async function buildReportPayload(
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
   'blocks.number-tiles',
+  'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',
   'blocks.title-card-grid',
