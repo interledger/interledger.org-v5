@@ -38,8 +38,8 @@ const renderedItems = await Promise.all(
 >
   {
     renderedHeading && (
-      <h2
-        class="mb-xl text-body-lg-standard tablet:mb-2xl tablet:text-body-lg-standard-md"
+      <h4
+        class="mb-xl tablet:mb-2xl"
         set:html={renderedHeading}
       />
     )
@@ -47,40 +47,37 @@ const renderedItems = await Promise.all(
 
   <ol
     role="list"
-    class="m-0 mx-lg flex list-none flex-col gap-lg p-0 tablet:mx-0"
+    class="m-0 flex list-none flex-col gap-lg p-0 tablet:grid tablet:grid-cols-[max-content_minmax(0,1fr)] tablet:gap-x-0"
   >
     {
       renderedItems.map((item, index) => (
-        <li class="relative">
+        <li class="relative tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid">
           <div
             aria-hidden="true"
-            class="absolute top-lg bottom-0 left-lg z-10 flex w-lg justify-center tablet:left-sm"
+            class="absolute top-[calc(var(--spacing-md)-1px)] bottom-0 left-sm z-10 flex w-2xl justify-center tablet:left-sm"
           >
             <svg
-              class="relative z-10 size-lg shrink-0 rounded-full bg-neutral-0 text-neutral-75"
+              class="relative z-10 size-xl shrink-0 rounded-full text-neutral-75"
               viewBox="0 0 24 24"
               fill="none"
             >
-              <circle cx="12" cy="12" r="9" stroke="currentColor" />
               <path
-                d="M12 7v5l3 2"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                d="M14.935 16.223L11.5 12.789V7.923H12.5V12.387L15.623 15.51L14.935 16.223ZM11.5 6V4H12.5V6H11.5ZM18 12.5V11.5H20V12.5H18ZM11.5 20V18H12.5V20H11.5ZM4 12.5V11.5H6V12.5H4ZM12.003 21C10.7583 21 9.58833 20.764 8.493 20.292C7.39767 19.8193 6.44467 19.178 5.634 18.368C4.82333 17.558 4.18167 16.606 3.709 15.512C3.23633 14.418 3 13.2483 3 12.003C3 10.7577 3.23633 9.58767 3.709 8.493C4.181 7.39767 4.82133 6.44467 5.63 5.634C6.43867 4.82333 7.391 4.18167 8.487 3.709C9.583 3.23633 10.753 3 11.997 3C13.241 3 14.411 3.23633 15.507 3.709C16.6023 4.181 17.5553 4.82167 18.366 5.631C19.1767 6.44033 19.8183 7.39267 20.291 8.488C20.7637 9.58333 21 10.753 21 11.997C21 13.241 20.764 14.411 20.292 15.507C19.82 16.603 19.1787 17.556 18.368 18.366C17.5573 19.176 16.6053 19.8177 15.512 20.291C14.4187 20.7643 13.249 21.0007 12.003 21ZM12 20C14.2333 20 16.125 19.225 17.675 17.675C19.225 16.125 20 14.2333 20 12C20 9.76667 19.225 7.875 17.675 6.325C16.125 4.775 14.2333 4 12 4C9.76667 4 7.875 4.775 6.325 6.325C4.775 7.875 4 9.76667 4 12C4 14.2333 4.775 16.125 6.325 17.675C7.875 19.225 9.76667 20 12 20Z"
+                fill="currentColor"
               />
             </svg>
             {index < renderedItems.length - 1 && (
-              <span class="absolute top-lg -bottom-3xl-tight left-1/2 w-px -translate-x-1/2 bg-neutral-50" />
+              <span class="absolute top-xl left-1/2 w-px -translate-x-1/2 bg-neutral-75 bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-md)+0.5rem-1px))]" />
             )}
           </div>
 
           <dl
             class:list={[
-              'm-0 min-w-0 rounded-2xl py-sm pr-lg pl-3xl text-neutral-100 tablet:grid tablet:grid-cols-[minmax(var(--spacing-5xl),1fr)_minmax(0,7fr)] tablet:items-stretch tablet:rounded-lg tablet:py-md tablet:pr-xl tablet:pl-2xl',
+              'm-0 min-w-0 rounded-2xl pt-md pb-sm pr-lg pl-3xl text-neutral-100 tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid tablet:items-stretch tablet:rounded-lg tablet:py-md tablet:pr-xl tablet:pl-3xl',
               index % 2 === 0 ? 'bg-ice-indigo-50' : 'bg-rose-mint-50'
             ]}
           >
-            <div class="min-w-0 tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
+            <div class="tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
               <dt class="sr-only">{t('agenda.timeLabel')}</dt>
               <dd
                 class="m-0 text-body-sm-emphasis [&_p]:m-0"
@@ -88,16 +85,16 @@ const renderedItems = await Promise.all(
               />
               <dt class="sr-only">{t('agenda.activityLabel')}</dt>
               <dd
-                class="mt-lg mb-0 text-body-lg-standard text-primary tablet:mt-0 tablet:text-body-lg-standard-md [&_p]:m-0"
+                class="mt-md mb-0 text-h5 text-primary tablet:mt-sm tablet:text-h5-md desktop:text-h5-lg [&_p]:m-0"
                 set:html={item.activity}
               />
             </div>
 
-            <div class="-ml-lg mt-xl min-w-0 tablet:mt-0 tablet:ml-0 tablet:pl-xl">
+            <div class="mt-md min-w-0 tablet:mt-0 tablet:pl-lg">
               <dt class="sr-only">{t('agenda.additionalInfoLabel')}</dt>
               <dd
                 data-agenda-info
-                class="m-0 text-body-lg-standard tablet:text-body-lg-standard-md"
+                class="m-0 text-h5 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit"
                 set:html={item.additionalInfo}
               />
             </div>
@@ -114,11 +111,13 @@ const renderedItems = await Promise.all(
     margin: 0 0 0 var(--spacing-lg);
     padding-inline-start: var(--spacing-xs);
     list-style-type: disc;
+    font-size: inherit;
   }
 
   [data-agenda-info] :global(ul),
   [data-agenda-info] :global(ol) {
     margin: 0;
-    padding-inline-start: var(--spacing-lg);
+    padding-inline-start: 0;
+    font-size: inherit;
   }
 </style>

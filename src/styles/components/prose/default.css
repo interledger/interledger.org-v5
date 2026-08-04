@@ -59,7 +59,7 @@
       list-style-type: decimal;
     }
     ol li, ul li {
-      margin-block-end: var(--spacing-md);
+      margin-block-end: var(--spacing-sm);
     }
     ol li:last-of-type, ul li:last-of-type {
       margin-block-end: 0;

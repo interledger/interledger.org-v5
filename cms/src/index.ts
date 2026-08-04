@@ -1282,6 +1282,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       prefix:
         'Optional symbol shown tight against the front of the number, e.g. "$" for a monetary amount.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
+    },
+    'blocks.agenda': {
+      heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     }
   }
 
