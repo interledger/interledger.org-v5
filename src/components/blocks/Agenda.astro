@@ -38,10 +38,7 @@ const renderedItems = await Promise.all(
 >
   {
     renderedHeading && (
-      <h4
-        class="mb-xl tablet:mb-2xl"
-        set:html={renderedHeading}
-      />
+      <h4 class="mb-xl tablet:mb-2xl" set:html={renderedHeading} />
     )
   }
 
