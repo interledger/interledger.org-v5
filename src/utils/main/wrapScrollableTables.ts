@@ -22,8 +22,10 @@ export function wrapScrollableTables(html: string, ariaLabel: string): string {
   if (tables.length === 0) return html
 
   for (const table of tables) {
+    // Horizontal-only prevent: this region only scrolls sideways, so vertical
+    // wheel/touch gestures should keep scrolling the page via Lenis.
     const wrapper = parse(
-      `<div class="${TABLE_SCROLL_CLASS}" role="region" aria-label="${escapeAttr(ariaLabel)}" tabindex="0" data-lenis-prevent></div>`,
+      `<div class="${TABLE_SCROLL_CLASS}" role="region" aria-label="${escapeAttr(ariaLabel)}" tabindex="0" data-lenis-prevent-horizontal></div>`,
       { lowerCaseTagName: false }
     ).querySelector('div')
     if (!wrapper) continue

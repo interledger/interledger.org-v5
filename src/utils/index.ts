@@ -23,7 +23,8 @@ export { parseStatNumber, formatStatNumber } from './shared/parseStatNumber'
 export {
   MAX_IMAGE_BYTES,
   MAX_IMAGE_SIZE_LABEL,
-  formatImageSize,
+  formatFileSize,
+  imageOverSizeLimitError,
   imageSizeLimitError,
   isImageOverSizeLimit
 } from './shared/uploadLimits'

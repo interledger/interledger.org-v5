@@ -18,7 +18,7 @@ describe('wrapScrollableTables', () => {
     expect(out).toContain('role="region"')
     expect(out).toContain('aria-label="Scrollable table"')
     expect(out).toContain('tabindex="0"')
-    expect(out).toContain('data-lenis-prevent')
+    expect(out).toContain('data-lenis-prevent-horizontal')
     expect(out).toContain('<table>')
   })
 
