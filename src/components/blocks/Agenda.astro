@@ -23,7 +23,9 @@ const markdownContext = {
 }
 const renderedHeading = parseMarkdownInline(heading, markdownContext)
 // Stable for this render; unique across multiple Agenda blocks on one page.
-const headingId = renderedHeading ? `agenda-heading-${crypto.randomUUID()}` : undefined
+const headingId = renderedHeading
+  ? `agenda-heading-${crypto.randomUUID()}`
+  : undefined
 const renderedItems = await Promise.all(
   items.map(async (item) => ({
     time: parseMarkdownInline(item.time, markdownContext),
