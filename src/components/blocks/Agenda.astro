@@ -22,6 +22,8 @@ const markdownContext = {
   lang: routeLocale
 }
 const renderedHeading = parseMarkdownInline(heading, markdownContext)
+// Stable for this render; unique across multiple Agenda blocks on one page.
+const headingId = renderedHeading ? `agenda-heading-${crypto.randomUUID()}` : undefined
 const renderedItems = await Promise.all(
   items.map(async (item) => ({
     time: parseMarkdownInline(item.time, markdownContext),
@@ -34,11 +36,16 @@ const renderedItems = await Promise.all(
 <section
   data-component="Agenda"
   data-umami-component="agenda"
-  aria-label={renderedHeading ? undefined : t('agenda.label')}
+  aria-labelledby={headingId}
+  aria-label={headingId ? undefined : t('agenda.label')}
 >
   {
-    renderedHeading && (
-      <h4 class="mb-xl tablet:mb-2xl" set:html={renderedHeading} />
+    renderedHeading && headingId && (
+      <h2
+        id={headingId}
+        class="mb-xl tablet:mb-2xl"
+        set:html={renderedHeading}
+      />
     )
   }
 
@@ -116,11 +123,9 @@ const renderedItems = await Promise.all(
     margin-block-start: calc(var(--spacing-3xl) - var(--spacing-6xl));
   }
 
+  /* Prefer real markdown lists for bullets (a11y); plain paragraphs stay paragraphs. */
   [data-agenda-info] :global(p) {
-    display: list-item;
-    margin: 0 0 var(--spacing-sm) var(--spacing-lg);
-    padding-inline-start: var(--spacing-xs);
-    list-style-type: disc;
+    margin: 0 0 var(--spacing-sm);
     font-size: inherit;
   }
 
@@ -131,11 +136,19 @@ const renderedItems = await Promise.all(
   [data-agenda-info] :global(ul),
   [data-agenda-info] :global(ol) {
     margin: 0;
-    padding-inline-start: 0;
+    padding-inline-start: var(--spacing-lg);
     font-size: inherit;
+    list-style-position: outside;
   }
 
-  /* Tighter list spacing than default prose — keep scoped to Agenda. */
+  [data-agenda-info] :global(ul) {
+    list-style-type: disc;
+  }
+
+  [data-agenda-info] :global(ol) {
+    list-style-type: decimal;
+  }
+
   [data-agenda-info] :global(li) {
     margin-block-end: var(--spacing-sm);
   }
