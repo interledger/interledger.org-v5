@@ -2,13 +2,23 @@ import isHtml from 'is-html'
 import { htmlToMarkdown } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
+/**
+ * Serialize blocks.cta-strip → MDX.
+ *
+ * Purple-only, primary CTA only. `secondaryButtonText` / `secondaryButtonLink`
+ * / `color` may still appear on legacy Strapi rows or test fixtures — they are
+ * accepted on the input type and intentionally ignored (not emitted).
+ */
 export function serialize(block: {
   heading?: string
   description?: string
   primaryButtonText: string
   primaryButtonLink: string
+  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonText?: string
+  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonLink?: string
+  /** @deprecated Ignored — strips are always purple. */
   color?: string
 }): string {
   if (!block.primaryButtonText)

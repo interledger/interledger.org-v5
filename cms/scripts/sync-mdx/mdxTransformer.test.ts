@@ -937,6 +937,32 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
       expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
     })
+
+    it('sends null for heading and description when omitted from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          ctaStrip: {
+            buttonText: 'Start application',
+            buttonLink: 'https://example.com/apply'
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.heading).toBeNull()
+      expect(ctaStrip.description).toBeNull()
+      expect(ctaStrip.primaryButtonText).toBe('Start application')
+      expect(ctaStrip.primaryButtonLink).toBe('https://example.com/apply')
+    })
   })
 
   describe('optional primaryCta', () => {
@@ -2421,7 +2447,7 @@ describe('buildHackathonPagePayload', () => {
   // The allow-list is only enforced on the parserCtx-gated path (real syncs
   // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
   describe('allowed component enforcement', () => {
-    it('accepts <Paragraph>, the only allowed component', async () => {
+    it('accepts <Paragraph>', async () => {
       await import('./paragraphHandler')
       const parserCtx = { locale: 'en' }
 
@@ -2439,6 +2465,33 @@ describe('buildHackathonPagePayload', () => {
       )
       expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('accepts <CtaStrip>', async () => {
+      await import('./ctaStripHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content:
+          '<CtaStrip heading="Join us" primaryButtonText="Apply" primaryButtonLink="/apply" />'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.cta-strip',
+          heading: 'Join us',
+          primaryButtonText: 'Apply',
+          primaryButtonLink: '/apply'
+        }
       ])
     })
 

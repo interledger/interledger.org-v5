@@ -547,11 +547,13 @@ export async function buildGrantPagePayload(
       : null
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      ...(ctaStripFm.heading ? { heading: ctaStripFm.heading } : {}),
-      ...(ctaStripFm.description ? { description: ctaStripFm.description } : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description)
     }
 
     const infoCards = parsed.infoCards
@@ -651,11 +653,13 @@ export async function buildGrantOverviewPagePayload(
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      ...(ctaStripFm.heading ? { heading: ctaStripFm.heading } : {}),
-      ...(ctaStripFm.description ? { description: ctaStripFm.description } : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description)
     }
 
     const hero = await buildHeroWithImage(
@@ -793,6 +797,7 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
   'blocks.split-layout',
   'blocks.profile-grid',
+  'blocks.cta-strip',
   'blocks.title-card-grid',
   'blocks.carousel'
 ] as const
