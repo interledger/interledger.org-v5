@@ -178,16 +178,22 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'hackathonPages'),
       apiId: 'hackathon-pages',
       schema: hackathonPageFrontmatterSchema,
-      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+      buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
-        // No resolveRelation/resolveMediaUpload: the hackathon-pages content
-        // zone only allows blocks.paragraph and blocks.number-tiles, which
-        // never resolve relations or media.
         return buildHackathonPagePayload(
           hackathonPageFrontmatterSchema,
           mdx,
           existing,
-          { locale }
+          {
+            locale,
+            resolveRelation: createRelationResolver(
+              strapi,
+              locale,
+              dryRun,
+              profilePathSlugs
+            ),
+            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
+          }
         )
       }
     },

@@ -14,6 +14,8 @@ import { formatStatNumber, parseStatNumber } from '@/utils'
 
 interface Tile {
   number: string
+  /** Currency symbol or similar, rendered tight against the number (e.g. "$1,234M+"). */
+  prefix?: string
   suffix?: string
   description: string
 }
@@ -48,6 +50,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
         <StatCard
           value={parsed ?? 0}
           display={display}
+          prefix={tile.prefix}
           suffix={tile.suffix}
           numberClass={NUMBER_CLASS}
           label={tile.description}

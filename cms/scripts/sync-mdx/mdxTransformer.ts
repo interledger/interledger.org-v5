@@ -806,7 +806,10 @@ export async function buildReportPayload(
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
   'blocks.number-tiles',
-  'blocks.title-card-grid'
+  'blocks.split-layout',
+  'blocks.profile-grid',
+  'blocks.title-card-grid',
+  'blocks.carousel'
 ] as const
 
 /**
@@ -979,7 +982,9 @@ export async function buildBlogPayload(
       featured: parsed.featured ?? false,
       ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
-      ...(thumbnailMedia ? { thumbnailMedia } : {}),
+      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it —
+      // unlike featureMedia above, which is required and would be rejected as null.
+      thumbnailMedia,
       articleBio,
       categories,
       relatedArticles,

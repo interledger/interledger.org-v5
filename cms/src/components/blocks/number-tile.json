@@ -3,13 +3,21 @@
   "info": {
     "displayName": "Number Tile",
     "icon": "chart-pie",
-    "description": "Single stat tile: a number, optional suffix, and a description"
+    "description": "Single stat tile: a number, optional currency prefix and suffix, and a description"
   },
   "options": {},
   "attributes": {
     "number": {
       "type": "string",
       "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "prefix": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true

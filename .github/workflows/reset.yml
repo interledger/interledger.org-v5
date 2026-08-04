@@ -1,0 +1,125 @@
+name: Force Reset
+# Manual-only workflow for force-pushing a specific commit SHA to production or playground.
+# Use this to roll forward or back to any known commit in either environment.
+# Not applicable to staging — staging is the default branch and must preserve full history; its head is never reset.
+# Requires a full 40-character SHA — authenticated via a GitHub App token to bypass branch protections.
+# For playground, the Strapi VM checkout is hard reset afterwards so it follows the force-pushed head
+# (a force push is non-fast-forward, so the VM's `git pull --ff-only` in merge.yml would fail otherwise).
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Commit SHA to publish
+        required: true
+        type: string
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - production
+          - playground
+
+concurrency:
+  group: publish-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Validate SHA input shape
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TARGET_SHA="${{ github.event.inputs.target_sha }}"
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "Error: target_sha must be a full 40-character commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PUBLISH_APP_ID }}
+          private-key: ${{ secrets.PUBLISH_APP_PRIVATE_KEY }}
+
+      - name: Publish to target branch
+        env:
+          TARGET_SHA: ${{ github.event.inputs.target_sha }}
+          PUBLISH_BRANCH: ${{ vars.PUBLISH_BRANCH }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$PUBLISH_BRANCH" ]]; then
+            echo "Error: PUBLISH_BRANCH is not set in the environment."
+            exit 1
+          fi
+
+          git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin "${TARGET_SHA}:refs/heads/${PUBLISH_BRANCH}" --force
+
+  # Realign the Strapi VM's working copy with the branch head that publish just force-pushed.
+  # Playground only: production has no Strapi instance, so there is nothing to reset there.
+  reset-strapi-checkout:
+    needs: publish
+    if: github.event.inputs.environment == 'playground'
+    runs-on: strapi-vm
+    environment: strapi-playground
+    env:
+      DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
+      # Fixed rather than read from PUBLISH_BRANCH: that var lives in the `playground` environment,
+      # while this job runs in `strapi-playground`.
+      DEPLOY_BRANCH: playground
+      TARGET_SHA: ${{ github.event.inputs.target_sha }}
+
+    steps:
+      - name: Hard reset deploy checkout to origin/playground
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_PATH:-}" ]; then
+            echo "Error: ENV_DEPLOY_PATH is not set for this environment."
+            exit 1
+          fi
+
+          if [ ! -d "$DEPLOY_PATH" ]; then
+            echo "Error: Deploy path does not exist: $DEPLOY_PATH"
+            exit 1
+          fi
+
+          cd "$DEPLOY_PATH"
+
+          # --force is required: publish rewrote the branch, so the remote-tracking ref moves non-fast-forward.
+          git fetch --force origin "$DEPLOY_BRANCH:refs/remotes/origin/$DEPLOY_BRANCH"
+
+          # Point the local branch at the force-pushed head, discarding any commits or edits made on the VM.
+          # -B recreates the branch if the checkout drifted onto a detached HEAD or another branch.
+          git checkout --force -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+          git reset --hard "origin/$DEPLOY_BRANCH"
+
+          HEAD_SHA="$(git rev-parse HEAD)"
+          if [ "$HEAD_SHA" != "$TARGET_SHA" ]; then
+            echo "Error: checkout is at $HEAD_SHA but the published SHA is $TARGET_SHA."
+            exit 1
+          fi
+
+          echo "✓ $DEPLOY_PATH is at $DEPLOY_BRANCH ($HEAD_SHA)"

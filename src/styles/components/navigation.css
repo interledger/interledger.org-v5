@@ -77,7 +77,7 @@
       background-color: #0d0d0d;
     }
 
-    .header-nav-wrapper--summit {
+    .header-nav-wrapper--microsite {
       background: black;
     }
   }
@@ -197,11 +197,6 @@
 .foundation-header[data-theme='light'] .nav-subgroup-heading {
   color: var(--color-neutral-75);
   border-color: var(--color-neutral-50);
-}
-
-/* Mobile drawer divider */
-.foundation-header[data-theme='light'] .header-nav-wrapper hr {
-  background-color: var(--color-neutral-50);
 }
 
 /* Mobile drawer language label */

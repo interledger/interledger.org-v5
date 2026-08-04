@@ -23,6 +23,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  # Inspects the current push event and the changes that were made in it, then decides which outputs to set.
+  # Depending on the changes, the following flags may be set:
+  # - cms_changed: true if any file under cms/ changed
+  # - content_changed: true if any file under src/content/ or public/img/, public/uploads/, public/documents/ changed
+  # - navigation_changed: true if any file under src/config/foundation-navigation.json or src/config/summit-navigation.json changed
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -53,7 +59,8 @@ jobs:
             // Any Markdown/MDX under Astro content collections (sync script only uploads configured roots).
             const contentPattern = /^src\/content\/.+\.(md|mdx)$/
             const mediaPattern = /^public\/(?:img|uploads|documents)\//
-            const navigationPattern = /^src\/config\/(?:foundation-navigation|summit-navigation)\.json$/
+            // Trailing locale segment is optional so the .es.json counterparts sync too.
+            const navigationPattern = /^src\/config\/(?:foundation|summit|hackathon)-navigation(?:\.[a-z]{2})?\.json$/
             const zeroSha = '0000000000000000000000000000000000000000'
 
             if (context.eventName === 'workflow_dispatch') {
@@ -192,6 +199,8 @@ jobs:
             core.setOutput('content_changed', String(contentChanged))
             core.setOutput('navigation_changed', String(navigationChanged))
 
+  # This step will run on the self-hosted Strapi instance and will execute if the cms directory has been
+  # changed. It will only run on the staging or playground branches and will rebuild the Strapi CMS and restart the Strapi service.
   rebuild-strapi:
     needs: detect-changes
     if: |
@@ -201,6 +210,8 @@ jobs:
     env:
       DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
       STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
+      # The merge branch this environment deploys: playground -> strapi-playground, staging -> strapi-staging.
+      DEPLOY_BRANCH: ${{ github.ref_name }}
 
     steps:
       - name: Rebuild Strapi CMS
@@ -241,8 +252,10 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
-          # Ensure pull fails instead of creating merge commits
-          git fetch
+          git fetch origin "$DEPLOY_BRANCH"
+
+          git checkout "$DEPLOY_BRANCH"
+          
           git pull --ff-only
 
           # Defensive check: fail if git index contains unresolved conflicts
