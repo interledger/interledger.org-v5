@@ -94,6 +94,28 @@ describe('title-card-grid serializer', () => {
     expect(result).toContain('heading="C &gt; D"')
   })
 
+  it('closes TitleCard at column 0 after a list so MDX does not swallow the tag', () => {
+    const result = serialize({
+      columns: 'Two',
+      ariaLabel: 'Education grants',
+      titleCards: [
+        {
+          ...validCard,
+          description:
+            'Supports universities.\n\n- Curriculum development\n- Interdisciplinary research'
+        }
+      ]
+    })
+
+    // Closing tag must not be indented (would continue the list item in MDX).
+    expect(result).toMatch(/\n<\/TitleCard>/)
+    expect(result).not.toMatch(/[ \t]<\/TitleCard>/)
+    // Blank line after description terminates the list before the close tag.
+    expect(result).toContain(
+      'Interdisciplinary research\n\n</TitleCard>'
+    )
+  })
+
   it('escapes MDX braces in description', () => {
     const result = serialize({
       columns: 'Three',

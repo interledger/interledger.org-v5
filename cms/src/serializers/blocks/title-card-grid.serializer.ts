@@ -121,10 +121,15 @@ export function serialize(block: {
       : ''
     const ctaAttrs = ` buttonUrl="${esc(card.secondaryCta.link)}" buttonText="${esc(card.secondaryCta.text)}" buttonExternal={${card.secondaryCta.external ?? false}}`
 
-    const description = escMdxBraces(card.description)
+    const description = escMdxBraces(card.description.trim())
 
-    return `<TitleCard${headingAttr}${subheadingAttr}${ctaAttrs}>\n${description}\n  </TitleCard>`
+    // Blank lines around the description, closing tag at column 0. A body that
+    // ends in a list needs both: MDX treats an indented line after a list item
+    // as a continuation of that item, so `\n  </TitleCard>` is swallowed into
+    // the list and the next sync fails with "Expected the closing tag
+    // </TitleCard> ... after the end of listItem". Same fix as blocks.faq.
+    return `<TitleCard${headingAttr}${subheadingAttr}${ctaAttrs}>\n\n${description}\n\n</TitleCard>`
   })
 
-  return `<TitleCardGrid${gridAttrs}>\n  ${cards.join('\n  ')}\n</TitleCardGrid>`
+  return `<TitleCardGrid${gridAttrs}>\n\n${cards.join('\n\n')}\n\n</TitleCardGrid>`
 }
