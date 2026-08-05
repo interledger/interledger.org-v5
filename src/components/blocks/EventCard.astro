@@ -50,6 +50,12 @@ const fromStrapi = Boolean(when && where)
 const hasApply = Boolean(
   apply?.title && apply?.primaryCta?.text && apply?.primaryCta?.link
 )
+
+// Populate gaps (e.g. preview missing nested when/where) must not paint an
+// empty bordered shell. MDX authoring always has default-slot children.
+if (!fromStrapi && !Astro.slots.has('default')) {
+  return
+}
 ---
 
 <section
