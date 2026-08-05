@@ -6,7 +6,12 @@
 export function isDemoPathSlug(pathSlug: string | undefined | null): boolean {
   if (!pathSlug) return false
   const slug = pathSlug.replace(/^\/+|\/+$/g, '')
-  return slug === 'demo' || slug.startsWith('demo-') || slug.includes('/demo-')
+  // Match path segments (slugs can include nested `/` segments), same rule as
+  // isDemoPathname so sitemap exclusion and noindex stay aligned.
+  return slug
+    .split('/')
+    .filter(Boolean)
+    .some((segment) => segment === 'demo' || segment.startsWith('demo-'))
 }
 
 /** True when any path segment is a demo slug (for sitemap + pathname checks). */

@@ -8,11 +8,15 @@ describe('isDemoPathSlug', () => {
     expect(isDemoPathSlug('demo-hackathon-page')).toBe(true)
     expect(isDemoPathSlug('demo')).toBe(true)
     expect(isDemoPathSlug('section/demo-page')).toBe(true)
+    // Nested segment that is exactly `demo` (not only `demo-` prefix)
+    expect(isDemoPathSlug('section/demo')).toBe(true)
+    expect(isDemoPathSlug('/section/demo/')).toBe(true)
   })
 
   it('rejects normal path slugs', () => {
     expect(isDemoPathSlug('about-us')).toBe(false)
     expect(isDemoPathSlug('our-grantmaking')).toBe(false)
+    expect(isDemoPathSlug('section/demonstration')).toBe(false)
     expect(isDemoPathSlug('')).toBe(false)
     expect(isDemoPathSlug(null)).toBe(false)
   })
