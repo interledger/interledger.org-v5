@@ -121,7 +121,7 @@ export function serialize(block: {
       : ''
     const ctaAttrs = ` buttonUrl="${esc(card.secondaryCta.link)}" buttonText="${esc(card.secondaryCta.text)}" buttonExternal={${card.secondaryCta.external ?? false}}`
 
-    const description = escMdxBraces(card.description.trim())
+    const description = escMdxBraces(card.description)
 
     // Blank lines around the description, closing tag at column 0. A body that
     // ends in a list needs both: MDX treats an indented line after a list item
