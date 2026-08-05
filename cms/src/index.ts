@@ -1607,10 +1607,10 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.quote': [
       [{ name: 'quote', size: 12 }],
       [
-        { name: 'authorName', size: 6 },
-        { name: 'authorLink', size: 6 }
-      ],
-      [{ name: 'authorImage', size: 12 }]
+        { name: 'authorName', size: 4 },
+        { name: 'authorLink', size: 4 },
+        { name: 'authorImage', size: 4 }
+      ]
     ],
     'blocks.cta-strip': [
       [{ name: 'heading', size: 12 }],
