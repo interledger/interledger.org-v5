@@ -46,6 +46,9 @@ const href = isAbsoluteUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
     })}
   >
     {buttonText}
-    <Icon name="arrow-right" slot="icon-right" />
+    <Icon
+      name={external ? 'external-link' : 'arrow-right'}
+      slot="icon-right"
+    />
   </LinkButton>
 </div>
