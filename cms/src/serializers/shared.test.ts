@@ -25,7 +25,7 @@ describe('escDouble', () => {
 
 describe('escSingle', () => {
   it('encodes single quotes and shared attr-breaking characters', () => {
-    expect(escSingle("it's <ok> & \"fine\"")).toBe(
+    expect(escSingle('it\'s <ok> & "fine"')).toBe(
       'it&#39;s &lt;ok&gt; &amp; "fine"'
     )
   })
