@@ -67,8 +67,10 @@ const authorAbove = Boolean(image || safeAuthorLink)
 const authorBelow = Boolean(authorName && !authorAbove)
 const isExternal = (href: string) => /^https?:\/\//i.test(href)
 
-const authorLinkClasses =
-  'inline-flex items-center gap-sm font-poppins text-body-lg-standard font-normal text-neutral-900 no-underline transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+// Match quote-body type scale (h5) so figcaption attribution reads at the same size.
+const authorTypeClasses =
+  'font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg font-normal'
+const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} text-neutral-900 no-underline transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
 ---
 
 <figure
@@ -112,7 +114,7 @@ const authorLinkClasses =
               )}
             </a>
           ) : (
-            <cite class="not-italic font-poppins text-body-lg-standard font-normal text-neutral-900">
+            <cite class:list={['not-italic text-neutral-900', authorTypeClasses]}>
               {authorName}
             </cite>
           ))}
@@ -155,7 +157,7 @@ const authorLinkClasses =
   {
     authorBelow && (
       <figcaption class="mt-0">
-        <p class="m-0 font-poppins text-body-lg-standard font-normal text-neutral-100">
+        <p class:list={['m-0 text-neutral-100', authorTypeClasses]}>
           – <cite class="not-italic font-normal">{authorName}</cite>
         </p>
       </figcaption>
