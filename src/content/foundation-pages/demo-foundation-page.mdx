@@ -283,16 +283,33 @@ Interledger-funded programs pair open payment infrastructure with hands-on fello
   ]}
 />
 
+<Paragraph>
+
+## Event card
+
+Foundation pages can use a full-width **Event card** with When and Where
+columns, plus an optional Apply column. Editors should place one card at a
+time — there is no multi-card grid. When Apply is omitted, When and Where
+expand to fill the available width.
+
+</Paragraph>
+
 <EventCard>
-  <EventWhen title="When?" date="November 8–9, 2025" time="24h" />
+  <EventWhen title="When?" date="November 8–9, 2025" time="24h">
+    Doors open early for speakers and volunteers.
+  </EventWhen>
   <EventWhere
     title="Where?"
     location="InSpark C. Lago Zurich 119, Granad Miguel Hidalgo, 11529 Ciudad de Mexico, CDM"
   />
-  <EventApply
-    title="Apply"
-    buttonText="Apply today"
-    buttonUrl="/grants"
+  <EventApply title="Apply" buttonText="Apply today" buttonUrl="/grants" />
+</EventCard>
+
+<EventCard>
+  <EventWhen title="When?" date="June 12, 2026" time="9:00 am – 5:00 pm" />
+  <EventWhere
+    title="Where?"
+    location="Community Day venue — main lobby and courtyard"
   />
 </EventCard>
 
