@@ -422,6 +422,27 @@ async function updateUploadAltOnce(
   updatedAltIds.set(id, alt)
 }
 
+/**
+ * Builds an `updateMediaAlt` callback for the MDX block parser. LogoCarousel
+ * stores each logo's name as the upload's `alternativeText` (uploads are the
+ * only place a carousel logo can carry alt text), so any content type whose
+ * dynamic zone allows `blocks.carousel` must supply this — without it the
+ * handler's optional call is a no-op and logo names are silently dropped.
+ *
+ * Share one `updatedAltIds` map across content types that draw on the same
+ * uploads so conflicting names get warned about rather than last-write-wins.
+ */
+export function createMediaAltUpdater(
+  strapi: StrapiClient,
+  updatedAltIds: Map<number, string | null>,
+  pathSlug: string,
+  dryRun: boolean
+): (id: number, alt: string | null) => Promise<void> {
+  return async (id: number, alt: string | null) => {
+    await updateUploadAltOnce(strapi, id, alt, updatedAltIds, pathSlug, dryRun)
+  }
+}
+
 interface ProfileCtaFrontmatter {
   text?: string
   link?: string
@@ -604,16 +625,12 @@ export async function buildGrantPagePayload(
             strapiUploadContext?.profilePathSlugs
           ),
           resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
-          updateMediaAlt: async (id: number, alt: string | null) => {
-            await updateUploadAltOnce(
-              strapi,
-              id,
-              alt,
-              updatedAltIds,
-              mdx.pathSlug,
-              dryRun
-            )
-          }
+          updateMediaAlt: createMediaAltUpdater(
+            strapi,
+            updatedAltIds,
+            mdx.pathSlug,
+            dryRun
+          )
         }
       : undefined
 
@@ -688,16 +705,12 @@ export async function buildGrantOverviewPagePayload(
             strapiUploadContext?.profilePathSlugs
           ),
           resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
-          updateMediaAlt: async (id: number, alt: string | null) => {
-            await updateUploadAltOnce(
-              strapi,
-              id,
-              alt,
-              updatedAltIds,
-              mdx.pathSlug,
-              dryRun
-            )
-          }
+          updateMediaAlt: createMediaAltUpdater(
+            strapi,
+            updatedAltIds,
+            mdx.pathSlug,
+            dryRun
+          )
         }
       : undefined
 
