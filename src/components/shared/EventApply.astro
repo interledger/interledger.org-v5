@@ -16,7 +16,12 @@ interface Props {
 const { title, buttonText, buttonUrl, buttonExternal = false } = Astro.props
 
 const { routeLocale } = Astro.locals
-const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
+
+// Absolute scheme URLs must not go through ensureLeadingSlash (would become
+// `/https://…`). Auto-detect so a missing external flag still navigates.
+const isAbsoluteUrl = /^https?:\/\//i.test(buttonUrl)
+const external = buttonExternal || isAbsoluteUrl
+const href = isAbsoluteUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
 ---
 
 <div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">
@@ -30,7 +35,7 @@ const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
     href={href}
     variant="primary"
     size="lg"
-    external={buttonExternal}
+    external={external}
     class="self-start"
     {...buildUmamiAttrs({
       pathname: Astro.url.pathname,
