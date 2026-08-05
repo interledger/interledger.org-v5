@@ -13,12 +13,7 @@ interface Props {
   buttonExternal?: boolean
 }
 
-const {
-  title,
-  buttonText,
-  buttonUrl,
-  buttonExternal = false
-} = Astro.props
+const { title, buttonText, buttonUrl, buttonExternal = false } = Astro.props
 
 const { routeLocale } = Astro.locals
 const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
