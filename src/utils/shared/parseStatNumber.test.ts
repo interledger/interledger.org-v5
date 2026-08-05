@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { formatStatNumber, parseStatNumber } from './parseStatNumber'
+import {
+  buildNumberTileAriaLabel,
+  formatStatNumber,
+  parseStatNumber
+} from './parseStatNumber'
 
 describe('parseStatNumber', () => {
   it('parses plain digits', () => {
@@ -33,5 +37,32 @@ describe('formatStatNumber', () => {
   it('leaves small numbers ungrouped', () => {
     expect(formatStatNumber(21)).toBe('21')
     expect(formatStatNumber(0)).toBe('0')
+  })
+})
+
+describe('buildNumberTileAriaLabel', () => {
+  it('returns undefined when there are no affixes', () => {
+    expect(buildNumberTileAriaLabel('48', 'Hours to build')).toBeUndefined()
+  })
+
+  it('expands M+ and $ into a spoken phrase', () => {
+    expect(
+      buildNumberTileAriaLabel('21', 'In Grants', '$', 'M+')
+    ).toBe('21 million plus dollars In Grants')
+  })
+
+  it('expands a lone + suffix', () => {
+    expect(
+      buildNumberTileAriaLabel('3,000', 'Projects supported worldwide', undefined, '+')
+    ).toBe('3,000 plus Projects supported worldwide')
+  })
+
+  it('passes through unknown suffixes and non-dollar prefixes', () => {
+    expect(buildNumberTileAriaLabel('50', 'completion rate', undefined, '%')).toBe(
+      '50 % completion rate'
+    )
+    expect(buildNumberTileAriaLabel('12', 'euro grants', '€', 'K+')).toBe(
+      '€ 12 thousand plus euro grants'
+    )
   })
 })

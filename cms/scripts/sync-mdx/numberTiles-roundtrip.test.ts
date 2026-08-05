@@ -28,6 +28,30 @@ describe('NumberTiles round-trip (serialize → parse)', () => {
     ])
   })
 
+  it('round-trips tiles with currency prefix and suffix (en)', async () => {
+    const original = {
+      tiles: [
+        {
+          number: '21',
+          prefix: '$',
+          suffix: 'M+',
+          description: 'In Grants'
+        },
+        {
+          number: '3000',
+          suffix: '+',
+          description: 'Projects supported worldwide'
+        }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.number-tiles', tiles: original.tiles }
+    ])
+  })
+
   it('round-trips tiles without suffix (es)', async () => {
     const original = {
       tiles: [
