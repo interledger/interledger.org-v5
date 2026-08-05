@@ -24,6 +24,7 @@ import { serialize as imageBlock } from './image-block.serializer'
 import { serialize as codeBlock } from './code-block.serializer'
 import { serialize as splitLayout } from './split-layout.serializer'
 import { serialize as numberTiles } from './number-tiles.serializer'
+import { serialize as agenda } from './agenda.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
 import { serialize as faq } from './faq.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
@@ -33,6 +34,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
   'blocks.number-tiles': numberTiles,
+  'blocks.agenda': agenda,
 
   'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,
