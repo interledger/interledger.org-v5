@@ -59,13 +59,13 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 
 <HackathonPageLayout title={title} description={description}>
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="hackathon-content flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl text-neutral-0 tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="mx-auto max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
-        class="mt-2xl text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg"
+        class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
       >
         {title}
       </h1>
@@ -95,3 +95,17 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
     </div>
   </main>
 </HackathonPageLayout>
+
+<style>
+  .hackathon-content {
+    color: var(--color-neutral-0);
+  }
+
+  /* Light body text for hackathon chrome; dark-on-white EventCard opts out. */
+  .hackathon-content
+    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
+      [data-component='EventCard'] *
+    ):not(section[aria-labelledby='logo-carousel-heading'] *) {
+    color: var(--color-neutral-0);
+  }
+</style>
