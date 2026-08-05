@@ -22,8 +22,6 @@ import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
-import ResourceCard from '@/components/shared/ResourceCard.astro'
-import NavigationCard from '@/components/shared/NavigationCard.astro'
 
 interface Props {
   slug: string
@@ -112,10 +110,9 @@ const breadcrumbs = [
                   CtaStrip,
                   LogoCarousel,
                   NumberTiles,
-                  TitleCard,
+                  // Grant overview only allows CardGrid variant="Title" (enforced in CMS).
                   CardGrid,
-                  ResourceCard,
-                  NavigationCard
+                  TitleCard
                 }}
               />
             </div>
