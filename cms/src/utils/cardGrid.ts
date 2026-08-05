@@ -8,8 +8,7 @@ export const CARD_GRID_VARIANT_DEFINITIONS = [
     cardsField: 'infoCards',
     fieldLabel: 'Info cards',
     strapiComponent: 'blocks.info-card',
-    mdxChild: 'InfoCard',
-    helpText: 'Add Info cards for this grid.'
+    mdxChild: 'InfoCard'
   },
   {
     value: 'Title',
@@ -17,8 +16,7 @@ export const CARD_GRID_VARIANT_DEFINITIONS = [
     cardsField: 'titleCards',
     fieldLabel: 'Title cards',
     strapiComponent: 'blocks.title-card',
-    mdxChild: 'TitleCard',
-    helpText: 'Add Title cards for this grid.'
+    mdxChild: 'TitleCard'
   },
   {
     value: 'Resource',
@@ -26,8 +24,7 @@ export const CARD_GRID_VARIANT_DEFINITIONS = [
     cardsField: 'resourceCards',
     fieldLabel: 'Resource cards',
     strapiComponent: 'blocks.resource-card',
-    mdxChild: 'ResourceCard',
-    helpText: 'Add Resource cards for this grid. At least two required.'
+    mdxChild: 'ResourceCard'
   },
   {
     value: 'Navigation',
@@ -35,8 +32,7 @@ export const CARD_GRID_VARIANT_DEFINITIONS = [
     cardsField: 'navigationCards',
     fieldLabel: 'Navigation cards',
     strapiComponent: 'blocks.navigation-card',
-    mdxChild: 'NavigationCard',
-    helpText: 'Add Navigation cards for this grid.'
+    mdxChild: 'NavigationCard'
   }
 ] as const
 

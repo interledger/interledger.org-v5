@@ -47,13 +47,6 @@ const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
   ])
 )
 
-const CARD_GRID_ADMIN_FIELD_HINTS = Object.fromEntries(
-  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
-    variant.cardsField,
-    variant.helpText
-  ])
-)
-
 const CARD_GRID_CARD_FIELD_LAYOUT = CARD_GRID_VARIANT_DEFINITIONS.map(
   (variant) => [{ name: variant.cardsField, size: 12 }]
 )
@@ -1305,8 +1298,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       // Clear any previously stored helper text for the variant custom field.
       variant: '',
       columns:
-        'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.',
-      ...CARD_GRID_ADMIN_FIELD_HINTS
+        'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.'
     },
     'blocks.resource-card': {
       heading: 'Required card title.',
