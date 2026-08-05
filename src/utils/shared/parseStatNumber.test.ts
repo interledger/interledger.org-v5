@@ -46,21 +46,26 @@ describe('buildNumberTileAriaLabel', () => {
   })
 
   it('expands M+ and $ into a spoken phrase', () => {
-    expect(
-      buildNumberTileAriaLabel('21', 'In Grants', '$', 'M+')
-    ).toBe('21 million plus dollars In Grants')
+    expect(buildNumberTileAriaLabel('21', 'In Grants', '$', 'M+')).toBe(
+      '21 million plus dollars In Grants'
+    )
   })
 
   it('expands a lone + suffix', () => {
     expect(
-      buildNumberTileAriaLabel('3,000', 'Projects supported worldwide', undefined, '+')
+      buildNumberTileAriaLabel(
+        '3,000',
+        'Projects supported worldwide',
+        undefined,
+        '+'
+      )
     ).toBe('3,000 plus Projects supported worldwide')
   })
 
   it('passes through unknown suffixes and non-dollar prefixes', () => {
-    expect(buildNumberTileAriaLabel('50', 'completion rate', undefined, '%')).toBe(
-      '50 % completion rate'
-    )
+    expect(
+      buildNumberTileAriaLabel('50', 'completion rate', undefined, '%')
+    ).toBe('50 % completion rate')
     expect(buildNumberTileAriaLabel('12', 'euro grants', '€', 'K+')).toBe(
       '€ 12 thousand plus euro grants'
     )
