@@ -43,7 +43,10 @@ const hasText = Boolean(text) || Astro.slots.has('default')
               name="calendar"
               class="mt-0.5 size-5 shrink-0 text-neutral-75"
             />
-            <span class="font-poppins text-body-lg-standard">{date}</span>
+            <span class="font-poppins text-body-lg-standard">
+              <span class="sr-only">{t('eventCard.dateLabel')}: </span>
+              {date}
+            </span>
           </li>
         )}
         {time && (
