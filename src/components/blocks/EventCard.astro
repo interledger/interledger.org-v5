@@ -63,7 +63,14 @@ if (!fromStrapi && !Astro.slots.has('default')) {
   aria-label={t('eventCard.block_label')}
   class:list={[
     'mb-6xl w-full rounded-3xl border border-neutral-50 bg-white',
-    'px-xl py-xl tablet:px-2xl tablet:py-2xl'
+    'px-xl py-xl tablet:px-2xl tablet:py-2xl',
+    // Summit/Hackathon prose wrappers use [&_h3]/[&_ul]/[&_li]/[&_p] descendant
+    // utilities (specificity 0,1,1) that beat column m-0/p-0/text-h3 classes
+    // (0,1,0). Reset at the card root so When/Where/Apply stay self-contained.
+    '[&_h3]:!m-0 [&_h3]:!text-h3 [&_h3]:tablet:!text-h3-md [&_h3]:desktop:!text-h3-lg',
+    '[&_p]:!m-0',
+    '[&_ul]:!m-0 [&_ul]:!p-0 [&_ul]:!ps-0',
+    '[&_li]:!m-0 [&_li]:!mb-0'
   ]}
 >
   {
