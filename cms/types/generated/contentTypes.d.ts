@@ -921,6 +921,7 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.carousel',
         'blocks.profile-grid',
+        'blocks.card-grid',
         'shared.cta-link'
       ]
     > &
