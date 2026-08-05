@@ -1,4 +1,8 @@
 ---
+/**
+ * Rich-text / simple blockquote — dual raspberry edges, optional "– source"
+ * attribution (design image #1). For author portrait + link use `Quote.astro`.
+ */
 import { parseMarkdownInline } from '@/utils'
 
 interface Props {
@@ -17,20 +21,36 @@ const htmlSource = parseMarkdownInline(source, {
 })
 ---
 
-<div
-  class="px-xl py-0 border-l-2 border-r-2 border-primary mb-xl [&_blockquote]:m-0 [&_blockquote]:border-0 [&_blockquote]:p-0 [&>p]:my-0"
+<figure
+  data-component="blockquote"
+  data-umami-component="blockquote"
+  class="mb-xl border-x-2 border-raspberry-100 px-xl py-0 tablet:px-xl [&_blockquote]:m-0 [&_blockquote]:border-0 [&_blockquote]:p-0 [&>p]:my-0"
 >
-  <blockquote class="text-h5 tablet:text-h5-md desktop:text-h5-lg">
-    {quote ?? <slot />}
+  <blockquote
+    class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100"
+  >
+    {
+      // String prop: marks share the text run. Slot (MDX): CSS keeps marks
+      // inline on first/last child so they don't become separate paragraphs.
+      quote != null && quote !== '' ? (
+        <p class="m-0">{`“${quote}”`}</p>
+      ) : (
+        <div class="quote-slot">
+          <slot />
+        </div>
+      )
+    }
   </blockquote>
   {
     htmlSource && (
-      <p class="my-0">
-        — <cite class="text-body-lg-standard" set:html={htmlSource} />
-      </p>
+      <figcaption class="mt-0">
+        <p class="m-0 font-poppins text-body-lg-standard text-neutral-100">
+          – <cite class="not-italic" set:html={htmlSource} />
+        </p>
+      </figcaption>
     )
   }
-</div>
+</figure>
 
 <!--
   Styling rendered HTML from set:html
@@ -40,9 +60,24 @@ const htmlSource = parseMarkdownInline(source, {
   the parent selector scoped to this component.
 -->
 <style>
-  /* Reset inherited prose styles for rendered HTML inside cite */
+  .quote-slot :global(> p) {
+    margin: 0;
+  }
+  .quote-slot:has(p) :global(> p:first-child)::before {
+    content: '“';
+  }
+  .quote-slot:has(p) :global(> p:last-child)::after {
+    content: '”';
+  }
+  .quote-slot:not(:has(p))::before {
+    content: '“';
+  }
+  .quote-slot:not(:has(p))::after {
+    content: '”';
+  }
+
   cite {
-    font-weight: 200;
+    font-weight: 400;
     font-style: normal;
   }
 
