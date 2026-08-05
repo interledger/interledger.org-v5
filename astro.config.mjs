@@ -135,7 +135,15 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (url) => !new URL(url).pathname.includes('/preview')
+      // Exclude previews and design/QA demo pages (pathSlug starts with demo-)
+      filter: (url) => {
+        const pathname = new URL(url).pathname
+        if (pathname.includes('/preview')) return false
+        return !pathname
+          .split('/')
+          .filter(Boolean)
+          .some((segment) => segment === 'demo' || segment.startsWith('demo-'))
+      }
     })
   ],
   vite: {

@@ -178,6 +178,7 @@ export {
   type CanonicalMeta,
   type HreflangMeta
 } from './main/seoMeta'
+export { isDemoPathSlug, isDemoPathname } from './shared/demoPaths'
 
 // Main site: Roadmap (developers tech roadmap timeline)
 export {

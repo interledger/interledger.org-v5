@@ -17,6 +17,7 @@ interface Props {
   headerTheme?: 'light' | 'dark'
   pageTheme?: 'light' | 'dark'
   bodyClass?: string
+  noindex?: boolean
 }
 
 const defaultBodyClass =
@@ -31,7 +32,8 @@ const {
   datePublished,
   headerTheme = 'light',
   pageTheme = 'light',
-  bodyClass = defaultBodyClass
+  bodyClass = defaultBodyClass,
+  noindex = false
 } = Astro.props
 ---
 
@@ -44,6 +46,7 @@ const {
   datePublished={datePublished}
   theme={pageTheme}
   bodyClass={bodyClass}
+  noindex={noindex}
 >
   <Fragment slot="head">
     <slot name="head" />
