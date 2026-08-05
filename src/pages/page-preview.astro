@@ -51,7 +51,8 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.carousel][populate][logos][populate]': '*',
   'populate[content][on][blocks.profile][populate][profile][populate]': '*',
   'populate[content][on][blocks.profile-grid][populate][profiles][populate]':
-    '*'
+    '*',
+  'populate[content][on][blocks.faq][populate][items]': '*'
 })
 
 const response = await fetchStrapi<FoundationPagePreview>(

@@ -1,0 +1,65 @@
+---
+/**
+ * FAQ block — an optional heading above an accordion of question/answer pairs.
+ *
+ * Full width within the page's content column; the block adds no width
+ * constraint of its own (INTORG-909).
+ */
+import { parseMarkdown, useTranslations } from '@/utils'
+import FaqItem from '@/components/shared/FaqItem.astro'
+
+interface StrapiFaqItem {
+  question: string
+  /** Markdown from the CKEditor `answer` field. */
+  answer: string
+}
+
+interface Props {
+  heading?: string
+  items?: StrapiFaqItem[]
+}
+
+const { heading, items } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+// Strapi preview (DynamicZone.astro) passes `items` with markdown answers that
+// still need rendering; MDX authoring passes <FaqItem> children that Astro has
+// already rendered, so we fall through to the slot.
+const renderedItems = items
+  ? await Promise.all(
+      items.map(async (item) => ({
+        question: item.question,
+        answerHtml: await parseMarkdown(item.answer, {
+          pathname: Astro.url.pathname,
+          lang: routeLocale
+        })
+      }))
+    )
+  : null
+---
+
+<section
+  data-component="faq"
+  aria-label={heading || t('faq.block_label')}
+  class="flex flex-col gap-xl"
+>
+  {
+    heading && (
+      <h2 class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
+        {heading}
+      </h2>
+    )
+  }
+  {
+    renderedItems ? (
+      renderedItems.map((item) => (
+        <FaqItem question={item.question}>
+          <Fragment set:html={item.answerHtml} />
+        </FaqItem>
+      ))
+    ) : (
+      <slot />
+    )
+  }
+</section>

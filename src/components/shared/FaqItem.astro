@@ -1,0 +1,47 @@
+---
+/**
+ * One question/answer row of a Faq block.
+ *
+ * Rendered from both paths: MDX authors nest <FaqItem> inside <Faq>, and the
+ * Strapi preview maps the block's `items` onto it. Native <details> keeps the
+ * disclosure keyboard-operable and screen-reader-announced with no JS.
+ *
+ * Deliberately starts closed. The parent can't mark "first item" in the MDX
+ * path (children arrive through a slot), so opening one by default would make
+ * the Strapi preview diverge from the published page. See INTORG-909.
+ *
+ * The answer's type styles are scoped per element (`[&_p]`, `[&_li]`, `[&_a]`)
+ * rather than set once on the wrapper and inherited. `src/styles/components/
+ * prose/default.css` styles `main p, a, ul, ol` directly, and a matching rule
+ * always beats inheritance, so a wrapper-level colour would apply to `li` but
+ * not to `p` — giving one answer two different text colours.
+ */
+import Icon from '@/components/shared/Icon.astro'
+
+interface Props {
+  question: string
+}
+
+const { question } = Astro.props
+---
+
+<details class="group border-b border-neutral-25 pb-xl">
+  <summary
+    class="flex cursor-pointer list-none items-center justify-between gap-lg rounded-sm [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orchid-100"
+  >
+    <span
+      class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-100 group-open:text-neutral-900"
+    >
+      {question}
+    </span>
+    <Icon
+      name="arrow-down"
+      class="size-8 shrink-0 text-orchid-100 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+    />
+  </summary>
+  <div
+    class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-75 [&_li]:text-neutral-75 [&_a]:text-neutral-75 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
+  >
+    <slot />
+  </div>
+</details>

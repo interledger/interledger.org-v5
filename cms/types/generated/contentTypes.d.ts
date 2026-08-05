@@ -746,7 +746,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1080,7 +1081,8 @@ export interface ApiHackathonPageHackathonPage
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1394,7 +1396,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.pdf-embed',
         'blocks.video-embed',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

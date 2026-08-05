@@ -1041,6 +1041,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Section Heading',
       items: 'Questions'
     },
+    'blocks.faq': {
+      heading: 'Heading',
+      items: 'Questions'
+    },
     'blocks.faq-item': {
       question: 'Question',
       answer: 'Answer'
@@ -1239,6 +1243,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.faq-section': {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
+    },
+    'blocks.faq': {
+      heading:
+        'Optional. Shown above the questions. Leave blank to run the questions straight on from the content above. At least 1 question is required below.'
     },
     'blocks.faq-item': {
       question: 'Required.',

@@ -73,6 +73,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.carousel': {
     populate: { logos: true }
+  },
+  'blocks.faq': {
+    populate: { items: true }
   }
 } as const
 
@@ -123,6 +126,9 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.carousel': {
       populate: { logos: true }
+    },
+    'blocks.faq': {
+      populate: { items: true }
     }
   }
 } as const
