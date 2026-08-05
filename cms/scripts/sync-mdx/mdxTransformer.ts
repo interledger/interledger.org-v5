@@ -805,6 +805,7 @@ export async function buildReportPayload(
 /** Dynamic-zone components allowed in hackathon-pages MDX/Strapi content. */
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
+  'blocks.number-tiles',
   'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',

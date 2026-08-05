@@ -68,6 +68,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.video-embed': {
     populate: { file: true }
   },
+  'blocks.number-tiles': {
+    populate: { tiles: true }
+  },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
   },
@@ -112,6 +115,9 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.number-tiles': {
+      populate: { tiles: true }
+    },
     'blocks.agenda': {
       populate: { items: true }
     },

@@ -2442,6 +2442,34 @@ describe('buildHackathonPagePayload', () => {
       ])
     })
 
+    it('accepts a NumberTiles block', async () => {
+      await import('./numberTilesHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content:
+          "<NumberTiles tiles={[{ number: '21', description: 'Teams' }, { number: '300', description: 'Participants' }]} />"
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.number-tiles',
+          tiles: [
+            { number: '21', description: 'Teams' },
+            { number: '300', description: 'Participants' }
+          ]
+        }
+      ])
+    })
+
     it('accepts an Agenda block', async () => {
       await import('./agendaHandler')
       const parserCtx = { locale: 'en' }

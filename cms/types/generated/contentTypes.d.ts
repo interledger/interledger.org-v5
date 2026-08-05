@@ -745,6 +745,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
         'blocks.carousel',
         'blocks.faq'
@@ -1077,6 +1078,7 @@ export interface ApiHackathonPageHackathonPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.number-tiles',
         'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
@@ -1395,6 +1397,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
         'blocks.carousel',
         'blocks.faq'
