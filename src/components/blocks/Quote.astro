@@ -114,7 +114,9 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
               )}
             </a>
           ) : (
-            <cite class:list={['not-italic text-neutral-900', authorTypeClasses]}>
+            <cite
+              class:list={['not-italic text-neutral-900', authorTypeClasses]}
+            >
               {authorName}
             </cite>
           ))}
