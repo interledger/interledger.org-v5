@@ -62,13 +62,24 @@ const hasApply = Boolean(
 >
   {
     /*
-    Default 2 columns from tablet; when Apply is present (Strapi prop or MDX
-    child with data-event-column="apply"), expand to 3. Vertical dividers
-    between columns match the light-mode design.
+    Mobile: single column, gap only — no divider lines between When/Where/Apply.
+    Tablet+: multi-column with vertical rules only (never horizontal/stack dividers).
+    When Apply is present, expand to 3 columns.
   */
   }
   <div
-    class="grid grid-cols-1 gap-xl tablet:grid-cols-2 tablet:gap-0 tablet:divide-x tablet:divide-neutral-50 tablet:has-[[data-event-column=apply]]:grid-cols-3 tablet:[&>[data-event-column]]:px-xl tablet:[&>[data-event-column]:first-child]:ps-0 tablet:[&>[data-event-column]:last-child]:pe-0"
+    class:list={[
+      'grid grid-cols-1 gap-xl',
+      'tablet:grid-cols-2 tablet:gap-0',
+      'tablet:has-[[data-event-column=apply]]:grid-cols-3',
+      // Vertical separators between columns from tablet up only
+      'tablet:[&>[data-event-column]+[data-event-column]]:border-s',
+      'tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-50',
+      // Column padding when side-by-side; outer edges flush with card padding
+      'tablet:[&>[data-event-column]]:px-xl',
+      'tablet:[&>[data-event-column]:first-child]:ps-0',
+      'tablet:[&>[data-event-column]:last-child]:pe-0'
+    ]}
   >
     {
       fromStrapi ? (
