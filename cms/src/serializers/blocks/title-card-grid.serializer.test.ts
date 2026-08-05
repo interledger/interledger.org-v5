@@ -111,9 +111,7 @@ describe('title-card-grid serializer', () => {
     expect(result).toMatch(/\n<\/TitleCard>/)
     expect(result).not.toMatch(/[ \t]<\/TitleCard>/)
     // Blank line after description terminates the list before the close tag.
-    expect(result).toContain(
-      'Interdisciplinary research\n\n</TitleCard>'
-    )
+    expect(result).toContain('Interdisciplinary research\n\n</TitleCard>')
   })
 
   it('escapes MDX braces in description', () => {
