@@ -107,6 +107,7 @@ paragraph checks prose, lists, [inline links](/grants), and footnotes.[^grant-de
 - Blockquote
 - Video embed
 - Image block
+- Card grid (**Info** cards only on this content type)
 - In-body CTA strip
 - Logo carousel
 - Profile grid
@@ -121,6 +122,25 @@ paragraph checks prose, lists, [inline links](/grants), and footnotes.[^grant-de
   link="/grants"
   style="secondary"
 />
+
+<CardGrid
+  ariaLabel="Demo information cards"
+  variant="Info"
+  columns="Three"
+>
+  <InfoCard heading="Who can apply">
+    Individuals, teams, and organizations with a clear plan to advance open
+    payment infrastructure or digital financial inclusion.
+  </InfoCard>
+  <InfoCard heading="What we look for">
+    A problem statement, who benefits, milestones, budget, and how open outputs
+    will be shared.
+  </InfoCard>
+  <InfoCard heading="How to prepare">
+    Draft a short proposal before starting the form so eligibility and impact
+    are easy to evaluate.
+  </InfoCard>
+</CardGrid>
 
 <SplitLayout
   layoutType="image-text"

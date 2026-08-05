@@ -49,7 +49,7 @@ Included body blocks:
 - Paragraph
 - Split layout
 - Number tiles
-- Card grid (Title, Resource, Info, Navigation)
+- Card grid (**Title** cards only on this content type)
 - Blockquote
 - Video embed
 - Image block
@@ -130,76 +130,34 @@ hierarchy and spacing hold up on a long overview page.
     For emerging leaders across technology, policy, research, or community
     implementation.
   </TitleCard>
-</CardGrid>
-
-<CardGrid
-  ariaLabel="Demo resource cards"
-  variant="Resource"
-  columns="Three"
->
-  <ResourceCard
-    heading="Application guide"
-    buttonText="Open PDF"
-    buttonUrl="/documents/2025-application-guide.pdf"
-    buttonDocument={true}
+  <TitleCard
+    heading="Enable"
+    subheading="Shape conditions for participation"
+    buttonUrl="/grant/public-policy-activation"
+    buttonText="See Policy Activation"
+    buttonExternal={false}
   >
-    Placeholder resource card for downloadable guides, forms, and reports that
-    need clear document labels.
-  </ResourceCard>
-  <ResourceCard
-    heading="Program notes"
-    buttonText="Read updates"
-    buttonUrl="/blog"
+    For organizations working with regulators and institutions to make open
+    financial systems viable in practice.
+  </TitleCard>
+  <TitleCard
+    heading="Create"
+    subheading="Envision a more equitable future"
+    buttonUrl="/contact"
+    buttonText="See creative grants"
+    buttonExternal={false}
   >
-    Use resource cards for shorter updates that point applicants to deeper
-    reading without repeating the title cards.
-  </ResourceCard>
-  <ResourceCard
-    heading="External reference"
-    buttonText="Visit site"
-    buttonUrl="https://interledger.org"
-    buttonExternal={true}
-  >
-    External resource cards should open in a new tab and keep supporting text
-    readable across three columns.
-  </ResourceCard>
-</CardGrid>
-
-<CardGrid ariaLabel="Demo information cards" variant="Info" columns="Three">
-  <InfoCard heading="Who we fund">
-    Builders, educators, researchers, and advocates expanding access to digital
-    financial systems.
-  </InfoCard>
-  <InfoCard heading="What to expect">
-    Clear criteria, fixed review windows, and public reporting on supported
-    work where appropriate.
-  </InfoCard>
-  <InfoCard heading="How to prepare">
-    Define the problem, who benefits, milestones, and how open standards or
-    open-source outputs will be shared.
-  </InfoCard>
-</CardGrid>
-
-<CardGrid
-  ariaLabel="Demo navigation cards"
-  variant="Navigation"
-  columns="Three"
->
-  <NavigationCard
-    heading="Individual grant programs"
-    buttonText="Open grant demo"
+    For artists and makers challenging assumptions built into financial systems.
+  </TitleCard>
+  <TitleCard
+    heading="Demo grant page"
+    subheading="Individual program template"
     buttonUrl="/grant/demo-grant-page"
-  />
-  <NavigationCard
-    heading="Primary grantmaking hub"
-    buttonText="Our grantmaking"
-    buttonUrl="/grant/our-grantmaking"
-  />
-  <NavigationCard
-    heading="Stay in the loop"
-    buttonText="Subscribe"
-    buttonUrl="/subscribe"
-  />
+    buttonText="Open grant demo"
+    buttonExternal={false}
+  >
+    Jump to the individual grant-page demo (Info card grids only on that type).
+  </TitleCard>
 </CardGrid>
 
 <SplitLayout
