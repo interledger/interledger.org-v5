@@ -92,7 +92,9 @@ function findCardGridRoot(
   for (let level = 0; level < 20; level++) {
     const parent = node.parentElement
     if (!parent) break
-    if (countCardFieldsWithin(prefix, parent, cardFields) >= cardFields.length) {
+    if (
+      countCardFieldsWithin(prefix, parent, cardFields) >= cardFields.length
+    ) {
       return parent
     }
     node = parent
