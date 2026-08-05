@@ -12,7 +12,7 @@
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { useTranslations } from '@/utils'
+import { isSafeMarkdownHref, useTranslations } from '@/utils'
 
 interface StrapiMedia {
   url?: string
@@ -56,8 +56,13 @@ function resolveImage(image: Props['authorImage']): {
 }
 
 const image = resolveImage(authorImage)
-// Image-2 layout: portrait and/or link sit above the quote.
-const authorAbove = Boolean(image || authorLink)
+// Editor-supplied links (Strapi/MDX) must pass the same scheme allowlist used
+// for markdown hrefs — reject javascript:/data:/etc. before rendering or
+// deciding layout so an unsafe link cannot open an empty attribution row.
+const safeAuthorLink =
+  authorLink && isSafeMarkdownHref(authorLink) ? authorLink.trim() : undefined
+// Image-2 layout: portrait and/or safe link sit above the quote.
+const authorAbove = Boolean(image || safeAuthorLink)
 // Image-1 layout: name-only attribution under the quote with an en dash.
 const authorBelow = Boolean(authorName && !authorAbove)
 const isExternal = (href: string) => /^https?:\/\//i.test(href)
@@ -85,12 +90,14 @@ const authorLinkClasses =
           />
         )}
         {authorName &&
-          (authorLink ? (
+          (safeAuthorLink ? (
             <a
-              href={authorLink}
+              href={safeAuthorLink}
               class={authorLinkClasses}
-              rel={isExternal(authorLink) ? 'noopener noreferrer' : undefined}
-              target={isExternal(authorLink) ? '_blank' : undefined}
+              rel={
+                isExternal(safeAuthorLink) ? 'noopener noreferrer' : undefined
+              }
+              target={isExternal(safeAuthorLink) ? '_blank' : undefined}
               data-umami-event="quote-author-link"
               data-umami-event-page={umamiContext}
             >
@@ -100,7 +107,7 @@ const authorLinkClasses =
                 class="size-5 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              {isExternal(authorLink) && (
+              {isExternal(safeAuthorLink) && (
                 <span class="sr-only">{t('quote.external_link')}</span>
               )}
             </a>
@@ -109,12 +116,12 @@ const authorLinkClasses =
               {authorName}
             </cite>
           ))}
-        {!authorName && authorLink && (
+        {!authorName && safeAuthorLink && (
           <a
-            href={authorLink}
+            href={safeAuthorLink}
             class={authorLinkClasses}
-            rel={isExternal(authorLink) ? 'noopener noreferrer' : undefined}
-            target={isExternal(authorLink) ? '_blank' : undefined}
+            rel={isExternal(safeAuthorLink) ? 'noopener noreferrer' : undefined}
+            target={isExternal(safeAuthorLink) ? '_blank' : undefined}
             aria-label={t('quote.author_link_label')}
           >
             <Icon
