@@ -1335,7 +1335,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.event-card-apply': {
       title: 'Required. Column heading, e.g. "Apply".',
       text: 'Optional supporting copy shown under the title.',
-      primaryCta: 'Required. Primary button label, URL, and internal/external flag.'
+      primaryCta:
+        'Required. Primary button label, URL, and internal/external flag.'
     }
   }
 
