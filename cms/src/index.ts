@@ -159,32 +159,32 @@ interface EditLayoutField {
   size: number
 }
 
+interface CmConfiguration {
+  settings?: Record<string, unknown>
+  metadatas?: Record<string, FieldMetadata>
+  layouts?: {
+    list?: unknown[]
+    edit?: EditLayoutField[][]
+  }
+  options?: Record<string, unknown>
+}
+
 interface CmContentTypesService {
-  findConfiguration: (obj: { uid: string }) => Promise<{
-    metadatas?: Record<string, FieldMetadata>
-    layouts?: { edit?: EditLayoutField[][] }
-  } | null>
+  findConfiguration: (obj: { uid: string }) => Promise<CmConfiguration | null>
   updateConfiguration: (
     obj: { uid: string },
-    config: {
-      metadatas?: Record<string, FieldMetadata>
-      layouts?: { edit?: EditLayoutField[][] }
-    }
+    config: CmConfiguration
   ) => Promise<void>
 }
 
 interface CmComponentsService {
   findComponent: (uid: string) => { uid: string } | null
-  findConfiguration: (component: { uid: string }) => Promise<{
-    metadatas?: Record<string, FieldMetadata>
-    layouts?: { edit?: EditLayoutField[][] }
-  } | null>
+  findConfiguration: (component: {
+    uid: string
+  }) => Promise<CmConfiguration | null>
   updateConfiguration: (
     component: { uid: string },
-    config: {
-      metadatas?: Record<string, FieldMetadata>
-      layouts?: { edit?: EditLayoutField[][] }
-    }
+    config: CmConfiguration
   ) => Promise<void>
 }
 
@@ -1074,6 +1074,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Section Heading',
       items: 'Questions'
     },
+    'blocks.faq': {
+      heading: 'Heading',
+      items: 'Questions'
+    },
     'blocks.faq-item': {
       question: 'Question',
       answer: 'Answer'
@@ -1127,6 +1131,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       prefix: 'Prefix (currency)',
       suffix: 'Suffix',
       description: 'Description'
+    },
+    'blocks.agenda': {
+      heading: 'Heading (optional)',
+      items: 'Agenda items (minimum 2)'
+    },
+    'blocks.agenda-item': {
+      time: 'Time',
+      activity: 'Activity',
+      additionalInfo: 'Additional information'
     },
 
     'blocks.cta-strip': {
@@ -1263,6 +1276,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
+    'blocks.faq': {
+      heading:
+        'Optional. Shown above the questions. Leave blank to run the questions straight on from the content above. At least 1 question is required below.'
+    },
     'blocks.faq-item': {
       question: 'Required.',
       answer: 'Required.'
@@ -1321,6 +1338,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       prefix:
         'Optional symbol shown tight against the front of the number, e.g. "$" for a monetary amount.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
+    },
+    'blocks.agenda': {
+      heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     }
   }
 
@@ -1423,6 +1443,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
  * default auto-layout isn't ideal. Rows are arrays of { name, size } with
  * max row size 12 (12 = full width, 6 = half, 3 = quarter, etc.).
  */
+export function buildLayoutConfiguration(
+  current: CmConfiguration | null | undefined,
+  edit: EditLayoutField[][],
+  settings: Record<string, unknown> = {}
+): CmConfiguration {
+  return {
+    settings: { ...current?.settings, ...settings },
+    metadatas: current?.metadatas ?? {},
+    layouts: { ...current?.layouts, edit },
+    ...(current?.options ? { options: current.options } : {})
+  }
+}
+
 async function configureLayouts(strapi: StrapiInstance) {
   const plugin = strapi.plugin('content-manager')
   if (!plugin) return
@@ -1578,6 +1611,17 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'description', size: 12 }]
     ],
+    'blocks.agenda': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
+    'blocks.agenda-item': [
+      [
+        { name: 'time', size: 6 },
+        { name: 'activity', size: 6 }
+      ],
+      [{ name: 'additionalInfo', size: 12 }]
+    ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'media', size: 12 }],
@@ -1693,6 +1737,9 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ]
   }
+  const componentMainFields: Record<string, string> = {
+    'blocks.agenda-item': 'time'
+  }
 
   const contentTypeService = plugin.service('content-types') as
     | CmContentTypesService
@@ -1709,7 +1756,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       const current = await contentTypeService?.findConfiguration({ uid })
       await contentTypeService?.updateConfiguration(
         { uid },
-        { layouts: { ...current?.layouts, edit: editLayout } }
+        buildLayoutConfiguration(current, editLayout)
       )
       strapi.log.info(`✅ Updated layout for ${uid}`)
     } catch (error) {
@@ -1724,7 +1771,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       const current = await componentService?.findConfiguration({ uid })
       await componentService?.updateConfiguration(
         { uid },
-        { layouts: { ...current?.layouts, edit: editLayout } }
+        buildLayoutConfiguration(
+          current,
+          editLayout,
+          componentMainFields[uid]
+            ? { mainField: componentMainFields[uid] }
+            : undefined
+        )
       )
       strapi.log.info(`✅ Updated layout for ${uid}`)
     } catch (error) {

@@ -49,9 +49,12 @@
       "components": [
         "blocks.paragraph",
         "blocks.card-grid",
+        "blocks.number-tiles",
+        "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",
-        "blocks.carousel"
+        "blocks.carousel",
+        "blocks.faq"
       ],
       "pluginOptions": {
         "i18n": {

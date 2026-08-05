@@ -845,9 +845,12 @@ export async function buildReportPayload(
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
   'blocks.card-grid',
+  'blocks.number-tiles',
+  'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',
-  'blocks.carousel'
+  'blocks.carousel',
+  'blocks.faq'
 ] as const
 
 /**

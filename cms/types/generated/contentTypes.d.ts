@@ -738,14 +738,17 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1077,9 +1080,12 @@ export interface ApiHackathonPageHackathonPage
       [
         'blocks.paragraph',
         'blocks.card-grid',
+        'blocks.number-tiles',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1385,14 +1391,17 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

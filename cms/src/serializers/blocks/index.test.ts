@@ -62,6 +62,45 @@ describe('validateContentBlocks', () => {
     expect(err).toBeDefined()
   })
 
+  it('accepts an agenda block with at least two complete items', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.agenda',
+        items: [
+          {
+            time: '8:30 am',
+            activity: 'Registration',
+            additionalInfo: 'Breakfast is available.'
+          },
+          {
+            time: '9:30 am',
+            activity: 'Welcome',
+            additionalInfo: 'An overview of the day.'
+          }
+        ]
+      }
+    ])
+
+    expect(err).toBeUndefined()
+  })
+
+  it('rejects incomplete agenda items with field-level paths', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.agenda',
+        items: [
+          { time: '8:30 am', activity: 'Registration' },
+          { time: '9:30 am', additionalInfo: 'An overview of the day.' }
+        ]
+      }
+    ])
+
+    expect(err?.details.errors.map((error) => error.path)).toEqual([
+      ['content', '0', 'items', '0', 'additionalInfo'],
+      ['content', '0', 'items', '1', 'activity']
+    ])
+  })
+
   it('prefixes a SerializerFieldError path with the content dynamic zone field and the block index, so the admin UI can highlight it', () => {
     const err = validateContentBlocks([
       { __component: 'blocks.paragraph', content: 'First block, valid.' },

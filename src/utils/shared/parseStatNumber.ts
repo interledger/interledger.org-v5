@@ -14,3 +14,53 @@ export function parseStatNumber(text: string): number | null {
 export function formatStatNumber(value: number): string {
   return value.toLocaleString('en-US')
 }
+
+/**
+ * Expands free-text number-tile suffixes that screen readers mangle
+ * (e.g. "M+" → "million plus"). Unknown suffixes pass through unchanged.
+ */
+function expandStatSuffix(suffix: string): string {
+  const expansions: Record<string, string> = {
+    'M+': 'million plus',
+    M: 'million',
+    'K+': 'thousand plus',
+    K: 'thousand',
+    'B+': 'billion plus',
+    B: 'billion',
+    '+': 'plus'
+  }
+  return expansions[suffix] ?? suffix
+}
+
+/**
+ * Builds a screen-reader label for a freeform NumberTiles entry.
+ *
+ * Returns `undefined` when there is no prefix/suffix so StatCard can fall back
+ * to reading the visible number + description. When affixes are present (e.g.
+ * "$" + "M+"), expands common forms so engines don't say "M plus" or skip "$".
+ *
+ * Reading order mirrors the homepage stats pattern:
+ * `21 million plus dollars In Grants` for `$` + `21` + `M+` + `In Grants`.
+ */
+export function buildNumberTileAriaLabel(
+  display: string,
+  description: string,
+  prefix?: string,
+  suffix?: string
+): string | undefined {
+  if (!prefix && !suffix) return undefined
+
+  const parts: string[] = []
+  if (prefix && prefix !== '$') {
+    parts.push(prefix)
+  }
+  parts.push(display)
+  if (suffix) {
+    parts.push(expandStatSuffix(suffix))
+  }
+  if (prefix === '$') {
+    parts.push('dollars')
+  }
+  parts.push(description)
+  return parts.join(' ').replace(/\s+/g, ' ').trim()
+}

@@ -29,6 +29,8 @@ import {
   sanitizeCardGridsInContent,
   sanitizeCardGridsInDocumentData
 } from './card-grid.serializer'
+import { serialize as agenda } from './agenda.serializer'
+import { serialize as faq } from './faq.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 
 export { sanitizeCardGridsInDocumentData }
@@ -38,6 +40,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
   'blocks.number-tiles': numberTiles,
+  'blocks.agenda': agenda,
 
   'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,
@@ -52,6 +55,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.code-block': codeBlock,
   'blocks.split-layout': splitLayout,
   'blocks.card-grid': cardGrid,
+  'blocks.faq': faq,
   'shared.cta-link': ctaLink
 }
 

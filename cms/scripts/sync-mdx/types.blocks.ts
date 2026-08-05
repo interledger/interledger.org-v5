@@ -217,6 +217,17 @@ export interface NumberTilesBlock extends StrapiBlockBase {
   }[]
 }
 
+/** blocks.agenda — an optional heading followed by at least two scheduled items. */
+export interface AgendaBlock extends StrapiBlockBase {
+  __component: 'blocks.agenda'
+  heading?: string
+  items: {
+    time: string
+    activity: string
+    additionalInfo: string
+  }[]
+}
+
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
 export interface CtaLinkBlock extends StrapiBlockBase {
   __component: 'shared.cta-link'
@@ -233,6 +244,20 @@ export type CardGridBlock = StrapiBlockBase & {
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
 } & Partial<Record<CardGridCardsField, CardGridCard[]>>
+
+/** blocks.faq-item — entry in faq's repeatable `items` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface FaqItem {
+  question: string
+  /** Rich text (CKEditor `basicMarkdownPreset`), stored as markdown. */
+  answer: string
+}
+
+/** blocks.faq — accordion of question/answer pairs under an optional heading. */
+export interface FaqBlock extends StrapiBlockBase {
+  __component: 'blocks.faq'
+  heading?: string
+  items: FaqItem[]
+}
 
 // ---------------------------------------------------------------------------
 // Union
@@ -254,4 +279,6 @@ export type ParsedBlock =
   | ImageBlockBlock
   | NumberTilesBlock
   | CardGridBlock
+  | AgendaBlock
+  | FaqBlock
   | CtaLinkBlock

@@ -1,5 +1,79 @@
 import type { Schema, Struct } from '@strapi/strapi'
 
+export interface BlocksAgenda extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_agendas'
+  info: {
+    description: 'A schedule with an optional heading and at least two agenda items'
+    displayName: 'Agenda'
+    icon: 'calendar'
+  }
+  attributes: {
+    heading: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.agenda-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 2
+        },
+        number
+      >
+  }
+}
+
+export interface BlocksAgendaItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_agenda_items'
+  info: {
+    description: 'A scheduled activity with its time and supporting information'
+    displayName: 'Agenda Item'
+    icon: 'clock'
+  }
+  attributes: {
+    activity: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    additionalInfo: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    time: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksBlockquote extends Struct.ComponentSchema {
   collectionName: 'components_blocks_blockquotes'
   info: {
@@ -364,6 +438,35 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
           localized: true
         }
       }>
+  }
+}
+
+export interface BlocksFaq extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faqs'
+  info: {
+    displayName: 'FAQ'
+    icon: 'question'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.faq-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
   }
 }
 
@@ -1337,6 +1440,8 @@ export interface SharedSection extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blocks.agenda': BlocksAgenda
+      'blocks.agenda-item': BlocksAgendaItem
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
@@ -1347,6 +1452,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.faq': BlocksFaq
       'blocks.faq-item': BlocksFaqItem
       'blocks.faq-section': BlocksFaqSection
       'blocks.grant-faq-item': BlocksGrantFaqItem
