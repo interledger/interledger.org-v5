@@ -21,6 +21,10 @@ import TitleCard from '@/components/shared/TitleCard.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
+import EventCard from '@/components/blocks/EventCard.astro'
+import EventWhen from '@/components/shared/EventWhen.astro'
+import EventWhere from '@/components/shared/EventWhere.astro'
+import EventApply from '@/components/shared/EventApply.astro'
 
 interface Props {
   slug: string
@@ -116,6 +120,10 @@ if (isNotFound) return Astro.redirect('/404')
               TitleCard,
               Faq,
               FaqItem,
+              EventCard,
+              EventWhen,
+              EventWhere,
+              EventApply,
               LogoCarousel
             }}
           />

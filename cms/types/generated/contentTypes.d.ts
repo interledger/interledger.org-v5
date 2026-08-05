@@ -748,7 +748,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.number-tiles',
         'blocks.title-card-grid',
         'blocks.carousel',
-        'blocks.faq'
+        'blocks.faq',
+        'blocks.event-card'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1084,7 +1085,8 @@ export interface ApiHackathonPageHackathonPage
         'blocks.profile-grid',
         'blocks.title-card-grid',
         'blocks.carousel',
-        'blocks.faq'
+        'blocks.faq',
+        'blocks.event-card'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1400,7 +1402,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.number-tiles',
         'blocks.title-card-grid',
         'blocks.carousel',
-        'blocks.faq'
+        'blocks.faq',
+        'blocks.event-card'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

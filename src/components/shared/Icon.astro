@@ -37,6 +37,9 @@ interface Props {
     | 'close'
     | 'menu'
     | 'check'
+    | 'calendar'
+    | 'clock'
+    | 'map-pin'
   class?: string
 }
 
@@ -160,6 +163,19 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   check: {
     viewBox: '0 0 11 8',
     body: '<path d="M3.094 6.406L9.34 0.139999C9.43333 0.0466661 9.55133 0 9.694 0C9.83667 0 9.95467 0.0466661 10.048 0.139999C10.1413 0.233333 10.188 0.351333 10.188 0.493999C10.188 0.636666 10.1413 0.754666 10.048 0.848L3.659 7.217C3.49767 7.379 3.30933 7.46 3.094 7.46C2.87867 7.46 2.69033 7.379 2.529 7.217L0.14 4.847C0.0466665 4.75367 0 4.636 0 4.494C0 4.352 0.0466665 4.234 0.14 4.14C0.233333 4.046 0.351333 3.99933 0.494 4C0.636667 4.00067 0.754667 4.04733 0.848 4.14L3.094 6.406Z" fill="currentColor"/>'
+  },
+  // Outline icons for EventCard meta rows (Figma line-style; stroke inherits currentColor).
+  calendar: {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75v2.25M16.5 3.75v2.25M3.75 8.25h16.5M5.25 5.25h13.5A1.5 1.5 0 0 1 20.25 6.75v12a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-12a1.5 1.5 0 0 1 1.5-1.5Z"/>'
+  },
+  clock: {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 6.75V12l3 1.5M21 12a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>'
+  },
+  'map-pin': {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 21s6.75-5.25 6.75-10.5a6.75 6.75 0 1 0-13.5 0C5.25 15.75 12 21 12 21Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 12.75a2.25 2.25 0 1 0 0-4.5a2.25 2.25 0 0 0 0 4.5Z"/>'
   }
 }
 

@@ -27,6 +27,7 @@ import { serialize as numberTiles } from './number-tiles.serializer'
 import { serialize as agenda } from './agenda.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
 import { serialize as faq } from './faq.serializer'
+import { serialize as eventCard } from './event-card.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
@@ -50,6 +51,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.split-layout': splitLayout,
   'blocks.title-card-grid': titleCardGrid,
   'blocks.faq': faq,
+  'blocks.event-card': eventCard,
   'shared.cta-link': ctaLink
 }
 

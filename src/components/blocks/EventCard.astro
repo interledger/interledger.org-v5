@@ -1,0 +1,103 @@
+---
+/**
+ * Event Card — full-width When / Where / optional Apply columns.
+ *
+ * One card per use (no multi-card grid). When Apply is omitted, When and Where
+ * expand across the available width (INTORG-891).
+ *
+ * Strapi preview passes structured `when` / `where` / `apply` props.
+ * MDX authoring passes <EventWhen>, <EventWhere>, and optional <EventApply>
+ * as children.
+ */
+import EventWhen from '@/components/shared/EventWhen.astro'
+import EventWhere from '@/components/shared/EventWhere.astro'
+import EventApply from '@/components/shared/EventApply.astro'
+import { useTranslations } from '@/utils'
+
+interface EventWhenData {
+  title: string
+  text?: string
+  date?: string
+  time?: string
+}
+
+interface EventWhereData {
+  title: string
+  text?: string
+  location?: string
+}
+
+interface EventApplyData {
+  title: string
+  text?: string
+  primaryCta: {
+    text: string
+    link: string
+    external?: boolean
+  }
+}
+
+interface Props {
+  when?: EventWhenData
+  where?: EventWhereData
+  apply?: EventApplyData | null
+}
+
+const { when, where, apply } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const fromStrapi = Boolean(when && where)
+const hasApply = Boolean(
+  apply?.title && apply?.primaryCta?.text && apply?.primaryCta?.link
+)
+---
+
+<section
+  data-component="EventCard"
+  aria-label={t('eventCard.block_label')}
+  class:list={[
+    'w-full rounded-3xl border border-neutral-50 bg-white',
+    'px-xl py-xl tablet:px-2xl tablet:py-2xl'
+  ]}
+>
+  {
+    /*
+    Default 2 columns from tablet; when Apply is present (Strapi prop or MDX
+    child with data-event-column="apply"), expand to 3. Vertical dividers
+    between columns match the light-mode design.
+  */
+  }
+  <div
+    class="grid grid-cols-1 gap-xl tablet:grid-cols-2 tablet:gap-0 tablet:divide-x tablet:divide-neutral-50 tablet:has-[[data-event-column=apply]]:grid-cols-3 tablet:[&>[data-event-column]]:px-xl tablet:[&>[data-event-column]:first-child]:ps-0 tablet:[&>[data-event-column]:last-child]:pe-0"
+  >
+    {
+      fromStrapi ? (
+        <>
+          <EventWhen
+            title={when!.title}
+            text={when!.text}
+            date={when!.date}
+            time={when!.time}
+          />
+          <EventWhere
+            title={where!.title}
+            text={where!.text}
+            location={where!.location}
+          />
+          {hasApply && apply && (
+            <EventApply
+              title={apply.title}
+              text={apply.text}
+              buttonText={apply.primaryCta.text}
+              buttonUrl={apply.primaryCta.link}
+              buttonExternal={apply.primaryCta.external}
+            />
+          )}
+        </>
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</section>

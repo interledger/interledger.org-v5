@@ -1,0 +1,44 @@
+{
+  "collectionName": "components_blocks_event_cards",
+  "info": {
+    "displayName": "Event Card",
+    "icon": "calendar",
+    "description": "Full-width event details card with When and Where columns, and an optional Apply column. Use one at a time — there is no grid."
+  },
+  "options": {},
+  "attributes": {
+    "when": {
+      "type": "component",
+      "repeatable": false,
+      "required": true,
+      "component": "blocks.event-card-when",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "where": {
+      "type": "component",
+      "repeatable": false,
+      "required": true,
+      "component": "blocks.event-card-where",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "apply": {
+      "type": "component",
+      "repeatable": false,
+      "required": false,
+      "component": "blocks.event-card-apply",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

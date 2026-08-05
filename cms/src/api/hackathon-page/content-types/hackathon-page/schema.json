@@ -42,7 +42,8 @@
         "blocks.profile-grid",
         "blocks.title-card-grid",
         "blocks.carousel",
-        "blocks.faq"
+        "blocks.faq",
+        "blocks.event-card"
       ],
       "pluginOptions": { "i18n": { "localized": true } }
     }

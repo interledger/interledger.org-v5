@@ -1,0 +1,43 @@
+---
+/**
+ * Event card "Where" column — MDX authoring + internal render from EventCard.
+ */
+import Icon from '@/components/shared/Icon.astro'
+
+interface Props {
+  title: string
+  text?: string
+  location?: string
+}
+
+const { title, text, location } = Astro.props
+
+const hasText = Boolean(text) || Astro.slots.has('default')
+---
+
+<div class="flex min-w-0 flex-col gap-lg" data-event-column="where">
+  <h3
+    class="m-0 font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-100"
+  >
+    {title}
+  </h3>
+
+  {
+    hasText && (
+      <div class="font-poppins text-body-lg-standard text-neutral-100 [&_p]:m-0">
+        <slot>{text}</slot>
+      </div>
+    )
+  }
+
+  {
+    location && (
+      <div class="flex items-start gap-sm text-neutral-100">
+        <Icon name="map-pin" class="mt-0.5 size-5 shrink-0 text-neutral-75" />
+        <p class="m-0 whitespace-pre-line font-poppins text-body-lg-standard">
+          {location}
+        </p>
+      </div>
+    )
+  }
+</div>

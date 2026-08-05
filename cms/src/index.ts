@@ -1108,6 +1108,27 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       activity: 'Activity',
       additionalInfo: 'Additional information'
     },
+    'blocks.event-card': {
+      when: 'When',
+      where: 'Where',
+      apply: 'Apply'
+    },
+    'blocks.event-card-when': {
+      title: 'Title',
+      text: 'Text',
+      date: 'Date',
+      time: 'Time'
+    },
+    'blocks.event-card-where': {
+      title: 'Title',
+      text: 'Text',
+      location: 'Location'
+    },
+    'blocks.event-card-apply': {
+      title: 'Title',
+      text: 'Text',
+      primaryCta: 'Primary CTA button'
+    },
 
     'blocks.cta-strip': {
       heading: 'Heading',
@@ -1293,6 +1314,28 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.agenda': {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
+    },
+    'blocks.event-card': {
+      when: 'This box is intended to explain when an event is taking place.',
+      where: 'This box is intended to explain where an event is taking place.',
+      apply:
+        'Optional. This box is intended for application, registration, or interest actions. When omitted, When and Where expand to fill the card.'
+    },
+    'blocks.event-card-when': {
+      title: 'Required. Column heading, e.g. "When?".',
+      text: 'Optional supporting copy shown under the title.',
+      date: 'Optional. Free-text date range, e.g. "November 8–9, 2025".',
+      time: 'Optional. Free-text duration or start time, e.g. "24h" or "9:00 am".'
+    },
+    'blocks.event-card-where': {
+      title: 'Required. Column heading, e.g. "Where?".',
+      text: 'Optional supporting copy shown under the title.',
+      location: 'Optional. Venue or address; multi-line text is fine.'
+    },
+    'blocks.event-card-apply': {
+      title: 'Required. Column heading, e.g. "Apply".',
+      text: 'Optional supporting copy shown under the title.',
+      primaryCta: 'Required. Primary button label, URL, and internal/external flag.'
     }
   }
 
@@ -1573,6 +1616,29 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'activity', size: 6 }
       ],
       [{ name: 'additionalInfo', size: 12 }]
+    ],
+    'blocks.event-card': [
+      [{ name: 'when', size: 12 }],
+      [{ name: 'where', size: 12 }],
+      [{ name: 'apply', size: 12 }]
+    ],
+    'blocks.event-card-when': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'text', size: 12 }],
+      [
+        { name: 'date', size: 6 },
+        { name: 'time', size: 6 }
+      ]
+    ],
+    'blocks.event-card-where': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'text', size: 12 }],
+      [{ name: 'location', size: 12 }]
+    ],
+    'blocks.event-card-apply': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'text', size: 12 }],
+      [{ name: 'primaryCta', size: 12 }]
     ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
