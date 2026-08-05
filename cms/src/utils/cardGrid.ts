@@ -98,3 +98,44 @@ export const CARD_GRID_VARIANT_CHILDREN = Object.fromEntries(
 ) as Record<CardGridVariant, string>
 
 export const CARD_GRID_VARIANT_LIST_LABEL = `${CARD_GRID_VARIANTS.slice(0, -1).join(', ')}, or ${CARD_GRID_VARIANTS.at(-1)}`
+
+/**
+ * Content-type restrictions for which Card Grid variants editors may pick.
+ * Unlisted UIDs get every variant (foundation, summit, hackathon, etc.).
+ *
+ * Same `blocks.card-grid` component in every dynamic zone — restrictions are
+ * enforced in the admin picker + document validation + MDX sync, not by
+ * forking the component schema.
+ */
+export const CARD_GRID_ALLOWED_VARIANTS_BY_UID: Partial<
+  Record<string, readonly CardGridVariant[]>
+> = {
+  'api::grant-page.grant-page': ['Info'],
+  'api::grant-overview-page.grant-overview-page': ['Title']
+}
+
+export function getAllowedCardGridVariants(
+  contentTypeUid: string | null | undefined
+): readonly CardGridVariant[] {
+  if (!contentTypeUid) return CARD_GRID_VARIANTS
+  return CARD_GRID_ALLOWED_VARIANTS_BY_UID[contentTypeUid] ?? CARD_GRID_VARIANTS
+}
+
+export function formatCardGridVariantList(
+  variants: readonly CardGridVariant[]
+): string {
+  if (variants.length === 0) return ''
+  if (variants.length === 1) return variants[0]!
+  if (variants.length === 2) return `${variants[0]} or ${variants[1]}`
+  return `${variants.slice(0, -1).join(', ')}, or ${variants.at(-1)}`
+}
+
+export function isCardGridVariantAllowed(
+  variant: string,
+  contentTypeUid: string | null | undefined
+): variant is CardGridVariant {
+  if (!(CARD_GRID_VARIANTS as readonly string[]).includes(variant)) return false
+  return getAllowedCardGridVariants(contentTypeUid).includes(
+    variant as CardGridVariant
+  )
+}
