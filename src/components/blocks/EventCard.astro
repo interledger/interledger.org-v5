@@ -62,17 +62,25 @@ const hasApply = Boolean(
 >
   {
     /*
-    Mobile: single column, gap only — no divider lines between When/Where/Apply.
-    Tablet+: multi-column with vertical rules only (never horizontal/stack dividers).
-    When Apply is present, expand to 3 columns.
+    Mobile: stacked columns with horizontal divider lines between sections.
+    Tablet+: side-by-side columns with vertical rules; When Apply is present,
+    expand to 3 columns.
   */
   }
   <div
     class:list={[
-      'grid grid-cols-1 gap-xl',
-      'tablet:grid-cols-2 tablet:gap-0',
+      'grid grid-cols-1',
+      // Mobile: horizontal rules between When / Where / Apply
+      '[&>[data-event-column]:not(:last-child)]:border-b',
+      '[&>[data-event-column]:not(:last-child)]:border-neutral-50',
+      '[&>[data-event-column]:not(:last-child)]:pb-xl',
+      '[&>[data-event-column]:not(:first-child)]:pt-xl',
+      // Tablet+: multi-column, drop horizontal rules, use vertical rules
+      'tablet:grid-cols-2',
       'tablet:has-[[data-event-column=apply]]:grid-cols-3',
-      // Vertical separators between columns from tablet up only
+      'tablet:[&>[data-event-column]:not(:last-child)]:border-b-0',
+      'tablet:[&>[data-event-column]:not(:last-child)]:pb-0',
+      'tablet:[&>[data-event-column]:not(:first-child)]:pt-0',
       'tablet:[&>[data-event-column]+[data-event-column]]:border-s',
       'tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-50',
       // Column padding when side-by-side; outer edges flush with card padding
