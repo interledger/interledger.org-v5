@@ -71,6 +71,22 @@ describe('event-card.serializer', () => {
     expect(mdx).toContain('buttonExternal={true}')
   })
 
+  it('encodes multi-line location as &#10; so the MDX attribute stays single-line', () => {
+    const mdx = serialize({
+      when,
+      where: {
+        title: 'Where?',
+        location: 'InSpark C. Lago Zurich 119\nGranad Miguel Hidalgo\n11529 CDM'
+      }
+    })
+
+    expect(mdx).toContain(
+      'location="InSpark C. Lago Zurich 119&#10;Granad Miguel Hidalgo&#10;11529 CDM"'
+    )
+    // Literal newlines must not appear inside the quoted attribute
+    expect(mdx).not.toMatch(/location="[^"]*\n[^"]*"/)
+  })
+
   it('rejects a missing When title', () => {
     expect(() => serialize({ when: { title: '' }, where })).toThrow(
       SerializerFieldError

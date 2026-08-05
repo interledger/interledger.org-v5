@@ -67,4 +67,24 @@ describe('EventCard round-trip (serialize → parse)', () => {
 
     expect(blocks).toEqual([{ __component: 'blocks.event-card', ...original }])
   })
+
+  it('round-trips a multi-line location address', async () => {
+    const original = {
+      when: { title: 'When?', date: 'November 8–9, 2025' },
+      where: {
+        title: 'Where?',
+        location:
+          'InSpark C. Lago Zurich 119\nGranad Miguel Hidalgo\n11529 Ciudad de Mexico, CDM'
+      }
+    }
+
+    const mdx = serialize(original)
+    // Serializer must not put raw newlines inside the attribute quotes
+    expect(mdx).toContain('&#10;')
+    expect(mdx).not.toMatch(/location="[^"]*\n[^"]*"/)
+
+    const blocks = await parseMdxToBlocks(mdx, enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.event-card', ...original }])
+  })
 })

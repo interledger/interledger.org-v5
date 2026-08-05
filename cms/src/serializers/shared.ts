@@ -4,9 +4,20 @@
 // decodes these entities back to their literal form on import, so the
 // export -> import round-trip is preserved. Printable Unicode (e.g. localized
 // accents) passes through untouched.
+//
+// Newlines are encoded as &#10; so multi-line Strapi text fields (e.g. Event
+// Card location addresses) never emit a literal line break inside a quoted
+// attribute — that breaks some MDX/tooling paths even when micromark accepts it.
 
 const escapeForAttr = (v: string): string =>
-  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  v
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    // Normalize CRLF/CR first so we don't double-encode
+    .replace(/\r\n/g, '&#10;')
+    .replace(/\n/g, '&#10;')
+    .replace(/\r/g, '&#10;')
 
 /** Escapes a string for use in a JSX double-quoted attribute value. */
 export const escDouble = (v: string): string =>
