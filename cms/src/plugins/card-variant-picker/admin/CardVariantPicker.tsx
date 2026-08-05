@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
 import { isCardVariant, type CardVariant } from './variantLabels'
 import { VARIANTS } from './variantIcons'
@@ -6,6 +6,7 @@ import {
   CARD_GRID_FIELD_LABELS,
   CARD_GRID_VARIANT_FIELDS,
   CARD_GRID_VARIANTS,
+  getAllowedCardGridVariants,
   type CardGridCardsField
 } from '../../../utils/cardGrid'
 
@@ -19,11 +20,24 @@ interface InputProps {
   hint?: string
 }
 
-const CARD_FIELDS: CardGridCardsField[] = CARD_GRID_VARIANTS.map(
+const VARIANT_SUFFIX = '.variant'
+
+/** Every card repeatable on the schema — used to show/hide/clear inactive ones. */
+const ALL_CARD_FIELDS: CardGridCardsField[] = CARD_GRID_VARIANTS.map(
   (variant) => CARD_GRID_VARIANT_FIELDS[variant]
 )
 
-const VARIANT_SUFFIX = '.variant'
+/**
+ * Content-manager URLs look like:
+ * /admin/content-manager/collection-types/api::grant-page.grant-page/...
+ */
+function getContentTypeUidFromLocation(): string | null {
+  if (typeof window === 'undefined') return null
+  const match = window.location.pathname.match(
+    /content-manager\/(?:collection|single)-types\/(api::[^/]+)/
+  )
+  return match?.[1] ?? null
+}
 
 function normalizeFieldText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
@@ -51,8 +65,12 @@ function fieldPresentIn(
   )
 }
 
-function countCardFieldsWithin(prefix: string, ancestor: HTMLElement): number {
-  return CARD_FIELDS.filter((fieldKey) =>
+function countCardFieldsWithin(
+  prefix: string,
+  ancestor: HTMLElement,
+  cardFields: CardGridCardsField[]
+): number {
+  return cardFields.filter((fieldKey) =>
     fieldPresentIn(prefix, fieldKey, ancestor)
   ).length
 }
@@ -61,7 +79,10 @@ function countCardFieldsWithin(prefix: string, ancestor: HTMLElement): number {
  * Ancestor that owns this Card Grid instance's fields. Scopes label lookups so
  * a second Card Grid on the same page doesn't steal matches.
  */
-function findCardGridRoot(prefix: string): HTMLElement | null {
+function findCardGridRoot(
+  prefix: string,
+  cardFields: CardGridCardsField[]
+): HTMLElement | null {
   const anchor = document.querySelector<HTMLElement>(
     `[name="${prefix}.ariaLabel"], [name="${prefix}.columns"]`
   )
@@ -71,7 +92,7 @@ function findCardGridRoot(prefix: string): HTMLElement | null {
   for (let level = 0; level < 20; level++) {
     const parent = node.parentElement
     if (!parent) break
-    if (countCardFieldsWithin(prefix, parent) >= CARD_FIELDS.length) {
+    if (countCardFieldsWithin(prefix, parent, cardFields) >= cardFields.length) {
       return parent
     }
     node = parent
@@ -96,7 +117,7 @@ function findFieldAnchor(
 
   return (
     Array.from(root.querySelectorAll<HTMLElement>('label, legend')).find((el) =>
-      labelMatchesField(el, fieldKey)
+      labelMatchesField(el, fieldKey as CardGridCardsField)
     ) ?? null
   )
 }
@@ -108,7 +129,8 @@ function findFieldAnchor(
 function findFieldContainer(
   prefix: string,
   fieldKey: string,
-  root: HTMLElement
+  root: HTMLElement,
+  cardFields: CardGridCardsField[]
 ): HTMLElement | null {
   const anchor = findFieldAnchor(prefix, fieldKey, root)
   if (!anchor) return null
@@ -117,23 +139,27 @@ function findFieldContainer(
   for (let level = 0; level < 15; level++) {
     const parent = node.parentElement
     if (!parent || parent === root.parentElement) break
-    if (countCardFieldsWithin(prefix, parent) > 1) return node
+    if (countCardFieldsWithin(prefix, parent, cardFields) > 1) return node
     node = parent
   }
   return node
 }
 
-function applyCardFieldVisibility(prefix: string, variant: string) {
+function applyCardFieldVisibility(
+  prefix: string,
+  variant: string,
+  cardFields: CardGridCardsField[]
+) {
   const active = CARD_GRID_VARIANT_FIELDS[variant as CardVariant]
   if (!active) return
 
-  const root = findCardGridRoot(prefix) ?? document.body
-  for (const fieldKey of CARD_FIELDS) {
-    const container = findFieldContainer(prefix, fieldKey, root)
+  const root = findCardGridRoot(prefix, cardFields) ?? document.body
+  for (const fieldKey of cardFields) {
+    const container = findFieldContainer(prefix, fieldKey, root, cardFields)
     if (!container) continue
     // Bail if we resolved a shared wrapper — hiding it would conceal every
     // card section, including the active one the editor needs to fill.
-    if (countCardFieldsWithin(prefix, container) > 1) continue
+    if (countCardFieldsWithin(prefix, container, cardFields) > 1) continue
     container.style.display = fieldKey === active ? '' : 'none'
   }
 }
@@ -141,10 +167,11 @@ function applyCardFieldVisibility(prefix: string, variant: string) {
 function clearInactiveCardFields(
   prefix: string,
   variant: CardVariant,
+  cardFields: CardGridCardsField[],
   setFieldValue: (path: string, value: unknown) => void
 ) {
   const active = CARD_GRID_VARIANT_FIELDS[variant]
-  for (const fieldKey of CARD_FIELDS) {
+  for (const fieldKey of cardFields) {
     if (fieldKey !== active) {
       setFieldValue(`${prefix}.${fieldKey}`, [])
     }
@@ -163,25 +190,63 @@ export default function CardVariantPicker({
     : name
   const setFieldValue = useForm('CardVariantPicker', (form) => form.onChange)
 
+  const contentTypeUid = useMemo(() => getContentTypeUidFromLocation(), [])
+  const allowedVariants = useMemo(
+    () => getAllowedCardGridVariants(contentTypeUid),
+    [contentTypeUid]
+  )
+  const pickerVariants = useMemo(
+    () => VARIANTS.filter((variant) => allowedVariants.includes(variant.value)),
+    [allowedVariants]
+  )
+  // Always walk every schema field so Title/Resource/Navigation can be hidden
+  // on grant pages even when only Info is allowed in the picker.
+  const cardFields = ALL_CARD_FIELDS
+  const singleVariant =
+    allowedVariants.length === 1 ? allowedVariants[0]! : null
+
   const handleSelect = (newValue: CardVariant) => {
+    if (!allowedVariants.includes(newValue)) return
     onChange({ target: { name, value: newValue, type: 'string' } })
     // Only clear on explicit variant change — never on mount/remount, which
     // raced form hydration and could wipe cards the editor just added.
-    clearInactiveCardFields(prefix, newValue, setFieldValue)
-    requestAnimationFrame(() => applyCardFieldVisibility(prefix, newValue))
+    clearInactiveCardFields(prefix, newValue, cardFields, setFieldValue)
+    requestAnimationFrame(() =>
+      applyCardFieldVisibility(prefix, newValue, cardFields)
+    )
   }
 
+  // Restricted content types: force the only allowed variant when empty/wrong,
+  // and clear disallowed card arrays so they don't linger in the form.
   useEffect(() => {
-    if (!value || !isCardVariant(value)) return
+    if (!singleVariant) return
+    if (value !== singleVariant) {
+      onChange({ target: { name, value: singleVariant, type: 'string' } })
+    }
+    clearInactiveCardFields(prefix, singleVariant, cardFields, setFieldValue)
+    requestAnimationFrame(() =>
+      applyCardFieldVisibility(prefix, singleVariant, cardFields)
+    )
+  }, [singleVariant, value, name, prefix, cardFields, onChange, setFieldValue])
+
+  useEffect(() => {
+    const activeVariant =
+      value && isCardVariant(value) && allowedVariants.includes(value)
+        ? value
+        : singleVariant
+    if (!activeVariant) return
 
     let debounceId: ReturnType<typeof setTimeout> | undefined
-    const apply = () => applyCardFieldVisibility(prefix, value)
+    const apply = () =>
+      applyCardFieldVisibility(prefix, activeVariant, cardFields)
     const schedule = () => {
       clearTimeout(debounceId)
       debounceId = setTimeout(apply, 50)
     }
 
+    // Apply ASAP, then again after Strapi finishes painting repeatable fields.
     const timeoutId = setTimeout(apply, 80)
+    const timeoutId2 = setTimeout(apply, 250)
 
     // Strapi re-renders repeatable fields when entries are added/removed;
     // re-apply so inactive sections stay hidden.
@@ -190,21 +255,33 @@ export default function CardVariantPicker({
 
     return () => {
       clearTimeout(timeoutId)
+      clearTimeout(timeoutId2)
       clearTimeout(debounceId)
       observer.disconnect()
     }
-  }, [value, prefix])
+  }, [value, prefix, allowedVariants, singleVariant, cardFields])
+
+  // One allowed variant: no picker UI (variant is forced in the effect above).
+  // Return nothing so no helper copy appears under the field.
+  if (singleVariant) {
+    if (error) {
+      return (
+        <p style={{ fontSize: '12px', color: '#D02B20', margin: 0 }}>{error}</p>
+      )
+    }
+    return null
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: `repeat(${Math.min(pickerVariants.length, 4)}, 1fr)`,
           gap: '10px'
         }}
       >
-        {VARIANTS.map((variant) => {
+        {pickerVariants.map((variant) => {
           const isSelected = value === variant.value
           return (
             <button

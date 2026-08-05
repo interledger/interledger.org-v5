@@ -17,6 +17,7 @@ import {
   validateCtaStrip,
   validateBlogFields,
   validateNavigationLabels,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
   LOCALES,
@@ -37,10 +38,7 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
-import {
-  CARD_GRID_VARIANT_DEFINITIONS,
-  CARD_GRID_VARIANT_LIST_LABEL
-} from './utils/cardGrid'
+import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
   CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
@@ -1304,7 +1302,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.card-grid': {
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
-      variant: `All cards in the grid share one type: ${CARD_GRID_VARIANT_LIST_LABEL}.`,
+      // Clear any previously stored helper text for the variant custom field.
+      variant: '',
       columns:
         'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.',
       ...CARD_GRID_ADMIN_FIELD_HINTS
@@ -1800,6 +1799,10 @@ export default {
         validateGrantInfoCards(body),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined
+        ),
+        validateCardGridVariantsForContentType(
+          body,
+          'api::grant-page.grant-page'
         )
       )
     )
@@ -1811,6 +1814,10 @@ export default {
           validateCtaStrip(body),
           validateContentBlocks(
             Array.isArray(body.content) ? body.content : undefined
+          ),
+          validateCardGridVariantsForContentType(
+            body,
+            'api::grant-overview-page.grant-overview-page'
           )
         )
     )

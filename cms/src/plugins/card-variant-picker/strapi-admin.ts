@@ -1,5 +1,3 @@
-import { CARD_GRID_VARIANT_LIST_LABEL } from '../../utils/cardGrid'
-
 export default {
   register(app: {
     customFields: { register: (config: Record<string, unknown>) => void }
@@ -11,10 +9,6 @@ export default {
       intlLabel: {
         id: 'card-variant-picker.card-variant.label',
         defaultMessage: 'Card variant'
-      },
-      intlDescription: {
-        id: 'card-variant-picker.card-variant.description',
-        defaultMessage: `All cards in the grid share one type: ${CARD_GRID_VARIANT_LIST_LABEL}.`
       },
       components: {
         Input: async () => import('./admin/CardVariantPicker')
