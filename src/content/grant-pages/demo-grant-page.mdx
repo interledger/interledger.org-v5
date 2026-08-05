@@ -107,27 +107,32 @@ paragraph checks prose, lists, [inline links](/grants), and footnotes.[^grant-de
 - Blockquote
 - Video embed
 - Image block
-- Card grid (**Info** cards only on this content type)
+- **Card grid** — **Info** cards only (Title / Resource / Navigation are not
+  available on grant pages)
 - In-body CTA strip
 - Logo carousel
 - Profile grid
 - CTA link
 
+Also preview frontmatter sections above the body: program overview, primary
+CTA, fixed three-up info cards, FAQ, and the required closing CTA strip.
+
 [^grant-demo]: Demo footnote for validating grant-page paragraph footnotes.
 
 </Paragraph>
 
-<CtaLink
-  text="Secondary CTA link"
-  link="/grants"
-  style="secondary"
-/>
+<CtaLink text="Secondary CTA link" link="/grants" style="secondary" />
 
-<CardGrid
-  ariaLabel="Demo information cards"
-  variant="Info"
-  columns="Three"
->
+<Paragraph>
+
+## Card grid (Info only)
+
+Grant program pages only allow the Info variant of Card Grid. Use short
+headings and markdown body copy (including lists).
+
+</Paragraph>
+
+<CardGrid ariaLabel="Demo information cards" variant="Info" columns="Three">
   <InfoCard heading="Who can apply">
     Individuals, teams, and organizations with a clear plan to advance open
     payment infrastructure or digital financial inclusion.
@@ -139,6 +144,21 @@ paragraph checks prose, lists, [inline links](/grants), and footnotes.[^grant-de
   <InfoCard heading="How to prepare">
     Draft a short proposal before starting the form so eligibility and impact
     are easy to evaluate.
+  </InfoCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Demo information cards two-up"
+  variant="Info"
+  columns="Two"
+>
+  <InfoCard heading="Funding range">
+    Demo figures only — typical sample ranges might be up to $50,000 depending
+    on scope and timeline.
+  </InfoCard>
+  <InfoCard heading="Timeline">
+    Most programs run on a published review calendar. Confirm dates on the live
+    program page before applying.
   </InfoCard>
 </CardGrid>
 

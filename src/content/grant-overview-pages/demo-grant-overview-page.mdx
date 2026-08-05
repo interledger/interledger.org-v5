@@ -49,12 +49,16 @@ Included body blocks:
 - Paragraph
 - Split layout
 - Number tiles
-- Card grid (**Title** cards only on this content type)
+- **Card grid** — **Title** cards only (Info / Resource / Navigation are not
+  available on grant overview pages)
 - Blockquote
 - Video embed
 - Image block
 - In-body CTA strip
 - Logo carousel
+
+Also preview frontmatter: hero, required closing CTA strip, and follow-up
+content below the strip.
 
 [^overview-demo]: Demo footnote for validating overview-page paragraph footnotes.
 
@@ -79,7 +83,12 @@ layout checks image + body + CTA balance on a grant hub page.
 
 <NumberTiles
   tiles={[
-    { number: '21', prefix: '$', suffix: 'M+', description: 'In grants (demo)' },
+    {
+      number: '21',
+      prefix: '$',
+      suffix: 'M+',
+      description: 'In grants (demo)'
+    },
     {
       number: '300',
       suffix: '+',
@@ -92,14 +101,14 @@ layout checks image + body + CTA balance on a grant hub page.
 
 <Paragraph>
 
-## Program pathways
+## Card grid (Title only)
 
-Use short section intros between major blocks so editors can see how heading
-hierarchy and spacing hold up on a long overview page.
+Grant overview pages only allow the Title variant of Card Grid — the same
+component as foundation, with Resource / Info / Navigation unavailable here.
 
 </Paragraph>
 
-<CardGrid ariaLabel="Demo title cards" variant="Title" columns="Three">
+<CardGrid ariaLabel="Demo title cards two-up" variant="Title" columns="Two">
   <TitleCard
     heading="Build"
     subheading="Create open payment systems"
@@ -120,6 +129,9 @@ hierarchy and spacing hold up on a long overview page.
     For educators, universities, and students building skills in open payments
     and financial inclusion.
   </TitleCard>
+</CardGrid>
+
+<CardGrid ariaLabel="Demo title cards three-up" variant="Title" columns="Three">
   <TitleCard
     heading="Lead"
     subheading="Drive long-term systems work"
@@ -150,6 +162,16 @@ hierarchy and spacing hold up on a long overview page.
     For artists and makers challenging assumptions built into financial systems.
   </TitleCard>
   <TitleCard
+    heading="Research"
+    subheading="Understand systems and barriers"
+    buttonUrl="/contact"
+    buttonText="Contact us"
+    buttonExternal={false}
+  >
+    For researchers analysing infrastructure, regulation, access, and how
+    financial systems operate across different contexts.
+  </TitleCard>
+  <TitleCard
     heading="Demo grant page"
     subheading="Individual program template"
     buttonUrl="/grant/demo-grant-page"
@@ -157,6 +179,15 @@ hierarchy and spacing hold up on a long overview page.
     buttonExternal={false}
   >
     Jump to the individual grant-page demo (Info card grids only on that type).
+  </TitleCard>
+  <TitleCard
+    heading="Live grantmaking hub"
+    subheading="Production overview"
+    buttonUrl="/grant/our-grantmaking"
+    buttonText="Our grantmaking"
+    buttonExternal={false}
+  >
+    Compare this demo against the live our-grantmaking page layout.
   </TitleCard>
 </CardGrid>
 
