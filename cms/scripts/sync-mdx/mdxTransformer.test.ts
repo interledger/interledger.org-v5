@@ -2421,8 +2421,28 @@ describe('buildHackathonPagePayload', () => {
   // The allow-list is only enforced on the parserCtx-gated path (real syncs
   // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
   describe('allowed component enforcement', () => {
-    it('accepts <Paragraph> and <NumberTiles>, the allowed components', async () => {
+    it('accepts a Paragraph block', async () => {
       await import('./paragraphHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: '<Paragraph>Hello hackathon.</Paragraph>'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('accepts a NumberTiles block', async () => {
       await import('./numberTilesHandler')
       const parserCtx = { locale: 'en' }
 
@@ -2430,7 +2450,6 @@ describe('buildHackathonPagePayload', () => {
         pathSlug: 'overview',
         frontmatter: baseHackathonPageFrontmatter,
         content:
-          '<Paragraph>Hello hackathon.</Paragraph>\n' +
           "<NumberTiles tiles={[{ number: '21', description: 'Teams' }, { number: '300', description: 'Participants' }]} />"
       })
 
@@ -2441,7 +2460,6 @@ describe('buildHackathonPagePayload', () => {
         parserCtx
       )
       expect((payload as Record<string, unknown>).content).toEqual([
-        { __component: 'blocks.paragraph', content: 'Hello hackathon.' },
         {
           __component: 'blocks.number-tiles',
           tiles: [
