@@ -10,6 +10,11 @@ export default {
         id: 'card-variant-picker.card-variant.label',
         defaultMessage: 'Card variant'
       },
+      intlDescription: {
+        id: 'card-variant-picker.card-variant.description',
+        defaultMessage:
+          'Choose which card type this grid displays. Only one variant per grid.'
+      },
       components: {
         Input: async () => import('./admin/CardVariantPicker')
       }
