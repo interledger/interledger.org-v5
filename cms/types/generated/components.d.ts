@@ -411,7 +411,7 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
 export interface BlocksEventCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_cards'
   info: {
-    description: 'Full-width event details card with When and Where columns, and an optional Apply column. Use one at a time — there is no grid.'
+    description: 'Full-width event details card with When and Where columns, and an optional Apply column. Use one at a time \u2014 there is no grid.'
     displayName: 'Event Card'
     icon: 'calendar'
   }
@@ -442,19 +442,13 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
 export interface BlocksEventCardApply extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_card_applies'
   info: {
-    description: 'Application, registration, or interest actions (title and primary CTA required; text optional)'
-    displayName: 'Event Card — Apply'
+    description: 'Application, registration, or interest actions (title and primary CTA required)'
+    displayName: 'Event Card \u2014 Apply'
     icon: 'cursor'
   }
   attributes: {
     primaryCta: Schema.Attribute.Component<'shared.primary-cta-link', false> &
       Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    text: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -474,7 +468,7 @@ export interface BlocksEventCardWhen extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_card_whens'
   info: {
     description: 'When an event is taking place (title required; text, date, and time optional)'
-    displayName: 'Event Card — When'
+    displayName: 'Event Card \u2014 When'
     icon: 'calendar'
   }
   attributes: {
@@ -510,7 +504,7 @@ export interface BlocksEventCardWhere extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_card_wheres'
   info: {
     description: 'Where an event is taking place (title required; text and location optional)'
-    displayName: 'Event Card — Where'
+    displayName: 'Event Card \u2014 Where'
     icon: 'pinMap'
   }
   attributes: {

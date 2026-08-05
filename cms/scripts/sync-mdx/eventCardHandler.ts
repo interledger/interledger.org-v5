@@ -5,13 +5,12 @@
  * - <EventCard>
  *     <EventWhen title="…" date="…" time="…">optional text</EventWhen>
  *     <EventWhere title="…" location="…">optional text</EventWhere>
- *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool}>
- *       optional text
- *     </EventApply>
+ *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool} />
  *   </EventCard>
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
- * optional. Optional body text on each column comes from JSX children.
+ * optional. Optional body text is only on When/Where (JSX children). Apply has
+ * title + primary CTA only — no text field.
  */
 
 import type {
@@ -69,9 +68,8 @@ function parseApply(node: JsxBlockNode): EventCardApply {
   const buttonText = getStringAttr(node, 'buttonText', { required: true })
   const buttonUrl = getStringAttr(node, 'buttonUrl', { required: true })
   const buttonExternal = getBooleanAttr(node, 'buttonExternal')
-  const text = optionalChildrenText(node)
 
-  const apply: EventCardApply = {
+  return {
     title,
     primaryCta: {
       text: buttonText,
@@ -79,8 +77,6 @@ function parseApply(node: JsxBlockNode): EventCardApply {
       external: buttonExternal ?? false
     }
   }
-  if (text !== undefined) apply.text = text
-  return apply
 }
 
 async function handleEventCard(

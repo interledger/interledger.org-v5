@@ -16,7 +16,6 @@ interface EventCardWhere {
 
 interface EventCardApply {
   title?: string
-  text?: string
   primaryCta?: {
     text?: string
     link?: string
@@ -125,9 +124,8 @@ function serializeApply(apply: EventCardApply): string {
     `buttonUrl="${esc(cta.link!.trim())}"`
   ]
   if (cta.external) attrs.push('buttonExternal={true}')
-  const body = serializeOptionalTextBody(apply.text)
-  if (!body) return `<EventApply ${attrs.join(' ')} />`
-  return `<EventApply ${attrs.join(' ')}>${body}</EventApply>`
+  // Apply has no optional body text — title + primary CTA only.
+  return `<EventApply ${attrs.join(' ')} />`
 }
 
 export function serialize(block: {

@@ -29,7 +29,6 @@ interface EventWhereData {
 
 interface EventApplyData {
   title: string
-  text?: string
   primaryCta: {
     text: string
     link: string
@@ -88,7 +87,6 @@ const hasApply = Boolean(
           {hasApply && apply && (
             <EventApply
               title={apply.title}
-              text={apply.text}
               buttonText={apply.primaryCta.text}
               buttonUrl={apply.primaryCta.link}
               buttonExternal={apply.primaryCta.external}

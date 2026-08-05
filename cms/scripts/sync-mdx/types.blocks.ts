@@ -274,10 +274,9 @@ export interface EventCardWhere {
   location?: string
 }
 
-/** Nested column on blocks.event-card — apply / register CTA. */
+/** Nested column on blocks.event-card — apply / register CTA (no body text). */
 export interface EventCardApply {
   title: string
-  text?: string
   primaryCta: {
     text: string
     link: string

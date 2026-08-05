@@ -1126,7 +1126,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.event-card-apply': {
       title: 'Title',
-      text: 'Text',
       primaryCta: 'Primary CTA button'
     },
 
@@ -1334,7 +1333,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.event-card-apply': {
       title: 'Required. Column heading, e.g. "Apply".',
-      text: 'Optional supporting copy shown under the title.',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     }
@@ -1638,7 +1636,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.event-card-apply': [
       [{ name: 'title', size: 12 }],
-      [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
     ],
     'blocks.image-row': [
