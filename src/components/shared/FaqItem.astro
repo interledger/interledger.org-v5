@@ -9,6 +9,12 @@
  * Deliberately starts closed. The parent can't mark "first item" in the MDX
  * path (children arrive through a slot), so opening one by default would make
  * the Strapi preview diverge from the published page. See INTORG-909.
+ *
+ * The answer's type styles are scoped per element (`[&_p]`, `[&_li]`, `[&_a]`)
+ * rather than set once on the wrapper and inherited. `src/styles/components/
+ * prose/default.css` styles `main p, a, ul, ol` directly, and a matching rule
+ * always beats inheritance, so a wrapper-level colour would apply to `li` but
+ * not to `p` — giving one answer two different text colours.
  */
 import Icon from '@/components/shared/Icon.astro'
 
@@ -34,7 +40,7 @@ const { question } = Astro.props
     />
   </summary>
   <div
-    class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75 [&_p]:m-0 [&_p+p]:mt-md [&_:last-child]:mb-0"
+    class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-75 [&_li]:text-neutral-75 [&_a]:text-neutral-75 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md"
   >
     <slot />
   </div>
