@@ -864,6 +864,42 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksQuote extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_quotes'
+  info: {
+    description: 'Pull quote with optional author name, image, and link'
+    displayName: 'Quote'
+    icon: 'quote'
+  }
+  attributes: {
+    authorImage: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    authorLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    authorName: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    quote: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksSplitLayout extends Struct.ComponentSchema {
   collectionName: 'components_blocks_split_layouts'
   info: {
@@ -1393,6 +1429,7 @@ declare module '@strapi/strapi' {
       'blocks.pdf-embed': BlocksPdfEmbed
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
+      'blocks.quote': BlocksQuote
       'blocks.split-layout': BlocksSplitLayout
       'blocks.title-card': BlocksTitleCard
       'blocks.title-card-grid': BlocksTitleCardGrid

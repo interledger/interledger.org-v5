@@ -28,6 +28,7 @@ import {
 // Side-effect imports: register component handlers
 import './profileHandler'
 import './blockquoteHandler'
+import './quoteHandler'
 import './calloutTextHandler'
 import './ctaStripHandler'
 import './paragraphHandler'

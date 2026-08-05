@@ -35,7 +35,7 @@
       },
       "targetField": "title",
       "required": true,
-      "description": "Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash."
+      "description": "Path relative to /blog/. Example: my-article-title \u2192 /blog/my-article-title. Do not include /blog/ or a leading slash."
     },
     "date": {
       "type": "date",
@@ -112,7 +112,7 @@
         }
       },
       "required": true,
-      "description": "Short description shown on listings and link previews. Aim for 120–160 characters."
+      "description": "Short description shown on listings and link previews. Aim for 120\u2013160 characters."
     },
     "content": {
       "type": "dynamiczone",
@@ -120,9 +120,14 @@
         "blocks.paragraph",
         "blocks.video-embed",
         "blocks.image-block",
-        "blocks.code-block"
+        "blocks.code-block",
+        "blocks.quote"
       ],
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "articleBio": {
       "type": "component",
@@ -167,7 +172,12 @@
       "required": false,
       "default": false,
       "conditions": {
-        "visible": { "==": [true, false] }
+        "visible": {
+          "==": [
+            true,
+            false
+          ]
+        }
       }
     }
   }
