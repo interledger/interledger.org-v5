@@ -74,8 +74,14 @@ export function serialize(block: {
       isHtml(item.answer) ? htmlToMarkdown(item.answer) : item.answer
     )
 
-    return `<FaqItem question="${esc(item.question.trim())}">\n${answer}\n  </FaqItem>`
+    // Blank lines around the answer, and the closing tag at column 0. An
+    // answer ending in a list needs both: MDX reads an indented line after a
+    // list item as a continuation of that item, so `\n  </FaqItem>` gets
+    // swallowed into the list and the page fails to build with "Expected the
+    // closing tag </FaqItem> ... after the end of listItem". The blank line
+    // terminates the list. Matches blocks.paragraph's shape.
+    return `<FaqItem question="${esc(item.question.trim())}">\n\n${answer}\n\n</FaqItem>`
   })
 
-  return `<Faq${headingAttr}>\n  ${items.join('\n  ')}\n</Faq>`
+  return `<Faq${headingAttr}>\n\n${items.join('\n\n')}\n\n</Faq>`
 }

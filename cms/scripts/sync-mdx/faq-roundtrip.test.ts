@@ -108,4 +108,53 @@ describe('Faq round-trip (serialize → parse)', () => {
 
     expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
   })
+
+  // An answer ending in a list is the case that broke the build: MDX reads an
+  // indented line after a list item as a continuation of that item, so an
+  // indented `</FaqItem>` gets swallowed and the page fails with "Expected the
+  // closing tag </FaqItem> ... after the end of listItem". parseMdxToBlocks
+  // uses the same remark-mdx machinery as the build, so it catches it here.
+  it('round-trips an answer ending in a list', async () => {
+    const original = {
+      items: [
+        {
+          question: 'What is the Interledger Foundation?',
+          answer:
+            'We are not a financial institution.\n\n- bullet one\n- bullet two'
+        },
+        { question: 'Who can apply?', answer: 'Anyone worldwide.' }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
+  })
+
+  it('round-trips an answer that is nothing but a list', async () => {
+    const original = {
+      items: [
+        { question: 'Which programmes?', answer: '- Education\n- Innovation' }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
+  })
+
+  it('round-trips an answer ending in a numbered list', async () => {
+    const original = {
+      items: [
+        {
+          question: 'What are the steps?',
+          answer: 'Steps:\n\n1. First\n2. Second'
+        }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
+  })
 })
