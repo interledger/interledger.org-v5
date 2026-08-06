@@ -4,7 +4,7 @@
  */
 import LinkButton from './LinkButton.astro'
 import Icon from './Icon.astro'
-import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
+import { buildUmamiAttrs, ensureLeadingSlash, isExternalHref } from '@/utils'
 
 interface Props {
   heading: string
@@ -23,9 +23,13 @@ const {
 } = Astro.props
 
 const { routeLocale } = Astro.locals
-const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
+// Absolute http(s) URLs (e.g. partner PDFs) must not go through ensureLeadingSlash
+// or they become `/https://…`. Treat them as external when the flag is omitted.
+const isAbsoluteHttp = isExternalHref(buttonUrl)
+const external = buttonExternal || isAbsoluteHttp
+const href = isAbsoluteHttp ? buttonUrl : ensureLeadingSlash(buttonUrl)
 
-const overlayTargetAttrs = buttonExternal
+const overlayTargetAttrs = external
   ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
   : {}
 const overlayUmamiAttrs = buildUmamiAttrs({
@@ -38,7 +42,7 @@ const overlayUmamiAttrs = buildUmamiAttrs({
 
 const trailingIcon = buttonDocument
   ? 'download'
-  : buttonExternal
+  : external
     ? 'external-link'
     : null
 ---
@@ -61,7 +65,7 @@ const trailingIcon = buttonDocument
       href={href}
       variant="secondary"
       size="lg"
-      external={buttonExternal}
+      external={external}
       document={buttonDocument}
       class="self-start z-[1]"
     >

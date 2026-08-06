@@ -1,7 +1,7 @@
 ---
 import LinkButton from './LinkButton.astro'
 import Icon from './Icon.astro'
-import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
+import { buildUmamiAttrs, ensureLeadingSlash, isExternalHref } from '@/utils'
 
 interface Props {
   heading: string
@@ -23,10 +23,13 @@ const {
 
 const { routeLocale } = Astro.locals
 
-const href = buttonExternal ? buttonUrl : ensureLeadingSlash(buttonUrl)
+// Absolute http(s) URLs must not get a leading slash (e.g. partner PDFs).
+const isAbsoluteHttp = isExternalHref(buttonUrl)
+const external = buttonExternal || isAbsoluteHttp
+const href = isAbsoluteHttp ? buttonUrl : ensureLeadingSlash(buttonUrl)
 
 // Mouse-only "whole card is clickable"
-const overlayTargetAttrs = buttonExternal
+const overlayTargetAttrs = external
   ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
   : {}
 const overlayUmamiAttrs = buildUmamiAttrs({
@@ -39,7 +42,7 @@ const overlayUmamiAttrs = buildUmamiAttrs({
 
 const trailingIcon = buttonDocument
   ? 'download'
-  : buttonExternal
+  : external
     ? 'external-link'
     : null
 
@@ -79,7 +82,7 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
     href={href}
     variant="secondary"
     size="lg"
-    external={buttonExternal}
+    external={external}
     document={buttonDocument}
     class="tablet:self-start z-[1]"
   >
