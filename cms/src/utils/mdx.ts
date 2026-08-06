@@ -229,6 +229,9 @@ export function heroFrontmatter(
   const heroImageMobile = getImageUrl(hero.backgroundImageMobile)
   if (heroImageMobile) {
     data.heroImageMobile = heroImageMobile
+    if (hero.backgroundImageMobile?.alternativeText) {
+      data.heroImageMobileAlt = hero.backgroundImageMobile.alternativeText
+    }
   }
   const cta = hero.hero_call_to_action
   if (cta) {

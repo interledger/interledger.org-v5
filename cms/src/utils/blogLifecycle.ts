@@ -45,6 +45,7 @@ interface BlogResult {
   }
   featureImageMobile?: {
     name: string
+    alternativeText?: string | null
     url: string
   }
   thumbnailMedia?: {
@@ -158,6 +159,10 @@ export function generateBlogMDX(post: BlogResult) {
       : null,
     post.featureImageMobile?.url
       ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
+      : null,
+    post.featureImageMobile?.url &&
+    post.featureImageMobile.alternativeText != null
+      ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText)}`
       : null,
     post.thumbnailMedia?.image?.url
       ? `thumbnailImage: ${yqs(post.thumbnailMedia.image.url)}`

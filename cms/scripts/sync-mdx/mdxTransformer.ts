@@ -201,7 +201,11 @@ function buildHeroPayload(
  */
 async function buildHeroWithImage(
   parsed: Record<string, unknown>,
-  strapiUploadContext: StrapiUploadContext | undefined
+  strapiUploadContext: StrapiUploadContext | undefined,
+  altContext?: {
+    pathSlug: string
+    updatedAltIds: Map<number, string | null>
+  }
 ): Promise<Record<string, unknown> | null> {
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
@@ -243,7 +247,22 @@ async function buildHeroWithImage(
           }
         : null
     } else {
+      // Plain media field: alt lives on the upload file, not the component.
       hero[targetKey] = uploadId ?? null
+      if (
+        uploadId != null &&
+        altContext &&
+        Object.prototype.hasOwnProperty.call(parsed, 'heroImageMobileAlt')
+      ) {
+        await updateUploadAltOnce(
+          strapiUploadContext.strapi,
+          uploadId,
+          nullOrValue(parsed.heroImageMobileAlt),
+          altContext.updatedAltIds,
+          altContext.pathSlug,
+          strapiUploadContext.dryRun ?? false
+        )
+      }
     }
   }
 
@@ -288,7 +307,16 @@ export async function buildPagePayload(
       publishedAt: new Date().toISOString()
     }
 
-    data.hero = await buildHeroWithImage(parsed, strapiUploadContext)
+    data.hero = await buildHeroWithImage(
+      parsed,
+      strapiUploadContext,
+      strapiUploadContext
+        ? {
+            pathSlug: mdx.pathSlug,
+            updatedAltIds: new Map<number, string | null>()
+          }
+        : undefined
+    )
 
     // Handle content import
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -592,7 +620,11 @@ export async function buildGrantPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext
+      strapiUploadContext,
+      {
+        pathSlug: mdx.pathSlug,
+        updatedAltIds
+      }
     )
 
     const parserCtx: ParserContext | undefined = strapi
@@ -675,7 +707,11 @@ export async function buildGrantOverviewPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext
+      strapiUploadContext,
+      {
+        pathSlug: mdx.pathSlug,
+        updatedAltIds
+      }
     )
 
     const strapi = strapiUploadContext?.strapi
@@ -767,7 +803,13 @@ export async function buildPodcastPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
       strapiUploadContext
+        ? {
+            pathSlug: mdx.pathSlug,
+            updatedAltIds: new Map<number, string | null>()
+          }
+        : undefined
     )
 
     const titleCards = {
@@ -988,9 +1030,23 @@ export async function buildBlogPayload(
       })
     )
 
-    // featureImage/thumbnailImage alt text lives on featureMedia/thumbnailMedia
-    // (shared.localized-media); featureImageMobile is a plain media field that
-    // shares the desktop image's alt text, so it has no alt of its own to patch.
+    // featureImage/thumbnailImage alt lives on featureMedia/thumbnailMedia
+    // (shared.localized-media). featureImageMobile is a plain media field —
+    // its alt is the upload file's alternativeText, patched from
+    // featureImageMobileAlt when present so mobile can differ from desktop.
+    if (
+      featureImageMobile != null &&
+      parsed.featureImageMobileAlt !== undefined
+    ) {
+      await updateUploadAltOnce(
+        strapiUploadContext.strapi,
+        featureImageMobile,
+        nullOrValue(parsed.featureImageMobileAlt),
+        new Map<number, string | null>(),
+        mdx.pathSlug,
+        strapiUploadContext.dryRun ?? false
+      )
+    }
 
     // content is a Strapi dynamiczone (always an array), so an empty body
     // must become `[]`, not `''` — otherwise Strapi rejects the type.

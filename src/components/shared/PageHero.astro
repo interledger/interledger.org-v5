@@ -21,10 +21,12 @@ interface Props {
   description?: string | null
   /** Desktop hero image URL, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format. */
   image?: string | null
-  /** Optional mobile image. Recommended: 768×480px. Shares `imageAlt` with the desktop image. */
+  /** Optional mobile image. Recommended: 768×480px. Falls back to desktop when absent. */
   imageMobile?: string | null
-  /** Alt text for the hero image, used for both the desktop and mobile variants. Leave empty/omit for a purely decorative background. */
+  /** Alt text for the desktop hero image. Leave empty/omit for a purely decorative background. */
   imageAlt?: string | null
+  /** Alt text for the mobile hero image. Falls back to `imageAlt` when omitted. */
+  imageMobileAlt?: string | null
   cta?: HeroCta | null
   breadcrumbs?: BreadcrumbItem[]
   /**
@@ -40,10 +42,13 @@ const {
   image,
   imageAlt,
   imageMobile,
+  imageMobileAlt,
   cta,
   breadcrumbs,
   imageBand = 'default'
 } = Astro.props
+
+const resolvedMobileAlt = imageMobileAlt ?? imageAlt
 
 const isWideBand = imageBand === 'wide'
 const bandClass = isWideBand
@@ -115,7 +120,7 @@ const parallaxImgClass = isWideBand
         <>
           <OptimizedImage
             src={imageMobile}
-            alt={imageAlt ?? ''}
+            alt={resolvedMobileAlt ?? ''}
             width={768}
             height={480}
             loading="eager"

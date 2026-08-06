@@ -80,26 +80,49 @@ const blogPath = translatePath(
   {
     frontmatter.featureImage && (
       <div class="mb-3xl tablet:mb-4xl desktop:mb-5xl">
-        <picture>
-          {frontmatter.featureImageMobile && (
-            <source
-              media="(max-width: 809px)"
-              srcset={frontmatter.featureImageMobile}
-              width={FEATURE_MOBILE.width}
-              height={FEATURE_MOBILE.height}
+        {
+          // Separate imgs (not <picture>) so mobile can carry its own alt when
+          // the crop/content differs from desktop. <source> cannot have alt.
+          frontmatter.featureImageMobile ? (
+            <>
+              <img
+                src={frontmatter.featureImageMobile}
+                alt={
+                  frontmatter.featureImageMobileAlt ??
+                  frontmatter.featureImageAlt ??
+                  ''
+                }
+                width={FEATURE_MOBILE.width}
+                height={FEATURE_MOBILE.height}
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                class="w-full h-auto rounded-3xl tablet:hidden"
+              />
+              <img
+                src={frontmatter.featureImage}
+                alt={frontmatter.featureImageAlt ?? ''}
+                width={FEATURE_DESKTOP.width}
+                height={FEATURE_DESKTOP.height}
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                class="hidden w-full h-auto rounded-3xl tablet:block"
+              />
+            </>
+          ) : (
+            <img
+              src={frontmatter.featureImage}
+              alt={frontmatter.featureImageAlt ?? ''}
+              width={FEATURE_DESKTOP.width}
+              height={FEATURE_DESKTOP.height}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              class="w-full h-auto rounded-3xl"
             />
-          )}
-          <img
-            src={frontmatter.featureImage}
-            alt={frontmatter.featureImageAlt ?? ''}
-            width={FEATURE_DESKTOP.width}
-            height={FEATURE_DESKTOP.height}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            class="w-full h-auto rounded-3xl"
-          />
-        </picture>
+          )
+        }
       </div>
     )
   }

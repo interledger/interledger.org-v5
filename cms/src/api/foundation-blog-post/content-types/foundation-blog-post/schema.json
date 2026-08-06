@@ -91,7 +91,7 @@
       "allowedTypes": [
         "images"
       ],
-      "description": "Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty."
+      "description": "Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop."
     },
     "thumbnailMedia": {
       "type": "component",

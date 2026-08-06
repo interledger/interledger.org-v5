@@ -897,7 +897,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
       featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
       featureImageMobile:
-        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
+        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
       thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
       relatedArticles:
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
@@ -1154,7 +1154,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       media:
         'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
       backgroundImageMobile:
-        "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Shares the desktop image's alternative text."
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
     },
     'shared.report-date': {
       lastUpdated:

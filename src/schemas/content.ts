@@ -56,8 +56,10 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
   // Optional mobile feature image; falls back to the desktop image when absent.
-  // Shares featureImageAlt with the desktop image (image component field, not its own media field).
+  // Own alt lives on the media file (and in featureImageMobileAlt frontmatter);
+  // when omitted at render time, UI falls back to featureImageAlt.
   featureImageMobile: z.string().optional(),
+  featureImageMobileAlt: z.string().nullable().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(ArticleBioSchema).optional().default([]),
@@ -161,6 +163,7 @@ export const grantPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   programOverview: z.string().optional(),
   primaryCta: z
@@ -192,6 +195,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   followUpContent: z.string().optional(),
   ctaStrip: grantCtaStripSchema,

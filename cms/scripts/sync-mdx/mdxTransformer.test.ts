@@ -1827,6 +1827,7 @@ describe('buildGrantOverviewPagePayload', () => {
         grantOverviewPageFrontmatterSchema,
         mdx,
         strapiUploadContext,
+        null,
         updatedAltIds
       )
 
@@ -1835,6 +1836,34 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImageMobile: 84
       })
+    })
+
+    it('patches heroImageMobile upload alt from heroImageMobileAlt', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-mobile.png': 84
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImageMobile: '/uploads/img/hero-mobile.png',
+          heroImageMobileAlt: 'Mobile hero crop'
+        }
+      })
+
+      await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        null,
+        updatedAltIds
+      )
+
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        84,
+        'Mobile hero crop'
+      )
     })
 
     it('clears heroImage when heroImage is explicitly empty in frontmatter', async () => {
@@ -2753,10 +2782,9 @@ describe('buildBlogPayload', () => {
 
   describe('featureMedia / thumbnailMedia', () => {
     it('resolves featureImage and featureImageAlt into featureMedia', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext({
-          '/uploads/img/feature.jpg': 42
-        })
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/uploads/img/feature.jpg': 42
+      })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {
@@ -2769,14 +2797,39 @@ describe('buildBlogPayload', () => {
       const payload = await buildBlogPayload(
         foundationBlogFrontmatterSchema,
         mdx,
-        strapiUploadContext,
-        updatedAltIds
+        strapiUploadContext
       )
 
       expect((payload as Record<string, unknown>).featureMedia).toEqual({
         image: 42,
         alternativeText: 'A feature image'
       })
+    })
+
+    it('patches featureImageMobile upload alt from featureImageMobileAlt', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/uploads/img/feature-mobile.jpg': 99
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          featureImageMobile: '/uploads/img/feature-mobile.jpg',
+          featureImageMobileAlt: 'Mobile feature crop'
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).featureImageMobile).toBe(99)
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        99,
+        'Mobile feature crop'
+      )
     })
 
     it('omits featureMedia when featureImage is absent, leaving existing Strapi value untouched', async () => {
