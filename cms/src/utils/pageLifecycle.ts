@@ -12,6 +12,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { serializeContent } from '../serializers/blocks'
+import type { Hero } from '../../types/shared/types'
 import {
   LOCALES,
   defaultLang,
@@ -36,17 +37,7 @@ export interface PageData {
   /** May be null on afterDelete in some Strapi versions / payloads */
   pathSlug: string | null
   locale?: string
-  hero?: {
-    title?: string
-    description?: string
-    media?: { image?: { url?: string } | null; alternativeText?: string } | null
-    hero_call_to_action?: {
-      text?: string
-      link?: string
-      style?: 'primary' | 'secondary'
-      external?: boolean
-    } | null
-  }
+  hero?: Hero | null
   description?: string
   content?: Array<{ __component: string; [key: string]: unknown }>
   publishedAt?: string
@@ -201,6 +192,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     'heroImage',
     'heroImageAlt',
     'heroImageMobile',
+    'heroImageMobileAlt',
     'heroCtas'
   ] as const
   for (const key of heroManagedKeys) {

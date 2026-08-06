@@ -11,6 +11,7 @@ import {
   buildFaqPayload,
   buildReportPayload,
   buildHackathonPagePayload,
+  buildPodcastPagePayload,
   createMediaAltUpdater,
   createMediaUploadResolver,
   type StrapiUploadContext
@@ -24,7 +25,8 @@ import {
   hackathonPageFrontmatterSchema,
   profileFrontmatterSchema,
   faqFrontmatterSchema,
-  reportFrontmatterSchema
+  reportFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from './siteSchemas'
 // Side-effect imports: register component handlers
 import './profileHandler'
@@ -87,6 +89,7 @@ export interface ContentTypes {
   profiles: ContentTypeConfig
   faqs: ContentTypeConfig
   reports: ContentTypeConfig
+  'podcast-pages': ContentTypeConfig
 }
 
 /** Build a page payload with the MDX block parser wired in. */
@@ -134,7 +137,6 @@ export function buildContentTypes(
   // summit and hackathon pages share one: they allow the same blocks and draw
   // on the same partner-logo uploads, so a name that differs between them is a
   // conflict worth warning about, not a silent overwrite.
-  const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
   const grantOverviewPageAltIds = new Map<number, string | null>()
@@ -296,6 +298,18 @@ export function buildContentTypes(
           dryRun
         )
     },
+    'podcast-pages': {
+      dir: getContentPath(projectRoot, 'podcastPages'),
+      apiId: 'podcast-pages',
+      schema: podcastPageFrontmatterSchema,
+      buildPayload: (mdx, strapi, _existing, dryRun) =>
+        buildPodcastPagePayload(podcastPageFrontmatterSchema, mdx, {
+          strapi,
+          STRAPI_URL: strapiUrl,
+          STRAPI_TOKEN: strapiToken,
+          dryRun
+        })
+    },
     'foundation-blog-posts': {
       dir: getContentPath(projectRoot, 'blog'),
       apiId: 'foundation-blog-posts',
@@ -323,9 +337,7 @@ export function buildContentTypes(
           foundationBlogFrontmatterSchema,
           mdx,
           uploadContext,
-          blogAltIds,
-          parserCtx,
-          dryRun
+          parserCtx
         )
       }
     }
