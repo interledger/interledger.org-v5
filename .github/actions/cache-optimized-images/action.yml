@@ -3,6 +3,10 @@ description: >
   Restores and saves public/img/optimized, keyed by the content of the image
   sources and of the encoder itself.
 
+outputs:
+  cache-hit:
+    description: Whether the cache key was an exact hit (not a restore-keys fallback).
+    value: ${{ steps.cache.outputs.cache-hit }}
 # Why this is a shared action rather than an inline `actions/cache` step:
 # pr-checks.yml and merge.yml must produce a byte-identical key, otherwise a PR
 # never matches the cache warmed on its base branch and silently pays a full
