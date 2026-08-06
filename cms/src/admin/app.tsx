@@ -199,11 +199,11 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
-      /* TEMP UI Fix: hide Media Library Alternative text — set alt on localized-media per locale instead */
-      div:has(> div > input[name="alternativeText"]) {
-        display: none !important;
-      }
     `
+    // Intentionally NOT hiding Media Library "Alternative text". #422 did so
+    // under the assumption every media field used shared.localized-media, but
+    // plain media fields (e.g. carousel logos) still rely on file-level alt.
+    // Locale-specific alt remains on localized-media.alternativeText.
     document.head.appendChild(style)
 
     // TEMP UI Fix: image block layout has no separator row type; mark options panel via DOM

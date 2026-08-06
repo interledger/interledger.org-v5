@@ -1320,7 +1320,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       accessibilityLabel:
         'Describes this group of logos for screen reader users. Not visible on the page.',
       logos:
-        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+        'Dimensions: 240×80. After selecting an image, open it with the edit (pencil) icon and set Alternative text there — that is the logo alt used on the site.'
     },
     'blocks.number-tile': {
       number:
