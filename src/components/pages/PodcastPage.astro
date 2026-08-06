@@ -21,6 +21,9 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+// Nav chrome must follow the URL locale, not content locale — ES routes can
+// fall back to EN body while remaining under /es/.
+const { routeLocale } = Astro.locals
 const pages = await getCollection('podcast-pages')
 
 const mdxPage = pages.find(
@@ -44,11 +47,11 @@ const {
   ctaStrip
 } = mdxPage.data
 
-const t = useTranslations(contentLocale)
+const t = useTranslations(routeLocale)
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
-  { name: heroTitle ?? title, href: localizeRoute(slug, contentLocale) }
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
 
 const titleCardHtml = await Promise.all(

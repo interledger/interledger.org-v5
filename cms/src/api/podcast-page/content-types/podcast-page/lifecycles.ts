@@ -3,8 +3,8 @@
  *
  * podcast-page is a flat, frontmatter-only page (no `content` dynamic zone —
  * title cards and podcast episodes are page-owned repeatable components,
- * flattened straight into frontmatter). Only one entry is expected to exist,
- * routed at /podcast via its pathSlug.
+ * flattened straight into frontmatter). pathSlug is CMS-authored; the live
+ * entry typically uses "podcast" so it routes at /podcast.
  */
 
 import {

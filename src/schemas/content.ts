@@ -321,8 +321,10 @@ const podcastItemSchema = z.object({
   series: z.enum(['Interledger Salon', 'Future Money', 'Off the Ledger'])
 })
 
-// The /podcast landing page. Only one entry is expected to exist; pathSlug is
-// set to "podcast" so it resolves at the site root, no dynamic zone involved.
+// Podcast landing page. No dynamic zone — hero, title cards, episodes, and CTA
+// strip are page-owned fields. pathSlug is CMS-authored (live entry typically
+// uses "podcast" → /podcast). Collection type: multiple entries allowed; each
+// routes under the foundation [...page] catch-all by its own pathSlug.
 export const podcastPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),

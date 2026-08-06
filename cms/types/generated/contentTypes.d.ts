@@ -1079,7 +1079,7 @@ export interface ApiHackathonPageHackathonPage
 export interface ApiPodcastPagePodcastPage extends Struct.CollectionTypeSchema {
   collectionName: 'podcast-pages'
   info: {
-    description: 'The /podcast landing page: hero, featured series title cards, the podcast episode list, and a closing CTA strip. Only one entry is expected to exist.'
+    description: 'Podcast landing page: hero, featured series title cards, the podcast episode list, and a closing CTA strip. pathSlug is CMS-authored (live entry typically uses "podcast" \u2192 /podcast).'
     displayName: 'Podcast Page'
     pluralName: 'podcast-pages'
     singularName: 'podcast-page'

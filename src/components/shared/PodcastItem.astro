@@ -1,12 +1,10 @@
 ---
 /**
- * Podcast Item — description + player card for a single episode.
+ * Podcast Item — series, title, description + player for a single episode.
  *
- * The card shell (thumbnail, episode, series, title) matches the design, but
- * playback itself is delegated to the real embed rather than custom player
- * chrome: any URL VideoEmbed recognizes (YouTube, Vimeo, direct file) renders
- * through it; anything else (Castopod, unrecognized) falls back to the raw
- * iframe pattern used by the site's other podcast embeds. Neither can be
+ * Playback is delegated to the real embed rather than custom player chrome:
+ * any URL VideoEmbed recognizes (YouTube, Vimeo, direct file) renders through
+ * it; Castopod / unrecognized URLs fall back to a raw iframe. Neither can be
  * driven by an external scrubber, so no fake play/seek UI is built.
  */
 import { detectVideoProvider, twMerge } from '@/utils'
@@ -19,7 +17,7 @@ interface Props {
 }
 
 const { podcast, theme = 'light' } = Astro.props
-const { title, description, url } = podcast
+const { title, description, url, series } = podcast
 const isDark = theme === 'dark'
 const provider = detectVideoProvider(url)
 ---
@@ -29,14 +27,34 @@ const provider = detectVideoProvider(url)
     'flex w-full flex-col gap-xl desktop:flex-row desktop:items-center desktop:gap-2xl'
   )}
 >
-  <p
+  <div
     class={twMerge(
-      'mb-0 text-h5 tablet:text-h5-md desktop:w-1/2 desktop:text-h5-lg',
+      'flex flex-col gap-md desktop:w-1/2',
       isDark ? 'text-neutral-0' : 'text-neutral-900'
     )}
   >
-    {description}
-  </p>
+    <p
+      class={twMerge(
+        'm-0 text-caption uppercase tracking-wide',
+        isDark ? 'text-neutral-50' : 'text-neutral-75'
+      )}
+    >
+      {series}
+    </p>
+    <h3
+      class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg"
+    >
+      {title}
+    </h3>
+    <p
+      class={twMerge(
+        'm-0 text-h5 tablet:text-h5-md desktop:text-h5-lg',
+        isDark ? 'text-neutral-25' : 'text-neutral-100'
+      )}
+    >
+      {description}
+    </p>
+  </div>
 
   <div
     class={twMerge(
@@ -44,21 +62,19 @@ const provider = detectVideoProvider(url)
       isDark ? 'border-neutral-75' : 'border-neutral-50'
     )}
   >
-    <div class="flex items-center gap-lg">
-      <div class="flex min-w-0 flex-1 flex-col gap-md">
-        {
-          provider ? (
-            <VideoEmbed url={url} title={title} />
-          ) : (
-            <iframe
-              title={`${title} — podcast player`}
-              class="h-28 w-full"
-              loading="lazy"
-              src={url}
-            />
-          )
-        }
-      </div>
+    <div class="flex min-w-0 flex-col gap-md">
+      {
+        provider ? (
+          <VideoEmbed url={url} title={title} />
+        ) : (
+          <iframe
+            title={`${title} — podcast player`}
+            class="h-28 w-full"
+            loading="lazy"
+            src={url}
+          />
+        )
+      }
     </div>
   </div>
 </article>

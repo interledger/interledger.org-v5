@@ -726,7 +726,7 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
 export interface BlocksPodcastItem extends Struct.ComponentSchema {
   collectionName: 'components_blocks_podcast_items'
   info: {
-    description: 'A single podcast episode \u2014 a Castopod or YouTube embed link, shown with its series and description.'
+    description: 'A single podcast episode \u2014 series, title, description, and a Castopod or YouTube embed link.'
     displayName: 'Podcast Item'
     icon: 'microphone'
   }

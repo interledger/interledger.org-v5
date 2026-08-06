@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Podcast Item",
     "icon": "microphone",
-    "description": "A single podcast episode — a Castopod or YouTube embed link, shown with its series and description."
+    "description": "A single podcast episode — series, title, description, and a Castopod or YouTube embed link."
   },
   "options": {},
   "attributes": {
