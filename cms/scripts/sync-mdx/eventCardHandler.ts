@@ -9,8 +9,9 @@
  *   </EventCard>
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
- * optional. Optional body text is only on When/Where (JSX children). Apply has
- * title + primary CTA only — no text field.
+ * optional. Optional body text is only on When/Where (JSX children). Apply is
+ * self-closing only: title + CTA attrs — children are rejected so MDX authors
+ * who mirror When/Where body copy do not lose content silently on sync.
  */
 
 import type {
@@ -64,6 +65,19 @@ function parseWhere(node: JsxBlockNode): EventCardWhere {
 }
 
 function parseApply(node: JsxBlockNode): EventCardApply {
+  const childrenText = optionalChildrenText(node)
+  if (childrenText !== undefined) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'EventApply accepts only title, buttonText, buttonUrl, and buttonExternal attributes — no children. Use a self-closing tag; there is no Apply body text field.',
+      component: 'EventApply',
+      prop: 'children',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
   const title = getStringAttr(node, 'title', { required: true })
   const buttonText = getStringAttr(node, 'buttonText', { required: true })
   const buttonUrl = getStringAttr(node, 'buttonUrl', { required: true })

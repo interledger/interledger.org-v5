@@ -137,4 +137,23 @@ Early arrival for speakers.
       ParserErrorCode.MISSING_REQUIRED_PROP
     )
   })
+
+  it('errors when EventApply has children (no body text field)', async () => {
+    const mdx = `
+<EventCard>
+  <EventWhen title="When?" />
+  <EventWhere title="Where?" />
+  <EventApply title="Apply" buttonText="Apply today" buttonUrl="/apply">
+    Please read the guidelines first.
+  </EventApply>
+</EventCard>
+`
+    const result = await parseMdxToBlocks(mdx, ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
+    expect((result as MdxParserError).component).toBe('EventApply')
+    expect((result as MdxParserError).message).toMatch(/no children/i)
+  })
 })
