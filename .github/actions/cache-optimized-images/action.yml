@@ -19,12 +19,21 @@ description: >
 #     It over-invalidates on SVG-only changes, which costs one extra cache save
 #     and never costs correctness.
 #
-#   scripts/optimize-images.ts, src/utils/main/imagePaths.ts
+#   scripts/optimize-images.ts, scripts/image-optimiser/**,
+#   src/utils/main/imagePaths.ts
 #     The encoder. Required, not cosmetic: cache keys are immutable, so a save
 #     to an existing key is silently skipped. Without these, changing
 #     AVIF_QUALITY would bump PIPELINE_ID and force a full re-encode whose
 #     output could never be saved (the images-only key already exists), leaving
 #     every subsequent run to re-encode from scratch.
+#
+#     The whole scripts/image-optimiser/ directory is covered because the entry
+#     point is a thin CLI wrapper — quality constants, widths, and output naming
+#     all live in modules beside it, and a key that missed them would go stale
+#     without changing. Like the source globs this is deliberately broad: it
+#     over-invalidates when only a test changes, which costs one cache save and
+#     never costs correctness, whereas listing files by hand would silently miss
+#     the next module someone adds.
 #
 # Placement: keep this before any step that builds. The key is evaluated when
 # the step starts, and public/img/optimized is gitignored, so on a fresh
@@ -36,7 +45,7 @@ runs:
     - uses: actions/cache@v4
       with:
         path: public/img/optimized
-        key: optimized-images-${{ hashFiles('public/img/**', 'public/uploads/img/original/**', 'scripts/optimize-images.ts', 'src/utils/main/imagePaths.ts') }}
+        key: optimized-images-${{ hashFiles('public/img/**', 'public/uploads/img/original/**', 'scripts/optimize-images.ts', 'scripts/image-optimiser/**', 'src/utils/main/imagePaths.ts') }}
         # Prefix fallback when the image set has changed: restores the newest
         # snapshot in scope so the encoder only pays for the delta. The script
         # hashes each source individually, so a stale snapshot is still correct.
