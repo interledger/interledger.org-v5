@@ -160,9 +160,8 @@ describe('card-grid serializer', () => {
     expect(block.navigationCards).toEqual([navCard])
   })
 
-  it('sanitizeCardGridBlock adopts the only populated field when variant field is empty', () => {
+  it('sanitizeCardGridBlock adopts the only populated field when variant is missing', () => {
     const block = {
-      variant: 'Info',
       titleCards: [titleCard],
       resourceCards: [],
       infoCards: [],
@@ -172,6 +171,21 @@ describe('card-grid serializer', () => {
     expect(block.variant).toBe('Title')
     expect(block.titleCards).toEqual([titleCard])
     expect(block.infoCards).toEqual([])
+  })
+
+  it('sanitizeCardGridBlock does not rewrite an explicit variant when cards live in another section', () => {
+    const block = {
+      variant: 'Title',
+      columns: 'One',
+      titleCards: [],
+      resourceCards: [],
+      infoCards: [],
+      navigationCards: [navCard]
+    }
+    expect(() => sanitizeCardGridBlock(block)).toThrow(SerializerFieldError)
+    // Must not silently flip Title → Navigation (would make columns: One pass).
+    expect(block.variant).toBe('Title')
+    expect(block.navigationCards).toEqual([navCard])
   })
 
   it('sanitizeCardGridBlock throws instead of silently discarding cards when two variant fields are populated and neither matches the variant', () => {
@@ -186,20 +200,32 @@ describe('card-grid serializer', () => {
     // Neither populated field was wiped before the error was raised.
     expect(block.titleCards).toEqual([titleCard])
     expect(block.infoCards).toEqual([infoCard])
+    expect(block.variant).toBe('Resource')
   })
 
-  it('serializes when cards are on a mismatched variant field', () => {
-    const result = serialize({
-      ariaLabel: 'Recovered',
-      variant: 'Info',
-      columns: 'Two',
-      titleCards: [titleCard],
-      infoCards: []
-    })
-    expect(result).toContain('variant="Title"')
-    expect(result).toContain('<TitleCard heading="Grant heading"')
+  it('rejects serialize when cards are on a mismatched variant field', () => {
+    expect(() =>
+      serialize({
+        ariaLabel: 'Mismatch',
+        variant: 'Info',
+        columns: 'Two',
+        titleCards: [titleCard],
+        infoCards: []
+      })
+    ).toThrow(SerializerFieldError)
   })
 
+  it('rejects Title + columns One even when stale navigationCards are present', () => {
+    expect(() =>
+      serialize({
+        ariaLabel: 'Should fail',
+        variant: 'Title',
+        columns: 'One',
+        titleCards: [],
+        navigationCards: [navCard]
+      })
+    ).toThrow(SerializerFieldError)
+  })
   it('rejects external+document on the same CTA', () => {
     expect(() =>
       serialize({

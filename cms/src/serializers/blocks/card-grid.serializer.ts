@@ -152,9 +152,12 @@ function cardArrayLength(value: unknown): number {
 /**
  * Align card-grid repeatables before validate/save:
  * - If the selected variant's field has cards, clear the other three.
- * - If the selected field is empty but exactly one other field has cards
- *   (common when the admin UI showed all four sections), adopt that field's
- *   variant instead of wiping the only cards and failing validation.
+ * - If the selected variant's field is empty but cards live in other
+ *   sections, do not rewrite `variant` — that would re-validate under a
+ *   different variant (e.g. Title + columns One + stale navigationCards
+ *   silently becoming Navigation and passing). Surface a field error.
+ * - Only when `variant` is missing/invalid and exactly one section has
+ *   cards, adopt that section's variant (incomplete legacy / MDX data).
  */
 export function sanitizeCardGridBlock(
   block: Record<string, unknown>
@@ -177,10 +180,27 @@ export function sanitizeCardGridBlock(
     return block
   }
 
-  // Active field empty (or variant missing) but cards exist in exactly one
-  // other field — adopt that field's variant instead of wiping the only
-  // cards an editor added into a mismatched section.
-  if (populated.length === 1) {
+  // Explicit variant with an empty active section but cards elsewhere —
+  // keep the editor's variant selection and reject the mismatch.
+  if (variant && populated.length > 0) {
+    const active = CARD_GRID_VARIANT_FIELDS[variant]
+    const otherLabels = populated
+      .filter((field) => field !== active)
+      .map((field) => FIELD_TO_VARIANT[field])
+    throw new SerializerFieldError([
+      {
+        message:
+          otherLabels.length > 0
+            ? `Card grid variant is "${variant}" but that section has no cards. Cards were found under ${otherLabels.join(', ')}. Switch the variant to match those cards, or add cards to the ${variant} section.`
+            : `Card grid variant is "${variant}" but that section has no cards.`,
+        path: ['variant']
+      }
+    ])
+  }
+
+  // No usable variant selected — recover only when a single section is
+  // unambiguously populated (legacy / incomplete payloads).
+  if (!variant && populated.length === 1) {
     const field = populated[0]!
     block.variant = FIELD_TO_VARIANT[field]
     for (const other of ALL_CARD_FIELDS) {
@@ -189,10 +209,7 @@ export function sanitizeCardGridBlock(
     return block
   }
 
-  // Cards exist in more than one field and none matches the selected
-  // variant — there's no safe field to pick without silently discarding
-  // an editor's work, so surface it instead of guessing.
-  if (populated.length > 1) {
+  if (!variant && populated.length > 1) {
     const variantLabels = populated.map((field) => FIELD_TO_VARIANT[field])
     throw new SerializerFieldError([
       {
