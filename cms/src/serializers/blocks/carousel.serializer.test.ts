@@ -49,6 +49,24 @@ describe('carousel serializer', () => {
     )
   })
 
+  it('accepts bare image upload ids (validateContentBlocks write body)', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [{ image: 12, alternativeText: 'Plata' }]
+    })
+    expect(result).toContain('accessibilityLabel="Our Partners"')
+    expect(result).toContain('logos={[{"name":"Plata","src":""}]}')
+  })
+
+  it('throws when a logo has no image', () => {
+    expect(() =>
+      serialize({
+        accessibilityLabel: 'Our Partners',
+        logos: [{ image: null, alternativeText: 'Plata' }]
+      })
+    ).toThrow('Carousel logo is missing image')
+  })
+
   it('throws when logos is missing', () => {
     expect(() =>
       serialize({

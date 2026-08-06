@@ -1,33 +1,61 @@
+import { getImageUrl, hasMediaValue } from '../../utils'
 import { escDouble as esc } from '../shared'
 
-type PopulatedLogo =
+type MediaField =
+  | { url?: string; alternativeText?: string | null }
+  | number
+  | string
+  | null
+  | undefined
+
+type CarouselLogoEntry =
   | {
-      image?: { url?: string; alternativeText?: string | null } | null
+      image?: MediaField
       alternativeText?: string | null
     }
   // Legacy shape: plain multi-media entries (pre–carousel-logo component)
   | { id: number; url: string; alternativeText: string | null }
 
-function logoToMdxItem(logo: PopulatedLogo): { name: string; src: string } {
+function logoHasImage(logo: CarouselLogoEntry): boolean {
+  if ('url' in logo && typeof logo.url === 'string' && logo.url.length > 0) {
+    return true
+  }
+  if ('image' in logo) {
+    return hasMediaValue(logo.image as Parameters<typeof hasMediaValue>[0])
+  }
+  return false
+}
+
+function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
+  // Legacy multi-media entry
   if ('url' in logo && typeof logo.url === 'string') {
     return {
       name: logo.alternativeText ?? '',
       src: logo.url
     }
   }
-  const src = logo.image?.url
-  if (!src) {
-    throw new Error('Carousel logo is missing image url')
-  }
+
+  const image = logo.image
+  // On export the relation is populated ({ url }); validateContentBlocks also
+  // runs this serializer on the raw write body where `image` is a bare upload
+  // id — empty src is fine there because the output is discarded.
+  const src =
+    typeof image === 'object' && image != null
+      ? (getImageUrl(image) ?? '')
+      : ''
+  const fileAlt =
+    typeof image === 'object' && image != null
+      ? (image.alternativeText ?? '')
+      : ''
   // Prefer field-level alt on carousel-logo; fall back to file alt for old data
-  const name = logo.alternativeText ?? logo.image?.alternativeText ?? ''
+  const name = logo.alternativeText ?? fileAlt ?? ''
   return { name, src }
 }
 
 export function serialize(block: {
   heading?: string
   accessibilityLabel?: string
-  logos?: PopulatedLogo[]
+  logos?: CarouselLogoEntry[]
 }): string {
   // Strapi's `required: true` on `logos`/`accessibilityLabel` isn't enforced at save time
   if (!block.logos || block.logos.length === 0) {
@@ -35,6 +63,12 @@ export function serialize(block: {
   }
   if (!block.accessibilityLabel) {
     throw new Error('Carousel block is missing accessibilityLabel')
+  }
+
+  for (const logo of block.logos) {
+    if (!logoHasImage(logo)) {
+      throw new Error('Carousel logo is missing image')
+    }
   }
 
   const logoItems = block.logos.map(logoToMdxItem)
