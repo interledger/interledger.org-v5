@@ -1,16 +1,20 @@
 ---
-// Row of stat tiles for the grant-overview-page dynamic zone (INTORG-854).
-// Reuses the homepage's StatCard/AnimatedNumber trio rather than duplicating
-// the count-up + accessibility pattern. Strapi stores plain digits (e.g.
-// "1000"); we format with commas for display while the animation still
-// counts up to the parsed numeric value.
+// Row of stat tiles for foundation, summit, hackathon, and grant-overview
+// dynamic zones. Reuses the homepage's StatCard/AnimatedNumber trio rather
+// than duplicating the count-up + accessibility pattern. Strapi stores plain
+// digits (e.g. "1000"); we format with commas for display while the animation
+// still counts up to the parsed numeric value.
 //
 // Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
 // of each item's width — 2 tiles per row on mobile/tablet, up to 4 per row on
 // desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
 // default behavior, no extra CSS needed).
 import StatCard from '@/components/shared/StatCard.astro'
-import { formatStatNumber, parseStatNumber } from '@/utils'
+import {
+  buildNumberTileAriaLabel,
+  formatStatNumber,
+  parseStatNumber
+} from '@/utils'
 
 interface Tile {
   number: string
@@ -38,6 +42,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
   role="list"
   class="m-0 mb-6xl grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 desktop:grid-cols-4"
   data-animated-number-trigger
+  data-umami-component="number-tiles"
 >
   {
     tiles.map((tile) => {
@@ -45,6 +50,14 @@ const LABEL_CLASS = 'text-left text-neutral-75'
       // Strapi stores plain digits (e.g. "1000"); format for display with
       // commas. Non-numeric free text falls back to the raw field value.
       const display = parsed !== null ? formatStatNumber(parsed) : tile.number
+      // Expand freeform affixes (e.g. "$" + "M+") so screen readers don't
+      // mangle them — undefined when no affixes so StatCard reads natively.
+      const ariaLabel = buildNumberTileAriaLabel(
+        display,
+        tile.description,
+        tile.prefix,
+        tile.suffix
+      )
       return (
         <StatCard
           value={parsed ?? 0}
@@ -54,6 +67,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
           numberClass={NUMBER_CLASS}
           label={tile.description}
           labelClass={LABEL_CLASS}
+          ariaLabel={ariaLabel}
           class="w-full items-start pt-0 pb-0 pl-0 desktop:pt-0 desktop:pb-0"
         />
       )

@@ -10,8 +10,8 @@ import { AVIF_QUALITY, TARGET_WIDTHS, WEBP_QUALITY } from './imagePaths'
  *
  * Netlify never upscales — requesting a width larger than the source returns
  * the source size — so a srcset can offer every target width without knowing
- * the source's intrinsic width, which is exactly what makes dropping the
- * build-time encoder possible.
+ * the source's intrinsic width. That is what makes dropping the build-time
+ * encoder possible: the intrinsic width is the one thing only the encoder knew.
  */
 export const NETLIFY_IMAGE_ENDPOINT = '/.netlify/images'
 
@@ -30,18 +30,25 @@ function isSet(value: string | undefined): boolean {
 }
 
 /**
- * True inside a Netlify build or function, where `/.netlify/images` exists.
+ * Whether this build should emit Netlify Image CDN URLs.
  *
- * `NETLIFY` is set by every Netlify build and by `netlify dev`; local builds
- * and GitHub Actions keep the pre-generated variants. `IMAGE_CDN=off` is an
- * escape hatch so the CDN can be turned off from the Netlify UI without a
- * revert — set it per-context there if a deploy needs the old behaviour.
+ * `IMAGE_CDN` is an explicit override — `on` or `off` — and wins over
+ * everything. CI sets `IMAGE_CDN=on` so its builds match what Netlify ships
+ * without paying for an encode nobody looks at. `off` is the escape hatch that
+ * turns the CDN back off from the Netlify UI, per context, without a revert.
+ *
+ * Otherwise it auto-detects Netlify, which sets `NETLIFY` in every build and in
+ * `netlify dev`. Local `astro dev` and `astro build` get neither, so they keep
+ * using pre-generated variants — `/.netlify/images` does not exist off-platform
+ * and would 404 every image.
  */
 export function isImageCdnEnabled(
   env: Record<string, string | undefined> = process.env
 ): boolean {
-  if (!isSet(env.NETLIFY)) return false
-  return env.IMAGE_CDN?.trim().toLowerCase() !== 'off'
+  const override = env.IMAGE_CDN?.trim().toLowerCase()
+  if (override === 'on') return true
+  if (override === 'off') return false
+  return isSet(env.NETLIFY)
 }
 
 export interface ImageCdnUrlOptions {

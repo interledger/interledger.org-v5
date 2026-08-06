@@ -10,11 +10,11 @@ const CACHE_DIR = 'public/img/optimized'
 const FALSEY = new Set(['', '0', 'false', 'no', 'off'])
 
 function isImageCdnEnabled(env) {
+  const override = (env.IMAGE_CDN || '').trim().toLowerCase()
+  if (override === 'on') return true
+  if (override === 'off') return false
   const netlify = env.NETLIFY
-  if (netlify === undefined || FALSEY.has(netlify.trim().toLowerCase())) {
-    return false
-  }
-  return (env.IMAGE_CDN || '').trim().toLowerCase() !== 'off'
+  return netlify !== undefined && !FALSEY.has(netlify.trim().toLowerCase())
 }
 
 module.exports = {

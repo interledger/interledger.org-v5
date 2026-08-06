@@ -61,6 +61,10 @@
 # the deploy, where /img/*, /fonts/* and /documents/* all ignored their own
 # rules. X-Robots-Tag is unaffected either way: no other rule sets it, so it
 # merges rather than conflicts.
+#
+# This also decides browser caching for Netlify Image CDN responses, which
+# inherit their Cache-Control from the source asset — without it, transformed
+# images revalidate on every navigation despite a ~1 year edge TTL.
 [[headers]]
   for = "/*"
   [headers.values]

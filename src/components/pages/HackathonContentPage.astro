@@ -4,6 +4,7 @@ import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
@@ -71,6 +72,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
         <MdxContent
           components={{
             Paragraph,
+            NumberTiles,
             Agenda,
             SplitLayout,
             TitleCardGrid,

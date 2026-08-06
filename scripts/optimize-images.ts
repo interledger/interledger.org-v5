@@ -21,15 +21,15 @@ const MILLISECONDS_PER_SECOND = 1000
 async function main(): Promise<void> {
   const startTime = Date.now()
 
-  // On Netlify the CDN transforms images on demand, so pre-generating variants
+  // The Netlify Image CDN transforms on demand, so pre-generating variants here
   // would be ~17 minutes of build time producing files nothing references.
   // getOptimizedImage() switches to /.netlify/images on the same signal, and
   // the runtime catalog falls back to its committed stub when absent.
   if (isImageCdnEnabled()) {
     console.log(
-      'Netlify build detected — skipping image optimization.\n' +
-        'Images are served by the Netlify Image CDN (/.netlify/images).\n' +
-        'Set IMAGE_CDN=off to restore build-time encoding.'
+      'Netlify Image CDN is enabled — skipping image optimization.\n' +
+        'Images are transformed on demand at /.netlify/images.\n' +
+        'Set IMAGE_CDN=off to force build-time encoding.'
     )
     return
   }

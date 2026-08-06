@@ -19,7 +19,11 @@ export {
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
-export { parseStatNumber, formatStatNumber } from './shared/parseStatNumber'
+export {
+  parseStatNumber,
+  formatStatNumber,
+  buildNumberTileAriaLabel
+} from './shared/parseStatNumber'
 export {
   MAX_IMAGE_BYTES,
   MAX_IMAGE_SIZE_LABEL,

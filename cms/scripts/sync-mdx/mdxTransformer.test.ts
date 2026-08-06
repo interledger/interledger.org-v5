@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import { fileURLToPath } from 'node:url'
 
 const mockProjectRootHolder = vi.hoisted(() => ({ current: '' }))
 
@@ -23,7 +24,8 @@ import {
   buildHackathonPagePayload,
   createMediaUploadResolver,
   buildProfilePayload,
-  buildBlogPayload
+  buildBlogPayload,
+  HACKATHON_PAGE_ALLOWED_COMPONENTS
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -2330,6 +2332,23 @@ const baseHackathonPageFrontmatter = {
 }
 
 describe('buildHackathonPagePayload', () => {
+  // The allow-list is a hand-maintained copy of the zone's component list, so
+  // a block added to the schema but not here fails the sync as "unsupported".
+  it('allows exactly the components the hackathon-page zone declares', () => {
+    const schemaPath = fileURLToPath(
+      new URL(
+        '../../src/api/hackathon-page/content-types/hackathon-page/schema.json',
+        import.meta.url
+      )
+    )
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
+    const declared: string[] = schema.attributes.content.components
+
+    expect([...HACKATHON_PAGE_ALLOWED_COMPONENTS].sort()).toEqual(
+      [...declared].sort()
+    )
+  })
+
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
       const mdx = createMdxFile({
@@ -2439,6 +2458,34 @@ describe('buildHackathonPagePayload', () => {
       )
       expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('accepts a NumberTiles block', async () => {
+      await import('./numberTilesHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content:
+          "<NumberTiles tiles={[{ number: '21', description: 'Teams' }, { number: '300', description: 'Participants' }]} />"
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.number-tiles',
+          tiles: [
+            { number: '21', description: 'Teams' },
+            { number: '300', description: 'Participants' }
+          ]
+        }
       ])
     })
 

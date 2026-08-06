@@ -36,6 +36,7 @@
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
+        "blocks.number-tiles",
         "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",

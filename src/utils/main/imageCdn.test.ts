@@ -8,7 +8,7 @@ import {
 import { AVIF_QUALITY, TARGET_WIDTHS, WEBP_QUALITY } from './imagePaths'
 
 describe('isImageCdnEnabled', () => {
-  it('is off by default — local builds and CI keep the pre-generated variants', () => {
+  it('is off for a plain local build — /.netlify/images does not exist off-platform', () => {
     expect(isImageCdnEnabled({})).toBe(false)
   })
 
@@ -28,18 +28,21 @@ describe('isImageCdnEnabled', () => {
     }
   )
 
+  it('is on when CI opts in explicitly, with no NETLIFY present', () => {
+    expect(isImageCdnEnabled({ IMAGE_CDN: 'on' })).toBe(true)
+    expect(isImageCdnEnabled({ IMAGE_CDN: 'ON' })).toBe(true)
+  })
+
   it('honours IMAGE_CDN=off as an escape hatch on Netlify', () => {
     expect(isImageCdnEnabled({ NETLIFY: 'true', IMAGE_CDN: 'off' })).toBe(false)
     expect(isImageCdnEnabled({ NETLIFY: 'true', IMAGE_CDN: 'OFF' })).toBe(false)
   })
 
-  it('ignores IMAGE_CDN values other than "off"', () => {
-    expect(isImageCdnEnabled({ NETLIFY: 'true', IMAGE_CDN: 'on' })).toBe(true)
-    expect(isImageCdnEnabled({ NETLIFY: 'true', IMAGE_CDN: '' })).toBe(true)
-  })
-
-  it('does not enable the CDN off IMAGE_CDN alone — the endpoint only exists on Netlify', () => {
-    expect(isImageCdnEnabled({ IMAGE_CDN: 'on' })).toBe(false)
+  it('falls back to auto-detection for an unrecognised IMAGE_CDN value', () => {
+    expect(isImageCdnEnabled({ NETLIFY: 'true', IMAGE_CDN: 'maybe' })).toBe(
+      true
+    )
+    expect(isImageCdnEnabled({ IMAGE_CDN: 'maybe' })).toBe(false)
   })
 })
 
@@ -61,28 +64,25 @@ describe('buildImageCdnUrl', () => {
   })
 
   it('uses the same quality as the build-time encoder for each format', () => {
-    const webp = new URL(
-      buildImageCdnUrl('/img/a.png', { format: 'webp', width: 640 }),
-      'https://example.com'
-    )
-    const avif = new URL(
-      buildImageCdnUrl('/img/a.png', { format: 'avif', width: 640 }),
-      'https://example.com'
-    )
+    const read = (format: 'webp' | 'avif') =>
+      new URL(
+        buildImageCdnUrl('/img/a.png', { format, width: 640 }),
+        'https://example.com'
+      ).searchParams.get('q')
 
-    expect(webp.searchParams.get('q')).toBe(String(WEBP_QUALITY))
-    expect(avif.searchParams.get('q')).toBe(String(AVIF_QUALITY))
+    expect(read('webp')).toBe(String(WEBP_QUALITY))
+    expect(read('avif')).toBe(String(AVIF_QUALITY))
   })
 
   it('percent-encodes paths with spaces and unicode', () => {
-    const url = buildImageCdnUrl('/uploads/img/original/Ärsrapport 2026.png', {
+    const url = buildImageCdnUrl('/uploads/img/original/Årsrapport 2026.png', {
       format: 'webp',
       width: 1280
     })
 
     expect(url).not.toContain(' ')
     expect(new URL(url, 'https://example.com').searchParams.get('url')).toBe(
-      '/uploads/img/original/Ärsrapport 2026.png'
+      '/uploads/img/original/Årsrapport 2026.png'
     )
   })
 })
