@@ -10,7 +10,9 @@ describe('blockquote serializer', () => {
 
     expect(result).toContain('<Blockquote source="Vint Cerf">')
     expect(result).toContain('</Blockquote>')
-    expect(result).toContain('Internet is for everyone')
+    expect(result).toContain('The Internet is for everyone.')
+    // Marks are CSS/component-owned — do not embed literal curly quotes
+    expect(result).not.toMatch(/[“”]/)
   })
 
   it('serializes blockquote without source', () => {
@@ -18,7 +20,18 @@ describe('blockquote serializer', () => {
 
     expect(result).not.toContain('source=')
     expect(result).toContain('<Blockquote>')
-    expect(result).toContain('simple quote')
+    expect(result).toContain('A simple quote.')
+    expect(result).not.toMatch(/[“”]/)
+  })
+
+  it('strips surrounding quotes from CMS text on export', () => {
+    const result = serialize({
+      quote: '“Money should move like data.”',
+      source: 'Author'
+    })
+
+    expect(result).toContain('Money should move like data.')
+    expect(result).not.toMatch(/[“”]/)
   })
 
   it('escapes braces in quote content', () => {

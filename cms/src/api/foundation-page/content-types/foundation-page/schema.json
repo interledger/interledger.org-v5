@@ -74,7 +74,8 @@
         "blocks.title-card-grid",
         "blocks.carousel",
         "blocks.faq",
-        "blocks.event-card"
+        "blocks.event-card",
+        "blocks.quote"
       ]
     }
   }

@@ -3,6 +3,8 @@ import { translationMap } from './translationMapData'
 import { localizeRoute } from './routes'
 import { buildRoutePath } from './translatePath'
 
+export { isDemoPathSlug, isDemoPathname } from '../shared/demoPaths'
+
 export type HreflangMeta = {
   locale: Locale
   url: string

@@ -1,5 +1,28 @@
 import { describe, it, expect } from 'vitest'
-import { formatMdx, pathSlugToMdxFilename, resolveFilenameSlug } from './mdx'
+import {
+  formatBlockquote,
+  formatMdx,
+  pathSlugToMdxFilename,
+  resolveFilenameSlug
+} from './mdx'
+
+describe('formatBlockquote', () => {
+  it('returns plain text without wrapping curly quotes', () => {
+    expect(formatBlockquote('Money should move like data.')).toBe(
+      'Money should move like data.'
+    )
+  })
+
+  it('strips surrounding straight and curly quotes', () => {
+    expect(formatBlockquote('"quoted"')).toBe('quoted')
+    expect(formatBlockquote('“curly”')).toBe('curly')
+    expect(formatBlockquote('‘single’')).toBe('single')
+  })
+
+  it('trims whitespace', () => {
+    expect(formatBlockquote('  spaced  ')).toBe('spaced')
+  })
+})
 
 describe('resolveFilenameSlug', () => {
   it('uses the English slug for a non-English locale when provided', () => {

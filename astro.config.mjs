@@ -11,6 +11,7 @@ import tailwindcss from '@tailwindcss/vite'
 import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
 import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTables.ts'
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
+import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 
 // https://astro.build/config
 export default defineConfig({
@@ -135,7 +136,12 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (url) => !new URL(url).pathname.includes('/preview')
+      // Exclude previews and design/QA demo pages (demo / demo-* path segments)
+      filter: (url) => {
+        const pathname = new URL(url).pathname
+        if (pathname.includes('/preview')) return false
+        return !isDemoPathname(pathname)
+      }
     })
   ],
   vite: {

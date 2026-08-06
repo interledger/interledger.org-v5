@@ -4,6 +4,7 @@ import {
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
 import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
+import { PasteFromMarkdownExperimental } from '@ckeditor/ckeditor5-markdown-gfm'
 import type { Editor } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 
@@ -62,6 +63,12 @@ const markdownPresetNoH1: Preset = {
     ...defaultMarkdownPreset.editorConfig,
     heading: { options: headingOptionsWithoutH1 },
     extraPlugins: [
+      // Autoformat only converts "- "/"1. " into a list when typed, not when
+      // pasted, so a pasted hyphenated list stays literal text; clicking the
+      // toolbar's list button then wraps that literal "- " text in <li> tags
+      // instead of producing real list items. This plugin parses pasted
+      // plain-text/markdown content into real CKEditor content on paste.
+      PasteFromMarkdownExperimental,
       function cleanGoogleDocsOnPaste(editor: Editor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
 

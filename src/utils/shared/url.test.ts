@@ -4,6 +4,7 @@ import {
   ensureLeadingSlash,
   hasUrlScheme,
   isSafeMarkdownHref,
+  isExternalHref,
   getSocialIconName
 } from './url'
 
@@ -156,6 +157,19 @@ describe('isSafeMarkdownHref', () => {
     // normalizing them (only TAB/LF/CR are actually stripped per spec), but
     // treating them as suspicious rather than "no scheme" is the safer call.
     expect(isSafeMarkdownHref('java\x1bscript:alert(1)')).toBe(false)
+  })
+})
+
+describe('isExternalHref', () => {
+  it('returns true for absolute http(s) URLs', () => {
+    expect(isExternalHref('https://example.com')).toBe(true)
+    expect(isExternalHref('http://example.com/path')).toBe(true)
+  })
+
+  it('returns false for relative and other schemes', () => {
+    expect(isExternalHref('/grants/apply')).toBe(false)
+    expect(isExternalHref('#section')).toBe(false)
+    expect(isExternalHref('mailto:jane@example.com')).toBe(false)
   })
 })
 

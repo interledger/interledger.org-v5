@@ -20,6 +20,8 @@ interface Props {
   bodyClass?: string
   bodyStyle?: string
   datePublished?: string
+  /** Demo/QA pages: robots noindex,nofollow */
+  noindex?: boolean
 }
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
@@ -40,7 +42,8 @@ const {
   canonicalURL = canonicalMeta.canonical,
   bodyClass = '',
   bodyStyle = '',
-  datePublished
+  datePublished,
+  noindex = false
 } = Astro.props
 ---
 
@@ -78,6 +81,7 @@ const {
       hreflang={canonicalMeta.hreflang}
       xDefault={canonicalMeta.xDefault}
       datePublished={datePublished}
+      noindex={noindex}
     />
     <slot name="head" />
     <script
