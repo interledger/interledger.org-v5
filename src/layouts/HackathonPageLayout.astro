@@ -9,6 +9,7 @@ import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
 import MicrositeFooter from '@/components/layout/MicrositeFooter.astro'
 import MicrositeHeader from '@/components/layout/MicrositeHeader.astro'
+import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
 interface Props {
   title: string
@@ -16,6 +17,7 @@ interface Props {
   gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
+  noindex?: boolean
 }
 
 const { routeLocale } = Astro.locals
@@ -27,7 +29,8 @@ const {
   description,
   gradient = 'option1',
   ogImageUrl = new URL('/img/og-hackathon.png', site).href,
-  canonicalURL
+  canonicalURL,
+  noindex = false
 } = Astro.props
 ---
 
@@ -40,8 +43,10 @@ const {
   theme="dark"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"
   bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+  noindex={noindex}
 >
   <MicrositeHeader site="hackathon" slot="header" />
+  <TableScrollSupport />
   <div
     class="flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_h1]:text-h2-lg [&_h2]:text-h3-md [&_h3]:text-h3 [&_h4]:text-h4 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]"
   >

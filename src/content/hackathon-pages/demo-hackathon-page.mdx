@@ -15,7 +15,41 @@ Hackathon teams building on Interledger often compare their prototype's transfer
 
 [^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
 
+| Method                         | Typical fee (send $200) | Typical settlement time |
+| ------------------------------ | ----------------------- | ----------------------- |
+| Interledger                    | ~$0.001                 | Seconds                 |
+| Traditional bank wire          | $30+                    | 1–3 days                |
+| Fintech remittance (e.g. Wise) | ~$8–12                  | Minutes–hours           |
+
 </Paragraph>
+
+<NumberTiles
+  tiles={[
+    { number: '48', description: 'Hours to build' },
+    { number: '120', suffix: '+', description: 'Hackers registered' },
+    { number: '30', suffix: '+', description: 'Teams competing' },
+    { number: '12', description: 'Mentor tracks' }
+  ]}
+/>
+
+<Quote
+  authorName="Julaire Hall"
+  authorImage="/img/foundation-blog/authors/julaire.jpg"
+  authorLink="https://interledger.org"
+>
+  Sending value across the internet should be as seamless as sending an email.
+  Our work is dedicated to making that vision real.
+</Quote>
+
+<Quote authorName="Casey Diké, Blaze Group">
+  One of the most powerful skills in advancing the digital transformation of
+  financial institutions is the ability to listen. We must listen to communities
+  and to the institutions serving them. When we listen better, we uncover the
+  next step toward meaningful growth.
+</Quote>
+
+> Open financial infrastructure works best when builders, policymakers, and
+> communities shape it together.
 
 <SplitLayout layoutType="video-text" videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM">
 
@@ -45,6 +79,108 @@ Interledger is designed to help systems operate as a network, and fund those wor
   Claim your spot, meet mentors, and start shipping on open payment
   infrastructure.
 </CtaStrip>
+
+<Agenda
+  heading={'Day 1 — Friday, 6 November 2026'}
+  items={[
+    {
+      time: '8:30 am – 9:15 am',
+      activity: 'Check-in & setup',
+      additionalInfo:
+        '* Team registration and wristbands\n* Power strips and tables assigned by track\n* Breakfast and coffee available until 9:30 am'
+    },
+    {
+      time: '9:15 am – 9:45 am',
+      activity: 'Kickoff briefing',
+      additionalInfo:
+        '* Challenge themes and judging criteria\n* API credentials and sandbox access\n* Rules, support channels, and mentor schedule'
+    },
+    {
+      time: '9:45 am – 10:30 am',
+      activity: 'Tech orientation',
+      additionalInfo:
+        '* Open Payments & Interledger overview\n* Local testnet walkthrough\n* Common pitfalls and sample repos'
+    },
+    {
+      time: '10:30 am – 12:30 pm',
+      activity: 'Build session 1',
+      additionalInfo:
+        '* Unstructured hacking time\n* Mentors roam every 20 minutes\n* Help desk open for environment issues'
+    },
+    {
+      time: '12:30 pm – 1:15 pm',
+      activity: 'Lunch',
+      additionalInfo:
+        '* Catered lunch near the main workspace\n* Optional office hours with platform engineers\n* Teams may eat at their tables'
+    },
+    {
+      time: '1:15 pm – 3:30 pm',
+      activity: 'Build session 2',
+      additionalInfo:
+        '* Continue prototypes and integrations\n* Midday check-in optional with mentors\n* Submit progress notes in the team channel'
+    },
+    {
+      time: '3:30 pm – 3:45 pm',
+      activity: 'Stretch break',
+      additionalInfo:
+        '* Snacks restocked\n* Quick demos of starter kits in the lounge'
+    },
+    {
+      time: '3:45 pm – 5:30 pm',
+      activity: 'Build session 3',
+      additionalInfo:
+        '* Focus on a demo-ready flow\n* Mentors prioritise blocked teams\n* Draft README templates available at the help desk'
+    },
+    {
+      time: '5:30 pm – 6:00 pm',
+      activity: 'Stand-up & day close',
+      additionalInfo:
+        '* Share one win and one blocker per team\n* Overnight venue access rules\n* Day 2 kickoff time confirmed'
+    },
+    {
+      time: '6:00 pm – 7:30 pm',
+      activity: 'Team dinner',
+      additionalInfo:
+        '* Casual dinner for participants and mentors\n* Table topics for team-forming late arrivals\n* Venue closes at 8:00 pm'
+    }
+  ]}
+/>
+
+<Agenda
+  heading={'Day 2 — Saturday, 7 November 2026'}
+  items={[
+    {
+      time: '9:00 am – 9:20 am',
+      activity: 'Morning stand-up',
+      additionalInfo:
+        '* Confirm demo order and AV needs\n* Final submission checklist at the help desk'
+    },
+    {
+      time: '9:20 am – 12:00 pm',
+      activity: 'Final build & freeze',
+      additionalInfo:
+        '* Last push before code freeze at noon\n* Mentors available for demo polish only\n* Submit repo link and 2-minute video pitch'
+    },
+    {
+      time: '12:00 pm – 12:45 pm',
+      activity: 'Lunch',
+      additionalInfo:
+        '* Buffet lunch while judges prepare\n* Practice pitches in the side rooms'
+    },
+    {
+      time: '12:45 pm – 2:30 pm',
+      activity: 'Team demos',
+      additionalInfo:
+        '* 5 minutes per team including Q&A\n* Live scoring by the judge panel\n* Audience can watch from the main hall'
+    },
+    {
+      time: '2:30 pm – 3:00 pm',
+      activity: 'Awards & close',
+      additionalInfo:
+        '* Category winners announced\n* Prize collection at the registration desk\n* Group photo and farewell'
+    }
+  ]}
+/>
 
 <LogoCarousel
   heading="In partnership with"
@@ -172,3 +308,14 @@ Interledger is designed to help systems operate as a network, and fund those wor
     }
   ]}
 />
+
+<Faq>
+  <FaqItem question="Do I need a team to enter?">
+    No. You can register solo and form a team during the opening session, or
+    bring a team of up to four people.
+  </FaqItem>
+  <FaqItem question="What can I build?">
+    Anything that uses Open Payments or Web Monetization. Judges score on
+    originality, technical execution, and real-world impact.
+  </FaqItem>
+</Faq>

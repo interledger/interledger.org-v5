@@ -11,6 +11,7 @@ import {
   buildFaqPayload,
   buildReportPayload,
   buildHackathonPagePayload,
+  createMediaAltUpdater,
   createMediaUploadResolver,
   type StrapiUploadContext
 } from './mdxTransformer'
@@ -28,6 +29,7 @@ import {
 // Side-effect imports: register component handlers
 import './profileHandler'
 import './blockquoteHandler'
+import './quoteHandler'
 import './calloutTextHandler'
 import './ctaStripHandler'
 import './paragraphHandler'
@@ -38,7 +40,9 @@ import './splitLayoutHandler'
 import './carouselHandler'
 import './imageBlockHandler'
 import './numberTilesHandler'
+import './agendaHandler'
 import './titleCardGridHandler'
+import './faqHandler'
 import './ctaLinkHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
@@ -108,11 +112,15 @@ function buildParsedPagePayload(
         dryRun,
         strapiUploadContext.profilePathSlugs
       ),
-      resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
+      resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
+      updateMediaAlt: createMediaAltUpdater(
+        strapi,
+        updatedAltIds,
+        mdx.pathSlug,
+        dryRun
+      )
     },
-    strapiUploadContext,
-    updatedAltIds,
-    dryRun
+    strapiUploadContext
   )
 }
 
@@ -121,8 +129,11 @@ export function buildContentTypes(
   strapiUrl: string,
   strapiToken: string
 ): ContentTypes {
-  // One Map per content type per sync run — guards against updating the same
-  // upload file's alt text multiple times with potentially different values.
+  // Alt-text maps guard against updating the same upload file's alt text
+  // multiple times per sync run with potentially different values. Foundation,
+  // summit and hackathon pages share one: they allow the same blocks and draw
+  // on the same partner-logo uploads, so a name that differs between them is a
+  // conflict worth warning about, not a silent overwrite.
   const blogAltIds = new Map<number, string | null>()
   const pageAltIds = new Map<number, string | null>()
   const grantPageAltIds = new Map<number, string | null>()
@@ -192,7 +203,13 @@ export function buildContentTypes(
               dryRun,
               profilePathSlugs
             ),
-            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun)
+            resolveMediaUpload: createMediaUploadResolver(strapi, dryRun),
+            updateMediaAlt: createMediaAltUpdater(
+              strapi,
+              pageAltIds,
+              mdx.pathSlug,
+              dryRun
+            )
           }
         )
       }

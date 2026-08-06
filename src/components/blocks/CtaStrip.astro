@@ -1,5 +1,5 @@
 ---
-import { buildUmamiAttrs } from '@/utils'
+import { buildUmamiAttrs, isExternalHref } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -49,8 +49,6 @@ if (!hasPrimary) {
     `[CtaStrip] Skipping render on ${Astro.url.pathname}: primaryButtonText and primaryButtonLink are required.`
   )
 }
-
-const isExternal = (href: string) => /^https?:\/\//i.test(href)
 ---
 
 {
@@ -94,7 +92,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href)
           <LinkButton
             href={primaryButtonLink}
             variant="primary"
-            external={isExternal(primaryButtonLink)}
+            external={isExternalHref(primaryButtonLink)}
             class="w-full"
             {...buildUmamiAttrs({
               ...umamiBase,

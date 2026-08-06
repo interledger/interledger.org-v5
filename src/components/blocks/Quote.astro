@@ -1,0 +1,196 @@
+---
+/**
+ * Quote block — dual-edge pull quote matching the foundation design system.
+ *
+ * Layout variants (from design):
+ * 1. Author with image and/or link → author row above the quote (avatar + name + link icon)
+ * 2. Author name only → "– Name" attribution below the quote
+ * 3. Quote only → no attribution
+ *
+ * MDX: quote as children, optional author* props (image as public path).
+ * Strapi preview: `quote` prop + populated media object for `authorImage`.
+ */
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { isExternalHref, isSafeMarkdownHref, useTranslations } from '@/utils'
+
+interface StrapiMedia {
+  url?: string
+  alternativeText?: string | null
+}
+
+interface Props {
+  /** Plain quote text from Strapi; omitted when MDX supplies children. */
+  quote?: string
+  authorName?: string
+  /** Public path (MDX) or populated Strapi media object (preview). */
+  authorImage?: string | StrapiMedia | null
+  authorLink?: string
+  umamiContext?: string
+}
+
+const { quote, authorName, authorImage, authorLink, umamiContext } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+function resolveImage(image: Props['authorImage']): {
+  src: string
+  alt: string
+} | null {
+  if (!image) return null
+  if (typeof image === 'string') {
+    return {
+      src: image,
+      alt: authorName ? t('quote.author_image_alt', { name: authorName }) : ''
+    }
+  }
+  if (image.url) {
+    return {
+      src: image.url,
+      alt:
+        image.alternativeText ||
+        (authorName ? t('quote.author_image_alt', { name: authorName }) : '')
+    }
+  }
+  return null
+}
+
+const image = resolveImage(authorImage)
+// Editor-supplied links (Strapi/MDX) must pass the same scheme allowlist used
+// for markdown hrefs — reject javascript:/data:/etc. before rendering or
+// deciding layout so an unsafe link cannot open an empty attribution row.
+const safeAuthorLink =
+  authorLink && isSafeMarkdownHref(authorLink) ? authorLink.trim() : undefined
+// Image-2 layout: portrait and/or safe link sit above the quote.
+const authorAbove = Boolean(image || safeAuthorLink)
+// Image-1 layout: name-only attribution under the quote with an en dash.
+const authorBelow = Boolean(authorName && !authorAbove)
+
+// Match quote-body type scale (h5) so figcaption attribution reads at the same size.
+const authorTypeClasses =
+  'font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg font-normal'
+const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} text-neutral-900 no-underline transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
+---
+
+<figure
+  data-component="quote"
+  data-umami-component="quote"
+  class="my-2xl border-x-2 border-raspberry-100 px-xl py-0 tablet:px-xl"
+>
+  {
+    authorAbove && (
+      <figcaption class="mb-sm flex items-center gap-md">
+        {image && (
+          <OptimizedImage
+            src={image.src}
+            alt={image.alt}
+            width={44}
+            height={44}
+            class="size-[44px] shrink-0 rounded-full object-cover"
+            loading="lazy"
+          />
+        )}
+        {authorName &&
+          (safeAuthorLink ? (
+            <a
+              href={safeAuthorLink}
+              class={authorLinkClasses}
+              rel={
+                isExternalHref(safeAuthorLink)
+                  ? 'noopener noreferrer'
+                  : undefined
+              }
+              target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+              data-umami-event="quote-author-link"
+              data-umami-event-page={umamiContext}
+            >
+              <span>{authorName}</span>
+              <Icon
+                name="link-rounded"
+                class="size-5 shrink-0 text-primary"
+                aria-hidden="true"
+              />
+              {isExternalHref(safeAuthorLink) && (
+                <span class="sr-only">{t('quote.external_link')}</span>
+              )}
+            </a>
+          ) : (
+            <cite
+              class:list={['not-italic text-neutral-900', authorTypeClasses]}
+            >
+              {authorName}
+            </cite>
+          ))}
+        {!authorName && safeAuthorLink && (
+          <a
+            href={safeAuthorLink}
+            class={authorLinkClasses}
+            rel={
+              isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
+            }
+            target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+            aria-label={t('quote.author_link_label')}
+            data-umami-event="quote-author-link"
+            data-umami-event-page={umamiContext}
+          >
+            <Icon
+              name="link-rounded"
+              class="size-5 shrink-0 text-primary"
+              aria-hidden="true"
+            />
+          </a>
+        )}
+      </figcaption>
+    )
+  }
+
+  <blockquote
+    class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100"
+  >
+    {
+      // String prop: keep marks in the same text run. Slot (MDX): children are
+      // often block <p>s — use CSS ::before/::after on first/last child so the
+      // marks stay inline and don't become separate paragraphs.
+      quote != null && quote !== '' ? (
+        <p class="m-0">{`“${quote}”`}</p>
+      ) : (
+        <div class="quote-slot">
+          <slot />
+        </div>
+      )
+    }
+  </blockquote>
+
+  {
+    authorBelow && (
+      <figcaption class="mt-0">
+        <p class:list={['m-0 text-neutral-100', authorTypeClasses]}>
+          – <cite class="not-italic font-normal">{authorName}</cite>
+        </p>
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  /*
+    MDX often emits <p> children. Pseudo-elements on first/last child keep the
+    curly quotes inline with the text instead of as sibling block nodes.
+  */
+  .quote-slot :global(> p) {
+    margin: 0;
+  }
+  .quote-slot:has(p) :global(> p:first-child)::before {
+    content: '“';
+  }
+  .quote-slot:has(p) :global(> p:last-child)::after {
+    content: '”';
+  }
+  /* Bare text nodes (no <p>) — marks wrap the slot contents inline. */
+  .quote-slot:not(:has(p))::before {
+    content: '“';
+  }
+  .quote-slot:not(:has(p))::after {
+    content: '”';
+  }
+</style>

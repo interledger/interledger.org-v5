@@ -22,5 +22,132 @@
       text-decoration-line: underline;
       text-decoration-color: currentColor;
     }
+
+    /* Rich-text quotes — dual raspberry edges (matches Quote / Blockquote) */
+    & blockquote {
+      border-left: 2px solid var(--color-raspberry-100);
+      border-right: 2px solid var(--color-raspberry-100);
+      padding-inline: var(--spacing-xl);
+      padding-block: 0;
+      margin-block: var(--spacing-2xl);
+      color: var(--color-neutral-100);
+      font-size: var(--text-h5);
+      line-height: var(--text-h5--line-height);
+    }
+    @variant tablet {
+      & blockquote {
+        font-size: var(--text-h5-md);
+        line-height: var(--text-h5-md--line-height);
+      }
+    }
+    @variant desktop {
+      & blockquote {
+        font-size: var(--text-h5-lg);
+        line-height: var(--text-h5-lg--line-height);
+      }
+    }
+    & blockquote p {
+      margin-bottom: 0;
+    }
+
+    /* === Table styles === */
+    & .table-scroll {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      margin-block-end: var(--spacing-2xl);
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      contain: inline-size;
+    }
+
+    & .table-scroll:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Mobile: max-content so wide tables scroll rather than cram columns into
+       ~340px. Tablet+ has room to fit the column, so cells wrap instead. */
+    & table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      background-color: var(--color-neutral-0);
+
+      @variant tablet {
+        width: 100%;
+      }
+    }
+
+    & th,
+    & td {
+      padding-block: var(--spacing-lg);
+      padding-inline: var(--spacing-lg);
+      border-block-end: 1px solid var(--color-neutral-50);
+      border-inline-end: 1px solid var(--color-neutral-50);
+      color: var(--color-neutral-100);
+      text-align: start;
+      vertical-align: top;
+    }
+
+    /* Perimeter borders on cells — avoids corner fade when table radius clips thead. */
+    & :is(th, td):first-child {
+      border-inline-start: 1px solid var(--color-neutral-50);
+    }
+
+    & tbody td,
+    & thead th {
+      font-size: var(--text-body-sm-standard);
+      line-height: var(--text-body-sm-standard--line-height);
+      font-weight: var(--text-body-sm-standard--font-weight);
+    }
+
+    & th p,
+    & td p {
+      margin-block: 0;
+    }
+
+    & td p + p {
+      margin-block-start: var(--spacing-sm);
+    }
+
+    & tbody tr:nth-child(odd) > * {
+      background-color: var(--color-rose-mint-50);
+    }
+
+    & tbody tr:nth-child(even) > * {
+      background-color: var(--color-ice-indigo-50);
+    }
+
+    & thead th {
+      font-size: var(--text-body-lg-emphasis-md);
+      line-height: var(--text-body-lg-emphasis-md--line-height);
+      font-weight: var(--text-body-lg-emphasis-md--font-weight);
+      background-color: var(--color-neutral-0);
+      border-top: 1px solid var(--color-neutral-50);
+    }
+
+    & thead th:first-child {
+      border-start-start-radius: var(--radius-2xl);
+    }
+
+    & thead th:last-child {
+      border-start-end-radius: var(--radius-2xl);
+    }
+
+    & tbody tr:last-child > :first-child {
+      border-end-start-radius: var(--radius-2xl);
+    }
+
+    & tbody tr:last-child > :last-child {
+      border-end-end-radius: var(--radius-2xl);
+    }
   }
 }

@@ -16,7 +16,41 @@ Sessions at the Summit referenced a number of data points on the cost of cross-b
 
 [^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
 
+| Method                         | Typical fee (send $200) | Typical settlement time |
+| ------------------------------ | ----------------------- | ----------------------- |
+| Interledger                    | ~$0.001                 | Seconds                 |
+| Traditional bank wire          | $30+                    | 1–3 days                |
+| Fintech remittance (e.g. Wise) | ~$8–12                  | Minutes–hours           |
+
 </Paragraph>
+
+<NumberTiles
+  tiles={[
+    { number: '800', suffix: '+', description: 'Summit attendees' },
+    { number: '60', suffix: '+', description: 'Sessions and workshops' },
+    { number: '40', suffix: '+', description: 'Countries represented' },
+    { number: '100', suffix: '+', description: 'Speakers and facilitators' }
+  ]}
+/>
+
+<Quote
+  authorName="Julaire Hall"
+  authorImage="/img/foundation-blog/authors/julaire.jpg"
+  authorLink="https://interledger.org"
+>
+  Sending value across the internet should be as seamless as sending an email.
+  Our work is dedicated to making that vision real.
+</Quote>
+
+<Quote authorName="Casey Diké, Blaze Group">
+  One of the most powerful skills in advancing the digital transformation of
+  financial institutions is the ability to listen. We must listen to communities
+  and to the institutions serving them. When we listen better, we uncover the
+  next step toward meaningful growth.
+</Quote>
+
+> Open financial infrastructure works best when builders, policymakers, and
+> communities shape it together.
 
 <SplitLayout
   layoutType="image-quote"
@@ -49,6 +83,114 @@ Sessions at the Summit referenced a number of data points on the cost of cross-b
   Be first to hear about speakers, sessions, and registration for the next
   Interledger Summit.
 </CtaStrip>
+
+<Agenda
+  heading={'Day 1 — Thursday, 5 November 2026'}
+  items={[
+    {
+      time: '8:00 am – 9:00 am',
+      activity: 'Registration & breakfast',
+      additionalInfo:
+        '* Badge pickup in the main foyer\n* Continental breakfast served until 9:00 am\n* Speaker check-in at the green room'
+    },
+    {
+      time: '9:00 am – 9:30 am',
+      activity: 'Summit opening',
+      additionalInfo:
+        '* Welcome from the hosts\n* Theme introduction for the week\n* Logistics, Wi‑Fi, and code of conduct'
+    },
+    {
+      time: '9:30 am – 10:30 am',
+      activity: 'Opening keynote',
+      additionalInfo:
+        '* The state of open payments worldwide\n* What “money move like data” means in practice\n* Live Q&A moderated from the floor'
+    },
+    {
+      time: '10:30 am – 11:00 am',
+      activity: 'Networking break',
+      additionalInfo:
+        '* Coffee and refreshments in the exhibition hall\n* Partner booths open for demos\n* Press and media interviews by appointment'
+    },
+    {
+      time: '11:00 am – 12:15 pm',
+      activity: 'Main stage panel: Interoperability at scale',
+      additionalInfo:
+        '* Operators, regulators, and open-source maintainers\n* Lessons from multi-currency corridors\n* Audience questions submitted via the event app'
+    },
+    {
+      time: '12:15 pm – 1:30 pm',
+      activity: 'Lunch',
+      additionalInfo:
+        '* Buffet lunch in Hall B\n* Lightning tables for topic-based seating\n* Quiet room available on Level 3'
+    },
+    {
+      time: '1:30 pm – 2:45 pm',
+      activity: 'Breakout tracks',
+      additionalInfo:
+        '* Track 1: Protocol & Rafiki deep dive\n* Track 2: Policy and digital public infrastructure\n* Track 3: Product design for inclusive payments'
+    },
+    {
+      time: '2:45 pm – 3:00 pm',
+      activity: 'Short break',
+      additionalInfo:
+        '* Return to the main hall\n* Grab a seat early for the lightning talks'
+    },
+    {
+      time: '3:00 pm – 4:00 pm',
+      activity: 'Lightning talks',
+      additionalInfo:
+        '* Six 8-minute talks from the community\n* Topics range from SDKs to field research\n* Speakers available for hallway follow-ups afterward'
+    },
+    {
+      time: '4:00 pm – 4:45 pm',
+      activity: 'Day 1 wrap-up',
+      additionalInfo:
+        '* Highlights from the tracks\n* Preview of Day 2 sessions\n* Evening reception details and map'
+    },
+    {
+      time: '5:30 pm – 7:30 pm',
+      activity: 'Welcome reception',
+      additionalInfo:
+        '* Hosted drinks and light bites\n* Informal networking with speakers and partners\n* Badge required for entry'
+    }
+  ]}
+/>
+
+<Agenda
+  heading={'Day 2 — Friday, 6 November 2026'}
+  items={[
+    {
+      time: '9:00 am – 9:30 am',
+      activity: 'Day 2 open',
+      additionalInfo:
+        '* Coffee in the main foyer\n* Agenda changes posted on the event app'
+    },
+    {
+      time: '9:30 am – 10:45 am',
+      activity: 'Keynote: Payments as public infrastructure',
+      additionalInfo:
+        '* Case studies from national and regional systems\n* Open Q&A at the end of the session'
+    },
+    {
+      time: '10:45 am – 11:15 am',
+      activity: 'Break',
+      additionalInfo:
+        '* Exhibition hall open\n* Mentor meetups for student attendees'
+    },
+    {
+      time: '11:15 am – 12:30 pm',
+      activity: 'Unconference slots',
+      additionalInfo:
+        '* Community-pitched topics on the wall\n* Rooms assigned after the first 15 minutes\n* Notes shared in the summit wiki'
+    },
+    {
+      time: '12:30 pm – 1:30 pm',
+      activity: 'Closing lunch',
+      additionalInfo:
+        '* Informal lunch and goodbyes\n* Travel desk for airport transfers\n* Survey link sent by email after the event'
+    }
+  ]}
+/>
 
 <LogoCarousel
   heading="In partnership with"
@@ -176,3 +318,14 @@ Sessions at the Summit referenced a number of data points on the cost of cross-b
     }
   ]}
 />
+
+<Faq heading="Attending the Summit">
+  <FaqItem question="Who should attend?">
+    The Summit brings together developers, researchers, policymakers, and
+    financial inclusion practitioners working on open payments.
+  </FaqItem>
+  <FaqItem question="Are travel stipends available?">
+    A limited number of travel stipends are available for speakers and grantees.
+    Details are shared with each cohort directly.
+  </FaqItem>
+</Faq>

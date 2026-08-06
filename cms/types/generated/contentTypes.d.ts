@@ -560,7 +560,8 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         'blocks.paragraph',
         'blocks.video-embed',
         'blocks.image-block',
-        'blocks.code-block'
+        'blocks.code-block',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -738,14 +739,18 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1075,11 +1080,15 @@ export interface ApiHackathonPageHackathonPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.number-tiles',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.cta-strip',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1385,14 +1394,18 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

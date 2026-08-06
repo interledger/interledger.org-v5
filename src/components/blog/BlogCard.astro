@@ -1,5 +1,6 @@
 ---
 import type { FoundationBlogFrontmatterType } from '@/schemas/content'
+import type { BlogThumbnail } from '@/types/blog'
 import {
   type UmamiAttrs,
   translatePath,
@@ -15,7 +16,7 @@ interface Props {
   umamiAttrs: (href: string, linkText: string) => UmamiAttrs
   excerpt: string
   postPath: string
-  thumbnail: string | null
+  thumbnail: BlogThumbnail | null
   readingTime: number
   featured?: boolean
 }
@@ -88,10 +89,10 @@ const cardImageClasses = twMerge(
         <OptimizedImage
           loading={featured ? 'eager' : 'lazy'}
           fetchpriority={featured ? 'high' : 'auto'}
-          src={thumbnail}
+          src={thumbnail.src}
           width={1100}
           height={600}
-          alt={blogData.thumbnailImageAlt ?? ''}
+          alt={thumbnail.alt}
           class={cardImageClasses}
         />
       )

@@ -19,30 +19,50 @@
     "title": {
       "type": "string",
       "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "pathSlug": {
       "type": "string",
       "required": true,
       "unique": true,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "description": {
       "type": "text",
       "required": true,
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "content": {
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
+        "blocks.number-tiles",
+        "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",
         "blocks.cta-strip",
         "blocks.title-card-grid",
-        "blocks.carousel"
+        "blocks.carousel",
+        "blocks.faq",
+        "blocks.quote"
       ],
-      "pluginOptions": { "i18n": { "localized": true } }
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

@@ -16,6 +16,8 @@ interface Props {
   datePublished?: string
   hreflang?: HreflangMeta[]
   xDefault?: string
+  /** When true, emit robots noindex,nofollow (demo/QA pages). */
+  noindex?: boolean
 }
 
 const {
@@ -32,7 +34,8 @@ const {
   twitterSite = '@interledger',
   datePublished,
   hreflang,
-  xDefault
+  xDefault,
+  noindex = false
 } = Astro.props
 
 const site = Astro.site!
@@ -117,6 +120,7 @@ const jsonLd = JSON.stringify({
 <meta name="description" content={resolvedDescription} />
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
 <title>{resolvedTitle}</title>
 
 <meta property="og:title" content={resolvedTitle} />

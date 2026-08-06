@@ -3,6 +3,7 @@ name: Build and Sync
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
 # and/or syncs to Strapi when src/content changes (.md/.mdx), navigation JSON changes,
 # or static media under public/img/, public/uploads/, or public/documents/ changes.
+# Also warms the optimized-image cache for this branch so PRs targeting it can restore it.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -23,6 +24,51 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  # Keeps this branch's cache scope populated so PRs targeting it have something
+  # to restore. GitHub scopes caches by ref: a run may read its own ref, its PR
+  # base branch, and the default branch. pr-checks.yml only runs on
+  # pull_request, so every entry it wrote landed in refs/pull/N/merge and the
+  # staging/playground scopes stayed empty — which made the first run of every
+  # new PR a full cold encode (~17 min, ~88% of that job). This job writes into
+  # refs/heads/staging (or playground), which those PRs can read.
+  #
+  # Deliberately unconditional:
+  #   - When nothing changed it is an exact key hit, so the post-job cache save is skipped.
+  #   - If `pnpm install` + `optimize:images` are gated on cache-hit, the job can finish in well under a minute.
+  #   - The restore refreshes the entry's last-accessed time, which is what
+  #     GitHub's cache eviction is based on. Gating this on "images changed"
+  #     would let the branch's entry go stale and be evicted precisely when the
+  #     repo is near its 10 GB cache cap.
+  #   - It must not be blocked by a Strapi rebuild or sync failure, and must not
+  #     block them either.
+  warm-image-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Cache optimized images
+        uses: ./.github/actions/cache-optimized-images
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Optimize images
+        run: pnpm run optimize:images
+
+  # Inspects the current push event and the changes that were made in it, then decides which outputs to set.
+  # Depending on the changes, the following flags may be set:
+  # - cms_changed: true if any file under cms/ changed
+  # - content_changed: true if any file under src/content/ or public/img/, public/uploads/, public/documents/ changed
+  # - navigation_changed: true if any file under src/config/foundation-navigation.json or src/config/summit-navigation.json changed
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -193,6 +239,8 @@ jobs:
             core.setOutput('content_changed', String(contentChanged))
             core.setOutput('navigation_changed', String(navigationChanged))
 
+  # This step will run on the self-hosted Strapi instance and will execute if the cms directory has been
+  # changed. It will only run on the staging or playground branches and will rebuild the Strapi CMS and restart the Strapi service.
   rebuild-strapi:
     needs: detect-changes
     if: |
@@ -202,6 +250,8 @@ jobs:
     env:
       DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
       STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
+      # The merge branch this environment deploys: playground -> strapi-playground, staging -> strapi-staging.
+      DEPLOY_BRANCH: ${{ github.ref_name }}
 
     steps:
       - name: Rebuild Strapi CMS
@@ -242,8 +292,10 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
-          # Ensure pull fails instead of creating merge commits
-          git fetch
+          git fetch origin "$DEPLOY_BRANCH"
+
+          git checkout "$DEPLOY_BRANCH"
+          
           git pull --ff-only
 
           # Defensive check: fail if git index contains unresolved conflicts
@@ -328,7 +380,9 @@ jobs:
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [detect-changes, rebuild-strapi, sync-to-strapi]
+    # warm-image-cache is included so a silent warming failure is visible —
+    # otherwise PR builds quietly regress to a full cold encode.
+    needs: [detect-changes, rebuild-strapi, sync-to-strapi, warm-image-cache]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure

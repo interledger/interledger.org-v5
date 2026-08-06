@@ -24,9 +24,12 @@ import {
 import { validateContentBlocks } from './serializers/blocks'
 import { errors } from '@strapi/utils'
 import {
-  formatImageSize,
+  formatFileSize,
+  imageOverSizeLimitError,
   imageSizeLimitError,
   isImageOverSizeLimit,
+  isMediaOverSizeLimit,
+  mediaSizeLimitError,
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
@@ -139,32 +142,32 @@ interface EditLayoutField {
   size: number
 }
 
+interface CmConfiguration {
+  settings?: Record<string, unknown>
+  metadatas?: Record<string, FieldMetadata>
+  layouts?: {
+    list?: unknown[]
+    edit?: EditLayoutField[][]
+  }
+  options?: Record<string, unknown>
+}
+
 interface CmContentTypesService {
-  findConfiguration: (obj: { uid: string }) => Promise<{
-    metadatas?: Record<string, FieldMetadata>
-    layouts?: { edit?: EditLayoutField[][] }
-  } | null>
+  findConfiguration: (obj: { uid: string }) => Promise<CmConfiguration | null>
   updateConfiguration: (
     obj: { uid: string },
-    config: {
-      metadatas?: Record<string, FieldMetadata>
-      layouts?: { edit?: EditLayoutField[][] }
-    }
+    config: CmConfiguration
   ) => Promise<void>
 }
 
 interface CmComponentsService {
   findComponent: (uid: string) => { uid: string } | null
-  findConfiguration: (component: { uid: string }) => Promise<{
-    metadatas?: Record<string, FieldMetadata>
-    layouts?: { edit?: EditLayoutField[][] }
-  } | null>
+  findConfiguration: (component: {
+    uid: string
+  }) => Promise<CmConfiguration | null>
   updateConfiguration: (
     component: { uid: string },
-    config: {
-      metadatas?: Record<string, FieldMetadata>
-      layouts?: { edit?: EditLayoutField[][] }
-    }
+    config: CmConfiguration
   ) => Promise<void>
 }
 
@@ -179,10 +182,10 @@ interface UploadProvider {
   upload: (file: UploadFile) => Promise<void>
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
-  checkFileSize: (file: UploadFile, options?: unknown) => void
+  checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
 }
 
-interface UploadFile {
+export interface UploadFile {
   hash: string
   ext: string
   url?: string
@@ -366,10 +369,22 @@ async function ensureLocales(strapi: StrapiInstance) {
 const UPLOAD_SUBDIR = 'img/original'
 const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
 
+/**
+ * Strapi normalizes `file.size` to kilobytes (`bytesToKbytes` in @strapi/utils,
+ * which divides by 1000) before the provider ever sees the file. Comparing it
+ * against a byte limit directly silently disables the check.
+ */
+const BYTES_PER_STRAPI_KBYTE = 1000
+
 function getUploadFileSizeBytes(file: UploadFile): number {
-  if (typeof file.size === 'number') return file.size
+  if (typeof file.size === 'number') return file.size * BYTES_PER_STRAPI_KBYTE
   if (file.buffer) return file.buffer.length
   return 0
+}
+
+function getUploadLabel(file: UploadFile): string {
+  if (typeof file.name === 'string') return file.name
+  return `${file.hash ?? 'upload'}${file.ext ?? ''}`
 }
 
 function normalizeUploadExt(ext: string): string {
@@ -391,23 +406,60 @@ function isImageUpload(file: UploadFile): boolean {
   return IMAGE_EXTENSIONS.has(normalizeUploadExt(rawExt))
 }
 
-function assertImageWithinUploadLimit(file: UploadFile, label: string): void {
-  if (!isImageUpload(file)) return
-
+/**
+ * Enforces both upload ceilings — 2 MB for images, 5 MB for everything else —
+ * with a message that names the actual size and tells the editor what to do
+ * about it (INTORG-1000).
+ */
+export function assertUploadWithinLimit(file: UploadFile, label: string): void {
   const sizeBytes = getUploadFileSizeBytes(file)
   // size/buffer unknown (0) — stream uploads are enforced mid-pipe instead.
-  if (sizeBytes > 0 && isImageOverSizeLimit(sizeBytes)) {
-    throw new errors.ApplicationError(imageSizeLimitError(label, sizeBytes))
+  if (sizeBytes === 0) return
+
+  if (isImageUpload(file)) {
+    if (isImageOverSizeLimit(sizeBytes)) {
+      throw new errors.PayloadTooLargeError(
+        imageSizeLimitError(label, sizeBytes)
+      )
+    }
+    return
+  }
+
+  if (isMediaOverSizeLimit(sizeBytes)) {
+    throw new errors.PayloadTooLargeError(mediaSizeLimitError(label, sizeBytes))
   }
 }
 
-function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
+/**
+ * Wraps the provider's own size check so ours runs first — an oversized file
+ * then gets our actionable message instead of the provider's bare "exceeds size
+ * limit of 5 MB".
+ *
+ * The wrapped check is async, so its result has to be awaited. Calling it and
+ * dropping the promise turned a rejection into an unhandled rejection, which
+ * killed the Strapi process and left the editor staring at a network error
+ * instead of an explanation (INTORG-1000).
+ */
+export function createCheckFileSize(
+  originalCheckFileSize?: (file: UploadFile, options?: unknown) => Promise<void>
+) {
+  return async (file: UploadFile, options?: unknown): Promise<void> => {
+    assertUploadWithinLimit(file, getUploadLabel(file))
+    await originalCheckFileSize?.(file, options)
+  }
+}
+
+function assertWrittenImageWithinLimit(
+  file: UploadFile,
+  dest: string,
+  label: string
+): void {
   if (!isImageUpload(file)) return
 
   const { size } = fs.statSync(dest)
   if (isImageOverSizeLimit(size)) {
     fs.unlinkSync(dest)
-    throw new errors.ApplicationError(imageSizeLimitError(dest, size))
+    throw new errors.PayloadTooLargeError(imageSizeLimitError(label, size))
   }
 }
 
@@ -415,6 +467,7 @@ function assertWrittenImageWithinLimit(file: UploadFile, dest: string): void {
  * Counts bytes while piping an image upload so we can abort as soon as the
  * stream exceeds the 2 MB image limit, instead of writing a huge file and
  * unlinking it in the post-write check (when `file.size` / `buffer` were absent).
+ * The real size is unknown at that point, so the message omits it.
  */
 function createImageSizeLimitTransform(label: string): Transform {
   let bytesSeen = 0
@@ -423,7 +476,7 @@ function createImageSizeLimitTransform(label: string): Transform {
       bytesSeen += chunk.length
       if (isImageOverSizeLimit(bytesSeen)) {
         callback(
-          new errors.ApplicationError(imageSizeLimitError(label, bytesSeen))
+          new errors.PayloadTooLargeError(imageOverSizeLimitError(label))
         )
         return
       }
@@ -452,21 +505,13 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   const provider = uploadPlugin.provider
   const originalCheckFileSize = provider.checkFileSize?.bind(provider)
 
-  provider.checkFileSize = (file: UploadFile, options?: unknown) => {
-    originalCheckFileSize?.(file, options)
-    const label =
-      typeof file.name === 'string'
-        ? file.name
-        : `${file.hash ?? 'upload'}${file.ext ?? ''}`
-    assertImageWithinUploadLimit(file, label)
-  }
+  provider.checkFileSize = createCheckFileSize(originalCheckFileSize)
 
   provider.uploadStream = async (file: UploadFile) => {
     const stream = file.stream ?? file.getStream?.()
     if (!stream) throw new Error('Missing file stream')
-    const label =
-      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
-    assertImageWithinUploadLimit(file, label)
+    const label = getUploadLabel(file)
+    assertUploadWithinLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     try {
       if (isImageUpload(file)) {
@@ -482,18 +527,17 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
       if (fs.existsSync(dest)) fs.unlinkSync(dest)
       throw err
     }
-    assertWrittenImageWithinLimit(file, dest)
+    assertWrittenImageWithinLimit(file, dest, label)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
   provider.upload = async (file: UploadFile) => {
     if (!file.buffer) throw new Error('Missing file buffer')
-    const label =
-      typeof file.name === 'string' ? file.name : `${file.hash}${file.ext}`
-    assertImageWithinUploadLimit(file, label)
+    const label = getUploadLabel(file)
+    assertUploadWithinLimit(file, label)
     const dest = path.join(uploadPath, `${file.hash}${file.ext}`)
     fs.writeFileSync(dest, file.buffer)
-    assertWrittenImageWithinLimit(file, dest)
+    assertWrittenImageWithinLimit(file, dest, label)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
@@ -618,7 +662,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
       const stat = fs.statSync(filePath)
       if (IMAGE_EXTENSIONS.has(ext) && isImageOverSizeLimit(stat.size)) {
         strapi.log.warn(
-          `⚠️  Skipping seed for oversized image (${formatImageSize(stat.size)}): ${url}`
+          `⚠️  Skipping seed for oversized image (${formatFileSize(stat.size)}): ${url}`
         )
         continue
       }
@@ -954,6 +998,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quote: 'Quote',
       source: 'Source'
     },
+    'blocks.quote': {
+      quote: 'Quote',
+      authorName: 'Author Name',
+      authorImage: 'Author Image',
+      authorLink: 'Author Link'
+    },
     'blocks.callout-text': {
       content: 'Content'
     },
@@ -995,6 +1045,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.faq-section': {
       heading: 'Section Heading',
+      items: 'Questions'
+    },
+    'blocks.faq': {
+      heading: 'Heading',
       items: 'Questions'
     },
     'blocks.faq-item': {
@@ -1050,6 +1104,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       prefix: 'Prefix (currency)',
       suffix: 'Suffix',
       description: 'Description'
+    },
+    'blocks.agenda': {
+      heading: 'Heading (optional)',
+      items: 'Agenda items (minimum 2)'
+    },
+    'blocks.agenda-item': {
+      time: 'Time',
+      activity: 'Activity',
+      additionalInfo: 'Additional information'
     },
 
     'blocks.cta-strip': {
@@ -1184,6 +1247,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
+    'blocks.faq': {
+      heading:
+        'Optional. Shown above the questions. Leave blank to run the questions straight on from the content above. At least 1 question is required below.'
+    },
     'blocks.faq-item': {
       question: 'Required.',
       answer: 'Required.'
@@ -1226,6 +1293,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       prefix:
         'Optional symbol shown tight against the front of the number, e.g. "$" for a monetary amount.',
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
+    },
+    'blocks.agenda': {
+      heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     }
   }
 
@@ -1328,6 +1398,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
  * default auto-layout isn't ideal. Rows are arrays of { name, size } with
  * max row size 12 (12 = full width, 6 = half, 3 = quarter, etc.).
  */
+export function buildLayoutConfiguration(
+  current: CmConfiguration | null | undefined,
+  edit: EditLayoutField[][],
+  settings: Record<string, unknown> = {}
+): CmConfiguration {
+  return {
+    settings: { ...current?.settings, ...settings },
+    metadatas: current?.metadatas ?? {},
+    layouts: { ...current?.layouts, edit },
+    ...(current?.options ? { options: current.options } : {})
+  }
+}
+
 async function configureLayouts(strapi: StrapiInstance) {
   const plugin = strapi.plugin('content-manager')
   if (!plugin) return
@@ -1483,6 +1566,17 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'description', size: 12 }]
     ],
+    'blocks.agenda': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
+    'blocks.agenda-item': [
+      [
+        { name: 'time', size: 6 },
+        { name: 'activity', size: 6 }
+      ],
+      [{ name: 'additionalInfo', size: 12 }]
+    ],
     'blocks.image-row': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'media', size: 12 }],
@@ -1506,6 +1600,14 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.blockquote': [
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
+    ],
+    'blocks.quote': [
+      [{ name: 'quote', size: 12 }],
+      [
+        { name: 'authorName', size: 4 },
+        { name: 'authorLink', size: 4 },
+        { name: 'authorImage', size: 4 }
+      ]
     ],
     'blocks.cta-strip': [
       [{ name: 'heading', size: 12 }],
@@ -1569,6 +1671,9 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'secondaryCta', size: 12 }]
     ]
   }
+  const componentMainFields: Record<string, string> = {
+    'blocks.agenda-item': 'time'
+  }
 
   const contentTypeService = plugin.service('content-types') as
     | CmContentTypesService
@@ -1585,7 +1690,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       const current = await contentTypeService?.findConfiguration({ uid })
       await contentTypeService?.updateConfiguration(
         { uid },
-        { layouts: { ...current?.layouts, edit: editLayout } }
+        buildLayoutConfiguration(current, editLayout)
       )
       strapi.log.info(`✅ Updated layout for ${uid}`)
     } catch (error) {
@@ -1600,7 +1705,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       const current = await componentService?.findConfiguration({ uid })
       await componentService?.updateConfiguration(
         { uid },
-        { layouts: { ...current?.layouts, edit: editLayout } }
+        buildLayoutConfiguration(
+          current,
+          editLayout,
+          componentMainFields[uid]
+            ? { mainField: componentMainFields[uid] }
+            : undefined
+        )
       )
       strapi.log.info(`✅ Updated layout for ${uid}`)
     } catch (error) {

@@ -63,14 +63,18 @@
       },
       "components": [
         "blocks.paragraph",
+        "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",
         "blocks.blockquote",
         "blocks.cta-strip",
         "blocks.pdf-embed",
         "blocks.video-embed",
+        "blocks.number-tiles",
         "blocks.title-card-grid",
-        "blocks.carousel"
+        "blocks.carousel",
+        "blocks.faq",
+        "blocks.quote"
       ]
     }
   }
