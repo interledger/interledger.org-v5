@@ -810,6 +810,47 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksPodcastItem extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_podcast_items'
+  info: {
+    description: 'A single podcast episode \u2014 series, title, description, and a Castopod or YouTube embed link.'
+    displayName: 'Podcast Item'
+    icon: 'microphone'
+  }
+  attributes: {
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    series: Schema.Attribute.Enumeration<
+      ['Interledger Salon', 'Future Money', 'Off the Ledger']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    url: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+  }
+}
+
 export interface BlocksProfile extends Struct.ComponentSchema {
   collectionName: 'components_blocks_profiles'
   info: {
@@ -991,7 +1032,13 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Three'>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
-      Schema.Attribute.Required
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
   }
 }
 
@@ -1405,6 +1452,7 @@ declare module '@strapi/strapi' {
       'blocks.number-tiles': BlocksNumberTiles
       'blocks.paragraph': BlocksParagraph
       'blocks.pdf-embed': BlocksPdfEmbed
+      'blocks.podcast-item': BlocksPodcastItem
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
       'blocks.quote': BlocksQuote

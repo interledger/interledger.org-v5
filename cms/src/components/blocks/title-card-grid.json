@@ -9,7 +9,8 @@
       "type": "component",
       "component": "blocks.title-card",
       "repeatable": true,
-      "required": true
+      "required": true,
+      "min": 1
     },
     "columns": {
       "type": "enumeration",

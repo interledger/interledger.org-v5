@@ -1133,6 +1133,94 @@ export interface ApiHackathonPageHackathonPage
   }
 }
 
+export interface ApiPodcastPagePodcastPage extends Struct.CollectionTypeSchema {
+  collectionName: 'podcast-pages'
+  info: {
+    description: 'Podcast landing page: hero, featured series title cards, the podcast episode list, and a closing CTA strip. pathSlug is CMS-authored (live entry typically uses "podcast" \u2192 /podcast).'
+    displayName: 'Podcast Page'
+    pluralName: 'podcast-pages'
+    singularName: 'podcast-page'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ctaStrip: Schema.Attribute.Component<'blocks.cta-strip', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::podcast-page.podcast-page'
+    >
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    podcasts: Schema.Attribute.Component<'blocks.podcast-item', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+    publishedAt: Schema.Attribute.DateTime
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    titleCards: Schema.Attribute.Component<'blocks.title-card-grid', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
   collectionName: 'profile_pages'
   info: {
@@ -1864,6 +1952,7 @@ declare module '@strapi/strapi' {
       'api::grant-page.grant-page': ApiGrantPageGrantPage
       'api::hackathon-navigation.hackathon-navigation': ApiHackathonNavigationHackathonNavigation
       'api::hackathon-page.hackathon-page': ApiHackathonPageHackathonPage
+      'api::podcast-page.podcast-page': ApiPodcastPagePodcastPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage
       'api::report.report': ApiReportReport
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation

@@ -245,6 +245,46 @@ export function buildUmamiAttrs(input: BuildUmamiAttrsInput): UmamiAttrs {
   return attrs
 }
 
+export interface UmamiTrackAttrs {
+  'data-track-event': string
+  'data-track-event-link-text'?: string
+  'data-track-event-lang'?: string
+  'data-track-event-label'?: string
+}
+
+/**
+ * Same event name and properties as `buildUmamiAttrs`, rendered under a
+ * `data-track-event*` prefix instead of `data-umami-event*`.
+ *
+ * Umami's bundled script auto-intercepts clicks on any element carrying
+ * `data-umami-event`: for same-tab `<a>` clicks it calls `preventDefault()`,
+ * awaits its tracking fetch, and only then navigates. That guards against
+ * losing outbound-link clicks when the page unloads mid-request, but it adds
+ * a needless delay to ordinary same-tab in-site navigation. Nav links use
+ * this variant instead, paired with `initNavClickTracking` (`header-nav.ts`),
+ * which fires the identical event via `window.umami.track()` without
+ * blocking the click.
+ */
+export function buildDeferredUmamiAttrs(
+  input: BuildUmamiAttrsInput
+): UmamiTrackAttrs {
+  const attrs = buildUmamiAttrs(input)
+  const trackAttrs: UmamiTrackAttrs = {
+    'data-track-event': attrs['data-umami-event']
+  }
+  if (attrs['data-umami-event-link-text']) {
+    trackAttrs['data-track-event-link-text'] =
+      attrs['data-umami-event-link-text']
+  }
+  if (attrs['data-umami-event-lang']) {
+    trackAttrs['data-track-event-lang'] = attrs['data-umami-event-lang']
+  }
+  if (attrs['data-umami-event-label']) {
+    trackAttrs['data-track-event-label'] = attrs['data-umami-event-label']
+  }
+  return trackAttrs
+}
+
 /**
  * Serialise umami attributes as an HTML attribute string (leading space).
  * Used by the markdown renderer; everything is HTML-escaped.

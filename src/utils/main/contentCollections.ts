@@ -9,5 +9,6 @@ export const CONTENT = {
   hackathonPages: 'hackathon-pages',
   profiles: 'profiles',
   faqs: 'faqs',
-  reports: 'reports'
+  reports: 'reports',
+  podcastPages: 'podcast-pages'
 } as const

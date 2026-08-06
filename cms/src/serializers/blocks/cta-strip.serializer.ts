@@ -1,5 +1,4 @@
-import isHtml from 'is-html'
-import { htmlToMarkdown } from '../../utils'
+import { ckeditorFieldToMarkdown } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 /**
@@ -37,11 +36,7 @@ export function serialize(block: {
   // description is a Strapi text (markdown) field — render it as the children
   // and brace-escape so MDX doesn't parse { } as JS expressions.
   const description = block.description
-    ? escMdxBraces(
-        isHtml(block.description)
-          ? htmlToMarkdown(block.description)
-          : block.description
-      )
+    ? escMdxBraces(ckeditorFieldToMarkdown(block.description))
     : ''
 
   return description

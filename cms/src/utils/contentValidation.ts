@@ -482,6 +482,135 @@ export function validateHeroFields(
   return combineFieldErrors(fieldErrors)
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== ''
+}
+
+/**
+ * Validate podcast-page required components: hero, titleCards, podcasts (min 1),
+ * and ctaStrip. Strapi marks these required on create but skips the same checks
+ * on partial PUT updates — this fills that gap (same reason as other validators).
+ *
+ * Returns a `ValidationError` combining every failing field, `undefined` on success.
+ */
+export function validatePodcastPageFields(
+  body: unknown
+): errors.ValidationError | undefined {
+  const data = (body ?? {}) as Record<string, unknown>
+  const fieldErrors: FieldError[] = []
+
+  // Hero is required on podcast-page (unlike foundation-page where absence is ok).
+  let heroValidation: errors.ValidationError | undefined
+  if (!data.hero || typeof data.hero !== 'object') {
+    fieldErrors.push({ message: 'Hero is required', path: ['hero'] })
+  } else {
+    heroValidation = validateHeroFields({
+      hero: data.hero as Parameters<typeof validateHeroFields>[0]['hero']
+    })
+  }
+
+  const titleCards = data.titleCards
+  if (!titleCards || typeof titleCards !== 'object') {
+    fieldErrors.push({
+      message: 'Title Cards are required',
+      path: ['titleCards']
+    })
+  } else {
+    const grid = titleCards as Record<string, unknown>
+    if (!isNonEmptyString(grid.ariaLabel)) {
+      fieldErrors.push({
+        message: 'Title Cards: Aria Label is required',
+        path: ['titleCards', 'ariaLabel']
+      })
+    }
+    const cards = grid.titleCards
+    if (!Array.isArray(cards) || cards.length === 0) {
+      fieldErrors.push({
+        message: 'Title Cards: at least one card is required',
+        path: ['titleCards', 'titleCards']
+      })
+    } else {
+      for (const [i, raw] of cards.entries()) {
+        const card = (raw ?? {}) as Record<string, unknown>
+        if (!isNonEmptyString(card.heading)) {
+          fieldErrors.push({
+            message: `Title Cards: Card ${i + 1} heading is required`,
+            path: ['titleCards', 'titleCards', i, 'heading']
+          })
+        }
+        if (!isNonEmptyString(card.description)) {
+          fieldErrors.push({
+            message: `Title Cards: Card ${i + 1} description is required`,
+            path: ['titleCards', 'titleCards', i, 'description']
+          })
+        }
+        const cta = card.secondaryCta as Record<string, unknown> | undefined
+        if (!cta || typeof cta !== 'object') {
+          fieldErrors.push({
+            message: `Title Cards: Card ${i + 1} CTA is required`,
+            path: ['titleCards', 'titleCards', i, 'secondaryCta']
+          })
+        } else {
+          if (!isNonEmptyString(cta.text)) {
+            fieldErrors.push({
+              message: `Title Cards: Card ${i + 1} CTA text is required`,
+              path: ['titleCards', 'titleCards', i, 'secondaryCta', 'text']
+            })
+          }
+          if (!isNonEmptyString(cta.link)) {
+            fieldErrors.push({
+              message: `Title Cards: Card ${i + 1} CTA link is required`,
+              path: ['titleCards', 'titleCards', i, 'secondaryCta', 'link']
+            })
+          }
+        }
+      }
+    }
+  }
+
+  const podcasts = data.podcasts
+  if (!Array.isArray(podcasts) || podcasts.length === 0) {
+    fieldErrors.push({
+      message: 'At least one podcast episode is required',
+      path: ['podcasts']
+    })
+  } else {
+    for (const [i, raw] of podcasts.entries()) {
+      const item = (raw ?? {}) as Record<string, unknown>
+      if (!isNonEmptyString(item.title)) {
+        fieldErrors.push({
+          message: `Podcast ${i + 1}: Title is required`,
+          path: ['podcasts', i, 'title']
+        })
+      }
+      if (!isNonEmptyString(item.description)) {
+        fieldErrors.push({
+          message: `Podcast ${i + 1}: Description is required`,
+          path: ['podcasts', i, 'description']
+        })
+      }
+      if (!isNonEmptyString(item.url)) {
+        fieldErrors.push({
+          message: `Podcast ${i + 1}: URL is required`,
+          path: ['podcasts', i, 'url']
+        })
+      }
+      if (!isNonEmptyString(item.series)) {
+        fieldErrors.push({
+          message: `Podcast ${i + 1}: Series is required`,
+          path: ['podcasts', i, 'series']
+        })
+      }
+    }
+  }
+
+  return mergeValidationErrors(
+    combineFieldErrors(fieldErrors),
+    heroValidation,
+    validateCtaStrip(body)
+  )
+}
+
 /**
  * Validate a blog post's Article Bio and Related Articles components. Both
  * fields are marked `required` in their component schemas, so Strapi

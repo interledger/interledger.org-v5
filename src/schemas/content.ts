@@ -56,6 +56,8 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
   // Optional mobile feature image; falls back to the desktop image when absent.
+  // Own alt lives on the media file (and in featureImageMobileAlt frontmatter);
+  // when omitted at render time, UI falls back to featureImageAlt.
   featureImageMobile: z.string().optional(),
   featureImageMobileAlt: z.string().nullable().optional(),
   thumbnailImage: z.string().optional(),
@@ -158,6 +160,7 @@ export const grantPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   programOverview: z.string().optional(),
   primaryCta: z
@@ -189,6 +192,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
   heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   followUpContent: z.string().optional(),
   ctaStrip: grantCtaStripSchema,
@@ -277,6 +281,69 @@ export const reportFrontmatterSchema = z.object({
   localizes: z.string().optional()
 })
 export type ReportFrontmatterType = z.infer<typeof reportFrontmatterSchema>
+
+const podcastCtaStripSchema = z.object({
+  heading: z.string(),
+  description: z.string(),
+  buttonText: z.string(),
+  buttonLink: z.string(),
+  color: z.enum(['purple', 'green']).default('purple'),
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonLink: z.string().optional()
+})
+
+const podcastTitleCardSchema = z.object({
+  heading: z.string().min(1, 'heading is required'),
+  subHeading: z.string().optional(),
+  description: z.string().min(1, 'description is required'),
+  secondaryCta: z.object({
+    text: z.string(),
+    link: z.string(),
+    external: z.boolean().optional()
+  })
+})
+
+const podcastTitleCardsSchema = z.object({
+  columns: z.enum(['Three', 'Two']),
+  ariaLabel: z.string().min(1, 'ariaLabel is required'),
+  cards: z.array(podcastTitleCardSchema).min(1)
+})
+
+// Each podcast episode embeds via a Castopod or YouTube URL — see
+// detectVideoProvider (src/utils/main/video.ts) for how the player branches.
+const podcastItemSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  description: z.string().min(1, 'description is required'),
+  url: z.string().min(1, 'url is required'),
+  series: z.enum(['Interledger Salon', 'Future Money', 'Off the Ledger'])
+})
+
+// Podcast landing page. No dynamic zone — hero, title cards, episodes, and CTA
+// strip are page-owned fields. pathSlug is CMS-authored (live entry typically
+// uses "podcast" → /podcast). Collection type: multiple entries allowed; each
+// routes under the foundation [...page] catch-all by its own pathSlug.
+export const podcastPageFrontmatterSchema = z.object({
+  title: z.string().min(1, 'title is required'),
+  pathSlug: pathSlugSchema(),
+  description: z.string().min(1, 'description is required'),
+  heroTitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
+  heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
+  titleCards: podcastTitleCardsSchema,
+  podcasts: z.array(podcastItemSchema).min(1),
+  ctaStrip: podcastCtaStripSchema,
+  locale: z.string().optional(),
+  localizes: z.string().optional()
+})
+export type PodcastPageFrontmatterType = z.infer<
+  typeof podcastPageFrontmatterSchema
+>
+export type PodcastItemType = z.infer<typeof podcastItemSchema>
+export type PodcastTitleCardType = z.infer<typeof podcastTitleCardSchema>
 
 // Legacy export for backward compatibility
 export const pageFrontmatterSchema = foundationPageFrontmatterSchema
