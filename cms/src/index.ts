@@ -888,7 +888,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       tagline:
         'Used on profile grids below the avatar and name. Not shown on the profile page.',
       category:
-        'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Fellows 2026", "2025 Hackathon Judges").',
+        'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Past Fellows", "2025 Hackathon Judges").',
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
       pathSlug:

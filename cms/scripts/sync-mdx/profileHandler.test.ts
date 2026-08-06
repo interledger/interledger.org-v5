@@ -268,28 +268,28 @@ describe('ProfileGrid handler', () => {
 
   it('parses <ProfileGrid> with category instead of pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="2026 Fellows" category="Fellows 2026" />',
+      '<ProfileGrid heading="Past Fellows" category="Past Fellows" />',
       ctxWith({})
     )
 
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: '2026 Fellows',
-        category: 'Fellows 2026'
+        heading: 'Past Fellows',
+        category: 'Past Fellows'
       }
     ])
   })
 
   it('parses <ProfileGrid> with category and no heading', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid category="Fellows 2026" />',
+      '<ProfileGrid category="Past Fellows" />',
       ctxWith({})
     )
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.profile-grid',
-      category: 'Fellows 2026'
+      category: 'Past Fellows'
     })
     expect(blocks[0]).not.toHaveProperty('heading')
   })
