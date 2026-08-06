@@ -23,73 +23,97 @@ interface EventCardApply {
   }
 }
 
+function validateEventWhen(when: EventCardWhen | undefined): FieldError[] {
+  if (!when) {
+    return [
+      {
+        message: 'Event card is missing the When column',
+        path: ['when']
+      }
+    ]
+  }
+  if (!when.title?.trim()) {
+    return [
+      {
+        message: 'Event card When column is missing a title',
+        path: ['when', 'title']
+      }
+    ]
+  }
+  return []
+}
+
+function validateEventWhere(where: EventCardWhere | undefined): FieldError[] {
+  if (!where) {
+    return [
+      {
+        message: 'Event card is missing the Where column',
+        path: ['where']
+      }
+    ]
+  }
+  if (!where.title?.trim()) {
+    return [
+      {
+        message: 'Event card Where column is missing a title',
+        path: ['where', 'title']
+      }
+    ]
+  }
+  return []
+}
+
 /**
- * Validate the whole event card. Returns every failing field so an editor can
- * fix everything in one pass. Apply is optional; when present its title and
- * primary CTA text/link are required.
+ * Apply is optional; when present its title and primary CTA text/link are
+ * required. Returns every failing field so editors can fix them in one pass.
  */
+function validateEventApply(apply: EventCardApply | null | undefined): FieldError[] {
+  if (!apply) return []
+
+  const fieldErrors: FieldError[] = []
+
+  if (!apply.title?.trim()) {
+    fieldErrors.push({
+      message: 'Event card Apply column is missing a title',
+      path: ['apply', 'title']
+    })
+  }
+
+  if (!apply.primaryCta) {
+    fieldErrors.push({
+      message: 'Event card Apply column is missing a primary call to action',
+      path: ['apply', 'primaryCta']
+    })
+    return fieldErrors
+  }
+
+  if (!apply.primaryCta.text?.trim()) {
+    fieldErrors.push({
+      message: 'Event card Apply button is missing link text',
+      path: ['apply', 'primaryCta', 'text']
+    })
+  }
+  if (!apply.primaryCta.link?.trim()) {
+    fieldErrors.push({
+      message: 'Event card Apply button is missing a URL',
+      path: ['apply', 'primaryCta', 'link']
+    })
+  }
+
+  return fieldErrors
+}
+
+/** Aggregate When / Where / Apply errors (same shape as validateFaq). */
 function validateEventCard(block: {
   when?: EventCardWhen
   where?: EventCardWhere
   apply?: EventCardApply | null
 }): FieldError[] {
-  const fieldErrors: FieldError[] = []
-
-  if (!block.when) {
-    fieldErrors.push({
-      message: 'Event card is missing the When column',
-      path: ['when']
-    })
-  } else if (!block.when.title?.trim()) {
-    fieldErrors.push({
-      message: 'Event card When column is missing a title',
-      path: ['when', 'title']
-    })
-  }
-
-  if (!block.where) {
-    fieldErrors.push({
-      message: 'Event card is missing the Where column',
-      path: ['where']
-    })
-  } else if (!block.where.title?.trim()) {
-    fieldErrors.push({
-      message: 'Event card Where column is missing a title',
-      path: ['where', 'title']
-    })
-  }
-
-  // Apply is optional; only validate when editors filled any part of it.
-  if (block.apply) {
-    if (!block.apply.title?.trim()) {
-      fieldErrors.push({
-        message: 'Event card Apply column is missing a title',
-        path: ['apply', 'title']
-      })
-    }
-
-    if (!block.apply.primaryCta) {
-      fieldErrors.push({
-        message: 'Event card Apply column is missing a primary call to action',
-        path: ['apply', 'primaryCta']
-      })
-    } else {
-      if (!block.apply.primaryCta.text?.trim()) {
-        fieldErrors.push({
-          message: 'Event card Apply button is missing link text',
-          path: ['apply', 'primaryCta', 'text']
-        })
-      }
-      if (!block.apply.primaryCta.link?.trim()) {
-        fieldErrors.push({
-          message: 'Event card Apply button is missing a URL',
-          path: ['apply', 'primaryCta', 'link']
-        })
-      }
-    }
-  }
-
-  return fieldErrors
+  return [
+    ...validateEventWhen(block.when),
+    ...validateEventWhere(block.where),
+    ...validateEventApply(block.apply)
+  ]
 }
 
 function serializeOptionalTextBody(text: string | undefined): string {
