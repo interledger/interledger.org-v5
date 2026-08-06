@@ -51,15 +51,18 @@ const colorIndex = await getProfileColorIndex(
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
-const avatarSrc = photo
+// `isAvif` is tracked rather than sniffed from the URL: a Netlify Image CDN URL
+// carries its format in a query parameter, not a file extension, so an
+// endsWith('.avif') check would silently drop the preload's type hint.
+const avatar = photo
   ? (() => {
       const { avifFullSrc, fullSrc } = getOptimizedImage(photo)
-      return avifFullSrc ?? fullSrc ?? photo
+      if (avifFullSrc) return { src: avifFullSrc, isAvif: true }
+      return { src: fullSrc ?? photo, isAvif: false }
     })()
   : null
-const avatarPreloadType = avatarSrc?.endsWith('.avif')
-  ? 'image/avif'
-  : undefined
+const avatarSrc = avatar?.src ?? null
+const avatarPreloadType = avatar?.isAvif ? 'image/avif' : undefined
 
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'

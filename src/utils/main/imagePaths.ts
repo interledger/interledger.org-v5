@@ -1,5 +1,23 @@
 export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 
+/**
+ * Encoding quality, shared by the two things that can produce a variant: the
+ * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
+ * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
+ * change to either lands in the CI cache key (this file is hashed by
+ * `.github/actions/cache-optimized-images`).
+ *
+ * Higher than sharp's WebP default (80): blog/body images were looking soft
+ * when the browser had to fall back to a small variant (INTORG-934).
+ */
+export const WEBP_QUALITY = 90
+
+/**
+ * AVIF at q85 with 4:4:4 chroma stays visually close to WebP q90 while usually
+ * smaller, with cleaner dark gradients (less banding than 4:2:0).
+ */
+export const AVIF_QUALITY = 85
+
 export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',

@@ -3,12 +3,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
 import {
+  AVIF_QUALITY,
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
+  WEBP_QUALITY,
   pathToSegments,
   type OptimizedImageManifest
 } from '@/utils/main/imagePaths'
+import { isImageCdnEnabled } from '@/utils/main/imageCdn'
 import {
   isImageOverSizeLimit,
   imageSizeLimitError
@@ -28,13 +31,8 @@ const RUNTIME_MANIFEST_PATH = path.join(
 
 const CONCURRENCY = 4
 
-// Higher than sharp's WebP default (80): blog/body images were looking soft when
-// the browser had to fall back to a small variant (INTORG-934).
-const WEBP_QUALITY = 90
-// AVIF at q85 with 4:4:4 chroma stays visually close to WebP q90 while usually
-// smaller, with cleaner dark gradients (less banding than 4:2:0).
-// Browsers that support AVIF pick it via <source type="image/avif"> ordering.
-const AVIF_QUALITY = 85
+// WEBP_QUALITY and AVIF_QUALITY now live in @/utils/main/imagePaths so the
+// Netlify Image CDN URL builder encodes at the same settings as this script.
 // Bump when quality, target widths, or output naming changes so the content-hash
 // cache does not skip regeneration of already-processed sources.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
@@ -210,6 +208,20 @@ async function processImage(
 
 async function main(): Promise<void> {
   const startTime = Date.now()
+
+  // The Netlify Image CDN transforms on demand, so pre-generating variants here
+  // would be ~17 minutes of build time producing files nothing references.
+  // getOptimizedImage() switches to /.netlify/images on the same signal, and
+  // the runtime catalog falls back to its committed stub when absent.
+  if (isImageCdnEnabled()) {
+    console.log(
+      'Netlify Image CDN is enabled — skipping image optimization.\n' +
+        'Images are transformed on demand at /.netlify/images.\n' +
+        'Set IMAGE_CDN=off to force build-time encoding.'
+    )
+    return
+  }
+
   console.log('Optimizing images...\n')
 
   const manifest = loadManifest()

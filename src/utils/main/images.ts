@@ -1,5 +1,11 @@
 import path from 'node:path'
 import stubManifest from '../../generated/optimized-image-manifest.stub.json'
+import {
+  buildImageCdnUrl,
+  buildImageCdnVariants,
+  isImageCdnEnabled,
+  largestTargetWidth
+} from './imageCdn'
 import { IMAGE_URL_PATHS, type OptimizedImageManifest } from './imagePaths'
 
 export {
@@ -44,6 +50,32 @@ export function setOptimizedImageVariantCatalogForTests(
   catalogOverride = paths === null ? null : new Set(paths)
 }
 
+/** Test-only override. Pass `null` to fall back to the environment. */
+let imageCdnOverride: boolean | null = null
+
+export function setImageCdnEnabledForTests(enabled: boolean | null): void {
+  imageCdnOverride = enabled
+}
+
+/**
+ * Every variant the CDN can produce, without consulting a catalog: Netlify
+ * clamps each width to the source size, so offering all target widths is safe
+ * even though the intrinsic width is unknown here.
+ *
+ * `fullSrc` points at the largest target width rather than an unsized URL.
+ * Both render the same pixels for any source narrower than 3840, but an unsized
+ * URL is a distinct cache entry and so a second billed transform.
+ */
+function buildCdnImage(source: string): OptimizedImage {
+  const fullWidth = largestTargetWidth()
+  return {
+    variants: buildImageCdnVariants(source, 'webp'),
+    fullSrc: buildImageCdnUrl(source, { format: 'webp', width: fullWidth }),
+    avifVariants: buildImageCdnVariants(source, 'avif'),
+    avifFullSrc: buildImageCdnUrl(source, { format: 'avif', width: fullWidth })
+  }
+}
+
 function optimizedVariantExists(urlPath: string): boolean {
   return (catalogOverride ?? bundledCatalogPaths).has(urlPath)
 }
@@ -69,12 +101,17 @@ function replaceUrlPathPrefix(
 }
 
 /**
- * Maps an original image URL to its optimized WebP base path.
- * Handles relative paths (/img/..., /uploads/img/original/...) and
- * absolute Strapi URLs (http://host/uploads/...).
- * Returns null for SVGs or unrecognized paths.
+ * Resolves an image reference to a site-relative source path we are allowed to
+ * optimize, or `null` when it isn't one.
+ *
+ * Handles relative paths (/img/..., /uploads/img/original/...) and absolute
+ * Strapi URLs (http://host/uploads/...). Rejects SVGs, extensionless paths,
+ * anything outside the known source directories, and the generated output tree.
+ *
+ * Split out from `getOptimizedBase` because the CDN needs the *source* path,
+ * while the pre-generated path needs the *optimized* base derived from it.
  */
-function getOptimizedBase(src: string): string | null {
+function resolveOptimizableSource(src: string): string | null {
   if (!src || src.endsWith('.svg')) return null
 
   let pathname = src
@@ -86,30 +123,35 @@ function getOptimizedBase(src: string): string | null {
     }
   }
 
-  const ext = path.extname(pathname)
-  if (!ext) return null
-  const stem = pathname.slice(0, -ext.length)
+  if (!path.extname(pathname)) return null
 
-  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
-    return replaceUrlPathPrefix(
-      stem,
-      IMAGE_URL_PATHS.uploadSource,
-      IMAGE_URL_PATHS.uploadOptimized
-    )
-  }
+  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) return pathname
 
   if (
     isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicSource) &&
     !isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)
   ) {
-    return replaceUrlPathPrefix(
-      stem,
-      IMAGE_URL_PATHS.publicSource,
-      IMAGE_URL_PATHS.publicOptimized
-    )
+    return pathname
   }
 
   return null
+}
+
+/** Maps a resolved source path to the base name of its pre-generated variants. */
+function getOptimizedBase(pathname: string): string {
+  const stem = pathname.slice(0, -path.extname(pathname).length)
+
+  return isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)
+    ? replaceUrlPathPrefix(
+        stem,
+        IMAGE_URL_PATHS.uploadSource,
+        IMAGE_URL_PATHS.uploadOptimized
+      )
+    : replaceUrlPathPrefix(
+        stem,
+        IMAGE_URL_PATHS.publicSource,
+        IMAGE_URL_PATHS.publicOptimized
+      )
 }
 
 /**
@@ -144,13 +186,19 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * Returns responsive `variants` (target widths plus any exact intrinsic-width
  * file) plus a `fullSrc` WebP at the original dimensions. For images with no
  * numbered variants, only `fullSrc` will be populated.
+ *
+ * On Netlify (and in CI) this returns Netlify Image CDN URLs instead — same
+ * shape, so every caller is unaffected. See `imageCdn.ts`.
  */
 export function getOptimizedImage(src: string): OptimizedImage {
-  const base = getOptimizedBase(src)
-  if (!base) {
+  const source = resolveOptimizableSource(src)
+  if (!source) {
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
   }
 
+  if (imageCdnOverride ?? isImageCdnEnabled()) return buildCdnImage(source)
+
+  const base = getOptimizedBase(source)
   const variants = listSizedVariants(base, 'webp')
   const avifVariants = listSizedVariants(base, 'avif')
 

@@ -150,6 +150,13 @@ export {
   pathToSegments,
   type OptimizedImage
 } from './main/images'
+export {
+  NETLIFY_IMAGE_ENDPOINT,
+  buildImageCdnUrl,
+  buildImageCdnVariants,
+  isImageCdnEnabled,
+  type ImageCdnFormat
+} from './main/imageCdn'
 
 // Main site: Profiles
 export {
