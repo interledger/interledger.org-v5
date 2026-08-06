@@ -6,9 +6,7 @@ describe('carousel serializer', () => {
     const result = serialize({
       heading: 'In partnership with',
       accessibilityLabel: 'Our Partners',
-      logos: [
-        { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
-      ]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
     expect(result).toContain('heading="In partnership with"')
@@ -30,9 +28,7 @@ describe('carousel serializer', () => {
   it('omits heading when absent', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [
-        { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
-      ]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
     expect(result).not.toContain('heading=')
@@ -85,9 +81,7 @@ describe('carousel serializer', () => {
   it('throws when accessibilityLabel is missing', () => {
     expect(() =>
       serialize({
-        logos: [
-          { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
-        ]
+        logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
       })
     ).toThrow('Carousel block is missing accessibilityLabel')
   })

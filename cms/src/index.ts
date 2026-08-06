@@ -1323,8 +1323,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       accessibilityLabel:
         'Describes this group of logos for screen reader users. Not visible on the page.',
-      logos:
-        'Add one entry per logo. Recommended image size: 240×80.'
+      logos: 'Add one entry per logo. Recommended image size: 240×80.'
     },
     'blocks.carousel-logo': {
       image: 'Partner logo image. Recommended size: 240×80.',

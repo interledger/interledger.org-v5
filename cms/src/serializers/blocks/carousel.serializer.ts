@@ -40,9 +40,7 @@ function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
   // runs this serializer on the raw write body where `image` is a bare upload
   // id — empty src is fine there because the output is discarded.
   const src =
-    typeof image === 'object' && image != null
-      ? (getImageUrl(image) ?? '')
-      : ''
+    typeof image === 'object' && image != null ? (getImageUrl(image) ?? '') : ''
   const fileAlt =
     typeof image === 'object' && image != null
       ? (image.alternativeText ?? '')

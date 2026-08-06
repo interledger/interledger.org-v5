@@ -63,9 +63,7 @@ describe('buildContentTypes carousel logo payload', () => {
         {
           __component: 'blocks.carousel',
           accessibilityLabel: 'Partner logos',
-          logos: [
-            { image: LOGO_UPLOAD_ID, alternativeText: 'Covenant' }
-          ]
+          logos: [{ image: LOGO_UPLOAD_ID, alternativeText: 'Covenant' }]
         }
       ])
       expect(strapi.updateUploadAlt).not.toHaveBeenCalled()
