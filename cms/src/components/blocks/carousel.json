@@ -25,10 +25,16 @@
       }
     },
     "logos": {
-      "type": "media",
-      "multiple": true,
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.carousel-logo",
       "required": true,
-      "allowedTypes": ["images"]
+      "min": 1,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

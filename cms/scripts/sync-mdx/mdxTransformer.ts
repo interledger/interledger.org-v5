@@ -452,14 +452,10 @@ async function updateUploadAltOnce(
 }
 
 /**
- * Builds an `updateMediaAlt` callback for the MDX block parser. LogoCarousel
- * stores each logo's name as the upload's `alternativeText` (uploads are the
- * only place a carousel logo can carry alt text), so any content type whose
- * dynamic zone allows `blocks.carousel` must supply this — without it the
- * handler's optional call is a no-op and logo names are silently dropped.
- *
- * Share one `updatedAltIds` map across content types that draw on the same
- * uploads so conflicting names get warned about rather than last-write-wins.
+ * Builds an `updateMediaAlt` callback for the MDX block parser (plain media
+ * fields that still store alt on the upload, e.g. featureImageMobile).
+ * Share one `updatedAltIds` map across content types so conflicting names get
+ * warned about rather than last-write-wins.
  */
 export function createMediaAltUpdater(
   strapi: StrapiClient,

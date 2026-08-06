@@ -51,10 +51,10 @@ describe('LogoCarousel handler', () => {
         __component: 'blocks.carousel',
         heading: 'In partnership with',
         accessibilityLabel: 'Our Partners',
-        logos: [12]
+        logos: [{ image: 12, alternativeText: 'Plata' }]
       }
     ])
-    expect(ctx.updatedAlts).toEqual([{ id: 12, alt: 'Plata' }])
+    expect(ctx.updatedAlts).toEqual([])
   })
 
   it('parses multiple logos, including a null name', async () => {
@@ -68,13 +68,13 @@ describe('LogoCarousel handler', () => {
       {
         __component: 'blocks.carousel',
         accessibilityLabel: 'Our Partners',
-        logos: [1, 2]
+        logos: [
+          { image: 1, alternativeText: 'A' },
+          { image: 2, alternativeText: null }
+        ]
       }
     ])
-    expect(ctx.updatedAlts).toEqual([
-      { id: 1, alt: 'A' },
-      { id: 2, alt: null }
-    ])
+    expect(ctx.updatedAlts).toEqual([])
   })
 
   it('omits heading when absent', async () => {
@@ -88,7 +88,7 @@ describe('LogoCarousel handler', () => {
       {
         __component: 'blocks.carousel',
         accessibilityLabel: 'Our Partners',
-        logos: [1]
+        logos: [{ image: 1, alternativeText: 'A' }]
       }
     ])
   })
@@ -104,10 +104,10 @@ describe('LogoCarousel handler', () => {
       {
         __component: 'blocks.carousel',
         accessibilityLabel: 'Our Partners',
-        logos: [1]
+        logos: [{ image: 1, alternativeText: null }]
       }
     ])
-    expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
+    expect(ctx.updatedAlts).toEqual([])
   })
 
   it('treats an empty string name the same as null', async () => {
@@ -121,13 +121,13 @@ describe('LogoCarousel handler', () => {
       {
         __component: 'blocks.carousel',
         accessibilityLabel: 'Our Partners',
-        logos: [1]
+        logos: [{ image: 1, alternativeText: null }]
       }
     ])
-    expect(ctx.updatedAlts).toEqual([{ id: 1, alt: null }])
+    expect(ctx.updatedAlts).toEqual([])
   })
 
-  it('does not fail when updateMediaAlt is not provided', async () => {
+  it('does not require updateMediaAlt (alt lives on the logo component)', async () => {
     const blocks = await parseMdxToBlocks(
       `<LogoCarousel accessibilityLabel="Our Partners" logos={[{ name: 'A', src: '/img/a.png' }]} />`,
       {
@@ -140,7 +140,7 @@ describe('LogoCarousel handler', () => {
       {
         __component: 'blocks.carousel',
         accessibilityLabel: 'Our Partners',
-        logos: [1]
+        logos: [{ image: 1, alternativeText: 'A' }]
       }
     ])
   })
@@ -242,7 +242,7 @@ describe('LogoCarousel handler — mixed content', () => {
     expect(blocks[1]).toEqual({
       __component: 'blocks.carousel',
       accessibilityLabel: 'Our Partners',
-      logos: [1]
+      logos: [{ image: 1, alternativeText: 'A' }]
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
   })

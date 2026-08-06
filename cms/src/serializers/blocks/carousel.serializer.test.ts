@@ -6,7 +6,9 @@ describe('carousel serializer', () => {
     const result = serialize({
       heading: 'In partnership with',
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+      logos: [
+        { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
+      ]
     })
 
     expect(result).toContain('heading="In partnership with"')
@@ -19,7 +21,7 @@ describe('carousel serializer', () => {
   it('serializes a null alternativeText as an empty string name', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: null }]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: null }]
     })
 
     expect(result).toContain('logos={[{"name":"","src":"/img/plata.png"}]}')
@@ -28,11 +30,23 @@ describe('carousel serializer', () => {
   it('omits heading when absent', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+      logos: [
+        { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
+      ]
     })
 
     expect(result).not.toContain('heading=')
     expect(result).toContain('accessibilityLabel="Our Partners"')
+  })
+
+  it('supports legacy plain-media logo shape', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+    })
+    expect(result).toContain(
+      'logos={[{"name":"Plata","src":"/img/plata.png"}]}'
+    )
   })
 
   it('throws when logos is missing', () => {
@@ -53,7 +67,9 @@ describe('carousel serializer', () => {
   it('throws when accessibilityLabel is missing', () => {
     expect(() =>
       serialize({
-        logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+        logos: [
+          { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
+        ]
       })
     ).toThrow('Carousel block is missing accessibilityLabel')
   })

@@ -204,44 +204,12 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
-      /* TEMP UI Fix: hide Media Library Alternative text except carousel logos */
-      body:not([data-allow-media-library-alt])
-        div:has(> div > input[name="alternativeText"]) {
+      /* TEMP UI Fix: hide Media Library dialog Alternative text only (not content form fields e.g. carousel-logo) */
+      [role="dialog"] div:has(> div > input[name="alternativeText"]) {
         display: none !important;
       }
     `
     document.head.appendChild(style)
-
-    function isInCarouselLogosField(el: Element | null): boolean {
-      let node: Element | null = el
-      for (let depth = 0; depth < 16 && node; depth++) {
-        if (
-          node.getAttribute?.('name') === 'logos' ||
-          node.getAttribute?.('data-strapi-field') === 'logos'
-        ) {
-          return true
-        }
-        const label = node.querySelector?.(':scope > label, :scope > div > label')
-        if (label?.textContent?.trim() === 'Logos') return true
-        node = node.parentElement
-      }
-      return false
-    }
-
-    document.addEventListener(
-      'pointerdown',
-      (event) => {
-        const target = event.target
-        if (!(target instanceof Element)) return
-        if (target.closest('[role="dialog"]')) return
-        if (isInCarouselLogosField(target)) {
-          document.body.setAttribute('data-allow-media-library-alt', '')
-        } else {
-          document.body.removeAttribute('data-allow-media-library-alt')
-        }
-      },
-      true
-    )
 
     // TEMP UI Fix: image block layout has no separator row type; mark options panel via DOM
     function applyImageBlockSeparators() {

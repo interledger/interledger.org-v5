@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blocks_carousel_logos",
+  "info": {
+    "displayName": "Carousel Logo",
+    "icon": "picture",
+    "description": "Single logo for the Logo Carousel: image plus alternative text"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "alternativeText": {
+      "type": "string",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

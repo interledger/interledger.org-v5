@@ -292,7 +292,37 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    logos: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required
+    logos: Schema.Attribute.Component<'blocks.carousel-logo', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
+export interface BlocksCarouselLogo extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_carousel_logos'
+  info: {
+    description: 'Single logo for the Logo Carousel: image plus alternative text'
+    displayName: 'Carousel Logo'
+    icon: 'picture'
+  }
+  attributes: {
+    alternativeText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
   }
 }
 
@@ -1459,6 +1489,7 @@ declare module '@strapi/strapi' {
       'blocks.card-links-grid': BlocksCardLinksGrid
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
+      'blocks.carousel-logo': BlocksCarouselLogo
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-strip': BlocksCtaStrip
       'blocks.faq': BlocksFaq

@@ -195,12 +195,15 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   }
 }
 
-/** blocks.carousel — logo carousel. `logos` are Strapi upload file IDs. */
+/**
+ * blocks.carousel — logo carousel.
+ * Each logo is a blocks.carousel-logo entry: media ID + optional alt text.
+ */
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
   heading?: string
   accessibilityLabel: string
-  logos: number[]
+  logos: Array<{ image: number; alternativeText: string | null }>
 }
 
 /**

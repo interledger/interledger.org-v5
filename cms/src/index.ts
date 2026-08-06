@@ -1124,6 +1124,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessible label (screen readers only)'
     },
+    'blocks.carousel-logo': {
+      image: 'Logo Image',
+      alternativeText: 'Alternative Text'
+    },
     'blocks.number-tiles': {
       tiles: 'Tiles'
     },
@@ -1320,7 +1324,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       accessibilityLabel:
         'Describes this group of logos for screen reader users. Not visible on the page.',
       logos:
-        'Dimensions: 240×80. After selecting an image, open it with the edit (pencil) icon and set Alternative text there — that is the logo alt used on the site.'
+        'Add one entry per logo. Recommended image size: 240×80.'
+    },
+    'blocks.carousel-logo': {
+      image: 'Partner logo image. Recommended size: 240×80.',
+      alternativeText:
+        'Short description of the logo for screen readers (e.g. the organization name). Shown next to each logo — not in the Media Library.'
     },
     'blocks.number-tile': {
       number:
@@ -1608,6 +1617,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
+    ],
+    'blocks.carousel-logo': [
+      [{ name: 'image', size: 6 }],
+      [{ name: 'alternativeText', size: 6 }]
     ],
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
