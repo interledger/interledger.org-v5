@@ -69,17 +69,17 @@ if (isNotFound) return Astro.redirect('/404')
           ]}
           style={heroSectionStyle}
         >
-          <div class="mx-auto w-full max-w-wide px-2xl">
-            <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
-                {mdxHeroTitle}
-              </h1>
-              {mdxHeroDescription && (
-                <p class="mb-2xl text-[1.125rem] max-w-[600px]">
-                  {mdxHeroDescription}
-                </p>
-              )}
-              {heroCtas.length > 0 && (
+          <div class="mx-auto w-full max-w-content px-2xl">
+            <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
+              {mdxHeroTitle}
+            </h1>
+            {
+              mdxHeroDescription && (
+                <p class="mb-2xl text-[1.125rem]">{mdxHeroDescription}</p>
+              )
+            }
+            {
+              heroCtas.length > 0 && (
                 <div class="flex flex-wrap gap-xl mt-xl">
                   {heroCtas.map((cta) => (
                     <Link
@@ -91,8 +91,8 @@ if (isNotFound) return Astro.redirect('/404')
                     />
                   ))}
                 </div>
-              )}
-            </div>
+              )
+            }
           </div>
         </section>
       )

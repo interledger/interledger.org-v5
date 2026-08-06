@@ -86,17 +86,17 @@ const content = page.content || []
     {
       heroTitle && (
         <section class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[40vh] py-4xl text-white flex items-center">
-          <div class="mx-auto w-full max-w-wide px-2xl">
-            <div class="max-w-narrow">
-              <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
-                {heroTitle}
-              </h1>
-              {heroDescription && (
-                <p class="mb-2xl text-[1.125rem] max-w-[600px]">
-                  {heroDescription}
-                </p>
-              )}
-              {heroCtas.length > 0 && (
+          <div class="mx-auto w-full max-w-content px-2xl">
+            <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
+              {heroTitle}
+            </h1>
+            {
+              heroDescription && (
+                <p class="mb-2xl text-[1.125rem]">{heroDescription}</p>
+              )
+            }
+            {
+              heroCtas.length > 0 && (
                 <div class="flex flex-wrap gap-xl mt-xl">
                   {heroCtas.map((cta) => (
                     <Link
@@ -108,8 +108,8 @@ const content = page.content || []
                     />
                   ))}
                 </div>
-              )}
-            </div>
+              )
+            }
           </div>
         </section>
       )
