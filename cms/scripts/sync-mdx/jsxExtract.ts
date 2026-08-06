@@ -653,29 +653,29 @@ export function getStaticLiteralAttr(
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve a child node to the JSX element it represents.
+ * Collect every JSX element a child node represents.
  *
- * A tag whose open and close are on the same line (e.g. `<Card>text</Card>`)
- * is inline content, so remark wraps it in a `paragraph` node — even when
- * it's that paragraph's only content. A tag spanning multiple lines (open
- * tag, then content, then close tag, each on their own line) is block-level
- * and needs no unwrapping. This resolves both forms to the same element.
+ * A same-line tag (e.g. `<Card>text</Card>`) is inline, so remark wraps it
+ * in a `paragraph` — alone or mixed with text / other tags. Multi-line tags
+ * are `mdxJsxFlowElement` and need no unwrapping. We must collect *all*
+ * inline JSX in a paragraph: with a single-child-only unwrap,
+ * `<Card /><Card />` (or `<Card />Oops <Card />`) would drop every card and
+ * surface a misleading "requires at least one card" error.
  */
-function toJsxElement(child: RootContent): JsxBlockNode | undefined {
+function collectJsxElements(child: RootContent): JsxBlockNode[] {
   if (
     child.type === 'mdxJsxFlowElement' ||
     child.type === 'mdxJsxTextElement'
   ) {
-    return child
+    return [child]
   }
-  if (
-    child.type === 'paragraph' &&
-    child.children.length === 1 &&
-    child.children[0].type === 'mdxJsxTextElement'
-  ) {
-    return child.children[0]
+  if (child.type === 'paragraph') {
+    return child.children.filter(
+      (c): c is JsxBlockNode =>
+        c.type === 'mdxJsxTextElement' || c.type === 'mdxJsxFlowElement'
+    )
   }
-  return undefined
+  return []
 }
 
 /**
@@ -697,9 +697,10 @@ export function getChildElements(
 ): JsxBlockNode[] {
   const elements: JsxBlockNode[] = []
   for (const child of node.children) {
-    const element = toJsxElement(child)
-    if (element && element.name === name) {
-      elements.push(element)
+    for (const element of collectJsxElements(child)) {
+      if (element.name === name) {
+        elements.push(element)
+      }
     }
   }
   return elements
@@ -725,9 +726,10 @@ export function getMismatchedChildElements(
 ): JsxBlockNode[] {
   const elements: JsxBlockNode[] = []
   for (const child of node.children) {
-    const element = toJsxElement(child)
-    if (element && element.name !== name) {
-      elements.push(element)
+    for (const element of collectJsxElements(child)) {
+      if (element.name !== name) {
+        elements.push(element)
+      }
     }
   }
   return elements

@@ -196,6 +196,31 @@ describe('getChildElements', () => {
 
     expect(getChildElements(node, 'Card')).toEqual([])
   })
+
+  it('collects multiple same-line self-closing cards in one paragraph', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" /><Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => getStringAttr(c, 'id'))).toEqual(['1', '2'])
+  })
+
+  it('collects cards mixed with text siblings in one paragraph', () => {
+    // remark wraps the line as one paragraph with text + two JSX elements.
+    // Previously only single-child paragraphs were unwrapped, so both cards
+    // vanished and authors saw "requires at least one card".
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />Oops <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => getStringAttr(c, 'id'))).toEqual(['1', '2'])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -228,5 +253,16 @@ describe('getMismatchedChildElements', () => {
     )
 
     expect(getMismatchedChildElements(node, 'Card')).toEqual([])
+  })
+
+  it('collects mismatched tags mixed with matching cards on one line', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" /> <Other id="2" />', '</Grid>'].join('\n')
+    )
+
+    const mismatched = getMismatchedChildElements(node, 'Card')
+
+    expect(mismatched).toHaveLength(1)
+    expect(mismatched[0].name).toBe('Other')
   })
 })
