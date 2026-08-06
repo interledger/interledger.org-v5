@@ -23,6 +23,33 @@
       text-decoration-color: currentColor;
     }
 
+    /* Rich-text quotes — dual raspberry edges (matches Quote / Blockquote) */
+    & blockquote {
+      border-left: 2px solid var(--color-raspberry-100);
+      border-right: 2px solid var(--color-raspberry-100);
+      padding-inline: var(--spacing-xl);
+      padding-block: 0;
+      margin-block: var(--spacing-2xl);
+      color: var(--color-neutral-100);
+      font-size: var(--text-h5);
+      line-height: var(--text-h5--line-height);
+    }
+    @variant tablet {
+      & blockquote {
+        font-size: var(--text-h5-md);
+        line-height: var(--text-h5-md--line-height);
+      }
+    }
+    @variant desktop {
+      & blockquote {
+        font-size: var(--text-h5-lg);
+        line-height: var(--text-h5-lg--line-height);
+      }
+    }
+    & blockquote p {
+      margin-bottom: 0;
+    }
+
     /* === Table styles === */
     & .table-scroll {
       display: block;

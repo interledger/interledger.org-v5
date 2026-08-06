@@ -21,15 +21,35 @@
   [data-prose] hr {
     border-color: var(--color-neutral-50);
   }
+  /* Rich-text quotes — dual raspberry edges (matches Quote / Blockquote components) */
   [data-prose] blockquote {
-    border-left: 2px solid var(--color-primary);
-    border-right: 2px solid var(--color-primary);
+    border-left: 2px solid var(--color-raspberry-100);
+    border-right: 2px solid var(--color-raspberry-100);
     padding-inline: var(--spacing-xl);
-    padding-block: var(--spacing-s);
-    margin-block: var(--spacing-xl);
+    padding-block: 0;
+    margin-block: var(--spacing-2xl);
+    color: var(--color-neutral-100);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+  @variant tablet {
+    [data-prose] blockquote {
+      font-size: var(--text-h5-md);
+      line-height: var(--text-h5-md--line-height);
+    }
+  }
+  @variant desktop {
+    [data-prose] blockquote {
+      font-size: var(--text-h5-lg);
+      line-height: var(--text-h5-lg--line-height);
+    }
   }
   [data-prose] blockquote p {
     margin-bottom: 0;
+  }
+  [data-prose] blockquote + p {
+    /* room for a following attribution line if authored after the quote */
+    margin-block-start: var(--spacing-md);
   }
 
   /* === Table styles === */

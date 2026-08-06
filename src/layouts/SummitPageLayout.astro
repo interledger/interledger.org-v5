@@ -15,6 +15,7 @@ interface Props {
   gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
+  noindex?: boolean
 }
 
 const { routeLocale } = Astro.locals
@@ -26,7 +27,8 @@ const {
   description,
   gradient = 'option1',
   ogImageUrl = new URL('/img/og-summit.png', site).href,
-  canonicalURL
+  canonicalURL,
+  noindex = false
 } = Astro.props
 ---
 
@@ -39,6 +41,7 @@ const {
   theme="dark"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"
   bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+  noindex={noindex}
 >
   <MicrositeHeader site="summit" slot="header" />
   <TableScrollSupport />

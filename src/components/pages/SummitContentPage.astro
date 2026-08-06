@@ -1,9 +1,10 @@
 ---
-import { type Locale, getHeroSectionStyle } from '@/utils'
+import { type Locale, getHeroSectionStyle, isDemoPathSlug } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
+import Quote from '@/components/blocks/Quote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -50,9 +51,15 @@ const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
 const heroCtas = mdxData?.heroCtas ?? []
 const gradient =
   (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'
+const noindex = isDemoPathSlug(mdxData?.pathSlug)
 ---
 
-<SummitPageLayout title={title} description={description} gradient={gradient}>
+<SummitPageLayout
+  title={title}
+  description={description}
+  gradient={gradient}
+  noindex={noindex}
+>
   <main
     class="relative z-0 pb-3xl before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
@@ -108,6 +115,7 @@ const gradient =
               ProfileCard,
               ProfileGrid,
               Blockquote,
+              Quote,
               CalloutText,
               Paragraph,
               SplitLayout,

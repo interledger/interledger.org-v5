@@ -16,6 +16,7 @@ import { serialize as paragraph } from './paragraph.serializer'
 import { serialize as profile } from './profile.serializer'
 import { serialize as profileGrid } from './profile-grid.serializer'
 import { serialize as blockquote } from './blockquote.serializer'
+import { serialize as quote } from './quote.serializer'
 import { serialize as calloutText } from './callout-text.serializer'
 import { serialize as ctaStrip } from './cta-strip.serializer'
 import { serialize as pdfEmbed } from './pdf-embed.serializer'
@@ -41,6 +42,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.profile': profile,
   'blocks.profile-grid': profileGrid,
   'blocks.blockquote': blockquote,
+  'blocks.quote': quote,
   'blocks.callout-text': calloutText,
   'blocks.cta-strip': ctaStrip,
   'blocks.pdf-embed': pdfEmbed,
