@@ -15,7 +15,7 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import Link from '@/components/shared/Link.astro'
+import HeroSection from '@/components/shared/HeroSection.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
@@ -60,41 +60,12 @@ if (isNotFound) return Astro.redirect('/404')
     <TranslationDisclaimer isVisible={isFallback} />
     {
       mdxHeroTitle && (
-        <section
-          class:list={[
-            'min-h-[40vh] py-4xl text-white flex items-center',
-            heroSectionStyle
-              ? 'bg-no-repeat bg-cover bg-center'
-              : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
-          ]}
-          style={heroSectionStyle}
-        >
-          <div class="mx-auto w-full max-w-content px-2xl">
-            <h1 class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]">
-              {mdxHeroTitle}
-            </h1>
-            {
-              mdxHeroDescription && (
-                <p class="mb-2xl text-[1.125rem]">{mdxHeroDescription}</p>
-              )
-            }
-            {
-              heroCtas.length > 0 && (
-                <div class="flex flex-wrap gap-xl mt-xl">
-                  {heroCtas.map((cta) => (
-                    <Link
-                      href={cta.link}
-                      style={cta.style}
-                      variant="hero"
-                      external={cta.external}
-                      text={cta.text}
-                    />
-                  ))}
-                </div>
-              )
-            }
-          </div>
-        </section>
+        <HeroSection
+          title={mdxHeroTitle}
+          description={mdxHeroDescription}
+          ctas={heroCtas}
+          sectionStyle={heroSectionStyle}
+        />
       )
     }
     <section class="py-4xl">
