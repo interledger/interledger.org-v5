@@ -93,14 +93,12 @@ export function generateGrantPageMDX(
   const primaryCta = grantPage.primaryCta
   const infoCards = grantPage.infoCards
   const faqSection = grantPage.faqSection
-  const hero = grantPage.hero as Parameters<typeof heroFrontmatter>[0]
-
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
-    ...heroFrontmatter(hero),
+    ...heroFrontmatter(grantPage.hero),
     ...(grantPage.programOverview
       ? { programOverview: grantPage.programOverview }
       : {}),

@@ -22,7 +22,6 @@ import type {
 
 interface PodcastPageData extends PageData {
   description?: string
-  hero?: Record<string, unknown> | null
   titleCards?: PodcastPageTitleCardGrid
   podcasts?: PodcastPageItem[]
   ctaStrip?: PodcastPageCtaStrip

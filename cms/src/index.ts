@@ -16,6 +16,7 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
+  validatePodcastPageFields,
   validateNavigationLabels,
   mergeValidationErrors,
   LOCALES,
@@ -1764,6 +1765,11 @@ export default {
             Array.isArray(body.content) ? body.content : undefined
           )
         )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::podcast-page.podcast-page',
+      (body) => validatePodcastPageFields(body)
     )
 
     // Normalize nav href fields (force leading slash), then validate required

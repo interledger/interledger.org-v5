@@ -44,6 +44,7 @@ export {
 
 // MDX generation
 export {
+  type Hero,
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
@@ -71,6 +72,7 @@ export {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePodcastPageFields,
   validateBlogFields,
   validateNavigationLabels,
   toValidationError,
@@ -116,7 +118,6 @@ export {
 export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
 export {
   type PodcastPageInput,
-  type PodcastPageHero,
   type PodcastPageCtaStrip,
   type PodcastPageTitleCard,
   type PodcastPageTitleCardGrid,

@@ -11,6 +11,7 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePodcastPageFields,
   validateBlogFields,
   mergeValidationErrors,
   toValidationError,
@@ -663,6 +664,109 @@ describe('validateHeroFields', () => {
       'hero_call_to_action',
       'link'
     ])
+  })
+})
+
+describe('validatePodcastPageFields', () => {
+  const validPodcast = {
+    title: 'Episode 1',
+    description: 'About the episode.',
+    url: 'https://podcast.example.com/embed',
+    series: 'Future Money'
+  }
+
+  const validTitleCard = {
+    heading: 'Future Money',
+    description: 'A series about money.',
+    secondaryCta: { text: 'Listen', link: '/podcast' }
+  }
+
+  const validBody = {
+    hero: { title: 'F|M podcast' },
+    titleCards: {
+      columns: 'Three',
+      ariaLabel: 'Featured series',
+      titleCards: [validTitleCard]
+    },
+    podcasts: [validPodcast],
+    ctaStrip: {
+      heading: 'Listen now',
+      description: 'Catch every episode.',
+      primaryButtonText: 'Listen',
+      primaryButtonLink: '/podcast'
+    }
+  }
+
+  it('returns undefined for a complete valid page', () => {
+    expect(validatePodcastPageFields(validBody)).toBeUndefined()
+  })
+
+  it('flags missing required top-level components', () => {
+    const err = validatePodcastPageFields({})
+    expect(err?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['hero'],
+        ['titleCards'],
+        ['podcasts'],
+        ['ctaStrip']
+      ])
+    )
+  })
+
+  it('flags hero title when hero is present but empty', () => {
+    const err = validatePodcastPageFields({
+      ...validBody,
+      hero: { title: '' }
+    })
+    expect(err?.details.errors.map((e) => e.path)).toContainEqual([
+      'hero',
+      'title'
+    ])
+  })
+
+  it('flags empty podcasts list and incomplete episodes', () => {
+    const emptyList = validatePodcastPageFields({
+      ...validBody,
+      podcasts: []
+    })
+    expect(emptyList?.details.errors.map((e) => e.path)).toContainEqual([
+      'podcasts'
+    ])
+
+    const incomplete = validatePodcastPageFields({
+      ...validBody,
+      podcasts: [{ title: '', description: 'd', url: '', series: 'Future Money' }]
+    })
+    expect(incomplete?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['podcasts', '0', 'title'],
+        ['podcasts', '0', 'url']
+      ])
+    )
+  })
+
+  it('flags title card gaps with index-aware paths', () => {
+    const err = validatePodcastPageFields({
+      ...validBody,
+      titleCards: {
+        columns: 'Three',
+        ariaLabel: '',
+        titleCards: [
+          {
+            heading: '',
+            description: 'd',
+            secondaryCta: { text: 'Go', link: '' }
+          }
+        ]
+      }
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['titleCards', 'ariaLabel'],
+        ['titleCards', 'titleCards', '0', 'heading'],
+        ['titleCards', 'titleCards', '0', 'secondaryCta', 'link']
+      ])
+    )
   })
 })
 

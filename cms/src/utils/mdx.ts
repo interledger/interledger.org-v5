@@ -9,7 +9,9 @@ import yaml from 'js-yaml'
 import matter from 'gray-matter'
 import isHtml from 'is-html'
 import TurndownService from 'turndown'
-import type { MediaFile } from '../../types/shared/types'
+import type { Hero, HeroCta, MediaFile } from '../../types/shared/types'
+
+export type { Hero, HeroCta }
 
 type MediaLike = { url?: string; formats?: MediaFile['formats'] }
 
@@ -200,26 +202,8 @@ export function getPreservedFields(filepath: string): Record<string, unknown> {
   }
 }
 
-export interface HeroCta {
-  text?: string
-  link?: string
-  style?: 'primary' | 'secondary'
-  external?: boolean
-}
-
-interface HeroData {
-  title?: string
-  description?: string
-  media?: {
-    image?: { url?: string } | null
-    alternativeText?: string | null
-  } | null
-  backgroundImageMobile?: { url?: string; alternativeText?: string }
-  hero_call_to_action?: HeroCta | null
-}
-
 export function heroFrontmatter(
-  hero: HeroData | undefined
+  hero: Hero | undefined | null
 ): Record<string, unknown> {
   const data: Record<string, unknown> = {}
   if (!hero) return data

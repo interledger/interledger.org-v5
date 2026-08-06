@@ -10,25 +10,13 @@
  */
 
 import matter from 'gray-matter'
-import type { MediaFile } from '../../types/shared/types'
+import type { Hero } from '../../types/shared/types'
 import {
   ckeditorFieldToMarkdown,
   defaultLang,
   MATTER_STRINGIFY_OPTIONS,
-  heroFrontmatter,
-  type HeroCta
+  heroFrontmatter
 } from './mdx'
-
-export interface PodcastPageHero {
-  title?: string
-  description?: string
-  media?: {
-    image?: MediaFile | null
-    alternativeText?: string | null
-  } | null
-  backgroundImageMobile?: MediaFile | null
-  hero_call_to_action?: HeroCta | null
-}
 
 export interface PodcastPageCtaStrip {
   heading?: string
@@ -64,7 +52,7 @@ export interface PodcastPageInput {
   title: string
   pathSlug: string
   description: string
-  hero?: PodcastPageHero | null
+  hero?: Hero | null
   titleCards: PodcastPageTitleCardGrid
   podcasts: PodcastPageItem[]
   ctaStrip: PodcastPageCtaStrip
@@ -124,13 +112,11 @@ export function generatePodcastPageMdx(
   const locale = page.locale ?? defaultLang
   const isLocalized = locale !== defaultLang
 
-  const hero = page.hero as Parameters<typeof heroFrontmatter>[0]
-
   const frontmatter: Record<string, unknown> = {
     title: page.title,
     pathSlug: page.pathSlug,
     description: page.description,
-    ...heroFrontmatter(hero),
+    ...heroFrontmatter(page.hero),
     titleCards: titleCardsFrontmatter(page.titleCards),
     podcasts: podcastsFrontmatter(page.podcasts),
     ctaStrip: ctaStripFrontmatter(page.ctaStrip),
