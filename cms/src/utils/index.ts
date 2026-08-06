@@ -55,6 +55,7 @@ export {
   getImageUrl,
   hasMediaValue,
   htmlToMarkdown,
+  ckeditorFieldToMarkdown,
   formatBlockquote,
   uidToLogLabel,
   resolveFilenameSlug,

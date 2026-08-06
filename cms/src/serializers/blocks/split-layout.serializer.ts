@@ -1,5 +1,8 @@
-import isHtml from 'is-html'
-import { getImageUrl, hasMediaValue, htmlToMarkdown } from '../../utils'
+import {
+  ckeditorFieldToMarkdown,
+  getImageUrl,
+  hasMediaValue
+} from '../../utils'
 import { escDouble as esc } from '../shared'
 
 interface SplitLayoutCta {
@@ -111,7 +114,7 @@ export function serialize(block: {
   }
 
   const raw = isTextLayout ? (block.content ?? '') : ''
-  const body = raw ? (isHtml(raw) ? htmlToMarkdown(raw) : raw).trim() : ''
+  const body = raw ? ckeditorFieldToMarkdown(raw) : ''
   if (isTextLayout && !body)
     throw new Error('Split layout text variants require content')
   const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''

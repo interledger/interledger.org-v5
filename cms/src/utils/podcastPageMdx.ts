@@ -10,22 +10,14 @@
  */
 
 import matter from 'gray-matter'
-import isHtml from 'is-html'
 import type { MediaFile } from '../../types/shared/types'
 import {
+  ckeditorFieldToMarkdown,
   defaultLang,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
-  htmlToMarkdown,
   type HeroCta
 } from './mdx'
-
-/** CKEditor (basicMarkdownPreset) fields are usually already markdown, but
- * defensively convert if Strapi ever hands back HTML (matches
- * generateFaqMdx's identical pattern). */
-function ckeditorFieldToMarkdown(value: string): string {
-  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
-}
 
 export interface PodcastPageHero {
   title?: string

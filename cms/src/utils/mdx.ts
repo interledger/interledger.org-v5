@@ -7,6 +7,7 @@ import fs from 'fs'
 import prettier from 'prettier'
 import yaml from 'js-yaml'
 import matter from 'gray-matter'
+import isHtml from 'is-html'
 import TurndownService from 'turndown'
 import type { MediaFile } from '../../types/shared/types'
 
@@ -152,6 +153,14 @@ export function getImageUrl(
 export function htmlToMarkdown(html: string): string {
   if (!html) return ''
   return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
+}
+
+/**
+ * CKEditor (basicMarkdownPreset) fields are usually already markdown, but
+ * defensively convert if Strapi ever hands back HTML.
+ */
+export function ckeditorFieldToMarkdown(value: string): string {
+  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────
