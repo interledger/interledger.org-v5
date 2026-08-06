@@ -84,6 +84,11 @@ export function isSafeMarkdownHref(href: string): boolean {
   return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
 }
 
+/** True when `href` is an absolute http(s) URL (used for target=_blank / rel). */
+export function isExternalHref(href: string): boolean {
+  return /^https?:\/\//i.test(href)
+}
+
 /** The host of `url`, lowercased, or null if it can't be parsed. */
 function getHostname(url: string): string | null {
   try {

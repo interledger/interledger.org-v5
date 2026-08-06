@@ -12,7 +12,7 @@
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { isSafeMarkdownHref, useTranslations } from '@/utils'
+import { isExternalHref, isSafeMarkdownHref, useTranslations } from '@/utils'
 
 interface StrapiMedia {
   url?: string
@@ -65,7 +65,6 @@ const safeAuthorLink =
 const authorAbove = Boolean(image || safeAuthorLink)
 // Image-1 layout: name-only attribution under the quote with an en dash.
 const authorBelow = Boolean(authorName && !authorAbove)
-const isExternal = (href: string) => /^https?:\/\//i.test(href)
 
 // Match quote-body type scale (h5) so figcaption attribution reads at the same size.
 const authorTypeClasses =
@@ -97,9 +96,11 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
               href={safeAuthorLink}
               class={authorLinkClasses}
               rel={
-                isExternal(safeAuthorLink) ? 'noopener noreferrer' : undefined
+                isExternalHref(safeAuthorLink)
+                  ? 'noopener noreferrer'
+                  : undefined
               }
-              target={isExternal(safeAuthorLink) ? '_blank' : undefined}
+              target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
               data-umami-event="quote-author-link"
               data-umami-event-page={umamiContext}
             >
@@ -109,7 +110,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
                 class="size-5 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              {isExternal(safeAuthorLink) && (
+              {isExternalHref(safeAuthorLink) && (
                 <span class="sr-only">{t('quote.external_link')}</span>
               )}
             </a>
@@ -124,9 +125,13 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
           <a
             href={safeAuthorLink}
             class={authorLinkClasses}
-            rel={isExternal(safeAuthorLink) ? 'noopener noreferrer' : undefined}
-            target={isExternal(safeAuthorLink) ? '_blank' : undefined}
+            rel={
+              isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
+            }
+            target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
             aria-label={t('quote.author_link_label')}
+            data-umami-event="quote-author-link"
+            data-umami-event-page={umamiContext}
           >
             <Icon
               name="link-rounded"

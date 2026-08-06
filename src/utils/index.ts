@@ -12,6 +12,7 @@ export {
   ensureLeadingSlash,
   ensureAbsoluteUrl,
   isSafeMarkdownHref,
+  isExternalHref,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
