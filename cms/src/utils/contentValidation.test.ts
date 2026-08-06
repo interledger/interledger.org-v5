@@ -735,7 +735,9 @@ describe('validatePodcastPageFields', () => {
 
     const incomplete = validatePodcastPageFields({
       ...validBody,
-      podcasts: [{ title: '', description: 'd', url: '', series: 'Future Money' }]
+      podcasts: [
+        { title: '', description: 'd', url: '', series: 'Future Money' }
+      ]
     })
     expect(incomplete?.details.errors.map((e) => e.path)).toEqual(
       expect.arrayContaining([

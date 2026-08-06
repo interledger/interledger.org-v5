@@ -68,7 +68,9 @@ describe('foundationBlogFrontmatterSchema', () => {
     })
 
     expect(parsed.featureImageMobile).toBe('/mobile.jpg')
-    expect(parsed.featureImageMobileAlt).toBe('Mobile crop of the feature image')
+    expect(parsed.featureImageMobileAlt).toBe(
+      'Mobile crop of the feature image'
+    )
   })
 
   it('no longer accepts a pillar field as meaningful (ignored, not required)', () => {
