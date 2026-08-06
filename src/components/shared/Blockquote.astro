@@ -19,6 +19,16 @@ const htmlSource = parseMarkdownInline(source, {
   pathname: Astro.url.pathname,
   lang: routeLocale
 })
+
+/** Drop outer straight/curly quotes so we never double marks on the prop path. */
+const stripOuterQuotes = (text: string) =>
+  text
+    .trim()
+    .replace(/^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu, '')
+    .trim()
+
+const quoteText =
+  quote != null && quote !== '' ? stripOuterQuotes(quote) : null
 ---
 
 <figure
@@ -32,8 +42,9 @@ const htmlSource = parseMarkdownInline(source, {
     {
       // String prop: marks share the text run. Slot (MDX): CSS keeps marks
       // inline on first/last child so they don't become separate paragraphs.
-      quote != null && quote !== '' ? (
-        <p class="m-0">{`“${quote}”`}</p>
+      // MDX children must not include literal quote chars — serializer strips them.
+      quoteText ? (
+        <p class="m-0">{`“${quoteText}”`}</p>
       ) : (
         <div class="quote-slot">
           <slot />
