@@ -2,11 +2,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import {
   getOptimizedImage,
+  hasOptimizedVariants,
+  setImageCdnEnabledForTests,
   setOptimizedImageVariantCatalogForTests
 } from './images'
+import { buildImageCdnUrl, largestTargetWidth } from './imageCdn'
+import { TARGET_WIDTHS } from './imagePaths'
+
+const EMPTY = {
+  variants: [],
+  fullSrc: null,
+  avifVariants: [],
+  avifFullSrc: null
+}
 
 afterEach(() => {
   setOptimizedImageVariantCatalogForTests(null)
+  setImageCdnEnabledForTests(null)
   vi.restoreAllMocks()
 })
 
@@ -136,5 +148,112 @@ describe('getOptimizedImage', () => {
       avifVariants: [],
       avifFullSrc: null
     })
+  })
+})
+
+describe('getOptimizedImage — Netlify Image CDN mode', () => {
+  it('returns CDN URLs for every target width, ignoring the catalog', () => {
+    // Empty catalog: when the CDN is on the encoder never runs, so the runtime
+    // catalog falls back to its committed (empty) stub.
+    setOptimizedImageVariantCatalogForTests([])
+    setImageCdnEnabledForTests(true)
+
+    const result = getOptimizedImage('/img/hero.png')
+
+    expect(result.variants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.variants[0].src).toBe(
+      buildImageCdnUrl('/img/hero.png', { format: 'webp', width: 640 })
+    )
+    expect(result.avifVariants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.avifVariants[0].src).toBe(
+      buildImageCdnUrl('/img/hero.png', { format: 'avif', width: 640 })
+    )
+  })
+
+  it('points fullSrc at the widest transform rather than an unsized URL', () => {
+    // An unsized URL renders the same pixels but is a separate cache entry,
+    // so it would be a second billed transform for the same image.
+    setImageCdnEnabledForTests(true)
+
+    const { fullSrc, avifFullSrc, variants } =
+      getOptimizedImage('/img/hero.png')
+
+    expect(fullSrc).toBe(
+      buildImageCdnUrl('/img/hero.png', {
+        format: 'webp',
+        width: largestTargetWidth()
+      })
+    )
+    expect(fullSrc).toBe(variants.at(-1)?.src)
+    expect(avifFullSrc).toContain(`w=${largestTargetWidth()}`)
+  })
+
+  it('never emits an unsized transform', () => {
+    setImageCdnEnabledForTests(true)
+
+    const image = getOptimizedImage('/img/hero.png')
+    const urls = [
+      ...image.variants.map((v) => v.src),
+      ...image.avifVariants.map((v) => v.src),
+      image.fullSrc,
+      image.avifFullSrc
+    ].filter((src): src is string => src !== null)
+
+    for (const src of urls) expect(src).toMatch(/[?&]w=\d+/)
+  })
+
+  it('points the CDN at the upload original, not the optimized path', () => {
+    setImageCdnEnabledForTests(true)
+
+    const { fullSrc } = getOptimizedImage('/uploads/img/original/hero.jpg')
+
+    expect(fullSrc).toContain(
+      encodeURIComponent('/uploads/img/original/hero.jpg')
+    )
+    expect(fullSrc).not.toContain('optimized')
+  })
+
+  it('resolves absolute Strapi URLs to a same-origin CDN source', () => {
+    setImageCdnEnabledForTests(true)
+
+    const { variants } = getOptimizedImage(
+      'https://cms.example.com/uploads/img/original/hero.jpg'
+    )
+
+    expect(variants[0].src).toBe(
+      buildImageCdnUrl('/uploads/img/original/hero.jpg', {
+        format: 'webp',
+        width: 640
+      })
+    )
+  })
+
+  it('still refuses SVGs and unrecognized paths', () => {
+    setImageCdnEnabledForTests(true)
+
+    for (const src of ['/img/logo.svg', '/somewhere/else.png', '/img/noext']) {
+      expect(getOptimizedImage(src)).toEqual(EMPTY)
+    }
+  })
+
+  it('does not re-transform an already-optimized path', () => {
+    setImageCdnEnabledForTests(true)
+
+    expect(getOptimizedImage('/img/optimized/hero-640.webp')).toEqual(EMPTY)
+  })
+
+  it('reports variants as available so components render a <picture>', () => {
+    setImageCdnEnabledForTests(true)
+
+    expect(hasOptimizedVariants(getOptimizedImage('/img/hero.png'))).toBe(true)
+  })
+
+  it('falls back to the catalog when the CDN is off', () => {
+    setOptimizedImageVariantCatalogForTests(['/img/optimized/hero-640.webp'])
+    setImageCdnEnabledForTests(false)
+
+    expect(getOptimizedImage('/img/hero.png').variants).toEqual([
+      { src: '/img/optimized/hero-640.webp', width: 640 }
+    ])
   })
 })
