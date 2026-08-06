@@ -31,8 +31,8 @@ export interface EncodeRequest {
   sourcePath: string
   outputPath: string
   format: VariantFormat
-  /** Target width, or `null` to encode at the source's intrinsic size. */
-  width: number | null
+  /** Never exceeds the source's intrinsic width, so this is only ever a downscale. */
+  width: number
 }
 
 export interface ImageEncoderPort {

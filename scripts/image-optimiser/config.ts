@@ -1,23 +1,24 @@
 import path from 'node:path'
 import {
+  AVIF_QUALITY,
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
+  WEBP_QUALITY,
   pathToSegments
 } from '@/utils/main/imagePaths'
 
-// Higher than sharp's WebP default (80): blog/body images were looking soft when
-// the browser had to fall back to a small variant (INTORG-934).
-export const WEBP_QUALITY = 90
-// AVIF at q85 with 4:4:4 chroma stays visually close to WebP q90 while usually
-// smaller, with cleaner dark gradients (less banding than 4:2:0).
-// Browsers that support AVIF pick it via <source type="image/avif"> ordering.
-export const AVIF_QUALITY = 85
+// Re-exported so the encoder's collaborators have one import for their config.
+// Both values are defined in imagePaths.ts, shared with the Netlify Image CDN
+// URL builder so the two variant producers cannot drift apart.
+export { AVIF_QUALITY, WEBP_QUALITY }
+
 export const AVIF_CHROMA_SUBSAMPLING = '4:4:4'
 
 // Bump when quality, target widths, or output naming changes so the content-hash
 // cache does not skip regeneration of already-processed sources.
-export const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
+// `noFull` marks the removal of the duplicate `-full` pair (see planVariants).
+export const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth-noFull`
 
 // GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
 // would become static. They're passed through as-is by OptimizedImage.

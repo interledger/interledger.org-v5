@@ -139,13 +139,22 @@ export {
 // Main site: Images
 export {
   getOptimizedImage,
+  getLargestVariant,
   buildImageSrcset,
   hasOptimizedVariants,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,
+  type ImageVariant,
   type OptimizedImage
 } from './main/images'
+export {
+  NETLIFY_IMAGE_ENDPOINT,
+  buildImageCdnUrl,
+  buildImageCdnVariants,
+  isImageCdnEnabled,
+  type ImageCdnFormat
+} from './main/imageCdn'
 
 // Main site: Profiles
 export {

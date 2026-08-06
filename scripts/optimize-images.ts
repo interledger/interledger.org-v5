@@ -5,6 +5,7 @@
  * `scripts/image-optimiser/`, which is unit tested against in-memory doubles.
  */
 import path from 'node:path'
+import { isImageCdnEnabled } from '@/utils/main/imageCdn'
 import {
   AVIF_QUALITY,
   ConsoleLogger,
@@ -19,6 +20,20 @@ const MILLISECONDS_PER_SECOND = 1000
 
 async function main(): Promise<void> {
   const startTime = Date.now()
+
+  // On Netlify the CDN transforms images on demand, so pre-generating variants
+  // would be ~17 minutes of build time producing files nothing references.
+  // getOptimizedImage() switches to /.netlify/images on the same signal, and
+  // the runtime catalog falls back to its committed stub when absent.
+  if (isImageCdnEnabled()) {
+    console.log(
+      'Netlify build detected — skipping image optimization.\n' +
+        'Images are served by the Netlify Image CDN (/.netlify/images).\n' +
+        'Set IMAGE_CDN=off to restore build-time encoding.'
+    )
+    return
+  }
+
   console.log('Optimizing images...\n')
 
   const config = createImageOptimiserConfig(

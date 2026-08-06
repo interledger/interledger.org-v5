@@ -3,6 +3,7 @@ export {
   type ImageOptimiserDependencies,
   type OptimisationSummary
 } from './imageOptimiser'
+
 export {
   AVIF_QUALITY,
   CACHE_MANIFEST_FILE_NAME,
@@ -14,6 +15,7 @@ export {
   type ImageOptimiserConfig,
   type SourceLocation
 } from './config'
+
 export {
   CacheManifest,
   CacheManifestStore,
@@ -21,22 +23,24 @@ export {
   type CacheManifestEntry,
   type CacheManifestFile
 } from './cacheManifest'
+
 export {
   ConsoleLogger,
   NodeFileSystem,
   SharpImageEncoder,
   type SharpImageEncoderOptions
 } from './nodeAdapters'
+
 export { RuntimeManifestWriter } from './runtimeManifest'
 export { SourceScanner } from './sourceScanner'
 export { mapWithConcurrency } from './concurrency'
 export {
-  FULL_SIZE_SUFFIX,
   VARIANT_FORMATS,
   planVariants,
   type PlannedVariant,
   type VariantPlan
 } from './variantPlan'
+
 export type {
   DirectoryEntry,
   EncodeRequest,

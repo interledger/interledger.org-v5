@@ -64,8 +64,7 @@ export class SharpImageEncoder implements ImageEncoderPort {
     format,
     width
   }: EncodeRequest): Promise<void> {
-    const source = sharp(sourcePath)
-    const resized = width === null ? source : source.resize(width)
+    const resized = sharp(sourcePath).resize(width)
     const encoded =
       format === 'webp'
         ? resized.webp({ quality: this.options.webpQuality })

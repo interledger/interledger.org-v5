@@ -39,9 +39,9 @@ const {
   alternateSources = []
 } = Astro.props
 
-const { variants, fullSrc, avifVariants, avifFullSrc } = src
+const { variants, avifVariants } = src
   ? getOptimizedImage(src)
-  : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
+  : { variants: [], avifVariants: [] }
 
 const alternatePictureSources = alternateSources.flatMap(
   ({ src: alternateSrc, media: alternateMedia, sizes: alternateSizes }) => {
@@ -111,24 +111,6 @@ const imgSrc = media ? undefined : src
           media={media}
         />
       )}
-      <img
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        class={className}
-        loading={loading}
-        decoding={decoding}
-        fetchpriority={fetchpriority}
-        draggable={draggable}
-      />
-    </picture>
-  ) : fullSrc ? (
-    <picture class={pictureClassName}>
-      {avifFullSrc && (
-        <source type="image/avif" srcset={avifFullSrc} media={media} />
-      )}
-      <source type="image/webp" srcset={fullSrc} media={media} />
       <img
         src={imgSrc}
         alt={alt}

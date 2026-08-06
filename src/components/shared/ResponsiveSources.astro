@@ -3,7 +3,7 @@ import { buildImageSrcset, type OptimizedImage } from '@/utils'
 
 interface Props {
   image: OptimizedImage | null
-  /** Original (un-optimized) URL — rendered as a last-resort <source> when no variant or fullSrc exists. */
+  /** Original (un-optimized) URL — rendered as a last-resort <source> when no variant exists. */
   rawSrc?: string
   media?: string
   sizes?: string
@@ -32,18 +32,4 @@ const { image, rawSrc, media, sizes = '100vw' } = Astro.props
     />
   )
 }
-{
-  image && !image.variants.length && image.avifFullSrc && (
-    <source type="image/avif" srcset={image.avifFullSrc} media={media} />
-  )
-}
-{
-  image && !image.variants.length && image.fullSrc && (
-    <source type="image/webp" srcset={image.fullSrc} media={media} />
-  )
-}
-{
-  rawSrc && !image?.variants.length && !image?.fullSrc && (
-    <source srcset={rawSrc} media={media} />
-  )
-}
+{rawSrc && !image?.variants.length && <source srcset={rawSrc} media={media} />}

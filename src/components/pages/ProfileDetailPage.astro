@@ -16,6 +16,7 @@ import {
   getProfileColorIndex,
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
+  getLargestVariant,
   getOptimizedImage,
   getSectionPageLayout
 } from '@/utils'
@@ -51,15 +52,21 @@ const colorIndex = await getProfileColorIndex(
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
-const avatarSrc = photo
+// Preload takes a single URL, so pick the full-size render: widest AVIF if we
+// have one, else widest WebP, else the raw photo. `isAvif` is tracked rather
+// than sniffed from the URL — a CDN URL carries its format in a query
+// parameter, not an extension.
+const avatar = photo
   ? (() => {
-      const { avifFullSrc, fullSrc } = getOptimizedImage(photo)
-      return avifFullSrc ?? fullSrc ?? photo
+      const { variants, avifVariants } = getOptimizedImage(photo)
+      const avif = getLargestVariant(avifVariants)
+      if (avif) return { src: avif.src, isAvif: true }
+      const webp = getLargestVariant(variants)
+      return { src: webp?.src ?? photo, isAvif: false }
     })()
   : null
-const avatarPreloadType = avatarSrc?.endsWith('.avif')
-  ? 'image/avif'
-  : undefined
+const avatarSrc = avatar?.src ?? null
+const avatarPreloadType = avatar?.isAvif ? 'image/avif' : undefined
 
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'

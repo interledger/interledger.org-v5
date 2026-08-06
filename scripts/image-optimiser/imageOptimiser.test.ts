@@ -98,13 +98,13 @@ describe('ImageOptimiser — encoding', () => {
 
     const summary = await runOrThrow(harness)
 
-    // hero: 640 + 1200 + full, logo: 500 + full — two formats each.
+    // hero: 640 + 1200, logo: 500 — two formats each.
     expect(summary).toEqual({
       sourceCount: 2,
       encodedCount: 2,
       cachedCount: 0,
-      variantsWritten: 10,
-      runtimeVariantCount: 10
+      variantsWritten: 6,
+      runtimeVariantCount: 6
     })
   })
 
@@ -118,16 +118,12 @@ describe('ImageOptimiser — encoding', () => {
     expect(harness.encoder.outputPaths).toEqual([
       `${OUTPUT_DIR}/blog/2026-01/cover-640.webp`,
       `${OUTPUT_DIR}/blog/2026-01/cover-640.avif`,
-      `${OUTPUT_DIR}/blog/2026-01/cover-full.webp`,
-      `${OUTPUT_DIR}/blog/2026-01/cover-full.avif`,
       `${OUTPUT_DIR}/uploads/team/avatar-640.webp`,
-      `${OUTPUT_DIR}/uploads/team/avatar-640.avif`,
-      `${OUTPUT_DIR}/uploads/team/avatar-full.webp`,
-      `${OUTPUT_DIR}/uploads/team/avatar-full.avif`
+      `${OUTPUT_DIR}/uploads/team/avatar-640.avif`
     ])
   })
 
-  it('resizes to each target width and leaves the full-size pair unresized', async () => {
+  it('resizes to each target width and writes no duplicate full-size pair', async () => {
     const harness = createHarness()
     harness.addImage(`${PUBLIC_IMG}/hero.png`, { width: 1200 })
 
@@ -139,10 +135,11 @@ describe('ImageOptimiser — encoding', () => {
       { format: 'webp', width: 640 },
       { format: 'avif', width: 640 },
       { format: 'webp', width: 1200 },
-      { format: 'avif', width: 1200 },
-      { format: 'webp', width: null },
-      { format: 'avif', width: null }
+      { format: 'avif', width: 1200 }
     ])
+    expect(harness.encoder.outputPaths).not.toContain(
+      `${OUTPUT_DIR}/hero-full.webp`
+    )
   })
 
   it('never treats its own output as a source', async () => {
@@ -185,7 +182,7 @@ describe('ImageOptimiser — caching', () => {
       cachedCount: 1,
       variantsWritten: 0,
       // Cached variants stay in the catalog — it is built from the output tree.
-      runtimeVariantCount: 4
+      runtimeVariantCount: 2
     })
   })
 
@@ -294,12 +291,8 @@ describe('ImageOptimiser — manifests', () => {
       variants: [
         '/img/optimized/hero-640.avif',
         '/img/optimized/hero-640.webp',
-        '/img/optimized/hero-full.avif',
-        '/img/optimized/hero-full.webp',
         '/img/optimized/uploads/logo-640.avif',
-        '/img/optimized/uploads/logo-640.webp',
-        '/img/optimized/uploads/logo-full.avif',
-        '/img/optimized/uploads/logo-full.webp'
+        '/img/optimized/uploads/logo-640.webp'
       ]
     })
   })
@@ -310,7 +303,7 @@ describe('ImageOptimiser — manifests', () => {
 
     const summary = await runOrThrow(harness)
 
-    expect(summary.runtimeVariantCount).toBe(4)
+    expect(summary.runtimeVariantCount).toBe(2)
   })
 })
 
@@ -387,7 +380,7 @@ describe('ImageOptimiser — failure and edge cases', () => {
 
     expect(harness.logger.messages).toContain('  public/img: 1 raster image(s)')
     expect(harness.logger.messages).toContain(
-      '    blog/cover.png → 4 new variant(s)'
+      '    blog/cover.png → 2 new variant(s)'
     )
   })
 })
