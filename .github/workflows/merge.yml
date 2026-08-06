@@ -33,9 +33,9 @@ jobs:
   # new PR a full cold encode (~17 min, ~88% of that job). This job writes into
   # refs/heads/staging (or playground), which those PRs can read.
   #
-  # Deliberately unconditional and dependency-free:
-  #   - When nothing changed it is an exact key hit, so the post-job save is
-  #     skipped and the whole job finishes in well under a minute.
+  # Deliberately unconditional:
+  #   - When nothing changed it is an exact key hit, so the post-job cache save is skipped.
+  #   - If `pnpm install` + `optimize:images` are gated on cache-hit, the job can finish in well under a minute.
   #   - The restore refreshes the entry's last-accessed time, which is what
   #     GitHub's cache eviction is based on. Gating this on "images changed"
   #     would let the branch's entry go stale and be evicted precisely when the
