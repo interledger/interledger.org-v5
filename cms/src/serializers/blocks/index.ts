@@ -16,6 +16,7 @@ import { serialize as paragraph } from './paragraph.serializer'
 import { serialize as profile } from './profile.serializer'
 import { serialize as profileGrid } from './profile-grid.serializer'
 import { serialize as blockquote } from './blockquote.serializer'
+import { serialize as quote } from './quote.serializer'
 import { serialize as calloutText } from './callout-text.serializer'
 import { serialize as ctaStrip } from './cta-strip.serializer'
 import { serialize as pdfEmbed } from './pdf-embed.serializer'
@@ -24,7 +25,9 @@ import { serialize as imageBlock } from './image-block.serializer'
 import { serialize as codeBlock } from './code-block.serializer'
 import { serialize as splitLayout } from './split-layout.serializer'
 import { serialize as numberTiles } from './number-tiles.serializer'
+import { serialize as agenda } from './agenda.serializer'
 import { serialize as titleCardGrid } from './title-card-grid.serializer'
+import { serialize as faq } from './faq.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
@@ -32,12 +35,14 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
   'blocks.number-tiles': numberTiles,
+  'blocks.agenda': agenda,
 
   'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,
   'blocks.profile': profile,
   'blocks.profile-grid': profileGrid,
   'blocks.blockquote': blockquote,
+  'blocks.quote': quote,
   'blocks.callout-text': calloutText,
   'blocks.cta-strip': ctaStrip,
   'blocks.pdf-embed': pdfEmbed,
@@ -46,6 +51,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.code-block': codeBlock,
   'blocks.split-layout': splitLayout,
   'blocks.title-card-grid': titleCardGrid,
+  'blocks.faq': faq,
   'shared.cta-link': ctaLink
 }
 

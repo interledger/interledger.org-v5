@@ -48,7 +48,8 @@ export const PATHS = {
   FOUNDATION_BLOG_IMG: 'img/foundation-blog',
   CONFIG: {
     foundationNavigation: 'foundation-navigation.json',
-    summitNavigation: 'summit-navigation.json'
+    summitNavigation: 'summit-navigation.json',
+    hackathonNavigation: 'hackathon-navigation.json'
   },
   /** CMS-internal paths (relative to cms/ when cwd is cms). */
   TMP: '.tmp',

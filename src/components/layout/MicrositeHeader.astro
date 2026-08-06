@@ -1,0 +1,105 @@
+---
+/**
+ * Shared microsite header (Summit and Hackathon).
+ * Composes navigation menu, action links, and mobile toggle. The chrome is
+ * identical across microsites; only the navigation config, home link, and
+ * accessible names vary by `site`.
+ */
+import FoundationLogo from '@/components/logos/FoundationLogo.astro'
+import {
+  getNavigation,
+  useTranslations,
+  translatePath,
+  HOME_CONTENT_SLUG,
+  buildUmamiAttrs
+} from '@/utils'
+import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
+import MicrositeNavActions from '@/components/layout/MicrositeNavActions.astro'
+import HamburgerButton from '@/components/shared/HamburgerButton.astro'
+import type { MicrositeSite } from '@/types/navigation'
+
+interface Props {
+  site: MicrositeSite
+}
+
+const { site } = Astro.props
+const { routeLocale } = Astro.locals
+const { mainMenu, ctaButton } = getNavigation(site, routeLocale)
+const t = useTranslations(routeLocale)
+
+// Summit has a landing page at its route base; hackathon does not yet, so its
+// logo points at the overview page instead.
+const homePath =
+  site === 'summit'
+    ? translatePath('summit-pages', routeLocale, HOME_CONTENT_SLUG)
+    : translatePath('hackathon-pages', routeLocale, 'overview')
+
+const navLabel = site === 'summit' ? t('nav.summit') : t('nav.hackathon')
+const logoLabel =
+  site === 'summit' ? t('aria.logo.summit') : t('aria.logo.hackathon')
+
+const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    ariaLabel
+  })
+---
+
+<header
+  class="bg-black px-2xl sticky top-0 z-[2] border-t-2 border-neutral-75 shadow text-white text-[1rem]"
+  role="banner"
+>
+  <nav
+    class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
+    role="navigation"
+    aria-labelledby="block-microsite-navigation-menu"
+    id="block-microsite-navigation"
+    data-nav
+  >
+    <h2 class="sr-only" id="block-microsite-navigation-menu">{navLabel}</h2>
+    <a
+      href={homePath}
+      class="w-[11em] flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
+      aria-label={logoLabel}
+      {...navLink(homePath, undefined, logoLabel)}
+    >
+      <FoundationLogo />
+    </a>
+    <div
+      class="header-nav-wrapper header-nav-wrapper--microsite"
+      data-nav-wrapper
+      data-lenis-prevent
+      data-offscreen="true"
+      id="micrositeNavLinks"
+    >
+      <MicrositeNavMenu menuGroups={mainMenu} />
+      {
+        ctaButton && (
+          <a
+            class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
+            href={ctaButton.href || '#'}
+            {...navLink(ctaButton.href || '#', ctaButton.label)}
+            {...(ctaButton.openInNewTab
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {ctaButton.label}
+          </a>
+        )
+      }
+    </div>
+    <MicrositeNavActions ctaButton={ctaButton} />
+    <HamburgerButton
+      controlsId="micrositeNavLinks"
+      iconId="micrositeMenuIcon"
+    />
+  </nav>
+</header>
+
+<script>
+  import './microsite-header.ts'
+</script>

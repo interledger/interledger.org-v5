@@ -12,6 +12,7 @@ export {
   ensureLeadingSlash,
   ensureAbsoluteUrl,
   isSafeMarkdownHref,
+  isExternalHref,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
@@ -19,11 +20,16 @@ export {
 export { tryCatchAsync } from './shared/tryCatch'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
-export { parseStatNumber, formatStatNumber } from './shared/parseStatNumber'
+export {
+  parseStatNumber,
+  formatStatNumber,
+  buildNumberTileAriaLabel
+} from './shared/parseStatNumber'
 export {
   MAX_IMAGE_BYTES,
   MAX_IMAGE_SIZE_LABEL,
-  formatImageSize,
+  formatFileSize,
+  imageOverSizeLimitError,
   imageSizeLimitError,
   isImageOverSizeLimit
 } from './shared/uploadLimits'
@@ -173,6 +179,7 @@ export {
   type CanonicalMeta,
   type HreflangMeta
 } from './main/seoMeta'
+export { isDemoPathSlug, isDemoPathname } from './shared/demoPaths'
 
 // Main site: Roadmap (developers tech roadmap timeline)
 export {

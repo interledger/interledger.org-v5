@@ -43,14 +43,17 @@ const populateParams = new URLSearchParams({
   status: 'draft',
   'populate[hero][populate]': '*',
   'populate[content][on][blocks.paragraph][populate]': '*',
+  'populate[content][on][blocks.agenda][populate][items]': '*',
   'populate[content][on][blocks.blockquote][populate]': '*',
+  'populate[content][on][blocks.quote][populate]': '*',
   'populate[content][on][blocks.cta-strip][populate]': '*',
   'populate[content][on][blocks.cards-grid][populate][cards]': '*',
   'populate[content][on][blocks.card-links-grid][populate][cards]': '*',
   'populate[content][on][blocks.carousel][populate][logos][populate]': '*',
   'populate[content][on][blocks.profile][populate][profile][populate]': '*',
   'populate[content][on][blocks.profile-grid][populate][profiles][populate]':
-    '*'
+    '*',
+  'populate[content][on][blocks.faq][populate][items]': '*'
 })
 
 const response = await fetchStrapi<FoundationPagePreview>(

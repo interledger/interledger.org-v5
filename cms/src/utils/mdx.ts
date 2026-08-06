@@ -168,18 +168,20 @@ export function ckeditorFieldToMarkdown(value: string): string {
 // ── Text helpers ─────────────────────────────────────────────────────────────
 
 /**
- * Strips any surrounding straight or curly quotes from a blockquote string
- * and wraps the result in curly double quotes for consistent styling.
+ * Strips surrounding straight or curly quotes from blockquote text.
+ *
+ * Presentation marks are owned by `Blockquote.astro` (CSS ::before/::after on
+ * the MDX slot path, template wrap on the `quote` prop path). Exporting literal
+ * curly quotes here caused doubled marks for CMS-synced MDX children.
  */
 export function formatBlockquote(quote: string): string {
-  const stripped = quote
+  return quote
     .trim()
     .replace(
       /^["\u2018\u2019\u201c\u201d]+|["\u2018\u2019\u201c\u201d]+$/gu,
       ''
     )
     .trim()
-  return `\u201C${stripped}\u201D`
 }
 
 // ── Frontmatter helpers ──────────────────────────────────────────────────────

@@ -20,6 +20,31 @@ describe('number-tiles serializer', () => {
     )
   })
 
+  it('serializes a monetary prefix before the number', () => {
+    const result = serialize({
+      tiles: [
+        { number: '21', prefix: '$', suffix: 'M+', description: 'In Grants' },
+        { number: '300', suffix: '+', description: 'Projects' }
+      ]
+    })
+
+    expect(result).toContain(
+      'tiles={[{"number":"21","prefix":"$","suffix":"M+","description":"In Grants"},' +
+        '{"number":"300","suffix":"+","description":"Projects"}]}'
+    )
+  })
+
+  it('omits a blank prefix', () => {
+    const result = serialize({
+      tiles: [
+        { number: '21', prefix: '  ', description: 'In Grants' },
+        { number: '300', description: 'Projects' }
+      ]
+    })
+
+    expect(result).not.toContain('prefix')
+  })
+
   it('omits suffix when absent', () => {
     const result = serialize({
       tiles: [

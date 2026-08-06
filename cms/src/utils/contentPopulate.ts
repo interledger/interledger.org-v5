@@ -4,11 +4,12 @@
  * Used by page and blog lifecycles to ensure all block types
  * and their nested relations are fully populated when fetching from Strapi.
  *
- * Keep these in sync with the component lists in the content-type schemas:
- * - foundation-page/schema.json
- * - summit-page/schema.json
- * - hackathon-page/schema.json
- * - foundation-blog-post/schema.json
+ * A dynamic-zone query only returns components listed in its `on` map, so a
+ * component a schema allows but this file omits is silently dropped from the
+ * MDX export. `contentPopulate.test.ts` walks the schemas and fails on any gap.
+ *
+ * Listing a component a zone no longer allows is harmless (Strapi ignores it),
+ * so the test only checks the schema-to-populate direction.
  */
 
 /** Blocks available in grant page dynamic zones. */
@@ -45,6 +46,12 @@ const GRANT_BLOCKS = {
 /** Blocks shared by all content types. */
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
+  'blocks.agenda': {
+    populate: { items: true }
+  },
+  'blocks.split-layout': {
+    populate: { media: { populate: { image: true } }, cta: true }
+  },
   'blocks.profile': {
     populate: {
       profile: { populate: { media: { populate: { image: true } } } }
@@ -54,6 +61,9 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { profiles: true }
   },
   'blocks.blockquote': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  },
   'blocks.callout-text': {},
   'blocks.cta-strip': {},
   'blocks.pdf-embed': {
@@ -62,8 +72,17 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.video-embed': {
     populate: { file: true }
   },
+  'blocks.number-tiles': {
+    populate: { tiles: true }
+  },
   'blocks.title-card-grid': {
     populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  'blocks.carousel': {
+    populate: { logos: true }
+  },
+  'blocks.faq': {
+    populate: { items: true }
   }
 } as const
 
@@ -79,7 +98,10 @@ const FOUNDATION_BLOG_BLOCKS = {
       mobileImage: true
     }
   },
-  'blocks.code-block': {}
+  'blocks.code-block': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  }
 } as const
 
 /** Populate config for profile-page content field (paragraph blocks only). */
@@ -100,11 +122,29 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.number-tiles': {
+      populate: { tiles: true }
+    },
+    'blocks.agenda': {
+      populate: { items: true }
+    },
+    'blocks.split-layout': {
+      populate: { media: { populate: { image: true } }, cta: true }
+    },
     'blocks.profile-grid': {
       populate: { profiles: true }
     },
     'blocks.title-card-grid': {
       populate: { titleCards: { populate: { secondaryCta: true } } }
+    },
+    'blocks.carousel': {
+      populate: { logos: true }
+    },
+    'blocks.faq': {
+      populate: { items: true }
+    },
+    'blocks.quote': {
+      populate: { authorImage: true }
     }
   }
 } as const
@@ -132,9 +172,6 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
   content: {
     on: {
       ...GRANT_BLOCKS,
-      'blocks.carousel': {
-        populate: { logos: true }
-      },
       'blocks.profile-grid': {
         populate: { profiles: true }
       }

@@ -1,6 +1,7 @@
 export function serialize(block: {
   tiles?: {
     number?: string
+    prefix?: string
     suffix?: string
     description?: string
   }[]
@@ -21,9 +22,11 @@ export function serialize(block: {
         `Number Tiles block: tile ${i + 1} is missing a description`
       )
     }
+    const prefix = tile.prefix?.trim()
     const suffix = tile.suffix?.trim()
     return {
       number,
+      ...(prefix ? { prefix } : {}),
       ...(suffix ? { suffix } : {}),
       description
     }

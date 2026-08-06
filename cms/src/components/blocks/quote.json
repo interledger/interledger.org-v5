@@ -1,0 +1,53 @@
+{
+  "collectionName": "components_blocks_quotes",
+  "info": {
+    "displayName": "Quote",
+    "icon": "quote",
+    "description": "Pull quote with optional author name, image, and link"
+  },
+  "options": {},
+  "attributes": {
+    "quote": {
+      "type": "text",
+      "required": true,
+      "description": "The actual quoted text goes here",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "authorName": {
+      "type": "string",
+      "required": false,
+      "description": "Optional name shown under the quote",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "authorImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"],
+      "description": "Optional author portrait",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "authorLink": {
+      "type": "string",
+      "required": false,
+      "description": "Optional URL for the author name",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

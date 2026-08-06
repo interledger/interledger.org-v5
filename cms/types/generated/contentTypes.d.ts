@@ -560,7 +560,8 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         'blocks.paragraph',
         'blocks.video-embed',
         'blocks.image-block',
-        'blocks.code-block'
+        'blocks.code-block',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -738,13 +739,18 @@ export interface ApiFoundationPageFoundationPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
+        'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1008,6 +1014,51 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiHackathonNavigationHackathonNavigation
+  extends Struct.SingleTypeSchema {
+  collectionName: 'hackathon_navigations'
+  info: {
+    description: 'Hackathon pages navigation menu'
+    displayName: 'Hackathon Navigation'
+    pluralName: 'hackathon-navigations'
+    singularName: 'hackathon-navigation'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ctaButton: Schema.Attribute.Component<'navigation.menu-item', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hackathon-navigation.hackathon-navigation'
+    >
+    mainMenu: Schema.Attribute.Component<'navigation.menu-group', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiHackathonPageHackathonPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'hackathon_pages'
@@ -1029,9 +1080,14 @@ export interface ApiHackathonPageHackathonPage
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.number-tiles',
+        'blocks.agenda',
+        'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1425,13 +1481,18 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     content: Schema.Attribute.DynamicZone<
       [
         'blocks.paragraph',
+        'blocks.agenda',
+        'blocks.split-layout',
         'blocks.profile-grid',
         'blocks.blockquote',
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.number-tiles',
         'blocks.title-card-grid',
-        'blocks.carousel'
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.quote'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1888,6 +1949,7 @@ declare module '@strapi/strapi' {
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
+      'api::hackathon-navigation.hackathon-navigation': ApiHackathonNavigationHackathonNavigation
       'api::hackathon-page.hackathon-page': ApiHackathonPageHackathonPage
       'api::podcast-page.podcast-page': ApiPodcastPagePodcastPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage

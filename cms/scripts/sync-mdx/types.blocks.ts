@@ -67,6 +67,22 @@ export interface BlockquoteBlock extends StrapiBlockBase {
   source?: string
 }
 
+/**
+ * blocks.quote – pull quote with optional author name, image, and link.
+ *
+ * `quote` comes from the JSX children (markdown). Author fields are optional
+ * attributes. `authorImage` is a Strapi media ID after import (or null in
+ * dry-run); serializers re-emit a repo path / upload URL.
+ */
+export interface QuoteBlock extends StrapiBlockBase {
+  __component: 'blocks.quote'
+  quote: string
+  authorName?: string
+  /** Strapi upload file integer ID — set when authorImage is provided. */
+  authorImage?: number | null
+  authorLink?: string
+}
+
 /** blocks.callout-text – highlighted text block. */
 export interface CalloutTextBlock extends StrapiBlockBase {
   __component: 'blocks.callout-text'
@@ -188,13 +204,29 @@ export interface CarouselBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.number-tiles — row of stat tiles (number + optional suffix +
- * description). `number` is plain text (not numeric) so editors can type
- * commas manually, e.g. "1,000". At least 2 tiles are required.
+ * blocks.number-tiles — row of stat tiles (number + optional currency prefix
+ * and suffix + description). `number` is plain text (not numeric) so editors
+ * can type commas manually, e.g. "1,000". At least 2 tiles are required.
  */
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
-  tiles: { number: string; suffix?: string; description: string }[]
+  tiles: {
+    number: string
+    prefix?: string
+    suffix?: string
+    description: string
+  }[]
+}
+
+/** blocks.agenda — an optional heading followed by at least two scheduled items. */
+export interface AgendaBlock extends StrapiBlockBase {
+  __component: 'blocks.agenda'
+  heading?: string
+  items: {
+    time: string
+    activity: string
+    additionalInfo: string
+  }[]
 }
 
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
@@ -229,6 +261,20 @@ export interface TitleCardGridBlock extends StrapiBlockBase {
   titleCards: TitleCard[]
 }
 
+/** blocks.faq-item — entry in faq's repeatable `items` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface FaqItem {
+  question: string
+  /** Rich text (CKEditor `basicMarkdownPreset`), stored as markdown. */
+  answer: string
+}
+
+/** blocks.faq — accordion of question/answer pairs under an optional heading. */
+export interface FaqBlock extends StrapiBlockBase {
+  __component: 'blocks.faq'
+  heading?: string
+  items: FaqItem[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -239,6 +285,7 @@ export type ParsedBlock =
   | ProfileBlock
   | ProfileGridBlock
   | BlockquoteBlock
+  | QuoteBlock
   | CalloutTextBlock
   | CtaStripBlock
   | PdfEmbedBlock
@@ -248,5 +295,7 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
+  | AgendaBlock
   | TitleCardGridBlock
+  | FaqBlock
   | CtaLinkBlock

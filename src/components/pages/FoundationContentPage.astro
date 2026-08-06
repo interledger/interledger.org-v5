@@ -1,21 +1,27 @@
 ---
-import { type Locale, getHeroSectionStyle } from '@/utils'
+import { type Locale, getHeroSectionStyle, isDemoPathSlug } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
+import Quote from '@/components/blocks/Quote.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import Agenda from '@/components/blocks/Agenda.astro'
+import Faq from '@/components/blocks/Faq.astro'
+import FaqItem from '@/components/shared/FaqItem.astro'
 
 interface Props {
   slug: string
@@ -44,11 +50,12 @@ const mdxHeroDescription = mdxData?.heroDescription || ''
 const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
 const heroCtas = mdxData?.heroCtas ?? []
 const isNotFound = !MdxContent
+const noindex = isDemoPathSlug(mdxData?.pathSlug)
 
 if (isNotFound) return Astro.redirect('/404')
 ---
 
-<FoundationPageLayout title={title} description={description}>
+<FoundationPageLayout title={title} description={description} noindex={noindex}>
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     {
@@ -99,13 +106,19 @@ if (isNotFound) return Astro.redirect('/404')
               ProfileCard,
               ProfileGrid,
               Blockquote,
+              Quote,
               CalloutText,
               Paragraph,
+              SplitLayout,
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
+              NumberTiles,
+              Agenda,
               TitleCardGrid,
               TitleCard,
+              Faq,
+              FaqItem,
               LogoCarousel
             }}
           />

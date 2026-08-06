@@ -1,6 +1,6 @@
 /**
  * Shared header navigation behavior.
- * Used by both Summit and Foundation headers.
+ * Used by both the Foundation and microsite (Summit, Hackathon) headers.
  *
  * All DOM queries are scoped to the nav root identified by `navId`,
  * so multiple headers on the same page won't interfere with each other.

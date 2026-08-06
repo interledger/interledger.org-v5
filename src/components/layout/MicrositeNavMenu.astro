@@ -1,0 +1,98 @@
+---
+import Icon from '@/components/shared/Icon.astro'
+import type { MenuGroup } from '@/types/navigation'
+import { buildUmamiAttrs } from '@/utils'
+
+interface Props {
+  menuGroups: MenuGroup[]
+}
+
+const { menuGroups } = Astro.props
+const { routeLocale } = Astro.locals
+
+const navAttrs = (
+  href: string | null | undefined,
+  linkText?: string,
+  action?: string
+) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'nav',
+    href,
+    linkText,
+    action
+  })
+
+const navItemBase =
+  'text-current whitespace-nowrap py-xl px-md transition-colors duration-150 max-desktop:px-lg'
+const navItemActive =
+  'hover:bg-[#444] data-[active=true]:underline data-[active=true]:decoration-current data-[active=true]:decoration-2 data-[active=true]:underline-offset-8'
+const topNavLinkClass = `block ${navItemBase} ${navItemActive}`
+const topNavButtonClass = `inline-flex items-center border-none bg-transparent group/submenu data-[open=true]:bg-[#444] ${navItemBase} ${navItemActive} peer`
+
+const topNavButtonChevronClass =
+  'ml-2 inline-flex size-5 shrink-0 items-center justify-center origin-center transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180'
+
+const submenuClass =
+  'list-none max-desktop:ps-2xl desktop:ps-0 max-desktop:hidden desktop:absolute desktop:bg-black desktop:border-l-2 desktop:border-[#444] desktop:transition-opacity desktop:duration-fast desktop:invisible desktop:opacity-0 desktop:min-w-full desktop:top-[calc(1.4em+var(--spacing-xl)*2)] desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.3),-2px_3px_6px_-3px_hsla(0,0%,0%,0.3)] desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:w-max desktop:group-hover:left-0 desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:w-max desktop:peer-data-[open=true]:left-0 max-desktop:peer-data-[open=true]:block'
+
+const submenuItemBase =
+  'block no-underline text-white max-desktop:py-xl max-desktop:px-lg desktop:py-md desktop:px-md transition-colors duration-150'
+const submenuItemClass = `${submenuItemBase} ${navItemActive}`
+---
+
+<ul
+  class="list-none ps-0 justify-center desktop:flex desktop:items-center"
+  id="micrositeNavMenu"
+  data-nav-list
+>
+  {
+    menuGroups.map((group) => (
+      <li class="group desktop:relative" data-menu-level="1">
+        {group.href ? (
+          <a
+            href={group.href}
+            {...navAttrs(group.href, group.label)}
+            class={topNavLinkClass}
+          >
+            {group.label}
+          </a>
+        ) : (
+          <>
+            <button
+              aria-expanded="false"
+              {...navAttrs(undefined, group.label, `${group.label}_menu`)}
+              class={topNavButtonClass}
+              data-submenu-button
+              data-open="false"
+            >
+              {group.label}
+              <span class={topNavButtonChevronClass} aria-hidden="true">
+                <Icon name="arrow-down" class="size-5" />
+              </span>
+            </button>
+            {group.items && group.items.length > 0 && (
+              <ul class={submenuClass}>
+                {group.items.map((item) => (
+                  <li data-menu-level="2">
+                    <a
+                      href={item.href || '#'}
+                      {...navAttrs(item.href || '#', item.label)}
+                      class={submenuItemClass}
+                      {...(item.openInNewTab
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </li>
+    ))
+  }
+</ul>

@@ -16,7 +16,60 @@ The cost of sending money across borders remains far higher than sending it over
 
 [^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
 
+| Method                         | Typical fee (send $200) | Typical settlement time |
+| ------------------------------ | ----------------------- | ----------------------- |
+| Interledger                    | ~$0.001                 | Seconds                 |
+| Traditional bank wire          | $30+                    | 1–3 days                |
+| Fintech remittance (e.g. Wise) | ~$8–12                  | Minutes–hours           |
+
 </Paragraph>
+
+<NumberTiles
+  tiles={[
+    {
+      number: '21',
+      prefix: '$',
+      suffix: 'M+',
+      description: 'In grants awarded'
+    },
+    {
+      number: '3000',
+      suffix: '+',
+      description: 'Projects supported worldwide'
+    },
+    { number: '45', suffix: '+', description: 'Countries reached' },
+    { number: '10', suffix: '+', description: 'University activations' }
+  ]}
+/>
+
+<Quote
+  authorName="Julaire Hall"
+  authorImage="/img/foundation-blog/authors/julaire.jpg"
+  authorLink="https://interledger.org"
+>
+  Sending value across the internet should be as seamless as sending an email.
+  Our work is dedicated to making that vision real.
+</Quote>
+
+<Quote authorName="Casey Diké, Blaze Group">
+  One of the most powerful skills in advancing the digital transformation of
+  financial institutions is the ability to listen. We must listen to communities
+  and to the institutions serving them. When we listen better, we uncover the
+  next step toward meaningful growth.
+</Quote>
+
+> Open financial infrastructure works best when builders, policymakers, and
+> communities shape it together.
+
+<SplitLayout
+  layoutType="image-text"
+  imageSrc="/img/foundation-blog/education-grant.jpg"
+  imageAlt="Bowie State students and their professor"
+>
+
+Interledger-funded programs pair open payment infrastructure with hands-on fellowships, giving participants practical experience that carries directly into fintech, open banking, and digital inclusion careers.
+
+</SplitLayout>
 
 <ProfileGrid
   heading="Featured Profiles"
@@ -29,6 +82,102 @@ The cost of sending money across borders remains far higher than sending it over
     'grant/fellowship/gavin-chait',
     'grant/fellowship/santosh-viswanatham',
     'grant/fellowship/smriti-parsheera'
+  ]}
+/>
+
+<Agenda
+  heading={'Community Day — 12 June 2026'}
+  items={[
+    {
+      time: '8:30 am – 9:15 am',
+      activity: 'Arrival & registration',
+      additionalInfo:
+        '* Check in at the main lobby desk\n* Light breakfast and coffee available\n* Name badges and welcome packs distributed'
+    },
+    {
+      time: '9:15 am – 9:45 am',
+      activity: 'Opening remarks',
+      additionalInfo:
+        '* Welcome from the Interledger Foundation\n* Day overview and house rules\n* Accessibility and safety information'
+    },
+    {
+      time: '9:45 am – 10:45 am',
+      activity: 'Keynote: Building the Internet of Opportunity',
+      additionalInfo:
+        '* Progress across open payments infrastructure\n* Stories from grantees and partners\n* Q&A with the keynote speaker'
+    },
+    {
+      time: '10:45 am – 11:00 am',
+      activity: 'Break',
+      additionalInfo:
+        '* Coffee and tea station in the courtyard\n* Networking space open on Level 2'
+    },
+    {
+      time: '11:00 am – 12:15 pm',
+      activity: 'Panel: Inclusive financial infrastructure',
+      additionalInfo:
+        '* Policy, open standards, and real-world deployments\n* Moderated discussion with three partner organisations\n* Audience questions for the final 15 minutes'
+    },
+    {
+      time: '12:15 pm – 1:15 pm',
+      activity: 'Lunch',
+      additionalInfo:
+        '* Catered lunch in the dining hall\n* Dietary options labelled at each station\n* Optional walking tour of the venue'
+    },
+    {
+      time: '1:15 pm – 2:30 pm',
+      activity: 'Breakout sessions',
+      additionalInfo:
+        '* Track A: Grantmaking and proposal readiness\n* Track B: Open Payments technical overview\n* Track C: Community storytelling workshop'
+    },
+    {
+      time: '2:30 pm – 2:45 pm',
+      activity: 'Transition break',
+      additionalInfo:
+        '* Move between rooms\n* Snacks available near the main auditorium'
+    },
+    {
+      time: '2:45 pm – 4:00 pm',
+      activity: 'Working groups',
+      additionalInfo:
+        '* Facilitated small-group discussions\n* Capture priorities for the next funding cycle\n* Share notes back to the full group'
+    },
+    {
+      time: '4:00 pm – 4:45 pm',
+      activity: 'Closing & next steps',
+      additionalInfo:
+        '* Summary of the day’s outcomes\n* How to stay involved with the Foundation\n* Optional reception until 6:00 pm'
+    }
+  ]}
+/>
+
+<Agenda
+  heading={'Follow-up morning — 13 June 2026'}
+  items={[
+    {
+      time: '9:00 am – 9:30 am',
+      activity: 'Coffee & recap',
+      additionalInfo:
+        '* Optional drop-in for day-one attendees\n* Printed summary notes available at the desk'
+    },
+    {
+      time: '9:30 am – 11:00 am',
+      activity: 'Office hours with the grants team',
+      additionalInfo:
+        '* One-to-one slots for proposal questions\n* Book a 15-minute slot at the lobby board\n* Remote participants join via the shared link'
+    },
+    {
+      time: '11:00 am – 12:00 pm',
+      activity: 'Partner roundtable',
+      additionalInfo:
+        '* Closed session for current grantees\n* Share blockers and collaboration opportunities'
+    },
+    {
+      time: '12:00 pm – 12:30 pm',
+      activity: 'Wrap & departures',
+      additionalInfo:
+        '* Final announcements\n* Travel support desk open until 1:00 pm'
+    }
   ]}
 />
 
@@ -158,3 +307,18 @@ The cost of sending money across borders remains far higher than sending it over
     }
   ]}
 />
+
+<Faq heading="About the Interledger Foundation">
+  <FaqItem question="What is the Interledger Foundation?">
+The Interledger Foundation is a private operating foundation incorporated in California, United States. We steward open payment technologies, including the Interledger Protocol, the Open Payments API, and the Web Monetization technology standard.
+
+We are not a financial institution, we do not operate a payment network, and we do not earn revenue from payments.
+
+  </FaqItem>
+  <FaqItem question="Who can apply for a grant?">
+Applications are open to individuals, teams, and organisations worldwide. Each programme sets its own eligibility criteria, so check the [grant overview](/grant) for the programme you are interested in.
+  </FaqItem>
+  <FaqItem question="Is the Interledger Foundation a cryptocurrency initiative?">
+No. We are not a cryptocurrency, we do not have a token, and our technology does not use blockchain.
+  </FaqItem>
+</Faq>

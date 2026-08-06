@@ -61,6 +61,23 @@ describe('NumberTiles handler', () => {
     expect(blocks[0]).toMatchObject({ tiles: expect.arrayContaining(tiles) })
   })
 
+  it('parses a monetary prefix', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<NumberTiles tiles={[{ number: '21', prefix: '$', suffix: 'M+', description: 'In Grants' }, { number: '300', suffix: '+', description: 'Projects' }]} />`,
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.number-tiles',
+        tiles: [
+          { number: '21', prefix: '$', suffix: 'M+', description: 'In Grants' },
+          { number: '300', suffix: '+', description: 'Projects' }
+        ]
+      }
+    ])
+  })
+
   it('omits suffix when absent', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
@@ -121,6 +138,15 @@ describe('NumberTiles handler — errors', () => {
   it('returns INVALID_PROP_VALUE when a tile entry is missing description', async () => {
     const result = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21' }, { number: '300', description: 'Projects' }]} />`,
+      { locale: 'en' }
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+  })
+
+  it('returns INVALID_PROP_VALUE when a tile prefix is blank', async () => {
+    const result = await parseMdxToBlocks(
+      `<NumberTiles tiles={[{ number: '21', prefix: '  ', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
       { locale: 'en' }
     )
     expect(result).toBeInstanceOf(MdxParserError)

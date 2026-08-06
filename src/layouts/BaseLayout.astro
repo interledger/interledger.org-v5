@@ -6,6 +6,7 @@
  */
 import '../styles/tailwind.css'
 import SeoHead from '@/components/shared/SeoHead.astro'
+import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, buildCanonicalMeta } from '@/utils'
 
 interface Props {
@@ -19,6 +20,8 @@ interface Props {
   bodyClass?: string
   bodyStyle?: string
   datePublished?: string
+  /** Demo/QA pages: robots noindex,nofollow */
+  noindex?: boolean
 }
 
 const { routeLocale, currentSlug, currentBasePath } = Astro.locals
@@ -39,7 +42,8 @@ const {
   canonicalURL = canonicalMeta.canonical,
   bodyClass = '',
   bodyStyle = '',
-  datePublished
+  datePublished,
+  noindex = false
 } = Astro.props
 ---
 
@@ -77,6 +81,7 @@ const {
       hreflang={canonicalMeta.hreflang}
       xDefault={canonicalMeta.xDefault}
       datePublished={datePublished}
+      noindex={noindex}
     />
     <slot name="head" />
     <script
@@ -86,6 +91,7 @@ const {
   </head>
 
   <body class={bodyClass} style={bodyStyle}>
+    <SmoothScroll />
     <slot name="header" />
     <slot />
     <slot name="footer" />

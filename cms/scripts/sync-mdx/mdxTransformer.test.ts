@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import { fileURLToPath } from 'node:url'
 
 const mockProjectRootHolder = vi.hoisted(() => ({ current: '' }))
 
@@ -23,7 +24,8 @@ import {
   buildHackathonPagePayload,
   createMediaUploadResolver,
   buildProfilePayload,
-  buildBlogPayload
+  buildBlogPayload,
+  HACKATHON_PAGE_ALLOWED_COMPONENTS
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -2359,6 +2361,23 @@ const baseHackathonPageFrontmatter = {
 }
 
 describe('buildHackathonPagePayload', () => {
+  // The allow-list is a hand-maintained copy of the zone's component list, so
+  // a block added to the schema but not here fails the sync as "unsupported".
+  it('allows exactly the components the hackathon-page zone declares', () => {
+    const schemaPath = fileURLToPath(
+      new URL(
+        '../../src/api/hackathon-page/content-types/hackathon-page/schema.json',
+        import.meta.url
+      )
+    )
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
+    const declared: string[] = schema.attributes.content.components
+
+    expect([...HACKATHON_PAGE_ALLOWED_COMPONENTS].sort()).toEqual(
+      [...declared].sort()
+    )
+  })
+
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
       const mdx = createMdxFile({
@@ -2450,7 +2469,7 @@ describe('buildHackathonPagePayload', () => {
   // The allow-list is only enforced on the parserCtx-gated path (real syncs
   // always supply a parserCtx — see config.ts's hackathon-pages buildPayload).
   describe('allowed component enforcement', () => {
-    it('accepts <Paragraph>, the only allowed component', async () => {
+    it('accepts a Paragraph block', async () => {
       await import('./paragraphHandler')
       const parserCtx = { locale: 'en' }
 
@@ -2468,6 +2487,67 @@ describe('buildHackathonPagePayload', () => {
       )
       expect((payload as Record<string, unknown>).content).toEqual([
         { __component: 'blocks.paragraph', content: 'Hello hackathon.' }
+      ])
+    })
+
+    it('accepts a NumberTiles block', async () => {
+      await import('./numberTilesHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content:
+          "<NumberTiles tiles={[{ number: '21', description: 'Teams' }, { number: '300', description: 'Participants' }]} />"
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.number-tiles',
+          tiles: [
+            { number: '21', description: 'Teams' },
+            { number: '300', description: 'Participants' }
+          ]
+        }
+      ])
+    })
+
+    it('accepts an Agenda block', async () => {
+      await import('./agendaHandler')
+      const parserCtx = { locale: 'en' }
+      const items = [
+        {
+          time: '8:30 am',
+          activity: 'Registration',
+          additionalInfo: 'Breakfast is available.'
+        },
+        {
+          time: '9:30 am',
+          activity: 'Welcome',
+          additionalInfo: 'An overview of the day.'
+        }
+      ]
+      const mdx = createMdxFile({
+        pathSlug: 'schedule',
+        frontmatter: baseHackathonPageFrontmatter,
+        content: `<Agenda items={${JSON.stringify(items)}} />`
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        { __component: 'blocks.agenda', items }
       ])
     })
 
@@ -2832,7 +2912,7 @@ describe('buildBlogPayload', () => {
       )
     })
 
-    it('omits featureMedia when featureImage is absent, leaving existing Strapi value untouched', async () => {
+    it('omits featureMedia when featureImage is absent, since Strapi requires the field and rejects null', async () => {
       const { strapiUploadContext, updatedAltIds } =
         createMockStrapiUploadContext()
       const mdx = createMdxFile({
@@ -2877,7 +2957,7 @@ describe('buildBlogPayload', () => {
       })
     })
 
-    it('omits thumbnailMedia when thumbnailImage is absent, leaving existing Strapi value untouched', async () => {
+    it('sets thumbnailMedia to null when thumbnailImage is absent, clearing any existing Strapi value', async () => {
       const { strapiUploadContext, updatedAltIds } =
         createMockStrapiUploadContext()
       const mdx = createMdxFile({
@@ -2892,7 +2972,8 @@ describe('buildBlogPayload', () => {
         updatedAltIds
       )
 
-      expect(payload).not.toHaveProperty('thumbnailMedia')
+      expect(payload).not.toBeInstanceOf(Error)
+      expect((payload as Record<string, unknown>).thumbnailMedia).toBeNull()
     })
   })
 
