@@ -1,13 +1,39 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
+/** MDX / site shape */
+interface LogoMdx {
+  name: string
+  src: string
+}
+
+/** Strapi blocks.carousel-logo (populated) */
+interface LogoStrapi {
+  image?: { url?: string; alternativeText?: string | null } | null
+  alternativeText?: string | null
+}
+
 interface Props {
   heading?: string
   accessibilityLabel: string
-  logos: { name: string; src: string }[]
+  logos: Array<LogoMdx | LogoStrapi>
 }
 
-const { heading, accessibilityLabel, logos } = Astro.props
+const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
+
+const logos: LogoMdx[] = rawLogos.map((logo) => {
+  if ('src' in logo && typeof logo.src === 'string') {
+    return { name: logo.name ?? '', src: logo.src }
+  }
+  const src = logo.image?.url
+  if (!src) {
+    throw new Error('LogoCarousel logo is missing image url')
+  }
+  return {
+    name: logo.alternativeText ?? logo.image?.alternativeText ?? '',
+    src
+  }
+})
 
 // Single source of truth for the carousel geometry, piped into the CSS vars
 // below instead of duplicating numbers in <style>. Must be exact: repeatCount
