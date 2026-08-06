@@ -134,6 +134,28 @@ describe('CardGrid handler', () => {
     })
   })
 
+  // When every child is the wrong component, prefer the mismatched-type
+  // error over "requires at least one <Expected>" so authors swap the tag.
+  it('reports wrong card type even when no correct children are present', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<TitleCard heading="B" buttonUrl="/b" buttonText="Open" buttonExternal={false}>',
+        'Desc',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.UNSUPPORTED_COMPONENT
+    })
+    expect((result as MdxParserError).message).toMatch(
+      /only accepts <InfoCard> children\. Found <TitleCard>/
+    )
+  })
+
   it('rejects a NavigationCard with children', async () => {
     const result = await parseMdxToBlocks(
       [
