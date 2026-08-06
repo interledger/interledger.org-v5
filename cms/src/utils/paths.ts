@@ -39,7 +39,8 @@ export const PATHS = {
     hackathonPages: 'hackathon-pages',
     profiles: 'profiles',
     faqs: 'faqs',
-    reports: 'reports'
+    reports: 'reports',
+    podcastPages: 'podcast-pages'
   },
   /** Public asset paths. */
   PUBLIC: 'public',

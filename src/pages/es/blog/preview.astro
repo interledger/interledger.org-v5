@@ -15,7 +15,7 @@ interface BlogPostPreview {
     image?: { url?: string } | null
     alternativeText?: string | null
   }
-  featureImageMobile?: { url?: string; alternativeText?: string }
+  featureImageMobile?: { url?: string; alternativeText?: string | null }
   content?: string
 }
 

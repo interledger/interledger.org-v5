@@ -48,6 +48,7 @@ export function generateGrantOverviewPageMDX(
     'heroImage',
     'heroImageAlt',
     'heroImageMobile',
+    'heroImageMobileAlt',
     'heroCtas',
     'followUpContent'
   ])
@@ -56,14 +57,12 @@ export function generateGrantOverviewPageMDX(
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = overviewPage.ctaStrip
-  const hero = overviewPage.hero as Parameters<typeof heroFrontmatter>[0]
-
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: overviewPage.description ?? '',
-    ...heroFrontmatter(hero),
+    ...heroFrontmatter(overviewPage.hero),
     ...(ctaStrip
       ? {
           ctaStrip: {

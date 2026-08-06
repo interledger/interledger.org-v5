@@ -43,11 +43,13 @@ export {
   GRANT_PAGE_CONTENT_POPULATE,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
   REPORT_CONTENT_POPULATE,
-  HACKATHON_PAGE_CONTENT_POPULATE
+  HACKATHON_PAGE_CONTENT_POPULATE,
+  PODCAST_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
 // MDX generation
 export {
+  type Hero,
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
@@ -59,6 +61,7 @@ export {
   getImageUrl,
   hasMediaValue,
   htmlToMarkdown,
+  ckeditorFieldToMarkdown,
   formatBlockquote,
   uidToLogLabel,
   resolveFilenameSlug,
@@ -74,6 +77,7 @@ export {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePodcastPageFields,
   validateBlogFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
@@ -140,6 +144,14 @@ export {
   generateProfileMdx
 } from './profileMdx'
 export { type FaqMdxInput, generateFaqMdx } from './faqMdx'
+export {
+  type PodcastPageInput,
+  type PodcastPageCtaStrip,
+  type PodcastPageTitleCard,
+  type PodcastPageTitleCardGrid,
+  type PodcastPageItem,
+  generatePodcastPageMdx
+} from './podcastPageMdx'
 export {
   type ReportMdxDate,
   type ReportMdxInput,

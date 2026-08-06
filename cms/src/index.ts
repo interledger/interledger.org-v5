@@ -16,6 +16,7 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
+  validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
   mergeValidationErrors,
@@ -887,6 +888,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       introParagraph: 'Intro Paragraph',
       date: 'Date',
       content: 'Content'
+    },
+    'api::podcast-page.podcast-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      hero: 'Hero',
+      titleCards: 'Title Cards',
+      podcasts: 'Podcasts',
+      ctaStrip: 'CTA Strip'
     }
   }
 
@@ -933,6 +943,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
+    'api::podcast-page.podcast-page': {
+      pathSlug:
+        'Path relative to the site root, no leading slash. CMS-authored — use "podcast" for the live /podcast page. Multiple entries are allowed; each is routed by its own pathSlug.',
+      description:
+        'Short description used for SEO. Aim for 120–160 characters.',
+      titleCards:
+        'List every featured podcast series shown at the top of the page.',
+      podcasts:
+        'The full list of podcast episodes. Author in chronological order (oldest first); the site displays newest first.'
+    },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
@@ -944,8 +964,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
       featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
       featureImageMobile:
-        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
-      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.'
+        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
+      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
+      relatedArticles:
+        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
     'api::faq.faq': {
       pathSlug:
@@ -1014,6 +1036,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.blockquote': {
       quote: 'Quote',
       source: 'Source'
+    },
+    'blocks.podcast-item': {
+      title: 'Title',
+      description: 'Description',
+      url: 'URL',
+      series: 'Series'
     },
     'blocks.quote': {
       quote: 'Quote',
@@ -1224,7 +1252,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       media:
         'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
       backgroundImageMobile:
-        "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Shares the desktop image's alternative text."
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
     },
     'shared.report-date': {
       lastUpdated:
@@ -1246,6 +1274,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.paragraph': {
       content:
         'Footnotes: write [^1] inline, then [^1]: Your note at the end of this block.'
+    },
+    'blocks.podcast-item': {
+      description: 'Ideally within 225 characters.',
+      url: 'A Castopod or YouTube embed link, e.g. https://podcast.interledger.org/@futuremoneypodcast/episodes/example-embed'
     },
     'blocks.image-block': {
       tabletImage:
@@ -1544,6 +1576,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
+    'api::podcast-page.podcast-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'titleCards', size: 12 }],
+      [{ name: 'podcasts', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }]
+    ],
     'api::grant-page.grant-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
@@ -1590,6 +1631,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
+    ],
+    'blocks.podcast-item': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'series', size: 6 }
+      ],
+      [{ name: 'url', size: 12 }],
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
@@ -1931,6 +1980,11 @@ export default {
             Array.isArray(body.content) ? body.content : undefined
           )
         )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::podcast-page.podcast-page',
+      (body) => validatePodcastPageFields(body)
     )
 
     // Normalize nav href fields (force leading slash), then validate required
