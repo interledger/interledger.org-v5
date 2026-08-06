@@ -1,10 +1,11 @@
 ---
 /**
  * Event card "Apply" column — title + primary CTA only (no body text field).
+ * Self-closing only: no default slot; MDX authors must not put children inside.
  */
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { buildUmamiAttrs, ensureLeadingSlash } from '@/utils'
+import { buildUmamiAttrs, ensureLeadingSlash, hasUrlScheme } from '@/utils'
 
 interface Props {
   title: string
@@ -17,11 +18,12 @@ const { title, buttonText, buttonUrl, buttonExternal = false } = Astro.props
 
 const { routeLocale } = Astro.locals
 
-// Absolute scheme URLs must not go through ensureLeadingSlash (would become
-// `/https://…`). Auto-detect so a missing external flag still navigates.
-const isAbsoluteUrl = /^https?:\/\//i.test(buttonUrl)
-const external = buttonExternal || isAbsoluteUrl
-const href = isAbsoluteUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
+// Scheme-bearing URLs (https:, mailto:, tel:, //…) must not go through
+// ensureLeadingSlash (would become `/https://…` / `/mailto:…`). Auto-detect
+// so a missing external flag still navigates correctly.
+const schemeUrl = hasUrlScheme(buttonUrl)
+const external = buttonExternal || schemeUrl
+const href = schemeUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
 ---
 
 <div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">

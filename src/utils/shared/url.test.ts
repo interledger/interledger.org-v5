@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ensureAbsoluteUrl,
   ensureLeadingSlash,
+  hasUrlScheme,
   isSafeMarkdownHref,
   getSocialIconName
 } from './url'
@@ -17,6 +18,35 @@ describe('ensureLeadingSlash', () => {
 
   it('treats a bare "/" as already having a leading slash', () => {
     expect(ensureLeadingSlash('/')).toBe('/')
+  })
+})
+
+describe('hasUrlScheme', () => {
+  it('detects http(s) URLs', () => {
+    expect(hasUrlScheme('https://example.com')).toBe(true)
+    expect(hasUrlScheme('http://example.com/path')).toBe(true)
+    expect(hasUrlScheme('HTTPS://example.com')).toBe(true)
+  })
+
+  it('detects non-http schemes (mailto, tel, …)', () => {
+    expect(hasUrlScheme('mailto:jane@example.com')).toBe(true)
+    expect(hasUrlScheme('tel:+15551234567')).toBe(true)
+  })
+
+  it('detects protocol-relative URLs', () => {
+    expect(hasUrlScheme('//cdn.example.com/a.js')).toBe(true)
+  })
+
+  it('returns false for internal paths', () => {
+    expect(hasUrlScheme('/grants/apply')).toBe(false)
+    expect(hasUrlScheme('grants/apply')).toBe(false)
+    expect(hasUrlScheme('#section')).toBe(false)
+    expect(hasUrlScheme('')).toBe(false)
+  })
+
+  it('trims surrounding whitespace before testing', () => {
+    expect(hasUrlScheme('  mailto:jane@example.com  ')).toBe(true)
+    expect(hasUrlScheme('  /grants  ')).toBe(false)
   })
 })
 
