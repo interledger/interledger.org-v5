@@ -57,13 +57,13 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      # Content-addressed, so an unchanged image set is an exact key hit and the
+      # post-job save is skipped entirely. The previous key used github.run_id,
+      # which can never match, so every run restored via the prefix fallback and
+      # then wrote another ~148 MB entry — filling the 10 GB repo cache and
+      # evicting the very entries it depended on.
       - name: Cache optimized images
-        uses: actions/cache@v4
-        with:
-          path: public/img/optimized
-          key: optimized-images-${{ github.run_id }}
-          restore-keys: |
-            optimized-images-
+        uses: ./.github/actions/cache-optimized-images
 
       - name: Build
         run: |
