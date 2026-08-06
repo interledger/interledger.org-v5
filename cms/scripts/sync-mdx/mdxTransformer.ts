@@ -24,7 +24,8 @@ import type {
   grantPageFrontmatterSchema,
   faqFrontmatterSchema,
   reportFrontmatterSchema,
-  hackathonPageFrontmatterSchema
+  hackathonPageFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import type { ParsedBlock } from './types.blocks'
@@ -234,7 +235,11 @@ function buildHeroPayload(
  */
 async function buildHeroWithImage(
   parsed: Record<string, unknown>,
-  strapiUploadContext: StrapiUploadContext | undefined
+  strapiUploadContext: StrapiUploadContext | undefined,
+  altContext?: {
+    pathSlug: string
+    updatedAltIds: Map<number, string | null>
+  }
 ): Promise<Record<string, unknown> | null> {
   const hasField = (key: string) =>
     Object.prototype.hasOwnProperty.call(parsed, key)
@@ -276,7 +281,22 @@ async function buildHeroWithImage(
           }
         : null
     } else {
+      // Plain media field: alt lives on the upload file, not the component.
       hero[targetKey] = uploadId ?? null
+      if (
+        uploadId != null &&
+        altContext &&
+        Object.prototype.hasOwnProperty.call(parsed, 'heroImageMobileAlt')
+      ) {
+        await updateUploadAltOnce(
+          strapiUploadContext.strapi,
+          uploadId,
+          nullOrValue(parsed.heroImageMobileAlt),
+          altContext.updatedAltIds,
+          altContext.pathSlug,
+          strapiUploadContext.dryRun ?? false
+        )
+      }
     }
   }
 
@@ -321,7 +341,16 @@ export async function buildPagePayload(
       publishedAt: new Date().toISOString()
     }
 
-    data.hero = await buildHeroWithImage(parsed, strapiUploadContext)
+    data.hero = await buildHeroWithImage(
+      parsed,
+      strapiUploadContext,
+      strapiUploadContext
+        ? {
+            pathSlug: mdx.pathSlug,
+            updatedAltIds: new Map<number, string | null>()
+          }
+        : undefined
+    )
 
     // Handle content import
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
@@ -646,7 +675,11 @@ export async function buildGrantPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext
+      strapiUploadContext,
+      {
+        pathSlug: mdx.pathSlug,
+        updatedAltIds
+      }
     )
 
     const parserCtx: ParserContext | undefined = strapi
@@ -726,7 +759,11 @@ export async function buildGrantOverviewPagePayload(
 
     const hero = await buildHeroWithImage(
       mdx.frontmatter as Record<string, unknown>,
-      strapiUploadContext
+      strapiUploadContext,
+      {
+        pathSlug: mdx.pathSlug,
+        updatedAltIds
+      }
     )
 
     const strapi = strapiUploadContext?.strapi
@@ -792,6 +829,77 @@ export async function buildFaqPayload(
       description: parsed.description,
       introParagraph: nullOrValue(parsed.introParagraph),
       faqSections: parsed.faqSections,
+      publishedAt: new Date().toISOString()
+    }
+  })
+}
+
+/**
+ * Builds a Strapi payload for the podcast-page MDX file.
+ *
+ * podcast-page has no `content` dynamic zone — hero, titleCards, podcasts,
+ * and ctaStrip are all page-owned components flattened straight into
+ * frontmatter, so this only needs frontmatter validation and hero image
+ * resolution (shared with grant-overview-page via `buildHeroWithImage`).
+ * No relation resolution.
+ *
+ * Returns `Record<string, unknown> | Error`.
+ */
+export async function buildPodcastPagePayload(
+  schema: typeof podcastPageFrontmatterSchema,
+  mdx: MDXFile,
+  strapiUploadContext?: StrapiUploadContext
+): Promise<Record<string, unknown> | Error> {
+  return tryCatchAsync(async () => {
+    const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
+
+    const hero = await buildHeroWithImage(
+      mdx.frontmatter as Record<string, unknown>,
+      strapiUploadContext,
+      strapiUploadContext
+        ? {
+            pathSlug: mdx.pathSlug,
+            updatedAltIds: new Map<number, string | null>()
+          }
+        : undefined
+    )
+
+    const titleCards = {
+      columns: parsed.titleCards.columns,
+      ariaLabel: parsed.titleCards.ariaLabel,
+      titleCards: parsed.titleCards.cards
+    }
+
+    const podcasts = parsed.podcasts.map((podcast) => ({
+      title: podcast.title,
+      description: podcast.description,
+      url: podcast.url,
+      series: podcast.series
+    }))
+
+    const ctaStripFm = parsed.ctaStrip
+    const ctaStrip = {
+      heading: ctaStripFm.heading,
+      description: ctaStripFm.description,
+      primaryButtonText: ctaStripFm.buttonText,
+      primaryButtonLink: ctaStripFm.buttonLink,
+      color: ctaStripFm.color,
+      ...(ctaStripFm.secondaryButtonText
+        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
+        : {}),
+      ...(ctaStripFm.secondaryButtonLink
+        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+        : {})
+    }
+
+    return {
+      title: parsed.title,
+      pathSlug: parsed.pathSlug,
+      description: parsed.description,
+      hero,
+      titleCards,
+      podcasts,
+      ctaStrip,
       publishedAt: new Date().toISOString()
     }
   })
@@ -919,9 +1027,7 @@ export async function buildBlogPayload(
   schema: typeof foundationBlogFrontmatterSchema,
   mdx: MDXFile,
   strapiUploadContext: StrapiUploadContext,
-  updatedAltIds: Map<number, string | null> = new Map(),
-  parserCtx?: ParserContext,
-  dryRun = false
+  parserCtx?: ParserContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({
@@ -981,18 +1087,21 @@ export async function buildBlogPayload(
       })
     )
 
-    // getImageFromStrapi only sets alt text on newly uploaded files.
-    // For existing files (found by name), patch alt text explicitly.
-    // featureImage/thumbnailImage alt text now lives on featureMedia/thumbnailMedia
-    // (shared.localized-media), so only the plain-media mobile variant needs this.
-    if (featureImageMobile && parsed.featureImageMobileAlt !== undefined) {
+    // featureImage/thumbnailImage alt lives on featureMedia/thumbnailMedia
+    // (shared.localized-media). featureImageMobile is a plain media field —
+    // its alt is the upload file's alternativeText, patched from
+    // featureImageMobileAlt when present so mobile can differ from desktop.
+    if (
+      featureImageMobile != null &&
+      parsed.featureImageMobileAlt !== undefined
+    ) {
       await updateUploadAltOnce(
         strapiUploadContext.strapi,
         featureImageMobile,
         nullOrValue(parsed.featureImageMobileAlt),
-        updatedAltIds,
+        new Map<number, string | null>(),
         mdx.pathSlug,
-        dryRun
+        strapiUploadContext.dryRun ?? false
       )
     }
 

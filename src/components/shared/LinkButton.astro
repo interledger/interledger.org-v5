@@ -67,13 +67,25 @@ const resolvedHref = ariaDisabled ? undefined : href
 const ariaLabel =
   typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''
 
-const umamiAttrs = buildUmamiAttrs({
-  pathname: Astro.url.pathname,
-  lang: routeLocale,
-  section: 'link',
-  href: resolvedHref,
-  ariaLabel: ariaLabel
-})
+// Callers may pass explicit tracking attrs (buildUmamiAttrs or
+// buildDeferredUmamiAttrs). Those must win: spreading auto attrs after
+// rest would either overwrite data-umami-event* (losing section/action) or
+// leave both data-track-event* and data-umami-event* on the element
+// (double-fire + Umami still preventDefault-delays same-tab navigation).
+const restRecord = rest as Record<string, unknown>
+const callerProvidesTracking =
+  typeof restRecord['data-umami-event'] === 'string' ||
+  typeof restRecord['data-track-event'] === 'string'
+
+const umamiAttrs = callerProvidesTracking
+  ? {}
+  : buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      section: 'link',
+      href: resolvedHref,
+      ariaLabel: ariaLabel
+    })
 ---
 
 <a

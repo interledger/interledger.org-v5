@@ -6,8 +6,11 @@
  */
 
 import matter from 'gray-matter'
-import isHtml from 'is-html'
-import { defaultLang, MATTER_STRINGIFY_OPTIONS, htmlToMarkdown } from './mdx'
+import {
+  ckeditorFieldToMarkdown,
+  defaultLang,
+  MATTER_STRINGIFY_OPTIONS
+} from './mdx'
 
 export interface FaqMdxItem {
   question: string
@@ -34,15 +37,6 @@ export interface FaqMdxInput {
  * Serialize a FAQ page into MDX (frontmatter only — no body).
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
-/**
- * CKEditor (basicMarkdownPreset) fields are usually already markdown, but
- * defensively convert if Strapi ever hands back HTML (matches
- * generateReportMdx's identical introParagraph handling).
- */
-function ckeditorFieldToMarkdown(value: string): string {
-  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
-}
-
 export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const resolvedLocale = faq.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang

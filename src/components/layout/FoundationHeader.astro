@@ -21,7 +21,7 @@ import {
   HOME_CONTENT_SLUG,
   useTranslations,
   getNavigation,
-  buildUmamiAttrs,
+  buildDeferredUmamiAttrs,
   getAlternateLocale,
   getAlternateLocaleHref
 } from '@/utils'
@@ -51,7 +51,7 @@ const homeHref = translatePath(
 )
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
-  buildUmamiAttrs({
+  buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'nav',
