@@ -87,7 +87,8 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                   />
                 </summary>
                 <div
-                  class="text-neutral-75 mt-md [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:mb-0 [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg"
+                  data-prose-faq
+                  class="text-neutral-75 mt-md [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:mb-0 [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg [&_li>p:first-of-type]:inline"
                   set:html={item.answerHtml}
                 />
               </details>

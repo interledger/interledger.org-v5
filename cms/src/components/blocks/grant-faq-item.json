@@ -16,7 +16,11 @@
       }
     },
     "answer": {
-      "type": "text",
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
       "required": true,
       "pluginOptions": {
         "i18n": {
