@@ -73,7 +73,8 @@
         "blocks.number-tiles",
         "blocks.card-grid",
         "blocks.carousel",
-        "blocks.faq"
+        "blocks.faq",
+        "blocks.quote"
       ]
     }
   }

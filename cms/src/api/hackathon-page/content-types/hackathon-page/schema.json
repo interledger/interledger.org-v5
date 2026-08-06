@@ -54,7 +54,8 @@
         "blocks.split-layout",
         "blocks.profile-grid",
         "blocks.carousel",
-        "blocks.faq"
+        "blocks.faq",
+        "blocks.quote"
       ],
       "pluginOptions": {
         "i18n": {

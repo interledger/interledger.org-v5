@@ -1015,6 +1015,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quote: 'Quote',
       source: 'Source'
     },
+    'blocks.quote': {
+      quote: 'Quote',
+      authorName: 'Author Name',
+      authorImage: 'Author Image',
+      authorLink: 'Author Link'
+    },
     'blocks.callout-text': {
       content: 'Content'
     },
@@ -1645,6 +1651,14 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.blockquote': [
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
+    ],
+    'blocks.quote': [
+      [{ name: 'quote', size: 12 }],
+      [
+        { name: 'authorName', size: 4 },
+        { name: 'authorLink', size: 4 },
+        { name: 'authorImage', size: 4 }
+      ]
     ],
     'blocks.cta-strip': [
       [{ name: 'heading', size: 12 }],

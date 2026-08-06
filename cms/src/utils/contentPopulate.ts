@@ -66,6 +66,9 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { profiles: true }
   },
   'blocks.blockquote': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  },
   'blocks.callout-text': {},
   'blocks.cta-strip': {},
   'blocks.pdf-embed': {
@@ -105,7 +108,10 @@ const FOUNDATION_BLOG_BLOCKS = {
       mobileImage: true
     }
   },
-  'blocks.code-block': {}
+  'blocks.code-block': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  }
 } as const
 
 /** Populate config for profile-page content field (paragraph blocks only). */
@@ -151,6 +157,9 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.faq': {
       populate: { items: true }
+    },
+    'blocks.quote': {
+      populate: { authorImage: true }
     }
   }
 } as const

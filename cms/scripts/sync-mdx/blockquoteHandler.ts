@@ -8,6 +8,7 @@
  * and optional `source` from prop.
  */
 
+import { formatBlockquote } from '@/utils'
 import type { ParsedBlock, BlockquoteBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
 import { getStringAttr } from './jsxExtract'
@@ -29,8 +30,11 @@ async function handleBlockquote(
   return tryCatchParserError(() => {
     const source = getStringAttr(node, 'source')
 
+    // Strip outer marks so CMS stores plain text; Blockquote.astro adds them.
     const quote =
-      node.children.length > 0 ? childrenToMarkdown(node.children) : ''
+      node.children.length > 0
+        ? formatBlockquote(childrenToMarkdown(node.children))
+        : ''
 
     if (!quote) {
       throw new MdxParserError({
