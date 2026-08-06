@@ -3,9 +3,14 @@ import {
   defaultMarkdownPreset
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
-import type { HeadingOption } from '@ckeditor/ckeditor5-heading'
-import { PasteFromMarkdownExperimental } from '@ckeditor/ckeditor5-markdown-gfm'
-import type { Editor } from 'ckeditor5'
+// Import only from the unified `ckeditor5` package — never mix with individual
+// `@ckeditor/ckeditor5-*` entry points or the admin loads two copies of core
+// and throws `ckeditor-duplicated-modules`.
+import {
+  PasteFromMarkdownExperimental,
+  type Editor,
+  type HeadingOption
+} from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 
 // Minimal clipboard callback types for the Google Docs paste cleanup plugin.
