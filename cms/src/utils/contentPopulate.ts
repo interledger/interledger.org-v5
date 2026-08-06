@@ -4,11 +4,12 @@
  * Used by page and blog lifecycles to ensure all block types
  * and their nested relations are fully populated when fetching from Strapi.
  *
- * Keep these in sync with the component lists in the content-type schemas:
- * - foundation-page/schema.json
- * - summit-page/schema.json
- * - hackathon-page/schema.json
- * - foundation-blog-post/schema.json
+ * A dynamic-zone query only returns components listed in its `on` map, so a
+ * component a schema allows but this file omits is silently dropped from the
+ * MDX export. `contentPopulate.test.ts` walks the schemas and fails on any gap.
+ *
+ * Listing a component a zone no longer allows is harmless (Strapi ignores it),
+ * so the test only checks the schema-to-populate direction.
  */
 
 /** Blocks available in grant page dynamic zones. */
@@ -171,9 +172,6 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
   content: {
     on: {
       ...GRANT_BLOCKS,
-      'blocks.carousel': {
-        populate: { logos: true }
-      },
       'blocks.profile-grid': {
         populate: { profiles: true }
       }
