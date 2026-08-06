@@ -3,7 +3,6 @@ name: Build and Sync
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
 # and/or syncs to Strapi when src/content changes (.md/.mdx), navigation JSON changes,
 # or static media under public/img/, public/uploads/, or public/documents/ changes.
-# Also warms the optimized-image cache for this branch so PRs targeting it can restore it.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -24,45 +23,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-
-  # Keeps this branch's cache scope populated so PRs targeting it have something
-  # to restore. GitHub scopes caches by ref: a run may read its own ref, its PR
-  # base branch, and the default branch. pr-checks.yml only runs on
-  # pull_request, so every entry it wrote landed in refs/pull/N/merge and the
-  # staging/playground scopes stayed empty — which made the first run of every
-  # new PR a full cold encode (~17 min, ~88% of that job). This job writes into
-  # refs/heads/staging (or playground), which those PRs can read.
-  #
-  # Deliberately unconditional and dependency-free:
-  #   - When nothing changed it is an exact key hit, so the post-job save is
-  #     skipped and the whole job finishes in well under a minute.
-  #   - The restore refreshes the entry's last-accessed time, which is what
-  #     GitHub's cache eviction is based on. Gating this on "images changed"
-  #     would let the branch's entry go stale and be evicted precisely when the
-  #     repo is near its 10 GB cache cap.
-  #   - It must not be blocked by a Strapi rebuild or sync failure, and must not
-  #     block them either.
-  warm-image-cache:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Cache optimized images
-        uses: ./.github/actions/cache-optimized-images
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Optimize images
-        run: pnpm run optimize:images
 
   # Inspects the current push event and the changes that were made in it, then decides which outputs to set.
   # Depending on the changes, the following flags may be set:
@@ -380,9 +340,7 @@ jobs:
 
   notify-slack:
     runs-on: ubuntu-latest
-    # warm-image-cache is included so a silent warming failure is visible —
-    # otherwise PR builds quietly regress to a full cold encode.
-    needs: [detect-changes, rebuild-strapi, sync-to-strapi, warm-image-cache]
+    needs: [detect-changes, rebuild-strapi, sync-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure

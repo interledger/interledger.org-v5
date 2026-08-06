@@ -3,9 +3,8 @@ export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 /**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/image-optimiser/`) and the Netlify Image CDN
- * URL builder (`imageCdn.ts`). Kept here so the two can never drift, and so a
- * change to either lands in the CI cache key (this file is hashed by
- * `.github/actions/cache-optimized-images`).
+ * URL builder (`imageCdn.ts`). Kept here so the two can never drift — a source
+ * rendered by the CDN and the same source rendered locally must not disagree.
  *
  * Higher than sharp's WebP default (80): blog/body images were looking soft
  * when the browser had to fall back to a small variant (INTORG-934).
