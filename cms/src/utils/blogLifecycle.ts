@@ -232,10 +232,12 @@ export function generateBlogMDX(
     `pathSlug: ${post.pathSlug}`,
     `featured: ${post.featured ?? false}`,
     // Always write locale so ES files never lose `locale: es` on re-export.
-    `locale: ${yqs(locale)}`,
+    // Bare scalars (not yqs) to match checked-in blog MDX and pathSlug above —
+    // Prettier leaves YAML quoting alone, so quoting here would churn every save.
+    `locale: ${locale}`,
     // Locale files must keep `localizes` pointing at the English pathSlug so
     // sync-mdx can match translations.
-    isLocalized && englishSlug ? `localizes: ${yqs(englishSlug)}` : null,
+    isLocalized && englishSlug ? `localizes: ${englishSlug}` : null,
     post.featureMedia?.image?.url
       ? `featureImage: ${yqs(post.featureMedia.image.url)}`
       : null,

@@ -153,7 +153,7 @@ describe('resolveBlogMdxFilename — write/delete path parity', () => {
 describe('generateBlogMDX — locale and localizes', () => {
   it('always writes locale for English posts', () => {
     const mdx = generateBlogMDX(makePost({ locale: 'en' }))
-    expect(mdx).toMatch(/^locale:\s*'en'/m)
+    expect(mdx).toMatch(/^locale:\s*en$/m)
     expect(mdx).not.toMatch(/^localizes:/m)
   })
 
@@ -165,8 +165,9 @@ describe('generateBlogMDX — locale and localizes', () => {
         localizations: [{ pathSlug: 'test-post', locale: 'en' }]
       })
     )
-    expect(mdx).toMatch(/^locale:\s*'es'/m)
-    expect(mdx).toMatch(/^localizes:\s*'test-post'/m)
+    // Bare YAML (no quotes) — matches checked-in blog MDX / pathSlug style.
+    expect(mdx).toMatch(/^locale:\s*es$/m)
+    expect(mdx).toMatch(/^localizes:\s*test-post$/m)
   })
 
   it('places locale and localizes after featured, before images', () => {
@@ -199,8 +200,8 @@ describe('generateBlogMDX — locale and localizes', () => {
         localizations: []
       })
     )
-    expect(mdx).toMatch(/^locale:\s*'es'/m)
-    expect(mdx).toMatch(/^localizes:\s*'test-post'/m)
+    expect(mdx).toMatch(/^locale:\s*es$/m)
+    expect(mdx).toMatch(/^localizes:\s*test-post$/m)
   })
 
   it('uses the explicit englishSlug option for localizes', () => {
@@ -212,7 +213,7 @@ describe('generateBlogMDX — locale and localizes', () => {
       }),
       { englishSlug: 'english-path' }
     )
-    expect(mdx).toMatch(/^localizes:\s*'english-path'/m)
+    expect(mdx).toMatch(/^localizes:\s*english-path$/m)
   })
 
   it('writes locale and localizes after stamping a missing document locale as es', () => {
@@ -227,8 +228,8 @@ describe('generateBlogMDX — locale and localizes', () => {
     const mdx = generateBlogMDX({ ...postFromStrapi, locale })
 
     expect(locale).toBe('es')
-    expect(mdx).toMatch(/^locale:\s*'es'/m)
-    expect(mdx).toMatch(/^localizes:\s*'test-post'/m)
+    expect(mdx).toMatch(/^locale:\s*es$/m)
+    expect(mdx).toMatch(/^localizes:\s*test-post$/m)
   })
 })
 
