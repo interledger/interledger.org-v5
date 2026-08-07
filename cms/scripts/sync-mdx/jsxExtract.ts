@@ -744,12 +744,8 @@ export interface LooseChildText {
 
 const LOOSE_TEXT_PREVIEW_MAX = 40
 
-function isJsxElementNode(
-  node: RootContent
-): node is JsxBlockNode {
-  return (
-    node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
-  )
+function isJsxElementNode(node: RootContent): node is JsxBlockNode {
+  return node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
 }
 
 /**

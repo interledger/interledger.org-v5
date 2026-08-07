@@ -200,8 +200,7 @@ export default function CardVariantPicker({
   // server paths with no UID); the admin picker must not unlock restricted
   // types (e.g. grant → Info only) just because the route shape differs.
   const allowedVariants = useMemo(
-    () =>
-      contentTypeUid ? getAllowedCardGridVariants(contentTypeUid) : [],
+    () => (contentTypeUid ? getAllowedCardGridVariants(contentTypeUid) : []),
     [contentTypeUid]
   )
   const uidResolved = contentTypeUid !== null

@@ -283,9 +283,7 @@ describe('getLooseChildText', () => {
 
   it('returns null for multi-line cards with blank lines between them', () => {
     const node = parseJsx(
-      ['<Grid>', '<Card id="1" />', '', '<Card id="2" />', '</Grid>'].join(
-        '\n'
-      )
+      ['<Grid>', '<Card id="1" />', '', '<Card id="2" />', '</Grid>'].join('\n')
     )
 
     expect(getLooseChildText(node)).toBeNull()

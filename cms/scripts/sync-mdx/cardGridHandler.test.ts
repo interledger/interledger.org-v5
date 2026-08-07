@@ -172,9 +172,7 @@ describe('CardGrid handler', () => {
       code: ParserErrorCode.INVALID_PROP_VALUE,
       component: 'CardGrid'
     })
-    expect((result as MdxParserError).message).toMatch(
-      /unexpected text "Oops"/
-    )
+    expect((result as MdxParserError).message).toMatch(/unexpected text "Oops"/)
   })
 
   it('rejects a NavigationCard with children', async () => {

@@ -75,7 +75,7 @@ const downloadAttr = (() => {
   try {
     const path = resolvedHref.startsWith('http')
       ? new URL(resolvedHref).pathname
-      : resolvedHref.split('?')[0] ?? resolvedHref
+      : (resolvedHref.split('?')[0] ?? resolvedHref)
     const base = path.split('/').filter(Boolean).pop()
     return base && base.includes('.') ? base : ''
   } catch {

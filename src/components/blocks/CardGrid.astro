@@ -155,14 +155,14 @@ function warnMissingSecondaryCta(
                 <h3 class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg">
                   {card.heading || 'Untitled card'}
                 </h3>
-                {
-                  card.subHeading && (
-                    <p class="m-0 text-body-sm-standard text-neutral-75">
-                      {card.subHeading}
-                    </p>
-                  )
-                }
-                {card.html && <div class="text-body-sm-standard" set:html={card.html} />}
+                {card.subHeading && (
+                  <p class="m-0 text-body-sm-standard text-neutral-75">
+                    {card.subHeading}
+                  </p>
+                )}
+                {card.html && (
+                  <div class="text-body-sm-standard" set:html={card.html} />
+                )}
                 <p class="m-0 mt-auto text-body-sm-standard text-coral-red-150">
                   This card is missing a call-to-action link and cannot be used
                   yet. Add a button link and label in the CMS or MDX.
