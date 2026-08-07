@@ -11,12 +11,14 @@ import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
+import Quote from '@/components/blocks/Quote.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import {
   type Locale,
   useTranslations,
-  buildSectionEntryBreadcrumbs
+  buildSectionEntryBreadcrumbs,
+  isDemoPathSlug
 } from '@/utils'
 
 interface Props {
@@ -51,9 +53,10 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   routeLocale,
   t('nav.home')
 )
+const noindex = isDemoPathSlug(entry.data.pathSlug)
 ---
 
-<HackathonPageLayout title={title} description={description}>
+<HackathonPageLayout title={title} description={description} noindex={noindex}>
   <main
     class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
@@ -79,6 +82,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
             TitleCard,
             Faq,
             FaqItem,
+            Quote,
             ProfileGrid,
             LogoCarousel
           }}

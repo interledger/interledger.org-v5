@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildDeferredUmamiAttrs,
   buildUmamiAttrs,
   deriveAction,
   deriveLabel,
@@ -271,6 +272,52 @@ describe('buildUmamiAttrs', () => {
     ).toMatchObject({
       'data-umami-event-link-text': 'Click me',
       'data-umami-event-label': 'evil script'
+    })
+  })
+})
+
+describe('buildDeferredUmamiAttrs', () => {
+  it('emits the identical event and properties as buildUmamiAttrs, under data-track-event* keys', () => {
+    const input = {
+      pathname: '/grant/fellowship',
+      section: 'nav' as const,
+      href: 'https://www.submittable.com/apply',
+      linkText: 'Apply Now',
+      lang: 'en'
+    }
+    const umamiAttrs = buildUmamiAttrs(input)
+    expect(buildDeferredUmamiAttrs(input)).toEqual({
+      'data-track-event': umamiAttrs['data-umami-event'],
+      'data-track-event-link-text': umamiAttrs['data-umami-event-link-text'],
+      'data-track-event-lang': umamiAttrs['data-umami-event-lang']
+    })
+  })
+
+  it('omits empty optional attributes', () => {
+    expect(
+      buildDeferredUmamiAttrs({
+        pathname: '/',
+        section: 'nav',
+        href: '/'
+      })
+    ).toEqual({ 'data-track-event': 'foundation_home:nav:home' })
+  })
+
+  it('carries the label property through for inline-link overrides', () => {
+    expect(
+      buildDeferredUmamiAttrs({
+        pathname: '/get-involved',
+        section: 'link',
+        href: 'https://forum.interledger.org/',
+        linkText: 'Community Forum',
+        lang: 'en',
+        label: 'community'
+      })
+    ).toEqual({
+      'data-track-event': 'get_involved:link',
+      'data-track-event-link-text': 'Community Forum',
+      'data-track-event-lang': 'en',
+      'data-track-event-label': 'community'
     })
   })
 })

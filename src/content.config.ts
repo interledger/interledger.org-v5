@@ -9,6 +9,7 @@ import {
   grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   hackathonPageFrontmatterSchema,
+  podcastPageFrontmatterSchema,
   profileFrontmatterSchema,
   reportFrontmatterSchema,
   summitPageFrontmatterSchema
@@ -71,6 +72,14 @@ const profilesCollection = defineCollection({
   schema: profileFrontmatterSchema
 })
 
+const podcastPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.podcastPages}`
+  }),
+  schema: podcastPageFrontmatterSchema
+})
+
 const faqsCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
@@ -98,7 +107,8 @@ export const collections = {
   'hackathon-pages': hackathonPagesCollection,
   profiles: profilesCollection,
   faqs: faqsCollection,
-  reports: reportsCollection
+  reports: reportsCollection,
+  'podcast-pages': podcastPagesCollection
 }
 
 export type CollectionType = keyof typeof collections

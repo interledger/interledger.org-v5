@@ -34,16 +34,27 @@
       font-style: italic;
     }
 
+    /* Rich-text quotes — dual raspberry edges (matches Quote / Blockquote) */
     blockquote {
       border-inline: 2px solid var(--color-raspberry-100);
-      padding-inline: var(--spacing-md);
+      padding-inline: var(--spacing-xl);
+      padding-block: 0;
       margin-block: var(--spacing-2xl);
+      color: var(--color-neutral-100);
+      font-size: var(--text-h5);
+      line-height: var(--text-h5--line-height);
 
       @variant tablet {
-        padding-inline: var(--spacing-lg);
+        font-size: var(--text-h5-md);
+        line-height: var(--text-h5-md--line-height);
       }
       @variant desktop {
-        padding-inline: var(--spacing-xl);
+        font-size: var(--text-h5-lg);
+        line-height: var(--text-h5-lg--line-height);
+      }
+
+      & p {
+        margin-bottom: 0;
       }
     }
 

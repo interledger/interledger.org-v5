@@ -67,6 +67,22 @@ export interface BlockquoteBlock extends StrapiBlockBase {
   source?: string
 }
 
+/**
+ * blocks.quote – pull quote with optional author name, image, and link.
+ *
+ * `quote` comes from the JSX children (markdown). Author fields are optional
+ * attributes. `authorImage` is a Strapi media ID after import (or null in
+ * dry-run); serializers re-emit a repo path / upload URL.
+ */
+export interface QuoteBlock extends StrapiBlockBase {
+  __component: 'blocks.quote'
+  quote: string
+  authorName?: string
+  /** Strapi upload file integer ID — set when authorImage is provided. */
+  authorImage?: number | null
+  authorLink?: string
+}
+
 /** blocks.callout-text – highlighted text block. */
 export interface CalloutTextBlock extends StrapiBlockBase {
   __component: 'blocks.callout-text'
@@ -269,6 +285,7 @@ export type ParsedBlock =
   | ProfileBlock
   | ProfileGridBlock
   | BlockquoteBlock
+  | QuoteBlock
   | CalloutTextBlock
   | CtaStripBlock
   | PdfEmbedBlock

@@ -6,8 +6,11 @@
  */
 
 import matter from 'gray-matter'
-import isHtml from 'is-html'
-import { defaultLang, MATTER_STRINGIFY_OPTIONS, htmlToMarkdown } from './mdx'
+import {
+  ckeditorFieldToMarkdown,
+  defaultLang,
+  MATTER_STRINGIFY_OPTIONS
+} from './mdx'
 import { serializeContent } from '../serializers/blocks'
 
 export interface ReportMdxDate {
@@ -50,10 +53,7 @@ export function generateReportMdx(
   const isLocalized = resolvedLocale !== defaultLang
   const date = dateFrontmatter(report.date)
   const introParagraph = report.introParagraph
-    ? (isHtml(report.introParagraph)
-        ? htmlToMarkdown(report.introParagraph)
-        : report.introParagraph
-      ).trim()
+    ? ckeditorFieldToMarkdown(report.introParagraph)
     : null
 
   const frontmatter: Record<string, unknown> = {

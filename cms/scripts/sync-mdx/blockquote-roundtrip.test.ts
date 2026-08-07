@@ -20,12 +20,10 @@ describe('Blockquote round-trip (serialize → parse)', () => {
     expect(blocks).toHaveLength(1)
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.blockquote',
-      source: 'Vint Cerf'
+      source: 'Vint Cerf',
+      // Plain text only — presentation marks live in Blockquote.astro
+      quote: 'The Internet is for everyone.'
     })
-    // formatBlockquote wraps in curly quotes, so use toContain
-    expect((blocks[0] as { quote: string }).quote).toContain(
-      'Internet is for everyone'
-    )
   })
 
   it('round-trip with source (es)', async () => {
@@ -39,11 +37,9 @@ describe('Blockquote round-trip (serialize → parse)', () => {
     expect(blocks).toHaveLength(1)
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.blockquote',
-      source: 'Vint Cerf'
+      source: 'Vint Cerf',
+      quote: 'La Internet es para todos.'
     })
-    expect((blocks[0] as { quote: string }).quote).toContain(
-      'La Internet es para todos'
-    )
   })
 
   it('round-trip without source', async () => {
@@ -52,9 +48,11 @@ describe('Blockquote round-trip (serialize → parse)', () => {
     const blocks = await parseMdxToBlocks(mdx, enCtx)
 
     expect(blocks).toHaveLength(1)
-    expect(blocks[0]).toMatchObject({ __component: 'blocks.blockquote' })
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.blockquote',
+      quote: 'A simple thought.'
+    })
     expect(blocks[0]).not.toHaveProperty('source')
-    expect((blocks[0] as { quote: string }).quote).toContain('simple thought')
   })
 
   it('round-trip preserves brace-escaped content', async () => {
@@ -64,5 +62,20 @@ describe('Blockquote round-trip (serialize → parse)', () => {
 
     expect(blocks).toHaveLength(1)
     expect((blocks[0] as { quote: string }).quote).toContain('templates')
+    expect((blocks[0] as { quote: string }).quote).not.toMatch(/[“”]/)
+  })
+
+  it('strips legacy curly quotes from previously exported MDX', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<Blockquote source="Author">\n“Money should move like data.”\n</Blockquote>',
+      enCtx
+    )
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.blockquote',
+      quote: 'Money should move like data.',
+      source: 'Author'
+    })
   })
 })

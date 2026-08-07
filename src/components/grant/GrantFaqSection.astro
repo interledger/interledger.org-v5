@@ -1,7 +1,7 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { parseMarkdown } from '@/utils'
+import { isExternalHref, parseMarkdown } from '@/utils'
 
 interface FaqItem {
   question: string
@@ -20,8 +20,6 @@ interface Props {
 
 const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
 const { routeLocale } = Astro.locals
-
-const isExternal = (href: string) => /^https?:\/\//i.test(href)
 
 const renderedItems = await Promise.all(
   items.map(async (item) => ({
@@ -61,7 +59,7 @@ const renderedItems = await Promise.all(
           <LinkButton
             href={ctaLink}
             variant="secondary"
-            external={isExternal(ctaLink)}
+            external={isExternalHref(ctaLink)}
           >
             {ctaText}
           </LinkButton>
@@ -110,7 +108,7 @@ const renderedItems = await Promise.all(
         <LinkButton
           href={ctaLink}
           variant="secondary"
-          external={isExternal(ctaLink)}
+          external={isExternalHref(ctaLink)}
           class="w-full mx-auto"
         >
           {ctaText}

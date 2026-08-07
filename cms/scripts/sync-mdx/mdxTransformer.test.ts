@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import { fileURLToPath } from 'node:url'
 
 const mockProjectRootHolder = vi.hoisted(() => ({ current: '' }))
 
@@ -23,7 +24,8 @@ import {
   buildHackathonPagePayload,
   createMediaUploadResolver,
   buildProfilePayload,
-  buildBlogPayload
+  buildBlogPayload,
+  HACKATHON_PAGE_ALLOWED_COMPONENTS
 } from './mdxTransformer'
 import {
   foundationPageFrontmatterSchema,
@@ -1827,6 +1829,7 @@ describe('buildGrantOverviewPagePayload', () => {
         grantOverviewPageFrontmatterSchema,
         mdx,
         strapiUploadContext,
+        null,
         updatedAltIds
       )
 
@@ -1835,6 +1838,34 @@ describe('buildGrantOverviewPagePayload', () => {
         description: '',
         backgroundImageMobile: 84
       })
+    })
+
+    it('patches heroImageMobile upload alt from heroImageMobileAlt', async () => {
+      const { strapiUploadContext, updatedAltIds } =
+        createMockStrapiUploadContext({
+          '/uploads/img/hero-mobile.png': 84
+        })
+      const mdx = createMdxFile({
+        pathSlug: 'digital-finance',
+        frontmatter: {
+          ...baseGrantOverviewFrontmatter,
+          heroImageMobile: '/uploads/img/hero-mobile.png',
+          heroImageMobileAlt: 'Mobile hero crop'
+        }
+      })
+
+      await buildGrantOverviewPagePayload(
+        grantOverviewPageFrontmatterSchema,
+        mdx,
+        strapiUploadContext,
+        null,
+        updatedAltIds
+      )
+
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        84,
+        'Mobile hero crop'
+      )
     })
 
     it('clears heroImage when heroImage is explicitly empty in frontmatter', async () => {
@@ -2330,6 +2361,23 @@ const baseHackathonPageFrontmatter = {
 }
 
 describe('buildHackathonPagePayload', () => {
+  // The allow-list is a hand-maintained copy of the zone's component list, so
+  // a block added to the schema but not here fails the sync as "unsupported".
+  it('allows exactly the components the hackathon-page zone declares', () => {
+    const schemaPath = fileURLToPath(
+      new URL(
+        '../../src/api/hackathon-page/content-types/hackathon-page/schema.json',
+        import.meta.url
+      )
+    )
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
+    const declared: string[] = schema.attributes.content.components
+
+    expect([...HACKATHON_PAGE_ALLOWED_COMPONENTS].sort()).toEqual(
+      [...declared].sort()
+    )
+  })
+
   describe('error handling', () => {
     it('returns Error when title is missing', async () => {
       const mdx = createMdxFile({
@@ -2814,10 +2862,9 @@ describe('buildBlogPayload', () => {
 
   describe('featureMedia / thumbnailMedia', () => {
     it('resolves featureImage and featureImageAlt into featureMedia', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext({
-          '/uploads/img/feature.jpg': 42
-        })
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/uploads/img/feature.jpg': 42
+      })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {
@@ -2830,14 +2877,39 @@ describe('buildBlogPayload', () => {
       const payload = await buildBlogPayload(
         foundationBlogFrontmatterSchema,
         mdx,
-        strapiUploadContext,
-        updatedAltIds
+        strapiUploadContext
       )
 
       expect((payload as Record<string, unknown>).featureMedia).toEqual({
         image: 42,
         alternativeText: 'A feature image'
       })
+    })
+
+    it('patches featureImageMobile upload alt from featureImageMobileAlt', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/uploads/img/feature-mobile.jpg': 99
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: {
+          ...baseBlogFrontmatter,
+          featureImageMobile: '/uploads/img/feature-mobile.jpg',
+          featureImageMobileAlt: 'Mobile feature crop'
+        }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).featureImageMobile).toBe(99)
+      expect(strapiUploadContext.strapi.updateUploadAlt).toHaveBeenCalledWith(
+        99,
+        'Mobile feature crop'
+      )
     })
 
     it('omits featureMedia when featureImage is absent, since Strapi requires the field and rejects null', async () => {

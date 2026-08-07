@@ -11,7 +11,7 @@ import {
   useTranslations,
   translatePath,
   HOME_CONTENT_SLUG,
-  buildUmamiAttrs
+  buildDeferredUmamiAttrs
 } from '@/utils'
 import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
 import MicrositeNavActions from '@/components/layout/MicrositeNavActions.astro'
@@ -39,7 +39,7 @@ const logoLabel =
   site === 'summit' ? t('aria.logo.summit') : t('aria.logo.hackathon')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
-  buildUmamiAttrs({
+  buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'nav',

@@ -4,11 +4,12 @@
  * Used by page and blog lifecycles to ensure all block types
  * and their nested relations are fully populated when fetching from Strapi.
  *
- * Keep these in sync with the component lists in the content-type schemas:
- * - foundation-page/schema.json
- * - summit-page/schema.json
- * - hackathon-page/schema.json
- * - foundation-blog-post/schema.json
+ * A dynamic-zone query only returns components listed in its `on` map, so a
+ * component a schema allows but this file omits is silently dropped from the
+ * MDX export. `contentPopulate.test.ts` walks the schemas and fails on any gap.
+ *
+ * Listing a component a zone no longer allows is harmless (Strapi ignores it),
+ * so the test only checks the schema-to-populate direction.
  */
 
 /** Blocks available in grant page dynamic zones. */
@@ -60,6 +61,9 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { profiles: true }
   },
   'blocks.blockquote': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  },
   'blocks.callout-text': {},
   'blocks.cta-strip': {},
   'blocks.pdf-embed': {
@@ -94,7 +98,10 @@ const FOUNDATION_BLOG_BLOCKS = {
       mobileImage: true
     }
   },
-  'blocks.code-block': {}
+  'blocks.code-block': {},
+  'blocks.quote': {
+    populate: { authorImage: true }
+  }
 } as const
 
 /** Populate config for profile-page content field (paragraph blocks only). */
@@ -135,6 +142,9 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.faq': {
       populate: { items: true }
+    },
+    'blocks.quote': {
+      populate: { authorImage: true }
     }
   }
 } as const
@@ -162,9 +172,6 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
   content: {
     on: {
       ...GRANT_BLOCKS,
-      'blocks.carousel': {
-        populate: { logos: true }
-      },
       'blocks.profile-grid': {
         populate: { profiles: true }
       }
@@ -187,5 +194,21 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   content: {
     on: { ...GRANT_BLOCKS }
   },
+  ctaStrip: true
+} as const
+
+/** Populate config for podcast-page top-level component fields. No dynamic zone — everything is a page-owned repeatable component. */
+export const PODCAST_PAGE_CONTENT_POPULATE = {
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
+  titleCards: {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  podcasts: true,
   ctaStrip: true
 } as const
