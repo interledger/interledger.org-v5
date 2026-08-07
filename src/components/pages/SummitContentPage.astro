@@ -167,8 +167,13 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
     color: var(--color-neutral-0);
   }
 
-  /* Expand Event Card to the content shell; prose stays max-w-narrow. */
-  [data-prose-summit] [data-component='EventCard'] {
+  /*
+   * Expand Event Card to the content shell; prose stays max-w-narrow.
+   * :global on EventCard — its <section> is rendered by EventCard.astro, so
+   * Astro never stamps this page's scope attribute on it. Without :global the
+   * compiled selector can't match and the card stays pinned at 720px.
+   */
+  [data-prose-summit] :global([data-component='EventCard']) {
     width: 100cqw;
     max-width: 100cqw;
     position: relative;
