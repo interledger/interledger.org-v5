@@ -18,7 +18,11 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   iconOnly?: ButtonIconOnly
   iconSide?: ButtonIconSide
   external?: boolean
-  /** Treat the link as a downloadable document (download aria hint). */
+  /**
+   * Document / file CTA: sets the native `download` attribute (same-origin
+   * downloads; cross-origin may still open inline depending on CORS) and the
+   * screen-reader "(downloads a file)" hint.
+   */
   document?: boolean
   ariaDisabled?: boolean
   class?: string
@@ -64,6 +68,21 @@ const targetAttrs = external
 // the link.
 const resolvedHref = ariaDisabled ? undefined : href
 
+// Prefer a filename from the path when present (e.g. /docs/guide.pdf → guide.pdf).
+// Empty string still enables the download attribute with the URL's default name.
+const downloadAttr = (() => {
+  if (!isDocument || !resolvedHref) return undefined
+  try {
+    const path = resolvedHref.startsWith('http')
+      ? new URL(resolvedHref).pathname
+      : (resolvedHref.split('?')[0] ?? resolvedHref)
+    const base = path.split('/').filter(Boolean).pop()
+    return base && base.includes('.') ? base : ''
+  } catch {
+    return ''
+  }
+})()
+
 const ariaLabel =
   typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''
 
@@ -103,6 +122,7 @@ const umamiAttrs = callerProvidesTracking
   )}
   data-component="LinkButton"
   {...targetAttrs}
+  download={downloadAttr}
   aria-disabled={ariaDisabled ? true : undefined}
   tabindex={ariaDisabled ? -1 : undefined}
   {...umamiAttrs}

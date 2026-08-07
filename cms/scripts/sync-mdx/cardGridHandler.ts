@@ -29,7 +29,8 @@ import {
   getStringAttr,
   getBooleanAttr,
   getChildElements,
-  getMismatchedChildElements
+  getMismatchedChildElements,
+  getLooseChildText
 } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -205,17 +206,8 @@ async function handleCardGrid(
     }
 
     const childName = CARD_GRID_VARIANT_CHILDREN[variantAttr]
-    const cardNodes = getChildElements(node, childName)
-    if (cardNodes.length === 0) {
-      throw new MdxParserError({
-        code: ParserErrorCode.MISSING_REQUIRED_PROP,
-        message: `CardGrid variant="${variantAttr}" requires at least one <${childName}> child.`,
-        component: 'CardGrid',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
-
+    // Prefer the mismatched-component error over "requires at least one
+    // <Expected>" when the author used the wrong card tag for the variant.
     const mismatchedNodes = getMismatchedChildElements(node, childName)
     if (mismatchedNodes.length > 0) {
       const stray = mismatchedNodes[0]!
@@ -225,6 +217,30 @@ async function handleCardGrid(
         component: 'CardGrid',
         line: stray.position?.start.line ?? node.position?.start.line,
         column: stray.position?.start.column ?? node.position?.start.column
+      })
+    }
+
+    // getChildElements only collects matching tags — prose siblings like
+    // <InfoCard />Oops would otherwise sync the card and drop "Oops".
+    const looseText = getLooseChildText(node)
+    if (looseText) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `CardGrid variant="${variantAttr}" only accepts <${childName}> children. Found unexpected text "${looseText.preview}".`,
+        component: 'CardGrid',
+        line: looseText.line ?? node.position?.start.line,
+        column: looseText.column ?? node.position?.start.column
+      })
+    }
+
+    const cardNodes = getChildElements(node, childName)
+    if (cardNodes.length === 0) {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: `CardGrid variant="${variantAttr}" requires at least one <${childName}> child.`,
+        component: 'CardGrid',
+        line: node.position?.start.line,
+        column: node.position?.start.column
       })
     }
 

@@ -30,6 +30,8 @@ const ALL_CARD_FIELDS: CardGridCardsField[] = CARD_GRID_VARIANTS.map(
 /**
  * Content-manager URLs look like:
  * /admin/content-manager/collection-types/api::grant-page.grant-page/...
+ * Returns null when the UID can't be resolved (modals, custom views, route
+ * changes). Callers must fail closed — never unlock every variant in that case.
  */
 function getContentTypeUidFromLocation(): string | null {
   if (typeof window === 'undefined') return null
@@ -193,10 +195,15 @@ export default function CardVariantPicker({
   const setFieldValue = useForm('CardVariantPicker', (form) => form.onChange)
 
   const contentTypeUid = useMemo(() => getContentTypeUidFromLocation(), [])
+  // Fail closed when the content-type UID can't be parsed from the URL.
+  // getAllowedCardGridVariants(null) returns every variant (used by MDX /
+  // server paths with no UID); the admin picker must not unlock restricted
+  // types (e.g. grant → Info only) just because the route shape differs.
   const allowedVariants = useMemo(
-    () => getAllowedCardGridVariants(contentTypeUid),
+    () => (contentTypeUid ? getAllowedCardGridVariants(contentTypeUid) : []),
     [contentTypeUid]
   )
+  const uidResolved = contentTypeUid !== null
   const pickerVariants = useMemo(
     () => VARIANTS.filter((variant) => allowedVariants.includes(variant.value)),
     [allowedVariants]
@@ -262,6 +269,24 @@ export default function CardVariantPicker({
       observer.disconnect()
     }
   }, [value, prefix, allowedVariants, singleVariant, cardFields])
+
+  // Unknown content type: block editing instead of offering every variant.
+  if (!uidResolved || allowedVariants.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <p style={{ fontSize: '12px', color: '#D02B20', margin: 0 }}>
+          Card variant cannot be changed here because the content type could not
+          be determined. Open this entry in the content manager to edit the
+          variant.
+        </p>
+        {error && (
+          <p style={{ fontSize: '12px', color: '#D02B20', margin: 0 }}>
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
 
   // One allowed variant: no picker UI (variant is forced in the effect above).
   // Return nothing so no helper copy appears under the field.

@@ -134,6 +134,47 @@ describe('CardGrid handler', () => {
     })
   })
 
+  // When every child is the wrong component, prefer the mismatched-type
+  // error over "requires at least one <Expected>" so authors swap the tag.
+  it('reports wrong card type even when no correct children are present', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<TitleCard heading="B" buttonUrl="/b" buttonText="Open" buttonExternal={false}>',
+        'Desc',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.UNSUPPORTED_COMPONENT
+    })
+    expect((result as MdxParserError).message).toMatch(
+      /only accepts <InfoCard> children\. Found <TitleCard>/
+    )
+  })
+
+  // getChildElements collects cards even when text siblings share the
+  // paragraph; without a loose-text check that prose is lost on sync.
+  it('rejects non-whitespace text siblings of card children', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="A">Body</InfoCard>Oops',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'CardGrid'
+    })
+    expect((result as MdxParserError).message).toMatch(/unexpected text "Oops"/)
+  })
+
   it('rejects a NavigationCard with children', async () => {
     const result = await parseMdxToBlocks(
       [

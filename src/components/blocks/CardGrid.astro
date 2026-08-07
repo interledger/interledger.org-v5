@@ -32,6 +32,10 @@ interface StrapiCard {
 }
 
 type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
+/** Variants that require a secondary CTA — named so template code can cast
+ * without TypeScript `Exclude<…>` generics (angle brackets look like JSX to
+ * the Astro compiler and break the build). */
+type CtaCardVariant = 'Title' | 'Resource' | 'Navigation'
 type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
@@ -94,20 +98,21 @@ const htmlCards =
       )
     : null
 
-// Defense-in-depth only: validateCardGrid (card-grid.serializer.ts) already
-// requires secondaryCta for Title/Resource/Navigation cards at save time, so
-// this should be unreachable for content saved after that check existed.
+// Defense-in-depth: validateCardGrid requires secondaryCta for Title /
+// Resource / Navigation at save time. Incomplete cards (MDX import, old
+// content, bypass paths) still render a visible placeholder so the grid
+// layout and the missing CTA are obvious — not only a server console.warn.
 function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
   return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
 }
 
 function warnMissingSecondaryCta(
   card: StrapiCard,
-  variant: Exclude<CardVariant, 'Info'>
+  cardVariant: CtaCardVariant
 ): void {
   // eslint-disable-next-line no-console
   console.warn(
-    `Skipping ${variant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA.`
+    `CardGrid ${cardVariant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA; rendering incomplete placeholder.`
   )
 }
 ---
@@ -127,11 +132,46 @@ function warnMissingSecondaryCta(
     {
       htmlCards ? (
         htmlCards.map((card) => {
-          if (variant === 'Title') {
-            if (!hasSecondaryCta(card)) {
-              warnMissingSecondaryCta(card, variant)
-              return null
-            }
+          if (variant === 'Info') {
+            return (
+              <InfoCard heading={card.heading}>
+                <Fragment set:html={card.html} />
+              </InfoCard>
+            )
+          }
+
+          // Do not use Exclude<…> here — angle brackets are parsed as JSX.
+          const cardVariant = variant as CtaCardVariant
+          if (!hasSecondaryCta(card)) {
+            warnMissingSecondaryCta(card, cardVariant)
+            const incompleteAriaLabel =
+              (card.heading || 'Card') + ': missing call-to-action'
+            return (
+              <article
+                class="flex h-full flex-col gap-lg rounded-3xl border border-dashed border-coral-red-150 bg-coral-red-50 p-xl text-neutral-900"
+                data-card-incomplete
+                aria-label={incompleteAriaLabel}
+              >
+                <h3 class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg">
+                  {card.heading || 'Untitled card'}
+                </h3>
+                {card.subHeading && (
+                  <p class="m-0 text-body-sm-standard text-neutral-75">
+                    {card.subHeading}
+                  </p>
+                )}
+                {card.html && (
+                  <div class="text-body-sm-standard" set:html={card.html} />
+                )}
+                <p class="m-0 mt-auto text-body-sm-standard text-coral-red-150">
+                  This card is missing a call-to-action link and cannot be used
+                  yet. Add a button link and label in the CMS or MDX.
+                </p>
+              </article>
+            )
+          }
+
+          if (cardVariant === 'Title') {
             return (
               <TitleCard
                 heading={card.heading}
@@ -145,11 +185,7 @@ function warnMissingSecondaryCta(
               </TitleCard>
             )
           }
-          if (variant === 'Resource') {
-            if (!hasSecondaryCta(card)) {
-              warnMissingSecondaryCta(card, variant)
-              return null
-            }
+          if (cardVariant === 'Resource') {
             return (
               <ResourceCard
                 heading={card.heading}
@@ -162,25 +198,14 @@ function warnMissingSecondaryCta(
               </ResourceCard>
             )
           }
-          if (variant === 'Navigation') {
-            if (!hasSecondaryCta(card)) {
-              warnMissingSecondaryCta(card, variant)
-              return null
-            }
-            return (
-              <NavigationCard
-                heading={card.heading}
-                buttonUrl={card.secondaryCta.link}
-                buttonText={card.secondaryCta.text}
-                buttonExternal={card.secondaryCta.external}
-                buttonDocument={card.secondaryCta.document}
-              />
-            )
-          }
           return (
-            <InfoCard heading={card.heading}>
-              <Fragment set:html={card.html} />
-            </InfoCard>
+            <NavigationCard
+              heading={card.heading}
+              buttonUrl={card.secondaryCta.link}
+              buttonText={card.secondaryCta.text}
+              buttonExternal={card.secondaryCta.external}
+              buttonDocument={card.secondaryCta.document}
+            />
           )
         })
       ) : (

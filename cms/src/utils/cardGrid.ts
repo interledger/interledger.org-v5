@@ -110,6 +110,12 @@ export const CARD_GRID_ALLOWED_VARIANTS_BY_UID: Partial<
   'api::grant-overview-page.grant-overview-page': ['Title']
 }
 
+/**
+ * Variants allowed for a content type. Unknown/unlisted UIDs get every
+ * variant. `null`/`undefined` also returns every variant for server/MDX
+ * paths with no document context — admin UI must fail closed instead
+ * (see CardVariantPicker) so restricted types never unlock by accident.
+ */
 export function getAllowedCardGridVariants(
   contentTypeUid: string | null | undefined
 ): readonly CardGridVariant[] {
