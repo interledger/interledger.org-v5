@@ -32,6 +32,7 @@
     "@strapi/strapi": "5.41.1",
     "@strapi/utils": "5.41.1",
     "better-sqlite3": "12.8.0",
+    "ckeditor5": "47.4.0",
     "dotenv": "^17.2.4",
     "gray-matter": "^4.0.3",
     "is-html": "^3.2.0",
