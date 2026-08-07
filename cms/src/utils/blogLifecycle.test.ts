@@ -79,12 +79,25 @@ describe('resolveBlogEnglishSlug', () => {
     ).toBe('english-slug')
   })
 
-  it('falls back to the post pathSlug when localizations are empty', () => {
+  it('returns undefined when no EN counterpart is known', () => {
+    // Must not invent localizes from the ES pathSlug alone.
     expect(
       resolveBlogEnglishSlug(
-        makePost({ locale: 'es', pathSlug: 'shared-slug', localizations: [] })
+        makePost({ locale: 'es', pathSlug: 'es-only-slug', localizations: [] })
       )
-    ).toBe('shared-slug')
+    ).toBeUndefined()
+  })
+
+  it('ignores non-en localization entries (not a real EN counterpart)', () => {
+    expect(
+      resolveBlogEnglishSlug(
+        makePost({
+          locale: 'es',
+          pathSlug: 'es-slug',
+          localizations: [{ pathSlug: 'fr-slug', locale: 'fr' }]
+        })
+      )
+    ).toBeUndefined()
   })
 })
 
@@ -175,7 +188,7 @@ describe('generateBlogMDX — locale and localizes', () => {
       makePost({
         locale: 'es',
         pathSlug: 'test-post',
-        localizations: [],
+        localizations: [{ pathSlug: 'test-post', locale: 'en' }],
         featureMedia: {
           image: { name: 'banner.jpg', url: '/img/banner.jpg' },
           alternativeText: 'Banner'
@@ -192,16 +205,18 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(featureImageAt).toBeGreaterThan(localizesAt)
   })
 
-  it('falls back to pathSlug for localizes when localizations lack pathSlug', () => {
+  it('omits localizes when no EN counterpart is known', () => {
+    // ES-only post: enPost null, empty localizations. Writing localizes:
+    // <es-pathSlug> would be a lie and make sync-mdx/translationMap invent EN.
     const mdx = generateBlogMDX(
       makePost({
         locale: 'es',
-        pathSlug: 'test-post',
+        pathSlug: 'es-only-slug',
         localizations: []
       })
     )
     expect(mdx).toMatch(/^locale:\s*es$/m)
-    expect(mdx).toMatch(/^localizes:\s*test-post$/m)
+    expect(mdx).not.toMatch(/^localizes:/m)
   })
 
   it('uses the explicit englishSlug option for localizes', () => {
@@ -216,9 +231,26 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).toMatch(/^localizes:\s*english-path$/m)
   })
 
-  it('writes locale and localizes after stamping a missing document locale as es', () => {
+  it('defaults missing locale to en; callers must stamp locale for localized exports', () => {
+    // Simulates Strapi omitting locale on the document payload.
+    // generateBlogMDX itself defaults missing locale to en — no localizes.
+    // Callers (fetchBlogPost / writeMDXFile) must stamp the requested locale
+    // before generating ES frontmatter.
+    const mdx = generateBlogMDX(
+      makePost({
+        locale: undefined,
+        pathSlug: 'test-post',
+        localizations: []
+      } as Record<string, unknown>)
+    )
+    expect(mdx).toMatch(/^locale:\s*en$/m)
+    expect(mdx).not.toMatch(/^localizes:/m)
+  })
+
+  it('writes locale after stamping a missing document locale as es', () => {
     // Strapi omitted locale on the document; fetchBlogPost stamps the
-    // requested locale before generateBlogMDX runs.
+    // requested locale before generateBlogMDX runs. Without an EN counterpart
+    // we still write locale, but not a fabricated localizes.
     const postFromStrapi = makePost({
       locale: undefined,
       pathSlug: 'test-post',
@@ -229,7 +261,23 @@ describe('generateBlogMDX — locale and localizes', () => {
 
     expect(locale).toBe('es')
     expect(mdx).toMatch(/^locale:\s*es$/m)
-    expect(mdx).toMatch(/^localizes:\s*test-post$/m)
+    expect(mdx).not.toMatch(/^localizes:/m)
+  })
+
+  it('writes localizes when EN is known only via the englishSlug option', () => {
+    const postFromStrapi = makePost({
+      locale: undefined,
+      pathSlug: 'es-slug',
+      localizations: []
+    } as Record<string, unknown>)
+    const locale = stampBlogLocale(postFromStrapi, 'es')
+    const mdx = generateBlogMDX(
+      { ...postFromStrapi, locale },
+      { englishSlug: 'en-slug' }
+    )
+
+    expect(mdx).toMatch(/^locale:\s*es$/m)
+    expect(mdx).toMatch(/^localizes:\s*en-slug$/m)
   })
 })
 
