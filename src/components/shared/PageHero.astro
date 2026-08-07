@@ -61,12 +61,8 @@ const parallaxImgClass = isWideBand
   : 'parallax-img absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover'
 ---
 
-<!--
-  Content column is max-w-content (1440px) with no horizontal padding so title
-  and description span the full content width.
--->
 <div
-  class="mx-auto w-full max-w-content bg-white pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
+  class="mx-auto w-full max-w-content max-[1460px]:px-[5%] bg-white pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
 >
   {
     breadcrumbs && breadcrumbs.length > 0 && (
