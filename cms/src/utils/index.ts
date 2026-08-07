@@ -141,6 +141,7 @@ export {
   createBlogLifecycle,
   generateBlogMDX,
   resolveBlogEnglishSlug,
+  resolveBlogMdxFilename,
   stampBlogLocale
 } from './blogLifecycle'
 export {
