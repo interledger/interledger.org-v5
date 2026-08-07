@@ -1087,6 +1087,7 @@ export interface ApiHackathonPageHackathonPage
         'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
+        'blocks.cta-strip',
         'blocks.carousel',
         'blocks.faq',
         'blocks.event-card',
