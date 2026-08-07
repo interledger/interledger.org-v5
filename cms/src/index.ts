@@ -1122,7 +1122,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       heading: 'Section Heading',
       logos: 'Logos',
-      accessibilityLabel: 'Accessible label (screen readers only)'
+      accessibilityLabel: 'Accessibility label'
     },
     'blocks.number-tiles': {
       tiles: 'Tiles'
@@ -1311,14 +1311,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.title-card-grid': {
       ariaLabel:
-        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+        'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
     },
     'blocks.carousel': {
       accessibilityLabel:
-        'Describes this group of logos for screen reader users. Not visible on the page.',
+        'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
       logos:
         'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
     },
