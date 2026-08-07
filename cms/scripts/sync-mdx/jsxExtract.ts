@@ -50,7 +50,8 @@ function findAttr(
  *
  * @param node - JSX AST node
  * @param name - Attribute name
- * @param opts.required - When true, throws if the attribute is missing
+ * @param opts.required - When true, throws if the attribute is missing or
+ *   empty/whitespace-only (presence alone is not enough)
  * @returns The string value, or `undefined` if absent and not required
  */
 export function getStringAttr(
@@ -86,6 +87,18 @@ export function getStringAttr(
 
   // String literal: <Foo bar="baz" />
   if (typeof attr.value === 'string') {
+    // required: true means a usable value, not merely a present attribute.
+    // buttonUrl="" would otherwise pass and become link "/" after slash-prefix.
+    if (opts.required && attr.value.trim() === '') {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: `Required prop "${name}" is empty.`,
+        component: node.name ?? undefined,
+        prop: name,
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
     return attr.value
   }
 

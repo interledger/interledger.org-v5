@@ -138,6 +138,39 @@ Early arrival for speakers.
     )
   })
 
+  it('errors when EventWhen title is empty', async () => {
+    const mdx = `
+<EventCard>
+  <EventWhen title="" date="Nov 8" />
+  <EventWhere title="Where?" />
+</EventCard>
+`
+    const result = await parseMdxToBlocks(mdx, ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP,
+      prop: 'title',
+      component: 'EventWhen'
+    })
+  })
+
+  it('errors when EventApply buttonUrl is empty', async () => {
+    const mdx = `
+<EventCard>
+  <EventWhen title="When?" />
+  <EventWhere title="Where?" />
+  <EventApply title="Apply" buttonText="Apply today" buttonUrl="" />
+</EventCard>
+`
+    const result = await parseMdxToBlocks(mdx, ctx)
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP,
+      prop: 'buttonUrl',
+      component: 'EventApply'
+    })
+  })
+
   it('errors when EventApply has children (no body text field)', async () => {
     const mdx = `
 <EventCard>
