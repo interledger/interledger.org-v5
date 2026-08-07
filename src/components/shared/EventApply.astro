@@ -1,0 +1,53 @@
+---
+/**
+ * Event card "Apply" column — title + primary CTA only (no body text field).
+ * Self-closing only: no default slot; MDX authors must not put children inside.
+ */
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import { buildUmamiAttrs, ensureLeadingSlash, hasUrlScheme } from '@/utils'
+
+interface Props {
+  title: string
+  buttonText: string
+  buttonUrl: string
+  buttonExternal?: boolean
+}
+
+const { title, buttonText, buttonUrl, buttonExternal = false } = Astro.props
+
+const { routeLocale } = Astro.locals
+
+// Scheme-bearing URLs (https:, mailto:, tel:, //…) must not go through
+// ensureLeadingSlash (would become `/https://…` / `/mailto:…`). Auto-detect
+// so a missing external flag still navigates correctly.
+const schemeUrl = hasUrlScheme(buttonUrl)
+const external = buttonExternal || schemeUrl
+const href = schemeUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
+---
+
+<div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">
+  <h3
+    class="m-0 font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-100"
+  >
+    {title}
+  </h3>
+
+  <LinkButton
+    href={href}
+    variant="primary"
+    size="lg"
+    external={external}
+    class="self-start"
+    {...buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      section: 'cta',
+      href,
+      linkText: buttonText
+    })}
+  >
+    {buttonText}
+    <Icon name={external ? 'external-link' : 'arrow-right'} slot="icon-right" />
+  </LinkButton>
+</div>

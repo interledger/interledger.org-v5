@@ -54,6 +54,32 @@ describe('getStringAttr', () => {
     )
   })
 
+  it('throws MISSING_REQUIRED_PROP for empty required attribute', () => {
+    const node = parseJsx('<Foo bar="" />')
+    expect(() => getStringAttr(node, 'bar', { required: true })).toThrow(
+      expect.objectContaining({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        prop: 'bar',
+        message: expect.stringMatching(/empty/i)
+      })
+    )
+  })
+
+  it('throws MISSING_REQUIRED_PROP for whitespace-only required attribute', () => {
+    const node = parseJsx('<Foo bar="   " />')
+    expect(() => getStringAttr(node, 'bar', { required: true })).toThrow(
+      expect.objectContaining({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        prop: 'bar'
+      })
+    )
+  })
+
+  it('allows empty string for optional attributes', () => {
+    const node = parseJsx('<Foo bar="" />')
+    expect(getStringAttr(node, 'bar')).toBe('')
+  })
+
   it('throws DYNAMIC_EXPRESSION for expression values', () => {
     const node = parseJsx('<Foo bar={someVar} />')
     expect(() => getStringAttr(node, 'bar')).toThrow(MdxParserError)

@@ -11,6 +11,10 @@ import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
+import EventCard from '@/components/blocks/EventCard.astro'
+import EventWhen from '@/components/shared/EventWhen.astro'
+import EventWhere from '@/components/shared/EventWhere.astro'
+import EventApply from '@/components/shared/EventApply.astro'
 import Quote from '@/components/blocks/Quote.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
@@ -88,6 +92,10 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
             NavigationCard,
             Faq,
             FaqItem,
+            EventCard,
+            EventWhen,
+            EventWhere,
+            EventApply,
             Quote,
             ProfileGrid,
             LogoCarousel
@@ -103,10 +111,13 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     color: var(--color-neutral-0);
   }
 
+  /* Light body text for hackathon chrome; dark-on-white blocks opt out. */
   .hackathon-content
     :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
-      [data-component='CardGrid'] *
-    ):not(section[aria-labelledby='logo-carousel-heading'] *) {
+      [data-component='EventCard'] *
+    ):not([data-component='CardGrid'] *):not(
+      section[aria-labelledby='logo-carousel-heading'] *
+    ) {
     color: var(--color-neutral-0);
   }
 </style>

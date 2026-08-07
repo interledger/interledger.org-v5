@@ -351,6 +351,42 @@ Hackathon pages can use every Card Grid variant. Each grid uses one variant only
   ]}
 />
 
+<Paragraph>
+
+## Event card
+
+Hackathon pages can use a full-width **Event card** (When, Where, optional
+Apply). One card at a time; without Apply, When and Where expand across the
+row.
+
+</Paragraph>
+
+<EventCard>
+  <EventWhen title="When?" date="November 6–7, 2026" time="48 hours">
+    Build starts after the kickoff briefing.
+  </EventWhen>
+  <EventWhere title="Where?" location="Hackathon workspace — main hall">
+    Power, Wi‑Fi, and mentor stations are organised by challenge track.
+  </EventWhere>
+  <EventApply
+    title="Apply"
+    buttonText="Join the hackathon"
+    buttonUrl="/hackathon/overview"
+  />
+</EventCard>
+
+<EventCard>
+  <EventWhen title="When?" date="November 7, 2026" time="12:45 pm – 2:30 pm">
+    Five minutes per team including Q&A with the judging panel.
+  </EventWhen>
+  <EventWhere
+    title="Where?"
+    location="Main hall stage — demo order posted at noon"
+  >
+    Audience seating is open; practice rooms are available until 12:30 pm.
+  </EventWhere>
+</EventCard>
+
 <Faq>
   <FaqItem question="Do I need a team to enter?">
     No. You can register solo and form a team during the opening session, or

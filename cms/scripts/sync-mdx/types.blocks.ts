@@ -275,6 +275,42 @@ export interface FaqBlock extends StrapiBlockBase {
   items: FaqItem[]
 }
 
+/** Nested column on blocks.event-card — when an event takes place. */
+export interface EventCardWhen {
+  title: string
+  text?: string
+  date?: string
+  time?: string
+}
+
+/** Nested column on blocks.event-card — where an event takes place. */
+export interface EventCardWhere {
+  title: string
+  text?: string
+  location?: string
+}
+
+/** Nested column on blocks.event-card — apply / register CTA (no body text). */
+export interface EventCardApply {
+  title: string
+  primaryCta: {
+    text: string
+    link: string
+    external?: boolean
+  }
+}
+
+/**
+ * blocks.event-card — full-width when/where/(optional)apply columns.
+ * Editors use one at a time; there is no multi-card grid.
+ */
+export interface EventCardBlock extends StrapiBlockBase {
+  __component: 'blocks.event-card'
+  when: EventCardWhen
+  where: EventCardWhere
+  apply?: EventCardApply
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -298,4 +334,5 @@ export type ParsedBlock =
   | CardGridBlock
   | AgendaBlock
   | FaqBlock
+  | EventCardBlock
   | CtaLinkBlock

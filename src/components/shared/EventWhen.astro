@@ -1,0 +1,64 @@
+---
+/**
+ * Event card "When" column — MDX authoring + internal render from EventCard.
+ */
+import Icon from '@/components/shared/Icon.astro'
+import { useTranslations } from '@/utils'
+
+interface Props {
+  title: string
+  text?: string
+  date?: string
+  time?: string
+}
+
+const { title, text, date, time } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const hasText = Boolean(text) || Astro.slots.has('default')
+---
+
+<div class="flex min-w-0 flex-col gap-lg" data-event-column="when">
+  <h3
+    class="m-0 font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-100"
+  >
+    {title}
+  </h3>
+
+  {
+    hasText && (
+      <div class="font-poppins text-body-lg-standard text-neutral-100 [&_p]:m-0">
+        <slot>{text}</slot>
+      </div>
+    )
+  }
+
+  {
+    (date || time) && (
+      <ul class="m-0 flex list-none flex-col gap-md p-0">
+        {date && (
+          <li class="flex items-start gap-sm text-neutral-100">
+            <Icon
+              name="calendar"
+              class="mt-0.5 size-5 shrink-0 text-neutral-75"
+            />
+            <span class="font-poppins text-body-lg-standard">
+              <span class="sr-only">{t('eventCard.dateLabel')}: </span>
+              {date}
+            </span>
+          </li>
+        )}
+        {time && (
+          <li class="flex items-start gap-sm text-neutral-100">
+            <Icon name="clock" class="mt-0.5 size-5 shrink-0 text-neutral-75" />
+            <span class="font-poppins text-body-lg-standard">
+              <span class="sr-only">{t('eventCard.timeLabel')}: </span>
+              {time}
+            </span>
+          </li>
+        )}
+      </ul>
+    )
+  }
+</div>

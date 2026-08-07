@@ -55,6 +55,7 @@
         "blocks.profile-grid",
         "blocks.carousel",
         "blocks.faq",
+        "blocks.event-card",
         "blocks.quote"
       ],
       "pluginOptions": {

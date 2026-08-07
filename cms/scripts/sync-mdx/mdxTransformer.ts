@@ -972,6 +972,7 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.profile-grid',
   'blocks.carousel',
   'blocks.faq',
+  'blocks.event-card',
   'blocks.quote'
 ] as const
 

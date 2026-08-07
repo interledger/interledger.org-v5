@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_blocks_event_card_wheres",
+  "info": {
+    "displayName": "Event Card — Where",
+    "icon": "pinMap",
+    "description": "Where an event is taking place (title required; text and location optional)"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "text": {
+      "type": "text",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "location": {
+      "type": "text",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

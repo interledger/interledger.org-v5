@@ -379,6 +379,42 @@ Summit pages can use every Card Grid variant (same component as foundation).
   ]}
 />
 
+<Paragraph>
+
+## Event card
+
+Summit pages can use a full-width **Event card** (When, Where, optional Apply).
+One card at a time; without Apply, the two columns expand to fill the width.
+
+</Paragraph>
+
+<EventCard>
+  <EventWhen title="When?" date="November 5–6, 2026" time="Two full days">
+    Badge pickup opens at 8:00 am on Day 1.
+  </EventWhen>
+  <EventWhere
+    title="Where?"
+    location="Summit venue — main auditorium and exhibition hall"
+  >
+    Sessions run across the main stage and breakout rooms; the exhibition hall
+    stays open between tracks.
+  </EventWhere>
+  <EventApply
+    title="Register"
+    buttonText="Register interest"
+    buttonUrl="/summit"
+  />
+</EventCard>
+
+<EventCard>
+  <EventWhen title="When?" date="November 6, 2026" time="Evening reception">
+    Informal networking after the Day 2 wrap-up.
+  </EventWhen>
+  <EventWhere title="Where?" location="Partner lounge — Level 2">
+    Light refreshments; badge required for entry.
+  </EventWhere>
+</EventCard>
+
 <Faq heading="Attending the Summit">
   <FaqItem question="Who should attend?">
     The Summit brings together developers, researchers, policymakers, and

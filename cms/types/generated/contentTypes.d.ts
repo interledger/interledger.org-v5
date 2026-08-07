@@ -561,8 +561,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.code-block',
-        'blocks.quote'
-      ]
+        'blocks.quote']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -750,6 +749,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.event-card',
         'blocks.quote'
       ]
     > &
@@ -1088,6 +1088,7 @@ export interface ApiHackathonPageHackathonPage
         'blocks.profile-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.event-card',
         'blocks.quote'
       ]
     > &
@@ -1493,6 +1494,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.event-card',
         'blocks.quote'
       ]
     > &
