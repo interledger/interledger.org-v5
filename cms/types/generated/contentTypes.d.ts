@@ -561,7 +561,8 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.code-block',
-        'blocks.quote']
+        'blocks.quote'
+      ]
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1086,6 +1087,7 @@ export interface ApiHackathonPageHackathonPage
         'blocks.agenda',
         'blocks.split-layout',
         'blocks.profile-grid',
+        'blocks.cta-strip',
         'blocks.carousel',
         'blocks.faq',
         'blocks.event-card',

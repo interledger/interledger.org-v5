@@ -631,18 +631,13 @@ export async function buildGrantPagePayload(
       : null
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description)
     }
 
     const infoCards = parsed.infoCards
@@ -743,18 +738,13 @@ export async function buildGrantOverviewPagePayload(
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description)
     }
 
     const hero = await buildHeroWithImage(
@@ -970,6 +960,7 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',
+  'blocks.cta-strip',
   'blocks.carousel',
   'blocks.faq',
   'blocks.event-card',

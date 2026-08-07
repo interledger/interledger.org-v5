@@ -1,48 +1,45 @@
 import { ckeditorFieldToMarkdown } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
+/**
+ * Serialize blocks.cta-strip → MDX.
+ *
+ * Purple-only, primary CTA only. `secondaryButtonText` / `secondaryButtonLink`
+ * / `color` may still appear on legacy Strapi rows or test fixtures — they are
+ * accepted on the input type and intentionally ignored (not emitted).
+ */
 export function serialize(block: {
-  heading: string
-  description: string
+  heading?: string
+  description?: string
   primaryButtonText: string
   primaryButtonLink: string
+  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonText?: string
+  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonLink?: string
+  /** @deprecated Ignored — strips are always purple. */
   color?: string
 }): string {
-  if (!block.heading) throw new Error('CTA Strip block is missing heading')
-  if (!block.description)
-    throw new Error('CTA Strip block is missing description')
   if (!block.primaryButtonText)
     throw new Error('CTA Strip block is missing primary button text')
   if (!block.primaryButtonLink)
     throw new Error('CTA Strip block is missing primary button link')
 
-  // Secondary CTA is all-or-nothing: only emit it when both the text and link
-  // are present, so a half-filled pair in Strapi is dropped on export (matching
-  // the import handler and how CtaStrip.astro renders it).
-  const hasSecondary = Boolean(
-    block.secondaryButtonText && block.secondaryButtonLink
-  )
-
   const attrs = [
-    `heading="${esc(block.heading)}"`,
+    block.heading ? `heading="${esc(block.heading)}"` : null,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,
-    `primaryButtonLink="${esc(block.primaryButtonLink)}"`,
-    hasSecondary
-      ? `secondaryButtonText="${esc(block.secondaryButtonText!)}"`
-      : null,
-    hasSecondary
-      ? `secondaryButtonLink="${esc(block.secondaryButtonLink!)}"`
-      : null,
-    block.color ? `color="${esc(block.color)}"` : null
+    `primaryButtonLink="${esc(block.primaryButtonLink)}"`
   ]
     .filter(Boolean)
     .join(' ')
 
   // description is a Strapi text (markdown) field — render it as the children
   // and brace-escape so MDX doesn't parse { } as JS expressions.
-  const description = escMdxBraces(ckeditorFieldToMarkdown(block.description))
+  const description = block.description
+    ? escMdxBraces(ckeditorFieldToMarkdown(block.description))
+    : ''
 
-  return `<CtaStrip ${attrs}>\n${description}\n</CtaStrip>`
+  return description
+    ? `<CtaStrip ${attrs}>\n${description}\n</CtaStrip>`
+    : `<CtaStrip ${attrs} />`
 }

@@ -159,6 +159,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.profile-grid': {
       populate: { profiles: true }
     },
+    'blocks.cta-strip': {},
     'blocks.carousel': {
       populate: { logos: true }
     },

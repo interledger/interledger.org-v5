@@ -4,13 +4,12 @@ import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
-  heading: string
+  heading?: string
   description?: string
-  primaryButtonText?: string
-  primaryButtonLink?: string
-  secondaryButtonText?: string
-  secondaryButtonLink?: string
-  color?: 'purple' | 'green'
+  /** Required primary CTA label (Strapi + MDX). */
+  primaryButtonText: string
+  /** Required primary CTA href (Strapi + MDX). */
+  primaryButtonLink: string
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -20,9 +19,6 @@ const {
   description,
   primaryButtonText,
   primaryButtonLink,
-  secondaryButtonText,
-  secondaryButtonLink,
-  color = 'purple',
   umamiContext
 } = Astro.props
 
@@ -38,94 +34,78 @@ const umamiBase = {
   section: 'cta' as const
 }
 
-const bgClasses: Record<NonNullable<Props['color']>, string> = {
-  purple: 'bg-soft-indigo-50',
-  green: 'bg-pistachio-100'
-}
-
 // `description` arrives as a prop from the Strapi dynamic-zone renderer, but as
 // slot children when the component is used in exported MDX. Support both.
 const hasDescription = Boolean(description) || Astro.slots.has('default')
 
-const hasPrimary = Boolean(primaryButtonText && primaryButtonLink)
-const hasSecondary = Boolean(secondaryButtonText && secondaryButtonLink)
+// Runtime guard for partial Strapi draft payloads; props are required in TS.
+const hasPrimary = Boolean(
+  primaryButtonText?.trim() && primaryButtonLink?.trim()
+)
+
+if (!hasPrimary) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[CtaStrip] Skipping render on ${Astro.url.pathname}: primaryButtonText and primaryButtonLink are required.`
+  )
+}
 ---
 
-<section
-  data-component="CtaStrip"
-  class:list={[
-    'relative isolate overflow-clip rounded-3xl',
-    'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-    bgClasses[color] ?? bgClasses.purple
-  ]}
->
-  {
-    /* Decorative Interledger network motif bleeding off the left edge.
-      Absolutely positioned so it never affects layout (no CLS); hidden from
-      the a11y tree. Low opacity so the nodes read as muted over the card. */
-  }
-  <img
-    src="/img/blocks/cta-strip-network.svg"
-    alt=""
-    aria-hidden="true"
-    width="450"
-    height="450"
-    loading="lazy"
-    class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[135%] w-auto max-w-none aspect-square -translate-x-1/4 -translate-y-1/2 rotate-90 opacity-40"
-  />
-
-  <div class="flex flex-col items-center gap-lg text-center">
-    <h2
-      class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900"
+{
+  hasPrimary && (
+    <section
+      data-component="CtaStrip"
+      class:list={[
+        'relative isolate overflow-clip rounded-3xl',
+        'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
+        'bg-soft-indigo-50'
+      ]}
     >
-      {heading}
-    </h2>
+      {/*
+        Decorative Interledger network motif bleeding off the left edge.
+        Absolutely positioned so it never affects layout (no CLS); hidden from
+        the a11y tree. Low opacity so the nodes read as muted over the card.
+      */}
+      <img
+        src="/img/blocks/cta-strip-network.svg"
+        alt=""
+        aria-hidden="true"
+        width="450"
+        height="450"
+        loading="lazy"
+        class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[135%] w-auto max-w-none aspect-square -translate-x-1/4 -translate-y-1/2 rotate-90 opacity-40"
+      />
 
-    {
-      hasDescription && (
-        <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
-          <slot>{description}</slot>
-        </div>
-      )
-    }
+      <div class="flex flex-col items-center gap-lg text-center">
+        {heading && (
+          <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900">
+            {heading}
+          </h2>
+        )}
 
-    {
-      (hasPrimary || hasSecondary) && (
+        {hasDescription && (
+          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
+            <slot>{description}</slot>
+          </div>
+        )}
+
         <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
-          {hasPrimary && (
-            <LinkButton
-              href={primaryButtonLink!}
-              variant="primary"
-              external={isExternalHref(primaryButtonLink!)}
-              class="w-full"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: primaryButtonLink,
-                linkText: primaryButtonText
-              })}
-            >
-              {primaryButtonText}
-              <Icon name="arrow-right" slot="icon-right" />
-            </LinkButton>
-          )}
-
-          {hasSecondary && (
-            <LinkButton
-              href={secondaryButtonLink!}
-              variant="secondary"
-              external={isExternalHref(secondaryButtonLink!)}
-              class="w-full"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: secondaryButtonLink,
-                linkText: secondaryButtonText
-              })}
-            >
-              {secondaryButtonText}
-            </LinkButton>
-          )}
+          <LinkButton
+            href={primaryButtonLink}
+            variant="primary"
+            external={isExternalHref(primaryButtonLink)}
+            class="w-full"
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: primaryButtonLink,
+              linkText: primaryButtonText
+            })}
+          >
+            {primaryButtonText}
+            <Icon name="arrow-right" slot="icon-right" />
+          </LinkButton>
         </div>
-      )
-    }
-  </div>
-</section>
+      </div>
+    </section>
+  )
+}

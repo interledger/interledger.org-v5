@@ -8,6 +8,7 @@ import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -86,6 +87,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
             NumberTiles,
             Agenda,
             SplitLayout,
+            CtaStrip,
             TitleCard,
             CardGrid,
             ResourceCard,
@@ -115,7 +117,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
   .hackathon-content
     :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
       [data-component='EventCard'] *
-    ):not([data-component='CardGrid'] *):not(
+    ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
       section[aria-labelledby='logo-carousel-heading'] *
     ) {
     color: var(--color-neutral-0);

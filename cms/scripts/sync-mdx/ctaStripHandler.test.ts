@@ -14,7 +14,7 @@ const open = (attrs: string) => `<CtaStrip ${attrs}>`
 // ---------------------------------------------------------------------------
 
 describe('CtaStrip handler', () => {
-  it('parses a full strip with secondary CTA and colour', async () => {
+  it('parses a strip and ignores legacy secondary CTA and colour', async () => {
     const mdx = [
       open(
         'heading="Apply now" primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="Get involved" secondaryButtonLink="/get-involved" color="green"'
@@ -31,20 +31,14 @@ describe('CtaStrip handler', () => {
         heading: 'Apply now',
         description: 'This is a reminder text.',
         primaryButtonText: 'Stay in touch',
-        primaryButtonLink: '/contact',
-        secondaryButtonText: 'Get involved',
-        secondaryButtonLink: '/get-involved',
-        color: 'green'
+        primaryButtonLink: '/contact'
       }
     ])
   })
 
-  it('parses a minimal strip (primary CTA only) and defaults colour to purple', async () => {
+  it('parses a minimal strip with a primary CTA only', async () => {
     const mdx = [
-      open(
-        'heading="Stay up to date" primaryButtonText="Subscribe" primaryButtonLink="/newsletter"'
-      ),
-      'Sign up for our newsletter.',
+      open('primaryButtonText="Subscribe" primaryButtonLink="/newsletter"'),
       '</CtaStrip>'
     ].join('\n')
 
@@ -53,11 +47,8 @@ describe('CtaStrip handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.cta-strip',
-        heading: 'Stay up to date',
-        description: 'Sign up for our newsletter.',
         primaryButtonText: 'Subscribe',
-        primaryButtonLink: '/newsletter',
-        color: 'purple'
+        primaryButtonLink: '/newsletter'
       }
     ])
   })
@@ -87,7 +78,7 @@ describe('CtaStrip handler', () => {
     expect(description).toContain('**more**')
   })
 
-  it('returns MISSING_REQUIRED_PROP when heading is absent', async () => {
+  it('allows heading to be absent', async () => {
     const mdx = [
       open('primaryButtonText="P" primaryButtonLink="/p"'),
       'Body.',
@@ -95,10 +86,14 @@ describe('CtaStrip handler', () => {
     ].join('\n')
 
     const result = await parseMdxToBlocks(mdx, ctx)
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({
-      code: ParserErrorCode.MISSING_REQUIRED_PROP
-    })
+    expect(result).toEqual([
+      {
+        __component: 'blocks.cta-strip',
+        description: 'Body.',
+        primaryButtonText: 'P',
+        primaryButtonLink: '/p'
+      }
+    ])
   })
 
   it('returns MISSING_REQUIRED_PROP when a primary CTA field is absent', async () => {
@@ -115,27 +110,19 @@ describe('CtaStrip handler', () => {
     })
   })
 
-  it('returns INVALID_PROP_VALUE when description (children) is empty', async () => {
+  it('allows description children to be empty', async () => {
     const result = await parseMdxToBlocks(
       '<CtaStrip heading="H" primaryButtonText="P" primaryButtonLink="/p" />',
       ctx
     )
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
-  })
-
-  it('returns INVALID_PROP_VALUE for an unsupported colour', async () => {
-    const mdx = [
-      open(
-        'heading="H" primaryButtonText="P" primaryButtonLink="/p" color="blue"'
-      ),
-      'Body.',
-      '</CtaStrip>'
-    ].join('\n')
-
-    const result = await parseMdxToBlocks(mdx, ctx)
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+    expect(result).toEqual([
+      {
+        __component: 'blocks.cta-strip',
+        heading: 'H',
+        primaryButtonText: 'P',
+        primaryButtonLink: '/p'
+      }
+    ])
   })
 
   it('drops an incomplete secondary CTA (only one field present)', async () => {
