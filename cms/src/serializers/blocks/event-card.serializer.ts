@@ -67,7 +67,9 @@ function validateEventWhere(where: EventCardWhere | undefined): FieldError[] {
  * Apply is optional; when present its title and primary CTA text/link are
  * required. Returns every failing field so editors can fix them in one pass.
  */
-function validateEventApply(apply: EventCardApply | null | undefined): FieldError[] {
+function validateEventApply(
+  apply: EventCardApply | null | undefined
+): FieldError[] {
   if (!apply) return []
 
   const fieldErrors: FieldError[] = []
