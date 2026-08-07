@@ -20,9 +20,6 @@ importers:
       '@_sh/strapi-plugin-ckeditor':
         specifier: ^7.1.0
         version: 7.1.0(baaaca961255385ec6a0bb6a5aff7f7c)
-      '@ckeditor/strapi-plugin-ckeditor':
-        specifier: ^1.1.1
-        version: 1.1.2(@strapi/strapi@5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@swc/helpers@0.5.19)(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(esbuild@0.27.3)(koa@2.16.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(terser@5.46.0)(type-fest@4.41.0))(ckeditor5@47.4.0)(react@18.3.1)
       '@notum-cz/strapi-plugin-record-locking':
         specifier: ^2.1.0
         version: 2.1.1(6829809b0650e99ce61605174693c5ef)
@@ -35,6 +32,9 @@ importers:
       better-sqlite3:
         specifier: 12.8.0
         version: 12.8.0
+      ckeditor5:
+        specifier: 47.4.0
+        version: 47.4.0
       dotenv:
         specifier: ^17.2.4
         version: 17.3.1
@@ -494,13 +494,6 @@ packages:
       ckeditor5: '>=46.0.0 || ^0.0.0-nightly || ^0.0.0-internal'
       react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@ckeditor/ckeditor5-react@9.5.0':
-    resolution: {integrity: sha512-0NEBg3EDQaQDwj9xswC34qspDiNgXMIn41lZ3pjNx915NWRabqQDnR5a8TisPaOlx3gHnIdOXJ0BH1wRHsJxhQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      ckeditor5: '>=42.0.0 || ^0.0.0-nightly'
-      react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   '@ckeditor/ckeditor5-remove-format@47.4.0':
     resolution: {integrity: sha512-XD6LY76m3bZr/twRGTjNRnU4z0VU1akDC7evVMhRPaDruR71km00VT1YNPRChCDmdssEVeWEynHhLQ/kRjy+0w==}
 
@@ -551,12 +544,6 @@ packages:
 
   '@ckeditor/ckeditor5-word-count@47.4.0':
     resolution: {integrity: sha512-JeiwHJyBdlUCdzfW3K2KoGO/QhDe1qOKNPXiVXzExIyZpww+hm5HjV/zi5gX4xAvWg9ew0UaQRco5Dy7mBBfRQ==}
-
-  '@ckeditor/strapi-plugin-ckeditor@1.1.2':
-    resolution: {integrity: sha512-qLn+Xj/y7BQadxpjPxOJagrCAZDMeROja/e9Ng9jt54joqnz1NnZHqE9Iu/c1nTHUMhFOYuTle6g9ncLDrFM+g==}
-    engines: {npm: '>=6.0.0'}
-    peerDependencies:
-      '@strapi/strapi': ^5.0.0 || ^5.0.0-beta || ^5.0.0-alpha || ^5.0.0-rc
 
   '@codemirror/autocomplete@6.20.1':
     resolution: {integrity: sha512-1cvg3Vz1dSSToCNlJfRA2WSI4ht3K+WplO0UMOgmUYPivCyy2oueZY6Lx7M9wThm7SDUBViRmuT+OG/i8+ON9A==}
@@ -3681,6 +3668,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cropperjs@1.6.1:
     resolution: {integrity: sha512-F4wsi+XkDHCOMrHMYjrTEE4QBOrsHHN5/2VsVAaRq8P7E5z7xQpT75S+f/9WikmBEailas3+yo+6zPIomW+NOA==}
@@ -7841,6 +7829,8 @@ snapshots:
       '@ckeditor/ckeditor5-core': 47.4.0
       '@ckeditor/ckeditor5-upload': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-alignment@47.4.0':
     dependencies:
@@ -8003,6 +7993,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-editor-decoupled@47.4.0':
     dependencies:
@@ -8012,6 +8004,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-editor-inline@47.4.0':
     dependencies:
@@ -8053,6 +8047,8 @@ snapshots:
     dependencies:
       '@ckeditor/ckeditor5-utils': 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-enter@47.4.0':
     dependencies:
@@ -8081,6 +8077,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
       es-toolkit: 1.39.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-font@47.4.0':
     dependencies:
@@ -8135,6 +8133,8 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.4.0
       '@ckeditor/ckeditor5-widget': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-html-embed@47.4.0':
     dependencies:
@@ -8325,14 +8325,10 @@ snapshots:
       '@ckeditor/ckeditor5-core': 47.4.0
       '@ckeditor/ckeditor5-engine': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-react@11.0.1(ckeditor5@47.4.0)(react@18.3.1)':
-    dependencies:
-      '@ckeditor/ckeditor5-integrations-common': 2.2.3(ckeditor5@47.4.0)
-      ckeditor5: 47.4.0
-      react: 18.3.1
-
-  '@ckeditor/ckeditor5-react@9.5.0(ckeditor5@47.4.0)(react@18.3.1)':
     dependencies:
       '@ckeditor/ckeditor5-integrations-common': 2.2.3(ckeditor5@47.4.0)
       ckeditor5: 47.4.0
@@ -8383,6 +8379,8 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-special-characters@47.4.0':
     dependencies:
@@ -8392,6 +8390,8 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.4.0
       '@ckeditor/ckeditor5-utils': 47.4.0
       ckeditor5: 47.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-style@47.4.0':
     dependencies:
@@ -8497,14 +8497,6 @@ snapshots:
       es-toolkit: 1.39.5
     transitivePeerDependencies:
       - supports-color
-
-  '@ckeditor/strapi-plugin-ckeditor@1.1.2(@strapi/strapi@5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@swc/helpers@0.5.19)(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(esbuild@0.27.3)(koa@2.16.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(terser@5.46.0)(type-fest@4.41.0))(ckeditor5@47.4.0)(react@18.3.1)':
-    dependencies:
-      '@ckeditor/ckeditor5-react': 9.5.0(ckeditor5@47.4.0)(react@18.3.1)
-      '@strapi/strapi': 5.41.1(@babel/runtime@7.28.6)(@codemirror/autocomplete@6.20.1)(@codemirror/language@6.12.2)(@codemirror/lint@6.9.5)(@codemirror/search@6.6.0)(@codemirror/state@6.5.4)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.39.17)(@emotion/is-prop-valid@1.4.0)(@swc/helpers@0.5.19)(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14))(@types/node@25.4.0)(@types/react@19.2.14)(better-sqlite3@12.8.0)(codemirror@5.65.21)(esbuild@0.27.3)(koa@2.16.4)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@4.2.1)(styled-components@6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(terser@5.46.0)(type-fest@4.41.0)
-    transitivePeerDependencies:
-      - ckeditor5
-      - react
 
   '@codemirror/autocomplete@6.20.1':
     dependencies:

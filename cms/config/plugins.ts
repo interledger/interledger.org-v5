@@ -1,7 +1,11 @@
 import { MAX_MEDIA_BYTES } from '../src/utils/uploadLimits'
 
 export default () => ({
-  ckeditor: {
+  // Community plugin used by all rich-text fields (`plugin::ckeditor5.CKEditor`).
+  // Do not also enable the official `@ckeditor/strapi-plugin-ckeditor` package
+  // (plugin name `ckeditor`) — loading both double-registers core and throws
+  // `ckeditor-duplicated-modules` in the admin.
+  ckeditor5: {
     enabled: true
   },
   'split-layout-type-picker': {
