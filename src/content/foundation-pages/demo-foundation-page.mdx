@@ -2,19 +2,29 @@
 pathSlug: 'demo-foundation-page'
 title: 'Foundation Page Demo'
 heroTitle: 'Foundation Page Demo'
+heroDescription: 'A preview page containing sample content for every block available to foundation pages.'
 locale: 'en'
 description: 'Demo page for populating the foundation-page dynamic zone with sample block data.'
 ---
 
 <Paragraph>
 
-The cost of sending money across borders remains far higher than sending it over the Interledger network. The figures below illustrate the gap.[^1] Traditional remittance providers often charge a premium for cross-border transfers.[^2] Newer fintech alternatives have narrowed that gap, but a meaningful difference remains.[^3]
+This demo page gives editors and developers a compact preview of the content blocks available on foundation pages. The placeholder copy is intentionally specific enough to test typography, links, lists, inline emphasis, and longer sentences without implying that the details are final editorial content.
 
-[^1]: Average cost to send 1 USDT (Tether, the largest stablecoin pegged to the US dollar) on August 5, 2025 per [GasFeesNow](https://gasfeesnow.com).
+Blocks covered on this page:
 
-[^2]: Average price for a $200 bank initiated cross-border transfer, according to the [World Bank](https://remittanceprices.worldbank.org) (Q3, 2024).
+- Paragraph (lists, links, footnotes)
+- Split layout (image/video + text/quote)
+- Profile grid
+- Blockquote
+- CTA strip
+- PDF embed and video embed
+- **Card grid** — all variants: Title, Resource, Info, Navigation
+- Logo carousel
 
-[^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024).
+Use this paragraph to review standard prose spacing, inline formatting, and footnotes.[^foundation-demo]
+
+[^foundation-demo]: Demo footnote for validating article-style references in a foundation page paragraph.
 
 | Method                         | Typical fee (send $200) | Typical settlement time |
 | ------------------------------ | ----------------------- | ----------------------- |
@@ -63,13 +73,52 @@ The cost of sending money across borders remains far higher than sending it over
 
 <SplitLayout
   layoutType="image-text"
-  imageSrc="/img/foundation-blog/education-grant.jpg"
-  imageAlt="Bowie State students and their professor"
+  imagePosition="right"
+  displayRatio="2:1"
+  imageSrc="/uploads/img/original/demo_image1_45cfe556e1.jpg"
+  imageAlt="People collaborating around laptops during a payments workshop"
+  ctaText="Explore the work"
+  ctaLink="/about-us"
+  ctaStyle="primary"
 >
 
-Interledger-funded programs pair open payment infrastructure with hands-on fellowships, giving participants practical experience that carries directly into fintech, open banking, and digital inclusion careers.
+Open payment networks depend on communities that test ideas in the real world. This sample split layout shows how an image, descriptive body copy, and a call to action work together inside a two-column story block.
 
 </SplitLayout>
+
+<SplitLayout
+  layoutType="image-quote"
+  imagePosition="left"
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/erica.png"
+  imageAlt="Portrait of a community leader"
+  quote="Interoperability becomes useful when people can move value with the same confidence they already expect from the web."
+  quoteSource="Demo speaker, Interledger community"
+/>
+
+<SplitLayout
+  layoutType="video-text"
+  imagePosition="right"
+  displayRatio="1:2"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  ctaText="Watch more"
+  ctaLink="https://interledger.org"
+  ctaStyle="secondary"
+  ctaExternal={true}
+>
+
+Video blocks are useful for explainers, event recaps, and partner stories. This placeholder text tests a media-heavy split layout with an external call to action and a wider video column.
+
+</SplitLayout>
+
+<SplitLayout
+  layoutType="video-quote"
+  imagePosition="left"
+  displayRatio="1:1"
+  videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  quote="A good demo page lets a team spot layout problems before the content calendar is on fire."
+  quoteSource="Preview note"
+/>
 
 <ProfileGrid
   heading="Featured Profiles"
@@ -77,13 +126,153 @@ Interledger-funded programs pair open payment infrastructure with hands-on fello
     'grant/fellowship/xiaoji-song',
     'grant/fellowship/sheena-allen',
     'grant/fellowship/victoria-coker',
-    'grant/fellowship/stephanie-perrin',
-    'grant/fellowship/kokayi-walker',
-    'grant/fellowship/gavin-chait',
-    'grant/fellowship/santosh-viswanatham',
-    'grant/fellowship/smriti-parsheera'
+    'grant/fellowship/stephanie-perrin'
   ]}
 />
+
+<Blockquote source="Interledger Foundation demo">
+  Financial inclusion is easier to imagine when people can see practical
+  examples of wallets, grants, policy work, and open infrastructure sharing the
+  same page.
+</Blockquote>
+
+<CtaStrip
+  heading="Ready to preview a campaign section?"
+  primaryButtonText="Start with grants"
+  primaryButtonLink="/grants"
+  secondaryButtonText="Read the blog"
+  secondaryButtonLink="/blog"
+  color="green"
+>
+  Use this call-to-action strip to confirm headline wrapping, markdown
+  description rendering, and primary plus secondary button states.
+</CtaStrip>
+
+<PdfEmbed
+  url="https://interledger.org/documents/interledger.pdf"
+  label="Download the Interledger overview PDF"
+/>
+
+<VideoEmbed
+  url="https://www.youtube.com/watch?v=oJNFsO3k7LM"
+  title="Interledger demo video"
+/>
+
+<Paragraph>
+
+## Card grid
+
+Foundation pages can use every Card Grid variant. Each grid below uses one
+variant only — never mix card types in the same grid.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Foundation title cards" variant="Title" columns="Two">
+  <TitleCard
+    heading="Grantmaking"
+    subheading="Program area"
+    buttonText="View grant programs"
+    buttonUrl="/grants"
+  >
+    Support experimental work that expands access to digital financial systems
+    and gives communities room to test practical payment ideas.
+  </TitleCard>
+  <TitleCard
+    heading="Policy"
+    subheading="Research area"
+    buttonText="Read policy updates"
+    buttonUrl="/blog"
+  >
+    Share findings, convene partners, and turn technical lessons into accessible
+    guidance for public-interest payment infrastructure.
+  </TitleCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Foundation resource cards"
+  variant="Resource"
+  columns="Three"
+>
+  <ResourceCard
+    heading="Application Guide"
+    buttonText="Open PDF"
+    buttonUrl="/documents/2025-application-guide.pdf"
+    buttonDocument={true}
+  >
+    A placeholder resource card for downloadable guides, forms, reports, and
+    other documents that need clear labels.
+  </ResourceCard>
+  <ResourceCard
+    heading="Community Notes"
+    buttonText="Read notes"
+    buttonUrl="/blog"
+  >
+    A resource card for updates that explain what teams learned during
+    implementation, research, or convening.
+  </ResourceCard>
+  <ResourceCard
+    heading="External Reference"
+    buttonText="Visit site"
+    buttonUrl="https://interledger.org"
+    buttonExternal={true}
+  >
+    A resource card that verifies external-link handling and long-but-readable
+    supporting text.
+  </ResourceCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Foundation information cards"
+  variant="Info"
+  columns="Three"
+>
+  <InfoCard heading="Audience">
+    Builders, researchers, grantees, and policy teams can all use this block for
+    concise summaries.
+  </InfoCard>
+  <InfoCard heading="Status">
+    Use short body copy to test equal card heights, heading rhythm, and spacing
+    across columns.
+  </InfoCard>
+  <InfoCard heading="Outcome">
+    Each information card should explain one idea clearly without needing a
+    separate call to action.
+  </InfoCard>
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Foundation navigation card"
+  variant="Navigation"
+  columns="One"
+>
+  <NavigationCard
+    heading="Continue to the community section"
+    buttonText="Browse community"
+    buttonUrl="/community"
+  />
+</CardGrid>
+
+<CardGrid
+  ariaLabel="Foundation navigation cards"
+  variant="Navigation"
+  columns="Three"
+>
+  <NavigationCard
+    heading="Learn about the Foundation"
+    buttonText="About us"
+    buttonUrl="/about-us"
+  />
+  <NavigationCard
+    heading="Explore grant opportunities"
+    buttonText="View grants"
+    buttonUrl="/grants"
+  />
+  <NavigationCard
+    heading="Follow community updates"
+    buttonText="Read blog"
+    buttonUrl="/blog"
+  />
+</CardGrid>
 
 <Agenda
   heading={'Community Day — 12 June 2026'}
@@ -182,128 +371,24 @@ Interledger-funded programs pair open payment infrastructure with hands-on fello
 />
 
 <LogoCarousel
-  heading="In partnership with"
-  accessibilityLabel="Partner logos"
+  heading="Sample Partners"
+  accessibilityLabel="Sample partner logos"
   logos={[
     {
       name: 'Covenant',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0000_Covenant_logo-328x350.avif'
     },
     {
-      name: 'Western Sydney University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0001_WSU_Logo_LeftAligned_Centred_RGB.avif'
-    },
-    {
-      name: 'USIU',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0002_USIU-Logo-with-Tagline.avif'
-    },
-    {
       name: 'University of Cape Town',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0003_UCT-Logo.avif'
-    },
-    {
-      name: 'HHS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0004_HHS_EN_grijs_HEX.avif'
-    },
-    {
-      name: 'Boise State University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0005_bsu-logo_yllw-flame-blk-text_highres-(1).avif'
-    },
-    {
-      name: 'Atlanta University Center Consortium',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0006_Atlanta-UCConsortium.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0007_AAMU-logo.avif'
-    },
-    {
-      name: 'KANZU',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0008_KANZU.avif'
-    },
-    {
-      name: 'Wallet Guru',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0009_Wallet-Guru.avif'
-    },
-    {
-      name: 'W3C',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0010_W3C-Symbol.avif'
-    },
-    {
-      name: 'Social Web Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0011_swf-logo-black-on-white---Evan-Prodromou.avif'
-    },
-    {
-      name: 'Super Bloom',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0012_Super-Bloom-.avif'
-    },
-    {
-      name: 'Small Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0013_small-foundation-logo-vector.avif'
-    },
-    {
-      name: 'Ripple',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0014_Ripple_(payment_protocol)-Logo.wine.avif'
-    },
-    {
-      name: 'PCH',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0015_PCH-Banner-Azul_-sinFondo.avif'
-    },
-    {
-      name: 'Open Wallet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0016_OpenWallet_Foundation_Logo_Color.avif'
-    },
-    {
-      name: 'Nepal Internet Foundation',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0017_NIF-Logo---Nepal-Internet-Foundation.avif'
     },
     {
       name: 'Mojaloop',
       src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0018_Mojaloop.avif'
     },
     {
-      name: 'MiPlata',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0019_MiPlata-Logo---Blue---Loreto-Zumalacarregui-Calderon.avif'
-    },
-    {
-      name: 'CTS',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0020_Marca_CTS---Hannah-JD.avif'
-    },
-    {
-      name: 'JoPACC',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0021_jopacc_new_logo_transparent_0.avif'
-    },
-    {
-      name: 'Gatehub',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0022_Gatehub_Logo.avif'
-    },
-    {
-      name: 'Fliqa',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0023_Fliqa_logo.avif'
-    },
-    {
-      name: 'CG',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0024_CG-Banner-Azul_sinFondo.avif'
-    },
-    {
-      name: 'Breakpoint',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0025_Breakpoint_logo_square.avif'
-    },
-    {
-      name: 'Blaze Group',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0026_Blaze-group.avif'
-    },
-    {
-      name: 'Article 19',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0027_Article_19_logo.svg.avif'
-    },
-    {
-      name: 'Alliance',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0028_Alliance_MainLogo_New---Sarah-Corley.avif'
-    },
-    {
-      name: 'Alabama A&M University',
-      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0029_AAMU-logo.avif'
+      name: 'Open Wallet Foundation',
+      src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0016_OpenWallet_Foundation_Logo_Color.avif'
     }
   ]}
 />

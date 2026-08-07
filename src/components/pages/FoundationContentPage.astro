@@ -12,13 +12,16 @@ import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -113,10 +116,13 @@ if (isNotFound) return Astro.redirect('/404')
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
+              InfoCard,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
               NumberTiles,
               Agenda,
-              TitleCardGrid,
-              TitleCard,
               Faq,
               FaqItem,
               LogoCarousel

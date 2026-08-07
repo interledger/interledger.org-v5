@@ -34,8 +34,42 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
 import { tryCatchAsync, getProjectRoot, validateLocalImageUrl } from '@/utils'
+import {
+  formatCardGridVariantList,
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from '../../src/utils/cardGrid'
 import path from 'path'
 import fs from 'fs'
+
+/**
+ * Reject CardGrid blocks whose variant is not allowed on this content type
+ * (grant page → Info only, grant overview → Title only).
+ */
+function assertCardGridVariantsAllowed(
+  content: unknown,
+  contentTypeUid: string
+): void {
+  const allowed = getAllowedCardGridVariants(contentTypeUid)
+  if (!Array.isArray(content)) return
+  const label = formatCardGridVariantList(allowed)
+  for (const [index, block] of content.entries()) {
+    if (
+      !block ||
+      typeof block !== 'object' ||
+      (block as { __component?: string }).__component !== 'blocks.card-grid'
+    ) {
+      continue
+    }
+    const variant = (block as { variant?: unknown }).variant
+    if (typeof variant !== 'string') continue
+    if (!isCardGridVariantAllowed(variant, contentTypeUid)) {
+      throw new Error(
+        `Card grid at content[${index}] uses variant "${variant}", but this content type only allows ${label}.`
+      )
+    }
+  }
+}
 
 export interface StrapiUploadContext {
   strapi: StrapiClient
@@ -668,6 +702,7 @@ export async function buildGrantPagePayload(
       : undefined
 
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    assertCardGridVariantsAllowed(content, 'api::grant-page.grant-page')
 
     return {
       title: parsed.title,
@@ -752,6 +787,10 @@ export async function buildGrantOverviewPagePayload(
       : undefined
 
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    assertCardGridVariantsAllowed(
+      content,
+      'api::grant-overview-page.grant-overview-page'
+    )
 
     return {
       title: parsed.title,
@@ -926,11 +965,11 @@ export async function buildReportPayload(
 /** Dynamic-zone components allowed in hackathon-pages MDX/Strapi content. */
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
+  'blocks.card-grid',
   'blocks.number-tiles',
   'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',
-  'blocks.title-card-grid',
   'blocks.carousel',
   'blocks.faq',
   'blocks.quote'

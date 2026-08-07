@@ -1,0 +1,84 @@
+---
+/**
+ * Navigation card — white bordered card with an inset orchid accent bar
+ * (rounded ends, not a flush border) and secondary CTA.
+ */
+import LinkButton from './LinkButton.astro'
+import Icon from './Icon.astro'
+import { buildUmamiAttrs, ensureLeadingSlash, isExternalHref } from '@/utils'
+
+interface Props {
+  heading: string
+  buttonUrl: string
+  buttonText: string
+  buttonExternal?: boolean
+  buttonDocument?: boolean
+}
+
+const {
+  heading,
+  buttonUrl,
+  buttonText,
+  buttonExternal = false,
+  buttonDocument = false
+} = Astro.props
+
+const { routeLocale } = Astro.locals
+// Absolute http(s) URLs must not get a leading slash (e.g. partner PDFs).
+const isAbsoluteHttp = isExternalHref(buttonUrl)
+const external = buttonExternal || isAbsoluteHttp
+const href = isAbsoluteHttp ? buttonUrl : ensureLeadingSlash(buttonUrl)
+
+const overlayTargetAttrs = external
+  ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
+  : {}
+const overlayUmamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  section: 'card',
+  href,
+  linkText: buttonText
+})
+
+// Figma default uses the bidirectional swap icon; external/document override.
+const trailingIcon = buttonDocument
+  ? 'download'
+  : external
+    ? 'external-link'
+    : 'swap'
+---
+
+<article
+  class="relative flex h-full gap-lg rounded-3xl border border-neutral-50 bg-white p-xl tablet:gap-xl"
+>
+  <div
+    class="w-1.5 shrink-0 self-stretch rounded-full bg-orchid-100"
+    aria-hidden="true"
+  >
+  </div>
+  <div class="flex min-w-0 flex-1 flex-col justify-between gap-xl">
+    <h3
+      class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg"
+    >
+      {heading}
+    </h3>
+    <LinkButton
+      href={href}
+      variant="secondary"
+      size="lg"
+      external={external}
+      document={buttonDocument}
+      class="self-start z-[1]"
+    >
+      {buttonText}
+      <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+    </LinkButton>
+  </div>
+  <a
+    href={href}
+    aria-hidden="true"
+    tabindex="-1"
+    class="absolute inset-0 z-0"
+    {...overlayTargetAttrs}
+    {...overlayUmamiAttrs}></a>
+</article>

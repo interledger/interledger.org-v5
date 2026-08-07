@@ -4,16 +4,19 @@ import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
-import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
 import Quote from '@/components/blocks/Quote.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 import {
   type Locale,
   useTranslations,
@@ -58,13 +61,13 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
 
 <HackathonPageLayout title={title} description={description} noindex={noindex}>
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="hackathon-content flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl text-neutral-0 tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="mx-auto max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
-        class="mt-2xl text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg"
+        class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
       >
         {title}
       </h1>
@@ -75,11 +78,14 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
         <MdxContent
           components={{
             Paragraph,
+            InfoCard,
             NumberTiles,
             Agenda,
             SplitLayout,
-            TitleCardGrid,
             TitleCard,
+            CardGrid,
+            ResourceCard,
+            NavigationCard,
             Faq,
             FaqItem,
             Quote,
@@ -91,3 +97,16 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     </div>
   </main>
 </HackathonPageLayout>
+
+<style>
+  .hackathon-content {
+    color: var(--color-neutral-0);
+  }
+
+  .hackathon-content
+    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
+      [data-component='CardGrid'] *
+    ):not(section[aria-labelledby='logo-carousel-heading'] *) {
+    color: var(--color-neutral-0);
+  }
+</style>

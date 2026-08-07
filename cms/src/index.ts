@@ -18,11 +18,16 @@ import {
   validateBlogFields,
   validatePodcastPageFields,
   validateNavigationLabels,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
+  toValidationError,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
-import { validateContentBlocks } from './serializers/blocks'
+import {
+  validateContentBlocks,
+  sanitizeCardGridsInDocumentData
+} from './serializers/blocks'
 import { errors } from '@strapi/utils'
 import {
   formatFileSize,
@@ -34,6 +39,18 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
+
+const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
+  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
+    variant.cardsField,
+    variant.fieldLabel
+  ])
+)
+
+const CARD_GRID_CARD_FIELD_LAYOUT = CARD_GRID_VARIANT_DEFINITIONS.map(
+  (variant) => [{ name: variant.cardsField, size: 12 }]
+)
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -1049,7 +1066,23 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.card-grid': {
+      ariaLabel: 'Accessibility label',
+      variant: 'Card variant',
+      columns: 'Columns',
+      ...CARD_GRID_ADMIN_FIELD_LABELS
+    },
+    'blocks.resource-card': {
+      heading: 'Heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
+    'blocks.navigation-card': {
+      heading: 'Heading',
+      secondaryCta: 'Secondary call-to-action button'
     },
     'shared.report-date': {
       publishDate: 'Publish Date',
@@ -1196,11 +1229,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
-    'blocks.title-card-grid': {
-      titleCards: 'Title cards',
-      columns: 'Columns',
-      ariaLabel: 'Accessibility label'
-    },
     'blocks.title-card': {
       heading: 'Heading',
       subHeading: 'Sub heading',
@@ -1278,6 +1306,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
     },
+    'blocks.info-card': {
+      heading: 'Required card title.',
+      body: 'Required. Supports markdown including bullet lists.'
+    },
     'blocks.faq-section': {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
@@ -1314,7 +1346,27 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.',
+      // Clear any previously stored helper text for the variant custom field.
+      variant: '',
+      columns:
+        'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.'
+    },
+    'blocks.resource-card': {
+      heading: 'Required card title.',
+      description: 'Required. Supports markdown.',
+      secondaryCta: 'Required link button (internal, external, or document).'
+    },
+    'blocks.navigation-card': {
+      heading: 'Required card title.',
+      secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
       accessibilityLabel:
@@ -1714,18 +1766,42 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'cta', size: 12 }]
     ],
-    'blocks.title-card-grid': [
-      [
-        { name: 'columns', size: 4 },
-        { name: 'ariaLabel', size: 8 }
-      ],
-      [{ name: 'titleCards', size: 12 }]
-    ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'subHeading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.info-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'body', size: 12 }]
+    ],
+    'blocks.card-grid': [
+      [{ name: 'variant', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      ...CARD_GRID_CARD_FIELD_LAYOUT
+    ],
+    'blocks.resource-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.navigation-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'shared.secondary-cta-link': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'external', size: 6 },
+        { name: 'document', size: 6 }
+      ]
     ]
   }
   const componentMainFields: Record<string, string> = {
@@ -1805,6 +1881,17 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
+        // Drop inactive card-grid variant arrays before schema/business
+        // validation so empty Title/Resource/Info/Navigation fields that
+        // aren't the selected variant never fail the save. Sanitize can
+        // throw SerializerFieldError when multiple sections have cards —
+        // map that to a ValidationError so the admin highlights the field
+        // instead of returning a 500.
+        try {
+          sanitizeCardGridsInDocumentData(ctx.params.data)
+        } catch (err) {
+          throw toValidationError(err)
+        }
         const validationErr = validateNoNestedJsx(ctx.params.data?.content)
         if (validationErr) throw validationErr
       }
@@ -1824,6 +1911,10 @@ export default {
         validateGrantInfoCards(body),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined
+        ),
+        validateCardGridVariantsForContentType(
+          body,
+          'api::grant-page.grant-page'
         )
       )
     )
@@ -1835,6 +1926,10 @@ export default {
           validateCtaStrip(body),
           validateContentBlocks(
             Array.isArray(body.content) ? body.content : undefined
+          ),
+          validateCardGridVariantsForContentType(
+            body,
+            'api::grant-overview-page.grant-overview-page'
           )
         )
     )

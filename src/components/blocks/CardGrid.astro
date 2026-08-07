@@ -1,0 +1,216 @@
+---
+/**
+ * Unified card grid shell for card variants.
+ * Equal-height CSS grid; MDX authoring uses slot children, Strapi preview
+ * passes the variant-specific repeatable field.
+ */
+import TitleCard from '@/components/shared/TitleCard.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
+import { parseMarkdown } from '@/utils'
+
+const GRID_COLUMNS_CLASS = {
+  One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
+  Two: 'desktop:grid-cols-2',
+  Three: 'desktop:grid-cols-3'
+} as const satisfies Record<string, string>
+
+interface SecondaryCta {
+  link: string
+  text: string
+  external?: boolean
+  document?: boolean
+}
+
+interface StrapiCard {
+  heading: string
+  subHeading?: string
+  description?: string
+  body?: string
+  secondaryCta?: SecondaryCta
+}
+
+type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
+/** Variants that require a secondary CTA — named so template code can cast
+ * without TypeScript `Exclude<…>` generics (angle brackets look like JSX to
+ * the Astro compiler and break the build). */
+type CtaCardVariant = 'Title' | 'Resource' | 'Navigation'
+type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
+
+interface Props {
+  ariaLabel: string
+  variant: string
+  columns: keyof typeof GRID_COLUMNS_CLASS
+  infoCards?: StrapiCard[]
+  titleCards?: StrapiCard[]
+  resourceCards?: StrapiCard[]
+  navigationCards?: StrapiCard[]
+}
+
+const {
+  ariaLabel,
+  variant,
+  columns,
+  infoCards,
+  titleCards,
+  resourceCards,
+  navigationCards
+}: Props = Astro.props
+const { routeLocale } = Astro.locals
+const cardGridPath = Astro.url.pathname
+const gridColumnsClass = GRID_COLUMNS_CLASS[columns]
+
+const cardsByVariant: Record<CardVariant, StrapiCard[] | undefined> = {
+  Info: infoCards,
+  Title: titleCards,
+  Resource: resourceCards,
+  Navigation: navigationCards
+}
+const isKnownVariant = variant in cardsByVariant
+
+if (!isKnownVariant) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `Skipping CardGrid on ${cardGridPath}: unknown variant "${variant}".`
+  )
+}
+
+const cards = isKnownVariant
+  ? cardsByVariant[variant as CardVariant]
+  : undefined
+
+const htmlCards =
+  cards && cards.length > 0
+    ? await Promise.all(
+        cards.map(async (card) => {
+          const markdownSource =
+            variant === 'Info' ? card.body : card.description
+          const html = markdownSource
+            ? await parseMarkdown(markdownSource, {
+                page: 'card',
+                pathname: Astro.url.pathname,
+                lang: routeLocale
+              })
+            : undefined
+          return { ...card, html }
+        })
+      )
+    : null
+
+// Defense-in-depth: validateCardGrid requires secondaryCta for Title /
+// Resource / Navigation at save time. Incomplete cards (MDX import, old
+// content, bypass paths) still render a visible placeholder so the grid
+// layout and the missing CTA are obvious — not only a server console.warn.
+function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
+  return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
+}
+
+function warnMissingSecondaryCta(
+  card: StrapiCard,
+  cardVariant: CtaCardVariant
+): void {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `CardGrid ${cardVariant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA; rendering incomplete placeholder.`
+  )
+}
+---
+
+<section
+  data-component="CardGrid"
+  aria-label={ariaLabel}
+  class="mt-6xl mb-6xl [&_h3]:!mb-0"
+>
+  <div
+    class:list={[
+      'grid grid-cols-1 gap-lg tablet:gap-xl',
+      columns === 'One' ? 'tablet:grid-cols-1' : 'tablet:grid-cols-2',
+      gridColumnsClass
+    ]}
+  >
+    {
+      htmlCards ? (
+        htmlCards.map((card) => {
+          if (variant === 'Info') {
+            return (
+              <InfoCard heading={card.heading}>
+                <Fragment set:html={card.html} />
+              </InfoCard>
+            )
+          }
+
+          // Do not use Exclude<…> here — angle brackets are parsed as JSX.
+          const cardVariant = variant as CtaCardVariant
+          if (!hasSecondaryCta(card)) {
+            warnMissingSecondaryCta(card, cardVariant)
+            const incompleteAriaLabel =
+              (card.heading || 'Card') + ': missing call-to-action'
+            return (
+              <article
+                class="flex h-full flex-col gap-lg rounded-3xl border border-dashed border-coral-red-150 bg-coral-red-50 p-xl text-neutral-900"
+                data-card-incomplete
+                aria-label={incompleteAriaLabel}
+              >
+                <h3 class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg">
+                  {card.heading || 'Untitled card'}
+                </h3>
+                {card.subHeading && (
+                  <p class="m-0 text-body-sm-standard text-neutral-75">
+                    {card.subHeading}
+                  </p>
+                )}
+                {card.html && (
+                  <div class="text-body-sm-standard" set:html={card.html} />
+                )}
+                <p class="m-0 mt-auto text-body-sm-standard text-coral-red-150">
+                  This card is missing a call-to-action link and cannot be used
+                  yet. Add a button link and label in the CMS or MDX.
+                </p>
+              </article>
+            )
+          }
+
+          if (cardVariant === 'Title') {
+            return (
+              <TitleCard
+                heading={card.heading}
+                subheading={card.subHeading}
+                buttonUrl={card.secondaryCta.link}
+                buttonText={card.secondaryCta.text}
+                buttonExternal={card.secondaryCta.external}
+                buttonDocument={card.secondaryCta.document}
+              >
+                <Fragment set:html={card.html} />
+              </TitleCard>
+            )
+          }
+          if (cardVariant === 'Resource') {
+            return (
+              <ResourceCard
+                heading={card.heading}
+                buttonUrl={card.secondaryCta.link}
+                buttonText={card.secondaryCta.text}
+                buttonExternal={card.secondaryCta.external}
+                buttonDocument={card.secondaryCta.document}
+              >
+                <Fragment set:html={card.html} />
+              </ResourceCard>
+            )
+          }
+          return (
+            <NavigationCard
+              heading={card.heading}
+              buttonUrl={card.secondaryCta.link}
+              buttonText={card.secondaryCta.text}
+              buttonExternal={card.secondaryCta.external}
+              buttonDocument={card.secondaryCta.document}
+            />
+          )
+        })
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</section>

@@ -81,7 +81,7 @@
         "blocks.cta-strip",
         "blocks.carousel",
         "blocks.number-tiles",
-        "blocks.title-card-grid"
+        "blocks.card-grid"
       ]
     },
     "followUpContent": {

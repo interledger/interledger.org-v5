@@ -12,13 +12,16 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -61,7 +64,7 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
   noindex={noindex}
 >
   <main
-    class="relative z-0 pb-3xl before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
+    class="summit-content relative z-0 pb-3xl text-neutral-0 before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
     <TranslationDisclaimer isVisible={isFallback} style="summit" />
     {
@@ -104,10 +107,17 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
       )
     }
     <section class="py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+      <!--
+        Content-width shell (@container) with narrow prose inside. Card grids
+        break out to 100cqw so three-across layouts aren't squeezed into
+        max-w-narrow (720px).
+      -->
+      <div
+        class="@container mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]"
+      >
         <div
           data-prose-summit
-          class="mx-auto max-w-narrow [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
+          class="mx-auto max-w-narrow [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline [&_[data-component=EventCard]]:w-[100cqw] [&_[data-component=EventCard]]:max-w-[100cqw] [&_[data-component=EventCard]]:relative [&_[data-component=EventCard]]:left-1/2 [&_[data-component=EventCard]]:-translate-x-1/2"
         >
           <MdxContent
             components={{
@@ -122,10 +132,13 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
+              InfoCard,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
               NumberTiles,
               Agenda,
-              TitleCardGrid,
-              TitleCard,
               Faq,
               FaqItem,
               LogoCarousel
@@ -136,3 +149,27 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
     </section>
   </main>
 </SummitPageLayout>
+
+<style>
+  .summit-content {
+    color: var(--color-neutral-0);
+  }
+
+  .summit-content
+    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
+      [data-component='CardGrid'] *
+    ):not([data-component='CtaStrip'] *):not(
+      section[aria-labelledby='logo-carousel-heading'] *
+    ) {
+    color: var(--color-neutral-0);
+  }
+
+  /* Expand card grids to the content shell; prose stays max-w-narrow. */
+  [data-prose-summit] [data-component='CardGrid'] {
+    width: 100cqw;
+    max-width: 100cqw;
+    position: relative;
+    left: 50%;
+    translate: -50% 0;
+  }
+</style>

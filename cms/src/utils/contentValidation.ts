@@ -8,6 +8,12 @@
 import { errors } from '@strapi/utils'
 import type { NavigationData } from './navigationLifecycle'
 import type { PageData } from './pageLifecycle'
+import {
+  CARD_GRID_VARIANTS,
+  formatCardGridVariantList,
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from './cardGrid'
 
 export interface FieldError {
   path: Array<string | number>
@@ -751,6 +757,48 @@ export function validateNavigationLabels(
       message: 'CTA Button: Label is required',
       path: ['ctaButton', 'label']
     })
+  }
+
+  return combineFieldErrors(fieldErrors)
+}
+
+/**
+ * Restrict Card Grid variants by content type (grant pages → Info only,
+ * grant overview → Title only). Foundation/summit/hackathon allow every
+ * variant, so this is a no-op for those UIDs.
+ *
+ * Same `blocks.card-grid` component everywhere; this is the save-time gate
+ * that matches the admin picker filter.
+ */
+export function validateCardGridVariantsForContentType(
+  body: unknown,
+  contentTypeUid: string
+): errors.ValidationError | undefined {
+  const allowed = getAllowedCardGridVariants(contentTypeUid)
+  if (allowed.length === CARD_GRID_VARIANTS.length) return undefined
+
+  const content = (body as { content?: unknown })?.content
+  if (!Array.isArray(content)) return undefined
+
+  const fieldErrors: FieldError[] = []
+  const allowedLabel = formatCardGridVariantList(allowed)
+
+  for (const [index, block] of content.entries()) {
+    if (
+      !block ||
+      typeof block !== 'object' ||
+      (block as { __component?: string }).__component !== 'blocks.card-grid'
+    ) {
+      continue
+    }
+    const variant = (block as { variant?: unknown }).variant
+    if (typeof variant !== 'string' || !variant.trim()) continue
+    if (!isCardGridVariantAllowed(variant, contentTypeUid)) {
+      fieldErrors.push({
+        message: `Card grid variant must be ${allowedLabel} on this content type. Received "${variant}".`,
+        path: ['content', index, 'variant']
+      })
+    }
   }
 
   return combineFieldErrors(fieldErrors)
