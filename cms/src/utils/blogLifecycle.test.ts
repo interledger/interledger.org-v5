@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { generateBlogMDX, resolveBlogEnglishSlug } from '@/utils'
+import {
+  generateBlogMDX,
+  resolveBlogEnglishSlug,
+  stampBlogLocale
+} from '@/utils'
 
 // Minimal BlogResult factory — only the fields generateBlogMDX reads matter.
 // Cast through unknown because the test deliberately omits Strapi-only fields.
@@ -21,6 +25,24 @@ function makePost(overrides: Record<string, unknown> = {}) {
     ...overrides
   } as unknown as Parameters<typeof generateBlogMDX>[0]
 }
+
+describe('stampBlogLocale', () => {
+  it('keeps a present locale from the document', () => {
+    expect(stampBlogLocale({ locale: 'es' }, 'en')).toBe('es')
+  })
+
+  it('uses the requested locale when the document omits locale', () => {
+    // Regression: Strapi sometimes returns ES documents without locale set.
+    // Without this stamp, export defaulted to en and dropped localizes.
+    expect(stampBlogLocale({ locale: undefined }, 'es')).toBe('es')
+    expect(stampBlogLocale({ locale: null }, 'es')).toBe('es')
+    expect(stampBlogLocale({ locale: '   ' }, 'es')).toBe('es')
+  })
+
+  it('falls back to defaultLang when both are empty', () => {
+    expect(stampBlogLocale({ locale: undefined }, '')).toBe('en')
+  })
+})
 
 describe('resolveBlogEnglishSlug', () => {
   it('prefers an explicit englishSlug argument', () => {
@@ -125,29 +147,18 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).toMatch(/^localizes:\s*'english-path'/m)
   })
 
-  it('still writes locale and localizes when locale was missing on the post', () => {
-    // Simulates Strapi omiting locale on the document payload.
-    const mdx = generateBlogMDX(
-      makePost({
-        locale: 'es',
-        pathSlug: 'test-post',
-        localizations: []
-      })
-    )
-    // After writeMDXFile stamps locale; generateBlogMDX itself defaults missing
-    // locale to en — callers must pass locale. Stamp it as writeMDXFile does.
-    const stamped = generateBlogMDX(
-      makePost({
-        locale: undefined,
-        pathSlug: 'test-post',
-        localizations: []
-      } as Record<string, unknown>)
-    )
-    // Missing locale defaults to en — no localizes (by design for EN).
-    expect(stamped).toMatch(/^locale:\s*'en'/m)
-    expect(stamped).not.toMatch(/^localizes:/m)
+  it('writes locale and localizes after stamping a missing document locale as es', () => {
+    // Strapi omitted locale on the document; fetchBlogPost stamps the
+    // requested locale before generateBlogMDX runs.
+    const postFromStrapi = makePost({
+      locale: undefined,
+      pathSlug: 'test-post',
+      localizations: []
+    } as Record<string, unknown>)
+    const locale = stampBlogLocale(postFromStrapi, 'es')
+    const mdx = generateBlogMDX({ ...postFromStrapi, locale })
 
-    // With locale stamped (as writeMDXFile / fetchBlogPost do):
+    expect(locale).toBe('es')
     expect(mdx).toMatch(/^locale:\s*'es'/m)
     expect(mdx).toMatch(/^localizes:\s*'test-post'/m)
   })

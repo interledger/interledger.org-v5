@@ -140,7 +140,8 @@ export {
 export {
   createBlogLifecycle,
   generateBlogMDX,
-  resolveBlogEnglishSlug
+  resolveBlogEnglishSlug,
+  stampBlogLocale
 } from './blogLifecycle'
 export {
   type ProfileMdxCta,

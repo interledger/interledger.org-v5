@@ -74,6 +74,18 @@ interface BlogEvent {
 }
 
 /**
+ * Prefer the document's own locale when present; otherwise use the locale we
+ * requested from Strapi. Document payloads sometimes omit `locale`, which used
+ * to make ES exports drop both `locale: es` and `localizes`.
+ */
+export function stampBlogLocale(
+  post: { locale?: string | null },
+  requestedLocale: string
+): string {
+  return post.locale?.trim() || requestedLocale.trim() || defaultLang
+}
+
+/**
  * Re-fetch blog post with full populate for dynamiczone content.
  * Lifecycle event.result doesn't populate dynamiczone `on` params —
  * same pattern as pageLifecycle.ts fetchPublished().
@@ -99,12 +111,10 @@ async function fetchBlogPost(
       }
     })
     if (!post) return null
-    // Strapi document responses sometimes omit `locale`; stamp the locale we
-    // requested so ES exports always write `locale: es` + `localizes`.
+    const stamped = post as unknown as BlogResult
     return {
-      ...(post as unknown as BlogResult),
-      locale:
-        (post as { locale?: string }).locale?.trim() || locale || defaultLang
+      ...stamped,
+      locale: stampBlogLocale(stamped, locale)
     }
   } catch (error) {
     console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
