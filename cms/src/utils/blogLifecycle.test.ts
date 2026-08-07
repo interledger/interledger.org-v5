@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   generateBlogMDX,
   resolveBlogEnglishSlug,
+  resolveBlogMdxFilename,
   stampBlogLocale
 } from '@/utils'
 
@@ -37,6 +38,11 @@ describe('stampBlogLocale', () => {
     expect(stampBlogLocale({ locale: undefined }, 'es')).toBe('es')
     expect(stampBlogLocale({ locale: null }, 'es')).toBe('es')
     expect(stampBlogLocale({ locale: '   ' }, 'es')).toBe('es')
+  })
+
+  it('trusts a reported locale that differs from the request (no overwrite)', () => {
+    // e.g. asked for es but i18n fell back to the EN document
+    expect(stampBlogLocale({ locale: 'en' }, 'es')).toBe('en')
   })
 
   it('falls back to defaultLang when both are empty', () => {
@@ -79,6 +85,68 @@ describe('resolveBlogEnglishSlug', () => {
         makePost({ locale: 'es', pathSlug: 'shared-slug', localizations: [] })
       )
     ).toBe('shared-slug')
+  })
+})
+
+describe('resolveBlogMdxFilename — write/delete path parity', () => {
+  it('uses the English slug for Spanish filenames when pathSlugs differ', () => {
+    // Mirrors the afterDelete bug: lifecycle result has no localizations, so
+    // the englishSlug must come from a separate EN fetch (passed explicitly).
+    expect(
+      resolveBlogMdxFilename(
+        {
+          locale: 'es',
+          pathSlug: 'es-slug',
+          date: '2026-06-10',
+          localizations: []
+        },
+        'en-slug'
+      )
+    ).toBe('2026-06-10-en-slug.mdx')
+  })
+
+  it('does not fall back to localizations[0] when that entry is not EN', () => {
+    // Old delete path used localizations[0]?.pathSlug, which can be wrong.
+    expect(
+      resolveBlogMdxFilename(
+        {
+          locale: 'es',
+          pathSlug: 'es-slug',
+          date: '2026-06-10',
+          localizations: [{ pathSlug: 'wrong-first', locale: 'fr' }]
+        },
+        'en-slug'
+      )
+    ).toBe('2026-06-10-en-slug.mdx')
+  })
+
+  it('defaults missing locale to en so delete does not aim at the wrong tree', () => {
+    // getOutputPath(undefined) hits the EN root; filename must still use own slug.
+    expect(
+      resolveBlogMdxFilename(
+        {
+          locale: undefined,
+          pathSlug: 'en-slug',
+          date: '2026-06-10',
+          localizations: []
+        },
+        undefined
+      )
+    ).toBe('2026-06-10-en-slug.mdx')
+  })
+
+  it('uses own pathSlug for English filenames', () => {
+    expect(
+      resolveBlogMdxFilename(
+        {
+          locale: 'en',
+          pathSlug: 'en-slug',
+          date: '2026-06-10',
+          localizations: []
+        },
+        'ignored-for-en'
+      )
+    ).toBe('2026-06-10-en-slug.mdx')
   })
 })
 
