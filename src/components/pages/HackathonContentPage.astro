@@ -4,10 +4,10 @@ import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
-import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -18,6 +18,9 @@ import EventApply from '@/components/shared/EventApply.astro'
 import Quote from '@/components/blocks/Quote.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 import {
   type Locale,
   useTranslations,
@@ -79,11 +82,14 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
         <MdxContent
           components={{
             Paragraph,
+            InfoCard,
             NumberTiles,
             Agenda,
             SplitLayout,
-            TitleCardGrid,
             TitleCard,
+            CardGrid,
+            ResourceCard,
+            NavigationCard,
             Faq,
             FaqItem,
             EventCard,
@@ -105,11 +111,13 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     color: var(--color-neutral-0);
   }
 
-  /* Light body text for hackathon chrome; dark-on-white EventCard opts out. */
+  /* Light body text for hackathon chrome; dark-on-white blocks opt out. */
   .hackathon-content
     :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
       [data-component='EventCard'] *
-    ):not(section[aria-labelledby='logo-carousel-heading'] *) {
+    ):not([data-component='CardGrid'] *):not(
+      section[aria-labelledby='logo-carousel-heading'] *
+    ) {
     color: var(--color-neutral-0);
   }
 </style>

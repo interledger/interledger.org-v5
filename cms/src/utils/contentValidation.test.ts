@@ -11,11 +11,17 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
+  validatePodcastPageFields,
   validateBlogFields,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
 } from '@/utils'
+import {
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from './cardGrid'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -666,6 +672,111 @@ describe('validateHeroFields', () => {
   })
 })
 
+describe('validatePodcastPageFields', () => {
+  const validPodcast = {
+    title: 'Episode 1',
+    description: 'About the episode.',
+    url: 'https://podcast.example.com/embed',
+    series: 'Future Money'
+  }
+
+  const validTitleCard = {
+    heading: 'Future Money',
+    description: 'A series about money.',
+    secondaryCta: { text: 'Listen', link: '/podcast' }
+  }
+
+  const validBody = {
+    hero: { title: 'F|M podcast' },
+    titleCards: {
+      columns: 'Three',
+      ariaLabel: 'Featured series',
+      titleCards: [validTitleCard]
+    },
+    podcasts: [validPodcast],
+    ctaStrip: {
+      heading: 'Listen now',
+      description: 'Catch every episode.',
+      primaryButtonText: 'Listen',
+      primaryButtonLink: '/podcast'
+    }
+  }
+
+  it('returns undefined for a complete valid page', () => {
+    expect(validatePodcastPageFields(validBody)).toBeUndefined()
+  })
+
+  it('flags missing required top-level components', () => {
+    const err = validatePodcastPageFields({})
+    expect(err?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['hero'],
+        ['titleCards'],
+        ['podcasts'],
+        ['ctaStrip']
+      ])
+    )
+  })
+
+  it('flags hero title when hero is present but empty', () => {
+    const err = validatePodcastPageFields({
+      ...validBody,
+      hero: { title: '' }
+    })
+    expect(err?.details.errors.map((e) => e.path)).toContainEqual([
+      'hero',
+      'title'
+    ])
+  })
+
+  it('flags empty podcasts list and incomplete episodes', () => {
+    const emptyList = validatePodcastPageFields({
+      ...validBody,
+      podcasts: []
+    })
+    expect(emptyList?.details.errors.map((e) => e.path)).toContainEqual([
+      'podcasts'
+    ])
+
+    const incomplete = validatePodcastPageFields({
+      ...validBody,
+      podcasts: [
+        { title: '', description: 'd', url: '', series: 'Future Money' }
+      ]
+    })
+    expect(incomplete?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['podcasts', '0', 'title'],
+        ['podcasts', '0', 'url']
+      ])
+    )
+  })
+
+  it('flags title card gaps with index-aware paths', () => {
+    const err = validatePodcastPageFields({
+      ...validBody,
+      titleCards: {
+        columns: 'Three',
+        ariaLabel: '',
+        titleCards: [
+          {
+            heading: '',
+            description: 'd',
+            secondaryCta: { text: 'Go', link: '' }
+          }
+        ]
+      }
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        ['titleCards', 'ariaLabel'],
+        ['titleCards', 'titleCards', '0', 'heading'],
+        ['titleCards', 'titleCards', '0', 'secondaryCta', 'link']
+      ])
+    )
+  })
+})
+
 describe('validateBlogFields', () => {
   it('returns undefined when both fields are absent', () => {
     expect(validateBlogFields({})).toBeUndefined()
@@ -856,5 +967,68 @@ describe('validateReportDate', () => {
   it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
     const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
     expect(err?.message).toBe('Date: Publish Date is required')
+  })
+})
+
+describe('card grid variant restrictions', () => {
+  it('allows only Info on grant pages', () => {
+    expect(getAllowedCardGridVariants('api::grant-page.grant-page')).toEqual([
+      'Info'
+    ])
+    expect(isCardGridVariantAllowed('Info', 'api::grant-page.grant-page')).toBe(
+      true
+    )
+    expect(
+      isCardGridVariantAllowed('Title', 'api::grant-page.grant-page')
+    ).toBe(false)
+  })
+
+  it('allows only Title on grant overview pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::grant-overview-page.grant-overview-page')
+    ).toEqual(['Title'])
+  })
+
+  it('allows every variant on foundation pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::foundation-page.foundation-page')
+    ).toEqual(['Info', 'Title', 'Resource', 'Navigation'])
+  })
+
+  it('rejects a Title card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Title',
+            ariaLabel: 'Programs',
+            columns: 'Three',
+            titleCards: []
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeDefined()
+    expect(err?.message).toMatch(/Info/)
+  })
+
+  it('accepts an Info card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Info',
+            ariaLabel: 'Details',
+            columns: 'Three',
+            infoCards: [{ heading: 'A', body: 'B' }]
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeUndefined()
   })
 })

@@ -48,11 +48,11 @@
       "type": "dynamiczone",
       "components": [
         "blocks.paragraph",
+        "blocks.card-grid",
         "blocks.number-tiles",
         "blocks.agenda",
         "blocks.split-layout",
         "blocks.profile-grid",
-        "blocks.title-card-grid",
         "blocks.carousel",
         "blocks.faq",
         "blocks.event-card",

@@ -37,8 +37,13 @@ const GRANT_BLOCKS = {
   'blocks.number-tiles': {
     populate: { tiles: true }
   },
-  'blocks.title-card-grid': {
-    populate: { titleCards: { populate: { secondaryCta: true } } }
+  'blocks.card-grid': {
+    populate: {
+      titleCards: { populate: { secondaryCta: true } },
+      resourceCards: { populate: { secondaryCta: true } },
+      infoCards: true,
+      navigationCards: { populate: { secondaryCta: true } }
+    }
   },
   'shared.cta-link': {}
 } as const
@@ -75,8 +80,13 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.number-tiles': {
     populate: { tiles: true }
   },
-  'blocks.title-card-grid': {
-    populate: { titleCards: { populate: { secondaryCta: true } } }
+  'blocks.card-grid': {
+    populate: {
+      titleCards: { populate: { secondaryCta: true } },
+      resourceCards: { populate: { secondaryCta: true } },
+      infoCards: true,
+      navigationCards: { populate: { secondaryCta: true } }
+    }
   },
   'blocks.carousel': {
     populate: { logos: true }
@@ -129,6 +139,14 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.card-grid': {
+      populate: {
+        titleCards: { populate: { secondaryCta: true } },
+        resourceCards: { populate: { secondaryCta: true } },
+        infoCards: true,
+        navigationCards: { populate: { secondaryCta: true } }
+      }
+    },
     'blocks.number-tiles': {
       populate: { tiles: true }
     },
@@ -140,9 +158,6 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.profile-grid': {
       populate: { profiles: true }
-    },
-    'blocks.title-card-grid': {
-      populate: { titleCards: { populate: { secondaryCta: true } } }
     },
     'blocks.carousel': {
       populate: { logos: true }
@@ -208,5 +223,21 @@ export const GRANT_OVERVIEW_PAGE_CONTENT_POPULATE = {
   content: {
     on: { ...GRANT_BLOCKS }
   },
+  ctaStrip: true
+} as const
+
+/** Populate config for podcast-page top-level component fields. No dynamic zone — everything is a page-owned repeatable component. */
+export const PODCAST_PAGE_CONTENT_POPULATE = {
+  hero: {
+    populate: {
+      media: { populate: { image: true } },
+      backgroundImageMobile: true,
+      hero_call_to_action: true
+    }
+  },
+  titleCards: {
+    populate: { titleCards: { populate: { secondaryCta: true } } }
+  },
+  podcasts: true,
   ctaStrip: true
 } as const

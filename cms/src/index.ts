@@ -16,12 +16,18 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
+  validatePodcastPageFields,
   validateNavigationLabels,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
+  toValidationError,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
-import { validateContentBlocks } from './serializers/blocks'
+import {
+  validateContentBlocks,
+  sanitizeCardGridsInDocumentData
+} from './serializers/blocks'
 import { errors } from '@strapi/utils'
 import {
   formatFileSize,
@@ -33,6 +39,18 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
+
+const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
+  CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
+    variant.cardsField,
+    variant.fieldLabel
+  ])
+)
+
+const CARD_GRID_CARD_FIELD_LAYOUT = CARD_GRID_VARIANT_DEFINITIONS.map(
+  (variant) => [{ name: variant.cardsField, size: 12 }]
+)
 
 function copySchemas() {
   const srcDir = path.join(__dirname, '../../src')
@@ -870,6 +888,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       introParagraph: 'Intro Paragraph',
       date: 'Date',
       content: 'Content'
+    },
+    'api::podcast-page.podcast-page': {
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      hero: 'Hero',
+      titleCards: 'Title Cards',
+      podcasts: 'Podcasts',
+      ctaStrip: 'CTA Strip'
     }
   }
 
@@ -916,6 +943,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
+    'api::podcast-page.podcast-page': {
+      pathSlug:
+        'Path relative to the site root, no leading slash. CMS-authored — use "podcast" for the live /podcast page. Multiple entries are allowed; each is routed by its own pathSlug.',
+      description:
+        'Short description used for SEO. Aim for 120–160 characters.',
+      titleCards:
+        'List every featured podcast series shown at the top of the page.',
+      podcasts:
+        'The full list of podcast episodes. Author in chronological order (oldest first); the site displays newest first.'
+    },
     'api::foundation-blog-post.foundation-blog-post': {
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
@@ -927,8 +964,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page.',
       featureMedia: 'Desktop feature image (required). Dimensions: 720 x 428.',
       featureImageMobile:
-        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty.',
-      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.'
+        'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
+      thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
+      relatedArticles:
+        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
     'api::faq.faq': {
       pathSlug:
@@ -998,6 +1037,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quote: 'Quote',
       source: 'Source'
     },
+    'blocks.podcast-item': {
+      title: 'Title',
+      description: 'Description',
+      url: 'URL',
+      series: 'Series'
+    },
     'blocks.quote': {
       quote: 'Quote',
       authorName: 'Author Name',
@@ -1021,7 +1066,23 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.card-grid': {
+      ariaLabel: 'Accessibility label',
+      variant: 'Card variant',
+      columns: 'Columns',
+      ...CARD_GRID_ADMIN_FIELD_LABELS
+    },
+    'blocks.resource-card': {
+      heading: 'Heading',
+      description: 'Description',
+      secondaryCta: 'Secondary call-to-action button'
+    },
+    'blocks.navigation-card': {
+      heading: 'Heading',
+      secondaryCta: 'Secondary call-to-action button'
     },
     'shared.report-date': {
       publishDate: 'Publish Date',
@@ -1094,7 +1155,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       heading: 'Section Heading',
       logos: 'Logos',
-      accessibilityLabel: 'Accessible label (screen readers only)'
+      accessibilityLabel: 'Accessibility label'
     },
     'blocks.number-tiles': {
       tiles: 'Tiles'
@@ -1188,11 +1249,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button'
     },
-    'blocks.title-card-grid': {
-      titleCards: 'Title cards',
-      columns: 'Columns',
-      ariaLabel: 'Accessibility label'
-    },
     'blocks.title-card': {
       heading: 'Heading',
       subHeading: 'Sub heading',
@@ -1216,7 +1272,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       media:
         'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
       backgroundImageMobile:
-        "Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Shares the desktop image's alternative text."
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
     },
     'shared.report-date': {
       lastUpdated:
@@ -1238,6 +1294,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.paragraph': {
       content:
         'Footnotes: write [^1] inline, then [^1]: Your note at the end of this block.'
+    },
+    'blocks.podcast-item': {
+      description: 'Ideally within 225 characters.',
+      url: 'A Castopod or YouTube embed link, e.g. https://podcast.interledger.org/@futuremoneypodcast/episodes/example-embed'
     },
     'blocks.image-block': {
       tabletImage:
@@ -1265,6 +1325,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.info-cards': {
       heading:
         'Optional. When filled in, renders as three information cards before the CTA strip. Heading is optional; all three cards require both a heading and body.'
+    },
+    'blocks.info-card': {
+      heading: 'Required card title.',
+      body: 'Required. Supports markdown including bullet lists.'
     },
     'blocks.faq-section': {
       heading:
@@ -1299,14 +1363,34 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.title-card-grid': {
       ariaLabel:
-        'Used by screen readers to describe this group of cards. This text is not visible on the page.'
+        'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.card-grid': {
+      ariaLabel:
+        'Used by screen readers to describe this group of cards. This text is not visible on the page.',
+      // Clear any previously stored helper text for the variant custom field.
+      variant: '',
+      columns:
+        'Desktop layout. One column is only for Navigation. Resource grids need at least two cards and cannot use One.'
+    },
+    'blocks.resource-card': {
+      heading: 'Required card title.',
+      description: 'Required. Supports markdown.',
+      secondaryCta: 'Required link button (internal, external, or document).'
+    },
+    'blocks.navigation-card': {
+      heading: 'Required card title.',
+      secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
       accessibilityLabel:
-        'Describes this group of logos for screen reader users. Not visible on the page.',
+        'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
       logos:
         'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
     },
@@ -1538,6 +1622,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'ctaStrip', size: 12 }],
       [{ name: 'followUpContent', size: 12 }]
     ],
+    'api::podcast-page.podcast-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'titleCards', size: 12 }],
+      [{ name: 'podcasts', size: 12 }],
+      [{ name: 'ctaStrip', size: 12 }]
+    ],
     'api::grant-page.grant-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
@@ -1584,6 +1677,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
+    ],
+    'blocks.podcast-item': [
+      [
+        { name: 'title', size: 6 },
+        { name: 'series', size: 6 }
+      ],
+      [{ name: 'url', size: 12 }],
+      [{ name: 'description', size: 12 }]
     ],
     'blocks.cards-grid': [
       [{ name: 'heading', size: 12 }],
@@ -1729,18 +1830,42 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'cta', size: 12 }]
     ],
-    'blocks.title-card-grid': [
-      [
-        { name: 'columns', size: 4 },
-        { name: 'ariaLabel', size: 8 }
-      ],
-      [{ name: 'titleCards', size: 12 }]
-    ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'subHeading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.info-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'body', size: 12 }]
+    ],
+    'blocks.card-grid': [
+      [{ name: 'variant', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      ...CARD_GRID_CARD_FIELD_LAYOUT
+    ],
+    'blocks.resource-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.navigation-card': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'shared.secondary-cta-link': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'external', size: 6 },
+        { name: 'document', size: 6 }
+      ]
     ]
   }
   const componentMainFields: Record<string, string> = {
@@ -1820,6 +1945,17 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
+        // Drop inactive card-grid variant arrays before schema/business
+        // validation so empty Title/Resource/Info/Navigation fields that
+        // aren't the selected variant never fail the save. Sanitize can
+        // throw SerializerFieldError when multiple sections have cards —
+        // map that to a ValidationError so the admin highlights the field
+        // instead of returning a 500.
+        try {
+          sanitizeCardGridsInDocumentData(ctx.params.data)
+        } catch (err) {
+          throw toValidationError(err)
+        }
         const validationErr = validateNoNestedJsx(ctx.params.data?.content)
         if (validationErr) throw validationErr
       }
@@ -1839,6 +1975,10 @@ export default {
         validateGrantInfoCards(body),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined
+        ),
+        validateCardGridVariantsForContentType(
+          body,
+          'api::grant-page.grant-page'
         )
       )
     )
@@ -1850,6 +1990,10 @@ export default {
           validateCtaStrip(body),
           validateContentBlocks(
             Array.isArray(body.content) ? body.content : undefined
+          ),
+          validateCardGridVariantsForContentType(
+            body,
+            'api::grant-overview-page.grant-overview-page'
           )
         )
     )
@@ -1904,6 +2048,11 @@ export default {
             Array.isArray(body.content) ? body.content : undefined
           )
         )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::podcast-page.podcast-page',
+      (body) => validatePodcastPageFields(body)
     )
 
     // Normalize nav href fields (force leading slash), then validate required

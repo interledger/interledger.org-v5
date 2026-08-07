@@ -9,7 +9,9 @@ import {
   getStringAttr,
   getBooleanAttr,
   getStringArrayAttr,
-  getChildElements
+  getChildElements,
+  getMismatchedChildElements,
+  getLooseChildText
 } from './jsxExtract'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -220,5 +222,121 @@ describe('getChildElements', () => {
     const node = parseJsx(['<Grid>', 'Just text.', '</Grid>'].join('\n'))
 
     expect(getChildElements(node, 'Card')).toEqual([])
+  })
+
+  it('collects multiple same-line self-closing cards in one paragraph', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" /><Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => getStringAttr(c, 'id'))).toEqual(['1', '2'])
+  })
+
+  it('collects cards mixed with text siblings in one paragraph', () => {
+    // remark wraps the line as one paragraph with text + two JSX elements.
+    // Previously only single-child paragraphs were unwrapped, so both cards
+    // vanished and authors saw "requires at least one card".
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />Oops <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    const cards = getChildElements(node, 'Card')
+
+    expect(cards).toHaveLength(2)
+    expect(cards.map((c) => getStringAttr(c, 'id'))).toEqual(['1', '2'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getMismatchedChildElements
+// ---------------------------------------------------------------------------
+
+describe('getMismatchedChildElements', () => {
+  it('collects element children whose name does not match', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Other id="2" />', '</Grid>'].join('\n')
+    )
+
+    const mismatched = getMismatchedChildElements(node, 'Card')
+
+    expect(mismatched).toHaveLength(1)
+    expect(mismatched[0].name).toBe('Other')
+  })
+
+  it('returns an empty array when every element child matches', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '<Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getMismatchedChildElements(node, 'Card')).toEqual([])
+  })
+
+  it('ignores non-element children such as plain text', () => {
+    const node = parseJsx(
+      ['<Grid>', 'Just text.', '<Card id="1" />', '</Grid>'].join('\n')
+    )
+
+    expect(getMismatchedChildElements(node, 'Card')).toEqual([])
+  })
+
+  it('collects mismatched tags mixed with matching cards on one line', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" /> <Other id="2" />', '</Grid>'].join('\n')
+    )
+
+    const mismatched = getMismatchedChildElements(node, 'Card')
+
+    expect(mismatched).toHaveLength(1)
+    expect(mismatched[0].name).toBe('Other')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getLooseChildText
+// ---------------------------------------------------------------------------
+
+describe('getLooseChildText', () => {
+  it('returns null when children are only matching cards and whitespace', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />  <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toBeNull()
+  })
+
+  it('returns null for multi-line cards with blank lines between them', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '', '<Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toBeNull()
+  })
+
+  it('finds inline text siblings next to a card (the Oops case)', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />Oops <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toMatchObject({
+      preview: 'Oops'
+    })
+  })
+
+  it('finds a standalone text paragraph under the parent', () => {
+    const node = parseJsx(
+      ['<Grid>', 'Just text.', '<Card id="1" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toMatchObject({
+      preview: 'Just text.'
+    })
+  })
+
+  it('returns null when there are no children', () => {
+    const node = parseJsx('<Grid />')
+    expect(getLooseChildText(node)).toBeNull()
   })
 })

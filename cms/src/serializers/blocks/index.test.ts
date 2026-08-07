@@ -138,7 +138,8 @@ describe('validateContentBlocks', () => {
     const err = validateContentBlocks([
       { __component: 'blocks.paragraph', content: 'First block, valid.' },
       {
-        __component: 'blocks.title-card-grid',
+        __component: 'blocks.card-grid',
+        variant: 'Title',
         columns: 'Two',
         titleCards: [{}]
       }
@@ -151,7 +152,8 @@ describe('validateContentBlocks', () => {
     const err = validateContentBlocks([
       { __component: 'blocks.paragraph', content: '' },
       {
-        __component: 'blocks.title-card-grid',
+        __component: 'blocks.card-grid',
+        variant: 'Title',
         columns: 'Two',
         titleCards: [{}]
       }
@@ -161,5 +163,41 @@ describe('validateContentBlocks', () => {
     expect(paths).toContainEqual(['content', '0'])
     expect(paths).toContainEqual(['content', '1', 'ariaLabel'])
     expect(paths).toContainEqual(['content', '1', 'titleCards', '0', 'heading'])
+  })
+
+  it('rejects a Resource card grid with fewer than two cards on save (edit-time gate)', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.card-grid',
+        ariaLabel: 'Resources',
+        variant: 'Resource',
+        columns: 'Two',
+        resourceCards: [
+          {
+            heading: 'Only one',
+            description: 'Needs a sibling.',
+            secondaryCta: { link: '/a', text: 'Open' }
+          }
+        ]
+      }
+    ])
+
+    expect(err).toBeDefined()
+    expect(err?.message).toMatch(/at least two cards/i)
+  })
+
+  it('rejects One column for a non-Navigation card grid on save', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.card-grid',
+        ariaLabel: 'Info',
+        variant: 'Info',
+        columns: 'One',
+        infoCards: [{ heading: 'Why', body: 'Because.' }]
+      }
+    ])
+
+    expect(err).toBeDefined()
+    expect(err?.message).toMatch(/Navigation/i)
   })
 })

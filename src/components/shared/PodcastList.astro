@@ -1,0 +1,35 @@
+---
+/**
+ * Podcast List — renders the /podcast page's fixed episode list.
+ * podcasts is a plain frontmatter array (page-owned, not a relation), so
+ * there's no category/relation lookup here — just a direct map.
+ */
+import PodcastItem from './PodcastItem.astro'
+import type { Podcast } from '@/types/podcast'
+
+interface Props {
+  podcasts: Podcast[]
+  theme?: 'light' | 'dark'
+}
+
+const { podcasts, theme = 'light' } = Astro.props
+const isDark = theme === 'dark'
+
+// Authored in chronological order; the newest episode (last in the list) shows first.
+const orderedPodcasts = [...podcasts].reverse()
+---
+
+<ul class="m-0 flex list-none flex-col p-0" role="list">
+  {
+    orderedPodcasts.map((podcast) => (
+      <li
+        class:list={[
+          'border-b py-3xl first:pt-0 last:border-b-0 last:pb-0',
+          isDark ? 'border-neutral-75' : 'border-neutral-50'
+        ]}
+      >
+        <PodcastItem podcast={podcast} theme={theme} />
+      </li>
+    ))
+  }
+</ul>

@@ -12,13 +12,16 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Link from '@/components/shared/Link.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import TitleCardGrid from '@/components/blocks/TitleCardGrid.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import ResourceCard from '@/components/shared/ResourceCard.astro'
+import NavigationCard from '@/components/shared/NavigationCard.astro'
 import Agenda from '@/components/blocks/Agenda.astro'
 import Faq from '@/components/blocks/Faq.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -110,8 +113,8 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
     <section class="py-4xl">
       <!--
         Content-width shell (@container) with narrow prose inside. Full-width
-        blocks (EventCard) break out to 100cqw so multi-column layouts aren't
-        squeezed into max-w-narrow (720px).
+        blocks (EventCard, CardGrid) break out to 100cqw so multi-column layouts
+        aren't squeezed into max-w-narrow (720px).
       -->
       <div
         class="@container mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]"
@@ -133,10 +136,13 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
               CtaStrip,
               PdfEmbed,
               VideoEmbed,
+              InfoCard,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
               NumberTiles,
               Agenda,
-              TitleCardGrid,
-              TitleCard,
               Faq,
               FaqItem,
               EventCard,
@@ -161,19 +167,19 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
   .summit-content
     :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
       [data-component='EventCard'] *
-    ):not([data-component='CtaStrip'] *):not(
+    ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
       section[aria-labelledby='logo-carousel-heading'] *
     ) {
     color: var(--color-neutral-0);
   }
 
   /*
-   * Expand Event Card to the content shell; prose stays max-w-narrow.
-   * :global on EventCard — its <section> is rendered by EventCard.astro, so
-   * Astro never stamps this page's scope attribute on it. Without :global the
-   * compiled selector can't match and the card stays pinned at 720px.
+   * Expand full-width blocks to the content shell; prose stays max-w-narrow.
+   * :global — child components' roots are not stamped with this page's Astro
+   * scope attribute, so unscoped selectors never match.
    */
-  [data-prose-summit] :global([data-component='EventCard']) {
+  [data-prose-summit] :global([data-component='EventCard']),
+  [data-prose-summit] :global([data-component='CardGrid']) {
     width: 100cqw;
     max-width: 100cqw;
     position: relative;

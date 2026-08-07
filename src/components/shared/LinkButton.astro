@@ -18,6 +18,12 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   iconOnly?: ButtonIconOnly
   iconSide?: ButtonIconSide
   external?: boolean
+  /**
+   * Document / file CTA: sets the native `download` attribute (same-origin
+   * downloads; cross-origin may still open inline depending on CORS) and the
+   * screen-reader "(downloads a file)" hint.
+   */
+  document?: boolean
   ariaDisabled?: boolean
   class?: string
 }
@@ -25,6 +31,7 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
 const {
   href,
   external = false,
+  document: isDocument = false,
   ariaDisabled = false,
   variant,
   mode,
@@ -61,16 +68,43 @@ const targetAttrs = external
 // the link.
 const resolvedHref = ariaDisabled ? undefined : href
 
+// Prefer a filename from the path when present (e.g. /docs/guide.pdf → guide.pdf).
+// Empty string still enables the download attribute with the URL's default name.
+const downloadAttr = (() => {
+  if (!isDocument || !resolvedHref) return undefined
+  try {
+    const path = resolvedHref.startsWith('http')
+      ? new URL(resolvedHref).pathname
+      : (resolvedHref.split('?')[0] ?? resolvedHref)
+    const base = path.split('/').filter(Boolean).pop()
+    return base && base.includes('.') ? base : ''
+  } catch {
+    return ''
+  }
+})()
+
 const ariaLabel =
   typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''
 
-const umamiAttrs = buildUmamiAttrs({
-  pathname: Astro.url.pathname,
-  lang: routeLocale,
-  section: 'link',
-  href: resolvedHref,
-  ariaLabel: ariaLabel
-})
+// Callers may pass explicit tracking attrs (buildUmamiAttrs or
+// buildDeferredUmamiAttrs). Those must win: spreading auto attrs after
+// rest would either overwrite data-umami-event* (losing section/action) or
+// leave both data-track-event* and data-umami-event* on the element
+// (double-fire + Umami still preventDefault-delays same-tab navigation).
+const restRecord = rest as Record<string, unknown>
+const callerProvidesTracking =
+  typeof restRecord['data-umami-event'] === 'string' ||
+  typeof restRecord['data-track-event'] === 'string'
+
+const umamiAttrs = callerProvidesTracking
+  ? {}
+  : buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      section: 'link',
+      href: resolvedHref,
+      ariaLabel: ariaLabel
+    })
 ---
 
 <a
@@ -88,6 +122,7 @@ const umamiAttrs = buildUmamiAttrs({
   )}
   data-component="LinkButton"
   {...targetAttrs}
+  download={downloadAttr}
   aria-disabled={ariaDisabled ? true : undefined}
   tabindex={ariaDisabled ? -1 : undefined}
   {...umamiAttrs}
@@ -96,4 +131,5 @@ const umamiAttrs = buildUmamiAttrs({
   <slot />
   <slot name="icon-right" />
   {external && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
+  {isDocument && <span class="sr-only">{t('aria.downloads_file')}</span>}
 </a>

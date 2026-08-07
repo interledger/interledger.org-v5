@@ -2,7 +2,7 @@
 import Icon from '@/components/shared/Icon.astro'
 import NavMenuLink from '@/components/shared/NavMenuLink.astro'
 import type { MenuGroup } from '@/types/navigation'
-import { buildUmamiAttrs, useTranslations } from '@/utils'
+import { buildDeferredUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
@@ -28,7 +28,7 @@ const navAttrs = (
   linkText?: string,
   action?: string
 ) =>
-  buildUmamiAttrs({
+  buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     section: 'nav',

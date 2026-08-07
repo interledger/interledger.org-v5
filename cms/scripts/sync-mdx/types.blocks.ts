@@ -11,6 +11,21 @@
  *
  */
 
+import {
+  CARD_GRID_COLUMNS,
+  type CardGridCard,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
+export {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANTS,
+  type CardGridCard,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
@@ -238,28 +253,13 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   external?: boolean
 }
 
-/** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
-export interface TitleCard {
-  heading: string
-  subHeading?: string
-  description: string
-  secondaryCta: {
-    link: string
-    text: string
-    external?: boolean
-  }
-}
-
-/** Valid values for blocks.title-card-grid's `columns` field. */
-export const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
-
-/** blocks.title-card-grid — grid of title cards, each with a heading, description, and CTA. */
-export interface TitleCardGridBlock extends StrapiBlockBase {
-  __component: 'blocks.title-card-grid'
+/** blocks.card-grid — unified card grid with variant-specific card fields. */
+export type CardGridBlock = StrapiBlockBase & {
+  __component: 'blocks.card-grid'
   ariaLabel: string
-  columns: (typeof TITLE_CARD_GRID_COLUMNS)[number]
-  titleCards: TitleCard[]
-}
+  variant: CardGridVariant
+  columns: (typeof CARD_GRID_COLUMNS)[number]
+} & Partial<Record<CardGridCardsField, CardGridCard[]>>
 
 /** blocks.faq-item — entry in faq's repeatable `items` field. No `__component`; it's a nested component, not a dynamic-zone block. */
 export interface FaqItem {
@@ -331,8 +331,8 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
+  | CardGridBlock
   | AgendaBlock
-  | TitleCardGridBlock
   | FaqBlock
   | EventCardBlock
   | CtaLinkBlock

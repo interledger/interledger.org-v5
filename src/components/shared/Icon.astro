@@ -25,6 +25,7 @@ interface Props {
     | 'arrow-down'
     | 'link-rounded'
     | 'external-link'
+    | 'download'
     | 'return-home'
     | 'mastodon'
     | 'slack'
@@ -73,6 +74,11 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   'external-link': {
     viewBox: '0 0 16 16',
     body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M11 1.5H14.5V5M13.75 2.25L10 6M8.5 2.5H4C3.60218 2.5 3.22064 2.65804 2.93934 2.93934C2.65804 3.22064 2.5 3.60218 2.5 4V12C2.5 12.3978 2.65804 12.7794 2.93934 13.0607C3.22064 13.342 3.60218 13.5 4 13.5H12C12.3978 13.5 12.7794 13.342 13.0607 13.0607C13.342 12.7794 13.5 12.3978 13.5 12V7.5"/>'
+  },
+
+  download: {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14"/>'
   },
 
   'return-home': {
