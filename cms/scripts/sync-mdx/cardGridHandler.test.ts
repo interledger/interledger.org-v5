@@ -156,6 +156,27 @@ describe('CardGrid handler', () => {
     )
   })
 
+  // getChildElements collects cards even when text siblings share the
+  // paragraph; without a loose-text check that prose is lost on sync.
+  it('rejects non-whitespace text siblings of card children', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="A">Body</InfoCard>Oops',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'CardGrid'
+    })
+    expect((result as MdxParserError).message).toMatch(
+      /unexpected text "Oops"/
+    )
+  })
+
   it('rejects a NavigationCard with children', async () => {
     const result = await parseMdxToBlocks(
       [

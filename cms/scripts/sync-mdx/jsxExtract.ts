@@ -734,3 +734,83 @@ export function getMismatchedChildElements(
   }
   return elements
 }
+
+export interface LooseChildText {
+  /** Trimmed preview of the stray text (capped for error messages). */
+  preview: string
+  line?: number
+  column?: number
+}
+
+const LOOSE_TEXT_PREVIEW_MAX = 40
+
+function isJsxElementNode(
+  node: RootContent
+): node is JsxBlockNode {
+  return (
+    node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
+  )
+}
+
+/**
+ * First non-whitespace, non-JSX content under `node` — including text
+ * siblings inside paragraph wrappers that also hold card tags.
+ *
+ * Whitespace between tags (`<Card />  <Card />`) is allowed. Authored
+ * prose like `<Card />Oops` is returned so handlers can fail instead of
+ * silently dropping it during MDX → Strapi sync.
+ *
+ * @example
+ * ```ts
+ * // <Grid>
+ * //   <Card />Oops
+ * // </Grid>
+ * getLooseChildText(node)  // → { preview: 'Oops', line, column }
+ * ```
+ */
+export function getLooseChildText(node: JsxBlockNode): LooseChildText | null {
+  for (const child of node.children) {
+    if (isJsxElementNode(child)) continue
+
+    if (child.type === 'paragraph') {
+      for (const inline of child.children) {
+        if (isJsxElementNode(inline)) continue
+        // Soft/hard breaks are layout only — not authored content.
+        if (inline.type === 'break') continue
+        if (inline.type === 'text') {
+          if (inline.value.trim() === '') continue
+          return {
+            preview: inline.value.trim().slice(0, LOOSE_TEXT_PREVIEW_MAX),
+            line: inline.position?.start.line,
+            column: inline.position?.start.column
+          }
+        }
+        // Emphasis, links, raw HTML, etc. also must not be dropped.
+        return {
+          preview: inline.type,
+          line: inline.position?.start.line,
+          column: inline.position?.start.column
+        }
+      }
+      continue
+    }
+
+    if (child.type === 'text') {
+      if (child.value.trim() === '') continue
+      return {
+        preview: child.value.trim().slice(0, LOOSE_TEXT_PREVIEW_MAX),
+        line: child.position?.start.line,
+        column: child.position?.start.column
+      }
+    }
+
+    // Lists, blockquotes, code, etc. are not card children.
+    return {
+      preview: child.type,
+      line: child.position?.start.line,
+      column: child.position?.start.column
+    }
+  }
+
+  return null
+}

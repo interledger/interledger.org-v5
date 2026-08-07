@@ -29,7 +29,8 @@ import {
   getStringAttr,
   getBooleanAttr,
   getChildElements,
-  getMismatchedChildElements
+  getMismatchedChildElements,
+  getLooseChildText
 } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -216,6 +217,19 @@ async function handleCardGrid(
         component: 'CardGrid',
         line: stray.position?.start.line ?? node.position?.start.line,
         column: stray.position?.start.column ?? node.position?.start.column
+      })
+    }
+
+    // getChildElements only collects matching tags — prose siblings like
+    // <InfoCard />Oops would otherwise sync the card and drop "Oops".
+    const looseText = getLooseChildText(node)
+    if (looseText) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `CardGrid variant="${variantAttr}" only accepts <${childName}> children. Found unexpected text "${looseText.preview}".`,
+        component: 'CardGrid',
+        line: looseText.line ?? node.position?.start.line,
+        column: looseText.column ?? node.position?.start.column
       })
     }
 

@@ -10,7 +10,8 @@ import {
   getBooleanAttr,
   getStringArrayAttr,
   getChildElements,
-  getMismatchedChildElements
+  getMismatchedChildElements,
+  getLooseChildText
 } from './jsxExtract'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
@@ -264,5 +265,54 @@ describe('getMismatchedChildElements', () => {
 
     expect(mismatched).toHaveLength(1)
     expect(mismatched[0].name).toBe('Other')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getLooseChildText
+// ---------------------------------------------------------------------------
+
+describe('getLooseChildText', () => {
+  it('returns null when children are only matching cards and whitespace', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />  <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toBeNull()
+  })
+
+  it('returns null for multi-line cards with blank lines between them', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />', '', '<Card id="2" />', '</Grid>'].join(
+        '\n'
+      )
+    )
+
+    expect(getLooseChildText(node)).toBeNull()
+  })
+
+  it('finds inline text siblings next to a card (the Oops case)', () => {
+    const node = parseJsx(
+      ['<Grid>', '<Card id="1" />Oops <Card id="2" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toMatchObject({
+      preview: 'Oops'
+    })
+  })
+
+  it('finds a standalone text paragraph under the parent', () => {
+    const node = parseJsx(
+      ['<Grid>', 'Just text.', '<Card id="1" />', '</Grid>'].join('\n')
+    )
+
+    expect(getLooseChildText(node)).toMatchObject({
+      preview: 'Just text.'
+    })
+  })
+
+  it('returns null when there are no children', () => {
+    const node = parseJsx('<Grid />')
+    expect(getLooseChildText(node)).toBeNull()
   })
 })
