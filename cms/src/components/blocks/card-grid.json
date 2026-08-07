@@ -1,0 +1,57 @@
+{
+  "collectionName": "components_blocks_card_grids",
+  "info": {
+    "displayName": "Card Grid",
+    "icon": "grid",
+    "description": "Unified grid for card variants. Equal-height CSS grid with 1/2/3 columns."
+  },
+  "options": {},
+  "attributes": {
+    "ariaLabel": {
+      "type": "string",
+      "required": true
+    },
+    "variant": {
+      "type": "customField",
+      "customField": "plugin::card-variant-picker.card-variant",
+      "required": true,
+      "default": "Info",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "columns": {
+      "type": "enumeration",
+      "enum": ["One", "Two", "Three"],
+      "default": "Three",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "infoCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.info-card"
+    },
+    "titleCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.title-card"
+    },
+    "resourceCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.resource-card"
+    },
+    "navigationCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.navigation-card"
+    }
+  }
+}

@@ -13,10 +13,15 @@ import {
   validateHeroFields,
   validatePodcastPageFields,
   validateBlogFields,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
 } from '@/utils'
+import {
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from './cardGrid'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -950,5 +955,68 @@ describe('validateReportDate', () => {
   it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
     const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
     expect(err?.message).toBe('Date: Publish Date is required')
+  })
+})
+
+describe('card grid variant restrictions', () => {
+  it('allows only Info on grant pages', () => {
+    expect(getAllowedCardGridVariants('api::grant-page.grant-page')).toEqual([
+      'Info'
+    ])
+    expect(isCardGridVariantAllowed('Info', 'api::grant-page.grant-page')).toBe(
+      true
+    )
+    expect(
+      isCardGridVariantAllowed('Title', 'api::grant-page.grant-page')
+    ).toBe(false)
+  })
+
+  it('allows only Title on grant overview pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::grant-overview-page.grant-overview-page')
+    ).toEqual(['Title'])
+  })
+
+  it('allows every variant on foundation pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::foundation-page.foundation-page')
+    ).toEqual(['Info', 'Title', 'Resource', 'Navigation'])
+  })
+
+  it('rejects a Title card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Title',
+            ariaLabel: 'Programs',
+            columns: 'Three',
+            titleCards: []
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeDefined()
+    expect(err?.message).toMatch(/Info/)
+  })
+
+  it('accepts an Info card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Info',
+            ariaLabel: 'Details',
+            columns: 'Three',
+            infoCards: [{ heading: 'A', body: 'B' }]
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeUndefined()
   })
 })

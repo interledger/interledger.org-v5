@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_blocks_event_card_applies",
+  "info": {
+    "displayName": "Event Card — Apply",
+    "icon": "cursor",
+    "description": "Application, registration, or interest actions (title and primary CTA required)"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "primaryCta": {
+      "type": "component",
+      "repeatable": false,
+      "required": true,
+      "component": "shared.primary-cta-link",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

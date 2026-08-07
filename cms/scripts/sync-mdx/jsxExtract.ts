@@ -50,7 +50,8 @@ function findAttr(
  *
  * @param node - JSX AST node
  * @param name - Attribute name
- * @param opts.required - When true, throws if the attribute is missing
+ * @param opts.required - When true, throws if the attribute is missing or
+ *   empty/whitespace-only (presence alone is not enough)
  * @returns The string value, or `undefined` if absent and not required
  */
 export function getStringAttr(
@@ -86,6 +87,18 @@ export function getStringAttr(
 
   // String literal: <Foo bar="baz" />
   if (typeof attr.value === 'string') {
+    // required: true means a usable value, not merely a present attribute.
+    // buttonUrl="" would otherwise pass and become link "/" after slash-prefix.
+    if (opts.required && attr.value.trim() === '') {
+      throw new MdxParserError({
+        code: ParserErrorCode.MISSING_REQUIRED_PROP,
+        message: `Required prop "${name}" is empty.`,
+        component: node.name ?? undefined,
+        prop: name,
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
     return attr.value
   }
 
@@ -653,29 +666,29 @@ export function getStaticLiteralAttr(
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve a child node to the JSX element it represents.
+ * Collect every JSX element a child node represents.
  *
- * A tag whose open and close are on the same line (e.g. `<Card>text</Card>`)
- * is inline content, so remark wraps it in a `paragraph` node — even when
- * it's that paragraph's only content. A tag spanning multiple lines (open
- * tag, then content, then close tag, each on their own line) is block-level
- * and needs no unwrapping. This resolves both forms to the same element.
+ * A same-line tag (e.g. `<Card>text</Card>`) is inline, so remark wraps it
+ * in a `paragraph` — alone or mixed with text / other tags. Multi-line tags
+ * are `mdxJsxFlowElement` and need no unwrapping. We must collect *all*
+ * inline JSX in a paragraph: with a single-child-only unwrap,
+ * `<Card /><Card />` (or `<Card />Oops <Card />`) would drop every card and
+ * surface a misleading "requires at least one card" error.
  */
-function toJsxElement(child: RootContent): JsxBlockNode | undefined {
+function collectJsxElements(child: RootContent): JsxBlockNode[] {
   if (
     child.type === 'mdxJsxFlowElement' ||
     child.type === 'mdxJsxTextElement'
   ) {
-    return child
+    return [child]
   }
-  if (
-    child.type === 'paragraph' &&
-    child.children.length === 1 &&
-    child.children[0].type === 'mdxJsxTextElement'
-  ) {
-    return child.children[0]
+  if (child.type === 'paragraph') {
+    return child.children.filter(
+      (c): c is JsxBlockNode =>
+        c.type === 'mdxJsxTextElement' || c.type === 'mdxJsxFlowElement'
+    )
   }
-  return undefined
+  return []
 }
 
 /**
@@ -697,10 +710,116 @@ export function getChildElements(
 ): JsxBlockNode[] {
   const elements: JsxBlockNode[] = []
   for (const child of node.children) {
-    const element = toJsxElement(child)
-    if (element && element.name === name) {
-      elements.push(element)
+    for (const element of collectJsxElements(child)) {
+      if (element.name === name) {
+        elements.push(element)
+      }
     }
   }
   return elements
+}
+
+/**
+ * Collect JSX element children of `node` whose tag name is not `name` —
+ * used to catch a stray or mistyped card component that `getChildElements`
+ * would otherwise silently filter out.
+ *
+ * @example
+ * ```ts
+ * // <Grid variant="Info">
+ * //   <InfoCard />
+ * //   <TitleCard />
+ * // </Grid>
+ * getMismatchedChildElements(node, 'InfoCard')  // → [titleCardNode]
+ * ```
+ */
+export function getMismatchedChildElements(
+  node: JsxBlockNode,
+  name: string
+): JsxBlockNode[] {
+  const elements: JsxBlockNode[] = []
+  for (const child of node.children) {
+    for (const element of collectJsxElements(child)) {
+      if (element.name !== name) {
+        elements.push(element)
+      }
+    }
+  }
+  return elements
+}
+
+export interface LooseChildText {
+  /** Trimmed preview of the stray text (capped for error messages). */
+  preview: string
+  line?: number
+  column?: number
+}
+
+const LOOSE_TEXT_PREVIEW_MAX = 40
+
+function isJsxElementNode(node: RootContent): node is JsxBlockNode {
+  return node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
+}
+
+/**
+ * First non-whitespace, non-JSX content under `node` — including text
+ * siblings inside paragraph wrappers that also hold card tags.
+ *
+ * Whitespace between tags (`<Card />  <Card />`) is allowed. Authored
+ * prose like `<Card />Oops` is returned so handlers can fail instead of
+ * silently dropping it during MDX → Strapi sync.
+ *
+ * @example
+ * ```ts
+ * // <Grid>
+ * //   <Card />Oops
+ * // </Grid>
+ * getLooseChildText(node)  // → { preview: 'Oops', line, column }
+ * ```
+ */
+export function getLooseChildText(node: JsxBlockNode): LooseChildText | null {
+  for (const child of node.children) {
+    if (isJsxElementNode(child)) continue
+
+    if (child.type === 'paragraph') {
+      for (const inline of child.children) {
+        if (isJsxElementNode(inline)) continue
+        // Soft/hard breaks are layout only — not authored content.
+        if (inline.type === 'break') continue
+        if (inline.type === 'text') {
+          if (inline.value.trim() === '') continue
+          return {
+            preview: inline.value.trim().slice(0, LOOSE_TEXT_PREVIEW_MAX),
+            line: inline.position?.start.line,
+            column: inline.position?.start.column
+          }
+        }
+        // Emphasis, links, raw HTML, etc. also must not be dropped.
+        return {
+          preview: inline.type,
+          line: inline.position?.start.line,
+          column: inline.position?.start.column
+        }
+      }
+      continue
+    }
+
+    if (child.type === 'text') {
+      if (child.value.trim() === '') continue
+      return {
+        preview: child.value.trim().slice(0, LOOSE_TEXT_PREVIEW_MAX),
+        line: child.position?.start.line,
+        column: child.position?.start.column
+      }
+    }
+
+    // Lists, blockquotes, code, etc. are not card children.
+    return {
+      preview: child.type,
+      line: child.position?.start.line,
+      column: child.position?.start.column
+    }
+  }
+
+  return null
 }

@@ -10,6 +10,7 @@ export {
   stripTrailingSlash,
   addTrailingSlash,
   ensureLeadingSlash,
+  hasUrlScheme,
   ensureAbsoluteUrl,
   isSafeMarkdownHref,
   isExternalHref,
