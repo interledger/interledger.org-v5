@@ -64,7 +64,7 @@ interface BlogResult {
   }[]
   categories?: { categoryValue: string }[]
   relatedArticles?: { slug: string }[]
-  localizations: { pathSlug: string }[]
+  localizations: { pathSlug?: string; locale?: string }[]
 }
 
 interface BlogEvent {
@@ -98,7 +98,14 @@ async function fetchBlogPost(
         content: BLOG_CONTENT_POPULATE
       }
     })
-    return post as unknown as BlogResult | null
+    if (!post) return null
+    // Strapi document responses sometimes omit `locale`; stamp the locale we
+    // requested so ES exports always write `locale: es` + `localizes`.
+    return {
+      ...(post as unknown as BlogResult),
+      locale:
+        (post as { locale?: string }).locale?.trim() || locale || defaultLang
+    }
   } catch (error) {
     console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
     return null
@@ -116,8 +123,44 @@ function generateFilename({
   return `${prefix}${pathSlug}.mdx`
 }
 
-export function generateBlogMDX(post: BlogResult) {
+/**
+ * Resolve the English pathSlug for a non-en blog export.
+ * Prefer an explicit englishSlug, then the en localization entry, then any
+ * localization pathSlug, then the post's own pathSlug (blogs share pathSlug).
+ */
+export function resolveBlogEnglishSlug(
+  post: BlogResult,
+  englishSlug?: string | null
+): string {
+  const fromArg = englishSlug?.trim()
+  if (fromArg) return fromArg
+
+  const localizations = post.localizations ?? []
+  const enEntry = localizations.find(
+    (entry) => (entry.locale || '').trim() === defaultLang
+  )
+  const fromEn = enEntry?.pathSlug?.trim()
+  if (fromEn) return fromEn
+
+  const fromAny = localizations
+    .find((entry) => entry.pathSlug?.trim())
+    ?.pathSlug?.trim()
+  if (fromAny) return fromAny
+
+  return (post.pathSlug || '').trim()
+}
+
+export function generateBlogMDX(
+  post: BlogResult,
+  options: { englishSlug?: string | null } = {}
+) {
   const yqs = yamlSingleQuoteScalar
+  const locale = (post.locale || defaultLang).trim() || defaultLang
+  const isLocalized = locale !== defaultLang
+  const englishSlug = isLocalized
+    ? resolveBlogEnglishSlug(post, options.englishSlug)
+    : undefined
+
   const articleBios =
     post.articleBio?.length > 0
       ? `articleBios:${post.articleBio
@@ -144,6 +187,7 @@ export function generateBlogMDX(post: BlogResult) {
           .join('')}`
       : null
 
+  // Stable order matching existing blog MDX (locale/localizes before images).
   const frontmatterLines = [
     `title: ${yqs(post.title)}`,
     `description: ${yqs(post.description)}`,
@@ -151,6 +195,11 @@ export function generateBlogMDX(post: BlogResult) {
     post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
     `featured: ${post.featured ?? false}`,
+    // Always write locale so ES files never lose `locale: es` on re-export.
+    `locale: ${yqs(locale)}`,
+    // Locale files must keep `localizes` pointing at the English pathSlug so
+    // sync-mdx can match translations.
+    isLocalized && englishSlug ? `localizes: ${yqs(englishSlug)}` : null,
     post.featureMedia?.image?.url
       ? `featureImage: ${yqs(post.featureMedia.image.url)}`
       : null,
@@ -189,11 +238,7 @@ export function generateBlogMDX(post: BlogResult) {
           })
           .join('')}`
       : null,
-    post.legacy ? `legacy: true` : null,
-    post.locale ? `locale: ${yqs(post.locale)}` : null,
-    post.localizations?.[0]?.pathSlug
-      ? `localizes: ${post.localizations[0].pathSlug}`
-      : null
+    post.legacy ? `legacy: true` : null
   ].filter(Boolean) as string[]
 
   const frontmatter = frontmatterLines.join('\n')
@@ -206,21 +251,24 @@ export function generateBlogMDX(post: BlogResult) {
 
 async function writeMDXFile({
   outputPath,
-  post
+  post,
+  englishSlug
 }: {
   outputPath: string
   post: BlogResult
+  englishSlug?: string | null
 }): Promise<string> {
+  const locale = (post.locale || defaultLang).trim() || defaultLang
+  const resolvedEnglishSlug = resolveBlogEnglishSlug(post, englishSlug)
   const filename = generateFilename({
     date: post.date,
-    pathSlug: resolveFilenameSlug(
-      post.locale,
-      post.pathSlug,
-      post.localizations?.[0]?.pathSlug
-    )
+    pathSlug: resolveFilenameSlug(locale, post.pathSlug, resolvedEnglishSlug)
   })
   const filepath = path.join(outputPath, filename)
-  const mdxContent = generateBlogMDX(post)
+  const mdxContent = generateBlogMDX(
+    { ...post, locale },
+    { englishSlug: resolvedEnglishSlug }
+  )
 
   await fs.promises.mkdir(outputPath, { recursive: true })
   await fs.promises.writeFile(filepath, await formatMdx(mdxContent), 'utf-8')
@@ -296,6 +344,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   async function exportAllBlogLocales(documentId: string): Promise<string[]> {
     const filepaths: string[] = []
     const enPost = await fetchBlogPost(documentId, defaultLang)
+    const englishSlug = enPost?.pathSlug
 
     for (const locale of LOCALES) {
       const post =
@@ -308,8 +357,9 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       }
       try {
         const filepath = await writeMDXFile({
-          outputPath: getOutputPath(post.locale),
-          post
+          outputPath: getOutputPath(locale),
+          post: { ...post, locale },
+          englishSlug
         })
         filepaths.push(filepath)
       } catch (error) {
@@ -327,12 +377,21 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     async afterCreate(event: BlogEvent) {
       const { result } = event
       if (!result || !result.publishedAt) return
-      const post = await fetchBlogPost(result.documentId, result.locale)
+      const locale = result.locale || defaultLang
+      const post = await fetchBlogPost(result.documentId, locale)
       if (shouldSkipMdxExport()) return
       if (!post) return
       const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
-      await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+      const enPost =
+        locale === defaultLang
+          ? post
+          : await fetchBlogPost(result.documentId, defaultLang)
+      await writeMDXFile({
+        outputPath: getOutputPath(locale),
+        post: { ...post, locale },
+        englishSlug: enPost?.pathSlug
+      })
       const ctx: SyncContext = {
         slug: post.pathSlug,
         action: 'create',
@@ -364,10 +423,8 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const { result } = event
       if (!result || !result.publishedAt) return
 
-      const currentLocalePost = await fetchBlogPost(
-        result.documentId,
-        result.locale
-      )
+      const locale = result.locale || defaultLang
+      const currentLocalePost = await fetchBlogPost(result.documentId, locale)
       if (shouldSkipMdxExport()) return
 
       const label = event.model.singularName
@@ -395,7 +452,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         if (!post) return
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
         try {
-          await writeMDXFile({ outputPath: getOutputPath(post.locale), post })
+          await writeMDXFile({
+            outputPath: getOutputPath(locale),
+            post: { ...post, locale },
+            englishSlug: enPost?.pathSlug
+          })
         } catch (error) {
           throw toValidationError(error)
         }
