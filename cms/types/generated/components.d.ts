@@ -659,8 +659,14 @@ export interface BlocksGrantFaqItem extends Struct.ComponentSchema {
     icon: 'question-circle'
   }
   attributes: {
-    answer: Schema.Attribute.Text &
+    answer: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

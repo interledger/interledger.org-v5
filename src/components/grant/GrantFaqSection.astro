@@ -1,10 +1,11 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { isExternalHref } from '@/utils'
+import { isExternalHref, parseMarkdown } from '@/utils'
 
 interface FaqItem {
   question: string
+  /** Markdown from the CKEditor `answer` field. */
   answer: string
 }
 
@@ -18,6 +19,17 @@ interface Props {
 }
 
 const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
+const { routeLocale } = Astro.locals
+
+const renderedItems = await Promise.all(
+  items.map(async (item) => ({
+    question: item.question,
+    answerHtml: await parseMarkdown(item.answer, {
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  }))
+)
 ---
 
 <div class="mx-auto max-w-content min-w-90">
@@ -58,7 +70,7 @@ const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
     <!-- Right column: accordion -->
     <div class="flex-1">
       {
-        items.map((item, index) => (
+        renderedItems.map((item, index) => (
           <details
             open={index === 0}
             class="group border-b border-neutral-200 py-2xl first:pt-0 "
@@ -72,9 +84,11 @@ const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
                 class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
               />
             </summary>
-            <p class="mt-lg font-poppins text-base  text-neutral-75 mb-0 tablet:text-xl desktop:text-xl">
-              {item.answer}
-            </p>
+            <div
+              data-prose-faq
+              class="mt-lg font-poppins text-base text-neutral-75 tablet:text-xl desktop:text-xl [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline [&_a]:text-neutral-75"
+              set:html={item.answerHtml}
+            />
           </details>
         ))
       }
