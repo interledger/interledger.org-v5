@@ -58,6 +58,9 @@ const LABEL_CLASS = 'text-left text-neutral-75'
         tile.prefix,
         tile.suffix
       )
+      // Full p-0: StatCard defaults to p-lg / desktop:p-xl. Zeroing only left
+      // (pl-0) left a stray right pad on every cell — flush left, inset right.
+      // Grid gap-x/y handles spacing between tiles instead.
       return (
         <StatCard
           value={parsed ?? 0}
@@ -68,7 +71,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
           label={tile.description}
           labelClass={LABEL_CLASS}
           ariaLabel={ariaLabel}
-          class="w-full items-start pt-0 pb-0 pl-0 desktop:pt-0 desktop:pb-0"
+          class="w-full items-start p-0"
         />
       )
     })
