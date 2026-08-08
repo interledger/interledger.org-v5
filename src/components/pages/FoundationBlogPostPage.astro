@@ -13,7 +13,7 @@ import BlogPostLayout from '@/layouts/BlogPostLayout.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
 import Quote from '@/components/blocks/Quote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
-import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
@@ -59,7 +59,7 @@ const relatedPosts = resolveRelatedPosts(
       Blockquote,
       Quote,
       Paragraph,
-      VideoEmbed,
+      VideoEmbed: VideoEmbedBlock,
       ImageBlock,
       CodeBlock
     }}

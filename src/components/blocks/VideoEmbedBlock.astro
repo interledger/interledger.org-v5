@@ -16,4 +16,10 @@ const { url, file, externalUrl, title } = Astro.props
 const resolvedUrl = url ?? file?.url ?? externalUrl
 ---
 
-{resolvedUrl && title && <VideoEmbed url={resolvedUrl} title={title} />}
+{
+  resolvedUrl && title && (
+    <div class="mb-6xl w-full">
+      <VideoEmbed url={resolvedUrl} title={title} />
+    </div>
+  )
+}
