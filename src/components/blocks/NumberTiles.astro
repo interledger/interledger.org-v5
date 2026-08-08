@@ -5,10 +5,9 @@
 // digits (e.g. "1000"); we format with commas for display while the animation
 // still counts up to the parsed numeric value.
 //
-// Layout: CSS Grid instead of flexbox so the gap doesn't need subtracting out
-// of each item's width — 2 tiles per row on mobile/tablet, up to 4 per row on
-// desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
-// default behavior, no extra CSS needed).
+// Layout: CSS Grid — 2 cols mobile/tablet, 4 cols desktop. StatCard defaults
+// (p-lg, desktop:p-xl, fixed widths) are fully overridden so tiles fill each
+// track flush left; gap-x/y is the only inter-tile spacing.
 import StatCard from '@/components/shared/StatCard.astro'
 import {
   buildNumberTileAriaLabel,
@@ -36,6 +35,11 @@ const { tiles } = Astro.props
 const NUMBER_CLASS =
   'font-poppins font-semibold text-h2 tablet:text-h2-md desktop:text-h2-lg'
 const LABEL_CLASS = 'text-left text-neutral-75'
+
+// Kill StatCard padding + fixed widths at every breakpoint (bare p-0 / w-full
+// leave desktop:p-xl and desktop:w-[290px] active). All tiles stay left-aligned.
+const CARD_CLASS =
+  'w-full tablet:w-full desktop:w-full p-0 desktop:p-0 items-start'
 ---
 
 <ul
@@ -58,9 +62,6 @@ const LABEL_CLASS = 'text-left text-neutral-75'
         tile.prefix,
         tile.suffix
       )
-      // Full p-0: StatCard defaults to p-lg / desktop:p-xl. Zeroing only left
-      // (pl-0) left a stray right pad on every cell — flush left, inset right.
-      // Grid gap-x/y handles spacing between tiles instead.
       return (
         <StatCard
           value={parsed ?? 0}
@@ -71,7 +72,7 @@ const LABEL_CLASS = 'text-left text-neutral-75'
           label={tile.description}
           labelClass={LABEL_CLASS}
           ariaLabel={ariaLabel}
-          class="w-full items-start p-0"
+          class={CARD_CLASS}
         />
       )
     })
