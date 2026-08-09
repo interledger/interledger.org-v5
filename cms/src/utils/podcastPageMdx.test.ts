@@ -76,19 +76,18 @@ describe('generatePodcastPageMdx', () => {
     expect(podcasts[0]?.series).toBe('Future Money')
   })
 
-  it('flattens ctaStrip with a default purple color', () => {
+  it('flattens ctaStrip', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     const ctaStrip = data.ctaStrip as {
       heading: string
       buttonText: string
       buttonLink: string
-      color: string
     }
 
     expect(ctaStrip.heading).toBe('Listen now')
     expect(ctaStrip.buttonText).toBe('Listen')
     expect(ctaStrip.buttonLink).toBe('/podcast')
-    expect(ctaStrip.color).toBe('purple')
+    expect(ctaStrip).not.toHaveProperty('color')
   })
 
   it('adds localizes for a non-default locale, using the English slug', () => {

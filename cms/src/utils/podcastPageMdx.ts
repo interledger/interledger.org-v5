@@ -23,9 +23,6 @@ export interface PodcastPageCtaStrip {
   description?: string
   primaryButtonText?: string
   primaryButtonLink?: string
-  secondaryButtonText?: string
-  secondaryButtonLink?: string
-  color?: 'purple' | 'green'
 }
 
 export interface PodcastPageTitleCard {
@@ -81,14 +78,7 @@ function ctaStripFrontmatter(ctaStrip: PodcastPageCtaStrip) {
     heading: ctaStrip.heading ?? '',
     description: ctaStrip.description ?? '',
     buttonText: ctaStrip.primaryButtonText ?? '',
-    buttonLink: ctaStrip.primaryButtonLink ?? '',
-    color: ctaStrip.color ?? 'purple',
-    ...(ctaStrip.secondaryButtonText
-      ? { secondaryButtonText: ctaStrip.secondaryButtonText }
-      : {}),
-    ...(ctaStrip.secondaryButtonLink
-      ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
-      : {})
+    buttonLink: ctaStrip.primaryButtonLink ?? ''
   }
 }
 
