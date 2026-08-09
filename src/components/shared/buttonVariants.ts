@@ -67,9 +67,18 @@ export const buttonVariants = cva(
           'focus-visible:outline-1 focus-visible:-outline-offset-1'
         ]
       },
+      // `light`/`dark` are explicit: the caller knows which surface it sits on
+      // (e.g. HomepageHero's dark band on an otherwise light page, or the
+      // side-by-side swatches in the UI preview). `auto` is for components
+      // that can't know, such as dynamic-zone blocks rendered on foundation
+      // (light) as well as summit and hackathon (permanently dark). It layers
+      // `dark:`-prefixed styles on top of the light ones, following
+      // `data-theme` on <html> via the `darkMode` selector in
+      // tailwind.config.mjs.
       mode: {
         light: '',
-        dark: ''
+        dark: '',
+        auto: ''
       },
       size: {
         lg: 'h-12 gap-sm py-lg min-w-11',
@@ -115,6 +124,27 @@ export const buttonVariants = cva(
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-0',
           'disabled:border-neutral-100 disabled:text-neutral-75',
           'aria-disabled:border-neutral-100 aria-disabled:text-neutral-75'
+        ]
+      },
+      // `auto` = the light palette, with the dark one layered behind a `dark:`
+      // prefix. Kept as literal strings (no programmatic prefixing of the two
+      // lists above) so the Tailwind v4 content scanner can see every class.
+      {
+        variant: 'secondary',
+        mode: 'auto',
+        class: [
+          'border-neutral-50 text-neutral-100',
+          'hover:border-neutral-900 hover:text-neutral-900',
+          'focus-visible:bg-neutral-25 focus-visible:text-neutral-900',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
+          'disabled:border-neutral-50 disabled:text-neutral-50',
+          'aria-disabled:border-neutral-50 aria-disabled:text-neutral-50',
+          'dark:border-neutral-75 dark:text-neutral-25',
+          'dark:hover:border-neutral-0 dark:hover:text-neutral-25',
+          'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',
+          'dark:focus-visible:outline-neutral-0',
+          'dark:disabled:border-neutral-100 dark:disabled:text-neutral-75',
+          'dark:aria-disabled:border-neutral-100 dark:aria-disabled:text-neutral-75'
         ]
       },
       {
