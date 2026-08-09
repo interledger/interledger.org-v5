@@ -286,10 +286,7 @@ const podcastCtaStripSchema = z.object({
   heading: z.string(),
   description: z.string(),
   buttonText: z.string(),
-  buttonLink: z.string(),
-  color: z.enum(['purple', 'green']).default('purple'),
-  secondaryButtonText: z.string().optional(),
-  secondaryButtonLink: z.string().optional()
+  buttonLink: z.string()
 })
 
 const podcastTitleCardSchema = z.object({

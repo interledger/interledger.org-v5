@@ -872,14 +872,7 @@ export async function buildPodcastPagePayload(
       heading: ctaStripFm.heading,
       description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
-      primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      primaryButtonLink: ctaStripFm.buttonLink
     }
 
     return {
