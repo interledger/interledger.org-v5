@@ -34,6 +34,7 @@ import { serialize as agenda } from './agenda.serializer'
 import { serialize as faq } from './faq.serializer'
 import { serialize as eventCard } from './event-card.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
+import { serialize as ctaButtons } from './cta-buttons.serializer'
 
 export { sanitizeCardGridsInDocumentData }
 
@@ -60,7 +61,8 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.card-grid': cardGrid,
   'blocks.faq': faq,
   'blocks.event-card': eventCard,
-  'shared.cta-link': ctaLink
+  'shared.cta-link': ctaLink,
+  'blocks.cta-buttons': ctaButtons
 }
 
 /**

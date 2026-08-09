@@ -1,0 +1,80 @@
+---
+/**
+ * CTA Buttons block — one call-to-action button, or two side by side.
+ *
+ * Composition rules (Sarah, INTORG-938, 2026-07-29) are enforced on both write
+ * paths, the MDX parser and the admin validator, so by the time a payload
+ * reaches here it is already known good. This component renders what it is
+ * given rather than re-deriving the rules.
+ *
+ * Layout: stacked and full width below `tablet`, inline above it. The block
+ * carries no vertical margin of its own — whatever sits above provides the gap
+ * (Ravi, meeting note 2026-08-06).
+ */
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
+
+interface CtaButtonProp {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+  document?: boolean
+}
+
+interface Props {
+  buttons?: CtaButtonProp[]
+}
+
+const { buttons = [] } = Astro.props
+const { routeLocale } = Astro.locals
+
+// Strapi drafts can be saved mid-edit, so a button may arrive without its text
+// or link. Skip those rather than rendering an empty or dead button.
+const resolved = buttons
+  .filter((button) => button?.text?.trim() && button?.link?.trim())
+  .map((button) => ({
+    text: button.text.trim(),
+    variant:
+      button.style === 'secondary'
+        ? ('secondary' as const)
+        : ('primary' as const),
+    ...resolveCtaLink({
+      url: button.link.trim(),
+      external: button.external,
+      document: button.document,
+      // Primary always carries an arrow; a plain internal secondary carries
+      // nothing. Pending confirmation from Sarah on INTORG-938, see the
+      // tracker's "Icon rules" section.
+      internalIcon: button.style === 'secondary' ? null : 'arrow-right'
+    })
+  }))
+---
+
+{
+  resolved.length > 0 && (
+    <div class="flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start">
+      {resolved.map((button) => (
+        <LinkButton
+          href={button.href}
+          variant={button.variant}
+          mode="auto"
+          external={button.external}
+          document={button.document}
+          class="w-full tablet:w-auto"
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: routeLocale,
+            section: 'cta',
+            href: button.href,
+            linkText: button.text
+          })}
+        >
+          {button.text}
+          {button.icon && <Icon name={button.icon} slot="icon-right" />}
+        </LinkButton>
+      ))}
+    </div>
+  )
+}

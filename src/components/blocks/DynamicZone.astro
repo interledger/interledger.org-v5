@@ -28,6 +28,7 @@ import Faq from './Faq.astro'
 import EventCard from './EventCard.astro'
 import Quote from './Quote.astro'
 import CtaLink from './CtaLink.astro'
+import CtaButtons from './CtaButtons.astro'
 
 interface Block {
   __component: string
@@ -62,7 +63,8 @@ const componentMap: Record<string, any> = {
   'blocks.faq': Faq,
   'blocks.event-card': EventCard,
   'blocks.quote': Quote,
-  'shared.cta-link': CtaLink
+  'shared.cta-link': CtaLink,
+  'blocks.cta-buttons': CtaButtons
 }
 
 const resolvedBlocks = blocks
