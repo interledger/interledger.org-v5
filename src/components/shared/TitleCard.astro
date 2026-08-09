@@ -1,7 +1,7 @@
 ---
 import LinkButton from './LinkButton.astro'
 import Icon from './Icon.astro'
-import { buildUmamiAttrs, ensureLeadingSlash, isExternalHref } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
 
 interface Props {
   heading: string
@@ -23,15 +23,18 @@ const {
 
 const { routeLocale } = Astro.locals
 
-// Absolute http(s) URLs must not get a leading slash (e.g. partner PDFs).
-const isAbsoluteHttp = isExternalHref(buttonUrl)
-const external = buttonExternal || isAbsoluteHttp
-const href = isAbsoluteHttp ? buttonUrl : ensureLeadingSlash(buttonUrl)
+const {
+  href,
+  external,
+  icon: trailingIcon,
+  // Mouse-only "whole card is clickable" overlay shares the button's target.
+  targetAttrs: overlayTargetAttrs
+} = resolveCtaLink({
+  url: buttonUrl,
+  external: buttonExternal,
+  document: buttonDocument
+})
 
-// Mouse-only "whole card is clickable"
-const overlayTargetAttrs = external
-  ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
-  : {}
 const overlayUmamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
@@ -39,12 +42,6 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   href,
   linkText: buttonText
 })
-
-const trailingIcon = buttonDocument
-  ? 'download'
-  : external
-    ? 'external-link'
-    : null
 
 const bgClasses = `
 nth-[6n+1]:[--card-bg:var(--color-deep-teal-50)] 
