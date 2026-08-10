@@ -7,9 +7,14 @@
  * reaches here it is already known good. This component renders what it is
  * given rather than re-deriving the rules.
  *
- * Layout: stacked and full width below `tablet`, inline above it. The block
- * carries no vertical margin of its own — whatever sits above provides the gap
- * (Ravi, meeting note 2026-08-06).
+ * Layout: stacked and full width below `tablet`, inline above it.
+ *
+ * Spacing: a top margin only, 24px up to `desktop` and 32px from there
+ * (Radu, 2026-08-10). Nothing below, so whatever follows supplies its own
+ * space. The block owns this on both render paths, so `DynamicZone` lists it
+ * in `OWNS_ITS_SPACING` and does not add the standard between-block gap. An
+ * earlier note here said the block carried no margin at all; that was the
+ * open question Radu has now answered.
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
@@ -56,7 +61,10 @@ const resolved = buttons
 
 {
   resolved.length > 0 && (
-    <div class="flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start">
+    <div
+      data-component="CtaButtons"
+      class="mt-xl desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
+    >
       {resolved.map((button) => (
         <LinkButton
           href={button.href}
