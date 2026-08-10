@@ -8,6 +8,7 @@ import {
   validateFaqSections,
   validateGrantInfoCards,
   validateReportDate,
+  validateReportContent,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -955,6 +956,37 @@ describe('validateReportDate', () => {
   it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
     const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
     expect(err?.message).toBe('Date: Publish Date is required')
+  })
+})
+
+describe('validateReportContent', () => {
+  it('returns undefined when content has at least one block', () => {
+    expect(
+      validateReportContent({
+        content: [{ __component: 'blocks.report-section' }]
+      })
+    ).toBeUndefined()
+  })
+
+  it('returns a ValidationError when content is absent', () => {
+    const err = validateReportContent({})
+    expect(err?.message).toBe(
+      'Report Sections: at least one section is required'
+    )
+  })
+
+  it('returns a ValidationError when content is an empty array', () => {
+    const err = validateReportContent({ content: [] })
+    expect(err?.message).toBe(
+      'Report Sections: at least one section is required'
+    )
+  })
+
+  it('returns a ValidationError when content is not an array', () => {
+    const err = validateReportContent({ content: 'not-an-array' })
+    expect(err?.message).toBe(
+      'Report Sections: at least one section is required'
+    )
   })
 })
 

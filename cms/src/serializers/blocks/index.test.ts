@@ -200,4 +200,33 @@ describe('validateContentBlocks', () => {
     expect(err).toBeDefined()
     expect(err?.message).toMatch(/Navigation/i)
   })
+
+  it('accepts a report-section block with a heading and typed content blocks', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.report-section',
+        heading: 'Introduction',
+        reportText: [
+          { textType: 'Paragraph', textContent: 'The full report body.' },
+          { textType: 'Disclaimer', textDisclaimer: 'For informational use.' }
+        ]
+      }
+    ])
+
+    expect(err).toBeUndefined()
+  })
+
+  it('rejects a report-section block missing its heading and reportText content, with field-level paths', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.report-section',
+        reportText: [{ textType: 'Paragraph', textContent: '' }]
+      }
+    ])
+
+    expect(err?.details.errors.map((error) => error.path)).toEqual([
+      ['content', '0', 'heading'],
+      ['content', '0', 'reportText', '0', 'textContent']
+    ])
+  })
 })

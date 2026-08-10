@@ -74,6 +74,7 @@ export {
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateReportDate,
+  validateReportContent,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,

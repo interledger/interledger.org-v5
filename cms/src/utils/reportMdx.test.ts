@@ -19,7 +19,13 @@ describe('generateReportMdx', () => {
     const mdx = generateReportMdx(
       makeReport({
         content: [
-          { __component: 'blocks.paragraph', content: 'The full report body.' }
+          {
+            __component: 'blocks.report-section',
+            heading: 'Introduction',
+            reportText: [
+              { textType: 'Paragraph', textContent: 'The full report body.' }
+            ]
+          }
         ]
       })
     )
@@ -48,21 +54,34 @@ describe('generateReportMdx', () => {
     expect(data.introParagraph).toBeUndefined()
   })
 
-  it('serializes paragraph blocks from the content dynamic zone', () => {
+  it('serializes report-section blocks from the content dynamic zone', () => {
     const { content } = matter(
       generateReportMdx(
         makeReport({
           content: [
             {
-              __component: 'blocks.paragraph',
-              content: 'The full report body.'
+              __component: 'blocks.report-section',
+              heading: 'Introduction',
+              reportText: [
+                {
+                  textType: 'Paragraph',
+                  textContent: 'The full report body.'
+                },
+                {
+                  textType: 'Disclaimer',
+                  textDisclaimer: 'This report is for informational purposes.'
+                }
+              ]
             }
           ]
         })
       )
     )
-    expect(content).toContain('<Paragraph>')
+    expect(content).toContain('<ReportSection heading="Introduction">')
+    expect(content).toContain('<ReportText type="Paragraph">')
     expect(content).toContain('The full report body.')
+    expect(content).toContain('<ReportText type="Disclaimer">')
+    expect(content).toContain('This report is for informational purposes.')
   })
 
   it('writes the date component when publishDate is present', () => {

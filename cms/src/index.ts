@@ -7,6 +7,7 @@ import {
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   validateReportDate,
+  validateReportContent,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -2064,6 +2065,15 @@ export default {
       'api::podcast-page.podcast-page',
       (body) => validatePodcastPageFields(body)
     )
+    registerDocumentValidation(strapi, 'api::report.report', (body) =>
+      mergeValidationErrors(
+        validateReportDate(body),
+        validateReportContent(body),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+      )
+    )
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB
@@ -2072,7 +2082,6 @@ export default {
       'api::summit-navigation.summit-navigation',
       'api::hackathon-navigation.hackathon-navigation'
     ])
-    const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
         if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
@@ -2081,13 +2090,6 @@ export default {
           )
           const validationErr = validateNavigationLabels(
             ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
-          )
-          if (validationErr) throw validationErr
-        }
-
-        if (ctx.uid === REPORT_UID && ctx.params.data) {
-          const validationErr = validateReportDate(
-            ctx.params.data as Parameters<typeof validateReportDate>[0]
           )
           if (validationErr) throw validationErr
         }
