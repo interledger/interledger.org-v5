@@ -46,7 +46,7 @@ function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
       ? (image.alternativeText ?? '')
       : ''
   // Prefer field-level alt on carousel-logo; fall back to file alt for old data
-  const name = logo.alternativeText ?? fileAlt ?? ''
+  const name = logo.alternativeText ?? fileAlt
   return { name, src }
 }
 
