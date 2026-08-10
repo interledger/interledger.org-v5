@@ -48,7 +48,8 @@ const {
 
 const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
 const NON_PROD_UMAMI_WEBSITE_ID = '60547518-fd38-4f64-abf3-d03688e321b9'
-const isProduction = import.meta.env.CONTEXT === 'production'
+const isProduction =
+  (process.env.CONTEXT ?? import.meta.env.CONTEXT) === 'production'
 const umamiWebsiteId = isProduction
   ? PROD_UMAMI_WEBSITE_ID
   : NON_PROD_UMAMI_WEBSITE_ID
