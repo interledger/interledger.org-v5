@@ -101,18 +101,8 @@
         }
       },
       "components": [
-        "blocks.paragraph"
-      ]
-    },
-    "reportSections": {
-      "type": "component",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "component": "blocks.report-section",
-      "repeatable": true,
+        "blocks.report-section"
+      ],
       "required": true,
       "min": 1
     }

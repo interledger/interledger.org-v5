@@ -32,6 +32,7 @@ import {
 } from './card-grid.serializer'
 import { serialize as agenda } from './agenda.serializer'
 import { serialize as faq } from './faq.serializer'
+import { serialize as reportSection } from './report-section.serializer'
 import { serialize as eventCard } from './event-card.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 
@@ -59,6 +60,7 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.split-layout': splitLayout,
   'blocks.card-grid': cardGrid,
   'blocks.faq': faq,
+  'blocks.report-section': reportSection,
   'blocks.event-card': eventCard,
   'shared.cta-link': ctaLink
 }

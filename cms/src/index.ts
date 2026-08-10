@@ -887,7 +887,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
       date: 'Date',
-      content: 'Content'
+      content: 'Report Sections'
     },
     'api::podcast-page.podcast-page': {
       title: 'Page Title',
@@ -1087,6 +1087,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.report-date': {
       publishDate: 'Publish Date',
       lastUpdated: 'Last Updated'
+    },
+    'blocks.report-section': {
+      heading: 'Section Heading',
+      reportText: 'Content Blocks'
+    },
+    'blocks.report-text': {
+      textType: 'Block Type',
+      textContent: 'Paragraph Content',
+      textDisclaimer: 'Disclaimer Text'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -1848,6 +1857,15 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.navigation-card': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
+    ],
+    'blocks.report-section': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'reportText', size: 12 }]
+    ],
+    'blocks.report-text': [
+      [{ name: 'textType', size: 6 }],
+      [{ name: 'textContent', size: 12 }],
+      [{ name: 'textDisclaimer', size: 12 }]
     ],
     'shared.secondary-cta-link': [
       [
