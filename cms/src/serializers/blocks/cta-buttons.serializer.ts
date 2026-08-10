@@ -2,8 +2,10 @@ import {
   SerializerFieldError,
   hasConflictingCtaFlags,
   isCtaButtonStyle,
-  validateCtaButtonComposition,
+  validateCtaButtonCount,
+  validateCtaButtonStyles,
   type CtaButtonEntry,
+  type CtaButtonsRuleError,
   type FieldError
 } from '../../utils'
 
@@ -42,27 +44,37 @@ function validateButton(button: CtaButtonEntry, index: number): FieldError[] {
   return fieldErrors
 }
 
+/** Wrap a composition failure in the field path the admin anchors it to. */
+function toFieldError(error: CtaButtonsRuleError): SerializerFieldError {
+  return new SerializerFieldError([
+    {
+      message: error.message,
+      path:
+        error.index === null ? ['buttons'] : ['buttons', error.index, 'style']
+    }
+  ])
+}
+
 export function serialize(block: { buttons?: CtaButtonEntry[] }): string {
   // Strapi's required/min/max constraints aren't enforced on save, and the
   // composition rules can't be expressed in the schema at all.
-  const ruleError = validateCtaButtonComposition(block.buttons)
-  if (ruleError) {
-    throw new SerializerFieldError([
-      {
-        message: ruleError.message,
-        path:
-          ruleError.index === null
-            ? ['buttons']
-            : ['buttons', ruleError.index, 'style']
-      }
-    ])
-  }
+  //
+  // Order matters. An unset style counts as primary, so two empty buttons in a
+  // half-finished draft look like two primaries. Checking styles first would
+  // tell the editor to fix a style they never chose, when the real problem is
+  // that neither button has any text. So: count, then fields, then styles
+  // (Jonathan, #483).
+  const countError = validateCtaButtonCount(block.buttons)
+  if (countError) throw toFieldError(countError)
 
-  // The rule check above guarantees a non-empty array from here on.
+  // The count check above guarantees a non-empty array from here on.
   const buttons = block.buttons as CtaButtonEntry[]
 
   const fieldErrors = buttons.flatMap(validateButton)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
+
+  const styleError = validateCtaButtonStyles(buttons)
+  if (styleError) throw toFieldError(styleError)
 
   const entries = buttons.map((button) => ({
     text: button.text!.trim(),

@@ -30,7 +30,11 @@ const {
   href,
   external,
   icon: trailingIcon,
-  targetAttrs: overlayTargetAttrs
+  // The overlay anchor needs the download attribute as well as the target, or
+  // the card body navigates to the file while the button downloads it
+  // (Jonathan, #483).
+  targetAttrs: overlayTargetAttrs,
+  downloadAttrs: overlayDownloadAttrs
 } = resolveCtaLink({
   url: buttonUrl,
   external: buttonExternal,
@@ -79,5 +83,6 @@ const overlayUmamiAttrs = buildUmamiAttrs({
     tabindex="-1"
     class="absolute inset-0 z-0"
     {...overlayTargetAttrs}
+    {...overlayDownloadAttrs}
     {...overlayUmamiAttrs}></a>
 </article>

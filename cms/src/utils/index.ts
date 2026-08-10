@@ -114,6 +114,8 @@ export {
   MAX_CTA_BUTTONS,
   isCtaButtonStyle,
   hasConflictingCtaFlags,
+  validateCtaButtonCount,
+  validateCtaButtonStyles,
   validateCtaButtonComposition,
   type CtaButtonStyle,
   type CtaButtonEntry,

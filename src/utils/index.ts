@@ -128,6 +128,7 @@ export { detectVideoProvider } from './main/video'
 export { getHeroSectionStyle } from './main/heroSectionStyle'
 export {
   resolveCtaLink,
+  resolveDownloadName,
   type CtaIconName,
   type CtaLinkInput,
   type ResolvedCtaLink

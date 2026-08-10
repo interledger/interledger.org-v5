@@ -66,6 +66,49 @@ describe('resolveCtaLink', () => {
     })
   })
 
+  // Cards render the CTA twice: a visible button, and an invisible overlay
+  // anchor covering the card. Both spread these, so a document card downloads
+  // whether you click the button or the card body (Jonathan, #483).
+  describe('downloadAttrs', () => {
+    it('is empty when the link is not a document', () => {
+      expect(resolveCtaLink({ url: '/about' }).downloadAttrs).toEqual({})
+      expect(
+        resolveCtaLink({ url: 'https://example.com' }).downloadAttrs
+      ).toEqual({})
+    })
+
+    it('names the file from the path', () => {
+      expect(
+        resolveCtaLink({ url: '/documents/guide.pdf', document: true })
+          .downloadAttrs
+      ).toEqual({ download: 'guide.pdf' })
+    })
+
+    it('names the file from an absolute URL', () => {
+      expect(
+        resolveCtaLink({
+          url: 'https://example.com/files/report.pdf',
+          document: true
+        }).downloadAttrs
+      ).toEqual({ download: 'report.pdf' })
+    })
+
+    it('ignores a query string', () => {
+      expect(
+        resolveCtaLink({ url: '/docs/pack.zip?v=2', document: true })
+          .downloadAttrs
+      ).toEqual({ download: 'pack.zip' })
+    })
+
+    it('falls back to an empty name when the path has no filename', () => {
+      // An empty string still turns the attribute on. The browser then uses
+      // whatever name the URL or the response headers supply.
+      expect(
+        resolveCtaLink({ url: '/downloads/', document: true }).downloadAttrs
+      ).toEqual({ download: '' })
+    })
+  })
+
   describe('icon', () => {
     it('is null for a plain internal link by default', () => {
       expect(resolveCtaLink({ url: '/about' }).icon).toBeNull()

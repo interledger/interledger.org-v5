@@ -84,9 +84,13 @@ async function handleCtaButtons(
       )
     }
 
+    // Trim on the way in, the same as numberTilesHandler. The validator above
+    // already judges these values trimmed, so storing them raw would let
+    // padding survive into Strapi and back out into the next export
+    // (Jonathan, #483).
     const buttons: CtaButton[] = (raw as RawButton[]).map((entry) => ({
-      text: entry.text,
-      link: entry.link,
+      text: entry.text.trim(),
+      link: entry.link.trim(),
       // Mirror the Strapi schema default so the composition rule and the
       // round-trip both see the same value.
       style: entry.style ?? 'primary',

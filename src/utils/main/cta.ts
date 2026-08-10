@@ -44,8 +44,42 @@ export interface ResolvedCtaLink {
   targetAttrs:
     | { target: '_blank'; rel: 'noopener noreferrer' }
     | Record<string, never>
+  /**
+   * Spread onto the anchor. Empty unless the link is a document.
+   *
+   * Cards render the CTA twice: a visible button, and an invisible overlay
+   * anchor that makes the whole card clickable. Both need this, or the two
+   * halves of one card behave differently (Jonathan, #483).
+   */
+  downloadAttrs: { download: string } | Record<string, never>
 }
 
+/**
+ * Derive the filename a download should be saved under, e.g.
+ * `/docs/guide.pdf` becomes `guide.pdf`. An empty string still turns the
+ * `download` attribute on, and lets the URL supply the name.
+ */
+export function resolveDownloadName(href: string): string {
+  try {
+    const path = href.startsWith('http')
+      ? new URL(href).pathname
+      : (href.split('?')[0] ?? href)
+    const base = path.split('/').filter(Boolean).pop()
+    return base && base.includes('.') ? base : ''
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * When the caller names an icon for internal links, every link kind resolves
+ * to one, so `icon` is never null. This overload keeps call sites from
+ * guarding against a null that cannot happen.
+ */
+export function resolveCtaLink(
+  input: CtaLinkInput & { internalIcon: CtaIconName }
+): ResolvedCtaLink & { icon: CtaIconName }
+export function resolveCtaLink(input: CtaLinkInput): ResolvedCtaLink
 export function resolveCtaLink({
   url,
   external: externalFlag = false,
@@ -72,6 +106,7 @@ export function resolveCtaLink({
     icon,
     targetAttrs: external
       ? { target: '_blank', rel: 'noopener noreferrer' }
-      : {}
+      : {},
+    downloadAttrs: isDocument ? { download: resolveDownloadName(href) } : {}
   }
 }

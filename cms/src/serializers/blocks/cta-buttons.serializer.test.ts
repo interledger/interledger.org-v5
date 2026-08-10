@@ -130,6 +130,27 @@ describe('cta-buttons serializer', () => {
       ])
     })
 
+    // An unset style counts as primary, so two empty buttons look like two
+    // primaries. Reporting that first sends the editor to a Style dropdown
+    // they never touched, when the real problem is the missing text
+    // (Jonathan, #483).
+    it('reports the missing fields, not a style clash, on an empty draft', () => {
+      const errors = fieldErrorsOf(() => serialize({ buttons: [{}, {}] }))
+      expect(errors.map((e) => e.path)).toEqual([
+        ['buttons', 0, 'text'],
+        ['buttons', 0, 'link'],
+        ['buttons', 1, 'text'],
+        ['buttons', 1, 'link']
+      ])
+    })
+
+    it('still reports a style clash once both buttons are filled in', () => {
+      const errors = fieldErrorsOf(() =>
+        serialize({ buttons: [primary, { ...secondary, style: 'primary' }] })
+      )
+      expect(errors.map((e) => e.path)).toEqual([['buttons', 1, 'style']])
+    })
+
     it('rejects external+document on the same button, matching card-grid', () => {
       const errors = fieldErrorsOf(() =>
         serialize({

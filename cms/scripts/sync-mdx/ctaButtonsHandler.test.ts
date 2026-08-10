@@ -71,6 +71,19 @@ describe('CtaButtons handler', () => {
     })
   })
 
+  // The validator judges these trimmed, so storing them raw would let padding
+  // reach Strapi and come back out in the next export (Jonathan, #483).
+  it('trims text and link, matching numberTilesHandler', async () => {
+    const blocks = await parseMdxToBlocks(
+      cta(`[{ text: '  Apply now  ', link: '  /grants/apply  ' }]`),
+      ctx
+    )
+
+    expect(blocks[0]).toMatchObject({
+      buttons: [{ text: 'Apply now', link: '/grants/apply' }]
+    })
+  })
+
   describe('optional flags', () => {
     it('carries external when true', async () => {
       const blocks = await parseMdxToBlocks(

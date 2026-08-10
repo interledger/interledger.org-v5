@@ -46,14 +46,13 @@ export interface CtaButtonsRuleError {
 }
 
 /**
- * Check the composition rules Sarah specified on INTORG-938 (2026-07-29):
- * one or two buttons, never two primaries, and a primary must come first.
+ * Check how many buttons the block has: at least one, at most two.
  *
- * Returns `null` when the set is valid. Field-level problems (missing text or
- * link) are deliberately not checked here — the serializer reports those with
- * their own per-field paths.
+ * Split out from the style rules because a caller that reports field-level
+ * problems needs to know it has a usable array before it inspects the entries,
+ * but must not judge styles yet. See `validateCtaButtonStyles`.
  */
-export function validateCtaButtonComposition(
+export function validateCtaButtonCount(
   buttons: CtaButtonEntry[] | undefined
 ): CtaButtonsRuleError | null {
   if (!Array.isArray(buttons) || buttons.length < MIN_CTA_BUTTONS) {
@@ -67,7 +66,21 @@ export function validateCtaButtonComposition(
     }
   }
 
-  // An unset style means the schema default, which is primary.
+  return null
+}
+
+/**
+ * Check the style rules Sarah specified on INTORG-938 (2026-07-29): never two
+ * primaries, and a primary must come first.
+ *
+ * An unset style counts as primary, because that is the schema default. So an
+ * empty half-filled draft looks like two primaries. Run field validation
+ * before this, or the editor is told to fix a style they never chose
+ * (Jonathan, #483).
+ */
+export function validateCtaButtonStyles(
+  buttons: CtaButtonEntry[]
+): CtaButtonsRuleError | null {
   const styleAt = (i: number) => buttons[i]?.style ?? 'primary'
 
   const primaryCount = buttons.filter((_, i) => styleAt(i) === 'primary').length
@@ -88,4 +101,22 @@ export function validateCtaButtonComposition(
   }
 
   return null
+}
+
+/**
+ * Both composition checks in order: the count, then the styles.
+ *
+ * The MDX parser uses this, because it has already rejected any entry with a
+ * missing text or link before it gets here. The serializer runs the two halves
+ * separately so it can report field problems in between.
+ *
+ * Returns `null` when the set is valid.
+ */
+export function validateCtaButtonComposition(
+  buttons: CtaButtonEntry[] | undefined
+): CtaButtonsRuleError | null {
+  return (
+    validateCtaButtonCount(buttons) ??
+    validateCtaButtonStyles(buttons as CtaButtonEntry[])
+  )
 }
