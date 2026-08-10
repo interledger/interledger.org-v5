@@ -1880,7 +1880,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
   const componentMainFields: Record<string, string> = {
-    'blocks.agenda-item': 'time'
+    'blocks.agenda-item': 'time',
+    'blocks.report-text': 'textType'
   }
 
   const contentTypeService = plugin.service('content-types') as
