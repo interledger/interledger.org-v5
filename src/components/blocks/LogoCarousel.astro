@@ -21,18 +21,22 @@ interface Props {
 
 const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
 
-const logos: LogoMdx[] = rawLogos.map((logo) => {
+// Skip incomplete logos instead of throwing — DynamicZone preview can see
+// half-finished CMS rows; save-time validation (validateContentBlocks) is the
+// real gate. Throwing would 500 the whole page for one bad entry.
+const logos: LogoMdx[] = rawLogos.flatMap((logo) => {
   if ('src' in logo && typeof logo.src === 'string') {
-    return { name: logo.name ?? '', src: logo.src }
+    if (!logo.src) return []
+    return [{ name: logo.name ?? '', src: logo.src }]
   }
   const src = logo.image?.url
-  if (!src) {
-    throw new Error('LogoCarousel logo is missing image url')
-  }
-  return {
-    name: logo.alternativeText ?? logo.image?.alternativeText ?? '',
-    src
-  }
+  if (!src) return []
+  return [
+    {
+      name: logo.alternativeText ?? logo.image?.alternativeText ?? '',
+      src
+    }
+  ]
 })
 
 // Single source of truth for the carousel geometry, piped into the CSS vars
