@@ -44,10 +44,12 @@ const resolved = buttons
       url: button.link.trim(),
       external: button.external,
       document: button.document,
-      // Primary always carries an arrow; a plain internal secondary carries
-      // nothing. Pending confirmation from Sarah on INTORG-938, see the
-      // tracker's "Icon rules" section.
-      internalIcon: button.style === 'secondary' ? null : 'arrow-right'
+      // An internal link gets an arrow whether it's primary or secondary
+      // (Sarah + Radu, INTORG-938, 2026-08-10). That rule is scoped to custom
+      // components like this one; CTAs on template pages and the home page
+      // keep whatever their own Figma spec says, so this must not be pushed
+      // out into the shared default.
+      internalIcon: 'arrow-right'
     })
   }))
 ---
