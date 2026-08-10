@@ -70,7 +70,16 @@ const hasSecondary = Boolean(
       class:list={[
         'relative isolate overflow-clip rounded-3xl',
         'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-        'bg-soft-indigo-50'
+        'bg-soft-indigo-50',
+        // The summit and hackathon content wrapper styles every descendant
+        // anchor with `[&_a]:text-current`, so the page's white body colour
+        // reaches inside this card. That selector has a higher specificity
+        // than the button's own `text-neutral-100`, so the secondary button
+        // renders white on light indigo (about 1.06:1). The card is always
+        // light, whatever the page theme, so re-assert the light-mode colours
+        // through a selector that outranks the wrapper.
+        '[&_a.cta-strip-secondary]:text-neutral-100',
+        '[&_a.cta-strip-secondary:hover]:text-neutral-900'
       ]}
     >
       {/*
@@ -122,7 +131,7 @@ const hasSecondary = Boolean(
               href={secondaryButtonLink!}
               variant="secondary"
               external={isExternalHref(secondaryButtonLink!)}
-              class="w-full"
+              class="cta-strip-secondary w-full"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: secondaryButtonLink,
