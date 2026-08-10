@@ -31,12 +31,13 @@ const logos: LogoMdx[] = rawLogos.flatMap((logo) => {
   }
   const src = logo.image?.url
   if (!src) return []
-  return [
-    {
-      name: logo.alternativeText ?? logo.image?.alternativeText ?? '',
-      src
-    }
-  ]
+  // Explicit null on component alt = empty; only fall back to file alt when
+  // the field is absent (legacy / unmigrated Strapi rows).
+  const name =
+    logo.alternativeText !== undefined
+      ? (logo.alternativeText ?? '')
+      : (logo.image?.alternativeText ?? '')
+  return [{ name, src }]
 })
 
 // Single source of truth for the carousel geometry, piped into the CSS vars

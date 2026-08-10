@@ -25,6 +25,32 @@ describe('carousel serializer', () => {
     expect(result).toContain('logos={[{"name":"","src":"/img/plata.png"}]}')
   })
 
+  it('does not fall back to Media Library alt when component alt is explicit null', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [
+        {
+          image: { url: '/img/plata.png', alternativeText: 'From file' },
+          alternativeText: null
+        }
+      ]
+    })
+
+    expect(result).toContain('logos={[{"name":"","src":"/img/plata.png"}]}')
+    expect(result).not.toContain('From file')
+  })
+
+  it('falls back to Media Library alt when component alt is absent', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [{ image: { url: '/img/plata.png', alternativeText: 'From file' } }]
+    })
+
+    expect(result).toContain(
+      'logos={[{"name":"From file","src":"/img/plata.png"}]}'
+    )
+  })
+
   it('omits heading when absent', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',

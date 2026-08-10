@@ -274,7 +274,7 @@ export interface BlocksCardsGrid extends Struct.ComponentSchema {
 export interface BlocksCarousel extends Struct.ComponentSchema {
   collectionName: 'components_blocks_carousels'
   info: {
-    description: 'Carousel/slider for testimonials or featured content'
+    description: 'Partner logo carousel (image + per-logo alt). After changing the logos field shape, rehydrate existing rows with sync:mdx via workflow_dispatch \u2014 a normal cms rebuild does not re-sync content.'
     displayName: 'Logo Carousel'
     icon: 'images'
   }

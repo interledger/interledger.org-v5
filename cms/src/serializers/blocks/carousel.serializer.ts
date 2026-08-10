@@ -43,8 +43,13 @@ function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
     typeof image === 'object' && image != null
       ? (image.alternativeText ?? '')
       : ''
-  // Prefer field-level alt on carousel-logo; fall back to file alt for old data
-  const name = logo.alternativeText ?? fileAlt
+  // Prefer field-level alt on carousel-logo. Explicit null means empty alt
+  // (do not fall through to Media Library alt). Only use file alt when the
+  // component field is absent (legacy / unmigrated rows).
+  const name =
+    logo.alternativeText !== undefined
+      ? (logo.alternativeText ?? '')
+      : fileAlt
   return { name, src }
 }
 
