@@ -1395,6 +1395,19 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
         }
       }>
     publishedAt: Schema.Attribute.DateTime
+    reportSections: Schema.Attribute.Component<'blocks.report-section', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     section: Schema.Attribute.Enumeration<
       ['foundation', 'summit', 'hackathon']
     > &

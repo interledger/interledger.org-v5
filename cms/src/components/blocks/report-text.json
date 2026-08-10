@@ -1,0 +1,51 @@
+{
+  "collectionName": "components_blocks_report_texts",
+  "info": {
+    "displayName": "Report Text"
+  },
+  "options": {},
+  "attributes": {
+    "textType": {
+      "type": "enumeration",
+      "required": true,
+      "default": "Paragraph",
+      "enum": ["Paragraph", "Disclaimer"]
+    },
+    "textContent": {
+      "type": "customField",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "textType"
+            },
+            "Paragraph"
+          ]
+        }
+      },
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "defaultMarkdown"
+      },
+      "required": true
+    },
+    "textDisclaimer": {
+      "type": "customField",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "textType"
+            },
+            "Disclaimer"
+          ]
+        }
+      },
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      }
+    }
+  },
+  "config": {}
+}

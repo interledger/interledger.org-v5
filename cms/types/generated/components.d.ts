@@ -1103,6 +1103,46 @@ export interface BlocksQuote extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksReportSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_report_sections'
+  info: {
+    displayName: 'Report Section'
+    icon: 'book'
+  }
+  attributes: {
+    heading: Schema.Attribute.String & Schema.Attribute.Required
+    reportText: Schema.Attribute.Component<'blocks.report-text', true> &
+      Schema.Attribute.Required
+  }
+}
+
+export interface BlocksReportText extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_report_texts'
+  info: {
+    displayName: 'Report Text'
+  }
+  attributes: {
+    textContent: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      >
+    textDisclaimer: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    textType: Schema.Attribute.Enumeration<['Paragraph', 'Disclaimer']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'Paragraph'>
+  }
+}
+
 export interface BlocksResourceCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_resource_cards'
   info: {
@@ -1678,6 +1718,8 @@ declare module '@strapi/strapi' {
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
       'blocks.quote': BlocksQuote
+      'blocks.report-section': BlocksReportSection
+      'blocks.report-text': BlocksReportText
       'blocks.resource-card': BlocksResourceCard
       'blocks.split-layout': BlocksSplitLayout
       'blocks.title-card': BlocksTitleCard

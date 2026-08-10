@@ -18,91 +18,103 @@
   "attributes": {
     "title": {
       "type": "string",
-      "required": true,
-      "maxLength": 255,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Used for the browser tab title and breadcrumb label."
+      "maxLength": 255,
+      "required": true
     },
     "pathSlug": {
       "type": "string",
-      "required": true,
-      "unique": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Path relative to the chosen Section. For section: foundation, this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix — it's added automatically based on Section."
+      "required": true,
+      "unique": true
     },
     "section": {
       "type": "enumeration",
-      "enum": ["foundation", "summit", "hackathon"],
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
       },
-      "description": "Site section for routing and breadcrumbs. Does not affect MDX file location."
+      "required": true,
+      "enum": [
+        "foundation",
+        "summit",
+        "hackathon"
+      ]
     },
     "heading": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "The heading shown at the top of the report page. Can differ from the page title."
+      "required": true
     },
     "description": {
       "type": "text",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Short description used for SEO and card text. Aim for 120–160 characters."
+      "required": true
     },
     "introParagraph": {
       "type": "customField",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "customField": "plugin::ckeditor5.CKEditor",
       "options": {
         "preset": "basicMarkdownPreset"
       },
       "required": false,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
       "description": "Optional intro paragraph shown below the heading and dates."
     },
     "date": {
       "type": "component",
-      "repeatable": false,
-      "component": "shared.report-date",
-      "required": false,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Optional. Only add this if you want to show publish/last-updated dates on the page."
+      "component": "shared.report-date",
+      "repeatable": false,
+      "required": false
     },
     "content": {
       "type": "dynamiczone",
-      "components": ["blocks.paragraph"],
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "components": [
+        "blocks.paragraph"
+      ]
+    },
+    "reportSections": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "blocks.report-section",
+      "repeatable": true,
+      "required": true,
+      "min": 1
     }
   }
 }
