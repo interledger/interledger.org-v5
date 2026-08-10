@@ -637,7 +637,11 @@ export async function buildGrantPagePayload(
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
       heading: nullOrValue(ctaStripFm.heading),
-      description: nullOrValue(ctaStripFm.description)
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const infoCards = parsed.infoCards
@@ -744,7 +748,11 @@ export async function buildGrantOverviewPagePayload(
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
       heading: nullOrValue(ctaStripFm.heading),
-      description: nullOrValue(ctaStripFm.description)
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const hero = await buildHeroWithImage(

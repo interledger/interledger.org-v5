@@ -4,31 +4,38 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 /**
  * Serialize blocks.cta-strip → MDX.
  *
- * Purple-only, primary CTA only. `secondaryButtonText` / `secondaryButtonLink`
- * / `color` may still appear on legacy Strapi rows or test fixtures — they are
- * accepted on the input type and intentionally ignored (not emitted).
+ * Strips are always purple, so there is no colour attribute. The secondary CTA
+ * is optional and its two fields travel together: a half-filled one would
+ * render as a dead or unlabelled button, so it is only emitted when both are
+ * set.
  */
 export function serialize(block: {
   heading?: string
   description?: string
   primaryButtonText: string
   primaryButtonLink: string
-  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonText?: string
-  /** @deprecated Ignored — CTA strips no longer support a secondary button. */
   secondaryButtonLink?: string
-  /** @deprecated Ignored — strips are always purple. */
-  color?: string
 }): string {
   if (!block.primaryButtonText)
     throw new Error('CTA Strip block is missing primary button text')
   if (!block.primaryButtonLink)
     throw new Error('CTA Strip block is missing primary button link')
 
+  const hasSecondary = Boolean(
+    block.secondaryButtonText?.trim() && block.secondaryButtonLink?.trim()
+  )
+
   const attrs = [
     block.heading ? `heading="${esc(block.heading)}"` : null,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,
-    `primaryButtonLink="${esc(block.primaryButtonLink)}"`
+    `primaryButtonLink="${esc(block.primaryButtonLink)}"`,
+    hasSecondary
+      ? `secondaryButtonText="${esc(block.secondaryButtonText!.trim())}"`
+      : null,
+    hasSecondary
+      ? `secondaryButtonLink="${esc(block.secondaryButtonLink!.trim())}"`
+      : null
   ]
     .filter(Boolean)
     .join(' ')

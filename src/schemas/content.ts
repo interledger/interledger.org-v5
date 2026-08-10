@@ -120,7 +120,9 @@ const grantCtaStripSchema = z.object({
   heading: z.string().optional(),
   description: z.string().optional(),
   buttonText: z.string(),
-  buttonLink: z.string()
+  buttonLink: z.string(),
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonLink: z.string().optional()
 })
 
 const grantInfoCardSchema = z.object({

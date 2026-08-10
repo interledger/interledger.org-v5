@@ -14,10 +14,10 @@ const open = (attrs: string) => `<CtaStrip ${attrs}>`
 // ---------------------------------------------------------------------------
 
 describe('CtaStrip handler', () => {
-  it('parses a strip and ignores legacy secondary CTA and colour', async () => {
+  it('parses a strip with both CTAs', async () => {
     const mdx = [
       open(
-        'heading="Apply now" primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="Get involved" secondaryButtonLink="/get-involved" color="green"'
+        'heading="Apply now" primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="Get involved" secondaryButtonLink="/get-involved"'
       ),
       'This is a reminder text.',
       '</CtaStrip>'
@@ -31,9 +31,35 @@ describe('CtaStrip handler', () => {
         heading: 'Apply now',
         description: 'This is a reminder text.',
         primaryButtonText: 'Stay in touch',
-        primaryButtonLink: '/contact'
+        primaryButtonLink: '/contact',
+        secondaryButtonText: 'Get involved',
+        secondaryButtonLink: '/get-involved'
       }
     ])
+  })
+
+  it('drops a half-specified secondary CTA', async () => {
+    const textOnly = await parseMdxToBlocks(
+      [
+        open(
+          'primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="Get involved"'
+        ),
+        '</CtaStrip>'
+      ].join('\n'),
+      ctx
+    )
+    expect(textOnly[0]).not.toHaveProperty('secondaryButtonText')
+
+    const linkOnly = await parseMdxToBlocks(
+      [
+        open(
+          'primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonLink="/get-involved"'
+        ),
+        '</CtaStrip>'
+      ].join('\n'),
+      ctx
+    )
+    expect(linkOnly[0]).not.toHaveProperty('secondaryButtonLink')
   })
 
   it('parses a minimal strip with a primary CTA only', async () => {

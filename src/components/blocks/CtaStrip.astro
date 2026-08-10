@@ -10,6 +10,10 @@ interface Props {
   primaryButtonText: string
   /** Required primary CTA href (Strapi + MDX). */
   primaryButtonLink: string
+  /** Optional secondary CTA label. Needs its link to render. */
+  secondaryButtonText?: string
+  /** Optional secondary CTA href. Needs its label to render. */
+  secondaryButtonLink?: string
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -19,6 +23,8 @@ const {
   description,
   primaryButtonText,
   primaryButtonLink,
+  secondaryButtonText,
+  secondaryButtonLink,
   umamiContext
 } = Astro.props
 
@@ -49,6 +55,12 @@ if (!hasPrimary) {
     `[CtaStrip] Skipping render on ${Astro.url.pathname}: primaryButtonText and primaryButtonLink are required.`
   )
 }
+
+// Both halves or neither: a label with no href is dead, an href with no label
+// is unreadable.
+const hasSecondary = Boolean(
+  secondaryButtonText?.trim() && secondaryButtonLink?.trim()
+)
 ---
 
 {
@@ -104,6 +116,22 @@ if (!hasPrimary) {
             {primaryButtonText}
             <Icon name="arrow-right" slot="icon-right" />
           </LinkButton>
+
+          {hasSecondary && (
+            <LinkButton
+              href={secondaryButtonLink!}
+              variant="secondary"
+              external={isExternalHref(secondaryButtonLink!)}
+              class="w-full"
+              {...buildUmamiAttrs({
+                ...umamiBase,
+                href: secondaryButtonLink,
+                linkText: secondaryButtonText
+              })}
+            >
+              {secondaryButtonText}
+            </LinkButton>
+          )}
         </div>
       </div>
     </section>

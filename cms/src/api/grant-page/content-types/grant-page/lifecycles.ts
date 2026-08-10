@@ -20,6 +20,8 @@ interface CtaStrip {
   description?: string
   primaryButtonText?: string
   primaryButtonLink?: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
 }
 
 interface InfoCard {
@@ -154,6 +156,13 @@ export function generateGrantPageMDX(
             ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
             ...(ctaStrip.description
               ? { description: ctaStrip.description }
+              : {}),
+            // Both halves or neither, matching the serializer and renderer.
+            ...(ctaStrip.secondaryButtonText && ctaStrip.secondaryButtonLink
+              ? {
+                  secondaryButtonText: ctaStrip.secondaryButtonText,
+                  secondaryButtonLink: ctaStrip.secondaryButtonLink
+                }
               : {})
           }
         }
