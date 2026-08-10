@@ -22,6 +22,7 @@ import type {
   ReportSectionBlock,
   ReportTextItem
 } from './types.blocks'
+import { REPORT_TEXT_TYPES, isReportTextType } from './types.blocks'
 import { extractChildrenContent } from './mdastSerialize'
 import { getStringAttr, getChildElements } from './jsxExtract'
 import {
@@ -34,13 +35,6 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-
-const REPORT_TEXT_TYPES = ['Paragraph', 'Disclaimer'] as const
-type ReportTextType = (typeof REPORT_TEXT_TYPES)[number]
-
-function isReportTextType(value: string): value is ReportTextType {
-  return REPORT_TEXT_TYPES.includes(value as ReportTextType)
-}
 
 function parseReportText(
   node: JsxBlockNode,

@@ -3,7 +3,9 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
   htmlToMarkdown,
-  type FieldError
+  isReportTextType,
+  type FieldError,
+  type ReportTextType
 } from '../../utils'
 
 interface ReportTextItem {
@@ -13,9 +15,7 @@ interface ReportTextItem {
 }
 
 /** The Strapi field a report-text item's content lives in, based on its type. */
-function textField(
-  textType: 'Paragraph' | 'Disclaimer'
-): 'textContent' | 'textDisclaimer' {
+function textField(textType: ReportTextType): 'textContent' | 'textDisclaimer' {
   return textType === 'Paragraph' ? 'textContent' : 'textDisclaimer'
 }
 
@@ -29,7 +29,7 @@ function validateReportTextItem(
 ): FieldError[] {
   const position = index + 1
 
-  if (item.textType !== 'Paragraph' && item.textType !== 'Disclaimer') {
+  if (!item.textType || !isReportTextType(item.textType)) {
     return [
       {
         message: `Content Block ${position}: Block Type must be Paragraph or Disclaimer`,
@@ -92,7 +92,7 @@ export function serialize(block: {
 
   // Validation above guarantees heading and reportText items are present from here on.
   const items = block.reportText!.map((item) => {
-    const textType = item.textType as 'Paragraph' | 'Disclaimer'
+    const textType = item.textType as ReportTextType
     const raw = item[textField(textType)]!
 
     // Content is a CKEditor field: usually already markdown, but convert

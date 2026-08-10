@@ -17,6 +17,7 @@ import {
   type CardGridCardsField,
   type CardGridVariant
 } from '../../src/utils/cardGrid'
+import { type ReportTextType } from '../../src/utils/reportText'
 
 export {
   CARD_GRID_COLUMNS,
@@ -25,6 +26,12 @@ export {
   type CardGridCardsField,
   type CardGridVariant
 } from '../../src/utils/cardGrid'
+
+export {
+  REPORT_TEXT_TYPES,
+  isReportTextType,
+  type ReportTextType
+} from '../../src/utils/reportText'
 
 // ---------------------------------------------------------------------------
 // Shared
@@ -277,7 +284,7 @@ export interface FaqBlock extends StrapiBlockBase {
  * `Disclaimer` → `textDisclaimer`. Both are CKEditor rich text, stored as markdown.
  */
 export interface ReportTextItem {
-  textType: 'Paragraph' | 'Disclaimer'
+  textType: ReportTextType
   textContent?: string
   textDisclaimer?: string
 }
