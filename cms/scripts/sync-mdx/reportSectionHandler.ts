@@ -22,7 +22,7 @@ import type {
   ReportSectionBlock,
   ReportTextItem
 } from './types.blocks'
-import { childrenToMarkdown } from './mdastSerialize'
+import { extractChildrenContent } from './mdastSerialize'
 import { getStringAttr, getChildElements } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -42,7 +42,10 @@ function isReportTextType(value: string): value is ReportTextType {
   return REPORT_TEXT_TYPES.includes(value as ReportTextType)
 }
 
-function parseReportText(node: JsxBlockNode): ReportTextItem {
+function parseReportText(
+  node: JsxBlockNode,
+  ctx: ParserContext
+): ReportTextItem {
   const textType = getStringAttr(node, 'type', { required: true })
   if (!isReportTextType(textType)) {
     throw new MdxParserError({
@@ -55,8 +58,11 @@ function parseReportText(node: JsxBlockNode): ReportTextItem {
     })
   }
 
-  const content =
-    node.children.length > 0 ? childrenToMarkdown(node.children) : ''
+  // Prefer raw source slicing over AST re-serialization: footnote markers
+  // ([^1]) and other literal markdown-like text get escaped by
+  // mdast-util-to-markdown, corrupting content that was never ambiguous in
+  // the source. See mdastSerialize's extractChildrenContent for details.
+  const content = extractChildrenContent(node.children, ctx) ?? ''
   if (!content) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
@@ -75,7 +81,7 @@ function parseReportText(node: JsxBlockNode): ReportTextItem {
 
 async function handleReportSection(
   node: JsxBlockNode,
-  _ctx: ParserContext
+  ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
     const heading = getStringAttr(node, 'heading', { required: true })
@@ -94,7 +100,7 @@ async function handleReportSection(
     const block: ReportSectionBlock = {
       __component: 'blocks.report-section',
       heading,
-      reportText: itemNodes.map(parseReportText)
+      reportText: itemNodes.map((item) => parseReportText(item, ctx))
     }
 
     return [block]

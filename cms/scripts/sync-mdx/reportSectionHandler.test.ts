@@ -163,4 +163,40 @@ describe('ReportSection handler', () => {
       ParserErrorCode.INVALID_PROP_VALUE
     )
   })
+
+  // The real sync pipeline (mdxTransformer.ts) always passes `sourceText`,
+  // which is what activates raw-source slicing below — these tests mirror
+  // that context instead of the bare `{ locale }` ctx used above.
+  it('preserves footnote markers and list bullets when sourceText is provided', async () => {
+    const mdx = reportSection([
+      textItem(
+        'Paragraph',
+        [
+          '- $0.0001 on Aptos',
+          '- $0.0002 on Polygon',
+          '- $0.0006 on Avalanche.[^1]',
+          '',
+          '[^1]: Average cost per GasFeesNow. [https://gasfeesnow.com](https://gasfeesnow.com)'
+        ].join('\n')
+      )
+    ])
+
+    const blocks = await parseMdxToBlocks(mdx, {
+      locale: 'en',
+      sourceText: mdx
+    })
+    if (!Array.isArray(blocks)) throw blocks
+
+    const [first] = (
+      blocks[0] as { reportText: Array<{ textContent: string }> }
+    ).reportText
+
+    expect(first.textContent).toContain('- $0.0001 on Aptos')
+    expect(first.textContent).toContain('Avalanche.[^1]')
+    expect(first.textContent).toContain(
+      '[^1]: Average cost per GasFeesNow. [https://gasfeesnow.com](https://gasfeesnow.com)'
+    )
+    expect(first.textContent).not.toContain('\\[^1]')
+    expect(first.textContent).not.toContain('\\-')
+  })
 })
