@@ -270,6 +270,25 @@ export interface FaqBlock extends StrapiBlockBase {
   items: FaqItem[]
 }
 
+/**
+ * blocks.report-text — entry in report-section's repeatable `reportText`
+ * field. No `__component`; it's a nested component, not a dynamic-zone
+ * block. `textType` picks the active field: `Paragraph` → `textContent`,
+ * `Disclaimer` → `textDisclaimer`. Both are CKEditor rich text, stored as markdown.
+ */
+export interface ReportTextItem {
+  textType: 'Paragraph' | 'Disclaimer'
+  textContent?: string
+  textDisclaimer?: string
+}
+
+/** blocks.report-section — a heading followed by a repeatable list of typed content blocks. */
+export interface ReportSectionBlock extends StrapiBlockBase {
+  __component: 'blocks.report-section'
+  heading: string
+  reportText: ReportTextItem[]
+}
+
 /** Nested column on blocks.event-card — when an event takes place. */
 export interface EventCardWhen {
   title: string
@@ -329,5 +348,6 @@ export type ParsedBlock =
   | CardGridBlock
   | AgendaBlock
   | FaqBlock
+  | ReportSectionBlock
   | EventCardBlock
   | CtaLinkBlock
