@@ -43,7 +43,9 @@ describe('carousel serializer', () => {
   it('falls back to Media Library alt when component alt is absent', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [{ image: { url: '/img/plata.png', alternativeText: 'From file' } }]
+      logos: [
+        { image: { url: '/img/plata.png', alternativeText: 'From file' } }
+      ]
     })
 
     expect(result).toContain(

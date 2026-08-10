@@ -47,9 +47,7 @@ function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
   // (do not fall through to Media Library alt). Only use file alt when the
   // component field is absent (legacy / unmigrated rows).
   const name =
-    logo.alternativeText !== undefined
-      ? (logo.alternativeText ?? '')
-      : fileAlt
+    logo.alternativeText !== undefined ? (logo.alternativeText ?? '') : fileAlt
   return { name, src }
 }
 
