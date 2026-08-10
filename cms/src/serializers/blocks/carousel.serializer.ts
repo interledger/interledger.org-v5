@@ -8,27 +8,25 @@ type MediaField =
   | null
   | undefined
 
-type CarouselLogoEntry =
-  | {
-      image?: MediaField
-      alternativeText?: string | null
-    }
-  // Legacy shape: plain multi-media entries (pre–carousel-logo component)
-  | { id: number; url: string; alternativeText: string | null }
+/** One interface so legacy `url` and component `image` shapes coexist without a broken union narrow. */
+interface CarouselLogoEntry {
+  image?: MediaField
+  alternativeText?: string | null
+  /** Legacy shape: plain multi-media entries (pre carousel-logo component) */
+  id?: number
+  url?: string
+}
 
 function logoHasImage(logo: CarouselLogoEntry): boolean {
-  if ('url' in logo && typeof logo.url === 'string' && logo.url.length > 0) {
+  if (typeof logo.url === 'string' && logo.url.length > 0) {
     return true
   }
-  if ('image' in logo) {
-    return hasMediaValue(logo.image as Parameters<typeof hasMediaValue>[0])
-  }
-  return false
+  return hasMediaValue(logo.image as Parameters<typeof hasMediaValue>[0])
 }
 
 function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
   // Legacy multi-media entry
-  if ('url' in logo && typeof logo.url === 'string') {
+  if (typeof logo.url === 'string' && logo.url.length > 0) {
     return {
       name: logo.alternativeText ?? '',
       src: logo.url

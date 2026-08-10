@@ -204,7 +204,13 @@ export default {
         margin-top: 1.5rem;
         padding-top: 1.5rem;
       }
-      /* TEMP UI Fix: hide Media Library dialog Alternative text only (not content form fields e.g. carousel-logo) */
+      /* TEMP UI Fix: hide Alternative text in the Media Library asset dialog.
+         Set alt on localized-media / component fields per locale instead.
+         Scoped to [role="dialog"] because that is the only place we mean to
+         hide it. Content-form inputs already use path names
+         (e.g. content.5.logos.0.alternativeText), so an exact
+         [name="alternativeText"] match never hit them — this is clarity, not
+         a regression fix for form fields. */
       [role="dialog"] div:has(> div > input[name="alternativeText"]) {
         display: none !important;
       }
