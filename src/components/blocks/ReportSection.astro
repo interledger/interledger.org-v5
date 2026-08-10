@@ -5,9 +5,10 @@
  */
 import { parseMarkdown } from '@/utils'
 import ReportText from '@/components/shared/ReportText.astro'
+import type { ReportTextType } from '@/types/report'
 
 interface StrapiReportTextItem {
-  textType: 'Paragraph' | 'Disclaimer'
+  textType: ReportTextType
   /** Markdown from the CKEditor `textContent` field. Present when textType is 'Paragraph'. */
   textContent?: string
   /** Markdown from the CKEditor `textDisclaimer` field. Present when textType is 'Disclaimer'. */

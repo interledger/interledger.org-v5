@@ -10,8 +10,10 @@
  * since `prose/default.css` styles those tags on `main` and a matching
  * rule beats inheritance — same pattern as FaqItem.astro.
  */
+import type { ReportTextType } from '@/types/report'
+
 interface Props {
-  type: 'Paragraph' | 'Disclaimer'
+  type: ReportTextType
 }
 
 const { type } = Astro.props
