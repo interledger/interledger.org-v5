@@ -1,0 +1,58 @@
+---
+/**
+ * Report Section block — a heading followed by a repeatable list of typed
+ * content blocks (Paragraph or Disclaimer).
+ */
+import { parseMarkdown } from '@/utils'
+import ReportText from '@/components/shared/ReportText.astro'
+
+interface StrapiReportTextItem {
+  textType: 'Paragraph' | 'Disclaimer'
+  /** Markdown from the CKEditor `textContent` field. Present when textType is 'Paragraph'. */
+  textContent?: string
+  /** Markdown from the CKEditor `textDisclaimer` field. Present when textType is 'Disclaimer'. */
+  textDisclaimer?: string
+}
+
+interface Props {
+  heading: string
+  reportText?: StrapiReportTextItem[]
+}
+
+const { heading, reportText } = Astro.props
+const { routeLocale } = Astro.locals
+
+// Strapi preview (DynamicZone.astro) passes `reportText` with markdown content
+// that still needs rendering; MDX authoring passes <ReportText> children that
+// Astro has already rendered, so we fall through to the slot.
+const renderedItems = reportText
+  ? await Promise.all(
+      reportText.map(async (item) => ({
+        textType: item.textType,
+        html: await parseMarkdown(
+          (item.textType === 'Paragraph'
+            ? item.textContent
+            : item.textDisclaimer) ?? '',
+          { pathname: Astro.url.pathname, lang: routeLocale }
+        )
+      }))
+    )
+  : null
+---
+
+<section data-component="report-section" class="flex flex-col gap-lg">
+  <h2 class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
+    {heading}
+  </h2>
+  {
+    renderedItems ? (
+      renderedItems.map((item) => (
+        <ReportText type={item.textType}>
+          <Fragment set:html={item.html} />
+        </ReportText>
+      ))
+    ) : (
+      <slot />
+    )
+  }
+</section>

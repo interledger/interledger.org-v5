@@ -1,0 +1,33 @@
+---
+/**
+ * Paragraph (body copy) or Disclaimer (smaller, muted fine print) block.
+ *
+ * Disclaimer differs from blocks.paragraph in two ways: it's styled
+ * differently, and its richtext is more limited — CKEditor's
+ * `basicMarkdownPreset` rather than paragraph's full preset.
+ *
+ * Disclaimer styles target `p`/`li`/`a` directly instead of the wrapper,
+ * since `prose/default.css` styles those tags on `main` and a matching
+ * rule beats inheritance — same pattern as FaqItem.astro.
+ */
+interface Props {
+  type: 'Paragraph' | 'Disclaimer'
+}
+
+const { type } = Astro.props
+---
+
+{
+  type === 'Disclaimer' ? (
+    <div
+      data-report-text="disclaimer"
+      class="italic [&_a]:text-neutral-75 [&_li]:text-body-sm-standard [&_li]:text-neutral-75 [&_p]:text-body-sm-standard [&_p]:text-neutral-75"
+    >
+      <slot />
+    </div>
+  ) : (
+    <div data-report-text="paragraph">
+      <slot />
+    </div>
+  )
+}

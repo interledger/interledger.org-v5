@@ -2,7 +2,8 @@
 import { getCollection, render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import Paragraph from '@/components/blocks/Paragraph.astro'
+import ReportSection from '@/components/blocks/ReportSection.astro'
+import ReportText from '@/components/shared/ReportText.astro'
 import {
   type Locale,
   useTranslations,
@@ -102,7 +103,7 @@ const Layout = getSectionPageLayout(entry.data.section)
       {
         hasBody && (
           <section data-prose aria-label={t('report.body')} class="mt-2xl">
-            <MdxContent components={{ Paragraph }} />
+            <MdxContent components={{ ReportSection, ReportText }} />
           </section>
         )
       }
