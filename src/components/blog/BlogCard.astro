@@ -47,9 +47,13 @@ const cardHeaderClasses = twMerge(
   'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
 )
+// Non-featured cards stack full-width below desktop (1200px). A global
+// max-h-[220px] would clamp height once the container is wider than ~377px
+// (for aspect-240/140), so object-cover crops banners badly at e.g. 1100px.
+// Only clamp height in the side-by-side desktop:basis-[30%] column.
 const cardImageClasses = twMerge(
-  'object-cover rounded-3xl w-full max-h-[220px]',
-  featured ? 'aspect-2/1' : 'aspect-240/140'
+  'object-cover rounded-3xl w-full',
+  featured ? 'aspect-2/1 max-h-[220px]' : 'aspect-240/140 desktop:max-h-[220px]'
 )
 const cardBodyClasses = twMerge(
   'flex w-full flex-col gap-lg',
