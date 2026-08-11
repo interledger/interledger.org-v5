@@ -28,6 +28,13 @@ export interface OptimizedImage {
   avifFullSrc: string | null
 }
 
+interface ResolvedImageSource {
+  /** Pathname used by the pre-generated catalog path mapping. */
+  pathname: string
+  /** Source URL/path used by Netlify Image CDN transforms. */
+  cdnSource: string
+}
+
 const generatedManifestModules = import.meta.glob(
   '../../generated/optimized-image-manifest.json',
   { eager: true, import: 'default' }
@@ -101,23 +108,28 @@ function replaceUrlPathPrefix(
 }
 
 /**
- * Resolves an image reference to a site-relative source path we are allowed to
- * optimize, or `null` when it isn't one.
+ * Resolves an image reference to the source data we are allowed to optimize,
+ * or `null` when it isn't one.
  *
  * Handles relative paths (/img/..., /uploads/img/original/...) and absolute
  * Strapi URLs (http://host/uploads/...). Rejects SVGs, extensionless paths,
  * anything outside the known source directories, and the generated output tree.
  *
- * Split out from `getOptimizedBase` because the CDN needs the *source* path,
- * while the pre-generated path needs the *optimized* base derived from it.
+ * Split out from `getOptimizedBase` because the CDN and pre-generated paths
+ * need different source forms:
+ * - catalog mapping always uses a site-relative `pathname`
+ * - CDN keeps absolute upload URLs as-is to avoid assuming same-origin uploads
  */
-function resolveOptimizableSource(src: string): string | null {
+function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   if (!src || src.endsWith('.svg')) return null
 
   let pathname = src
+  let absoluteSource: string | null = null
   if (src.startsWith('http')) {
     try {
-      pathname = new URL(src).pathname
+      const parsed = new URL(src)
+      pathname = parsed.pathname
+      absoluteSource = src
     } catch {
       return null
     }
@@ -125,13 +137,21 @@ function resolveOptimizableSource(src: string): string | null {
 
   if (!path.extname(pathname)) return null
 
-  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) return pathname
+  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
+    return {
+      pathname,
+      cdnSource: absoluteSource ?? pathname
+    }
+  }
 
   if (
     isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicSource) &&
     !isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)
   ) {
-    return pathname
+    return {
+      pathname,
+      cdnSource: pathname
+    }
   }
 
   return null
@@ -187,11 +207,14 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * file) plus a `fullSrc` WebP at the original dimensions. For images with no
  * numbered variants, only `fullSrc` will be populated.
  *
- * On Netlify (and in CI) this returns Netlify Image CDN URLs instead. Those
- * URLs already contain percent-encoded query parameter values, so callers must
- * treat them as final URLs: do not run `encodeURI()` or a similar whole-URL
- * escaping pass over the returned strings, or `%2F...` becomes `%252F...` and
- * the CDN source path breaks. See `imageCdn.ts`.
+ * On Netlify (and in CI) this returns Netlify Image CDN URLs for optimizable
+ * sources. Absolute upload URLs stay absolute in CDN mode so transforms do not
+ * depend on same-origin `/uploads/**` files being present in the current deploy.
+ *
+ * CDN URLs already contain percent-encoded query parameter values, so callers
+ * must treat them as final URLs: do not run `encodeURI()` or a similar
+ * whole-URL escaping pass over the returned strings, or `%2F...` becomes
+ * `%252F...` and the CDN source path breaks. See `imageCdn.ts`.
  */
 export function getOptimizedImage(src: string): OptimizedImage {
   const source = resolveOptimizableSource(src)
@@ -199,9 +222,11 @@ export function getOptimizedImage(src: string): OptimizedImage {
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
   }
 
-  if (imageCdnOverride ?? isImageCdnEnabled()) return buildCdnImage(source)
+  if (imageCdnOverride ?? isImageCdnEnabled()) {
+    return buildCdnImage(source.cdnSource)
+  }
 
-  const base = getOptimizedBase(source)
+  const base = getOptimizedBase(source.pathname)
   const variants = listSizedVariants(base, 'webp')
   const avifVariants = listSizedVariants(base, 'avif')
 
