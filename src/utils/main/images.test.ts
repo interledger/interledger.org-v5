@@ -16,6 +16,10 @@ const EMPTY = {
   avifFullSrc: null
 }
 
+function readCdnSourceParam(cdnUrl: string): string | null {
+  return new URL(cdnUrl, 'https://example.com').searchParams.get('url')
+}
+
 afterEach(() => {
   setOptimizedImageVariantCatalogForTests(null)
   setImageCdnEnabledForTests(null)
@@ -202,7 +206,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     for (const src of urls) expect(src).toMatch(/[?&]w=\d+/)
   })
 
-  it('emits CDN URLs for upload originals', () => {
+  it('keeps relative upload originals as same-origin CDN sources', () => {
     setImageCdnEnabledForTests(true)
 
     const { fullSrc } = getOptimizedImage('/uploads/img/original/hero.jpg')
@@ -211,6 +215,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
       encodeURIComponent('/uploads/img/original/hero.jpg')
     )
     expect(fullSrc).not.toContain('optimized')
+    expect(readCdnSourceParam(fullSrc!)).toBe('/uploads/img/original/hero.jpg')
   })
 
   it('keeps absolute Strapi upload URLs absolute in CDN mode', () => {
@@ -229,6 +234,16 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     )
     expect(variants[0].src).toContain(encodeURIComponent(absolute))
     expect(variants[0].src).not.toContain('url=%2Fuploads%2Fimg%2Foriginal')
+    expect(readCdnSourceParam(variants[0].src)).toBe(absolute)
+  })
+
+  it('keeps /img sources relative in CDN mode', () => {
+    setImageCdnEnabledForTests(true)
+
+    const src = '/img/hero.png'
+    const { fullSrc } = getOptimizedImage(src)
+
+    expect(readCdnSourceParam(fullSrc!)).toBe(src)
   })
 
   it('still emits CDN URLs for stable /img sources', () => {
