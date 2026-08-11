@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
+import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
 import {
   type Locale,
@@ -19,6 +20,14 @@ interface Props {
   isFallback?: boolean
 }
 
+// Section headings are authored as markdown `##` inside <ReportSection> (see
+// report-section.serializer.ts), so Astro's own heading collector picks them
+// up — this is the only depth that maps to a report section's own heading.
+const REPORT_SECTION_HEADING_DEPTH = 2
+// Auto-generated sr-only "Footnotes" landmark (depth 2, fixed id) — not an
+// authored section, so it must be excluded from the nav.
+const FOOTNOTES_HEADING_ID = 'footnote-label'
+
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -30,9 +39,16 @@ const entry = allReports.find(
 
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 
-const { Content: MdxContent } = await render(entry)
+const { Content: MdxContent, headings } = await render(entry)
 const { title, heading, description, introParagraph, date } = entry.data
 const hasBody = Boolean(entry.body?.trim())
+const sections = headings
+  .filter(
+    (h) =>
+      h.depth === REPORT_SECTION_HEADING_DEPTH &&
+      h.slug !== FOOTNOTES_HEADING_ID
+  )
+  .map((h) => ({ id: h.slug, heading: h.text }))
 const introParagraphHtml = introParagraph
   ? await parseMarkdown(introParagraph, {
       pathname: Astro.url.pathname,
@@ -103,7 +119,27 @@ const Layout = getSectionPageLayout(entry.data.section)
       {
         hasBody && (
           <section data-prose aria-label={t('report.body')} class="mt-2xl">
-            <MdxContent components={{ ReportSection, ReportText }} />
+            {sections.length > 0 ? (
+              // CSS grid, not flex, so the auto-generated footnotes section
+              // (a sibling of <ReportSection> we don't control) can span both
+              // columns instead of being squeezed into the content column —
+              // MdxContent's children must be direct grid items (no wrapping
+              // div) for that breakout to work.
+              <div class="flex flex-col gap-4xl tablet:grid tablet:grid-cols-[3fr_7fr] tablet:gap-x-2xl desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full">
+                <div
+                  class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-3xl"
+                  style={{ gridRow: `1 / span ${sections.length}` }}
+                >
+                  <ReportSectionsNav
+                    sections={sections}
+                    uiLocale={routeLocale}
+                  />
+                </div>
+                <MdxContent components={{ ReportSection, ReportText }} />
+              </div>
+            ) : (
+              <MdxContent components={{ ReportSection, ReportText }} />
+            )}
           </section>
         )
       }

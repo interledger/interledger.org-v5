@@ -1,59 +1,91 @@
 ---
 /**
  * Report Section block — a heading followed by a repeatable list of typed
- * content blocks (Paragraph or Disclaimer).
+ * content blocks (Paragraph or Disclaimer), authored via MDX only.
+ *
+ * The heading is a real markdown `##` inside the slot, not a prop — so
+ * Astro's heading collector can pick it up for ReportSectionsNav, and so
+ * the client script below (see its own comment) has to move the rendered
+ * <h2> into a <summary> at runtime to build the mobile accordion.
  */
-import { parseMarkdown } from '@/utils'
-import ReportText from '@/components/shared/ReportText.astro'
-import type { ReportTextType } from '@/types/report'
-
-interface StrapiReportTextItem {
-  textType: ReportTextType
-  /** Markdown from the CKEditor `textContent` field. Present when textType is 'Paragraph'. */
-  textContent?: string
-  /** Markdown from the CKEditor `textDisclaimer` field. Present when textType is 'Disclaimer'. */
-  textDisclaimer?: string
-}
-
-interface Props {
-  heading: string
-  reportText?: StrapiReportTextItem[]
-}
-
-const { heading, reportText } = Astro.props
-const { routeLocale } = Astro.locals
-
-// Strapi preview (DynamicZone.astro) passes `reportText` with markdown content
-// that still needs rendering; MDX authoring passes <ReportText> children that
-// Astro has already rendered, so we fall through to the slot.
-const renderedItems = reportText
-  ? await Promise.all(
-      reportText.map(async (item) => ({
-        textType: item.textType,
-        html: await parseMarkdown(
-          (item.textType === 'Paragraph'
-            ? item.textContent
-            : item.textDisclaimer) ?? '',
-          { pathname: Astro.url.pathname, lang: routeLocale }
-        )
-      }))
-    )
-  : null
+import Icon from '@/components/shared/Icon.astro'
 ---
 
-<section data-component="report-section" class="flex flex-col gap-lg">
-  <h2 class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
-    {heading}
-  </h2>
-  {
-    renderedItems ? (
-      renderedItems.map((item) => (
-        <ReportText type={item.textType}>
-          <Fragment set:html={item.html} />
-        </ReportText>
-      ))
-    ) : (
-      <slot />
-    )
-  }
+<section
+  data-component="report-section"
+  class="flex flex-col gap-lg [&_h2]:m-0 [&_h2]:min-w-0 [&_h2]:text-neutral-900 [&_h2]:scroll-mt-(--site-header-height-desktop)"
+>
+  <span data-report-section-icon class="hidden">
+    <Icon
+      name="arrow-down"
+      class="size-8 shrink-0 text-neutral-900 transition-transform duration-200 group-open/section:rotate-180 tablet:hidden"
+    />
+  </span>
+  <slot />
 </section>
+
+<script>
+  // Mobile: each section becomes its own accordion (first open, rest
+  // closed) by moving its rendered <h2>/icon into a <summary> at runtime —
+  // the heading is opaque slot markup here, not a prop we can place directly.
+  // Tablet+: stays flat, untouched — the accordion is only built
+  // lazily on first mobile-width need, so a load that never resizes down
+  // never touches the DOM. Once built, resizing back up just forces it
+  // open/inert; the `toggle` guard reasserts `open` if a keyboard user
+  // still collapses it.
+  // 810px matches the `tablet:` breakpoint
+  document
+    .querySelectorAll<HTMLElement>('[data-component="report-section"]')
+    .forEach((section, index) => {
+      const tabletQuery = window.matchMedia('(min-width: 810px)')
+      let details: HTMLDetailsElement | null = null
+
+      const buildDisclosure = () => {
+        const heading = section.querySelector('h2')
+        if (!heading) return null
+
+        const newDetails = document.createElement('details')
+        newDetails.className = 'group/section flex flex-col gap-lg'
+
+        const summary = document.createElement('summary')
+        summary.className =
+          'flex list-none cursor-pointer items-center justify-between gap-md text-left [&::-webkit-details-marker]:hidden tablet:cursor-default tablet:pointer-events-none'
+
+        const body = document.createElement('div')
+        body.className = 'flex flex-col gap-lg'
+
+        summary.append(heading)
+        const icon = section.querySelector('[data-report-section-icon]')
+        if (icon) {
+          icon.classList.remove('hidden')
+          summary.append(icon)
+        }
+        while (section.firstChild) body.append(section.firstChild)
+
+        newDetails.append(summary, body)
+        section.append(newDetails)
+
+        newDetails.addEventListener('toggle', () => {
+          if (tabletQuery.matches && !newDetails.open) {
+            newDetails.open = true
+          }
+        })
+
+        return newDetails
+      }
+
+      const applyMode = (isTablet: boolean) => {
+        if (isTablet) {
+          if (details) details.open = true
+          return
+        }
+        details ??= buildDisclosure()
+        if (details) details.open = index === 0
+      }
+
+      applyMode(tabletQuery.matches)
+      tabletQuery.addEventListener('change', (event) =>
+        applyMode(event.matches)
+      )
+    })
+</script>
