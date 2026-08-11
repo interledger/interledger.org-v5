@@ -209,29 +209,6 @@ async function processImage(
 async function main(): Promise<void> {
   const startTime = Date.now()
 
-  // The Netlify Image CDN transforms on demand, so pre-generating variants here
-  // would be ~17 minutes of build time producing files nothing references.
-  // getOptimizedImage() switches to /.netlify/images on the same signal, and
-  // the runtime catalog falls back to its committed stub when absent.
-  if (isImageCdnEnabled()) {
-    console.log(
-      'Netlify Image CDN is enabled — skipping image optimization.\n' +
-        'Images are transformed on demand at /.netlify/images.\n' +
-        'Set IMAGE_CDN=off to force build-time encoding.'
-    )
-    return
-  }
-
-  console.log('Optimizing images...\n')
-
-  const manifest = loadManifest()
-  // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
-  const updatedManifest: Record<string, string> = {}
-
-  let totalCreated = 0
-  let totalSkipped = 0
-  let totalFiles = 0
-
   const sourceBatches: Array<{
     dir: string
     outputPrefix: string
@@ -268,6 +245,30 @@ async function main(): Promise<void> {
         .join('\n')}`
     )
   }
+
+  // The Netlify Image CDN transforms on demand, so pre-generating variants here
+  // would be ~17 minutes of build time producing files nothing references.
+  // getOptimizedImage() switches to /.netlify/images on the same signal, and
+  // the runtime catalog falls back to its committed stub when absent. Oversize
+  // checks above still run in this mode so CI keeps enforcing image limits.
+  if (isImageCdnEnabled()) {
+    console.log(
+      'Netlify Image CDN is enabled — skipping image optimization.\n' +
+        'Images are transformed on demand at /.netlify/images.\n' +
+        'Set IMAGE_CDN=off to force build-time encoding.'
+    )
+    return
+  }
+
+  console.log('Optimizing images...\n')
+
+  const manifest = loadManifest()
+  // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
+  const updatedManifest: Record<string, string> = {}
+
+  let totalCreated = 0
+  let totalSkipped = 0
+  let totalFiles = 0
 
   for (const { dir, outputPrefix, files } of sourceBatches) {
     const results = await withConcurrency(
