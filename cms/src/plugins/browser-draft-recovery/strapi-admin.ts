@@ -1,13 +1,7 @@
 import BrowserDraftRecoveryRunner from './admin/BrowserDraftRecoveryRunner'
 
-/**
- * Browser localStorage recovery for unsaved Content Manager edits.
- * Invisible runner mounted on the edit view (console logs only).
- */
 export default {
-  register() {
-    // No custom fields.
-  },
+  register() {},
   bootstrap(app: {
     getPlugin: (name: string) =>
       | {
@@ -20,24 +14,16 @@ export default {
       | undefined
   }) {
     const cm = app.getPlugin('content-manager')
-    if (!cm) {
-      console.warn('[browser-draft-recovery] content-manager plugin not found')
+    if (!cm?.injectComponent) {
+      console.warn(
+        '[browser-draft-recovery] content-manager injectComponent unavailable'
+      )
       return
     }
 
-    // Mount invisible runner inside the edit view (InjectionZone right-links).
-    if (typeof cm.injectComponent === 'function') {
-      cm.injectComponent('editView', 'right-links', {
-        name: 'browser-draft-recovery-runner',
-        Component: BrowserDraftRecoveryRunner
-      })
-
-      console.log('[browser-draft-recovery] registered on editView.right-links')
-      return
-    }
-
-    console.warn(
-      '[browser-draft-recovery] content-manager injectComponent unavailable'
-    )
+    cm.injectComponent('editView', 'right-links', {
+      name: 'browser-draft-recovery-runner',
+      Component: BrowserDraftRecoveryRunner
+    })
   }
 }

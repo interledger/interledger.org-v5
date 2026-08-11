@@ -1,6 +1,6 @@
 'use strict'
 
-// Admin-only plugin — no server APIs.
+// Admin-only plugin — no server registration.
 module.exports = {
   register() {},
   bootstrap() {}

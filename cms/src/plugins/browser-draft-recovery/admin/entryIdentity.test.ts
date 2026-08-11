@@ -1,40 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   draftDiffersFromInitial,
+  hasLoadedInitialValues,
   resolveDocumentId,
-  resolveLocale,
-  selectStoredDraft
+  resolveLocale
 } from './entryIdentity'
-import { CREATE_DOCUMENT_ID, writeDraft, type StoredDraft } from './storage'
-
-function mockLocalStorage() {
-  const map = new Map<string, string>()
-  vi.stubGlobal('localStorage', {
-    getItem: (k: string) => map.get(k) ?? null,
-    setItem: (k: string, v: string) => {
-      map.set(k, v)
-    },
-    removeItem: (k: string) => {
-      map.delete(k)
-    },
-    clear: () => map.clear(),
-    key: () => null,
-    length: 0
-  })
-  return map
-}
-
-function draft(overrides: Partial<StoredDraft> = {}): StoredDraft {
-  return {
-    version: 1,
-    savedAt: '2026-08-11T12:00:00.000Z',
-    model: 'm',
-    documentId: 'd',
-    locale: 'en',
-    values: { title: 'draft' },
-    ...overrides
-  }
-}
+import { CREATE_DOCUMENT_ID } from './storage'
 
 function stubWindowLocation(search: string | (() => string)) {
   const location = {
@@ -115,74 +86,16 @@ describe('resolveDocumentId', () => {
   })
 })
 
-describe('selectStoredDraft', () => {
-  beforeEach(() => {
-    mockLocalStorage()
+describe('hasLoadedInitialValues', () => {
+  it('allows create forms before initialValues load', () => {
+    expect(hasLoadedInitialValues(CREATE_DOCUMENT_ID, undefined)).toBe(true)
+    expect(hasLoadedInitialValues(CREATE_DOCUMENT_ID, {})).toBe(true)
   })
 
-  it('returns null when nothing is stored', () => {
-    expect(selectStoredDraft('m', 'd', 'en')).toBeNull()
-  })
-
-  it('prefers the draft keyed to the current documentId', () => {
-    writeDraft(
-      draft({
-        documentId: 'd',
-        values: { title: 'current' }
-      })
-    )
-    writeDraft(
-      draft({
-        documentId: CREATE_DOCUMENT_ID,
-        values: { title: 'create' }
-      })
-    )
-    expect(selectStoredDraft('m', 'd', 'en')?.values).toEqual({
-      title: 'current'
-    })
-  })
-
-  it('falls back to create-keyed draft for an existing documentId', () => {
-    writeDraft(
-      draft({
-        documentId: CREATE_DOCUMENT_ID,
-        values: { title: 'create only' }
-      })
-    )
-    expect(selectStoredDraft('m', 'real-id', 'en')?.values).toEqual({
-      title: 'create only'
-    })
-  })
-
-  it('does not fall back when already on the create documentId', () => {
-    // no create draft stored
-    expect(selectStoredDraft('m', CREATE_DOCUMENT_ID, 'en')).toBeNull()
-  })
-
-  it('returns create draft when documentId is create', () => {
-    writeDraft(
-      draft({
-        documentId: CREATE_DOCUMENT_ID,
-        values: { title: 'new' }
-      })
-    )
-    expect(selectStoredDraft('m', CREATE_DOCUMENT_ID, 'en')?.values).toEqual({
-      title: 'new'
-    })
-  })
-
-  it('scopes by locale', () => {
-    writeDraft(
-      draft({
-        documentId: 'd',
-        locale: 'es',
-        values: { title: 'ES' }
-      })
-    )
-    expect(selectStoredDraft('m', 'd', 'en')).toBeNull()
-    expect(selectStoredDraft('m', 'd', 'es')?.values).toEqual({
-      title: 'ES'
-    })
+  it('waits for initialValues on existing entries', () => {
+    expect(hasLoadedInitialValues('doc-1', undefined)).toBe(false)
+    expect(hasLoadedInitialValues('doc-1', {})).toBe(false)
+    expect(hasLoadedInitialValues('doc-1', { title: '' })).toBe(true)
   })
 })
 

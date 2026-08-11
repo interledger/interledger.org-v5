@@ -1,17 +1,13 @@
-/**
- * Browser-local drafts for Content Manager edit forms.
- * Keyed by content-type model + document id + locale so reloads can offer restore.
- */
-
+/** localStorage key prefix for Content Manager browser drafts. */
 export const STORAGE_PREFIX = 'ilf:strapi-browser-draft:'
 
-/** Placeholder documentId while the Content Manager create form has no real id yet. */
+/** Placeholder documentId while the create form has no real Strapi id yet. */
 export const CREATE_DOCUMENT_ID = 'create'
 
-/** How often to snapshot a dirty form (ms). */
 export const AUTOSAVE_INTERVAL_MS = 15_000
+export const DIRTY_SNAPSHOT_DELAY_MS = 2_000
 
-/** Soft cap — skip write if serialized payload exceeds this (localStorage is ~5MB total). */
+/** Soft cap per draft (~5MB total localStorage per origin). */
 export const MAX_PAYLOAD_CHARS = 2_500_000
 
 export interface StoredDraft {
@@ -91,11 +87,19 @@ export function clearDraft(
   }
 }
 
-/**
- * After the first Save of a new entry, Strapi assigns a real documentId.
- * Copy any draft stored under {@link CREATE_DOCUMENT_ID} to that id and
- * remove the create-keyed entry so recovery still works post-save.
- */
+/** Clear this entry's draft and any leftover create-keyed draft for the locale. */
+export function clearEntryDrafts(
+  model: string,
+  documentId: string,
+  locale: string
+): void {
+  clearDraft(model, documentId, locale)
+  if (documentId !== CREATE_DOCUMENT_ID) {
+    clearDraft(model, CREATE_DOCUMENT_ID, locale)
+  }
+}
+
+/** Move a create-keyed draft onto the real documentId after first Save. */
 export function rekeyCreateDraft(
   model: string,
   locale: string,

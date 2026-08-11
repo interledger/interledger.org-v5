@@ -40,16 +40,18 @@ Keys are scoped by `model + documentId + locale`. Autosave is skipped when the d
 
 ## Things already handled in code
 
-| Concern                | Approach                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------------- |
-| Oversized single entry | Soft max `MAX_PAYLOAD_CHARS` (~2.5MB); skip write and console-warn                                |
-| Browser storage quota  | Catch `QuotaExceededError` / code 22; warn, do not throw                                          |
-| Identical re-writes    | Fingerprint via `stableStringify`; skip if unchanged since last successful write                  |
-| Key collisions         | Scope by `model + documentId + locale` under `ilf:strapi-browser-draft:`                          |
-| Unresolved document id | Skip autosave when id is `unknown`                                                                |
-| Create → first Save    | Re-key draft from documentId `create` to the real Strapi `documentId` while still dirty           |
-| Flush before leave     | Snapshot on `visibilitychange` (hidden) and `beforeunload` in addition to debounce + 15s interval |
-| Clear after real Save  | Drop browser draft when form transitions dirty → clean                                            |
+| Concern                | Approach                                                                                                 |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| Oversized single entry | Soft max `MAX_PAYLOAD_CHARS` (~2.5MB); skip write and console-warn                                       |
+| Browser storage quota  | Catch `QuotaExceededError` / code 22; warn, do not throw                                                 |
+| Identical re-writes    | Fingerprint via `stableStringify`; skip if unchanged since last successful write                         |
+| Key collisions         | Scope by `model + documentId + locale` under `ilf:strapi-browser-draft:`                                 |
+| Unresolved document id | Skip autosave when id is `unknown`                                                                       |
+| Create → first Save    | Re-key draft from documentId `create` to the real Strapi `documentId` while still dirty                  |
+| Flush before leave     | Snapshot on `visibilitychange` (hidden) and `beforeunload` in addition to debounce + 15s interval        |
+| Clear after real Save  | Drop browser draft when form transitions dirty → clean                                                   |
+| Restore timing         | Skip auto-restore for existing entries until Content Manager has loaded non-empty `initialValues`        |
+| Key isolation          | Restore only the exact `model + documentId + locale` key — never apply a create draft onto another entry |
 
 ## Things to consider (open risks / product caveats)
 

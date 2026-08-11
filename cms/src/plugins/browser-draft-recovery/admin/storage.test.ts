@@ -4,6 +4,7 @@ import {
   MAX_PAYLOAD_CHARS,
   STORAGE_PREFIX,
   clearDraft,
+  clearEntryDrafts,
   draftKey,
   readDraft,
   rekeyCreateDraft,
@@ -70,10 +71,6 @@ describe('browser-draft-recovery storage', () => {
   describe('draftKey', () => {
     it('scopes keys by model, document, and locale', () => {
       expect(draftKey('m', 'd', 'es')).toBe(`${STORAGE_PREFIX}m::d::es`)
-    })
-
-    it('uses the shared storage prefix', () => {
-      expect(draftKey('a', 'b', 'c').startsWith(STORAGE_PREFIX)).toBe(true)
     })
   })
 
@@ -234,6 +231,47 @@ describe('browser-draft-recovery storage', () => {
     it('swallows removeItem errors', () => {
       mockLocalStorage({ throwOnRemove: true })
       expect(() => clearDraft('m', 'd', 'en')).not.toThrow()
+    })
+  })
+
+  describe('clearEntryDrafts', () => {
+    it('clears the entry draft and any leftover create draft', () => {
+      writeDraft(
+        sampleDraft({ documentId: 'real-id', values: { title: 'saved' } })
+      )
+      writeDraft(
+        sampleDraft({
+          documentId: CREATE_DOCUMENT_ID,
+          values: { title: 'create' }
+        })
+      )
+
+      clearEntryDrafts('m', 'real-id', 'en')
+
+      expect(readDraft('m', 'real-id', 'en')).toBeNull()
+      expect(readDraft('m', CREATE_DOCUMENT_ID, 'en')).toBeNull()
+    })
+
+    it('only clears the create key when documentId is create', () => {
+      writeDraft(
+        sampleDraft({
+          documentId: CREATE_DOCUMENT_ID,
+          values: { title: 'create' }
+        })
+      )
+      writeDraft(
+        sampleDraft({
+          documentId: 'other-id',
+          values: { title: 'other' }
+        })
+      )
+
+      clearEntryDrafts('m', CREATE_DOCUMENT_ID, 'en')
+
+      expect(readDraft('m', CREATE_DOCUMENT_ID, 'en')).toBeNull()
+      expect(readDraft('m', 'other-id', 'en')?.values).toEqual({
+        title: 'other'
+      })
     })
   })
 
