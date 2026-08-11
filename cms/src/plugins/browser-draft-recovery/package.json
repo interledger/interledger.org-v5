@@ -1,0 +1,15 @@
+{
+  "name": "strapi-plugin-browser-draft-recovery",
+  "version": "1.0.0",
+  "exports": {
+    "./strapi-admin": {
+      "import": "./strapi-admin.ts"
+    }
+  },
+  "strapi": {
+    "name": "browser-draft-recovery",
+    "kind": "plugin",
+    "displayName": "Browser Draft Recovery",
+    "description": "Invisible autosave of Content Manager form values to localStorage with auto-restore after crash/reload"
+  }
+}
