@@ -27,6 +27,7 @@
     },
     "pathSlug": {
       "type": "string",
+      "description": "No leading or trailing slash. This becomes the full page path (e.g. about-us, or nested/path/segments for deeper pages).",
       "required": true,
       "unique": true,
       "pluginOptions": {

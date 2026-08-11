@@ -35,6 +35,7 @@
     "primaryButtonLink": {
       "type": "string",
       "required": true,
+      "description": "Internal links must start with a leading slash (e.g. /grant/our-grantmaking). External links must be a full URL starting with http:// or https://. mailto:, tel:, and #anchor links are also supported.",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -51,6 +52,7 @@
     },
     "secondaryButtonLink": {
       "type": "string",
+      "description": "Internal links must start with a leading slash (e.g. /grant/our-grantmaking). External links must be a full URL starting with http:// or https://. mailto:, tel:, and #anchor links are also supported.",
       "pluginOptions": {
         "i18n": {
           "localized": true

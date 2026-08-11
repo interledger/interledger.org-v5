@@ -1370,6 +1370,28 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
+    'shared.cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+    },
+    'shared.primary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+    },
+    'navigation.menu-item': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+    },
+    'navigation.menu-group': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+    },
+    'blocks.card': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+    },
+    'blocks.card-link': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+    },
+    'blocks.grant-faq-section': {
+      ctaLink:
+        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+    },
     'blocks.card-grid': {
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
@@ -1424,6 +1446,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Required. Column heading, e.g. "Apply".',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
+    },
+    'blocks.cta-strip': {
+      primaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.',
+      secondaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
     }
   }
 
