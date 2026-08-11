@@ -16,7 +16,7 @@ export function ensureLeadingSlash(value: string): string {
 }
 
 export function normalizePathSegment(value: string): string {
-  return value.replace(/^\/+|\/+$/g, '')
+  return value.trim().replace(/^\/+|\/+$/g, '')
 }
 
 export function normalizeRelativeLinksInDocumentData(data: unknown): void {

@@ -66,6 +66,11 @@ describe('normalizePathSegment', () => {
       'education/on-campus'
     )
   })
+
+  it('trims surrounding whitespace along with slashes', () => {
+    expect(normalizePathSegment(' /our-grantmaking ')).toBe('our-grantmaking')
+    expect(normalizePathSegment('our-grantmaking/ ')).toBe('our-grantmaking')
+  })
 })
 
 describe('normalizeRelativeLinksInDocumentData', () => {
