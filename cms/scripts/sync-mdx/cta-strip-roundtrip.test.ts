@@ -86,6 +86,20 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
   })
 
+  it('round-trips a description containing a link and a mailto link', async () => {
+    const original = {
+      heading: 'Before applying',
+      description:
+        'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
+      primaryButtonText: 'Apply now',
+      primaryButtonLink: '/grants/apply'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+  })
+
   it('drops a half-filled secondary CTA across the round-trip', async () => {
     const original = {
       heading: 'H',

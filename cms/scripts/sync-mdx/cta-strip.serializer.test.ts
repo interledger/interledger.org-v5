@@ -57,6 +57,19 @@ describe('cta-strip serializer', () => {
     expect(result).toContain('\\{tokens\\}')
   })
 
+  it('serializes a description containing a link and a mailto link as children', () => {
+    const result = serialize({
+      heading: 'Before applying',
+      description:
+        'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
+      primaryButtonText: 'Apply now',
+      primaryButtonLink: '/grants/apply'
+    })
+
+    expect(result).toContain('[Grantmaking FAQs](/grants/faq)')
+    expect(result).toContain('[our team](mailto:programteam@interledger.org)')
+  })
+
   it('drops an incomplete legacy secondary CTA (only one field set)', () => {
     const result = serialize({
       heading: 'H',
