@@ -78,8 +78,13 @@ const hasSecondary = Boolean(
         // renders white on light indigo (about 1.06:1). The card is always
         // light, whatever the page theme, so re-assert the light-mode colours
         // through a selector that outranks the wrapper.
+        // Re-assert all three states, not only the resting one. This selector
+        // also outranks the button's own `focus-visible:text-neutral-900`, so
+        // without the third rule the text would stay neutral-100 on focus
+        // instead of deepening to black (Copilot, #484).
         '[&_a.cta-strip-secondary]:text-neutral-100',
-        '[&_a.cta-strip-secondary:hover]:text-neutral-900'
+        '[&_a.cta-strip-secondary:hover]:text-neutral-900',
+        '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900'
       ]}
     >
       {/*

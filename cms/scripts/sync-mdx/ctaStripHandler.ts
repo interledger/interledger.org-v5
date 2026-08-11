@@ -54,9 +54,17 @@ async function handleCtaStrip(
 
     // A half-specified secondary button would render as a dead or unlabelled
     // control, so it only survives when both halves are present.
-    if (secondaryButtonText && secondaryButtonLink) {
-      block.secondaryButtonText = secondaryButtonText
-      block.secondaryButtonLink = secondaryButtonLink
+    //
+    // Test the trimmed values, and store them trimmed. The serializer, the
+    // renderer and the admin validator all treat a whitespace-only value as
+    // empty, so a truthiness test here would let `secondaryButtonText="   "`
+    // into Strapi and then drop it again on the way out (Jonathan, #484).
+    const secondaryText = secondaryButtonText?.trim()
+    const secondaryLink = secondaryButtonLink?.trim()
+
+    if (secondaryText && secondaryLink) {
+      block.secondaryButtonText = secondaryText
+      block.secondaryButtonLink = secondaryLink
     }
 
     return [block]

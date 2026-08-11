@@ -876,17 +876,24 @@ export async function buildPodcastPagePayload(
     }))
 
     const ctaStripFm = parsed.ctaStrip
+    // Strips are purple only. `color` left the component in #458, but this
+    // payload kept sending it, so Strapi rejected every podcast sync with
+    // "Invalid key color at ctaStrip". Found by running a real sync.
+    //
+    // The secondary CTA is all or nothing, and whitespace counts as empty,
+    // matching the handler, the serializer, the renderer and the validator.
+    const podcastSecondaryText = ctaStripFm.secondaryButtonText?.trim()
+    const podcastSecondaryLink = ctaStripFm.secondaryButtonLink?.trim()
     const ctaStrip = {
       heading: ctaStripFm.heading,
       description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+      ...(podcastSecondaryText && podcastSecondaryLink
+        ? {
+            secondaryButtonText: podcastSecondaryText,
+            secondaryButtonLink: podcastSecondaryLink
+          }
         : {})
     }
 

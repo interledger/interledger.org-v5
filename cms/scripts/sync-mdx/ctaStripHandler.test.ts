@@ -38,28 +38,46 @@ describe('CtaStrip handler', () => {
     ])
   })
 
-  it('drops a half-specified secondary CTA', async () => {
-    const textOnly = await parseMdxToBlocks(
+  // The secondary CTA is all or nothing. Whitespace counts as empty, matching
+  // the serializer, the renderer, the admin validator and the lifecycle
+  // export. Neither field survives when the pair is incomplete, so both
+  // assertions run on every case (Jonathan, #484).
+  it.each([
+    ['text only', 'secondaryButtonText="Get involved"'],
+    ['link only', 'secondaryButtonLink="/get-involved"'],
+    ['whitespace text', 'secondaryButtonText="   " secondaryButtonLink="/x"'],
+    ['whitespace link', 'secondaryButtonText="Go" secondaryButtonLink="   "'],
+    ['both whitespace', 'secondaryButtonText="  " secondaryButtonLink="  "']
+  ])('drops a half-specified secondary CTA: %s', async (_name, attrs) => {
+    const blocks = await parseMdxToBlocks(
       [
         open(
-          'primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="Get involved"'
+          `primaryButtonText="Stay in touch" primaryButtonLink="/contact" ${attrs}`
         ),
         '</CtaStrip>'
       ].join('\n'),
       ctx
     )
-    expect(textOnly[0]).not.toHaveProperty('secondaryButtonText')
 
-    const linkOnly = await parseMdxToBlocks(
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonText')
+    expect(blocks[0]).not.toHaveProperty('secondaryButtonLink')
+  })
+
+  it('trims the secondary CTA it keeps', async () => {
+    const blocks = await parseMdxToBlocks(
       [
         open(
-          'primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonLink="/get-involved"'
+          'primaryButtonText="Stay in touch" primaryButtonLink="/contact" secondaryButtonText="  Get involved  " secondaryButtonLink="  /get-involved  "'
         ),
         '</CtaStrip>'
       ].join('\n'),
       ctx
     )
-    expect(linkOnly[0]).not.toHaveProperty('secondaryButtonLink')
+
+    expect(blocks[0]).toMatchObject({
+      secondaryButtonText: 'Get involved',
+      secondaryButtonLink: '/get-involved'
+    })
   })
 
   it('parses a minimal strip with a primary CTA only', async () => {
