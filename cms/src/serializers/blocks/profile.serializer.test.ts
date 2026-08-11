@@ -12,7 +12,7 @@ const baseProfile = {
     },
     alternativeText: 'Alice smiling'
   },
-  category: 'Fellows 2026',
+  category: 'Past Fellows',
   tagline: 'Tagline of Alice'
 }
 

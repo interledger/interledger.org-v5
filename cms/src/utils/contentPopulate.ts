@@ -37,8 +37,13 @@ const GRANT_BLOCKS = {
   'blocks.number-tiles': {
     populate: { tiles: true }
   },
-  'blocks.title-card-grid': {
-    populate: { titleCards: { populate: { secondaryCta: true } } }
+  'blocks.card-grid': {
+    populate: {
+      titleCards: { populate: { secondaryCta: true } },
+      resourceCards: { populate: { secondaryCta: true } },
+      infoCards: true,
+      navigationCards: { populate: { secondaryCta: true } }
+    }
   },
   'shared.cta-link': {}
 } as const
@@ -75,14 +80,26 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.number-tiles': {
     populate: { tiles: true }
   },
-  'blocks.title-card-grid': {
-    populate: { titleCards: { populate: { secondaryCta: true } } }
+  'blocks.card-grid': {
+    populate: {
+      titleCards: { populate: { secondaryCta: true } },
+      resourceCards: { populate: { secondaryCta: true } },
+      infoCards: true,
+      navigationCards: { populate: { secondaryCta: true } }
+    }
   },
   'blocks.carousel': {
     populate: { logos: { populate: { image: true } } }
   },
   'blocks.faq': {
     populate: { items: true }
+  },
+  'blocks.event-card': {
+    populate: {
+      when: true,
+      where: true,
+      apply: { populate: { primaryCta: true } }
+    }
   }
 } as const
 
@@ -122,6 +139,14 @@ export const REPORT_CONTENT_POPULATE = {
 export const HACKATHON_PAGE_CONTENT_POPULATE = {
   on: {
     'blocks.paragraph': {},
+    'blocks.card-grid': {
+      populate: {
+        titleCards: { populate: { secondaryCta: true } },
+        resourceCards: { populate: { secondaryCta: true } },
+        infoCards: true,
+        navigationCards: { populate: { secondaryCta: true } }
+      }
+    },
     'blocks.number-tiles': {
       populate: { tiles: true }
     },
@@ -134,14 +159,19 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.profile-grid': {
       populate: { profiles: true }
     },
-    'blocks.title-card-grid': {
-      populate: { titleCards: { populate: { secondaryCta: true } } }
-    },
+    'blocks.cta-strip': {},
     'blocks.carousel': {
       populate: { logos: { populate: { image: true } } }
     },
     'blocks.faq': {
       populate: { items: true }
+    },
+    'blocks.event-card': {
+      populate: {
+        when: true,
+        where: true,
+        apply: { populate: { primaryCta: true } }
+      }
     },
     'blocks.quote': {
       populate: { authorImage: true }

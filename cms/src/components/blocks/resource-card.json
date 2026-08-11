@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_blocks_resource_cards",
+  "info": {
+    "displayName": "Resource Card",
+    "icon": "file",
+    "description": "Resource card with heading, description, and secondary CTA (external/download)."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "description": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
+      "required": true
+    },
+    "secondaryCta": {
+      "type": "component",
+      "component": "shared.secondary-cta-link",
+      "repeatable": false,
+      "required": true
+    }
+  }
+}

@@ -76,19 +76,56 @@ describe('generatePodcastPageMdx', () => {
     expect(podcasts[0]?.series).toBe('Future Money')
   })
 
-  it('flattens ctaStrip with a default purple color', () => {
+  // Strips are purple only, so there is no colour field to write. #481 took
+  // `color` back off this export. Assert it stays gone, so nothing puts it
+  // back and breaks the podcast sync again.
+  it('flattens ctaStrip and writes no colour field', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     const ctaStrip = data.ctaStrip as {
       heading: string
       buttonText: string
       buttonLink: string
-      color: string
     }
 
     expect(ctaStrip.heading).toBe('Listen now')
     expect(ctaStrip.buttonText).toBe('Listen')
     expect(ctaStrip.buttonLink).toBe('/podcast')
-    expect(ctaStrip.color).toBe('purple')
+    expect(ctaStrip).not.toHaveProperty('color')
+  })
+
+  it('writes the secondary CTA only when both halves are set', () => {
+    const both = matter(
+      generatePodcastPageMdx(
+        makePage({
+          ctaStrip: {
+            heading: 'Listen now',
+            primaryButtonText: 'Listen',
+            primaryButtonLink: '/podcast',
+            secondaryButtonText: 'See all episodes',
+            secondaryButtonLink: '/podcast/all'
+          }
+        })
+      )
+    ).data.ctaStrip as Record<string, unknown>
+
+    expect(both.secondaryButtonText).toBe('See all episodes')
+    expect(both.secondaryButtonLink).toBe('/podcast/all')
+
+    const halfOnly = matter(
+      generatePodcastPageMdx(
+        makePage({
+          ctaStrip: {
+            heading: 'Listen now',
+            primaryButtonText: 'Listen',
+            primaryButtonLink: '/podcast',
+            secondaryButtonText: 'See all episodes'
+          }
+        })
+      )
+    ).data.ctaStrip as Record<string, unknown>
+
+    expect(halfOnly).not.toHaveProperty('secondaryButtonText')
+    expect(halfOnly).not.toHaveProperty('secondaryButtonLink')
   })
 
   it('adds localizes for a non-default locale, using the English slug', () => {

@@ -11,6 +11,21 @@
  *
  */
 
+import {
+  CARD_GRID_COLUMNS,
+  type CardGridCard,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
+export {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANTS,
+  type CardGridCard,
+  type CardGridCardsField,
+  type CardGridVariant
+} from '../../src/utils/cardGrid'
+
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
@@ -90,22 +105,20 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.cta-strip – call-to-action strip with a primary CTA, an optional
- * secondary CTA, and a background colour.
+ * blocks.cta-strip – purple call-to-action strip with one primary CTA.
  *
- * `description` comes from the JSX children (markdown); the buttons and
- * `color` come from attributes. The secondary CTA is all-or-nothing: either
- * both `secondaryButtonText` and `secondaryButtonLink` are present, or neither.
+ * `description` comes from the JSX children (markdown). Heading, description
+ * and the secondary CTA are optional; primary CTA text and link are required.
+ * The secondary CTA's two fields travel together — both or neither.
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
-  heading: string
-  description: string
+  heading?: string
+  description?: string
   primaryButtonText: string
   primaryButtonLink: string
   secondaryButtonText?: string
   secondaryButtonLink?: string
-  color: 'purple' | 'green'
 }
 
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
@@ -241,28 +254,13 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   external?: boolean
 }
 
-/** blocks.title-card — entry in title-card-grid's repeatable `titleCards` field. No `__component`; it's a nested component, not a dynamic-zone block. */
-export interface TitleCard {
-  heading: string
-  subHeading?: string
-  description: string
-  secondaryCta: {
-    link: string
-    text: string
-    external?: boolean
-  }
-}
-
-/** Valid values for blocks.title-card-grid's `columns` field. */
-export const TITLE_CARD_GRID_COLUMNS = ['Two', 'Three'] as const
-
-/** blocks.title-card-grid — grid of title cards, each with a heading, description, and CTA. */
-export interface TitleCardGridBlock extends StrapiBlockBase {
-  __component: 'blocks.title-card-grid'
+/** blocks.card-grid — unified card grid with variant-specific card fields. */
+export type CardGridBlock = StrapiBlockBase & {
+  __component: 'blocks.card-grid'
   ariaLabel: string
-  columns: (typeof TITLE_CARD_GRID_COLUMNS)[number]
-  titleCards: TitleCard[]
-}
+  variant: CardGridVariant
+  columns: (typeof CARD_GRID_COLUMNS)[number]
+} & Partial<Record<CardGridCardsField, CardGridCard[]>>
 
 /** blocks.faq-item — entry in faq's repeatable `items` field. No `__component`; it's a nested component, not a dynamic-zone block. */
 export interface FaqItem {
@@ -276,6 +274,42 @@ export interface FaqBlock extends StrapiBlockBase {
   __component: 'blocks.faq'
   heading?: string
   items: FaqItem[]
+}
+
+/** Nested column on blocks.event-card — when an event takes place. */
+export interface EventCardWhen {
+  title: string
+  text?: string
+  date?: string
+  time?: string
+}
+
+/** Nested column on blocks.event-card — where an event takes place. */
+export interface EventCardWhere {
+  title: string
+  text?: string
+  location?: string
+}
+
+/** Nested column on blocks.event-card — apply / register CTA (no body text). */
+export interface EventCardApply {
+  title: string
+  primaryCta: {
+    text: string
+    link: string
+    external?: boolean
+  }
+}
+
+/**
+ * blocks.event-card — full-width when/where/(optional)apply columns.
+ * Editors use one at a time; there is no multi-card grid.
+ */
+export interface EventCardBlock extends StrapiBlockBase {
+  __component: 'blocks.event-card'
+  when: EventCardWhen
+  where: EventCardWhere
+  apply?: EventCardApply
 }
 
 // ---------------------------------------------------------------------------
@@ -298,7 +332,8 @@ export type ParsedBlock =
   | CarouselBlock
   | ImageBlockBlock
   | NumberTilesBlock
+  | CardGridBlock
   | AgendaBlock
-  | TitleCardGridBlock
   | FaqBlock
+  | EventCardBlock
   | CtaLinkBlock

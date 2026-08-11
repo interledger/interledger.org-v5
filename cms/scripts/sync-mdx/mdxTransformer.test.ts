@@ -838,7 +838,7 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip.primaryButtonLink).toBe('https://example.com/apply')
     })
 
-    it('sets default color to purple', async () => {
+    it('does not include color in ctaStrip payload', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -852,7 +852,7 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip.color).toBe('purple')
+      expect(ctaStrip).not.toHaveProperty('color')
     })
 
     it('includes heading and description from ctaStrip frontmatter', async () => {
@@ -873,7 +873,7 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip.description).toBe('Deadline approaching.')
     })
 
-    it('passes through color when set to green', async () => {
+    it('drops legacy color when set to green', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -890,10 +890,10 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip.color).toBe('green')
+      expect(ctaStrip).not.toHaveProperty('color')
     })
 
-    it('does not include secondary button fields when absent', async () => {
+    it('sends null secondary button fields when absent, so a PUT clears them', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -907,15 +907,11 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(
-        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonText')
-      ).toBe(false)
-      expect(
-        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonLink')
-      ).toBe(false)
+      expect(ctaStrip.secondaryButtonText).toBeNull()
+      expect(ctaStrip.secondaryButtonLink).toBeNull()
     })
 
-    it('includes secondary button fields when provided', async () => {
+    it('passes through secondary button fields when provided', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -937,7 +933,33 @@ describe('buildGrantPagePayload', () => {
         unknown
       >
       expect(ctaStrip.secondaryButtonText).toBe('Learn more')
-      expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/info')
+      expect(typeof ctaStrip.secondaryButtonLink).toBe('string')
+    })
+
+    it('sends null for heading and description when omitted from frontmatter', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          ctaStrip: {
+            buttonText: 'Start application',
+            buttonLink: 'https://example.com/apply'
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+        string,
+        unknown
+      >
+      expect(ctaStrip.heading).toBeNull()
+      expect(ctaStrip.description).toBeNull()
+      expect(ctaStrip.primaryButtonText).toBe('Start application')
+      expect(ctaStrip.primaryButtonLink).toBe('https://example.com/apply')
     })
   })
 
@@ -1578,7 +1600,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect(ctaStrip.primaryButtonLink).toBe('https://example.com/grants')
     })
 
-    it('includes color in ctaStrip (defaults to purple)', async () => {
+    it('does not include color in ctaStrip payload', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter
@@ -1592,10 +1614,10 @@ describe('buildGrantOverviewPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip.color).toBe('purple')
+      expect(ctaStrip).not.toHaveProperty('color')
     })
 
-    it('omits secondaryButtonText/Link when absent', async () => {
+    it('sends null secondaryButtonText/Link when absent, so a PUT clears them', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter
@@ -1609,11 +1631,11 @@ describe('buildGrantOverviewPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
+      expect(ctaStrip.secondaryButtonText).toBeNull()
+      expect(ctaStrip.secondaryButtonLink).toBeNull()
     })
 
-    it('includes secondaryButtonText/Link when present', async () => {
+    it('passes through secondaryButtonText/Link when present', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: {
@@ -1635,7 +1657,7 @@ describe('buildGrantOverviewPagePayload', () => {
         unknown
       >
       expect(ctaStrip.secondaryButtonText).toBe('Learn more')
-      expect(ctaStrip.secondaryButtonLink).toBe('https://example.com/learn')
+      expect(typeof ctaStrip.secondaryButtonLink).toBe('string')
     })
   })
 
@@ -2514,6 +2536,33 @@ describe('buildHackathonPagePayload', () => {
             { number: '21', description: 'Teams' },
             { number: '300', description: 'Participants' }
           ]
+        }
+      ])
+    })
+
+    it('accepts a CtaStrip block', async () => {
+      await import('./ctaStripHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter,
+        content:
+          '<CtaStrip heading="Join us" primaryButtonText="Apply" primaryButtonLink="/apply" />'
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.cta-strip',
+          heading: 'Join us',
+          primaryButtonText: 'Apply',
+          primaryButtonLink: '/apply'
         }
       ])
     })

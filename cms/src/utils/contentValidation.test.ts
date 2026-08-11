@@ -13,10 +13,15 @@ import {
   validateHeroFields,
   validatePodcastPageFields,
   validateBlogFields,
+  validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
 } from '@/utils'
+import {
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from './cardGrid'
 
 describe('validateNoNestedJsx', () => {
   it('returns a ValidationError when a paragraph block contains bare JSX', () => {
@@ -437,8 +442,6 @@ describe('validateProfileCta', () => {
 
 describe('validateCtaStrip', () => {
   const validCtaStrip = {
-    heading: 'Ready?',
-    description: 'Join us',
     primaryButtonText: 'Start',
     primaryButtonLink: 'https://example.com'
   }
@@ -453,32 +456,84 @@ describe('validateCtaStrip', () => {
     expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
   })
 
-  it('does not require color — it defaults to purple at the MDX layer (see cta-strip-roundtrip.test.ts)', () => {
-    expect(
-      validateCtaStrip({ ctaStrip: { ...validCtaStrip, color: undefined } })
-    ).toBeUndefined()
+  it('allows heading and description to be absent', () => {
+    expect(validateCtaStrip({ ctaStrip: { ...validCtaStrip } })).toBeUndefined()
   })
 
-  it('flags a missing heading with a path pointing at ctaStrip.heading', () => {
-    const err = validateCtaStrip({
-      ctaStrip: { ...validCtaStrip, heading: '' }
+  // The secondary CTA is optional as a pair, never as a half. Whitespace
+  // counts as empty here, in the MDX handler, in the serializer, in the
+  // renderer and in the lifecycle export (Jonathan, #484).
+  describe('the secondary CTA pair', () => {
+    it('accepts both halves', () => {
+      expect(
+        validateCtaStrip({
+          ctaStrip: {
+            ...validCtaStrip,
+            secondaryButtonText: 'Learn more',
+            secondaryButtonLink: '/about'
+          }
+        })
+      ).toBeUndefined()
     })
-    expect(err?.message).toBe('CTA Strip: Heading is required')
-    expect(err?.details.errors[0].path).toEqual(['ctaStrip', 'heading'])
+
+    it('accepts neither half', () => {
+      expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
+    })
+
+    it('flags a text-only secondary on the link field', () => {
+      const err = validateCtaStrip({
+        ctaStrip: { ...validCtaStrip, secondaryButtonText: 'Learn more' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonLink']
+      ])
+    })
+
+    it('flags a link-only secondary on the text field', () => {
+      const err = validateCtaStrip({
+        ctaStrip: { ...validCtaStrip, secondaryButtonLink: '/about' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonText']
+      ])
+    })
+
+    it('treats a whitespace-only half as empty, so it flags the gap', () => {
+      const err = validateCtaStrip({
+        ctaStrip: {
+          ...validCtaStrip,
+          secondaryButtonText: 'Learn more',
+          secondaryButtonLink: '   '
+        }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonLink']
+      ])
+    })
+
+    it('treats two whitespace-only halves as no secondary at all', () => {
+      expect(
+        validateCtaStrip({
+          ctaStrip: {
+            ...validCtaStrip,
+            secondaryButtonText: '  ',
+            secondaryButtonLink: '  '
+          }
+        })
+      ).toBeUndefined()
+    })
   })
 
-  it('reports every missing field at once, not just the first', () => {
+  it('reports every missing primary CTA field at once, not just the first', () => {
     const err = validateCtaStrip({
       ctaStrip: {
-        heading: '',
-        description: '',
-        primaryButtonText: 'Start',
-        primaryButtonLink: 'https://example.com'
+        primaryButtonText: '',
+        primaryButtonLink: ''
       }
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
-      ['ctaStrip', 'heading'],
-      ['ctaStrip', 'description']
+      ['ctaStrip', 'primaryButtonText'],
+      ['ctaStrip', 'primaryButtonLink']
     ])
   })
 })
@@ -962,5 +1017,68 @@ describe('validateReportDate', () => {
   it('returns a ValidationError when date has lastUpdated but no publishDate', () => {
     const err = validateReportDate({ date: { lastUpdated: '2026-07-01' } })
     expect(err?.message).toBe('Date: Publish Date is required')
+  })
+})
+
+describe('card grid variant restrictions', () => {
+  it('allows only Info on grant pages', () => {
+    expect(getAllowedCardGridVariants('api::grant-page.grant-page')).toEqual([
+      'Info'
+    ])
+    expect(isCardGridVariantAllowed('Info', 'api::grant-page.grant-page')).toBe(
+      true
+    )
+    expect(
+      isCardGridVariantAllowed('Title', 'api::grant-page.grant-page')
+    ).toBe(false)
+  })
+
+  it('allows only Title on grant overview pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::grant-overview-page.grant-overview-page')
+    ).toEqual(['Title'])
+  })
+
+  it('allows every variant on foundation pages', () => {
+    expect(
+      getAllowedCardGridVariants('api::foundation-page.foundation-page')
+    ).toEqual(['Info', 'Title', 'Resource', 'Navigation'])
+  })
+
+  it('rejects a Title card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Title',
+            ariaLabel: 'Programs',
+            columns: 'Three',
+            titleCards: []
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeDefined()
+    expect(err?.message).toMatch(/Info/)
+  })
+
+  it('accepts an Info card grid on a grant page document body', () => {
+    const err = validateCardGridVariantsForContentType(
+      {
+        content: [
+          {
+            __component: 'blocks.card-grid',
+            variant: 'Info',
+            ariaLabel: 'Details',
+            columns: 'Three',
+            infoCards: [{ heading: 'A', body: 'B' }]
+          }
+        ]
+      },
+      'api::grant-page.grant-page'
+    )
+    expect(err).toBeUndefined()
   })
 })

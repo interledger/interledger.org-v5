@@ -80,11 +80,34 @@ export {
   validatePodcastPageFields,
   validateBlogFields,
   validateNavigationLabels,
+  validateCardGridVariantsForContentType,
   toValidationError,
   mergeValidationErrors,
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
+
+// Card grid variants (serializers, sync handlers, admin picker)
+export {
+  CARD_GRID_COLUMNS,
+  CARD_GRID_VARIANT_DEFINITIONS,
+  CARD_GRID_VARIANTS,
+  CARD_GRID_VARIANT_LABELS,
+  CARD_GRID_VARIANT_FIELDS,
+  CARD_GRID_FIELD_LABELS,
+  CARD_GRID_VARIANT_COMPONENTS,
+  CARD_GRID_VARIANT_CHILDREN,
+  CARD_GRID_VARIANT_LIST_LABEL,
+  CARD_GRID_ALLOWED_VARIANTS_BY_UID,
+  getAllowedCardGridVariants,
+  formatCardGridVariantList,
+  isCardGridVariantAllowed,
+  type CardGridColumns,
+  type CardGridVariant,
+  type CardGridCardsField,
+  type CardGridSecondaryCta,
+  type CardGridCard
+} from './cardGrid'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -114,7 +137,13 @@ export {
   createPageLifecycle,
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
-export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
+export {
+  createBlogLifecycle,
+  generateBlogMDX,
+  resolveBlogEnglishSlug,
+  resolveBlogMdxFilename,
+  stampBlogLocale
+} from './blogLifecycle'
 export {
   type ProfileMdxCta,
   type ProfileMdxInput,

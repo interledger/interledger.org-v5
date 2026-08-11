@@ -1,16 +1,19 @@
 ---
-import { buildUmamiAttrs, isExternalHref } from '@/utils'
+import { buildUmamiAttrs, isExternalHref, parseMarkdown } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
-  heading: string
+  heading?: string
   description?: string
-  primaryButtonText?: string
-  primaryButtonLink?: string
+  /** Required primary CTA label (Strapi + MDX). */
+  primaryButtonText: string
+  /** Required primary CTA href (Strapi + MDX). */
+  primaryButtonLink: string
+  /** Optional secondary CTA label. Needs its link to render. */
   secondaryButtonText?: string
+  /** Optional secondary CTA href. Needs its label to render. */
   secondaryButtonLink?: string
-  color?: 'purple' | 'green'
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -22,7 +25,6 @@ const {
   primaryButtonLink,
   secondaryButtonText,
   secondaryButtonLink,
-  color = 'purple',
   umamiContext
 } = Astro.props
 
@@ -38,82 +40,116 @@ const umamiBase = {
   section: 'cta' as const
 }
 
-const bgClasses: Record<NonNullable<Props['color']>, string> = {
-  purple: 'bg-soft-indigo-50',
-  green: 'bg-pistachio-100'
-}
-
-// `description` arrives as a prop from the Strapi dynamic-zone renderer, but as
-// slot children when the component is used in exported MDX. Support both.
+// `description` arrives as a markdown string prop from the Strapi dynamic-zone
+// renderer, but as slot children when the component is used in exported MDX.
+// Support both.
 const hasDescription = Boolean(description) || Astro.slots.has('default')
 
-const hasPrimary = Boolean(primaryButtonText && primaryButtonLink)
-const hasSecondary = Boolean(secondaryButtonText && secondaryButtonLink)
+const descriptionHtml = description
+  ? await parseMarkdown(description, {
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : null
+
+// Runtime guard for partial Strapi draft payloads; props are required in TS.
+const hasPrimary = Boolean(
+  primaryButtonText?.trim() && primaryButtonLink?.trim()
+)
+
+if (!hasPrimary) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[CtaStrip] Skipping render on ${Astro.url.pathname}: primaryButtonText and primaryButtonLink are required.`
+  )
+}
+
+// Both halves or neither: a label with no href is dead, an href with no label
+// is unreadable.
+const hasSecondary = Boolean(
+  secondaryButtonText?.trim() && secondaryButtonLink?.trim()
+)
 ---
 
-<section
-  class:list={[
-    'relative isolate overflow-clip rounded-3xl',
-    'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-    bgClasses[color] ?? bgClasses.purple
-  ]}
->
-  {
-    /* Decorative Interledger network motif bleeding off the left edge.
-      Absolutely positioned so it never affects layout (no CLS); hidden from
-      the a11y tree. Low opacity so the nodes read as muted over the card. */
-  }
-  <img
-    src="/img/blocks/cta-strip-network.svg"
-    alt=""
-    aria-hidden="true"
-    width="450"
-    height="450"
-    loading="lazy"
-    class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[135%] w-auto max-w-none aspect-square -translate-x-1/4 -translate-y-1/2 rotate-90 opacity-40"
-  />
-
-  <div class="flex flex-col items-center gap-lg text-center">
-    <h2
-      class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900"
+{
+  hasPrimary && (
+    <section
+      data-component="CtaStrip"
+      class:list={[
+        'relative isolate overflow-clip rounded-3xl',
+        'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
+        'bg-soft-indigo-50',
+        // The summit and hackathon content wrapper styles every descendant
+        // anchor with `[&_a]:text-current`, so the page's white body colour
+        // reaches inside this card. That selector has a higher specificity
+        // than the button's own `text-neutral-100`, so the secondary button
+        // renders white on light indigo (about 1.06:1). The card is always
+        // light, whatever the page theme, so re-assert the light-mode colours
+        // through a selector that outranks the wrapper.
+        // Re-assert all three states, not only the resting one. This selector
+        // also outranks the button's own `focus-visible:text-neutral-900`, so
+        // without the third rule the text would stay neutral-100 on focus
+        // instead of deepening to black (Copilot, #484).
+        '[&_a.cta-strip-secondary]:text-neutral-100',
+        '[&_a.cta-strip-secondary:hover]:text-neutral-900',
+        '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900'
+      ]}
     >
-      {heading}
-    </h2>
+      {/*
+        Decorative Interledger network motif bleeding off the left edge.
+        Absolutely positioned so it never affects layout (no CLS); hidden from
+        the a11y tree. Low opacity so the nodes read as muted over the card.
+      */}
+      <img
+        src="/img/blocks/cta-strip-network.svg"
+        alt=""
+        aria-hidden="true"
+        width="450"
+        height="450"
+        loading="lazy"
+        class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[135%] w-auto max-w-none aspect-square -translate-x-1/4 -translate-y-1/2 rotate-90 opacity-40"
+      />
 
-    {
-      hasDescription && (
-        <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
-          <slot>{description}</slot>
-        </div>
-      )
-    }
+      <div class="flex flex-col items-center gap-lg text-center">
+        {heading && (
+          <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900">
+            {heading}
+          </h2>
+        )}
 
-    {
-      (hasPrimary || hasSecondary) && (
+        {hasDescription && (
+          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2">
+            {descriptionHtml ? (
+              <Fragment set:html={descriptionHtml} />
+            ) : (
+              <slot />
+            )}
+          </div>
+        )}
+
         <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
-          {hasPrimary && (
-            <LinkButton
-              href={primaryButtonLink!}
-              variant="primary"
-              external={isExternalHref(primaryButtonLink!)}
-              class="w-full"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: primaryButtonLink,
-                linkText: primaryButtonText
-              })}
-            >
-              {primaryButtonText}
-              <Icon name="arrow-right" slot="icon-right" />
-            </LinkButton>
-          )}
+          <LinkButton
+            href={primaryButtonLink}
+            variant="primary"
+            external={isExternalHref(primaryButtonLink)}
+            class="w-full"
+            {...buildUmamiAttrs({
+              ...umamiBase,
+              href: primaryButtonLink,
+              linkText: primaryButtonText
+            })}
+          >
+            {primaryButtonText}
+            <Icon name="arrow-right" slot="icon-right" />
+          </LinkButton>
 
           {hasSecondary && (
             <LinkButton
               href={secondaryButtonLink!}
               variant="secondary"
               external={isExternalHref(secondaryButtonLink!)}
-              class="w-full"
+              class="cta-strip-secondary w-full"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: secondaryButtonLink,
@@ -124,7 +160,7 @@ const hasSecondary = Boolean(secondaryButtonText && secondaryButtonLink)
             </LinkButton>
           )}
         </div>
-      )
-    }
-  </div>
-</section>
+      </div>
+    </section>
+  )
+}

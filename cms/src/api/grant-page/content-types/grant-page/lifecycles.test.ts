@@ -55,5 +55,6 @@ describe('generateGrantPageMDX', () => {
     const parsed = matter(mdx)
 
     expect(parsed.data.programOverview).toBeUndefined()
+    expect(parsed.data.ctaStrip.color).toBeUndefined()
   })
 })

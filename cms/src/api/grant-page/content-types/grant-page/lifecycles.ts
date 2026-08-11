@@ -22,7 +22,6 @@ interface CtaStrip {
   primaryButtonLink?: string
   secondaryButtonText?: string
   secondaryButtonLink?: string
-  color?: string
 }
 
 interface InfoCard {
@@ -152,16 +151,23 @@ export function generateGrantPageMDX(
     ...(ctaStrip
       ? {
           ctaStrip: {
-            heading: ctaStrip.heading,
-            description: ctaStrip.description ?? '',
             buttonText: ctaStrip.primaryButtonText ?? '',
             buttonLink: ctaStrip.primaryButtonLink ?? '',
-            color: ctaStrip.color ?? 'purple',
-            ...(ctaStrip.secondaryButtonText
-              ? { secondaryButtonText: ctaStrip.secondaryButtonText }
+            ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
+            ...(ctaStrip.description
+              ? { description: ctaStrip.description }
               : {}),
-            ...(ctaStrip.secondaryButtonLink
-              ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
+            // Both halves or neither, matching the serializer and renderer.
+            // Compare and write the trimmed values: `validateCtaStrip` and the
+            // renderer both treat whitespace as empty, so a truthiness test
+            // would export `"   "` into MDX and then drop it on render
+            // (Copilot, #484).
+            ...(ctaStrip.secondaryButtonText?.trim() &&
+            ctaStrip.secondaryButtonLink?.trim()
+              ? {
+                  secondaryButtonText: ctaStrip.secondaryButtonText.trim(),
+                  secondaryButtonLink: ctaStrip.secondaryButtonLink.trim()
+                }
               : {})
           }
         }

@@ -23,6 +23,8 @@ import CalloutTextBlock from '@/components/blocks/CalloutTextBlock.astro'
 import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CtaLink from '@/components/blocks/CtaLink.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 
 interface Props {
   slug: string
@@ -149,7 +151,10 @@ const breadcrumbs = [
               CtaStrip,
               ProfileGrid,
               LogoCarousel,
-              CtaLink
+              CtaLink,
+              // Grant pages only allow CardGrid variant="Info" (enforced in CMS).
+              CardGrid,
+              InfoCard
             }}
           />
         </div>
@@ -173,7 +178,6 @@ const breadcrumbs = [
           description={ctaStrip.description}
           primaryButtonText={ctaStrip.buttonText}
           primaryButtonLink={ctaStrip.buttonLink}
-          color={ctaStrip.color}
           secondaryButtonText={ctaStrip.secondaryButtonText}
           secondaryButtonLink={ctaStrip.secondaryButtonLink}
         />

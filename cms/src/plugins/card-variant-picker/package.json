@@ -1,0 +1,15 @@
+{
+  "name": "strapi-plugin-card-variant-picker",
+  "version": "1.0.0",
+  "exports": {
+    "./strapi-admin": {
+      "import": "./strapi-admin.ts"
+    }
+  },
+  "strapi": {
+    "name": "card-variant-picker",
+    "kind": "plugin",
+    "displayName": "Card Variant Picker",
+    "description": "Icon button selector for the card-grid block variant"
+  }
+}

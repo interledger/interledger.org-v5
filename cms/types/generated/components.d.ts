@@ -161,6 +161,39 @@ export interface BlocksCard extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCardGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_card_grids'
+  info: {
+    description: 'Unified grid for card variants. Equal-height CSS grid with 1/2/3 columns.'
+    displayName: 'Card Grid'
+    icon: 'grid'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String & Schema.Attribute.Required
+    columns: Schema.Attribute.Enumeration<['One', 'Two', 'Three']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'Three'>
+    infoCards: Schema.Attribute.Component<'blocks.info-card', true>
+    navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
+    resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
+    titleCards: Schema.Attribute.Component<'blocks.title-card', true>
+    variant: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::card-variant-picker.card-variant'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'Info'>
+  }
+}
+
 export interface BlocksCardLink extends Struct.ComponentSchema {
   collectionName: 'components_blocks_card_links'
   info: {
@@ -382,28 +415,24 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
-    description: 'Call-to-action strip with heading, description, a primary CTA, an optional secondary CTA, and a background colour'
+    description: 'Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA'
     displayName: 'CTA Strip'
     icon: 'cursor'
   }
   attributes: {
-    color: Schema.Attribute.Enumeration<['purple', 'green']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
         }
-      }> &
-      Schema.Attribute.DefaultTo<'purple'>
-    description: Schema.Attribute.Text &
-      Schema.Attribute.Required &
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
     heading: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -430,6 +459,128 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
         }
       }>
     secondaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksEventCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_event_cards'
+  info: {
+    description: 'Full-width event details card with When and Where columns, and an optional Apply column. Use one at a time \u2014 there is no grid.'
+    displayName: 'Event Card'
+    icon: 'calendar'
+  }
+  attributes: {
+    apply: Schema.Attribute.Component<'blocks.event-card-apply', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    when: Schema.Attribute.Component<'blocks.event-card-when', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    where: Schema.Attribute.Component<'blocks.event-card-where', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksEventCardApply extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_event_card_applies'
+  info: {
+    description: 'Application, registration, or interest actions (title and primary CTA required)'
+    displayName: 'Event Card \u2014 Apply'
+    icon: 'cursor'
+  }
+  attributes: {
+    primaryCta: Schema.Attribute.Component<'shared.primary-cta-link', false> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksEventCardWhen extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_event_card_whens'
+  info: {
+    description: 'When an event is taking place (title required; text, date, and time optional)'
+    displayName: 'Event Card \u2014 When'
+    icon: 'calendar'
+  }
+  attributes: {
+    date: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    time: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksEventCardWhere extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_event_card_wheres'
+  info: {
+    description: 'Where an event is taking place (title required; text and location optional)'
+    displayName: 'Event Card \u2014 Where'
+    icon: 'pinMap'
+  }
+  attributes: {
+    location: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -534,8 +685,14 @@ export interface BlocksGrantFaqItem extends Struct.ComponentSchema {
     icon: 'question-circle'
   }
   attributes: {
-    answer: Schema.Attribute.Text &
+    answer: Schema.Attribute.RichText &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -760,6 +917,29 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksNavigationCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_navigation_cards'
+  info: {
+    description: 'Navigation card with heading and link CTA (internal/external/document).'
+    displayName: 'Navigation Card'
+    icon: 'cursor'
+  }
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
+  }
+}
+
 export interface BlocksNumberTile extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles_items'
   info: {
@@ -968,6 +1148,37 @@ export interface BlocksQuote extends Struct.ComponentSchema {
           localized: true
         }
       }>
+  }
+}
+
+export interface BlocksResourceCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_resource_cards'
+  info: {
+    description: 'Resource card with heading, description, and secondary CTA (external/download).'
+    displayName: 'Resource Card'
+    icon: 'file'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      >
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    > &
+      Schema.Attribute.Required
   }
 }
 
@@ -1444,6 +1655,7 @@ export interface SharedSecondaryCtaLink extends Struct.ComponentSchema {
     displayName: 'Secondary CTA Link'
   }
   attributes: {
+    document: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     external: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     link: Schema.Attribute.String & Schema.Attribute.Required
     text: Schema.Attribute.String & Schema.Attribute.Required
@@ -1485,6 +1697,7 @@ declare module '@strapi/strapi' {
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText
       'blocks.card': BlocksCard
+      'blocks.card-grid': BlocksCardGrid
       'blocks.card-link': BlocksCardLink
       'blocks.card-links-grid': BlocksCardLinksGrid
       'blocks.cards-grid': BlocksCardsGrid
@@ -1492,6 +1705,10 @@ declare module '@strapi/strapi' {
       'blocks.carousel-logo': BlocksCarouselLogo
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.event-card': BlocksEventCard
+      'blocks.event-card-apply': BlocksEventCardApply
+      'blocks.event-card-when': BlocksEventCardWhen
+      'blocks.event-card-where': BlocksEventCardWhere
       'blocks.faq': BlocksFaq
       'blocks.faq-item': BlocksFaqItem
       'blocks.faq-section': BlocksFaqSection
@@ -1501,6 +1718,7 @@ declare module '@strapi/strapi' {
       'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard
       'blocks.info-cards': BlocksInfoCards
+      'blocks.navigation-card': BlocksNavigationCard
       'blocks.number-tile': BlocksNumberTile
       'blocks.number-tiles': BlocksNumberTiles
       'blocks.paragraph': BlocksParagraph
@@ -1509,6 +1727,7 @@ declare module '@strapi/strapi' {
       'blocks.profile': BlocksProfile
       'blocks.profile-grid': BlocksProfileGrid
       'blocks.quote': BlocksQuote
+      'blocks.resource-card': BlocksResourceCard
       'blocks.split-layout': BlocksSplitLayout
       'blocks.title-card': BlocksTitleCard
       'blocks.title-card-grid': BlocksTitleCardGrid

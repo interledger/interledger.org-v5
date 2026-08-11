@@ -11,8 +11,17 @@ export function ensureLeadingSlash(path: string): string {
   return path.startsWith('/') ? path : `/${path}`
 }
 
-// Matches a URI scheme (`https:`, `mailto:`, `tel:`, …)
+// Matches a URI scheme (`https:`, `mailto:`, `tel:`, …) or protocol-relative `//`
 const HAS_SCHEME = /^(?:[a-z][a-z\d+\-.]*:|\/\/)/i
+
+/**
+ * True when `url` already carries a scheme (`https:`, `mailto:`, `tel:`, …)
+ * or is protocol-relative (`//host`). Use before {@link ensureLeadingSlash}
+ * so scheme URLs are not turned into `/mailto:…` / `/https://…`.
+ */
+export function hasUrlScheme(url: string): boolean {
+  return HAS_SCHEME.test(url.trim())
+}
 
 /**
  * Ensures an external URL is absolute. Bare hosts like `example.com` get
@@ -22,7 +31,7 @@ const HAS_SCHEME = /^(?:[a-z][a-z\d+\-.]*:|\/\/)/i
 export function ensureAbsoluteUrl(url: string): string {
   const trimmed = url.trim()
   if (!trimmed) return trimmed
-  return HAS_SCHEME.test(trimmed) ? trimmed : `https://${trimmed}`
+  return hasUrlScheme(trimmed) ? trimmed : `https://${trimmed}`
 }
 
 export type SocialIconName =

@@ -34,8 +34,42 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
 import { tryCatchAsync, getProjectRoot, validateLocalImageUrl } from '@/utils'
+import {
+  formatCardGridVariantList,
+  getAllowedCardGridVariants,
+  isCardGridVariantAllowed
+} from '../../src/utils/cardGrid'
 import path from 'path'
 import fs from 'fs'
+
+/**
+ * Reject CardGrid blocks whose variant is not allowed on this content type
+ * (grant page → Info only, grant overview → Title only).
+ */
+function assertCardGridVariantsAllowed(
+  content: unknown,
+  contentTypeUid: string
+): void {
+  const allowed = getAllowedCardGridVariants(contentTypeUid)
+  if (!Array.isArray(content)) return
+  const label = formatCardGridVariantList(allowed)
+  for (const [index, block] of content.entries()) {
+    if (
+      !block ||
+      typeof block !== 'object' ||
+      (block as { __component?: string }).__component !== 'blocks.card-grid'
+    ) {
+      continue
+    }
+    const variant = (block as { variant?: unknown }).variant
+    if (typeof variant !== 'string') continue
+    if (!isCardGridVariantAllowed(variant, contentTypeUid)) {
+      throw new Error(
+        `Card grid at content[${index}] uses variant "${variant}", but this content type only allows ${label}.`
+      )
+    }
+  }
+}
 
 export interface StrapiUploadContext {
   strapi: StrapiClient
@@ -593,18 +627,17 @@ export async function buildGrantPagePayload(
       : null
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const infoCards = parsed.infoCards
@@ -664,6 +697,7 @@ export async function buildGrantPagePayload(
       : undefined
 
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    assertCardGridVariantsAllowed(content, 'api::grant-page.grant-page')
 
     return {
       title: parsed.title,
@@ -704,18 +738,17 @@ export async function buildGrantOverviewPagePayload(
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
     const ctaStripFm = parsed.ctaStrip
+    // Send null for absent/empty optional fields so PUT clears Strapi rather
+    // than leaving a previously synced heading/description in place.
     const ctaStrip = {
-      heading: ctaStripFm.heading,
-      description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
-        : {})
+      heading: nullOrValue(ctaStripFm.heading),
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const hero = await buildHeroWithImage(
@@ -748,6 +781,10 @@ export async function buildGrantOverviewPagePayload(
       : undefined
 
     const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    assertCardGridVariantsAllowed(
+      content,
+      'api::grant-overview-page.grant-overview-page'
+    )
 
     return {
       title: parsed.title,
@@ -835,17 +872,25 @@ export async function buildPodcastPagePayload(
     }))
 
     const ctaStripFm = parsed.ctaStrip
+    // Strips are purple only, so there is no `color` here. #481 took it out
+    // after it made Strapi reject every podcast sync.
+    //
+    // #481 dropped the secondary CTA at the same time, which was right then:
+    // the component had no secondary. INTORG-908 puts one back, so this reads
+    // it again. All or nothing, whitespace counts as empty, matching the
+    // handler, the serializer, the renderer and the validator.
+    const podcastSecondaryText = ctaStripFm.secondaryButtonText?.trim()
+    const podcastSecondaryLink = ctaStripFm.secondaryButtonLink?.trim()
     const ctaStrip = {
       heading: ctaStripFm.heading,
       description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
-      color: ctaStripFm.color,
-      ...(ctaStripFm.secondaryButtonText
-        ? { secondaryButtonText: ctaStripFm.secondaryButtonText }
-        : {}),
-      ...(ctaStripFm.secondaryButtonLink
-        ? { secondaryButtonLink: ctaStripFm.secondaryButtonLink }
+      ...(podcastSecondaryText && podcastSecondaryLink
+        ? {
+            secondaryButtonText: podcastSecondaryText,
+            secondaryButtonLink: podcastSecondaryLink
+          }
         : {})
     }
 
@@ -922,13 +967,15 @@ export async function buildReportPayload(
 /** Dynamic-zone components allowed in hackathon-pages MDX/Strapi content. */
 export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.paragraph',
+  'blocks.card-grid',
   'blocks.number-tiles',
   'blocks.agenda',
   'blocks.split-layout',
   'blocks.profile-grid',
-  'blocks.title-card-grid',
+  'blocks.cta-strip',
   'blocks.carousel',
   'blocks.faq',
+  'blocks.event-card',
   'blocks.quote'
 ] as const
 

@@ -61,49 +61,50 @@ const parallaxImgClass = isWideBand
   : 'parallax-img absolute inset-x-0 top-[-40%] h-[180%] w-full object-cover'
 ---
 
-<!-- White content section -->
+<!--
+  Content column is max-w-content (1440px) with no horizontal padding so title
+  and description span the full content width.
+-->
 <div
-  class="mx-auto bg-white px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:max-w-content"
+  class="mx-auto w-full max-w-content bg-white pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
 >
-  <div class="mx-auto max-w-content">
-    {
-      breadcrumbs && breadcrumbs.length > 0 && (
-        <div class="mb-xl tablet:mb-2xl">
-          <Breadcrumbs
-            breadcrumbs={breadcrumbs}
-            class="[&_a]:text-body-sm-standard"
-          />
-        </div>
-      )
-    }
+  {
+    breadcrumbs && breadcrumbs.length > 0 && (
+      <div class="mb-xl tablet:mb-2xl">
+        <Breadcrumbs
+          breadcrumbs={breadcrumbs}
+          class="[&_a]:text-body-sm-standard"
+        />
+      </div>
+    )
+  }
 
-    <h1
-      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl desktop:max-w-content"
-    >
-      {title}
-    </h1>
+  <h1
+    class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
+  >
+    {title}
+  </h1>
 
-    {
-      description && (
-        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal max-w-[42em] mb-xl tablet:mb-lg">
-          {description}
-        </p>
-      )
-    }
-    {
-      cta && (
-        <LinkButton
-          href={cta.link}
-          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-          external={cta.external}
-          class="w-full tablet:w-auto"
-        >
-          {cta.text}
-          <Icon name="arrow-right" slot="icon-right" />
-        </LinkButton>
-      )
-    }
-  </div>
+  {
+    description && (
+      <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg">
+        {description}
+      </p>
+    )
+  }
+  {
+    cta && (
+      <LinkButton
+        href={cta.link}
+        variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+        external={cta.external}
+        class="w-full tablet:w-auto"
+      >
+        {cta.text}
+        <Icon name="arrow-right" slot="icon-right" />
+      </LinkButton>
+    )
+  }
 </div>
 
 <!-- Parallax image: image is taller than the frame so we can pan as you scroll -->

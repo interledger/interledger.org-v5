@@ -71,9 +71,10 @@
         "blocks.pdf-embed",
         "blocks.video-embed",
         "blocks.number-tiles",
-        "blocks.title-card-grid",
+        "blocks.card-grid",
         "blocks.carousel",
         "blocks.faq",
+        "blocks.event-card",
         "blocks.quote"
       ]
     }

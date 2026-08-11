@@ -1,50 +1,64 @@
 ---
+/**
+ * Gradient/cover hero for foundation, summit, and page-preview routes.
+ * Description spans the full max-w-content column; title keeps a line-length cap.
+ * (Grant-style white/parallax heroes use PageHero instead.)
+ */
 import Link from './Link.astro'
 
-interface CtaLink {
-  link: string
-  text: string
+export interface HeroSectionCta {
+  text?: string
+  link?: string
   style?: string
   external?: boolean
 }
 
 interface Props {
-  title?: string
-  content?: string
-  ctas?: CtaLink[]
+  title: string
+  description?: string | null
+  ctas?: HeroSectionCta[]
+  /** From getHeroSectionStyle — cover image when set, else primary gradient. */
+  sectionStyle?: Record<string, string>
 }
 
-const { title, content, ctas } = Astro.props
+const { title, description, ctas = [], sectionStyle } = Astro.props
+
+const resolvedCtas = ctas.filter(
+  (cta): cta is HeroSectionCta & { text: string; link: string } =>
+    Boolean(cta.text?.trim() && cta.link?.trim())
+)
 ---
 
 <section
-  class="bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right] min-h-[30vh] md:min-h-[50vh] py-2xl text-white flex items-center"
+  class:list={[
+    'min-h-[40vh] py-4xl text-white flex items-center',
+    sectionStyle
+      ? 'bg-no-repeat bg-cover bg-center'
+      : 'bg-gradient-primary bg-no-repeat bg-cover bg-[position:bottom_right]'
+  ]}
+  style={sectionStyle}
 >
-  <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
-    <div>
-      <h1
-        class="text-white max-w-[15em] leading-tight font-semibold mb-lg text-h3-md tablet:text-h3-lg"
-      >
-        {title ?? ''}
-      </h1>
-      <p class="max-w-[50em] text-[1.125rem] leading-relaxed mb-lg">
-        {content ?? ''}
-      </p>
-      {
-        ctas && ctas.length > 0 && (
-          <div class="flex flex-wrap gap-xl mt-xl">
-            {ctas.map((link) => (
-              <Link
-                href={link.link}
-                style={link.style}
-                variant="hero"
-                external={link.external}
-                text={link.text}
-              />
-            ))}
-          </div>
-        )
-      }
-    </div>
+  <div class="mx-auto w-full max-w-content px-2xl">
+    <h1
+      class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]"
+    >
+      {title}
+    </h1>
+    {description && <p class="mb-2xl text-[1.125rem]">{description}</p>}
+    {
+      resolvedCtas.length > 0 && (
+        <div class="flex flex-wrap gap-xl mt-xl">
+          {resolvedCtas.map((cta) => (
+            <Link
+              href={cta.link}
+              style={cta.style}
+              variant="hero"
+              external={cta.external}
+              text={cta.text}
+            />
+          ))}
+        </div>
+      )
+    }
   </div>
 </section>

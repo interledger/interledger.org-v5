@@ -346,11 +346,10 @@ const containerClass = `mx-auto max-w-content px-lg`
       <section id="cta-strip" class="mb-3xl">
         <h2 class="font-poppins mb-xl text-h3">CTA strip</h2>
         <p class="mb-2xl text-body-lg-standard">
-          Heading, description, a required primary CTA and an optional secondary
-          (outline) CTA, on a selectable background colour (purple / green,
-          default purple). Decorative network motif bleeds off the left edge.
-          Resize through the 810 / 1200 thresholds to see the type and padding
-          scale.
+          Optional heading, optional description, and a required primary CTA on
+          the purple background. Decorative network motif bleeds off the left
+          edge. Resize through the 810 / 1200 thresholds to see the type and
+          padding scale.
         </p>
 
         <div class="flex flex-col gap-2xl">
@@ -366,27 +365,18 @@ const containerClass = `mx-auto max-w-content px-lg`
             description="This is a reminder text."
             primaryButtonText="Stay in touch"
             primaryButtonLink="#cta-strip"
-            secondaryButtonText="Get involved"
-            secondaryButtonLink="#cta-strip"
-            color="green"
           />
 
           <CtaStrip
-            heading="Purple with a secondary CTA"
-            description="Both colour variants support an optional secondary outline button alongside the solid primary."
+            heading="Heading only"
             primaryButtonText="Primary action"
             primaryButtonLink="#cta-strip"
-            secondaryButtonText="Secondary action"
-            secondaryButtonLink="#cta-strip"
-            color="purple"
           />
 
           <CtaStrip
-            heading="Green, primary only"
-            description="When no secondary CTA is provided, only the primary button renders."
+            description="A strip can also render without a heading."
             primaryButtonText="Get started"
             primaryButtonLink="#cta-strip"
-            color="green"
           />
         </div>
       </section>
