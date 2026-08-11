@@ -43,24 +43,25 @@ export const OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH =
   'src/generated/optimized-image-manifest.json' as const
 
 /**
- * Committed upload source paths present in the deploy, written by
+ * Optimizable source paths present in the deploy, written by
  * `scripts/optimize-images.ts` in CDN mode (gitignored). CDN mode skips the
  * encoder, so `getOptimizedImage()` has no per-image existence signal; this
- * catalog gates the CDN branch for `/uploads/**` so a path missing from the
- * deploy (an upload not yet git-synced from the firewalled CMS) degrades to a
- * plain `<img>` instead of a 404ing `<picture>` source.
+ * catalog gates the CDN branch so a referenced-but-missing source degrades to a
+ * plain `<img>` instead of a 404ing `<picture>` source. Covers both committed
+ * `/img/**` assets (a renamed hero highres) and git-synced `/uploads/**`
+ * originals (an upload not yet synced from the firewalled CMS).
  */
-export const DEPLOYED_UPLOADS_CATALOG_RELATIVE_PATH =
-  'src/generated/deployed-uploads-catalog.json' as const
+export const DEPLOYED_IMAGE_SOURCES_CATALOG_RELATIVE_PATH =
+  'src/generated/deployed-image-sources-catalog.json' as const
 
 export interface OptimizedImageManifest {
   version: 1
   variants: string[]
 }
 
-export interface DeployedUploadsCatalog {
+export interface DeployedImageSourcesCatalog {
   version: 1
-  uploads: string[]
+  sources: string[]
 }
 
 export function pathToSegments(urlPath: string): string[] {

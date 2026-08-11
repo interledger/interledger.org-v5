@@ -4,13 +4,13 @@ import path from 'node:path'
 import sharp from 'sharp'
 import {
   AVIF_QUALITY,
-  DEPLOYED_UPLOADS_CATALOG_RELATIVE_PATH,
+  DEPLOYED_IMAGE_SOURCES_CATALOG_RELATIVE_PATH,
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
   WEBP_QUALITY,
   pathToSegments,
-  type DeployedUploadsCatalog,
+  type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
 } from '@/utils/main/imagePaths'
 import { isImageCdnEnabled } from '@/utils/main/imageCdn'
@@ -30,9 +30,9 @@ const RUNTIME_MANIFEST_PATH = path.join(
   PROJECT_ROOT,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH
 )
-const RUNTIME_UPLOADS_CATALOG_PATH = path.join(
+const RUNTIME_IMAGE_SOURCES_CATALOG_PATH = path.join(
   PROJECT_ROOT,
-  DEPLOYED_UPLOADS_CATALOG_RELATIVE_PATH
+  DEPLOYED_IMAGE_SOURCES_CATALOG_RELATIVE_PATH
 )
 
 const CONCURRENCY = 4
@@ -145,15 +145,17 @@ function saveRuntimeManifest(): void {
 
 /**
  * Bundled into the SSR function via import.meta.glob in images.ts. In CDN mode
- * the encoder is skipped, so this is getOptimizedImage()'s only signal that an
- * upload actually ships in this deploy. Paths are the site-relative source URLs
- * (e.g. /uploads/img/original/x.png), taken from the already-scanned batches.
+ * the encoder is skipped, so this is getOptimizedImage()'s only signal that a
+ * source actually ships in this deploy. Covers both committed /img assets and
+ * git-synced /uploads originals, so a referenced-but-missing file (a renamed
+ * hero, an upload not yet synced from the firewalled CMS) degrades to a plain
+ * <img> instead of a 404ing <picture> source. Paths are the site-relative
+ * source URLs, taken from the already-scanned batches.
  */
-function saveDeployedUploadsCatalog(
+function saveDeployedImageSourcesCatalog(
   batches: Array<{ dir: string; outputPrefix: string; files: string[] }>
 ): void {
-  const uploads = batches
-    .filter((batch) => batch.outputPrefix === 'uploads')
+  const sources = batches
     .flatMap((batch) =>
       batch.files.map(
         (file) =>
@@ -161,10 +163,12 @@ function saveDeployedUploadsCatalog(
       )
     )
     .sort()
-  const catalog: DeployedUploadsCatalog = { version: 1, uploads }
-  fs.mkdirSync(path.dirname(RUNTIME_UPLOADS_CATALOG_PATH), { recursive: true })
+  const catalog: DeployedImageSourcesCatalog = { version: 1, sources }
+  fs.mkdirSync(path.dirname(RUNTIME_IMAGE_SOURCES_CATALOG_PATH), {
+    recursive: true
+  })
   fs.writeFileSync(
-    RUNTIME_UPLOADS_CATALOG_PATH,
+    RUNTIME_IMAGE_SOURCES_CATALOG_PATH,
     `${JSON.stringify(catalog, null, 2)}\n`
   )
 }
@@ -284,10 +288,10 @@ async function main(): Promise<void> {
   // the runtime catalog falls back to its committed stub when absent. Oversize
   // checks above still run in this mode so CI keeps enforcing image limits.
   if (isImageCdnEnabled()) {
-    // The catalog still ships: it gates the CDN branch for /uploads/** so a
+    // The catalog still ships: it gates the CDN branch for every source so a
     // path missing from this deploy degrades to a plain <img> rather than a
     // 404ing <picture> source. Cheap (paths only, no encoding).
-    saveDeployedUploadsCatalog(sourceBatches)
+    saveDeployedImageSourcesCatalog(sourceBatches)
     console.log(
       'Netlify Image CDN is enabled — skipping image optimization.\n' +
         'Images are transformed on demand at /.netlify/images.\n' +

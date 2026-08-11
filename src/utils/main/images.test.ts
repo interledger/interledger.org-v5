@@ -1,10 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import {
   getOptimizedImage,
   hasOptimizedVariants,
   isOptimizableSource,
-  setDeployedUploadsForTests,
+  setDeployedImageSourcesForTests,
   setImageCdnEnabledForTests,
   setOptimizedImageVariantCatalogForTests
 } from './images'
@@ -24,7 +24,7 @@ function readCdnSourceParam(cdnUrl: string): string | null {
 
 afterEach(() => {
   setOptimizedImageVariantCatalogForTests(null)
-  setDeployedUploadsForTests(null)
+  setDeployedImageSourcesForTests(null)
   setImageCdnEnabledForTests(null)
   vi.restoreAllMocks()
 })
@@ -159,6 +159,15 @@ describe('getOptimizedImage', () => {
 })
 
 describe('getOptimizedImage — Netlify Image CDN mode', () => {
+  // Every source is gated on the deployed-image-sources catalog in CDN mode, so
+  // the sources these tests exercise must be present unless a test overrides it.
+  beforeEach(() => {
+    setDeployedImageSourcesForTests([
+      '/img/hero.png',
+      '/uploads/img/original/hero.jpg'
+    ])
+  })
+
   it('returns CDN URLs for the default width ladder, ignoring the catalog', () => {
     // Empty catalog: when the CDN is on the encoder never runs, so the runtime
     // catalog falls back to its committed (empty) stub.
@@ -237,7 +246,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
 
   it('emits same-origin CDN sources for deployed relative uploads', () => {
     setImageCdnEnabledForTests(true)
-    setDeployedUploadsForTests(['/uploads/img/original/hero.jpg'])
+    setDeployedImageSourcesForTests(['/uploads/img/original/hero.jpg'])
 
     const { fullSrc } = getOptimizedImage('/uploads/img/original/hero.jpg')
 
@@ -252,7 +261,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     // The CMS is firewalled and the site must stay self-contained, so an
     // absolute CMS origin must never reach the browser as a CDN source.
     setImageCdnEnabledForTests(true)
-    setDeployedUploadsForTests(['/uploads/img/original/hero.jpg'])
+    setDeployedImageSourcesForTests(['/uploads/img/original/hero.jpg'])
 
     const absolute = 'https://cms.example.com/uploads/img/original/hero.jpg'
     const { variants } = getOptimizedImage(absolute)
@@ -274,7 +283,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     // firewalled CMS must not get a 404ing <picture> source, so it returns
     // empty and the component falls back to a plain <img>.
     setImageCdnEnabledForTests(true)
-    setDeployedUploadsForTests([])
+    setDeployedImageSourcesForTests([])
 
     expect(getOptimizedImage('/uploads/img/original/missing.jpg')).toEqual(
       EMPTY
@@ -319,6 +328,22 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     setImageCdnEnabledForTests(true)
 
     expect(hasOptimizedVariants(getOptimizedImage('/img/hero.png'))).toBe(true)
+  })
+
+  it('reports no variants for an /img source missing from this deploy', () => {
+    // Guards the HomepageHero probe: hasOptimizedVariants is a real existence
+    // check, not a constant. A renamed/removed highres source must report false
+    // so the hero falls back instead of emitting a 404ing >=2560px <source>.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/homepage/stefan-thomas.webp'])
+
+    const highRes = getOptimizedImage(
+      '/img/homepage/stefan-thomas-highres.avif',
+      TARGET_WIDTHS
+    )
+
+    expect(highRes).toEqual(EMPTY)
+    expect(hasOptimizedVariants(highRes)).toBe(false)
   })
 
   it('falls back to the catalog when the CDN is off', () => {

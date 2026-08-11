@@ -1,6 +1,6 @@
 import path from 'node:path'
 import stubManifest from '../../generated/optimized-image-manifest.stub.json'
-import stubUploadsCatalog from '../../generated/deployed-uploads-catalog.stub.json'
+import stubImageSourcesCatalog from '../../generated/deployed-image-sources-catalog.stub.json'
 import {
   buildImageCdnUrl,
   buildImageCdnVariants,
@@ -10,7 +10,7 @@ import {
 import {
   DEFAULT_CDN_WIDTHS,
   IMAGE_URL_PATHS,
-  type DeployedUploadsCatalog,
+  type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
 } from './imagePaths'
 
@@ -52,17 +52,17 @@ const bundledCatalogPaths = new Set(
   bundledManifest.variants.map((src) => (src.startsWith('/') ? src : `/${src}`))
 )
 
-const generatedUploadsCatalogModules = import.meta.glob(
-  '../../generated/deployed-uploads-catalog.json',
+const generatedImageSourcesCatalogModules = import.meta.glob(
+  '../../generated/deployed-image-sources-catalog.json',
   { eager: true, import: 'default' }
-) as Record<string, DeployedUploadsCatalog>
+) as Record<string, DeployedImageSourcesCatalog>
 
-const bundledUploadsCatalog: DeployedUploadsCatalog =
-  Object.values(generatedUploadsCatalogModules)[0] ??
-  (stubUploadsCatalog as DeployedUploadsCatalog)
+const bundledImageSourcesCatalog: DeployedImageSourcesCatalog =
+  Object.values(generatedImageSourcesCatalogModules)[0] ??
+  (stubImageSourcesCatalog as DeployedImageSourcesCatalog)
 
-const bundledDeployedUploads = new Set(
-  bundledUploadsCatalog.uploads.map((src) =>
+const bundledDeployedSources = new Set(
+  bundledImageSourcesCatalog.sources.map((src) =>
     src.startsWith('/') ? src : `/${src}`
   )
 )
@@ -77,12 +77,12 @@ export function setOptimizedImageVariantCatalogForTests(
 }
 
 /** Test-only override. Pass `null` to restore the bundled/stub catalog. */
-let deployedUploadsOverride: ReadonlySet<string> | null = null
+let deployedSourcesOverride: ReadonlySet<string> | null = null
 
-export function setDeployedUploadsForTests(
+export function setDeployedImageSourcesForTests(
   paths: Iterable<string> | null
 ): void {
-  deployedUploadsOverride = paths === null ? null : new Set(paths)
+  deployedSourcesOverride = paths === null ? null : new Set(paths)
 }
 
 /** Test-only override. Pass `null` to fall back to the environment. */
@@ -122,14 +122,14 @@ function optimizedVariantExists(urlPath: string): boolean {
 }
 
 /**
- * Whether an upload path ships in the current deploy. In CDN mode the encoder
+ * Whether a source path ships in the current deploy. In CDN mode the encoder
  * is skipped, so this catalog is the only existence signal; a path absent here
- * (an upload not yet git-synced from the firewalled CMS) must not get a CDN
- * `<picture>` source, because the browser cannot fall back from a 404ing
- * `<source>` and the firewalled origin is unreachable.
+ * (a renamed `/img` asset, or an upload not yet git-synced from the firewalled
+ * CMS) must not get a CDN `<picture>` source, because the browser cannot fall
+ * back from a 404ing `<source>` and the firewalled origin is unreachable.
  */
-function deployedUploadExists(urlPath: string): boolean {
-  return (deployedUploadsOverride ?? bundledDeployedUploads).has(urlPath)
+function deployedSourceExists(urlPath: string): boolean {
+  return (deployedSourcesOverride ?? bundledDeployedSources).has(urlPath)
 }
 
 export function buildImageSrcset(variants: ImageVariant[]): string {
@@ -248,9 +248,10 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * numbered variants, only `fullSrc` will be populated.
  *
  * On Netlify (and in CI) this returns Netlify Image CDN URLs for optimizable
- * sources. Uploads are gated on the deployed-uploads catalog: an upload not yet
- * shipped in this deploy returns the empty result so components degrade to a
- * plain `<img>` rather than a 404ing `<picture>` source.
+ * sources. Every source is gated on the deployed-image-sources catalog: a path
+ * not shipped in this deploy (a renamed `/img` asset, or an upload not yet
+ * git-synced from the firewalled CMS) returns the empty result so components
+ * degrade to a plain `<img>` rather than a 404ing `<picture>` source.
  *
  * In CDN mode the srcset advertises `cdnWidths` (default `DEFAULT_CDN_WIDTHS`).
  * Pass `TARGET_WIDTHS` for a source that genuinely has 4K pixels (the hero) to
@@ -273,11 +274,7 @@ export function getOptimizedImage(
   }
 
   if (imageCdnOverride ?? imageCdnEnabled()) {
-    const isUpload = isWithinUrlPath(
-      source.pathname,
-      IMAGE_URL_PATHS.uploadSource
-    )
-    if (isUpload && !deployedUploadExists(source.pathname)) {
+    if (!deployedSourceExists(source.pathname)) {
       return {
         variants: [],
         fullSrc: null,
