@@ -122,6 +122,20 @@ describe('CtaStrip handler', () => {
     expect(description).toContain('**more**')
   })
 
+  it('preserves a mailto link in the description', async () => {
+    const mdx = [
+      open('heading="H" primaryButtonText="P" primaryButtonLink="/p"'),
+      'Reach out to [our team](mailto:programteam@interledger.org) for help.',
+      '</CtaStrip>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+    const description = (blocks[0] as { description: string }).description
+    expect(description).toContain(
+      '[our team](mailto:programteam@interledger.org)'
+    )
+  })
+
   it('allows heading to be absent', async () => {
     const mdx = [
       open('primaryButtonText="P" primaryButtonLink="/p"'),

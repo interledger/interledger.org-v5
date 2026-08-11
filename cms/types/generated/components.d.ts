@@ -390,7 +390,13 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
     icon: 'cursor'
   }
   attributes: {
-    description: Schema.Attribute.Text &
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
