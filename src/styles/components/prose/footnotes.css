@@ -31,9 +31,14 @@
       padding-block-start: var(--spacing-3xl);
       border-block-start: 2px solid var(--color-neutral-50);
       color: var(--color-neutral-100);
-      font-size: var(--text-body-sm-standard);
-      line-height: var(--text-body-sm-standard--line-height);
-      font-weight: var(--text-body-sm-standard--font-weight);
+      font-size: var(--text-body-lg-standard);
+      line-height: var(--text-body-lg-standard--line-height);
+      font-weight: var(--text-body-lg-standard--font-weight);
+      @variant tablet {
+        font-size: var(--text-body-lg-standard-md);
+        line-height: var(--text-body-lg-standard-md--line-height);
+        font-weight: var(--text-body-lg-standard-md--font-weight);
+      }
     }
 
     /* GFM emits `<h2 id="footnote-label" class="sr-only">`; Tailwind's
@@ -45,6 +50,14 @@
       margin: 0;
       padding: 0;
       counter-reset: footnote;
+      /* Reclaim inheritance from `.footnotes`/`[data-footnotes]` — without
+         this, `main`'s global `ol { font-size: var(--text-h5) }` rule
+         (default.css) sets this element's own font-size directly, and the
+         `inherit` on `li`/`li p` below picks up that value instead of the
+         container's --text-body-sm-standard. */
+      font-size: inherit;
+      line-height: inherit;
+      font-weight: inherit;
     }
 
     .footnotes li,
@@ -87,6 +100,8 @@
     .footnotes a,
     [data-footnotes] a {
       color: var(--color-primary);
+      font-size: inherit;
+      line-height: inherit;
       font-weight: var(--text-body-sm-standard--font-weight);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
