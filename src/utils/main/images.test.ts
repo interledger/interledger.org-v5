@@ -184,7 +184,9 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     // which would be extra billed transforms of clamped, identical output.
     setImageCdnEnabledForTests(true)
 
-    const widths = getOptimizedImage('/img/hero.png').variants.map((v) => v.width)
+    const widths = getOptimizedImage('/img/hero.png').variants.map(
+      (v) => v.width
+    )
 
     expect(widths).not.toContain(2560)
     expect(widths).not.toContain(3840)
