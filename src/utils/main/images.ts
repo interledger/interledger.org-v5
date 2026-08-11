@@ -1,12 +1,17 @@
 import path from 'node:path'
 import stubManifest from '../../generated/optimized-image-manifest.stub.json'
+import stubUploadsCatalog from '../../generated/deployed-uploads-catalog.stub.json'
 import {
   buildImageCdnUrl,
   buildImageCdnVariants,
   imageCdnEnabled,
   largestTargetWidth
 } from './imageCdn'
-import { IMAGE_URL_PATHS, type OptimizedImageManifest } from './imagePaths'
+import {
+  IMAGE_URL_PATHS,
+  type DeployedUploadsCatalog,
+  type OptimizedImageManifest
+} from './imagePaths'
 
 export {
   IMAGE_URL_PATHS,
@@ -29,10 +34,8 @@ export interface OptimizedImage {
 }
 
 interface ResolvedImageSource {
-  /** Pathname used by the pre-generated catalog path mapping. */
+  /** Site-relative pathname, used for both the catalog mapping and CDN source. */
   pathname: string
-  /** Source URL/path used by Netlify Image CDN transforms. */
-  cdnSource: string
 }
 
 const generatedManifestModules = import.meta.glob(
@@ -48,6 +51,21 @@ const bundledCatalogPaths = new Set(
   bundledManifest.variants.map((src) => (src.startsWith('/') ? src : `/${src}`))
 )
 
+const generatedUploadsCatalogModules = import.meta.glob(
+  '../../generated/deployed-uploads-catalog.json',
+  { eager: true, import: 'default' }
+) as Record<string, DeployedUploadsCatalog>
+
+const bundledUploadsCatalog: DeployedUploadsCatalog =
+  Object.values(generatedUploadsCatalogModules)[0] ??
+  (stubUploadsCatalog as DeployedUploadsCatalog)
+
+const bundledDeployedUploads = new Set(
+  bundledUploadsCatalog.uploads.map((src) =>
+    src.startsWith('/') ? src : `/${src}`
+  )
+)
+
 /** Test-only override. Pass `null` to restore the bundled/stub catalog. */
 let catalogOverride: ReadonlySet<string> | null = null
 
@@ -55,6 +73,15 @@ export function setOptimizedImageVariantCatalogForTests(
   paths: Iterable<string> | null
 ): void {
   catalogOverride = paths === null ? null : new Set(paths)
+}
+
+/** Test-only override. Pass `null` to restore the bundled/stub catalog. */
+let deployedUploadsOverride: ReadonlySet<string> | null = null
+
+export function setDeployedUploadsForTests(
+  paths: Iterable<string> | null
+): void {
+  deployedUploadsOverride = paths === null ? null : new Set(paths)
 }
 
 /** Test-only override. Pass `null` to fall back to the environment. */
@@ -87,6 +114,17 @@ function optimizedVariantExists(urlPath: string): boolean {
   return (catalogOverride ?? bundledCatalogPaths).has(urlPath)
 }
 
+/**
+ * Whether an upload path ships in the current deploy. In CDN mode the encoder
+ * is skipped, so this catalog is the only existence signal; a path absent here
+ * (an upload not yet git-synced from the firewalled CMS) must not get a CDN
+ * `<picture>` source, because the browser cannot fall back from a 404ing
+ * `<source>` and the firewalled origin is unreachable.
+ */
+function deployedUploadExists(urlPath: string): boolean {
+  return (deployedUploadsOverride ?? bundledDeployedUploads).has(urlPath)
+}
+
 export function buildImageSrcset(variants: ImageVariant[]): string {
   return variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 }
@@ -115,21 +153,17 @@ function replaceUrlPathPrefix(
  * Strapi URLs (http://host/uploads/...). Rejects SVGs, extensionless paths,
  * anything outside the known source directories, and the generated output tree.
  *
- * Split out from `getOptimizedBase` because the CDN and pre-generated paths
- * need different source forms:
- * - catalog mapping always uses a site-relative `pathname`
- * - CDN keeps absolute upload URLs as-is to avoid assuming same-origin uploads
+ * Absolute Strapi URLs are reduced to their site-relative pathname: the CMS is
+ * firewalled and the site must stay self-contained, so every source has to
+ * resolve against our own deploy, never the CMS origin.
  */
 function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   if (!src || src.endsWith('.svg')) return null
 
   let pathname = src
-  let absoluteSource: string | null = null
   if (src.startsWith('http')) {
     try {
-      const parsed = new URL(src)
-      pathname = parsed.pathname
-      absoluteSource = src
+      pathname = new URL(src).pathname
     } catch {
       return null
     }
@@ -138,23 +172,22 @@ function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   if (!path.extname(pathname)) return null
 
   if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
-    return {
-      pathname,
-      cdnSource: absoluteSource ?? pathname
-    }
+    return { pathname }
   }
 
   if (
     isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicSource) &&
     !isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)
   ) {
-    return {
-      pathname,
-      cdnSource: pathname
-    }
+    return { pathname }
   }
 
   return null
+}
+
+/** Whether a source is eligible for optimization (used to scope the warning). */
+export function isOptimizableSource(src: string): boolean {
+  return resolveOptimizableSource(src) !== null
 }
 
 /** Maps a resolved source path to the base name of its pre-generated variants. */
@@ -208,8 +241,9 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * numbered variants, only `fullSrc` will be populated.
  *
  * On Netlify (and in CI) this returns Netlify Image CDN URLs for optimizable
- * sources. Absolute upload URLs stay absolute in CDN mode so transforms do not
- * depend on same-origin `/uploads/**` files being present in the current deploy.
+ * sources. Uploads are gated on the deployed-uploads catalog: an upload not yet
+ * shipped in this deploy returns the empty result so components degrade to a
+ * plain `<img>` rather than a 404ing `<picture>` source.
  *
  * CDN URLs already contain percent-encoded query parameter values, so callers
  * must treat them as final URLs: do not run `encodeURI()` or a similar
@@ -223,7 +257,19 @@ export function getOptimizedImage(src: string): OptimizedImage {
   }
 
   if (imageCdnOverride ?? imageCdnEnabled()) {
-    return buildCdnImage(source.cdnSource)
+    const isUpload = isWithinUrlPath(
+      source.pathname,
+      IMAGE_URL_PATHS.uploadSource
+    )
+    if (isUpload && !deployedUploadExists(source.pathname)) {
+      return {
+        variants: [],
+        fullSrc: null,
+        avifVariants: [],
+        avifFullSrc: null
+      }
+    }
+    return buildCdnImage(source.pathname)
   }
 
   const base = getOptimizedBase(source.pathname)

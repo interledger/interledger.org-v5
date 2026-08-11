@@ -3,6 +3,8 @@ import fs from 'node:fs'
 import {
   getOptimizedImage,
   hasOptimizedVariants,
+  isOptimizableSource,
+  setDeployedUploadsForTests,
   setImageCdnEnabledForTests,
   setOptimizedImageVariantCatalogForTests
 } from './images'
@@ -22,6 +24,7 @@ function readCdnSourceParam(cdnUrl: string): string | null {
 
 afterEach(() => {
   setOptimizedImageVariantCatalogForTests(null)
+  setDeployedUploadsForTests(null)
   setImageCdnEnabledForTests(null)
   vi.restoreAllMocks()
 })
@@ -206,8 +209,9 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     for (const src of urls) expect(src).toMatch(/[?&]w=\d+/)
   })
 
-  it('keeps relative upload originals as same-origin CDN sources', () => {
+  it('emits same-origin CDN sources for deployed relative uploads', () => {
     setImageCdnEnabledForTests(true)
+    setDeployedUploadsForTests(['/uploads/img/original/hero.jpg'])
 
     const { fullSrc } = getOptimizedImage('/uploads/img/original/hero.jpg')
 
@@ -218,21 +222,37 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     expect(readCdnSourceParam(fullSrc!)).toBe('/uploads/img/original/hero.jpg')
   })
 
-  it('keeps absolute Strapi upload URLs absolute in CDN mode', () => {
+  it('normalizes absolute Strapi upload URLs to same-origin CDN sources', () => {
+    // The CMS is firewalled and the site must stay self-contained, so an
+    // absolute CMS origin must never reach the browser as a CDN source.
     setImageCdnEnabledForTests(true)
+    setDeployedUploadsForTests(['/uploads/img/original/hero.jpg'])
 
     const absolute = 'https://cms.example.com/uploads/img/original/hero.jpg'
     const { variants } = getOptimizedImage(absolute)
 
     expect(variants[0].src).toBe(
-      buildImageCdnUrl(absolute, {
+      buildImageCdnUrl('/uploads/img/original/hero.jpg', {
         format: 'webp',
         width: 640
       })
     )
-    expect(variants[0].src).toContain(encodeURIComponent(absolute))
-    expect(variants[0].src).not.toContain('url=%2Fuploads%2Fimg%2Foriginal')
-    expect(readCdnSourceParam(variants[0].src)).toBe(absolute)
+    expect(readCdnSourceParam(variants[0].src)).toBe(
+      '/uploads/img/original/hero.jpg'
+    )
+    expect(variants[0].src).not.toContain('cms.example.com')
+  })
+
+  it('degrades uploads missing from this deploy to no variants', () => {
+    // CDN mode has no encoder catalog; an upload not yet git-synced from the
+    // firewalled CMS must not get a 404ing <picture> source, so it returns
+    // empty and the component falls back to a plain <img>.
+    setImageCdnEnabledForTests(true)
+    setDeployedUploadsForTests([])
+
+    expect(getOptimizedImage('/uploads/img/original/missing.jpg')).toEqual(
+      EMPTY
+    )
   })
 
   it('keeps /img sources relative in CDN mode', () => {
@@ -282,5 +302,18 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     expect(getOptimizedImage('/img/hero.png').variants).toEqual([
       { src: '/img/optimized/hero-640.webp', width: 640 }
     ])
+  })
+})
+
+describe('isOptimizableSource', () => {
+  it('accepts optimizable rasters, rejects svgs and unknown paths', () => {
+    expect(isOptimizableSource('/img/hero.png')).toBe(true)
+    expect(isOptimizableSource('/uploads/img/original/x.jpg')).toBe(true)
+    expect(
+      isOptimizableSource('https://cms.example.com/uploads/img/original/x.jpg')
+    ).toBe(true)
+    expect(isOptimizableSource('/img/logo.svg')).toBe(false)
+    expect(isOptimizableSource('/somewhere/else.png')).toBe(false)
+    expect(isOptimizableSource('/img/noext')).toBe(false)
   })
 })

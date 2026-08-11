@@ -147,6 +147,7 @@ export {
   getOptimizedImage,
   buildImageSrcset,
   hasOptimizedVariants,
+  isOptimizableSource,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,
