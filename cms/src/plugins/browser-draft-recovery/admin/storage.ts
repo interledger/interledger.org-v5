@@ -50,7 +50,9 @@ export function readDraft(
   }
 }
 
-export function writeDraft(draft: StoredDraft): 'ok' | 'quota' | 'too-large' {
+export function writeDraft(
+  draft: StoredDraft
+): 'ok' | 'quota' | 'too-large' | 'error' {
   try {
     const json = JSON.stringify(draft)
     if (json.length > MAX_PAYLOAD_CHARS) return 'too-large'
@@ -66,12 +68,8 @@ export function writeDraft(draft: StoredDraft): 'ok' | 'quota' | 'too-large' {
     ) {
       return 'quota'
     }
-
-    console.warn(
-      '[browser-draft-recovery] unexpected localStorage write error:',
-      err
-    )
-    return 'quota'
+    console.warn('[browser-draft-recovery] unexpected localStorage error:', err)
+    return 'error'
   }
 }
 

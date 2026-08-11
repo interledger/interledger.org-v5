@@ -1,9 +1,4 @@
-/**
- * Invisible Content Manager runner: localStorage autosave of dirty forms and
- * auto-restore after crash/reload. Console logs only (no editor UI).
- *
- * Relies on experimental useContentManagerContext (form.values / setValues / modified).
- */
+// Relies on unstable_useContentManagerContext — form.values / setValues / modified.
 import { useCallback, useEffect, useRef } from 'react'
 import { unstable_useContentManagerContext as useContentManagerContext } from '@strapi/content-manager/strapi-admin'
 import {
@@ -14,12 +9,10 @@ import {
 } from './entryIdentity'
 import {
   AUTOSAVE_INTERVAL_MS,
-  CREATE_DOCUMENT_ID,
   DIRTY_SNAPSHOT_DELAY_MS,
   clearEntryDrafts,
   draftKey,
   readDraft,
-  rekeyCreateDraft,
   stableStringify,
   writeDraft,
   type StoredDraft
@@ -59,34 +52,48 @@ function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
 
   const lastWrittenRef = useRef('')
   const wasModifiedRef = useRef(false)
-  const prevDocumentIdRef = useRef(documentId)
-  /** Exactly-once restore guard, keyed by model/documentId/locale. */
+  const prevIdentityRef = useRef(`${model}::${documentId}::${locale}`)
   const restoredForKeyRef = useRef('')
 
-  const snapshot = useCallback(
-    (reason: string) => {
-      if (!canStore || !form?.modified || !form.values) return
+  // form from useContentManagerContext is a new object reference on every
+  // keystroke (Strapi's form reducer uses immer). Closing over it in useCallback
+  // would give `snapshot` a new identity each render, causing the interval and
+  // event-listener effects to tear down and recreate constantly. Reading from a
+  // ref instead keeps the callback identity stable.
+  const snapshotState = useRef({ canStore, form, model, documentId, locale })
+  snapshotState.current = { canStore, form, model, documentId, locale }
 
-      const draft: StoredDraft = {
-        version: 1,
-        savedAt: new Date().toISOString(),
-        model,
-        documentId,
-        locale,
-        values: form.getValues?.() ?? form.values
-      }
-      const fingerprint = stableStringify(draft.values)
-      if (fingerprint === lastWrittenRef.current) return
+  const snapshot = useCallback((reason: string) => {
+    const { canStore, form, model, documentId, locale } = snapshotState.current
+    if (!canStore || !form?.modified || !form.values) return
 
-      const result = writeDraft(draft)
-      if (result === 'ok') {
-        lastWrittenRef.current = fingerprint
-        return
-      }
-      console.warn(LOG, 'snapshot failed', { reason, result })
-    },
-    [canStore, form, model, documentId, locale]
-  )
+    const draft: StoredDraft = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      model,
+      documentId,
+      locale,
+      values: form.getValues?.() ?? form.values
+    }
+    const fingerprint = stableStringify(draft.values)
+    if (fingerprint === lastWrittenRef.current) return
+
+    const result = writeDraft(draft)
+    if (result === 'ok') {
+      lastWrittenRef.current = fingerprint
+      return
+    }
+    console.warn(LOG, 'snapshot failed', { reason, result })
+  }, [])
+
+  useEffect(() => {
+    if (documentId === 'unknown') {
+      console.info(
+        LOG,
+        'draft recovery inactive — documentId could not be resolved (single-type content types are not supported)'
+      )
+    }
+  }, [documentId])
 
   // Auto-restore once per entry after CM has loaded server values.
   useEffect(() => {
@@ -121,7 +128,6 @@ function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
     canStore,
     ctx.isLoading,
     documentId,
-    form,
     form?.initialValues,
     form?.setValues,
     locale,
@@ -140,9 +146,8 @@ function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
 
   useEffect(() => {
     const onHide = () => {
-      if (window.document.visibilityState === 'hidden') {
+      if (window.document.visibilityState === 'hidden')
         snapshot('visibilitychange')
-      }
     }
     const onUnload = () => snapshot('beforeunload')
     window.document.addEventListener('visibilitychange', onHide)
@@ -154,6 +159,8 @@ function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
   }, [snapshot])
 
   // Debounced snapshot soon after edits (do not wait for the full interval).
+  // form?.values is intentionally excluded from deps: it's a new object reference
+  // on every keystroke (immer), which would reset the timer on every keypress.
   useEffect(() => {
     if (!form?.modified) return
     const t = window.setTimeout(
@@ -161,35 +168,30 @@ function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
       DIRTY_SNAPSHOT_DELAY_MS
     )
     return () => window.clearTimeout(t)
-  }, [form?.modified, form?.values, snapshot])
-
-  // create → real documentId: keep the draft under the new key while still dirty.
-  useEffect(() => {
-    const prev = prevDocumentIdRef.current
-    prevDocumentIdRef.current = documentId
-    if (
-      prev !== CREATE_DOCUMENT_ID ||
-      documentId === CREATE_DOCUMENT_ID ||
-      documentId === 'unknown' ||
-      !form?.modified
-    ) {
-      return
-    }
-    const migrated = rekeyCreateDraft(model, locale, documentId)
-    if (migrated) {
-      lastWrittenRef.current = stableStringify(migrated.values)
-    }
-  }, [documentId, form?.modified, locale, model])
+  }, [form?.modified, snapshot])
 
   // Drop browser drafts when the form becomes clean (successful Save path).
+  // prevIdentityRef detects SPA navigation: wasModifiedRef carries state from
+  // the previous entry, so without this guard it would misfire clearEntryDrafts
+  // against the new entry's draft the moment the clean create form mounts.
   useEffect(() => {
-    if (!form || !canStore) return
-    if (wasModifiedRef.current && !form.modified) {
+    if (!canStore) return
+
+    const identity = `${model}::${documentId}::${locale}`
+    const navigated = prevIdentityRef.current !== identity
+    prevIdentityRef.current = identity
+
+    if (navigated) {
+      wasModifiedRef.current = false
+      return
+    }
+
+    if (wasModifiedRef.current && !form?.modified) {
       clearEntryDrafts(model, documentId, locale)
       lastWrittenRef.current = ''
     }
-    wasModifiedRef.current = form.modified
-  }, [canStore, documentId, form, form?.modified, locale, model])
+    wasModifiedRef.current = form?.modified ?? false
+  }, [canStore, documentId, form?.modified, locale, model])
 
   return null
 }

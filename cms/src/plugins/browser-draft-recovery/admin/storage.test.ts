@@ -135,10 +135,10 @@ describe('browser-draft-recovery storage', () => {
       expect(writeDraft(sampleDraft())).toBe('quota')
     })
 
-    it('returns quota and warns on unexpected write errors', () => {
+    it('returns error and warns on unexpected write errors', () => {
       mockLocalStorage({ throwGenericOnSet: true })
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      expect(writeDraft(sampleDraft())).toBe('quota')
+      expect(writeDraft(sampleDraft())).toBe('error')
       expect(warn).toHaveBeenCalled()
       warn.mockRestore()
     })
