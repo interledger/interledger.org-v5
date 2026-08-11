@@ -5,7 +5,7 @@ This is the Strapi CMS for managing content that will be rendered on the Interle
 ## Features
 
 - **Automatic MDX Generation**: Content is converted to MDX and committed to the `staging clone` whenever it is published or updated in Strapi.
-- **Draft & Publish Workflow**: Editors can draft content and publish it when ready.
+- **Browser draft recovery**: The `browser-draft-recovery` admin plugin invisibly autosaves dirty Content Manager forms to `localStorage` and auto-restores after a crash/reload. Per browser only — not Draft & Publish and not multi-user. Console prefix `[browser-draft-recovery]`. See ADR-009.
 - **SQLite Database**: Lightweight database for easy development and deployment.
 - **Previews**:
   - Strapi stores draft content, and Astro renders previews on demand via an SSR route that fetches the latest data directly from Strapi.

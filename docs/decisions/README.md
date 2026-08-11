@@ -16,6 +16,7 @@ An ADR captures a single technical decision: the context that forced it, what wa
 | 006 | Label-first event names with grouped path properties                       | Accepted | 2026-07-06 |
 | 007 | Dependency-aware ordering in the MDX → Strapi sync                         | Accepted | 2026-07-18 |
 | 008 | Exclude `public/img`/`public/uploads` from the Netlify SSR function bundle | Accepted | 2026-07-18 |
+| 009 | Browser draft recovery for Strapi Content Manager                          | Proposed | 2026-08-11 |
 
 ## Writing a new ADR
 
