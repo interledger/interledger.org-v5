@@ -9,6 +9,8 @@ export interface OptimizedImageAlternateSource {
   src: string
   media: string
   sizes: string
+  /** CDN width ladder for this source; defaults to the capped default. */
+  widths?: readonly number[]
 }
 
 interface Props {
@@ -48,8 +50,13 @@ const { variants, fullSrc, avifVariants, avifFullSrc } = src
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const alternatePictureSources = alternateSources.flatMap(
-  ({ src: alternateSrc, media: alternateMedia, sizes: alternateSizes }) => {
-    const alternate = getOptimizedImage(alternateSrc)
+  ({
+    src: alternateSrc,
+    media: alternateMedia,
+    sizes: alternateSizes,
+    widths: alternateWidths
+  }) => {
+    const alternate = getOptimizedImage(alternateSrc, alternateWidths)
     const sources: Array<{
       type: string
       media: string

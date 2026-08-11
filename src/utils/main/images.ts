@@ -8,6 +8,7 @@ import {
   largestTargetWidth
 } from './imageCdn'
 import {
+  DEFAULT_CDN_WIDTHS,
   IMAGE_URL_PATHS,
   type DeployedUploadsCatalog,
   type OptimizedImageManifest
@@ -92,20 +93,26 @@ export function setImageCdnEnabledForTests(enabled: boolean | null): void {
 }
 
 /**
- * Every variant the CDN can produce, without consulting a catalog: Netlify
- * clamps each width to the source size, so offering all target widths is safe
- * even though the intrinsic width is unknown here.
+ * Every variant the CDN can produce for the given width ladder, without
+ * consulting a catalog: Netlify clamps each width to the source size, so
+ * offering a width wider than the source is safe even though the intrinsic
+ * width is unknown here. The ladder defaults to `DEFAULT_CDN_WIDTHS` so ordinary
+ * images don't pay for 2560/3840 transforms of clamped, identical output; the
+ * hero opts into `TARGET_WIDTHS` for genuine 4K sources.
  *
- * `fullSrc` points at the largest target width rather than an unsized URL.
- * Both render the same pixels for any source narrower than 3840, but an unsized
- * URL is a distinct cache entry and so a second billed transform.
+ * `fullSrc` points at the largest offered width rather than an unsized URL.
+ * Both render the same pixels for any source narrower than that width, but an
+ * unsized URL is a distinct cache entry and so a second billed transform.
  */
-function buildCdnImage(source: string): OptimizedImage {
-  const fullWidth = largestTargetWidth()
+function buildCdnImage(
+  source: string,
+  widths: readonly number[] = DEFAULT_CDN_WIDTHS
+): OptimizedImage {
+  const fullWidth = largestTargetWidth(widths)
   return {
-    variants: buildImageCdnVariants(source, 'webp'),
+    variants: buildImageCdnVariants(source, 'webp', widths),
     fullSrc: buildImageCdnUrl(source, { format: 'webp', width: fullWidth }),
-    avifVariants: buildImageCdnVariants(source, 'avif'),
+    avifVariants: buildImageCdnVariants(source, 'avif', widths),
     avifFullSrc: buildImageCdnUrl(source, { format: 'avif', width: fullWidth })
   }
 }
@@ -245,12 +252,21 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * shipped in this deploy returns the empty result so components degrade to a
  * plain `<img>` rather than a 404ing `<picture>` source.
  *
+ * In CDN mode the srcset advertises `cdnWidths` (default `DEFAULT_CDN_WIDTHS`).
+ * Pass `TARGET_WIDTHS` for a source that genuinely has 4K pixels (the hero) to
+ * opt into 2560/3840; the default keeps ordinary images from paying for
+ * clamped, byte-identical transforms at those widths. Ignored in build mode,
+ * where variants come from the encoder catalog of files that actually exist.
+ *
  * CDN URLs already contain percent-encoded query parameter values, so callers
  * must treat them as final URLs: do not run `encodeURI()` or a similar
  * whole-URL escaping pass over the returned strings, or `%2F...` becomes
  * `%252F...` and the CDN source path breaks. See `imageCdn.ts`.
  */
-export function getOptimizedImage(src: string): OptimizedImage {
+export function getOptimizedImage(
+  src: string,
+  cdnWidths: readonly number[] = DEFAULT_CDN_WIDTHS
+): OptimizedImage {
   const source = resolveOptimizableSource(src)
   if (!source) {
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
@@ -269,7 +285,7 @@ export function getOptimizedImage(src: string): OptimizedImage {
         avifFullSrc: null
       }
     }
-    return buildCdnImage(source.pathname)
+    return buildCdnImage(source.pathname, cdnWidths)
   }
 
   const base = getOptimizedBase(source.pathname)

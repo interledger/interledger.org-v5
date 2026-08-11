@@ -9,7 +9,7 @@ import {
   setOptimizedImageVariantCatalogForTests
 } from './images'
 import { buildImageCdnUrl, largestTargetWidth } from './imageCdn'
-import { TARGET_WIDTHS } from './imagePaths'
+import { DEFAULT_CDN_WIDTHS, TARGET_WIDTHS } from './imagePaths'
 
 const EMPTY = {
   variants: [],
@@ -159,7 +159,7 @@ describe('getOptimizedImage', () => {
 })
 
 describe('getOptimizedImage — Netlify Image CDN mode', () => {
-  it('returns CDN URLs for every target width, ignoring the catalog', () => {
+  it('returns CDN URLs for the default width ladder, ignoring the catalog', () => {
     // Empty catalog: when the CDN is on the encoder never runs, so the runtime
     // catalog falls back to its committed (empty) stub.
     setOptimizedImageVariantCatalogForTests([])
@@ -167,14 +167,38 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
 
     const result = getOptimizedImage('/img/hero.png')
 
-    expect(result.variants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.variants.map((v) => v.width)).toEqual([...DEFAULT_CDN_WIDTHS])
     expect(result.variants[0].src).toBe(
       buildImageCdnUrl('/img/hero.png', { format: 'webp', width: 640 })
     )
-    expect(result.avifVariants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.avifVariants.map((v) => v.width)).toEqual([
+      ...DEFAULT_CDN_WIDTHS
+    ])
     expect(result.avifVariants[0].src).toBe(
       buildImageCdnUrl('/img/hero.png', { format: 'avif', width: 640 })
     )
+  })
+
+  it('caps the default ladder below the full target widths', () => {
+    // Guards the billing win: ordinary images must not advertise 2560/3840,
+    // which would be extra billed transforms of clamped, identical output.
+    setImageCdnEnabledForTests(true)
+
+    const widths = getOptimizedImage('/img/hero.png').variants.map((v) => v.width)
+
+    expect(widths).not.toContain(2560)
+    expect(widths).not.toContain(3840)
+    expect(widths.length).toBeLessThan(TARGET_WIDTHS.length)
+  })
+
+  it('offers the full ladder when a caller opts in (the 4K hero)', () => {
+    setImageCdnEnabledForTests(true)
+
+    const result = getOptimizedImage('/img/hero.png', TARGET_WIDTHS)
+
+    expect(result.variants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.avifVariants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.fullSrc).toContain(`w=${largestTargetWidth()}`)
   })
 
   it('points fullSrc at the widest transform rather than an unsized URL', () => {
@@ -188,11 +212,11 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     expect(fullSrc).toBe(
       buildImageCdnUrl('/img/hero.png', {
         format: 'webp',
-        width: largestTargetWidth()
+        width: largestTargetWidth(DEFAULT_CDN_WIDTHS)
       })
     )
     expect(fullSrc).toBe(variants.at(-1)?.src)
-    expect(avifFullSrc).toContain(`w=${largestTargetWidth()}`)
+    expect(avifFullSrc).toContain(`w=${largestTargetWidth(DEFAULT_CDN_WIDTHS)}`)
   })
 
   it('never emits an unsized transform', () => {

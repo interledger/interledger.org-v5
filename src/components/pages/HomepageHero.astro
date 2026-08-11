@@ -10,6 +10,7 @@ import {
   hasOptimizedVariants,
   grantOverviewHubPath,
   localizeRoute,
+  TARGET_WIDTHS,
   type Locale
 } from '@/utils'
 
@@ -29,7 +30,11 @@ interface Props {
 const { pageLang, pathname } = Astro.props
 const t = useTranslations(pageLang)
 
-const useHighRes = hasOptimizedVariants(getOptimizedImage(HERO_HIGHRES_SRC))
+// The hero has a genuine 4K source, so it opts into the full width ladder
+// (2560/3840) that ordinary images skip in CDN mode.
+const useHighRes = hasOptimizedVariants(
+  getOptimizedImage(HERO_HIGHRES_SRC, TARGET_WIDTHS)
+)
 const heroSizes = '100vw'
 const heroMedia = useHighRes
   ? `(min-width: 810px) and (max-width: ${HERO_TV_MIN_WIDTH - 1}px)`
@@ -39,7 +44,8 @@ const heroAlternateSources = useHighRes
       {
         src: HERO_HIGHRES_SRC,
         media: `(min-width: ${HERO_TV_MIN_WIDTH}px)`,
-        sizes: heroSizes
+        sizes: heroSizes,
+        widths: TARGET_WIDTHS
       }
     ]
   : undefined

@@ -1,6 +1,15 @@
 export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 
 /**
+ * Width ladder offered by default in Netlify Image CDN mode. Body images and
+ * avatars never render above ~1920 CSS px even at DPR 2, so advertising 2560 and
+ * 3840 there would only add billed transforms of clamped, byte-identical output
+ * and extra edge-cache entries. Sources that genuinely need 4K (the homepage
+ * hero) pass `TARGET_WIDTHS` explicitly to opt back into the full ladder.
+ */
+export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
+
+/**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
  * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
