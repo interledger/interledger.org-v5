@@ -16,6 +16,11 @@ export default () => ({
     enabled: true,
     resolve: './src/plugins/card-variant-picker'
   },
+  // Invisible localStorage autosave of dirty edit forms + auto-restore on reload
+  'browser-draft-recovery': {
+    enabled: true,
+    resolve: './src/plugins/browser-draft-recovery'
+  },
   'record-locking': {
     enabled: true,
     config: {
