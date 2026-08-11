@@ -14,7 +14,7 @@ interface ReportTextItem {
   textDisclaimer?: string
 }
 
-/** The Strapi field a report-text item's content lives in, based on its type. */
+/** Paragraph items store their text in `textContent`; Disclaimer item uses `textDisclaimer`. */
 function textField(textType: ReportTextType): 'textContent' | 'textDisclaimer' {
   return textType === 'Paragraph' ? 'textContent' : 'textDisclaimer'
 }
@@ -71,7 +71,6 @@ function validateReportSection(block: {
     })
   }
 
-  // Strapi's `required`/`min` constraints aren't enforced at save time
   if (!Array.isArray(block.reportText) || block.reportText.length === 0) {
     fieldErrors.push({
       message: 'Report Section requires at least one content block',
@@ -95,13 +94,8 @@ export function serialize(block: {
     const textType = item.textType as ReportTextType
     const raw = item[textField(textType)]!
 
-    // Content is a CKEditor field: usually already markdown, but convert
-    // defensively if Strapi hands back HTML (matches blocks.faq's answer).
     const text = escMdxBraces(isHtml(raw) ? htmlToMarkdown(raw) : raw)
 
-    // Blank lines around the text, and the closing tag at column 0 — see
-    // blocks.faq's serializer for why: content ending in a list needs both,
-    // or MDX swallows the closing tag into the list.
     return `<ReportText type="${textType}">\n\n${text}\n\n</ReportText>`
   })
 
