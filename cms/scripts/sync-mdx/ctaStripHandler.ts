@@ -6,12 +6,14 @@
  *     heading="…"              (optional)
  *     primaryButtonText="…"
  *     primaryButtonLink="…"
+ *     secondaryButtonText="…"  (optional)
+ *     secondaryButtonLink="…"  (optional)
  *   >description markdown</CtaStrip>
  *
  * Maps to Strapi blocks.cta-strip. The description comes from the JSX
- * children; everything else comes from attributes. Legacy secondary CTA and
- * color attributes are ignored because CTA strips now only support one purple
- * primary CTA.
+ * children; everything else comes from attributes. Strips are always purple,
+ * so there is no colour attribute. The secondary CTA needs both its text and
+ * its link to render; either one alone is dropped.
  */
 
 import type { ParsedBlock, CtaStripBlock } from './types.blocks'
@@ -36,6 +38,8 @@ async function handleCtaStrip(
     const primaryButtonLink = getStringAttr(node, 'primaryButtonLink', {
       required: true
     })
+    const secondaryButtonText = getStringAttr(node, 'secondaryButtonText')
+    const secondaryButtonLink = getStringAttr(node, 'secondaryButtonLink')
     const description =
       node.children.length > 0 ? childrenToMarkdown(node.children) : ''
 
@@ -47,6 +51,21 @@ async function handleCtaStrip(
 
     if (heading) block.heading = heading
     if (description) block.description = description
+
+    // A half-specified secondary button would render as a dead or unlabelled
+    // control, so it only survives when both halves are present.
+    //
+    // Test the trimmed values, and store them trimmed. The serializer, the
+    // renderer and the admin validator all treat a whitespace-only value as
+    // empty, so a truthiness test here would let `secondaryButtonText="   "`
+    // into Strapi and then drop it again on the way out (Jonathan, #484).
+    const secondaryText = secondaryButtonText?.trim()
+    const secondaryLink = secondaryButtonLink?.trim()
+
+    if (secondaryText && secondaryLink) {
+      block.secondaryButtonText = secondaryText
+      block.secondaryButtonLink = secondaryLink
+    }
 
     return [block]
   })

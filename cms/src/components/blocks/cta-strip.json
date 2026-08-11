@@ -3,7 +3,7 @@
   "info": {
     "displayName": "CTA Strip",
     "icon": "cursor",
-    "description": "Purple call-to-action strip with an optional heading, optional description, and a required primary CTA"
+    "description": "Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA"
   },
   "options": {},
   "attributes": {
@@ -39,6 +39,22 @@
     "primaryButtonLink": {
       "type": "string",
       "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "secondaryButtonText": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "secondaryButtonLink": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true

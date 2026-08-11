@@ -385,7 +385,7 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
-    description: 'Purple call-to-action strip with an optional heading, optional description, and a required primary CTA'
+    description: 'Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA'
     displayName: 'CTA Strip'
     icon: 'cursor'
   }
@@ -417,6 +417,18 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
       }>
     primaryButtonText: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonText: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

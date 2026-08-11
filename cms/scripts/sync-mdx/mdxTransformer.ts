@@ -637,7 +637,11 @@ export async function buildGrantPagePayload(
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
       heading: nullOrValue(ctaStripFm.heading),
-      description: nullOrValue(ctaStripFm.description)
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const infoCards = parsed.infoCards
@@ -744,7 +748,11 @@ export async function buildGrantOverviewPagePayload(
       primaryButtonText: ctaStripFm.buttonText,
       primaryButtonLink: ctaStripFm.buttonLink,
       heading: nullOrValue(ctaStripFm.heading),
-      description: nullOrValue(ctaStripFm.description)
+      description: nullOrValue(ctaStripFm.description),
+      // null rather than omitted so a PUT clears a secondary button that was
+      // removed from MDX, instead of leaving the previously synced one.
+      secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
     }
 
     const hero = await buildHeroWithImage(
@@ -868,11 +876,26 @@ export async function buildPodcastPagePayload(
     }))
 
     const ctaStripFm = parsed.ctaStrip
+    // Strips are purple only, so there is no `color` here. #481 took it out
+    // after it made Strapi reject every podcast sync.
+    //
+    // #481 dropped the secondary CTA at the same time, which was right then:
+    // the component had no secondary. INTORG-908 puts one back, so this reads
+    // it again. All or nothing, whitespace counts as empty, matching the
+    // handler, the serializer, the renderer and the validator.
+    const podcastSecondaryText = ctaStripFm.secondaryButtonText?.trim()
+    const podcastSecondaryLink = ctaStripFm.secondaryButtonLink?.trim()
     const ctaStrip = {
       heading: ctaStripFm.heading,
       description: ctaStripFm.description,
       primaryButtonText: ctaStripFm.buttonText,
-      primaryButtonLink: ctaStripFm.buttonLink
+      primaryButtonLink: ctaStripFm.buttonLink,
+      ...(podcastSecondaryText && podcastSecondaryLink
+        ? {
+            secondaryButtonText: podcastSecondaryText,
+            secondaryButtonLink: podcastSecondaryLink
+          }
+        : {})
     }
 
     return {

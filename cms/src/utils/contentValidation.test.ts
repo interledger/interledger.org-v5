@@ -456,10 +456,72 @@ describe('validateCtaStrip', () => {
     expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
   })
 
-  it('allows heading, description, and legacy color to be absent', () => {
-    expect(
-      validateCtaStrip({ ctaStrip: { ...validCtaStrip, color: undefined } })
-    ).toBeUndefined()
+  it('allows heading and description to be absent', () => {
+    expect(validateCtaStrip({ ctaStrip: { ...validCtaStrip } })).toBeUndefined()
+  })
+
+  // The secondary CTA is optional as a pair, never as a half. Whitespace
+  // counts as empty here, in the MDX handler, in the serializer, in the
+  // renderer and in the lifecycle export (Jonathan, #484).
+  describe('the secondary CTA pair', () => {
+    it('accepts both halves', () => {
+      expect(
+        validateCtaStrip({
+          ctaStrip: {
+            ...validCtaStrip,
+            secondaryButtonText: 'Learn more',
+            secondaryButtonLink: '/about'
+          }
+        })
+      ).toBeUndefined()
+    })
+
+    it('accepts neither half', () => {
+      expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
+    })
+
+    it('flags a text-only secondary on the link field', () => {
+      const err = validateCtaStrip({
+        ctaStrip: { ...validCtaStrip, secondaryButtonText: 'Learn more' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonLink']
+      ])
+    })
+
+    it('flags a link-only secondary on the text field', () => {
+      const err = validateCtaStrip({
+        ctaStrip: { ...validCtaStrip, secondaryButtonLink: '/about' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonText']
+      ])
+    })
+
+    it('treats a whitespace-only half as empty, so it flags the gap', () => {
+      const err = validateCtaStrip({
+        ctaStrip: {
+          ...validCtaStrip,
+          secondaryButtonText: 'Learn more',
+          secondaryButtonLink: '   '
+        }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['ctaStrip', 'secondaryButtonLink']
+      ])
+    })
+
+    it('treats two whitespace-only halves as no secondary at all', () => {
+      expect(
+        validateCtaStrip({
+          ctaStrip: {
+            ...validCtaStrip,
+            secondaryButtonText: '  ',
+            secondaryButtonLink: '  '
+          }
+        })
+      ).toBeUndefined()
+    })
   })
 
   it('reports every missing primary CTA field at once, not just the first', () => {
