@@ -1366,32 +1366,32 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
     },
     'navigation.menu-item': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.card': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.card-link': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.grant-faq-section': {
       ctaLink:
-        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.card-grid': {
       ariaLabel:
@@ -1450,9 +1450,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.cta-strip': {
       primaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.',
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
       secondaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grants/apply). For an external site, use a full URL starting with https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     }
   }
 
