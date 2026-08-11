@@ -5,7 +5,8 @@ import {
   buildImageCdnUrl,
   buildImageCdnVariants,
   imageCdnEnabled,
-  largestTargetWidth
+  largestTargetWidth,
+  type ImageCdnFormat
 } from './imageCdn'
 import {
   DEFAULT_CDN_WIDTHS,
@@ -134,6 +135,10 @@ function deployedSourceExists(urlPath: string): boolean {
 
 export function buildImageSrcset(variants: ImageVariant[]): string {
   return variants.map((v) => `${v.src} ${v.width}w`).join(', ')
+}
+
+function imageCdnActive(): boolean {
+  return imageCdnOverride ?? imageCdnEnabled()
 }
 
 export function hasOptimizedVariants(image: OptimizedImage): boolean {
@@ -276,7 +281,7 @@ export function getOptimizedImage(
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
   }
 
-  if (imageCdnOverride ?? imageCdnEnabled()) {
+  if (imageCdnActive()) {
     if (!deployedSourceExists(source.pathname)) {
       return {
         variants: [],
@@ -300,5 +305,70 @@ export function getOptimizedImage(
     fullSrc: optimizedVariantExists(fullWebP) ? fullWebP : null,
     avifVariants,
     avifFullSrc: optimizedVariantExists(fullAvif) ? fullAvif : null
+  }
+}
+
+/** Extensions a browser can be served directly, mapped to the `<source>` they belong in. */
+const DELIVERABLE_SOURCE_FORMATS: Record<string, ImageCdnFormat> = {
+  '.avif': 'avif',
+  '.webp': 'webp'
+}
+
+/**
+ * Rewrites a CDN ladder's top rung to sit exactly at the source's intrinsic
+ * width, serving the source file itself when it is already in a deliverable
+ * format.
+ *
+ * Netlify never upscales, so every rung at or above the intrinsic width returns
+ * the same full-size pixels — one output behind several cache keys. Worse, that
+ * output is still re-encoded: the homepage hero's `w=3840` rung came back 119,495
+ * bytes against a 115,274-byte AVIF source at identical dimensions, paying a
+ * generation of lossy-on-lossy quality to add bytes. So those rungs collapse into
+ * a single canonical one at the intrinsic width, which for an AVIF or WebP source
+ * is the file itself (no transform at all) and otherwise an exact-width transform.
+ *
+ * Rungs below the intrinsic width are genuine downscales and are kept.
+ *
+ * No-ops outside CDN mode: the build-time encoder already emits the exact
+ * intrinsic width and filters target widths against it (see
+ * `scripts/optimize-images.ts`). Also no-ops on the empty `OptimizedImage`, so a
+ * source missing from this deploy keeps degrading to a plain `<img>` rather than
+ * gaining a rung that would 404.
+ *
+ * Applied by `OptimizedImage.astro` via the `intrinsicWidth` field on an
+ * alternate source; components should not call this directly.
+ */
+export function withIntrinsicWidthRung(
+  image: OptimizedImage,
+  src: string,
+  intrinsicWidth: number
+): OptimizedImage {
+  if (!imageCdnActive() || !hasOptimizedVariants(image)) return image
+
+  const source = resolveOptimizableSource(src)
+  if (!source) return image
+
+  const rawFormat =
+    DELIVERABLE_SOURCE_FORMATS[path.extname(source.pathname).toLowerCase()]
+
+  const rungFor = (format: ImageCdnFormat): ImageVariant => ({
+    src:
+      rawFormat === format
+        ? source.pathname
+        : buildImageCdnUrl(source.pathname, { format, width: intrinsicWidth }),
+    width: intrinsicWidth
+  })
+
+  const downscales = (variants: ImageVariant[]): ImageVariant[] =>
+    variants.filter((variant) => variant.width < intrinsicWidth)
+
+  const webpRung = rungFor('webp')
+  const avifRung = rungFor('avif')
+
+  return {
+    variants: [...downscales(image.variants), webpRung],
+    fullSrc: webpRung.src,
+    avifVariants: [...downscales(image.avifVariants), avifRung],
+    avifFullSrc: avifRung.src
   }
 }

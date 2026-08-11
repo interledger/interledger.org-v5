@@ -2,7 +2,8 @@
 import {
   buildImageSrcset,
   getOptimizedImage,
-  isOptimizableSource
+  isOptimizableSource,
+  withIntrinsicWidthRung
 } from '@/utils'
 
 export interface OptimizedImageAlternateSource {
@@ -11,6 +12,13 @@ export interface OptimizedImageAlternateSource {
   sizes: string
   /** CDN width ladder for this source; defaults to the capped default. */
   widths?: readonly number[]
+  /**
+   * Intrinsic width of `src`, when known. Collapses the ladder's clamped rungs
+   * into one at this width — served as the source file itself for an AVIF or
+   * WebP source, since a transform there re-encodes without resizing. Set this
+   * on any source opting into 2560/3840 via `widths`.
+   */
+  intrinsicWidth?: number
 }
 
 interface Props {
@@ -54,9 +62,13 @@ const alternatePictureSources = alternateSources.flatMap(
     src: alternateSrc,
     media: alternateMedia,
     sizes: alternateSizes,
-    widths: alternateWidths
+    widths: alternateWidths,
+    intrinsicWidth
   }) => {
-    const alternate = getOptimizedImage(alternateSrc, alternateWidths)
+    const resolved = getOptimizedImage(alternateSrc, alternateWidths)
+    const alternate = intrinsicWidth
+      ? withIntrinsicWidthRung(resolved, alternateSrc, intrinsicWidth)
+      : resolved
     const sources: Array<{
       type: string
       media: string

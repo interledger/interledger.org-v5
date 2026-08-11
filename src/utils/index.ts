@@ -148,6 +148,7 @@ export {
   buildImageSrcset,
   hasOptimizedVariants,
   isOptimizableSource,
+  withIntrinsicWidthRung,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,

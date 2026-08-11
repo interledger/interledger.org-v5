@@ -137,7 +137,12 @@ Rules and invariants:
 - **Width ladders.** `DEFAULT_CDN_WIDTHS` (capped) for ordinary images;
   `TARGET_WIDTHS` (adds 2560/3840) is opt-in for genuinely 4K sources like the
   hero. Advertising 4K widths for a small image just bills extra transforms of
-  clamped, byte-identical output.
+  clamped, byte-identical output. A source opting into `TARGET_WIDTHS` should
+  also pass `intrinsicWidth` (see `withIntrinsicWidthRung`): rungs at or above
+  the intrinsic width all clamp to the same pixels, and the CDN still re-encodes
+  them, so for an already-AVIF/WebP source they cost bytes and a generation of
+  quality rather than saving either. The helper collapses them into one rung at
+  the intrinsic width, served as the file itself when the format allows.
 - **CDN URLs are final.** They already contain percent-encoded query values —
   never run `encodeURI()` over them or `%2F` becomes `%252F` and the source path
   breaks.

@@ -6,9 +6,14 @@ import {
   isOptimizableSource,
   setDeployedImageSourcesForTests,
   setImageCdnEnabledForTests,
-  setOptimizedImageVariantCatalogForTests
+  setOptimizedImageVariantCatalogForTests,
+  withIntrinsicWidthRung
 } from './images'
-import { buildImageCdnUrl, largestTargetWidth } from './imageCdn'
+import {
+  buildImageCdnUrl,
+  largestTargetWidth,
+  NETLIFY_IMAGE_ENDPOINT
+} from './imageCdn'
 import { DEFAULT_CDN_WIDTHS, TARGET_WIDTHS } from './imagePaths'
 
 const EMPTY = {
@@ -360,6 +365,103 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     expect(getOptimizedImage('/img/hero.png').variants).toEqual([
       { src: '/img/optimized/hero-640.webp', width: 640 }
     ])
+  })
+})
+
+describe('withIntrinsicWidthRung', () => {
+  const HERO = '/img/homepage/stefan-thomas-highres.avif'
+  const HERO_WIDTH = 3463
+
+  beforeEach(() => {
+    setDeployedImageSourcesForTests([HERO, '/img/master.png'])
+  })
+
+  function heroLadder(src = HERO) {
+    setImageCdnEnabledForTests(true)
+    return withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      HERO_WIDTH
+    )
+  }
+
+  it('serves an AVIF source directly at its intrinsic width', () => {
+    const { avifVariants, avifFullSrc } = heroLadder()
+
+    expect(avifVariants.at(-1)).toEqual({ src: HERO, width: HERO_WIDTH })
+    expect(avifFullSrc).toBe(HERO)
+  })
+
+  it('drops the rungs that would clamp to the intrinsic width', () => {
+    // 2560 is a genuine downscale and stays; 3840 clamped to 3463 and came back
+    // larger than the source file, so it collapses into the intrinsic rung.
+    const { avifVariants } = heroLadder()
+
+    expect(avifVariants.map((v) => v.width)).toEqual([
+      640,
+      1280,
+      1920,
+      2560,
+      HERO_WIDTH
+    ])
+    expect(
+      avifVariants.filter(
+        (v) => v.width >= HERO_WIDTH && v.src.includes(NETLIFY_IMAGE_ENDPOINT)
+      )
+    ).toEqual([])
+  })
+
+  it('uses an exact-width transform when the source format differs', () => {
+    // No raw WebP exists at this resolution, so the WebP <source> still needs a
+    // transform — but at the intrinsic width, not a clamped 3840.
+    const { variants, fullSrc } = heroLadder()
+    const expected = buildImageCdnUrl(HERO, {
+      format: 'webp',
+      width: HERO_WIDTH
+    })
+
+    expect(variants.at(-1)).toEqual({ src: expected, width: HERO_WIDTH })
+    expect(fullSrc).toBe(expected)
+  })
+
+  it('transforms both formats when the source is neither AVIF nor WebP', () => {
+    const src = '/img/master.png'
+    setImageCdnEnabledForTests(true)
+    const { variants, avifVariants } = withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      2000
+    )
+
+    expect(variants.at(-1)?.src).toBe(
+      buildImageCdnUrl(src, { format: 'webp', width: 2000 })
+    )
+    expect(avifVariants.at(-1)?.src).toBe(
+      buildImageCdnUrl(src, { format: 'avif', width: 2000 })
+    )
+  })
+
+  it('leaves a source missing from this deploy degraded', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([])
+
+    const src = '/img/homepage/renamed.avif'
+
+    expect(
+      withIntrinsicWidthRung(getOptimizedImage(src, TARGET_WIDTHS), src, 3463)
+    ).toEqual(EMPTY)
+  })
+
+  it('no-ops when the CDN is off — the encoder already emits exact widths', () => {
+    setOptimizedImageVariantCatalogForTests([
+      '/img/optimized/homepage/stefan-thomas-highres-640.avif',
+      '/img/optimized/homepage/stefan-thomas-highres-3463.avif'
+    ])
+    setImageCdnEnabledForTests(false)
+
+    const encoded = getOptimizedImage(HERO, TARGET_WIDTHS)
+
+    expect(withIntrinsicWidthRung(encoded, HERO, HERO_WIDTH)).toBe(encoded)
   })
 })
 
