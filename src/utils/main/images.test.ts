@@ -222,9 +222,7 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     setImageCdnEnabledForTests(true)
 
     const absolute = 'https://cms.example.com/uploads/img/original/hero.jpg'
-    const { variants } = getOptimizedImage(
-      absolute
-    )
+    const { variants } = getOptimizedImage(absolute)
 
     expect(variants[0].src).toBe(
       buildImageCdnUrl(absolute, {
