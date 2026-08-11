@@ -156,6 +156,7 @@ export {
   NETLIFY_IMAGE_ENDPOINT,
   buildImageCdnUrl,
   buildImageCdnVariants,
+  imageCdnEnabled,
   isImageCdnEnabled,
   type ImageCdnFormat
 } from './main/imageCdn'

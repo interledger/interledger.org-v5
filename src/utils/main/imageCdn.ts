@@ -50,6 +50,12 @@ export function isImageCdnEnabled(
   return isSet(env.NETLIFY)
 }
 
+export function imageCdnEnabled(): boolean {
+  return typeof __IMAGE_CDN_ENABLED__ === 'boolean'
+    ? __IMAGE_CDN_ENABLED__
+    : isImageCdnEnabled()
+}
+
 export interface ImageCdnUrlOptions {
   format: ImageCdnFormat
   width: number

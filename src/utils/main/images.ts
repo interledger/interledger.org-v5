@@ -3,7 +3,7 @@ import stubManifest from '../../generated/optimized-image-manifest.stub.json'
 import {
   buildImageCdnUrl,
   buildImageCdnVariants,
-  isImageCdnEnabled,
+  imageCdnEnabled,
   largestTargetWidth
 } from './imageCdn'
 import { IMAGE_URL_PATHS, type OptimizedImageManifest } from './imagePaths'
@@ -222,7 +222,7 @@ export function getOptimizedImage(src: string): OptimizedImage {
     return { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
   }
 
-  if (imageCdnOverride ?? isImageCdnEnabled()) {
+  if (imageCdnOverride ?? imageCdnEnabled()) {
     return buildCdnImage(source.cdnSource)
   }
 
