@@ -1,5 +1,5 @@
 ---
-import { buildUmamiAttrs, isExternalHref } from '@/utils'
+import { buildUmamiAttrs, isExternalHref, parseMarkdown } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -40,9 +40,18 @@ const umamiBase = {
   section: 'cta' as const
 }
 
-// `description` arrives as a prop from the Strapi dynamic-zone renderer, but as
-// slot children when the component is used in exported MDX. Support both.
+// `description` arrives as a markdown string prop from the Strapi dynamic-zone
+// renderer, but as slot children when the component is used in exported MDX.
+// Support both.
 const hasDescription = Boolean(description) || Astro.slots.has('default')
+
+const descriptionHtml = description
+  ? await parseMarkdown(description, {
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : null
 
 // Runtime guard for partial Strapi draft payloads; props are required in TS.
 const hasPrimary = Boolean(
@@ -110,8 +119,12 @@ const hasSecondary = Boolean(
         )}
 
         {hasDescription && (
-          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0">
-            <slot>{description}</slot>
+          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2">
+            {descriptionHtml ? (
+              <Fragment set:html={descriptionHtml} />
+            ) : (
+              <slot />
+            )}
           </div>
         )}
 
