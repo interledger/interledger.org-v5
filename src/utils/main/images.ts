@@ -187,8 +187,11 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
  * file) plus a `fullSrc` WebP at the original dimensions. For images with no
  * numbered variants, only `fullSrc` will be populated.
  *
- * On Netlify (and in CI) this returns Netlify Image CDN URLs instead — same
- * shape, so every caller is unaffected. See `imageCdn.ts`.
+ * On Netlify (and in CI) this returns Netlify Image CDN URLs instead. Those
+ * URLs already contain percent-encoded query parameter values, so callers must
+ * treat them as final URLs: do not run `encodeURI()` or a similar whole-URL
+ * escaping pass over the returned strings, or `%2F...` becomes `%252F...` and
+ * the CDN source path breaks. See `imageCdn.ts`.
  */
 export function getOptimizedImage(src: string): OptimizedImage {
   const source = resolveOptimizableSource(src)
