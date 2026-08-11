@@ -176,3 +176,10 @@ export {
   createNavigationLifecycle,
   normalizeNavigationInput
 } from './navigationLifecycle'
+
+// Relative link / path-segment slash normalization
+export {
+  ensureLeadingSlash,
+  normalizePathSegment,
+  normalizeRelativeLinksInDocumentData
+} from './relativeLinks'
