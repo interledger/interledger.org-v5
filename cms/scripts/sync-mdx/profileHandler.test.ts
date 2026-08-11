@@ -64,11 +64,34 @@ describe('createRelationResolver', () => {
     )
   })
 
-  it('falls back to en when not found in target locale', async () => {
+  it('does not fall back to en on a live sync (Strapi requires target locale)', async () => {
+    // Connecting EN-only documentIds into an es payload yields
+    // "Document with id …, locale es not found" from Strapi.
     const strapi = createMockStrapi({
       'en:alice': { documentId: 'doc-en-alice', locale: 'en' }
     })
     const resolve = createRelationResolver(strapi, 'es')
+
+    await expect(resolve('profile-pages', 'alice')).rejects.toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION
+    })
+    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+      'profile-pages',
+      'alice',
+      'es'
+    )
+    expect(strapi.findByPathSlug).not.toHaveBeenCalledWith(
+      'profile-pages',
+      'alice',
+      'en'
+    )
+  })
+
+  it('dry-run: falls back to en when target locale is missing', async () => {
+    const strapi = createMockStrapi({
+      'en:alice': { documentId: 'doc-en-alice', locale: 'en' }
+    })
+    const resolve = createRelationResolver(strapi, 'es', true)
 
     const result = await resolve('profile-pages', 'alice')
 
@@ -76,16 +99,11 @@ describe('createRelationResolver', () => {
     expect(strapi.findByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
-      'es'
-    )
-    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
-      'profile-pages',
-      'alice',
       'en'
     )
   })
 
-  it('throws UNRESOLVED_RELATION when not found in any locale', async () => {
+  it('throws UNRESOLVED_RELATION when not found in the target locale', async () => {
     const strapi = createMockStrapi({})
     const resolve = createRelationResolver(strapi, 'es')
 
@@ -340,7 +358,7 @@ describe('ProfileCard handler (locale import)', () => {
     })
   })
 
-  it('uses locale-first then en fallback via createRelationResolver', async () => {
+  it('does not fall back to en documentIds when parsing es ProfileCard', async () => {
     const strapi = createMockStrapi({
       'en:alice': { documentId: 'doc-en-alice', locale: 'en' }
     })
@@ -353,19 +371,15 @@ describe('ProfileCard handler (locale import)', () => {
       esCtx
     )
 
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.profile',
-        profile: { connect: [{ documentId: 'doc-en-alice' }] }
-      }
-    ])
-    // Tried es first, then fell back to en
+    expect(blocks).toBeInstanceOf(MdxParserError)
+    expect(blocks).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+    // Live sync must not fall back to en documentIds
     expect(strapi.findByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
       'es'
     )
-    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+    expect(strapi.findByPathSlug).not.toHaveBeenCalledWith(
       'profile-pages',
       'alice',
       'en'

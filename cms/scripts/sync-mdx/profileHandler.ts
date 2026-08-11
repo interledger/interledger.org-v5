@@ -30,18 +30,18 @@ import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 // ---------------------------------------------------------------------------
 
 /**
- * Create a relation resolver with locale-first + `en` fallback.
+ * Create a relation resolver for the target locale.
  *
  * Resolution order:
- * 1. Target locale (e.g. `fr`)
- * 2. Fallback to `en` (when target !== 'en')
- * 3. In dry-run mode, tolerate a relation that doesn't exist in Strapi yet
- *    if its pathSlug is present in `dryRunPathSlugs` — i.e. it would be
- *    created by this same sync run (dry-run never persists anything, so a
- *    brand-new profile referenced by a brand-new page can never resolve via
- *    a live lookup, even though a real sync would create both and connect
- *    them fine).
- * 4. Throw UNRESOLVED_RELATION if none of the above found it.
+ * 1. Target locale (e.g. `es`) — required for real writes. Strapi rejects
+ *    connect from locale=es to a document that has no `es` version
+ *    ("Document with id …, locale es not found"). Never fall back to an EN
+ *    documentId on a live sync.
+ * 2. Dry-run only: fall back to `en` for readability of dry-run logs when the
+ *    related entry exists only in English (still not written).
+ * 3. Dry-run only: tolerate a relation not yet in Strapi if its pathSlug is
+ *    in `dryRunPathSlugs` (would be created in this same run).
+ * 4. Throw UNRESOLVED_RELATION otherwise.
  *
  * The returned function matches the `resolveRelation` signature on
  * ParserContext so it can be plugged in directly. Throws are caught at
@@ -58,10 +58,17 @@ export function createRelationResolver(
     if (entry instanceof Error) throw entry
     if (entry) return { documentId: entry.documentId }
 
-    if (locale !== 'en') {
+    // Live sync: do not connect EN-only relations into a non-en document —
+    // Strapi relation transforms require the target locale to exist.
+    if (dryRun && locale !== 'en') {
       const fallback = await strapi.findByPathSlug(apiId, pathSlug, 'en')
       if (fallback instanceof Error) throw fallback
-      if (fallback) return { documentId: fallback.documentId }
+      if (fallback) {
+        console.log(
+          `   ⚠️  [DRY-RUN] Relation "${pathSlug}" (${apiId}) has no "${locale}" locale — using en documentId for dry-run only.`
+        )
+        return { documentId: fallback.documentId }
+      }
     }
 
     if (dryRun && dryRunPathSlugs?.has(pathSlug)) {
@@ -73,7 +80,7 @@ export function createRelationResolver(
 
     throw new MdxParserError({
       code: ParserErrorCode.UNRESOLVED_RELATION,
-      message: `pathSlug "${pathSlug}" could not be resolved for "${apiId}" in locale "${locale}" or "en".`
+      message: `pathSlug "${pathSlug}" could not be resolved for "${apiId}" in locale "${locale}". Ensure the related entry exists in that locale (EN-only relations cannot be connected from ${locale}).`
     })
   }
 }
