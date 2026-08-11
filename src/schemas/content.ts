@@ -116,12 +116,34 @@ export type HackathonPageFrontmatterType = z.infer<
   typeof hackathonPageFrontmatterSchema
 >
 
-const grantCtaStripSchema = z.object({
-  heading: z.string().optional(),
-  description: z.string().optional(),
-  buttonText: z.string(),
-  buttonLink: z.string()
-})
+const grantCtaStripSchema = z
+  .object({
+    heading: z.string().optional(),
+    description: z.string().optional(),
+    buttonText: z.string(),
+    buttonLink: z.string(),
+    secondaryButtonText: z.string().optional(),
+    secondaryButtonLink: z.string().optional()
+  })
+  // The secondary CTA is an all-or-nothing pair everywhere else: the MDX
+  // handler, the serializer, the renderer and the Strapi validator all need
+  // both halves. Without this rule, frontmatter with only one half validates
+  // here and is then dropped without a word at render time (Jonathan and
+  // Copilot, #484). Whitespace counts as empty, matching those four.
+  .superRefine((strip, ctx) => {
+    const hasText = Boolean(strip.secondaryButtonText?.trim())
+    const hasLink = Boolean(strip.secondaryButtonLink?.trim())
+
+    if (hasText === hasLink) return
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: [hasText ? 'secondaryButtonLink' : 'secondaryButtonText'],
+      message: hasText
+        ? 'secondaryButtonLink is required when secondaryButtonText is set'
+        : 'secondaryButtonText is required when secondaryButtonLink is set'
+    })
+  })
 
 const grantInfoCardSchema = z.object({
   heading: z.string().min(1, 'card heading is required'),
@@ -286,7 +308,12 @@ const podcastCtaStripSchema = z.object({
   heading: z.string(),
   description: z.string(),
   buttonText: z.string(),
-  buttonLink: z.string()
+  buttonLink: z.string(),
+  // #481 removed these along with `color`, correctly at the time: the
+  // component had no secondary CTA then. INTORG-908 puts one back, and the
+  // podcast page uses `blocks.cta-strip`, so it can carry one again.
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonLink: z.string().optional()
 })
 
 const podcastTitleCardSchema = z.object({

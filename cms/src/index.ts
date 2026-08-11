@@ -1200,7 +1200,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
-      primaryButtonLink: 'Primary Button URL'
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL'
     },
     'blocks.image-row': {
       heading: 'Heading',
@@ -1780,6 +1782,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [
         { name: 'primaryButtonText', size: 6 },
         { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
       ]
     ],
     'shared.hero': [

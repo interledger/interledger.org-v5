@@ -893,7 +893,7 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip).not.toHaveProperty('color')
     })
 
-    it('does not include secondary button fields when absent', async () => {
+    it('sends null secondary button fields when absent, so a PUT clears them', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -907,15 +907,11 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(
-        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonText')
-      ).toBe(false)
-      expect(
-        Object.prototype.hasOwnProperty.call(ctaStrip, 'secondaryButtonLink')
-      ).toBe(false)
+      expect(ctaStrip.secondaryButtonText).toBeNull()
+      expect(ctaStrip.secondaryButtonLink).toBeNull()
     })
 
-    it('drops legacy secondary button fields when provided', async () => {
+    it('passes through secondary button fields when provided', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -936,8 +932,8 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
+      expect(ctaStrip.secondaryButtonText).toBe('Learn more')
+      expect(typeof ctaStrip.secondaryButtonLink).toBe('string')
     })
 
     it('sends null for heading and description when omitted from frontmatter', async () => {
@@ -1621,7 +1617,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect(ctaStrip).not.toHaveProperty('color')
     })
 
-    it('omits secondaryButtonText/Link when absent', async () => {
+    it('sends null secondaryButtonText/Link when absent, so a PUT clears them', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter
@@ -1635,11 +1631,11 @@ describe('buildGrantOverviewPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
+      expect(ctaStrip.secondaryButtonText).toBeNull()
+      expect(ctaStrip.secondaryButtonLink).toBeNull()
     })
 
-    it('drops legacy secondaryButtonText/Link when present', async () => {
+    it('passes through secondaryButtonText/Link when present', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: {
@@ -1660,8 +1656,8 @@ describe('buildGrantOverviewPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonText')
-      expect(ctaStrip).not.toHaveProperty('secondaryButtonLink')
+      expect(ctaStrip.secondaryButtonText).toBe('Learn more')
+      expect(typeof ctaStrip.secondaryButtonLink).toBe('string')
     })
   })
 
