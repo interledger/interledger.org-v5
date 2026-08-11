@@ -76,10 +76,9 @@ describe('generatePodcastPageMdx', () => {
     expect(podcasts[0]?.series).toBe('Future Money')
   })
 
-  // Strips are purple only, so there is no colour field to write. #458 took
-  // `color` off the component but left this export still emitting it, which
-  // made Strapi reject every podcast sync with "Invalid key color at
-  // ctaStrip". Assert it is gone, so nothing puts it back.
+  // Strips are purple only, so there is no colour field to write. #481 took
+  // `color` back off this export. Assert it stays gone, so nothing puts it
+  // back and breaks the podcast sync again.
   it('flattens ctaStrip and writes no colour field', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     const ctaStrip = data.ctaStrip as {

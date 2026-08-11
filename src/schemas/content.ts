@@ -309,6 +309,9 @@ const podcastCtaStripSchema = z.object({
   description: z.string(),
   buttonText: z.string(),
   buttonLink: z.string(),
+  // #481 removed these along with `color`, correctly at the time: the
+  // component had no secondary CTA then. INTORG-908 puts one back, and the
+  // podcast page uses `blocks.cta-strip`, so it can carry one again.
   secondaryButtonText: z.string().optional(),
   secondaryButtonLink: z.string().optional()
 })
