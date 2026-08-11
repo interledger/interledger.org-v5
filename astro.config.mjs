@@ -11,6 +11,7 @@ import tailwindcss from '@tailwindcss/vite'
 import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
 import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTables.ts'
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
+import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 
@@ -47,6 +48,7 @@ export default defineConfig({
   },
   integrations: [
     stripDocsCssFromMainSite(),
+    auditImageOptimization(),
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
