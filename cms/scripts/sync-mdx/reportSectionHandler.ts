@@ -2,7 +2,10 @@
  * ReportSection + ReportText component handler for the MDX block parser.
  *
  * Handles:
- * - <ReportSection heading="...">
+ * - <ReportSection>
+ *
+ *     ## Heading
+ *
  *     <ReportText type="Paragraph">
  *       markdown content
  *     </ReportText>
@@ -12,11 +15,15 @@
  *     ...
  *   </ReportSection>
  *
- * Maps to Strapi blocks.report-section. Each <ReportText> becomes one
- * `reportText` entry; its `type` attribute selects whether the children
- * populate `textContent` (Paragraph) or `textDisclaimer` (Disclaimer).
+ * Maps to Strapi blocks.report-section. The heading is authored as a real
+ * markdown `##` line (not a JSX prop) so Astro's own heading collector can
+ * pick it up for ReportSectionsNav — see report-section.serializer.ts and
+ * ReportPage.astro. Each <ReportText> becomes one `reportText` entry; its
+ * `type` attribute selects whether the children populate `textContent`
+ * (Paragraph) or `textDisclaimer` (Disclaimer).
  */
 
+import type { Heading, Text } from 'mdast'
 import type {
   ParsedBlock,
   ReportSectionBlock,
@@ -35,6 +42,49 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
+
+// Matches report-section.serializer.ts, which emits the section title as a
+// markdown `##` line — depth 2 is what makes it a *section* heading rather
+// than a heading nested inside a <ReportText>'s own markdown content.
+const SECTION_HEADING_DEPTH = 2
+
+/**
+ * Reads the heading's text from the AST, not a raw source slice (unlike
+ * extractChildrenContent). The serializer HTML-escapes `&`/`<`/`>`/quotes in
+ * the heading, and commonmark decodes those entities back to literal
+ * characters in text nodes — so `.value` already has the original heading.
+ */
+function getHeadingText(heading: Heading): string | undefined {
+  const text = heading.children
+    .filter((child): child is Text => child.type === 'text')
+    .map((child) => child.value)
+    .join('')
+
+  return text || undefined
+}
+
+function parseHeading(node: JsxBlockNode): string {
+  const headingNode = node.children.find(
+    (child): child is Heading =>
+      child.type === 'heading' && child.depth === SECTION_HEADING_DEPTH
+  )
+
+  const heading = headingNode ? getHeadingText(headingNode) : undefined
+
+  if (!heading) {
+    throw new MdxParserError({
+      code: ParserErrorCode.MISSING_REQUIRED_PROP,
+      message:
+        'ReportSection requires a leading "## Heading" line before its <ReportText> children.',
+      component: 'ReportSection',
+      prop: 'heading',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  return heading
+}
 
 function parseReportText(
   node: JsxBlockNode,
@@ -78,7 +128,7 @@ async function handleReportSection(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
-    const heading = getStringAttr(node, 'heading', { required: true })
+    const heading = parseHeading(node)
 
     const itemNodes = getChildElements(node, 'ReportText')
     if (itemNodes.length === 0) {

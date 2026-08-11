@@ -2390,7 +2390,10 @@ describe('buildReportPayload', () => {
         pathSlug: 'policy-and-advocacy/role-stablecoins',
         frontmatter: baseReportFrontmatter,
         content: [
-          '<ReportSection heading="Introduction">',
+          '<ReportSection>',
+          '',
+          '## Introduction',
+          '',
           '<ReportText type="Paragraph">',
           '',
           'The full report body.',
@@ -2426,7 +2429,10 @@ describe('buildReportPayload', () => {
         pathSlug: 'policy-and-advocacy/role-stablecoins',
         frontmatter: baseReportFrontmatter,
         content: [
-          '<ReportSection heading="Overview">',
+          '<ReportSection>',
+          '',
+          '## Overview',
+          '',
           '<ReportText type="Paragraph">',
           '',
           'The full report body.',

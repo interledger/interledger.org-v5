@@ -10,8 +10,13 @@ const ctx: ParserContext = { locale: 'en' }
 const textItem = (type: string, content = 'Some content.') =>
   [`<ReportText type="${type}">`, content, '</ReportText>'].join('\n')
 
-const reportSection = (items: string[], attrs = ' heading="Introduction"') =>
-  [`<ReportSection${attrs}>`, ...items, '</ReportSection>'].join('\n')
+const reportSection = (items: string[], heading = '## Introduction') =>
+  [
+    '<ReportSection>',
+    ...(heading ? [heading, ''] : []),
+    ...items,
+    '</ReportSection>'
+  ].join('\n')
 
 describe('ReportSection handler', () => {
   it('parses a block with a heading and a single Paragraph content block', async () => {
@@ -121,7 +126,7 @@ describe('ReportSection handler', () => {
 
   it('errors when the block has no ReportText children', async () => {
     const result = await parseMdxToBlocks(
-      '<ReportSection heading="Introduction" />',
+      '<ReportSection>\n\n## Introduction\n\n</ReportSection>',
       ctx
     )
 

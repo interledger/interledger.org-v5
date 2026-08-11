@@ -99,5 +99,7 @@ export function serialize(block: {
     return `<ReportText type="${textType}">\n\n${text}\n\n</ReportText>`
   })
 
-  return `<ReportSection heading="${esc(block.heading!.trim())}">\n\n${items.join('\n\n')}\n\n</ReportSection>`
+  const heading = esc(block.heading!.trim())
+
+  return `<ReportSection>\n\n## ${heading}\n\n${items.join('\n\n')}\n\n</ReportSection>`
 }

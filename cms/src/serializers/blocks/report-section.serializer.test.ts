@@ -18,7 +18,8 @@ describe('report-section serializer', () => {
       reportText: [validParagraph]
     })
 
-    expect(result).toContain('<ReportSection heading="Introduction">')
+    expect(result).toContain('<ReportSection>')
+    expect(result).toContain('## Introduction')
     expect(result).toContain('<ReportText type="Paragraph">')
     expect(result).toContain('The full report body.')
     expect(result).toContain('</ReportText>')
@@ -47,13 +48,13 @@ describe('report-section serializer', () => {
     expect(result.indexOf('First')).toBeLessThan(result.indexOf('Second'))
   })
 
-  it('escapes characters that would break a JSX attribute in the heading', () => {
+  it('emits the heading as a markdown h2, HTML-entity-escaped', () => {
     const result = serialize({
-      heading: 'Q&A "Overview"',
+      heading: 'Q&A "Overview" <2026>',
       reportText: [validParagraph]
     })
 
-    expect(result).toContain('heading="Q&amp;A &quot;Overview&quot;"')
+    expect(result).toContain('## Q&amp;A &quot;Overview&quot; &lt;2026&gt;')
   })
 
   it('escapes MDX braces in the content', () => {
