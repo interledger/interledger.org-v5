@@ -143,7 +143,6 @@ export function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
     lastWrittenRef.current = ''
 
     if (!draft?.values) {
-       
       console.log(LOG, 'no draft to restore', {
         key: entryKey,
         checkedCreate: documentId !== CREATE_DOCUMENT_ID
@@ -152,7 +151,6 @@ export function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
     }
 
     if (!draftDiffersFromInitial(draft.values, form.initialValues)) {
-       
       console.log(LOG, 'draft matches server values — skip restore', {
         savedAt: draft.savedAt
       })
@@ -160,7 +158,6 @@ export function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
       return
     }
 
-     
     console.log(LOG, 'auto-restoring browser draft', {
       savedAt: draft.savedAt,
       fromKey: draftKey(model, draft.documentId, draft.locale),
@@ -169,10 +166,9 @@ export function BrowserDraftRecoveryRunner(props: RunnerProps = {}) {
     try {
       form.setValues(draft.values)
       lastWrittenRef.current = stableStringify(draft.values)
-       
+
       console.log(LOG, 'auto-restore applied via setValues')
     } catch (err) {
-       
       console.error(LOG, 'auto-restore setValues failed', err)
     }
   }, [
