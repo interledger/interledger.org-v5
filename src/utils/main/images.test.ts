@@ -318,6 +318,13 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     }
   })
 
+  it('refuses GIFs so animation is preserved (served as-is)', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/foundation-blog/anim.gif'])
+
+    expect(getOptimizedImage('/img/foundation-blog/anim.gif')).toEqual(EMPTY)
+  })
+
   it('does not re-transform an already-optimized path', () => {
     setImageCdnEnabledForTests(true)
 
@@ -364,6 +371,7 @@ describe('isOptimizableSource', () => {
       isOptimizableSource('https://cms.example.com/uploads/img/original/x.jpg')
     ).toBe(true)
     expect(isOptimizableSource('/img/logo.svg')).toBe(false)
+    expect(isOptimizableSource('/img/foundation-blog/anim.gif')).toBe(false)
     expect(isOptimizableSource('/somewhere/else.png')).toBe(false)
     expect(isOptimizableSource('/img/noext')).toBe(false)
   })

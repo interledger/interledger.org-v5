@@ -157,15 +157,18 @@ function replaceUrlPathPrefix(
  * or `null` when it isn't one.
  *
  * Handles relative paths (/img/..., /uploads/img/original/...) and absolute
- * Strapi URLs (http://host/uploads/...). Rejects SVGs, extensionless paths,
- * anything outside the known source directories, and the generated output tree.
+ * Strapi URLs (http://host/uploads/...). Rejects SVGs and GIFs, extensionless
+ * paths, anything outside the known source directories, and the generated
+ * output tree.
  *
  * Absolute Strapi URLs are reduced to their site-relative pathname: the CMS is
  * firewalled and the site must stay self-contained, so every source has to
  * resolve against our own deploy, never the CMS origin.
  */
 function resolveOptimizableSource(src: string): ResolvedImageSource | null {
-  if (!src || src.endsWith('.svg')) return null
+  // GIFs are excluded like SVGs: encoding to WebP/AVIF (or a CDN fm= transform)
+  // would drop animation, so they ship as-is (mirrors scripts/optimize-images.ts).
+  if (!src || /\.(svg|gif)$/i.test(src)) return null
 
   let pathname = src
   if (src.startsWith('http')) {
