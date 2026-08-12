@@ -9,8 +9,19 @@
  *
  * An image passes when it is delivered through the CDN: either the `<img>` src
  * is already a `/.netlify/images` URL, or it sits inside a `<picture>` whose
- * `<source>` points there. Escape hatch: `data-allow-unoptimized` on the
- * `<img>`.
+ * `<source>` points there. Escape hatch: `data-allow-unoptimized` on the tag.
+ *
+ * Four carriers are checked: `<img>`, `<picture>`, inline
+ * `style="background-image:url(…)"`, and `poster`. The latter two bypass `<img>`
+ * entirely and so are invisible to every other check — that is how a 60KB
+ * homepage poster sat unoptimized while this reported clean.
+ *
+ * Known blind spots, deliberately not covered: `url()` inside emitted CSS files
+ * (no instances today, and no per-rule escape hatch would exist), `<meta
+ * og:image>` (consumed by crawlers, not browsers), and anything rendered by an
+ * SSR route, which never produces a file in `dist`. The success message names
+ * what was actually checked so a clean run cannot be read as a whole-site
+ * guarantee.
  *
  * Findings come in two severities, and the split is the point of this audit:
  *
@@ -43,11 +54,15 @@ const IMG_TAG_RE = /<img\b[^>]*>/gi
 const PICTURE_BLOCK_RE = /<picture\b[^>]*>[\s\S]*?<\/picture>/gi
 const CDN_SOURCE_RE =
   /<source\b[^>]*\ssrcset\s*=\s*["'][^"']*\/\.netlify\/images/i
+const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
+const CSS_URL_RE = /url\(([^)]*)\)/gi
 
 export type ImageAuditReason =
   | 'standalone-raw'
   | 'picture-without-cdn'
   | 'degraded-marker'
+  | 'raw-css-background'
+  | 'raw-poster'
 
 export interface ImageAuditFinding {
   src: string
@@ -61,18 +76,26 @@ export interface ImageAuditFinding {
  */
 const BLOCKING_REASONS: ReadonlySet<ImageAuditReason> = new Set([
   'standalone-raw',
-  'picture-without-cdn'
+  'picture-without-cdn',
+  'raw-css-background',
+  'raw-poster'
 ])
 
 export function isBlockingAuditReason(reason: ImageAuditReason): boolean {
   return BLOCKING_REASONS.has(reason)
 }
 
+/**
+ * Reads an attribute, keyed on whichever quote opened it. A `style` value
+ * routinely nests the other quote character — `style="…url('/img/a.png')"` —
+ * and a naive `["'][^"']*["']` stops dead at that inner quote.
+ */
 function getAttr(tag: string, name: string): string | null {
   const match = tag.match(
-    new RegExp(`\\s${name}\\s*=\\s*["']([^"']*)["']`, 'i')
+    new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i')
   )
-  return match ? match[1] : null
+  if (!match) return null
+  return match[1] ?? match[2] ?? null
 }
 
 function hasAttr(tag: string, name: string): boolean {
@@ -84,6 +107,44 @@ export function isOptimizableRasterPath(src: string): boolean {
   if (!src.startsWith('/img/') && !src.startsWith('/uploads/')) return false
   if (src.startsWith('/img/optimized/')) return false
   return hasOptimizableRasterExtension(src)
+}
+
+/** Strips the optional quoting from a `url(…)` value, entities included. */
+function unwrapCssUrl(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^(?:['"]|&#39;|&quot;)/, '')
+    .replace(/(?:['"]|&#39;|&quot;)$/, '')
+    .trim()
+}
+
+/**
+ * Findings from a tag's attributes rather than its `src`: inline
+ * `style="background-image:url(…)"` and `<video poster>`. Neither can carry a
+ * srcset, so the fix is a single CDN URL (see `getHeroSectionStyle` and
+ * `VideoEmbed`) — but both bypass `<img>` entirely, so nothing else sees them.
+ */
+function auditTagAttributes(tag: string): ImageAuditFinding[] {
+  if (hasAttr(tag, 'data-allow-unoptimized')) return []
+
+  const findings: ImageAuditFinding[] = []
+  const flag = (src: string, reason: ImageAuditReason): void => {
+    if (src.includes(CDN_MARKER)) return
+    if (!isOptimizableRasterPath(src)) return
+    findings.push({ src, reason })
+  }
+
+  const style = getAttr(tag, 'style')
+  if (style) {
+    for (const [, rawUrl] of style.matchAll(CSS_URL_RE)) {
+      flag(unwrapCssUrl(rawUrl), 'raw-css-background')
+    }
+  }
+
+  const poster = getAttr(tag, 'poster')
+  if (poster) flag(poster, 'raw-poster')
+
+  return findings
 }
 
 /** Classifies a single `<img>` tag, or `null` when it is fine. */
@@ -138,6 +199,13 @@ export function findUnoptimizedImages(html: string): ImageAuditFinding[] {
     if (found) findings.push(found)
   }
 
+  // Attribute-borne images are found on the original document: they can sit on
+  // any tag, including one inside a <picture>, and they never overlap with the
+  // `src` findings above.
+  for (const tag of html.match(OPEN_TAG_RE) ?? []) {
+    findings.push(...auditTagAttributes(tag))
+  }
+
   return findings
 }
 
@@ -157,7 +225,9 @@ async function collectHtmlFiles(dir: string): Promise<string[]> {
 const REASON_LABEL: Record<ImageAuditReason, string> = {
   'standalone-raw': 'raw <img> with no <picture>',
   'picture-without-cdn': '<picture> without a /.netlify/images <source>',
-  'degraded-marker': 'degraded to unoptimized original'
+  'degraded-marker': 'degraded to unoptimized original',
+  'raw-css-background': 'raw url() in an inline style',
+  'raw-poster': 'raw poster attribute'
 }
 
 const MAX_REPORTED = 25
@@ -229,14 +299,13 @@ export function auditImageOptimization(): AstroIntegration {
           }
         }
 
-        // Always state the coverage alongside the verdict, so a clean result
-        // reads as "checked N pages" rather than an unqualified all-clear.
-        const scanned = `${files.length} HTML file(s) scanned`
+        // State the coverage alongside the verdict. A bare all-clear reads as a
+        // whole-site guarantee, which this cannot give: it sees prerendered HTML
+        // only, and within it only the four carriers named here.
+        const scanned = `${files.length} HTML file(s) scanned (<img>, <picture>, inline background, poster)`
 
         if (bySrc.size === 0) {
-          logger.info(
-            `${scanned} — all optimizable images are served via the CDN.`
-          )
+          logger.info(`${scanned} — none bypassed the CDN.`)
           return
         }
 
@@ -257,7 +326,7 @@ export function auditImageOptimization(): AstroIntegration {
         }
 
         if (blocking.length === 0) {
-          logger.info(`${scanned} — no image bypassed the CDN.`)
+          logger.info(`${scanned} — none bypassed the CDN.`)
           return
         }
 

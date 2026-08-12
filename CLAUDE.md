@@ -160,16 +160,25 @@ Rules and invariants:
   survive `encodeURI` and a comma alone splits one srcset entry into two. Never
   apply it to a CDN URL (see the bullet above).
 - **Build-time audit.** `src/integrations/audit-image-optimization.ts` scans
-  `dist/**/*.html` (CDN mode only) and splits findings by severity. It **fails
-  the build** on `standalone-raw` and `picture-without-cdn` — both mean a
-  component bypassed `OptimizedImage`/`getOptimizedImage`, which is a code defect
-  fixable from the repo tree. It **logs** `degraded-marker`, where the component
-  did route through `getOptimizedImage` and the designed missing-source fallback
+  `dist/**/*.html` (CDN mode only) across four carriers — `<img>`, `<picture>`,
+  inline `style="background-image:url(…)"`, and `poster` — and splits findings
+  by severity. It **fails the build** on `standalone-raw`,
+  `picture-without-cdn`, `raw-css-background` and `raw-poster`: each means a
+  component bypassed `OptimizedImage`/`getOptimizedImage`, a code defect fixable
+  from the repo tree. It **logs** `degraded-marker`, where the component did
+  route through `getOptimizedImage` and the designed missing-source fallback
   fired; that is deploy state, not code, so it must not abort a deploy. Escape
-  hatch for a deliberate raw image: `data-allow-unoptimized` on the `<img>`.
+  hatch for a deliberate raw image: `data-allow-unoptimized` on the tag.
+  Blind spots it does not claim to cover: `url()` in emitted CSS files, `<meta
+og:image>`, and SSR routes (no file in `dist`) — the success message names the
+  carriers checked so a clean run is not read as a whole-site guarantee.
   Catching content that references a nonexistent image is a separate job and
   wants its own check — the marker is blind to SVGs/GIFs and to anything that
   doesn't reach prerendered HTML.
+- **Single-URL contexts.** A CSS background and a `poster` cannot carry a
+  srcset, so they take `getOptimizedImage(src).fullSrc` and fall back to the raw
+  path — see `getHeroSectionStyle` and `VideoEmbed`. Netlify clamps to the source
+  width, so requesting the top rung never upscales.
 - **Validation gotcha:** `astro check` is not wired up (`@astrojs/check` isn't
   installed) and will **hang on an interactive install prompt** — don't use it.
   Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises

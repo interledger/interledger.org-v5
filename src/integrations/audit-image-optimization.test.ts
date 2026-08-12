@@ -38,9 +38,11 @@ describe('isOptimizableRasterPath', () => {
 })
 
 describe('isBlockingAuditReason', () => {
-  it('blocks the two reasons that mean a component bypassed the CDN', () => {
+  it('blocks every reason that means a component bypassed the CDN', () => {
     expect(isBlockingAuditReason('standalone-raw')).toBe(true)
     expect(isBlockingAuditReason('picture-without-cdn')).toBe(true)
+    expect(isBlockingAuditReason('raw-css-background')).toBe(true)
+    expect(isBlockingAuditReason('raw-poster')).toBe(true)
   })
 
   it('does not block a degraded marker, which is the designed fallback', () => {
@@ -141,6 +143,77 @@ describe('findUnoptimizedImages', () => {
       </picture>`
     expect(findUnoptimizedImages(html)).toEqual([
       { src: '/uploads/img/original/d.png', reason: 'degraded-marker' }
+    ])
+  })
+
+  it('flags a raw raster in an inline background-image', () => {
+    // The real shape: the YouTube facade renders its poster as a CSS
+    // background, so the path never passes through an <img> at all.
+    const html = `<div style="background-image: url('/img/home/poster.jpg')"></div>`
+    expect(findUnoptimizedImages(html)).toEqual([
+      { src: '/img/home/poster.jpg', reason: 'raw-css-background' }
+    ])
+  })
+
+  it('reads a url() past the inner quote of the style attribute', () => {
+    // Regression: a naive ["'][^"']* attribute match stops at the inner quote
+    // and silently sees no url() at all.
+    const html = `<div class="x" style="color:red;background-image:url('/img/a.png');top:0"></div>`
+    expect(findUnoptimizedImages(html)).toEqual([
+      { src: '/img/a.png', reason: 'raw-css-background' }
+    ])
+  })
+
+  it('accepts every url() quoting style', () => {
+    const html = `
+      <div style="background-image:url(/img/bare.png)"></div>
+      <div style='background-image:url("/img/double.png")'></div>
+      <div style="background-image:url( '/img/spaced.png' )"></div>`
+    expect(findUnoptimizedImages(html).map((f) => f.src)).toEqual([
+      '/img/bare.png',
+      '/img/double.png',
+      '/img/spaced.png'
+    ])
+  })
+
+  it('passes a CDN-backed background and a non-raster one', () => {
+    // /img/bg-swirl.svg is on ~1300 pages; flagging SVGs would be all noise.
+    const html = `
+      <div style="background-image:url('/.netlify/images?url=%2Fimg%2Fa.png&w=1920')"></div>
+      <div style="background-image:url(/img/bg-swirl.svg)"></div>
+      <div style="background-image:url(https://cdn.example.com/a.png)"></div>`
+    expect(findUnoptimizedImages(html)).toEqual([])
+  })
+
+  it('flags a raw poster attribute', () => {
+    const html = `<video src="/v.mp4" poster="/img/home/poster.jpg"></video>`
+    expect(findUnoptimizedImages(html)).toEqual([
+      { src: '/img/home/poster.jpg', reason: 'raw-poster' }
+    ])
+  })
+
+  it('passes a CDN-backed poster', () => {
+    const html = `<video src="/v.mp4" poster="/.netlify/images?url=%2Fimg%2Fp.jpg&fm=webp&w=1920"></video>`
+    expect(findUnoptimizedImages(html)).toEqual([])
+  })
+
+  it('honours the escape hatch on a background and a poster', () => {
+    const html = `
+      <div style="background-image:url(/img/a.png)" data-allow-unoptimized></div>
+      <video poster="/img/b.jpg" data-allow-unoptimized></video>`
+    expect(findUnoptimizedImages(html)).toEqual([])
+  })
+
+  it('finds a background on a tag inside a <picture>', () => {
+    // The <picture> pass consumes the block before the <img> sweep, so the
+    // attribute sweep has to run against the original document.
+    const html = `
+      <picture style="background-image:url(/img/a.png)">
+        <source srcset="/.netlify/images?url=%2Fimg%2Fb.png&w=640 640w" />
+        <img src="/img/b.png" alt="x" />
+      </picture>`
+    expect(findUnoptimizedImages(html)).toEqual([
+      { src: '/img/a.png', reason: 'raw-css-background' }
     ])
   })
 
@@ -283,6 +356,22 @@ describe('auditImageOptimization hook', () => {
     expect(error?.message).toContain('1 image(s) bypass')
     expect(error?.message).not.toContain('/uploads/img/original/new.png')
     expect(logs.warn[0]).toContain('/uploads/img/original/new.png')
+  })
+
+  it('fails on an inline background that bypassed the CDN', async () => {
+    const { error } = await runAudit({
+      'index.html': `<div style="background-image: url('/img/home/poster.jpg')"></div>`
+    })
+
+    expect(error?.message).toContain('/img/home/poster.jpg')
+    expect(error?.message).toContain('inline style')
+  })
+
+  it('names the carriers it checked, so a clean run is not read as a guarantee', async () => {
+    const { logs } = await runAudit({ 'index.html': CDN_PICTURE })
+
+    expect(logs.info[0]).toContain('inline background')
+    expect(logs.info[0]).toContain('poster')
   })
 
   it('skips entirely when the CDN is off', async () => {
