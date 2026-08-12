@@ -45,6 +45,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # setup-node resolves the lockfile with a non-recursive readdir of the
+          # workspace root, so both test jobs would otherwise key their cache on
+          # the root lockfile — identical keys, colliding entries, and no
+          # invalidation when cms/pnpm-lock.yaml changes. Name it per job.
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -85,6 +90,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # cms installs from its own lockfile — see the note in test-src.
+          cache-dependency-path: cms/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts

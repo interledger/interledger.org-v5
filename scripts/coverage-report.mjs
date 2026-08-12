@@ -50,7 +50,12 @@ function rollUpByDirectory(summary) {
 
   for (const [file, metrics] of Object.entries(summary)) {
     if (file === 'total') continue
-    const dir = relative(process.cwd(), file).split('/').slice(0, -1).join('/')
+    // Split on both separators: `relative` yields backslashes on Windows, which
+    // would otherwise collapse every file into a single directory row.
+    const dir = relative(process.cwd(), file)
+      .split(/[\\/]/)
+      .slice(0, -1)
+      .join('/')
     const acc = dirs.get(dir) ?? { covered: 0, total: 0, files: 0 }
     acc.covered += metrics.statements.covered
     acc.total += metrics.statements.total

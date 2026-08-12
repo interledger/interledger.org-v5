@@ -23,9 +23,9 @@ export default defineConfig({
         'scripts/migrate-*.ts'
       ],
       reporter: ['text', 'html', 'json-summary'],
-      // Raise these as coverage improves: `pnpm test:coverage
-      // --coverage.thresholds.autoUpdate` rewrites them in place. Run it locally
-      // only — in CI it produces a config diff nothing can commit.
+      // Raise these as coverage improves — `--coverage.thresholds.autoUpdate`
+      // rewrites them in place. Run it locally only; in CI it produces a config
+      // diff nothing can commit.
       thresholds: {
         statements: 54,
         branches: 57,
