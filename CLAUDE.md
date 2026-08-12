@@ -68,6 +68,31 @@ Don't apply this to functions where there's no real failure mode. A `null` that 
 - Test edge cases explicitly — empty arrays, null values, malformed input
 - If a bug is fixed, add a test that would have caught it
 
+### Two suites: `src` and `cms`
+
+There are exactly two suites, and they are named after the folders they cover — never call either one "root":
+
+| Suite | Config                 | Run from  | CI job     |
+| ----- | ---------------------- | --------- | ---------- |
+| `src` | `vitest.config.ts`     | repo root | `Test src` |
+| `cms` | `cms/vitest.config.ts` | `cms/`    | `Test cms` |
+
+`pnpm test` runs a suite; `pnpm test:coverage` runs it with coverage. They are separate CI jobs so they fail and report independently.
+
+### Coverage
+
+Both suites use the `v8` provider with an explicit `coverage.include`. That is deliberate: vitest otherwise reports only files a test imported, which hides untested modules and inflates the percentage. **Adding a new untested file lowers coverage** — that is the intended behaviour, not a misconfiguration.
+
+`coverage.thresholds` gates both suites, with all four metrics set (`statements`, `branches`, `functions`, `lines`). Set all four, not just one — a file with no conditionals reports 100% branches with zero tests, so a branches-only gate enforces nothing.
+
+Metrics are not interchangeable: `statements`/`lines` are the headline, `functions` shows what is never called at all, `branches` shows how well already-tested code is exercised. Treat a high branch score on a low-statement file as meaningless.
+
+**Bumping thresholds.** When measured coverage for a metric is **more than 5 points above its configured threshold**, recommend raising that threshold. Leave 1–2 points of headroom below the new measurement rather than pinning it exactly — a threshold set to the current value fails the next PR that adds a file, which trains people to bypass the gate.
+
+- Raise floors with `pnpm test:coverage --coverage.thresholds.autoUpdate`, which rewrites the config in place. **Local only** — in CI it produces a config diff nothing can commit, so the ratchet silently does nothing.
+- Glob thresholds (e.g. `'src/utils/shared/**'`) are an _additional_ check, not a carve-out from the global one. Use them to lock in areas that are already well covered.
+- A glob matching no files passes silently. After adding one, confirm it fires by temporarily setting it above the current value and checking the error names the glob.
+
 ## Accessibility
 
 - Accessibility is non-negotiable
