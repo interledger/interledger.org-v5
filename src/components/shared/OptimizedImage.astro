@@ -185,18 +185,22 @@ const imgSrc = media ? undefined : src
   )
 }
 
-<script>
-  // Surfaces images that fell back to the unoptimized original (e.g. a CDN
-  // upload missing from this deploy). Idempotent so duplicate inclusion across
-  // components can't double-warn.
-  for (const img of document.querySelectorAll(
-    'img[data-unoptimized-src]:not([data-unoptimized-warned])'
-  )) {
-    img.setAttribute('data-unoptimized-warned', '')
-    console.warn(
-      `[images] Serving unoptimized full-size image: ${img.getAttribute(
-        'data-unoptimized-src'
-      )} — not present in this deploy or not eligible for optimization.`
-    )
-  }
-</script>
+{
+  import.meta.env.DEV && (
+    <script>
+      // Surfaces images that fell back to the unoptimized original (e.g. a CDN
+      // upload missing from this deploy). Idempotent so duplicate inclusion across
+      // components can't double-warn.
+      for (const img of document.querySelectorAll(
+        'img[data-unoptimized-src]:not([data-unoptimized-warned])'
+      )) {
+        img.setAttribute('data-unoptimized-warned', '')
+        console.warn(
+          `[images] Serving unoptimized full-size image: ${img.getAttribute(
+            'data-unoptimized-src'
+          )} — not present in this deploy or not eligible for optimization.`
+        )
+      }
+    </script>
+  )
+}
