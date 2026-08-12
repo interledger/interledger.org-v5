@@ -69,7 +69,7 @@ async function handleCarousel(
         // (not Media Library) so editors set it next to the image in Strapi.
         return {
           image: id,
-          alternativeText: logo.name?.trim() ? logo.name : null
+          alternativeText: logo.name?.trim() ? logo.name.trim() : null
         }
       })
     )
