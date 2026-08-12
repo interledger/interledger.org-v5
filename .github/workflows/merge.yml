@@ -3,6 +3,8 @@ name: Build and Sync
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
 # and/or syncs to Strapi when src/content changes (.md/.mdx), navigation JSON changes,
 # or static media under public/img/, public/uploads/, or public/documents/ changes.
+# When only media/content changes (no cms/ changes), pull-server-files runs a lightweight
+# git pull on the self-hosted runner so new files are on disk before sync-to-strapi seeds them.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -199,6 +201,49 @@ jobs:
             core.setOutput('content_changed', String(contentChanged))
             core.setOutput('navigation_changed', String(navigationChanged))
 
+  # Runs a git pull on the self-hosted Strapi instance when media or content files changed but
+  # the CMS code itself did not. This makes new files (e.g. images under public/uploads/) available
+  # on disk so that sync-to-strapi's POST /api/seed-media call can register them in Strapi.
+  # Skipped when cms_changed is true because rebuild-strapi already does a git pull in that case.
+  pull-server-files:
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.content_changed == 'true' &&
+      needs.detect-changes.outputs.cms_changed != 'true'
+    runs-on: strapi-vm
+    environment: ${{ github.ref_name == 'playground' && 'strapi-playground' || 'strapi-staging' }}
+    env:
+      DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
+      DEPLOY_BRANCH: ${{ github.ref_name }}
+
+    steps:
+      - name: Pull latest files to server
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_PATH:-}" ]; then
+            echo "Error: ENV_DEPLOY_PATH is not set for this environment."
+            exit 1
+          fi
+
+          if [ ! -d "$DEPLOY_PATH" ]; then
+            echo "Error: Deploy path does not exist: $DEPLOY_PATH"
+            exit 1
+          fi
+
+          cd "$DEPLOY_PATH"
+          git fetch origin "$DEPLOY_BRANCH"
+          git checkout "$DEPLOY_BRANCH"
+          git pull --ff-only
+
+          if [ -n "$(git ls-files -u)" ]; then
+            echo "Unresolved git conflicts detected after pull"
+            exit 1
+          fi
+
+          echo "✅ Server files updated"
+
   # This step will run on the self-hosted Strapi instance and will execute if the cms directory has been
   # changed. It will only run on the staging or playground branches and will rebuild the Strapi CMS and restart the Strapi service.
   rebuild-strapi:
@@ -287,13 +332,15 @@ jobs:
           sudo systemctl status "$STRAPI_SERVICE_NAME"
 
   sync-to-strapi:
-    needs: [detect-changes, rebuild-strapi]
-    # always() is required: if rebuild-strapi is skipped (no cms/ changes), GitHub would otherwise
-    # skip this job before evaluating `if`, even when content/navigation changed.
+    needs: [detect-changes, rebuild-strapi, pull-server-files]
+    # always() is required: skipped upstream jobs would otherwise cause GitHub to skip this job
+    # before evaluating `if`. Both rebuild-strapi and pull-server-files are mutually exclusive
+    # (one runs when cms_changed, the other when only content_changed), so one will always be skipped.
     if: |
       always() &&
       needs.detect-changes.result == 'success' &&
       (needs.rebuild-strapi.result == 'success' || needs.rebuild-strapi.result == 'skipped') &&
+      (needs.pull-server-files.result == 'success' || needs.pull-server-files.result == 'skipped') &&
       (needs.detect-changes.outputs.content_changed == 'true' || needs.detect-changes.outputs.navigation_changed == 'true')
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'playground' && 'strapi-playground' || 'strapi-staging' }}
@@ -340,7 +387,7 @@ jobs:
 
   notify-slack:
     runs-on: ubuntu-latest
-    needs: [detect-changes, rebuild-strapi, sync-to-strapi]
+    needs: [detect-changes, rebuild-strapi, pull-server-files, sync-to-strapi]
     if: ${{ always() && failure() }}
     steps:
       - name: Notify Slack on failure
