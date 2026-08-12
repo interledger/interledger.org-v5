@@ -6,8 +6,24 @@
         {
           "label": "Descripción general",
           "href": "/es/hackathon/overview"
+        },
+        {
+          "label": "Preguntas frecuentes",
+          "href": "/es/hackathon/faqs"
         }
       ]
+    },
+    {
+      "label": "Recursos",
+      "href": "/es/hackathon/resources"
+    },
+    {
+      "label": "Requisitos de participación",
+      "href": "/es/hackathon/participation"
+    },
+    {
+      "label": "Código de conducta",
+      "href": "/es/hackathon/code-conduct"
     }
   ],
   "ctaButton": {
