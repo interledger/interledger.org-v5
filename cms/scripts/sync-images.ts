@@ -1,9 +1,11 @@
 /**
- * Sync images from public/uploads/img/original/ and public/img/ to Strapi's
- * media library. Any image on disk that is not registered in Strapi is seeded
- * via POST /api/seed-media, which runs seedUploadsFromDisk server-side and
- * creates the DB record without going through Strapi's upload pipeline
- * (preserving the git-committed filename as the URL).
+ * Sync seedable media from public/uploads/img/original/ and public/img/ into
+ * Strapi's media library. Disk files not registered in Strapi are seeded via
+ * POST /api/seed-media (seedUploadsFromDisk server-side — DB records only,
+ * preserves git-committed filenames as URLs).
+ *
+ * Extension allowlist matches seedUploadsFromDisk (SEEDABLE_EXTENSIONS):
+ * images, video, and PDF.
  *
  * Usage:
  *   cd cms && pnpm run sync:images              # check + seed missing
@@ -15,7 +17,13 @@
 import fs from 'fs'
 import path from 'path'
 import { config } from 'dotenv'
-import { getProjectRoot, PATHS, validateImageFileSize } from '@/utils'
+import {
+  getProjectRoot,
+  IMAGE_EXTENSIONS,
+  PATHS,
+  SEEDABLE_EXTENSIONS,
+  validateImageFileSize
+} from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
 
 config({ path: path.resolve(process.cwd(), '../.env'), quiet: true })
@@ -29,17 +37,6 @@ const SCAN_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: 'public/img', urlPrefix: '/img' }
 ]
 const EXCLUDED_DIR_NAMES = new Set(['optimized'])
-
-const IMAGE_EXTENSIONS = new Set([
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.gif',
-  '.svg',
-  '.webp',
-  '.avif',
-  '.tiff'
-])
 
 async function strapiGet<T>(endpoint: string): Promise<T> {
   const url = `${STRAPI_URL}/api/${endpoint}`
@@ -78,7 +75,7 @@ async function findByUrl(url: string): Promise<UploadRecord | null> {
   return files.length > 0 ? files[0] : null
 }
 
-function collectImageFiles(dir: string): string[] {
+function collectSeedableFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return []
   const results: string[] = []
 
@@ -89,7 +86,9 @@ function collectImageFiles(dir: string): string[] {
       if (entry.isDirectory()) {
         if (EXCLUDED_DIR_NAMES.has(entry.name)) continue
         walk(full)
-      } else if (IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      } else if (
+        SEEDABLE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+      ) {
         results.push(full)
       }
     }
@@ -106,7 +105,7 @@ async function main() {
   }
   await assertStrapiRunning(STRAPI_URL)
 
-  if (DRY_RUN) console.log('ℹ️  Dry run — no images will be seeded\n')
+  if (DRY_RUN) console.log('ℹ️  Dry run — no media will be seeded\n')
 
   const projectRoot = getProjectRoot()
   let totalRegistered = 0
@@ -118,24 +117,28 @@ async function main() {
     const absDir = path.join(projectRoot, dir)
     console.log(`\n📁 Scanning: ${absDir}`)
 
-    const files = collectImageFiles(absDir)
+    const files = collectSeedableFiles(absDir)
     if (files.length === 0) {
-      console.log('   No image files found.')
+      console.log('   No seedable media files found.')
       continue
     }
 
-    console.log(`   Found ${files.length} image file(s)\n`)
+    console.log(`   Found ${files.length} seedable file(s)\n`)
 
     for (const filePath of files) {
       const relativePath = path.relative(absDir, filePath)
       const expectedUrl = `${urlPrefix}/${relativePath.replace(/\\/g, '/')}`
+      const ext = path.extname(filePath).toLowerCase()
 
-      const sizeError = validateImageFileSize(filePath)
-      if (sizeError) {
-        console.log(`  ⚠️  Oversized: ${expectedUrl}`)
-        console.log(`      ${sizeError.message}`)
-        totalOversized++
-        continue
+      // Match seedUploadsFromDisk: only enforce the image size ceiling here.
+      if (IMAGE_EXTENSIONS.has(ext)) {
+        const sizeError = validateImageFileSize(filePath)
+        if (sizeError) {
+          console.log(`  ⚠️  Oversized: ${expectedUrl}`)
+          console.log(`      ${sizeError.message}`)
+          totalOversized++
+          continue
+        }
       }
 
       try {
@@ -161,13 +164,16 @@ async function main() {
 
   let totalSeeded = 0
   if (!DRY_RUN && totalMissing > 0) {
-    console.log('\n⬆️  Seeding missing images...')
+    console.log('\n⬆️  Seeding missing media library records...')
     try {
       const result = await strapiPost<{ seeded: number }>('seed-media')
       totalSeeded = result.seeded
-      console.log(`✅ Seeded ${totalSeeded} image(s)`)
+      console.log(`✅ Seeded ${totalSeeded} media record(s)`)
     } catch (err) {
-      console.error('❌ Seeding failed:', err instanceof Error ? err.message : err)
+      console.error(
+        '❌ Seeding failed:',
+        err instanceof Error ? err.message : err
+      )
       totalFailed++
     }
   }
@@ -182,13 +188,18 @@ async function main() {
   console.log(`\nSummary: ${summaryParts.join(', ')}`)
 
   if (DRY_RUN && totalMissing > 0) {
-    console.log('\n💡 Run sync:images without --dry-run to seed these images.')
+    console.log(
+      '\n💡 Run sync:images without --dry-run to seed these media records.'
+    )
   }
 
   if (totalFailed > 0) process.exit(1)
 }
 
 main().catch((err) => {
-  console.error('❌ Fatal error:', err instanceof Error ? err.message : String(err))
+  console.error(
+    '❌ Fatal error:',
+    err instanceof Error ? err.message : String(err)
+  )
   process.exit(1)
 })

@@ -39,6 +39,7 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './utils/seedMedia'
 import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
@@ -286,7 +287,11 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
-  server: { router: { post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void } }
+  server: {
+    router: {
+      post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void
+    }
+  }
   service: (uid: string) => unknown
 }
 
@@ -617,33 +622,6 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
-// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
-// anything git-committed and served from the repo (images, video, PDF) must
-// also be seedable, or an MDX reference to it resolves to no media record and
-// the sync hard-fails (INTORG-876). Larger media storage is tracked in
-// INTORG-902.
-const MIME_BY_EXT: Record<string, string> = {
-  // Images
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.avif': 'image/avif',
-  '.tiff': 'image/tiff',
-  // Video (matches the VideoEmbed externalUrl regex extensions)
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.ogg': 'video/ogg',
-  '.ogv': 'video/ogg',
-  '.mov': 'video/quicktime',
-  // Documents
-  '.pdf': 'application/pdf'
-}
-
-const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
-
 /**
  * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
@@ -692,7 +670,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<number> {
         continue
       }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
-      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+      const mime = SEED_MIME_BY_EXT[ext] ?? 'application/octet-stream'
 
       await query.create({
         data: {
@@ -1957,10 +1935,9 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
-    // Seed-media endpoint: lets the sync-images script trigger seedUploadsFromDisk
-    // remotely without a full Strapi rebuild. Validates against STRAPI_API_TOKEN
-    // (the same token all sync scripts use) since this route bypasses Strapi's
-    // standard auth middleware.
+    // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
+    // restarting Strapi. Auth is STRAPI_API_TOKEN (same as other sync scripts)
+    // because this route bypasses Strapi's standard auth middleware.
     strapi.server.router.post('/api/seed-media', async (ctx) => {
       const bearer = String(ctx.request.headers['authorization'] ?? '').replace(
         'Bearer ',
