@@ -43,3 +43,6 @@ src/generated/optimized-image-manifest.json
 # source of truth for the values mirrored from these files.
 /ILF website*.json
 /Interledger Global UI color palette*.json
+
+# Vitest coverage reports
+coverage/

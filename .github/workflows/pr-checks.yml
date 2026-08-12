@@ -24,25 +24,89 @@ jobs:
 
       - run: pnpm run lint
 
-  test:
+  # The two suites are split into separate jobs so they fail independently and
+  # report separately: a cms serializer break shouldn't hide the state of the
+  # Astro site's tests, or vice versa. They also run in parallel.
+  #
+  # --ignore-scripts on both installs: the unit tests don't touch sharp,
+  # better-sqlite3, or @parcel/watcher, so skipping their native builds keeps
+  # these jobs fast. esbuild resolves its platform binary from the optional dep
+  # without its postinstall, so vitest still runs.
+  test-src:
+    name: Test src
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run unit tests with coverage
+        run: pnpm test:coverage
+
+      # continue-on-error so a missing report never masks the test failure that
+      # caused it — vitest skips writing coverage when tests fail.
+      - name: Report coverage
+        if: always()
+        continue-on-error: true
+        run: node scripts/coverage-report.mjs src
+
+      - name: Upload coverage report
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-src
+          path: coverage/
+          retention-days: 14
+
+  test-cms:
+    name: Test cms
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: cms
+
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
 
-      - name: Install CMS dependencies
-        working-directory: cms
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Run unit tests
-        working-directory: cms
-        run: pnpm test
+      - name: Run unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: Report coverage
+        if: always()
+        continue-on-error: true
+        run: node ../scripts/coverage-report.mjs cms
+
+      - name: Upload coverage report
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          # path is workspace-relative — defaults.run.working-directory
+          # applies to `run` steps only, not to `uses`.
+          name: coverage-cms
+          path: cms/coverage/
+          retention-days: 14
 
   build-and-dryrun:
     runs-on: ubuntu-latest
