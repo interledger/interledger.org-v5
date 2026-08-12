@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasOptimizableRasterExtension } from './imagePaths'
+import { encodeImageUrlPath, hasOptimizableRasterExtension } from './imagePaths'
 
 describe('hasOptimizableRasterExtension', () => {
   it('accepts the extensions the encoder produces variants for', () => {
@@ -57,5 +57,49 @@ describe('hasOptimizableRasterExtension', () => {
     expect(hasOptimizableRasterExtension('C:\\repo\\public\\img\\noext')).toBe(
       false
     )
+  })
+})
+
+describe('encodeImageUrlPath', () => {
+  it('leaves an ordinary path untouched', () => {
+    expect(encodeImageUrlPath('/img/foundation-blog/hero.png')).toBe(
+      '/img/foundation-blog/hero.png'
+    )
+  })
+
+  it('preserves the path separators', () => {
+    expect(encodeImageUrlPath('/uploads/img/original/a/b/c.png')).toBe(
+      '/uploads/img/original/a/b/c.png'
+    )
+  })
+
+  it('encodes characters that break a srcset entry', () => {
+    // A space splits url from descriptor; a comma splits one entry into two.
+    expect(encodeImageUrlPath('/img/hero image.avif')).toBe(
+      '/img/hero%20image.avif'
+    )
+    expect(encodeImageUrlPath('/img/hero,wide.avif')).toBe(
+      '/img/hero%2Cwide.avif'
+    )
+  })
+
+  it('encodes characters that encodeURI would leave to corrupt the URL', () => {
+    // The reason this is per-segment encodeURIComponent rather than encodeURI.
+    expect(encodeImageUrlPath('/img/hero#1.png')).toBe('/img/hero%231.png')
+    expect(encodeImageUrlPath('/img/what?.png')).toBe('/img/what%3F.png')
+    expect(encodeImageUrlPath('/img/a&b.png')).toBe('/img/a%26b.png')
+    expect(encodeImageUrlPath('/img/a+b.png')).toBe('/img/a%2Bb.png')
+    expect(encodeImageUrlPath('/img/100%.png')).toBe('/img/100%25.png')
+  })
+
+  it('round-trips through decodeURIComponent', () => {
+    for (const literal of [
+      '/img/hero image.avif',
+      '/img/hero,wide.avif',
+      '/img/100%.png',
+      '/img/a+b&c#d.png'
+    ]) {
+      expect(decodeURIComponent(encodeImageUrlPath(literal))).toBe(literal)
+    }
   })
 })

@@ -149,6 +149,16 @@ Rules and invariants:
 - **CDN URLs are final.** They already contain percent-encoded query values —
   never run `encodeURI()` over them or `%2F` becomes `%252F` and the source path
   breaks.
+- **Paths are literal internally, encoded only on emission.** Both catalogs are
+  built from `path.relative(PUBLIC_DIR, …)`, so `hero image.avif` carries a real
+  space. That literal form is what catalog lookups and `buildImageCdnUrl`
+  (via `URLSearchParams`) need, so `resolveOptimizableSource` decodes the
+  pathname it gets from `new URL()` to keep both entry paths in the same space.
+  Any path that then becomes a URL — the `withIntrinsicWidthRung` raw rung,
+  build-mode variant and `-full` paths — must go through `encodeImageUrlPath`.
+  It encodes per segment rather than using `encodeURI`, because `,` and `#`
+  survive `encodeURI` and a comma alone splits one srcset entry into two. Never
+  apply it to a CDN URL (see the bullet above).
 - **Build-time audit.** `src/integrations/audit-image-optimization.ts` scans
   `dist/**/*.html` (CDN mode only) and splits findings by severity. It **fails
   the build** on `standalone-raw` and `picture-without-cdn` — both mean a

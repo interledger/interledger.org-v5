@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import {
+  buildImageSrcset,
   getOptimizedImage,
   hasOptimizedVariants,
   isOptimizableSource,
@@ -14,7 +15,11 @@ import {
   largestTargetWidth,
   NETLIFY_IMAGE_ENDPOINT
 } from './imageCdn'
-import { DEFAULT_CDN_WIDTHS, TARGET_WIDTHS } from './imagePaths'
+import {
+  DEFAULT_CDN_WIDTHS,
+  TARGET_WIDTHS,
+  encodeImageUrlPath
+} from './imagePaths'
 
 const EMPTY = {
   variants: [],
@@ -493,5 +498,129 @@ describe('isOptimizableSource', () => {
       )
     ).toBe(false)
     expect(isOptimizableSource('/img/hero.png?v=2')).toBe(true)
+  })
+})
+
+/**
+ * A srcset is comma-separated, and each entry is `<url> <descriptor>`. An
+ * unencoded space or comma in a filename silently redraws those boundaries —
+ * the browser reads a truncated URL and an invalid descriptor, with no error
+ * anywhere. Every path we emit has to survive this parse, in either mode, so
+ * these run the whole pipeline rather than testing the encoder in isolation.
+ */
+function parseSrcsetLikeABrowser(
+  srcset: string
+): Array<{ url: string; descriptor: string }> {
+  return srcset
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const parts = entry.split(/\s+/)
+      expect(parts, `malformed srcset entry: "${entry}"`).toHaveLength(2)
+      expect(parts[1]).toMatch(/^\d+w$/)
+      return { url: parts[0], descriptor: parts[1] }
+    })
+}
+
+// Reachable filenames that would corrupt a srcset if emitted raw. `?` and `#`
+// are absent on purpose: they are indistinguishable from a query or fragment,
+// so such a source is rejected upstream and never reaches an encoder.
+const AWKWARD_SOURCES = [
+  '/img/hero image.avif',
+  '/img/hero,wide.avif',
+  '/img/a+b.avif',
+  '/img/a&b.avif',
+  '/img/100%.avif'
+] as const
+
+const INTRINSIC_WIDTH = 2000
+
+describe('srcset safety for awkward filenames', () => {
+  it.each(AWKWARD_SOURCES)('CDN mode, with an intrinsic rung: %s', (src) => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([src])
+
+    const image = withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      INTRINSIC_WIDTH
+    )
+    const entries = parseSrcsetLikeABrowser(
+      buildImageSrcset(image.avifVariants)
+    )
+
+    expect(entries).toHaveLength(image.avifVariants.length)
+    // The top rung is served as the source file itself, so it is the one URL
+    // in the ladder that URLSearchParams never touches.
+    expect(entries.at(-1)?.url).toBe(encodeImageUrlPath(src))
+    expect(entries.at(-1)?.descriptor).toBe(`${INTRINSIC_WIDTH}w`)
+  })
+
+  it.each(AWKWARD_SOURCES)(
+    'build mode, from the variant catalog: %s',
+    (src) => {
+      setImageCdnEnabledForTests(false)
+      const base = src
+        .replace('/img/', '/img/optimized/')
+        .replace(/\.avif$/, '')
+      setOptimizedImageVariantCatalogForTests([
+        `${base}-640.avif`,
+        `${base}-1280.avif`,
+        `${base}-full.avif`
+      ])
+
+      const image = getOptimizedImage(src)
+      const entries = parseSrcsetLikeABrowser(
+        buildImageSrcset(image.avifVariants)
+      )
+
+      // Exact URLs, not just a well-formed parse: characters like `&` and `%`
+      // corrupt the URL without disturbing the entry boundaries.
+      expect(entries.map((entry) => entry.url)).toEqual([
+        encodeImageUrlPath(`${base}-640.avif`),
+        encodeImageUrlPath(`${base}-1280.avif`)
+      ])
+      expect(image.avifFullSrc).toBe(encodeImageUrlPath(`${base}-full.avif`))
+    }
+  )
+
+  it('still sends the CDN the literal path, not the encoded one', () => {
+    // Netlify resolves `url=` against the deploy, so it wants the real filename.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/hero image.avif'])
+
+    const { avifVariants } = getOptimizedImage('/img/hero image.avif')
+
+    expect(readCdnSourceParam(avifVariants[0].src)).toBe('/img/hero image.avif')
+  })
+})
+
+describe('absolute CMS URLs with awkward filenames', () => {
+  const LITERAL = '/uploads/img/original/hero image.avif'
+
+  beforeEach(() => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([LITERAL])
+  })
+
+  it('matches the catalog when the space arrives literal', () => {
+    // `new URL().pathname` percent-encodes, so without decoding back to catalog
+    // space this misses the catalog and degrades permanently.
+    expect(
+      hasOptimizedVariants(
+        getOptimizedImage(`https://cms.example.com${LITERAL}`)
+      )
+    ).toBe(true)
+  })
+
+  it('matches the catalog when the space arrives already encoded', () => {
+    expect(
+      hasOptimizedVariants(
+        getOptimizedImage(
+          'https://cms.example.com/uploads/img/original/hero%20image.avif'
+        )
+      )
+    ).toBe(true)
   })
 })

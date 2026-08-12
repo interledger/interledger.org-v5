@@ -11,6 +11,7 @@ import {
 import {
   DEFAULT_CDN_WIDTHS,
   IMAGE_URL_PATHS,
+  encodeImageUrlPath,
   hasOptimizableRasterExtension,
   type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
@@ -20,6 +21,7 @@ export {
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
+  encodeImageUrlPath,
   hasOptimizableRasterExtension,
   pathToSegments,
   type OptimizedImageManifest
@@ -38,7 +40,13 @@ export interface OptimizedImage {
 }
 
 interface ResolvedImageSource {
-  /** Site-relative pathname, used for both the catalog mapping and CDN source. */
+  /**
+   * Site-relative pathname in *literal* form — a space in the filename is a
+   * real space, not `%20`. This is catalog space: both catalogs are built from
+   * `path.relative(PUBLIC_DIR, …)`, and `buildImageCdnUrl` percent-encodes it
+   * once via `URLSearchParams`. Encode with `encodeImageUrlPath` at the moment
+   * it becomes a URL, never before.
+   */
   pathname: string
 }
 
@@ -179,7 +187,12 @@ function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   let pathname = src
   if (src.startsWith('http')) {
     try {
-      pathname = new URL(src).pathname
+      // `URL` hands back a percent-encoded pathname, so decode it: the rest of
+      // this module works in literal catalog space, and an absolute CMS URL for
+      // `hero image.avif` would otherwise arrive as `hero%20image.avif` and
+      // never match the catalog. Malformed escapes throw here and resolve to
+      // "not optimizable", which degrades rather than breaking the render.
+      pathname = decodeURIComponent(new URL(src).pathname)
     } catch {
       return null
     }
@@ -240,7 +253,8 @@ function listSizedVariants(base: string, ext: 'webp' | 'avif'): ImageVariant[] {
     if (!urlPath.startsWith(prefix) || !urlPath.endsWith(suffix)) continue
     const mid = urlPath.slice(prefix.length, -suffix.length)
     if (!/^\d+$/.test(mid)) continue
-    variants.push({ src: urlPath, width: Number(mid) })
+    // Matched against the literal catalog entry, emitted as a URL.
+    variants.push({ src: encodeImageUrlPath(urlPath), width: Number(mid) })
   }
 
   return variants.sort((a, b) => a.width - b.width)
@@ -305,9 +319,13 @@ export function getOptimizedImage(
 
   return {
     variants,
-    fullSrc: optimizedVariantExists(fullWebP) ? fullWebP : null,
+    fullSrc: optimizedVariantExists(fullWebP)
+      ? encodeImageUrlPath(fullWebP)
+      : null,
     avifVariants,
-    avifFullSrc: optimizedVariantExists(fullAvif) ? fullAvif : null
+    avifFullSrc: optimizedVariantExists(fullAvif)
+      ? encodeImageUrlPath(fullAvif)
+      : null
   }
 }
 
@@ -355,9 +373,11 @@ export function withIntrinsicWidthRung(
     DELIVERABLE_SOURCE_FORMATS[path.extname(source.pathname).toLowerCase()]
 
   const rungFor = (format: ImageCdnFormat): ImageVariant => ({
+    // The CDN branch is encoded by `URLSearchParams`; the raw branch is a bare
+    // catalog path going straight into a srcset, so it has to be encoded here.
     src:
       rawFormat === format
-        ? source.pathname
+        ? encodeImageUrlPath(source.pathname)
         : buildImageCdnUrl(source.pathname, { format, width: intrinsicWidth }),
     width: intrinsicWidth
   })

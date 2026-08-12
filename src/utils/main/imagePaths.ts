@@ -76,6 +76,28 @@ export function hasOptimizableRasterExtension(pathOrUrlPath: string): boolean {
   return OPTIMIZABLE_RASTER_EXTENSIONS.has(extensionOf(pathOrUrlPath))
 }
 
+/**
+ * Percent-encodes a literal source path for emission into a URL context.
+ *
+ * Image paths reach us in *literal* form — the catalogs are built from
+ * `path.relative(PUBLIC_DIR, …)`, so a file named `hero image.avif` is stored
+ * with a real space. That is the right shape for catalog lookups and for
+ * `URLSearchParams`, but not for an HTML attribute, and a `srcset` is
+ * unforgiving: entries are comma-separated and each is `<url> <descriptor>`, so
+ * an unencoded space or comma silently redraws the entry boundaries.
+ *
+ * Encodes per segment rather than with `encodeURI`, which leaves `,`, `#` and
+ * `?` untouched — all three corrupt a URL built from a filename that contains
+ * them.
+ *
+ * Input must be literal, never already-encoded: re-encoding turns `%20` into
+ * `%2520`. In particular this must not be applied to a Netlify Image CDN URL,
+ * whose query values are already encoded (see `imageCdn.ts`).
+ */
+export function encodeImageUrlPath(pathname: string): string {
+  return pathname.split('/').map(encodeURIComponent).join('/')
+}
+
 export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',
