@@ -1,10 +1,24 @@
 ---
-import { buildImageSrcset, getOptimizedImage } from '@/utils'
+import {
+  buildImageSrcset,
+  getOptimizedImage,
+  isOptimizableSource,
+  withIntrinsicWidthRung
+} from '@/utils'
 
 export interface OptimizedImageAlternateSource {
   src: string
   media: string
   sizes: string
+  /** CDN width ladder for this source; defaults to the capped default. */
+  widths?: readonly number[]
+  /**
+   * Intrinsic width of `src`, when known. Collapses the ladder's clamped rungs
+   * into one at this width — served as the source file itself for an AVIF or
+   * WebP source, since a transform there re-encodes without resizing. Set this
+   * on any source opting into 2560/3840 via `widths`.
+   */
+  intrinsicWidth?: number
 }
 
 interface Props {
@@ -13,7 +27,7 @@ interface Props {
   width?: number
   height?: number
   class?: string
-  /** Applies to wrapping `<picture>` when responsive sources exist. */
+  /** Applies to the wrapping `<picture>`, which is always emitted. */
   pictureClass?: string
   loading?: 'lazy' | 'eager'
   sizes?: string
@@ -44,8 +58,17 @@ const { variants, fullSrc, avifVariants, avifFullSrc } = src
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const alternatePictureSources = alternateSources.flatMap(
-  ({ src: alternateSrc, media: alternateMedia, sizes: alternateSizes }) => {
-    const alternate = getOptimizedImage(alternateSrc)
+  ({
+    src: alternateSrc,
+    media: alternateMedia,
+    sizes: alternateSizes,
+    widths: alternateWidths,
+    intrinsicWidth
+  }) => {
+    const resolved = getOptimizedImage(alternateSrc, alternateWidths)
+    const alternate = intrinsicWidth
+      ? withIntrinsicWidthRung(resolved, alternateSrc, intrinsicWidth)
+      : resolved
     const sources: Array<{
       type: string
       media: string
@@ -142,16 +165,40 @@ const imgSrc = media ? undefined : src
       />
     </picture>
   ) : (
-    <img
-      src={src}
-      alt={alt}
-      width={width}
-      height={height}
-      class={className}
-      loading={loading}
-      decoding={decoding}
-      fetchpriority={fetchpriority}
-      draggable={draggable}
-    />
+    // Wrapped even with no <source>, so `pictureClass` applies in every branch.
+    // Callers put semantics there (breakpoint toggles), and which branch runs
+    // depends on deploy state, not on the call site.
+    <picture class={pictureClassName}>
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        class={className}
+        loading={loading}
+        decoding={decoding}
+        fetchpriority={fetchpriority}
+        draggable={draggable}
+        data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
+      />
+    </picture>
   )
 }
+
+<script>
+  if (import.meta.env.DEV) {
+    // Surfaces images that fell back to the unoptimized original (e.g. a CDN
+    // upload missing from this deploy). Idempotent so duplicate inclusion across
+    // components can't double-warn.
+    for (const img of document.querySelectorAll(
+      'img[data-unoptimized-src]:not([data-unoptimized-warned])'
+    )) {
+      img.setAttribute('data-unoptimized-warned', '')
+      console.warn(
+        '[images] Serving unoptimized full-size image: ' +
+          img.getAttribute('data-unoptimized-src') +
+          ' — not present in this deploy or not eligible for optimization.'
+      )
+    }
+  }
+</script>

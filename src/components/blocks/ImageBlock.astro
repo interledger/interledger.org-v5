@@ -1,5 +1,9 @@
 ---
-import { getOptimizedImage } from '@/utils'
+import {
+  getOptimizedImage,
+  hasOptimizedVariants,
+  isOptimizableSource
+} from '@/utils'
 import ResponsiveSources from '@/components/shared/ResponsiveSources.astro'
 
 interface Props {
@@ -24,6 +28,11 @@ const desktop = getOptimizedImage(src)
 const tablet = tabletSrc ? getOptimizedImage(tabletSrc) : null
 const mobile = mobileSrc ? getOptimizedImage(mobileSrc) : null
 
+// The <img> is the picture fallback; it serves the unoptimized original only
+// when the desktop source degraded (e.g. a CDN upload missing from this deploy).
+const desktopUnoptimized =
+  !hasOptimizedVariants(desktop) && isOptimizableSource(src)
+
 // Breakpoints from tailwind.config.mjs: tablet=810px, desktop=1200px
 // Sources are ordered narrow-first so the first matching <source> wins.
 const MOBILE_MQ = '(max-width: 809px)'
@@ -42,6 +51,7 @@ const TABLET_MQ = '(max-width: 1199px)'
       loading="lazy"
       decoding="async"
       class:list={['w-full rounded', needsOutline && 'ring-1 ring-neutral-25']}
+      data-unoptimized-src={desktopUnoptimized ? src : undefined}
     />
   </picture>
 
@@ -74,3 +84,21 @@ const TABLET_MQ = '(max-width: 1199px)'
     )
   }
 </figure>
+
+<script>
+  if (import.meta.env.DEV) {
+    // Surfaces images that fell back to the unoptimized original (e.g. a CDN
+    // upload missing from this deploy). Idempotent so duplicate inclusion across
+    // components can't double-warn.
+    for (const img of document.querySelectorAll(
+      'img[data-unoptimized-src]:not([data-unoptimized-warned])'
+    )) {
+      img.setAttribute('data-unoptimized-warned', '')
+      console.warn(
+        '[images] Serving unoptimized full-size image: ' +
+          img.getAttribute('data-unoptimized-src') +
+          ' — not present in this deploy or not eligible for optimization.'
+      )
+    }
+  }
+</script>

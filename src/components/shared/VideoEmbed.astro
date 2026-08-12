@@ -1,7 +1,11 @@
 ---
 import { YouTube } from '@astro-community/astro-embed-youtube'
 import { Vimeo } from '@astro-community/astro-embed-vimeo'
-import { detectVideoProvider, buildUmamiAttrs } from '@/utils'
+import {
+  detectVideoProvider,
+  buildUmamiAttrs,
+  getOptimizedImage
+} from '@/utils'
 
 interface Props {
   url: string
@@ -12,6 +16,17 @@ interface Props {
 const { url, title, poster } = Astro.props
 const { routeLocale } = Astro.locals
 const provider = detectVideoProvider(url)
+
+// A poster lands either in a `poster` attribute or — for the YouTube facade —
+// in a CSS background, and neither can carry a srcset. So it takes the single
+// full-size URL, exactly as `getHeroSectionStyle` does. Netlify clamps to the
+// source width, so asking for the top rung never upscales.
+//
+// `fullSrc` is null when the source is missing from this deploy; the raw path
+// is then the honest fallback.
+const posterSrc = poster
+  ? (getOptimizedImage(poster).fullSrc ?? poster)
+  : undefined
 
 const videoAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
@@ -26,7 +41,7 @@ const videoAttrs = buildUmamiAttrs({
 {
   provider === 'youtube' ? (
     <div class="video-embed w-full">
-      <YouTube id={url} playlabel={title} poster={poster} />
+      <YouTube id={url} playlabel={title} poster={posterSrc} />
     </div>
   ) : provider === 'vimeo' ? (
     <div class="video-embed w-full">
@@ -36,7 +51,7 @@ const videoAttrs = buildUmamiAttrs({
     <div class="video-embed w-full">
       <video
         src={url}
-        poster={poster}
+        poster={posterSrc}
         controls
         loop
         muted
