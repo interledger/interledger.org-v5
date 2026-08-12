@@ -477,4 +477,21 @@ describe('isOptimizableSource', () => {
     expect(isOptimizableSource('/somewhere/else.png')).toBe(false)
     expect(isOptimizableSource('/img/noext')).toBe(false)
   })
+
+  it('rejects extensions the encoder never produces variants for', () => {
+    // A .tiff is a valid Strapi upload but is skipped by the encoder, so it
+    // never lands in the deployed-sources catalog. Treating it as optimizable
+    // made a perfectly deliverable image render as a "missing source" degrade.
+    expect(isOptimizableSource('/uploads/img/original/scan.tiff')).toBe(false)
+    expect(isOptimizableSource('/img/old.bmp')).toBe(false)
+  })
+
+  it('reads the extension from the pathname, not the query string', () => {
+    expect(
+      isOptimizableSource(
+        'https://cms.example.com/uploads/img/original/logo.svg?updated=1'
+      )
+    ).toBe(false)
+    expect(isOptimizableSource('/img/hero.png?v=2')).toBe(true)
+  })
 })

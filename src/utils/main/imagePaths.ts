@@ -27,6 +27,55 @@ export const WEBP_QUALITY = 90
  */
 export const AVIF_QUALITY = 85
 
+/**
+ * The only extensions we optimize. An allowlist, and the single source of truth
+ * for everything that has to agree on the answer: the build-time encoder
+ * (`scripts/optimize-images.ts`, which also builds the deployed-sources catalog
+ * from it), `resolveOptimizableSource` in `images.ts`, and the build audit
+ * (`audit-image-optimization.ts`).
+ *
+ * These must agree exactly. The encoder's list decides what lands in the
+ * catalog; the resolver's list decides what is *expected* to be in it. While the
+ * resolver was an `.svg`/`.gif` denylist instead, a deployed `.tiff` under
+ * `/uploads/img/original` was absent from the catalog (the encoder skipped it)
+ * yet still resolved as optimizable, so it rendered as a "missing from this
+ * deploy" degrade despite shipping fine.
+ *
+ * GIF and SVG are excluded deliberately: transcoding a GIF (or applying a CDN
+ * `fm=` transform) drops animation, and an SVG has nothing to gain. Both ship
+ * as-is.
+ */
+const OPTIMIZABLE_RASTER_EXTENSIONS: ReadonlySet<string> = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.avif'
+])
+
+/**
+ * Lowercased extension of a URL path or filesystem path, ignoring any `?query`
+ * or `#fragment`. Hand-rolled rather than `path.extname` to keep this module
+ * dependency-free — it is imported by the SSR bundle, the encoder script, and a
+ * build integration alike.
+ */
+function extensionOf(pathOrUrlPath: string): string {
+  const withoutSuffix = pathOrUrlPath.split(/[?#]/)[0]
+  const lastSeparator = Math.max(
+    withoutSuffix.lastIndexOf('/'),
+    withoutSuffix.lastIndexOf('\\')
+  )
+  const lastDot = withoutSuffix.lastIndexOf('.')
+  return lastDot > lastSeparator
+    ? withoutSuffix.slice(lastDot).toLowerCase()
+    : ''
+}
+
+/** Whether a path's extension is one the optimizer can produce variants for. */
+export function hasOptimizableRasterExtension(pathOrUrlPath: string): boolean {
+  return OPTIMIZABLE_RASTER_EXTENSIONS.has(extensionOf(pathOrUrlPath))
+}
+
 export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',

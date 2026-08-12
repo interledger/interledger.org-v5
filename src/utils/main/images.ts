@@ -11,6 +11,7 @@ import {
 import {
   DEFAULT_CDN_WIDTHS,
   IMAGE_URL_PATHS,
+  hasOptimizableRasterExtension,
   type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
 } from './imagePaths'
@@ -19,6 +20,7 @@ export {
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
+  hasOptimizableRasterExtension,
   pathToSegments,
   type OptimizedImageManifest
 } from './imagePaths'
@@ -162,18 +164,17 @@ function replaceUrlPathPrefix(
  * or `null` when it isn't one.
  *
  * Handles relative paths (/img/..., /uploads/img/original/...) and absolute
- * Strapi URLs (http://host/uploads/...). Rejects SVGs and GIFs, extensionless
- * paths, anything outside the known source directories, and the generated
- * output tree.
+ * Strapi URLs (http://host/uploads/...). Rejects anything the encoder cannot
+ * produce variants for (SVGs, GIFs, extensionless paths — see
+ * `hasOptimizableRasterExtension`), anything outside the known source
+ * directories, and the generated output tree.
  *
  * Absolute Strapi URLs are reduced to their site-relative pathname: the CMS is
  * firewalled and the site must stay self-contained, so every source has to
  * resolve against our own deploy, never the CMS origin.
  */
 function resolveOptimizableSource(src: string): ResolvedImageSource | null {
-  // GIFs are excluded like SVGs: encoding to WebP/AVIF (or a CDN fm= transform)
-  // would drop animation, so they ship as-is (mirrors scripts/optimize-images.ts).
-  if (!src || /\.(svg|gif)$/i.test(src)) return null
+  if (!src) return null
 
   let pathname = src
   if (src.startsWith('http')) {
@@ -184,7 +185,9 @@ function resolveOptimizableSource(src: string): ResolvedImageSource | null {
     }
   }
 
-  if (!path.extname(pathname)) return null
+  // Checked against the pathname, not the raw src, so a query string can
+  // neither hide an extension nor invent one.
+  if (!hasOptimizableRasterExtension(pathname)) return null
 
   if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
     return { pathname }

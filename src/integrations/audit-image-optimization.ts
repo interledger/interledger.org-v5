@@ -9,14 +9,34 @@
  *
  * An image passes when it is delivered through the CDN: either the `<img>` src
  * is already a `/.netlify/images` URL, or it sits inside a `<picture>` whose
- * `<source>` points there. A raw `/img/**` or `/uploads/**` raster with neither
- * is a violation. Escape hatch: `data-allow-unoptimized` on the `<img>`.
+ * `<source>` points there. Escape hatch: `data-allow-unoptimized` on the
+ * `<img>`.
+ *
+ * Findings come in two severities, and the split is the point of this audit:
+ *
+ * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw `/img/**` or
+ *   `/uploads/**` raster reached the page without going through
+ *   `OptimizedImage`/`getOptimizedImage` at all. That is a code defect, it is
+ *   deterministic from the repo tree, and whoever wrote the component can fix
+ *   it — so it fails the build.
+ * - **Reported only** (`degraded-marker`): the component *did* route through
+ *   `getOptimizedImage`, which found the source missing from this deploy and
+ *   deliberately emitted a plain `<img>` rather than a `<picture>` a browser
+ *   cannot fall back from. That is the designed degrade path working, and its
+ *   cause is deploy/content state rather than code, so it is logged instead.
+ *
+ * A degraded marker still usually means a broken image (in CDN mode the catalog
+ * is the set of sources present in the deploy, so a miss means the raw `<img>`
+ * 404s too), but it is a poor instrument for catching that: it is blind to SVGs
+ * and GIFs, and only sees references that survive into prerendered HTML.
+ * Reference integrity belongs in a dedicated content check, not here.
  */
 import type { AstroIntegration } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isImageCdnEnabled } from '../utils/main/imageCdn'
+import { hasOptimizableRasterExtension } from '../utils/main/imagePaths'
 
 const CDN_MARKER = '/.netlify/images'
 const IMG_TAG_RE = /<img\b[^>]*>/gi
@@ -29,9 +49,23 @@ export type ImageAuditReason =
   | 'picture-without-cdn'
   | 'degraded-marker'
 
-export interface ImageAuditViolation {
+export interface ImageAuditFinding {
   src: string
   reason: ImageAuditReason
+}
+
+/**
+ * Reasons that fail the build: both mean a component bypassed
+ * `OptimizedImage`/`getOptimizedImage`. `degraded-marker` is deliberately
+ * absent — see the module comment.
+ */
+const BLOCKING_REASONS: ReadonlySet<ImageAuditReason> = new Set([
+  'standalone-raw',
+  'picture-without-cdn'
+])
+
+export function isBlockingAuditReason(reason: ImageAuditReason): boolean {
+  return BLOCKING_REASONS.has(reason)
 }
 
 function getAttr(tag: string, name: string): string | null {
@@ -45,20 +79,15 @@ function hasAttr(tag: string, name: string): boolean {
   return new RegExp(`\\s${name}(\\s|=|>|/)`, 'i').test(tag)
 }
 
-function stripQuery(src: string): string {
-  const q = src.indexOf('?')
-  return q === -1 ? src : src.slice(0, q)
-}
-
 /** A site-relative raster we expect to be optimized (not an SVG/GIF/external). */
 export function isOptimizableRasterPath(src: string): boolean {
   if (!src.startsWith('/img/') && !src.startsWith('/uploads/')) return false
   if (src.startsWith('/img/optimized/')) return false
-  return /\.(png|jpe?g|webp|avif)$/i.test(stripQuery(src))
+  return hasOptimizableRasterExtension(src)
 }
 
 /** Classifies a single `<img>` tag, or `null` when it is fine. */
-function auditImgTag(tag: string): ImageAuditViolation | null {
+function auditImgTag(tag: string): ImageAuditFinding | null {
   if (hasAttr(tag, 'data-allow-unoptimized')) return null
 
   const degraded = getAttr(tag, 'data-unoptimized-src')
@@ -80,29 +109,36 @@ function auditImgTag(tag: string): ImageAuditViolation | null {
  * `<picture>` blocks are handled first so an `<img>` fallback inside a
  * CDN-backed `<picture>` is not mistaken for a standalone raw image.
  */
-export function findUnoptimizedImages(html: string): ImageAuditViolation[] {
-  const violations: ImageAuditViolation[] = []
+export function findUnoptimizedImages(html: string): ImageAuditFinding[] {
+  const findings: ImageAuditFinding[] = []
 
   const withoutPictures = html.replace(PICTURE_BLOCK_RE, (block) => {
     const cdnBacked = CDN_SOURCE_RE.test(block)
     for (const imgTag of block.match(IMG_TAG_RE) ?? []) {
       const found = auditImgTag(imgTag)
       if (!found) continue
-      if (found.reason === 'degraded-marker' || !cdnBacked) {
-        violations.push(
-          cdnBacked ? found : { ...found, reason: 'picture-without-cdn' }
-        )
+
+      // A degrade marker already explains the missing <source>: OptimizedImage
+      // wraps its fallback branch in a source-less <picture> so `pictureClass`
+      // still applies. Reclassifying that as a component bypass would report
+      // the designed fallback as a code defect — and, since the wrapper is
+      // emitted on every degrade, would do so every time.
+      if (found.reason === 'degraded-marker') {
+        findings.push(found)
+        continue
       }
+
+      if (!cdnBacked) findings.push({ ...found, reason: 'picture-without-cdn' })
     }
     return ''
   })
 
   for (const imgTag of withoutPictures.match(IMG_TAG_RE) ?? []) {
     const found = auditImgTag(imgTag)
-    if (found) violations.push(found)
+    if (found) findings.push(found)
   }
 
-  return violations
+  return findings
 }
 
 async function collectHtmlFiles(dir: string): Promise<string[]> {
@@ -126,6 +162,27 @@ const REASON_LABEL: Record<ImageAuditReason, string> = {
 
 const MAX_REPORTED = 25
 
+interface AuditEntry {
+  reason: ImageAuditReason
+  file: string
+  count: number
+}
+
+/** One line per distinct src, truncated to `MAX_REPORTED` with an overflow note. */
+function formatEntries(entries: Array<[string, AuditEntry]>): string {
+  const lines = entries
+    .slice(0, MAX_REPORTED)
+    .map(
+      ([src, { reason, file, count }]) =>
+        `  - ${src} (${REASON_LABEL[reason]}, ${count} page(s), e.g. ${file})`
+    )
+  const overflow =
+    entries.length > MAX_REPORTED
+      ? `\n  …and ${entries.length - MAX_REPORTED} more`
+      : ''
+  return lines.join('\n') + overflow
+}
+
 export function auditImageOptimization(): AstroIntegration {
   return {
     name: 'audit-image-optimization',
@@ -143,10 +200,7 @@ export function auditImageOptimization(): AstroIntegration {
         const files = await collectHtmlFiles(distDir)
 
         // One entry per distinct src, with a sample page and occurrence count.
-        const bySrc = new Map<
-          string,
-          { reason: ImageAuditReason; file: string; count: number }
-        >()
+        const bySrc = new Map<string, AuditEntry>()
 
         for (const file of files) {
           const html = await readFile(file, 'utf8')
@@ -170,22 +224,30 @@ export function auditImageOptimization(): AstroIntegration {
         }
 
         const entries = [...bySrc.entries()]
-        const lines = entries
-          .slice(0, MAX_REPORTED)
-          .map(
-            ([src, { reason, file, count }]) =>
-              `  - ${src} (${REASON_LABEL[reason]}, ${count} page(s), e.g. ${file})`
+        const blocking = entries.filter(([, e]) =>
+          isBlockingAuditReason(e.reason)
+        )
+        const degraded = entries.filter(
+          ([, e]) => !isBlockingAuditReason(e.reason)
+        )
+
+        if (degraded.length > 0) {
+          logger.warn(
+            `${degraded.length} image(s) degraded to the unoptimized original — ` +
+              `the source is not present in this deploy, so getOptimizedImage emitted a plain <img>.\n` +
+              formatEntries(degraded)
           )
-        const overflow =
-          entries.length > MAX_REPORTED
-            ? `\n  …and ${entries.length - MAX_REPORTED} more`
-            : ''
+        }
+
+        if (blocking.length === 0) {
+          logger.info('No image bypassed the CDN.')
+          return
+        }
 
         throw new Error(
-          `Image optimization audit failed: ${entries.length} image(s) bypass the Netlify Image CDN.\n` +
+          `Image optimization audit failed: ${blocking.length} image(s) bypass the Netlify Image CDN.\n` +
             `Route these through OptimizedImage/getOptimizedImage, or mark deliberate exceptions with data-allow-unoptimized.\n` +
-            lines.join('\n') +
-            overflow
+            formatEntries(blocking)
         )
       }
     }

@@ -128,12 +128,15 @@ Rules and invariants:
   absolute CMS URLs are reduced to site-relative pathnames. Uploads reach the
   repo via async git sync, so an upload rendered before the next deploy won't be
   in the catalog yet — that's the expected degrade-to-`<img>` window, not a bug.
-- **GIFs and SVGs are non-optimizable.** `resolveOptimizableSource` rejects them:
-  transcoding a GIF (or a CDN `fm=` transform) drops animation. They ship as-is
-  static assets — still edge-cached by Netlify's CDN, just not run through the
-  image transform. If you touch this, keep three lists in sync: the encoder's
-  `RASTER_EXTENSIONS`, `resolveOptimizableSource`, and the build audit's
-  `isOptimizableRasterPath`.
+- **One extension allowlist.** `hasOptimizableRasterExtension` in `imagePaths.ts`
+  is the single source of truth for what gets optimized, shared by the encoder,
+  `resolveOptimizableSource`, and the audit's `isOptimizableRasterPath`. Extend
+  it there, never at a call site: the encoder's list decides what lands in the
+  deployed-sources catalog and the resolver's decides what is expected in it, so
+  drift makes a deliverable image look like a missing one. GIFs and SVGs are
+  excluded deliberately — transcoding a GIF (or a CDN `fm=` transform) drops
+  animation, and an SVG gains nothing. They ship as-is, still edge-cached by
+  Netlify's CDN, just not run through the image transform.
 - **Width ladders.** `DEFAULT_CDN_WIDTHS` (capped) for ordinary images;
   `TARGET_WIDTHS` (adds 2560/3840) is opt-in for genuinely 4K sources like the
   hero. Advertising 4K widths for a small image just bills extra transforms of
@@ -146,9 +149,17 @@ Rules and invariants:
 - **CDN URLs are final.** They already contain percent-encoded query values —
   never run `encodeURI()` over them or `%2F` becomes `%252F` and the source path
   breaks.
-- **Build-time audit.** `src/integrations/audit-image-optimization.ts` fails the
-  build (CDN mode only) when an optimizable raster is served raw. Escape hatch:
-  `data-allow-unoptimized` on the `<img>`.
+- **Build-time audit.** `src/integrations/audit-image-optimization.ts` scans
+  `dist/**/*.html` (CDN mode only) and splits findings by severity. It **fails
+  the build** on `standalone-raw` and `picture-without-cdn` — both mean a
+  component bypassed `OptimizedImage`/`getOptimizedImage`, which is a code defect
+  fixable from the repo tree. It **logs** `degraded-marker`, where the component
+  did route through `getOptimizedImage` and the designed missing-source fallback
+  fired; that is deploy state, not code, so it must not abort a deploy. Escape
+  hatch for a deliberate raw image: `data-allow-unoptimized` on the `<img>`.
+  Catching content that references a nonexistent image is a separate job and
+  wants its own check — the marker is blind to SVGs/GIFs and to anything that
+  doesn't reach prerendered HTML.
 - **Validation gotcha:** `astro check` is not wired up (`@astrojs/check` isn't
   installed) and will **hang on an interactive install prompt** — don't use it.
   Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises

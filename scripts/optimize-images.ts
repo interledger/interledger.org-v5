@@ -9,6 +9,7 @@ import {
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
   WEBP_QUALITY,
+  hasOptimizableRasterExtension,
   pathToSegments,
   type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
@@ -42,9 +43,6 @@ const CONCURRENCY = 4
 // Bump when quality, target widths, or output naming changes so the content-hash
 // cache does not skip regeneration of already-processed sources.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
-// GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
-// would become static. They're passed through as-is by OptimizedImage.
-const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif'])
 
 interface SourceConfig {
   dir: string
@@ -62,10 +60,6 @@ const SOURCES: SourceConfig[] = [
   }
 ]
 
-function isRaster(file: string): boolean {
-  return RASTER_EXTENSIONS.has(path.extname(file).toLowerCase())
-}
-
 function collectFiles(dir: string, exclude: string[]): string[] {
   if (!fs.existsSync(dir)) return []
   const results: string[] = []
@@ -74,7 +68,7 @@ function collectFiles(dir: string, exclude: string[]): string[] {
     if (entry.isDirectory()) {
       if (exclude.some((e) => full.startsWith(e))) continue
       results.push(...collectFiles(full, exclude))
-    } else if (isRaster(full)) {
+    } else if (hasOptimizableRasterExtension(full)) {
       results.push(full)
     }
   }
