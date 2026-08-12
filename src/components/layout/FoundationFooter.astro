@@ -7,15 +7,20 @@ import {
   localizeRoute,
   type UiKey
 } from '@/utils'
-import type { MenuGroup } from '@/types/navigation'
+import type { MenuGroup, NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
 
+interface Props {
+  site?: NavigationSite
+}
+
+const { site = 'foundation' } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const { mainMenu } = getNavigation('foundation', routeLocale)
+const { mainMenu } = getNavigation(site, routeLocale)
 
 const resourcesColumn: MenuGroup = {
   label: 'Resources',
