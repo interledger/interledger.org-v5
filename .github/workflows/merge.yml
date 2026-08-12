@@ -339,7 +339,11 @@ jobs:
           EOF
 
           sudo systemctl daemon-reload
-          sudo systemctl enable --now "${UNIT}.timer"
+          sudo systemctl enable "${UNIT}.timer"
+          # enable --now is a no-op if the timer is already active, so a changed
+          # OnCalendar/Persistent value wouldn't take effect until next reboot.
+          # restart always reloads the current unit definition.
+          sudo systemctl restart "${UNIT}.timer"
 
   sync-to-strapi:
     needs: [detect-changes, rebuild-strapi]
