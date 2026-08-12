@@ -63,7 +63,7 @@ export function resolveDownloadName(href: string): string {
   try {
     const path = href.startsWith('http')
       ? new URL(href).pathname
-      : (href.split('?')[0] ?? href)
+      : href.split('?')[0]
     const base = path.split('/').filter(Boolean).pop()
     return base && base.includes('.') ? base : ''
   } catch {
