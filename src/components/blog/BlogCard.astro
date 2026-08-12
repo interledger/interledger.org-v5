@@ -50,11 +50,12 @@ const cardHeaderClasses = twMerge(
 // Featured and listing cards share the same image framing. A global
 // max-h-[220px] would clamp height once the container is wider than ~377px
 // (for aspect-240/140), so object-cover crops banners badly on full-width
-// mobile/tablet; only clamp from desktop when side-by-side layouts apply
-// (listing cards) or featured cards sit in a wider column.
+// mobile/tablet — keep the ratio unconstrained below desktop. From desktop
+// the clamp mainly bites featured cards (wider column; ~387×220 at 1440px);
+// listing thumbs in the ~30% column stay under 220px at common desktop
+// widths and only crop at very wide viewports.
 const cardImageClasses =
-  'object-cover rounded-3xl w-full aspect-240/140 desktop:max-h-[220px]'
-const cardBodyClasses = twMerge(
+  'object-cover rounded-3xl w-full aspect-240/140 desktop:max-h-[220px]'const cardBodyClasses = twMerge(
   'flex w-full flex-col gap-lg',
   !featured && 'desktop:basis-[70%]'
 )
