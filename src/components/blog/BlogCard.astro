@@ -47,13 +47,13 @@ const cardHeaderClasses = twMerge(
   'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
 )
-// Featured and listing cards share the same image framing. A global
-// max-h-[220px] would clamp height once the container is wider than ~377px
-// (for aspect-240/140), so object-cover crops banners badly on full-width
-// mobile/tablet; only clamp from desktop when side-by-side layouts apply
-// (listing cards) or featured cards sit in a wider column.
+// Full-width image below desktop, side-by-side column from desktop.
+// Tiered max-height: mobile ~220px; tablet allows more height without
+// filling the fold at ~1100px; desktop returns to 220px in the ~30% column.
+// (A single max-h-[220px] at all widths crops banners once the container
+// is wider than ~377px for aspect-240/140.)
 const cardImageClasses =
-  'object-cover rounded-3xl w-full aspect-240/140 desktop:max-h-[220px]'
+  'object-cover rounded-3xl w-full aspect-240/140 max-h-[220px] tablet:max-h-[400px] desktop:max-h-[220px]'
 const cardBodyClasses = twMerge(
   'flex w-full flex-col gap-lg',
   !featured && 'desktop:basis-[70%]'
