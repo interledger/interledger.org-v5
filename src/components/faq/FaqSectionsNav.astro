@@ -56,8 +56,7 @@ const t = useTranslations(uiLocale)
   // Scrollspy: highlight whichever FAQ section is currently in the "reading
   // band" near the top of the viewport. Modeled on the intersecting-Set
   // pattern in src/components/layout/foundation-header.ts. Scoped per
-  // instance via [data-faq-nav] so multiple FAQ pages' scripts don't collide
-  // (matches src/components/blocks/Carousel.astro's multi-instance idiom).
+  // instance via [data-faq-nav] so multiple FAQ pages' scripts don't collide.
   document.querySelectorAll<HTMLElement>('[data-faq-nav]').forEach((nav) => {
     const links = Array.from(
       nav.querySelectorAll<HTMLAnchorElement>('[data-faq-nav-link]')

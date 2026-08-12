@@ -65,9 +65,12 @@ async function handleCarousel(
     const logos = await Promise.all(
       rawLogos.map(async (logo) => {
         const id = await ctx.resolveMediaUpload!(logo.src)
-        // '' means "explicitly no alt text" in Strapi (see carousel.serializer.ts)
-        await ctx.updateMediaAlt?.(id, logo.name || null)
-        return id
+        // name is logo alt in MDX; store on the carousel-logo component field
+        // (not Media Library) so editors set it next to the image in Strapi.
+        return {
+          image: id,
+          alternativeText: logo.name?.trim() ? logo.name.trim() : null
+        }
       })
     )
 

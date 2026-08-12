@@ -1157,6 +1157,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
+    'blocks.carousel-logo': {
+      image: 'Logo Image',
+      alternativeText: 'Alternative Text'
+    },
     'blocks.number-tiles': {
       tiles: 'Tiles'
     },
@@ -1390,8 +1394,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
-      logos:
-        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+      logos: 'Add one entry per logo. Recommended image size: 240×80.'
+    },
+    'blocks.carousel-logo': {
+      image: 'Partner logo image. Recommended size: 240×80.',
+      alternativeText:
+        'Short description of the logo for screen readers (e.g. the organization name). Shown next to each logo — not in the Media Library.'
     },
     'blocks.number-tile': {
       number:
@@ -1701,6 +1709,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
+    ],
+    'blocks.carousel-logo': [
+      [{ name: 'image', size: 6 }],
+      [{ name: 'alternativeText', size: 6 }]
     ],
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
