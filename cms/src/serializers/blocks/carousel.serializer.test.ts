@@ -6,7 +6,7 @@ describe('carousel serializer', () => {
     const result = serialize({
       heading: 'In partnership with',
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
     expect(result).toContain('heading="In partnership with"')
@@ -19,20 +19,76 @@ describe('carousel serializer', () => {
   it('serializes a null alternativeText as an empty string name', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: null }]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: null }]
     })
 
     expect(result).toContain('logos={[{"name":"","src":"/img/plata.png"}]}')
   })
 
+  it('does not fall back to Media Library alt when component alt is explicit null', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [
+        {
+          image: { url: '/img/plata.png', alternativeText: 'From file' },
+          alternativeText: null
+        }
+      ]
+    })
+
+    expect(result).toContain('logos={[{"name":"","src":"/img/plata.png"}]}')
+    expect(result).not.toContain('From file')
+  })
+
+  it('falls back to Media Library alt when component alt is absent', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [
+        { image: { url: '/img/plata.png', alternativeText: 'From file' } }
+      ]
+    })
+
+    expect(result).toContain(
+      'logos={[{"name":"From file","src":"/img/plata.png"}]}'
+    )
+  })
+
   it('omits heading when absent', () => {
     const result = serialize({
       accessibilityLabel: 'Our Partners',
-      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+      logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
     expect(result).not.toContain('heading=')
     expect(result).toContain('accessibilityLabel="Our Partners"')
+  })
+
+  it('supports legacy plain-media logo shape', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+    })
+    expect(result).toContain(
+      'logos={[{"name":"Plata","src":"/img/plata.png"}]}'
+    )
+  })
+
+  it('accepts bare image upload ids (validateContentBlocks write body)', () => {
+    const result = serialize({
+      accessibilityLabel: 'Our Partners',
+      logos: [{ image: 12, alternativeText: 'Plata' }]
+    })
+    expect(result).toContain('accessibilityLabel="Our Partners"')
+    expect(result).toContain('logos={[{"name":"Plata","src":""}]}')
+  })
+
+  it('throws when a logo has no image', () => {
+    expect(() =>
+      serialize({
+        accessibilityLabel: 'Our Partners',
+        logos: [{ image: null, alternativeText: 'Plata' }]
+      })
+    ).toThrow('Carousel logo is missing image')
   })
 
   it('throws when logos is missing', () => {
@@ -53,7 +109,7 @@ describe('carousel serializer', () => {
   it('throws when accessibilityLabel is missing', () => {
     expect(() =>
       serialize({
-        logos: [{ id: 1, url: '/img/plata.png', alternativeText: 'Plata' }]
+        logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
       })
     ).toThrow('Carousel block is missing accessibilityLabel')
   })

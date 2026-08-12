@@ -2,6 +2,9 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
+// Injected by Vite `define` in astro.config.mjs; absent under plain vitest.
+declare const __IMAGE_CDN_ENABLED__: boolean | undefined
+
 declare namespace App {
   interface Locals {
     routeLocale: import('@/utils/i18').Locale

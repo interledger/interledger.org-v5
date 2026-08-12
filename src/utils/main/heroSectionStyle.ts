@@ -7,7 +7,7 @@ export function getHeroSectionStyle(
   if (!trimmed) return undefined
 
   const { fullSrc } = getOptimizedImage(trimmed)
-  const url = encodeURI(fullSrc ?? trimmed)
+  const url = fullSrc ?? encodeURI(trimmed)
 
   return { backgroundImage: `url('${url}')` }
 }

@@ -39,6 +39,7 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './utils/seedMedia'
 import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
@@ -261,6 +262,12 @@ interface DbQueryApi {
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
 }
+interface KoaContext {
+  request: { headers: Record<string, string | string[] | undefined> }
+  status: number
+  body: unknown
+}
+
 interface StrapiInstance {
   documents: ((uid: string) => StrapiDocumentService) & {
     use: (middleware: DocumentValidationMiddleware) => void
@@ -280,6 +287,11 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  server: {
+    router: {
+      post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void
+    }
+  }
   service: (uid: string) => unknown
 }
 
@@ -610,33 +622,6 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
-// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
-// anything git-committed and served from the repo (images, video, PDF) must
-// also be seedable, or an MDX reference to it resolves to no media record and
-// the sync hard-fails (INTORG-876). Larger media storage is tracked in
-// INTORG-902.
-const MIME_BY_EXT: Record<string, string> = {
-  // Images
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.avif': 'image/avif',
-  '.tiff': 'image/tiff',
-  // Video (matches the VideoEmbed externalUrl regex extensions)
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.ogg': 'video/ogg',
-  '.ogv': 'video/ogg',
-  '.mov': 'video/quicktime',
-  // Documents
-  '.pdf': 'application/pdf'
-}
-
-const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
-
 /**
  * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
@@ -649,11 +634,11 @@ const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
-async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
+async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<number> {
   const query = strapi.db?.query('plugin::upload.file')
   if (!query) {
     strapi.log.warn('⚠️  DB query API unavailable — skipping upload seeding')
-    return
+    return 0
   }
 
   const publicDir = strapi.dirs.static.public
@@ -685,7 +670,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
         continue
       }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
-      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+      const mime = SEED_MIME_BY_EXT[ext] ?? 'application/octet-stream'
 
       await query.create({
         data: {
@@ -709,6 +694,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   if (seeded > 0) {
     strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
   }
+  return seeded
 }
 
 interface AdminApiTokenService {
@@ -1157,6 +1143,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
+    'blocks.carousel-logo': {
+      image: 'Logo Image',
+      alternativeText: 'Alternative Text'
+    },
     'blocks.number-tiles': {
       tiles: 'Tiles'
     },
@@ -1390,8 +1380,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
-      logos:
-        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+      logos: 'Add one entry per logo. Recommended image size: 240×80.'
+    },
+    'blocks.carousel-logo': {
+      image: 'Partner logo image. Recommended size: 240×80.',
+      alternativeText:
+        'Short description of the logo for screen readers (e.g. the organization name). Shown next to each logo — not in the Media Library.'
     },
     'blocks.number-tile': {
       number:
@@ -1702,6 +1696,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
     ],
+    'blocks.carousel-logo': [
+      [{ name: 'image', size: 6 }],
+      [{ name: 'alternativeText', size: 6 }]
+    ],
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
       [
@@ -1937,6 +1935,23 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
+    // restarting Strapi. Auth is STRAPI_API_TOKEN (same as other sync scripts)
+    // because this route bypasses Strapi's standard auth middleware.
+    strapi.server.router.post('/api/seed-media', async (ctx) => {
+      const bearer = String(ctx.request.headers['authorization'] ?? '').replace(
+        'Bearer ',
+        ''
+      )
+      if (!bearer || bearer !== process.env.STRAPI_API_TOKEN) {
+        ctx.status = 401
+        ctx.body = { error: 'Unauthorized' }
+        return
+      }
+      const seeded = await seedUploadsFromDisk(strapi)
+      ctx.body = { seeded }
+    })
+
     // Validate paragraph content on save — reject nested JSX before it reaches
     // the DB. Registered as a document-service middleware (see
     // registerDocumentValidation below for why) so it covers every content

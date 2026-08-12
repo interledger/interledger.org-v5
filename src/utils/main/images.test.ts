@@ -1,12 +1,41 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import {
+  buildImageSrcset,
   getOptimizedImage,
-  setOptimizedImageVariantCatalogForTests
+  hasOptimizedVariants,
+  isOptimizableSource,
+  setDeployedImageSourcesForTests,
+  setImageCdnEnabledForTests,
+  setOptimizedImageVariantCatalogForTests,
+  withIntrinsicWidthRung
 } from './images'
+import {
+  buildImageCdnUrl,
+  largestTargetWidth,
+  NETLIFY_IMAGE_ENDPOINT
+} from './imageCdn'
+import {
+  DEFAULT_CDN_WIDTHS,
+  TARGET_WIDTHS,
+  encodeImageUrlPath
+} from './imagePaths'
+
+const EMPTY = {
+  variants: [],
+  fullSrc: null,
+  avifVariants: [],
+  avifFullSrc: null
+}
+
+function readCdnSourceParam(cdnUrl: string): string | null {
+  return new URL(cdnUrl, 'https://example.com').searchParams.get('url')
+}
 
 afterEach(() => {
   setOptimizedImageVariantCatalogForTests(null)
+  setDeployedImageSourcesForTests(null)
+  setImageCdnEnabledForTests(null)
   vi.restoreAllMocks()
 })
 
@@ -136,5 +165,462 @@ describe('getOptimizedImage', () => {
       avifVariants: [],
       avifFullSrc: null
     })
+  })
+})
+
+describe('getOptimizedImage — Netlify Image CDN mode', () => {
+  // Every source is gated on the deployed-image-sources catalog in CDN mode, so
+  // the sources these tests exercise must be present unless a test overrides it.
+  beforeEach(() => {
+    setDeployedImageSourcesForTests([
+      '/img/hero.png',
+      '/uploads/img/original/hero.jpg'
+    ])
+  })
+
+  it('returns CDN URLs for the default width ladder, ignoring the catalog', () => {
+    // Empty catalog: when the CDN is on the encoder never runs, so the runtime
+    // catalog falls back to its committed (empty) stub.
+    setOptimizedImageVariantCatalogForTests([])
+    setImageCdnEnabledForTests(true)
+
+    const result = getOptimizedImage('/img/hero.png')
+
+    expect(result.variants.map((v) => v.width)).toEqual([...DEFAULT_CDN_WIDTHS])
+    expect(result.variants[0].src).toBe(
+      buildImageCdnUrl('/img/hero.png', { format: 'webp', width: 640 })
+    )
+    expect(result.avifVariants.map((v) => v.width)).toEqual([
+      ...DEFAULT_CDN_WIDTHS
+    ])
+    expect(result.avifVariants[0].src).toBe(
+      buildImageCdnUrl('/img/hero.png', { format: 'avif', width: 640 })
+    )
+  })
+
+  it('caps the default ladder below the full target widths', () => {
+    // Guards the billing win: ordinary images must not advertise 2560/3840,
+    // which would be extra billed transforms of clamped, identical output.
+    setImageCdnEnabledForTests(true)
+
+    const widths = getOptimizedImage('/img/hero.png').variants.map(
+      (v) => v.width
+    )
+
+    expect(widths).not.toContain(2560)
+    expect(widths).not.toContain(3840)
+    expect(widths.length).toBeLessThan(TARGET_WIDTHS.length)
+  })
+
+  it('offers the full ladder when a caller opts in (the 4K hero)', () => {
+    setImageCdnEnabledForTests(true)
+
+    const result = getOptimizedImage('/img/hero.png', TARGET_WIDTHS)
+
+    expect(result.variants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.avifVariants.map((v) => v.width)).toEqual([...TARGET_WIDTHS])
+    expect(result.fullSrc).toContain(`w=${largestTargetWidth()}`)
+  })
+
+  it('points fullSrc at the widest transform rather than an unsized URL', () => {
+    // An unsized URL renders the same pixels but is a separate cache entry,
+    // so it would be a second billed transform for the same image.
+    setImageCdnEnabledForTests(true)
+
+    const { fullSrc, avifFullSrc, variants } =
+      getOptimizedImage('/img/hero.png')
+
+    expect(fullSrc).toBe(
+      buildImageCdnUrl('/img/hero.png', {
+        format: 'webp',
+        width: largestTargetWidth(DEFAULT_CDN_WIDTHS)
+      })
+    )
+    expect(fullSrc).toBe(variants.at(-1)?.src)
+    expect(avifFullSrc).toContain(`w=${largestTargetWidth(DEFAULT_CDN_WIDTHS)}`)
+  })
+
+  it('never emits an unsized transform', () => {
+    setImageCdnEnabledForTests(true)
+
+    const image = getOptimizedImage('/img/hero.png')
+    const urls = [
+      ...image.variants.map((v) => v.src),
+      ...image.avifVariants.map((v) => v.src),
+      image.fullSrc,
+      image.avifFullSrc
+    ].filter((src): src is string => src !== null)
+
+    for (const src of urls) expect(src).toMatch(/[?&]w=\d+/)
+  })
+
+  it('emits same-origin CDN sources for deployed relative uploads', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/uploads/img/original/hero.jpg'])
+
+    const { fullSrc } = getOptimizedImage('/uploads/img/original/hero.jpg')
+
+    expect(fullSrc).toContain(
+      encodeURIComponent('/uploads/img/original/hero.jpg')
+    )
+    expect(fullSrc).not.toContain('optimized')
+    expect(readCdnSourceParam(fullSrc!)).toBe('/uploads/img/original/hero.jpg')
+  })
+
+  it('normalizes absolute Strapi upload URLs to same-origin CDN sources', () => {
+    // The CMS is firewalled and the site must stay self-contained, so an
+    // absolute CMS origin must never reach the browser as a CDN source.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/uploads/img/original/hero.jpg'])
+
+    const absolute = 'https://cms.example.com/uploads/img/original/hero.jpg'
+    const { variants } = getOptimizedImage(absolute)
+
+    expect(variants[0].src).toBe(
+      buildImageCdnUrl('/uploads/img/original/hero.jpg', {
+        format: 'webp',
+        width: 640
+      })
+    )
+    expect(readCdnSourceParam(variants[0].src)).toBe(
+      '/uploads/img/original/hero.jpg'
+    )
+    expect(variants[0].src).not.toContain('cms.example.com')
+  })
+
+  it('degrades uploads missing from this deploy to no variants', () => {
+    // CDN mode has no encoder catalog; an upload not yet git-synced from the
+    // firewalled CMS must not get a 404ing <picture> source, so it returns
+    // empty and the component falls back to a plain <img>.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([])
+
+    expect(getOptimizedImage('/uploads/img/original/missing.jpg')).toEqual(
+      EMPTY
+    )
+  })
+
+  it('keeps /img sources relative in CDN mode', () => {
+    setImageCdnEnabledForTests(true)
+
+    const src = '/img/hero.png'
+    const { fullSrc } = getOptimizedImage(src)
+
+    expect(readCdnSourceParam(fullSrc!)).toBe(src)
+  })
+
+  it('still emits CDN URLs for stable /img sources', () => {
+    setImageCdnEnabledForTests(true)
+
+    expect(getOptimizedImage('/img/hero.png').variants[0]?.src).toBe(
+      buildImageCdnUrl('/img/hero.png', {
+        format: 'webp',
+        width: 640
+      })
+    )
+  })
+
+  it('still refuses SVGs and unrecognized paths', () => {
+    setImageCdnEnabledForTests(true)
+
+    for (const src of ['/img/logo.svg', '/somewhere/else.png', '/img/noext']) {
+      expect(getOptimizedImage(src)).toEqual(EMPTY)
+    }
+  })
+
+  it('refuses GIFs so animation is preserved (served as-is)', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/foundation-blog/anim.gif'])
+
+    expect(getOptimizedImage('/img/foundation-blog/anim.gif')).toEqual(EMPTY)
+  })
+
+  it('does not re-transform an already-optimized path', () => {
+    setImageCdnEnabledForTests(true)
+
+    expect(getOptimizedImage('/img/optimized/hero-640.webp')).toEqual(EMPTY)
+  })
+
+  it('reports variants as available so components render a <picture>', () => {
+    setImageCdnEnabledForTests(true)
+
+    expect(hasOptimizedVariants(getOptimizedImage('/img/hero.png'))).toBe(true)
+  })
+
+  it('reports no variants for an /img source missing from this deploy', () => {
+    // Guards the HomepageHero probe: hasOptimizedVariants is a real existence
+    // check, not a constant. A renamed/removed highres source must report false
+    // so the hero falls back instead of emitting a 404ing >=2560px <source>.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/homepage/stefan-thomas.webp'])
+
+    const highRes = getOptimizedImage(
+      '/img/homepage/stefan-thomas-highres.avif',
+      TARGET_WIDTHS
+    )
+
+    expect(highRes).toEqual(EMPTY)
+    expect(hasOptimizedVariants(highRes)).toBe(false)
+  })
+
+  it('falls back to the catalog when the CDN is off', () => {
+    setOptimizedImageVariantCatalogForTests(['/img/optimized/hero-640.webp'])
+    setImageCdnEnabledForTests(false)
+
+    expect(getOptimizedImage('/img/hero.png').variants).toEqual([
+      { src: '/img/optimized/hero-640.webp', width: 640 }
+    ])
+  })
+})
+
+describe('withIntrinsicWidthRung', () => {
+  const HERO = '/img/homepage/stefan-thomas-highres.avif'
+  const HERO_WIDTH = 3463
+
+  beforeEach(() => {
+    setDeployedImageSourcesForTests([HERO, '/img/master.png'])
+  })
+
+  function heroLadder(src = HERO) {
+    setImageCdnEnabledForTests(true)
+    return withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      HERO_WIDTH
+    )
+  }
+
+  it('serves an AVIF source directly at its intrinsic width', () => {
+    const { avifVariants, avifFullSrc } = heroLadder()
+
+    expect(avifVariants.at(-1)).toEqual({ src: HERO, width: HERO_WIDTH })
+    expect(avifFullSrc).toBe(HERO)
+  })
+
+  it('drops the rungs that would clamp to the intrinsic width', () => {
+    // 2560 is a genuine downscale and stays; 3840 clamped to 3463 and came back
+    // larger than the source file, so it collapses into the intrinsic rung.
+    const { avifVariants } = heroLadder()
+
+    expect(avifVariants.map((v) => v.width)).toEqual([
+      640,
+      1280,
+      1920,
+      2560,
+      HERO_WIDTH
+    ])
+    expect(
+      avifVariants.filter(
+        (v) => v.width >= HERO_WIDTH && v.src.includes(NETLIFY_IMAGE_ENDPOINT)
+      )
+    ).toEqual([])
+  })
+
+  it('uses an exact-width transform when the source format differs', () => {
+    // No raw WebP exists at this resolution, so the WebP <source> still needs a
+    // transform — but at the intrinsic width, not a clamped 3840.
+    const { variants, fullSrc } = heroLadder()
+    const expected = buildImageCdnUrl(HERO, {
+      format: 'webp',
+      width: HERO_WIDTH
+    })
+
+    expect(variants.at(-1)).toEqual({ src: expected, width: HERO_WIDTH })
+    expect(fullSrc).toBe(expected)
+  })
+
+  it('transforms both formats when the source is neither AVIF nor WebP', () => {
+    const src = '/img/master.png'
+    setImageCdnEnabledForTests(true)
+    const { variants, avifVariants } = withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      2000
+    )
+
+    expect(variants.at(-1)?.src).toBe(
+      buildImageCdnUrl(src, { format: 'webp', width: 2000 })
+    )
+    expect(avifVariants.at(-1)?.src).toBe(
+      buildImageCdnUrl(src, { format: 'avif', width: 2000 })
+    )
+  })
+
+  it('leaves a source missing from this deploy degraded', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([])
+
+    const src = '/img/homepage/renamed.avif'
+
+    expect(
+      withIntrinsicWidthRung(getOptimizedImage(src, TARGET_WIDTHS), src, 3463)
+    ).toEqual(EMPTY)
+  })
+
+  it('no-ops when the CDN is off — the encoder already emits exact widths', () => {
+    setOptimizedImageVariantCatalogForTests([
+      '/img/optimized/homepage/stefan-thomas-highres-640.avif',
+      '/img/optimized/homepage/stefan-thomas-highres-3463.avif'
+    ])
+    setImageCdnEnabledForTests(false)
+
+    const encoded = getOptimizedImage(HERO, TARGET_WIDTHS)
+
+    expect(withIntrinsicWidthRung(encoded, HERO, HERO_WIDTH)).toBe(encoded)
+  })
+})
+
+describe('isOptimizableSource', () => {
+  it('accepts optimizable rasters, rejects svgs and unknown paths', () => {
+    expect(isOptimizableSource('/img/hero.png')).toBe(true)
+    expect(isOptimizableSource('/uploads/img/original/x.jpg')).toBe(true)
+    expect(
+      isOptimizableSource('https://cms.example.com/uploads/img/original/x.jpg')
+    ).toBe(true)
+    expect(isOptimizableSource('/img/logo.svg')).toBe(false)
+    expect(isOptimizableSource('/img/foundation-blog/anim.gif')).toBe(false)
+    expect(isOptimizableSource('/somewhere/else.png')).toBe(false)
+    expect(isOptimizableSource('/img/noext')).toBe(false)
+  })
+
+  it('rejects extensions the encoder never produces variants for', () => {
+    // A .tiff is a valid Strapi upload but is skipped by the encoder, so it
+    // never lands in the deployed-sources catalog. Treating it as optimizable
+    // made a perfectly deliverable image render as a "missing source" degrade.
+    expect(isOptimizableSource('/uploads/img/original/scan.tiff')).toBe(false)
+    expect(isOptimizableSource('/img/old.bmp')).toBe(false)
+  })
+
+  it('reads the extension from the pathname, not the query string', () => {
+    expect(
+      isOptimizableSource(
+        'https://cms.example.com/uploads/img/original/logo.svg?updated=1'
+      )
+    ).toBe(false)
+    expect(isOptimizableSource('/img/hero.png?v=2')).toBe(true)
+  })
+})
+
+/**
+ * A srcset is comma-separated, and each entry is `<url> <descriptor>`. An
+ * unencoded space or comma in a filename silently redraws those boundaries —
+ * the browser reads a truncated URL and an invalid descriptor, with no error
+ * anywhere. Every path we emit has to survive this parse, in either mode, so
+ * these run the whole pipeline rather than testing the encoder in isolation.
+ */
+function parseSrcsetLikeABrowser(
+  srcset: string
+): Array<{ url: string; descriptor: string }> {
+  return srcset
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const parts = entry.split(/\s+/)
+      expect(parts, `malformed srcset entry: "${entry}"`).toHaveLength(2)
+      expect(parts[1]).toMatch(/^\d+w$/)
+      return { url: parts[0], descriptor: parts[1] }
+    })
+}
+
+// Reachable filenames that would corrupt a srcset if emitted raw. `?` and `#`
+// are absent on purpose: they are indistinguishable from a query or fragment,
+// so such a source is rejected upstream and never reaches an encoder.
+const AWKWARD_SOURCES = [
+  '/img/hero image.avif',
+  '/img/hero,wide.avif',
+  '/img/a+b.avif',
+  '/img/a&b.avif',
+  '/img/100%.avif'
+] as const
+
+const INTRINSIC_WIDTH = 2000
+
+describe('srcset safety for awkward filenames', () => {
+  it.each(AWKWARD_SOURCES)('CDN mode, with an intrinsic rung: %s', (src) => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([src])
+
+    const image = withIntrinsicWidthRung(
+      getOptimizedImage(src, TARGET_WIDTHS),
+      src,
+      INTRINSIC_WIDTH
+    )
+    const entries = parseSrcsetLikeABrowser(
+      buildImageSrcset(image.avifVariants)
+    )
+
+    expect(entries).toHaveLength(image.avifVariants.length)
+    // The top rung is served as the source file itself, so it is the one URL
+    // in the ladder that URLSearchParams never touches.
+    expect(entries.at(-1)?.url).toBe(encodeImageUrlPath(src))
+    expect(entries.at(-1)?.descriptor).toBe(`${INTRINSIC_WIDTH}w`)
+  })
+
+  it.each(AWKWARD_SOURCES)(
+    'build mode, from the variant catalog: %s',
+    (src) => {
+      setImageCdnEnabledForTests(false)
+      const base = src
+        .replace('/img/', '/img/optimized/')
+        .replace(/\.avif$/, '')
+      setOptimizedImageVariantCatalogForTests([
+        `${base}-640.avif`,
+        `${base}-1280.avif`,
+        `${base}-full.avif`
+      ])
+
+      const image = getOptimizedImage(src)
+      const entries = parseSrcsetLikeABrowser(
+        buildImageSrcset(image.avifVariants)
+      )
+
+      // Exact URLs, not just a well-formed parse: characters like `&` and `%`
+      // corrupt the URL without disturbing the entry boundaries.
+      expect(entries.map((entry) => entry.url)).toEqual([
+        encodeImageUrlPath(`${base}-640.avif`),
+        encodeImageUrlPath(`${base}-1280.avif`)
+      ])
+      expect(image.avifFullSrc).toBe(encodeImageUrlPath(`${base}-full.avif`))
+    }
+  )
+
+  it('still sends the CDN the literal path, not the encoded one', () => {
+    // Netlify resolves `url=` against the deploy, so it wants the real filename.
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/img/hero image.avif'])
+
+    const { avifVariants } = getOptimizedImage('/img/hero image.avif')
+
+    expect(readCdnSourceParam(avifVariants[0].src)).toBe('/img/hero image.avif')
+  })
+})
+
+describe('absolute CMS URLs with awkward filenames', () => {
+  const LITERAL = '/uploads/img/original/hero image.avif'
+
+  beforeEach(() => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([LITERAL])
+  })
+
+  it('matches the catalog when the space arrives literal', () => {
+    // `new URL().pathname` percent-encodes, so without decoding back to catalog
+    // space this misses the catalog and degrades permanently.
+    expect(
+      hasOptimizedVariants(
+        getOptimizedImage(`https://cms.example.com${LITERAL}`)
+      )
+    ).toBe(true)
+  })
+
+  it('matches the catalog when the space arrives already encoded', () => {
+    expect(
+      hasOptimizedVariants(
+        getOptimizedImage(
+          'https://cms.example.com/uploads/img/original/hero%20image.avif'
+        )
+      )
+    ).toBe(true)
   })
 })

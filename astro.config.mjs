@@ -11,7 +11,9 @@ import tailwindcss from '@tailwindcss/vite'
 import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
 import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTables.ts'
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
+import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
+import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 
 // https://astro.build/config
 export default defineConfig({
@@ -46,6 +48,7 @@ export default defineConfig({
   },
   integrations: [
     stripDocsCssFromMainSite(),
+    auditImageOptimization(),
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
@@ -145,6 +148,12 @@ export default defineConfig({
     })
   ],
   vite: {
+    // Pin the image CDN decision at build time so SSR routes (prerender = false)
+    // don't re-read process.env per request in the Functions runtime, where
+    // NETLIFY isn't guaranteed. See src/utils/main/imageCdn.ts (imageCdnEnabled).
+    define: {
+      __IMAGE_CDN_ENABLED__: JSON.stringify(isImageCdnEnabled())
+    },
     server: {
       allowedHosts: ['.netlify.app', '.interledger.org']
     },

@@ -1293,7 +1293,7 @@ describe('buildGrantPagePayload', () => {
         {
           __component: 'blocks.carousel',
           accessibilityLabel: 'Our Partners',
-          logos: [12]
+          logos: [{ image: 12, alternativeText: 'Plata' }]
         }
       ])
     })

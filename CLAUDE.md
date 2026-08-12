@@ -86,6 +86,104 @@ Don't apply this to functions where there's no real failure mode. A `null` that 
 - Optimize assets before committing
 - Prefer native HTML/CSS solutions over JS when possible
 
+## Images & the Netlify Image CDN
+
+Image delivery has **two mutually exclusive modes**, and most image bugs come from
+forgetting which one a given build is in:
+
+- **Build-time encoder** (`scripts/optimize-images.ts`): `sharp` pre-generates
+  WebP/AVIF variants into `public/img/optimized/`. Used by local `astro build`.
+- **Netlify Image CDN** (`src/utils/main/imageCdn.ts`): the encoder is skipped
+  and images are transformed on demand at `/.netlify/images?...`. Used on
+  Netlify, and forced in CI (`pr-checks.yml` sets `IMAGE_CDN=on`).
+
+Rules and invariants:
+
+- **One entry point:** always resolve images through `getOptimizedImage()`
+  (`src/utils/main/images.ts`). Components (`OptimizedImage.astro`,
+  `ResponsiveSources.astro`, avatars, `getHeroSectionStyle`) consume its output.
+  Never hand-build a `/.netlify/images` URL or an `/img/optimized/*` path.
+- **The mode decision is pinned at build time.** `isImageCdnEnabled()` reads
+  `IMAGE_CDN` (`on`/`off` override) else auto-detects `NETLIFY`. That result is
+  frozen into the Vite `define` `__IMAGE_CDN_ENABLED__` (`astro.config.mjs`), and
+  `imageCdnEnabled()` prefers the define. This is deliberate: SSR routes
+  (`prerender = false`) must not re-read `process.env` per request, because
+  `NETLIFY` isn't guaranteed in the Functions runtime.
+- **No runtime `fs` against `public/`.** The SSR function bundle excludes
+  `public/img` and `public/uploads` (INTORG-946 / ADR-008), so `getOptimizedImage`
+  relies on two build-time catalogs bundled via `import.meta.glob`. Both are
+  gitignored with a committed `*.stub.json` that keeps imports resolvable in
+  dev/tests/non-CDN builds:
+  - `src/generated/optimized-image-manifest.json` — variant catalog (build mode).
+  - `src/generated/deployed-image-sources-catalog.json` — existence gate (CDN mode).
+- **CDN-mode existence gating.** Because the encoder is skipped, CDN mode has no
+  per-file signal, so `getOptimizedImage` gates **every** source (`/img/**` and
+  `/uploads/**`) on the deployed-image-sources catalog. A source absent from this
+  deploy returns the empty `OptimizedImage`, so components degrade to a plain
+  `<img>` instead of a 404ing `<picture>` (browsers can't fall back from a
+  404ing `<source>`, and the CMS origin is firewalled). This keeps
+  `hasOptimizedVariants()` a real existence probe even in CDN mode — e.g.
+  `HomepageHero` uses it to decide whether to emit the 4K hero source.
+- **Uploads and the firewalled CMS.** Never reference the Strapi origin;
+  absolute CMS URLs are reduced to site-relative pathnames. Uploads reach the
+  repo via async git sync, so an upload rendered before the next deploy won't be
+  in the catalog yet — that's the expected degrade-to-`<img>` window, not a bug.
+- **One extension allowlist.** `hasOptimizableRasterExtension` in `imagePaths.ts`
+  is the single source of truth for what gets optimized, shared by the encoder,
+  `resolveOptimizableSource`, and the audit's `isOptimizableRasterPath`. Extend
+  it there, never at a call site: the encoder's list decides what lands in the
+  deployed-sources catalog and the resolver's decides what is expected in it, so
+  drift makes a deliverable image look like a missing one. GIFs and SVGs are
+  excluded deliberately — transcoding a GIF (or a CDN `fm=` transform) drops
+  animation, and an SVG gains nothing. They ship as-is, still edge-cached by
+  Netlify's CDN, just not run through the image transform.
+- **Width ladders.** `DEFAULT_CDN_WIDTHS` (capped) for ordinary images;
+  `TARGET_WIDTHS` (adds 2560/3840) is opt-in for genuinely 4K sources like the
+  hero. Advertising 4K widths for a small image just bills extra transforms of
+  clamped, byte-identical output. A source opting into `TARGET_WIDTHS` should
+  also pass `intrinsicWidth` (see `withIntrinsicWidthRung`): rungs at or above
+  the intrinsic width all clamp to the same pixels, and the CDN still re-encodes
+  them, so for an already-AVIF/WebP source they cost bytes and a generation of
+  quality rather than saving either. The helper collapses them into one rung at
+  the intrinsic width, served as the file itself when the format allows.
+- **CDN URLs are final.** They already contain percent-encoded query values —
+  never run `encodeURI()` over them or `%2F` becomes `%252F` and the source path
+  breaks.
+- **Paths are literal internally, encoded only on emission.** Both catalogs are
+  built from `path.relative(PUBLIC_DIR, …)`, so `hero image.avif` carries a real
+  space. That literal form is what catalog lookups and `buildImageCdnUrl`
+  (via `URLSearchParams`) need, so `resolveOptimizableSource` decodes the
+  pathname it gets from `new URL()` to keep both entry paths in the same space.
+  Any path that then becomes a URL — the `withIntrinsicWidthRung` raw rung,
+  build-mode variant and `-full` paths — must go through `encodeImageUrlPath`.
+  It encodes per segment rather than using `encodeURI`, because `,` and `#`
+  survive `encodeURI` and a comma alone splits one srcset entry into two. Never
+  apply it to a CDN URL (see the bullet above).
+- **Build-time audit.** `src/integrations/audit-image-optimization.ts` scans
+  `dist/**/*.html` (CDN mode only) across four carriers — `<img>`, `<picture>`,
+  inline `style="background-image:url(…)"`, and `poster` — and splits findings
+  by severity. It **fails the build** on `standalone-raw`,
+  `picture-without-cdn`, `raw-css-background` and `raw-poster`: each means a
+  component bypassed `OptimizedImage`/`getOptimizedImage`, a code defect fixable
+  from the repo tree. It **logs** `degraded-marker`, where the component did
+  route through `getOptimizedImage` and the designed missing-source fallback
+  fired; that is deploy state, not code, so it must not abort a deploy. Escape
+  hatch for a deliberate raw image: `data-allow-unoptimized` on the tag.
+  Blind spots it does not claim to cover: `url()` in emitted CSS files, `<meta
+og:image>`, and SSR routes (no file in `dist`) — the success message names the
+  carriers checked so a clean run is not read as a whole-site guarantee.
+  Catching content that references a nonexistent image is a separate job and
+  wants its own check — the marker is blind to SVGs/GIFs and to anything that
+  doesn't reach prerendered HTML.
+- **Single-URL contexts.** A CSS background and a `poster` cannot carry a
+  srcset, so they take `getOptimizedImage(src).fullSrc` and fall back to the raw
+  path — see `getHeroSectionStyle` and `VideoEmbed`. Netlify clamps to the source
+  width, so requesting the top rung never upscales.
+- **Validation gotcha:** `astro check` is not wired up (`@astrojs/check` isn't
+  installed) and will **hang on an interactive install prompt** — don't use it.
+  Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises
+  the CDN path and runs the audit.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)
