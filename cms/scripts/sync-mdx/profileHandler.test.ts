@@ -87,15 +87,15 @@ describe('createRelationResolver', () => {
     )
   })
 
-  it('dry-run: falls back to en when target locale is missing', async () => {
+  it('dry-run: throws UNRESOLVED_RELATION when target locale is missing (EN-only fallback would fail on live sync)', async () => {
     const strapi = createMockStrapi({
       'en:alice': { documentId: 'doc-en-alice', locale: 'en' }
     })
     const resolve = createRelationResolver(strapi, 'es', true)
 
-    const result = await resolve('profile-pages', 'alice')
-
-    expect(result).toEqual({ documentId: 'doc-en-alice' })
+    await expect(resolve('profile-pages', 'alice')).rejects.toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION
+    })
     expect(strapi.findByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
@@ -132,7 +132,7 @@ describe('createRelationResolver', () => {
       strapi,
       'en',
       true,
-      new Set(['grant/fellowship/lawil-karama'])
+      new Set(['en:grant/fellowship/lawil-karama'])
     )
 
     const result = await resolve(
@@ -149,12 +149,46 @@ describe('createRelationResolver', () => {
       strapi,
       'en',
       true,
-      new Set(['some/other-profile'])
+      new Set(['en:some/other-profile'])
     )
 
     await expect(resolve('profile-pages', 'ghost')).rejects.toMatchObject({
       code: ParserErrorCode.UNRESOLVED_RELATION
     })
+  })
+
+  it('dry-run: does not treat en-only MDX as same-run create for a non-en locale', async () => {
+    const strapi = createMockStrapi({})
+    const resolve = createRelationResolver(
+      strapi,
+      'es',
+      true,
+      new Set(['en:grant/fellowship/caroline-sinders'])
+    )
+
+    await expect(
+      resolve('profile-pages', 'grant/fellowship/caroline-sinders')
+    ).rejects.toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION
+    })
+  })
+
+  it('dry-run: accepts same-run create when locale:pathSlug matches', async () => {
+    const strapi = createMockStrapi({})
+    const resolve = createRelationResolver(
+      strapi,
+      'es',
+      true,
+      new Set(['es:grant/fellowship/lawil-karama'])
+    )
+
+    const result = await resolve(
+      'profile-pages',
+      'grant/fellowship/lawil-karama'
+    )
+    expect(result.documentId).toBe(
+      'dry-run:profile-pages:es:grant/fellowship/lawil-karama'
+    )
   })
 
   it('non-dry-run: ignores dryRunPathSlugs and throws for an unresolved relation', async () => {
@@ -163,7 +197,7 @@ describe('createRelationResolver', () => {
       strapi,
       'en',
       false,
-      new Set(['grant/fellowship/lawil-karama'])
+      new Set(['en:grant/fellowship/lawil-karama'])
     )
 
     await expect(
