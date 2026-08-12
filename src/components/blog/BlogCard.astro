@@ -47,11 +47,9 @@ const cardHeaderClasses = twMerge(
   'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
 )
-// Full-width image below desktop, side-by-side column from desktop.
-// Tiered max-height: mobile ~220px; tablet allows more height without
-// filling the fold at ~1100px; desktop returns to 220px in the ~30% column.
-// (A single max-h-[220px] at all widths crops banners once the container
-// is wider than ~377px for aspect-240/140.)
+// Full-width image below desktop, side-by-side ~30% column from desktop.
+// A single max-h-[220px] crops banners at any width above ~377px (aspect-240/140),
+// so mobile/tablet use a higher cap. Desktop returns to 220px in the narrow column.
 const cardImageClasses =
   'object-cover rounded-3xl w-full aspect-240/140 max-h-[220px] tablet:max-h-[400px] desktop:max-h-[220px]'
 const cardBodyClasses = twMerge(
