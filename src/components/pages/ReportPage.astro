@@ -69,22 +69,22 @@ const Layout = getSectionPageLayout(entry.data.section)
 
 <Layout title={title} description={description}>
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col mx-auto px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="max-w-content">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
-        class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg mt-2xl"
+        class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
       >
         {heading}
       </h1>
       {
         date && (
-          <div class="mt-md flex items-center gap-2">
+          <div class="hidden items-center gap-sm mb-3xl desktop:flex">
             <time
               datetime={date.publishDate.toISOString()}
-              class="text-body-lg-standard text-neutral-900"
+              class="text-body-lg-standard-md text-neutral-900"
             >
               {t('report.published', {
                 date: formatDate(date.publishDate, contentLocale)
@@ -92,10 +92,10 @@ const Layout = getSectionPageLayout(entry.data.section)
             </time>
             {date.lastUpdated && (
               <>
-                <span class="h-px w-6.5 rotate-90 bg-neutral-75" />
+                <span class="h-6.5 w-px bg-neutral-75" />
                 <time
                   datetime={date.lastUpdated.toISOString()}
-                  class="text-body-lg-standard text-neutral-75"
+                  class="text-body-lg-standard-md text-neutral-75"
                 >
                   {t('report.updated', {
                     date: formatDate(date.lastUpdated, contentLocale)
@@ -108,9 +108,9 @@ const Layout = getSectionPageLayout(entry.data.section)
       }
       {
         introParagraphHtml && (
-          <section aria-label={t('report.introduction')} class="mt-xl">
+          <section aria-label={t('report.introduction')}>
             <div
-              class="text-body-xl-standard tablet:text-body-xl-standard-md text-neutral-900 [&_p]:text-body-xl-standard [&_p]:tablet:text-body-xl-standard-md"
+              class="mb-4xl text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:mb-6xl desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
               set:html={introParagraphHtml}
             />
           </section>
@@ -118,16 +118,16 @@ const Layout = getSectionPageLayout(entry.data.section)
       }
       {
         hasBody && (
-          <section data-prose aria-label={t('report.body')} class="mt-2xl">
+          <section data-prose aria-label={t('report.body')}>
             {sections.length > 0 ? (
               // CSS grid, not flex, so the auto-generated footnotes section
               // (a sibling of <ReportSection> we don't control) can span both
               // columns instead of being squeezed into the content column —
               // MdxContent's children must be direct grid items (no wrapping
               // div) for that breakout to work.
-              <div class="flex flex-col gap-4xl tablet:grid tablet:grid-cols-[3fr_7fr] tablet:gap-x-2xl desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full">
+              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl">
                 <div
-                  class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-3xl"
+                  class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
                   style={{ gridRow: `1 / span ${sections.length}` }}
                 >
                   <ReportSectionsNav

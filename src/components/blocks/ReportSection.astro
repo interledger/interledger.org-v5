@@ -13,12 +13,12 @@ import Icon from '@/components/shared/Icon.astro'
 
 <section
   data-component="report-section"
-  class="flex flex-col gap-lg [&_h2]:m-0 [&_h2]:min-w-0 [&_h2]:text-neutral-900 [&_h2]:scroll-mt-(--site-header-height-desktop)"
+  class="flex flex-col gap-xl [&_h2]:m-0 [&_h2]:min-w-0 [&_h2]:text-neutral-100 [&_h2]:text-h3 [&_h2]:scroll-mt-(--site-header-height-desktop) tablet:[&_h2]:text-neutral-900 tablet:[&_h2]:text-h3-md desktop:[&_h2]:text-h3-lg"
 >
   <span data-report-section-icon class="hidden">
     <Icon
       name="arrow-down"
-      class="size-8 shrink-0 text-neutral-900 transition-transform duration-200 group-open/section:rotate-180 tablet:hidden"
+      class="size-8 shrink-0 text-primary transition-transform duration-200 group-open/section:rotate-180 tablet:hidden"
     />
   </span>
   <slot />
@@ -45,14 +45,22 @@ import Icon from '@/components/shared/Icon.astro'
         if (!heading) return null
 
         const newDetails = document.createElement('details')
-        newDetails.className = 'group/section flex flex-col gap-lg'
+        newDetails.className = 'group/section flex flex-col'
 
         const summary = document.createElement('summary')
-        summary.className =
-          'flex list-none cursor-pointer items-center justify-between gap-md text-left [&::-webkit-details-marker]:hidden tablet:cursor-default tablet:pointer-events-none'
+        summary.className = `flex list-none items-center justify-between gap-lg
+        px-lg py-md bg-neutral-25
+        rounded-lg border-b border-transparent 
+        cursor-pointer [&::-webkit-details-marker]:hidden 
+        group-open/section:[&_h2]:text-primary group-open/section:mb-2xl 
+        [&_h2]:transition-all [&_h2]:duration-200 transition-all duration-200 
+        group-open/section:rounded-b-none group-open/section:border-primary 
+        tablet:cursor-default tablet:pointer-events-none tablet:bg-transparent 
+        tablet:border-none tablet:px-0 group-open/section:tablet:mb-xl
+        tablet:group-open/section:[&_h2]:text-neutral-900`
 
         const body = document.createElement('div')
-        body.className = 'flex flex-col gap-lg'
+        body.className = 'flex flex-col gap-xl'
 
         summary.append(heading)
         const icon = section.querySelector('[data-report-section-icon]')

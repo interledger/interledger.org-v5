@@ -20,7 +20,7 @@ const t = useTranslations(uiLocale)
   aria-label={t('report.sections_nav')}
   class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))]"
 >
-  <ul class="flex list-none flex-col gap-2xl desktop:gap-xl">
+  <ul class="flex list-none flex-col gap-2xl m-0 p-0">
     {
       sections.map((section, index) => (
         <li class="m-0">
@@ -30,20 +30,20 @@ const t = useTranslations(uiLocale)
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
-            class="group flex flex-col gap-sm rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orchid-100"
+            class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-primary"
           >
-            <span class="flex items-start gap-md">
+            <span class="flex items-start gap-md pl-xs">
               <span
                 aria-hidden="true"
-                class="size-1.5 shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-orchid-100"
+                class="size-xs shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-primary"
               />
-              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-orchid-100">
+              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-primary">
                 {section.heading}
               </span>
             </span>
             <span
               aria-hidden="true"
-              class="h-0.5 w-0 bg-orchid-100 transition-all duration-200 group-data-[active=true]:w-full"
+              class="h-px w-0 bg-primary transition-all duration-200 group-data-[active=true]:w-full"
             />
           </a>
         </li>
