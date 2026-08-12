@@ -77,7 +77,7 @@ export interface StrapiUploadContext {
   STRAPI_TOKEN: string
   dryRun: boolean
   /**
-   * pathSlugs of profile-pages found in this run's MDX source, for
+   * `locale:pathSlug` keys for profile-pages in this run's MDX source, for
    * createRelationResolver's dry-run fallback (see profileHandler.ts).
    */
   profilePathSlugs?: Set<string>

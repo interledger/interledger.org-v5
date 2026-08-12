@@ -20,6 +20,11 @@ interface Props {
 }
 
 const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
+const headingText = heading?.trim() || undefined
+// Stable for this render; unique across multiple carousels on one page.
+const headingId = headingText
+  ? `logo-carousel-heading-${crypto.randomUUID()}`
+  : undefined
 
 // Skip incomplete logos instead of throwing — DynamicZone preview can see
 // half-finished CMS rows; save-time validation (validateContentBlocks) is the
@@ -102,11 +107,19 @@ const logoClasses = `
 `
 ---
 
-<section aria-labelledby="logo-carousel-heading" class={sectionClasses}>
+<section
+  data-component="LogoCarousel"
+  class={sectionClasses}
+  aria-labelledby={headingId}
+>
   <div class={containerClasses}>
-    <h2 id="logo-carousel-heading" class={headerClasses}>
-      {heading}
-    </h2>
+    {
+      headingText && headingId && (
+        <h2 id={headingId} class={headerClasses}>
+          {headingText}
+        </h2>
+      )
+    }
 
     <div
       class={viewportClasses}

@@ -118,7 +118,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
       [data-component='EventCard'] *
     ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
-      section[aria-labelledby='logo-carousel-heading'] *
+      [data-component='LogoCarousel'] *
     ) {
     color: var(--color-neutral-0);
   }
