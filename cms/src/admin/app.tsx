@@ -208,6 +208,61 @@ export default {
       div:has(> div > input[name="alternativeText"]) {
         display: none !important;
       }
+
+      /* INTORG-1037: keep CKEditor content readable after an editor unmounts.
+         The plugin renders its theme through a styled-components
+         createGlobalStyle *inside every editor field*. styled-components drops
+         those global rules as soon as one instance unmounts, so collapsing a
+         repeatable component or closing an accordion strips the styling from
+         every editor still on the page. Strapi's own design-system reset then
+         wins, and lists lose their markers and their indent.
+
+         These rules duplicate the plugin theme, so the result is the same
+         whether or not the plugin's copy is currently attached. Remove this
+         block once the plugin hoists its GlobalStyle out of the field
+         component (upstream: nshenderov/strapi-plugin-ckeditor). */
+      .ck-editor__main * {
+        font: revert;
+        margin: revert;
+      }
+      .ck-editor__main blockquote,
+      .ck-editor__main ol,
+      .ck-editor__main p,
+      .ck-editor__main ul {
+        font-size: 1em;
+        line-height: 1.6em;
+        padding-top: 0.2em;
+        margin-bottom: var(--ck-spacing-large);
+      }
+      .ck-editor__main ul,
+      .ck-editor__main ol {
+        list-style: initial;
+        margin-left: 2rem;
+      }
+      .ck-editor__main ol {
+        list-style: decimal;
+      }
+      /* To-do lists draw their own checkboxes and must stay marker-free. */
+      .ck-editor__main ul.todo-list {
+        list-style: none;
+        margin: revert;
+        margin-left: 2rem;
+      }
+      /* Without the plugin theme the counter falls back to static flow and
+         lands on top of the text instead of below the editor box. */
+      .ck-editor__main + div > .ck-word-count,
+      .ck-word-count {
+        display: flex;
+        position: absolute;
+        justify-content: end;
+        gap: 0.3rem;
+        font-size: 1rem;
+        font-weight: 500;
+        text-transform: lowercase;
+        z-index: 2;
+        bottom: -2rem;
+        right: 0;
+      }
     `
     document.head.appendChild(style)
 
