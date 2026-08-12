@@ -145,7 +145,13 @@ export {
   createPageLifecycle,
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
-export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
+export {
+  createBlogLifecycle,
+  generateBlogMDX,
+  resolveBlogEnglishSlug,
+  resolveBlogMdxFilename,
+  stampBlogLocale
+} from './blogLifecycle'
 export {
   type ProfileMdxCta,
   type ProfileMdxInput,

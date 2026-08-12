@@ -15,23 +15,21 @@ describe('cta-strip serializer', () => {
     )
   })
 
-  it('omits legacy secondary CTA and colour when present', () => {
+  it('serializes both CTAs', () => {
     const result = serialize({
       heading: 'Apply now',
       description: 'This is a reminder text.',
       primaryButtonText: 'Stay in touch',
       primaryButtonLink: '/contact',
       secondaryButtonText: 'Get involved',
-      secondaryButtonLink: '/get-involved',
-      color: 'green'
+      secondaryButtonLink: '/get-involved'
     })
 
-    expect(result).not.toContain('secondaryButtonText')
-    expect(result).not.toContain('secondaryButtonLink')
-    expect(result).not.toContain('color=')
+    expect(result).toContain('secondaryButtonText="Get involved"')
+    expect(result).toContain('secondaryButtonLink="/get-involved"')
   })
 
-  it('omits optional heading, description, secondary fields and colour when absent', () => {
+  it('omits optional heading, description and secondary fields when absent', () => {
     const result = serialize({
       primaryButtonText: 'P',
       primaryButtonLink: '/p'
@@ -43,7 +41,6 @@ describe('cta-strip serializer', () => {
     expect(result).not.toContain('heading=')
     expect(result).not.toContain('secondaryButtonText')
     expect(result).not.toContain('secondaryButtonLink')
-    expect(result).not.toContain('color=')
   })
 
   it('escapes braces in the description', () => {
@@ -57,7 +54,33 @@ describe('cta-strip serializer', () => {
     expect(result).toContain('\\{tokens\\}')
   })
 
-  it('drops an incomplete legacy secondary CTA (only one field set)', () => {
+  it('serializes a description containing a link and a mailto link as children', () => {
+    const result = serialize({
+      heading: 'Before applying',
+      description:
+        'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
+      primaryButtonText: 'Apply now',
+      primaryButtonLink: '/grants/apply'
+    })
+
+    expect(result).toContain('[Grantmaking FAQs](/grants/faq)')
+    expect(result).toContain('[our team](mailto:programteam@interledger.org)')
+  })
+
+  it('serializes a description containing a link and a mailto link as children', () => {
+    const result = serialize({
+      heading: 'Before applying',
+      description:
+        'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
+      primaryButtonText: 'Apply now',
+      primaryButtonLink: '/grants/apply'
+    })
+
+    expect(result).toContain('[Grantmaking FAQs](/grants/faq)')
+    expect(result).toContain('[our team](mailto:programteam@interledger.org)')
+  })
+
+  it('drops a half-specified secondary CTA (only one field set)', () => {
     const result = serialize({
       heading: 'H',
       description: 'Body.',

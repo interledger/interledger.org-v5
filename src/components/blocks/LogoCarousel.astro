@@ -1,13 +1,49 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
+/** MDX / site shape */
+interface LogoMdx {
+  name: string
+  src: string
+}
+
+/** Strapi blocks.carousel-logo (populated) */
+interface LogoStrapi {
+  image?: { url?: string; alternativeText?: string | null } | null
+  alternativeText?: string | null
+}
+
 interface Props {
   heading?: string
   accessibilityLabel: string
-  logos: { name: string; src: string }[]
+  logos: Array<LogoMdx | LogoStrapi>
 }
 
-const { heading, accessibilityLabel, logos } = Astro.props
+const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
+const headingText = heading?.trim() || undefined
+// Stable for this render; unique across multiple carousels on one page.
+const headingId = headingText
+  ? `logo-carousel-heading-${crypto.randomUUID()}`
+  : undefined
+
+// Skip incomplete logos instead of throwing — DynamicZone preview can see
+// half-finished CMS rows; save-time validation (validateContentBlocks) is the
+// real gate. Throwing would 500 the whole page for one bad entry.
+const logos: LogoMdx[] = rawLogos.flatMap((logo) => {
+  if ('src' in logo && typeof logo.src === 'string') {
+    if (!logo.src) return []
+    return [{ name: logo.name ?? '', src: logo.src }]
+  }
+  const src = logo.image?.url
+  if (!src) return []
+  // Explicit null on component alt = empty; only fall back to file alt when
+  // the field is absent (legacy / unmigrated Strapi rows).
+  const name =
+    logo.alternativeText !== undefined
+      ? (logo.alternativeText ?? '')
+      : (logo.image?.alternativeText ?? '')
+  return [{ name, src }]
+})
 
 // Single source of truth for the carousel geometry, piped into the CSS vars
 // below instead of duplicating numbers in <style>. Must be exact: repeatCount
@@ -71,11 +107,19 @@ const logoClasses = `
 `
 ---
 
-<section aria-labelledby="logo-carousel-heading" class={sectionClasses}>
+<section
+  data-component="LogoCarousel"
+  class={sectionClasses}
+  aria-labelledby={headingId}
+>
   <div class={containerClasses}>
-    <h2 id="logo-carousel-heading" class={headerClasses}>
-      {heading}
-    </h2>
+    {
+      headingText && headingId && (
+        <h2 id={headingId} class={headerClasses}>
+          {headingText}
+        </h2>
+      )
+    }
 
     <div
       class={viewportClasses}

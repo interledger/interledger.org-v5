@@ -1167,6 +1167,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
+    'blocks.carousel-logo': {
+      image: 'Logo Image',
+      alternativeText: 'Alternative Text'
+    },
     'blocks.number-tiles': {
       tiles: 'Tiles'
     },
@@ -1210,7 +1214,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
-      primaryButtonLink: 'Primary Button URL'
+      primaryButtonLink: 'Primary Button URL',
+      secondaryButtonText: 'Secondary Button Text',
+      secondaryButtonLink: 'Secondary Button URL'
     },
     'blocks.image-row': {
       heading: 'Heading',
@@ -1398,8 +1404,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.carousel': {
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
-      logos:
-        'Dimensions: 240×80. Click the edit (pencil) icon on the selected image to set Alternative text.'
+      logos: 'Add one entry per logo. Recommended image size: 240×80.'
+    },
+    'blocks.carousel-logo': {
+      image: 'Partner logo image. Recommended size: 240×80.',
+      alternativeText:
+        'Short description of the logo for screen readers (e.g. the organization name). Shown next to each logo — not in the Media Library.'
     },
     'blocks.number-tile': {
       number:
@@ -1710,6 +1720,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
     ],
+    'blocks.carousel-logo': [
+      [{ name: 'image', size: 6 }],
+      [{ name: 'alternativeText', size: 6 }]
+    ],
     'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
     'blocks.number-tile': [
       [
@@ -1790,6 +1804,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [
         { name: 'primaryButtonText', size: 6 },
         { name: 'primaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonText', size: 6 },
+        { name: 'secondaryButtonLink', size: 6 }
       ]
     ],
     'shared.hero': [

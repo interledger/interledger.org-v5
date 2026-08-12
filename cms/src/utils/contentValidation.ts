@@ -345,10 +345,12 @@ export function validateCtaStrip(
     ])
   }
 
-  const { primaryButtonText, primaryButtonLink } = ctaStrip as Record<
-    string,
-    unknown
-  >
+  const {
+    primaryButtonText,
+    primaryButtonLink,
+    secondaryButtonText,
+    secondaryButtonLink
+  } = ctaStrip as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
   if (
@@ -371,6 +373,27 @@ export function validateCtaStrip(
       path: ['ctaStrip', 'primaryButtonLink']
     })
   }
+
+  // The secondary CTA is optional, but half of one is not: a label with no
+  // href is dead and an href with no label is unreadable, so flag the gap
+  // rather than silently dropping the button at render time.
+  const isFilled = (value: unknown) =>
+    typeof value === 'string' && value.trim() !== ''
+  if (isFilled(secondaryButtonText) && !isFilled(secondaryButtonLink)) {
+    fieldErrors.push({
+      message:
+        'CTA Strip: Secondary Button Link is required when Secondary Button Text is set',
+      path: ['ctaStrip', 'secondaryButtonLink']
+    })
+  }
+  if (isFilled(secondaryButtonLink) && !isFilled(secondaryButtonText)) {
+    fieldErrors.push({
+      message:
+        'CTA Strip: Secondary Button Text is required when Secondary Button Link is set',
+      path: ['ctaStrip', 'secondaryButtonText']
+    })
+  }
+
   return combineFieldErrors(fieldErrors)
 }
 

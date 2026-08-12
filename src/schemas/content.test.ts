@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   foundationBlogFrontmatterSchema,
+  grantPageFrontmatterSchema,
   podcastPageFrontmatterSchema
 } from './content'
 
@@ -148,5 +149,81 @@ describe('podcastPageFrontmatterSchema', () => {
       podcasts: [{ ...podcastPageBase.podcasts[0], series: 'Not A Series' }]
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('grantPageFrontmatterSchema, the ctaStrip secondary pair', () => {
+  const grantPageBase = {
+    title: 'A grant',
+    pathSlug: 'a-grant',
+    description: 'A short description',
+    ctaStrip: {
+      buttonText: 'Apply now',
+      buttonLink: '/apply'
+    }
+  }
+
+  // The secondary CTA is all or nothing everywhere else: the MDX handler, the
+  // serializer, the renderer and the Strapi validator all need both halves.
+  // Without this rule, half a pair validated here and was then dropped without
+  // a word at render time.
+  const withStrip = (strip: Record<string, unknown>) => ({
+    ...grantPageBase,
+    ctaStrip: { ...grantPageBase.ctaStrip, ...strip }
+  })
+
+  it('accepts a strip with no secondary CTA', () => {
+    expect(grantPageFrontmatterSchema.safeParse(grantPageBase).success).toBe(
+      true
+    )
+  })
+
+  it('accepts both halves', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withStrip({
+        secondaryButtonText: 'Learn more',
+        secondaryButtonLink: '/about'
+      })
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a text-only secondary, pointing at the link', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withStrip({ secondaryButtonText: 'Learn more' })
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.path).toEqual([
+      'ctaStrip',
+      'secondaryButtonLink'
+    ])
+  })
+
+  it('rejects a link-only secondary, pointing at the text', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withStrip({ secondaryButtonLink: '/about' })
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.path).toEqual([
+      'ctaStrip',
+      'secondaryButtonText'
+    ])
+  })
+
+  it('treats a whitespace-only half as empty, so it rejects the gap', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withStrip({
+        secondaryButtonText: 'Learn more',
+        secondaryButtonLink: '  '
+      })
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('treats two whitespace-only halves as no secondary at all', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withStrip({ secondaryButtonText: '  ', secondaryButtonLink: '  ' })
+    )
+    expect(result.success).toBe(true)
   })
 })

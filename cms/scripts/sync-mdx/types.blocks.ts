@@ -114,8 +114,9 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 /**
  * blocks.cta-strip – purple call-to-action strip with one primary CTA.
  *
- * `description` comes from the JSX children (markdown). Heading and description
- * are optional; primary CTA text and link are required.
+ * `description` comes from the JSX children (markdown). Heading, description
+ * and the secondary CTA are optional; primary CTA text and link are required.
+ * The secondary CTA's two fields travel together — both or neither.
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
@@ -123,6 +124,8 @@ export interface CtaStripBlock extends StrapiBlockBase {
   description?: string
   primaryButtonText: string
   primaryButtonLink: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
 }
 
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
@@ -212,12 +215,15 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   }
 }
 
-/** blocks.carousel — logo carousel. `logos` are Strapi upload file IDs. */
+/**
+ * blocks.carousel — logo carousel.
+ * Each logo is a blocks.carousel-logo entry: media ID + optional alt text.
+ */
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
   heading?: string
   accessibilityLabel: string
-  logos: number[]
+  logos: Array<{ image: number; alternativeText: string | null }>
 }
 
 /**

@@ -32,7 +32,7 @@ const GRANT_BLOCKS = {
   },
   'blocks.cta-strip': {},
   'blocks.carousel': {
-    populate: { logos: true }
+    populate: { logos: { populate: { image: true } } }
   },
   'blocks.number-tiles': {
     populate: { tiles: true }
@@ -89,7 +89,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.carousel': {
-    populate: { logos: true }
+    populate: { logos: { populate: { image: true } } }
   },
   'blocks.faq': {
     populate: { items: true }
@@ -161,7 +161,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.cta-strip': {},
     'blocks.carousel': {
-      populate: { logos: true }
+      populate: { logos: { populate: { image: true } } }
     },
     'blocks.faq': {
       populate: { items: true }

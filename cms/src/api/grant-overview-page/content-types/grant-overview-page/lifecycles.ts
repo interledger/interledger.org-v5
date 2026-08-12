@@ -19,6 +19,8 @@ interface CtaStrip {
   description?: string
   primaryButtonText?: string
   primaryButtonLink?: string
+  secondaryButtonText?: string
+  secondaryButtonLink?: string
 }
 
 interface GrantOverviewPageData extends PageData {
@@ -68,6 +70,18 @@ export function generateGrantOverviewPageMDX(
             ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
             ...(ctaStrip.description
               ? { description: ctaStrip.description }
+              : {}),
+            // Both halves or neither, matching the serializer and renderer.
+            // Compare and write the trimmed values: `validateCtaStrip` and the
+            // renderer both treat whitespace as empty, so a truthiness test
+            // would export `"   "` into MDX and then drop it on render
+            // (Copilot, #484).
+            ...(ctaStrip.secondaryButtonText?.trim() &&
+            ctaStrip.secondaryButtonLink?.trim()
+              ? {
+                  secondaryButtonText: ctaStrip.secondaryButtonText.trim(),
+                  secondaryButtonLink: ctaStrip.secondaryButtonLink.trim()
+                }
               : {})
           }
         }

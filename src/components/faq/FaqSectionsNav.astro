@@ -54,8 +54,7 @@ const t = useTranslations(uiLocale)
 
 <script>
   // Scoped per instance via [data-faq-nav] so multiple FAQ pages' scripts
-  // don't collide (matches src/components/blocks/Carousel.astro's
-  // multi-instance idiom).
+  // don't collide.
   import { initSectionNavScrollspy } from '@/scripts/section-nav-scrollspy'
 
   initSectionNavScrollspy({
