@@ -27,7 +27,7 @@ interface Props {
   width?: number
   height?: number
   class?: string
-  /** Applies to wrapping `<picture>` when responsive sources exist. */
+  /** Applies to the wrapping `<picture>`, which is always emitted. */
   pictureClass?: string
   loading?: 'lazy' | 'eager'
   sizes?: string
@@ -165,18 +165,23 @@ const imgSrc = media ? undefined : src
       />
     </picture>
   ) : (
-    <img
-      src={src}
-      alt={alt}
-      width={width}
-      height={height}
-      class={className}
-      loading={loading}
-      decoding={decoding}
-      fetchpriority={fetchpriority}
-      draggable={draggable}
-      data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
-    />
+    // Wrapped even with no <source>, so `pictureClass` applies in every branch.
+    // Callers put semantics there (breakpoint toggles), and which branch runs
+    // depends on deploy state, not on the call site.
+    <picture class={pictureClassName}>
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        class={className}
+        loading={loading}
+        decoding={decoding}
+        fetchpriority={fetchpriority}
+        draggable={draggable}
+        data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
+      />
+    </picture>
   )
 }
 
