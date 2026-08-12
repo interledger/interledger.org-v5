@@ -199,6 +199,17 @@ export function auditImageOptimization(): AstroIntegration {
         const distDir = fileURLToPath(dir)
         const files = await collectHtmlFiles(distDir)
 
+        // A guardrail that scanned nothing would report a clean build it never
+        // looked at, and the failure is silent precisely when it matters — a
+        // changed output layout, or a `dir` that no longer points at the pages.
+        // This build prerenders well over a thousand pages, so zero is broken.
+        if (files.length === 0) {
+          throw new Error(
+            `Image optimization audit found no HTML to scan under ${distDir}.\n` +
+              `The audit cannot vouch for a build it never read — check the build output layout.`
+          )
+        }
+
         // One entry per distinct src, with a sample page and occurrence count.
         const bySrc = new Map<string, AuditEntry>()
 
@@ -218,8 +229,14 @@ export function auditImageOptimization(): AstroIntegration {
           }
         }
 
+        // Always state the coverage alongside the verdict, so a clean result
+        // reads as "checked N pages" rather than an unqualified all-clear.
+        const scanned = `${files.length} HTML file(s) scanned`
+
         if (bySrc.size === 0) {
-          logger.info('All optimizable images are served via the CDN.')
+          logger.info(
+            `${scanned} — all optimizable images are served via the CDN.`
+          )
           return
         }
 
@@ -240,7 +257,7 @@ export function auditImageOptimization(): AstroIntegration {
         }
 
         if (blocking.length === 0) {
-          logger.info('No image bypassed the CDN.')
+          logger.info(`${scanned} — no image bypassed the CDN.`)
           return
         }
 

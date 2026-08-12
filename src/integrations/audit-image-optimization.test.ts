@@ -1,5 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import {
+  auditImageOptimization,
   findUnoptimizedImages,
   isBlockingAuditReason,
   isOptimizableRasterPath
@@ -152,5 +157,140 @@ describe('findUnoptimizedImages', () => {
       { src: '/img/a.jpg', reason: 'standalone-raw' },
       { src: '/img/a.jpg', reason: 'standalone-raw' }
     ])
+  })
+})
+
+/**
+ * Drives the real `astro:build:done` hook against a throwaway dist tree. The
+ * pure helpers above classify a finding; only the hook decides whether a
+ * classification stops the build, so the severity policy needs testing here.
+ */
+type BuildDoneHook = NonNullable<
+  ReturnType<typeof auditImageOptimization>['hooks']['astro:build:done']
+>
+
+interface CapturedLogs {
+  info: string[]
+  warn: string[]
+}
+
+interface AuditRun {
+  logs: CapturedLogs
+  error: Error | null
+}
+
+async function runAudit(pages: Record<string, string>): Promise<AuditRun> {
+  const distDir = await mkdtemp(path.join(tmpdir(), 'image-audit-'))
+  try {
+    for (const [name, html] of Object.entries(pages)) {
+      const full = path.join(distDir, name)
+      await mkdir(path.dirname(full), { recursive: true })
+      await writeFile(full, html)
+    }
+
+    const logs: CapturedLogs = { info: [], warn: [] }
+    const hook = auditImageOptimization().hooks[
+      'astro:build:done'
+    ] as BuildDoneHook
+
+    let error: Error | null = null
+    try {
+      await hook({
+        dir: pathToFileURL(`${distDir}/`),
+        logger: {
+          info: (message: string) => logs.info.push(message),
+          warn: (message: string) => logs.warn.push(message)
+        }
+      } as unknown as Parameters<BuildDoneHook>[0])
+    } catch (err) {
+      error = err as Error
+    }
+
+    return { logs, error }
+  } finally {
+    await rm(distDir, { recursive: true, force: true })
+  }
+}
+
+const CDN_PICTURE = `
+  <picture>
+    <source type="image/avif" srcset="/.netlify/images?url=%2Fimg%2Fh.png&fm=avif&w=640 640w" />
+    <img src="/img/h.png" alt="ok" />
+  </picture>`
+
+// The shape OptimizedImage emits when the source is missing from the deploy:
+// a <picture> wrapper with no <source> at all.
+const DEGRADED = `
+  <picture>
+    <img src="/uploads/img/original/new.png" alt="x" data-unoptimized-src="/uploads/img/original/new.png" />
+  </picture>`
+
+const BYPASS = `<img src="/img/bypassed.jpg" alt="x" />`
+
+describe('auditImageOptimization hook', () => {
+  const originalImageCdn = process.env.IMAGE_CDN
+
+  beforeEach(() => {
+    process.env.IMAGE_CDN = 'on'
+  })
+
+  afterEach(() => {
+    if (originalImageCdn === undefined) delete process.env.IMAGE_CDN
+    else process.env.IMAGE_CDN = originalImageCdn
+  })
+
+  it('reports the scanned file count on a clean build', async () => {
+    const { logs, error } = await runAudit({
+      'index.html': CDN_PICTURE,
+      'blog/index.html': CDN_PICTURE
+    })
+
+    expect(error).toBeNull()
+    expect(logs.warn).toEqual([])
+    expect(logs.info[0]).toContain('2 HTML file(s) scanned')
+  })
+
+  it('fails when there is no HTML to scan', async () => {
+    // Otherwise a build whose output layout moved would report a clean audit
+    // for pages this never opened.
+    const { error } = await runAudit({})
+
+    expect(error?.message).toContain('no HTML to scan')
+  })
+
+  it('warns but does not fail on a degraded image', async () => {
+    const { logs, error } = await runAudit({ 'index.html': DEGRADED })
+
+    expect(error).toBeNull()
+    expect(logs.warn).toHaveLength(1)
+    expect(logs.warn[0]).toContain('/uploads/img/original/new.png')
+    expect(logs.warn[0]).toContain('degraded')
+  })
+
+  it('fails when a component bypassed the CDN', async () => {
+    const { error } = await runAudit({ 'index.html': BYPASS })
+
+    expect(error?.message).toContain('1 image(s) bypass')
+    expect(error?.message).toContain('/img/bypassed.jpg')
+  })
+
+  it('fails on the bypass while still warning about a co-occurring degrade', async () => {
+    const { logs, error } = await runAudit({
+      'index.html': DEGRADED,
+      'about/index.html': BYPASS
+    })
+
+    expect(error?.message).toContain('1 image(s) bypass')
+    expect(error?.message).not.toContain('/uploads/img/original/new.png')
+    expect(logs.warn[0]).toContain('/uploads/img/original/new.png')
+  })
+
+  it('skips entirely when the CDN is off', async () => {
+    process.env.IMAGE_CDN = 'off'
+
+    const { logs, error } = await runAudit({ 'index.html': BYPASS })
+
+    expect(error).toBeNull()
+    expect(logs.info[0]).toContain('CDN off')
   })
 })
