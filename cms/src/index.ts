@@ -261,6 +261,12 @@ interface DbQueryApi {
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
 }
+interface KoaContext {
+  request: { headers: Record<string, string | string[] | undefined> }
+  status: number
+  body: unknown
+}
+
 interface StrapiInstance {
   documents: ((uid: string) => StrapiDocumentService) & {
     use: (middleware: DocumentValidationMiddleware) => void
@@ -280,6 +286,7 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  server: { router: { post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void } }
   service: (uid: string) => unknown
 }
 
@@ -649,11 +656,11 @@ const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
-async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
+async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<number> {
   const query = strapi.db?.query('plugin::upload.file')
   if (!query) {
     strapi.log.warn('⚠️  DB query API unavailable — skipping upload seeding')
-    return
+    return 0
   }
 
   const publicDir = strapi.dirs.static.public
@@ -709,6 +716,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   if (seeded > 0) {
     strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
   }
+  return seeded
 }
 
 interface AdminApiTokenService {
@@ -1949,6 +1957,24 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Seed-media endpoint: lets the sync-images script trigger seedUploadsFromDisk
+    // remotely without a full Strapi rebuild. Validates against STRAPI_API_TOKEN
+    // (the same token all sync scripts use) since this route bypasses Strapi's
+    // standard auth middleware.
+    strapi.server.router.post('/api/seed-media', async (ctx) => {
+      const bearer = String(ctx.request.headers['authorization'] ?? '').replace(
+        'Bearer ',
+        ''
+      )
+      if (!bearer || bearer !== process.env.STRAPI_API_TOKEN) {
+        ctx.status = 401
+        ctx.body = { error: 'Unauthorized' }
+        return
+      }
+      const seeded = await seedUploadsFromDisk(strapi)
+      ctx.body = { seeded }
+    })
+
     // Validate paragraph content on save — reject nested JSX before it reaches
     // the DB. Registered as a document-service middleware (see
     // registerDocumentValidation below for why) so it covers every content
