@@ -15,15 +15,16 @@
     },
     {
       "label": "Resources",
-      "href": "/hackathon/resources"
-    },
-    {
-      "label": "Participation requirements",
-      "href": "/hackathon/participation"
-    },
-    {
-      "label": "Code of conduct",
-      "href": "/hackathon/code-conduct"
+      "items": [
+        {
+          "label": "Participation requirements",
+          "href": "/hackathon/participation"
+        },
+        {
+          "label": "Code of conduct",
+          "href": "/hackathon/code-conduct"
+        }
+      ]
     }
   ],
   "ctaButton": {
