@@ -7,7 +7,7 @@
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
-import MicrositeFooter from '@/components/layout/MicrositeFooter.astro'
+import FoundationFooter from '@/components/layout/FoundationFooter.astro'
 import MicrositeHeader from '@/components/layout/MicrositeHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
@@ -52,5 +52,5 @@ const {
   >
     <slot />
   </div>
-  <MicrositeFooter slot="footer" />
+  <FoundationFooter site="hackathon" slot="footer" />
 </BaseLayout>
