@@ -3,6 +3,7 @@ import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
+import { ensureLeadingSlash } from './relativeLinks'
 
 import type { Core, UID, Modules } from '@strapi/strapi'
 
@@ -49,8 +50,7 @@ export interface NavigationLifecycleConfig<
 
 function normalizeHref(href: string | null | undefined): string | undefined {
   if (!href) return undefined
-  if (href.startsWith('/') || href.startsWith('http')) return href
-  return `/${href}`
+  return ensureLeadingSlash(href)
 }
 
 export function sanitizeMenuItem(
