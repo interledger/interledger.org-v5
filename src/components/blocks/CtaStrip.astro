@@ -1,5 +1,5 @@
 ---
-import { buildUmamiAttrs, isExternalHref, parseMarkdown } from '@/utils'
+import { buildUmamiAttrs, parseMarkdown, resolveCtaLink } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -29,6 +29,22 @@ const {
 } = Astro.props
 
 const { routeLocale } = Astro.locals
+
+// Icon by link kind (INTORG-938). The strip stores plain hrefs, with no
+// external or document flag, so the kind comes from the href alone.
+//
+// The primary keeps its arrow on an internal link and the secondary keeps
+// nothing, which is what each renders today. Arrow-on-internal is scoped to
+// components an editor picks, and the strip is page furniture (Sarah,
+// 2026-08-10). Only the external case changes, from an arrow to the correct
+// glyph.
+const resolvedPrimary = resolveCtaLink({
+  url: primaryButtonLink,
+  internalIcon: 'arrow-right'
+})
+const resolvedSecondary = secondaryButtonLink
+  ? resolveCtaLink({ url: secondaryButtonLink })
+  : null
 
 // Analytics: `section: 'cta'` marks these as CTA clicks; the action segment is
 // auto-derived from each button's href and the label is carried in
@@ -130,9 +146,9 @@ const hasSecondary = Boolean(
 
         <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
           <LinkButton
-            href={primaryButtonLink}
+            href={resolvedPrimary.href}
             variant="primary"
-            external={isExternalHref(primaryButtonLink)}
+            external={resolvedPrimary.external}
             class="w-full"
             {...buildUmamiAttrs({
               ...umamiBase,
@@ -141,14 +157,14 @@ const hasSecondary = Boolean(
             })}
           >
             {primaryButtonText}
-            <Icon name="arrow-right" slot="icon-right" />
+            <Icon name={resolvedPrimary.icon} slot="icon-right" />
           </LinkButton>
 
-          {hasSecondary && (
+          {hasSecondary && resolvedSecondary && (
             <LinkButton
-              href={secondaryButtonLink!}
+              href={resolvedSecondary.href}
               variant="secondary"
-              external={isExternalHref(secondaryButtonLink!)}
+              external={resolvedSecondary.external}
               class="cta-strip-secondary w-full"
               {...buildUmamiAttrs({
                 ...umamiBase,
@@ -157,6 +173,9 @@ const hasSecondary = Boolean(
               })}
             >
               {secondaryButtonText}
+              {resolvedSecondary.icon && (
+                <Icon name={resolvedSecondary.icon} slot="icon-right" />
+              )}
             </LinkButton>
           )}
         </div>

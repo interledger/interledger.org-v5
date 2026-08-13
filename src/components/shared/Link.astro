@@ -1,5 +1,6 @@
 ---
-import { buildUmamiAttrs, type UmamiSection } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink, type UmamiSection } from '@/utils'
+import Icon from './Icon.astro'
 
 interface Props {
   href?: string
@@ -7,6 +8,8 @@ interface Props {
   style?: string
   variant?: 'hero' | 'default'
   external?: boolean
+  /** Downloadable file: shows the download icon and sets `download`. */
+  document?: boolean
   /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
   section?: UmamiSection
   /** Override the derived Umami action segment (e.g. `cta_button`). */
@@ -17,12 +20,27 @@ const {
   href,
   style,
   external,
+  document: isDocument,
   text,
   variant,
   section = 'cta',
   action
 } = Astro.props as Props
 const { routeLocale } = Astro.locals
+
+// Icon by link kind (INTORG-938). This component is the older of the two
+// buttons and carried its own hardcoded external SVG, a different glyph from
+// the one every other CTA uses. It now shares `resolveCtaLink` and `Icon`, so
+// the three kinds agree site-wide.
+//
+// Icons only. The pill shape, the fluid padding and the white-on-purple
+// colours stay as they are: this hero is a different design from `PageHero`,
+// not the same design built twice. Restyling it needs Radu (INTORG-938).
+//
+// An internal link keeps showing nothing, which is what it does today.
+const resolved = href
+  ? resolveCtaLink({ url: href, external, document: isDocument })
+  : null
 
 const classes: Record<string, string> = {
   'hero-primary':
@@ -55,30 +73,19 @@ const umamiAttrs = buildUmamiAttrs({
 ---
 
 <a
-  href={href ?? ''}
+  href={resolved?.href ?? href ?? ''}
   class={classes[key]}
   style={`padding: clamp(0.625rem, 0.56rem + 0.29vi, 0.8rem) clamp(1.25rem, 1.1rem + 0.65vi, 1.6rem);`}
   {...umamiAttrs}
-  {...external && {
-    target: '_blank',
-    rel: 'noopener noreferrer'
-  }}
+  {...resolved?.targetAttrs}
+  {...resolved?.downloadAttrs}
   >{text ?? 'Click'}
   {
-    external && (
-      <svg
-        class="inline-block h-[0.75em] w-[0.75em]"
-        fill="none"
-        viewBox="0 0 18 18"
-      >
-        <path
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
-        />
-      </svg>
+    resolved?.icon && (
+      <Icon
+        name={resolved.icon}
+        class="inline-block h-[0.75em] w-[0.75em] align-baseline"
+      />
     )
   }
 </a>

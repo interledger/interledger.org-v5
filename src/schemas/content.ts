@@ -4,7 +4,8 @@ const heroCtaSchema = z.object({
   text: z.string(),
   link: z.string(),
   style: z.enum(['primary', 'secondary']).optional(),
-  external: z.boolean().optional()
+  external: z.boolean().optional(),
+  document: z.boolean().optional()
 })
 
 // Normalizes pathSlug by stripping any leading or trailing slashes so that
@@ -189,7 +190,8 @@ export const grantPageFrontmatterSchema = z.object({
     .object({
       text: z.string(),
       link: z.string(),
-      external: z.boolean().optional()
+      external: z.boolean().optional(),
+      document: z.boolean().optional()
     })
     .optional(),
   infoCards: grantInfoCardsSchema.optional(),

@@ -1533,6 +1533,13 @@ export interface SharedCtaLink extends Struct.ComponentSchema {
     displayName: 'Call-to-action Link'
   }
   attributes: {
+    document: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     external: Schema.Attribute.Boolean &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1663,6 +1670,13 @@ export interface SharedPrimaryCtaLink extends Struct.ComponentSchema {
     displayName: 'Primary CTA Link'
   }
   attributes: {
+    document: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     external: Schema.Attribute.Boolean &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
