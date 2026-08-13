@@ -27,7 +27,6 @@
     },
     "pathSlug": {
       "type": "string",
-      "description": "No leading or trailing slash. This becomes the full page path (e.g. podcast → /podcast).",
       "required": true,
       "unique": true,
       "pluginOptions": {

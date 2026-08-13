@@ -28,7 +28,6 @@
     },
     "pathSlug": {
       "type": "string",
-      "description": "No leading or trailing slash. Path relative to the site root within the chosen Section (e.g. fellowship/andria-barrett → /fellowship/andria-barrett).",
       "required": true,
       "unique": true,
       "pluginOptions": {

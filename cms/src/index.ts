@@ -1447,6 +1447,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
       secondaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.quote': {
+      authorLink:
+        'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     }
   }
 

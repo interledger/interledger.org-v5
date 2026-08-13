@@ -97,6 +97,22 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     })
   })
 
+  it('normalizes a quote block authorLink', () => {
+    const data = {
+      content: [
+        {
+          __component: 'blocks.quote',
+          quote: 'Hi',
+          authorLink: 'team'
+        }
+      ]
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.content).toEqual([
+      { __component: 'blocks.quote', quote: 'Hi', authorLink: '/team' }
+    ])
+  })
+
   it('normalizes fields nested inside a dynamic-zone array', () => {
     const data = {
       content: [

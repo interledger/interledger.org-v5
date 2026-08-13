@@ -27,7 +27,6 @@
     },
     "pathSlug": {
       "type": "string",
-      "description": "No leading or trailing slash. Relative to /grant/, e.g. our-grantmaking → /grant/our-grantmaking.",
       "pluginOptions": {
         "i18n": {
           "localized": true

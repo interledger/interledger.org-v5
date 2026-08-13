@@ -3,7 +3,8 @@ const HREF_LIKE_FIELDS = new Set([
   'link',
   'ctaLink',
   'primaryButtonLink',
-  'secondaryButtonLink'
+  'secondaryButtonLink',
+  'authorLink'
 ])
 
 const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
@@ -12,7 +13,7 @@ const ABSOLUTE_OR_SPECIAL_HREF = /^(https?:)?\/\/|^(mailto|tel):|^#/i
 
 export function ensureLeadingSlash(value: string): string {
   if (!value || ABSOLUTE_OR_SPECIAL_HREF.test(value)) return value
-  return value.startsWith('/') ? value : `/${value}`
+  return value.trim().startsWith('/') ? value : `/${value}`
 }
 
 export function normalizePathSegment(value: string): string {
