@@ -31,6 +31,16 @@ const {
   document: isDocument = false
 } = Astro.props
 
+// Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so that
+// gap is tight (24px, 32px from desktop) and the gap below is the full block
+// gap of 120px. `Paragraph` tightens its own bottom margin when it sees
+// `.cta-link` next to it, and the 120px below comes from here. Before this the
+// CTA had no margin at all, so the following heading sat flush against it
+// (INTORG-1045).
+//
+// `cta-link` is the hook `Paragraph` matches on. Keep the two in step.
+const spacingClass = 'cta-link mb-6xl'
+
 const resolved = resolveCtaLink({
   url: link,
   external,
@@ -44,6 +54,7 @@ const resolved = resolveCtaLink({
   variant={style}
   external={resolved.external}
   document={resolved.document}
+  class={spacingClass}
 >
   {text}
   <Icon name={resolved.icon} slot="icon-right" />

@@ -1,0 +1,65 @@
+---
+import { useTranslations, type Locale } from '@/utils'
+
+interface ReportNavSection {
+  id: string
+  heading: string
+}
+
+interface Props {
+  sections: ReportNavSection[]
+  uiLocale: Locale
+}
+
+const { sections, uiLocale } = Astro.props
+const t = useTranslations(uiLocale)
+---
+
+<nav
+  data-report-nav
+  aria-label={t('report.sections_nav')}
+  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))]"
+>
+  <ul class="flex list-none flex-col gap-2xl m-0 p-0">
+    {
+      sections.map((section, index) => (
+        <li class="m-0">
+          <a
+            href={`#${section.id}`}
+            data-report-nav-link
+            data-target={section.id}
+            data-active={index === 0 ? 'true' : 'false'}
+            aria-current={index === 0 ? 'true' : undefined}
+            class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-primary"
+          >
+            <span class="flex items-start gap-md pl-xs">
+              <span
+                aria-hidden="true"
+                class="size-xs shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-primary"
+              />
+              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-primary">
+                {section.heading}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              class="h-px w-0 bg-primary transition-all duration-200 group-data-[active=true]:w-full"
+            />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  // Scoped per instance via [data-report-nav] so multiple report pages'
+  // scripts don't collide (matches src/components/blocks/Carousel.astro's
+  // multi-instance idiom).
+  import { initSectionNavScrollspy } from '@/scripts/section-nav-scrollspy'
+
+  initSectionNavScrollspy({
+    containerSelector: '[data-report-nav]',
+    linkSelector: '[data-report-nav-link]'
+  })
+</script>

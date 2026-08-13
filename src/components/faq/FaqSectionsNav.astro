@@ -53,52 +53,12 @@ const t = useTranslations(uiLocale)
 </nav>
 
 <script>
-  // Scrollspy: highlight whichever FAQ section is currently in the "reading
-  // band" near the top of the viewport. Modeled on the intersecting-Set
-  // pattern in src/components/layout/foundation-header.ts. Scoped per
-  // instance via [data-faq-nav] so multiple FAQ pages' scripts don't collide.
-  document.querySelectorAll<HTMLElement>('[data-faq-nav]').forEach((nav) => {
-    const links = Array.from(
-      nav.querySelectorAll<HTMLAnchorElement>('[data-faq-nav-link]')
-    )
-    const sections = links
-      .map((link) => document.getElementById(link.dataset.target ?? ''))
-      .filter((el): el is HTMLElement => el !== null)
+  // Scoped per instance via [data-faq-nav] so multiple FAQ pages' scripts
+  // don't collide.
+  import { initSectionNavScrollspy } from '@/scripts/section-nav-scrollspy'
 
-    if (sections.length === 0) return
-
-    const intersecting = new Set<Element>()
-
-    const setActive = () => {
-      const activeId =
-        sections.find((section) => intersecting.has(section))?.id ??
-        links[0]?.dataset.target
-
-      for (const link of links) {
-        const isActive = link.dataset.target === activeId
-        link.dataset.active = String(isActive)
-        if (isActive) {
-          link.setAttribute('aria-current', 'true')
-        } else {
-          link.removeAttribute('aria-current')
-        }
-      }
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            intersecting.add(entry.target)
-          } else {
-            intersecting.delete(entry.target)
-          }
-        }
-        setActive()
-      },
-      { rootMargin: '-10% 0px -70% 0px', threshold: 0 }
-    )
-
-    sections.forEach((section) => observer.observe(section))
+  initSectionNavScrollspy({
+    containerSelector: '[data-faq-nav]',
+    linkSelector: '[data-faq-nav-link]'
   })
 </script>

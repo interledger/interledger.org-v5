@@ -1,0 +1,52 @@
+---
+/**
+ * Paragraph (body copy) or Disclaimer (smaller, muted fine print) block.
+ *
+ * Disclaimer differs from blocks.paragraph in two ways: it's styled
+ * differently, and its richtext is more limited — CKEditor's
+ * `basicMarkdownPreset` rather than paragraph's full preset.
+ *
+ * Disclaimer styles target `p`/`li`/`a` directly instead of the wrapper,
+ * since `prose/default.css` styles those tags on `main` and a matching
+ * rule beats inheritance — same pattern as FaqItem.astro.
+ */
+import type { ReportTextType } from '@/types/report'
+import { useTranslations } from '@/utils'
+
+interface Props {
+  type: ReportTextType
+}
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const { type } = Astro.props
+const sharedClasses = `
+px-lg [&_*:last-child]:mb-0 [&_:is(p,ol,ul,a,h3,h4,h5,h6)]:mb-xl 
+[&_li]:mb-md [&_:is(ol,ul)]:pl-lg [&_:is(ol,ul)]:tablet:pl-xl
+text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
+tablet:px-0 tablet:text-body-lg-standard-md [&_:is(p,a,li)]:tablet:text-body-lg-standard-md
+`
+const disclaimerClasses =
+  'p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,li,a)]:text-h5 tablet:p-xl tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg'
+const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutral-75 [&_thead_th]:text-body-sm-emphasis desktop:[&_thead_th]:text-body-lg-emphasis-md`
+---
+
+<div class={sharedClasses}>
+  {
+    type === 'Disclaimer' ? (
+      <div
+        data-report-text="disclaimer"
+        role="note"
+        aria-label={t('report.disclaimer_label')}
+        class={disclaimerClasses}
+      >
+        <slot />
+      </div>
+    ) : (
+      <div data-report-text="paragraph" class={paragraphClasses}>
+        <slot />
+      </div>
+    )
+  }
+</div>

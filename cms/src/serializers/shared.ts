@@ -29,3 +29,7 @@ export const escSingle = (v: string): string =>
 
 export const escMdxBraces = (v: string): string =>
   v ? v.trim().replace(/\{/g, '\\{').replace(/\}/g, '\\}') : ''
+
+// Inverse of escMdxBraces, for undoing it after raw-slicing MDX source.
+export const unescapeMdxBraces = (v: string): string =>
+  v.replace(/\\([{}])/g, '$1')

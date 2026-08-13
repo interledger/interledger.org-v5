@@ -17,6 +17,7 @@ import {
   type CardGridCardsField,
   type CardGridVariant
 } from '../../src/utils/cardGrid'
+import { type ReportTextType } from '../../src/utils/reportText'
 
 export {
   CARD_GRID_COLUMNS,
@@ -37,6 +38,12 @@ export {
   validateCtaButtonComposition,
   type CtaButtonStyle
 } from '../../src/utils/ctaButtons'
+
+export {
+  REPORT_TEXT_TYPES,
+  isReportTextType,
+  type ReportTextType
+} from '../../src/utils/reportText'
 
 // ---------------------------------------------------------------------------
 // Shared
@@ -282,6 +289,21 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
   buttons: CtaButton[]
 }
 
+/** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface CtaButton {
+  text: string
+  link: string
+  style: CtaButtonStyle
+  external?: boolean
+  document?: boolean
+}
+
+/** blocks.cta-buttons — one CTA button, or two side by side. */
+export interface CtaButtonsBlock extends StrapiBlockBase {
+  __component: 'blocks.cta-buttons'
+  buttons: CtaButton[]
+}
+
 /** blocks.card-grid — unified card grid with variant-specific card fields. */
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
@@ -302,6 +324,25 @@ export interface FaqBlock extends StrapiBlockBase {
   __component: 'blocks.faq'
   heading?: string
   items: FaqItem[]
+}
+
+/**
+ * blocks.report-text — entry in report-section's repeatable `reportText`
+ * field. No `__component`; it's a nested component, not a dynamic-zone
+ * block. `textType` picks the active field: `Paragraph` → `textContent`,
+ * `Disclaimer` → `textDisclaimer`. Both are CKEditor rich text, stored as markdown.
+ */
+export interface ReportTextItem {
+  textType: ReportTextType
+  textContent?: string
+  textDisclaimer?: string
+}
+
+/** blocks.report-section — a heading followed by a repeatable list of typed content blocks. */
+export interface ReportSectionBlock extends StrapiBlockBase {
+  __component: 'blocks.report-section'
+  heading: string
+  reportText: ReportTextItem[]
 }
 
 /** Nested column on blocks.event-card — when an event takes place. */
@@ -363,6 +404,7 @@ export type ParsedBlock =
   | CardGridBlock
   | AgendaBlock
   | FaqBlock
+  | ReportSectionBlock
   | EventCardBlock
   | CtaLinkBlock
   | CtaButtonsBlock

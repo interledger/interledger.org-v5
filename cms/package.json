@@ -20,6 +20,7 @@
     "sync:delete-all": "tsx scripts/sync-delete-all.ts",
     "sync:delete-all:dry-run": "tsx scripts/sync-delete-all.ts --dry-run",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:sync-mdx": "vitest run scripts/sync-mdx",
     "test:serializers": "vitest run src/serializers"
   },
@@ -56,9 +57,10 @@
   "devDependencies": {
     "@types/node": "^25.4.0",
     "@types/turndown": "^5.0.6",
+    "@vitest/coverage-v8": "^4.1.10",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=24.0.0 <=24.x.x",

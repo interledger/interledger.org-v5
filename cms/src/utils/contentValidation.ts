@@ -487,6 +487,24 @@ export function validateReportDate(
 }
 
 /**
+ * Validate the required `content` dynamic zone on the report content type.
+ * Strapi's own `required`/`min: 1` constraint is skipped on PUT, so this
+ * fills the gap. Per-block field validation (heading, reportText, etc.) is
+ * handled separately by `validateContentBlocks`.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateReportContent(
+  body: unknown
+): errors.ValidationError | undefined {
+  const content = (body as Record<string, unknown>)?.content
+  if (Array.isArray(content) && content.length > 0) return undefined
+  return new errors.ValidationError(
+    'Report Sections: at least one section is required'
+  )
+}
+
+/**
  * Validate the Hero component on page-like content types (foundation-page,
  * summit-page): title is required, and each CTA needs both text and link.
  *
