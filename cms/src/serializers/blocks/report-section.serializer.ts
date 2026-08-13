@@ -1,8 +1,7 @@
-import isHtml from 'is-html'
 import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
-  htmlToMarkdown,
+  htmlFieldToMarkdown,
   isReportTextType,
   type FieldError,
   type ReportTextType
@@ -94,7 +93,7 @@ export function serialize(block: {
     const textType = item.textType as ReportTextType
     const raw = item[textField(textType)]!
 
-    const text = escMdxBraces(isHtml(raw) ? htmlToMarkdown(raw) : raw)
+    const text = escMdxBraces(htmlFieldToMarkdown(raw))
 
     return `<ReportText type="${textType}">\n\n${text}\n\n</ReportText>`
   })

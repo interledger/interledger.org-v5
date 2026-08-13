@@ -1,8 +1,7 @@
-import isHtml from 'is-html'
 import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
-  htmlToMarkdown,
+  htmlFieldToMarkdown,
   type FieldError
 } from '../../utils'
 
@@ -70,9 +69,7 @@ export function serialize(block: {
   const items = block.items.map((item) => {
     // `answer` is a CKEditor field: usually already markdown, but convert
     // defensively if Strapi hands back HTML (matches callout-text).
-    const answer = escMdxBraces(
-      isHtml(item.answer) ? htmlToMarkdown(item.answer) : item.answer
-    )
+    const answer = escMdxBraces(htmlFieldToMarkdown(item.answer))
 
     // Blank lines around the answer, and the closing tag at column 0. An
     // answer ending in a list needs both: MDX reads an indented line after a

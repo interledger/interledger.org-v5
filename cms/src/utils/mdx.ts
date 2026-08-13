@@ -157,12 +157,28 @@ export function htmlToMarkdown(html: string): string {
   return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
 }
 
+// `is-html` treats any known HTML tag as proof a string is HTML — including
+// a bare `<br/>`, which fields can legitimately carry as an intentional line
+// break (see cms/src/admin/app.tsx). Strip it first, so that doesn't
+// misclassify valid markdown and route it through htmlToMarkdown, mangling
+// markdown syntax around it. Real HTML still has other tags to catch it.
+const INLINE_BREAK_TAG = /<br\s*\/?>/gi
+
+export function looksLikeHtmlField(value: string): boolean {
+  return isHtml(value.replace(INLINE_BREAK_TAG, ''))
+}
+
+/** Converts a field to markdown only if it actually looks like HTML, leaving already-markdown text untouched. */
+export function htmlFieldToMarkdown(value: string): string {
+  return looksLikeHtmlField(value) ? htmlToMarkdown(value) : value
+}
+
 /**
  * CKEditor (basicMarkdownPreset) fields are usually already markdown, but
  * defensively convert if Strapi ever hands back HTML.
  */
 export function ckeditorFieldToMarkdown(value: string): string {
-  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
+  return htmlFieldToMarkdown(value).trim()
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────

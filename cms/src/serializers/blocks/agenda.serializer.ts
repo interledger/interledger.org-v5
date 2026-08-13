@@ -1,6 +1,5 @@
-import isHtml from 'is-html'
 import {
-  htmlToMarkdown,
+  htmlFieldToMarkdown,
   SerializerFieldError,
   type FieldError
 } from '../../utils'
@@ -19,8 +18,7 @@ interface AgendaBlock {
 }
 
 function normalizeRichText(value: string | undefined): string {
-  if (!value) return ''
-  return (isHtml(value) ? htmlToMarkdown(value) : value).trim()
+  return value ? htmlFieldToMarkdown(value).trim() : ''
 }
 
 export function serialize(block: AgendaBlock): string {

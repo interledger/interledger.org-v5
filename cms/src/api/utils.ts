@@ -12,7 +12,6 @@ export {
   getContentPath,
   PATHS,
   getImageUrl,
-  htmlToMarkdown,
   LOCALES,
   getPreservedFields,
   gitCommitAndPush,
