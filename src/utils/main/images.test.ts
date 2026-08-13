@@ -16,6 +16,7 @@ import {
   NETLIFY_IMAGE_ENDPOINT
 } from './imageCdn'
 import {
+  AVATAR_CDN_WIDTHS,
   DEFAULT_CDN_WIDTHS,
   TARGET_WIDTHS,
   encodeImageUrlPath
@@ -370,6 +371,78 @@ describe('getOptimizedImage — Netlify Image CDN mode', () => {
     expect(getOptimizedImage('/img/hero.png').variants).toEqual([
       { src: '/img/optimized/hero-640.webp', width: 640 }
     ])
+  })
+})
+
+describe('getOptimizedImage — Sessionize speaker photos', () => {
+  const SPEAKER = '/sessionize-speakers/img/2025/ed-cable.jpg'
+
+  it('maps a speaker photo onto its optimized variants in build mode', () => {
+    setImageCdnEnabledForTests(false)
+    setOptimizedImageVariantCatalogForTests([
+      '/img/optimized/sessionize-speakers/2025/ed-cable-400.webp',
+      '/img/optimized/sessionize-speakers/2025/ed-cable-full.webp',
+      '/img/optimized/sessionize-speakers/2025/ed-cable-400.avif',
+      '/img/optimized/sessionize-speakers/2025/ed-cable-full.avif'
+    ])
+
+    expect(getOptimizedImage(SPEAKER)).toEqual({
+      variants: [
+        {
+          src: '/img/optimized/sessionize-speakers/2025/ed-cable-400.webp',
+          width: 400
+        }
+      ],
+      fullSrc: '/img/optimized/sessionize-speakers/2025/ed-cable-full.webp',
+      avifVariants: [
+        {
+          src: '/img/optimized/sessionize-speakers/2025/ed-cable-400.avif',
+          width: 400
+        }
+      ],
+      avifFullSrc: '/img/optimized/sessionize-speakers/2025/ed-cable-full.avif'
+    })
+  })
+
+  it('serves a speaker photo through the CDN when it ships in the deploy', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([SPEAKER])
+
+    const result = getOptimizedImage(SPEAKER)
+
+    expect(result.variants).toHaveLength(DEFAULT_CDN_WIDTHS.length)
+    expect(readCdnSourceParam(result.variants[0].src)).toBe(SPEAKER)
+  })
+
+  it('honours a narrowed ladder so clamped rungs are not billed twice', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([SPEAKER])
+
+    const result = getOptimizedImage(SPEAKER, AVATAR_CDN_WIDTHS)
+
+    expect(result.variants.map((v) => v.width)).toEqual([...AVATAR_CDN_WIDTHS])
+    expect(result.avifVariants.map((v) => v.width)).toEqual([
+      ...AVATAR_CDN_WIDTHS
+    ])
+  })
+
+  it('degrades when the photo is missing from the deploy', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests([])
+
+    expect(getOptimizedImage(SPEAKER)).toEqual(EMPTY)
+  })
+
+  it('leaves the no-photo SVG fallback alone', () => {
+    setImageCdnEnabledForTests(true)
+    setDeployedImageSourcesForTests(['/sessionize-speakers/img/no-photo.svg'])
+
+    expect(getOptimizedImage('/sessionize-speakers/img/no-photo.svg')).toEqual(
+      EMPTY
+    )
+    expect(isOptimizableSource('/sessionize-speakers/img/no-photo.svg')).toBe(
+      false
+    )
   })
 })
 

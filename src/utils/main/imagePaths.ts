@@ -10,11 +10,34 @@ export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
 
 /**
+ * Width ladder for speaker avatars. Every rung is a separately billed transform
+ * and a separate edge-cache entry, and Netlify clamps rather than upscales — so
+ * for a source narrower than a rung, that rung returns the same pixels as the
+ * one below it at full price. Avatars render at 200–400 CSS px, so the 1280 and
+ * 1920 default rungs buy nothing: 6 transforms per photo (two formats) where 4
+ * will do.
+ *
+ * 240 is a genuine downscale for the card grids at DPR 1; 480 covers DPR 2.
+ *
+ * Sizing note, not an invariant: Sessionize hands us URLs that carry its own
+ * resize directive (`…/image/2363-400o400o1-….jpg`), so today every photo
+ * arrives 400×400, and `scripts/sync-sessionize.ts` saves whatever it is handed
+ * without resizing. Nothing in this repo enforces that bound. The ladder does
+ * not depend on it either way: at 400px the 480 rung clamps to the source, and
+ * for a larger source it simply becomes a real downscale.
+ */
+export const AVATAR_CDN_WIDTHS = [240, 480] as const
+
+/**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
- * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
- * change to either lands in the CI cache key (this file is hashed by
- * `.github/actions/cache-optimized-images`).
+ * URL builder (`imageCdn.ts`). Defined here so the two cannot drift.
+ *
+ * Changing either value invalidates the build-mode encode cache on its own:
+ * that cache is keyed `PIPELINE_ID:<source hash>`, and `PIPELINE_ID` in
+ * `scripts/optimize-images.ts` interpolates both constants. A manual bump of
+ * its trailing token is only needed for pipeline changes these values don't
+ * encode — width rules or output naming.
  *
  * Higher than sharp's WebP default (80): blog/body images were looking soft
  * when the browser had to fall back to a small variant (INTORG-934).
@@ -102,7 +125,18 @@ export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',
   uploadSource: '/uploads/img/original',
-  uploadOptimized: '/img/optimized/uploads'
+  uploadOptimized: '/img/optimized/uploads',
+  /**
+   * Speaker photos downloaded from Sessionize by `scripts/sync-sessionize.ts`.
+   * They sit outside `/img`, so every prefix check has to name them explicitly
+   * — the omission is why they were the one image family still shipping raw.
+   *
+   * Variants land under `publicOptimized` like every other source, which is
+   * what makes them inherit the `/img/optimized` gitignore entry, the CI
+   * encode cache, and the `/img/*` cache header without further wiring.
+   */
+  sessionizeSource: '/sessionize-speakers/img',
+  sessionizeOptimized: '/img/optimized/sessionize-speakers'
 } as const
 
 /**

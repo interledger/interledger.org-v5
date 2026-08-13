@@ -34,6 +34,15 @@ interface Props {
   fetchpriority?: 'high' | 'low' | 'auto'
   media?: string
   draggable?: boolean
+  /**
+   * CDN width ladder for `src`; defaults to `DEFAULT_CDN_WIDTHS`. Narrow it for
+   * images that never render large: every rung is a separately billed transform
+   * behind its own edge-cache entry, and because Netlify clamps rather than
+   * upscales, every rung above the source's intrinsic width returns pixels
+   * identical to the rung below it. `AVATAR_CDN_WIDTHS` is the ladder for
+   * profile photos.
+   */
+  widths?: readonly number[]
   /** Optional art-directed sources (most specific `media` first). */
   alternateSources?: OptimizedImageAlternateSource[]
 }
@@ -50,11 +59,12 @@ const {
   fetchpriority,
   media,
   draggable,
+  widths,
   alternateSources = []
 } = Astro.props
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
-  ? getOptimizedImage(src)
+  ? getOptimizedImage(src, widths)
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const alternatePictureSources = alternateSources.flatMap(

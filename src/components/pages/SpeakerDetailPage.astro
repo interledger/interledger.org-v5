@@ -4,8 +4,10 @@ import {
   defaultLocale,
   useTranslations,
   getTranslation,
-  getTalks
+  getTalks,
+  AVATAR_CDN_WIDTHS
 } from '@/utils'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import type { Speaker } from '@/types/summit'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import TextParagraphs from '@/components/shared/TextParagraphs.astro'
@@ -37,12 +39,15 @@ const bio = translation?.bio ?? entry.bio
           <h1>{entry.name}</h1>
           <p class="mb-6">{entry.tagLine}</p>
         </div>
-        <img
+        <OptimizedImage
           src={entry.profilePicture}
           alt={t('summit.profile_image', { name: entry.name })}
-          width="400"
-          height="400"
-          loading="lazy"
+          width={400}
+          height={400}
+          sizes="400px"
+          widths={AVATAR_CDN_WIDTHS}
+          loading="eager"
+          fetchpriority="high"
         />
       </div>
     </header>

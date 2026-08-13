@@ -1,6 +1,7 @@
 ---
 import type { Speaker } from '@/types/summit'
-import { generateSlug, buildUmamiAttrs } from '@/utils'
+import { generateSlug, buildUmamiAttrs, AVATAR_CDN_WIDTHS } from '@/utils'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 interface Props {
   speaker: Speaker
@@ -24,11 +25,13 @@ const attrs = buildUmamiAttrs({
 
 <li class="flex-1 min-w-[8em]">
   <a href={href} {...attrs}>
-    <img
+    <OptimizedImage
       src={speaker.profilePicture}
       alt={speaker.name}
-      width="240"
-      height="240"
+      width={240}
+      height={240}
+      sizes="240px"
+      widths={AVATAR_CDN_WIDTHS}
       loading="lazy"
     />
     <h2 class="text-h4 tablet:text-h4-md desktop:text-h4-lg! font-bold">
