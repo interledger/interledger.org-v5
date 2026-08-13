@@ -2,9 +2,9 @@ name: Build and Sync
 # Runs on push to staging or playground only — not prod (prod has no Strapi instance, so no build or sync applies).
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed.
 # The content/navigation/media sync no longer runs automatically on push — it runs on a daily
-# systemd timer on the Strapi VM instead (installed/refreshed by ensure-sync-schedule below), so
-# resyncing doesn't invalidate an editor's open admin session on every commit. sync-to-strapi is
-# still available on demand via workflow_dispatch.
+# GitHub Actions schedule instead (see scheduled-content-sync.yml), so resyncing doesn't
+# invalidate an editor's open admin session on every commit. sync-to-strapi below is still
+# available on demand via workflow_dispatch.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
 on:
@@ -288,70 +288,13 @@ jobs:
           sleep 5
           sudo systemctl status "$STRAPI_SERVICE_NAME"
 
-  # Idempotently installs/refreshes a systemd timer on the Strapi VM that runs the content sync
-  # daily at midnight, replacing the old per-commit sync. Runs unconditionally (not gated on
-  # cms_changed) so the schedule stays correct even on a push that doesn't touch cms/, and is
-  # scoped per branch so staging and playground don't clobber each other's unit if they share a VM.
-  ensure-sync-schedule:
-    needs: detect-changes
-    if: always() && needs.detect-changes.result == 'success'
-    runs-on: strapi-vm
-    environment: ${{ github.ref_name == 'playground' && 'strapi-playground' || 'strapi-staging' }}
-    env:
-      DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
-      DEPLOY_BRANCH: ${{ github.ref_name }}
-      SYNC_FORCE: ${{ vars.ENV_SYNC_FORCE }}
-
-    steps:
-      - name: Install/refresh daily sync timer
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ -z "${DEPLOY_PATH:-}" ]; then
-            echo "Error: ENV_DEPLOY_PATH is not set for this environment."
-            exit 1
-          fi
-
-          UNIT="strapi-content-sync-${DEPLOY_BRANCH}"
-
-          sudo tee "/etc/systemd/system/${UNIT}.service" > /dev/null <<EOF
-          [Unit]
-          Description=Strapi content sync (${DEPLOY_BRANCH})
-
-          [Service]
-          Type=oneshot
-          WorkingDirectory=${DEPLOY_PATH}/cms
-          Environment=SYNC_FORCE=${SYNC_FORCE:-false}
-          ExecStart=${DEPLOY_PATH}/cms/scripts/cron/run-sync.sh
-          EOF
-
-          sudo tee "/etc/systemd/system/${UNIT}.timer" > /dev/null <<EOF
-          [Unit]
-          Description=Run ${UNIT} daily at midnight
-
-          [Timer]
-          OnCalendar=*-*-* 00:00:00
-          Persistent=true
-
-          [Install]
-          WantedBy=timers.target
-          EOF
-
-          sudo systemctl daemon-reload
-          sudo systemctl enable "${UNIT}.timer"
-          # enable --now is a no-op if the timer is already active, so a changed
-          # OnCalendar/Persistent value wouldn't take effect until next reboot.
-          # restart always reloads the current unit definition.
-          sudo systemctl restart "${UNIT}.timer"
-
   sync-to-strapi:
     needs: [detect-changes, rebuild-strapi]
     # always() is required: if rebuild-strapi is skipped (no cms/ changes), GitHub would otherwise
     # skip this job before evaluating `if`, even when content/navigation changed.
-    # Sync no longer runs automatically on push — it runs on a daily cron on the Strapi VM instead
-    # (see ensure-sync-schedule below), so a resync doesn't invalidate an editor's open admin session
-    # on every commit. workflow_dispatch remains available for an on-demand sync.
+    # Sync no longer runs automatically on push — it runs on a daily GitHub Actions schedule instead
+    # (see scheduled-content-sync.yml), so a resync doesn't invalidate an editor's open admin session
+    # on every commit. workflow_dispatch remains available here for an on-demand sync.
     if: |
       always() &&
       needs.detect-changes.result == 'success' &&
@@ -407,7 +350,6 @@ jobs:
       [
         detect-changes,
         rebuild-strapi,
-        ensure-sync-schedule,
         sync-to-strapi
       ]
     if: ${{ always() && failure() }}
