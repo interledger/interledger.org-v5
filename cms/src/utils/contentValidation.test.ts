@@ -617,6 +617,68 @@ describe('validateGrantPageFaqSection', () => {
     })
     expect(err).toBeUndefined()
   })
+
+  describe('ctaText/ctaLink pairing', () => {
+    const validFaqSection = {
+      title: 't',
+      description: 'd',
+      items: [
+        { question: 'q1', answer: 'a1' },
+        { question: 'q2', answer: 'a2' }
+      ]
+    }
+
+    it('flags a text-only cta on the link field', () => {
+      const err = validateGrantPageFaqSection({
+        faqSection: { ...validFaqSection, ctaText: 'Contact us' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['faqSection', 'ctaLink']
+      ])
+    })
+
+    it('flags a link-only cta on the text field', () => {
+      const err = validateGrantPageFaqSection({
+        faqSection: { ...validFaqSection, ctaLink: '/contact' }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['faqSection', 'ctaText']
+      ])
+    })
+
+    it('treats a whitespace-only half as empty, so it flags the gap', () => {
+      const err = validateGrantPageFaqSection({
+        faqSection: {
+          ...validFaqSection,
+          ctaText: 'Contact us',
+          ctaLink: '   '
+        }
+      })
+      expect(err?.details.errors.map((e) => e.path)).toEqual([
+        ['faqSection', 'ctaLink']
+      ])
+    })
+
+    it('treats two whitespace-only halves as no cta at all', () => {
+      expect(
+        validateGrantPageFaqSection({
+          faqSection: { ...validFaqSection, ctaText: '  ', ctaLink: '  ' }
+        })
+      ).toBeUndefined()
+    })
+
+    it('returns undefined when both ctaText and ctaLink are set', () => {
+      expect(
+        validateGrantPageFaqSection({
+          faqSection: {
+            ...validFaqSection,
+            ctaText: 'Contact us',
+            ctaLink: '/contact'
+          }
+        })
+      ).toBeUndefined()
+    })
+  })
 })
 
 describe('validateFaqSections', () => {

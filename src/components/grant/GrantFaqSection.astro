@@ -21,6 +21,14 @@ interface Props {
 const { title, subtitle, description, ctaText, ctaLink, items } = Astro.props
 const { routeLocale } = Astro.locals
 
+// Whitespace-only values are treated as absent, matching
+// validateGrantPageFaqSection and generateGrantPageMDX — otherwise a " "
+// subtitle renders a blank heading, and a lone trimmed-empty cta half
+// renders a broken button.
+const trimmedSubtitle = subtitle?.trim() || undefined
+const trimmedCtaText = ctaText?.trim() || undefined
+const trimmedCtaLink = ctaLink?.trim() || undefined
+
 const renderedItems = await Promise.all(
   items.map(async (item) => ({
     question: item.question,
@@ -48,9 +56,9 @@ const renderedItems = await Promise.all(
 
       <div class="mt-5xl hidden desktop:block desktop:pt-0">
         {
-          subtitle && (
+          trimmedSubtitle && (
             <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
-              {subtitle}
+              {trimmedSubtitle}
             </h3>
           )
         }
@@ -60,14 +68,14 @@ const renderedItems = await Promise.all(
           {description}
         </p>
         {
-          ctaText && ctaLink && (
+          trimmedCtaText && trimmedCtaLink && (
             <div class="mt-2xl">
               <LinkButton
-                href={ctaLink}
+                href={trimmedCtaLink}
                 variant="secondary"
-                external={isExternalHref(ctaLink)}
+                external={isExternalHref(trimmedCtaLink)}
               >
-                {ctaText}
+                {trimmedCtaText}
               </LinkButton>
             </div>
           )
@@ -105,9 +113,9 @@ const renderedItems = await Promise.all(
     <!-- Bottom CTA for mobile -->
     <div class="desktop:hidden">
       {
-        subtitle && (
+        trimmedSubtitle && (
           <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
-            {subtitle}
+            {trimmedSubtitle}
           </h3>
         )
       }
@@ -117,15 +125,15 @@ const renderedItems = await Promise.all(
         {description}
       </p>
       {
-        ctaText && ctaLink && (
+        trimmedCtaText && trimmedCtaLink && (
           <div class="mt-2xl">
             <LinkButton
-              href={ctaLink}
+              href={trimmedCtaLink}
               variant="secondary"
-              external={isExternalHref(ctaLink)}
+              external={isExternalHref(trimmedCtaLink)}
               class="w-full mx-auto"
             >
-              {ctaText}
+              {trimmedCtaText}
             </LinkButton>
           </div>
         )

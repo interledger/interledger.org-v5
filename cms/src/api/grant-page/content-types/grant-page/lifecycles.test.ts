@@ -97,4 +97,97 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.faqSection.ctaText).toBeUndefined()
     expect(parsed.data.faqSection.ctaLink).toBeUndefined()
   })
+
+  const baseFaqSection = {
+    title: 'Common Questions',
+    description: 'We are happy to help.',
+    items: [
+      { question: 'Who can apply?', answer: 'Any accredited institution.' },
+      { question: 'How much funding?', answer: 'Up to $50,000.' }
+    ]
+  }
+
+  it('trims a whitespace-only subtitle down to absent, rather than writing blank text', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        faqSection: { ...baseFaqSection, subtitle: '   ' }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.faqSection.subtitle).toBeUndefined()
+  })
+
+  it('trims a valid subtitle', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        faqSection: { ...baseFaqSection, subtitle: '  Get in touch  ' }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.faqSection.subtitle).toBe('Get in touch')
+  })
+
+  it('omits a text-only cta half rather than exporting a dead button', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        faqSection: { ...baseFaqSection, ctaText: 'Contact us' }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.faqSection.ctaText).toBeUndefined()
+    expect(parsed.data.faqSection.ctaLink).toBeUndefined()
+  })
+
+  it('writes both cta halves, trimmed, when both are present', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        faqSection: {
+          ...baseFaqSection,
+          ctaText: '  Contact us  ',
+          ctaLink: '  mailto:grants@interledger.foundation  '
+        }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.faqSection.ctaText).toBe('Contact us')
+    expect(parsed.data.faqSection.ctaLink).toBe(
+      'mailto:grants@interledger.foundation'
+    )
+  })
 })

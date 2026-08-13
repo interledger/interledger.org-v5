@@ -227,3 +227,74 @@ describe('grantPageFrontmatterSchema, the ctaStrip secondary pair', () => {
     expect(result.success).toBe(true)
   })
 })
+
+describe('grantPageFrontmatterSchema, the faqSection cta pair', () => {
+  const grantPageBase = {
+    title: 'A grant',
+    pathSlug: 'a-grant',
+    description: 'A short description',
+    ctaStrip: {
+      buttonText: 'Apply now',
+      buttonLink: '/apply'
+    }
+  }
+
+  // Same all-or-nothing rule as the ctaStrip secondary CTA above: the
+  // renderer only shows the FAQ section's button when both ctaText and
+  // ctaLink are present.
+  const withFaqSection = (faqSection: Record<string, unknown>) => ({
+    ...grantPageBase,
+    faqSection: {
+      title: 'FAQs',
+      description: 'Common questions',
+      items: [
+        { question: 'Q1', answer: 'A1' },
+        { question: 'Q2', answer: 'A2' }
+      ],
+      ...faqSection
+    }
+  })
+
+  it('accepts a faqSection with no cta', () => {
+    expect(
+      grantPageFrontmatterSchema.safeParse(withFaqSection({})).success
+    ).toBe(true)
+  })
+
+  it('accepts both halves', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withFaqSection({ ctaText: 'Contact us', ctaLink: '/contact' })
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a text-only cta, pointing at the link', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withFaqSection({ ctaText: 'Contact us' })
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.path).toEqual(['faqSection', 'ctaLink'])
+  })
+
+  it('rejects a link-only cta, pointing at the text', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withFaqSection({ ctaLink: '/contact' })
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.path).toEqual(['faqSection', 'ctaText'])
+  })
+
+  it('treats a whitespace-only half as empty, so it rejects the gap', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withFaqSection({ ctaText: 'Contact us', ctaLink: '  ' })
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('treats two whitespace-only halves as no cta at all', () => {
+    const result = grantPageFrontmatterSchema.safeParse(
+      withFaqSection({ ctaText: '  ', ctaLink: '  ' })
+    )
+    expect(result.success).toBe(true)
+  })
+})

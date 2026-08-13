@@ -138,9 +138,19 @@ export function generateGrantPageMDX(
           faqSection: {
             title: faqSection.title ?? '',
             description: faqSection.description ?? '',
-            ...(faqSection.subtitle ? { subtitle: faqSection.subtitle } : {}),
-            ...(faqSection.ctaText ? { ctaText: faqSection.ctaText } : {}),
-            ...(faqSection.ctaLink ? { ctaLink: faqSection.ctaLink } : {}),
+            ...(faqSection.subtitle?.trim()
+              ? { subtitle: faqSection.subtitle.trim() }
+              : {}),
+            // Both halves or neither, matching the serializer and renderer.
+            // Compare and write the trimmed values: `validateGrantPageFaqSection`
+            // and the renderer both treat whitespace as empty, so a truthiness
+            // test would export `"   "` into MDX and then drop it on render.
+            ...(faqSection.ctaText?.trim() && faqSection.ctaLink?.trim()
+              ? {
+                  ctaText: faqSection.ctaText.trim(),
+                  ctaLink: faqSection.ctaLink.trim()
+                }
+              : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
               answer: i.answer ?? ''
