@@ -64,6 +64,27 @@
       margin-block-end: var(--spacing-2xl);
     }
 
+    /* A CTA belongs to the paragraph above it, so that pair sits tighter than
+       two independent blocks: 24px, and 32px from `desktop` (Radu,
+       2026-08-12). The paragraph gives up its own bottom margin and the CTA
+       block's top margin decides the gap.
+
+       This is load-bearing, not tidying. Adjacent margins collapse to the
+       larger of the pair, and the 32px above wins over the block's 24px, so
+       without this rule the tablet and mobile gap silently reads 32px. Desktop
+       looks right either way, because 32px is also the value it wants.
+
+       The list matches the elements given a bottom margin above, so a CTA
+       hugs a heading or a list as closely as it hugs a paragraph.
+
+       `[data-component]` is the block's own marker attribute, set in
+       `CtaButtons.astro`. Keep the two in step. */
+    :is(p, h2, h3, h4, h5, h6, ul, ol):has(
+        + [data-component='CtaButtons']
+      ) {
+      margin-block-end: 0;
+    }
+
     /* Lists: outside position keeps the marker in the margin box, so a list
        item whose content starts with a block element (e.g. a `<p>` from a
        "loose" markdown list) still renders its marker on the same line as

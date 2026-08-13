@@ -9,12 +9,17 @@
  *
  * Layout: stacked and full width below `tablet`, inline above it.
  *
- * Spacing: a top margin only, 24px up to `desktop` and 32px from there
- * (Radu, 2026-08-10). Nothing below, so whatever follows supplies its own
- * space. The block owns this on both render paths, so `DynamicZone` lists it
- * in `OWNS_ITS_SPACING` and does not add the standard between-block gap. An
- * earlier note here said the block carried no margin at all; that was the
- * open question Radu has now answered.
+ * Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so the
+ * gap above is tight, 24px up to `desktop` and 32px from there. The block that
+ * follows is independent and takes the standard 120px.
+ *
+ * The block sits in the prose flow, where a paragraph carries a 32px bottom
+ * margin. Adjacent margins collapse to the larger of the pair, so that 32px
+ * would win over the 24px above and the tablet and mobile gap would read
+ * 32px. Desktop would look right either way, because 32px is also the value it
+ * wants. `prose/default.css` zeroes that paragraph by matching the
+ * `data-component` attribute below, so treat the attribute as load-bearing,
+ * not only a test hook.
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
@@ -63,7 +68,7 @@ const resolved = buttons
   resolved.length > 0 && (
     <div
       data-component="CtaButtons"
-      class="mt-xl desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
+      class="mt-xl mb-6xl desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
     >
       {resolved.map((button) => (
         <LinkButton
