@@ -20,6 +20,9 @@ export {
   mediaSizeLimitError
 } from './uploadLimits'
 
+// Disk → Media Library seeding (bootstrap + sync:images)
+export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'
+
 // Upload validation
 export {
   isLocalImagePath,

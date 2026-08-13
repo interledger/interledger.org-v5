@@ -7,11 +7,8 @@ const LOGO_URL = '/img/partner-logos/covenant.avif'
 const LOGO_UPLOAD_ID = 42
 
 /**
- * LogoCarousel keeps each logo's name on the upload's `alternativeText`, so a
- * content type that allows `blocks.carousel` has to hand the parser an
- * `updateMediaAlt` callback. Content types are the only place that wiring
- * happens, and a missing callback fails silently (the handler's call is
- * optional), so assert it per content type.
+ * LogoCarousel stores each logo as a carousel-logo component (image id + alt).
+ * Assert the payload shape for page types that allow blocks.carousel.
  */
 const CAROUSEL_PAGE_TYPES: (keyof ContentTypes)[] = [
   'foundation-pages',
@@ -43,9 +40,9 @@ beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
 })
 
-describe('buildContentTypes carousel alt text wiring', () => {
+describe('buildContentTypes carousel logo payload', () => {
   it.each(CAROUSEL_PAGE_TYPES)(
-    'stores logo names as upload alt text for %s',
+    'stores logos as image + alternativeText components for %s',
     async (contentType) => {
       const strapi = stubStrapi()
       const contentTypes = buildContentTypes(
@@ -66,17 +63,14 @@ describe('buildContentTypes carousel alt text wiring', () => {
         {
           __component: 'blocks.carousel',
           accessibilityLabel: 'Partner logos',
-          logos: [LOGO_UPLOAD_ID]
+          logos: [{ image: LOGO_UPLOAD_ID, alternativeText: 'Covenant' }]
         }
       ])
-      expect(strapi.updateUploadAlt).toHaveBeenCalledWith(
-        LOGO_UPLOAD_ID,
-        'Covenant'
-      )
+      expect(strapi.updateUploadAlt).not.toHaveBeenCalled()
     }
   )
 
-  it('patches a shared logo upload once across the three page types', async () => {
+  it('does not patch Media Library alt when building carousels across page types', async () => {
     const strapi = stubStrapi()
     const contentTypes = buildContentTypes(
       '/nonexistent-project-root',
@@ -93,6 +87,6 @@ describe('buildContentTypes carousel alt text wiring', () => {
       )
     }
 
-    expect(strapi.updateUploadAlt).toHaveBeenCalledTimes(1)
+    expect(strapi.updateUploadAlt).not.toHaveBeenCalled()
   })
 })

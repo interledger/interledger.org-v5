@@ -57,15 +57,14 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      # Content-addressed, so an unchanged image set is an exact key hit and the
-      # post-job save is skipped entirely. The previous key used github.run_id,
-      # which can never match, so every run restored via the prefix fallback and
-      # then wrote another ~148 MB entry — filling the 10 GB repo cache and
-      # evicting the very entries it depended on.
-      - name: Cache optimized images
-        uses: ./.github/actions/cache-optimized-images
-
+      # IMAGE_CDN=on makes this build match what Netlify ships: images are
+      # transformed on demand at /.netlify/images rather than pre-generated, so
+      # the ~17 min encode (previously ~88% of this job) is skipped along with
+      # the image cache it needed. Nothing here fetches the images, so the fact
+      # that the endpoint only exists on Netlify does not matter.
       - name: Build
+        env:
+          IMAGE_CDN: 'on'
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
