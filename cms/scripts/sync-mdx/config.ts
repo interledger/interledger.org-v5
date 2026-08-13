@@ -346,12 +346,13 @@ export function buildContentTypes(
   }
 
   // profile-pages is the only relation target other content types reference
-  // (ProfileCard/ProfileGrid — see profileHandler.ts). Snapshotting its
-  // pathSlugs from source lets createRelationResolver's dry-run fallback
-  // tell "would be created by this same run" apart from a genuinely broken
-  // reference, since dry-run never persists anything for a live lookup to find.
+  // (ProfileCard/ProfileGrid — see profileHandler.ts). Snapshot locale:pathSlug
+  // keys so dry-run only treats a relation as "would be created by this same run"
+  // when MDX exists for that locale (not when EN has the slug and ES does not).
   const profilePathSlugs = new Set(
-    scanMDXFiles('profiles', contentTypes).map((f) => f.pathSlug)
+    scanMDXFiles('profiles', contentTypes).map(
+      (f) => `${f.locale || 'en'}:${f.pathSlug}`
+    )
   )
 
   return contentTypes

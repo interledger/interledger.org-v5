@@ -9,28 +9,32 @@ const enCtx: ParserContext = { locale: 'en' }
 const esCtx: ParserContext = { locale: 'es' }
 
 describe('CtaStrip round-trip (serialize → parse)', () => {
-  it('round-trips a full strip (en) and drops legacy secondary/color fields', async () => {
+  it('round-trips a full strip with both CTAs (en)', async () => {
     const original = {
       heading: 'Apply now',
       description: 'This is a reminder text.',
       primaryButtonText: 'Stay in touch',
       primaryButtonLink: '/contact',
       secondaryButtonText: 'Get involved',
-      secondaryButtonLink: '/get-involved',
-      color: 'green' as const
+      secondaryButtonLink: '/get-involved'
     }
 
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.cta-strip',
-        heading: original.heading,
-        description: original.description,
-        primaryButtonText: original.primaryButtonText,
-        primaryButtonLink: original.primaryButtonLink
-      }
-    ])
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+  })
+
+  it('round-trips a strip whose secondary CTA is absent', async () => {
+    const original = {
+      heading: 'Apply now',
+      description: 'This is a reminder text.',
+      primaryButtonText: 'Stay in touch',
+      primaryButtonLink: '/contact'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
   })
 
   it('round-trips a full strip (es)', async () => {
@@ -79,6 +83,20 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
       description: 'Body.',
       primaryButtonText: 'Read "more"',
       primaryButtonLink: '/a?x=1&y=2'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+  })
+
+  it('round-trips a description containing a link and a mailto link', async () => {
+    const original = {
+      heading: 'Before applying',
+      description:
+        'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
+      primaryButtonText: 'Apply now',
+      primaryButtonLink: '/grants/apply'
     }
 
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)

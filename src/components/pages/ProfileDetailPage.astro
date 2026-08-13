@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -16,7 +17,6 @@ import {
   getProfileColorIndex,
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
-  getOptimizedImage,
   getSectionPageLayout
 } from '@/utils'
 
@@ -51,16 +51,6 @@ const colorIndex = await getProfileColorIndex(
 const heroColorClass = getProfileHeroColorClass(colorIndex)
 const avatarColorClass = getProfileAvatarColorClass(colorIndex)
 
-const avatarSrc = photo
-  ? (() => {
-      const { avifFullSrc, fullSrc } = getOptimizedImage(photo)
-      return avifFullSrc ?? fullSrc ?? photo
-    })()
-  : null
-const avatarPreloadType = avatarSrc?.endsWith('.avif')
-  ? 'image/avif'
-  : undefined
-
 const avatarSizeClass =
   'h-[160px] w-[160px] tablet:h-[220px] tablet:w-[220px] desktop:h-[240px] desktop:w-[240px]'
 
@@ -76,17 +66,6 @@ const Layout = getSectionPageLayout(entry.data.section)
 ---
 
 <Layout title={title} description={description ?? displayRole ?? name}>
-  {
-    avatarSrc && (
-      <link
-        slot="head"
-        rel="preload"
-        as="image"
-        href={avatarSrc}
-        {...(avatarPreloadType ? { type: avatarPreloadType } : {})}
-      />
-    )
-  }
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <header
@@ -101,15 +80,14 @@ const Layout = getSectionPageLayout(entry.data.section)
         class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
       >
         {
-          avatarSrc ? (
-            <img
-              src={avatarSrc}
+          photo ? (
+            <OptimizedImage
+              src={photo}
               alt={photoAlt ?? name}
               width={240}
               height={240}
               loading="eager"
               fetchpriority="high"
-              decoding="sync"
               class="absolute inset-0 h-full w-full scale-[0.94] object-cover object-[center_18%] translate-y-[4%]"
             />
           ) : (

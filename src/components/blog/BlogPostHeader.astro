@@ -8,6 +8,7 @@ import {
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import ArticleCategories from '@/components/blog/ArticleCategories.astro'
 import ArticleByline from '@/components/blog/ArticleByline.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 interface Props {
   frontmatter: FoundationBlogFrontmatterType
@@ -81,11 +82,11 @@ const blogPath = translatePath(
     frontmatter.featureImage && (
       <div class="mb-3xl tablet:mb-4xl desktop:mb-5xl">
         {
-          // Separate imgs (not <picture>) so mobile can carry its own alt when
-          // the crop/content differs from desktop. <source> cannot have alt.
+          // Separate OptimizedImages (not one <picture>) so mobile can carry
+          // its own alt when the crop/content differs from desktop.
           frontmatter.featureImageMobile ? (
             <>
-              <img
+              <OptimizedImage
                 src={frontmatter.featureImageMobile}
                 alt={
                   frontmatter.featureImageMobileAlt ??
@@ -96,29 +97,28 @@ const blogPath = translatePath(
                 height={FEATURE_MOBILE.height}
                 loading="eager"
                 fetchpriority="high"
-                decoding="async"
-                class="w-full h-auto rounded-3xl tablet:hidden"
+                class="w-full h-auto rounded-3xl"
+                pictureClass="tablet:hidden"
               />
-              <img
+              <OptimizedImage
                 src={frontmatter.featureImage}
                 alt={frontmatter.featureImageAlt ?? ''}
                 width={FEATURE_DESKTOP.width}
                 height={FEATURE_DESKTOP.height}
                 loading="eager"
                 fetchpriority="high"
-                decoding="async"
-                class="hidden w-full h-auto rounded-3xl tablet:block"
+                class="w-full h-auto rounded-3xl"
+                pictureClass="hidden tablet:block"
               />
             </>
           ) : (
-            <img
+            <OptimizedImage
               src={frontmatter.featureImage}
               alt={frontmatter.featureImageAlt ?? ''}
               width={FEATURE_DESKTOP.width}
               height={FEATURE_DESKTOP.height}
               loading="eager"
               fetchpriority="high"
-              decoding="async"
               class="w-full h-auto rounded-3xl"
             />
           )

@@ -25,7 +25,6 @@ export interface PodcastPageCtaStrip {
   primaryButtonLink?: string
   secondaryButtonText?: string
   secondaryButtonLink?: string
-  color?: 'purple' | 'green'
 }
 
 export interface PodcastPageTitleCard {
@@ -77,17 +76,21 @@ function titleCardsFrontmatter(grid: PodcastPageTitleCardGrid) {
 }
 
 function ctaStripFrontmatter(ctaStrip: PodcastPageCtaStrip) {
+  // Both halves or neither, trimmed, matching the import side and the renderer.
+  // Writing half a pair would produce frontmatter the schema now rejects.
+  const secondaryText = ctaStrip.secondaryButtonText?.trim()
+  const secondaryLink = ctaStrip.secondaryButtonLink?.trim()
+
   return {
     heading: ctaStrip.heading ?? '',
     description: ctaStrip.description ?? '',
     buttonText: ctaStrip.primaryButtonText ?? '',
     buttonLink: ctaStrip.primaryButtonLink ?? '',
-    color: ctaStrip.color ?? 'purple',
-    ...(ctaStrip.secondaryButtonText
-      ? { secondaryButtonText: ctaStrip.secondaryButtonText }
-      : {}),
-    ...(ctaStrip.secondaryButtonLink
-      ? { secondaryButtonLink: ctaStrip.secondaryButtonLink }
+    ...(secondaryText && secondaryLink
+      ? {
+          secondaryButtonText: secondaryText,
+          secondaryButtonLink: secondaryLink
+        }
       : {})
   }
 }

@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Logo Carousel",
     "icon": "images",
-    "description": "Carousel/slider for testimonials or featured content"
+    "description": "Partner logo carousel (image + per-logo alt). After changing the logos field shape, rehydrate existing rows with sync:mdx via workflow_dispatch — a normal cms rebuild does not re-sync content."
   },
   "options": {},
   "attributes": {
@@ -25,10 +25,16 @@
       }
     },
     "logos": {
-      "type": "media",
-      "multiple": true,
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.carousel-logo",
       "required": true,
-      "allowedTypes": ["images"]
+      "min": 1,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

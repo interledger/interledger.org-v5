@@ -307,7 +307,7 @@ export interface BlocksCardsGrid extends Struct.ComponentSchema {
 export interface BlocksCarousel extends Struct.ComponentSchema {
   collectionName: 'components_blocks_carousels'
   info: {
-    description: 'Carousel/slider for testimonials or featured content'
+    description: 'Partner logo carousel (image + per-logo alt). After changing the logos field shape, rehydrate existing rows with sync:mdx via workflow_dispatch \u2014 a normal cms rebuild does not re-sync content.'
     displayName: 'Logo Carousel'
     icon: 'images'
   }
@@ -325,7 +325,37 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    logos: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required
+    logos: Schema.Attribute.Component<'blocks.carousel-logo', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
+export interface BlocksCarouselLogo extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_carousel_logos'
+  info: {
+    description: 'Single logo for the Logo Carousel: image plus alternative text'
+    displayName: 'Carousel Logo'
+    icon: 'picture'
+  }
+  attributes: {
+    alternativeText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required
   }
 }
 
@@ -410,12 +440,18 @@ export interface BlocksCtaButtons extends Struct.ComponentSchema {
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
-    description: 'Purple call-to-action strip with an optional heading, optional description, and a required primary CTA'
+    description: 'Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA'
     displayName: 'CTA Strip'
     icon: 'cursor'
   }
   attributes: {
-    description: Schema.Attribute.Text &
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -436,6 +472,18 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
       }>
     primaryButtonText: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    secondaryButtonText: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1725,6 +1773,7 @@ declare module '@strapi/strapi' {
       'blocks.card-links-grid': BlocksCardLinksGrid
       'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
+      'blocks.carousel-logo': BlocksCarouselLogo
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-buttons': BlocksCtaButtons
       'blocks.cta-strip': BlocksCtaStrip

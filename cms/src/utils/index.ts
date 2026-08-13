@@ -20,6 +20,9 @@ export {
   mediaSizeLimitError
 } from './uploadLimits'
 
+// Disk → Media Library seeding (bootstrap + sync:images)
+export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'
+
 // Upload validation
 export {
   isLocalImagePath,
@@ -150,7 +153,13 @@ export {
   createPageLifecycle,
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
-export { createBlogLifecycle, generateBlogMDX } from './blogLifecycle'
+export {
+  createBlogLifecycle,
+  generateBlogMDX,
+  resolveBlogEnglishSlug,
+  resolveBlogMdxFilename,
+  stampBlogLocale
+} from './blogLifecycle'
 export {
   type ProfileMdxCta,
   type ProfileMdxInput,

@@ -39,23 +39,28 @@ const blogPath = translatePath(
 
 const cardClasses = twMerge(
   'flex flex-col-reverse gap-xl m-0 desktop:flex-1',
+  // Stack full-width image on mobile/tablet (same as featured); side-by-side from desktop.
   !featured &&
-    'pb-2xl border-b border-neutral-25 tablet:flex-row tablet:justify-between desktop:gap-3xl'
+    'pb-2xl border-b border-neutral-25 desktop:flex-row desktop:justify-between desktop:gap-3xl'
 )
 const cardHeaderClasses = twMerge(
   'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
 )
-const cardImageClasses = twMerge(
-  'object-cover rounded-3xl',
-  featured
-    ? 'w-full max-h-[220px] aspect-2/1'
-    : 'aspect-240/140 max-w-[220px] tablet:max-w-full'
+// Full-width image below desktop, side-by-side ~30% column from desktop.
+// A single max-h-[220px] crops banners at any width above ~377px (aspect-240/140),
+// so mobile/tablet use a higher cap. Desktop returns to 220px in the narrow column.
+const cardImageClasses =
+  'object-cover rounded-3xl w-full aspect-240/140 max-h-[220px] tablet:max-h-[400px] desktop:max-h-[220px]'
+const cardBodyClasses = twMerge(
+  'flex w-full flex-col gap-lg',
+  !featured && 'desktop:basis-[70%]'
 )
+const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
 ---
 
 <li class={cardClasses}>
-  <div class="flex flex-col gap-lg tablet:basis-[70%]">
+  <div class={cardBodyClasses}>
     <h3 class="m-0">
       <a
         href={postPath}
@@ -83,7 +88,7 @@ const cardImageClasses = twMerge(
       bylineClasses={featured ? 'flex-row' : ''}
     />
   </div>
-  <div class="tablet:basis-[30%]">
+  <div class={cardMediaClasses}>
     {
       thumbnail && (
         <OptimizedImage

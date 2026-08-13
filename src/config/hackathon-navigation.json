@@ -6,6 +6,23 @@
         {
           "label": "Overview",
           "href": "/hackathon/overview"
+        },
+        {
+          "label": "FAQ",
+          "href": "/hackathon/faqs"
+        }
+      ]
+    },
+    {
+      "label": "Resources",
+      "items": [
+        {
+          "label": "Participation requirements",
+          "href": "/hackathon/participation"
+        },
+        {
+          "label": "Code of conduct",
+          "href": "/hackathon/code-conduct"
         }
       ]
     }

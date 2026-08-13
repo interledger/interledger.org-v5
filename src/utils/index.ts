@@ -154,11 +154,23 @@ export {
   getOptimizedImage,
   buildImageSrcset,
   hasOptimizedVariants,
+  isOptimizableSource,
+  encodeImageUrlPath,
+  hasOptimizableRasterExtension,
+  withIntrinsicWidthRung,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,
   type OptimizedImage
 } from './main/images'
+export {
+  NETLIFY_IMAGE_ENDPOINT,
+  buildImageCdnUrl,
+  buildImageCdnVariants,
+  imageCdnEnabled,
+  isImageCdnEnabled,
+  type ImageCdnFormat
+} from './main/imageCdn'
 
 // Main site: Profiles
 export {

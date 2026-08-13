@@ -37,6 +37,10 @@ public/img/optimized/
 # without prebuild; optimize:images writes the real catalog here for bundling.
 src/generated/optimized-image-manifest.json
 
+# Build-time deployed-image-sources catalog (CDN mode). Committed stub keeps
+# imports resolvable; optimize:images writes the real catalog here for bundling.
+src/generated/deployed-image-sources-catalog.json
+
 .codex
 
 # Figma token exports. Kept locally, not committed. theme.css is the in-repo
