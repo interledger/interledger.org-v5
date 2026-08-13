@@ -77,6 +77,7 @@ export {
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateReportDate,
+  validateReportContent,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -128,6 +129,13 @@ export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+
+// Report text types (serializers, sync handlers)
+export {
+  REPORT_TEXT_TYPES,
+  isReportTextType,
+  type ReportTextType
+} from './reportText'
 
 // Block serialization (dynamic-zone content -> MDX)
 export { serializeContent, validateContentBlocks } from '../serializers/blocks'

@@ -7,6 +7,7 @@ import {
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   validateReportDate,
+  validateReportContent,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -874,7 +875,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
       date: 'Date',
-      content: 'Content'
+      content: 'Report Sections'
     },
     'api::podcast-page.podcast-page': {
       title: 'Page Title',
@@ -1084,6 +1085,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.report-date': {
       publishDate: 'Publish Date',
       lastUpdated: 'Last Updated'
+    },
+    'blocks.report-section': {
+      heading: 'Section Heading',
+      reportText: 'Content Blocks'
+    },
+    'blocks.report-text': {
+      textType: 'Block Type',
+      textContent: 'Paragraph Content',
+      textDisclaimer: 'Disclaimer Text'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -1920,6 +1930,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
     ],
+    'blocks.report-section': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'reportText', size: 12 }]
+    ],
+    'blocks.report-text': [
+      [{ name: 'textType', size: 6 }],
+      [{ name: 'textContent', size: 12 }],
+      [{ name: 'textDisclaimer', size: 12 }]
+    ],
     'shared.secondary-cta-link': [
       [
         { name: 'text', size: 6 },
@@ -1933,6 +1952,7 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
   const componentMainFields: Record<string, string> = {
     'blocks.agenda-item': 'time',
+    'blocks.report-text': 'textType',
     // Collapsed repeatable rows show the button label rather than a generic
     // "CTA Button", so an editor can see both buttons without expanding them.
     'shared.cta-button': 'text'
@@ -2153,10 +2173,18 @@ export default {
       'api::podcast-page.podcast-page',
       (body) => validatePodcastPageFields(body)
     )
+    registerDocumentValidation(strapi, 'api::report.report', (body) =>
+      mergeValidationErrors(
+        validateReportDate(body),
+        validateReportContent(body),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+      )
+    )
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB
-    const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
         if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
@@ -2165,13 +2193,6 @@ export default {
           )
           const validationErr = validateNavigationLabels(
             ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
-          )
-          if (validationErr) throw validationErr
-        }
-
-        if (ctx.uid === REPORT_UID && ctx.params.data) {
-          const validationErr = validateReportDate(
-            ctx.params.data as Parameters<typeof validateReportDate>[0]
           )
           if (validationErr) throw validationErr
         }

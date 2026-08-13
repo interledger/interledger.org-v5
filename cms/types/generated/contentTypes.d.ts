@@ -1345,12 +1345,19 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+    content: Schema.Attribute.DynamicZone<['blocks.report-section']> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
-      }>
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private

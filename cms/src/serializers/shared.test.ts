@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { escDouble, escSingle, escMdxBraces } from './shared'
+import { escDouble, escSingle, escMdxBraces, unescapeMdxBraces } from './shared'
 
 describe('escDouble', () => {
   it('encodes characters that break double-quoted JSX attributes', () => {
@@ -38,5 +38,24 @@ describe('escSingle', () => {
 describe('escMdxBraces', () => {
   it('escapes curly braces for MDX body text', () => {
     expect(escMdxBraces(' use {tokens} ')).toBe('use \\{tokens\\}')
+  })
+})
+
+describe('unescapeMdxBraces', () => {
+  it('reverses escMdxBraces', () => {
+    const escaped = escMdxBraces('use {tokens} wisely')
+    expect(unescapeMdxBraces(escaped)).toBe('use {tokens} wisely')
+  })
+
+  it('only strips one backslash layer, so it undoes exactly one escMdxBraces pass', () => {
+    expect(unescapeMdxBraces('use \\\\{tokens\\\\} wisely')).toBe(
+      'use \\{tokens\\} wisely'
+    )
+  })
+
+  it('leaves text without brace escapes untouched', () => {
+    expect(unescapeMdxBraces('See the [grant overview](/grant).')).toBe(
+      'See the [grant overview](/grant).'
+    )
   })
 })

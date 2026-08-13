@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_blocks_report_sections",
+  "info": {
+    "displayName": "Report Section",
+    "icon": "book"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "reportText": {
+      "type": "component",
+      "component": "blocks.report-text",
+      "repeatable": true,
+      "required": true
+    }
+  },
+  "config": {}
+}
