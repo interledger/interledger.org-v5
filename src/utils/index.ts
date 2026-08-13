@@ -204,6 +204,8 @@ export {
   encodeImageUrlPath,
   hasOptimizableRasterExtension,
   sanitizeBlurPlaceholder,
+  withIntrinsicWidthRung,
+  AVATAR_CDN_WIDTHS,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,

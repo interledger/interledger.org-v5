@@ -25,8 +25,9 @@
  *
  * Findings come in two severities, and the split is the point of this audit:
  *
- * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw `/img/**` or
- *   `/uploads/**` raster reached the page without going through
+ * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw raster from a
+ *   policed source tree (see `isOptimizableRasterPath`) reached the page
+ *   without going through
  *   `OptimizedImage`/`getOptimizedImage` at all. That is a code defect, it is
  *   deterministic from the repo tree, and whoever wrote the component can fix
  *   it — so it fails the build.
@@ -47,7 +48,10 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isImageCdnEnabled } from '../utils/main/imageCdn'
-import { hasOptimizableRasterExtension } from '../utils/main/imagePaths'
+import {
+  IMAGE_URL_PATHS,
+  hasOptimizableRasterExtension
+} from '../utils/main/imagePaths'
 
 const CDN_MARKER = '/.netlify/images'
 const IMG_TAG_RE = /<img\b[^>]*>/gi
@@ -102,9 +106,25 @@ function hasAttr(tag: string, name: string): boolean {
   return new RegExp(`\\s${name}(\\s|=|>|/)`, 'i').test(tag)
 }
 
-/** A site-relative raster we expect to be optimized (not an SVG/GIF/external). */
+/**
+ * A site-relative raster we expect to be optimized (not an SVG/GIF/external).
+ *
+ * The Sessionize prefix comes from `IMAGE_URL_PATHS` rather than another string
+ * literal: this list, the resolver's and the encoder's each drifted apart once
+ * already, and that is precisely how ~240 speaker photos shipped raw past an
+ * audit whose whole job is to catch a raw raster. The `/img/` and `/uploads/`
+ * literals stay deliberately broader than their `IMAGE_URL_PATHS` equivalents
+ * (`/uploads/**` vs `/uploads/img/original/**`) so widening this does not
+ * quietly narrow what is already policed.
+ */
 export function isOptimizableRasterPath(src: string): boolean {
-  if (!src.startsWith('/img/') && !src.startsWith('/uploads/')) return false
+  if (
+    !src.startsWith('/img/') &&
+    !src.startsWith('/uploads/') &&
+    !src.startsWith(`${IMAGE_URL_PATHS.sessionizeSource}/`)
+  ) {
+    return false
+  }
   if (src.startsWith('/img/optimized/')) return false
   return hasOptimizableRasterExtension(src)
 }
