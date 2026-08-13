@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import hackathonEn from '@/config/hackathon-navigation.json'
 import type { Locale } from './locales'
 
 // `./navigation` -> `./locales` reaches into Astro's virtual modules for
@@ -19,8 +20,13 @@ const { getNavigation } = await import('./navigation')
 
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
-    const { mainMenu } = getNavigation('hackathon', 'en')
-    expect(mainMenu.map((group) => group.label)).toEqual(['Hackathon'])
+    // Compared against the config module rather than a hard-coded label list.
+    // These files are synced from Strapi, so an editor adding a nav group is
+    // expected content churn, not a regression — pinning the labels made this
+    // red when INTORG-1046 added a "Resources" group. The site → config
+    // mapping is what's under test, and that still fails loudly if
+    // `hackathon` ever resolves to the summit config.
+    expect(getNavigation('hackathon', 'en')).toEqual(hackathonEn)
   })
 
   it('returns the localized config for es', () => {
