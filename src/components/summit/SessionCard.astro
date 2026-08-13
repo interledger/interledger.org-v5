@@ -5,9 +5,11 @@ import {
   truncateText,
   type Locale,
   getTranslation,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  AVATAR_CDN_WIDTHS
 } from '@/utils'
 import SessionSubheader from './SessionSubheader.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 interface Props {
   talkPreview: TalkPreview
@@ -33,12 +35,14 @@ const attrs = buildUmamiAttrs({
 ---
 
 <li class="flex flex-col gap-2xl mb-6 md:flex-row">
-  <img
+  <OptimizedImage
     class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
     src={talkPreview.speakerImage}
-    alt={talkPreview.speakerName}
-    width="200"
-    height="200"
+    alt={talkPreview.speakerName ?? ''}
+    width={200}
+    height={200}
+    sizes="200px"
+    widths={AVATAR_CDN_WIDTHS}
     loading="lazy"
   />
   <div class="[&_p]:text-body-sm-standard">

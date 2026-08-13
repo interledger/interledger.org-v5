@@ -47,16 +47,33 @@ const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
 interface SourceConfig {
   dir: string
   outputPrefix: string
+  /**
+   * Whether an oversized file fails the build. On for the directories we
+   * control, where an oversized image is an editor mistake fixable at source.
+   * Off for Sessionize photos: speakers upload those to a third party and
+   * nobody here can re-cut them, so one large headshot must not be able to
+   * block a deploy. Oversize is still reported, just not fatally.
+   */
+  enforceSizeLimit: boolean
 }
 
+// Must stay in step with `OPTIMIZED_SOURCE_PREFIXES` in
+// `src/utils/main/images.ts`, which looks up what this array produces.
 const SOURCES: SourceConfig[] = [
   {
     dir: getPublicAssetPath(IMAGE_URL_PATHS.publicSource),
-    outputPrefix: ''
+    outputPrefix: '',
+    enforceSizeLimit: true
   },
   {
     dir: getPublicAssetPath(IMAGE_URL_PATHS.uploadSource),
-    outputPrefix: 'uploads'
+    outputPrefix: 'uploads',
+    enforceSizeLimit: true
+  },
+  {
+    dir: getPublicAssetPath(IMAGE_URL_PATHS.sessionizeSource),
+    outputPrefix: 'sessionize-speakers',
+    enforceSizeLimit: false
   }
 ]
 
@@ -246,7 +263,7 @@ async function main(): Promise<void> {
   }> = []
   const oversizedErrors: string[] = []
 
-  for (const { dir, outputPrefix } of SOURCES) {
+  for (const { dir, outputPrefix, enforceSizeLimit } of SOURCES) {
     if (!fs.existsSync(dir)) {
       console.log(`  skip ${path.relative(PROJECT_ROOT, dir)} (not found)`)
       continue
@@ -258,11 +275,13 @@ async function main(): Promise<void> {
 
     for (const file of files) {
       const { size } = fs.statSync(file)
-      if (isImageOverSizeLimit(size)) {
-        oversizedErrors.push(
-          imageSizeLimitError(path.relative(PROJECT_ROOT, file), size)
-        )
-      }
+      if (!isImageOverSizeLimit(size)) continue
+      const message = imageSizeLimitError(
+        path.relative(PROJECT_ROOT, file),
+        size
+      )
+      if (enforceSizeLimit) oversizedErrors.push(message)
+      else console.warn(`    ⚠️ ${message}`)
     }
 
     sourceBatches.push({ dir, outputPrefix, files })

@@ -10,6 +10,19 @@ export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
 
 /**
+ * Width ladder for speaker avatars. Every rung is a separately billed transform
+ * and a separate edge-cache entry, and Netlify clamps rather than upscales — so
+ * for a source narrower than a rung, that rung returns the same pixels as the
+ * one below it at full price. No Sessionize photo is wider than 400px and they
+ * render at 200–400 CSS px, which makes all three default rungs collapse onto
+ * the same output: 6 transforms per photo (two formats) where 4 will do.
+ *
+ * 240 is a genuine downscale for the card grids at DPR 1; 480 covers DPR 2 and
+ * clamps to the source width for anything narrower.
+ */
+export const AVATAR_CDN_WIDTHS = [240, 480] as const
+
+/**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
  * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
@@ -102,7 +115,18 @@ export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',
   uploadSource: '/uploads/img/original',
-  uploadOptimized: '/img/optimized/uploads'
+  uploadOptimized: '/img/optimized/uploads',
+  /**
+   * Speaker photos downloaded from Sessionize by `scripts/sync-sessionize.ts`.
+   * They sit outside `/img`, so every prefix check has to name them explicitly
+   * — the omission is why they were the one image family still shipping raw.
+   *
+   * Variants land under `publicOptimized` like every other source, which is
+   * what makes them inherit the `/img/optimized` gitignore entry, the CI
+   * encode cache, and the `/img/*` cache header without further wiring.
+   */
+  sessionizeSource: '/sessionize-speakers/img',
+  sessionizeOptimized: '/img/optimized/sessionize-speakers'
 } as const
 
 /**

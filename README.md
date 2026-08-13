@@ -808,9 +808,11 @@ pnpm run optimize:images
 
 **How it works:**
 
-- Images are sourced from two locations:
+- Images are sourced from three locations:
   - `public/img/` — static assets committed to the repo
   - `public/uploads/img/original/` — images uploaded via Strapi
+  - `public/sessionize-speakers/img/` — summit speaker photos pulled by `pnpm run sync:sessionize` (output goes to `public/img/optimized/sessionize-speakers/`)
+- The 2 MB image size limit fails the build for the first two locations; for Sessionize photos it only warns, since speakers upload those to a third party and nobody here can re-cut them
 - Each image produces variants at widths ≤ its original width, avoiding upscaling
 - Outputs are cached: a variant is skipped if it already exists and is newer than the source
 - The `public/img/optimized/` directory is gitignored — variants are generated at build time

@@ -18,6 +18,7 @@ import {
 } from './imagePaths'
 
 export {
+  AVATAR_CDN_WIDTHS,
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
@@ -48,7 +49,36 @@ interface ResolvedImageSource {
    * it becomes a URL, never before.
    */
   pathname: string
+  /**
+   * Base name of this source's pre-generated variants (`{base}-{width}.webp`),
+   * resolved alongside the pathname so the prefix that matched cannot be
+   * re-derived differently later. Unused in CDN mode.
+   */
+  optimizedBase: string
 }
+
+/**
+ * Source prefix → optimized-output prefix, in match order. Must stay in step
+ * with `SOURCES` in `scripts/optimize-images.ts`: that array decides what lands
+ * in the catalogs, this one decides what is looked up in them.
+ *
+ * `publicSource` goes last because it is the broadest — `/img/optimized` and
+ * nothing else sits inside it, and that case is rejected before the scan.
+ */
+const OPTIMIZED_SOURCE_PREFIXES = [
+  {
+    source: IMAGE_URL_PATHS.uploadSource,
+    optimized: IMAGE_URL_PATHS.uploadOptimized
+  },
+  {
+    source: IMAGE_URL_PATHS.sessionizeSource,
+    optimized: IMAGE_URL_PATHS.sessionizeOptimized
+  },
+  {
+    source: IMAGE_URL_PATHS.publicSource,
+    optimized: IMAGE_URL_PATHS.publicOptimized
+  }
+] as const
 
 const generatedManifestModules = import.meta.glob(
   '../../generated/optimized-image-manifest.json',
@@ -171,9 +201,10 @@ function replaceUrlPathPrefix(
  * Resolves an image reference to the source data we are allowed to optimize,
  * or `null` when it isn't one.
  *
- * Handles relative paths (/img/..., /uploads/img/original/...) and absolute
- * Strapi URLs (http://host/uploads/...). Rejects anything the encoder cannot
- * produce variants for (SVGs, GIFs, extensionless paths — see
+ * Handles relative paths (/img/..., /uploads/img/original/...,
+ * /sessionize-speakers/img/...) and absolute Strapi URLs
+ * (http://host/uploads/...). Rejects anything the encoder cannot produce
+ * variants for (SVGs, GIFs, extensionless paths — see
  * `hasOptimizableRasterExtension`), anything outside the known source
  * directories, and the generated output tree.
  *
@@ -202,40 +233,25 @@ function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   // neither hide an extension nor invent one.
   if (!hasOptimizableRasterExtension(pathname)) return null
 
-  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)) {
-    return { pathname }
-  }
+  // The generated output tree is not a source. It lives inside `publicSource`,
+  // so it has to be rejected before the prefix scan rather than within it.
+  if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)) return null
 
-  if (
-    isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicSource) &&
-    !isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)
-  ) {
-    return { pathname }
-  }
+  const prefix = OPTIMIZED_SOURCE_PREFIXES.find((candidate) =>
+    isWithinUrlPath(pathname, candidate.source)
+  )
+  if (!prefix) return null
 
-  return null
+  const stem = pathname.slice(0, -path.extname(pathname).length)
+  return {
+    pathname,
+    optimizedBase: replaceUrlPathPrefix(stem, prefix.source, prefix.optimized)
+  }
 }
 
 /** Whether a source is eligible for optimization (used to scope the warning). */
 export function isOptimizableSource(src: string): boolean {
   return resolveOptimizableSource(src) !== null
-}
-
-/** Maps a resolved source path to the base name of its pre-generated variants. */
-function getOptimizedBase(pathname: string): string {
-  const stem = pathname.slice(0, -path.extname(pathname).length)
-
-  return isWithinUrlPath(pathname, IMAGE_URL_PATHS.uploadSource)
-    ? replaceUrlPathPrefix(
-        stem,
-        IMAGE_URL_PATHS.uploadSource,
-        IMAGE_URL_PATHS.uploadOptimized
-      )
-    : replaceUrlPathPrefix(
-        stem,
-        IMAGE_URL_PATHS.publicSource,
-        IMAGE_URL_PATHS.publicOptimized
-      )
 }
 
 /**
@@ -310,12 +326,12 @@ export function getOptimizedImage(
     return buildCdnImage(source.pathname, cdnWidths)
   }
 
-  const base = getOptimizedBase(source.pathname)
-  const variants = listSizedVariants(base, 'webp')
-  const avifVariants = listSizedVariants(base, 'avif')
+  const { optimizedBase } = source
+  const variants = listSizedVariants(optimizedBase, 'webp')
+  const avifVariants = listSizedVariants(optimizedBase, 'avif')
 
-  const fullWebP = `${base}-full.webp`
-  const fullAvif = `${base}-full.avif`
+  const fullWebP = `${optimizedBase}-full.webp`
+  const fullAvif = `${optimizedBase}-full.avif`
 
   return {
     variants,
