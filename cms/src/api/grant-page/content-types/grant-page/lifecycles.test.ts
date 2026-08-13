@@ -57,4 +57,44 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.programOverview).toBeUndefined()
     expect(parsed.data.ctaStrip.color).toBeUndefined()
   })
+
+  it('omits subtitle/ctaText/ctaLink from faqSection frontmatter when absent, rather than writing empty strings', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        faqSection: {
+          title: 'Common Questions',
+          description: 'We are happy to help.',
+          items: [
+            {
+              question: 'Who can apply?',
+              answer: 'Any accredited institution.'
+            },
+            { question: 'How much funding?', answer: 'Up to $50,000.' }
+          ]
+        },
+        ctaStrip: {
+          heading: 'Apply now',
+          description: 'Deadline approaching.',
+          primaryButtonText: 'Start application',
+          primaryButtonLink: 'https://example.com/apply',
+          color: 'purple'
+        }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.faqSection.title).toBe('Common Questions')
+    expect(parsed.data.faqSection.description).toBe('We are happy to help.')
+    expect(parsed.data.faqSection.subtitle).toBeUndefined()
+    expect(parsed.data.faqSection.ctaText).toBeUndefined()
+    expect(parsed.data.faqSection.ctaLink).toBeUndefined()
+  })
 })

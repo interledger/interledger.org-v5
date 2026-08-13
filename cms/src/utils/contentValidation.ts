@@ -118,7 +118,8 @@ function stripInlineCode(text: string): string {
  * Validate the optional faqSection component on a grant page.
  *
  * When `faqSection` is absent the section is simply not rendered — that is valid.
- * When it is present all scalar fields are required and `items` must have at least 2 entries.
+ * When it is present, `title` and `description` are required and `items` must
+ * have at least 2 entries; `subtitle`, `ctaText`, and `ctaLink` are optional.
  *
  * Returns a `ValidationError` combining every failing field, `undefined` on success.
  */
@@ -128,24 +129,13 @@ export function validateGrantPageFaqSection(
   const faq = (body as Record<string, unknown>)?.faqSection
   if (!faq || typeof faq !== 'object') return undefined
 
-  const { title, subtitle, description, ctaText, ctaLink, items } =
-    faq as Record<string, unknown>
+  const { title, description, items } = faq as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
   if (!title || typeof title !== 'string' || (title as string).trim() === '') {
     fieldErrors.push({
       message: 'FAQ Section: Title is required',
       path: ['faqSection', 'title']
-    })
-  }
-  if (
-    !subtitle ||
-    typeof subtitle !== 'string' ||
-    (subtitle as string).trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'FAQ Section: Subtitle is required',
-      path: ['faqSection', 'subtitle']
     })
   }
   if (
@@ -156,26 +146,6 @@ export function validateGrantPageFaqSection(
     fieldErrors.push({
       message: 'FAQ Section: Description is required',
       path: ['faqSection', 'description']
-    })
-  }
-  if (
-    !ctaText ||
-    typeof ctaText !== 'string' ||
-    (ctaText as string).trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'FAQ Section: Button Text is required',
-      path: ['faqSection', 'ctaText']
-    })
-  }
-  if (
-    !ctaLink ||
-    typeof ctaLink !== 'string' ||
-    (ctaLink as string).trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'FAQ Section: Button Link is required',
-      path: ['faqSection', 'ctaLink']
     })
   }
   if (!Array.isArray(items) || items.length < 2) {

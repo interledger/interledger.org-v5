@@ -1185,6 +1185,36 @@ describe('buildGrantPagePayload', () => {
         { question: 'How much funding?', answer: 'Up to $50,000.' }
       ])
     })
+
+    it('sends null for subtitle/ctaText/ctaLink when omitted, so a PUT clears any previously synced values', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'education/on-campus',
+        frontmatter: {
+          ...baseGrantFrontmatter,
+          faqSection: {
+            title: 'Common Questions',
+            description: 'We are happy to help.',
+            items: [
+              {
+                question: 'Who can apply?',
+                answer: 'Any accredited institution.'
+              },
+              { question: 'How much funding?', answer: 'Up to $50,000.' }
+            ]
+          }
+        }
+      })
+
+      const payload = await buildGrantPagePayload(
+        grantPageFrontmatterSchema,
+        mdx
+      )
+      const faqSection = (payload as Record<string, unknown>)
+        .faqSection as Record<string, unknown>
+      expect(faqSection.subtitle).toBeNull()
+      expect(faqSection.ctaText).toBeNull()
+      expect(faqSection.ctaLink).toBeNull()
+    })
   })
 
   // infoCards.cards is a 3-tuple in frontmatter but maps to fixed

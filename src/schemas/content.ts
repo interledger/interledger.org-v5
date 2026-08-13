@@ -166,10 +166,10 @@ const grantFaqItemSchema = z.object({
 
 const grantFaqSectionSchema = z.object({
   title: z.string().min(1, 'title is required'),
-  subtitle: z.string().min(1, 'subtitle is required'),
+  subtitle: z.string().optional(),
   description: z.string().min(1, 'description is required'),
-  ctaText: z.string().min(1, 'ctaText is required'),
-  ctaLink: z.string().min(1, 'ctaLink is required'),
+  ctaText: z.string().optional(),
+  ctaLink: z.string().optional(),
   items: z.array(grantFaqItemSchema).min(2)
 })
 

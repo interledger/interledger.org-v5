@@ -716,14 +716,12 @@ export interface BlocksGrantFaqSection extends Struct.ComponentSchema {
   }
   attributes: {
     ctaLink: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
     ctaText: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -750,7 +748,6 @@ export interface BlocksGrantFaqSection extends Struct.ComponentSchema {
         number
       >
     subtitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

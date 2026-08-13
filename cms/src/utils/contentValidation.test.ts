@@ -589,7 +589,7 @@ describe('validateGrantPageFaqSection', () => {
       faqSection: {
         title: '',
         subtitle: '',
-        description: 'd',
+        description: '',
         ctaText: 'c',
         ctaLink: 'l',
         items: [
@@ -600,8 +600,22 @@ describe('validateGrantPageFaqSection', () => {
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
       ['faqSection', 'title'],
-      ['faqSection', 'subtitle']
+      ['faqSection', 'description']
     ])
+  })
+
+  it('returns undefined when subtitle, ctaText, and ctaLink are absent', () => {
+    const err = validateGrantPageFaqSection({
+      faqSection: {
+        title: 't',
+        description: 'd',
+        items: [
+          { question: 'q1', answer: 'a1' },
+          { question: 'q2', answer: 'a2' }
+        ]
+      }
+    })
+    expect(err).toBeUndefined()
   })
 })
 

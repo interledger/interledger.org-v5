@@ -137,10 +137,10 @@ export function generateGrantPageMDX(
       ? {
           faqSection: {
             title: faqSection.title ?? '',
-            subtitle: faqSection.subtitle ?? '',
             description: faqSection.description ?? '',
-            ctaText: faqSection.ctaText ?? '',
-            ctaLink: faqSection.ctaLink ?? '',
+            ...(faqSection.subtitle ? { subtitle: faqSection.subtitle } : {}),
+            ...(faqSection.ctaText ? { ctaText: faqSection.ctaText } : {}),
+            ...(faqSection.ctaLink ? { ctaLink: faqSection.ctaLink } : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
               answer: i.answer ?? ''
