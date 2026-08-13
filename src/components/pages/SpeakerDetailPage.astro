@@ -46,7 +46,8 @@ const bio = translation?.bio ?? entry.bio
           height={400}
           sizes="400px"
           widths={AVATAR_CDN_WIDTHS}
-          loading="lazy"
+          loading="eager"
+          fetchpriority="high"
         />
       </div>
     </header>

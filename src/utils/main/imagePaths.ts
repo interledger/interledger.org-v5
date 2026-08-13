@@ -25,9 +25,14 @@ export const AVATAR_CDN_WIDTHS = [240, 480] as const
 /**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
- * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
- * change to either lands in the CI cache key (this file is hashed by
- * `.github/actions/cache-optimized-images`).
+ * URL builder (`imageCdn.ts`). Defined here so the two cannot drift.
+ *
+ * Changing either value must be paired with a `PIPELINE_ID` bump in
+ * `scripts/optimize-images.ts`: the encode cache is keyed on
+ * `PIPELINE_ID:<source hash>`, so without it already-encoded sources are
+ * skipped and keep their old quality. (Build mode only —
+ * `netlify/plugins/cache-images` restores the whole variant tree and does not
+ * key on this file.)
  *
  * Higher than sharp's WebP default (80): blog/body images were looking soft
  * when the browser had to fall back to a small variant (INTORG-934).
