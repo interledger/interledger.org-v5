@@ -38,10 +38,12 @@ const RUNTIME_IMAGE_SOURCES_CATALOG_PATH = path.join(
 
 const CONCURRENCY = 4
 
-// WEBP_QUALITY and AVIF_QUALITY now live in @/utils/main/imagePaths so the
-// Netlify Image CDN URL builder encodes at the same settings as this script.
-// Bump when quality, target widths, or output naming changes so the content-hash
-// cache does not skip regeneration of already-processed sources.
+// WEBP_QUALITY and AVIF_QUALITY live in @/utils/main/imagePaths so the Netlify
+// Image CDN URL builder encodes at the same settings as this script. Both are
+// interpolated here, so a quality change invalidates the content-hash cache by
+// itself. Bump the trailing token by hand for anything they don't encode —
+// target widths or output naming — or already-processed sources are skipped and
+// keep variants built under the old rules.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
 
 interface SourceConfig {
