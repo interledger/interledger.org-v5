@@ -7,6 +7,7 @@ import {
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   validateReportDate,
+  validateReportContent,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -21,6 +22,7 @@ import {
   validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
+  normalizeRelativeLinksInDocumentData,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
@@ -873,7 +875,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
       date: 'Date',
-      content: 'Content'
+      content: 'Report Sections'
     },
     'api::podcast-page.podcast-page': {
       title: 'Page Title',
@@ -1049,6 +1051,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       external: 'External Link'
     },
+    'shared.cta-button': {
+      link: 'Link',
+      text: 'Button Text',
+      style: 'Style',
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.cta-buttons': {
+      buttons: 'Buttons'
+    },
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
@@ -1073,6 +1085,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.report-date': {
       publishDate: 'Publish Date',
       lastUpdated: 'Last Updated'
+    },
+    'blocks.report-section': {
+      heading: 'Section Heading',
+      reportText: 'Content Blocks'
+    },
+    'blocks.report-text': {
+      textType: 'Block Type',
+      textContent: 'Paragraph Content',
+      textDisclaimer: 'Disclaimer Text'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -1355,10 +1376,44 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'shared.cta-button': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      style:
+        'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.cta-buttons': {
+      buttons:
+        'One button, or two side by side. On mobile they stack and both go full width.'
+    },
+    'shared.cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+    },
+    'shared.primary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+    },
+    'navigation.menu-item': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'navigation.menu-group': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.card': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.card-link': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.grant-faq-section': {
+      ctaLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.card-grid': {
       ariaLabel:
@@ -1418,6 +1473,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Required. Column heading, e.g. "Apply".',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
+    },
+    'blocks.cta-strip': {
+      primaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      secondaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.quote': {
+      authorLink:
+        'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     }
   }
 
@@ -1801,6 +1866,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'external', size: 4 }]
     ],
+    'shared.cta-button': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'style', size: 4 },
+        { name: 'external', size: 4 },
+        { name: 'document', size: 4 }
+      ]
+    ],
+    'blocks.cta-buttons': [[{ name: 'buttons', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
@@ -1853,6 +1930,15 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
     ],
+    'blocks.report-section': [
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'reportText', size: 12 }]
+    ],
+    'blocks.report-text': [
+      [{ name: 'textType', size: 6 }],
+      [{ name: 'textContent', size: 12 }],
+      [{ name: 'textDisclaimer', size: 12 }]
+    ],
     'shared.secondary-cta-link': [
       [
         { name: 'text', size: 6 },
@@ -1865,7 +1951,11 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
   const componentMainFields: Record<string, string> = {
-    'blocks.agenda-item': 'time'
+    'blocks.agenda-item': 'time',
+    'blocks.report-text': 'textType',
+    // Collapsed repeatable rows show the button label rather than a generic
+    // "CTA Button", so an editor can see both buttons without expanding them.
+    'shared.cta-button': 'text'
   }
 
   const contentTypeService = plugin.service('content-types') as
@@ -1952,12 +2042,28 @@ export default {
       ctx.body = { seeded }
     })
 
+    // Nav content types already normalize their own href fields via
+    // normalizeNavigationInput below — excluded here to avoid two
+    // normalizers touching the same fields.
+    const NAV_UIDS = new Set([
+      'api::foundation-navigation.foundation-navigation',
+      'api::summit-navigation.summit-navigation',
+      'api::hackathon-navigation.hackathon-navigation'
+    ])
+
     // Validate paragraph content on save — reject nested JSX before it reaches
     // the DB. Registered as a document-service middleware (see
     // registerDocumentValidation below for why) so it covers every content
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
+        // Auto-correct relative-link slashes (add a leading slash to
+        // href-like fields that are missing one, strip one from path-segment
+        // fields that shouldn't have one) before any validation below runs.
+        if (!NAV_UIDS.has(ctx.uid)) {
+          normalizeRelativeLinksInDocumentData(ctx.params.data)
+        }
+
         // Drop inactive card-grid variant arrays before schema/business
         // validation so empty Title/Resource/Info/Navigation fields that
         // aren't the selected variant never fail the save. Sanitize can
@@ -2067,15 +2173,18 @@ export default {
       'api::podcast-page.podcast-page',
       (body) => validatePodcastPageFields(body)
     )
+    registerDocumentValidation(strapi, 'api::report.report', (body) =>
+      mergeValidationErrors(
+        validateReportDate(body),
+        validateReportContent(body),
+        validateContentBlocks(
+          Array.isArray(body.content) ? body.content : undefined
+        )
+      )
+    )
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB
-    const NAV_UIDS = new Set([
-      'api::foundation-navigation.foundation-navigation',
-      'api::summit-navigation.summit-navigation',
-      'api::hackathon-navigation.hackathon-navigation'
-    ])
-    const REPORT_UID = 'api::report.report'
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
         if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {
@@ -2084,13 +2193,6 @@ export default {
           )
           const validationErr = validateNavigationLabels(
             ctx.params.data as Parameters<typeof validateNavigationLabels>[0]
-          )
-          if (validationErr) throw validationErr
-        }
-
-        if (ctx.uid === REPORT_UID && ctx.params.data) {
-          const validationErr = validateReportDate(
-            ctx.params.data as Parameters<typeof validateReportDate>[0]
           )
           if (validationErr) throw validationErr
         }

@@ -45,8 +45,10 @@ import './numberTilesHandler'
 import './cardGridHandler'
 import './agendaHandler'
 import './faqHandler'
+import './reportSectionHandler'
 import './eventCardHandler'
 import './ctaLinkHandler'
+import './ctaButtonsHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 
@@ -182,7 +184,8 @@ export function buildContentTypes(
       buildPayload: (mdx, _strapi, existing, _dryRun) => {
         const locale = mdx.locale || 'en'
         // No resolveRelation/resolveMediaUpload: the report content zone only
-        // allows blocks.paragraph, which never resolves relations or media.
+        // allows blocks.report-section (with nested blocks.report-text),
+        // neither of which resolves relations or media.
         return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
           locale
         })

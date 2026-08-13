@@ -4,7 +4,7 @@
  */
 import LinkButton from './LinkButton.astro'
 import Icon from './Icon.astro'
-import { buildUmamiAttrs, ensureLeadingSlash, isExternalHref } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
 
 interface Props {
   heading: string
@@ -23,15 +23,22 @@ const {
 } = Astro.props
 
 const { routeLocale } = Astro.locals
-// Absolute http(s) URLs (e.g. partner PDFs) must not go through ensureLeadingSlash
-// or they become `/https://…`. Treat them as external when the flag is omitted.
-const isAbsoluteHttp = isExternalHref(buttonUrl)
-const external = buttonExternal || isAbsoluteHttp
-const href = isAbsoluteHttp ? buttonUrl : ensureLeadingSlash(buttonUrl)
 
-const overlayTargetAttrs = external
-  ? ({ target: '_blank', rel: 'noopener noreferrer' } as const)
-  : {}
+const {
+  href,
+  external,
+  icon: trailingIcon,
+  // The overlay anchor needs the download attribute as well as the target, or
+  // the card body navigates to the file while the button downloads it
+  // (Jonathan, #483).
+  targetAttrs: overlayTargetAttrs,
+  downloadAttrs: overlayDownloadAttrs
+} = resolveCtaLink({
+  url: buttonUrl,
+  external: buttonExternal,
+  document: buttonDocument
+})
+
 const overlayUmamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
@@ -39,12 +46,6 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   href,
   linkText: buttonText
 })
-
-const trailingIcon = buttonDocument
-  ? 'download'
-  : external
-    ? 'external-link'
-    : null
 ---
 
 <article
@@ -83,5 +84,6 @@ const trailingIcon = buttonDocument
     tabindex="-1"
     class="absolute inset-0 z-0"
     {...overlayTargetAttrs}
+    {...overlayDownloadAttrs}
     {...overlayUmamiAttrs}></a>
 </article>

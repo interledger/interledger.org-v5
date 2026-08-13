@@ -750,6 +750,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]
@@ -1090,6 +1091,7 @@ export interface ApiHackathonPageHackathonPage
         'blocks.cta-strip',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]
@@ -1343,12 +1345,19 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    content: Schema.Attribute.DynamicZone<['blocks.paragraph']> &
+    content: Schema.Attribute.DynamicZone<['blocks.report-section']> &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
-      }>
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1496,6 +1505,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]

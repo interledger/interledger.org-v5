@@ -164,6 +164,29 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
+        <h3 class="font-poppins mt-xl mb-md text-h4">
+          Secondary (lg, auto mode)
+        </h3>
+        <p class="mb-md text-body-sm-standard">
+          For components that can't know which surface they sit on, such as
+          dynamic-zone blocks rendered on foundation (light) as well as summit
+          and hackathon (permanently dark). Follows
+          <code>data-theme</code> on the root element, so this row renders light here
+          and picks up the dark palette on a dark page. The explicit
+          <code>light</code> and <code>dark</code> rows above stay caller-controlled.
+        </p>
+        <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
+          <Button variant="secondary" mode="auto">Default</Button>
+          <Button variant="secondary" mode="auto" disabled>Disabled</Button>
+          <Button variant="secondary" mode="auto">
+            With icon-right
+            <Icon slot="icon-right" name="arrow-right" />
+          </Button>
+          <Button variant="secondary" mode="auto" iconOnly aria-label="Next">
+            <Icon name="swap" />
+          </Button>
+        </div>
+
         <h3 class="font-poppins mt-xl mb-md text-h4">Ghost (footer)</h3>
         <p class="mb-md text-body-sm-standard">
           Mobile starts at h4/black; tablet+ scales down to body-sm-standard /
