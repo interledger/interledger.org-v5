@@ -1,0 +1,95 @@
+---
+/**
+ * CTA Buttons block — one call-to-action button, or two side by side.
+ *
+ * Composition rules (Sarah, INTORG-938, 2026-07-29) are enforced on both write
+ * paths, the MDX parser and the admin validator, so by the time a payload
+ * reaches here it is already known good. This component renders what it is
+ * given rather than re-deriving the rules.
+ *
+ * Layout: stacked and full width below `tablet`, inline above it.
+ *
+ * Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so the
+ * gap above is tight, 24px up to `desktop` and 32px from there. The block that
+ * follows is independent and takes the standard 120px.
+ *
+ * The block sits in the prose flow, where a paragraph carries a 32px bottom
+ * margin. Adjacent margins collapse to the larger of the pair, so that 32px
+ * would win over the 24px above and the tablet and mobile gap would read
+ * 32px. Desktop would look right either way, because 32px is also the value it
+ * wants. `prose/default.css` zeroes that paragraph by matching the
+ * `data-component` attribute below, so treat the attribute as load-bearing,
+ * not only a test hook.
+ */
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
+
+interface CtaButtonProp {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+  document?: boolean
+}
+
+interface Props {
+  buttons?: CtaButtonProp[]
+}
+
+const { buttons = [] } = Astro.props
+const { routeLocale } = Astro.locals
+
+// Strapi drafts can be saved mid-edit, so a button may arrive without its text
+// or link. Skip those rather than rendering an empty or dead button.
+const resolved = buttons
+  .filter((button) => button?.text?.trim() && button?.link?.trim())
+  .map((button) => ({
+    text: button.text.trim(),
+    variant:
+      button.style === 'secondary'
+        ? ('secondary' as const)
+        : ('primary' as const),
+    ...resolveCtaLink({
+      url: button.link.trim(),
+      external: button.external,
+      document: button.document,
+      // An internal link gets an arrow whether it's primary or secondary
+      // (Sarah + Radu, INTORG-938, 2026-08-10). That rule is scoped to custom
+      // components like this one; CTAs on template pages and the home page
+      // keep whatever their own Figma spec says, so this must not be pushed
+      // out into the shared default.
+      internalIcon: 'arrow-right'
+    })
+  }))
+---
+
+{
+  resolved.length > 0 && (
+    <div
+      data-component="CtaButtons"
+      class="mt-xl mb-6xl desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
+    >
+      {resolved.map((button) => (
+        <LinkButton
+          href={button.href}
+          variant={button.variant}
+          mode="auto"
+          external={button.external}
+          document={button.document}
+          class="w-full tablet:w-auto"
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: routeLocale,
+            section: 'cta',
+            href: button.href,
+            linkText: button.text
+          })}
+        >
+          {button.text}
+          {button.icon && <Icon name={button.icon} slot="icon-right" />}
+        </LinkButton>
+      ))}
+    </div>
+  )
+}

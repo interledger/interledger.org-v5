@@ -1050,6 +1050,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       external: 'External Link'
     },
+    'shared.cta-button': {
+      link: 'Link',
+      text: 'Button Text',
+      style: 'Style',
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.cta-buttons': {
+      buttons: 'Buttons'
+    },
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
@@ -1360,6 +1370,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'shared.cta-button': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      style:
+        'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.cta-buttons': {
+      buttons:
+        'One button, or two side by side. On mobile they stack and both go full width.'
     },
     'shared.cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
@@ -1834,6 +1856,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'external', size: 4 }]
     ],
+    'shared.cta-button': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'style', size: 4 },
+        { name: 'external', size: 4 },
+        { name: 'document', size: 4 }
+      ]
+    ],
+    'blocks.cta-buttons': [[{ name: 'buttons', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
@@ -1898,7 +1932,10 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
   const componentMainFields: Record<string, string> = {
-    'blocks.agenda-item': 'time'
+    'blocks.agenda-item': 'time',
+    // Collapsed repeatable rows show the button label rather than a generic
+    // "CTA Button", so an editor can see both buttons without expanding them.
+    'shared.cta-button': 'text'
   }
 
   const contentTypeService = plugin.service('content-types') as

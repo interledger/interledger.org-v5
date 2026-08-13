@@ -94,6 +94,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.faq': {
     populate: { items: true }
   },
+  'blocks.cta-buttons': {
+    populate: { buttons: true }
+  },
   'blocks.event-card': {
     populate: {
       when: true,
@@ -165,6 +168,9 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.faq': {
       populate: { items: true }
+    },
+    'blocks.cta-buttons': {
+      populate: { buttons: true }
     },
     'blocks.event-card': {
       populate: {

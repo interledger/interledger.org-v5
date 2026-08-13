@@ -457,3 +457,39 @@ No. We are not a cryptocurrency, we do not have a token, and our technology does
 </FaqItem>
 
 </Faq>
+
+## CTA Buttons
+
+A single primary button, which carries an arrow by default.
+
+<CtaButtons
+  buttons={[{ text: 'Explore our grants', link: '/grant', style: 'primary' }]}
+/>
+
+A primary and a secondary side by side. On mobile they stack and both go full width.
+
+<CtaButtons
+  buttons={[
+    { text: 'Apply now', link: '/grant', style: 'primary' },
+    { text: 'Read the FAQ', link: '/grant/faq', style: 'secondary' }
+  ]}
+/>
+
+Two secondaries, one of them a document download and one external.
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Application guide (PDF)',
+      link: '/documents/2025-application-guide.pdf',
+      style: 'secondary',
+      document: true
+    },
+    {
+      text: 'Visit interledger.org',
+      link: 'https://interledger.org',
+      style: 'secondary',
+      external: true
+    }
+  ]}
+/>

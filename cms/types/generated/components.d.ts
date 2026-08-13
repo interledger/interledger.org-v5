@@ -412,6 +412,31 @@ export interface BlocksCodeBlock extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksCtaButtons extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cta_buttons'
+  info: {
+    description: 'One call-to-action button, or two side by side. On mobile they stack and go full width.'
+    displayName: 'CTA Buttons'
+    icon: 'cursor'
+  }
+  attributes: {
+    buttons: Schema.Attribute.Component<'shared.cta-button', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 2
+          min: 1
+        },
+        number
+      >
+  }
+}
+
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
@@ -1456,6 +1481,52 @@ export interface SharedCategory extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedCtaButton extends Struct.ComponentSchema {
+  collectionName: 'components_shared_cta_buttons'
+  info: {
+    description: 'One call-to-action button. Used inside the CTA Buttons block.'
+    displayName: 'CTA Button'
+  }
+  attributes: {
+    document: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    external: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    link: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    style: Schema.Attribute.Enumeration<['primary', 'secondary']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'primary'>
+    text: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface SharedCtaLink extends Struct.ComponentSchema {
   collectionName: 'components_shared_cta_links'
   info: {
@@ -1704,6 +1775,7 @@ declare module '@strapi/strapi' {
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-logo': BlocksCarouselLogo
       'blocks.code-block': BlocksCodeBlock
+      'blocks.cta-buttons': BlocksCtaButtons
       'blocks.cta-strip': BlocksCtaStrip
       'blocks.event-card': BlocksEventCard
       'blocks.event-card-apply': BlocksEventCardApply
@@ -1737,6 +1809,7 @@ declare module '@strapi/strapi' {
       'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
       'shared.category': SharedCategory
+      'shared.cta-button': SharedCtaButton
       'shared.cta-link': SharedCtaLink
       'shared.hero': SharedHero
       'shared.hero-section': SharedHeroSection

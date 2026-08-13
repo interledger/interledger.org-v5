@@ -26,6 +26,18 @@ export {
   type CardGridVariant
 } from '../../src/utils/cardGrid'
 
+import type { CtaButtonStyle } from '../../src/utils/ctaButtons'
+
+export {
+  CTA_BUTTON_STYLES,
+  MIN_CTA_BUTTONS,
+  MAX_CTA_BUTTONS,
+  isCtaButtonStyle,
+  hasConflictingCtaFlags,
+  validateCtaButtonComposition,
+  type CtaButtonStyle
+} from '../../src/utils/ctaButtons'
+
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
@@ -254,6 +266,21 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   external?: boolean
 }
 
+/** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface CtaButton {
+  text: string
+  link: string
+  style: CtaButtonStyle
+  external?: boolean
+  document?: boolean
+}
+
+/** blocks.cta-buttons — one CTA button, or two side by side. */
+export interface CtaButtonsBlock extends StrapiBlockBase {
+  __component: 'blocks.cta-buttons'
+  buttons: CtaButton[]
+}
+
 /** blocks.card-grid — unified card grid with variant-specific card fields. */
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
@@ -337,3 +364,4 @@ export type ParsedBlock =
   | FaqBlock
   | EventCardBlock
   | CtaLinkBlock
+  | CtaButtonsBlock
