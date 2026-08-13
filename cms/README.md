@@ -211,7 +211,7 @@ pnpm run sync:navigation
 
 **GitHub Actions**
 
-The workflow in `.github/workflows/merge.yml` automatically syncs MDX files to Strapi when changes are pushed to the `staging` branch.
+The workflow in `.github/workflows/scheduled-content-sync.yml` rebuilds Strapi (if `/cms` changed) and then syncs MDX files to Strapi once a day for both `staging` and `playground` — not on every push. See the root [README.md](../README.md#content-sync-schedule) for why it's batched daily instead of per-commit, and how to trigger an on-demand run via `workflow_dispatch`.
 
 **Required GitHub Secrets**
 
