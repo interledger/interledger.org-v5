@@ -1370,7 +1370,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.secondary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.cta-button': {
@@ -1378,7 +1378,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'blocks.cta-buttons': {
@@ -1388,13 +1388,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.primary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'navigation.menu-item': {
