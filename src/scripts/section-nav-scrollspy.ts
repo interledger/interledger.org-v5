@@ -28,11 +28,11 @@ export function initSectionNavScrollspy({
     if (sections.length === 0) return
 
     const intersecting = new Set<Element>()
+    let activeId = links[0]?.dataset.target
 
     const setActive = () => {
-      const activeId =
-        sections.find((section) => intersecting.has(section))?.id ??
-        links[0]?.dataset.target
+      activeId =
+        sections.find((section) => intersecting.has(section))?.id ?? activeId
 
       for (const link of links) {
         const isActive = link.dataset.target === activeId

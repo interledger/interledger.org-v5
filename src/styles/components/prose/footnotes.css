@@ -54,7 +54,7 @@
          this, `main`'s global `ol { font-size: var(--text-h5) }` rule
          (default.css) sets this element's own font-size directly, and the
          `inherit` on `li`/`li p` below picks up that value instead of the
-         container's --text-body-sm-standard. */
+         container's --text-body-lg-standard. */
       font-size: inherit;
       line-height: inherit;
       font-weight: inherit;

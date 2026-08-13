@@ -28,17 +28,17 @@ import Icon from '@/components/shared/Icon.astro'
   // Mobile: each section becomes its own accordion (first open, rest
   // closed) by moving its rendered <h2>/icon into a <summary> at runtime —
   // the heading is opaque slot markup here, not a prop we can place directly.
-  // Tablet+: stays flat, untouched — the accordion is only built
-  // lazily on first mobile-width need, so a load that never resizes down
-  // never touches the DOM. Once built, resizing back up just forces it
-  // open/inert; the `toggle` guard reasserts `open` if a keyboard user
-  // still collapses it.
+  // Tablet+: flat, no <details>/<summary> at all — <summary> keeps native
+  // disclosure semantics and keyboard focus no matter what ARIA/CSS is
+  // applied to it, so it's torn back down instead of just forced open.
   // 810px matches the `tablet:` breakpoint
   document
     .querySelectorAll<HTMLElement>('[data-component="report-section"]')
     .forEach((section, index) => {
       const tabletQuery = window.matchMedia('(min-width: 810px)')
       let details: HTMLDetailsElement | null = null
+      let summary: HTMLElement | null = null
+      let body: HTMLElement | null = null
 
       const buildDisclosure = () => {
         const heading = section.querySelector('h2')
@@ -47,44 +47,57 @@ import Icon from '@/components/shared/Icon.astro'
         const newDetails = document.createElement('details')
         newDetails.className = 'group/section flex flex-col'
 
-        const summary = document.createElement('summary')
-        summary.className = `flex list-none items-center justify-between gap-lg
+        const newSummary = document.createElement('summary')
+        newSummary.className = `flex list-none items-center justify-between gap-lg
         px-lg py-md bg-neutral-25
-        rounded-lg border-b border-transparent 
-        cursor-pointer [&::-webkit-details-marker]:hidden 
-        group-open/section:[&_h2]:text-primary group-open/section:mb-2xl 
-        [&_h2]:transition-all [&_h2]:duration-200 transition-all duration-200 
-        group-open/section:rounded-b-none group-open/section:border-primary 
-        tablet:cursor-default tablet:pointer-events-none tablet:bg-transparent 
-        tablet:border-none tablet:px-0 group-open/section:tablet:mb-xl
-        tablet:group-open/section:[&_h2]:text-neutral-900`
+        rounded-lg border-b border-transparent
+        cursor-pointer [&::-webkit-details-marker]:hidden
+        group-open/section:[&_h2]:text-primary group-open/section:mb-2xl
+        [&_h2]:transition-all [&_h2]:duration-200 transition-all duration-200
+        group-open/section:rounded-b-none group-open/section:border-primary`
 
-        const body = document.createElement('div')
-        body.className = 'flex flex-col gap-xl'
+        const newBody = document.createElement('div')
+        newBody.className = 'flex flex-col gap-xl'
 
-        summary.append(heading)
+        newSummary.append(heading)
         const icon = section.querySelector('[data-report-section-icon]')
         if (icon) {
           icon.classList.remove('hidden')
-          summary.append(icon)
+          newSummary.append(icon)
         }
-        while (section.firstChild) body.append(section.firstChild)
+        while (section.firstChild) newBody.append(section.firstChild)
 
-        newDetails.append(summary, body)
+        newDetails.append(newSummary, newBody)
         section.append(newDetails)
 
-        newDetails.addEventListener('toggle', () => {
-          if (tabletQuery.matches && !newDetails.open) {
-            newDetails.open = true
-          }
-        })
-
+        summary = newSummary
+        body = newBody
         return newDetails
+      }
+
+      // Reverses buildDisclosure: moves the icon/heading/body content back
+      // to being direct children of `section`, in their original order.
+      const teardownDisclosure = () => {
+        if (!details || !summary || !body) return
+
+        const icon = summary.querySelector('[data-report-section-icon]')
+        if (icon) {
+          icon.classList.add('hidden')
+          section.append(icon)
+        }
+        const heading = summary.querySelector('h2')
+        if (heading) section.append(heading)
+        while (body.firstChild) section.append(body.firstChild)
+
+        details.remove()
+        details = null
+        summary = null
+        body = null
       }
 
       const applyMode = (isTablet: boolean) => {
         if (isTablet) {
-          if (details) details.open = true
+          teardownDisclosure()
           return
         }
         details ??= buildDisclosure()

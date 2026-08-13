@@ -79,6 +79,49 @@ describe('ReportSection round-trip (serialize → parse)', () => {
     expect(first.textContent).toContain('{tokens}')
   })
 
+  // mdxTransformer.ts always passes sourceText, which the case above
+  // doesn't — so it misses the raw-slicing path that actually ships.
+  it('preserves brace-escaped content through a round-trip in production context (sourceText provided)', async () => {
+    const original = {
+      heading: 'Overview',
+      reportText: [
+        { textType: 'Paragraph', textContent: 'Use {tokens} wisely.' }
+      ]
+    }
+    const mdx = serialize(original)
+
+    const blocks = await parseMdxToBlocks(mdx, { ...enCtx, sourceText: mdx })
+    if (!Array.isArray(blocks)) throw blocks
+
+    const [first] = (
+      blocks[0] as { reportText: Array<{ textContent: string }> }
+    ).reportText
+
+    expect(first.textContent).toBe('Use {tokens} wisely.')
+  })
+
+  // Without unescaping, each cycle adds another backslash until the MDX
+  // becomes unparseable.
+  it('keeps brace-escaped content stable across repeated export/import cycles', async () => {
+    let current: { textType: 'Paragraph'; textContent: string } = {
+      textType: 'Paragraph',
+      textContent: 'Use {tokens} wisely.'
+    }
+
+    for (let cycle = 0; cycle < 3; cycle++) {
+      const mdx = serialize({ heading: 'Overview', reportText: [current] })
+      const blocks = await parseMdxToBlocks(mdx, { ...enCtx, sourceText: mdx })
+      if (!Array.isArray(blocks)) throw blocks
+
+      const [first] = (
+        blocks[0] as { reportText: Array<{ textContent: string }> }
+      ).reportText
+      current = { textType: 'Paragraph', textContent: first.textContent }
+    }
+
+    expect(current.textContent).toBe('Use {tokens} wisely.')
+  })
+
   it('round-trips a heading with quotes, ampersands and angle brackets', async () => {
     const original = {
       heading: 'Q&A "Overview" <2026>',

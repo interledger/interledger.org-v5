@@ -44,7 +44,8 @@
       "customField": "plugin::ckeditor5.CKEditor",
       "options": {
         "preset": "basicMarkdownPreset"
-      }
+      },
+      "required": true
     }
   },
   "config": {}

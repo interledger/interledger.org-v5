@@ -81,10 +81,10 @@ const Layout = getSectionPageLayout(entry.data.section)
       </h1>
       {
         date && (
-          <div class="hidden items-center gap-sm mb-3xl desktop:flex">
+          <div class="flex items-center gap-sm mb-xl tablet:mb-3xl">
             <time
               datetime={date.publishDate.toISOString()}
-              class="text-body-lg-standard-md text-neutral-900"
+              class="text-body-lg-standard text-neutral-900 tablet:text-body-lg-standard-md"
             >
               {t('report.published', {
                 date: formatDate(date.publishDate, contentLocale)
@@ -95,7 +95,7 @@ const Layout = getSectionPageLayout(entry.data.section)
                 <span class="h-6.5 w-px bg-neutral-75" />
                 <time
                   datetime={date.lastUpdated.toISOString()}
-                  class="text-body-lg-standard-md text-neutral-75"
+                  class="text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
                 >
                   {t('report.updated', {
                     date: formatDate(date.lastUpdated, contentLocale)

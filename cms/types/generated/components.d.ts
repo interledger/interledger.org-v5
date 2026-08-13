@@ -1179,6 +1179,7 @@ export interface BlocksReportText extends Struct.ComponentSchema {
         }
       >
     textDisclaimer: Schema.Attribute.RichText &
+      Schema.Attribute.Required &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
