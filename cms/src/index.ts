@@ -1043,12 +1043,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       link: 'Link',
       text: 'Button Text',
       style: 'Style',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
     },
     'shared.primary-cta-link': {
       link: 'Link',
       text: 'Button Text',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
     },
     'shared.cta-button': {
       link: 'Link',
@@ -1384,10 +1386,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'One button, or two side by side. On mobile they stack and both go full width.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'navigation.menu-item': {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'

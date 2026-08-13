@@ -264,6 +264,7 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   link: string
   style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
 }
 
 /** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */

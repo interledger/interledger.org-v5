@@ -395,6 +395,29 @@ describe('validateGrantPagePrimaryCta', () => {
     expect(err?.details.errors[0].path).toEqual(['primaryCta', 'link'])
   })
 
+  it('accepts document on its own', () => {
+    expect(
+      validateGrantPagePrimaryCta({
+        primaryCta: { text: 'Read the report', link: '/r.pdf', document: true }
+      })
+    ).toBeUndefined()
+  })
+
+  it('rejects external and document together', () => {
+    const err = validateGrantPagePrimaryCta({
+      primaryCta: {
+        text: 'Report',
+        link: 'https://example.com/r.pdf',
+        external: true,
+        document: true
+      }
+    })
+    expect(err?.message).toBe(
+      'Primary Call to Action: Pick either External Link or Document Download, not both'
+    )
+    expect(err?.details.errors[0].path).toEqual(['primaryCta', 'document'])
+  })
+
   it('reports both text and link as separate entries when both are missing, not just the first', () => {
     const err = validateGrantPagePrimaryCta({
       primaryCta: { text: '', link: '' }

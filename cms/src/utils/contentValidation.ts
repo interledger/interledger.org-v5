@@ -14,6 +14,7 @@ import {
   getAllowedCardGridVariants,
   isCardGridVariantAllowed
 } from './cardGrid'
+import { hasConflictingCtaFlags } from './ctaButtons'
 
 export interface FieldError {
   path: Array<string | number>
@@ -288,7 +289,7 @@ function validateCtaLinkField(
   const cta = (body as Record<string, unknown>)?.[fieldName]
   if (!cta || typeof cta !== 'object') return undefined
 
-  const { text, link } = cta as Record<string, unknown>
+  const { text, link, external, document } = cta as Record<string, unknown>
   const fieldErrors: FieldError[] = []
   if (!text || typeof text !== 'string' || text.trim() === '') {
     fieldErrors.push({
@@ -300,6 +301,17 @@ function validateCtaLinkField(
     fieldErrors.push({
       message: `${label}: Link is required`,
       path: [fieldName, 'link']
+    })
+  }
+  if (
+    hasConflictingCtaFlags({
+      external: Boolean(external),
+      document: Boolean(document)
+    })
+  ) {
+    fieldErrors.push({
+      message: `${label}: Pick either External Link or Document Download, not both`,
+      path: [fieldName, 'document']
     })
   }
   return combineFieldErrors(fieldErrors)
