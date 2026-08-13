@@ -293,7 +293,7 @@ Pull requests must pass all checks before merging.
    - Changes are automatically committed and pushed directly to the `staging` branch, where Strapi acts as a contributor.
 
 2. **Astro → Strapi**:
-   - Merges in `staging` sync `.mdx` files back into the Strapi database.
+   - `.mdx` files are synced back into the Strapi database on a daily schedule, not on every merge — see [Content Sync Schedule](#content-sync-schedule) below.
    - Scripts like `sync:mdx` handle the synchronization.
 
 ### Preview Functionality
@@ -316,14 +316,31 @@ For more information on Strapi lifecycles, synchronization scripts and preview f
 - **`staging`**:
   - Serves the live staging website (deployed via Netlify).
   - Serves the Strapi Admin interface (running on the GCP VM).
-  - Any push to `staging` that modifies files in `/cms` triggers a rebuild of the Strapi Admin panel on the GCP VM.
-  - Any push to `staging` that modifies `.md` or `.mdx` files in any content collection (`src/content/foundation-pages`, `src/content/summit-pages`, `src/content/foundation-blog-posts`, etc.) also triggers `sync:mdx`, including their localized mirrors under `src/content/<locale>/...`.
+  - Pushes to `staging` no longer trigger anything Strapi-related directly — the CMS rebuild and content sync both happen on a daily schedule instead. See [Content Sync Schedule](#content-sync-schedule) below.
+
+- **`playground`**:
+  - A second Strapi environment, used the same way `staging` is for testing changes without touching the shared staging instance.
+  - Follows the same daily rebuild/sync schedule as `staging`.
+
+### Content Sync Schedule
+
+The Strapi CMS rebuild and the content sync both run once a day — for both `staging` and `playground` — instead of on every push. `sync:all` rewrites every entry it touches via Strapi's Document Service, which gives components on that entry new internal IDs even though the parent `documentId` stays stable — in production mode, Strapi's admin panel has no way to know this happened, so an editor with a page open can hit save errors if a sync lands mid-session. Batching it to once a day (instead of once per push) makes that far less likely. (Locally, `pnpm run develop` runs Strapi in watch mode, which does detect this and doesn't have the problem.)
+
+This all lives in one workflow, `.github/workflows/scheduled-content-sync.yml`, job `rebuild-and-sync`, run separately per branch:
+
+1. Pulls the latest commit for that branch onto the VM.
+2. Rebuilds and restarts the Strapi service **only if** `/cms` changed since the last time this job ran (a manual `workflow_dispatch` run always rebuilds, so it can be used to recover from a bad prior deploy). This is the code deploy step — content types, lifecycles, plugins — not content.
+3. Runs `pnpm run sync:all` in `cms/` to sync content, navigation, and media, regardless of whether a rebuild happened.
+
+- **Schedule**: 08:00 SAST daily (`06:00 UTC` — South Africa Standard Time has no daylight saving).
+- **Manual/on-demand run**: trigger `workflow_dispatch` on `scheduled-content-sync.yml` when a change needs to land before the next scheduled run — it always rebuilds and then syncs.
+- **Failure notification**: posts to the `frontend-team` Slack channel if the rebuild or the sync fails.
 
 ### Hosting Architecture
 
 - The Astro website (production and staging) is deployed and hosted via Netlify.
-- Strapi (including the Admin panel) runs on a single Google Cloud VM.
-- The Strapi instance on the VM tracks the `staging` branch and pulls updates when `/cms` changes are merged.
+- Strapi (including the Admin panel) runs on Google Cloud VM(s), one Strapi instance per environment (`staging`, `playground`).
+- Each Strapi instance tracks its own branch and pulls updates when `/cms` changes are merged to it.
 
 ### Environments
 
