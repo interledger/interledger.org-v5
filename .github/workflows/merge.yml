@@ -3,7 +3,7 @@ name: Build and Sync
 # Conditionally rebuilds the Strapi CMS on the self-hosted runner if cms/ changed,
 # and/or syncs to Strapi when src/content changes (.md/.mdx), navigation JSON changes,
 # or static media under public/img/, public/uploads/, or public/documents/ changes.
-# When only media/content changes (no cms/ changes), pull-server-files runs a lightweight
+# When only media changes (no cms/ changes), pull-server-files runs a lightweight
 # git pull on the self-hosted runner so new files are on disk before sync-to-strapi seeds them.
 # Does NOT trigger an Astro build — Astro is built and deployed separately via Netlify.
 
@@ -29,13 +29,15 @@ jobs:
   # Inspects the current push event and the changes that were made in it, then decides which outputs to set.
   # Depending on the changes, the following flags may be set:
   # - cms_changed: true if any file under cms/ changed
-  # - content_changed: true if any file under src/content/ or public/img/, public/uploads/, public/documents/ changed
+  # - content_changed: true if any file under src/content/ (.md/.mdx) or public/img/, public/uploads/, public/documents/ changed
+  # - media_changed: true if any file under public/img/, public/uploads/, or public/documents/ changed
   # - navigation_changed: true if any file under src/config/foundation-navigation.json or src/config/summit-navigation.json changed
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
       cms_changed: ${{ steps.detect_changes.outputs.cms_changed }}
       content_changed: ${{ steps.detect_changes.outputs.content_changed }}
+      media_changed: ${{ steps.detect_changes.outputs.media_changed }}
       navigation_changed: ${{ steps.detect_changes.outputs.navigation_changed }}
 
     steps:
@@ -69,6 +71,7 @@ jobs:
               core.info('Manual trigger - will rebuild CMS and sync content and navigation')
               core.setOutput('cms_changed', 'true')
               core.setOutput('content_changed', 'true')
+              core.setOutput('media_changed', 'true')
               core.setOutput('navigation_changed', 'true')
               return
             }
@@ -143,10 +146,11 @@ jobs:
                 if (tooManyFilesFlag || filesLikelyTruncated) {
                   core.warning(
                     'GitHub compareCommitsWithBasehead response may be truncated due to too many changed files; ' +
-                      'treating CMS, content, and navigation as changed to avoid missing updates.'
+                      'treating CMS, content, media, and navigation as changed to avoid missing updates.'
                   )
                   core.setOutput('cms_changed', 'true')
                   core.setOutput('content_changed', 'true')
+                  core.setOutput('media_changed', 'true')
                   core.setOutput('navigation_changed', 'true')
                   return
                 }
@@ -159,6 +163,7 @@ jobs:
                 // On API failure, err on the side of caution and assume relevant changes occurred.
                 core.setOutput('cms_changed', 'true')
                 core.setOutput('content_changed', 'true')
+                core.setOutput('media_changed', 'true')
                 core.setOutput('navigation_changed', 'true')
                 return
               }
@@ -179,9 +184,10 @@ jobs:
 
             const cmsChanged =
               changedFiles.some((file) => file.startsWith('cms/'))
-            const contentChanged = changedFiles.some(
-              (file) => contentPattern.test(file) || mediaPattern.test(file)
-            )
+            const mediaChanged =
+              changedFiles.some((file) => mediaPattern.test(file))
+            const contentChanged =
+              mediaChanged || changedFiles.some((file) => contentPattern.test(file))
             const navigationChanged =
               changedFiles.some((file) => navigationPattern.test(file))
 
@@ -193,22 +199,30 @@ jobs:
               core.info('Content or public media changes detected')
             }
 
+            if (mediaChanged) {
+              core.info('Public media changes detected')
+            }
+
             if (navigationChanged) {
               core.info('Navigation changes detected')
             }
 
             core.setOutput('cms_changed', String(cmsChanged))
             core.setOutput('content_changed', String(contentChanged))
+            core.setOutput('media_changed', String(mediaChanged))
             core.setOutput('navigation_changed', String(navigationChanged))
 
-  # Runs a git pull on the self-hosted Strapi instance when media or content files changed but
+  # Runs a git pull on the self-hosted Strapi instance when public media files changed but
   # the CMS code itself did not. This makes new files (e.g. images under public/uploads/) available
   # on disk so that sync-to-strapi's POST /api/seed-media call can register them in Strapi.
+  # Gated on media_changed rather than content_changed: markdown/MDX-only changes are synced by
+  # sync:mdx directly from the sync-to-strapi job's own checkout and never touch the VM's disk,
+  # so pulling here for those would just be an unnecessary self-hosted runner dispatch.
   # Skipped when cms_changed is true because rebuild-strapi already does a git pull in that case.
   pull-server-files:
     needs: detect-changes
     if: |
-      needs.detect-changes.outputs.content_changed == 'true' &&
+      needs.detect-changes.outputs.media_changed == 'true' &&
       needs.detect-changes.outputs.cms_changed != 'true'
     runs-on: strapi-vm
     environment: ${{ github.ref_name == 'playground' && 'strapi-playground' || 'strapi-staging' }}
